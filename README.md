@@ -55,7 +55,7 @@ Alternatively, you can also deploy this project manually on any host that suppor
 - MySQL/MariaDB
 - Ability to enable specific PHP extensions (Ctype, cURL, DOM, Fileinfo and more...)
 
-See the full list of requirements for Laravel 11.x here: https://laravel.com/docs/11.x/deployment.
+See the full list of requirements for Laravel 11.x and how to deploy to a server here: https://laravel.com/docs/11.x/deployment.
 
 ### Install OGameX using Docker
 
@@ -72,8 +72,9 @@ See the full list of requirements for Laravel 11.x here: https://laravel.com/doc
   $ docker exec -it ogame-app /bin/bash
   ```
 
-5. Run Laravel setup commands to generate an encryption key and prepare the database:
+5. Run Laravel setup commands to download composer dependencies, generate an encryption key and prepare the database:
   ```
+  $ php composer install
   $ php artisan key:generate
   $ php artisan migrate
   ```
