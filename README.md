@@ -2,6 +2,18 @@
 
 OGameX is an open-source project aiming to recreate the OGame experience, developed originally by GameForge GmbH. This clone is built from scratch using the Laravel 11.x framework.
 
+## Table of Contents
+- [Background](#background)
+- [Goal](#goal)
+- [Current State of the Project](#current-state-of-the-project)
+  - [Upcoming Features](#upcoming-features)
+- [Contributing](#contributing)
+- [Disclaimer](#disclaimer)
+- [Installation](#installation)
+  - [Install OGameX using Docker](#install-ogamex-using-docker)
+- [Support](#support)
+- [License](#license)
+
 ## Background
 
 My journey into software development began in 2007 at the age of 14 when I discovered the source code for Ugamela, an early open-source PHP clone of OGame. I really liked running my own browser game server and dedicated myself to modifying this version and translating it to Dutch, leading to the launch of OGameX.nl. This server, active from 2007 to 2009, nurtured a small yet engaged community. This experience not only sparked my passion for software development but also laid the groundwork for my professional career. OGame has always held a special place in my heart, which is why now, 15 years later, I've decided to return to it and create this open-source clone from the ground up.
