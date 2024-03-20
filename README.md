@@ -87,5 +87,5 @@ Encountered issues? Open a ticket on GitHub.
 
 ## License
 
-OGameX is open-source software licensed under the MIT license. See the LICENSE file for more details.
+The OGameX Laravel source code is open-source software licensed under the MIT license. See the LICENSE file for more details. All rights and concepts related to OGame are owned by GameForge GmbH.
 
