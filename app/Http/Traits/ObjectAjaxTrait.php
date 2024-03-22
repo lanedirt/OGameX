@@ -95,7 +95,6 @@ trait ObjectAjaxTrait
             }
         }
 
-        // @TODO: restore
         // Max amount of buildings that can be in the queue in a given time.
         $max_build_queue_count = 4; //@TODO: refactor into global / constant?
         $build_queue_max = false;

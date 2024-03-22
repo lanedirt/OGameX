@@ -21,9 +21,6 @@ class TechtreeController extends Controller
     {
         $object_id = $request->input('object_id');
         $tab = $request->input('tab');
-
-        // @TODO: with a new account it shows 0 production for everything.
-        // Fix this bug.
         $planet = $player->planets->current();
 
         // Load object
@@ -50,6 +47,7 @@ class TechtreeController extends Controller
                 }
 
                 // Create production table array value
+                // TODO: add unittest to verify that production calculation is correctly for various buildings.
                 $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
                 for ($i = $min_level; $i < $min_level + 15; $i++) {
                     $production_amount_previous_level = 0;

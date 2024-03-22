@@ -237,6 +237,7 @@ class BuildingQueueService
      *  after a while.
      */
     public function start(PlanetService $planet, $time_start = false) {
+        // TODO: add unittest for case described above with $time_start.
         $queue_items = $this->model->where([
           ['planet_id', $planet->getPlanetId()],
           ['canceled', 0],
@@ -316,6 +317,9 @@ class BuildingQueueService
      * Cancels an active building queue record.
      */
     public function cancel(PlanetService $planet, $building_queue_id, $building_id) {
+        // TODO: add unittest for building and then canceling a build to assert
+        // that spent resources are returned correctly.
+
         // @TODO: add user owner verify checks.
         $queue_item = $this->model->where([
           ['id', $building_queue_id],

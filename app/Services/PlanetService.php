@@ -15,19 +15,17 @@ use OGame\Planet;
 class PlanetService
 {
     /**
-     * The planet object from the model.
-     *
-     * @var
-     */
-    protected $planet;
-
-    /**
      * Information about objects.
      *
      * @var \OGame\Services\ObjectService
      */
     public $objects;
-
+    /**
+     * The planet object from the model.
+     *
+     * @var
+     */
+    protected $planet;
     /**
      * The player object who owns this planet.
      *
@@ -38,7 +36,8 @@ class PlanetService
     /**
      * Planet constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         // Load object service.
         $this->objects = resolve('OGame\Services\ObjectService');
     }
@@ -46,7 +45,8 @@ class PlanetService
     /**
      * Get the player object who owns this planet.
      */
-    public function getPlayer() {
+    public function getPlayer()
+    {
         // @TODO: implement static cache for player object.
         if (!$this->player) {
             $this->player = new PlayerService();
@@ -59,7 +59,8 @@ class PlanetService
     /**
      * Load planet object by planet ID.
      */
-    public function loadByPlanetId($id) {
+    public function loadByPlanetId($id)
+    {
         // Fetch planet model
         $planet = Planet::where('id', $id)->first();
 
@@ -67,21 +68,22 @@ class PlanetService
     }
 
     /**
-     * Get planet ID.
-     *
-     * @return mixed
-     */
-    public function getPlanetId() {
-        return $this->planet->id;
-    }
-
-    /**
      * Get planet name.
      *
      * @return mixed
      */
-    public function getPlanetName() {
+    public function getPlanetName()
+    {
         return $this->planet->name;
+    }
+
+    /**
+     * Get planet coordinates as string.
+     */
+    public function getPlanetCoordinatesAsString()
+    {
+        $coordinates = $this->getPlanetCoordinates();
+        return $coordinates['galaxy'] . ':' . $coordinates['system'] . ':' . $coordinates['planet'];
     }
 
     /**
@@ -90,7 +92,8 @@ class PlanetService
      * @return array
      *  Array with coordinates (galaxy, system, planet)
      */
-    public function getPlanetCoordinates() {
+    public function getPlanetCoordinates()
+    {
         return [
             'galaxy' => $this->planet->galaxy,
             'system' => $this->planet->system,
@@ -99,179 +102,100 @@ class PlanetService
     }
 
     /**
-     * Get planet coordinates as string.
-     */
-    public function getPlanetCoordinatesAsString() {
-        $coordinates = $this->getPlanetCoordinates();
-        return $coordinates['galaxy'] . ':' . $coordinates['system'] . ':' . $coordinates['planet'];
-    }
-
-    /**
      * Get planet diameter.
      */
-    public function getPlanetDiameter() {
+    public function getPlanetDiameter()
+    {
         return $this->planet->diameter;
-    }
-
-    /**
-     * Get planet minimum temperature.
-     */
-    public function getPlanetTempMin() {
-        return $this->planet->temp_min;
-    }
-
-    /**
-     * Get planet maximum temperature.
-     */
-    public function getPlanetTempMax() {
-        return $this->planet->temp_max;
-    }
-
-    /**
-     * Get planet average temperature.
-     */
-    public function getPlanetTempAvg() {
-        return round(($this->getPlanetTempMin() + $this->getPlanetTempMax()) / 2);
     }
 
     /**
      * Get planet type (e.g. gas, ice, jungle etc.)
      */
-    public function getPlanetType() {
-      // Get system and planet.
-      $coordinates = $this->getPlanetCoordinates();
+    public function getPlanetType()
+    {
+        // Get system and planet.
+        $coordinates = $this->getPlanetCoordinates();
 
-      $map_array = [
-        1 => ['odd' => 'dry', 'even' => 'desert'],
-        2 => ['odd' => 'dry', 'even' => 'desert'],
-        3 => ['odd' => 'dry', 'even' => 'desert'],
-        4 => ['odd' => 'normal', 'even' => 'dry'],
-        5 => ['odd' => 'normal', 'even' => 'dry'],
-        6 => ['odd' => 'jungle', 'even' => 'normal'],
-        7 => ['odd' => 'jungle', 'even' => 'normal'],
-        8 => ['odd' => 'water', 'even' => 'jungle'],
-        9 => ['odd' => 'water', 'even' => 'jungle'],
-        10 => ['odd' => 'ice', 'even' => 'water'],
-        11 => ['odd' => 'ice', 'even' => 'water'],
-        12 => ['odd' => 'gas', 'even' => 'ice'],
-        13 => ['odd' => 'gas', 'even' => 'ice'],
-        14 => ['odd' => 'normal', 'even' => 'gas'],
-        15 => ['odd' => 'normal', 'even' => 'gas'],
-      ];
+        $map_array = [
+            1 => ['odd' => 'dry', 'even' => 'desert'],
+            2 => ['odd' => 'dry', 'even' => 'desert'],
+            3 => ['odd' => 'dry', 'even' => 'desert'],
+            4 => ['odd' => 'normal', 'even' => 'dry'],
+            5 => ['odd' => 'normal', 'even' => 'dry'],
+            6 => ['odd' => 'jungle', 'even' => 'normal'],
+            7 => ['odd' => 'jungle', 'even' => 'normal'],
+            8 => ['odd' => 'water', 'even' => 'jungle'],
+            9 => ['odd' => 'water', 'even' => 'jungle'],
+            10 => ['odd' => 'ice', 'even' => 'water'],
+            11 => ['odd' => 'ice', 'even' => 'water'],
+            12 => ['odd' => 'gas', 'even' => 'ice'],
+            13 => ['odd' => 'gas', 'even' => 'ice'],
+            14 => ['odd' => 'normal', 'even' => 'gas'],
+            15 => ['odd' => 'normal', 'even' => 'gas'],
+        ];
 
-      if ($coordinates['system'] % 2 == 0) {
-        $odd_even = 'even';
-      }
-      else {
-        $odd_even = 'odd';
-      }
+        if ($coordinates['system'] % 2 == 0) {
+            $odd_even = 'even';
+        } else {
+            $odd_even = 'odd';
+        }
 
-      return $map_array[$coordinates['planet']][$odd_even];
+        return $map_array[$coordinates['planet']][$odd_even];
     }
 
     /**
      * Get planet specific image type (e.g. which combination between type and variation).
      */
-    public function getPlanetImageType() {
-      // Get system and planet.
-      $coordinates = $this->getPlanetCoordinates();
-      $system = $coordinates['system'];
-      $planet = $coordinates['planet'];
+    public function getPlanetImageType()
+    {
+        // Get system and planet.
+        $coordinates = $this->getPlanetCoordinates();
+        $system = $coordinates['system'];
+        $planet = $coordinates['planet'];
 
-      // Mapping array starts at 1:1:x, for every system higher 1 gets added.
-      $map_array = [
-        1 => 3,
-        2 => 4,
-        3 => 5,
-        4 => 6,
-        5 => 7,
-        6 => 8,
-        7 => 9,
-        8 => 10,
-        9 => 1,
-        10 => 2,
-        11 => 3,
-        12 => 4,
-        13 => 5,
-        14 => 6,
-        15 => 7,
-      ];
+        // Mapping array starts at 1:1:x, for every system higher 1 gets added.
+        $map_array = [
+            1 => 3,
+            2 => 4,
+            3 => 5,
+            4 => 6,
+            5 => 7,
+            6 => 8,
+            7 => 9,
+            8 => 10,
+            9 => 1,
+            10 => 2,
+            11 => 3,
+            12 => 4,
+            13 => 5,
+            14 => 6,
+            15 => 7,
+        ];
 
-      $base_for_system_1 = $map_array[$planet];
-      $system_between_1_and_10_modifier = ($system % 10) - 1;
-      if ($system_between_1_and_10_modifier == -1) {
-        $system_between_1_and_10_modifier = 9;
-      }
-
-      return $base_for_system_1 + $system_between_1_and_10_modifier;
-    }
-
-    /**
-     * Get planet metal amount.
-     *
-     * @return mixed
-     */
-    public function getMetal($formatted = false) {
-        $metal = $this->planet->metal;
-
-        if ($formatted) {
-            $metal = number_format($metal, 0, ',', '.');
+        $base_for_system_1 = $map_array[$planet];
+        $system_between_1_and_10_modifier = ($system % 10) - 1;
+        if ($system_between_1_and_10_modifier == -1) {
+            $system_between_1_and_10_modifier = 9;
         }
 
-        return $metal;
-    }
-
-    /**
-     * Get planet metal production per hour.
-     */
-    public function getMetalProductionPerHour($formatted = false) {
-        $production = $this->planet->metal_production;
-
-        if ($formatted) {
-            $production = number_format($production, 0, ',', '.');
-        }
-
-        return $production;
+        return $base_for_system_1 + $system_between_1_and_10_modifier;
     }
 
     /**
      * Get planet metal production per second (decimal number).
      */
-    public function getMetalProductionPerSecond() {
+    public function getMetalProductionPerSecond()
+    {
         return $this->getMetalProductionPerHour() / 3600;
     }
 
     /**
-     * Get planet metal storage (max amount this planet can contain).
+     * Get planet metal production per hour.
      */
-    public function getMetalStorage($formatted = false) {
-        $storage = $this->planet->metal_max;
-
-        if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
-        }
-
-        return $storage;
-    }
-
-    /**
-     * Get planet crystal amount.
-     */
-    public function getCrystal($formatted = false) {
-        $crystal = $this->planet->crystal;
-
-        if ($formatted) {
-            $crystal = number_format($crystal, 0, ',', '.');
-        }
-
-        return $crystal;
-    }
-
-    /**
-     * Get planet crystal production per hour.
-     */
-    public function getCrystalProductionPerHour($formatted = false) {
-        $production = $this->planet->crystal_production;
+    public function getMetalProductionPerHour($formatted = false)
+    {
+        $production = $this->planet->metal_production;
 
         if ($formatted) {
             $production = number_format($production, 0, ',', '.');
@@ -283,41 +207,17 @@ class PlanetService
     /**
      * Get planet crystal production per second (decimal number).
      */
-    public function getCrystalProductionPerSecond() {
+    public function getCrystalProductionPerSecond()
+    {
         return $this->getCrystalProductionPerHour() / 3600;
     }
 
     /**
-     * Get planet crystal storage (max amount this planet can contain).
+     * Get planet crystal production per hour.
      */
-    public function getCrystalStorage($formatted = false) {
-        $storage = $this->planet->crystal_max;
-
-        if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
-        }
-
-        return $storage;
-    }
-
-    /**
-     * Get planet deuterium amount.
-     */
-    public function getDeuterium($formatted = false) {
-        $deuterium = $this->planet->deuterium;
-
-        if ($formatted) {
-            $deuterium = number_format($deuterium, 0, ',', '.');
-        }
-
-        return $deuterium;
-    }
-
-    /**
-     * Get planet deuterium production per hour.
-     */
-    public function getDeuteriumProductionPerHour($formatted = false) {
-        $production = $this->planet->deuterium_production;
+    public function getCrystalProductionPerHour($formatted = false)
+    {
+        $production = $this->planet->crystal_production;
 
         if ($formatted) {
             $production = number_format($production, 0, ',', '.');
@@ -329,27 +229,30 @@ class PlanetService
     /**
      * Get planet deuterium production per second (decimal number).
      */
-    public function getDeuteriumProductionPerSecond() {
+    public function getDeuteriumProductionPerSecond()
+    {
         return $this->getDeuteriumProductionPerHour() / 3600;
     }
 
     /**
-     * Get planet deuterium storage (max amount this planet can contain).
+     * Get planet deuterium production per hour.
      */
-    public function getDeuteriumStorage($formatted = false) {
-        $storage = $this->planet->deuterium_max;
+    public function getDeuteriumProductionPerHour($formatted = false)
+    {
+        $production = $this->planet->deuterium_production;
 
         if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
+            $production = number_format($production, 0, ',', '.');
         }
 
-        return $storage;
+        return $production;
     }
 
     /**
      * Get planet energy amount.
      */
-    public function getEnergy($formatted = false) {
+    public function getEnergy($formatted = false)
+    {
         $energy_max = $this->planet->energy_max;
         $energy_used = $this->planet->energy_used;
 
@@ -363,35 +266,34 @@ class PlanetService
     }
 
     /**
-     * Get planet energy consumption.
+     * Removes resources from planet.
      */
-    public function getEnergyConsumption($formatted = false) {
-        $energy_consumption = $this->planet->energy_used;
-
-        if ($formatted) {
-            $energy_consumption = number_format($energy_consumption, 0, ',', '.');
+    public function deductResources($resources)
+    {
+        // Sanity check that this planet has enough resources, if not throw
+        // exception.
+        if (!$this->hasResources($resources)) {
+            throw new \Exception('Planet does not have enough resources.');
         }
 
-        return $energy_consumption;
-    }
-
-    /**
-     * Get planet energy production.
-     */
-    public function getEnergyProduction($formatted = false) {
-        $energy_production = $this->planet->energy_max;
-
-        if ($formatted) {
-            $energy_production = number_format($energy_production, 0, ',', '.');
+        if (!empty($resources['metal'])) {
+            $this->planet->metal -= $resources['metal'];
+        }
+        if (!empty($resources['crystal'])) {
+            $this->planet->crystal -= $resources['crystal'];
+        }
+        if (!empty($resources['deuterium'])) {
+            $this->planet->deuterium -= $resources['deuterium'];
         }
 
-        return $energy_production;
+        $this->planet->save();
     }
 
     /**
      * Checks if this planet has equal or more than the requested resources.
      */
-    public function hasResources($resources) {
+    public function hasResources($resources)
+    {
         if (!empty($resources['metal'])) {
             if ($this->getMetal() < $resources['metal']) {
                 return false;
@@ -414,43 +316,47 @@ class PlanetService
     }
 
     /**
-     * Adds resources to a planet.
+     * Get planet metal amount.
+     *
+     * @return mixed
      */
-    public function addResources($resources) {
-        if (!empty($resources['metal'])) {
-            $this->planet->metal += $resources['metal'];
-        }
-        if (!empty($resources['crystal'])) {
-            $this->planet->crystal += $resources['crystal'];
-        }
-        if (!empty($resources['deuterium'])) {
-            $this->planet->deuterium += $resources['deuterium'];
+    public function getMetal($formatted = false)
+    {
+        $metal = $this->planet->metal;
+
+        if ($formatted) {
+            $metal = number_format($metal, 0, ',', '.');
         }
 
-        $this->planet->save();
+        return $metal;
     }
 
     /**
-     * Removes resources from planet.
+     * Get planet crystal amount.
      */
-    public function deductResources($resources) {
-        // Sanity check that this planet has enough resources, if not throw
-        // exception.
-        if (!$this->hasResources($resources)) {
-            throw new \Exception('Planet does not have enough resources.');
+    public function getCrystal($formatted = false)
+    {
+        $crystal = $this->planet->crystal;
+
+        if ($formatted) {
+            $crystal = number_format($crystal, 0, ',', '.');
         }
 
-        if (!empty($resources['metal'])) {
-            $this->planet->metal -= $resources['metal'];
-        }
-        if (!empty($resources['crystal'])) {
-            $this->planet->crystal -= $resources['crystal'];
-        }
-        if (!empty($resources['deuterium'])) {
-            $this->planet->deuterium -= $resources['deuterium'];
+        return $crystal;
+    }
+
+    /**
+     * Get planet deuterium amount.
+     */
+    public function getDeuterium($formatted = false)
+    {
+        $deuterium = $this->planet->deuterium;
+
+        if ($formatted) {
+            $deuterium = number_format($deuterium, 0, ',', '.');
         }
 
-        $this->planet->save();
+        return $deuterium;
     }
 
     /**
@@ -459,13 +365,14 @@ class PlanetService
      * @param $user_id
      *  The user_id of which to generate the planet for.
      */
-    public function create($user_id) {
+    public function create($user_id)
+    {
         $planet = new Planet;
         $planet->user_id = $user_id;
         $planet->name = 'MyPlanet';
         $planet->galaxy = 1;
-        $planet->system = rand(1,10); // @TODO: add check that the new position is random always (no collissions allowed!)
-        $planet->planet = rand(1,15); // @TODO: add check that the new position is random always (no collissions allowed!)
+        $planet->system = rand(1, 10); // @TODO: add check that the new position is random always (no collissions allowed!)
+        $planet->planet = rand(1, 15); // @TODO: add check that the new position is random always (no collissions allowed!)
         $planet->planet_type = 1; //?
         $planet->destroyed = 0;
         $planet->diameter = 300;
@@ -487,8 +394,8 @@ class PlanetService
 
         $planet->time_last_update = time();
 
-        $planet['field_max'] = rand(140,250);
-        $planet['temp_min'] = rand(0,100);
+        $planet['field_max'] = rand(140, 250);
+        $planet['temp_min'] = rand(0, 100);
         $planet['temp_max'] = $planet['temp_min'] + 40;
 
         $planet->save();
@@ -498,24 +405,10 @@ class PlanetService
     }
 
     /**
-     * Gets the level of a building on this planet.
-     */
-    public function getObjectLevel($object_id) {
-        $object = $this->objects->getObjects($object_id);
-        $object_level = $this->planet->{$object['machine_name']};
-
-        if ($object_level) {
-            return $object_level;
-        }
-        else {
-            return 0;
-        }
-    }
-
-    /**
      * Get the amount of unit objects on this planet. E.g. ships or defence.
      */
-    function getObjectAmount($object_id) {
+    function getObjectAmount($object_id)
+    {
         $object = $this->objects->getUnitObjects($object_id);
 
         return $this->planet->{$object['machine_name']};
@@ -524,7 +417,8 @@ class PlanetService
     /**
      * Gets the time of upgrading a building on this planet to the next level.
      */
-    public function getBuildingTime($object_id, $formatted = FALSE) {
+    public function getBuildingTime($object_id, $formatted = FALSE)
+    {
         $object = $this->objects->getObjects($object_id);
 
         $current_level = $this->getObjectLevel($object_id);
@@ -537,11 +431,11 @@ class PlanetService
 
         // The actual formula which return time in seconds
         $time_hours =
-          (
-            ($price['metal'] + $price['crystal'])
-            /
-            (2500 * max((4 - ($next_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * pow(2, $nanitefactory_level))
-          );
+            (
+                ($price['metal'] + $price['crystal'])
+                /
+                (2500 * max((4 - ($next_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * pow(2, $nanitefactory_level))
+            );
 
         $time_seconds = $time_hours * 3600;
 
@@ -553,107 +447,50 @@ class PlanetService
         // Possible rounding error?
         if ($formatted) {
             return $this->formatBuildingTime($time_seconds);
-        }
-        else {
+        } else {
             return $time_seconds;
         }
     }
 
     /**
-     * Gets the production value of a building on this planet.
-     *
-     * @param $building_id
-     *  The ID of the building to calculate the production for.
-     *
-     * @param $building_level
-     *  Optional parameter to calculate the production for a specific level
-     *  of a building. Defaults to the current level.
+     * Gets the level of a building on this planet.
      */
-    public function getBuildingProduction($building_id, $building_level = false) {
-        $building = $this->objects->getBuildingObjectsWithProduction($building_id);
+    public function getObjectLevel($object_id)
+    {
+        $object = $this->objects->getObjects($object_id);
+        $object_level = $this->planet->{$object['machine_name']};
 
-        $production = array();
-        $resource_production_factor = 100; // Set default to 100, only override
-        // when the building level is not set (which means current output is
-        // asked for).
-        if (!$building_level) {
-            $building_level = $this->getObjectLevel($building_id);
-            $resource_production_factor = $this->getResourceProductionFactor();
-        }
-
-        $building_percentage = $this->getBuildingPercent($building_id); // Implement building percentage.
-        $planet_temperature = $this->getPlanetTempAvg();
-        $energy_technology_level = 0; // Implement energy technology level getter.
-        $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
-
-        foreach ($building['production'] as $resource => $production_formula) {
-            $production[$resource] = eval($production_formula) * $universe_resource_multiplier;
-
-            // Apply production factor multiplier to all resources (except positive energy)
-            if ($resource == 'energy') {
-                // Do nothing
-            }
-            else {
-                $production[$resource] = $production[$resource] * ($resource_production_factor / 100);
-            }
-
-            // Round down for energy.
-            // Round up for positive resources, round down for negative resources.
-            // This makes resource production better, and energy consumption worse.
-            if ($resource == 'energy') {
-                $production[$resource] = floor($production[$resource]);
-            }
-            elseif ($production[$resource] > 0) {
-                $production[$resource] = ceil($production[$resource]);
-            }
-            else {
-                $production[$resource] = floor($production[$resource]);
-            }
-        }
-
-        return $production;
-    }
-
-    /**
-     * Returns the resource production factor percentage.
-     *
-     * This percentage indicates how efficient the resource buildings (mines)
-     * are functioning.
-     *
-     * @return int
-     *  The production factor expressed as a percentage (min 0, max 100).
-     */
-    public function getResourceProductionFactor() {
-        if ($this->getEnergyProduction() == 0 || $this->getEnergyConsumption() == 0) {
+        if ($object_level) {
+            return $object_level;
+        } else {
             return 0;
         }
-
-        $production_factor = floor($this->getEnergyProduction() / $this->getEnergyConsumption() * 100);
-
-        // Force min 0, max 100.
-        if ($production_factor > 100) {
-            $production_factor = 100;
-        }
-        elseif ($production_factor < 0) {
-            $production_factor = 0;
-        }
-
-        return $production_factor;
     }
 
     /**
-     * Gets the max storage value for resources of a building on this planet.
+     * Helper method to convert building time from seconds to human
+     * readable format.
      */
-    public function getBuildingMaxStorage($building_id) {
-        $building = $this->objects->getBuildingObjects($building_id);
+    public function formatBuildingTime($seconds)
+    {
+        $hours = floor($seconds / 3600);
+        $minutes = floor(($seconds / 60) % 60);
+        $seconds = $seconds % 60;
 
-        $building_level = $this->getObjectLevel($building_id);
-        $storage = array();
-        foreach ($building['storage'] as $resource => $storage_formula) {
-            $storage[$resource] = eval($storage_formula);
+        $formatted_string = '';
+        if ($hours > 0) {
+            $formatted_string .= $hours . 'h ';
         }
 
-        return $storage;
+        if ($minutes > 0) {
+            $formatted_string .= $minutes . 'm ';
+        }
+
+        if ($seconds > 0) {
+            $formatted_string .= $seconds . 's';
+        }
+
+        return $formatted_string;
     }
 
     /**
@@ -662,7 +499,8 @@ class PlanetService
      * @param $building_id
      * @param $percentage
      */
-    public function setBuildingPercent($building_id, $percentage) {
+    public function setBuildingPercent($building_id, $percentage)
+    {
         $building = $this->objects->getBuildingObjects($building_id);
 
         // Sanity check: building exists.
@@ -687,69 +525,198 @@ class PlanetService
     }
 
     /**
-     * Get building production percentage.
-     *
-     * @return int
-     */
-    public function getBuildingPercent($building_id) {
-        $building = $this->objects->getObjects($building_id);
-
-        // Sanity check: model property exists.
-        if (!isset($this->planet->{$building['machine_name'] . '_percent'})) {
-            return false;
-        }
-
-        return $this->planet->{$building['machine_name'] . '_percent'};
-    }
-
-    /**
-     * Helper method to convert building time from seconds to human
-     * readable format.
-     */
-    public function formatBuildingTime($seconds) {
-        $hours = floor($seconds / 3600);
-        $minutes = floor(($seconds / 60) % 60);
-        $seconds = $seconds % 60;
-
-        $formatted_string = '';
-        if ($hours > 0) {
-            $formatted_string .= $hours . 'h ';
-        }
-
-        if ($minutes > 0) {
-            $formatted_string .= $minutes . 'm ';
-        }
-
-        if ($seconds > 0) {
-            $formatted_string .= $seconds . 's';
-        }
-
-        return $formatted_string;
-    }
-
-    /**
-     * Returns basic income (resources) information for this planet.
-     */
-    public function getPlanetBasicIncome() {
-        $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
-
-        // @TODO: make these settings configurable in backend.
-        return [
-          'metal' => 30 * $universe_resource_multiplier,
-          'crystal' => 15 * $universe_resource_multiplier,
-          'deuterium' => 0,
-          'energy' => 0,
-        ];
-    }
-
-    /**
      * Update this planet's resources, buildings, shipyard, defenses and research.
      * This should happen on every users page load and every time the planet is touched.
      */
-    public function update() {
+    public function update()
+    {
         // ------
-        // 1. Update building queue
+        // 1. Update resources amount in planet based on hourly production values.
         // ------
+        $this->updateResources(false);
+
+        // ------
+        // 2. Update building queue
+        // ------
+        $this->updateBuildingQueue(false);
+
+        // ------
+        // 3. Update unit queue
+        // ------
+        $this->updateUnitQueue(false);
+
+        // ------
+        // 4. Update resource production / consumption
+        // ------
+        $this->updateResourceProductionStats(false);
+
+        // ------
+        // 5. Update resource storage
+        // ------
+        $this->updateResourceStorageStats(false);
+
+        // Save the planet manually here to prevent it from happening 5+ times in the methods above.
+        $this->planet->save();
+    }
+
+    /**
+     * Get planet metal storage (max amount this planet can contain).
+     */
+    public function getMetalStorage($formatted = false)
+    {
+        $storage = $this->planet->metal_max;
+
+        if ($formatted) {
+            $storage = number_format($storage, 0, ',', '.');
+        }
+
+        return $storage;
+    }
+
+    /**
+     * Get planet ID.
+     *
+     * @return mixed
+     */
+    public function getPlanetId()
+    {
+        return $this->planet->id;
+    }
+
+    /**
+     * Get planet crystal storage (max amount this planet can contain).
+     */
+    public function getCrystalStorage($formatted = false)
+    {
+        $storage = $this->planet->crystal_max;
+
+        if ($formatted) {
+            $storage = number_format($storage, 0, ',', '.');
+        }
+
+        return $storage;
+    }
+
+    /**
+     * Get planet deuterium storage (max amount this planet can contain).
+     */
+    public function getDeuteriumStorage($formatted = false)
+    {
+        $storage = $this->planet->deuterium_max;
+
+        if ($formatted) {
+            $storage = number_format($storage, 0, ',', '.');
+        }
+
+        return $storage;
+    }
+
+    /**
+     * Update this planet's resources according to production.
+     * This should happen on every users page load and every time the planet is touched.
+     *
+     * @param bool $save_planet
+     *   Optional flag whether to save the planet in this method. This defaults to TRUE
+     *   but can be set to FALSE when update happens in bulk and the caller method calls
+     *   the save planet itself to prevent on unnecessary multiple updates.
+     */
+    public function updateResources($save_planet = true)
+    {
+        $time_last_update = $this->planet->time_last_update;
+        $current_time = time();
+        $resources_add = [];
+
+        // TODO: add unittest to check that updating fractional resources
+        // e.g. if planet has production of 30/hour.. that when it updates
+        // every 30 seconds it still gets the 30 per hour overall instead
+        // of getting 0 because every update the added resource rounds down to 0.
+
+        if ($time_last_update < $current_time) {
+            // Last updated time is in past, so update resources based on hourly
+            // production.
+            $hours_difference = ($current_time - $time_last_update) / 3600;
+
+            // @TODO: add transactions for updating resources to prevent request collisions.
+            // Metal calculation.
+            $max_metal = $this->getMetalStorage();
+            if ($this->getMetal() < $max_metal) {
+                $resources_add['metal'] = ($this->planet->metal_production * $hours_difference);
+
+                // Prevent adding more metal than the max limit can support (storage limit).
+                if (($this->getMetal() + $resources_add['metal']) > $max_metal) {
+                    $resources_add['metal'] = $max_metal - $this->getMetal();
+                }
+            }
+
+            // Crystal calculation.
+            $max_crystal = $this->getCrystalStorage();
+            if ($this->getCrystal() < $max_crystal) {
+                $resources_add['crystal'] = ($this->planet->crystal_production * $hours_difference);
+
+                // Prevent adding more metal than the max limit can support (storage limit).
+                if (($this->getCrystal() + $resources_add['crystal']) > $max_crystal) {
+                    $resources_add['crystal'] = $max_metal - $this->getCrystal();
+                }
+            }
+
+            // Deuterium calculation.
+            $max_deuterium = $this->getDeuteriumStorage();
+            if ($this->getDeuterium() < $max_deuterium) {
+                $resources_add['deuterium'] = ($this->planet->deuterium_production * $hours_difference);
+
+                // Prevent adding more metal than the max limit can support (storage limit).
+                if (($this->getDeuterium() + $resources_add['deuterium']) > $max_deuterium) {
+                    $resources_add['deuterium'] = $max_deuterium - $this->getDeuterium();
+                }
+            }
+
+            $this->addResources($resources_add, $save_planet);
+            $this->planet->time_last_update = $current_time;
+
+            if ($save_planet) {
+                $this->planet->save();
+            }
+        }
+    }
+
+    /**
+     * Adds resources to a planet.
+     *
+     * @param $resources
+     *
+     * @param bool $save_planet
+     * Optional flag whether to save the planet in this method. This defaults to TRUE
+     * but can be set to FALSE when update happens in bulk and the caller method calls
+     * the save planet itself to prevent on unnecessary multiple updates.
+     */
+    public function addResources($resources, $save_planet = true)
+    {
+        if (!empty($resources['metal'])) {
+            $this->planet->metal += $resources['metal'];
+        }
+        if (!empty($resources['crystal'])) {
+            $this->planet->crystal += $resources['crystal'];
+        }
+        if (!empty($resources['deuterium'])) {
+            $this->planet->deuterium += $resources['deuterium'];
+        }
+
+        if ($save_planet) {
+            $this->planet->save();
+        }
+    }
+
+    /**
+     * Update this planet's buildings by checking the build queue.
+     * This should happen on every users page load and every time the planet is touched.
+     *
+     * @param bool $save_planet
+     *  Optional flag whether to save the planet in this method. This defaults to TRUE
+     *  but can be set to FALSE when update happens in bulk and the caller method calls
+     *  the save planet itself to prevent on unnecessary multiple updates.
+     */
+    public function updateBuildingQueue($save_planet = true)
+    {
         $queue = resolve('OGame\Services\BuildingQueueService');
         $build_queue = $queue->retrieveFinished($this->getPlanetId());
 
@@ -764,15 +731,26 @@ class PlanetService
 
             // Update planet and update level of the object (building) that has been processed.
             $this->planet->{$object['machine_name']} = $item->object_level_target;
-            $this->planet->save();
+            if ($save_planet) {
+                $this->planet->save();
+            }
 
             // Build the next item in queue (if there is any)
             $queue->start($this, $item->time_end);
         }
+    }
 
-        // ------
-        // 2. Update unit queue
-        // ------
+    /**
+     * Update this planet's shipyard and defenses.
+     * This should happen on every users page load and every time the planet is touched.
+     *
+     * @param bool $save_planet
+     *   Optional flag whether to save the planet in this method. This defaults to TRUE
+     *   but can be set to FALSE when update happens in bulk and the caller method calls
+     *   the save planet itself to prevent on unnecessary multiple updates.
+     */
+    public function updateUnitQueue($save_planet = true)
+    {
         $queue = resolve('OGame\Services\UnitQueueService');
         $unit_queue = $queue->retrieveBuilding($this->getPlanetId());
 
@@ -819,13 +797,24 @@ class PlanetService
 
                 // Update planet fleet amount
                 $this->planet->{$object['machine_name']} += $unit_amount;
-                $this->planet->save();
+                if ($save_planet) {
+                    $this->planet->save();
+                }
             }
         }
+    }
 
-        // ------
-        // 3. Update resource production / consumption
-        // ------
+    /**
+     * Update this planet's resource production stats.
+     * This should happen on every users page load and every time the planet is touched.
+     *
+     * @param bool $save_planet
+     *   Optional flag whether to save the planet in this method. This defaults to TRUE
+     *   but can be set to FALSE when update happens in bulk and the caller method calls
+     *   the save planet itself to prevent on unnecessary multiple updates.
+     */
+    public function updateResourceProductionStats($save_planet = true)
+    {
         $production_total = [];
         $energy_production_total = 0;
         $energy_consumption_total = 0;
@@ -834,16 +823,14 @@ class PlanetService
         foreach ($this->getPlanetBasicIncome() as $key => $value) {
             if (!empty($production_total[$key])) {
                 $production_total[$key] += $value;
-            }
-            else {
+            } else {
                 $production_total[$key] = $value;
             }
 
             if ($key == 'energy') {
                 if ($value > 0) {
                     $energy_production_total += $value;
-                }
-                elseif ($value < 0) {
+                } elseif ($value < 0) {
                     // Multiplies the negative number with "-1" so it will become
                     // a positive number, which is what the system expects.
                     $energy_consumption_total += $value * -1;
@@ -860,16 +847,14 @@ class PlanetService
             foreach ($production as $key => $value) {
                 if (!empty($production_total[$key])) {
                     $production_total[$key] += $value;
-                }
-                else {
+                } else {
                     $production_total[$key] = $value;
                 }
             }
 
             if ($production['energy'] > 0) {
                 $energy_production_total += $production['energy'];
-            }
-            elseif ($production['energy'] < 0) {
+            } elseif ($production['energy'] < 0) {
                 // Multiplies the negative number with "-1" so it will become
                 // a positive number, which is what the system expects.
                 $energy_consumption_total += $production['energy'] * -1;
@@ -882,11 +867,17 @@ class PlanetService
         $this->planet->deuterium_production = $production_total['deuterium'];
         $this->planet->energy_used = $energy_consumption_total;
         $this->planet->energy_max = $energy_production_total;
-        $this->planet->save();
+        if ($save_planet) {
+            $this->planet->save();
+        }
+    }
 
-        // ------
-        // 4. Update resource storage
-        // ------
+    /**
+     * Update this planet's resource storage stats.
+     * This should happen on every users page load and every time the planet is touched.
+     */
+    public function updateResourceStorageStats($save_planet = true)
+    {
         $storage_total = [];
         foreach ($this->objects->getBuildingObjectsWithStorage() as $building) {
             // Retrieve all buildings that have production values.
@@ -896,8 +887,7 @@ class PlanetService
             foreach ($storage as $key => $value) {
                 if (!empty($storage_total[$key])) {
                     $storage_total[$key] += $value;
-                }
-                else {
+                } else {
                     $storage_total[$key] = $value;
                 }
             }
@@ -907,58 +897,190 @@ class PlanetService
         $this->planet->metal_max = $storage_total['metal'];
         $this->planet->crystal_max = $storage_total['crystal'];
         $this->planet->deuterium_max = $storage_total['deuterium'];
-        $this->planet->save();
-
-        // ------
-        // 5. Update resources amount in planet based on hourly production values.
-        // ------
-        $time_last_update = $this->planet->time_last_update;
-        $current_time = time();
-        $resources_add = [];
-
-        if ($time_last_update < $current_time) {
-            // Last updated time is in past, so update resources based on hourly
-            // production.
-            $hours_difference = ($current_time - $time_last_update) / 3600;
-
-            // @TODO: add transactions for updating resources to prevent request collisions.
-            // Metal calculation.
-            $max_metal = $this->getMetalStorage();
-            if ($this->getMetal() < $max_metal) {
-                $resources_add['metal'] = ($this->planet->metal_production * $hours_difference);
-
-                // Prevent adding more metal than the max limit can support (storage limit).
-                if (($this->getMetal() + $resources_add['metal']) > $max_metal) {
-                    $resources_add['metal'] = $max_metal - $this->getMetal();
-                }
-            }
-
-            // Crystal calculation.
-            $max_crystal = $this->getCrystalStorage();
-            if ($this->getCrystal() < $max_crystal) {
-                $resources_add['crystal'] = ($this->planet->crystal_production * $hours_difference);
-
-                // Prevent adding more metal than the max limit can support (storage limit).
-                if (($this->getCrystal() + $resources_add['crystal']) > $max_crystal) {
-                    $resources_add['crystal'] = $max_metal - $this->getCrystal();
-                }
-            }
-
-            // Deuterium calculation.
-            $max_deuterium = $this->getDeuteriumStorage();
-            if ($this->getDeuterium() < $max_deuterium) {
-                $resources_add['deuterium'] = ($this->planet->deuterium_production * $hours_difference);
-
-                // Prevent adding more metal than the max limit can support (storage limit).
-                if (($this->getDeuterium() + $resources_add['deuterium']) > $max_deuterium) {
-                    $resources_add['deuterium'] = $max_deuterium - $this->getDeuterium();
-                }
-            }
-
-            $this->addResources($resources_add);
-
-            $this->planet->time_last_update = $current_time;
+        if ($save_planet) {
             $this->planet->save();
         }
+    }
+
+
+    /**
+     * Returns basic income (resources) information for this planet.
+     */
+    public function getPlanetBasicIncome()
+    {
+        $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
+
+        // @TODO: make these settings configurable in backend.
+        return [
+            'metal' => 30 * $universe_resource_multiplier,
+            'crystal' => 15 * $universe_resource_multiplier,
+            'deuterium' => 0,
+            'energy' => 0,
+        ];
+    }
+
+    /**
+     * Gets the production value of a building on this planet.
+     *
+     * @param $building_id
+     *  The ID of the building to calculate the production for.
+     *
+     * @param $building_level
+     *  Optional parameter to calculate the production for a specific level
+     *  of a building. Defaults to the current level.
+     */
+    public function getBuildingProduction($building_id, $building_level = false)
+    {
+        $building = $this->objects->getBuildingObjectsWithProduction($building_id);
+
+        $production = array();
+        $resource_production_factor = 100; // Set default to 100, only override
+        // when the building level is not set (which means current output is
+        // asked for).
+        if (!$building_level) {
+            $building_level = $this->getObjectLevel($building_id);
+            $resource_production_factor = $this->getResourceProductionFactor();
+        }
+
+        $building_percentage = $this->getBuildingPercent($building_id); // Implement building percentage.
+        $planet_temperature = $this->getPlanetTempAvg();
+        $energy_technology_level = 0; // Implement energy technology level getter.
+        $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
+
+        foreach ($building['production'] as $resource => $production_formula) {
+            $production[$resource] = eval($production_formula) * $universe_resource_multiplier;
+
+            // Apply production factor multiplier to all resources (except positive energy)
+            if ($resource == 'energy') {
+                // Do nothing
+            } else {
+                $production[$resource] = $production[$resource] * ($resource_production_factor / 100);
+            }
+
+            // Round down for energy.
+            // Round up for positive resources, round down for negative resources.
+            // This makes resource production better, and energy consumption worse.
+            if ($resource == 'energy') {
+                $production[$resource] = floor($production[$resource]);
+            } elseif ($production[$resource] > 0) {
+                $production[$resource] = ceil($production[$resource]);
+            } else {
+                $production[$resource] = floor($production[$resource]);
+            }
+        }
+
+        return $production;
+    }
+
+    /**
+     * Returns the resource production factor percentage.
+     *
+     * This percentage indicates how efficient the resource buildings (mines)
+     * are functioning.
+     *
+     * @return int
+     *  The production factor expressed as a percentage (min 0, max 100).
+     */
+    public function getResourceProductionFactor()
+    {
+        if ($this->getEnergyProduction() == 0 || $this->getEnergyConsumption() == 0) {
+            return 0;
+        }
+
+        $production_factor = floor($this->getEnergyProduction() / $this->getEnergyConsumption() * 100);
+
+        // Force min 0, max 100.
+        if ($production_factor > 100) {
+            $production_factor = 100;
+        } elseif ($production_factor < 0) {
+            $production_factor = 0;
+        }
+
+        return $production_factor;
+    }
+
+    /**
+     * Get planet energy production.
+     */
+    public function getEnergyProduction($formatted = false)
+    {
+        $energy_production = $this->planet->energy_max;
+
+        if ($formatted) {
+            $energy_production = number_format($energy_production, 0, ',', '.');
+        }
+
+        return $energy_production;
+    }
+
+    /**
+     * Get planet energy consumption.
+     */
+    public function getEnergyConsumption($formatted = false)
+    {
+        $energy_consumption = $this->planet->energy_used;
+
+        if ($formatted) {
+            $energy_consumption = number_format($energy_consumption, 0, ',', '.');
+        }
+
+        return $energy_consumption;
+    }
+
+    /**
+     * Get building production percentage.
+     *
+     * @return int
+     */
+    public function getBuildingPercent($building_id)
+    {
+        $building = $this->objects->getObjects($building_id);
+
+        // Sanity check: model property exists.
+        if (!isset($this->planet->{$building['machine_name'] . '_percent'})) {
+            return false;
+        }
+
+        return $this->planet->{$building['machine_name'] . '_percent'};
+    }
+
+    /**
+     * Get planet average temperature.
+     */
+    public function getPlanetTempAvg()
+    {
+        return round(($this->getPlanetTempMin() + $this->getPlanetTempMax()) / 2);
+    }
+
+    /**
+     * Get planet minimum temperature.
+     */
+    public function getPlanetTempMin()
+    {
+        return $this->planet->temp_min;
+    }
+
+    /**
+     * Get planet maximum temperature.
+     */
+    public function getPlanetTempMax()
+    {
+        return $this->planet->temp_max;
+    }
+
+    /**
+     * Gets the max storage value for resources of a building on this planet.
+     */
+    public function getBuildingMaxStorage($building_id)
+    {
+        $building = $this->objects->getBuildingObjects($building_id);
+
+        $building_level = $this->getObjectLevel($building_id);
+        $storage = array();
+        foreach ($building['storage'] as $resource => $storage_formula) {
+            $storage[$resource] = eval($storage_formula);
+        }
+
+        return $storage;
     }
 }

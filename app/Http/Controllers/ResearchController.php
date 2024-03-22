@@ -132,10 +132,6 @@ class ResearchController
     $this->queue->cancel($player, $player->planets->current(), $building_queue_id, $building_id);
 
     // @TODO: add checks if current user is owner of this build queue item.
-
-    // @TODO: refund build cost if the building is already actively building
-    // and the costs have been deducted. Possibly add deducted amount to record?
-
     if (!empty($request->input('redirect')) && $request->input('redirect') == 'overview') {
       return redirect()->route('overview.index');
     }

@@ -22,8 +22,6 @@ class OptionsController extends Controller
     return view('ingame.options.index')->with([
       'username' => $player->getUsername(),
       'current_email' => $player->getEmail(),
-      'max_rank' => 0, // @TODO
-      'user_honor_points' => 0, // @TODO
       'body_id' => 'preferences', // Set <body> tag ID attribute.
     ]);
   }

@@ -53,7 +53,6 @@ abstract class AbstractUnitsController extends Controller
     $count = 0;
 
     // Parse build queue for this planet.
-    // @TODO: change this $queue object to be dependency injected instead.
     $build_queue = $this->queue->retrieveQueue($this->planet);
     $build_queue = $this->queue->enrich($build_queue);
 
