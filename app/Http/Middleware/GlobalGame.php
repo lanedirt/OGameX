@@ -29,6 +29,11 @@ class GlobalGame
             $player->load($request->user()->id);
             app()->instance(PlayerService::class, $player);
 
+            // Check if current planet change querystring parameter exists, if so, change current planet.
+            if (!empty($request->query('cp'))) {
+             $player->setCurrentPlanetId($request->query('cp'));
+            }
+
             // Update player
             $player->update();
 
