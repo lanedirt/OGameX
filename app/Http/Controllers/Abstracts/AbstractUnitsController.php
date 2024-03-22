@@ -38,7 +38,7 @@ abstract class AbstractUnitsController extends Controller
   }
 
   /**
-   * Shows the shipyard index page
+   * Shows the shipyard/defence index page
    *
    * @param  int  $id
    * @return Response
@@ -48,7 +48,7 @@ abstract class AbstractUnitsController extends Controller
     $this->player = $player;
     $this->planet = $player->planets->current();
 
-    $objects_array = $objects->getBuildings();
+    $objects_array = $objects->getUnitObjects();
 
     $count = 0;
 

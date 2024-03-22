@@ -17,7 +17,6 @@ class PaymentController extends Controller
    */
   public function overlay(Request $request)
   {
-    //var_dump($request->getClientIps());
     return view('ingame.payment.overlay');
   }
 

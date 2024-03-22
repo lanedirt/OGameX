@@ -18,7 +18,6 @@ class PremiumController extends Controller
    */
   public function index(Request $request)
   {
-    //var_dump($request->getClientIps());
     return view('ingame.premium.index');
   }
 }

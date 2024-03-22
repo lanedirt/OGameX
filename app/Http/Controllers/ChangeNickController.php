@@ -17,7 +17,6 @@ class ChangeNickController extends Controller
    */
   public function overlay(Request $request)
   {
-    //var_dump($request->getClientIps());
     return view('ingame.changenick.overlay');
   }
 }

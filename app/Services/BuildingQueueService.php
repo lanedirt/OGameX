@@ -138,7 +138,7 @@ class BuildingQueueService
         }
 
         foreach ($queue_items as $item) {
-            $object = $this->objects->getBuildings($item->object_id);
+            $object = $this->objects->getObjects($item->object_id);
 
             $time_countdown = $item->time_end - time();
             if ($time_countdown < 0) {
@@ -201,7 +201,7 @@ class BuildingQueueService
 
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the building queue.
-        $current_level = $planet->getBuildingLevel($building_id);
+        $current_level = $planet->getObjectLevel($building_id);
 
         // Check to see how many other items of this building there are already
         // in the queue, because if so then the level needs to be higher than that.
@@ -267,7 +267,7 @@ class BuildingQueueService
             // Sanity check: check if the target level as stored in the database
             // is 1 higher than the current level. If not, then it means something
             // is wrong.
-            $current_level = $planet->getBuildingLevel($queue_item->object_id);
+            $current_level = $planet->getObjectLevel($queue_item->object_id);
             if ($queue_item->object_level_target != ($current_level + 1)) {
                 // Error, cancel build queue item.
                 $this->cancel($planet, $queue_item->id, $queue_item->object_id);

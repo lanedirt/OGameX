@@ -125,7 +125,7 @@ class UnitQueueService
         }
 
         foreach ($queue_items as $item) {
-            $object = $this->objects->getBuildings($item->object_id);
+            $object = $this->objects->getUnitObjects($item->object_id);
 
             $time_countdown = $item->time_end - time();
             if ($time_countdown < 0) {

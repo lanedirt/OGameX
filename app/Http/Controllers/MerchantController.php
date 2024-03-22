@@ -20,7 +20,6 @@ class MerchantController extends Controller
   {
     $this->body_id = 'traderOverview';
 
-    //var_dump($request->getClientIps());
     return view('ingame.merchant.index')->with([
       'body_id' => $this->body_id,
     ]);

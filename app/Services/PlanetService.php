@@ -500,19 +500,12 @@ class PlanetService
     /**
      * Gets the level of a building on this planet.
      */
-    public function getBuildingLevel($building_id) {
-        $building = $this->objects->getBuildings($building_id);
+    public function getObjectLevel($object_id) {
+        $object = $this->objects->getObjects($object_id);
+        $object_level = $this->planet->{$object['machine_name']};
 
-        // Sanity check: if building does not exist yet then return 0.
-        // @TODO: remove when all buildings have been included.
-        if (empty($building)) {
-            return 0;
-        }
-
-        $building_level = $this->planet->{$building['machine_name']};
-
-        if ($building_level) {
-            return $building_level;
+        if ($object_level) {
+            return $object_level;
         }
         else {
             return 0;
@@ -520,10 +513,10 @@ class PlanetService
     }
 
     /**
-     * Get the amount of objects (units) on this planet. E.g. ships.
+     * Get the amount of unit objects on this planet. E.g. ships or defence.
      */
     function getObjectAmount($object_id) {
-        $object = $this->objects->getBuildings($object_id);
+        $object = $this->objects->getUnitObjects($object_id);
 
         return $this->planet->{$object['machine_name']};
     }
@@ -531,18 +524,12 @@ class PlanetService
     /**
      * Gets the time of upgrading a building on this planet to the next level.
      */
-    public function getBuildingTime($building_id, $formatted = FALSE) {
-        $building = $this->objects->getBuildings($building_id);
+    public function getBuildingTime($object_id, $formatted = FALSE) {
+        $object = $this->objects->getObjects($object_id);
 
-        // Sanity check: if building does not exist yet then return empty array.
-        // @TODO: remove when all buildings have been included.
-        if (empty($building)) {
-            return [];
-        }
-
-        $current_level = $this->getBuildingLevel($building_id);
+        $current_level = $this->getObjectLevel($object_id);
         $next_level = $current_level + 1;
-        $price = $this->objects->getObjectPrice($building_id, $this);
+        $price = $this->objects->getObjectPrice($object_id, $this);
 
         $robotfactory_level = 0; // @TODO: implement robot factory.
         $nanitefactory_level = 0; // @TODO: implement nanite factory.
@@ -583,20 +570,14 @@ class PlanetService
      *  of a building. Defaults to the current level.
      */
     public function getBuildingProduction($building_id, $building_level = false) {
-        $building = $this->objects->getBuildings($building_id);
-
-        // Sanity check: if building does not exist yet then return empty array.
-        // @TODO: remove when all buildings have been included.
-        if (empty($building['production'])) {
-            return [];
-        }
+        $building = $this->objects->getBuildingObjectsWithProduction($building_id);
 
         $production = array();
         $resource_production_factor = 100; // Set default to 100, only override
         // when the building level is not set (which means current output is
         // asked for).
         if (!$building_level) {
-            $building_level = $this->getBuildingLevel($building_id);
+            $building_level = $this->getObjectLevel($building_id);
             $resource_production_factor = $this->getResourceProductionFactor();
         }
 
@@ -661,19 +642,12 @@ class PlanetService
     }
 
     /**
-     * Gets the storage value of a building on this planet.
+     * Gets the max storage value for resources of a building on this planet.
      */
-    public function getBuildingStorage($building_id) {
-        $building = $this->objects->getBuildings($building_id);
+    public function getBuildingMaxStorage($building_id) {
+        $building = $this->objects->getBuildingObjects($building_id);
 
-        // Sanity check: if building does not exist yet then return empty array.
-        // @TODO: remove when all buildings have been included.
-        if (empty($building)) {
-            return [];
-        }
-
-        // The actual formula which return time in seconds
-        $building_level = $this->getBuildingLevel($building_id);
+        $building_level = $this->getObjectLevel($building_id);
         $storage = array();
         foreach ($building['storage'] as $resource => $storage_formula) {
             $storage[$resource] = eval($storage_formula);
@@ -689,7 +663,7 @@ class PlanetService
      * @param $percentage
      */
     public function setBuildingPercent($building_id, $percentage) {
-        $building = $this->objects->getBuildings($building_id);
+        $building = $this->objects->getBuildingObjects($building_id);
 
         // Sanity check: building exists.
         if (empty($building)) {
@@ -718,7 +692,7 @@ class PlanetService
      * @return int
      */
     public function getBuildingPercent($building_id) {
-        $building = $this->objects->getBuildings($building_id);
+        $building = $this->objects->getObjects($building_id);
 
         // Sanity check: model property exists.
         if (!isset($this->planet->{$building['machine_name'] . '_percent'})) {
@@ -781,15 +755,15 @@ class PlanetService
 
         // @TODO: add DB transaction wrapper
         foreach ($build_queue as $item) {
-            // Get object information of building.
-            $building = $this->objects->getBuildings($item->object_id);
+            // Get object information of object (building).
+            $object = $this->objects->getObjects($item->object_id);
 
             // Update build queue record
             $item->processed = 1;
             $item->save();
 
-            // Update planet and update level of the building that has been processed.
-            $this->planet->{$building['machine_name']} = $item->object_level_target;
+            // Update planet and update level of the object (building) that has been processed.
+            $this->planet->{$object['machine_name']} = $item->object_level_target;
             $this->planet->save();
 
             // Build the next item in queue (if there is any)
@@ -805,7 +779,7 @@ class PlanetService
         // @TODO: add DB transaction wrapper
         foreach ($unit_queue as $item) {
             // Get object information.
-            $object = $this->objects->getBuildings($item->object_id);
+            $object = $this->objects->getUnitObjects($item->object_id);
 
             // Calculate if we can partially (or fully) complete this order
             // yet based on time per unit and amount of ordered units.
@@ -878,7 +852,7 @@ class PlanetService
         }
 
         // Get all buildings that have production values.
-        foreach ($this->objects->getBuildingsWithProduction() as $building) {
+        foreach ($this->objects->getBuildingObjectsWithProduction() as $building) {
             // Retrieve all buildings that have production values.
             $production = $this->getBuildingProduction($building['id']);
 
@@ -914,9 +888,9 @@ class PlanetService
         // 4. Update resource storage
         // ------
         $storage_total = [];
-        foreach ($this->objects->getBuildingsWithStorage() as $building) {
+        foreach ($this->objects->getBuildingObjectsWithStorage() as $building) {
             // Retrieve all buildings that have production values.
-            $storage = $this->getBuildingStorage($building['id']);
+            $storage = $this->getBuildingMaxStorage($building['id']);
 
             // Combine values to one array so we have the total storage.
             foreach ($storage as $key => $value) {

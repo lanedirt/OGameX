@@ -20,7 +20,7 @@
         </table>
     </div>    </div>
 
-<div id="{{ $building_type }}_{!! $id !!}_large" class="pic">
+<div id="{{ $object_type }}_{!! $id !!}_large" class="pic">
 
     <a href="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $id]) }}" class="techtree_link js_hideTipOnMobile tooltip overlay"
        data-overlay-title="Techtree - {!! $title !!}"
@@ -46,7 +46,7 @@
 	</span>
     <br class="clearfloat"/>
 
-    @if ($building_type == 'shipyard' || $building_type == 'defense')
+    @if ($object_type == 'ship' || $object_type == 'defence')
         <ul class="production_info narrow">
             <li>
                 Production duration            <span class="time" id="buildDuration">
@@ -93,7 +93,7 @@
 
     <div class="costs_wrap">
 
-        @if ($building_type == 'shipyard' || $building_type == 'defense')
+        @if ($object_type == 'ship' || $object_type == 'defence')
             <p class="costs_info">Costs per piece:</p>
         @else
             <p class="costs_info">Required to improve to level {!! $next_level !!}:</p>
@@ -149,7 +149,7 @@ build-it
                 @endif"
            href="javascript:void(0);">
             <span>
-            @if ($building_type == 'shipyard' || $building_type == 'defense')
+            @if ($object_type == 'ship' || $object_type == 'defence')
             Build
             @elseif (!empty($build_active['id']))
             In queue

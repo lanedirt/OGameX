@@ -44,12 +44,11 @@ class ResearchController
     $this->body_id = 'research';
     $this->view_name = 'ingame.research.index';
 
-    $objects_array = $objects->getBuildings();
+    $objects_array = $objects->getResearchObjects();
 
     $count = 0;
 
     // Parse build queue for this planet
-    // @TODO: change this $queue object to be dependency injected instead.
     $research_full_queue = $this->queue->retrieveQueue($this->planet);
     $build_active = $this->queue->enrich($this->queue->retrieveCurrentlyBuildingFromQueue($research_full_queue));
     $build_queue = $this->queue->enrich($this->queue->retrieveQueuedFromQueue($research_full_queue));

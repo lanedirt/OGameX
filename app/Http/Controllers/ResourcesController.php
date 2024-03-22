@@ -73,7 +73,7 @@ class ResourcesController extends AbstractBuildingsController
 
     // Buildings that provide resource income
     // Get all buildings that have production values.
-    foreach ($objects->getBuildingsWithProduction() as $building) {
+    foreach ($objects->getBuildingObjectsWithProduction() as $building) {
       // Retrieve all buildings that have production values.
       $production = $this->planet->getBuildingProduction($building['id']);
 
@@ -92,7 +92,7 @@ class ResourcesController extends AbstractBuildingsController
         $building_resource_rows[] = [
           'id' => $building['id'],
           'title' => $building['title'],
-          'level' => $this->planet->getBuildingLevel($building['id']),
+          'level' => $this->planet->getObjectLevel($building['id']),
           'production' => $production,
           'actual_energy_use' => floor($production['energy'] * ($this->planet->getResourceProductionFactor() / 100)),
           'percentage' => $this->planet->getBuildingPercent($building['id']),
@@ -103,7 +103,7 @@ class ResourcesController extends AbstractBuildingsController
         $building_energy_rows[] = [
           'id' => $building['id'],
           'title' => $building['title'],
-          'level' => $this->planet->getBuildingLevel($building['id']),
+          'level' => $this->planet->getObjectLevel($building['id']),
           'production' => $production,
           'percentage' => $this->planet->getBuildingPercent($building['id']),
         ];

@@ -37,7 +37,7 @@
 <div class="techtree" data-id="c28d1c5551545f27be33f22c5643c45e" data-title="Techinfo - {{ $object['title'] }}">
     <div id="techinfo">
         <div class="techwrapper">
-            <div class="leftcol building tech{{ $object_id }}">
+            <div class="leftcol {{ $object['type'] }} tech{{ $object_id }}">
                 <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="200" height="200" />
             </div>
 

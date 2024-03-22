@@ -148,19 +148,19 @@ class PlayerService
     /**
      * Gets the level of a building on this planet.
      */
-    public function getResearchLevel($building_id) {
-        $building = $this->objects->getBuildings($building_id);
+    public function getResearchLevel($object_id) {
+        $research = $this->objects->getResearchObjects($object_id);
 
         // Sanity check: if building does not exist yet then return 0.
         // @TODO: remove when all buildings have been included.
-        if (empty($building)) {
+        if (empty($research)) {
             return 0;
         }
 
-        $building_level = $this->user_tech->{$building['machine_name']};
+        $research_level = $this->user_tech->{$research['machine_name']};
 
-        if ($building_level) {
-            return $building_level;
+        if ($research_level) {
+            return $research_level;
         }
         else {
             return 0;
@@ -174,8 +174,6 @@ class PlayerService
         // ------
         // 1. Update research queue
         // ------
-        // @TODO: create research queue update logic per user instead of at a
-        // specific planet because research is global per user and not per planet.
         $queue = resolve('OGame\Services\ResearchQueueService');
         $research_queue = $queue->retrieveFinishedForUser($this);
 
@@ -184,7 +182,7 @@ class PlayerService
             $planet = $this->planets->childPlanetById($item->planet_id);
 
             // Get object information of building.
-            $building = $planet->objects->getBuildings($item->object_id);
+            $building = $planet->objects->getResearchObjects($item->object_id);
 
             // Update build queue record
             $item->processed = 1;

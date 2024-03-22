@@ -18,7 +18,6 @@ class FleetController extends Controller
    */
   public function index(Request $request)
   {
-    //var_dump($request->getClientIps());
     return view('ingame.fleet.index');
   }
 
@@ -30,7 +29,6 @@ class FleetController extends Controller
      */
     public function movement(Request $request)
     {
-        //var_dump($request->getClientIps());
         return view('ingame.fleet.movement');
     }
 }
