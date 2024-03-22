@@ -70,10 +70,7 @@ class GalaxyController extends Controller
     $planet_list = Planet::where(['galaxy' => $galaxy, 'system' => $system])->get();
     $planets = [];
     foreach ($planet_list as $record) {
-      $planet = resolve('OGame\Services\PlanetService');
-      $planet = new $planet();
-      $planet->loadByPlanetId($record->id);
-
+      $planet = app()->make(PlanetService::class, ['planet_id' => $record->id]);
       $planets[$record->planet] = $planet;
     }
 

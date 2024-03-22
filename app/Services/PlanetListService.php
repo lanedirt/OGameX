@@ -44,8 +44,7 @@ class PlanetListService
         // Get all planets of user
         $planets = Planet::where('user_id', $id)->get();
         foreach ($planets as $record) {
-            $planet = resolve('OGame\Services\PlanetService');
-            $planet->loadByPlanetId($record->id);
+            $planet = app()->make(PlanetService::class, ['planet_id' => $record->id]);
 
             $this->planets[] = $planet;
         }
@@ -54,7 +53,7 @@ class PlanetListService
         if (count($this->planets) < 2) {
             // TODO: move this logic to the user creation logic as well as the tech records.
             // As a test: give all players two random planets. (this should be just one, uncomment the below after dev)
-            $planet = resolve('OGame\Services\PlanetService');
+            $planet = app()->make(PlanetService::class);
             $planet = new $planet();
             $planet->create($id);
 

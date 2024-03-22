@@ -35,10 +35,17 @@ class PlanetService
 
     /**
      * Planet constructor.
+     *
+     * @param int planet_id
+     *  If supplied the constructor will try to load the planet from the database.
      */
-    public function __construct()
+    public function __construct($planet_id = 0)
     {
         // Load object service.
+        if ($planet_id != 0) {
+            $this->loadByPlanetId($planet_id);
+        }
+
         $this->objects = resolve('OGame\Services\ObjectService');
     }
 
@@ -47,7 +54,7 @@ class PlanetService
      */
     public function getPlayer()
     {
-        // @TODO: implement static cache for player object.
+        // @TODO: implement static cache for player objects.
         if (!$this->player) {
             $this->player = new PlayerService();
             $this->player->load($this->planet->user_id);
@@ -64,6 +71,16 @@ class PlanetService
         // Fetch planet model
         $planet = Planet::where('id', $id)->first();
 
+        $this->planet = $planet;
+    }
+
+    /**
+     * Set the planet model directly. This is primarily used by unittests in order to mock the planet model.
+     *
+     * @param $planet
+     * @return void
+     */
+    public function setPlanet($planet) {
         $this->planet = $planet;
     }
 
@@ -631,6 +648,13 @@ class PlanetService
         // every 30 seconds it still gets the 30 per hour overall instead
         // of getting 0 because every update the added resource rounds down to 0.
 
+        // TODO: another possible issue can arise when there are multiple mines
+        // in build queue and planet is refreshed at a later time so everything
+        // is processed in bulk... in this case it means that resources would update
+        // at old level and only after that the new resource level would come into effect.
+        // NOTE: this issue can be circumvented with a continious job runner which can
+        // update all planets periodically...
+
         if ($time_last_update < $current_time) {
             // Last updated time is in past, so update resources based on hourly
             // production.
@@ -838,7 +862,28 @@ class PlanetService
             }
         }
 
-        // Get all buildings that have production values.
+        // Calculate the production values twice:
+        // 1. First one time in order for the energy production to be updated.
+        // 2. Second time for the mine production to be updated according to the actual energy production.
+        $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
+        $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
+
+        if ($save_planet) {
+            $this->planet->save();
+        }
+    }
+
+    /**
+     * Update the planets resource production stats inner logic.
+     *
+     * @param $production_total
+     * @param $energy_production_total
+     * @param $energy_consumption_total
+     * @param $save_planet
+     * @return void
+     */
+    private function updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total, $save_planet = true)
+    {
         foreach ($this->objects->getBuildingObjectsWithProduction() as $building) {
             // Retrieve all buildings that have production values.
             $production = $this->getBuildingProduction($building['id']);
@@ -860,16 +905,12 @@ class PlanetService
                 $energy_consumption_total += $production['energy'] * -1;
             }
         }
-
         // Write values to planet
         $this->planet->metal_production = $production_total['metal'];
         $this->planet->crystal_production = $production_total['crystal'];
         $this->planet->deuterium_production = $production_total['deuterium'];
         $this->planet->energy_used = $energy_consumption_total;
         $this->planet->energy_max = $energy_production_total;
-        if ($save_planet) {
-            $this->planet->save();
-        }
     }
 
     /**
