@@ -64,12 +64,12 @@ class OverviewController extends Controller
     }
 
     return view('ingame.overview.index')->with([
-      'header_filename' => $this->player->planets->first()->getPlanetType(),
-      'planet_name' => $this->player->planets->first()->getPlanetName(),
-      'planet_diameter' => $this->player->planets->first()->getPlanetDiameter(),
-      'planet_temp_min' => $this->player->planets->first()->getPlanetTempMin(),
-      'planet_temp_max' => $this->player->planets->first()->getPlanetTempMax(),
-      'planet_coordinates' => $this->player->planets->first()->getPlanetCoordinatesAsString(),
+      'header_filename' => $this->player->planets->current()->getPlanetType(),
+      'planet_name' => $this->player->planets->current()->getPlanetName(),
+      'planet_diameter' => $this->player->planets->current()->getPlanetDiameter(),
+      'planet_temp_min' => $this->player->planets->current()->getPlanetTempMin(),
+      'planet_temp_max' => $this->player->planets->current()->getPlanetTempMax(),
+      'planet_coordinates' => $this->player->planets->current()->getPlanetCoordinatesAsString(),
       'user_points' => 0, // @TODO
       'user_rank' => 0, // @TODO
       'max_rank' => 0, // @TODO

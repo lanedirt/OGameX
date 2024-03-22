@@ -19,28 +19,28 @@ class PlayerService
     /**
      * The user object from the model of this player.
      *
-     * @var
+     * @var User
      */
-    protected $user;
+    protected User $user;
 
     /**
      * The user tech object from the model of this player.
      *
-     * @var
+     * @var UserTech
      */
-    protected $user_tech;
+    protected UserTech $user_tech;
 
     /**
      * The planetlist object for this player.
      *
-     * @var
+     * @var PlanetListService
      */
-    public $planets;
+    public PlanetListService $planets;
 
     /**
-     * @var \OGame\Services\ObjectService
+     * @var ObjectService
      */
-    protected $objects;
+    protected ObjectService $objects;
 
     /**
      * Player constructor.
@@ -71,7 +71,7 @@ class PlayerService
 
         // Fetch all planets of user
         $planet_list_service = resolve('OGame\Services\PlanetListService');
-        $planet_list = new $planet_list_service();
+        $planet_list = new $planet_list_service($this);
         $planet_list->load($this->getId());
         $this->planets = $planet_list;
     }
@@ -164,6 +164,24 @@ class PlayerService
         }
         else {
             return 0;
+        }
+    }
+
+    /**
+     * Get planet ID that player has currently selected / is looking at.
+     */
+    public function getCurrentPlanetId() {
+        return $this->user->planet_current;
+    }
+
+    /**
+     * Set current planet ID (update).
+     */
+    public function setCurrentPlanetId($planet_id) {
+        // Check if user owns this planet ID
+        if ($this->planets->planetExistsAndOwnedByPlayer($planet_id)) {
+            $this->user->planet_current = $planet_id;
+            $this->user->save();
         }
     }
 

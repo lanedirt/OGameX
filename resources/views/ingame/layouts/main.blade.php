@@ -617,11 +617,23 @@ Improved fleet escape rate">
                         <div id="planetList"
                         >
                             <!-- @var PlanetService $planet -->
+                            @php
+                                // Get all current query parameters
+                                $currentQueryParams = request()->query();
+                            @endphp
+
                             @foreach ($planets->all() as $planet)
-                                <div class="smallplanet " id="planet-{{ $planet->getPlanetId() }}">
-                                    <a href="{{ route('overview.index', ['cp' => $planet->getPlanetId()]) }}"
+                                @php
+                                    // Set or replace the 'cp' parameter
+                                   $currentQueryParams['cp'] = $planet->getPlanetId();
+                                   // Generate the URL to the current route with the updated query parameters
+                                   $urlToCurrentWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
+                                @endphp
+
+                                <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanetId ? 'hightlightPlanet' : '' }} " id="planet-{{ $planet->getPlanetId() }}">
+                                    <a href="{{ $urlToCurrentWithUpdatedParam }}"
                                        title="&lt;b&gt;{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinatesAsString() }}]&lt;/b&gt;&lt;br/&gt;12.800km (0/188)&lt;br&gt;47°C to 87°C&lt;br/&gt;&lt;a href=&quot;#TODO_overview&amp;cp=33734581&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_resources&amp;cp=33734581&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=research&amp;cp=33734581&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=station&amp;cp=33734581&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=shipyard&amp;cp=33734581&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=defense&amp;cp=33734581&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=fleet1&amp;cp=33734581&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=galaxy&amp;cp=33734581&amp;galaxy=4&amp;system=358&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
-                                       class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                       class="planetlink {{ $planet->getPlanetId() == $currentPlanetId ? 'active' : '' }}  tooltipRight tooltipClose js_hideTipOnMobile"
                                     >
                                         <img class="planetPic js_replace2x"
                                              alt="{{ $planet->getPlanetName() }}"

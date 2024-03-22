@@ -19,15 +19,22 @@ class PlanetListService
     /**
      * The planet object from the model.
      *
-     * @var
+     * @var array
      */
-    protected $planets = [];
+    protected array $planets = [];
+
+    /**
+     * PlayerService
+     *
+     * @var PlayerService
+     */
+    protected PlayerService $player;
 
     /**
      * Planets constructor.
      */
-    public function __construct() {
-
+    public function __construct(PlayerService $player) {
+        $this->player = $player;
     }
 
     /**
@@ -45,12 +52,13 @@ class PlanetListService
 
         // If no planets, create at least one.
         if (count($this->planets) < 2) {
-          // As a test: give all players two random planets. (this should be just one, uncomment the below after dev)
-          $planet = resolve('OGame\Services\PlanetService');
-          $planet = new $planet();
-          $planet->create($id);
+            // TODO: move this logic to the user creation logic as well as the tech records.
+            // As a test: give all players two random planets. (this should be just one, uncomment the below after dev)
+            $planet = resolve('OGame\Services\PlanetService');
+            $planet = new $planet();
+            $planet->create($id);
 
-          $this->planets[] = $planet;
+            $this->planets[] = $planet;
         }
         /*if (empty($this->planets)) {
             $planet = resolve('OGame\Services\PlanetService');
@@ -84,6 +92,22 @@ class PlanetListService
     }
 
     /**
+     * Checks whether planet with given ID exists and is owned by the current user.
+     *
+     * @param $id
+     * @return bool
+     */
+    public function planetExistsAndOwnedByPlayer($id) {
+        foreach ($this->planets as $planet) {
+            if ($planet->getPlanetId() == $id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Get first planet of player.
      */
     public function first() {
@@ -91,10 +115,21 @@ class PlanetListService
     }
 
     /**
-     * Get current planet of player.
+     * Returns current planet of player.
      */
     public function current() {
-        return $this->first(); // @TODO: change logic to real current planet.
+        // Get current planet from PlayerService object.
+        $currentPlanetId = $this->player->getCurrentPlanetId();
+
+        // Check if this planet actually exists before returning it.
+        foreach ($this->planets as $planet) {
+            if ($planet->getPlanetId() == $currentPlanetId) {
+                return $planet;
+            }
+        }
+
+        // No valid current planet set, return first planet instead.
+        return $this->first();
     }
 
     /**
