@@ -422,13 +422,32 @@ class PlanetService
     }
 
     /**
-     * Get the amount of unit objects on this planet. E.g. ships or defence.
+     * Get the amount of a specific unit object on this planet. E.g. ships or defence.
      */
     function getObjectAmount($object_id)
     {
         $object = $this->objects->getUnitObjects($object_id);
 
         return $this->planet->{$object['machine_name']};
+    }
+
+    /**
+     * Get the total amount of ship unit objects on this planet that can fly.
+     */
+    function getFlightShipAmount()
+    {
+        $totalCount = 0;
+
+        $objects = $this->objects->getShipObjects();
+        foreach ($objects as $object) {
+            if ($object['id'] == 212) {
+                // Do not count solar satellite as ship.
+                continue;
+            }
+            $totalCount += $this->planet->{$object['machine_name']};
+        }
+
+        return $totalCount;
     }
 
     /**

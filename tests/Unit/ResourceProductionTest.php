@@ -23,37 +23,55 @@ class ResourceProductionTest extends TestCase
         ->once()
         ->andReturn(false);*/
 
+    protected $planetService;
+
+    /**
+     * Set up common test components.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Initialize the planet service before each test
+        $this->planetService = app()->make(\OGame\Services\PlanetService::class);
+    }
+
+    /**
+     * Helper method to create a planet model with mine configurations and update resource stats.
+     */
+    protected function createAndConfigurePlanetModel(array $attributes, bool $updateStats = true): void
+    {
+        // Create fake planet eloquent model with additional attributes
+        $planetModelFake = Planet::factory()->make($attributes);
+        // Set the fake model to the planet service
+        $this->planetService->setPlanet($planetModelFake);
+
+        if ($updateStats) {
+            // Update resource production stats
+            $this->planetService->updateResourceProductionStats(false);
+        }
+    }
+
     /**
      * Mock test for metal mine production with positive energy production.
      */
     public function testMineProduction(): void
     {
-        // Create fake planet eloquent model
-        $planetModelFake = Planet::factory()->make();
-        $planetService = app()->make(\OGame\Services\PlanetService::class);
-        // Set the fake model to the planet service so we can test various methods..
-        // Metal
-        $planetModelFake->metal_mine_percent = 10;
-        $planetModelFake->metal_mine = 20;
-        // Crystal
-        $planetModelFake->crystal_mine_percent = 10;
-        $planetModelFake->crystal_mine = 20;
-        // Deuterium
-        $planetModelFake->deuterium_synthesizer_percent = 10;
-        $planetModelFake->deuterium_synthesizer = 20;
-        // Solar plant
-        $planetModelFake->solar_plant = 20;
-        $planetModelFake->solar_plant_percent = 10;
-        $planetService->setPlanet($planetModelFake);
+        $this->createAndConfigurePlanetModel([
+            'metal_mine_percent' => 10,
+            'metal_mine' => 20,
+            'crystal_mine_percent' => 10,
+            'crystal_mine' => 20,
+            'deuterium_synthesizer_percent' => 10,
+            'deuterium_synthesizer' => 20,
+            'solar_plant' => 20,
+            'solar_plant_percent' => 10,
+        ]);
 
-        // Update resource production stats.
-        $planetService->updateResourceProductionStats(false);
-
-        // Verify that resource production calculation equals > 1000 (base production + a lot)
-        // because there is positive power production.
-        $this->assertGreaterThan(1000, $planetService->getMetalProductionPerHour());
-        $this->assertGreaterThan(1000, $planetService->getCrystalProductionPerHour());
-        $this->assertGreaterThan(500, $planetService->getDeuteriumProductionPerHour());
+        // Assertions for production values with positive energy
+        $this->assertGreaterThan(1000, $this->planetService->getMetalProductionPerHour());
+        $this->assertGreaterThan(1000, $this->planetService->getCrystalProductionPerHour());
+        $this->assertGreaterThan(500, $this->planetService->getDeuteriumProductionPerHour());
     }
 
     /**
@@ -61,31 +79,20 @@ class ResourceProductionTest extends TestCase
      */
     public function testMineProductionNoEnergy(): void
     {
-        // Create fake planet eloquent model
-        $planetModelFake = Planet::factory()->make();
-        $planetService = app()->make(\OGame\Services\PlanetService::class);
-        // Set the fake model to the planet service so we can test various methods..
-        // Metal
-        $planetModelFake->metal_mine_percent = 10;
-        $planetModelFake->metal_mine = 20;
-        // Crystal
-        $planetModelFake->crystal_mine_percent = 10;
-        $planetModelFake->crystal_mine = 20;
-        // Deuterium
-        $planetModelFake->deuterium_synthesizer_percent = 10;
-        $planetModelFake->deuterium_synthesizer = 20;
-        // Solar plant
-        $planetModelFake->solar_plant = 0;
-        $planetModelFake->solar_plant_percent = 10;
-        $planetService->setPlanet($planetModelFake);
+        $this->createAndConfigurePlanetModel([
+            'metal_mine_percent' => 10,
+            'metal_mine' => 20,
+            'crystal_mine_percent' => 10,
+            'crystal_mine' => 20,
+            'deuterium_synthesizer_percent' => 10,
+            'deuterium_synthesizer' => 20,
+            'solar_plant' => 0,
+            'solar_plant_percent' => 10,
+        ]);
 
-        // Update resource production stats.
-        $planetService->updateResourceProductionStats(false);
-
-        // Verify that resource production calculation equals 30 (base production)
-        // because there is no power production.
-        $this->assertEquals(30, $planetService->getMetalProductionPerHour());
-        $this->assertEquals(15, $planetService->getCrystalProductionPerHour());
-        $this->assertEquals(0, $planetService->getDeuteriumProductionPerHour());
+        // Assertions for production values with zero energy
+        $this->assertEquals(30, $this->planetService->getMetalProductionPerHour());
+        $this->assertEquals(15, $this->planetService->getCrystalProductionPerHour());
+        $this->assertEquals(0, $this->planetService->getDeuteriumProductionPerHour());
     }
 }

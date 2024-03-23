@@ -355,7 +355,7 @@
                 </div>
 
                 <div id="planet" class="planet-header ">
-                    <h2>Fleet Dispatch I - MyBaseYo</h2>
+                    <h2>Fleet Dispatch I - {{ $planet->getPlanetName() }}</h2>
                     <a class="toggleHeader" data-name="fleet1">
                         <img alt="" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22">
                     </a>
@@ -432,14 +432,23 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 </div>
                 <div class="c-left"></div>
                 <div class="c-right"></div>
-                <div class="fleetStatus" id="statusBarFleet">
-                    <ul>
-                        <li><span class="title">Mission:</span> <span class="missionName">Nothing has been selected</span></li>
-                        <li><span class="title">Target:</span> <span class="targetName">[7:158:10] <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>MyBaseYo</span></li>
-                        <li><span class="title">Player’s Name:</span> <span class="targetPlayerName">President Hati</span></li>
-                    </ul>
-                </div>
-                <div id="buttonz">
+                @if ($shipAmount == 0)
+                    <div id="warning">
+                        <h3>Fleet dispatch impossible</h3>
+                        <p>
+                            <span class="icon icon_warning"></span>
+                            There are no ships on this planet.
+                        </p>
+                    </div>
+                @else
+                    <div class="fleetStatus" id="statusBarFleet">
+                        <ul>
+                            <li><span class="title">Mission:</span> <span class="missionName">Nothing has been selected</span></li>
+                            <li><span class="title">Target:</span> <span class="targetName">[7:158:10] <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>MyBaseYo</span></li>
+                            <li><span class="title">Player’s Name:</span> <span class="targetPlayerName">President Hati</span></li>
+                        </ul>
+                    </div>
+                    <div id="buttonz">
                     <div class="content">
                         <form name="shipsChosen" id="shipsChosen" method="post" action="{{ route('overview.index') }}#TODO_page=fleet2">
                             <div id="technologies">
@@ -591,42 +600,6 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             <input type="text" name="deathstar" data-ipi-highlight-step="ipiFleetselectdeathstar" disabled="">
 
                                         </li>
-
-
-
-
-                                        <li class="technology reaper interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="218" data-status="off" data-is-spaceprovider="" aria-label="Reaper" title="Reaper (0)" data-ipi-hint="ipiFleetselectreaper">
-
-    <span class="icon sprite sprite_small small reaper">
-
-
-
-                    <span class="amount" data-value="0" data-bonus="0">
-                <span>0</span> <span class="bonus"></span>
-            </span>
-            </span>
-
-                                            <input type="text" name="reaper" data-ipi-highlight-step="ipiFleetselectreaper" disabled="">
-
-                                        </li>
-
-
-
-
-                                        <li class="technology explorer interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="219" data-status="off" data-is-spaceprovider="" aria-label="Pathfinder" title="Pathfinder (0)" data-ipi-hint="ipiFleetselectexplorer">
-
-    <span class="icon sprite sprite_small small explorer">
-
-
-
-                    <span class="amount" data-value="0" data-bonus="0">
-                <span>0</span> <span class="bonus"></span>
-            </span>
-            </span>
-
-                                            <input type="text" name="explorer" data-ipi-highlight-step="ipiFleetselectexplorer" disabled="">
-
-                                        </li>
                                     </ul>
                                 </div>
                                 <div id="civilships">
@@ -737,19 +710,32 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                 </span>
                                     <span class="send_none">
                                     <a id="resetall" class="tooltip js_hideTipOnMobile" title="Reset choice">
-                                        <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
+                                        <img src=/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                     </a>
                                 </span>
                                     <div class="clearfloat"></div>
-                                </div>                                                         <span class="show_fleet_apikey tooltipCustom tpd-hideOnClickOutside" title="">
+                                </div>                                                             <div class="firstcol fleft">
+                                    <a id="combatunits" class="overlay dark_highlight_tablet" data-overlay-inline="#zeuch666" data-overlay-title="Edit standard fleets">
+                                        <span class="icon icon_combatunits"></span>
+                                        Standard fleets
+                                    </a>
+                                    <select class="combatunits dropdownInitialized" size="1" id="standardfleet" style="display: none;">
+                                        <option>-</option>
+                                        <option value="954">20 battleships</option>
+                                    </select><span class="dropdown currentlySelected combatunits" rel="dropdown484" style="width: 144px;"><a class="undefined" data-value="-" rel="dropdown484" href="javascript:void(0);">-</a></span>
+                                </div>
+                                <span class="show_fleet_apikey tooltipCustom tpd-hideOnClickOutside" title="">
                             </span>
                                 <a id="continueToFleet2" class="continue off" href="">
                                     <span class="ipiHintable" data-ipi-hint="ipiFleetContinueToPage2" data-ipi-highlight-step="ipiFleetContinueToPage2">Continue</span>
                                 </a>
                                 <div class="clearfloat"></div>
                                 <p class="info">Nothing has been selected</p>
-                            </div>                    </div>                    <div class="footer"></div>
-                    </div>            </div>
+                            </div>                    </div>
+                        <div class="footer"></div>
+                    </div>
+                    </div>
+                @endif
             </div>
         </div>
         <div id="fleet2" style="display: none;">
