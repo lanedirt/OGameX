@@ -80,7 +80,7 @@ See the full list of requirements for Laravel 11.x and how to deploy to a server
 
 5. Run Laravel setup commands to download composer dependencies, generate an encryption key and prepare the database:
   ```
-  $ php composer install
+  $ composer install
   $ php artisan key:generate
   $ php artisan migrate
   ```
