@@ -13,7 +13,7 @@ return new class extends Migration
     {
         if (!Schema::hasColumn('users', 'planet_current')) {
             Schema::table('users', function (Blueprint $table) {
-                $table->integer('planet_current', false, true);
+                $table->integer('planet_current', false, true)->nullable();
                 $table->foreign('planet_current')->references('id')->on('planets');
             });
         }
@@ -26,6 +26,7 @@ return new class extends Migration
     {
         if (Schema::hasColumn('users', 'planet_current')) {
             Schema::table('users', function (Blueprint $table) {
+				$table->dropForeign(['planet_current']);
                 $table->dropColumn('planet_current');
             });
         }
