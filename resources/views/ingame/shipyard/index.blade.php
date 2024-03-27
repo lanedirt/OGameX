@@ -193,260 +193,62 @@
             <div class="content">
                 <div id="battleships">
                     <ul id="military">
-                        @foreach ($units[0] as $building)
-                            <li id="button{{ $building['count'] }}" class="@if ($building['currently_building'])
+                        @foreach ($units[0] as $object)
+                            <li id="button{{ $object['count'] }}" class="@if ($object['currently_building'])
                                     on
-                                @elseif (!$building['requirements_met'])
+                                @elseif (!$object['requirements_met'])
                                     off
-                                @elseif (!$building['enough_resources'])
+                                @elseif (!$object['enough_resources'])
                                     disabled
                                 @else
                                     on
                                 @endif">
-                                <div class="item_box military{{ $building['id'] }}">
+                                <div class="item_box military{{ $object['id'] }}">
                                     <div class="buildingimg">
-                                        <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{{ $building['title'] }} (0)@if (!$building['requirements_met'])
+                                        <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{{ $object['title'] }} (0)@if (!$object['requirements_met'])
                                                 <br/>Requirements are not met
-                                                @endif" ref="{{ $building['id'] }}" id="details{{ $building['id'] }}" href="javascript:void(0);">
+                                                @endif" ref="{{ $object['id'] }}" id="details{{ $object['id'] }}" href="javascript:void(0);">
                         <span class="ecke">
                             <span class="level">
                                 <span class="textlabel">
-                                    {{ $building['title'] }}	                                </span>
-                                {{ $building['amount'] }}	                            </span>
+                                    {{ $object['title'] }}	                                </span>
+                                {{ $object['amount'] }}	                            </span>
                         </span>
                                         </a>
                                     </div>
                                 </div>
                             </li>
                         @endforeach
-                        <!--
-                        <li id="button1" class="off">
-                            <div class="item_box military204">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Light Fighter (0)<br/>Requirements are not met" ref="204" id="details204" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Light Fighter	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button2" class="off">
-                            <div class="item_box military205">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Heavy Fighter (0)<br/>Requirements are not met" ref="205" id="details205" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Heavy Fighter	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button3" class="off">
-                            <div class="item_box military206">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Cruiser (0)<br/>Requirements are not met" ref="206" id="details206" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Cruiser	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button4" class="off">
-                            <div class="item_box military207">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Battleship (0)<br/>Requirements are not met" ref="207" id="details207" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Battleship	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button5" class="off">
-                            <div class="item_box military215">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Battlecruiser (0)<br/>Requirements are not met" ref="215" id="details215" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Battlecruiser	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button6" class="off">
-                            <div class="item_box military211">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Bomber (0)<br/>Requirements are not met" ref="211" id="details211" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Bomber	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button7" class="off">
-                            <div class="item_box military213">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Destroyer (0)<br/>Requirements are not met" ref="213" id="details213" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Destroyer	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button8" class="off">
-                            <div class="item_box military214">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Deathstar (0)<br/>Requirements are not met" ref="214" id="details214" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Deathstar	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>-->
-
                     </ul>
                 </div>
                 <div id="civilships">
                     <ul id="civil">
-                        @foreach ($units[1] as $building)
-                            <li id="button{{ $building['count'] }}" class="@if ($building['currently_building'])
+                        @foreach ($units[1] as $object)
+                            <li id="button{{ $object['count'] }}" class="@if ($object['currently_building'])
                                     on
-                                @elseif (!$building['requirements_met'])
+                                @elseif (!$object['requirements_met'])
                                     off
-                                @elseif (!$building['enough_resources'])
+                                @elseif (!$object['enough_resources'])
                                     disabled
                                 @else
                                     on
                                 @endif">
-                                <div class="item_box civil{{ $building['id'] }}">
+                                <div class="item_box civil{{ $object['id'] }}">
                                     <div class="buildingimg">
-                                        <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{{ $building['title'] }} (0)@if (!$building['requirements_met'])
+                                        <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{{ $object['title'] }} (0)@if (!$object['requirements_met'])
                                                 <br/>Requirements are not met
-                                                @endif" ref="{{ $building['id'] }}" id="details{{ $building['id'] }}" href="javascript:void(0);">
+                                                @endif" ref="{{ $object['id'] }}" id="details{{ $object['id'] }}" href="javascript:void(0);">
                         <span class="ecke">
                             <span class="level">
                                 <span class="textlabel">
-                                    {{ $building['title'] }}	                                </span>
-                                {{ $building['amount'] }}	                            </span>
+                                    {{ $object['title'] }}	                                </span>
+                                {{ $object['amount'] }}	                            </span>
                         </span>
                                         </a>
                                     </div>
                                 </div>
                             </li>
                         @endforeach
-                        <!--<li id="button1" class="off">
-                            <div class="item_box civil202">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Small Cargo (0)<br/>Requirements are not met" ref="202" id="details202" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Small Cargo	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button2" class="off">
-                            <div class="item_box civil203">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Large Cargo (0)<br/>Requirements are not met" ref="203" id="details203" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Large Cargo	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button3" class="off">
-                            <div class="item_box civil208">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Colony Ship (0)<br/>Requirements are not met" ref="208" id="details208" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Colony Ship	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button4" class="off">
-                            <div class="item_box civil209">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Recycler (0)<br/>Requirements are not met" ref="209" id="details209" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Recycler	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button5" class="off">
-                            <div class="item_box civil210">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Espionage Probe (0)<br/>Requirements are not met" ref="210" id="details210" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Espionage Probe	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>
-                        <li id="button6" class="off">
-                            <div class="item_box civil212">
-                                <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Solar Satellite (0)<br/>Requirements are not met" ref="212" id="details212" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Solar Satellite	                                </span>
-                                0	                            </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                        </li>-->
                     </ul>
                 </div>
                 <br class="clearfloat">

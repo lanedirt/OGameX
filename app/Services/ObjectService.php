@@ -196,7 +196,7 @@ The energy production of the fusion plant is calculated like that:
                 'machine_name' => 'metal_store',
                 'description' => 'Provides storage for excess metal.',
                 'description_long' => 'This giant storage facility is used to store metal ore. Each level of upgrading increases the amount of metal ore that can be stored. If the stores are full, no further metal will be mined.
-        
+
         The Metal Storage protects a certain percentage of the mine`s daily production (max. 10 percent).',
                 'requirements' => [],
                 'price' => [
@@ -897,7 +897,7 @@ Slightly larger than the light fighter, the heavy fighter has thicker hulls, pro
                 'machine_name' => 'cruiser',
                 'description' => 'Cruisers are armoured almost three times as heavily as heavy fighters and have more than twice the firepower. In addition, they are very fast.',
                 'description_long' => 'With the development of the heavy laser and the ion cannon, light and heavy fighters encountered an alarmingly high number of defeats that increased with each raid. Despite many modifications, weapons strength and armour changes, it could not be increased fast enough to effectively counter these new defensive measures. Therefore, it was decided to build a new class of ship that combined more armor and more firepower. As a result of years of research and development, the Cruiser was born.
-        
+
 Cruisers are armored almost three times of that of the heavy fighters, and possess more than twice the firepower of any combat ship in existence. They also possess speeds that far surpassed any spacecraft ever made. For almost a century, cruisers dominated the universe. However, with the development of Gauss cannons and plasma turrets, their predominance ended. They are still used today against fighter groups, but not as predominantly as before.',
                 'requirements' => [21 => 5, 117 => 4, 121 => 2],
                 'price' => [
@@ -917,7 +917,7 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                 'id' => 207,
                 'type' => 'ship',
                 'title' => 'Battleship',
-                'machine_name' => 'battleship',
+                'machine_name' => 'battle_ship',
                 'description' => 'Battleships form the backbone of a fleet. Their heavy cannons, high speed, and large cargo holds make them opponents to be taken seriously.',
                 'description_long' => 'Once it became apparent that the cruiser was losing ground to the increasing number of defence structures it was facing, and with the loss of ships on missions at unacceptable levels, it was decided to build a ship that could face those same type of defence structures with as little loss as possible. After extensive development, the Battleship was born. Built to withstand the largest of battles, the Battleship features large cargo spaces, heavy cannons, and high hyperdrive speed. Once developed, it eventually turned out to be the backbone of every raiding Emperors fleet.',
                 'requirements' => [21 => 7, 118 => 4],
@@ -962,7 +962,7 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                 'machine_name' => 'bomber',
                 'description' => 'The bomber was developed especially to destroy the planetary defences of a world.',
                 'description_long' => 'Over the centuries, as defences were starting to get larger and more sophisticated, fleets were starting to be destroyed at an alarming rate. It was decided that a new ship was needed to break defences to ensure maximum results. After years of research and development, the Bomber was created.
-        
+
 Using laser-guided targeting equipment and Plasma Bombs, the Bomber seeks out and destroys any defence mechanism it can find. As soon as the hyperspace drive is developed to Level 8, the Bomber is retrofitted with the hyperspace engine and can fly at higher speeds.',
                 'requirements' => [21 => 8, 117 => 6, 122 => 5],
                 'price' => [
@@ -1009,7 +1009,7 @@ Because the destroyer is very large, its manoeuvrability is severely limited, wh
                 'machine_name' => 'deathstar',
                 'description' => 'The destructive power of the deathstar is unsurpassed.',
                 'description_long' => 'The Deathstar is the most powerful ship ever created. This moon sized ship is the only ship that can be seen with the naked eye on the ground. By the time you spot it, unfortunately, it is too late to do anything.
-        
+
 Armed with a gigantic graviton cannon, the most advanced weapons system ever created in the Universe, this massive ship has not only the capability of destroying entire fleets and defences, but also has the capability of destroying entire moons. Only the most advanced empires have the capability to build a ship of this mammoth size.',
                 'requirements' => [21 => 12, 199 => 1, 118 => 7, 114 => 6],
                 'price' => [
@@ -1079,7 +1079,7 @@ To maximize the resources that can be stored in the holds, this ship has little 
                 'machine_name' => 'colony_ship',
                 'description' => 'Vacant planets can be colonised with this ship.',
                 'description_long' => 'In the 20th Century, Man decided to go for the stars. First, it was landing on the Moon. After that, a space station was built. Mars was colonized soon afterwards. It was soon determined that our growth depended on colonizing other worlds. Scientists and engineers all over the world gathered together to develop mans greatest achievement ever. The Colony Ship is born.
-        
+
 This ship is used to prepare a newly discovered planet for colonization. Once it arrives at the destination, the ship is instantly transformed into habitual living space to assist in populating and mining the new world. The maximum number of planets is thereby determined by the progress in astrophysics research.Two new levels of Astrotechnology allow for the colonization of one additional planet.',
                 'requirements' => [21 => 4, 117 => 3],
                 'price' => [
@@ -1242,7 +1242,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'machine_name' => 'gauss_cannon',
                 'description' => 'The Gauss Cannon fires projectiles weighing tons at high speeds.',
                 'description_long' => 'For a long time projectile weapons were regarded as antiquated in the wake of modern thermonuclear and energy technology and due to the development of the hyperdrive and improved armour. That was until the exact energy technology that had once aged it, helped it to re-achieve their established position.
-A gauss cannon is a large version of the particle accelerator. Extremely heavy missiles are accelerated with a huge electromagnetic force and have muzzle velocities that make the dirt surrounding the missile burn in the skies. This weapon is so powerful when fired that it creates a sonic boom. Modern armour and shields can barely withstand the force, often the target is completely penetrated by the power of the missile. Defence structures deactivate as soon as they have been too badly damaged. 
+A gauss cannon is a large version of the particle accelerator. Extremely heavy missiles are accelerated with a huge electromagnetic force and have muzzle velocities that make the dirt surrounding the missile burn in the skies. This weapon is so powerful when fired that it creates a sonic boom. Modern armour and shields can barely withstand the force, often the target is completely penetrated by the power of the missile. Defence structures deactivate as soon as they have been too badly damaged.
 
 After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.',
                 'requirements' => [21 => 6, 109 => 3, 113 => 6, 110 => 1],
