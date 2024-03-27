@@ -2,11 +2,11 @@
 
 namespace OGame\Actions\Fortify;
 
-use OGame\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
+use OGame\User;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -15,7 +15,7 @@ class CreateNewUser implements CreatesNewUsers
     /**
      * Validate and create a newly registered user.
      *
-     * @param  array<string, string>  $input
+     * @param array<string, string> $input
      */
     public function create(array $input): User
     {
@@ -32,7 +32,7 @@ class CreateNewUser implements CreatesNewUsers
 
         return User::create([
             'lang' => 'en',
-            'username' => 'Captain_' . rand(10000,99999),
+            'username' => 'Captain_' . rand(10000, 99999),
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);

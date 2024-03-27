@@ -55,7 +55,7 @@
 
             var currentPlanet = {"galaxy":7,"system":158,"position":10,"type":1,"name":"MyBaseYo"};
             var targetPlanet = {"galaxy":7,"system":158,"position":10,"type":1,"name":"MyBaseYo"};
-            var shipsOnPlanet = [{"id":205,"number":1},{"id":210,"number":6}];
+            var shipsOnPlanet = [@foreach ($units as $unitGroup)@foreach ($unitGroup as $unit)@if($unit['amount'] > 0){"id":{{ $unit['id'] }},"number":{{ $unit['amount'] }}},@endif @endforeach @endforeach];
             var useHalfSteps = true;
             var shipsToSend = [];
             var planets = [{"galaxy":7,"system":158,"position":10,"type":1,"name":"MyBaseYo"}];
@@ -355,7 +355,7 @@
                 </div>
 
                 <div id="planet" class="planet-header ">
-                    <h2>Fleet Dispatch I - MyBaseYo</h2>
+                    <h2>Fleet Dispatch I - {{ $planet->getPlanetName() }}</h2>
                     <a class="toggleHeader" data-name="fleet1">
                         <img alt="" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22">
                     </a>
@@ -432,25 +432,41 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 </div>
                 <div class="c-left"></div>
                 <div class="c-right"></div>
-                <div class="fleetStatus" id="statusBarFleet">
-                    <ul>
-                        <li><span class="title">Mission:</span> <span class="missionName">Nothing has been selected</span></li>
-                        <li><span class="title">Target:</span> <span class="targetName">[7:158:10] <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>MyBaseYo</span></li>
-                        <li><span class="title">Player’s Name:</span> <span class="targetPlayerName">President Hati</span></li>
-                    </ul>
-                </div>
-                <div id="buttonz">
+                @if ($shipAmount == 0)
+                    <div id="warning">
+                        <h3>Fleet dispatch impossible</h3>
+                        <p>
+                            <span class="icon icon_warning"></span>
+                            There are no ships on this planet.
+                        </p>
+                    </div>
+                @else
+                    <div class="fleetStatus" id="statusBarFleet">
+                        <ul>
+                            <li><span class="title">Mission:</span> <span class="missionName">Nothing has been selected</span></li>
+                            <li><span class="title">Target:</span> <span class="targetName">[7:158:10] <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>MyBaseYo</span></li>
+                            <li><span class="title">Player’s Name:</span> <span class="targetPlayerName">President Hati</span></li>
+                        </ul>
+                    </div>
+                    <div id="buttonz">
                     <div class="content">
                         <form name="shipsChosen" id="shipsChosen" method="post" action="{{ route('overview.index') }}#TODO_page=fleet2">
                             <div id="technologies">
                                 <div id="battleships">
                                     <div class="header"><h2>Combat ships</h2></div>
                                     <ul id="military" class="iconsUNUSED">
-
-
-
-
-                                        <li class="technology fighterLight interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="204" data-status="off" data-is-spaceprovider="" aria-label="Light Fighter" title="Light Fighter (0)" data-ipi-hint="ipiFleetselectfighterLight">
+										@foreach ($units[0] as $object)
+											<li class="technology {{ $object['class_name'] }} interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="{{ $object['id'] }}" data-status="{{ $object['amount'] == 0 ? 'off' : 'on' }}" data-is-spaceprovider="" aria-label="{{ $object['title'] }}" title="{{ $object['title'] }} ({{ $object['amount'] }})" data-ipi-hint="ipiFleetselect{{ $object['class_name'] }}">
+												<span class="icon sprite sprite_small small {{ $object['class_name'] }}">
+													<span class="amount" data-value="{{ $object['amount'] }}" data-bonus="0">
+														<span>{{ $object['amount'] }}</span> <span class="bonus"></span>
+													</span>
+												</span>
+												<input type="text" name="{{ $object['class_name'] }}" data-ipi-highlight-step="ipiFleetselect{{ $object['class_name'] }}" {{ $object['amount'] == 0 ? 'disabled' : '' }}>
+											</li>
+										@endforeach
+										<!--
+											<li class="technology fighterLight interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="204" data-status="off" data-is-spaceprovider="" aria-label="Light Fighter" title="Light Fighter (0)" data-ipi-hint="ipiFleetselectfighterLight">
 
     <span class="icon sprite sprite_small small fighterLight">
 
@@ -461,10 +477,10 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
             </span>
             </span>
 
-                                            <input type="text" name="fighterLight" data-ipi-highlight-step="ipiFleetselectfighterLight" disabled="">
+												<input type="text" name="fighterLight" data-ipi-highlight-step="ipiFleetselectfighterLight" disabled="">
 
 
-                                        </li>
+											</li>
 
 
 
@@ -590,43 +606,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
 
                                             <input type="text" name="deathstar" data-ipi-highlight-step="ipiFleetselectdeathstar" disabled="">
 
-                                        </li>
-
-
-
-
-                                        <li class="technology reaper interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="218" data-status="off" data-is-spaceprovider="" aria-label="Reaper" title="Reaper (0)" data-ipi-hint="ipiFleetselectreaper">
-
-    <span class="icon sprite sprite_small small reaper">
-
-
-
-                    <span class="amount" data-value="0" data-bonus="0">
-                <span>0</span> <span class="bonus"></span>
-            </span>
-            </span>
-
-                                            <input type="text" name="reaper" data-ipi-highlight-step="ipiFleetselectreaper" disabled="">
-
-                                        </li>
-
-
-
-
-                                        <li class="technology explorer interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="219" data-status="off" data-is-spaceprovider="" aria-label="Pathfinder" title="Pathfinder (0)" data-ipi-hint="ipiFleetselectexplorer">
-
-    <span class="icon sprite sprite_small small explorer">
-
-
-
-                    <span class="amount" data-value="0" data-bonus="0">
-                <span>0</span> <span class="bonus"></span>
-            </span>
-            </span>
-
-                                            <input type="text" name="explorer" data-ipi-highlight-step="ipiFleetselectexplorer" disabled="">
-
-                                        </li>
+                                        </li>-->
                                     </ul>
                                 </div>
                                 <div id="civilships">
@@ -635,93 +615,23 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
 
 
 
+										@foreach ($units[1] as $object)
+											<li class="technology {{ $object['class_name'] }} interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="{{ $object['id'] }}" data-status="{{ $object['amount'] == 0 ? 'off' : 'on' }}" data-is-spaceprovider="" aria-label="{{ $object['title'] }}" title="{{ $object['title'] }} ({{ $object['amount'] }})" data-ipi-hint="ipiFleetselect{{ $object['class_name'] }}">
 
-                                        <li class="technology transporterSmall interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="202" data-status="off" data-is-spaceprovider="" aria-label="Small Cargo" title="Small Cargo (0)" data-ipi-hint="ipiFleetselecttransporterSmall">
-
-    <span class="icon sprite sprite_small small transporterSmall">
+    <span class="icon sprite sprite_small small {{ $object['class_name'] }}">
 
 
 
-                    <span class="amount" data-value="0" data-bonus="0">
-                <span>0</span> <span class="bonus"></span>
+                    <span class="amount" data-value="{{ $object['amount'] }}" data-bonus="0">
+                <span>{{ $object['amount'] }}</span> <span class="bonus"></span>
             </span>
             </span>
 
-                                            <input type="text" name="transporterSmall" data-ipi-highlight-step="ipiFleetselecttransporterSmall" disabled="">
-
-                                        </li>
+												<input type="text" name="{{ $object['class_name'] }}" data-ipi-highlight-step="ipiFleetselect{{ $object['class_name'] }}" {{ $object['amount'] == 0 ? 'disabled' : '' }}>
 
 
-
-
-                                        <li class="technology transporterLarge interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable tpd-hideOnClickOutside" data-technology="203" data-status="off" data-is-spaceprovider="" aria-label="Large Cargo" title="" data-ipi-hint="ipiFleetselecttransporterLarge">
-
-    <span class="icon sprite sprite_small small transporterLarge">
-
-
-
-                    <span class="amount" data-value="0" data-bonus="0">
-                <span>0</span> <span class="bonus"></span>
-            </span>
-            </span>
-
-                                            <input type="text" name="transporterLarge" data-ipi-highlight-step="ipiFleetselecttransporterLarge" disabled="">
-
-                                        </li>
-
-
-
-
-                                        <li class="technology colonyShip interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="208" data-status="off" data-is-spaceprovider="" aria-label="Colony Ship" title="Colony Ship (0)" data-ipi-hint="ipiFleetselectcolonyShip">
-
-    <span class="icon sprite sprite_small small colonyShip">
-
-
-
-                    <span class="amount" data-value="0" data-bonus="0">
-                <span>0</span> <span class="bonus"></span>
-            </span>
-            </span>
-
-                                            <input type="text" name="colonyShip" data-ipi-highlight-step="ipiFleetselectcolonyShip" disabled="">
-
-                                        </li>
-
-
-
-
-                                        <li class="technology recycler interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="209" data-status="off" data-is-spaceprovider="" aria-label="Recycler" title="Recycler (0)" data-ipi-hint="ipiFleetselectrecycler">
-
-    <span class="icon sprite sprite_small small recycler">
-
-
-
-                    <span class="amount" data-value="0" data-bonus="0">
-                <span>0</span> <span class="bonus"></span>
-            </span>
-            </span>
-
-                                            <input type="text" name="recycler" data-ipi-highlight-step="ipiFleetselectrecycler" disabled="">
-
-                                        </li>
-
-
-
-
-                                        <li class="technology espionageProbe interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="210" data-status="on" data-is-spaceprovider="" aria-label="Espionage Probe" title="Espionage Probe (6)" data-ipi-hint="ipiFleetselectespionageProbe">
-
-    <span class="icon sprite sprite_small small espionageProbe">
-
-
-
-                    <span class="amount" data-value="6" data-bonus="0">
-                <span>6</span> <span class="bonus"></span>
-            </span>
-            </span>
-
-                                            <input type="text" name="espionageProbe" data-ipi-highlight-step="ipiFleetselectespionageProbe">
-
-                                        </li>
+											</li>
+										@endforeach
                                     </ul>
                                 </div>
                             </div>
@@ -741,15 +651,28 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                     </a>
                                 </span>
                                     <div class="clearfloat"></div>
-                                </div>                                                         <span class="show_fleet_apikey tooltipCustom tpd-hideOnClickOutside" title="">
+                                </div>                                                             <div class="firstcol fleft">
+                                    <a id="combatunits" class="overlay dark_highlight_tablet" data-overlay-inline="#zeuch666" data-overlay-title="Edit standard fleets">
+                                        <span class="icon icon_combatunits"></span>
+                                        Standard fleets
+                                    </a>
+                                    <select class="combatunits dropdownInitialized" size="1" id="standardfleet" style="display: none;">
+                                        <option>-</option>
+                                        <option value="954">20 battleships</option>
+                                    </select><span class="dropdown currentlySelected combatunits" rel="dropdown484" style="width: 144px;"><a class="undefined" data-value="-" rel="dropdown484" href="javascript:void(0);">-</a></span>
+                                </div>
+                                <span class="show_fleet_apikey tooltipCustom tpd-hideOnClickOutside" title="">
                             </span>
                                 <a id="continueToFleet2" class="continue off" href="">
                                     <span class="ipiHintable" data-ipi-hint="ipiFleetContinueToPage2" data-ipi-highlight-step="ipiFleetContinueToPage2">Continue</span>
                                 </a>
                                 <div class="clearfloat"></div>
                                 <p class="info">Nothing has been selected</p>
-                            </div>                    </div>                    <div class="footer"></div>
-                    </div>            </div>
+                            </div>                    </div>
+                        <div class="footer"></div>
+                    </div>
+                    </div>
+                @endif
             </div>
         </div>
         <div id="fleet2" style="display: none;">

@@ -7,23 +7,23 @@ use OGame\Http\Traits\IngameTrait;
 
 class PaymentController extends Controller
 {
-  use IngameTrait;
+    use IngameTrait;
 
-  /**
-   * Shows the payment popup page
-   *
-   * @param  int  $id
-   * @return Response
-   */
-  public function overlay(Request $request)
-  {
-    return view('ingame.payment.overlay');
-  }
+    /**
+     * Shows the payment popup page
+     *
+     * @param int $id
+     * @return Response
+     */
+    public function overlay(Request $request)
+    {
+        return view('ingame.payment.overlay');
+    }
 
     /**
      * Shows the payment popup iframe (placeholder).
      *
-     * @param  int  $id
+     * @param int $id
      * @return Response
      */
     public function iframe(Request $request)

@@ -2,10 +2,7 @@
 
 namespace OGame\Services;
 
-use Illuminate\Contracts\Queue\Queue;
-use Illuminate\Support\Facades\DB;
-use OGame\BuildingQueue;
-use OGame\Planet;
+use Exception;
 
 /**
  * Class BuildingQueueService.
@@ -26,7 +23,7 @@ class BuildingQueueService
     /**
      * Information about objects.
      *
-     * @var \OGame\Services\ObjectService
+     * @var ObjectService
      */
     protected $objects;
 
@@ -40,7 +37,8 @@ class BuildingQueueService
     /**
      * BuildingQueue constructor.
      */
-    public function __construct(ObjectService $objects) {
+    public function __construct(ObjectService $objects)
+    {
         $this->objects = $objects;
 
         $model_name = 'OGame\BuildingQueue';
@@ -48,147 +46,46 @@ class BuildingQueueService
     }
 
     /**
-     * Retrieve full building queue for a planet (including currently building).
-     */
-    public function retrieveQueue(PlanetService $planet) {
-        // Fetch queue items from model
-        $queue_items = $this->model->where([
-          ['planet_id', $planet->getPlanetId()],
-          ['processed', 0],
-          ['canceled', 0],
-        ])
-          ->orderBy('time_start', 'asc')
-          ->get();
-
-        return $queue_items;
-    }
-
-    /**
-     * Retrieve the item that is currently being build (if any).
+     * Retrieve queued items that are not being built yet.
      *
      * @return mixed
      *  Array when an item exists. False if it does not.
      */
-    public function retrieveCurrentlyBuildingFromQueue($queue_items) {
-      foreach ($queue_items as $record) {
-        if ($record['building'] == 1) {
-          return $record;
+    public function retrieveQueuedFromQueue($queue_items)
+    {
+        foreach ($queue_items as $key => $record) {
+            if ($record['building'] == 1) {
+                unset($queue_items[$key]);
+            }
         }
-      }
-
-      return false;
-    }
-
-  /**
-   * Retrieve queued items that are not being built yet.
-   *
-   * @return mixed
-   *  Array when an item exists. False if it does not.
-   */
-  public function retrieveQueuedFromQueue($queue_items) {
-    foreach ($queue_items as $key => $record) {
-      if ($record['building'] == 1) {
-        unset($queue_items[$key]);
-      }
-    }
-
-    return $queue_items;
-  }
-
-    /**
-     * Retrieve all build queue items that already should be finished for a planet.
-     */
-    public function retrieveFinished($planet_id) {
-        // Fetch queue items from model
-        $queue_items = $this->model->where([
-          ['planet_id', $planet_id],
-          ['time_end', '<=', time()],
-          ['building', 1],
-          ['processed', 0],
-          ['canceled', 0],
-        ])
-          ->orderBy('time_start', 'asc')
-          ->get();
 
         return $queue_items;
     }
 
     /**
-     * Enriches one or more queue_items to prepare it for rendering.
-     *
-     * @param $queue_items
-     *  Single queue_item or array of queue_items.
-     *
-     * @return array
+     * Retrieve all build queue items that already should be finished for a planet.
      */
-    public function enrich($queue_items) {
-        // Enrich information before we return it
-        $return = array();
-
-        if (empty($queue_items)) {
-            return $return;
-        }
-
-        // Convert single queue_item result to an array because the logic
-        // beneath expects an array.
-        $return_type = 'array';
-        if (!empty($queue_items->id)) {
-            $return_type = 'single';
-            $queue_items = array($queue_items);
-        }
-
-        foreach ($queue_items as $item) {
-            $object = $this->objects->getObjects($item->object_id);
-
-            $time_countdown = $item->time_end - time();
-            if ($time_countdown < 0) {
-                $time_countdown = 0;
-            }
-
-            $return[] = [
-              'id' => $item->id,
-              'object' => [
-                'id' => $object['id'],
-                'title' => $object['title'],
-                'level_target' => $item->object_level_target,
-                'assets' => $object['assets'],
-              ],
-              'time_countdown' => $time_countdown,
-              'time_total' => $item->time_end - $item->time_start,
-            ];
-        }
-
-        if ($return_type == 'single') {
-            return $return[0];
-        }
-        elseif ($return_type == 'array') {
-            return $return;
-        }
-
-        return $return;
-    }
-
-    /**
-     * Get the amount of already existing queue items for a particular
-     * building.
-     */
-    public function activeBuildingQueueItemCount(PlanetService $planet, $building_id) {
+    public function retrieveFinished($planet_id)
+    {
         // Fetch queue items from model
-        $count = $this->model->where([
-          ['planet_id', $planet->getPlanetId()],
-          ['object_id', $building_id],
-          ['processed', 0],
-          ['canceled', 0],
+        $queue_items = $this->model->where([
+            ['planet_id', $planet_id],
+            ['time_end', '<=', time()],
+            ['building', 1],
+            ['processed', 0],
+            ['canceled', 0],
         ])
-          ->count();
+            ->orderBy('time_start', 'asc')
+            ->get();
 
-        return $count;
+        return $queue_items;
     }
 
     /**
      * Add a building to the building queue for the current planet.
      */
-    public function add(PlanetService $planet, $building_id) {
+    public function add(PlanetService $planet, $building_id)
+    {
         $build_queue = $this->retrieveQueue($planet);
         $build_queue = $this->enrich($build_queue);
 
@@ -196,7 +93,7 @@ class BuildingQueueService
         $max_build_queue_count = 4; //@TODO: refactor into global / constant?
         if (count($build_queue) >= $max_build_queue_count) {
             // Max amount of build queue items already exist, throw exception.
-            throw new \Exception('Maximum number of items already in queue.');
+            throw new Exception('Maximum number of items already in queue.');
         }
 
         // @TODO: add checks that current logged in user is owner of planet
@@ -221,6 +118,96 @@ class BuildingQueueService
     }
 
     /**
+     * Retrieve full building queue for a planet (including currently building).
+     */
+    public function retrieveQueue(PlanetService $planet)
+    {
+        // Fetch queue items from model
+        $queue_items = $this->model->where([
+            ['planet_id', $planet->getPlanetId()],
+            ['processed', 0],
+            ['canceled', 0],
+        ])
+            ->orderBy('time_start', 'asc')
+            ->get();
+
+        return $queue_items;
+    }
+
+    /**
+     * Enriches one or more queue_items to prepare it for rendering.
+     *
+     * @param $queue_items
+     *  Single queue_item or array of queue_items.
+     *
+     * @return array
+     */
+    public function enrich($queue_items)
+    {
+        // Enrich information before we return it
+        $return = array();
+
+        if (empty($queue_items)) {
+            return $return;
+        }
+
+        // Convert single queue_item result to an array because the logic
+        // beneath expects an array.
+        $return_type = 'array';
+        if (!empty($queue_items->id)) {
+            $return_type = 'single';
+            $queue_items = array($queue_items);
+        }
+
+        foreach ($queue_items as $item) {
+            $object = $this->objects->getObjects($item->object_id);
+
+            $time_countdown = $item->time_end - time();
+            if ($time_countdown < 0) {
+                $time_countdown = 0;
+            }
+
+            $return[] = [
+                'id' => $item->id,
+                'object' => [
+                    'id' => $object['id'],
+                    'title' => $object['title'],
+                    'level_target' => $item->object_level_target,
+                    'assets' => $object['assets'],
+                ],
+                'time_countdown' => $time_countdown,
+                'time_total' => $item->time_end - $item->time_start,
+            ];
+        }
+
+        if ($return_type == 'single') {
+            return $return[0];
+        } elseif ($return_type == 'array') {
+            return $return;
+        }
+
+        return $return;
+    }
+
+    /**
+     * Get the amount of already existing queue items for a particular
+     * building.
+     */
+    public function activeBuildingQueueItemCount(PlanetService $planet, $building_id)
+    {
+        // Fetch queue items from model
+        $count = $this->model->where([
+            ['planet_id', $planet->getPlanetId()],
+            ['object_id', $building_id],
+            ['processed', 0],
+            ['canceled', 0],
+        ])
+            ->count();
+
+        return $count;
+    }
+
+    /**
      * Start building the next item in the queue (if available).
      *
      * This actually starts the building process and deducts the resources
@@ -236,16 +223,17 @@ class BuildingQueueService
      *  same time, e.g. when a user closes its session and logs back in
      *  after a while.
      */
-    public function start(PlanetService $planet, $time_start = false) {
+    public function start(PlanetService $planet, $time_start = false)
+    {
         // TODO: add unittest for case described above with $time_start.
         $queue_items = $this->model->where([
-          ['planet_id', $planet->getPlanetId()],
-          ['canceled', 0],
-          ['processed', 0],
-          ['building', 0],
+            ['planet_id', $planet->getPlanetId()],
+            ['canceled', 0],
+            ['processed', 0],
+            ['building', 0],
         ])
-          ->orderBy('id', 'asc')
-          ->get();
+            ->orderBy('id', 'asc')
+            ->get();
 
         foreach ($queue_items as $queue_item) {
             if (empty($queue_item)) {
@@ -314,18 +302,36 @@ class BuildingQueueService
     }
 
     /**
+     * Retrieve the item that is currently being build (if any).
+     *
+     * @return mixed
+     *  Array when an item exists. False if it does not.
+     */
+    public function retrieveCurrentlyBuildingFromQueue($queue_items)
+    {
+        foreach ($queue_items as $record) {
+            if ($record['building'] == 1) {
+                return $record;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Cancels an active building queue record.
      */
-    public function cancel(PlanetService $planet, $building_queue_id, $building_id) {
+    public function cancel(PlanetService $planet, $building_queue_id, $building_id)
+    {
         // TODO: add unittest for building and then canceling a build to assert
         // that spent resources are returned correctly.
 
         // @TODO: add user owner verify checks.
         $queue_item = $this->model->where([
-          ['id', $building_queue_id],
-          ['planet_id', $planet->getPlanetId()],
-          ['object_id', $building_id],
-          ['processed', 0],
+            ['id', $building_queue_id],
+            ['planet_id', $planet->getPlanetId()],
+            ['object_id', $building_id],
+            ['processed', 0],
             //['time_end', '>', time()], //@TODO: add back in time_end when building processing logic works.
         ])->first();
 
@@ -336,15 +342,15 @@ class BuildingQueueService
             // level 5 then any other already queued build orders for lvl 6,7,8 etc.
             // will also be canceled.
             $queue_items_higher_level = $this->model->where([
-              ['planet_id', $planet->getPlanetId()],
-              ['object_id', $building_id],
-              ['object_level_target', '>', $queue_item->object_level_target],
-              ['processed', 0],
+                ['planet_id', $planet->getPlanetId()],
+                ['object_id', $building_id],
+                ['object_level_target', '>', $queue_item->object_level_target],
+                ['processed', 0],
                 //['time_end', '>', time()], //@TODO: add back in time_end when building processing logic works.
             ])->get();
 
             // Add canceled flag to all entries with a higher level (if any).
-            foreach($queue_items_higher_level as $queue_item_higher_level) {
+            foreach ($queue_items_higher_level as $queue_item_higher_level) {
                 $queue_item_higher_level->building = 0;
                 $queue_item_higher_level->canceled = 1;
 
@@ -354,9 +360,9 @@ class BuildingQueueService
             // Give back resources if the current entry was already building.
             if ($queue_item->building == 1) {
                 $planet->addResources([
-                  'metal' => $queue_item->metal,
-                  'crystal' => $queue_item->crystal,
-                  'deuterium' => $queue_item->deuterium,
+                    'metal' => $queue_item->metal,
+                    'crystal' => $queue_item->crystal,
+                    'deuterium' => $queue_item->deuterium,
                 ]);
             }
 

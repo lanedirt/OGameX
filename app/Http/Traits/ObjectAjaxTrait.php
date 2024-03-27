@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Traits;
 
+use Exception;
 use Illuminate\Http\Request;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
@@ -20,12 +21,12 @@ trait ObjectAjaxTrait
 
         $object_id = $request->input('type');
         if (empty($object_id)) {
-            throw new \Exception('No building ID provided.');
+            throw new Exception('No building ID provided.');
         }
 
         $object = $objects->getObjects($object_id);
         if (empty($object)) {
-            throw new \Exception('Incorrect building ID provided.');
+            throw new Exception('Incorrect building ID provided.');
         }
 
         $current_level = 0;

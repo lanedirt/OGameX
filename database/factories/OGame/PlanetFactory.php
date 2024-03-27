@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use OGame\Planet;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\OGame\Planet>
+ * @extends Factory<Planet>
  */
 class PlanetFactory extends Factory
 {

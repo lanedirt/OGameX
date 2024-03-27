@@ -11,13 +11,13 @@ class AllianceController extends Controller
     use IngameTrait;
 
     /**
-    * Shows the alliance index page
-    *
-    * @return Response
-    */
+     * Shows the alliance index page
+     *
+     * @return Response
+     */
     public function index(Request $request)
     {
-    return view('ingame.alliance.index');
+        return view('ingame.alliance.index');
     }
 
     /**

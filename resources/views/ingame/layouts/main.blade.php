@@ -31,6 +31,7 @@
 
     <!--[if (gt IE 9)|!(IE)]><!-->
     <link rel="stylesheet" type="text/css" href="/css/43b7408a18e671621274f53b5cee56.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/css/fleets.css" media="screen" />
     <!--<![endif]-->
     <!--[if lt IE 10]>
     <link rel="stylesheet" type="text/css" href="/css/ltie10/a38a903f82bb4d2e7021f22bb14496.css" media="screen" />
@@ -72,6 +73,8 @@
         }, 1);
     </script>
     <script src="{{ asset('/js/logic571d.js') }}"></script>
+    <script src="{{ asset('/js/percentagebar.js') }}"></script>
+    <script src="{{ asset('/js/fleetdispatcher.js') }}"></script>
     </head>
 <body @isset($body_id)
       id="{!! $body_id !!}"

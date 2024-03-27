@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use Mockery;
 use OGame\Services\ObjectService;
 use PHPUnit\Framework\TestCase;
 
