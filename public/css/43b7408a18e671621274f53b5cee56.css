@@ -9696,8 +9696,7 @@ body#fleet1 {
     float: left;
     top: 65px;
     left: 10px;
-    width: 60px;
-    text-align: right
+	text-align: right
 }
 
 #fleet1 #buttonz ul span.level,#rocketattack #number span.level {
