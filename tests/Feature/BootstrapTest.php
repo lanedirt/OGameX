@@ -22,38 +22,38 @@ class BootstrapTest extends TestCase
         $response->assertStatus(301);
     }
 
-	/**
-	 * Verify that registering an new account works as expected.
-	 */
-	public function testAccountCreation(): void
-	{
-		$response = $this->get('/login');
+    /**
+     * Verify that registering an new account works as expected.
+     */
+    public function testAccountCreation(): void
+    {
+        $response = $this->get('/login');
 
-		// Check for existence of register form
-		$response->assertSee('subscribeForm');
+        // Check for existence of register form
+        $response->assertSee('subscribeForm');
 
-		// Simulate form data
-		// Generate random email
-		$randomEmail = Str::random(10) . '@example.com';
+        // Simulate form data
+        // Generate random email
+        $randomEmail = Str::random(10) . '@example.com';
 
-		$formData = [
-			'_token' => csrf_token(),
-			'email' => $randomEmail,
-			'password' => 'asdasdasd',
-			'v' => '3',
-			'step' => 'validate',
-			'kid' => '',
-			'errorCodeOn' => '1',
-			'is_utf8' => '1',
-			'agb' => 'on',
-		];
+        $formData = [
+            '_token' => csrf_token(),
+            'email' => $randomEmail,
+            'password' => 'asdasdasd',
+            'v' => '3',
+            'step' => 'validate',
+            'kid' => '',
+            'errorCodeOn' => '1',
+            'is_utf8' => '1',
+            'agb' => 'on',
+        ];
 
-		// Submit the registration form
-		$this->post('/register', $formData);
+        // Submit the registration form
+        $this->post('/register', $formData);
 
-		// Assert the user was created...
-		$this->assertDatabaseHas('users', [
-			'email' => $randomEmail,
-		]);
-	}
+        // Assert the user was created...
+        $this->assertDatabaseHas('users', [
+            'email' => $randomEmail,
+        ]);
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace OGame\Services;
 
-use Illuminate\Support\Facades\DB;
+use Exception;
 use OGame\Planet;
 
 /**
@@ -17,7 +17,7 @@ class PlanetService
     /**
      * Information about objects.
      *
-     * @var \OGame\Services\ObjectService
+     * @var ObjectService
      */
     public $objects;
     /**
@@ -50,6 +50,17 @@ class PlanetService
     }
 
     /**
+     * Load planet object by planet ID.
+     */
+    public function loadByPlanetId($id)
+    {
+        // Fetch planet model
+        $planet = Planet::where('id', $id)->first();
+
+        $this->planet = $planet;
+    }
+
+    /**
      * Get the player object who owns this planet.
      */
     public function getPlayer()
@@ -64,23 +75,13 @@ class PlanetService
     }
 
     /**
-     * Load planet object by planet ID.
-     */
-    public function loadByPlanetId($id)
-    {
-        // Fetch planet model
-        $planet = Planet::where('id', $id)->first();
-
-        $this->planet = $planet;
-    }
-
-    /**
      * Set the planet model directly. This is primarily used by unittests in order to mock the planet model.
      *
      * @param $planet
      * @return void
      */
-    public function setPlanet($planet) {
+    public function setPlanet($planet)
+    {
         $this->planet = $planet;
     }
 
@@ -290,7 +291,7 @@ class PlanetService
         // Sanity check that this planet has enough resources, if not throw
         // exception.
         if (!$this->hasResources($resources)) {
-            throw new \Exception('Planet does not have enough resources.');
+            throw new Exception('Planet does not have enough resources.');
         }
 
         if (!empty($resources['metal'])) {
@@ -596,58 +597,6 @@ class PlanetService
     }
 
     /**
-     * Get planet metal storage (max amount this planet can contain).
-     */
-    public function getMetalStorage($formatted = false)
-    {
-        $storage = $this->planet->metal_max;
-
-        if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
-        }
-
-        return $storage;
-    }
-
-    /**
-     * Get planet ID.
-     *
-     * @return mixed
-     */
-    public function getPlanetId()
-    {
-        return $this->planet->id;
-    }
-
-    /**
-     * Get planet crystal storage (max amount this planet can contain).
-     */
-    public function getCrystalStorage($formatted = false)
-    {
-        $storage = $this->planet->crystal_max;
-
-        if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
-        }
-
-        return $storage;
-    }
-
-    /**
-     * Get planet deuterium storage (max amount this planet can contain).
-     */
-    public function getDeuteriumStorage($formatted = false)
-    {
-        $storage = $this->planet->deuterium_max;
-
-        if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
-        }
-
-        return $storage;
-    }
-
-    /**
      * Update this planet's resources according to production.
      * This should happen on every users page load and every time the planet is touched.
      *
@@ -723,6 +672,48 @@ class PlanetService
     }
 
     /**
+     * Get planet metal storage (max amount this planet can contain).
+     */
+    public function getMetalStorage($formatted = false)
+    {
+        $storage = $this->planet->metal_max;
+
+        if ($formatted) {
+            $storage = number_format($storage, 0, ',', '.');
+        }
+
+        return $storage;
+    }
+
+    /**
+     * Get planet crystal storage (max amount this planet can contain).
+     */
+    public function getCrystalStorage($formatted = false)
+    {
+        $storage = $this->planet->crystal_max;
+
+        if ($formatted) {
+            $storage = number_format($storage, 0, ',', '.');
+        }
+
+        return $storage;
+    }
+
+    /**
+     * Get planet deuterium storage (max amount this planet can contain).
+     */
+    public function getDeuteriumStorage($formatted = false)
+    {
+        $storage = $this->planet->deuterium_max;
+
+        if ($formatted) {
+            $storage = number_format($storage, 0, ',', '.');
+        }
+
+        return $storage;
+    }
+
+    /**
      * Adds resources to a planet.
      *
      * @param $resources
@@ -781,6 +772,16 @@ class PlanetService
             // Build the next item in queue (if there is any)
             $queue->start($this, $item->time_end);
         }
+    }
+
+    /**
+     * Get planet ID.
+     *
+     * @return mixed
+     */
+    public function getPlanetId()
+    {
+        return $this->planet->id;
     }
 
     /**
@@ -893,6 +894,22 @@ class PlanetService
     }
 
     /**
+     * Returns basic income (resources) information for this planet.
+     */
+    public function getPlanetBasicIncome()
+    {
+        $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
+
+        // @TODO: make these settings configurable in backend.
+        return [
+            'metal' => 30 * $universe_resource_multiplier,
+            'crystal' => 15 * $universe_resource_multiplier,
+            'deuterium' => 0,
+            'energy' => 0,
+        ];
+    }
+
+    /**
      * Update the planets resource production stats inner logic.
      *
      * @param $production_total
@@ -930,53 +947,6 @@ class PlanetService
         $this->planet->deuterium_production = $production_total['deuterium'];
         $this->planet->energy_used = $energy_consumption_total;
         $this->planet->energy_max = $energy_production_total;
-    }
-
-    /**
-     * Update this planet's resource storage stats.
-     * This should happen on every users page load and every time the planet is touched.
-     */
-    public function updateResourceStorageStats($save_planet = true)
-    {
-        $storage_total = [];
-        foreach ($this->objects->getBuildingObjectsWithStorage() as $building) {
-            // Retrieve all buildings that have production values.
-            $storage = $this->getBuildingMaxStorage($building['id']);
-
-            // Combine values to one array so we have the total storage.
-            foreach ($storage as $key => $value) {
-                if (!empty($storage_total[$key])) {
-                    $storage_total[$key] += $value;
-                } else {
-                    $storage_total[$key] = $value;
-                }
-            }
-        }
-
-        // Write values to planet
-        $this->planet->metal_max = $storage_total['metal'];
-        $this->planet->crystal_max = $storage_total['crystal'];
-        $this->planet->deuterium_max = $storage_total['deuterium'];
-        if ($save_planet) {
-            $this->planet->save();
-        }
-    }
-
-
-    /**
-     * Returns basic income (resources) information for this planet.
-     */
-    public function getPlanetBasicIncome()
-    {
-        $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
-
-        // @TODO: make these settings configurable in backend.
-        return [
-            'metal' => 30 * $universe_resource_multiplier,
-            'crystal' => 15 * $universe_resource_multiplier,
-            'deuterium' => 0,
-            'energy' => 0,
-        ];
     }
 
     /**
@@ -1126,6 +1096,36 @@ class PlanetService
     public function getPlanetTempMax()
     {
         return $this->planet->temp_max;
+    }
+
+    /**
+     * Update this planet's resource storage stats.
+     * This should happen on every users page load and every time the planet is touched.
+     */
+    public function updateResourceStorageStats($save_planet = true)
+    {
+        $storage_total = [];
+        foreach ($this->objects->getBuildingObjectsWithStorage() as $building) {
+            // Retrieve all buildings that have production values.
+            $storage = $this->getBuildingMaxStorage($building['id']);
+
+            // Combine values to one array so we have the total storage.
+            foreach ($storage as $key => $value) {
+                if (!empty($storage_total[$key])) {
+                    $storage_total[$key] += $value;
+                } else {
+                    $storage_total[$key] = $value;
+                }
+            }
+        }
+
+        // Write values to planet
+        $this->planet->metal_max = $storage_total['metal'];
+        $this->planet->crystal_max = $storage_total['crystal'];
+        $this->planet->deuterium_max = $storage_total['deuterium'];
+        if ($save_planet) {
+            $this->planet->save();
+        }
     }
 
     /**

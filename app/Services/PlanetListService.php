@@ -2,9 +2,8 @@
 
 namespace OGame\Services;
 
-use Illuminate\Support\Facades\DB;
+use Exception;
 use OGame\Planet as Planet;
-use OGame\Services\PlanetService;
 
 /**
  * Class PlanetList.
@@ -33,14 +32,16 @@ class PlanetListService
     /**
      * Planets constructor.
      */
-    public function __construct(PlayerService $player) {
+    public function __construct(PlayerService $player)
+    {
         $this->player = $player;
     }
 
     /**
      * Load all planets of specific user.
      */
-    public function load($id) {
+    public function load($id)
+    {
         // Get all planets of user
         $planets = Planet::where('user_id', $id)->get();
         foreach ($planets as $record) {
@@ -70,7 +71,8 @@ class PlanetListService
     /**
      * Updates all planets in this planet list.
      */
-    public function update() {
+    public function update()
+    {
         foreach ($this->planets as $planet) {
             $planet->update();
         }
@@ -80,14 +82,15 @@ class PlanetListService
      * Get already loaded child planet by ID. Invokes an exception if the
      * planet is not found.
      */
-    public function childPlanetById($id) {
+    public function childPlanetById($id)
+    {
         foreach ($this->planets as $planet) {
             if ($planet->getPlanetId() == $id) {
                 return $planet;
             }
         }
 
-        throw new \Exception('Requested planet is not owned by this player.');
+        throw new Exception('Requested planet is not owned by this player.');
     }
 
     /**
@@ -96,7 +99,8 @@ class PlanetListService
      * @param $id
      * @return bool
      */
-    public function planetExistsAndOwnedByPlayer($id) {
+    public function planetExistsAndOwnedByPlayer($id)
+    {
         foreach ($this->planets as $planet) {
             if ($planet->getPlanetId() == $id) {
                 return true;
@@ -107,16 +111,10 @@ class PlanetListService
     }
 
     /**
-     * Get first planet of player.
-     */
-    public function first() {
-        return $this->planets[0];
-    }
-
-    /**
      * Returns current planet of player.
      */
-    public function current() {
+    public function current()
+    {
         // Get current planet from PlayerService object.
         $currentPlanetId = $this->player->getCurrentPlanetId();
 
@@ -132,16 +130,26 @@ class PlanetListService
     }
 
     /**
+     * Get first planet of player.
+     */
+    public function first()
+    {
+        return $this->planets[0];
+    }
+
+    /**
      * Return array of planet objects.
      */
-    public function all() {
+    public function all()
+    {
         return $this->planets;
     }
 
     /**
      * Get amount of planets.
      */
-    public function count() {
+    public function count()
+    {
         return count($this->planets);
     }
 }

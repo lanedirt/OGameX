@@ -5,9 +5,10 @@ namespace Database\Factories\OGame;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use OGame\User;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\OGame\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -37,7 +38,7 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }

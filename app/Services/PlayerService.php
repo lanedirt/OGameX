@@ -2,9 +2,10 @@
 
 namespace OGame\Services;
 
+use Auth;
+use Exception;
 use OGame\User;
 use OGame\UserTech;
-use Auth;
 
 /**
  * Class PlayerService.
@@ -17,26 +18,23 @@ class PlayerService
 {
 
     /**
+     * The planetlist object for this player.
+     *
+     * @var PlanetListService
+     */
+    public PlanetListService $planets;
+    /**
      * The user object from the model of this player.
      *
      * @var User
      */
     protected User $user;
-
     /**
      * The user tech object from the model of this player.
      *
      * @var UserTech
      */
     protected UserTech $user_tech;
-
-    /**
-     * The planetlist object for this player.
-     *
-     * @var PlanetListService
-     */
-    public PlanetListService $planets;
-
     /**
      * @var ObjectService
      */
@@ -45,14 +43,16 @@ class PlayerService
     /**
      * Player constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->objects = resolve('OGame\Services\ObjectService');
     }
 
     /**
      * Load player object by user ID.
      */
-    public function load($id) {
+    public function load($id)
+    {
         // Fetch user from model
         $user = User::where('id', $id)->first();
         $this->user = $user;
@@ -77,24 +77,19 @@ class PlayerService
     }
 
     /**
-     * Saves current player object to DB.
-     */
-    public function save() {
-        $this->user->save();
-    }
-
-    /**
      * Get current player ID.
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->user->id;
     }
 
     /**
-     * Validates a username.
+     * Saves current player object to DB.
      */
-    public function validateUsername($username) {
-        return preg_match('/^[A-Za-z][A-Za-z0-9\s]*(?:_[A-Za-z0-9\s]+)*$/', $username);
+    public function save()
+    {
+        $this->user->save();
     }
 
     /**
@@ -102,13 +97,21 @@ class PlayerService
      *
      * @param $username
      */
-    public function setUsername($username) {
+    public function setUsername($username)
+    {
         if ($this->validateUsername($username)) {
             $this->user->username = $username;
+        } else {
+            throw new Exception('Illegal characters in username.');
         }
-        else {
-          throw new \Exception('Illegal characters in username.');
-        }
+    }
+
+    /**
+     * Validates a username.
+     */
+    public function validateUsername($username)
+    {
+        return preg_match('/^[A-Za-z][A-Za-z0-9\s]*(?:_[A-Za-z0-9\s]+)*$/', $username);
     }
 
     /**
@@ -116,39 +119,44 @@ class PlayerService
      *
      * @return string
      */
-    public function getUsername() {
+    public function getUsername()
+    {
         return $this->user->username;
     }
 
     /**
      * Set email address.
      */
-    public function setEmail($email) {
+    public function setEmail($email)
+    {
         $this->user->email = $email;
-    }
-
-    /**
-     * Get email address.
-     */
-    public function getEmail() {
-        return $this->user->email;
     }
 
     /**
      * Validates whether input matches current users password.
      */
-    public function validatePassword($password) {
-      if (Auth::Attempt((['email' => $this->getEmail(), 'password' => $password]))) {
-        return true;
-      }
+    public function validatePassword($password)
+    {
+        if (Auth::Attempt((['email' => $this->getEmail(), 'password' => $password]))) {
+            return true;
+        }
 
-      return false;
+        return false;
+    }
+
+    /**
+     * Get email address.
+     */
+    public function getEmail()
+    {
+        return $this->user->email;
     }
 
     /**
      * Gets the level of a building on this planet.
      */
-    public function getResearchLevel($object_id) {
+    public function getResearchLevel($object_id)
+    {
         $research = $this->objects->getResearchObjects($object_id);
 
         // Sanity check: if building does not exist yet then return 0.
@@ -161,8 +169,7 @@ class PlayerService
 
         if ($research_level) {
             return $research_level;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -170,14 +177,16 @@ class PlayerService
     /**
      * Get planet ID that player has currently selected / is looking at.
      */
-    public function getCurrentPlanetId() {
+    public function getCurrentPlanetId()
+    {
         return $this->user->planet_current;
     }
 
     /**
      * Set current planet ID (update).
      */
-    public function setCurrentPlanetId($planet_id) {
+    public function setCurrentPlanetId($planet_id)
+    {
         // Check if user owns this planet ID
         if ($this->planets->planetExistsAndOwnedByPlayer($planet_id)) {
             $this->user->planet_current = $planet_id;
@@ -188,7 +197,8 @@ class PlayerService
     /**
      * Update the player entity.
      */
-    public function update() {
+    public function update()
+    {
         // ------
         // 1. Update research queue
         // ------

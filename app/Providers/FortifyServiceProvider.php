@@ -2,16 +2,16 @@
 
 namespace OGame\Providers;
 
-use OGame\Actions\Fortify\CreateNewUser;
-use OGame\Actions\Fortify\ResetUserPassword;
-use OGame\Actions\Fortify\UpdateUserPassword;
-use OGame\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
+use OGame\Actions\Fortify\CreateNewUser;
+use OGame\Actions\Fortify\ResetUserPassword;
+use OGame\Actions\Fortify\UpdateUserPassword;
+use OGame\Actions\Fortify\UpdateUserProfileInformation;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -34,7 +34,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())) . '|' . $request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
         });

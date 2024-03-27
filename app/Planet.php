@@ -10,8 +10,8 @@ class Planet extends Model
     use HasFactory;
 
     /**
-    * Get the planet that owns the research queue record.
-    */
+     * Get the planet that owns the research queue record.
+     */
     public function planet()
     {
         return $this->belongsTo('OGame\Planet');

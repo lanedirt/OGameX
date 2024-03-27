@@ -3,10 +3,6 @@
 namespace OGame\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
-use OGame\Http\Controllers\FacilitiesController;
-use OGame\Http\Controllers\ResourcesController;
-use OGame\Http\Controllers\ResearchController;
 
 class AppServiceProvider extends ServiceProvider
 {
