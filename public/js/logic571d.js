@@ -29841,7 +29841,7 @@ function initHighscore() {
         $("#stat_list_content").html(LocalizationStrings.loading);
         $(this).addClass("active");
         var b = $("#categoryButtons > a.active").attr("rel");
-        var k = highscoreContentUrl + "&category=" + b + "&type=" + h + l;
+        var k = highscoreContentUrl + "?category=" + b + "&type=" + h + l;
         if ((a.attr("id") == "typeButtons" || $(this).hasClass("subnavButton")) && searchSite != site) {
             k = k + "&site=" + site
         }
@@ -29881,7 +29881,7 @@ function initHighscoreContent() {
     $(".changeSite").change(function () {
         var a = $(this).val();
         $("#stat_list_content").html('<div class="ajaxLoad">' + LocalizationStrings.loading + "</div>");
-        ajaxCall(highscoreContentUrl + "&category=" + currentCategory + "&type=" + currentType + "&site=" + a, "stat_list_content")
+        ajaxCall(highscoreContentUrl + "?category=" + currentCategory + "&type=" + currentType + "&page=" + a, "stat_list_content")
     });
     var d = $("#scrollToTop");
     var e = $("#ranks thead .score");

@@ -69,6 +69,8 @@ Route::middleware(['auth', 'globalgame'])->group(function () {
         Route::post('/options', 'OptionsController@save')->name('options.save');
 
         Route::get('/highscore', 'HighscoreController@index')->name('highscore.index');
+        Route::post('/ajax/highscore', 'HighscoreController@ajax')->name('highscore.ajax');
+        
         Route::get('/buddies', 'BuddiesController@index')->name('buddies.index');
         Route::get('/messages', 'MessagesController@index')->name('messages.index');
         Route::get('/rewards', 'RewardsController@index')->name('rewards.index');
