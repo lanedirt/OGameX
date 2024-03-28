@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use OGame\Facades\AppUtil;
 use OGame\Planet as Planet;
 use OGame\User;
 
@@ -56,7 +57,7 @@ class HighscoreService
         // TODO: add score for fleets that are not on a planet (flying missions).
 
         if ($formatted) {
-            $score = number_format($score, 0, ',', '.');
+            $score = AppUtil::formatNumber($score);
         }
 
         return $score;
@@ -120,7 +121,7 @@ class HighscoreService
             // Get player main planet coords
             $mainPlanet = $playerService->planets->first();
 
-            $score_formatted = number_format($score, 0, ',', '.');
+            $score_formatted = AppUtil::formatNumber($score);
 
             $highscore[] = [
                 'id' => $player->id,

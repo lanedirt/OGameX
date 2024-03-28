@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use OGame\Facades\AppUtil;
 use OGame\Planet;
 
 /**
@@ -213,7 +214,7 @@ class PlanetService
         $production = $this->planet->metal_production;
 
         if ($formatted) {
-            $production = number_format($production, 0, ',', '.');
+            $production = AppUtil::formatNumber($production);
         }
 
         return $production;
@@ -235,7 +236,7 @@ class PlanetService
         $production = $this->planet->crystal_production;
 
         if ($formatted) {
-            $production = number_format($production, 0, ',', '.');
+            $production = AppUtil::formatNumber($production);
         }
 
         return $production;
@@ -257,7 +258,7 @@ class PlanetService
         $production = $this->planet->deuterium_production;
 
         if ($formatted) {
-            $production = number_format($production, 0, ',', '.');
+            $production = AppUtil::formatNumber($production);
         }
 
         return $production;
@@ -274,7 +275,7 @@ class PlanetService
         $energy = $energy_max - $energy_used;
 
         if ($formatted) {
-            $energy = number_format($energy, 0, ',', '.');
+            $energy = AppUtil::formatNumber($energy);
         }
 
         return $energy;
@@ -340,7 +341,7 @@ class PlanetService
         $metal = $this->planet->metal;
 
         if ($formatted) {
-            $metal = number_format($metal, 0, ',', '.');
+            $metal = AppUtil::formatNumber($metal);
         }
 
         return $metal;
@@ -354,7 +355,7 @@ class PlanetService
         $crystal = $this->planet->crystal;
 
         if ($formatted) {
-            $crystal = number_format($crystal, 0, ',', '.');
+            $crystal = AppUtil::formatNumber($crystal);
         }
 
         return $crystal;
@@ -368,7 +369,7 @@ class PlanetService
         $deuterium = $this->planet->deuterium;
 
         if ($formatted) {
-            $deuterium = number_format($deuterium, 0, ',', '.');
+            $deuterium = AppUtil::formatNumber($deuterium);
         }
 
         return $deuterium;
@@ -676,7 +677,7 @@ class PlanetService
         $storage = $this->planet->metal_max;
 
         if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
+            $storage = AppUtil::formatNumber($storage);
         }
 
         return $storage;
@@ -690,7 +691,7 @@ class PlanetService
         $storage = $this->planet->crystal_max;
 
         if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
+            $storage = AppUtil::formatNumber($storage);
         }
 
         return $storage;
@@ -704,7 +705,7 @@ class PlanetService
         $storage = $this->planet->deuterium_max;
 
         if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
+            $storage = AppUtil::formatNumber($storage);
         }
 
         return $storage;
@@ -1034,7 +1035,7 @@ class PlanetService
         $energy_production = $this->planet->energy_max;
 
         if ($formatted) {
-            $energy_production = number_format($energy_production, 0, ',', '.');
+            $energy_production = AppUtil::formatNumber($energy_production);
         }
 
         return $energy_production;
@@ -1048,7 +1049,7 @@ class PlanetService
         $energy_consumption = $this->planet->energy_used;
 
         if ($formatted) {
-            $energy_consumption = number_format($energy_consumption, 0, ',', '.');
+            $energy_consumption = AppUtil::formatNumber($energy_consumption);
         }
 
         return $energy_consumption;

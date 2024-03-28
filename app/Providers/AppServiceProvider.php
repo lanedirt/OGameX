@@ -3,6 +3,7 @@
 namespace OGame\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use OGame\Utils\AppUtil;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,5 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->singleton('appUtil', function ($app) {
+            return new AppUtil();
+        });
     }
 }

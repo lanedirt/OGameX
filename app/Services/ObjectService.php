@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use OGame\Facades\AppUtil;
+
 /**
  * Class ObjectService.
  *
@@ -1702,7 +1704,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         // Optionally format the output.
         if ($formatted) {
             foreach ($price as &$element) {
-                $element = number_format($element, 0, ',', '.');
+                $element = AppUtil::formatNumber($element);
             }
         }
 
