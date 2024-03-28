@@ -727,6 +727,7 @@ Positions 1 and 15 can be populated from level 8 onwards.',
                     'deuterium' => 4000,
                     'energy' => 0,
                     'factor' => 1.75,
+                    'round_nearest_100' => true,
                 ],
                 'assets' => [
                     'img' => [
@@ -1739,11 +1740,19 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             $price['deuterium'] = $base_price['deuterium'] * pow($base_price['factor'], $level - 1);
             $price['energy'] = $base_price['energy'] * pow($base_price['factor'], $level - 1);
 
-            // Round prices to nearest 100.
-            $price['metal'] = round($price['metal'] / 100) * 100;
-            $price['crystal'] = round($price['crystal'] / 100) * 100;
-            $price['deuterium'] = round($price['deuterium'] / 100) * 100;
-            $price['energy'] = round($price['energy'] / 100) * 100;
+            // Round price
+            $price['metal'] = round($price['metal']);
+            $price['crystal'] = round($price['crystal']);
+            $price['deuterium'] = round($price['deuterium']);
+            $price['energy'] = round($price['energy']);
+
+            if (!empty($base_price['round_nearest_100'])) {
+                // Round to nearest 100.
+                $price['metal'] = round($price['metal'] / 100) * 100;
+                $price['crystal'] = round($price['crystal'] / 100) * 100;
+                $price['deuterium'] = round($price['deuterium'] / 100) * 100;
+                $price['energy'] = round($price['energy']);
+            }
         }
         // Price calculation for fleet or defense (regular price per unit)
         else {
