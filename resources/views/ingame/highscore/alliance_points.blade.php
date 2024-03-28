@@ -1,7 +1,7 @@
 <div id="content">
     <div>
         <script type="text/javascript">
-            var currentCategory = 1;
+            var currentCategory = 2;
             var currentType = {{ $highscoreCurrentType }};
             var searchPosition = 113970;
             var site = {{ $highscoreCurrentPage }};
@@ -12,20 +12,20 @@
 
         <div class="pagebar">
             @if ($highscoreCurrentPage > 1)
-                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => 1, 'type' => $highscoreCurrentType]) }}#ategory=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site=1', 'stat_list_content'); return false;">«</a>&nbsp;
+                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => 1, 'type' => $highscoreCurrentType, 'category' => 2]) }}#ategory=1&amp;type=0&amp;searchRelId=113970&amp;site=1', 'stat_list_content'); return false;">«</a>&nbsp;
             @endif
             @for ($i = 1; $i <= ceil($highscorePlayerAmount / 100); $i++)
                 @if ($highscoreCurrentPage == $i)
                     <span class=" activePager">{{ $i }}</span>
                 @else
-                    <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => $i, 'type' => $highscoreCurrentType]) }}#highscoreContent&amp;category=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site={{ $i }}', 'stat_list_content'); return false;">
+                    <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => $i, 'type' => $highscoreCurrentType, 'category' => 2]) }}#highscoreContent&amp;category=2&amp;type=0&amp;searchRelId=113970&amp;site={{ $i }}', 'stat_list_content'); return false;">
                         {{ $i }}
                     </a>
                 @endif
                 &nbsp;
             @endfor
             @if ($highscoreCurrentPage < floor($highscorePlayerAmount / 100))
-                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => floor($highscorePlayerAmount / 100) + 1, 'type' => $highscoreCurrentType]) }}#highscoreContent&amp;category=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site=x', 'stat_list_content'); return false;">»</a>
+                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => floor($highscorePlayerAmount / 100) + 1, 'type' => $highscoreCurrentType, 'category' => 2]) }}#highscoreContent&amp;category=2&amp;type=0&amp;searchRelId=113970&amp;site=x', 'stat_list_content'); return false;">»</a>
             @endif
         </div>
         <select class="changeSite fright">
@@ -37,7 +37,8 @@
         <div class="fleft" id="highscoreHeadline">
             Points
         </div>
-        <table id="ranks" class="userHighscore">
+
+        <table id="ranks" class="allyHighscore">
             <thead>
             <tr>
                 <td class="position">
@@ -45,20 +46,97 @@
                 </td>
                 <td class="movement"></td>
                 <td class="name">
-                    Player’s Name
-                    (Honour points)
+                    Alliance
                 </td>
-                <td class="sendmsg" align="center">
-                    Action
+
+
+                <td class="member_count" align="center">
+                    Member
                 </td>
-                <td class="score" align="center">
+                <td align="center" class="score tooltip js_hideTipOnMobile" title="Average points">
                     Points
                 </td>
             </tr>
             </thead>
             <tbody>
+            <tr class="
+                        " id="position500665">
+                <td class="position">
+                    1
+                </td>
+
+                <td class="movement">
+                            <span class="overmark">
+                    <img src="/img/icons/7e6b4e65bec62ac2f10ea24ba76c51.gif" alt="down">
+                    <span class="stats_counter">(1)</span>
+                </span>
+                </td>
+
+                <td class="name">
+                    <div class="ally-name">
+                    <span title="Traders" class="alliance_class small trader">
+                        BDOffline
+                    </span>
+                    </div>
+                    <div class="ally-tag">
+                        <a href="allianceInfo.php?allianceId=500665" target="_ally">
+                            [BDO]
+                        </a>
+                    </div>
+                </td>
+
+
+
+                <td class="member_count" align="center">
+                    11
+                </td>
+
+                <td class="score">
+                    1,068,614,555
+                    <div class="small">ø97,146,778
+                    </div></td>
+            </tr>
+            <tr class="
+                         alt
+                        " id="position500044">
+                <td class="position">
+                    2
+                </td>
+
+                <td class="movement">
+                            <span class="overmark">
+                    <img src="/img/icons/7e6b4e65bec62ac2f10ea24ba76c51.gif" alt="down">
+                    <span class="stats_counter">(2)</span>
+                </span>
+                </td>
+
+                <td class="name">
+                    <div class="ally-name">
+                    <span title="Traders" class="alliance_class small trader">
+                        No Waste Of Time_IT
+                    </span>
+                    </div>
+                    <div class="ally-tag">
+                        <a href="allianceInfo.php?allianceId=500044" target="_ally">
+                            [NWOT_IT]
+                        </a>
+                    </div>
+                </td>
+
+
+
+                <td class="member_count" align="center">
+                    19
+                </td>
+
+                <td class="score">
+                    954,016,496
+                    <div class="small">ø50,211,395
+                    </div></td>
+            </tr>
+
             @foreach ($highscorePlayers as $highscorePlayer)
-                <tr class="{{ $highscorePlayer['id'] == $player->getId()  ? 'myrank' : ($highscorePlayer['rank'] % 2 == 0  ? 'alt' : '') }}" id="position{{ $highscorePlayer['id'] }}">
+                <!--<tr class="{{ $highscorePlayer['id'] == $player->getId()  ? 'myrank' : '' }} {{$highscorePlayer['rank'] % 2 == 0  ? 'alt' : ''}}" id="position{{ $highscorePlayer['id'] }}">
                     <td class="position">
                         {{ $highscorePlayer['rank'] }}
                     </td>
@@ -108,7 +186,7 @@
                      ">
                         {{ $highscorePlayer['points_formatted'] }}
                     </td>
-                </tr>
+                </tr>-->
             @endforeach
             </tbody>
         </table>
@@ -123,20 +201,20 @@
             <a href="javascript:void(0);" class="scrollToTop">Back to top</a>
             &nbsp;
             @if ($highscoreCurrentPage > 1)
-                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => 1, 'type' => $highscoreCurrentType]) }}#ategory=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site=1', 'stat_list_content'); return false;">«</a>&nbsp;
+                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => 1, 'type' => $highscoreCurrentType, 'category' => 2]) }}#ategory=1&amp;type=0&amp;searchRelId=113970&amp;site=1', 'stat_list_content'); return false;">«</a>&nbsp;
             @endif
             @for ($i = 1; $i <= ceil($highscorePlayerAmount / 100); $i++)
                 @if ($highscoreCurrentPage == $i)
                     <span class=" activePager">{{ $i }}</span>
                 @else
-                    <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => $i, 'type' => $highscoreCurrentType]) }}#highscoreContent&amp;category=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site={{ $i }}', 'stat_list_content'); return false;">
+                    <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => $i, 'type' => $highscoreCurrentType, 'category' => 2]) }}#highscoreContent&amp;category=2&amp;type=0&amp;searchRelId=113970&amp;site={{ $i }}', 'stat_list_content'); return false;">
                         {{ $i }}
                     </a>
                 @endif
                 &nbsp;
             @endfor
             @if ($highscoreCurrentPage < floor($highscorePlayerAmount / 100))
-                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => floor($highscorePlayerAmount / 100) + 1, 'type' => $highscoreCurrentType]) }}#highscoreContent&amp;category=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site=x', 'stat_list_content'); return false;">»</a>
+                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => floor($highscorePlayerAmount / 100) + 1, 'type' => $highscoreCurrentType, 'category' => 2]) }}#highscoreContent&amp;category=2&amp;type=0&amp;searchRelId=113970&amp;site=x', 'stat_list_content'); return false;">»</a>
             @endif
         </div>
     </div>

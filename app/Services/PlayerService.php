@@ -265,4 +265,20 @@ class PlayerService
 
         return $score;
     }
+
+    /**
+     * Calculate and return planet score based on levels of buildings and amount of units.
+     */
+    public function getResearchPoints() {
+        // For every research in the game, get the current player level and get the sum of all levels.
+        $sum_level = 0;
+
+        // Create object array
+        $research_objects = $this->objects->getResearchObjects();
+        foreach ($research_objects as $object) {
+            $sum_level += $this->getResearchLevel($object['id']);
+        }
+
+        return $sum_level;
+    }
 }

@@ -1173,4 +1173,22 @@ class PlanetService
 
         return $score;
     }
+
+    /**
+     * Calculate planet military points.
+     *
+     * @return float
+     */
+    public function getPlanetMilitaryPoints() {
+        // Count all ships and defenses unit counts on the planet, which represent the military points.
+        $military_points = 0;
+
+        // Create object array
+        $unit_objects = $this->objects->getShipObjects() + $this->objects->getDefenceObjects();
+        foreach ($unit_objects as $object) {
+            $military_points += $this->getObjectAmount($object['id']);
+        }
+
+        return $military_points;
+    }
 }

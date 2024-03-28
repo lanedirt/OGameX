@@ -16,28 +16,34 @@ use OGame\User;
 class HighscoreService
 {
     /**
+     * Highscore type to calculate.
+     * @var numeric
+     */
+    protected $highscoreType;
+
+    /**
      * Highscore constructor.
      */
     public function __construct()
     {
     }
 
-    public function getPlayerScore($player, $formatted = false) {
-        // Calculate player score dynamically based on player levels and possessions.
-        $score = 0;
-        $score += $this->getPlayerPointsGeneral($player);
-        $score += $this->getPlayerPointsResearch($player);
-        $score += $this->getPlayerPointsMilitary($player);
-        $score += $this->getPlayerPointsEconomy($player);
-
-        if ($formatted) {
-            $score = number_format($score, 0, ',', '.');
-        }
-
-        return $score;
+    /**
+     * Set the highscore type to calculate.
+     *
+     * @param $type
+     * @return void
+     */
+    public function setHighscoreType($type)
+    {
+        // 0 = general score
+        // 1 = economy points
+        // 2 = research points
+        // 3 = military points
+        $this->highscoreType = $type;
     }
 
-    public function getPlayerPointsGeneral(PlayerService $player) {
+    public function getPlayerScore($player, $formatted = false) {
         $score = 0;
         // Get score for buildings and units on player owned planets
         foreach ($player->planets->all() as $planet) {
@@ -49,19 +55,31 @@ class HighscoreService
 
         // TODO: add score for fleets that are not on a planet (flying missions).
 
+        if ($formatted) {
+            $score = number_format($score, 0, ',', '.');
+        }
+
         return $score;
     }
 
     public function getPlayerPointsResearch(PlayerService $player) {
-
+        return $player->getResearchPoints();
     }
 
     public function getPlayerPointsMilitary(PlayerService $player) {
+        $points = 0;
 
+        // Get points (sum of all unit amounts) for units on player owned planets.
+        foreach ($player->planets->all() as $planet) {
+            $points += $planet->getPlanetMilitaryPoints();
+        }
+
+        return $points;
     }
 
     public function getPlayerPointsEconomy(PlayerService $player) {
-
+        // TODO: implement economy points calculation.
+        return 0;
     }
 
     public function getHighscorePlayers($offset_start = 0, $return_amount = 100)
@@ -75,9 +93,23 @@ class HighscoreService
 
             // TODO: we get the player score per player now, but we should get it from a cached highscore table
             // to improve performance. Currently it works but is slow for large amounts of players.
-            // Load player object with all planets
+            // Load player object with all planets.
             $playerService = app()->make(PlayerService::class, ['player_id' => $player->id]);
-            $score = $this->getPlayerScore($playerService);
+            $score = 0;
+            switch ($this->highscoreType) {
+                case 1:
+                    $score = $this->getPlayerPointsEconomy($playerService);
+                    break;
+                case 2:
+                    $score = $this->getPlayerPointsResearch($playerService);
+                    break;
+                case 3:
+                    $score = $this->getPlayerPointsMilitary($playerService);
+                    break;
+                default:
+                    $score = $this->getPlayerScore($playerService);
+                    break;
+            }
 
             // Get player main planet coords
             $mainPlanet = $playerService->planets->first();

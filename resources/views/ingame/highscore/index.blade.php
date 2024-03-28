@@ -8,8 +8,9 @@
         </div>
     @endif
 
-    <script>
+    <script type="text/javascript">
         highscoreContentUrl = '{{ route('highscore.ajax') }}';
+        var userWantsFocus = false;
     </script>
     
     <div id="inhalt">

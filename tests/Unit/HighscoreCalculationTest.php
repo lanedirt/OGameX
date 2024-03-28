@@ -118,4 +118,34 @@ class HighscoreCalculationTest extends TestCase
         // Total = 205.7
         $this->assertEquals(205, $this->playerService->getResearchScore());
     }
+
+    /**
+     * Test that the player score is calculated correctly based on research levels.
+     */
+    public function testPlayerResearchPoints(): void
+    {
+        $this->createAndConfigureUserTechModel([
+            'laser_technology' => 3,
+            'astrophysics' => 4,
+            'shielding_technology' => 5,
+        ]);
+
+        // Check that the point count is calculated correctly based on sum of all above levels.
+        $this->assertEquals(12, $this->playerService->getResearchPoints());
+    }
+
+    /**
+     * Test that the planet score is calculated correctly based on building levels and unit count combined.
+     */
+    public function testMilitaryPoints(): void
+    {
+        $this->createAndConfigurePlanetModel([
+            'metal_mine' => 10, // This should not affect the military points.
+            'light_fighter' => 10,
+            'battle_ship' => 10,
+        ]);
+
+        // Check that the point count is calculated correctly based on sum of all above units.
+        $this->assertEquals(20, $this->planetService->getPlanetMilitaryPoints());
+    }
 }
