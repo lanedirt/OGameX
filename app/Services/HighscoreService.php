@@ -22,10 +22,7 @@ class HighscoreService
     {
     }
 
-    public function getPlayerScore($playerId, $formatted = false) {
-        // Load player object with all planets
-        $player = app()->make(PlayerService::class, ['player_id' => $playerId]);
-
+    public function getPlayerScore($player, $formatted = false) {
         // Calculate player score dynamically based on player levels and possessions.
         $score = 0;
         $score += $this->getPlayerPointsGeneral($player);
@@ -67,7 +64,7 @@ class HighscoreService
 
     }
 
-    public function getHighscorePlayers()
+    public function getHighscorePlayers($offset_start = 0)
     {
         // Get all players
         $players = User::all();
@@ -78,7 +75,13 @@ class HighscoreService
 
             // TODO: we get the player score per player now, but we should get it from a cached highscore table
             // to improve performance. Currently it works but is slow for large amounts of players.
-            $score = $this->getPlayerScore($player->id);
+            // Load player object with all planets
+            $playerService = app()->make(PlayerService::class, ['player_id' => $player->id]);
+            $score = $this->getPlayerScore($playerService);
+
+            // Get player main planet coords
+            $mainPlanet = $playerService->planets->first();
+
             $score_formatted = number_format($score, 0, ',', '.');
 
             $highscore[] = [
@@ -86,6 +89,7 @@ class HighscoreService
                 'name' => $player->username,
                 'points' => $score,
                 'points_formatted' => $score_formatted,
+                'planet_coords' => $mainPlanet->getPlanetCoordinates(),
                 'rank' => $count,
             ];
         }
@@ -99,6 +103,9 @@ class HighscoreService
             $count++;
             $value['rank'] = $count;
         }
+
+        // Only return the requested 100 players based on starting rank.
+        $highscore = array_slice($highscore, $offset_start, 100);
 
         return $highscore;
     }

@@ -72,7 +72,7 @@ class OverviewController extends Controller
             'planet_temp_min' => $this->player->planets->current()->getPlanetTempMin(),
             'planet_temp_max' => $this->player->planets->current()->getPlanetTempMax(),
             'planet_coordinates' => $this->player->planets->current()->getPlanetCoordinatesAsString(),
-            'user_points' => $highscoreService->getPlayerScore($this->player->getId(), true), // @TODO
+            'user_points' => $highscoreService->getPlayerScore($this->player, true), // @TODO
             'user_rank' => 0, // @TODO
             'max_rank' => 0, // @TODO
             'user_honor_points' => 0, // @TODO

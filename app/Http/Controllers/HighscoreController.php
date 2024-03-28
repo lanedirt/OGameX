@@ -17,7 +17,7 @@ class HighscoreController extends Controller
      * @param int $id
      * @return Response
      */
-    public function index(Request $request, sPlayerService $player)
+    public function index(Request $request, PlayerService $player)
     {
         // Create highscore service
         $highscoreService = app()->make(HighscoreService::class);
