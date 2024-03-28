@@ -28,9 +28,14 @@ class ObjectService
     protected $researchObjects;
 
     /**
-     * Ships.
+     * Military ships.
      */
-    protected $shipObjects;
+    protected $militaryShipObjects;
+
+    /**
+     * Civil ships.
+     */
+    protected $civilShipObjects;
 
     /**
      * Defence.
@@ -844,8 +849,8 @@ As the technology is advanced to each level, the magnetosphere generator is upgr
             ],
         ];
 
-        $this->shipObjects = [
-            // Ships
+        $this->militaryShipObjects = [
+            // Military ships
             204 => [
                 'id' => 204,
                 'type' => 'ship',
@@ -1033,6 +1038,10 @@ Armed with a gigantic graviton cannon, the most advanced weapons system ever cre
                     ],
                 ],
             ],
+        ];
+
+        $this->civilShipObjects = [
+            // Civil ships
             202 => [
                 'id' => 202,
                 'type' => 'ship',
@@ -1502,14 +1511,48 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
      */
     public function getShipObjects($object_id = FALSE)
     {
+        $ship_objects = $this->militaryShipObjects + $this->civilShipObjects;
+
         if (!empty($object_id)) {
-            if (!empty($this->shipObjects[$object_id])) {
-                return $this->shipObjects[$object_id];
+            if (!empty($ship_objects[$object_id])) {
+                return $ship_objects[$object_id];
             } else {
                 return FALSE;
             }
         } else {
-            return $this->shipObjects;
+            return $ship_objects;
+        }
+    }
+
+    /**
+     * Get all military ships (or specific ship).
+     */
+    public function getMilitaryShipObjects($object_id = FALSE)
+    {
+        if (!empty($object_id)) {
+            if (!empty($this->militaryShipObjects[$object_id])) {
+                return $this->militaryShipObjects[$object_id];
+            } else {
+                return FALSE;
+            }
+        } else {
+            return $this->militaryShipObjects;
+        }
+    }
+
+    /**
+     * Get all civil ships (or specific ship).
+     */
+    public function getCivilShipObjects($object_id = FALSE)
+    {
+        if (!empty($object_id)) {
+            if (!empty($this->civilShipObjects[$object_id])) {
+                return $this->civilShipObjects[$object_id];
+            } else {
+                return FALSE;
+            }
+        } else {
+            return $this->civilShipObjects;
         }
     }
 
@@ -1566,7 +1609,8 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         $all_objects = $this->buildingObjects +
             $this->stationObjects +
             $this->researchObjects +
-            $this->shipObjects +
+            $this->militaryShipObjects +
+            $this->civilShipObjects +
             $this->defenceObjects;
 
         if (!empty($object_id)) {
@@ -1586,7 +1630,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     public function getUnitObjects($object_id = FALSE)
     {
         // Create combined array of the required object types.
-        $unit_objects = $this->shipObjects + $this->defenceObjects;
+        $unit_objects = $this->militaryShipObjects + $this->civilShipObjects + $this->defenceObjects;
 
         if (!empty($object_id)) {
             if (!empty($unit_objects[$object_id])) {

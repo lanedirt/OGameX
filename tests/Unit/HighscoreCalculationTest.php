@@ -120,18 +120,18 @@ class HighscoreCalculationTest extends TestCase
     }
 
     /**
-     * Test that the player score is calculated correctly based on research levels.
+     * Test that the planet score is calculated correctly based on building levels and unit count combined.
      */
-    public function testPlayerResearchPoints(): void
+    public function testEconomyScore(): void
     {
-        $this->createAndConfigureUserTechModel([
-            'laser_technology' => 3,
-            'astrophysics' => 4,
-            'shielding_technology' => 5,
+        $this->createAndConfigurePlanetModel([
+            'metal_mine' => 10,
+            'small_cargo' => 10,
+            'battle_ship' => 10, // This should not affect economy points as this is not a civil ship.
         ]);
 
-        // Check that the point count is calculated correctly based on sum of all above levels.
-        $this->assertEquals(12, $this->playerService->getResearchPoints());
+        // Check that the point count is calculated correctly based on spent resources for above.
+        $this->assertEquals(28, $this->planetService->getPlanetScoreEconomy());
     }
 
     /**
@@ -141,11 +141,12 @@ class HighscoreCalculationTest extends TestCase
     {
         $this->createAndConfigurePlanetModel([
             'metal_mine' => 10, // This should not affect the military points.
-            'light_fighter' => 10,
-            'battle_ship' => 10,
+            'small_cargo' => 10, // This should be calculcated as 50% because it is a civil ship.
+            'light_fighter' => 10, // 100%
+            'battle_ship' => 10, // 100%
         ]);
 
-        // Check that the point count is calculated correctly based on sum of all above units.
-        $this->assertEquals(20, $this->planetService->getPlanetMilitaryPoints());
+        // Check that the score is correctly calculated according to the military score formula.
+        $this->assertEquals(660, $this->planetService->getPlanetMilitaryScore());
     }
 }

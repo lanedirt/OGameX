@@ -1175,20 +1175,107 @@ class PlanetService
     }
 
     /**
+     * Calculate and return economy planet score based on levels of buildings and amount of units.
+     */
+    public function getPlanetScoreEconomy() {
+        // Economy score includes:
+        // 100% buildings/facilities
+        // 100% defense
+        // 50% civil ships
+        // 50% phalanx and jump gate
+
+        // For every object in the game, calculate the score based on how much resources it costs to build it.
+        // For buildings with levels it is the sum of resources needed for all levels up to the current level.
+        // For units it is the sum of resources needed to build the full sum of all units.
+        // The score is the sum of all these values.
+        $resources_spent = 0;
+
+        // Buildings (100%)
+        $building_objects = $this->objects->getBuildingObjects() + $this->objects->getStationObjects();
+        foreach ($building_objects as $object) {
+            for ($i = 1; $i <= $this->getObjectLevel($object['id']); $i++) {
+                // Concatenate price which is array of metal, crystal and deuterium.
+                $raw_price = $this->objects->getObjectRawPrice($object['id'], $i);
+                $resources_spent += $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            }
+        }
+
+        // Defence (100%)
+        $defence_objects = $this->objects->getDefenceObjects();
+        foreach ($defence_objects as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+        }
+
+        // Civil ships (50%)
+        $civil_ships = $this->objects->getCivilShipObjects();
+        foreach ($civil_ships as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = ($raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium']) * 0.5;
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+        }
+
+        // TODO: add phalanx and jump gate (50%) when moon is implemented.
+
+        // Divide the score by 1000 to get the amount of points. Floor the result.
+        $score = floor($resources_spent / 1000);
+
+        return $score;
+    }
+
+    /**
      * Calculate planet military points.
      *
      * @return float
      */
-    public function getPlanetMilitaryPoints() {
-        // Count all ships and defenses unit counts on the planet, which represent the military points.
-        $military_points = 0;
+    public function getPlanetMilitaryScore() {
+        // Military score includes:
+        // 100% defense
+        // 100% military ships
+        // 50% civil ships
+        // 50% phalanx and jump gate
 
-        // Create object array
-        $unit_objects = $this->objects->getShipObjects() + $this->objects->getDefenceObjects();
-        foreach ($unit_objects as $object) {
-            $military_points += $this->getObjectAmount($object['id']);
+        // For every object in the game, calculate the score based on how much resources it costs to build it.
+        // For buildings with levels it is the sum of resources needed for all levels up to the current level.
+        // For units it is the sum of resources needed to build the full sum of all units.
+        // The score is the sum of all these values.
+        $resources_spent = 0;
+
+        // Defence (100%)
+        $defence_objects = $this->objects->getDefenceObjects();
+        foreach ($defence_objects as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
         }
 
-        return $military_points;
+        // Military ships (100%)
+        $military_ships = $this->objects->getMilitaryShipObjects();
+        foreach ($military_ships as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+        }
+
+        // Civil ships (50%)
+        $civil_ships = $this->objects->getCivilShipObjects();
+        foreach ($civil_ships as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = ($raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium']) * 0.5;
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+        }
+
+        // TODO: add phalanx and jump gate (50%) when moon is implemented.
+
+        // Divide the score by 1000 to get the amount of points. Floor the result.
+        $score = floor($resources_spent / 1000);
+
+        return $score;
     }
 }

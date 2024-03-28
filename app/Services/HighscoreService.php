@@ -62,24 +62,30 @@ class HighscoreService
         return $score;
     }
 
-    public function getPlayerPointsResearch(PlayerService $player) {
-        return $player->getResearchPoints();
+    public function getPlayerScoreResearch(PlayerService $player) {
+        return $player->getResearchScore();
     }
 
-    public function getPlayerPointsMilitary(PlayerService $player) {
+    public function getPlayerScoreMilitary(PlayerService $player) {
         $points = 0;
 
         // Get points (sum of all unit amounts) for units on player owned planets.
         foreach ($player->planets->all() as $planet) {
-            $points += $planet->getPlanetMilitaryPoints();
+            $points += $planet->getPlanetMilitaryScore();
         }
 
         return $points;
     }
 
-    public function getPlayerPointsEconomy(PlayerService $player) {
-        // TODO: implement economy points calculation.
-        return 0;
+    public function getPlayerScoreEconomy(PlayerService $player) {
+        $points = 0;
+
+        // Get score for buildings and units on player owned planets (economy specific calculation).
+        foreach ($player->planets->all() as $planet) {
+            $points += $planet->getPlanetScoreEconomy();
+        }
+
+        return $points;
     }
 
     public function getHighscorePlayers($offset_start = 0, $return_amount = 100)
@@ -98,13 +104,13 @@ class HighscoreService
             $score = 0;
             switch ($this->highscoreType) {
                 case 1:
-                    $score = $this->getPlayerPointsEconomy($playerService);
+                    $score = $this->getPlayerScoreEconomy($playerService);
                     break;
                 case 2:
-                    $score = $this->getPlayerPointsResearch($playerService);
+                    $score = $this->getPlayerScoreResearch($playerService);
                     break;
                 case 3:
-                    $score = $this->getPlayerPointsMilitary($playerService);
+                    $score = $this->getPlayerScoreMilitary($playerService);
                     break;
                 default:
                     $score = $this->getPlayerScore($playerService);
