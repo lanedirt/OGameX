@@ -1144,7 +1144,7 @@ class PlanetService
     /**
      * Calculate and return planet score based on levels of buildings and amount of units.
      */
-    public function getGeneralScore() {
+    public function getPlanetScore() {
         // For every object in the game, calculate the score based on how much resources it costs to build it.
         // For buildings with levels it is the sum of resources needed for all levels up to the current level.
         // For units it is the sum of resources needed to build the full sum of all units.

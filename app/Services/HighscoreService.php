@@ -30,8 +30,6 @@ class HighscoreService
         $score += $this->getPlayerPointsMilitary($player);
         $score += $this->getPlayerPointsEconomy($player);
 
-        // TODO: add score for fleets that are not on a planet (flying missions).
-
         if ($formatted) {
             $score = number_format($score, 0, ',', '.');
         }
@@ -41,13 +39,15 @@ class HighscoreService
 
     public function getPlayerPointsGeneral(PlayerService $player) {
         $score = 0;
+        // Get score for buildings and units on player owned planets
         foreach ($player->planets->all() as $planet) {
-            $score += $planet->getGeneralScore();
+            $score += $planet->getPlanetScore();
         }
 
-        //var_dump('playerpointsgeneral:');
-        //var_dump($score);
-        //die();
+        // Get score for research levels of player
+        $score += $player->getResearchScore();
+
+        // TODO: add score for fleets that are not on a planet (flying missions).
 
         return $score;
     }

@@ -5,11 +5,13 @@ namespace Tests\Unit;
 use OGame\Planet;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\UserTech;
 use PHPUnit\Framework\TestCase;
 
 class HighscoreCalculationTest extends TestCase
 {
     protected $planetService;
+    protected $playerService;
 
     /**
      * Set up common test components.
@@ -19,9 +21,9 @@ class HighscoreCalculationTest extends TestCase
         parent::setUp();
 
         // Initialize empty playerService object
-        $playerService = app()->make(PlayerService::class, ['player_id' => 0]);
+        $this->playerService = app()->make(PlayerService::class, ['player_id' => 0]);
         // Initialize the planet service before each test
-        $this->planetService = app()->make(PlanetService::class, ['player' => $playerService, 'planet_id' => 0]);
+        $this->planetService = app()->make(PlanetService::class, ['player' => $this->playerService, 'planet_id' => 0]);
     }
 
     /**
@@ -33,6 +35,17 @@ class HighscoreCalculationTest extends TestCase
         $planetModelFake = Planet::factory()->make($attributes);
         // Set the fake model to the planet service
         $this->planetService->setPlanet($planetModelFake);
+    }
+
+    /**
+     * Helper method to create a user tech model with preconfigured levels.
+     */
+    protected function createAndConfigureUserTechModel(array $attributes): void
+    {
+        // Create fake user tech eloquent model with additional attributes
+        $userTechModelFake = UserTech::factory()->make($attributes);
+        // Set the fake model to the planet service
+        $this->playerService->setUserTech($userTechModelFake);
     }
 
     /**
@@ -48,7 +61,7 @@ class HighscoreCalculationTest extends TestCase
 
         // Check that the score is calculated correctly based on spent resouces for above.
         // buildings = 33k = 33
-        $this->assertEquals(33, $this->planetService->getGeneralScore());
+        $this->assertEquals(33, $this->planetService->getPlanetScore());
     }
 
     /**
@@ -64,7 +77,7 @@ class HighscoreCalculationTest extends TestCase
         // Check that the score is calculated correctly based on spent resouces for above.
         // light fighter = 4k * 10 = 40
         // battleship = 60k * 10 = 600
-        $this->assertEquals(640, $this->planetService->getGeneralScore());
+        $this->assertEquals(640, $this->planetService->getPlanetScore());
     }
 
     /**
@@ -84,6 +97,25 @@ class HighscoreCalculationTest extends TestCase
         // light fighter = 4k * 10 = 40
         // battleship = 60k * 10 = 600
         // buildings = 33k = 33
-        $this->assertEquals(673, $this->planetService->getGeneralScore());
+        $this->assertEquals(673, $this->planetService->getPlanetScore());
+    }
+
+    /**
+     * Test that the player score is calculated correctly based on research levels.
+     */
+    public function testPlayerResearchScore(): void
+    {
+        $this->createAndConfigureUserTechModel([
+            'laser_technology' => 3,
+            'astrophysics' => 4,
+            'shielding_technology' => 5,
+        ]);
+
+        // Check that the score is calculated correctly based on spent resouces for above.
+        // laser_technology = 0.3 + 0.6 + 1.2 = 2.1
+        // astrophysics = 16 + 28 + 49.1 + 85.7 = 178.8
+        // shielding_technology = 0.8 + 1.6 + 3.2 + 6.4 + 12.8 = 24.8
+        // Total = 205.7
+        $this->assertEquals(205, $this->playerService->getResearchScore());
     }
 }

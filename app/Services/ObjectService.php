@@ -719,7 +719,7 @@ Positions 1 and 15 can be populated from level 8 onwards.',
                     'crystal' => 8000,
                     'deuterium' => 4000,
                     'energy' => 0,
-                    'factor' => 2,
+                    'factor' => 1.75,
                 ],
                 'assets' => [
                     'img' => [
@@ -1693,11 +1693,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             $price['deuterium'] = $base_price['deuterium'] * pow($base_price['factor'], $level - 1);
             $price['energy'] = $base_price['energy'] * pow($base_price['factor'], $level - 1);
 
-            // Round prices down.
-            $price['metal'] = floor($price['metal']);
-            $price['crystal'] = floor($price['crystal']);
-            $price['deuterium'] = floor($price['deuterium']);
-            $price['energy'] = floor($price['energy']);
+            // Round prices to nearest 100.
+            $price['metal'] = round($price['metal'] / 100) * 100;
+            $price['crystal'] = round($price['crystal'] / 100) * 100;
+            $price['deuterium'] = round($price['deuterium'] / 100) * 100;
+            $price['energy'] = round($price['energy'] / 100) * 100;
         }
         // Price calculation for fleet or defense (regular price per unit)
         else {
