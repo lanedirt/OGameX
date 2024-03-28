@@ -39,12 +39,15 @@ class PlanetService
      * @param int planet_id
      *  If supplied the constructor will try to load the planet from the database.
      */
-    public function __construct($planet_id = 0)
+    public function __construct(PlayerService $player, $planet_id)
     {
-        // Load object service.
+        // Load the planet object if a positive planet ID is given.
+        // If no planet ID is given then planet context will not be available
+        // but this can be fine for unittests or when creating a new planet.
         if ($planet_id != 0) {
             $this->loadByPlanetId($planet_id);
         }
+        $this->player = $player;
 
         $this->objects = resolve('OGame\Services\ObjectService');
     }
@@ -65,12 +68,6 @@ class PlanetService
      */
     public function getPlayer()
     {
-        // @TODO: implement static cache for player objects.
-        if (!$this->player) {
-            $this->player = new PlayerService();
-            $this->player->load($this->planet->user_id);
-        }
-
         return $this->player;
     }
 
@@ -1142,5 +1139,38 @@ class PlanetService
         }
 
         return $storage;
+    }
+
+    /**
+     * Calculate and return planet score based on levels of buildings and amount of units.
+     */
+    public function getGeneralScore() {
+        // For every object in the game, calculate the score based on how much resources it costs to build it.
+        // For buildings with levels it is the sum of resources needed for all levels up to the current level.
+        // For units it is the sum of resources needed to build the full sum of all units.
+        // The score is the sum of all these values.
+        $resources_spent = 0;
+
+        // Create object array
+        $building_objects = $this->objects->getBuildingObjects() + $this->objects->getStationObjects();
+        foreach ($building_objects as $object) {
+            for ($i = 1; $i <= $this->getObjectLevel($object['id']); $i++) {
+                // Concatenate price which is array of metal, crystal and deuterium.
+                $raw_price = $this->objects->getObjectRawPrice($object['id'], $i);
+                $resources_spent += $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            }
+        }
+        $unit_objects = $this->objects->getShipObjects() + $this->objects->getDefenceObjects();
+        foreach ($unit_objects as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+        }
+
+        // Divide the score by 1000 to get the amount of points. Floor the result.
+        $score = floor($resources_spent / 1000);
+
+        return $score;
     }
 }

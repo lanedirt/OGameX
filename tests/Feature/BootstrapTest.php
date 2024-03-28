@@ -49,11 +49,20 @@ class BootstrapTest extends TestCase
         ];
 
         // Submit the registration form
-        $this->post('/register', $formData);
+        $response = $this->post('/register', $formData);
 
         // Assert the user was created...
         $this->assertDatabaseHas('users', [
             'email' => $randomEmail,
         ]);
+
+        // Check that the user is redirected to the overview page
+        $response->assertRedirect('/overview');
+
+        // Load overview page
+        $response = $this->get('/overview');
+
+        // Check that overview page is correctly rendered without errors.
+        $response->assertStatus(200);
     }
 }

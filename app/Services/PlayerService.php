@@ -43,8 +43,14 @@ class PlayerService
     /**
      * Player constructor.
      */
-    public function __construct()
+    public function __construct($player_id)
     {
+        // Load the player object if a positive player ID is given.
+        // If no player ID is given then player context will not be available, but this can be fine for unittests.
+        if ($player_id != 0) {
+            $this->load($player_id);
+        }
+
         $this->objects = resolve('OGame\Services\ObjectService');
     }
 
@@ -70,10 +76,8 @@ class PlayerService
         $this->user_tech = $tech;
 
         // Fetch all planets of user
-        $planet_list_service = resolve('OGame\Services\PlanetListService');
-        $planet_list = new $planet_list_service($this);
-        $planet_list->load($this->getId());
-        $this->planets = $planet_list;
+        $planet_list_service = app()->make(PlanetListService::class, ['player' => $this]);
+        $this->planets = $planet_list_service;
     }
 
     /**

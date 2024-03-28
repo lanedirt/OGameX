@@ -11,8 +11,7 @@
     <div id="inhalt">
         <div id="highscoreContent">
             <div class="header">
-                <h2>
-                    Player highscore            </h2>
+                <h2>Player highscore</h2>
             </div>
             <div class="content">
                 <form id="send" name="send" action="#highscore">
@@ -205,6 +204,50 @@
                                     </tr>
                                     </thead>
                                     <tbody>
+                                    @foreach ($highscorePlayers as $highscorePlayer)
+                                        <tr class="{{ $highscorePlayer['id'] == $player->getId()  ? 'myrank' : '' }}" id="position{{ $highscorePlayer['id'] }}">
+
+                                            <td class="position">
+                                                {{ $highscorePlayer['rank'] }}
+                                            </td>
+
+                                            <td class="movement">
+                            <span class="undermark"><img src="/img/icons/1c7545144452ec3e38c9fba216c4f9.gif" alt="up">
+                    <span class="stats_counter">(11)</span>
+                </span>
+                                            </td>
+                                            <td class="name">
+
+                                                <a href="
+                    #galaxy&amp;galaxy=7&amp;system=204&amp;position=12" class="dark_highlight_tablet">
+
+                <span class="
+                                         playername">
+                                            {{ $highscorePlayer['name'] }}
+                                    </span>
+
+                                                    <span class="honorScore">
+                        (<span class="undermark tooltip js_hideTipOnMobile" title="Honour points">0</span>)
+                    </span>
+                                                </a>
+                                            </td>
+
+                                            <td class="sendmsg">
+                                                <div class="sendmsg_content">
+                                                    <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="114167" title="Write message"><span class="icon icon_chat"></span></a>
+                                                    <a class="tooltip overlay js_hideTipOnMobile icon" title="Buddy request" data-overlay-title="Buddy request" href="#buddies&amp;action=7&amp;id=114167&amp;ajax=1">
+                                                        <span class="icon icon_user"></span>
+                                                    </a>
+
+                                                </div>
+                                            </td>
+
+                                            <td class="score
+                                             ">
+                                                {{ $highscorePlayer['points_formatted'] }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
 
                                     <tr class="
             " id="position114167">

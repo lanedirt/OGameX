@@ -1642,30 +1642,17 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
         // Price calculation for buildings or research (price depends on level)
         if ($object['type'] == 'building' || $object['type'] == 'research') {
-            // @TODO: refactor into object get level
             if ($object['type'] == 'building') {
                 $current_level = $planet->getObjectLevel($object['id']);
             } else {
                 $current_level = $player->getResearchLevel($object['id']);
             }
 
-            $base_price = $object['price'];
-
-            // Calculate price.
-            $price = [];
-            $price['metal'] = $base_price['metal'] * pow($base_price['factor'], $current_level);
-            $price['crystal'] = $base_price['crystal'] * pow($base_price['factor'], $current_level);
-            $price['deuterium'] = $base_price['deuterium'] * pow($base_price['factor'], $current_level);
-            $price['energy'] = $base_price['energy'] * pow($base_price['factor'], $current_level);
-
-            // Round prices down.
-            $price['metal'] = floor($price['metal']);
-            $price['crystal'] = floor($price['crystal']);
-            $price['deuterium'] = floor($price['deuterium']);
-            $price['energy'] = floor($price['energy']);
-        } // Price calculation for fleet or defense (regular price per unit)
+            $price = $this->getObjectRawPrice($object_id, $current_level + 1);
+        }
+        // Price calculation for fleet or defense (regular price per unit)
         else {
-            $price = $object['price'];
+            $price = $this->getObjectRawPrice($object_id);
         }
 
         // Optionally format the output.
@@ -1673,6 +1660,48 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             foreach ($price as &$element) {
                 $element = number_format($element, 0, ',', '.');
             }
+        }
+
+        return $price;
+    }
+
+    /**
+     * Gets the cost of building a building of a certain level or a unit.
+     */
+    public function getObjectRawPrice($object_id, $level = NULL)
+    {
+        $object = $this->getObjects($object_id);
+
+        // Price calculation for buildings or research (price depends on level)
+        if ($object['type'] == 'building' || $object['type'] == 'research') {
+            // Level 0 is free.
+            if ($level == 0) {
+                return [
+                    'metal' => 0,
+                    'crystal' => 0,
+                    'deuterium' => 0,
+                    'energy' => 0,
+                ];
+            }
+
+            $base_price = $object['price'];
+
+            // Calculate price.
+            $price = [];
+            $price['metal'] = $base_price['metal'] * pow($base_price['factor'], $level - 1);
+            $price['crystal'] = $base_price['crystal'] * pow($base_price['factor'], $level - 1);
+            $price['deuterium'] = $base_price['deuterium'] * pow($base_price['factor'], $level - 1);
+            $price['energy'] = $base_price['energy'] * pow($base_price['factor'], $level - 1);
+
+            // Round prices down.
+            $price['metal'] = floor($price['metal']);
+            $price['crystal'] = floor($price['crystal']);
+            $price['deuterium'] = floor($price['deuterium']);
+            $price['energy'] = floor($price['energy']);
+        }
+        // Price calculation for fleet or defense (regular price per unit)
+        else {
+            $price = $object['price'];
         }
 
         return $price;

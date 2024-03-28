@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers;
 use Illuminate\Http\Request;
 use OGame\Http\Traits\IngameTrait;
 use OGame\Services\BuildingQueueService;
+use OGame\Services\HighscoreService;
 use OGame\Services\PlayerService;
 use OGame\Services\ResearchQueueService;
 use OGame\Services\UnitQueueService;
@@ -62,6 +63,8 @@ class OverviewController extends Controller
             $ship_queue_time_countdown = $ship_queue_time_end - time();
         }
 
+        $highscoreService = app()->make(HighscoreService::class);
+
         return view('ingame.overview.index')->with([
             'header_filename' => $this->player->planets->current()->getPlanetType(),
             'planet_name' => $this->player->planets->current()->getPlanetName(),
@@ -69,7 +72,7 @@ class OverviewController extends Controller
             'planet_temp_min' => $this->player->planets->current()->getPlanetTempMin(),
             'planet_temp_max' => $this->player->planets->current()->getPlanetTempMax(),
             'planet_coordinates' => $this->player->planets->current()->getPlanetCoordinatesAsString(),
-            'user_points' => 0, // @TODO
+            'user_points' => $highscoreService->getPlayerScore($this->player->getId(), true), // @TODO
             'user_rank' => 0, // @TODO
             'max_rank' => 0, // @TODO
             'user_honor_points' => 0, // @TODO

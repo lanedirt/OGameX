@@ -35,6 +35,7 @@ class PlanetListService
     public function __construct(PlayerService $player)
     {
         $this->player = $player;
+        $this->load($player->getId());
     }
 
     /**
@@ -45,8 +46,7 @@ class PlanetListService
         // Get all planets of user
         $planets = Planet::where('user_id', $id)->get();
         foreach ($planets as $record) {
-            $planet = app()->make(PlanetService::class, ['planet_id' => $record->id]);
-
+            $planet = app()->make(PlanetService::class, ['planet_id' => $record->id, 'player' => $this->player]);
             $this->planets[] = $planet;
         }
 
@@ -54,8 +54,7 @@ class PlanetListService
         if (count($this->planets) < 2) {
             // TODO: move this logic to the user creation logic as well as the tech records.
             // As a test: give all players two random planets. (this should be just one, uncomment the below after dev)
-            $planet = app()->make(PlanetService::class);
-            $planet = new $planet();
+            $planet = app()->make(PlanetService::class, ['planet_id' => 0, 'player' => $this->player]);
             $planet->create($id);
 
             $this->planets[] = $planet;

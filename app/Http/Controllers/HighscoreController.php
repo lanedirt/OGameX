@@ -4,6 +4,8 @@ namespace OGame\Http\Controllers;
 
 use Illuminate\Http\Request;
 use OGame\Http\Traits\IngameTrait;
+use OGame\Services\HighscoreService;
+use OGame\Services\PlayerService;
 
 class HighscoreController extends Controller
 {
@@ -15,8 +17,14 @@ class HighscoreController extends Controller
      * @param int $id
      * @return Response
      */
-    public function index(Request $request)
+    public function index(Request $request, sPlayerService $player)
     {
-        return view('ingame.highscore.index');
+        // Create highscore service
+        $highscoreService = app()->make(HighscoreService::class);
+
+        return view('ingame.highscore.index')->with([
+            'highscorePlayers' => $highscoreService->getHighscorePlayers(),
+            'player' => $player,
+        ]);
     }
 }

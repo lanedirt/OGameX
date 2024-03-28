@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use OGame\Planet;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 use PHPUnit\Framework\TestCase;
 
 class ResourceProductionTest extends TestCase
@@ -22,6 +23,35 @@ class ResourceProductionTest extends TestCase
         ->andReturn(false);*/
 
     protected $planetService;
+
+    /**
+     * Set up common test components.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Initialize empty playerService object
+        $playerService = app()->make(PlayerService::class, ['player_id' => 0]);
+        // Initialize the planet service before each test
+        $this->planetService = app()->make(PlanetService::class, ['player' => $playerService, 'planet_id' => 0]);
+    }
+
+    /**
+     * Helper method to create a planet model with mine configurations and update resource stats.
+     */
+    protected function createAndConfigurePlanetModel(array $attributes, bool $updateStats = true): void
+    {
+        // Create fake planet eloquent model with additional attributes
+        $planetModelFake = Planet::factory()->make($attributes);
+        // Set the fake model to the planet service
+        $this->planetService->setPlanet($planetModelFake);
+
+        if ($updateStats) {
+            // Update resource production stats
+            $this->planetService->updateResourceProductionStats(false);
+        }
+    }
 
     /**
      * Mock test for metal mine production with positive energy production.
@@ -46,22 +76,6 @@ class ResourceProductionTest extends TestCase
     }
 
     /**
-     * Helper method to create a planet model with mine configurations and update resource stats.
-     */
-    protected function createAndConfigurePlanetModel(array $attributes, bool $updateStats = true): void
-    {
-        // Create fake planet eloquent model with additional attributes
-        $planetModelFake = Planet::factory()->make($attributes);
-        // Set the fake model to the planet service
-        $this->planetService->setPlanet($planetModelFake);
-
-        if ($updateStats) {
-            // Update resource production stats
-            $this->planetService->updateResourceProductionStats(false);
-        }
-    }
-
-    /**
      * Mock test for metal mine production with zero energy production.
      */
     public function testMineProductionNoEnergy(): void
@@ -81,16 +95,5 @@ class ResourceProductionTest extends TestCase
         $this->assertEquals(30, $this->planetService->getMetalProductionPerHour());
         $this->assertEquals(15, $this->planetService->getCrystalProductionPerHour());
         $this->assertEquals(0, $this->planetService->getDeuteriumProductionPerHour());
-    }
-
-    /**
-     * Set up common test components.
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Initialize the planet service before each test
-        $this->planetService = app()->make(PlanetService::class);
     }
 }

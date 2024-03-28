@@ -26,9 +26,9 @@ class PlanetFactory extends Factory
     {
         return [
             'name' => 'FakePlanetName',
-            'metal_mine' => 30,
+            'metal_mine' => 0,
             'metal_mine_percent' => 10,
-            'solar_plant' => 15,
+            'solar_plant' => 0,
             'solar_plant_percent' => 10,
         ];
     }

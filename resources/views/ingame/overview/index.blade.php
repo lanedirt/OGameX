@@ -18,7 +18,7 @@
         textContent[4] = "Position:";
         textContent[5] = "<a  href=\"{{ route('galaxy.index', ['galaxy' => 4, 'system' => 4, 'position' => 4])  }}\" >[{!! $planet_coordinates !!}]<\/a>";
         textContent[6] = "Points:";
-        textContent[7] = "<a href='{{ route('highscore.index')  }}'>0 (Place {!! $user_rank !!} of {!! $max_rank !!})<\/a>";
+        textContent[7] = "<a href='{{ route('highscore.index')  }}'>{{ $user_points }} (Place {!! $user_rank !!} of {!! $max_rank !!})<\/a>";
         textContent[8] = "Honour points:";
         textContent[9] = "0";
 
