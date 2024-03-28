@@ -19,11 +19,22 @@ class HighscoreController extends Controller
      */
     public function index(Request $request, PlayerService $player)
     {
-        // Create highscore service
+        // Create highscore service.
         $highscoreService = app()->make(HighscoreService::class);
 
+        // Current player rank.
+        $currentPlayerRank = $highscoreService->getHighscorePlayerRank($player);
+
+        // Initial page based on current player rank (round to the nearest 100 floored).
+        $page = floor($currentPlayerRank / 100)  + 1;
+        $offset_start = ($page - 1) * 100;
+
         return view('ingame.highscore.index')->with([
-            'highscorePlayers' => $highscoreService->getHighscorePlayers(),
+            'highscorePlayers' => $highscoreService->getHighscorePlayers($offset_start),
+            'highscorePlayerAmount' => $highscoreService->getHighscorePlayerAmount(),
+            'highscoreCurrentPlayerRank' => $currentPlayerRank,
+            'highscoreCurrentPlayerPage' => $page,
+            'highscoreCurrentPage' => $page,
             'player' => $player,
         ]);
     }

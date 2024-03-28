@@ -64,7 +64,7 @@ class HighscoreService
 
     }
 
-    public function getHighscorePlayers($offset_start = 0)
+    public function getHighscorePlayers($offset_start = 0, $return_amount = 100)
     {
         // Get all players
         $players = User::all();
@@ -105,9 +105,44 @@ class HighscoreService
         }
 
         // Only return the requested 100 players based on starting rank.
-        $highscore = array_slice($highscore, $offset_start, 100);
+        if ($return_amount > 0) {
+            $highscore = array_slice($highscore, $offset_start, 100);
+        }
 
         return $highscore;
     }
 
+    /**
+     * Return rank of player.
+     *
+     * @param $player
+     * @return int
+     */
+    public function getHighscorePlayerRank($player)
+    {
+        // TODO: this is a slow method, we should cache the highscore list and get the rank from there.
+        // Get all players
+        $highscorePlayers = $this->getHighscorePlayers(0, 0);
+
+        // Find the player in the highscore list to determine its rank.
+        $rank = 0;
+        foreach ($highscorePlayers as $highscorePlayer) {
+            $rank++;
+            if ($highscorePlayer['id'] == $player->getId()) {
+                return $rank;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Returns the amount of players in the game to determine paging for highscore page.
+     *
+     * @return numeric
+     */
+    public function getHighscorePlayerAmount()
+    {
+        return User::count();
+    }
 }
