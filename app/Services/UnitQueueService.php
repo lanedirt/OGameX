@@ -168,7 +168,7 @@ class UnitQueueService
     /**
      * Add a building to the building queue for the current planet.
      */
-    public function add(PlanetService $planet, $object_id, $requested_build_amount)
+    public function add(PlanetService $planet, $object_id, $requested_build_amount): void
     {
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the building queue.
@@ -187,6 +187,12 @@ class UnitQueueService
             $requested_build_amount = $max_build_amount;
         }
 
+        if ($requested_build_amount < 1) {
+            // If the requested amount is less than 1, then we can't build
+            // anything. So we stop here.
+            return;
+        }
+
         // Get price per unit
         $price = $this->objects->getObjectPrice($object_id, $planet);
 
@@ -199,10 +205,8 @@ class UnitQueueService
         // of resource prices works correctly in unit build orders.
 
         // Calculate build time per unit
-        // @TODO: change getbuildingtime to getshiptime/getunittime as this
         // should be different from buildings.
-        $build_time_unit = $planet->getBuildingTime($object_id);
-        $build_time_unit = 15;
+        $build_time_unit = $planet->getUnitConstructionTime($object_id);
         $build_time_total = $build_time_unit * $requested_build_amount;
 
         // Time this order will start

@@ -27,7 +27,7 @@ abstract class AbstractUnitsController extends Controller
     /**
      * QueueService
      *
-     * @var BuildingQueueService
+     * @var UnitQueueService
      */
     protected $queue;
 

@@ -453,7 +453,7 @@ class PlanetService
     /**
      * Gets the time of upgrading a building on this planet to the next level.
      */
-    public function getBuildingTime($object_id, $formatted = FALSE)
+    public function getBuildingConstructionTime($object_id, $formatted = FALSE)
     {
         $object = $this->objects->getObjects($object_id);
 
@@ -461,8 +461,8 @@ class PlanetService
         $next_level = $current_level + 1;
         $price = $this->objects->getObjectPrice($object_id, $this);
 
-        $robotfactory_level = 0; // @TODO: implement robot factory.
-        $nanitefactory_level = 0; // @TODO: implement nanite factory.
+        $robotfactory_level = $this->getObjectLevel(14);
+        $nanitefactory_level = $this->getObjectLevel(15);
         $universe_speed = 1; // @TODO: implement universe speed.
 
         // The actual formula which return time in seconds
@@ -481,6 +481,22 @@ class PlanetService
 
         // @TODO: calculation does not work correctly for all buildings yet.
         // Possible rounding error?
+        if ($formatted) {
+            return $this->formatBuildingTime($time_seconds);
+        } else {
+            return $time_seconds;
+        }
+    }
+
+    /**
+     * Gets the time of building a ship on this planet.
+     */
+    public function getUnitConstructionTime($object_id, $formatted = FALSE)
+    {
+        // TODO: implement ship construction time formula.
+        // Set to 1m12sec for all ships now for debugging purposes.
+        $time_seconds = 72;
+
         if ($formatted) {
             return $this->formatBuildingTime($time_seconds);
         } else {
@@ -1152,7 +1168,8 @@ class PlanetService
     /**
      * Calculate and return planet score based on levels of buildings and amount of units.
      */
-    public function getPlanetScore() {
+    public function getPlanetScore()
+    {
         // For every object in the game, calculate the score based on how much resources it costs to build it.
         // For buildings with levels it is the sum of resources needed for all levels up to the current level.
         // For units it is the sum of resources needed to build the full sum of all units.
@@ -1185,7 +1202,8 @@ class PlanetService
     /**
      * Calculate and return economy planet score based on levels of buildings and amount of units.
      */
-    public function getPlanetScoreEconomy() {
+    public function getPlanetScoreEconomy()
+    {
         // Economy score includes:
         // 100% buildings/facilities
         // 100% defense
@@ -1239,7 +1257,8 @@ class PlanetService
      *
      * @return float
      */
-    public function getPlanetMilitaryScore() {
+    public function getPlanetMilitaryScore()
+    {
         // Military score includes:
         // 100% defense
         // 100% military ships

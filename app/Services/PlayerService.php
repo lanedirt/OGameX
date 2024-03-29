@@ -2,7 +2,7 @@
 
 namespace OGame\Services;
 
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Support\Carbon;
 use OGame\User;
@@ -17,7 +17,6 @@ use OGame\UserTech;
  */
 class PlayerService
 {
-
     /**
      * The planetlist object for this player.
      *
@@ -58,7 +57,7 @@ class PlayerService
     /**
      * Load player object by user ID.
      */
-    public function load($id)
+    public function load($id): void
     {
         // Fetch user from model
         $user = User::where('id', $id)->first();
@@ -81,7 +80,7 @@ class PlayerService
         $this->planets = $planet_list_service;
     }
 
-    public function setUserTech($userTech)
+    public function setUserTech($userTech): void
     {
         $this->user_tech = $userTech;
     }
@@ -97,7 +96,7 @@ class PlayerService
     /**
      * Saves current player object to DB.
      */
-    public function save()
+    public function save(): void
     {
         $this->user->save();
     }
@@ -107,7 +106,7 @@ class PlayerService
      *
      * @param $username
      */
-    public function setUsername($username)
+    public function setUsername($username): void
     {
         if ($this->validateUsername($username)) {
             $this->user->username = $username;
@@ -119,7 +118,7 @@ class PlayerService
     /**
      * Validates a username.
      */
-    public function validateUsername($username)
+    public function validateUsername($username): false|int
     {
         return preg_match('/^[A-Za-z][A-Za-z0-9\s]*(?:_[A-Za-z0-9\s]+)*$/', $username);
     }
@@ -129,7 +128,7 @@ class PlayerService
      *
      * @return string
      */
-    public function getUsername()
+    public function getUsername(): string
     {
         return $this->user->username;
     }
@@ -137,7 +136,7 @@ class PlayerService
     /**
      * Set email address.
      */
-    public function setEmail($email)
+    public function setEmail($email): void
     {
         $this->user->email = $email;
     }
@@ -145,7 +144,7 @@ class PlayerService
     /**
      * Validates whether input matches current users password.
      */
-    public function validatePassword($password)
+    public function validatePassword($password): bool
     {
         if (Auth::Attempt((['email' => $this->getEmail(), 'password' => $password]))) {
             return true;
@@ -163,24 +162,36 @@ class PlayerService
     }
 
     /**
-     * Gets the level of a building on this planet.
+     * Gets the level of a research technology for this player.
      */
     public function getResearchLevel($object_id)
     {
         $research = $this->objects->getResearchObjects($object_id);
-
-        // Sanity check: if building does not exist yet then return 0.
-        // @TODO: remove when all buildings have been included.
-        if (empty($research)) {
-            return 0;
-        }
-
         $research_level = $this->user_tech->{$research['machine_name']};
 
         if ($research_level) {
             return $research_level;
         } else {
             return 0;
+        }
+    }
+
+    /**
+     * Set the level of a research technology for this player.
+     *
+     * @param $object_id
+     * @param $level
+     * @param $save_to_db
+     * @return void
+     */
+    public function setResearchLevel($object_id, $level, $save_to_db = true): void
+    {
+        $research = $this->objects->getResearchObjects($object_id);
+
+        // Sanity check: if building does not exist yet then return 0.
+        $this->user_tech->{$research['machine_name']} = $level;
+        if ($save_to_db) {
+            $this->user_tech->save();
         }
     }
 
@@ -227,8 +238,7 @@ class PlayerService
             $item->save();
 
             // Update planet and update level of the building that has been processed.
-            $this->user_tech->{$building['machine_name']} = $item->object_level_target;
-            $this->user_tech->save();
+            $this->setResearchLevel($item->object_id, $item->object_level_target, true);
 
             // Build the next item in queue (if there is any)
             $queue->start($this, $item->time_end);
