@@ -18,15 +18,15 @@
     <meta name="ogame-language" content="en"/>
     <meta name="ogame-donut-galaxy" content="1"/>
     <meta name="ogame-donut-system" content="1"/>
-    <meta name="ogame-player-id" content="1"/>
-    <meta name="ogame-player-name" content="Admin"/>
+    <meta name="ogame-player-id" content="{{ $currentPlayer->getId() }}"/>
+    <meta name="ogame-player-name" content="{{ $currentPlayer->getUsername() }}"/>
     <meta name="ogame-alliance-id" content=""/>
     <meta name="ogame-alliance-name" content=""/>
     <meta name="ogame-alliance-tag" content=""/>
     <!-- TODO: update with current planet details -->
-    <meta name="ogame-planet-id" content="1"/>
-    <meta name="ogame-planet-name" content="Homeworld"/>
-    <meta name="ogame-planet-coordinates" content="4:358:4"/>
+    <meta name="ogame-planet-id" content="{{ $currentPlanet->getPlanetId() }}"/>
+    <meta name="ogame-planet-name" content="{{ $currentPlanet->getPlanetName() }}"/>
+    <meta name="ogame-planet-coordinates" content="{{ $currentPlanet->getPlanetCoordinatesAsString() }}"/>
     <meta name="ogame-planet-type" content="planet"/>
 
     <!--[if (gt IE 9)|!(IE)]><!-->
@@ -128,7 +128,7 @@
                                data-overlay-title="Change player name"
                                data-overlay-popup-width="400"
                                data-overlay-popup-height="200"
-                            >{!! $username !!}</a>
+                            >{!! $currentPlayer->getUsername() !!}</a>
                         </span>
                         </li>
                         <li>
@@ -633,10 +633,10 @@ Improved fleet escape rate">
                                    $urlToCurrentWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
                                 @endphp
 
-                                <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanetId ? 'hightlightPlanet' : '' }} " id="planet-{{ $planet->getPlanetId() }}">
+                                <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }} " id="planet-{{ $planet->getPlanetId() }}">
                                     <a href="{{ $urlToCurrentWithUpdatedParam }}"
                                        title="&lt;b&gt;{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinatesAsString() }}]&lt;/b&gt;&lt;br/&gt;12.800km (0/188)&lt;br&gt;47°C to 87°C&lt;br/&gt;&lt;a href=&quot;#TODO_overview&amp;cp=33734581&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_resources&amp;cp=33734581&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=research&amp;cp=33734581&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=station&amp;cp=33734581&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=shipyard&amp;cp=33734581&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=defense&amp;cp=33734581&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=fleet1&amp;cp=33734581&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=galaxy&amp;cp=33734581&amp;galaxy=4&amp;system=358&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
-                                       class="planetlink {{ $planet->getPlanetId() == $currentPlanetId ? 'active' : '' }}  tooltipRight tooltipClose js_hideTipOnMobile"
+                                       class="planetlink {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'active' : '' }}  tooltipRight tooltipClose js_hideTipOnMobile"
                                     >
                                         <img class="planetPic js_replace2x"
                                              alt="{{ $planet->getPlanetName() }}"
