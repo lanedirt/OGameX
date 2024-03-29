@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use OGame\Facades\AppUtil;
 use OGame\Planet;
 
 /**
@@ -39,12 +40,15 @@ class PlanetService
      * @param int planet_id
      *  If supplied the constructor will try to load the planet from the database.
      */
-    public function __construct($planet_id = 0)
+    public function __construct(PlayerService $player, $planet_id)
     {
-        // Load object service.
+        // Load the planet object if a positive planet ID is given.
+        // If no planet ID is given then planet context will not be available
+        // but this can be fine for unittests or when creating a new planet.
         if ($planet_id != 0) {
             $this->loadByPlanetId($planet_id);
         }
+        $this->player = $player;
 
         $this->objects = resolve('OGame\Services\ObjectService');
     }
@@ -65,12 +69,6 @@ class PlanetService
      */
     public function getPlayer()
     {
-        // @TODO: implement static cache for player objects.
-        if (!$this->player) {
-            $this->player = new PlayerService();
-            $this->player->load($this->planet->user_id);
-        }
-
         return $this->player;
     }
 
@@ -216,7 +214,7 @@ class PlanetService
         $production = $this->planet->metal_production;
 
         if ($formatted) {
-            $production = number_format($production, 0, ',', '.');
+            $production = AppUtil::formatNumber($production);
         }
 
         return $production;
@@ -238,7 +236,7 @@ class PlanetService
         $production = $this->planet->crystal_production;
 
         if ($formatted) {
-            $production = number_format($production, 0, ',', '.');
+            $production = AppUtil::formatNumber($production);
         }
 
         return $production;
@@ -260,7 +258,7 @@ class PlanetService
         $production = $this->planet->deuterium_production;
 
         if ($formatted) {
-            $production = number_format($production, 0, ',', '.');
+            $production = AppUtil::formatNumber($production);
         }
 
         return $production;
@@ -277,7 +275,7 @@ class PlanetService
         $energy = $energy_max - $energy_used;
 
         if ($formatted) {
-            $energy = number_format($energy, 0, ',', '.');
+            $energy = AppUtil::formatNumber($energy);
         }
 
         return $energy;
@@ -343,7 +341,7 @@ class PlanetService
         $metal = $this->planet->metal;
 
         if ($formatted) {
-            $metal = number_format($metal, 0, ',', '.');
+            $metal = AppUtil::formatNumber($metal);
         }
 
         return $metal;
@@ -357,7 +355,7 @@ class PlanetService
         $crystal = $this->planet->crystal;
 
         if ($formatted) {
-            $crystal = number_format($crystal, 0, ',', '.');
+            $crystal = AppUtil::formatNumber($crystal);
         }
 
         return $crystal;
@@ -371,7 +369,7 @@ class PlanetService
         $deuterium = $this->planet->deuterium;
 
         if ($formatted) {
-            $deuterium = number_format($deuterium, 0, ',', '.');
+            $deuterium = AppUtil::formatNumber($deuterium);
         }
 
         return $deuterium;
@@ -679,7 +677,7 @@ class PlanetService
         $storage = $this->planet->metal_max;
 
         if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
+            $storage = AppUtil::formatNumber($storage);
         }
 
         return $storage;
@@ -693,7 +691,7 @@ class PlanetService
         $storage = $this->planet->crystal_max;
 
         if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
+            $storage = AppUtil::formatNumber($storage);
         }
 
         return $storage;
@@ -707,7 +705,7 @@ class PlanetService
         $storage = $this->planet->deuterium_max;
 
         if ($formatted) {
-            $storage = number_format($storage, 0, ',', '.');
+            $storage = AppUtil::formatNumber($storage);
         }
 
         return $storage;
@@ -1037,7 +1035,7 @@ class PlanetService
         $energy_production = $this->planet->energy_max;
 
         if ($formatted) {
-            $energy_production = number_format($energy_production, 0, ',', '.');
+            $energy_production = AppUtil::formatNumber($energy_production);
         }
 
         return $energy_production;
@@ -1051,7 +1049,7 @@ class PlanetService
         $energy_consumption = $this->planet->energy_used;
 
         if ($formatted) {
-            $energy_consumption = number_format($energy_consumption, 0, ',', '.');
+            $energy_consumption = AppUtil::formatNumber($energy_consumption);
         }
 
         return $energy_consumption;
@@ -1142,5 +1140,143 @@ class PlanetService
         }
 
         return $storage;
+    }
+
+    /**
+     * Calculate and return planet score based on levels of buildings and amount of units.
+     */
+    public function getPlanetScore() {
+        // For every object in the game, calculate the score based on how much resources it costs to build it.
+        // For buildings with levels it is the sum of resources needed for all levels up to the current level.
+        // For units it is the sum of resources needed to build the full sum of all units.
+        // The score is the sum of all these values.
+        $resources_spent = 0;
+
+        // Create object array
+        $building_objects = $this->objects->getBuildingObjects() + $this->objects->getStationObjects();
+        foreach ($building_objects as $object) {
+            for ($i = 1; $i <= $this->getObjectLevel($object['id']); $i++) {
+                // Concatenate price which is array of metal, crystal and deuterium.
+                $raw_price = $this->objects->getObjectRawPrice($object['id'], $i);
+                $resources_spent += $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            }
+        }
+        $unit_objects = $this->objects->getShipObjects() + $this->objects->getDefenceObjects();
+        foreach ($unit_objects as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+        }
+
+        // Divide the score by 1000 to get the amount of points. Floor the result.
+        $score = floor($resources_spent / 1000);
+
+        return $score;
+    }
+
+    /**
+     * Calculate and return economy planet score based on levels of buildings and amount of units.
+     */
+    public function getPlanetScoreEconomy() {
+        // Economy score includes:
+        // 100% buildings/facilities
+        // 100% defense
+        // 50% civil ships
+        // 50% phalanx and jump gate
+
+        // For every object in the game, calculate the score based on how much resources it costs to build it.
+        // For buildings with levels it is the sum of resources needed for all levels up to the current level.
+        // For units it is the sum of resources needed to build the full sum of all units.
+        // The score is the sum of all these values.
+        $resources_spent = 0;
+
+        // Buildings (100%)
+        $building_objects = $this->objects->getBuildingObjects() + $this->objects->getStationObjects();
+        foreach ($building_objects as $object) {
+            for ($i = 1; $i <= $this->getObjectLevel($object['id']); $i++) {
+                // Concatenate price which is array of metal, crystal and deuterium.
+                $raw_price = $this->objects->getObjectRawPrice($object['id'], $i);
+                $resources_spent += $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            }
+        }
+
+        // Defence (100%)
+        $defence_objects = $this->objects->getDefenceObjects();
+        foreach ($defence_objects as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+        }
+
+        // Civil ships (50%)
+        $civil_ships = $this->objects->getCivilShipObjects();
+        foreach ($civil_ships as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = ($raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium']) * 0.5;
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+        }
+
+        // TODO: add phalanx and jump gate (50%) when moon is implemented.
+
+        // Divide the score by 1000 to get the amount of points. Floor the result.
+        $score = floor($resources_spent / 1000);
+
+        return $score;
+    }
+
+    /**
+     * Calculate planet military points.
+     *
+     * @return float
+     */
+    public function getPlanetMilitaryScore() {
+        // Military score includes:
+        // 100% defense
+        // 100% military ships
+        // 50% civil ships
+        // 50% phalanx and jump gate
+
+        // For every object in the game, calculate the score based on how much resources it costs to build it.
+        // For buildings with levels it is the sum of resources needed for all levels up to the current level.
+        // For units it is the sum of resources needed to build the full sum of all units.
+        // The score is the sum of all these values.
+        $resources_spent = 0;
+
+        // Defence (100%)
+        $defence_objects = $this->objects->getDefenceObjects();
+        foreach ($defence_objects as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+        }
+
+        // Military ships (100%)
+        $military_ships = $this->objects->getMilitaryShipObjects();
+        foreach ($military_ships as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+        }
+
+        // Civil ships (50%)
+        $civil_ships = $this->objects->getCivilShipObjects();
+        foreach ($civil_ships as $object) {
+            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price_sum = ($raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium']) * 0.5;
+            // Multiply raw_price by the amount of units.
+            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+        }
+
+        // TODO: add phalanx and jump gate (50%) when moon is implemented.
+
+        // Divide the score by 1000 to get the amount of points. Floor the result.
+        $score = floor($resources_spent / 1000);
+
+        return $score;
     }
 }

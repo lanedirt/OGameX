@@ -43,8 +43,14 @@ class PlayerService
     /**
      * Player constructor.
      */
-    public function __construct()
+    public function __construct($player_id)
     {
+        // Load the player object if a positive player ID is given.
+        // If no player ID is given then player context will not be available, but this can be fine for unittests.
+        if ($player_id != 0) {
+            $this->load($player_id);
+        }
+
         $this->objects = resolve('OGame\Services\ObjectService');
     }
 
@@ -67,13 +73,16 @@ class PlayerService
             $tech->user_id = $this->getId();
             $tech->save();
         }
-        $this->user_tech = $tech;
+        $this->setUserTech($tech);
 
         // Fetch all planets of user
-        $planet_list_service = resolve('OGame\Services\PlanetListService');
-        $planet_list = new $planet_list_service($this);
-        $planet_list->load($this->getId());
-        $this->planets = $planet_list;
+        $planet_list_service = app()->make(PlanetListService::class, ['player' => $this]);
+        $this->planets = $planet_list_service;
+    }
+
+    public function setUserTech($userTech)
+    {
+        $this->user_tech = $userTech;
     }
 
     /**
@@ -230,5 +239,30 @@ class PlayerService
         $this->user->time = time();
         $this->user->last_ip = request()->ip();
         $this->user->save();
+    }
+
+    /**
+     * Calculate and return planet score based on levels of buildings and amount of units.
+     */
+    public function getResearchScore() {
+        // For every research in the game, calculate the score based on how much resources it costs to build it.
+        // For research it is the sum of resources needed for all levels up to the current level.
+        // The score is the sum of all these values.
+        $resources_spent = 0;
+
+        // Create object array
+        $research_objects = $this->objects->getResearchObjects();
+        foreach ($research_objects as $object) {
+            for ($i = 1; $i <= $this->getResearchLevel($object['id']); $i++) {
+                // Concatenate price which is array of metal, crystal and deuterium.
+                $raw_price = $this->objects->getObjectRawPrice($object['id'], $i);
+                $resources_spent += $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            }
+        }
+
+        // Divide the score by 1000 to get the amount of points. Floor the result.
+        $score = floor($resources_spent / 1000);
+
+        return $score;
     }
 }

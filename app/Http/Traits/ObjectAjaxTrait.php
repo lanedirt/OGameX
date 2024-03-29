@@ -45,8 +45,13 @@ trait ObjectAjaxTrait
 
         // Get max build amount of this object (unit).
         $max_build_amount = $objects->getObjectMaxBuildAmount($object['id'], $this->planet);
-
         $production_time = $this->planet->getBuildingTime($object['id'], $player, true);
+
+        // Get current amount of this object (unit) on the current planet.
+        $current_amount = 0;
+        if ($object['type'] == 'ship' || $object['type'] == 'defense') {
+            $current_amount = $this->planet->getObjectAmount($object['id']);
+        }
 
         $production_current = [];
         $production_next = [];
@@ -126,6 +131,7 @@ trait ObjectAjaxTrait
             'current_storage' => $current_storage,
             'max_storage' => $max_storage,
             'max_build_amount' => $max_build_amount,
+            'current_amount' => $current_amount,
         ]);
     }
 }

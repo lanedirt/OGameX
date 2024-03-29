@@ -3,19 +3,19 @@
 namespace Database\Factories\OGame;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use OGame\Planet;
+use OGame\UserTech;
 
 /**
- * @extends Factory<Planet>
+ * @extends Factory<UserTech>
  */
-class PlanetFactory extends Factory
+class UserTechFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Planet::class;
+    protected $model = UserTech::class;
 
     /**
      * Define the model's default state.
@@ -25,11 +25,7 @@ class PlanetFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'FakePlanetName',
-            'metal_mine' => 0,
-            'metal_mine_percent' => 10,
-            'solar_plant' => 0,
-            'solar_plant_percent' => 10,
+            'energy_technology' => 0,
         ];
     }
 }

@@ -208,12 +208,14 @@
                                         <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{{ $object['title'] }} (0)@if (!$object['requirements_met'])
                                                 <br/>Requirements are not met
                                                 @endif" ref="{{ $object['id'] }}" id="details{{ $object['id'] }}" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    {{ $object['title'] }}	                                </span>
-                                {{ $object['amount'] }}	                            </span>
-                        </span>
+                                            <span class="ecke">
+                                                <span class="level">
+                                                    <span class="textlabel">
+                                                        {{ $object['title'] }}
+                                                    </span>
+                                                    {{ \OGame\Facades\AppUtil::formatNumberComma($object['amount']) }}
+                                                </span>
+                                            </span>
                                         </a>
                                     </div>
                                 </div>

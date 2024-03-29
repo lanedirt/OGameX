@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use OGame\Facades\AppUtil;
+
 /**
  * Class ObjectService.
  *
@@ -28,9 +30,14 @@ class ObjectService
     protected $researchObjects;
 
     /**
-     * Ships.
+     * Military ships.
      */
-    protected $shipObjects;
+    protected $militaryShipObjects;
+
+    /**
+     * Civil ships.
+     */
+    protected $civilShipObjects;
 
     /**
      * Defence.
@@ -719,7 +726,8 @@ Positions 1 and 15 can be populated from level 8 onwards.',
                     'crystal' => 8000,
                     'deuterium' => 4000,
                     'energy' => 0,
-                    'factor' => 2,
+                    'factor' => 1.75,
+                    'round_nearest_100' => true,
                 ],
                 'assets' => [
                     'img' => [
@@ -844,8 +852,8 @@ As the technology is advanced to each level, the magnetosphere generator is upgr
             ],
         ];
 
-        $this->shipObjects = [
-            // Ships
+        $this->militaryShipObjects = [
+            // Military ships
             204 => [
                 'id' => 204,
                 'type' => 'ship',
@@ -1033,6 +1041,10 @@ Armed with a gigantic graviton cannon, the most advanced weapons system ever cre
                     ],
                 ],
             ],
+        ];
+
+        $this->civilShipObjects = [
+            // Civil ships
             202 => [
                 'id' => 202,
                 'type' => 'ship',
@@ -1502,14 +1514,48 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
      */
     public function getShipObjects($object_id = FALSE)
     {
+        $ship_objects = $this->militaryShipObjects + $this->civilShipObjects;
+
         if (!empty($object_id)) {
-            if (!empty($this->shipObjects[$object_id])) {
-                return $this->shipObjects[$object_id];
+            if (!empty($ship_objects[$object_id])) {
+                return $ship_objects[$object_id];
             } else {
                 return FALSE;
             }
         } else {
-            return $this->shipObjects;
+            return $ship_objects;
+        }
+    }
+
+    /**
+     * Get all military ships (or specific ship).
+     */
+    public function getMilitaryShipObjects($object_id = FALSE)
+    {
+        if (!empty($object_id)) {
+            if (!empty($this->militaryShipObjects[$object_id])) {
+                return $this->militaryShipObjects[$object_id];
+            } else {
+                return FALSE;
+            }
+        } else {
+            return $this->militaryShipObjects;
+        }
+    }
+
+    /**
+     * Get all civil ships (or specific ship).
+     */
+    public function getCivilShipObjects($object_id = FALSE)
+    {
+        if (!empty($object_id)) {
+            if (!empty($this->civilShipObjects[$object_id])) {
+                return $this->civilShipObjects[$object_id];
+            } else {
+                return FALSE;
+            }
+        } else {
+            return $this->civilShipObjects;
         }
     }
 
@@ -1566,7 +1612,8 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         $all_objects = $this->buildingObjects +
             $this->stationObjects +
             $this->researchObjects +
-            $this->shipObjects +
+            $this->militaryShipObjects +
+            $this->civilShipObjects +
             $this->defenceObjects;
 
         if (!empty($object_id)) {
@@ -1586,7 +1633,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     public function getUnitObjects($object_id = FALSE)
     {
         // Create combined array of the required object types.
-        $unit_objects = $this->shipObjects + $this->defenceObjects;
+        $unit_objects = $this->militaryShipObjects + $this->civilShipObjects + $this->defenceObjects;
 
         if (!empty($object_id)) {
             if (!empty($unit_objects[$object_id])) {
@@ -1642,37 +1689,74 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
         // Price calculation for buildings or research (price depends on level)
         if ($object['type'] == 'building' || $object['type'] == 'research') {
-            // @TODO: refactor into object get level
             if ($object['type'] == 'building') {
                 $current_level = $planet->getObjectLevel($object['id']);
             } else {
                 $current_level = $player->getResearchLevel($object['id']);
             }
 
-            $base_price = $object['price'];
-
-            // Calculate price.
-            $price = [];
-            $price['metal'] = $base_price['metal'] * pow($base_price['factor'], $current_level);
-            $price['crystal'] = $base_price['crystal'] * pow($base_price['factor'], $current_level);
-            $price['deuterium'] = $base_price['deuterium'] * pow($base_price['factor'], $current_level);
-            $price['energy'] = $base_price['energy'] * pow($base_price['factor'], $current_level);
-
-            // Round prices down.
-            $price['metal'] = floor($price['metal']);
-            $price['crystal'] = floor($price['crystal']);
-            $price['deuterium'] = floor($price['deuterium']);
-            $price['energy'] = floor($price['energy']);
-        } // Price calculation for fleet or defense (regular price per unit)
+            $price = $this->getObjectRawPrice($object_id, $current_level + 1);
+        }
+        // Price calculation for fleet or defense (regular price per unit)
         else {
-            $price = $object['price'];
+            $price = $this->getObjectRawPrice($object_id);
         }
 
         // Optionally format the output.
         if ($formatted) {
             foreach ($price as &$element) {
-                $element = number_format($element, 0, ',', '.');
+                $element = AppUtil::formatNumber($element);
             }
+        }
+
+        return $price;
+    }
+
+    /**
+     * Gets the cost of building a building of a certain level or a unit.
+     */
+    public function getObjectRawPrice($object_id, $level = NULL)
+    {
+        $object = $this->getObjects($object_id);
+
+        // Price calculation for buildings or research (price depends on level)
+        if ($object['type'] == 'building' || $object['type'] == 'research') {
+            // Level 0 is free.
+            if ($level == 0) {
+                return [
+                    'metal' => 0,
+                    'crystal' => 0,
+                    'deuterium' => 0,
+                    'energy' => 0,
+                ];
+            }
+
+            $base_price = $object['price'];
+
+            // Calculate price.
+            $price = [];
+            $price['metal'] = $base_price['metal'] * pow($base_price['factor'], $level - 1);
+            $price['crystal'] = $base_price['crystal'] * pow($base_price['factor'], $level - 1);
+            $price['deuterium'] = $base_price['deuterium'] * pow($base_price['factor'], $level - 1);
+            $price['energy'] = $base_price['energy'] * pow($base_price['factor'], $level - 1);
+
+            // Round price
+            $price['metal'] = round($price['metal']);
+            $price['crystal'] = round($price['crystal']);
+            $price['deuterium'] = round($price['deuterium']);
+            $price['energy'] = round($price['energy']);
+
+            if (!empty($base_price['round_nearest_100'])) {
+                // Round to nearest 100.
+                $price['metal'] = round($price['metal'] / 100) * 100;
+                $price['crystal'] = round($price['crystal'] / 100) * 100;
+                $price['deuterium'] = round($price['deuterium'] / 100) * 100;
+                $price['energy'] = round($price['energy']);
+            }
+        }
+        // Price calculation for fleet or defense (regular price per unit)
+        else {
+            $price = $object['price'];
         }
 
         return $price;

@@ -25,8 +25,7 @@ class GlobalGame
             app()->instance(ObjectService::class, $object);
 
             // Load player
-            $player = new PlayerService($object);
-            $player->load($request->user()->id);
+            $player = app()->make(PlayerService::class, ['player_id' => $request->user()->id]);
             app()->instance(PlayerService::class, $player);
 
             // Check if current planet change querystring parameter exists, if so, change current planet.
