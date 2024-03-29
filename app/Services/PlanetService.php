@@ -763,13 +763,19 @@ class PlanetService
             $item->save();
 
             // Update planet and update level of the object (building) that has been processed.
-            $this->planet->{$object['machine_name']} = $item->object_level_target;
-            if ($save_planet) {
-                $this->planet->save();
-            }
+            $this->setObjectLevel($item->object_id, $item->object_level_target, $save_planet);
 
             // Build the next item in queue (if there is any)
             $queue->start($this, $item->time_end);
+        }
+    }
+
+    public function setObjectLevel($object_id, $level, $save_planet = true)
+    {
+        $object = $this->objects->getObjects($object_id);
+        $this->planet->{$object['machine_name']} = $level;
+        if ($save_planet) {
+            $this->planet->save();
         }
     }
 
