@@ -90,7 +90,7 @@ class Http200Test extends TestCase
     }
 
     /**
-     * Verify that all AJAX resource pages return HTTP 200.
+     * Verify that all AJAX resources pages return HTTP 200.
      */
     public function testAjaxResources(): void
     {
@@ -111,7 +111,7 @@ class Http200Test extends TestCase
     }
 
     /**
-     * Verify that all AJAX resource pages return HTTP 200.
+     * Verify that all AJAX facilities pages return HTTP 200.
      */
     public function testAjaxFacilities(): void
     {
@@ -132,7 +132,7 @@ class Http200Test extends TestCase
     }
 
     /**
-     * Verify that all AJAX resource pages return HTTP 200.
+     * Verify that all AJAX research pages return HTTP 200.
      */
     public function testAjaxResearch(): void
     {
@@ -153,7 +153,7 @@ class Http200Test extends TestCase
     }
 
     /**
-     * Verify that all AJAX resource pages return HTTP 200.
+     * Verify that all AJAX shipyard pages return HTTP 200.
      */
     public function testAjaxShipyard(): void
     {
@@ -174,7 +174,7 @@ class Http200Test extends TestCase
     }
 
     /**
-     * Verify that all AJAX resource pages return HTTP 200.
+     * Verify that all AJAX defense pages return HTTP 200.
      */
     public function testAjaxDefence(): void
     {
