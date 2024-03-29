@@ -36,14 +36,16 @@ OGameX is under active development with several core features already implemente
 - Planet creation and resource management (metal, crystal, deuterium, energy)
 - Building and updating resources, facilities, shipyards, and defenses
 - Basic galaxy overview
+- Planet switching
+- Highscore system
 
 ### Upcoming Features
 
-New features are continiously being added. including:
+New features are continiously being added. Upcoming features:
 
-- Planet switching
 - Enhanced galaxy page
-- Fleet missions (combat, transport, espionage, and more)
+- Fleet dispatch missions (combat, transport, espionage, and more)
+- Alliance system
 
 ## Contributing
 
