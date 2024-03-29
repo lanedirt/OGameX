@@ -3,6 +3,7 @@
 namespace OGame\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use OGame\Http\Traits\IngameTrait;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\HighscoreService;
@@ -60,7 +61,7 @@ class OverviewController extends Controller
         $ship_queue_time_end = $this->ship_queue->retrieveQueueTimeEnd($this->planet);
         $ship_queue_time_countdown = 0;
         if ($ship_queue_time_end > 0) {
-            $ship_queue_time_countdown = $ship_queue_time_end - time();
+            $ship_queue_time_countdown = $ship_queue_time_end - Carbon::now()->timestamp;
         }
 
         $highscoreService = app()->make(HighscoreService::class);

@@ -4,6 +4,7 @@ namespace OGame\Services;
 
 use Auth;
 use Exception;
+use Illuminate\Support\Carbon;
 use OGame\User;
 use OGame\UserTech;
 
@@ -236,7 +237,7 @@ class PlayerService
         // ------
         // 2. Update last_ip and time properties.
         // ------
-        $this->user->time = time();
+        $this->user->time = Carbon::now()->timestamp;
         $this->user->last_ip = request()->ip();
         $this->user->save();
     }

@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Support\Carbon;
 use OGame\Facades\AppUtil;
 use OGame\Planet;
 
@@ -408,7 +409,7 @@ class PlanetService
         $planet->solar_plant_percent = 10;
         $planet->fusion_plant_percent = 10;
 
-        $planet->time_last_update = time();
+        $planet->time_last_update = Carbon::now()->timestamp;
 
         $planet['field_max'] = rand(140, 250);
         $planet['temp_min'] = rand(0, 100);
@@ -606,7 +607,7 @@ class PlanetService
     public function updateResources($save_planet = true)
     {
         $time_last_update = $this->planet->time_last_update;
-        $current_time = time();
+        $current_time = Carbon::now()->timestamp;
         $resources_add = [];
 
         // TODO: add unittest to check that updating fractional resources
@@ -812,7 +813,7 @@ class PlanetService
             if ($last_update < $item->time_start) {
                 $last_update = $item->time_start;
             }
-            $last_update_diff = time() - $last_update;
+            $last_update_diff = Carbon::now()->timestamp - $last_update;
 
             // If difference between last update and now is equal to or bigger
             // than the time per unit, give the unit and record progress.

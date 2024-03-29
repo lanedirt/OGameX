@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Support\Carbon;
 
 /**
  * Class ResearchQueueService.
@@ -70,7 +71,7 @@ class ResearchQueueService
         // Fetch queue items from model
         $queue_items = $this->model->where([
             ['planet_id', $planet_id],
-            ['time_end', '<=', time()],
+            ['time_end', '<=', Carbon::now()->timestamp],
             ['building', 1],
             ['processed', 0],
             ['canceled', 0],
@@ -92,7 +93,7 @@ class ResearchQueueService
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
                 ['users.id', $player->getId()],
-                ['research_queues.time_end', '<=', time()],
+                ['research_queues.time_end', '<=', Carbon::now()->timestamp],
                 ['research_queues.building', 1],
                 ['research_queues.processed', 0],
                 ['research_queues.canceled', 0],
@@ -189,7 +190,7 @@ class ResearchQueueService
         foreach ($queue_items as $item) {
             $object = $this->objects->getResearchObjects($item->object_id);
 
-            $time_countdown = $item->time_end - time();
+            $time_countdown = $item->time_end - Carbon::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
             }
@@ -314,7 +315,7 @@ class ResearchQueueService
             $planet->deductResources($price);
 
             if (!$time_start) {
-                $time_start = time();
+                $time_start = Carbon::now()->timestamp;
             }
 
             $queue_item->time_duration = $build_time;
@@ -329,7 +330,7 @@ class ResearchQueueService
             // If the calculated end time is lower than the current time,
             // we force that the planet is updated again which will grant
             // the building immediately without having to wait for a refresh.
-            if ($queue_item->time_end_ < time()) {
+            if ($queue_item->time_end_ < Carbon::now()->timestamp) {
                 // @TODO: refactor the planet update logic so this method
                 // can call only the part it needs directly without causing
                 // a major overhead.
@@ -366,7 +367,7 @@ class ResearchQueueService
             ['planet_id', $planet->getPlanetId()],
             ['object_id', $building_id],
             ['processed', 0],
-            //['time_end', '>', time()], //@TODO: add back in time_end when building processing logic works.
+            //['time_end', '>', Carbon::now()->timestamp], //@TODO: add back in time_end when building processing logic works.
         ])->first();
 
         // If object is found: add canceled flag.
@@ -380,7 +381,7 @@ class ResearchQueueService
                 ['object_id', $building_id],
                 ['object_level_target', '>', $queue_item->object_level_target],
                 ['processed', 0],
-                //['time_end', '>', time()], //@TODO: add back in time_end when building processing logic works.
+                //['time_end', '>', Carbon::now()->timestamp], //@TODO: add back in time_end when building processing logic works.
             ])->get();
 
             // Add canceled flag to all entries with a higher level (if any).
