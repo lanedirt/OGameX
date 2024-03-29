@@ -41,9 +41,16 @@
        href="javascript:void(0);"
        onclick="gfSlider.hide(getElementByIdWithCache('detail')); return false;">
     </a>
+    @if ($object_type == 'ship' || $object_type == 'defence')
+        <span class="number-info">
+            Number: {{ $current_amount }}
+        </span>
+    @else
         <span class="level">
-        Level {!! $current_level !!}        <span class="undermark"></span>
+            Level {!! $current_level !!}
+        <span class="undermark"></span>
 	</span>
+    @endif
     <br class="clearfloat"/>
 
     @if ($object_type == 'ship' || $object_type == 'defence')

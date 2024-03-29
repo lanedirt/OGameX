@@ -9,7 +9,7 @@ use Tests\TestCase;
 /**
  * Test AJAX calls to make sure they work as expected.
  */
-class AjaxTest extends TestCase
+class Http200Test extends TestCase
 {
     /**
      * Set up common test components.
@@ -48,6 +48,45 @@ class AjaxTest extends TestCase
         $this->post('/register', $formData);
 
         // We should now automatically be logged in.
+    }
+
+    /**
+     * Verify that all main pages return HTTP 200.
+     */
+    public function testMainPages(): void
+    {
+        // Get all GET routes defined in web.php
+        $routes = [
+            '/overview',
+            '/resources',
+            '/resources/settings',
+            '/facilities',
+            '/research',
+            '/shipyard',
+            '/defense',
+            '/fleet',
+            '/fleet/movement',
+            '/galaxy',
+            '/merchant',
+            '/messages',
+            '/alliance',
+            '/premium',
+            '/shop',
+            '/buddies',
+            '/rewards',
+        ];
+
+        foreach ($routes as $route) {
+            $response = $this->get($route);
+
+            try {
+                $response->assertStatus(200);
+            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+                $customMessage = 'Main page "' . $route . '" does not return HTTP 200.';
+                // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
+                $this->fail($customMessage);
+            }
+        }
     }
 
     /**

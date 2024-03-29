@@ -3233,6 +3233,16 @@ div.detail_screen.small {
     text-align: center
 }
 
+.detail_screen #content .number-info {
+    color: #d29d00;
+    float: right;
+    font-size: 11px;
+    margin-right: 10px;
+    line-height: 22px;
+    height: 22px;
+    text-align: center
+}
+
 .detail_screen #wrapper {
     color: #848484;
     font: normal 11px/14px Verdana,Arial,Helvetica,sans-serif;
