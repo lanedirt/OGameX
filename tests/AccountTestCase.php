@@ -58,7 +58,14 @@ abstract class AccountTestCase extends TestCase
         ];
 
         // Submit the registration form
-        $this->post('/register', $formData);
+        $response = $this->post('/register', $formData);
+        if ($response->status() !== 302) {
+            var_dump($response->getContent());
+            $this->fail('Failed to register account. Response status: ' . $response->status(). '. Check the logs.');
+        }
+
+        // Check if we are authenticated after registration.
+        $this->assertAuthenticated();
 
         // We should now automatically be logged in. Retrieve meta fields to verify.
         $this->retrieveMetaFields();
@@ -73,11 +80,13 @@ abstract class AccountTestCase extends TestCase
     {
         //  Extract current user planet ID based on meta tag in the overview page
         $response = $this->get('/overview');
-
+        if ($response->status() !== 200) {
+            $this->fail('Failed to retrieve overview page after registration. Response status: ' . $response->status());
+        }
         $content = $response->getContent();
 
-        preg_match('/<meta name="ogame-planet-id" content="([^"]+)"/', $content, $planetIdMatches);
         preg_match('/<meta name="ogame-player-id" content="([^"]+)"/', $content, $playerIdMatches);
+        preg_match('/<meta name="ogame-planet-id" content="([^"]+)"/', $content, $planetIdMatches);
 
         $playerId = $playerIdMatches[1] ?? null;
         $planetId = $planetIdMatches[1] ?? null;
