@@ -379,7 +379,7 @@
                             </tr>
                             <tr class="data">
                                 <td title="Production of {{ $build_active['object_amount_remaining'] }} {{ $build_active['object']['title'] }} in progress" class="building tooltip" rowspan="2" valign="top">
-                                    <a href="{{ route('shipyard', ['openTech' => 210]) }}" onclick="$('.detail_button[ref=210]').click(); return false;">
+                                    <a href="{{ route('shipyard.index', ['openTech' => 210]) }}" onclick="$('.detail_button[ref=210]').click(); return false;">
                                         <img class="queuePic" width="40" height="40" alt="{{ $build_active['object']['title'] }}" src="{{ asset('img/objects/units/' . $build_active['object']['assets']['img']['small']) }}"></a>
                                     <div class="shipSumCount" id="shipSumCount">{{ $build_active['object_amount_remaining'] }}</div>
                                 </td>
@@ -394,7 +394,7 @@
                             </tr>
                             <tr class="data">
                                 <td colspan="2">
-                                    <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile ships " title="Reduces construction time by 50% of the total construction time (9s)." href="javascript:void(0);" rel="{{ route('inventory', ['buyAndActivate' => '75accaa0d1bc22b78d83b89cd437bdccd6a58887']) }}">
+                                    <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile ships " title="Reduces construction time by 50% of the total construction time (9s)." href="javascript:void(0);" rel="{{ route('shop.index', ['buyAndActivate' => '75accaa0d1bc22b78d83b89cd437bdccd6a58887']) }}">
                                         <div class="build-faster-img" alt="Halve time"></div>
                                         <span class="build-txt">Halve time</span>
                             <span class="dm_cost ">

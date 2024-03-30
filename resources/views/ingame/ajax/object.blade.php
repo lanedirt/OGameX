@@ -56,15 +56,26 @@
     @if ($object_type == 'ship' || $object_type == 'defence')
         <ul class="production_info narrow">
             <li>
-                Production duration            <span class="time" id="buildDuration">
-
-                    <a href="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $id]) }}" class="value overlay tooltip tpd-hideOnClickOutside" title="" data-overlay-title="&nbsp;">Unknown     </a>
-                 <span class="undermark">
-                                    </span>
-            </span>
+                Production duration
+                <span class="time" id="buildDuration">
+                    {!! $production_time !!}
+                    <span class="undermark"></span>
+                </span>
             </li>
             <li>
-                Construction possible: <span class="time" id="possibleInTime"><span href="javascript:void(0)" class="dark_highlight_tablet tooltip advice" title="Requirements are not met">Unknown</span>            </span></li>
+                Construction possible:
+                @if ($requirements_met)
+                    <span class="time" id="possibleInTime">
+                        {!! $production_time !!}
+                    </span>
+                @else
+                    <span class="time" id="possibleInTime">
+                        <a href="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $id]) }}" class="value overlay tooltip tpd-hideOnClickOutside" title="Requirements are not met" data-overlay-title="&nbsp;">
+                            Unknown
+                        </a>
+                    </span>
+                @endif
+            </li>
         </ul>
         <div class="enter">
             <p class="amount">Number:</p>
@@ -79,10 +90,25 @@
     @else
     <ul class="production_info ">
         <li>
-            Production duration            <span class="time" id="buildDuration">
-                {!! $production_time !!}                <span class="undermark">
-                                    </span>
+            Production duration
+            <span class="time" id="buildDuration">
+                {!! $production_time !!}
+                <span class="undermark"></span>
             </span>
+        </li>
+        <li>
+            Construction possible:
+            @if ($requirements_met)
+                <span class="time" id="possibleInTime">
+                    {!! $production_time !!}
+                </span>
+            @else
+                <span class="time" id="possibleInTime">
+                    <a href="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $id]) }}" class="value overlay tooltip tpd-hideOnClickOutside" title="Requirements are not met" data-overlay-title="&nbsp;">
+                        Unknown
+                    </a>
+                </span>
+            @endif
         </li>
         @if ($energy_difference > 0)
         <li>

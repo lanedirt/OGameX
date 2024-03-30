@@ -4,52 +4,14 @@ namespace Tests\Feature;
 
 use Illuminate\Support\Str;
 use OGame\Services\ObjectService;
+use Tests\AccountTestCase;
 use Tests\TestCase;
 
 /**
  * Test AJAX calls to make sure they work as expected.
  */
-class Http200Test extends TestCase
+class Http200Test extends AccountTestCase
 {
-    /**
-     * Set up common test components.
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Create a new user and login so we can access ingame features
-        $this->createAndLoginUser();
-    }
-
-    protected function createAndLoginUser() {
-        $response = $this->get('/login');
-
-        // Check for existence of register form
-        $response->assertSee('subscribeForm');
-
-        // Simulate form data
-        // Generate random email
-        $randomEmail = Str::random(10) . '@example.com';
-
-        $formData = [
-            '_token' => csrf_token(),
-            'email' => $randomEmail,
-            'password' => 'asdasdasd',
-            'v' => '3',
-            'step' => 'validate',
-            'kid' => '',
-            'errorCodeOn' => '1',
-            'is_utf8' => '1',
-            'agb' => 'on',
-        ];
-
-        // Submit the registration form
-        $this->post('/register', $formData);
-
-        // We should now automatically be logged in.
-    }
-
     /**
      * Verify that all main pages return HTTP 200.
      */
@@ -90,7 +52,7 @@ class Http200Test extends TestCase
     }
 
     /**
-     * Verify that all AJAX resource pages return HTTP 200.
+     * Verify that all AJAX resources pages return HTTP 200.
      */
     public function testAjaxResources(): void
     {
@@ -111,7 +73,7 @@ class Http200Test extends TestCase
     }
 
     /**
-     * Verify that all AJAX resource pages return HTTP 200.
+     * Verify that all AJAX facilities pages return HTTP 200.
      */
     public function testAjaxFacilities(): void
     {
@@ -132,7 +94,7 @@ class Http200Test extends TestCase
     }
 
     /**
-     * Verify that all AJAX resource pages return HTTP 200.
+     * Verify that all AJAX research pages return HTTP 200.
      */
     public function testAjaxResearch(): void
     {
@@ -153,7 +115,7 @@ class Http200Test extends TestCase
     }
 
     /**
-     * Verify that all AJAX resource pages return HTTP 200.
+     * Verify that all AJAX shipyard pages return HTTP 200.
      */
     public function testAjaxShipyard(): void
     {
@@ -174,7 +136,7 @@ class Http200Test extends TestCase
     }
 
     /**
-     * Verify that all AJAX resource pages return HTTP 200.
+     * Verify that all AJAX defense pages return HTTP 200.
      */
     public function testAjaxDefence(): void
     {

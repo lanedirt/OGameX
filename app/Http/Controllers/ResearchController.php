@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers;
 use Illuminate\Http\Request;
 use OGame\Http\Traits\IngameTrait;
 use OGame\Http\Traits\ObjectAjaxTrait;
+use OGame\Services\BuildingQueueService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\ResearchQueueService;
@@ -13,6 +14,13 @@ class ResearchController
 {
     use IngameTrait;
     use ObjectAjaxTrait;
+
+    /**
+     * QueueService
+     *
+     * @var ResearchQueueService
+     */
+    protected $queue;
 
     /**
      * ResourcesController constructor.

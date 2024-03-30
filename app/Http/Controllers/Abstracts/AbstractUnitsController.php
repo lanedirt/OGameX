@@ -3,6 +3,7 @@
 namespace OGame\Http\Controllers\Abstracts;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use OGame\Http\Controllers\Controller;
 use OGame\Http\Traits\IngameTrait;
 use OGame\Http\Traits\ObjectAjaxTrait;
@@ -26,7 +27,7 @@ abstract class AbstractUnitsController extends Controller
     /**
      * QueueService
      *
-     * @var BuildingQueueService
+     * @var UnitQueueService
      */
     protected $queue;
 
@@ -70,7 +71,7 @@ abstract class AbstractUnitsController extends Controller
         $queue_time_end = $this->queue->retrieveQueueTimeEnd($this->planet);
         $queue_time_countdown = 0;
         if ($queue_time_end > 0) {
-            $queue_time_countdown = $queue_time_end - time();
+            $queue_time_countdown = $queue_time_end - Carbon::now()->timestamp;
         }
 
         $units = [];

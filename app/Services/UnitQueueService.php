@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Carbon;
+
 /**
  * Class UnitQueueService.
  *
@@ -67,7 +69,7 @@ class UnitQueueService
         // Fetch queue items from model
         $queue_items = $this->model->where([
             ['planet_id', $planet_id],
-            ['time_start', '<=', time()],
+            ['time_start', '<=', Carbon::now()->timestamp],
             ['processed', 0],
         ])
             ->orderBy('time_start', 'asc')
@@ -104,7 +106,7 @@ class UnitQueueService
         foreach ($queue_items as $item) {
             $object = $this->objects->getUnitObjects($item->object_id);
 
-            $time_countdown = $item->time_end - time();
+            $time_countdown = $item->time_end - Carbon::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
             }
@@ -117,7 +119,7 @@ class UnitQueueService
             if ($last_update < $item->time_start) {
                 $last_update = $item->time_start;
             }
-            $last_update_diff = time() - $last_update;
+            $last_update_diff = Carbon::now()->timestamp - $last_update;
 
             $time_countdown_next_single = $time_per_unit - $last_update_diff;
 
@@ -166,7 +168,7 @@ class UnitQueueService
     /**
      * Add a building to the building queue for the current planet.
      */
-    public function add(PlanetService $planet, $object_id, $requested_build_amount)
+    public function add(PlanetService $planet, $object_id, $requested_build_amount): void
     {
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the building queue.
@@ -185,6 +187,12 @@ class UnitQueueService
             $requested_build_amount = $max_build_amount;
         }
 
+        if ($requested_build_amount < 1) {
+            // If the requested amount is less than 1, then we can't build
+            // anything. So we stop here.
+            return;
+        }
+
         // Get price per unit
         $price = $this->objects->getObjectPrice($object_id, $planet);
 
@@ -197,14 +205,12 @@ class UnitQueueService
         // of resource prices works correctly in unit build orders.
 
         // Calculate build time per unit
-        // @TODO: change getbuildingtime to getshiptime/getunittime as this
         // should be different from buildings.
-        $build_time_unit = $planet->getBuildingTime($object_id);
-        $build_time_unit = 15;
+        $build_time_unit = $planet->getUnitConstructionTime($object_id);
         $build_time_total = $build_time_unit * $requested_build_amount;
 
         // Time this order will start
-        $time_start = time();
+        $time_start = Carbon::now()->timestamp;
 
         // If there are other orders already in the queue, use the highest
         // time_end as the start time of this order.

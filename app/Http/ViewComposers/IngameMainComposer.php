@@ -84,9 +84,9 @@ class IngameMainComposer
         ];
 
         $view->with([
-            'username' => $this->player->getUsername(),
             'resources' => $resources,
-            'currentPlanetId' => $this->player->planets->current()->getPlanetId(),
+            'currentPlayer' => $this->player,
+            'currentPlanet' => $this->player->planets->current(),
             'planets' => $this->player->planets,
         ]);
     }
