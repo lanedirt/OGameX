@@ -379,7 +379,7 @@
                             </tr>
                             <tr class="data">
                                 <td title="Production of {{ $build_active['object_amount_remaining'] }} {{ $build_active['object']['title'] }} in progress" class="building tooltip" rowspan="2" valign="top">
-                                    <a href="{{ route('shipyard', ['openTech' => 210]) }}" onclick="$('.detail_button[ref=210]').click(); return false;">
+                                    <a href="{{ route('shipyard.index', ['openTech' => 210]) }}" onclick="$('.detail_button[ref=210]').click(); return false;">
                                         <img class="queuePic" width="40" height="40" alt="{{ $build_active['object']['title'] }}" src="{{ asset('img/objects/units/' . $build_active['object']['assets']['img']['small']) }}"></a>
                                     <div class="shipSumCount" id="shipSumCount">{{ $build_active['object_amount_remaining'] }}</div>
                                 </td>
