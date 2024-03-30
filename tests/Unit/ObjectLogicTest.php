@@ -22,6 +22,6 @@ class ObjectLogicTest extends TestCase
         $this->assertTrue(count($objectService->getShipObjects()) > 1);
         $this->assertTrue(count($objectService->getMilitaryShipObjects()) > 1);
         $this->assertTrue(count($objectService->getCivilShipObjects()) > 1);
-        $this->assertTrue(count($objectService->getDefenceObjects()) > 1);
+        $this->assertTrue(count($objectService->getDefenseObjects()) > 1);
     }
 }

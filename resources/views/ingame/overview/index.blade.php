@@ -395,9 +395,9 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                             <td colspan="2" class="idle">
                                 <a class="tooltip js_hideTipOnMobile
                            "
-                                   title="At the moment there are no ships or defence being built on this planet. Click here to get to the shipyard."
+                                   title="At the moment there are no ships or defense being built on this planet. Click here to get to the shipyard."
                                    href="{{ route('shipyard.index') }}">
-                                    No ships/defence in construction.<br/>(To shipyard)                        </a>
+                                    No ships/defense in construction.<br/>(To shipyard)                        </a>
 
                             </td>
                         </tr>

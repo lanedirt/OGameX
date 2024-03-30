@@ -138,18 +138,18 @@ class Http200Test extends AccountTestCase
     /**
      * Verify that all AJAX defense pages return HTTP 200.
      */
-    public function testAjaxDefence(): void
+    public function testAjaxDefense(): void
     {
         // Get all resource objects
         $objectService = new ObjectService();
 
-        foreach ($objectService->getDefenceObjects() as $object) {
+        foreach ($objectService->getDefenseObjects() as $object) {
             $response = $this->get('ajax/defense?type=' . $object['id']);
 
             try {
                 $response->assertStatus(200);
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
-                $customMessage = 'AJAX defence page for "' . $object['title'] . '" does not return HTTP 200.';
+                $customMessage = 'AJAX defense page for "' . $object['title'] . '" does not return HTTP 200.';
                 // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
                 $this->fail($customMessage);
             }

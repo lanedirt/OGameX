@@ -40,9 +40,9 @@ class ObjectService
     protected $civilShipObjects;
 
     /**
-     * Defence.
+     * Defense.
      */
-    protected $defenceObjects;
+    protected $defenseObjects;
 
     /**
      * ObjectService constructor.
@@ -56,7 +56,7 @@ class ObjectService
                 'title' => 'Metal Mine',
                 'machine_name' => 'metal_mine',
                 'description' => 'Used in the extraction of metal ore, metal mines are of primary importance to all emerging and established empires.',
-                'description_long' => 'Metal is the primary resource used in the foundation of your Empire. At greater depths, the mines can produce more output of viable metal for use in the construction of buildings, ships, defence systems, and research. As the mines drill deeper, more energy is required for maximum production. As metal is the most abundant of all resources available, its value is considered to be the lowest of all resources for trading.',
+                'description_long' => 'Metal is the primary resource used in the foundation of your Empire. At greater depths, the mines can produce more output of viable metal for use in the construction of buildings, ships, defense systems, and research. As the mines drill deeper, more energy is required for maximum production. As metal is the most abundant of all resources available, its value is considered to be the lowest of all resources for trading.',
                 'requirements' => [],
                 'price' => [
                     'metal' => 60,
@@ -358,8 +358,8 @@ The Deuterium Tank protects a certain percentage of the synthesizer`s daily prod
                 'type' => 'station',
                 'title' => 'Alliance Depot',
                 'machine_name' => 'alliance_depot',
-                'description' => 'The alliance depot supplies fuel to friendly fleets in orbit helping with defence.',
-                'description_long' => 'The alliance depot supplies fuel to friendly fleets in orbit helping with defence. For each upgrade level of the alliance depot, a special demand of deuterium per hour can be sent to an orbiting fleet.',
+                'description' => 'The alliance depot supplies fuel to friendly fleets in orbit helping with defense.',
+                'description_long' => 'The alliance depot supplies fuel to friendly fleets in orbit helping with defense. For each upgrade level of the alliance depot, a special demand of deuterium per hour can be sent to an orbiting fleet.',
                 'requirements' => [],
                 'price' => [
                     'metal' => 20000,
@@ -402,7 +402,7 @@ The Deuterium Tank protects a certain percentage of the synthesizer`s daily prod
                 'type' => 'station',
                 'title' => 'Nanite Factory',
                 'machine_name' => 'nanite_factory',
-                'description' => 'This is the ultimate in robotics technology. Each level cuts the construction time for buildings, ships, and defences.',
+                'description' => 'This is the ultimate in robotics technology. Each level cuts the construction time for buildings, ships, and defenses.',
                 'description_long' => 'A nanomachine, also called a nanite, is a mechanical or electromechanical device whose dimensions are measured in nanometers (millionths of a millimeter, or units of 10^-9 meter). The microscopic size of nanomachines translates into higher operational speed. This factory produces nanomachines that are the ultimate evolution in robotics technology. Once constructed, each upgrade significantly decreases production time for buildings, ships, and defensive structures.',
                 'requirements' => [14 => 10, 108 => 10],
                 'price' => [
@@ -484,7 +484,7 @@ Since the Space Dock floats in orbit, it does not require a planet field.',
                 'title' => 'Energy Technology',
                 'machine_name' => 'energy_technology',
                 'description' => 'The command of different types of energy is necessary for many new technologies.',
-                'description_long' => 'As various fields of research advanced, it was discovered that the current technology of energy distribution was not sufficient enough to begin certain specialized research. With each upgrade of your Energy Technology, new research can be conducted which unlocks development of more sophisticated ships and defences.',
+                'description_long' => 'As various fields of research advanced, it was discovered that the current technology of energy distribution was not sufficient enough to begin certain specialized research. With each upgrade of your Energy Technology, new research can be conducted which unlocks development of more sophisticated ships and defenses.',
                 'requirements' => [31 => 1],
                 'price' => [
                     'metal' => 0,
@@ -670,7 +670,7 @@ Interplanetary missiles also travel farther with each level.',
                 'description_long' => 'Espionage Technology is, in the first instance, an advancement of sensor technology. The more advanced this technology is, the more information the user receives about activities in his environment.
 The differences between your own spy level and opposing spy levels is crucial for probes. The more advanced your own espionage technology is, the more information the report can gather and the smaller the chance is that your espionage activities are discovered. The more probes that you send on one mission, the more details they can gather from the target planet. But at the same time it also increases the chance of discovery.
 Espionage technology also improves the chance of locating foreign fleets. The espionage level is vital in determining this. From level 2 onwards, the exact total number of attacking ships is displayed as well as the normal attack notification. And from level 4 onwards, the type of attacking ships as well as the total number is shown and from level 8 onwards the exact number of different ship types is shown.
-This technology is indispensable for an upcoming attack, as it informs you whether the victim fleet has defence available or not. That is why this technology should be researched very early on.',
+This technology is indispensable for an upcoming attack, as it informs you whether the victim fleet has defense available or not. That is why this technology should be researched very early on.',
                 'requirements' => [31 => 3],
                 'price' => [
                     'metal' => 200,
@@ -788,7 +788,7 @@ In order to function, each colony must be able to conduct the research independe
                 'title' => 'Weapon Technology',
                 'machine_name' => 'weapon_technology',
                 'description' => 'Weapons technology makes weapons systems more efficient. Each level of weapons technology increases the weapon strength of units by 10 % of the base value.',
-                'description_long' => 'Weapons Technology is a key research technology and is critical to your survival against enemy Empires. With each level of Weapons Technology researched, the weapons systems on ships and your defence mechanisms become increasingly more efficient. Each level increases the base strength of your weapons by 10% of the base value.',
+                'description_long' => 'Weapons Technology is a key research technology and is critical to your survival against enemy Empires. With each level of Weapons Technology researched, the weapons systems on ships and your defense mechanisms become increasingly more efficient. Each level increases the base strength of your weapons by 10% of the base value.',
                 'requirements' => [31 => 12],
                 'price' => [
                     'metal' => 0,
@@ -810,7 +810,7 @@ In order to function, each colony must be able to conduct the research independe
                 'title' => 'Shielding Technology',
                 'machine_name' => 'shielding_technology',
                 'description' => 'Shielding technology makes the shields on ships and defensive facilities more efficient. Each level of shield technology increases the strength of the shields by 10 % of the base value.',
-                'description_long' => 'With the invention of the magnetosphere generator, scientists learned that an artificial shield could be produced to protect the crew in space ships not only from the harsh solar radiation environment in deep space, but also provide protection from enemy fire during an attack. Once scientists finally perfected the technology, a magnetosphere generator was installed on all ships and defence systems.
+                'description_long' => 'With the invention of the magnetosphere generator, scientists learned that an artificial shield could be produced to protect the crew in space ships not only from the harsh solar radiation environment in deep space, but also provide protection from enemy fire during an attack. Once scientists finally perfected the technology, a magnetosphere generator was installed on all ships and defense systems.
 
 As the technology is advanced to each level, the magnetosphere generator is upgraded which provides an additional 10% strength to the shields base value.',
                 'requirements' => [31 => 6, 113 => 3],
@@ -860,8 +860,8 @@ As the technology is advanced to each level, the magnetosphere generator is upgr
                 'title' => 'Light Fighter',
                 'machine_name' => 'light_fighter',
                 'class_name' => 'fighterLight',
-                'description' => 'This is the first fighting ship all emperors will build. The light fighter is an agile ship, but vulnerable on its own. In mass numbers, they can become a great threat to any empire. They are the first to accompany small and large cargoes to hostile planets with minor defences.',
-                'description_long' => 'This is the first fighting ship all emperors will build. The light fighter is an agile ship, but vulnerable when it is on its own. In mass numbers, they can become a great threat to any empire. They are the first to accompany small and large cargoes to hostile planets with minor defences.',
+                'description' => 'This is the first fighting ship all emperors will build. The light fighter is an agile ship, but vulnerable on its own. In mass numbers, they can become a great threat to any empire. They are the first to accompany small and large cargoes to hostile planets with minor defenses.',
+                'description_long' => 'This is the first fighting ship all emperors will build. The light fighter is an agile ship, but vulnerable when it is on its own. In mass numbers, they can become a great threat to any empire. They are the first to accompany small and large cargoes to hostile planets with minor defenses.',
                 'requirements' => [21 => 1, 115 => 1],
                 'price' => [
                     'metal' => 3000,
@@ -931,7 +931,7 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                 'machine_name' => 'battle_ship',
                 'class_name' => 'battleship',
                 'description' => 'Battleships form the backbone of a fleet. Their heavy cannons, high speed, and large cargo holds make them opponents to be taken seriously.',
-                'description_long' => 'Once it became apparent that the cruiser was losing ground to the increasing number of defence structures it was facing, and with the loss of ships on missions at unacceptable levels, it was decided to build a ship that could face those same type of defence structures with as little loss as possible. After extensive development, the Battleship was born. Built to withstand the largest of battles, the Battleship features large cargo spaces, heavy cannons, and high hyperdrive speed. Once developed, it eventually turned out to be the backbone of every raiding Emperors fleet.',
+                'description_long' => 'Once it became apparent that the cruiser was losing ground to the increasing number of defense structures it was facing, and with the loss of ships on missions at unacceptable levels, it was decided to build a ship that could face those same type of defense structures with as little loss as possible. After extensive development, the Battleship was born. Built to withstand the largest of battles, the Battleship features large cargo spaces, heavy cannons, and high hyperdrive speed. Once developed, it eventually turned out to be the backbone of every raiding Emperors fleet.',
                 'requirements' => [21 => 7, 118 => 4],
                 'price' => [
                     'metal' => 45000,
@@ -974,10 +974,10 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                 'title' => 'Bomber',
                 'machine_name' => 'bomber',
                 'class_name' => 'bomber',
-                'description' => 'The bomber was developed especially to destroy the planetary defences of a world.',
-                'description_long' => 'Over the centuries, as defences were starting to get larger and more sophisticated, fleets were starting to be destroyed at an alarming rate. It was decided that a new ship was needed to break defences to ensure maximum results. After years of research and development, the Bomber was created.
+                'description' => 'The bomber was developed especially to destroy the planetary defenses of a world.',
+                'description_long' => 'Over the centuries, as defenses were starting to get larger and more sophisticated, fleets were starting to be destroyed at an alarming rate. It was decided that a new ship was needed to break defenses to ensure maximum results. After years of research and development, the Bomber was created.
 
-Using laser-guided targeting equipment and Plasma Bombs, the Bomber seeks out and destroys any defence mechanism it can find. As soon as the hyperspace drive is developed to Level 8, the Bomber is retrofitted with the hyperspace engine and can fly at higher speeds.',
+Using laser-guided targeting equipment and Plasma Bombs, the Bomber seeks out and destroys any defense mechanism it can find. As soon as the hyperspace drive is developed to Level 8, the Bomber is retrofitted with the hyperspace engine and can fly at higher speeds.',
                 'requirements' => [21 => 8, 117 => 6, 122 => 5],
                 'price' => [
                     'metal' => 50000,
@@ -1026,7 +1026,7 @@ Because the destroyer is very large, its manoeuvrability is severely limited, wh
                 'description' => 'The destructive power of the deathstar is unsurpassed.',
                 'description_long' => 'The Deathstar is the most powerful ship ever created. This moon sized ship is the only ship that can be seen with the naked eye on the ground. By the time you spot it, unfortunately, it is too late to do anything.
 
-Armed with a gigantic graviton cannon, the most advanced weapons system ever created in the Universe, this massive ship has not only the capability of destroying entire fleets and defences, but also has the capability of destroying entire moons. Only the most advanced empires have the capability to build a ship of this mammoth size.',
+Armed with a gigantic graviton cannon, the most advanced weapons system ever created in the Universe, this massive ship has not only the capability of destroying entire fleets and defenses, but also has the capability of destroying entire moons. Only the most advanced empires have the capability to build a ship of this mammoth size.',
                 'requirements' => [21 => 12, 199 => 1, 118 => 7, 114 => 6],
                 'price' => [
                     'metal' => 5000000,
@@ -1189,7 +1189,7 @@ Due to their good cost/performance ratio solar satellites can solve a lot of ene
             ],
         ];
 
-        $this->defenceObjects = [
+        $this->defenseObjects = [
             // Defense
             401 => [
                 'id' => 401,
@@ -1197,7 +1197,7 @@ Due to their good cost/performance ratio solar satellites can solve a lot of ene
                 'title' => 'Rocket Launcher',
                 'machine_name' => 'rocket_launcher',
                 'description' => 'The rocket launcher is a simple, cost-effective defensive option.',
-                'description_long' => 'Your first basic line of defence. These are simple ground based launch facilities that fire conventional warhead tipped missiles at attacking enemy targets. As they are cheap to construct and no research is required, they are well suited for defending raids, but lose effectiveness defending from larger scale attacks. Once you begin construction on more advanced defence weapons systems, Rocket Launchers become simple fodder to allow your more damaging weapons to inflict greater damage for a longer period of time.
+                'description_long' => 'Your first basic line of defense. These are simple ground based launch facilities that fire conventional warhead tipped missiles at attacking enemy targets. As they are cheap to construct and no research is required, they are well suited for defending raids, but lose effectiveness defending from larger scale attacks. Once you begin construction on more advanced defense weapons systems, Rocket Launchers become simple fodder to allow your more damaging weapons to inflict greater damage for a longer period of time.
 
 After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.',
                 'requirements' => [21 => 1],
@@ -1220,7 +1220,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'title' => 'Light Laser',
                 'machine_name' => 'light_laser',
                 'description' => 'Concentrated firing at a target with photons can produce significantly greater damage than standard ballistic weapons.',
-                'description_long' => 'As technology developed and more sophisticated ships were created, it was determined that a stronger line of defence was needed to counter the attacks. As Laser Technology advanced, a new weapon was designed to provide the next level of defence. Light Lasers are simple ground based weapons that utilize special targeting systems to track the enemy and fire a high intensity laser designed to cut through the hull of the target. In order to be kept cost effective, they were fitted with an improved shielding system, however the structural integrity is the same as that of the Rocket Launcher.
+                'description_long' => 'As technology developed and more sophisticated ships were created, it was determined that a stronger line of defense was needed to counter the attacks. As Laser Technology advanced, a new weapon was designed to provide the next level of defense. Light Lasers are simple ground based weapons that utilize special targeting systems to track the enemy and fire a high intensity laser designed to cut through the hull of the target. In order to be kept cost effective, they were fitted with an improved shielding system, however the structural integrity is the same as that of the Rocket Launcher.
 
 After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.',
                 'requirements' => [21 => 2, 120 => 3],
@@ -1267,7 +1267,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'machine_name' => 'gauss_cannon',
                 'description' => 'The Gauss Cannon fires projectiles weighing tons at high speeds.',
                 'description_long' => 'For a long time projectile weapons were regarded as antiquated in the wake of modern thermonuclear and energy technology and due to the development of the hyperdrive and improved armour. That was until the exact energy technology that had once aged it, helped it to re-achieve their established position.
-A gauss cannon is a large version of the particle accelerator. Extremely heavy missiles are accelerated with a huge electromagnetic force and have muzzle velocities that make the dirt surrounding the missile burn in the skies. This weapon is so powerful when fired that it creates a sonic boom. Modern armour and shields can barely withstand the force, often the target is completely penetrated by the power of the missile. Defence structures deactivate as soon as they have been too badly damaged.
+A gauss cannon is a large version of the particle accelerator. Extremely heavy missiles are accelerated with a huge electromagnetic force and have muzzle velocities that make the dirt surrounding the missile burn in the skies. This weapon is so powerful when fired that it creates a sonic boom. Modern armour and shields can barely withstand the force, often the target is completely penetrated by the power of the missile. Defense structures deactivate as soon as they have been too badly damaged.
 
 After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.',
                 'requirements' => [21 => 6, 109 => 3, 113 => 6, 110 => 1],
@@ -1290,7 +1290,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'title' => 'Ion Cannon',
                 'machine_name' => 'ion_cannon',
                 'description' => 'The Ion Cannon fires a continuous beam of accelerating ions, causing considerable damage to objects it strikes.',
-                'description_long' => 'An ion cannon is a weapon that fires beams of ions (positively or negatively charged particles). The Ion Cannon is actually a type of Particle Cannon; only the particles used are ionized. Due to their electrical charges, they also have the potential to disable electronic devices, and anything else that has an electrical or similar power source, using a phenomena known as the the Electromagetic Pulse (EMP effect). Due to the cannons highly improved shielding system, this cannon provides improved protection for your larger, more destructive defence weapons.
+                'description_long' => 'An ion cannon is a weapon that fires beams of ions (positively or negatively charged particles). The Ion Cannon is actually a type of Particle Cannon; only the particles used are ionized. Due to their electrical charges, they also have the potential to disable electronic devices, and anything else that has an electrical or similar power source, using a phenomena known as the the Electromagetic Pulse (EMP effect). Due to the cannons highly improved shielding system, this cannon provides improved protection for your larger, more destructive defense weapons.
 
 After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.',
                 'requirements' => [21 => 4, 121 => 4],
@@ -1313,7 +1313,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'title' => 'Plasma Turret',
                 'machine_name' => 'plasma_turret',
                 'description' => 'Plasma Turrets release the energy of a solar flare and surpass even the destroyer in destructive effect.',
-                'description_long' => 'One of the most advanced defence weapons systems ever developed, the Plasma Turret uses a large nuclear reactor fuel cell to power an electromagnetic accelerator that fires a pulse, or toroid, of plasma. During operation, the Plasma turret first locks on a target and begins the process of firing. A plasma sphere is created in the turrets core by super heating and compressing gases, stripping them of their ions. Once the gas is superheated, compressed, and a plasma sphere is created, it is then loaded into the electromagnetic accelerator which is energized. Once fully energized, the accelerator is activated, which results in the plasma sphere being launched at an extremely high rate of speed to the intended target. From the targets perspective, the approaching bluish ball of plasma is impressive, but once it strikes, it causes instant destruction.
+                'description_long' => 'One of the most advanced defense weapons systems ever developed, the Plasma Turret uses a large nuclear reactor fuel cell to power an electromagnetic accelerator that fires a pulse, or toroid, of plasma. During operation, the Plasma turret first locks on a target and begins the process of firing. A plasma sphere is created in the turrets core by super heating and compressing gases, stripping them of their ions. Once the gas is superheated, compressed, and a plasma sphere is created, it is then loaded into the electromagnetic accelerator which is energized. Once fully energized, the accelerator is activated, which results in the plasma sphere being launched at an extremely high rate of speed to the intended target. From the targets perspective, the approaching bluish ball of plasma is impressive, but once it strikes, it causes instant destruction.
 
 Defensive facilities deactivate as soon as they are too heavily damaged. After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.',
                 'requirements' => [21 => 8, 122 => 7],
@@ -1382,7 +1382,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'title' => 'Anti-Ballistic Missiles',
                 'machine_name' => 'anti_ballistic_missile',
                 'description' => 'Anti-Ballistic Missiles destroy attacking interplanetary missiles',
-                'description_long' => 'Anti Ballistic Missiles (ABM) are your only line of defence when attacked by Interplanetary Missiles (IPM) on your planet or moon. When a launch of IPMs is detected, these missiles automatically arm, process a launch code in their flight computers, target the inbound IPM, and launch to intercept. During the flight, the target IPM is constantly tracked and course corrections are applied until the ABM reaches the target and destroys the attacking IPM. Each ABM destroys one incoming IPM.',
+                'description_long' => 'Anti Ballistic Missiles (ABM) are your only line of defense when attacked by Interplanetary Missiles (IPM) on your planet or moon. When a launch of IPMs is detected, these missiles automatically arm, process a launch code in their flight computers, target the inbound IPM, and launch to intercept. During the flight, the target IPM is constantly tracked and course corrections are applied until the ABM reaches the target and destroys the attacking IPM. Each ABM destroys one incoming IPM.',
                 'requirements' => [44 => 2],
                 'price' => [
                     'metal' => 8000,
@@ -1402,8 +1402,8 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'type' => 'defense',
                 'title' => 'Interplanetary Missiles',
                 'machine_name' => 'interplanetary_missile',
-                'description' => 'Interplanetary Missiles destroy enemy defences. Your interplanetary missiles have got a coverage of ?? systems.',
-                'description_long' => 'Interplanetary Missiles (IPM) are your offensive weapon to destroy the defences of your target. Using state of the art tracking technology, each missile targets a certain number of defences for destruction. Tipped with an anti-matter bomb, they deliver a destructive force so severe that destroyed shields and defences cannot be repaired. The only way to counter these missiles is with ABMs.',
+                'description' => 'Interplanetary Missiles destroy enemy defenses. Your interplanetary missiles have got a coverage of ?? systems.',
+                'description_long' => 'Interplanetary Missiles (IPM) are your offensive weapon to destroy the defenses of your target. Using state of the art tracking technology, each missile targets a certain number of defenses for destruction. Tipped with an anti-matter bomb, they deliver a destructive force so severe that destroyed shields and defenses cannot be repaired. The only way to counter these missiles is with ABMs.',
                 'requirements' => [44 => 4, 117 => 1],
                 'price' => [
                     'metal' => 12500,
@@ -1560,18 +1560,18 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     }
 
     /**
-     * Get all defence (or specific defence).
+     * Get all defense (or specific defense).
      */
-    public function getDefenceObjects($object_id = FALSE)
+    public function getDefenseObjects($object_id = FALSE)
     {
         if (!empty($object_id)) {
-            if (!empty($this->defenceObjects[$object_id])) {
-                return $this->defenceObjects[$object_id];
+            if (!empty($this->defenseObjects[$object_id])) {
+                return $this->defenseObjects[$object_id];
             } else {
                 return FALSE;
             }
         } else {
-            return $this->defenceObjects;
+            return $this->defenseObjects;
         }
     }
 
@@ -1614,7 +1614,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             $this->researchObjects +
             $this->militaryShipObjects +
             $this->civilShipObjects +
-            $this->defenceObjects;
+            $this->defenseObjects;
 
         if (!empty($object_id)) {
             if (!empty($all_objects[$object_id])) {
@@ -1633,7 +1633,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     public function getUnitObjects($object_id = FALSE)
     {
         // Create combined array of the required object types.
-        $unit_objects = $this->militaryShipObjects + $this->civilShipObjects + $this->defenceObjects;
+        $unit_objects = $this->militaryShipObjects + $this->civilShipObjects + $this->defenseObjects;
 
         if (!empty($object_id)) {
             if (!empty($unit_objects[$object_id])) {

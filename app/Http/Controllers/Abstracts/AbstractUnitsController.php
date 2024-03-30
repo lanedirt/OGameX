@@ -40,7 +40,7 @@ abstract class AbstractUnitsController extends Controller
     }
 
     /**
-     * Shows the shipyard/defence index page
+     * Shows the shipyard/defense index page
      *
      * @param int $id
      * @return Response

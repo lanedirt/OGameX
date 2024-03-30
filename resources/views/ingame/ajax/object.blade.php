@@ -41,7 +41,7 @@
        href="javascript:void(0);"
        onclick="gfSlider.hide(getElementByIdWithCache('detail')); return false;">
     </a>
-    @if ($object_type == 'ship' || $object_type == 'defence')
+    @if ($object_type == 'ship' || $object_type == 'defense')
         <span class="number-info">
             Number: {{ $current_amount }}
         </span>
@@ -53,7 +53,7 @@
     @endif
     <br class="clearfloat"/>
 
-    @if ($object_type == 'ship' || $object_type == 'defence')
+    @if ($object_type == 'ship' || $object_type == 'defense')
         <ul class="production_info narrow">
             <li>
                 Production duration
@@ -126,7 +126,7 @@
 
     <div class="costs_wrap">
 
-        @if ($object_type == 'ship' || $object_type == 'defence')
+        @if ($object_type == 'ship' || $object_type == 'defense')
             <p class="costs_info">Costs per piece:</p>
         @else
             <p class="costs_info">Required to improve to level {!! $next_level !!}:</p>
@@ -182,7 +182,7 @@ build-it
                 @endif"
            href="javascript:void(0);">
             <span>
-            @if ($object_type == 'ship' || $object_type == 'defence')
+            @if ($object_type == 'ship' || $object_type == 'defense')
             Build
             @elseif (!empty($build_active['id']))
             In queue

@@ -422,7 +422,7 @@ class PlanetService
     }
 
     /**
-     * Get the amount of a specific unit object on this planet. E.g. ships or defence.
+     * Get the amount of a specific unit object on this planet. E.g. ships or defense.
      */
     function getObjectAmount($object_id)
     {
@@ -1185,7 +1185,7 @@ class PlanetService
                 $resources_spent += $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
             }
         }
-        $unit_objects = $this->objects->getShipObjects() + $this->objects->getDefenceObjects();
+        $unit_objects = $this->objects->getShipObjects() + $this->objects->getDefenseObjects();
         foreach ($unit_objects as $object) {
             $raw_price = $this->objects->getObjectRawPrice($object['id']);
             $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
@@ -1226,9 +1226,9 @@ class PlanetService
             }
         }
 
-        // Defence (100%)
-        $defence_objects = $this->objects->getDefenceObjects();
-        foreach ($defence_objects as $object) {
+        // Defense (100%)
+        $defense_objects = $this->objects->getDefenseObjects();
+        foreach ($defense_objects as $object) {
             $raw_price = $this->objects->getObjectRawPrice($object['id']);
             $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
             // Multiply raw_price by the amount of units.
@@ -1271,9 +1271,9 @@ class PlanetService
         // The score is the sum of all these values.
         $resources_spent = 0;
 
-        // Defence (100%)
-        $defence_objects = $this->objects->getDefenceObjects();
-        foreach ($defence_objects as $object) {
+        // Defense (100%)
+        $defense_objects = $this->objects->getDefenseObjects();
+        foreach ($defense_objects as $object) {
             $raw_price = $this->objects->getObjectRawPrice($object['id']);
             $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
             // Multiply raw_price by the amount of units.
