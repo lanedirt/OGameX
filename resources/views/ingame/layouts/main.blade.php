@@ -308,7 +308,7 @@ Improved fleet escape rate">
                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
                     </a>
                     <a href="{{ route('premium.index', ['openDetail' => 4]) }}"
-                       class="tooltipHTML   engineer js_hideTipOnMobile" title="Hire Engineer|Halves losses to defences, +10% energy production">
+                       class="tooltipHTML   engineer js_hideTipOnMobile" title="Hire Engineer|Halves losses to defenses, +10% energy production">
                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
                     </a>
                     <a href="{{ route('premium.index', ['openDetail' => 5]) }}"
@@ -487,7 +487,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Defence</span>
+                                <span class="textlabel">Defense</span>
                             </a>
                         </li>
 
@@ -635,7 +635,7 @@ Improved fleet escape rate">
 
                                 <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }} " id="planet-{{ $planet->getPlanetId() }}">
                                     <a href="{{ $urlToCurrentWithUpdatedParam }}"
-                                       title="&lt;b&gt;{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinatesAsString() }}]&lt;/b&gt;&lt;br/&gt;12.800km (0/188)&lt;br&gt;47°C to 87°C&lt;br/&gt;&lt;a href=&quot;#TODO_overview&amp;cp=33734581&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_resources&amp;cp=33734581&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=research&amp;cp=33734581&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=station&amp;cp=33734581&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=shipyard&amp;cp=33734581&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=defense&amp;cp=33734581&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=fleet1&amp;cp=33734581&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=galaxy&amp;cp=33734581&amp;galaxy=4&amp;system=358&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
+                                       title="&lt;b&gt;{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinatesAsString() }}]&lt;/b&gt;&lt;br/&gt;12.800km (0/188)&lt;br&gt;47°C to 87°C&lt;br/&gt;&lt;a href=&quot;#TODO_overview&amp;cp=33734581&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_resources&amp;cp=33734581&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=research&amp;cp=33734581&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=station&amp;cp=33734581&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=shipyard&amp;cp=33734581&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=defense&amp;cp=33734581&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=fleet1&amp;cp=33734581&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=galaxy&amp;cp=33734581&amp;galaxy=4&amp;system=358&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
                                        class="planetlink {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'active' : '' }}  tooltipRight tooltipClose js_hideTipOnMobile"
                                     >
                                         <img class="planetPic js_replace2x"
@@ -715,7 +715,7 @@ Improved fleet escape rate">
                     "no": "No",
                     "ok": "Ok",
                     "attention": "Caution",
-                    "outlawWarning": "You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?",
+                    "outlawWarning": "You are about to attack a stronger player. If you do this, your attack defenses will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?",
                     "lastSlotWarningMoon": "This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?",
                     "lastSlotWarningPlanet": "This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?",
                     "forcedVacationWarning": "Some game features are unavailable until your account is validated.",

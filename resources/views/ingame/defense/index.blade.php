@@ -130,7 +130,7 @@
             "no": "No",
             "ok": "Ok",
             "attention": "Caution",
-            "outlawWarning": "You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?",
+            "outlawWarning": "You are about to attack a stronger player. If you do this, your attack defenses will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?",
             "lastSlotWarningMoon": "This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?",
             "lastSlotWarningPlanet": "This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?",
             "forcedVacationWarning": "Some game features are unavailable until your account is validated.",
@@ -172,7 +172,7 @@
             <div id="header_text">
 
 
-                <h2>Defence - {{ $planet_name }}</h2>
+                <h2>Defense - {{ $planet_name }}</h2>
 
             </div>
 
