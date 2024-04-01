@@ -19,8 +19,7 @@ jobs:
         run: |
           docker-compose -f docker-compose.yml up -d
           # Ensure the database is ready
-          docker-compose exec db bash -c 'until mysqladmin ping -h "db" --silent; do sleep 1; done'
-      # Additional steps for setting up the application
+          docker-compose exec ogame-db bash -c 'until mariadb -h "ogame-db" -u "root" -p"toor" -e "SELECT 1"; do sleep 1; done'      # Additional steps for setting up the application
       - name: Run Migrations
         run: docker-compose exec app php artisan migrate
       - name: Run Tests
