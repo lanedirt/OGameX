@@ -558,9 +558,21 @@ class PlanetService
      */
     public function getUnitConstructionTime($object_id, $formatted = FALSE)
     {
-        // TODO: implement ship construction time formula.
-        // Set to 1m12sec for all ships now for debugging purposes.
-        $time_seconds = 72;
+        $object = $this->objects->getObjects($object_id);
+
+        $shipyard_level = $this->getObjectLevel(21);
+        $nanitefactory_level = $this->getObjectLevel(15);
+        $universe_speed = 1; // @TODO: implement universe speed.
+
+        // The actual formula which return time in seconds
+        $time_hours =
+            (
+                ($object['properties']['structural_integrity'])
+                /
+                (2500 * (1 + $shipyard_level) * $universe_speed * pow(2, $nanitefactory_level))
+            );
+
+        $time_seconds = $time_hours * 3600;
 
         if ($formatted) {
             return $this->formatBuildingTime($time_seconds);

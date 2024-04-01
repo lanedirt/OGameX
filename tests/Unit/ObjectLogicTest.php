@@ -24,4 +24,35 @@ class ObjectLogicTest extends TestCase
         $this->assertTrue(count($objectService->getCivilShipObjects()) > 1);
         $this->assertTrue(count($objectService->getDefenseObjects()) > 1);
     }
+
+    /**
+     * Test that all ship objects have properties such as structural integrity, shield etc. defined.
+     */
+    public function testShipProperties() {
+        $objectService = new ObjectService();
+
+        $ships = $objectService->getShipObjects();
+        foreach ($ships as $ship) {
+            $this->assertNotNull($ship['properties']['structural_integrity']);
+            $this->assertNotNull($ship['properties']['shield']);
+            $this->assertNotNull($ship['properties']['attack']);
+            $this->assertNotNull($ship['properties']['speed']);
+            $this->assertNotNull($ship['properties']['capacity']);
+            $this->assertNotNull($ship['properties']['fuel']);
+        }
+    }
+
+    /**
+     * Test that all defense objects have properties such as structural integrity, shield etc. defined.
+     */
+    public function testDefenceProperties() {
+        $objectService = new ObjectService();
+
+        $ships = $objectService->getDefenseObjects();
+        foreach ($ships as $ship) {
+            $this->assertNotNull($ship['properties']['structural_integrity']);
+            $this->assertNotNull($ship['properties']['shield']);
+            $this->assertNotNull($ship['properties']['attack']);
+        }
+    }
 }

@@ -869,6 +869,14 @@ As the technology is advanced to each level, the magnetosphere generator is upgr
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 8400,
+                    'shield' => 17,
+                    'attack' => 85,
+                    'speed' => 20000,
+                    'capacity' => 57,
+                    'fuel' => 10,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'light_fighter_small.jpg',
@@ -892,6 +900,14 @@ Slightly larger than the light fighter, the heavy fighter has thicker hulls, pro
                     'crystal' => 4000,
                     'deuterium' => 0,
                     'energy' => 0,
+                ],
+                'properties' => [
+                    'structural_integrity' => 21000,
+                    'shield' => 42,
+                    'attack' => 255,
+                    'speed' => 16000,
+                    'capacity' => 115,
+                    'fuel' => 37,
                 ],
                 'assets' => [
                     'img' => [
@@ -917,6 +933,14 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                     'deuterium' => 2000,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 56700,
+                    'shield' => 85,
+                    'attack' => 680,
+                    'speed' => 24000,
+                    'capacity' => 920,
+                    'fuel' => 150,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'cruiser_small.jpg',
@@ -939,6 +963,14 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 126000,
+                    'shield' => 340,
+                    'attack' => 1700,
+                    'speed' => 22000,
+                    'capacity' => 1725,
+                    'fuel' => 250,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'battleship_small.jpg',
@@ -960,6 +992,14 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                     'crystal' => 40000,
                     'deuterium' => 15000,
                     'energy' => 0,
+                ],
+                'properties' => [
+                    'structural_integrity' => 147000,
+                    'shield' => 680,
+                    'attack' => 1190,
+                    'speed' => 22000,
+                    'capacity' => 862,
+                    'fuel' => 125,
                 ],
                 'assets' => [
                     'img' => [
@@ -984,6 +1024,14 @@ Using laser-guided targeting equipment and Plasma Bombs, the Bomber seeks out an
                     'crystal' => 25000,
                     'deuterium' => 15000,
                     'energy' => 0,
+                ],
+                'properties' => [
+                    'structural_integrity' => 157500,
+                    'shield' => 850,
+                    'attack' => 1700,
+                    'speed' => 6400,
+                    'capacity' => 575,
+                    'fuel' => 350,
                 ],
                 'assets' => [
                     'img' => [
@@ -1010,6 +1058,14 @@ Because the destroyer is very large, its manoeuvrability is severely limited, wh
                     'deuterium' => 15000,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 231000,
+                    'shield' => 850,
+                    'attack' => 3400,
+                    'speed' => 11000,
+                    'capacity' => 2300,
+                    'fuel' => 500,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'destroyer_small.jpg',
@@ -1033,6 +1089,14 @@ Armed with a gigantic graviton cannon, the most advanced weapons system ever cre
                     'crystal' => 4000000,
                     'deuterium' => 1000000,
                     'energy' => 0,
+                ],
+                'properties' => [
+                    'structural_integrity' => 18900000,
+                    'shield' => 85000,
+                    'attack' => 340000,
+                    'speed' => 220,
+                    'capacity' => 1150000,
+                    'fuel' => 1,
                 ],
                 'assets' => [
                     'img' => [
@@ -1062,6 +1126,14 @@ As soon as the Impulse Drive reaches research level 5, the small transporter tra
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 8400,
+                    'shield' => 17,
+                    'attack' => 85,
+                    'speed' => 13000,
+                    'capacity' => 7000,
+                    'fuel' => 5,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'small_cargo_small.jpg',
@@ -1087,6 +1159,14 @@ To maximize the resources that can be stored in the holds, this ship has little 
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 25200,
+                    'shield' => 42,
+                    'attack' => 8,
+                    'speed' => 19500,
+                    'capacity' => 35000,
+                    'fuel' => 25,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'large_cargo_small.jpg',
@@ -1110,6 +1190,14 @@ This ship is used to prepare a newly discovered planet for colonization. Once it
                     'crystal' => 20000,
                     'deuterium' => 10000,
                     'energy' => 0,
+                ],
+                'properties' => [
+                    'structural_integrity' => 63000,
+                    'shield' => 170,
+                    'attack' => 85,
+                    'speed' => 4000,
+                    'capacity' => 8625,
+                    'fuel' => 500,
                 ],
                 'assets' => [
                     'img' => [
@@ -1136,6 +1224,14 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
                     'deuterium' => 2000,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 33600,
+                    'shield' => 17,
+                    'attack' => 1,
+                    'speed' => 3200,
+                    'capacity' => 23000,
+                    'fuel' => 150,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'recycler_small.jpg',
@@ -1158,6 +1254,14 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 2100,
+                    'shield' => 0,
+                    'attack' => 0,
+                    'speed' => 160000000,
+                    'capacity' => 0,
+                    'fuel' => 1,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'espionage_probe_small.jpg',
@@ -1179,6 +1283,14 @@ Due to their good cost/performance ratio solar satellites can solve a lot of ene
                     'crystal' => 2000,
                     'deuterium' => 500,
                     'energy' => 0,
+                ],
+                'properties' => [
+                    'structural_integrity' => 4200,
+                    'shield' => 1,
+                    'attack' => 1,
+                    'speed' => 0,
+                    'capacity' => 0,
+                    'fuel' => 1,
                 ],
                 'assets' => [
                     'img' => [
@@ -1207,6 +1319,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 2000,
+                    'shield' => 20,
+                    'attack' => 80,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'rocket_launcher_small.jpg',
@@ -1230,6 +1347,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 2000,
+                    'shield' => 25,
+                    'attack' => 100,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'light_laser_small.jpg',
@@ -1252,6 +1374,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                     'crystal' => 2000,
                     'deuterium' => 0,
                     'energy' => 0,
+                ],
+                'properties' => [
+                    'structural_integrity' => 8000,
+                    'shield' => 100,
+                    'attack' => 250,
                 ],
                 'assets' => [
                     'img' => [
@@ -1277,6 +1404,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                     'deuterium' => 2000,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 35000,
+                    'shield' => 200,
+                    'attack' => 1100,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'gauss_cannon_small.jpg',
@@ -1299,6 +1431,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                     'crystal' => 6000,
                     'deuterium' => 0,
                     'energy' => 0,
+                ],
+                'properties' => [
+                    'structural_integrity' => 8000,
+                    'shield' => 500,
+                    'attack' => 150,
                 ],
                 'assets' => [
                     'img' => [
@@ -1323,6 +1460,11 @@ Defensive facilities deactivate as soon as they are too heavily damaged. After a
                     'deuterium' => 30000,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 100000,
+                    'shield' => 300,
+                    'attack' => 3000,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'plasma_turret_small.jpg',
@@ -1345,6 +1487,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                     'crystal' => 10000,
                     'deuterium' => 0,
                     'energy' => 0,
+                ],
+                'properties' => [
+                    'structural_integrity' => 20000,
+                    'shield' => 2000,
+                    'attack' => 1,
                 ],
                 'assets' => [
                     'img' => [
@@ -1369,6 +1516,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 100000,
+                    'shield' => 10000,
+                    'attack' => 1,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'large_shield_dome_small.jpg',
@@ -1390,6 +1542,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'properties' => [
+                    'structural_integrity' => 8000,
+                    'shield' => 1,
+                    'attack' => 1,
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'solar_satellite_small.jpg',
@@ -1410,6 +1567,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                     'crystal' => 2500,
                     'deuterium' => 10000,
                     'energy' => 0,
+                ],
+                'properties' => [
+                    'structural_integrity' => 15000,
+                    'shield' => 1,
+                    'attack' => 12000,
                 ],
                 'assets' => [
                     'img' => [
