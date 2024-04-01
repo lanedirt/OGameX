@@ -34,7 +34,7 @@ class BootstrapTest extends TestCase
 
         // Simulate form data
         // Generate random email
-        $randomEmail = Str::random(10) . '@example.com';
+        $randomEmail = strtolower(Str::random(10) . '@example.com');
 
         $formData = [
             '_token' => csrf_token(),
