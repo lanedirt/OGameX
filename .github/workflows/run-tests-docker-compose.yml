@@ -21,6 +21,6 @@ jobs:
           # Ensure the database is ready
           docker-compose exec -T ogame-db bash -c 'until mariadb -h "ogame-db" -u "root" -p"toor" -e "SELECT 1"; do sleep 1; done'
       - name: Run Migrations
-        run: docker-compose exec app php artisan migrate
+        run: docker-compose exec -T ogame-app php artisan migrate
       - name: Run Tests
-        run: docker-compose exec app php artisan test
+        run: docker-compose exec -T ogame-app php artisan test
