@@ -1,4 +1,4 @@
-name: Run Tests on SQLite
+name: SQLite Tests
 
 on:
   push:

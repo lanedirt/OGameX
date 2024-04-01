@@ -1,4 +1,4 @@
-name: Run Tests on MariaDB using Docker Compose
+name: Docker Compose Build and Test
 
 on:
   push:
@@ -20,7 +20,11 @@ jobs:
           docker-compose -f docker-compose.yml up -d
           # Ensure the database is ready
           docker-compose exec -T ogame-db bash -c 'until mariadb -h "ogame-db" -u "root" -p"toor" -e "SELECT 1"; do sleep 1; done'
-      - name: Run Migrations
+      - name: Run Laravel setup commands
+        run: |
+          docker-compose exec -T ogame-app composer install
+          docker-compose exec -T ogame-app php artisan key:generate
+      - name: Run DB Migrations
         run: docker-compose exec -T ogame-app php artisan migrate
       - name: Run Tests
         run: docker-compose exec -T ogame-app php artisan test
