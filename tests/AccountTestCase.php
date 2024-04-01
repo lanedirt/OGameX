@@ -81,7 +81,8 @@ abstract class AccountTestCase extends TestCase
         //  Extract current user planet ID based on meta tag in the overview page
         $response = $this->get('/overview');
         if ($response->status() !== 200) {
-            $this->fail('Failed to retrieve overview page after registration. Response status: ' . $response->status());
+            // Log first 200 chars.
+            $this->fail('Failed to retrieve overview page after registration. Response HTTP code: ' . $response->status() . '. Response first 2k chars: ' . substr($response->getContent(),0,2000));
         }
         $content = $response->getContent();
 

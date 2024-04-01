@@ -4,6 +4,7 @@ namespace OGame\Services;
 
 use Exception;
 use Illuminate\Support\Carbon;
+use OGame\BuildingQueue;
 
 /**
  * Class BuildingQueueService.
@@ -17,9 +18,9 @@ class BuildingQueueService
     /**
      * The planet object from the model.
      *
-     * @var
+     * @var BuildingQueue
      */
-    protected $queue_item;
+    protected BuildingQueue $queue_item;
 
     /**
      * Information about objects.
