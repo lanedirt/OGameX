@@ -1,4 +1,5 @@
 # OGameX - An Open-Source OGame Redesign Clone
+![GitHub Latest Release)](https://img.shields.io/github/v/release/lanedirt/OGameX?include_prereleases&logo=github) ![Workflow Status](https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-tests-docker-compose.yml?branch=main&label=docker-compose%20build) ![Workflow Status](https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-tests-sqlite.yml?branch=main&label=tests)
 
 OGameX is an open-source project aiming to recreate the OGame experience, developed originally by GameForge GmbH. This clone is built from scratch using the Laravel 11.x framework and uses modern PHP practices.
 
