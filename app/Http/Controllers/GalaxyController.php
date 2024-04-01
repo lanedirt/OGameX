@@ -4,9 +4,9 @@ namespace OGame\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\Http\Traits\IngameTrait;
 use OGame\Planet;
-use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 
 
@@ -29,6 +29,14 @@ class GalaxyController extends Controller
         $coordinates = $planet->getPlanetCoordinates();
         $galaxy = $coordinates['galaxy'];
         $system = $coordinates['system'];
+
+        // Get galaxy and system querystring params if set instead.
+        $galaxy_qs = $request->input('galaxy', '0');
+        $system_qs = $request->input('system', '0');
+        if (!empty($galaxy_qs) && !empty($system_qs)) {
+            $galaxy = intval($galaxy_qs);
+            $system = intval($system_qs);
+        }
 
         return view('ingame.galaxy.index')->with([
             'body_id' => $this->body_id,
@@ -56,8 +64,9 @@ class GalaxyController extends Controller
         $planet_list = Planet::where(['galaxy' => $galaxy, 'system' => $system])->get();
         $planets = [];
         foreach ($planet_list as $record) {
-            $planet = app()->make(PlanetService::class, ['planet_id' => $record->id]);
-            $planets[$record->planet] = $planet;
+            $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+            $planetService = $planetServiceFactory->make($record->id);
+            $planets[$record->planet] = $planetService;
         }
 
         // Render galaxy rows

@@ -84,11 +84,15 @@
                             </div>
                         </td>
                         <td class="planetname1 planetEmpty js_planetNameEmpty1" align="center">
-                            <span class="tooltip planetMoveIcons colonize-inactive icon" title="It is not possible to colonise a planet without a colony ship."></span>
-                            <a class="planetMoveIcons planetMoveDefault tooltip icon js_hideTipOnMobile" href="javascript: void(0);" onclick="movePlanet(
+                            @if ($row['planet'])
+                                {{ $row['planet']->getPlanetName()  }}
+                            @else
+                                <span class="tooltip planetMoveIcons colonize-inactive icon" title="It is not possible to colonise a planet without a colony ship."></span>
+                                <a class="planetMoveIcons planetMoveDefault tooltip icon js_hideTipOnMobile" href="javascript: void(0);" onclick="movePlanet(
                                        '{{ route('planetMove.index', ['action' => 'prepareMove', 'galaxy' => $current_galaxy, 'system' => $current_system, 'ajax' => 1, 'position' => 1]) }}',
                                        '{{ route('galaxy.index', ['galaxy' => $current_galaxy, 'system' => $current_system]) }}'
                                    ); return false;" title="Relocate"></a>
+                            @endif
                         </td>
 
                         <td class="moon js_moon1 js_no_action">
