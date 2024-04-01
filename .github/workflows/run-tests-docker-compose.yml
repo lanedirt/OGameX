@@ -22,6 +22,8 @@ jobs:
           docker-compose exec -T ogame-db bash -c 'until mariadb -h "ogame-db" -u "root" -p"toor" -e "SELECT 1"; do sleep 1; done'
       - name: Set Permissions
         run: docker-compose exec -T ogame-app chmod -R 777 /var/www
+      - name: Copy .env
+        run: docker-compose exec -T ogame-app cp .env.example .env"
       - name: Run Laravel setup commands
         run: |
           docker-compose exec -T ogame-app composer install
