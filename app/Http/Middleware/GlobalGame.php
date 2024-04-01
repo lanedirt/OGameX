@@ -3,6 +3,7 @@
 namespace OGame\Http\Middleware;
 
 use Closure;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use OGame\Services\ObjectService;
@@ -16,15 +17,20 @@ class GlobalGame
      * @param Request $request
      * @param Closure $next
      * @return mixed
+     * @throws BindingResolutionException
      */
     public function handle(Request $request, Closure $next)
     {
         if (Auth::check()) {
-            // Get objects
+            // Get objects.
             $object = new ObjectService();
             app()->instance(ObjectService::class, $object);
 
-            // Load player
+            // Instantiate settings service.
+            $settings = app()->make(\OGame\Services\SettingsService::class);
+            app()->instance(\OGame\Services\SettingsService::class, $settings);
+
+            // Load player.
             $player = app()->make(PlayerService::class, ['player_id' => $request->user()->id]);
             app()->instance(PlayerService::class, $player);
 
@@ -33,10 +39,10 @@ class GlobalGame
                 $player->setCurrentPlanetId($request->query('cp'));
             }
 
-            // Update player
+            // Update player.
             $player->update();
 
-            // Update all planets
+            // Update all planets.
             $player->planets->update();
         }
 

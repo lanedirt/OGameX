@@ -4,6 +4,7 @@ namespace OGame\Services;
 
 use Exception;
 use Illuminate\Support\Carbon;
+use OGame\ResearchQueue;
 
 /**
  * Class ResearchQueueService.
@@ -31,9 +32,9 @@ class ResearchQueueService
     /**
      * The queue model where this class should get its data from.
      *
-     * @var
+     * @var ResearchQueue
      */
-    protected $model;
+    protected ResearchQueue $model;
 
     /**
      * BuildingQueue constructor.

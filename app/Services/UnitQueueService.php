@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Illuminate\Support\Carbon;
+use OGame\UnitQueue;
 
 /**
  * Class UnitQueueService.
@@ -30,9 +31,9 @@ class UnitQueueService
     /**
      * The queue model where this class should get its data from.
      *
-     * @var
+     * @var UnitQueue
      */
-    protected $model;
+    protected UnitQueue $model;
 
     /**
      * BuildingQueue constructor.
