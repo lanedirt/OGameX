@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\Planet as Planet;
 
 /**
@@ -46,18 +47,21 @@ class PlanetListService
         // Get all planets of user
         $planets = Planet::where('user_id', $id)->get();
         foreach ($planets as $record) {
-            $planet = app()->make(PlanetService::class, ['planet_id' => $record->id, 'player' => $this->player]);
-            $this->planets[] = $planet;
+            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+            $planetService = $planetServiceFactory->makeForPlayer($this->player, $record->id);
+
+            $this->planets[] = $planetService;
         }
 
         // If no planets, create at least one.
         if (count($this->planets) < 2) {
             // TODO: move this logic to the user creation logic as well as the tech records.
             // As a test: give all players two random planets. (this should be just one, uncomment the below after dev)
-            $planet = app()->make(PlanetService::class, ['planet_id' => 0, 'player' => $this->player]);
-            $planet->create($id);
 
-            $this->planets[] = $planet;
+            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+            $planetService = $planetServiceFactory->createForPlayer($this->player);
+
+            $this->planets[] = $planetService;
         }
         /*if (empty($this->planets)) {
             $planet = resolve('OGame\Services\PlanetService');

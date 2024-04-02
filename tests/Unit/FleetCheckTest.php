@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use OGame\Factories\PlanetServiceFactory;
 use OGame\Planet;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -18,10 +19,12 @@ class FleetCheckTest extends TestCase
     {
         parent::setUp();
 
-        // Initialize empty playerService object
+        // Initialize empty playerService object directly without factory as we do not
+        // actually want to load a player from the database.
         $playerService = app()->make(PlayerService::class, ['player_id' => 0]);
-        // Initialize the planet service before each test
-        $this->planetService = app()->make(PlanetService::class, ['player' => $playerService, 'planet_id' => 0]);
+        // Initialize the planet service with factory.
+        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+        $this->planetService = $planetServiceFactory->makeForPlayer($playerService, 0);
     }
 
     /**
