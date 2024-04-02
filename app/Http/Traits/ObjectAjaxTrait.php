@@ -45,15 +45,23 @@ trait ObjectAjaxTrait
 
         // Get max build amount of this object (unit).
         $max_build_amount = $objects->getObjectMaxBuildAmount($object['id'], $this->planet);
-        if ($object['type'] == 'ship' || $object['type'] == 'defense') {
-            $production_time = $this->planet->getUnitConstructionTime($object['id'], $this->planet);
-        }
-        else if ($object['type'] == 'research') {
-            // TODO: implement separate research time calculation
-            $production_time = $this->planet->getBuildingConstructionTime($object['id'], $this->planet);
-        }
-        else {
-            $production_time = $this->planet->getBuildingConstructionTime($object['id'], $player, true);
+
+        // Switch
+        switch ($object['type']) {
+            case 'building':
+            case 'station':
+                $production_time = $this->planet->getBuildingConstructionTime($object['id'], true);
+                break;
+            case 'ship':
+            case 'defense':
+                $production_time = $this->planet->getUnitConstructionTime($object['id'], true);
+                break;
+            case 'research':
+                $production_time = $this->planet->getTechnologyResearchTime($object['id'], true);
+                break;
+            default:
+                // Unknown object type, throw error.
+                throw new Exception('Unknown object type: ' . $object['type']);
         }
 
         // Get current amount of this object (unit) on the current planet.
