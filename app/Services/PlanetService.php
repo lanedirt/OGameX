@@ -562,7 +562,7 @@ class PlanetService
 
         $shipyard_level = $this->getObjectLevel(21);
         $nanitefactory_level = $this->getObjectLevel(15);
-        $universe_speed = 1; // @TODO: implement universe speed.
+        $universe_speed = 8; // @TODO: implement actual universe speed (development speed).
 
         // The actual formula which return time in seconds
         $time_hours =

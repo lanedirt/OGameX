@@ -870,12 +870,12 @@ As the technology is advanced to each level, the magnetosphere generator is upgr
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 8400,
-                    'shield' => 17,
-                    'attack' => 85,
-                    'speed' => 20000,
-                    'capacity' => 57,
-                    'fuel' => 10,
+                    'structural_integrity' => 4000,
+                    'shield' => 10,
+                    'attack' => 50,
+                    'speed' => 12500,
+                    'capacity' => 50,
+                    'fuel' => 20,
                 ],
                 'assets' => [
                     'img' => [
@@ -902,12 +902,12 @@ Slightly larger than the light fighter, the heavy fighter has thicker hulls, pro
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 21000,
-                    'shield' => 42,
-                    'attack' => 255,
-                    'speed' => 16000,
-                    'capacity' => 115,
-                    'fuel' => 37,
+                    'structural_integrity' => 10000,
+                    'shield' => 25,
+                    'attack' => 150,
+                    'speed' => 10000,
+                    'capacity' => 100,
+                    'fuel' => 75,
                 ],
                 'assets' => [
                     'img' => [
@@ -934,12 +934,12 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 56700,
-                    'shield' => 85,
-                    'attack' => 680,
-                    'speed' => 24000,
-                    'capacity' => 920,
-                    'fuel' => 150,
+                    'structural_integrity' => 27000,
+                    'shield' => 50,
+                    'attack' => 400,
+                    'speed' => 15000,
+                    'capacity' => 800,
+                    'fuel' => 300,
                 ],
                 'assets' => [
                     'img' => [
@@ -964,12 +964,12 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 126000,
-                    'shield' => 340,
-                    'attack' => 1700,
-                    'speed' => 22000,
-                    'capacity' => 1725,
-                    'fuel' => 250,
+                    'structural_integrity' => 60000,
+                    'shield' => 200,
+                    'attack' => 1000,
+                    'speed' => 10000,
+                    'capacity' => 1500,
+                    'fuel' => 500,
                 ],
                 'assets' => [
                     'img' => [
@@ -994,12 +994,12 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 147000,
-                    'shield' => 680,
-                    'attack' => 1190,
-                    'speed' => 22000,
-                    'capacity' => 862,
-                    'fuel' => 125,
+                    'structural_integrity' => 70000,
+                    'shield' => 400,
+                    'attack' => 700,
+                    'speed' => 10000,
+                    'capacity' => 750,
+                    'fuel' => 250,
                 ],
                 'assets' => [
                     'img' => [
@@ -1026,12 +1026,12 @@ Using laser-guided targeting equipment and Plasma Bombs, the Bomber seeks out an
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 157500,
-                    'shield' => 850,
-                    'attack' => 1700,
-                    'speed' => 6400,
-                    'capacity' => 575,
-                    'fuel' => 350,
+                    'structural_integrity' => 75000,
+                    'shield' => 500,
+                    'attack' => 1000,
+                    'speed' => 4000,
+                    'capacity' => 500,
+                    'fuel' => 700,
                 ],
                 'assets' => [
                     'img' => [
@@ -1059,12 +1059,12 @@ Because the destroyer is very large, its manoeuvrability is severely limited, wh
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 231000,
-                    'shield' => 850,
-                    'attack' => 3400,
-                    'speed' => 11000,
-                    'capacity' => 2300,
-                    'fuel' => 500,
+                    'structural_integrity' => 110000,
+                    'shield' => 500,
+                    'attack' => 200,
+                    'speed' => 5000,
+                    'capacity' => 2000,
+                    'fuel' => 1000,
                 ],
                 'assets' => [
                     'img' => [
@@ -1091,11 +1091,11 @@ Armed with a gigantic graviton cannon, the most advanced weapons system ever cre
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 18900000,
-                    'shield' => 85000,
-                    'attack' => 340000,
-                    'speed' => 220,
-                    'capacity' => 1150000,
+                    'structural_integrity' => 9000000,
+                    'shield' => 50000,
+                    'attack' => 200000,
+                    'speed' => 100,
+                    'capacity' => 1000000,
                     'fuel' => 1,
                 ],
                 'assets' => [
@@ -1127,12 +1127,12 @@ As soon as the Impulse Drive reaches research level 5, the small transporter tra
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 8400,
-                    'shield' => 17,
-                    'attack' => 85,
-                    'speed' => 13000,
-                    'capacity' => 7000,
-                    'fuel' => 5,
+                    'structural_integrity' => 4000,
+                    'shield' => 10,
+                    'attack' => 5,
+                    'speed' => 10000,
+                    'capacity' => 6250,
+                    'fuel' => 10,
                 ],
                 'assets' => [
                     'img' => [
@@ -1160,12 +1160,12 @@ To maximize the resources that can be stored in the holds, this ship has little 
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 25200,
-                    'shield' => 42,
-                    'attack' => 8,
-                    'speed' => 19500,
-                    'capacity' => 35000,
-                    'fuel' => 25,
+                    'structural_integrity' => 12000,
+                    'shield' => 25,
+                    'attack' => 5,
+                    'speed' => 15000,
+                    'capacity' => 31250,
+                    'fuel' => 50,
                 ],
                 'assets' => [
                     'img' => [
@@ -1192,12 +1192,12 @@ This ship is used to prepare a newly discovered planet for colonization. Once it
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 63000,
-                    'shield' => 170,
-                    'attack' => 85,
-                    'speed' => 4000,
-                    'capacity' => 8625,
-                    'fuel' => 500,
+                    'structural_integrity' => 30000,
+                    'shield' => 100,
+                    'attack' => 50,
+                    'speed' => 2500,
+                    'capacity' => 7500,
+                    'fuel' => 1000,
                 ],
                 'assets' => [
                     'img' => [
@@ -1225,12 +1225,12 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 33600,
-                    'shield' => 17,
+                    'structural_integrity' => 16000,
+                    'shield' => 10,
                     'attack' => 1,
-                    'speed' => 3200,
-                    'capacity' => 23000,
-                    'fuel' => 150,
+                    'speed' => 2000,
+                    'capacity' => 20000,
+                    'fuel' => 300,
                 ],
                 'assets' => [
                     'img' => [
@@ -1255,10 +1255,10 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 2100,
+                    'structural_integrity' => 1000,
                     'shield' => 0,
                     'attack' => 0,
-                    'speed' => 160000000,
+                    'speed' => 100000000,
                     'capacity' => 0,
                     'fuel' => 1,
                 ],
@@ -1285,7 +1285,7 @@ Due to their good cost/performance ratio solar satellites can solve a lot of ene
                     'energy' => 0,
                 ],
                 'properties' => [
-                    'structural_integrity' => 4200,
+                    'structural_integrity' => 2000,
                     'shield' => 1,
                     'attack' => 1,
                     'speed' => 0,
