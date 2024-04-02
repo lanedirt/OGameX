@@ -171,9 +171,9 @@ class BuildQueueTest extends AccountTestCase
         $this->assertTrue($result === 1, 'Robotics factory is not still at level 0 directly after build request issued.');
 
         // ---
-        // Step 3: Verify that one building is finished 4 minutes later.
+        // Step 3: Verify that one building is finished 30s later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 4, 0);
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 30);
         Carbon::setTestNow($testTime);
 
         // Check if the building is finished and is now level 1.
@@ -181,12 +181,12 @@ class BuildQueueTest extends AccountTestCase
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Robotics\s+Factory\s*<\/span>\s*1\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Robotics factory is not at level 1 ten minutes after build request issued.');
+        $this->assertTrue($result === 1, 'Robotics factory is not at level 1 30s after build request issued.');
 
         // ---
-        // Step 3: Verify that both building upgrades are finished 15 minutes later.
+        // Step 3: Verify that both building upgrades are finished 5 minutes later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 15, 0);
+        $testTime = Carbon::create(2024, 1, 1, 12, 5, 0);
         Carbon::setTestNow($testTime);
 
         // Check if the building is finished and is now level 2.
@@ -194,6 +194,6 @@ class BuildQueueTest extends AccountTestCase
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Robotics\s+Factory\s*<\/span>\s*2\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Robotics factory is not at level 2 fifteen minutes after build request issued.');
+        $this->assertTrue($result === 1, 'Robotics factory is not at level 2 5m after build request issued.');
     }
 }
