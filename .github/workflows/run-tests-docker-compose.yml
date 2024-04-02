@@ -17,18 +17,18 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set up Docker Compose
         run: |
-          docker-compose -f docker-compose.yml up -d
+          docker compose -f docker-compose.yml up -d
           # Ensure the database is ready
-          docker-compose exec -T ogame-db bash -c 'until mariadb -h "ogame-db" -u "root" -p"toor" -e "SELECT 1"; do sleep 1; done'
+          docker compose exec -T ogame-db bash -c 'until mariadb -h "ogame-db" -u "root" -p"toor" -e "SELECT 1"; do sleep 1; done'
       - name: Set Permissions
-        run: docker-compose exec -T ogame-app chmod -R 777 /var/www
+        run: docker compose exec -T ogame-app chmod -R 777 /var/www
       - name: Copy .env
-        run: docker-compose exec -T ogame-app cp .env.example .env
+        run: docker compose exec -T ogame-app cp .env.example .env
       - name: Run Laravel setup commands
         run: |
-          docker-compose exec -T ogame-app composer install
-          docker-compose exec -T ogame-app php artisan key:generate
+          docker compose exec -T ogame-app composer install
+          docker compose exec -T ogame-app php artisan key:generate
       - name: Run DB Migrations
-        run: docker-compose exec -T ogame-app php artisan migrate
+        run: docker compose exec -T ogame-app php artisan migrate
       - name: Run Tests
-        run: docker-compose exec -T ogame-app php artisan test
+        run: docker compose exec -T ogame-app php artisan test

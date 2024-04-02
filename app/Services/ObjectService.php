@@ -319,8 +319,8 @@ The Deuterium Tank protects a certain percentage of the synthesizer`s daily prod
                 'requirements' => [14 => 2],
                 'price' => [
                     'metal' => 400,
-                    'crystal' => 100,
-                    'deuterium' => 200,
+                    'crystal' => 200,
+                    'deuterium' => 100,
                     'energy' => 0,
                     'factor' => 2,
                 ],
@@ -1867,7 +1867,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         // Optionally format the output.
         if ($formatted) {
             foreach ($price as &$element) {
-                $element = AppUtil::formatNumber($element);
+                $element = AppUtil::formatNumberShort($element);
             }
         }
 

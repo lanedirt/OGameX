@@ -211,7 +211,7 @@
                                             <span class="ecke">
                                                 <span class="level">
                                                     <span class="textlabel">{{ $object['title'] }}</span>
-                                                    {{ \OGame\Facades\AppUtil::formatNumberComma($object['amount']) }}
+                                                    {{ \OGame\Facades\AppUtil::formatNumberShort($object['amount']) }}
                                                 </span>
                                             </span>
                                         </a>
