@@ -453,14 +453,14 @@ class PlanetService
         // @TODO: calculation does not work correctly for all buildings yet.
         // Possible rounding error?
         if ($formatted) {
-            return $this->formatBuildingTime($time_seconds);
+            return AppUtil::formatTimeDuration($time_seconds);
         } else {
             return $time_seconds;
         }
     }
 
     /**
-     * Gets the time of building a ship on this planet.
+     * Gets the time of building a ship/defense unit on this planet.
      */
     public function getUnitConstructionTime($object_id, $formatted = FALSE)
     {
@@ -473,7 +473,7 @@ class PlanetService
         // The actual formula which return time in seconds
         $time_hours =
             (
-                ($object['properties']['structural_integrity'])
+                ($object['properties']['structural_integrity']) // TODO: implement dynamic property retrieval which takes into account research levels.
                 /
                 (2500 * (1 + $shipyard_level) * $universe_speed * pow(2, $nanitefactory_level))
             );
@@ -481,7 +481,34 @@ class PlanetService
         $time_seconds = $time_hours * 3600;
 
         if ($formatted) {
-            return $this->formatBuildingTime($time_seconds);
+            return AppUtil::formatTimeDuration($time_seconds);
+        } else {
+            return $time_seconds;
+        }
+    }
+
+    /**
+     * Gets the time of researching a technology.
+     */
+    public function getTechnologyResearchTime($object_id, $formatted = FALSE)
+    {
+        $price = $this->objects->getObjectPrice($object_id, $this);
+
+        $research_lab_level = $this->getObjectLevel(31);
+        $universe_speed = 16; // @TODO: implement actual universe speed (research speed).
+
+        // The actual formula which return time in seconds
+        $time_hours =
+            (
+                ($price['metal'] + $price['crystal'])
+                /
+                (1000 * (1 + $research_lab_level) * $universe_speed)
+            );
+
+        $time_seconds = $time_hours * 3600;
+
+        if ($formatted) {
+            return AppUtil::formatTimeDuration($time_seconds);
         } else {
             return $time_seconds;
         }
@@ -500,32 +527,6 @@ class PlanetService
         } else {
             return 0;
         }
-    }
-
-    /**
-     * Helper method to convert building time from seconds to human
-     * readable format.
-     */
-    public function formatBuildingTime($seconds)
-    {
-        $hours = floor($seconds / 3600);
-        $minutes = floor(($seconds / 60) % 60);
-        $seconds = $seconds % 60;
-
-        $formatted_string = '';
-        if ($hours > 0) {
-            $formatted_string .= $hours . 'h ';
-        }
-
-        if ($minutes > 0) {
-            $formatted_string .= $minutes . 'm ';
-        }
-
-        if ($seconds > 0) {
-            $formatted_string .= $seconds . 's';
-        }
-
-        return $formatted_string;
     }
 
     /**

@@ -278,9 +278,7 @@ class ResearchQueueService
 
             // See if the planet has enough resources for this build attempt.
             $price = $this->objects->getObjectPrice($queue_item->object_id, $planet);
-            // TODO: implement technology research separate calculation
-            $build_time = $planet->getBuildingConstructionTime($queue_item->object_id);
-
+            $build_time = $player->planets->current()->getTechnologyResearchTime($queue_item->object_id);
 
             // Only start the queue item if there are no other queue items building
             // for this planet.

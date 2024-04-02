@@ -43,7 +43,7 @@ class ResearchQueueTest extends AccountTestCase
         // ---
         // Step 2: Verify the technology is in the research queue
         // ---
-        // Check if the building is in the queue and is still level 0.
+        // Check if the research is in the queue and is still level 0.
         $response = $this->get('/research');
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*0\s*<\/span>/';
@@ -51,7 +51,7 @@ class ResearchQueueTest extends AccountTestCase
         $this->assertTrue($result === 1, 'Energy technology is not still at level 0 two seconds after build request issued.');
 
         // ---
-        // Step 3: Verify the building is still in the build queue 1 minute later.
+        // Step 3: Verify the research is still in the build queue 1 minute later.
         // ---
         $testTime = Carbon::create(2024, 1, 1, 12, 1, 0);
         Carbon::setTestNow($testTime);
@@ -64,7 +64,7 @@ class ResearchQueueTest extends AccountTestCase
         $this->assertTrue($result === 1, 'Energy technology is not still at level 0 two seconds after build request issued.');
 
         // ---
-        // Step 4: Verify the building is finished 10 minute later.
+        // Step 4: Verify the research is finished 10 minute later.
         // ---
         $testTime = Carbon::create(2024, 1, 1, 12, 10, 0);
         Carbon::setTestNow($testTime);
@@ -111,7 +111,7 @@ class ResearchQueueTest extends AccountTestCase
         // ---
         // Step 2: Verify the technology is in the research queue
         // ---
-        // Check if the building is in the queue and is still level 0.
+        // Check if the research is in the queue and is still level 0.
         $response = $this->get('/research');
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*0\s*<\/span>/';
@@ -124,7 +124,7 @@ class ResearchQueueTest extends AccountTestCase
         $testTime = Carbon::create(2024, 1, 1, 12, 15, 0);
         Carbon::setTestNow($testTime);
 
-        // Check if the technology research is finished and is now level 1.
+        // Check if the research is finished and is now level 1.
         $response = $this->get('/research');
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*1\s*<\/span>/';
@@ -137,7 +137,7 @@ class ResearchQueueTest extends AccountTestCase
         $testTime = Carbon::create(2024, 1, 1, 12, 30, 0);
         Carbon::setTestNow($testTime);
 
-        // Check if the technology research is finished and is now level 1.
+        // Check if the research is finished and is now level 1.
         $response = $this->get('/research');
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*2\s*<\/span>/';

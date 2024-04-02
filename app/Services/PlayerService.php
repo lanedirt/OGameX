@@ -5,6 +5,7 @@ namespace OGame\Services;
 use Illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Support\Carbon;
+use OGame\Facades\AppUtil;
 use OGame\User;
 use OGame\UserTech;
 

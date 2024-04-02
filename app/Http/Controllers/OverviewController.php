@@ -44,7 +44,6 @@ class OverviewController extends Controller
         $research_queue = $this->research_queue->enrich($this->research_queue->retrieveQueuedFromQueue($research_full_queue));
 
         // Parse ship queue for this planet.
-        // @TODO: change this $queue object to be dependency injected instead.
         $ship_queue = $this->ship_queue->retrieveQueue($this->planet);
         $ship_queue = $this->ship_queue->enrich($ship_queue);
 
