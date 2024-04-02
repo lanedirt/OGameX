@@ -292,7 +292,7 @@ class PlanetService
         $energy = $energy_max - $energy_used;
 
         if ($formatted) {
-            $energy = AppUtil::formatNumber($energy);
+            $energy = AppUtil::formatNumberLong($energy);
         }
 
         return $energy;
@@ -358,7 +358,7 @@ class PlanetService
         $metal = $this->planet->metal;
 
         if ($formatted) {
-            $metal = AppUtil::formatNumber($metal);
+            $metal = AppUtil::formatNumberLong($metal);
         }
 
         return $metal;
@@ -372,7 +372,7 @@ class PlanetService
         $crystal = $this->planet->crystal;
 
         if ($formatted) {
-            $crystal = AppUtil::formatNumber($crystal);
+            $crystal = AppUtil::formatNumberLong($crystal);
         }
 
         return $crystal;
@@ -386,7 +386,7 @@ class PlanetService
         $deuterium = $this->planet->deuterium;
 
         if ($formatted) {
-            $deuterium = AppUtil::formatNumber($deuterium);
+            $deuterium = AppUtil::formatNumberLong($deuterium);
         }
 
         return $deuterium;
@@ -434,7 +434,7 @@ class PlanetService
 
         $robotfactory_level = $this->getObjectLevel(14);
         $nanitefactory_level = $this->getObjectLevel(15);
-        $universe_speed = 1; // @TODO: implement universe speed.
+        $universe_speed = 8; // @TODO: implement universe speed.
 
         // The actual formula which return time in seconds
         $time_hours =
@@ -448,7 +448,7 @@ class PlanetService
 
         // @TODO: round this value up or down so it will be valid for
         // int storage in database.
-        $time_seconds = ceil($time_seconds);
+        $time_seconds = floor($time_seconds);
 
         // @TODO: calculation does not work correctly for all buildings yet.
         // Possible rounding error?

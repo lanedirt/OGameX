@@ -5,25 +5,63 @@ namespace OGame\Utils;
 class AppUtil
 {
     /**
-     * Format a number with dot as thousands separator and no decimal places (default).)
+     * Format a number without rounding it down. Show the full number.
      *
      * @param $number
      * @return string
      */
     public static function formatNumber($number): string
     {
-        return number_format($number, 0, ',', '.');
+        // If number is less than 1,000, just return it with no formatting
+        return number_format($number, 0, ',', ',');
     }
 
     /**
-     * Format a number with comma as thousands separator and no decimal places (used in fleet counts).
+     * Format a number with K for thousands and Mn for millions, with one decimal place for thousands
+     * when necessary, and no decimal places for millions.
      *
      * @param $number
      * @return string
      */
-    public static function formatNumberComma($number): string
+    public static function formatNumberShort($number): string
     {
-        return number_format($number, 0, '.', ',');
+        if ($number >= 1000000) {
+            // If number is 1,000,000 or higher, format as millions (Mn)
+            return number_format($number / 1000000, 0) . 'Mn';
+        } elseif ($number > 10000) {
+            // If number is greater than 10,000 but less than 1,000,000, round down and format as thousands (K) with no decimal places
+            return number_format(floor($number / 1000), 0) . 'K';
+        } elseif ($number > 1000) {
+            // If number is greater than 1,000 but less than or equal to 10,000, format as thousands (K) with up to 1 decimal place
+            // Avoid rounding up by using floor function after multiplying by 10 and then dividing by 10
+            $thousands = floor(($number / 1000) * 10) / 10;
+            $decimalPlaces = ($number % 1000) == 0 ? 0 : 1; // Use 1 decimal place unless it's an exact thousand
+            return number_format($thousands, $decimalPlaces, ',', '') . 'K';
+        } else {
+            // If number is less than 1,000, just return it with no formatting
+            return number_format($number, 0, ',', ',');
+        }
+    }
+
+    /**
+     * Format a number above 1 million as "1.000Mn" with three decimal places, and
+     * format numbers between 1,000 and 1 million with commas as thousands separator.
+     *
+     * @param $number
+     * @return string
+     */
+    public static function formatNumberLong($number): string
+    {
+        if ($number >= 1000000) {
+            // If number is 1,000,000 or higher, format as "1.000Mn" with three decimal places
+            return number_format($number / 1000000, 3, '.', ',') . 'Mn';
+        } elseif ($number >= 1000) {
+            // If number is 1,000 or higher but less than 1,000,000, format with commas as thousands separator
+            return number_format($number, 0, '.', ',');
+        } else {
+            // If number is less than 1,000, just return it with no formatting
+            return number_format($number, 0, '.', ',');
+        }
     }
 
     /**
