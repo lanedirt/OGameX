@@ -66,31 +66,31 @@ class UnitQueueTest extends AccountTestCase
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\s*Fighter\s*<\/span>\s*0\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter is not at 0 units 30 seconds after build request issued.');
+        $this->assertTrue($result === 1, 'Light Fighter is not at 0 units 1m after build request issued.');
 
         // ---
-        // Step 4: Verify that some ships are finished 10 minute later.
+        // Step 4: Verify that some ships are finished 30 minute later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 10, 0);
+        $testTime = Carbon::create(2024, 1, 1, 12, 20, 0);
         Carbon::setTestNow($testTime);
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\sFighter\s*<\/span>\s*8\s*<\/span>/';
+        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\sFighter\s*<\/span>\s*3\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter build job has not completed exactly 8 units 10 minutes after build request issued.');
+        $this->assertTrue($result === 1, 'Light Fighter build job has not completed exactly 3 units 15m after build request issued.');
 
         // ---
         // Step 5: Verify that ALL ships are finished 15 minute later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 15, 0);
+        $testTime = Carbon::create(2024, 1, 1, 14, 0, 0);
         Carbon::setTestNow($testTime);
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\sFighter\s*<\/span>\s*10\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter build job is not finished yet 15 minutes after build request issued.');
+        $this->assertTrue($result === 1, 'Light Fighter build job is not finished yet 2h after build request issued.');
     }
 
     /**
@@ -157,34 +157,34 @@ class UnitQueueTest extends AccountTestCase
         $this->assertTrue($result === 1, 'Solar Satellite is not at 0 units directly after build request issued.');
 
         // ---
-        // Step 3: Verify that the light fighters and partial solar satellites are finished 10 minute later.
+        // Step 3: Verify that the light fighters and partial solar satellites are finished 30 minute later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 10, 0);
+        $testTime = Carbon::create(2024, 1, 1, 12, 25, 0);
         Carbon::setTestNow($testTime);
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\s*Fighter\s*<\/span>\s*3\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter is not at 3 units 10 minutes after build request issued.');
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Solar\s*Satellite\s*<\/span>\s*5\s*<\/span>/';
+        $this->assertTrue($result === 1, 'Light Fighter is not at 3 units 25m after build request issued.');
+        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Solar\s*Satellite\s*<\/span>\s*2\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Solar Satellite is not at 5 units 10 minutes after build request issued.');
+        $this->assertTrue($result === 1, 'Solar Satellite is not at 2 units 25m after build request issued.');
 
         // ---
         // Step 5: Verify that ALL ships are finished 30 minute later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 30, 0);
+        $testTime = Carbon::create(2024, 1, 1, 14, 0, 0);
         Carbon::setTestNow($testTime);
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\sFighter\s*<\/span>\s*5\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter build job is not finished 30 minutes after build request issued.');
+        $this->assertTrue($result === 1, 'Light Fighter build job is not finished 2h after build request issued.');
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Solar\s*Satellite\s*<\/span>\s*10\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Solar Satellite build job is not finished 30 minutes after build request issued.');
+        $this->assertTrue($result === 1, 'Solar Satellite build job is not finished 2h after build request issued.');
     }
 
     /**
@@ -244,20 +244,20 @@ class UnitQueueTest extends AccountTestCase
 
         $response = $this->get('/defense');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Rocket\sLauncher\s*<\/span>\s*8\s*<\/span>/';
+        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Rocket\sLauncher\s*<\/span>\s*3\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Rocket Launcher build job has not completed exactly 8 units 10 minutes after build request issued.');
+        $this->assertTrue($result === 1, 'Rocket Launcher build job has not completed exactly 3 units 10 minutes after build request issued.');
 
         // ---
-        // Step 5: Verify that ALL defense units are finished 15 minute later.
+        // Step 5: Verify that ALL defense units are finished 1h later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 15, 0);
+        $testTime = Carbon::create(2024, 1, 1, 13, 0, 0);
         Carbon::setTestNow($testTime);
 
         $response = $this->get('/defense');
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Rocket\sLauncher\s*<\/span>\s*10\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Rocket Launcher build job is not finished yet 15 minutes after build request issued.');
+        $this->assertTrue($result === 1, 'Rocket Launcher build job is not finished yet 1h after build request issued.');
     }
 }
