@@ -73,7 +73,7 @@ See the full list of requirements for Laravel 11.x and how to deploy to a server
 2. Copy `.env.example` to `.env`.
 3. Launch the project using Docker Compose:
   ```
-  $ docker-compose up -d
+  $ docker compose up -d
   ```
   > Note: The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed.
   
