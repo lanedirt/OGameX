@@ -17,6 +17,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if($this->app->environment('production')) {
+            \URL::forceScheme('https');
+        }
+
         // Register composer file for the main ingame layout.
         view()->composer('ingame.layouts.main', 'OGame\Http\ViewComposers\IngameMainComposer');
     }
