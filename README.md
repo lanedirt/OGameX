@@ -1,8 +1,11 @@
 # OGameX - An Open-Source OGame Redesign Clone
 [<img src="https://img.shields.io/github/v/release/lanedirt/OGameX?include_prereleases&logo=github">](https://github.com/lanedirt/OGameX/releases)  [<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-tests-docker-compose.yml?label=docker-compose%20build">](https://github.com/lanedirt/OGameX/actions/workflows/run-tests-docker-compose.yml) [<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-tests-sqlite.yml?label=tests">](https://github.com/lanedirt/OGameX/actions/workflows/run-tests-sqlite.yml)
 
+OGameX is an open-source OGame clone aiming to recreate the official OGame experience, developed originally by GameForge GmbH. This clone is built from scratch using the Laravel 11.x framework and uses modern PHP practices.
 
-OGameX is an open-source project aiming to recreate the OGame experience, developed originally by GameForge GmbH. This clone is built from scratch using the Laravel 11.x framework and uses modern PHP practices.
+### Demo sites where you can see OGameX in action:
+- Main branch (nightly builds): [https://main.ogamex.dev](https://main.ogamex.dev)
+- Latest stable release **(0.1.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
 
 ## Table of Contents
 - [Example screenshots](#examples)
@@ -28,7 +31,7 @@ My journey into software development began in 2007 at the age of 14 when I disco
 
 ## Goal
 
-The primary objective of this project is to develop a fully functional version of OGame, closely mirroring the game's features as they existed around the year 2020, prior to the introduction of the recent Lifeforms update.
+The primary goal of this fan-based project is to engineer a faithful rendition of OGame, specifically reflecting its state prior to the Lifeforms update introduced in 2020. This initiative, purely fan-based and non-commercial, is pursued strictly for educational purposes.
 
 ## Current State of the Project
 
@@ -45,7 +48,7 @@ OGameX is under active development with several core features already implemente
 
 New features are continiously being added. Upcoming features:
 
-- Enhanced galaxy page
+- Messages system
 - Fleet dispatch missions (combat, transport, espionage, and more)
 - Alliance system
 
