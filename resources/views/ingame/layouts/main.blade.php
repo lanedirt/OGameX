@@ -1,15 +1,31 @@
-
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <head>
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <!--
+     ===========================================
+       ____   _____                     __   __
+      / __ \ / ____|                    \ \ / /
+     | |  | | |  __  __ _ _ __ ___   ___ \ V /
+     | |  | | | |_ |/ _` | '_ ` _ \ / _ \ > <
+     | |__| | |__| | (_| | | | | | |  __// . \
+      \____/ \_____|\__,_|_| |_| |_|\___/_/ \_\
+     ===========================================
+
+     Powered by OGameX - Explore the universe! Conquer your enemies!
+     GitHub: https://github.com/lanedirt/OGameX
+     Version: {{ \OGame\Utils\GitInfoUtil::getAppVersionBranchCommit() }}
+
+    This application is released under the MIT License. For more details, visit the GitHub repository.
+    -->
+
     <link rel="apple-touch-icon" href="/img/icons/20da7e6c416e6cd5f8544a73f588e5.png"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="Language" content="en"/>
     <meta name="ogame-session" content="3c442273a6de4c8f79549e78f4c3ca50e7ea7580"/>
-    <meta name="ogame-version" content="0.1.0"/>
+    <meta name="ogame-version" content="{{ \OGame\Utils\GitInfoUtil::getAppVersion() }}"/>
     <meta name="ogame-timestamp" content="1513426692"/>
     <meta name="ogame-universe" content="s1"/>
     <meta name="ogame-universe-name" content="Home"/>
@@ -1130,7 +1146,7 @@ Improved fleet escape rate">
     <div class="content" style="font-size:10px">
         <div class="fleft textLeft">
             <a href="#TODO_changelog&ajax=1" class="tooltip js_hideTipOnMobile overlay" data-class="noXScrollbar" data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="Patch notes">
-                0.1.0</a>
+                {{ \OGame\Utils\GitInfoUtil::getAppVersion() }}</a>
             <a class="homeLink" href="https://github.com/lanedirt/ogamex" target="_blank">© OGameX. All rights reserved.</a>
         </div>
         <div class="fright textRight">
