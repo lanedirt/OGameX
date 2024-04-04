@@ -5,6 +5,23 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <!--
+     ===========================================
+       ____   _____                     __   __
+      / __ \ / ____|                    \ \ / /
+     | |  | | |  __  __ _ _ __ ___   ___ \ V /
+     | |  | | | |_ |/ _` | '_ ` _ \ / _ \ > <
+     | |__| | |__| | (_| | | | | | |  __// . \
+      \____/ \_____|\__,_|_| |_| |_|\___/_/ \_\
+     ===========================================
+
+     Powered by OGameX - Explore the universe! Conquer your enemies!
+     GitHub: https://github.com/lanedirt/OGameX
+     Version: {{ \OGame\Utils\GitInfoUtil::getAppVersionBranchCommit() }}
+
+     This application is released under the MIT License. For more details, visit the GitHub repository.
+    -->
+
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="language" content="en" />
     <meta name="author" content="OGameX" />
@@ -488,7 +505,7 @@
                 <div class="align_center">
                     <a href="https://plus.google.com/118150651196691403580" target="_blank"><div class="socialMediaLogo gPlusLogo">Google+</div></a>
                     <a href="https://www.facebook.com/ogame" target="_blank"><div class="socialMediaLogo fbLogo">Facebook</div></a>
-                </div>                        <p id="copyright">© OGameX. All rights reserved.</p>
+                </div>                        <p id="copyright">© OGameX. All rights reserved. {{ \OGame\Utils\GitInfoUtil::getAppVersion() }} </p>
             </div>
             <div class="logos">
                 <a id="safeplay" href="#" target="_blank"></a>
