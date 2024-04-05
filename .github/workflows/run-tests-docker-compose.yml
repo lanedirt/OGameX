@@ -30,5 +30,7 @@ jobs:
           docker compose exec -T ogame-app php artisan key:generate
       - name: Run DB Migrations
         run: docker compose exec -T ogame-app php artisan migrate
+      - name: Run configuration cache commands
+        run: docker compose exec -T ogame-app php artisan cache:clear && docker compose exec -T ogame-app php artisan config:cache && docker compose exec -T ogame-app php artisan route:cache && docker compose exec -T ogame-app php artisan view:cache
       - name: Run Tests
         run: docker compose exec -T ogame-app php artisan test

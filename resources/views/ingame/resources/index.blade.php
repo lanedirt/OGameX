@@ -232,7 +232,7 @@
                             <div class="supply{!! $building['id'] !!}">
                                 <div class="buildingimg">
                                     @if ($building['requirements_met'] && $building['enough_resources'] && $building['type'] != 'ship')
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Expand {!! $building['title'] !!} on level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('resources.addbuildrequest', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Expand {!! $building['title'] !!} on level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('resources.addbuildrequest.get', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
@@ -291,7 +291,7 @@
                                         stationlarge
                                         @endif">
                                     @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Expand {!! $building['title'] !!} on level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{{ route('resources.addbuildrequest', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) }}', null, 1);">
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Expand {!! $building['title'] !!} on level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{{ route('resources.addbuildrequest.get', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) }}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14" alt="">
                                         </a>
                                     @endif
