@@ -219,7 +219,7 @@
                             <div class="item_box research{!! $building['id'] !!}">
                                 <div class="buildingimg">
                                     @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
@@ -278,7 +278,7 @@
                             <div class="item_box research{!! $building['id'] !!}">
                                 <div class="buildingimg">
                                     @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
@@ -336,7 +336,7 @@
                             <div class="item_box research{!! $building['id'] !!}">
                                 <div class="buildingimg">
                                     @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
@@ -395,7 +395,7 @@
                             <div class="item_box research{!! $building['id'] !!}">
                                 <div class="buildingimg">
                                     @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
