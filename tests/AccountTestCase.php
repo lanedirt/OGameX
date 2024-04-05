@@ -109,11 +109,25 @@ abstract class AccountTestCase extends TestCase
      */
     protected function planetAddResources($resources): void
     {
-        // Update current users planet buildings to allow for research by mutating database.
         $playerService = app()->make(\OGame\Services\PlayerService::class, ['player_id' => $this->currentUserId]);
         $planetService = $playerService->planets->current();
-        // Update resources to allow for research by mutating database.
+        // Update resources.
         $planetService->addResources($resources, true);
+    }
+
+    /**
+     * Deduct resources from current users current planet.
+     *
+     * @param $resources
+     * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    protected function planetDeductResources($resources): void
+    {
+        $playerService = app()->make(\OGame\Services\PlayerService::class, ['player_id' => $this->currentUserId]);
+        $planetService = $playerService->planets->current();
+        // Update resources.
+        $planetService->deductResources($resources, true);
     }
 
     /**

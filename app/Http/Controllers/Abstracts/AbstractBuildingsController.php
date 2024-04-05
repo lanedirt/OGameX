@@ -106,6 +106,7 @@ abstract class AbstractBuildingsController extends Controller
         }
 
         return view($this->view_name)->with([
+            'planet_id' => $this->planet->getPlanetId(),
             'planet_name' => $this->planet->getPlanetName(),
             'header_filename' => $header_filename,
             'buildings' => $buildings,
@@ -121,6 +122,11 @@ abstract class AbstractBuildingsController extends Controller
      */
     public function addBuildRequest(Request $request, PlayerService $player)
     {
+        // Explicitly verify CSRF token because this request supports both POST and GET.
+        if (!hash_equals($request->session()->token(), $request->input('_token'))) {
+            return redirect()->route($this->route_view_index);
+        }
+
         $building_id = $request->input('type');
         $planet_id = $request->input('planet_id');
 

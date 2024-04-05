@@ -95,6 +95,7 @@ class ResearchController
         }
 
         return view($this->view_name)->with([
+            'planet_id' => $this->planet->getPlanetId(),
             'planet_name' => $this->planet->getPlanetName(),
             'research' => $research,
             'build_active' => $build_active,
@@ -122,6 +123,11 @@ class ResearchController
      */
     public function addBuildRequest(Request $request, PlayerService $player)
     {
+        // Explicitly verify CSRF token because this request supports both POST and GET.
+        if (!hash_equals($request->session()->token(), $request->input('_token'))) {
+            return redirect()->route($this->route_view_index);
+        }
+
         $building_id = $request->input('type');
         $planet_id = $request->input('planet_id');
 

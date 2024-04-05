@@ -219,7 +219,7 @@
                             <div class="item_box research{!! $building['id'] !!}">
                                 <div class="buildingimg">
                                     @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest') !!}', null, 1);">
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
@@ -257,84 +257,6 @@
                             </div>
                         </li>
                     @endforeach
-
-                    <!--
-                    <li class="off">
-                        <div class="item_box research113">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="113" id="details113" title="Energy Technology<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Energy Technology </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research120">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="120" id="details120" title="Laser Technology<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Laser Technology </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research121">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="121" id="details121" title="Ion Technology<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Ion Technology </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research114">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="114" id="details114" title="Hyperspace Technology<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Hyperspace Technology </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research122">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="122" id="details122" title="Plasma Technology<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Plasma Technology </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    -->
                 </ul>
             </div>
             <div id="wrapBattle" class="resRight fleft">
@@ -356,7 +278,7 @@
                             <div class="item_box research{!! $building['id'] !!}">
                                 <div class="buildingimg">
                                     @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest') !!}', null, 1);">
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
@@ -394,51 +316,6 @@
                             </div>
                         </li>
                 @endforeach
-                    <!--<li class="off">
-                        <div class="item_box research115">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="115" id="details115" title="Combustion Drive<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Combustion Drive </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research117">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="117" id="details117" title="Impulse Drive<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Impulse Drive </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research118">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="118" id="details118" title="Hyperspace Drive<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Hyperspace Drive </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>-->
                 </ul>
             </div>        <div id="wrapBattle" class="resLeft fleft">
                 <h2>Advanced researches</h2>
@@ -459,7 +336,7 @@
                             <div class="item_box research{!! $building['id'] !!}">
                                 <div class="buildingimg">
                                     @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest') !!}', null, 1);">
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
@@ -490,89 +367,14 @@
                                <span class="textlabel">
                                    {!! $building['title'] !!}
                                </span>
-                                {!! $building['current_level'] !!}	                           </span>
+                                {!! $building['current_level'] !!}
+                            </span>
                         </span>
                                     </a>
                                 </div>
                             </div>
                         </li>
                 @endforeach
-
-                    <!--<li class="off">
-                        <div class="item_box research106">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="106" id="details106" title="Espionage Technology<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Espionage Technology </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research108">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="108" id="details108" title="Computer Technology<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Computer Technology </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research124">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="124" id="details124" title="Astrophysics<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Astrophysics </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research123">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="123" id="details123" title="Intergalactic Research Network<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Intergalactic Research Network </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research199">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="199" id="details199" title="Graviton Technology<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Graviton Technology </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>-->
                 </ul>
             </div>        <div id="wrapBattle" class="resRight fleft">
                 <h2>Combat research</h2>
@@ -593,7 +395,7 @@
                             <div class="item_box research{!! $building['id'] !!}">
                                 <div class="buildingimg">
                                     @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest') !!}', null, 1);">
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
