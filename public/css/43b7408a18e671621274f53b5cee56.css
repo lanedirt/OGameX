@@ -14267,19 +14267,177 @@ div.techtree div.advice {
     display: none
 }
 
+.techtree #techinfo {
+    min-height: 200px;
+}
+
+.techtree #techinfo::before {
+    position: absolute;
+    display: block;
+    width: 200px;
+    height: 200px;
+    border: 2px solid #000;
+    content: "";
+}
+
+.techtree #techinfo > .information {
+    margin-left: 214px;
+}
+
+.techtree #techinfo > .information > p,
+.techtree #techinfo > .information > li {
+    max-width: 538px;
+}
+
+.techtree #techinfo .general_details td[data-value] {
+    color: #9c0;
+}
+
+.techtree #techinfo .general_details td[data-value^="-"] {
+    color: #d43635;
+}
+
+.techtree #techinfo .general_details,
+.techtree #techinfo .combat_unit_details {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid #000;
+    margin: 10px 0 0;
+}
+
+.techtree #techinfo .combat_unit_details {
+    margin-bottom: 15px;
+}
+
+.techtree #techinfo .additional_information thead tr,
+.techtree #techinfo .general_details thead tr,
+.techtree #techinfo .combat_unit_details thead tr {
+    background: #13181d;
+}
+
+.techtree #techinfo .additional_information thead th,
+.techtree #techinfo .general_details thead th,
+.techtree #techinfo .combat_unit_details thead th {
+    border-bottom: 1px dotted #848484;
+}
+
+.techtree #techinfo .additional_information tbody tr:nth-of-type(even),
+.techtree #techinfo .general_details tbody tr:nth-of-type(even),
+.techtree #techinfo .combat_unit_details tbody tr:nth-of-type(even) {
+    background: #13181d;
+}
+
+.techtree #techinfo .additional_information tbody tr:nth-of-type(odd),
+.techtree #techinfo .general_details tbody tr:nth-of-type(odd),
+.techtree #techinfo .combat_unit_details tbody tr:nth-of-type(odd) {
+    background: #0d1014;
+}
+
+.techtree #techinfo .additional_information tbody tr:nth-of-type(odd),
+.techtree #techinfo .general_details tbody tr:nth-of-type(odd),
+.techtree #techinfo .combat_unit_details tbody tr:nth-of-type(odd) {
+    background: #0d1014;
+}
+
+.techtree #techinfo .additional_information tbody tr.current,
+.techtree #techinfo .general_details tbody tr.current {
+    background: #2c4f20;
+}
+
+.techtree #techinfo .additional_information th,
+.techtree #techinfo .additional_information td,
+.techtree #techinfo .general_details th,
+.techtree #techinfo .general_details td,
+.techtree #techinfo .combat_unit_details th,
+.techtree #techinfo .combat_unit_details td {
+    box-sizing: border-box;
+    padding: 5px;
+    text-align: center;
+}
+
+.techtree #techinfo .combat_unit_details th,
+.techtree #techinfo .combat_unit_details th,
+.techtree #techinfo .combat_unit_details td {
+    width: 50%;
+}
+
+.techtree #techinfo .general_details th,
+.techtree #techinfo .combat_unit_details th {
+    font-weight: bold;
+}
+
+.combat_unit_details_tooltip {
+    width: 100%;
+}
+
+.combat_unit_details_tooltip th {
+    text-align: left;
+}
+
+.combat_unit_details_tooltip th .formula {
+    display: block;
+    font-size: 8px;
+}
+
+.combat_unit_details_tooltip td {
+    padding-left: 5px;
+    color: #fff;
+    text-align: right;
+}
+
+.combat_unit_details_tooltip td.sum {
+    border-top: 1px solid #848484;
+    color: #9c0;
+}
+
+.techtree #techinfo .rapid_fire {
+    margin: 10px 0 0;
+    padding-left: 15px;
+    list-style-type: square;
+}
+
+.techtree #techinfo .rapid_fire a {
+    color: #acacac;
+    text-decoration: none;
+}
+
+.techtree #techinfo .rapid_fire_from .value {
+    color: #d43635;
+}
+
+.techtree #techinfo .rapid_fire_against .value {
+    color: #9c0;
+}
+
+.techtree #techinfo .additional_information {
+    margin: 10px 0 0;
+}
+
+.techtree #techinfo.astrophysicsTechnology .additional_information {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid #000;
+    text-align: center;
+}
+
+.techtree #techinfo.astrophysicsTechnology .additional_information li {
+    padding: 5px;
+}
+
+.techtree #techinfo.astrophysicsTechnology .additional_information li:nth-of-type(even) {
+    background: #13181d;
+}
+
+.techtree #techinfo.astrophysicsTechnology .additional_information li:nth-of-type(odd) {
+    background: #0d1014;
+}
+
 #techinfo table {
     background: #0d1014;
     border: 1px solid black;
     border-collapse: collapse;
     margin: 15px auto;
     width: 455px
-}
-
-#techinfo th {
-    background-color: #12171c;
-    border-bottom: 1px dotted #848484;
-    font-weight: 700;
-    padding-bottom: 3px
 }
 
 #techinfo th,#techinfo td {
