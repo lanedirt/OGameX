@@ -9,6 +9,9 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+use Illuminate\Support\Facades\Route;
+
 Route::redirect('/', '/overview', 301);
 
 // Group: all logged in pages:
@@ -21,18 +24,21 @@ Route::middleware(['auth', 'globalgame'])->group(function () {
         Route::get('/resources/settings', 'ResourcesController@settings')->name('resources.settings');
         Route::post('/resources/settings', 'ResourcesController@settingsUpdate')->name('resources.settingsUpdate');
         Route::get('/ajax/resources', 'ResourcesController@ajax')->name('resources.ajax');
+        Route::get('/resources/add-buildrequest', 'ResourcesController@addBuildRequest')->name('resources.addbuildrequest');
         Route::post('/resources/add-buildrequest', 'ResourcesController@addBuildRequest')->name('resources.addbuildrequest');
         Route::post('/resources/cancel-buildrequest', 'ResourcesController@cancelBuildRequest')->name('resources.cancelbuildrequest');
 
         // Facilities
         Route::get('/facilities', 'FacilitiesController@index')->name('facilities.index');
         Route::get('/ajax/facilities', 'FacilitiesController@ajax')->name('facilities.ajax');
+        Route::get('/facilities/add-buildrequest', 'FacilitiesController@addBuildRequest')->name('facilities.addbuildrequest');
         Route::post('/facilities/add-buildrequest', 'FacilitiesController@addBuildRequest')->name('facilities.addbuildrequest');
         Route::post('/facilities/cancel-buildrequest', 'FacilitiesController@cancelBuildRequest')->name('facilities.cancelbuildrequest');
 
         // Research
         Route::get('/research', 'ResearchController@index')->name('research.index');
         Route::get('/ajax/research', 'ResearchController@ajax')->name('research.ajax');
+        Route::get('/research/add-buildrequest', 'ResearchController@addBuildRequest')->name('research.addbuildrequest');
         Route::post('/research/add-buildrequest', 'ResearchController@addBuildRequest')->name('research.addbuildrequest');
         Route::post('/research/cancel-buildrequest', 'ResearchController@cancelBuildRequest')->name('research.cancelbuildrequest');
 

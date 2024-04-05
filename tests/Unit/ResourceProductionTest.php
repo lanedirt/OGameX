@@ -100,4 +100,27 @@ class ResourceProductionTest extends TestCase
         $this->assertEquals(15, $this->planetService->getCrystalProductionPerHour());
         $this->assertEquals(0, $this->planetService->getDeuteriumProductionPerHour());
     }
+
+    /**
+     * Mock test for metal mine production with zero energy production.
+     */
+    public function testDeductTooManyResources(): void
+    {
+        $this->createAndConfigurePlanetModel([
+            'metal_mine_percent' => 10,
+            'metal_mine' => 20,
+            'crystal_mine_percent' => 10,
+            'crystal_mine' => 20,
+            'deuterium_synthesizer_percent' => 10,
+            'deuterium_synthesizer' => 20,
+            'solar_plant' => 0,
+            'solar_plant_percent' => 10,
+        ]);
+
+        // Specify the type of exception you expect to be thrown
+        $this->expectException(\Exception::class);
+
+        // Call the method that should throw the exception
+        $this->planetService->deductResources(['metal' => 9999, 'crystal' => 9999, 'deuterium' => 9999]);
+    }
 }
