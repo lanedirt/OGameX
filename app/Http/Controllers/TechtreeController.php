@@ -41,6 +41,7 @@ class TechtreeController extends Controller
                 'planet' => $planet,
                 'current_level' => $player->planets->current()->getObjectLevel($object_id),
                 'production_table' => $this->getProductionTable($object, $player),
+                'rapidfire_table' => $this->getRapidfireTable($object, $objects),
                 'properties_table' => $this->getPropertiesTable($object),
             ]);
         } elseif ($tab == 3) {
@@ -120,6 +121,48 @@ class TechtreeController extends Controller
             'planet' => $planet,
             'production_table' => $production_table,
             'current_level' => $player->planets->current()->getObjectLevel($object_id),
+        ]);
+    }
+
+    /**
+     * Returns techtree rapidfire table.
+     *
+     * @param int $id
+     * @return Response
+     */
+    public function getRapidfireTable($object, ObjectService $objects)
+    {
+        // Loop through all other objects and see if they have rapidfire against this object
+        // if so, create a new array with the rapidfire data same as above.
+        $rapidfire_from = [];
+        foreach ($objects->getObjects() as $from_object) {
+            if (empty($from_object['rapidfire'])) {
+                continue;
+            }
+
+            foreach ($from_object['rapidfire'] as $target_objectid => $data) {
+                if ($target_objectid == $object['id']) {
+                    $rapidfire_from[$from_object['id']] = $data;
+                    $rapidfire_from[$from_object['id']]['object'] = $from_object;
+                }
+            }
+        }
+
+        // Get rapidfire against other objects.
+        $rapidfire_against = [];
+        if (!empty($object['rapidfire'])) {
+            foreach ($object['rapidfire'] as $target_objectid => $data) {
+                // Add objefct name to rapidfire array
+                $target_object = $objects->getObjects($target_objectid);
+                $rapidfire_against[$target_objectid] = $data;
+                $rapidfire_against[$target_objectid]['object'] = $target_object;
+            }
+        }
+
+        return view('ingame.techtree.info.rapidfire')->with([
+            'object' => $object,
+            'rapidfire_from' => $rapidfire_from,
+            'rapidfire_against' => $rapidfire_against,
         ]);
     }
 

@@ -869,6 +869,11 @@ As the technology is advanced to each level, the magnetosphere generator is upgr
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 80, 'amount' => 5], // Espionage probe
+                    212 => ['chance' => 80, 'amount' => 5], // Solar Satellite
+                ],
                 'properties' => [
                     'structural_integrity' => 4000,
                     'shield' => 10,
@@ -900,6 +905,12 @@ Slightly larger than the light fighter, the heavy fighter has thicker hulls, pro
                     'crystal' => 4000,
                     'deuterium' => 0,
                     'energy' => 0,
+                ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 80, 'amount' => 5], // Espionage probe
+                    212 => ['chance' => 80, 'amount' => 5], // Solar Satellite
+                    202 => ['chance' => 66.67, 'amount' => 3], // Small Cargo
                 ],
                 'properties' => [
                     'structural_integrity' => 10000,
@@ -933,6 +944,13 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                     'deuterium' => 2000,
                     'energy' => 0,
                 ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 80, 'amount' => 5], // Espionage probe
+                    212 => ['chance' => 80, 'amount' => 5], // Solar Satellite
+                    204 => ['chance' => 83.34, 'amount' => 6], // Light Fighter
+                    401 => ['chance' => 98, 'amount' => 10], // Rocket Launcher
+                ],
                 'properties' => [
                     'structural_integrity' => 27000,
                     'shield' => 50,
@@ -963,6 +981,11 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 80, 'amount' => 5], // Espionage probe
+                    212 => ['chance' => 80, 'amount' => 5], // Solar Satellite
+                ],
                 'properties' => [
                     'structural_integrity' => 60000,
                     'shield' => 200,
@@ -992,6 +1015,16 @@ Cruisers are armored almost three times of that of the heavy fighters, and posse
                     'crystal' => 40000,
                     'deuterium' => 15000,
                     'energy' => 0,
+                ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 80, 'amount' => 5], // Espionage probe
+                    212 => ['chance' => 80, 'amount' => 5], // Solar Satellite
+                    205 => ['chance' => 75, 'amount' => 4], // Heavy Fighter
+                    206 => ['chance' => 75, 'amount' => 4], // Cruiser
+                    207 => ['chance' => 85.72, 'amount' => 7], // Battleship
+                    202 => ['chance' => 66.67, 'amount' => 3], // Small Cargo
+                    203 => ['chance' => 66.67, 'amount' => 3], // Large Cargo
                 ],
                 'properties' => [
                     'structural_integrity' => 70000,
@@ -1274,6 +1307,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
                 'type' => 'ship',
                 'title' => 'Solar Satellite',
                 'machine_name' => 'solar_satellite',
+                'class_name' => 'solarSatellite',
                 'description' => 'Solar satellites are simple platforms of solar cells, located in a high, stationary orbit. They gather sunlight and transmit it to the ground station via laser. A solar satellite produces 25 energy on this planet.',
                 'description_long' => 'Scientists discovered a method of transmitting electrical energy to the colony using specially designed satellites in a geosynchronous orbit. Solar Satellites gather solar energy and transmit it to a ground station using advanced laser technology. The efficiency of a solar satellite depends on the strength of the solar radiation it receives. In principle, energy production in orbits closer to the sun is greater than for planets in orbits distant from the sun.
 Due to their good cost/performance ratio solar satellites can solve a lot of energy problems. But beware: Solar satellites can be easily destroyed in battle.',
@@ -1308,6 +1342,7 @@ Due to their good cost/performance ratio solar satellites can solve a lot of ene
                 'type' => 'defense',
                 'title' => 'Rocket Launcher',
                 'machine_name' => 'rocket_launcher',
+                'class_name' => 'rocketLauncher',
                 'description' => 'The rocket launcher is a simple, cost-effective defensive option.',
                 'description_long' => 'Your first basic line of defense. These are simple ground based launch facilities that fire conventional warhead tipped missiles at attacking enemy targets. As they are cheap to construct and no research is required, they are well suited for defending raids, but lose effectiveness defending from larger scale attacks. Once you begin construction on more advanced defense weapons systems, Rocket Launchers become simple fodder to allow your more damaging weapons to inflict greater damage for a longer period of time.
 
@@ -1336,6 +1371,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'type' => 'defense',
                 'title' => 'Light Laser',
                 'machine_name' => 'light_laser',
+                'class_name' => 'lightLaser',
                 'description' => 'Concentrated firing at a target with photons can produce significantly greater damage than standard ballistic weapons.',
                 'description_long' => 'As technology developed and more sophisticated ships were created, it was determined that a stronger line of defense was needed to counter the attacks. As Laser Technology advanced, a new weapon was designed to provide the next level of defense. Light Lasers are simple ground based weapons that utilize special targeting systems to track the enemy and fire a high intensity laser designed to cut through the hull of the target. In order to be kept cost effective, they were fitted with an improved shielding system, however the structural integrity is the same as that of the Rocket Launcher.
 
@@ -1364,6 +1400,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'type' => 'defense',
                 'title' => 'Heavy Laser',
                 'machine_name' => 'heavy_laser',
+                'class_name' => 'heavyLaser',
                 'description' => 'The heavy laser is the logical development of the light laser.',
                 'description_long' => 'The Heavy Laser is a practical, improved version of the Light Laser. Being more balanced than the Light Laser with improved alloy composition, it utilizes stronger, more densely packed beams, and even better onboard targeting systems.
 
@@ -1392,6 +1429,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'type' => 'defense',
                 'title' => 'Gauss Cannon',
                 'machine_name' => 'gauss_cannon',
+                'class_name' => 'gaussCannon',
                 'description' => 'The Gauss Cannon fires projectiles weighing tons at high speeds.',
                 'description_long' => 'For a long time projectile weapons were regarded as antiquated in the wake of modern thermonuclear and energy technology and due to the development of the hyperdrive and improved armour. That was until the exact energy technology that had once aged it, helped it to re-achieve their established position.
 A gauss cannon is a large version of the particle accelerator. Extremely heavy missiles are accelerated with a huge electromagnetic force and have muzzle velocities that make the dirt surrounding the missile burn in the skies. This weapon is so powerful when fired that it creates a sonic boom. Modern armour and shields can barely withstand the force, often the target is completely penetrated by the power of the missile. Defense structures deactivate as soon as they have been too badly damaged.
@@ -1421,6 +1459,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'type' => 'defense',
                 'title' => 'Ion Cannon',
                 'machine_name' => 'ion_cannon',
+                'class_name' => 'ionCannon',
                 'description' => 'The Ion Cannon fires a continuous beam of accelerating ions, causing considerable damage to objects it strikes.',
                 'description_long' => 'An ion cannon is a weapon that fires beams of ions (positively or negatively charged particles). The Ion Cannon is actually a type of Particle Cannon; only the particles used are ionized. Due to their electrical charges, they also have the potential to disable electronic devices, and anything else that has an electrical or similar power source, using a phenomena known as the the Electromagetic Pulse (EMP effect). Due to the cannons highly improved shielding system, this cannon provides improved protection for your larger, more destructive defense weapons.
 
@@ -1449,6 +1488,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'type' => 'defense',
                 'title' => 'Plasma Turret',
                 'machine_name' => 'plasma_turret',
+                'class_name' => 'plasmaTurret',
                 'description' => 'Plasma Turrets release the energy of a solar flare and surpass even the destroyer in destructive effect.',
                 'description_long' => 'One of the most advanced defense weapons systems ever developed, the Plasma Turret uses a large nuclear reactor fuel cell to power an electromagnetic accelerator that fires a pulse, or toroid, of plasma. During operation, the Plasma turret first locks on a target and begins the process of firing. A plasma sphere is created in the turrets core by super heating and compressing gases, stripping them of their ions. Once the gas is superheated, compressed, and a plasma sphere is created, it is then loaded into the electromagnetic accelerator which is energized. Once fully energized, the accelerator is activated, which results in the plasma sphere being launched at an extremely high rate of speed to the intended target. From the targets perspective, the approaching bluish ball of plasma is impressive, but once it strikes, it causes instant destruction.
 
@@ -1477,6 +1517,7 @@ Defensive facilities deactivate as soon as they are too heavily damaged. After a
                 'type' => 'defense',
                 'title' => 'Small Shield Dome',
                 'machine_name' => 'small_shield_dome',
+                'class_name' => 'smallShieldDome',
                 'description' => 'The small shield dome covers an entire planet with a field which can absorb a tremendous amount of energy.',
                 'description_long' => 'Colonizing new worlds brought about a new danger, space debris. A large asteroid could easily wipe out the world and all inhabitants. Advancements in shielding technology provided scientists with a way to develop a shield to protect an entire planet not only from space debris but, as it was learned, from an enemy attack. By creating a large electromagnetic field around the planet, space debris that would normally have destroyed the planet was deflected, and attacks from enemy Empires were thwarted. The first generators were large and the shield provided moderate protection, but it was later discovered that small shields did not afford the protection from larger scale attacks. The small shield dome was the prelude to a stronger, more advanced planetary shielding system to come.
 
@@ -1505,6 +1546,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'type' => 'defense',
                 'title' => 'Large Shield Dome',
                 'machine_name' => 'large_shield_dome',
+                'class_name' => 'largeShieldDome',
                 'description' => 'The evolution of the small shield dome can employ significantly more energy to withstand attacks.',
                 'description_long' => 'The Large Shield Dome is the next step in the advancement of planetary shields, it is the result of years of work improving the Small Shield Dome. Built to withstand a larger barrage of enemy fire by providing a higher energized electromagnetic field, large domes provide a longer period of protection before collapsing.
 
@@ -1533,6 +1575,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'type' => 'defense',
                 'title' => 'Anti-Ballistic Missiles',
                 'machine_name' => 'anti_ballistic_missile',
+                'class_name' => 'antiBallisticMissile',
                 'description' => 'Anti-Ballistic Missiles destroy attacking interplanetary missiles',
                 'description_long' => 'Anti Ballistic Missiles (ABM) are your only line of defense when attacked by Interplanetary Missiles (IPM) on your planet or moon. When a launch of IPMs is detected, these missiles automatically arm, process a launch code in their flight computers, target the inbound IPM, and launch to intercept. During the flight, the target IPM is constantly tracked and course corrections are applied until the ABM reaches the target and destroys the attacking IPM. Each ABM destroys one incoming IPM.',
                 'requirements' => [44 => 2],
@@ -1559,6 +1602,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
                 'type' => 'defense',
                 'title' => 'Interplanetary Missiles',
                 'machine_name' => 'interplanetary_missile',
+                'class_name' => 'interplanetaryMissile',
                 'description' => 'Interplanetary Missiles destroy enemy defenses. Your interplanetary missiles have got a coverage of ?? systems.',
                 'description_long' => 'Interplanetary Missiles (IPM) are your offensive weapon to destroy the defenses of your target. Using state of the art tracking technology, each missile targets a certain number of defenses for destruction. Tipped with an anti-matter bomb, they deliver a destructive force so severe that destroyed shields and defenses cannot be repaired. The only way to counter these missiles is with ABMs.',
                 'requirements' => [44 => 4, 117 => 1],

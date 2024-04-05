@@ -53,9 +53,7 @@
                 - Unit technical information
                 -->
                 {!! $production_table !!}
-                @if (!empty($object['rapidfire']))
-
-                @endif
+                {!! $rapidfire_table !!}
                 {!! $properties_table !!}
             </div><!-- rightcol -->
             <br class="clearfloat"/>
