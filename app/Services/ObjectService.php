@@ -1058,6 +1058,17 @@ Using laser-guided targeting equipment and Plasma Bombs, the Bomber seeks out an
                     'deuterium' => 15000,
                     'energy' => 0,
                 ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 80, 'amount' => 5], // Espionage probe
+                    212 => ['chance' => 80, 'amount' => 5], // Solar Satellite
+                    401 => ['chance' => 95, 'amount' => 20], // Rocket Launcher
+                    402 => ['chance' => 95, 'amount' => 20], // Light Laser
+                    403 => ['chance' => 90, 'amount' => 10], // Heavy Laser
+                    404 => ['chance' => 90, 'amount' => 10], // Ion Cannon
+                    405 => ['chance' => 80, 'amount' => 5], // Gauss Cannon
+                    406 => ['chance' => 80, 'amount' => 5], // Plasma Turret
+                ],
                 'properties' => [
                     'structural_integrity' => 75000,
                     'shield' => 500,
@@ -1091,6 +1102,14 @@ Because the destroyer is very large, its manoeuvrability is severely limited, wh
                     'deuterium' => 15000,
                     'energy' => 0,
                 ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 80, 'amount' => 5], // Espionage probe
+                    212 => ['chance' => 80, 'amount' => 5], // Solar Satellite
+                    401 => ['chance' => 90, 'amount' => 10], // Light Laser
+                    215 => ['chance' => 50, 'amount' => 2], // Battlecruiser
+
+                ],
                 'properties' => [
                     'structural_integrity' => 110000,
                     'shield' => 500,
@@ -1122,6 +1141,29 @@ Armed with a gigantic graviton cannon, the most advanced weapons system ever cre
                     'crystal' => 4000000,
                     'deuterium' => 1000000,
                     'energy' => 0,
+                ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 99.6, 'amount' => 250], // Espionage probe
+                    212 => ['chance' => 99.6, 'amount' => 250], // Solar Satellite
+                    204 => ['chance' => 99.5, 'amount' => 200], // Light Fighter
+
+                    205 => ['chance' => 99, 'amount' => 100], // Heavy Fighter
+                    206 => ['chance' => 96.97, 'amount' => 33], // Cruiser
+                    207 => ['chance' => 96.67, 'amount' => 30], // Battleship
+                    211 => ['chance' => 96, 'amount' => 25], // Bomber
+                    213 => ['chance' => 80, 'amount' => 5], // Destroyer
+                    202 => ['chance' => 99.6, 'amount' => 250], // Small Cargo
+
+                    203 => ['chance' => 99.6, 'amount' => 250], // Large Cargo
+                    208 => ['chance' => 99.6, 'amount' => 250], // Colony Ship
+                    209 => ['chance' => 99.6, 'amount' => 250], // Recycler
+                    401 => ['chance' => 99.5, 'amount' => 200], // Rocket Launcher
+                    402 => ['chance' => 99.5, 'amount' => 200], // Light Laser
+                    403 => ['chance' => 99, 'amount' => 100], // Heavy Laser
+                    404 => ['chance' => 99, 'amount' => 100], // Ion Cannon
+                    405 => ['chance' => 98, 'amount' => 50], // Gauss Cannon
+                    215 => ['chance' => 93.34, 'amount' => 15], // Battlecruiser
                 ],
                 'properties' => [
                     'structural_integrity' => 9000000,
