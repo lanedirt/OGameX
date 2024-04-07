@@ -54,7 +54,20 @@ class AppUtil
     {
         if ($number >= 1000000) {
             // If number is 1,000,000 or higher, format as "1.000Mn" with three decimal places
-            return number_format($number / 1000000, 3, '.', ',') . 'Mn';
+
+            // Divide by 1,000,000 and format with up to 3 decimal places
+            $formattedNumber = number_format($number / 1000000, 3, '.', '');
+
+            // If the number is a whole million, no decimals are needed
+            if (floor($number / 1000000) == $number / 1000000) {
+                return floor($number / 1000000) . 'Mn';
+            }
+
+            // Remove trailing zeros and the decimal point if it becomes unnecessary
+            $formattedNumber = rtrim($formattedNumber, '0');  // Remove trailing zeros
+            $formattedNumber = rtrim($formattedNumber, '.');  // Remove trailing decimal point if no decimal numbers are left
+
+            return $formattedNumber . 'Mn';
         } elseif ($number >= 1000) {
             // If number is 1,000 or higher but less than 1,000,000, format with commas as thousands separator
             return number_format($number, 0, '.', ',');

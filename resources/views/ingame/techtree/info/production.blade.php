@@ -1,8 +1,8 @@
 @if (!empty($object['production']))
     @if ($object['id'] == 4)
         <!--  Basic energy production -->
-        <table cellpadding="0" cellspacing="0">
-            <tbody>
+        <table class="general_details">
+            <thead>
             <tr>
                 <th>
                     Level
@@ -17,9 +17,11 @@
                     Difference/Level
                 </th>
             </tr>
+            </thead>
+            <tbody>
             @foreach ($production_table as $record)
-                <tr class="detailTableRow @if ($record['level'] == $current_level)
-                                        currentlevel
+                <tr class="@if ($record['level'] == $current_level)
+                                        current
                                         @endif">
                     <td>
                             <span class="undermark"
@@ -53,31 +55,33 @@
         </table>
     @elseif ($object['id'] == 12)
         <!--  Resource production -->
-        <table cellpadding="0" cellspacing="0">
+        <table class="general_details">
+            <thead>
+                <tr>
+                    <th>
+                        Level
+                    </th>
+                    <th>
+                        Energy Balance
+                    </th>
+                    <th>
+                        Difference
+                    </th>
+                    <th>
+                        Difference/Level
+                    </th>
+                    <th>
+                        Deuterium consumption
+                    </th>
+                    <th>
+                        Difference
+                    </th>
+                </tr>
+            </thead>
             <tbody>
-            <tr>
-                <th>
-                    Level
-                </th>
-                <th>
-                    Energy Balance
-                </th>
-                <th>
-                    Difference
-                </th>
-                <th>
-                    Difference/Level
-                </th>
-                <th>
-                    Deuterium consumption
-                </th>
-                <th>
-                    Difference
-                </th>
-            </tr>
             @foreach ($production_table as $record)
-                <tr class="detailTableRow @if ($record['level'] == $current_level)
-                                            currentlevel
+                <tr class="@if ($record['level'] == $current_level)
+                                            current
                                             @endif">
                     <td>
                             <span class="undermark"
@@ -124,34 +128,36 @@
         </table>
     @else
         <!--  Resource production -->
-        <table cellpadding="0" cellspacing="0">
+        <table class="general_details">
+            <thead>
+                <tr>
+                    <th>
+                        Level
+                    </th>
+                    <th>
+                        Production/h
+                    </th>
+                    <th>
+                        Difference
+                    </th>
+                    <th>
+                        Difference/Level
+                    </th>
+                    <th>
+                        Energy Balance:
+                    </th>
+                    <th>
+                        Difference
+                    </th>
+                    <th>
+                        Protected
+                    </th>
+                </tr>
+            </thead>
             <tbody>
-            <tr>
-                <th>
-                    Level
-                </th>
-                <th>
-                    Production/h
-                </th>
-                <th>
-                    Difference
-                </th>
-                <th>
-                    Difference/Level
-                </th>
-                <th>
-                    Energy Balance:
-                </th>
-                <th>
-                    Difference
-                </th>
-                <th>
-                    Protected
-                </th>
-            </tr>
             @foreach ($production_table as $record)
-                <tr class="detailTableRow @if ($record['level'] == $current_level)
-                                        currentlevel
+                <tr class="@if ($record['level'] == $current_level)
+                                        current
                                         @endif">
                     <td>
                             <span class="undermark"
