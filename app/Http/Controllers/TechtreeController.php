@@ -7,7 +7,8 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use OGame\Http\Traits\IngameTrait;
-use OGame\Services\ObjectService;
+use OGame\Services\Objects\ObjectService;
+use OGame\Services\Objects\Properties\Models\ObjectProperties;
 use OGame\Services\PlayerService;
 
 class TechtreeController extends Controller
@@ -45,7 +46,7 @@ class TechtreeController extends Controller
                 'current_level' => $player->planets->current()->getObjectLevel($object_id),
                 'production_table' => $this->getProductionTable($object, $player),
                 'rapidfire_table' => $this->getRapidfireTable($object, $objects),
-                'properties_table' => $this->getPropertiesTable($object),
+                'properties_table' => $this->getPropertiesTable($object, $player),
             ]);
         } elseif ($tab == 3) {
             return view('ingame.techtree.technology')->with([
@@ -172,61 +173,82 @@ class TechtreeController extends Controller
     /**
      * Returns techtree properties table.
      *
-     * @param int $id
+     * @param $object
+     * @param $player
      * @return Application|Factory|\Illuminate\Foundation\Application|View
      */
-    public function getPropertiesTable($object): View|\Illuminate\Foundation\Application|Factory|Application
+    public function getPropertiesTable($object, PlayerService $player): View|\Illuminate\Foundation\Application|Factory|Application
     {
         // Add tooltips for object properties
         if (empty($object['properties'])) {
-            return view();
+            return view('empty');
         }
 
+        // Get actual property values
+        $properties = $player->planets->current()->getObjectProperties($object['id']);
+
         foreach ($object['properties'] as $property_key => $property_value) {
-            $object['tooltips'][$property_key] = $this->getPropertyTooltip($object, $property_key);
+            $object['tooltips'][$property_key] = $this->getPropertyTooltip($object, $properties, $property_key);
         }
 
         return view('ingame.techtree.info.properties')->with([
             'object' => $object,
+            'properties' => $properties,
         ]);
     }
 
     /**
      * Returns techtree property tooltip.
      *
-     * @param int $id
+     * @param $object
+     * @param ObjectProperties $properties
+     * @param string $property_key
      * @return Application|Factory|\Illuminate\Foundation\Application|View
      */
-    public function getPropertyTooltip($object, $property_key): View|\Illuminate\Foundation\Application|Factory|Application
+    public function getPropertyTooltip($object, ObjectProperties $properties, string $property_key): View|\Illuminate\Foundation\Application|Factory|Application
     {
+        $property_name = 'N/a';
+        $property_breakdown = [];
+        $property_value = 0;
         switch ($property_key) {
             case 'structural_integrity':
                 $property_name = 'Structural Integrity';
+                $property_breakdown = $properties->structuralIntegrity->breakdown;
+                $property_value = $properties->structuralIntegrity->totalValue;
                 break;
             case 'shield':
                 $property_name = 'Shield Strength';
+                $property_breakdown = $properties->shield->breakdown;
+                $property_value = $properties->shield->totalValue;
                 break;
             case 'attack':
                 $property_name = 'Attack Strength';
+                $property_breakdown = $properties->attack->breakdown;
+                $property_value = $properties->attack->totalValue;
                 break;
             case 'speed':
                 $property_name = 'Speed';
+                $property_breakdown = $properties->speed->breakdown;
+                $property_value = $properties->speed->totalValue;
                 break;
             case 'capacity':
                 $property_name = 'Capacity';
+                $property_breakdown = $properties->capacity->breakdown;
+                $property_value = $properties->capacity->totalValue;
                 break;
             case 'fuel':
                 $property_name = 'Fuel Consumption';
+                $property_breakdown = $properties->fuel->breakdown;
+                $property_value = $properties->fuel->totalValue;
                 break;
         }
 
         // TODO: add calculation for property values taking into account research.
-        $calculated_value = $object['properties'][$property_key];
 
         return view('ingame.techtree.info.property_tooltip')->with([
             'property_name' => $property_name,
-            'property_value' => $object['properties'][$property_key],
-            'calculated_value' => $calculated_value,
+            'property_breakdown' => $property_breakdown,
+            'property_value' => $property_value,
         ]);
     }
 }

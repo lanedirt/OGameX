@@ -5,8 +5,7 @@ namespace OGame\Http\Controllers;
 use Illuminate\Http\Request;
 use OGame\Http\Traits\IngameTrait;
 use OGame\Http\Traits\ObjectAjaxTrait;
-use OGame\Services\BuildingQueueService;
-use OGame\Services\ObjectService;
+use OGame\Services\Objects\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\ResearchQueueService;
 

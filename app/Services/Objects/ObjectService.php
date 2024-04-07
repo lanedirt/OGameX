@@ -1,8 +1,10 @@
 <?php
 
-namespace OGame\Services;
+namespace OGame\Services\Objects;
 
 use OGame\Facades\AppUtil;
+use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 
 /**
  * Class ObjectService.
@@ -1077,6 +1079,10 @@ Using laser-guided targeting equipment and Plasma Bombs, the Bomber seeks out an
                     'capacity' => 500,
                     'fuel' => 700,
                 ],
+                'speed_upgrade' => [
+                    // Technology ID, technology level (for speed upgrade to be active, from worse to better)
+                    118 => 8, // Hyperspace Drive
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'bomber_small.jpg',
@@ -1214,6 +1220,10 @@ As soon as the Impulse Drive reaches research level 5, the small transporter tra
                     'capacity' => 6250,
                     'fuel' => 10,
                 ],
+                'speed_upgrade' => [
+                    // Technology ID, technology level (for speed upgrade to be active, from worse to better)
+                    117 => 5, // Impulse Drive
+                ],
                 'assets' => [
                     'img' => [
                         'small' => 'small_cargo_small.jpg',
@@ -1326,6 +1336,11 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
                     'speed' => 2000,
                     'capacity' => 20000,
                     'fuel' => 300,
+                ],
+                'speed_upgrade' => [
+                    // Technology ID, technology level (for speed upgrade to be active, from worse to better)
+                    117 => 17, // Impulse Drive
+                    118 => 15, // Hyperspace Drive
                 ],
                 'assets' => [
                     'img' => [
