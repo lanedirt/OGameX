@@ -116,7 +116,7 @@ class PlanetListService
     /**
      * Returns current planet of player.
      */
-    public function current()
+    public function current() : PlanetService
     {
         // Get current planet from PlayerService object.
         $currentPlanetId = $this->player->getCurrentPlanetId();

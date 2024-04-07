@@ -100,19 +100,66 @@ class ObjectPropertiesTest extends TestCase
     /**
      * Test that property calculation logic works correctly.
      */
-    public function testSpeedIntegrityPropertyCalculation(): void
+    public function testSpeedBasePropertyCalculation(): void
     {
         $this->createAndConfigurePlanetModel([]);
         $this->createAndConfigureUserTechModel([
             'combustion_drive' => 5,
+            'impulse_drive' => 3,
+            'hyperspace_drive' => 4,
         ]);
 
         // Light fighter
-        // Base 12.500 + 50% = 18.750
+        // Base 12.500 + 5*10% = 18.750
         $speed = new SpeedPropertyService($this->planetService->objects, $this->planetService);
         $this->assertEquals(18750, $speed->calculateProperty(204)->totalValue);
 
-        // TODO: implement speed checks for all ships according to their base speed and research levels.
+        // Small cargo with combustion drive 5
+        // Base 10.000 + 5*10% = 15.000
+        $speed = new SpeedPropertyService($this->planetService->objects, $this->planetService);
+        $this->assertEquals(15000, $speed->calculateProperty(202)->totalValue);
+
+        // Recycler with combustion drive 5
+        // Base 2.000 + 5*10% = 3.000
+        $speed = new SpeedPropertyService($this->planetService->objects, $this->planetService);
+        $this->assertEquals(3000, $speed->calculateProperty(209)->totalValue);
+
+        // Cruiser with impulse drive level 3
+        // Base 15.000 + 3*20% = 18.000
+        $speed = new SpeedPropertyService($this->planetService->objects, $this->planetService);
+        $this->assertEquals(24000, $speed->calculateProperty(206)->totalValue);
+
+        // Battleship with hyperspace drive level 4
+        // Base 10.000 + 4*30% = 22.000
+        $speed = new SpeedPropertyService($this->planetService->objects, $this->planetService);
+        $this->assertEquals(22000, $speed->calculateProperty(207)->totalValue);
+    }
+
+    /**
+     * Test that upgraded speed calculation logic works correctly.
+     */
+    public function testSpeedUpgradePropertyCalculation(): void
+    {
+        $this->createAndConfigurePlanetModel([]);
+        $this->createAndConfigureUserTechModel([
+            'impulse_drive' => 5,
+            'hyperspace_drive' => 15,
+        ]);
+
+        // Small cargo with impulse drive level 5 (upgrade)
+        // Base 10.000 + 5*20% = 20.000
+        $speed = new SpeedPropertyService($this->planetService->objects, $this->planetService);
+        $this->assertEquals(20000, $speed->calculateProperty(202)->totalValue);
+
+        // Recycler with hyperspace drive level 15
+        // Base 2.000 + 15*30% = 11.000
+        $speed = new SpeedPropertyService($this->planetService->objects, $this->planetService);
+        $this->assertEquals(11000, $speed->calculateProperty(209)->totalValue);
+
+        // Bomber with hyperspace drive level 15
+        // Base 4.000 + 15*30% = 22.000
+        $speed = new SpeedPropertyService($this->planetService->objects, $this->planetService);
+        $this->assertEquals(22000, $speed->calculateProperty(211)->totalValue);
     }
 
     /**

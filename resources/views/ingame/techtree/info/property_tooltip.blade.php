@@ -2,33 +2,18 @@
 <table class=&quot;combat_unit_details_tooltip&quot;>
     <tr>
         <th>Basic value:</th>
-        <td>{{ $property_value }}</td>
+        <td>{{ \OGame\Facades\AppUtil::formatNumber($property_breakdown['rawValue']) }}</td>
     </tr>
+    @foreach ($property_breakdown['bonuses'] as $property_bonus)
+        <tr>
+            <th>
+                {{ $property_bonus['type'] }}:
+                <span class=&quot;formula&quot;>({{ $property_bonus['percentage'] }}%)</span>
+            </th>
+            <td>{{ \OGame\Facades\AppUtil::formatNumber($property_bonus['value']) }}</td>
+        </tr>
+    @endforeach
     <tr>
-        <th>
-            Research bonus:
-            <span class=&quot;formula&quot;>(12 x 400)</span></th>
-        <td>4,800</td>
-    </tr>
-    <tr>
-        <th>
-            Class Bonus:
-            <span class=&quot;formula&quot;>(2 × 400)</span></th>
-        <td>800</td>
-    </tr>
-    <tr>
-        <th>
-            Alliance Class Bonus:
-            <span class=&quot;formula&quot;>(0 × 400)</span></th>
-        <td>0</td>
-    </tr>
-    <tr>
-        <th>
-            Lifeform Tech Bonus:
-            <span class=&quot;formula&quot;>(4,000 × 0%)</span></th>
-        <td>0</td>
-    </tr>
-    <tr>
-        <td colspan=&quot;2&quot; class=&quot;sum&quot;>{{ $calculated_value }}</td>
+        <td colspan=&quot;2&quot; class=&quot;sum&quot;>{{ \OGame\Facades\AppUtil::formatNumber($property_value) }}</td>
     </tr>
 </table>

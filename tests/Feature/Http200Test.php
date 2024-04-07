@@ -153,4 +153,25 @@ class Http200Test extends AccountTestCase
             }
         }
     }
+
+    /**
+     * Verify that techtree pages for all objects return HTTP 200.
+     */
+    public function testTechtreePopups(): void
+    {
+        // Get all objects
+        $objectService = new ObjectService();
+
+        foreach ($objectService->getObjects() as $object) {
+            $response = $this->get('ajax/techtree?tab=2&object_id=' . $object['id']);
+
+            try {
+                $response->assertStatus(200);
+            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+                $customMessage = 'AJAX techtree page for "' . $object['title'] . '" does not return HTTP 200.';
+                // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
+                $this->fail($customMessage);
+            }
+        }
+    }
 }

@@ -41,6 +41,11 @@ abstract class ObjectPropertyService
      * @return mixed
      */
     protected function getRawValue(int $object_id) {
+        // Check if the property exists in the object
+        if (!array_key_exists($this->propertyName, $this->objects->getObjects($object_id)['properties'])) {
+            return 0;
+        }
+
         return $this->objects->getObjects($object_id)['properties'][$this->propertyName];
     }
 
@@ -57,7 +62,6 @@ abstract class ObjectPropertyService
      * Calculate the total value of a property.
      *
      * @param int $object_id
-     * @param string $property_name
      * @return ObjectPropertyDetails
      */
     public function calculateProperty(int $object_id): ObjectPropertyDetails
@@ -69,11 +73,13 @@ abstract class ObjectPropertyService
         $totalValue = $rawValue + $bonusValue;
 
         // Prepare the breakdown for future-proofing (assuming more components might be added)
+        // TODO: Add more components to the breakdown if necessary like class bonuses, premium member
+        // bonuses, item bonuses etc.
         $breakdown = [
             'rawValue' => $rawValue,
             'bonuses' => [
                 [
-                    'type' => 'research',
+                    'type' => 'Research bonus',
                     'value' => $bonusValue,
                     'percentage' => $bonusPercentage,
                 ],
