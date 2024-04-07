@@ -1079,6 +1079,35 @@ class PlanetService
         return $this->planet->{$building['machine_name'] . '_percent'};
     }
 
+    public function getObjectStructuralIntegrity($object_id)
+    {
+        $object = $this->objects->getObjects($object_id);
+
+        // Raw structural integrity value.
+        $raw_structural_integrity = $object['properties']['structural_integrity'];
+
+        // Add the structural integrity bonus from the researches.
+        // Get armor technology research level
+        $armor_technology_level = $this->getObjectLevel(111); // Implement armor technology level getter.
+
+        // Every level of armor technology gives 10% bonus to structural integrity.
+        $structural_integrity_with_bonus = ($raw_structural_integrity / 100) * $this->getObjectStructuralIntegrityBonusPercentage();
+
+        return $structural_integrity_with_bonus;
+    }
+
+    public function getObjectStructuralIntegrityBonusPercentage()
+    {
+        // Add the structural integrity bonus from the researches.
+        // Get armor technology research level
+        $armor_technology_level = $this->getObjectLevel(111); // Implement armor technology level getter.
+
+        // Every level of armor technology gives 10% bonus to structural integrity.
+        $structural_integrity_bonus_percentage = $armor_technology_level * 10;
+
+        return $structural_integrity_bonus_percentage;
+    }
+
     /**
      * Get planet average temperature.
      */
