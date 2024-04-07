@@ -28,6 +28,9 @@ class NumberFormatTest extends TestCase
     public function testFormatNumberLong(): void
     {
         $this->assertEquals('2.937Mn', AppUtil::formatNumberLong(2937205));
+        $this->assertEquals('2.93Mn', AppUtil::formatNumberLong(2930000));
+        $this->assertEquals('2.9Mn', AppUtil::formatNumberLong(2900000));
+        $this->assertEquals('2Mn', AppUtil::formatNumberLong(2000000));
         $this->assertEquals('347,598', AppUtil::formatNumberLong(347598));
     }
 

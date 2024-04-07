@@ -44,6 +44,7 @@
             <div class="rightcol">
                 <p>{!! nl2br($object['description_long']) !!}</p>
                 {!! $production_table !!}
+                {!! $storage_table !!}
                 {!! $rapidfire_table !!}
                 {!! $properties_table !!}
             </div><!-- rightcol -->

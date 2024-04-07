@@ -980,11 +980,11 @@ class PlanetService
      * @param $building_id
      *  The ID of the building to calculate the production for.
      *
-     * @param $building_level
+     * @param false $building_level
      *  Optional parameter to calculate the production for a specific level
      *  of a building. Defaults to the current level.
      */
-    public function getBuildingProduction($building_id, $building_level = false)
+    public function getBuildingProduction(int $building_id, bool $building_level = false): array
     {
         $building = $this->objects->getBuildingObjectsWithProduction($building_id);
 
@@ -992,6 +992,8 @@ class PlanetService
         $resource_production_factor = 100; // Set default to 100, only override
         // when the building level is not set (which means current output is
         // asked for).
+
+        // NOTE: building_level is used by eval() function in the formula.
         if (!$building_level) {
             $building_level = $this->getObjectLevel($building_id);
             $resource_production_factor = $this->getResourceProductionFactor();
@@ -1228,11 +1230,15 @@ class PlanetService
     /**
      * Gets the max storage value for resources of a building on this planet.
      */
-    public function getBuildingMaxStorage($building_id)
+    public function getBuildingMaxStorage(int $building_id, int|bool $building_level = false): array
     {
         $building = $this->objects->getBuildingObjects($building_id);
 
-        $building_level = $this->getObjectLevel($building_id);
+        // NOTE: $building_level is used by eval() function in the formula.
+        if (!$building_level) {
+            $building_level = $this->getObjectLevel($building_id);
+        }
+
         $storage = array();
         foreach ($building['storage'] as $resource => $storage_formula) {
             $storage[$resource] = eval($storage_formula);

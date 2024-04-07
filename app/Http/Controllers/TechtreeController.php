@@ -18,8 +18,10 @@ class TechtreeController extends Controller
     /**
      * Returns techtree ajax content.
      *
-     * @param int $id
-     * @return Application|Factory|\Illuminate\Foundation\Application|View
+     * @param Request $request
+     * @param ObjectService $objects
+     * @param PlayerService $player
+     * @return View|\Illuminate\Foundation\Application|Factory|false|Application
      */
     public function ajax(Request $request, ObjectService $objects, PlayerService $player): View|\Illuminate\Foundation\Application|Factory|false|Application
     {
@@ -45,6 +47,7 @@ class TechtreeController extends Controller
                 'planet' => $planet,
                 'current_level' => $player->planets->current()->getObjectLevel($object_id),
                 'production_table' => $this->getProductionTable($object, $player),
+                'storage_table' => $this->getStorageTable($object, $player),
                 'rapidfire_table' => $this->getRapidfireTable($object, $objects),
                 'properties_table' => $this->getPropertiesTable($object, $player),
             ]);
@@ -69,7 +72,8 @@ class TechtreeController extends Controller
     /**
      * Returns techtree production table.
      *
-     * @param int $id
+     * @param $object
+     * @param PlayerService $player
      * @return Application|Factory|View|\Illuminate\Foundation\Application
      */
     public function getProductionTable($object, PlayerService $player): \Illuminate\Foundation\Application|View|Factory|Application
@@ -129,9 +133,69 @@ class TechtreeController extends Controller
     }
 
     /**
+     * Returns techtree storage table.
+     *
+     * @param $object
+     * @param PlayerService $player
+     * @return Application|Factory|View|\Illuminate\Foundation\Application
+     */
+    public function getStorageTable($object, PlayerService $player): \Illuminate\Foundation\Application|View|Factory|Application
+    {
+        $object_id = $object['id'];
+        $planet = $player->planets->current();
+        $current_level = $player->planets->current()->getObjectLevel($object['id']);
+
+        $storage_table = [];
+        if (!empty($object['storage'])) {
+            $storage_amount_current_level = 0;
+            foreach ($planet->getBuildingMaxStorage($object['id'], $current_level) as $type => $amount) {
+                if ($amount > 0) {
+                    $storage_amount_current_level = $amount;
+                }
+            }
+
+            // Create storage table array value
+            // TODO: add unittest to verify that storage calculation is correctly for various buildings.
+            $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
+            for ($i = $min_level; $i < $min_level + 15; $i++) {
+                $storage_amount_previous_level = 0;
+                foreach ($planet->getBuildingMaxStorage($object['id'], $i - 1) as $type => $amount) {
+                    if ($amount > 0) {
+                        $storage_amount_previous_level = $amount;
+                    }
+                }
+
+                $storage_array = $planet->getBuildingMaxStorage($object['id'], $i);
+                $storage_amount = 0;
+                foreach ($storage_array as $type => $amount) {
+                    if ($amount > 0) {
+                        $storage_amount = $amount;
+                    }
+                }
+
+                $storage_table[] = [
+                    'level' => $i,
+                    'storage' => $storage_amount,
+                    'storage_difference' => $storage_amount - $storage_amount_current_level,
+                    'storage_difference_per_level' => ($i == $current_level) ? 0 : (($i - 1 < $current_level) ? ($storage_amount - $storage_amount_previous_level) * -1 : $storage_amount - $storage_amount_previous_level),
+                    'protected' => 0,
+                ];
+            }
+        }
+
+        return view('ingame.techtree.info.storage')->with([
+            'object' => $object,
+            'planet' => $planet,
+            'storage_table' => $storage_table,
+            'current_level' => $player->planets->current()->getObjectLevel($object_id),
+        ]);
+    }
+
+    /**
      * Returns techtree rapidfire table.
      *
-     * @param int $id
+     * @param $object
+     * @param ObjectService $objects
      * @return Application|Factory|\Illuminate\Foundation\Application|View
      */
     public function getRapidfireTable($object, ObjectService $objects): View|\Illuminate\Foundation\Application|Factory|Application
@@ -242,8 +306,6 @@ class TechtreeController extends Controller
                 $property_value = $properties->fuel->totalValue;
                 break;
         }
-
-        // TODO: add calculation for property values taking into account research.
 
         return view('ingame.techtree.info.property_tooltip')->with([
             'property_name' => $property_name,
