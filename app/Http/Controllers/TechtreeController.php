@@ -2,6 +2,9 @@
 
 namespace OGame\Http\Controllers;
 
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use OGame\Http\Traits\IngameTrait;
 use OGame\Services\ObjectService;
@@ -15,9 +18,9 @@ class TechtreeController extends Controller
      * Returns techtree ajax content.
      *
      * @param int $id
-     * @return Response
+     * @return Application|Factory|\Illuminate\Foundation\Application|View
      */
-    public function ajax(Request $request, ObjectService $objects, PlayerService $player)
+    public function ajax(Request $request, ObjectService $objects, PlayerService $player): View|\Illuminate\Foundation\Application|Factory|false|Application
     {
         $object_id = $request->input('object_id');
         $tab = $request->input('tab');
@@ -66,9 +69,9 @@ class TechtreeController extends Controller
      * Returns techtree production table.
      *
      * @param int $id
-     * @return Response
+     * @return Application|Factory|View|\Illuminate\Foundation\Application
      */
-    public function getProductionTable($object, PlayerService $player)
+    public function getProductionTable($object, PlayerService $player): \Illuminate\Foundation\Application|View|Factory|Application
     {
         $object_id = $object['id'];
         $planet = $player->planets->current();
@@ -128,9 +131,9 @@ class TechtreeController extends Controller
      * Returns techtree rapidfire table.
      *
      * @param int $id
-     * @return Response
+     * @return Application|Factory|\Illuminate\Foundation\Application|View
      */
-    public function getRapidfireTable($object, ObjectService $objects)
+    public function getRapidfireTable($object, ObjectService $objects): View|\Illuminate\Foundation\Application|Factory|Application
     {
         // Loop through all other objects and see if they have rapidfire against this object
         // if so, create a new array with the rapidfire data same as above.
@@ -170,13 +173,13 @@ class TechtreeController extends Controller
      * Returns techtree properties table.
      *
      * @param int $id
-     * @return Response
+     * @return Application|Factory|\Illuminate\Foundation\Application|View
      */
-    public function getPropertiesTable($object)
+    public function getPropertiesTable($object): View|\Illuminate\Foundation\Application|Factory|Application
     {
         // Add tooltips for object properties
         if (empty($object['properties'])) {
-            return;
+            return view();
         }
 
         foreach ($object['properties'] as $property_key => $property_value) {
@@ -192,9 +195,9 @@ class TechtreeController extends Controller
      * Returns techtree property tooltip.
      *
      * @param int $id
-     * @return Response
+     * @return Application|Factory|\Illuminate\Foundation\Application|View
      */
-    public function getPropertyTooltip($object, $property_key)
+    public function getPropertyTooltip($object, $property_key): View|\Illuminate\Foundation\Application|Factory|Application
     {
         switch ($property_key) {
             case 'structural_integrity':
@@ -220,7 +223,7 @@ class TechtreeController extends Controller
         // TODO: add calculation for property values taking into account research.
         $calculated_value = $object['properties'][$property_key];
 
-        return view('ingame.techtree.property_tooltip')->with([
+        return view('ingame.techtree.info.property_tooltip')->with([
             'property_name' => $property_name,
             'property_value' => $object['properties'][$property_key],
             'calculated_value' => $calculated_value,

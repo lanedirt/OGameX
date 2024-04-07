@@ -1201,6 +1201,11 @@ As soon as the Impulse Drive reaches research level 5, the small transporter tra
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 80, 'amount' => 5], // Espionage probe
+                    212 => ['chance' => 80, 'amount' => 5], // Solar Satellite
+                ],
                 'properties' => [
                     'structural_integrity' => 4000,
                     'shield' => 10,
@@ -1234,6 +1239,11 @@ To maximize the resources that can be stored in the holds, this ship has little 
                     'deuterium' => 0,
                     'energy' => 0,
                 ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 80, 'amount' => 5], // Espionage probe
+                    212 => ['chance' => 80, 'amount' => 5], // Solar Satellite
+                ],
                 'properties' => [
                     'structural_integrity' => 12000,
                     'shield' => 25,
@@ -1265,6 +1275,11 @@ This ship is used to prepare a newly discovered planet for colonization. Once it
                     'crystal' => 20000,
                     'deuterium' => 10000,
                     'energy' => 0,
+                ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 80, 'amount' => 5], // Espionage probe
+                    212 => ['chance' => 80, 'amount' => 5], // Solar Satellite
                 ],
                 'properties' => [
                     'structural_integrity' => 30000,
@@ -1298,6 +1313,11 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
                     'crystal' => 6000,
                     'deuterium' => 2000,
                     'energy' => 0,
+                ],
+                'rapidfire' => [
+                    // Against ship_id => [chance, amount]
+                    210 => ['chance' => 80, 'amount' => 5], // Espionage probe
+                    212 => ['chance' => 80, 'amount' => 5], // Solar Satellite
                 ],
                 'properties' => [
                     'structural_integrity' => 16000,

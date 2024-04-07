@@ -43,15 +43,6 @@
 
             <div class="rightcol">
                 <p>{!! nl2br($object['description_long']) !!}</p>
-
-                <!--
-                Different types of tables:
-                - Resource production values
-                - Energy production values
-                - Storage values
-                - Unit rapidfire values
-                - Unit technical information
-                -->
                 {!! $production_table !!}
                 {!! $rapidfire_table !!}
                 {!! $properties_table !!}
