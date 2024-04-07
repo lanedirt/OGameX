@@ -5,6 +5,7 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Support\Carbon;
 use OGame\ResearchQueue;
+use OGame\Services\Objects\ObjectService;
 
 /**
  * Class ResearchQueueService.

@@ -2,10 +2,8 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Support\Str;
-use OGame\Services\ObjectService;
+use OGame\Services\Objects\ObjectService;
 use Tests\AccountTestCase;
-use Tests\TestCase;
 
 /**
  * Test AJAX calls to make sure they work as expected.

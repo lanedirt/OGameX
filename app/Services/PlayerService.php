@@ -2,10 +2,10 @@
 
 namespace OGame\Services;
 
-use Illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Support\Carbon;
-use OGame\Facades\AppUtil;
+use Illuminate\Support\Facades\Auth;
+use OGame\Services\Objects\ObjectService;
 use OGame\User;
 use OGame\UserTech;
 
@@ -52,7 +52,7 @@ class PlayerService
             $this->load($player_id);
         }
 
-        $this->objects = resolve('OGame\Services\ObjectService');
+        $this->objects = resolve('OGame\Services\Objects\ObjectService');
     }
 
     /**

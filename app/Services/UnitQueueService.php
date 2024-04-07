@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Illuminate\Support\Carbon;
+use OGame\Services\Objects\ObjectService;
 use OGame\UnitQueue;
 
 /**

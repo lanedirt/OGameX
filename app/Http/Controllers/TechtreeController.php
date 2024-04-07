@@ -7,7 +7,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use OGame\Http\Traits\IngameTrait;
-use OGame\Services\ObjectService;
+use OGame\Services\Objects\ObjectService;
 use OGame\Services\PlayerService;
 
 class TechtreeController extends Controller

@@ -3,11 +3,18 @@
 namespace OGame\Services;
 
 use Exception;
-use http\Exception\RuntimeException;
 use Illuminate\Support\Carbon;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Planet;
+use OGame\Services\Objects\ObjectService;
+use OGame\Services\Objects\Properties\AttackPropertyService;
+use OGame\Services\Objects\Properties\CapacityPropertyService;
+use OGame\Services\Objects\Properties\FuelPropertyService;
+use OGame\Services\Objects\Properties\Models\ObjectProperties;
+use OGame\Services\Objects\Properties\ShieldPropertyService;
+use OGame\Services\Objects\Properties\SpeedPropertyService;
+use OGame\Services\Objects\Properties\StructuralIntegrityPropertyService;
 
 /**
  * Class PlanetService.
@@ -39,16 +46,23 @@ class PlanetService
     protected PlayerService $player;
 
     /**
+     * Cache for services.
+     *
+     * @var array
+     */
+    private $serviceCache = [];
+
+    /**
      * Planet constructor.
      *
-     * @param PlayerService $player
+     * @param PlayerService|null $player
      *  Player object that the to be loaded planet belongs to. If none is provided, we will auto
      *  attempt to load the playerService object after loading the planet.
      *
      * @param int $planet_id
      *  If supplied the constructor will try to load the planet from the database.
      */
-    public function __construct($player = null, $planet_id = 0)
+    public function __construct(PlayerService $player = null, int $planet_id = 0)
     {
         // Load the planet object if a positive planet ID is given.
         // If no planet ID is given then planet context will not be available
@@ -66,8 +80,14 @@ class PlanetService
                 $this->player = $player;
             }
         }
+        else {
+            // If no planet ID is given, we still attempt to load the player object if it has been passed.
+            if (!empty($player)) {
+                $this->player = $player;
+            }
+        }
 
-        $this->objects = resolve('OGame\Services\ObjectService');
+        $this->objects = resolve('OGame\Services\Objects\ObjectService');
     }
 
     /**
@@ -1079,33 +1099,76 @@ class PlanetService
         return $this->planet->{$building['machine_name'] . '_percent'};
     }
 
-    public function getObjectStructuralIntegrity($object_id)
+    // Example of using the refactored service for calculating structural integrity
+    public function getObjectPropertyDetails($objectId, $propertyName)
     {
-        $object = $this->objects->getObjects($object_id);
-
-        // Raw structural integrity value.
-        $raw_structural_integrity = $object['properties']['structural_integrity'];
-
-        // Add the structural integrity bonus from the researches.
-        // Get armor technology research level
-        $armor_technology_level = $this->getObjectLevel(111); // Implement armor technology level getter.
-
-        // Every level of armor technology gives 10% bonus to structural integrity.
-        $structural_integrity_with_bonus = ($raw_structural_integrity / 100) * $this->getObjectStructuralIntegrityBonusPercentage();
-
-        return $structural_integrity_with_bonus;
+        // Factory or Dependency Injection to get the specific property service
+        $service = $this->getPropertyService($propertyName)->calculateProperty($objectId, $propertyName);
+        return $service->calculateProperty($objectId, $propertyName);
     }
 
-    public function getObjectStructuralIntegrityBonusPercentage()
+    public function getPropertyService($propertyName)
     {
-        // Add the structural integrity bonus from the researches.
-        // Get armor technology research level
-        $armor_technology_level = $this->getObjectLevel(111); // Implement armor technology level getter.
+        if (!isset($this->serviceCache[$propertyName])) {
+            switch ($propertyName) {
+                case 'structural_integrity':
+                    $this->serviceCache[$propertyName] = new StructuralIntegrityPropertyService($this->objects, $this);
+                    break;
+                case 'shield':
+                    $this->serviceCache[$propertyName] = new ShieldPropertyService($this->objects, $this);
+                    break;
+                case 'attack':
+                    $this->serviceCache[$propertyName] = new AttackPropertyService($this->objects, $this);
+                    break;
+                case 'speed':
+                    $this->serviceCache[$propertyName] = new SpeedPropertyService($this->objects, $this);
+                    break;
+                case 'capacity':
+                    $this->serviceCache[$propertyName] = new CapacityPropertyService($this->objects, $this);
+                    break;
+                case 'fuel':
+                    $this->serviceCache[$propertyName] = new FuelPropertyService($this->objects, $this);
+                    break;
+                default:
+                    throw new \Exception('Unknown object property name: ' . $propertyName);
+            }
+        }
+        return $this->serviceCache[$propertyName];
+    }
 
-        // Every level of armor technology gives 10% bonus to structural integrity.
-        $structural_integrity_bonus_percentage = $armor_technology_level * 10;
+    /**
+     * Get all object properties for a specific object.
+     *
+     * @param $objectId
+     * @return ObjectProperties
+     */
+    public function getObjectProperties($objectId): ObjectProperties
+    {
+        $properties = [
+            'structural_integrity',
+            'shield',
+            'attack',
+            'speed',
+            'capacity',
+            'fuel',
+        ];
 
-        return $structural_integrity_bonus_percentage;
+        $calculatedProperties = [];
+
+        foreach ($properties as $propertyName) {
+            $service = $this->getPropertyService($propertyName);
+            $calculatedProperties[$propertyName] = $service->calculateProperty($objectId, $propertyName);
+        }
+
+        // Directly pass each calculated property to the ObjectProperties constructor
+        return new ObjectProperties(
+            $calculatedProperties['structural_integrity'],
+            $calculatedProperties['shield'],
+            $calculatedProperties['attack'],
+            $calculatedProperties['speed'],
+            $calculatedProperties['capacity'],
+            $calculatedProperties['fuel']
+        );
     }
 
     /**
