@@ -94,7 +94,9 @@ class MessageService
             ->orderBy('created_at', 'desc')
             ->get();
 
-        foreach( $messages as $message) {}
+        foreach( $messages as $message) {
+
+        }
 
         return $messages;
     }
