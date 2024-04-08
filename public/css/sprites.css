@@ -1,0 +1,320 @@
+/* Resources */
+.sprite.resource {
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* Resources small */
+.sprite.resource.small {
+    background-image: url('/img/layout/resources/spriteset.png');
+    background-repeat: no-repeat;
+    width:80px;
+    height:80px;
+}
+
+.sprite.resource.small.metal { background-position-x: 0; }
+.sprite.resource.small.crystal { background-position-x: -80px; }
+.sprite.resource.small.deuterium { background-position-x: -160px;}
+.sprite.resource.small.energy { background-position-x: -240px;}
+.sprite.resource.small.darkmatter { background-position-x: -320px;}
+
+/* Ships */
+.sprite.ship {
+    position:relative;
+    box-sizing: border-box;
+}
+
+/* Ships small */
+.sprite.ship.small {
+    background-image: url('/img/content/ships_80.png');
+    background-repeat: no-repeat;
+    width:80px;
+    height:80px;
+}
+
+.sprite.ship.small.disabled { background-position-y: -80px; }
+.sprite.ship.small.unavailabe {background-position-y: -160px; }
+
+.sprite.ship.small.ship202 { background-position-x: 0; }
+.sprite.ship.small.ship203 { background-position-x: -80px; }
+.sprite.ship.small.ship204 { background-position-x: -160px; }
+.sprite.ship.small.ship205 { background-position-x: -240px; }
+.sprite.ship.small.ship206 { background-position-x: -320px; }
+.sprite.ship.small.ship207 { background-position-x: -400px; }
+.sprite.ship.small.ship208 { background-position-x: -480px; }
+.sprite.ship.small.ship209 { background-position-x: -560px; }
+.sprite.ship.small.ship210 { background-position-x: -640px; }
+.sprite.ship.small.ship211 { background-position-x: -720px; }
+.sprite.ship.small.ship212 { background-position-x: -800px; }
+.sprite.ship.small.ship213 { background-position-x: -880px; }
+.sprite.ship.small.ship214 { background-position-x: -960px; }
+.sprite.ship.small.ship215 { background-position-x: -1040px; }
+.sprite.ship.small.ship216 { background-position-x: -1120px; }
+.sprite.ship.small.ship217 { background-position-x: -1280px; }
+.sprite.ship.small.ship218 { background-position-x: -1120px; }
+.sprite.ship.small.ship219 { background-position-x: -1200px; }
+.sprite.ship.small.ship220 { background-position-x: -1440px; }
+
+/* Ships large */
+.sprite.ship.large {
+    background-image: url('/img/content/ships_200.jpg');
+    background-repeat: no-repeat;
+    width:200px;
+    height:200px;
+}
+.sprite.ship.large.ship202 { background-position-x: -1600px; }
+.sprite.ship.large.ship203 { background-position-x: -1800px; }
+.sprite.ship.large.ship204 { background-position-x: 0; }
+.sprite.ship.large.ship205 { background-position-x: -200px; }
+.sprite.ship.large.ship206 { background-position-x: -400px; }
+.sprite.ship.large.ship207 { background-position-x: -600px; }
+.sprite.ship.large.ship208 { background-position-x: -2000px; }
+.sprite.ship.large.ship209 { background-position-x: -2200px; }
+.sprite.ship.large.ship210 { background-position-x: -2400px; }
+.sprite.ship.large.ship211 { background-position-x: -1000px; }
+.sprite.ship.large.ship212 { background-position-x: -2600px; }
+.sprite.ship.large.ship213 { background-position-x: -1200px; }
+.sprite.ship.large.ship214 { background-position-x: -1400px; }
+.sprite.ship.large.ship215 { background-position-x: -800px; }
+.sprite.ship.large.ship216 { background-position-x: -2600px; }
+.sprite.ship.large.ship217 { background-position-x: -3200px; }
+.sprite.ship.large.ship218 { background-position-x: -2800px }
+.sprite.ship.large.ship219 { background-position-x: -3000px; }
+.sprite.ship.large.ship220 { background-position-x: -3400px; }
+
+/* Buildings large*/
+.sprite.building.large {
+    background-image: url('/img/content/sprite.jpg');
+    background-repeat: no-repeat;
+    width:200px;
+    height:200px;
+}
+.sprite.building.large.building1 { background-position: 0 0; }
+.sprite.building.large.building2 { background-position: -200px 0; }
+.sprite.building.large.building3 { background-position: -400px 0; }
+.sprite.building.large.building4 { background-position: -600px 0; }
+.sprite.building.large.building5 { background-position: -800px 0; }
+.sprite.building.large.building22 { background-position: -1200px 0; }
+.sprite.building.large.building23 { background-position: -1400px 0; }
+.sprite.building.large.building24 { background-position: -1600px 0; }
+
+.sprite.building.large.building14 { background-position: 0 -1000px;}
+.sprite.building.large.building21 { background-position: -200px -1000px; }
+.sprite.building.large.building31 { background-position: -400px -1000px; }
+.sprite.building.large.building34 { background-position: -600px -1000px; }
+.sprite.building.large.building44 { background-position: -800px -1000px; }
+.sprite.building.large.building15 { background-position: -1000px -1000px; }
+.sprite.building.large.building33 { background-position: -1200px -1000px; }
+.sprite.building.large.building36 { background-position: -2000px -1000px; }
+
+/* Defenses */
+.sprite.defense {
+    position:relative;
+    box-sizing: border-box;
+}
+
+/* Defenses small */
+.sprite.defense.small {
+    background-image: url('/img/content/defense_80.png');
+    background-repeat: no-repeat;
+    width:80px;
+    height:80px;
+}
+
+.sprite.defense.small.defense401 { background-position-x: 0; }
+.sprite.defense.small.defense402 { background-position-x: -80px; }
+.sprite.defense.small.defense403 { background-position-x: -160px; }
+.sprite.defense.small.defense404 { background-position-x: -240px; }
+.sprite.defense.small.defense405 { background-position-x: -320px; }
+.sprite.defense.small.defense406 { background-position-x: -400px; }
+.sprite.defense.small.defense407 { background-position-x: -480px; }
+.sprite.defense.small.defense408 { background-position-x: -560px; }
+.sprite.defense.small.defense501 { background-position-x: -640px; }
+.sprite.defense.small.defense502 { background-position-x: -720px; }
+.sprite.defense.small.defense503 { background-position-x: -800px; }
+
+.sprite.defense.small.disabled { background-position-y: -80px; }
+.sprite.defense.small.unavailabe {background-position-y: -160px; }
+
+/* Defense large*/
+.sprite.defense.large {
+    background-image: url('/img/content/sprite.jpg');
+    background-repeat: no-repeat;
+    width:200px;
+    height:200px;
+}
+
+.sprite.defense.large.defense401 { background-position: 0 -2000px; }
+
+
+/* Research large*/
+.sprite.research.large {
+    background-image: url("/img/content/research_200.jpg");
+    background-repeat: no-repeat;
+    width:200px;
+    height:200px;
+}
+
+.sprite.research.large.research113 { background-position: 0px 0; }
+.sprite.research.large.research120 { background-position: -200px 0; }
+.sprite.research.large.research121 { background-position: -400px 0; }
+.sprite.research.large.research114 { background-position: -600px 0; }
+.sprite.research.large.research122 { background-position: -800px 0; }
+.sprite.research.large.research115 { background-position: -1000px 0; }
+.sprite.research.large.research117 { background-position: -1200px 0; }
+.sprite.research.large.research118 { background-position: -1400px 0; }
+.sprite.research.large.research106 { background-position: -1600px 0; }
+.sprite.research.large.research108 { background-position: -1800px 0; }
+.sprite.research.large.research124 { background-position: -2000px 0; }
+.sprite.research.large.research123 { background-position: -2200px 0; }
+.sprite.research.large.research199 { background-position: -2400px 0; }
+.sprite.research.large.research111 { background-position: -2600px 0; }
+.sprite.research.large.research109 { background-position: -2800px 0; }
+.sprite.research.large.research110 { background-position: -3000px 0; }
+
+/* Alliance class */
+.sprite.allianceclass.small {
+    background-repeat: no-repeat;
+    width:20px;
+    height:20px;
+}
+.sprite.allianceclass.medium {
+    background-repeat: no-repeat;
+    background-size: cover;
+    width:60px;
+    height:60px;
+}
+.sprite.allianceclass.large {
+    background-repeat: no-repeat;
+    background-size: cover;
+    width:100px;
+    height:100px;
+}
+.sprite.allianceclass.small.none { background-image: url('/img/mco/allianceclasses/neutral_20.png'); }
+.sprite.allianceclass.small.trader { background-image: url('/img/mco/allianceclasses/trader_20.png'); }
+.sprite.allianceclass.small.explorer { background-image: url('/img/mco/allianceclasses/explorer_20.png'); }
+.sprite.allianceclass.small.warrior { background-image: url('/img/mco/allianceclasses/warrior_20.png'); }
+.sprite.allianceclass.medium.none { background-image: url('/img/mco/allianceclasses/neutral_100.png');; }
+.sprite.allianceclass.medium.trader { background-image: url('/img/mco/allianceclasses/trader_100.png'); }
+.sprite.allianceclass.medium.explorer { background-image: url('/img/mco/allianceclasses/explorer_100.png'); }
+.sprite.allianceclass.medium.warrior { background-image: url('/img/mco/allianceclasses/warrior_100.png'); }
+.sprite.allianceclass.large.none { background-image: url('/img/mco/allianceclasses/neutral_200.png');; }
+.sprite.allianceclass.large.trader { background-image: url('/img/mco/allianceclasses/trader_200.png'); }
+.sprite.allianceclass.large.explorer { background-image: url('/img/mco/allianceclasses/explorer_200.png'); }
+.sprite.allianceclass.large.warrior { background-image: url('/img/mco/allianceclasses/warrior_200.png'); }
+
+/* Character class */
+.sprite.characterclass.small {
+    background-repeat: no-repeat;
+    width:20px;
+    height:20px;
+}
+.sprite.characterclass.medium {
+    background-repeat: no-repeat;
+    background-size: cover;
+    width:60px;
+    height:60px;
+}
+.sprite.characterclass.large {
+    background-repeat: no-repeat;
+    background-size: cover;
+    width:100px;
+    height:100px;
+}
+.sprite.characterclass.small.none { background-image: url('/img/mco/characterclasses/neutral_20.png'); }
+.sprite.characterclass.small.miner { background-image: url('/img/mco/characterclasses/miner_20.png'); }
+.sprite.characterclass.small.explorer { background-image: url('/img/mco/characterclasses/explorer_20.png'); }
+.sprite.characterclass.small.warrior { background-image: url('/img/mco/characterclasses/warrior_20.png'); }
+.sprite.characterclass.medium.none { background-image: url('/img/mco/characterclasses/neutral_200.png');; }
+.sprite.characterclass.medium.miner { background-image: url('/img/mco/characterclasses/miner_200.png'); }
+.sprite.characterclass.medium.explorer { background-image: url('/img/mco/characterclasses/explorer_200.png'); }
+.sprite.characterclass.medium.warrior { background-image: url('/img/mco/characterclasses/warrior_200.png'); }
+.sprite.characterclass.large.none { background-image: url('/img/mco/characterclasses/neutral_200.png');; }
+.sprite.characterclass.large.miner { background-image: url('/img/mco/characterclasses/miner_200.png'); }
+.sprite.characterclass.large.explorer { background-image: url('/img/mco/characterclasses/explorer_200.png'); }
+.sprite.characterclass.large.warrior { background-image: url('/img/mco/characterclasses/warrior_200.png'); }
+
+/* Character class boni */
+.sprite.characterclassboni.small {
+    background-image: url('/img/content/sprite.jpg');
+    background-repeat: no-repeat;
+    background-position-y: -2240px;
+    width:20px;
+    height:20px;
+}
+.sprite.characterclassboni.small.active { background-position-y: -2240px; }
+.sprite.characterclassboni.small.inactive { background-position-y: -2270px; }
+
+.sprite.characterclassboni.small.fleetslot { background-position-x: 0; }
+.sprite.characterclassboni.small.colonization { background-position-x: -30px; }
+.sprite.characterclassboni.small.expedition { background-position-x: -60px; }
+.sprite.characterclassboni.small.debrisfield { background-position-x: -90px; }
+.sprite.characterclassboni.small.research { background-position-x: -120px; }
+.sprite.characterclassboni.small.cargocapacity { background-position-x: -150px; }
+.sprite.characterclassboni.small.fuelconsumption { background-position-x: -180px; }
+.sprite.characterclassboni.small.shipspeed { background-position-x: -210px; }
+.sprite.characterclassboni.small.lightfighter { background-position-x: -240px; }
+
+.sprite.buttons.small {
+    background-image: url('/img/mco/marketplace/offer_sprite_32x32.png');
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
+
+.sprite.buttons.medium {
+    background-image: url('/img/mco/marketplace/offer_sprite_64x64.png');
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
+
+.sprite.buttons.large {
+    background-image: url('/img/mco/marketplace/offer_sprite_128x128.png');
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
+
+.sprite.buttons.small.enabled { background-position-y:0; }
+.sprite.buttons.small.enabled:hover { background-position-y:-32px; }
+.sprite.buttons.small.disabled { background-position-y:-64px; }
+.sprite.buttons.small.disabled:hover { background-position-y:-96px; }
+
+.sprite.buttons.medium.enabled { background-position-y:0; }
+.sprite.buttons.medium.enabled:hover { background-position-y:-64px; }
+.sprite.buttons.medium.disabled { background-position-y:-128px; }
+.sprite.buttons.medium.disabled:hover { background-position-y:-192px; }
+
+.sprite.buttons.large.enabled { background-position-y:0; }
+.sprite.buttons.large.enabled:hover { background-position-y:-128px; }
+.sprite.buttons.large.disabled { background-position-y:-256px; }
+.sprite.buttons.large.disabled:hover { background-position-y:-384px; }
+
+.sprite.buttons.small:hover { background-position-y: -32px;}
+.sprite.buttons.medium:hover { background-position-y: -64px;}
+.sprite.buttons.large:hover { background-position-y: -96px;}
+
+.sprite.buttons.small.offer { background-position-x: 0; }
+.sprite.buttons.small.order { background-position-x: -32px; }
+.sprite.buttons.small.auto-offer { background-position-x: -64px; }
+.sprite.buttons.small.auto-order { background-position-x: -96px; }
+.sprite.buttons.small.delete { background-position-x: -128px; }
+.sprite.buttons.small.collectPrice { background-position-x: 0; }
+.sprite.buttons.small.collectItem { background-position-x: 0; }
+
+.sprite.buttons.medium.offer { background-position-x: 0; }
+.sprite.buttons.medium.order { background-position-x: -64px; }
+.sprite.buttons.medium.auto-offer { background-position-x: -128px; }
+.sprite.buttons.medium.auto-order { background-position-x: -192px; }
+.sprite.buttons.medium.delete { background-position-x: -256px; }
+.sprite.buttons.medium.collectPrice { background-position-x: -320px; }
+.sprite.buttons.medium.collectItem { background-position-x: -384px; }
+
+.sprite.buttons.large.offer { background-position-x: 0; }
+.sprite.buttons.large.order { background-position-x: -128px; }
+.sprite.buttons.large.auto-offer { background-position-x: -256px; }
+.sprite.buttons.large.auto-order { background-position-x: -384px; }
+.sprite.buttons.large.delete { background-position-x: -512px; }
+.sprite.buttons.large.collectPrice { background-position-x: -640px; }
+.sprite.buttons.large.collectItem { background-position-x: -768px; }

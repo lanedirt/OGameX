@@ -984,7 +984,7 @@ class PlanetService
      *  Optional parameter to calculate the production for a specific level
      *  of a building. Defaults to the current level.
      */
-    public function getBuildingProduction(int $building_id, bool $building_level = false): array
+    public function getBuildingProduction(int $building_id, int $building_level = 0): array
     {
         $building = $this->objects->getBuildingObjectsWithProduction($building_id);
 

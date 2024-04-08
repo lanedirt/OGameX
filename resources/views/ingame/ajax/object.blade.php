@@ -111,15 +111,15 @@
             @endif
         </li>
         @if ($energy_difference > 0)
-        <li>
-            Energy needed:
-            <span class="time">{{ $energy_difference }}</span>
-        </li>
+            <li>
+                Energy needed:
+                <span class="time">{{ $energy_difference }}</span>
+            </li>
         @elseif ($energy_difference < 0)
-        <li>
-            Production:
-            <span class="time">{{ $production_next['energy'] }} <span class="undermark"> (+{{ ($energy_difference * -1) }})</span>
-        </li>
+            <li>
+                Production:
+                <span class="time">{{ $production_next['energy'] }} <span class="undermark"> (+{{ ($energy_difference * -1) }})</span>
+            </li>
         @endif
     </ul>
     @endif

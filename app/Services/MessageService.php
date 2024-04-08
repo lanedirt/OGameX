@@ -31,7 +31,8 @@ class MessageService
                 21, // Expedition report
             ],
             'transport' => [
-                31, // Transport report
+                31, // Own fleet reaching a planet
+                32, // Resource delivery by foreign fleet
             ],
             'other' => [
                 'return_of_fleet' => 41, // Return of fleet
@@ -217,5 +218,18 @@ You’ll only find current announcements and changes to the game in the forums.
 Now you’re ready for the future. Good luck!
 
 This message will be deleted in 7 days.', 'welcome_message');
+    }
+
+    /**
+     * Deletes a message for the current player.
+     *
+     * @param int $messageId
+     * @return void
+     */
+    public function deleteMessage(int $messageId) : void
+    {
+        Message::where('id', $messageId)
+            ->where('user_id', $this->player->getId())
+            ->delete();
     }
 }

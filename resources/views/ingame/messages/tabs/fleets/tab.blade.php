@@ -74,26 +74,28 @@
                         <span></span>
                     </a>
                 </li>
-                <li id="subtabs-nfFleetTrash"
-                    class="trash_tab ui-tabs-tab ui-corner-top ui-state-default ui-tab"
-                    data-subtabname="Trash" data-tabid="25" role="tab" tabindex="-1"
-                    aria-controls="ui-id-24" aria-labelledby="ui-id-23" aria-selected="false"
-                    aria-expanded="false">
+                <!-- TODO: Implement trash tab -->
+                <!--
+            <li id="subtabs-nfFleetTrash"
+                class="trash_tab ui-tabs-tab ui-corner-top ui-state-default ui-tab"
+                data-subtabname="Trash" data-tabid="25" role="tab" tabindex="-1"
+                aria-controls="ui-id-24" aria-labelledby="ui-id-23" aria-selected="false"
+                aria-expanded="false">
                     <div class="trash_box">
-                        <h3 class="trash_title in_trash" style="display: none;">Trash</h3>
-                        <span class="not_in_trash"><span class="trash_action js_actionKillAll">Delete</span></span><span
-                                class="in_trash" style="display: none;"><span
-                                    class="trash_action js_actionReviveAll">restore</span> or <span
-                                    class="trash_action js_actionDeleteAll">delete permanently</span></span>
-                        all in tab <span class="js_active_tab">Espionage</span>.
-                    </div>
-                    <a href="index.php?page=messages&amp;tab=25&amp;ajax=1"
-                       class="btn_blue btn_trash ui-tabs-anchor" role="presentation"
-                       tabindex="-1" id="ui-id-23">
-                        Trash
-                        <span></span>
-                    </a>
-                </li>
+                    <h3 class="trash_title in_trash" style="display: none;">Trash</h3>
+                    <span class="not_in_trash"><span class="trash_action js_actionKillAll">Delete</span></span><span
+                            class="in_trash" style="display: none;"><span
+                                class="trash_action js_actionReviveAll">restore</span> or <span
+                                class="trash_action js_actionDeleteAll">delete permanently</span></span>
+                    all in tab <span class="js_active_tab">Espionage</span>.
+                </div>
+                <a href="index.php?page=messages&amp;tab=25&amp;ajax=1"
+                   class="btn_blue btn_trash ui-tabs-anchor" role="presentation"
+                   tabindex="-1" id="ui-id-23">
+                    Trash
+                    <span></span>
+                </a>
+                </li>-->
             </ul>
             <div id="ui-id-14" aria-live="polite" aria-labelledby="ui-id-13" role="tabpanel"
                  class="ui-tabs-panel ui-corner-bottom ui-widget-content" aria-hidden="false"

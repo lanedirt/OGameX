@@ -489,9 +489,11 @@ ogame.messages = {
             })
         }).on("click", ".js_actionKill", function (d) {
             var a = $(this).parents("li.msg").data("msg-id");
+            console.log(a);
+            console.log('this is the message id');
             $.ajax({
                 type: "POST",
-                url: "?page=messages",
+                url: "", // Self
                 dataType: "json",
                 data: {messageId: a, action: 103, ajax: 1},
                 success: function (c) {
@@ -505,9 +507,11 @@ ogame.messages = {
                 }
             })
         }).on("click", ".js_actionKillAll", function (a) {
+            console.log(ogame.messages.getCurrentMessageTab());
+            return;
             $.ajax({
                 type: "POST",
-                url: "?page=messages",
+                url: "", // Self
                 dataType: "json",
                 data: {
                     tabid: ogame.messages.getCurrentMessageTab(),
