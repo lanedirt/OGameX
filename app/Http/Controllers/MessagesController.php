@@ -139,4 +139,26 @@ class MessagesController extends Controller
         // Otherwise we load the subtab template.
         return $this->subTabContent($messageService, $tab, $subtab);
     }
+
+    /**
+     * Handle POST requests for messages which are used for deleting messages and other things.
+     *
+     * @param Request $request
+     * @param MessageService $messageService
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function post(Request $request, MessageService $messageService)
+    {
+        $messageId = $request->get('messageId');
+
+        // If action is 103, we delete the message.
+        if ($request->get('action') == 103) {
+            $messageService->deleteMessage($messageId);
+        }
+
+        // Return JSON response with message ID as key and success as value.
+        return response()->json([
+            $messageId => true,
+        ]);
+    }
 }

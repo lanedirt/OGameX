@@ -76,7 +76,7 @@ trait ObjectAjaxTrait
         if (!empty($object['production'])) {
             $production_current = $this->planet->getBuildingProduction($object['id']);
             $production_next = $this->planet->getBuildingProduction($object['id'], $next_level);
-            if (isset($production_current['energy'])) {
+            if (!empty($production_current['energy'])) {
                 $energy_difference = ($production_next['energy'] - $production_current['energy']) * -1;
             }
         }

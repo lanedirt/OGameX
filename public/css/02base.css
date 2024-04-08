@@ -1,0 +1,1174 @@
+body, html {
+    height:100%;
+    margin:0;
+}
+
+body {
+    background:#000 url("/img/bg/background-large.jpg") no-repeat 50% 0;
+    color:#f1f1f1;
+    font-family: Verdana, Arial, SunSans-Regular, Sans-Serif;
+    font-size: 12px ;
+}
+body.no-commander {
+    background-position: 50% 35px;
+}
+body.bbcodepreview {
+    background: transparent;
+}
+
+/* *****************************************************************************
+   ALLGEMEINE STYLES
+***************************************************************************** */
+
+/* *************************** Links *******************************************/
+
+/*
+a:link,
+a:visited,
+.no-touch a:hover,
+ a:active { color:#848484;}
+*/
+a.txt_link,
+.no-touch a.txt_link:hover,
+a.btn:link,
+a.btn:visited,
+#messages.no-touch a.btn_blue:hover,
+.no-touch a.btn:hover,
+a.btn:active {
+    /*color:#fff;*/
+    text-decoration: none;
+}
+.no-touch a.txt_link:hover { text-decoration: underline; }
+
+.no-touch .tooltip:hover { cursor: pointer; }
+/*.no-touch .tooltip[onclick]:hover { cursor: pointer; }*/
+/*.no-touch .tooltip:not(onclick):hover { cursor: help; }*/
+
+/* ********************* ACTION BUTTONS ************************************* */
+a.deactivate-it, a.deactivate-it_disabled {
+    background: transparent url(/img/layout/detail-spriteset.png) 0 -316px no-repeat;
+    color: #fff;
+    display: table;
+    font-size: 16px;
+    font-weight: bold;
+    height: 54px;
+    text-decoration: none;
+    text-align: center;
+    float: right;
+}
+
+a.deactivate-it:hover,
+a.deactivate-it_disabled:hover {
+    background: transparent url(/img/layout/detail-spriteset.png) 0 -370px no-repeat;
+    color: #fff;
+    display: table;
+    font-size: 16px;
+    font-weight: bold;
+    height: 54px;
+    text-decoration: none;
+    text-align: center;
+    float: right;
+}
+a.deactivate-it, a.deactivate-it_disabled > span {
+    display: inline-block;
+    width: 143px;
+    height: 54px;
+    line-height: 54px;
+}
+/* ********************* Text  ********************************************** */
+
+.box_highlight .header,
+.contentbox .header,
+.header h2,
+#eventHeader h2,
+#buttonz h2,
+#sendfleet h2,
+#movement h3 a,
+#statistics h3,
+#highscoreContent h2 {
+    color:#6F9FC8;
+    font: 700 12px Verdana, Arial, Helvetica, sans-serif;
+    line-height: 28px;
+    text-align: center;
+}
+
+
+/* @TODO: find and unify occurrences of same content text style */
+#chat .content,
+#buddiescomponent .content {
+    color: #848484;
+    font-size: 11px;
+}
+
+.float_right, .fright { float: right; }
+.float_left, .fleft { float: left; }
+
+.margin_10_0 { margin: 10px 0; }
+
+/* ********************* Global  ********************************************** */
+#pageReloader {
+    position: absolute;
+    top: 30px;
+    height: 70px;
+    width: 190px;
+    cursor: pointer;
+}
+
+#pageContent {
+    /* Positioning */
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    /* Box-Model */
+    width: 990px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 24px;
+}
+
+.maincontent {
+    /* Positioning */
+    position: relative;
+    top: 0px;
+    left: 0;
+    /* Box-Model */
+    width: 670px;
+    padding: 0;
+    /* Typography */
+    /* Visual */
+    /* Misc */
+}
+
+#standalonepage #mainContent {
+    height: 100%;
+}
+
+#standalonepage .maincontent {
+    width: 100%;
+}
+
+.productionboxbuilding,
+.productionboxresearch,
+.productionboxshipyard,
+.productionboxlfbuilding,
+.productionboxlfresearch {
+    /* Positioning */
+    position: relative;
+    top: 0;
+    left: 0;
+    /* Box-Model */
+    width: 220px;
+    /* Typography */
+    /* Visual */
+    /* Misc */
+    display: inline-block;
+    vertical-align: top;
+}
+
+.header.small {
+    height: 250px;
+    margin: 0 auto 3px 8px;
+    z-index: 1;
+}
+
+.header.middle {
+    height: 300px;
+    margin: 0 auto 3px 8px;
+    z-index: 1;
+}
+
+/********************************************************
+************* =COMMON #buttonz BOX STYLES *******************
+********************************************************/
+#buttonz .item_box {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+div.buildingimg {
+    height:100%;
+    width:100%;
+    background-repeat:no-repeat;
+    position: relative;
+}
+
+#buttonz {
+    background: none;
+    min-height: 150px;
+    margin: 0 auto 1px auto;
+    width: 670px;
+}
+
+#eventHeader,
+#buttonz .header,
+#sendfleet .header,
+.header .c-left,
+.header .c-right {
+    background-image: url("/img/layout/eventList-header.gif");
+    background-repeat: no-repeat;
+}
+#eventHeader,
+#buttonz .header,
+#sendfleet .header {
+    height: 28px;
+    position: relative;
+}
+
+#buttonz div.move-box-wrapper {
+    position: relative;
+    z-index: 2;
+}
+#buttonz div.move-box {
+    background-color: #cccccc;
+    -webkit-mask: url("/img/icons/cursor-hand.svg") no-repeat center;
+    mask: url("/img/icons/cursor-hand.svg") no-repeat center;
+    height: 28px;
+    width: 28px;
+    position: absolute;
+    top: 2px;
+    right: 30px;
+    cursor: grabbing;
+}
+#buttonz div.move-box:hover {
+    background-color: #ff9600;
+}
+
+#buttonz .content {
+    background: url("/img/layout/wrap-body.gif") repeat-y;
+    margin: 0 0 10px 0;
+    min-height: 115px;
+    padding: 10px 0 0;
+    position: relative;
+}
+
+#buttonz .footer {
+    background: url("/img/layout/wrap-footer-50.png") no-repeat;
+    bottom: -6px;
+    height: 50px;
+    left: 0;
+    margin: 0 0 1px 0;
+    position: absolute;
+    width: 667px;
+    z-index: 0;
+}
+
+.detailsClosed .toggleDetails { background: url("/img/layout/fleetOpenDetails.gif") no-repeat; }
+.detailsOpened .toggleDetails { background: url("/img/layout/fleetCloseDetails.gif") no-repeat; }
+
+#eventContent .toggleDetails {
+    width: 18px;
+}
+
+#buttonz h2,
+#movement h3 a,
+#statistics h3,
+#highscoreContent h2 { text-align:center; }
+
+#buttonz ul#building {
+    width:640px;
+    height:100px;
+    margin:11px auto 0 17px;
+    position:relative;
+    z-index: 2;
+}
+#premium #buttonz ul#building { height: 130px; }
+
+#buttonz ul#building li {
+    width:100px;
+    height:100px;
+    background-repeat:no-repeat;
+    top:0px;
+    position:relative;
+    float: left;
+    margin-right: 6px;
+    list-style-type:none;
+}
+
+#buttonz ul#building li a.detail_button:link,
+#buttonz ul#building li a.detail_button:visited {
+    position: relative;
+    display:block;
+    height:100px;
+    width:100px;
+    background:url("/img/navigation/ecke_neu_100.gif") no-repeat;
+    color:#ff9600;
+    text-decoration:none;
+}
+
+.no-touch #buttonz ul#building li a.detail_button:hover,
+#buttonz ul#building li a.active {
+    background:url("/img/navigation/ecke_neu_100_mo.gif") no-repeat;
+    color:#ff9600;
+    text-decoration:none;
+}
+
+#rechts .planet-koords {top: 22px;}
+
+#rechts #norm .planet-koords {
+    font-size: 11px;
+    left:auto;
+    position: static;
+    top:auto;
+}
+
+#buttonz ul#storage li {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    top: 0px;
+    float: left;
+    margin-right: 18px;
+    margin-left: 10px;
+    background-repeat: no-repeat;
+    list-style-type: none;
+}
+
+/********************************************************
+ ********************************************************
+ ******************* SPRITE IMAGES **********************
+ ********************************************************
+ ********************************************************/
+.sprite_before::before,
+.sprite_after::after,
+.sprite {
+    background-image: url('/img/content/sprite.jpg');
+}
+
+/********************************************************
+ ************** *  SIZES AND MODES  * *******************
+ ********************************************************/
+.sprite_before.sprite_large::before,
+.sprite_after.sprite_large::after,
+.sprite.sprite_large {
+    width: 200px;
+    height: 200px;
+    /*background-size: 4000px 6000px;*/
+}
+
+.sprite_before.sprite_medium::before,
+.sprite_after.sprite_medium::after,
+.sprite.sprite_medium {
+    width: 100px;
+    height: 100px;
+    background-size: 2000px 3000px;
+}
+
+.sprite_before.sprite_small::before,
+.sprite_after.sprite_small::after,
+.sprite.sprite_small {
+    width: 80px;
+    height: 80px;
+    background-size: 1600px 2400px;
+}
+
+.sprite_before.sprite_tiny::before,
+.sprite_after.sprite_tiny::after,
+.sprite.sprite_tiny {
+    width: 28px;
+    height: 28px;
+    background-size: 550px 840px;
+}
+
+/* ~~~~~ BUILDINGS ~~~~~ */
+.sprite_before.metalMine::before,
+.sprite_after.metalMine::after,
+.sprite.metalMine {
+    background-position: 0 0;
+}
+
+.sprite_before.crystalMine::before,
+.sprite_after.crystalMine::after,
+.sprite.crystalMine {
+    background-position: 5.25% 0;
+}
+
+.sprite_before.deuteriumSynthesizer::before,
+.sprite_after.deuteriumSynthesizer::after,
+.sprite.deuteriumSynthesizer {
+    background-position: 10.52% 0;
+}
+
+.sprite_before.solarPlant::before,
+.sprite_after.solarPlant::after,
+.sprite.solarPlant {
+    background-position: 15.78% 0;
+}
+
+.sprite_before.fusionPlant::before,
+.sprite_after.fusionPlant::after,
+.sprite.fusionPlant {
+    background-position: 21.05% 0;
+}
+
+.sprite_before.roboticsFactory::before,
+.sprite_after.roboticsFactory::after,
+.sprite.roboticsFactory {
+    background-position: 0 17.24%;
+}
+
+.sprite_before.naniteFactory::before,
+.sprite_after.naniteFactory::after,
+.sprite.naniteFactory {
+    background-position: 26.31% 17.24%;
+}
+
+.sprite_before.shipyard::before,
+.sprite_after.shipyard::after,
+.sprite.shipyard {
+    background-position: 5.25% 17.24%;
+}
+
+.sprite_before.metalStorage::before,
+.sprite_after.metalStorage::after,
+.sprite.metalStorage {
+    background-position: 31.57% 0;
+}
+
+.sprite_before.crystalStorage::before,
+.sprite_after.crystalStorage::after,
+.sprite.crystalStorage {
+    background-position: 36.84% 0;
+}
+
+.sprite_before.deuteriumStorage::before,
+.sprite_after.deuteriumStorage::after,
+.sprite.deuteriumStorage {
+    background-position: 42.1% 0;
+}
+
+.sprite_before.researchLaboratory::before,
+.sprite_after.researchLaboratory::after,
+.sprite.researchLaboratory {
+    background-position: 10.52% 17.24%;
+}
+
+.sprite_before.terraformer::before,
+.sprite_after.terraformer::after,
+.sprite.terraformer {
+    background-position: 31.57% 17.24%;
+}
+
+.sprite_before.allianceDepot::before,
+.sprite_after.allianceDepot::after,
+.sprite.allianceDepot {
+    background-position: 15.78% 17.24%;
+}
+
+.sprite_before.moonbase::before,
+.sprite_after.moonbase::after,
+.sprite.moonbase {
+    background-position: 36.84% 17.24%;
+}
+
+.sprite_before.sensorPhalanx::before,
+.sprite_after.sensorPhalanx::after,
+.sprite.sensorPhalanx {
+    background-position: 42.1% 17.24%;
+}
+
+.sprite_before.jumpGate::before,
+.sprite_after.jumpGate::after,
+.sprite.jumpGate {
+    background-position: 47.36% 17.24%;
+}
+
+.sprite_before.missileSilo::before,
+.sprite_after.missileSilo::after,
+.sprite.missileSilo {
+    background-position: 21.05% 17.24%;
+}
+
+.sprite_before.repairDock::before,
+.sprite_after.repairDock::after,
+.sprite.repairDock {
+    background-position: 52.62% 17.24%;
+}
+
+
+/* ~~~~~ RESEARCHES ~~~~~ */
+/* ~~ BASICS ~~ */
+.sprite_before.energyTechnology::before,
+.sprite_after.energyTechnology::after,
+.sprite.energyTechnology {
+    background-position: 0 68.96%;
+}
+
+.sprite_before.laserTechnology::before,
+.sprite_after.laserTechnology::after,
+.sprite.laserTechnology {
+    background-position: 5.25% 68.96%;
+}
+
+.sprite_before.ionTechnology::before,
+.sprite_after.ionTechnology::after,
+.sprite.ionTechnology {
+    background-position: 10.52% 68.96%;
+}
+
+.sprite_before.hyperspaceTechnology::before,
+.sprite_after.hyperspaceTechnology::after,
+.sprite.hyperspaceTechnology {
+    background-position: 15.78% 68.96%;
+}
+
+.sprite_before.plasmaTechnology::before,
+.sprite_after.plasmaTechnology::after,
+.sprite.plasmaTechnology {
+    background-position: 21.05% 68.96%;
+}
+
+
+/* ~~ DRIVES ~~ */
+.sprite_before.combustionDriveTechnology::before,
+.sprite_after.combustionDriveTechnology::after,
+.sprite.combustionDriveTechnology {
+    background-position: 26.31% 68.96%;
+}
+
+.sprite_before.impulseDriveTechnology::before,
+.sprite_after.impulseDriveTechnology::after,
+.sprite.impulseDriveTechnology {
+    background-position: 31.57% 68.96%;
+}
+
+.sprite_before.hyperspaceDriveTechnology::before,
+.sprite_after.hyperspaceDriveTechnology::after,
+.sprite.hyperspaceDriveTechnology {
+    background-position: 36.84% 68.96%;
+}
+
+
+/* ~~ ADVANCED~~ */
+.sprite_before.espionageTechnology::before,
+.sprite_after.espionageTechnology::after,
+.sprite.espionageTechnology {
+    background-position: 42.1% 68.96%;
+}
+
+.sprite_before.computerTechnology::before,
+.sprite_after.computerTechnology::after,
+.sprite.computerTechnology {
+    background-position: 47.36% 68.96%;
+}
+
+.sprite_before.astrophysicsTechnology::before,
+.sprite_after.astrophysicsTechnology::after,
+.sprite.astrophysicsTechnology {
+    background-position: 52.62% 68.96%;
+}
+
+.sprite_before.researchNetworkTechnology::before,
+.sprite_after.researchNetworkTechnology::after,
+.sprite.researchNetworkTechnology {
+    background-position: 57.88% 68.96%;
+}
+
+.sprite_before.gravitonTechnology::before,
+.sprite_after.gravitonTechnology::after,
+.sprite.gravitonTechnology {
+    background-position: 63.15% 68.96%;
+}
+
+/* ~~ COMBAT ~~ */
+.sprite_before.weaponsTechnology::before,
+.sprite_after.weaponsTechnology::after,
+.sprite.weaponsTechnology {
+    background-position: 73.68% 68.96%;
+}
+
+.sprite_before.shieldingTechnology::before,
+.sprite_after.shieldingTechnology::after,
+.sprite.shieldingTechnology {
+    background-position: 78.94% 68.96%;
+}
+
+.sprite_before.armorTechnology::before,
+.sprite_after.armorTechnology::after,
+.sprite.armorTechnology {
+    background-position: 68.42% 68.96%;
+}
+
+/* ~~~~~ SHIPS ~~~~~ */
+/* ~~ CIVIL ~~ */
+.sprite_before.transporterSmall::before,
+.sprite_after.transporterSmall::after,
+.sprite.transporterSmall {
+    background-position: 42.1% 51.72%;
+}
+
+.sprite_before.transporterLarge::before,
+.sprite_after.transporterLarge::after,
+.sprite.transporterLarge {
+    background-position: 47.36% 51.72%;
+}
+
+.sprite_before.colonyShip::before,
+.sprite_after.colonyShip::after,
+.sprite.colonyShip {
+    background-position: 52.62% 51.72%;
+}
+
+.sprite_before.recycler::before,
+.sprite_after.recycler::after,
+.sprite.recycler {
+    background-position: 57.89% 51.72%;
+}
+
+.sprite_before.espionageProbe::before,
+.sprite_after.espionageProbe::after,
+.sprite.espionageProbe {
+    background-position: 63.15% 51.72%;
+}
+
+.sprite_before.solarSatellite::before,
+.sprite_after.solarSatellite::after,
+.sprite.solarSatellite {
+    background-position: 26.31% 0;
+}
+
+.sprite_before.resbuggy::before,
+.sprite_after.resbuggy::after,
+.sprite.resbuggy {
+    background-position: 84.20% 51.72%;
+}
+
+.sprite_before.explorer::before,
+.sprite_after.explorer::after,
+.sprite.explorer {
+    background-position: 78.94% 51.72%;
+}
+
+.sprite_before.reaper::before,
+.sprite_after.reaper::after,
+.sprite.reaper {
+    background-position: 73.68% 51.72%;
+}
+
+/* ~~ MILITARY ~~ */
+.sprite_before.fighterLight::before,
+.sprite_after.fighterLight::after,
+.sprite.fighterLight {
+    background-position: 0 51.72%;
+}
+
+.sprite_before.fighterHeavy::before,
+.sprite_after.fighterHeavy::after,
+.sprite.fighterHeavy {
+    background-position: 5.25% 51.72%;
+}
+
+.sprite_before.cruiser::before,
+.sprite_after.cruiser::after,
+.sprite.cruiser {
+    background-position: 10.53% 51.72%;
+}
+
+.sprite_before.battleship::before,
+.sprite_after.battleship::after,
+.sprite.battleship {
+    background-position: 15.78% 51.72%;
+}
+
+.sprite_before.interceptor::before,
+.sprite_after.interceptor::after,
+.sprite.interceptor {
+    background-position: 21.05% 51.72%;
+}
+
+.sprite_before.bomber::before,
+.sprite_after.bomber::after,
+.sprite.bomber {
+    background-position: 26.31% 51.72%;
+}
+
+.sprite_before.destroyer::before,
+.sprite_after.destroyer::after,
+.sprite.destroyer {
+    background-position: 31.57% 51.72%;
+}
+
+.sprite_before.deathstar::before,
+.sprite_after.deathstar::after,
+.sprite.deathstar {
+    background-position: 36.84% 51.72%;
+}
+
+/* ~~~~~ DEFENSES ~~~~~ */
+.sprite_before.rocketLauncher::before,
+.sprite_after.rocketLauncher::after,
+.sprite.rocketLauncher {
+    background-position: 0 34.48%;
+}
+
+.sprite_before.laserCannonLight::before,
+.sprite_after.laserCannonLight::after,
+.sprite.laserCannonLight {
+    background-position: 5.25% 34.48%;
+}
+
+.sprite_before.laserCannonHeavy::before,
+.sprite_after.laserCannonHeavy::after,
+.sprite.laserCannonHeavy {
+    background-position: 10.52% 34.48%;
+}
+
+.sprite_before.gaussCannon::before,
+.sprite_after.gaussCannon::after,
+.sprite.gaussCannon {
+    background-position: 15.78% 34.48%;
+}
+
+.sprite_before.ionCannon::before,
+.sprite_after.ionCannon::after,
+.sprite.ionCannon {
+    background-position: 21.05% 34.48%;
+}
+
+.sprite_before.plasmaCannon::before,
+.sprite_after.plasmaCannon::after,
+.sprite.plasmaCannon {
+    background-position: 26.31% 34.48%;
+}
+
+.sprite_before.shieldDomeSmall::before,
+.sprite_after.shieldDomeSmall::after,
+.sprite.shieldDomeSmall {
+    background-position: 31.57% 34.48%;
+}
+
+.sprite_before.shieldDomeLarge::before,
+.sprite_after.shieldDomeLarge::after,
+.sprite.shieldDomeLarge {
+    background-position: 36.84% 34.48%;
+}
+
+/* ~~~~~ MISSILES ~~~~~ */
+.sprite_before.missileInterceptor::before,
+.sprite_after.missileInterceptor::after,
+.sprite.missileInterceptor {
+    background-position: 42.1% 34.48%;
+}
+
+.sprite_before.missileInterplanetary::before,
+.sprite_after.missileInterplanetary::after,
+.sprite.missileInterplanetary {
+    background-position: 47.36% 34.48%;
+}
+/********************************************************
+ ********************************************************
+ **************** END SPRITE IMAGES *********************
+ ********************************************************
+ ********************************************************/
+
+span.time {
+    display:block;
+    font-weight:700;
+    color:#cccccc;
+    font-size:11px;
+    background-color:#111000;
+    position:absolute;
+    padding:3px 0px;
+    -moz-opacity:0.8;
+    filter:alpha(opacity=80);
+    text-align: center;
+    z-index: 2;
+}
+
+.sprite.medium span.time {
+    top: 43px;
+    left: 2px;
+    width: 96px;
+}
+
+.sprite.small span.time {
+    top: 30px;
+    left: 2px;
+    width: 77px;
+}
+
+/* **** Common Message Styles (used in newsfeed, buddies and chat pages) ***** */
+.msg {
+    background: #111A21;
+    -webkit-box-shadow: inset 0 1px 1px rgba(33, 49, 64, 0.75);
+    box-shadow: inset 0 1px 1px rgba(33, 49, 64, 0.75);
+    list-style: none;
+    margin: 0 0 7px 0;
+    position: relative;
+}
+.msg_new {
+    background: #22313b;
+    color: #dddddd;
+    -webkit-box-shadow: inset 0 1px 1px rgba(74, 129, 120, 0.75);
+    box-shadow: inset 0 1px 1px rgba(74, 129, 120, 0.75);
+
+}
+.msg_status {
+    background-color: #16222c;
+    /*background-position: -16px -634px;*/
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 7px;
+}
+
+.msg_status:before {
+    background-image: url("/img/layout/sprite_ui_elements.png");
+    background-position: -16px -634px;
+    display: block;
+    content: "";
+    height: 100%;
+    max-height: 103px;
+    width: 7px;
+}
+
+.msg_new .msg_status {
+    background-color: #23d2b7;
+    /*background-position: -24px -634px;*/
+}
+
+.msg_new .msg_status:before {
+    background-position: -24px -634px;
+}
+
+.msg_head {
+    padding: 5px 5px 0 12px;
+    margin-bottom: 0;
+}
+.msg_head .icon_nf_link {
+    height: 16px;
+    margin: 0 0 0 4px;
+    width: 16px;
+}
+
+.msg_title {
+    display: inline-block;
+    width: 400px;
+    /* @TODO-merge old twig    width: 330px;*/
+}
+.msg_new .msg_title { font-weight: bold; }
+
+.msg_sender {}
+.msg_date {
+    display: inline-block;
+    font-size: 9px;
+    margin: 2px 5px 0 0;
+}
+
+.msg_content {
+    display: inline-block;
+    padding: 0 5px 5px 12px;
+    word-wrap: break-word;
+    width: 100%;
+    box-sizing: border-box;
+}
+.msg_actions
+{
+    padding: 5px 5px 5px 12px;
+    clear: both;
+}
+.msg_actions .comments { margin: 0 0 -2px 0; }
+.comments_link { margin: 0 10px 0 0;}
+
+/* message icons */
+.icon_nf {
+    background-image: url("/img/icons/sprite_icons26px.png");
+    background-repeat: no-repeat;
+    display: inline-block;
+    height: 26px;
+    width: 26px;
+}
+.icon_nf.icon_accept { background-position: 0 -104px; }
+.icon_nf.icon_attack { background-position: 0 -470px; }
+.icon_nf.icon_copy_paste { background-position: 0 -364px; }
+.icon_nf.icon_espionage { background-position: 0 -156px; }
+.icon_nf.icon_favorited { background-position: 0 -260px; }
+.icon_nf.icon_not_favorited { background-position: 0 -312px; }
+.icon_nf.icon_refuse { background-position: 0 -52px; }
+.icon_nf.icon_share { background-position: 0 -208px; }
+.icon_nf.icon_apikey { background-position: 0 -522px; }
+.icon_nf.icon_harvest { background-position: 0 -575px; }
+.icon_nf.icon_report { background-position: 0 -628px; }
+
+.icon_nf.icon_fav_info { background-position: 0 -416px; }
+/* @TODO: this can be renamed to icon_warning when the other has been renamed to icon_report */
+.icon_nf.icon_attension { background-position: 0 -442px; }
+
+.msg_action_link { padding: 16px 0 0 0; }
+
+.outOfChatbar { display: none; }
+
+.newMsgMarker {
+    float: right;
+}
+
+span .resspan {
+    margin-right: 20px;
+}
+
+ul#chatMsgList .newMsgMarker {
+    margin-right: 20px;
+}
+
+ul.chat_bar_list .newMsgMarker {
+    margin-right: 20px;
+}
+
+.playerlist_item .newMsgMarker {
+    margin-top: -22px;
+    margin-right: 14px;
+}
+
+.ally_send_button {
+    float: right;
+    margin-top: -33px;
+}
+
+#content .searchresults {
+    width: 100%;
+}
+
+#content .searchresults th {
+    text-align: left;
+}
+#content .searchresults th.highscore,
+#content .searchresults td.highscore {
+    text-align: right;
+    padding-right: 16px;
+}
+#content .searchresults th.action {
+    text-align: center;
+}
+#content .searchresults td.action {
+    width: 20px;
+}
+
+/********************************************************
+ ********************************************************
+ ******************* RESOURCE SETTINGS*******************
+ ********************************************************
+ ********************************************************/
+/* move this into a seperate page */
+#resourceSettings #inhalt .sprite.characterclass { display:inline-block; width:26px; height:26px; float:left; }
+#resourceSettings #inhalt .sprite.allianceclass { display:inline-block; width:26px; height:26px; float:left; }
+
+
+
+/* *************************** Tutorial icon *******************************************/
+#tutorialiconcomponent {
+    position: relative;
+}
+
+#tutorialiconcomponent #helper {
+    position: absolute;
+    left:137px;
+    top:-40px;
+}
+
+#tutorialiconcomponent #helper a {
+    position: absolute;
+    left:0;
+    top:0;
+}
+
+.alliance_class.small {
+    margin-left: 22px;
+    position: relative;
+}
+.alliance_class.small:before {
+    content: '';
+    position: absolute;
+    left: -23px;
+    top: -3px;
+    width: 20px;
+    height: 20px;
+}
+.alliance_class.small.none:before {
+    background: url("/img/icons/alliance/class_none.png") no-repeat;
+}
+.alliance_class.small.explorer:before {
+    background: url("/img/icons/alliance/class_explorer.png") no-repeat;
+}
+.alliance_class.small.trader:before {
+    background: url("/img/icons/alliance/class_trader.png") no-repeat;
+}
+.alliance_class.small.warrior:before {
+    background: url("/img/icons/alliance/class_warrior.png") no-repeat;
+}
+
+#alliance .alliance_class.small:before {
+    top: 1px;
+}
+
+.detail_txt .lifeformbox,
+.msg_content .lifeformbox {
+    padding-left: 13px;
+
+}
+.detail_txt .lifeform-item-icon,
+.msg_content .lifeform-item-icon {
+    width: 77px;
+    min-width: 77px;
+    height: 76px;
+    margin-top: 1px;
+    background: url("/img/lifeform/lifeformtype_sprite.png") no-repeat 0 0;
+    float: left;
+    margin-right: 3px;
+}
+.detail_txt .lifeform-item-icon.lifeform1,
+.detail_txt .lifeform-item-icon.lifeform2,
+.detail_txt .lifeform-item-icon.lifeform3,
+.detail_txt .lifeform-item-icon.lifeform4,
+.msg_content .lifeform-item-icon.lifeform1,
+.msg_content .lifeform-item-icon.lifeform2,
+.msg_content .lifeform-item-icon.lifeform3,
+.msg_content .lifeform-item-icon.lifeform4 {
+    background-position-y: -200px;
+}
+.detail_txt .lifeform-item-icon.lifeform1,
+.msg_content .lifeform-item-icon.lifeform1 {
+    background-position-x: 0;
+}
+.detail_txt .lifeform-item-icon.lifeform2,
+.msg_content .lifeform-item-icon.lifeform2 {
+    background-position-x: -78px;
+}
+.detail_txt .lifeform-item-icon.lifeform3,
+.msg_content .lifeform-item-icon.lifeform3 {
+    background-position-x: -156px;
+}
+.detail_txt .lifeform-item-icon.lifeform4,
+.msg_content .lifeform-item-icon.lifeform4 {
+    background-position-x: -234px;
+}
+
+/* Production box */
+#productionboxBottom {
+    width: 670px;
+    min-height: 140px;
+    display: flex;
+    gap: 3px;
+}
+
+#productionboxBottom .boxColumn {
+    display: flex;
+    flex-direction: column;
+}
+#productionboxBottom .boxColumn.ship {
+    flex: 1;
+}
+
+/* twig loadingspinner */
+.loadingspinner-twig {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+.loadingspinner-twig div {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    animation: loadingspinner-twig 1.2s linear infinite;
+}
+.loadingspinner-twig div:nth-child(1) {
+    animation-delay: 0s;
+    top: 37px;
+    left: 66px;
+}
+.loadingspinner-twig div:nth-child(2) {
+    animation-delay: -0.1s;
+    top: 22px;
+    left: 62px;
+}
+.loadingspinner-twig div:nth-child(3) {
+    animation-delay: -0.2s;
+    top: 11px;
+    left: 52px;
+}
+.loadingspinner-twig div:nth-child(4) {
+    animation-delay: -0.3s;
+    top: 7px;
+    left: 37px;
+}
+.loadingspinner-twig div:nth-child(5) {
+    animation-delay: -0.4s;
+    top: 11px;
+    left: 22px;
+}
+.loadingspinner-twig div:nth-child(6) {
+    animation-delay: -0.5s;
+    top: 22px;
+    left: 11px;
+}
+.loadingspinner-twig div:nth-child(7) {
+    animation-delay: -0.6s;
+    top: 37px;
+    left: 7px;
+}
+.loadingspinner-twig div:nth-child(8) {
+    animation-delay: -0.7s;
+    top: 52px;
+    left: 11px;
+}
+.loadingspinner-twig div:nth-child(9) {
+    animation-delay: -0.8s;
+    top: 62px;
+    left: 22px;
+}
+.loadingspinner-twig div:nth-child(10) {
+    animation-delay: -0.9s;
+    top: 66px;
+    left: 37px;
+}
+.loadingspinner-twig div:nth-child(11) {
+    animation-delay: -1s;
+    top: 62px;
+    left: 52px;
+}
+.loadingspinner-twig div:nth-child(12) {
+    animation-delay: -1.1s;
+    top: 52px;
+    left: 62px;
+}
+@keyframes loadingspinner-twig {
+    0%, 20%, 80%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.5);
+    }
+}
+
+.og-loading {
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    box-sizing: border-box;
+    z-index:10;
+    display:none;
+}
+.og-loading > .og-loading-overlay {
+    position:relative;
+    width:100%;
+    height:100%;
+    background-color:rgba(0,0,0,0.7);
+    box-shadow: 0 0 20px #000;
+}
+.og-loading > .og-loading-overlay > .og-loading-indicator {
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:128px;
+    height:128px;
+    margin-left:-64px;
+    margin-top:-64px;
+    background:url(/img/galaxy/ajax_indicator.gif);
+}
