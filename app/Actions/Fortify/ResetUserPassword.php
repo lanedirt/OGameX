@@ -5,7 +5,7 @@ namespace OGame\Actions\Fortify;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
-use OGame\User;
+use OGame\Models\User;
 
 class ResetUserPassword implements ResetsUserPasswords
 {

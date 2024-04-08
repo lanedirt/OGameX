@@ -66,7 +66,7 @@ return new class extends Migration
             // Foreign key alliance ID (e.g. if message is from alliance notification context).
             // TODO: add when alliances are implemented.
             $table->text('body');
-            $table->boolean('viewed');
+            $table->boolean('viewed')->default(false);
             // TODO: message can be shared with alliance members with certain rank. Have to add status columns for this.
             $table->timestamps();
 

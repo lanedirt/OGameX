@@ -3,8 +3,8 @@
 namespace OGame\Services;
 
 use Illuminate\Support\Carbon;
+use OGame\Models\UnitQueue;
 use OGame\Services\Objects\ObjectService;
-use OGame\UnitQueue;
 
 /**
  * Class UnitQueueService.
@@ -43,7 +43,7 @@ class UnitQueueService
     {
         $this->objects = $objects;
 
-        $model_name = 'OGame\UnitQueue';
+        $model_name = 'OGame\Models\UnitQueue';
         $this->model = new $model_name();
     }
 

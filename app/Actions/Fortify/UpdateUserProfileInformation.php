@@ -6,7 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
-use OGame\User;
+use OGame\Models\User;
 
 class UpdateUserProfileInformation implements UpdatesUserProfileInformation
 {

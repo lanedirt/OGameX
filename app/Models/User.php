@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame;
+namespace OGame\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -26,7 +26,7 @@ use Illuminate\Notifications\Notifiable;
  * @property int|null $planet_current
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \OGame\UserTech|null $tech
+ * @property-read \OGame\Models\UserTech|null $tech
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
@@ -82,6 +82,6 @@ class User extends Authenticatable
      */
     public function tech()
     {
-        return $this->hasOne('OGame\UserTech');
+        return $this->hasOne('OGame\Models\UserTech');
     }
 }

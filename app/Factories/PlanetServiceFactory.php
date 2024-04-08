@@ -4,7 +4,7 @@ namespace OGame\Factories;
 
 use http\Exception\RuntimeException;
 use Illuminate\Support\Carbon;
-use OGame\Planet;
+use OGame\Models\Planet;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;

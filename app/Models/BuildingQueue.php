@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame;
+namespace OGame\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

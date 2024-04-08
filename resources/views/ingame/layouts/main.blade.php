@@ -88,10 +88,18 @@
             }
         }, 1);
     </script>
-    <script src="{{ asset('/js/logic571d.js') }}"></script>
+    <script src="{{ asset('/js/jquery.js') }}"></script>
+    <script src="{{ asset('/js/chat.js') }}"></script>
+    <script src="{{ asset('/js/inventory.js') }}"></script>
+    <script src="{{ asset('/js/jquery-spinners.js') }}"></script>
+    <script src="{{ asset('/js/jquery-tipped.js') }}"></script>
+    <script src="{{ asset('/js/messages.js') }}"></script>
+    <script src="{{ asset('/js/tooltips.js') }}"></script>
+    <script src="{{ asset('/js/trader.js') }}"></script>
     <script src="{{ asset('/js/percentagebar.js') }}"></script>
     <script src="{{ asset('/js/fleetdispatcher.js') }}"></script>
-    </head>
+    <script src="{{ asset('/js/logic571d.js') }}"></script>
+</head>
 <body @isset($body_id)
       id="{!! $body_id !!}"
     @endisset
@@ -340,9 +348,12 @@ Improved fleet escape rate">
                     <!-- Neue Nachrichten-Zähler -->
                     <a class=" comm_menu messages tooltip js_hideTipOnMobile"
                        href="{{ route('messages.index') }}"
-                       title="1 unread message(s)">
-                <span class="new_msg_count totalMessages  news" data-new-messages="1">
-                    1                </span>
+                       title="{{ $unreadMessagesCount }} unread message(s)">
+                        @if ($unreadMessagesCount > 0)
+                            <span class="new_msg_count totalMessages  news" data-new-messages="{{ $unreadMessagesCount }}">
+                                {{ $unreadMessagesCount }}
+                            </span>
+                        @endif
                     </a>
                     <!-- Neue Chatnachrichten-Zähler -->
                     <a class=" comm_menu chat tooltip js_hideTipOnMobile"

@@ -6,9 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Http\Traits\IngameTrait;
-use OGame\Planet;
+use OGame\Models\Planet;
 use OGame\Services\PlayerService;
-
 
 class GalaxyController extends Controller
 {

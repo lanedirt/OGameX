@@ -63,6 +63,10 @@ Route::middleware(['auth', 'globalgame'])->group(function () {
         Route::get('/galaxy', 'GalaxyController@index')->name('galaxy.index');
         Route::post('/ajax/galaxy', 'GalaxyController@ajax')->name('galaxy.ajax');
 
+        // Messages
+        Route::get('/messages', 'MessagesController@index')->name('messages.index');
+        Route::get('/ajax/messages', 'MessagesController@ajax')->name('messages.ajax');
+
         // Misc
         Route::get('/merchant', 'MerchantController@index')->name('merchant.index');
 
@@ -78,7 +82,6 @@ Route::middleware(['auth', 'globalgame'])->group(function () {
         Route::post('/ajax/highscore', 'HighscoreController@ajax')->name('highscore.ajax');
 
         Route::get('/buddies', 'BuddiesController@index')->name('buddies.index');
-        Route::get('/messages', 'MessagesController@index')->name('messages.index');
         Route::get('/rewards', 'RewardsController@index')->name('rewards.index');
         Route::get('/planet-move', 'PlanetMoveController@index')->name('planetMove.index');
 

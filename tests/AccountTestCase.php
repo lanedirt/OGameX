@@ -13,6 +13,7 @@ abstract class AccountTestCase extends TestCase
      * @var int
      */
     protected int $currentUserId = 0;
+    protected string $currentUsername = '';
     /**
      * @var int
      */
@@ -87,16 +88,20 @@ abstract class AccountTestCase extends TestCase
         $content = $response->getContent();
 
         preg_match('/<meta name="ogame-player-id" content="([^"]+)"/', $content, $playerIdMatches);
+        preg_match('/<meta name="ogame-player-name" content="([^"]+)"/', $content, $playerNameMatches);
         preg_match('/<meta name="ogame-planet-id" content="([^"]+)"/', $content, $planetIdMatches);
 
         $playerId = $playerIdMatches[1] ?? null;
+        $playerName = $playerNameMatches[1] ?? null;
         $planetId = $planetIdMatches[1] ?? null;
 
         // Now you can assert these values to ensure they are what you expect.
         $this->assertNotEmpty($playerId);
+        $this->assertNotEmpty($playerName);
         $this->assertNotEmpty($planetId);
 
         $this->currentUserId = $playerId;
+        $this->currentUsername = $playerName;
         $this->currentPlanetId = $planetId;
     }
 

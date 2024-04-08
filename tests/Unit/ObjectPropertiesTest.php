@@ -2,17 +2,16 @@
 
 namespace Tests\Unit;
 
-use OGame\Planet;
+use OGame\Models\Planet;
+use OGame\Models\UserTech;
 use OGame\Services\Objects\Properties\AttackPropertyService;
 use OGame\Services\Objects\Properties\CapacityPropertyService;
 use OGame\Services\Objects\Properties\FuelPropertyService;
-use OGame\Services\Objects\Properties\Models\ObjectPropertyDetails;
 use OGame\Services\Objects\Properties\ShieldPropertyService;
 use OGame\Services\Objects\Properties\SpeedPropertyService;
 use OGame\Services\Objects\Properties\StructuralIntegrityPropertyService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
-use OGame\UserTech;
 use PHPUnit\Framework\TestCase;
 
 class ObjectPropertiesTest extends TestCase

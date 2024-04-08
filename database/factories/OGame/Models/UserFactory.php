@@ -1,11 +1,11 @@
 <?php
 
-namespace Database\Factories\OGame;
+namespace Database\Factories\OGame\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use OGame\User;
+use OGame\Models\User;
 
 /**
  * @extends Factory<User>

@@ -1,9 +1,9 @@
 <?php
 
-namespace Database\Factories\OGame;
+namespace Database\Factories\OGame\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use OGame\UserTech;
+use OGame\Models\UserTech;
 
 /**
  * @extends Factory<UserTech>

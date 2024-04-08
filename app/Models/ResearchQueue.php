@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame;
+namespace OGame\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $canceled
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \OGame\Planet $planet
+ * @property-read \OGame\Models\Planet $planet
  * @method static \Illuminate\Database\Eloquent\Builder|ResearchQueue newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ResearchQueue newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ResearchQueue query()
@@ -51,6 +51,6 @@ class ResearchQueue extends Model
      */
     public function planet(): BelongsTo
     {
-        return $this->belongsTo('OGame\Planet');
+        return $this->belongsTo('OGame\Models\Planet');
     }
 }

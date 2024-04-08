@@ -1928,7 +1928,7 @@ namespace Illuminate\Support\Facades {
                     /**
          * Get the currently authenticated user.
          *
-         * @return \OGame\User|null 
+         * @return \OGame\Models\User|null
          * @static 
          */        public static function user()
         {
@@ -1960,7 +1960,7 @@ namespace Illuminate\Support\Facades {
          * Log the given user ID into the application without sessions or cookies.
          *
          * @param mixed $id
-         * @return \OGame\User|false 
+         * @return \OGame\Models\User|false
          * @static 
          */        public static function onceUsingId($id)
         {
@@ -2034,7 +2034,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param mixed $id
          * @param bool $remember
-         * @return \OGame\User|false 
+         * @return \OGame\Models\User|false
          * @static 
          */        public static function loginUsingId($id, $remember = false)
         {
@@ -2081,7 +2081,7 @@ namespace Illuminate\Support\Facades {
          * The application must be using the AuthenticateSession middleware.
          *
          * @param string $password
-         * @return \OGame\User|null 
+         * @return \OGame\Models\User|null
          * @throws \Illuminate\Auth\AuthenticationException
          * @static 
          */        public static function logoutOtherDevices($password)
@@ -2103,7 +2103,7 @@ namespace Illuminate\Support\Facades {
                     /**
          * Get the last user we attempted to authenticate.
          *
-         * @return \OGame\User 
+         * @return \OGame\Models\User
          * @static 
          */        public static function getLastAttempted()
         {
@@ -2207,7 +2207,7 @@ namespace Illuminate\Support\Facades {
                     /**
          * Return the currently cached user.
          *
-         * @return \OGame\User|null 
+         * @return \OGame\Models\User|null
          * @static 
          */        public static function getUser()
         {
@@ -2259,7 +2259,7 @@ namespace Illuminate\Support\Facades {
                     /**
          * Determine if the current user is authenticated. If not, throw an exception.
          *
-         * @return \OGame\User 
+         * @return \OGame\Models\User
          * @throws \Illuminate\Auth\AuthenticationException
          * @static 
          */        public static function authenticate()

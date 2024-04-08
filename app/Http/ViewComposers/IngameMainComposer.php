@@ -4,6 +4,8 @@ namespace OGame\Http\ViewComposers;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use OGame\Models\Message;
+use OGame\Services\MessageService;
 use OGame\Services\PlayerService;
 
 /**
@@ -15,9 +17,9 @@ use OGame\Services\PlayerService;
  */
 class IngameMainComposer
 {
-
-    public $request;
-    public $player;
+    protected Request $request;
+    protected PlayerService $player;
+    protected MessageService $messageService;
 
     /**
      * IngameMainComposer constructor.
@@ -28,10 +30,11 @@ class IngameMainComposer
      * @param Request $request
      * @param PlayerService $player
      */
-    public function __construct(Request $request, PlayerService $player)
+    public function __construct(Request $request, PlayerService $player, MessageService $messageService)
     {
         $this->request = $request;
         $this->player = $player;
+        $this->messageService = $messageService;
     }
 
     /**
@@ -84,6 +87,7 @@ class IngameMainComposer
         ];
 
         $view->with([
+            'unreadMessagesCount' => $this->messageService->getUnreadMessagesCount(),
             'resources' => $resources,
             'currentPlayer' => $this->player,
             'currentPlanet' => $this->player->planets->current(),

@@ -2,7 +2,7 @@
 
 namespace OGame\Services;
 
-use OGame\Setting;
+use OGame\Models\Setting;
 
 /**
  * Class SettingsService.

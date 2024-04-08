@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Support\Carbon;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
-use OGame\Planet;
+use OGame\Models\Planet;
 use OGame\Services\Objects\ObjectService;
 use OGame\Services\Objects\Properties\AttackPropertyService;
 use OGame\Services\Objects\Properties\CapacityPropertyService;

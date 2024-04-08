@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame;
+namespace OGame\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int $armor_technology
- * @property-read \OGame\User $user
+ * @property-read \OGame\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|UserTech newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|UserTech newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|UserTech query()
@@ -71,6 +71,6 @@ class UserTech extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo('OGame\User');
+        return $this->belongsTo('OGame\Models\User');
     }
 }

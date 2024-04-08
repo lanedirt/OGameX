@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame;
+namespace OGame\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -166,6 +166,6 @@ class Planet extends Model
      */
     public function planet()
     {
-        return $this->belongsTo('OGame\Planet');
+        return $this->belongsTo('OGame\Models\Planet');
     }
 }

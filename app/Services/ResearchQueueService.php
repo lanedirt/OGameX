@@ -4,7 +4,7 @@ namespace OGame\Services;
 
 use Exception;
 use Illuminate\Support\Carbon;
-use OGame\ResearchQueue;
+use OGame\Models\ResearchQueue;
 use OGame\Services\Objects\ObjectService;
 
 /**
@@ -44,7 +44,7 @@ class ResearchQueueService
     {
         $this->objects = $objects;
 
-        $model_name = 'OGame\ResearchQueue';
+        $model_name = 'OGame\Models\ResearchQueue';
         $this->model = new $model_name();
     }
 
