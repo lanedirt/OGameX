@@ -2,10 +2,10 @@
 
 namespace Tests\Unit;
 
-use OGame\Planet;
+use OGame\Models\Planet;
+use OGame\Models\UserTech;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
-use OGame\UserTech;
 use PHPUnit\Framework\TestCase;
 
 class HighscoreCalculationTest extends TestCase

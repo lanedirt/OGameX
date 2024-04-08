@@ -5,9 +5,9 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use OGame\Models\User;
+use OGame\Models\UserTech;
 use OGame\Services\Objects\ObjectService;
-use OGame\User;
-use OGame\UserTech;
 
 /**
  * Class PlayerService.

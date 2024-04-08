@@ -5,7 +5,7 @@ namespace OGame\Actions\Fortify;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\UpdatesUserPasswords;
-use OGame\User;
+use OGame\Models\User;
 
 class UpdateUserPassword implements UpdatesUserPasswords
 {

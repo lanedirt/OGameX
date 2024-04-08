@@ -4,7 +4,7 @@ namespace OGame\Services;
 
 use Exception;
 use Illuminate\Support\Carbon;
-use OGame\BuildingQueue;
+use OGame\Models\BuildingQueue;
 use OGame\Services\Objects\ObjectService;
 
 /**
@@ -44,7 +44,7 @@ class BuildingQueueService
     {
         $this->objects = $objects;
 
-        $model_name = 'OGame\BuildingQueue';
+        $model_name = 'OGame\Models\BuildingQueue';
         $this->model = new $model_name();
     }
 

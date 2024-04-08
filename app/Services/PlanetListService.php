@@ -4,7 +4,7 @@ namespace OGame\Services;
 
 use Exception;
 use OGame\Factories\PlanetServiceFactory;
-use OGame\Planet as Planet;
+use OGame\Models\Planet as Planet;
 
 /**
  * Class PlanetList.
@@ -58,10 +58,17 @@ class PlanetListService
             // TODO: move this logic to the user creation logic as well as the tech records.
             // As a test: give all players two random planets. (this should be just one, uncomment the below after dev)
 
-            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
-            $planetService = $planetServiceFactory->createForPlayer($this->player);
+            for ($i = 0; $i < 2; $i++) {
+                $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+                $planetService = $planetServiceFactory->createForPlayer($this->player);
 
-            $this->planets[] = $planetService;
+                $this->planets[] = $planetService;
+            }
+
+            // Send welcome message to player
+            // TODO: move this to the user creation logic.
+            $message = new MessageService($this->player);
+            $message->sendWelcomeMessage();
         }
         /*if (empty($this->planets)) {
             $planet = resolve('OGame\Services\PlanetService');

@@ -2,10 +2,8 @@
 
 namespace OGame\Services;
 
-use Exception;
 use OGame\Facades\AppUtil;
-use OGame\Planet as Planet;
-use OGame\User;
+use OGame\Models\User;
 
 /**
  * Class Highscore.

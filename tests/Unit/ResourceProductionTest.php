@@ -3,9 +3,7 @@
 namespace Tests\Unit;
 
 use OGame\Factories\PlanetServiceFactory;
-use OGame\Factories\PlayerServiceFactory;
-use OGame\Planet;
-use OGame\Services\PlanetService;
+use OGame\Models\Planet;
 use OGame\Services\PlayerService;
 use PHPUnit\Framework\TestCase;
 

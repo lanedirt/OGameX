@@ -1,9 +1,9 @@
 <?php
 
-namespace Database\Factories\OGame;
+namespace Database\Factories\OGame\Models;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use OGame\Planet;
+use OGame\Models\Planet;
 
 /**
  * @extends Factory<Planet>

@@ -71,6 +71,12 @@ class GitInfoUtil
                 return $branch . '/' . $commit . '/' . self::getCurrentCommitDate();
             }
 
+            // Fallback to static version as defined in app config.
+            $config_version = config('app.version');
+            if (!empty($config_version)) {
+                return $config_version;
+            }
+
             return '';
         });
     }
