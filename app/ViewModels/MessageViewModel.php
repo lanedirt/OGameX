@@ -64,6 +64,7 @@ class MessageViewModel
         // [planet]{planetId}[/planet] with the planet name and coordinates.
 
         // TODO: Implement the other placeholders.
+        // TODO: add unittests to cover the placeholder replacements.
         // Pattern to match [player]{playerId}[/player] placeholders
         $body = preg_replace_callback('/\[player\](\d+)\[\/player\]/', function ($matches) {
             // Assuming getPlayerNameById is a method to get a player's name by ID
