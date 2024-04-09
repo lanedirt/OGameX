@@ -3,6 +3,8 @@
 namespace OGame\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\Objects\ObjectService;
@@ -22,17 +24,20 @@ class FacilitiesController extends AbstractBuildingsController
     /**
      * Shows the facilities index page
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects)
+    public function index(Request $request, PlayerService $player, ObjectService $objects): View
     {
+        $this->setBodyId('station');
+
         // Prepare custom properties
         $this->header_filename_objects = [14, 21, 31, 34]; // Building ID's that make up the header filename.
         $this->objects = [
             0 => [14, 21, 31, 34, 44, 15, 33, 36],
         ];
-        $this->body_id = 'station';
         $this->view_name = 'ingame.facilities.index';
 
         return parent::index($request, $player, $objects);

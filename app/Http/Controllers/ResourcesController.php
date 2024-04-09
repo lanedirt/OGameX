@@ -2,7 +2,10 @@
 
 namespace OGame\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
+use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\Objects\ObjectService;
@@ -22,18 +25,21 @@ class ResourcesController extends AbstractBuildingsController
     /**
      * Shows the resources index page
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects)
+    public function index(Request $request, PlayerService $player, ObjectService $objects): View
     {
+        $this->setBodyId('resources');
+
         // Prepare custom properties
         $this->header_filename_objects = [1, 2, 3, 4]; // Building ID's that make up the header filename.
         $this->objects = [
             0 => [1, 2, 3, 4, 12, 212],
             1 => [22, 23, 24],
         ];
-        $this->body_id = 'resources';
         $this->view_name = 'ingame.resources.index';
 
         return parent::index($request, $player, $objects);
@@ -42,20 +48,26 @@ class ResourcesController extends AbstractBuildingsController
     /**
      * Handles the resources page AJAX requests.
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
+     * @throws \Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects)
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : View
     {
-        $this->building_type = 'resources';
-
         return $this->ajaxHandler($request, $player, $objects);
     }
 
     /**
      * Resources settings page.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
      */
-    public function settings(Request $request, PlayerService $player, ObjectService $objects)
+    public function settings(Request $request, PlayerService $player, ObjectService $objects) : View
     {
         $this->planet = $player->planets->current();
 
@@ -143,8 +155,14 @@ class ResourcesController extends AbstractBuildingsController
 
     /**
      * Resources settings page.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     *
+     * @return RedirectResponse
      */
-    public function settingsUpdate(Request $request, PlayerService $player, ObjectService $objects)
+    public function settingsUpdate(Request $request, PlayerService $player, ObjectService $objects) : RedirectResponse
     {
         $this->planet = $player->planets->current();
 

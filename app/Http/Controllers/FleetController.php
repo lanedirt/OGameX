@@ -3,10 +3,10 @@
 namespace OGame\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use OGame\Http\Traits\IngameTrait;
 use OGame\Services\Objects\ObjectService;
 use OGame\Services\PlayerService;
-
 
 class FleetController extends Controller
 {
@@ -15,15 +15,17 @@ class FleetController extends Controller
     /**
      * Shows the fleet index page
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects)
+    public function index(Request $request, PlayerService $player, ObjectService $objects) : View
     {
         // Define ship ids to include in the fleet screen.
         // 0 = military ships
         // 1 = civil ships
-        $this->objects = [
+        $screen_objects = [
             0 => [204, 205, 206, 207, 215, 211, 213, 214],
             1 => [202, 203, 208, 209, 210],
         ];
@@ -33,9 +35,7 @@ class FleetController extends Controller
         $objects_array = $objects->getShipObjects();
         $units = [];
         $count = 0;
-        foreach ($this->objects as $key_row => $objects_row) {
-            $buildings[$key_row] = [];
-
+        foreach ($screen_objects as $key_row => $objects_row) {
             foreach ($objects_row as $object_id) {
                 $count++;
 
@@ -69,10 +69,9 @@ class FleetController extends Controller
     /**
      * Shows the fleet movement page
      *
-     * @param int $id
-     * @return Response
+     * @return View
      */
-    public function movement(Request $request)
+    public function movement() : View
     {
         return view('ingame.fleet.movement');
     }

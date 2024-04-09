@@ -3,19 +3,17 @@
 namespace OGame\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use OGame\Http\Traits\IngameTrait;
 
-class ShopController extends Controller
+class ShopController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the facilities index page
      *
-     * @param int $id
-     * @return Response
+     * @return View
      */
-    public function index(Request $request)
+    public function index() : View
     {
         return view('ingame.shop.index');
     }

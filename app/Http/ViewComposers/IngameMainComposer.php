@@ -42,7 +42,7 @@ class IngameMainComposer
      *
      * @param View $view
      */
-    public function compose(View $view)
+    public function compose(View $view): void
     {
         $current_planet = $this->player->planets->current();
         $resources = [
@@ -86,12 +86,16 @@ class IngameMainComposer
             ],
         ];
 
+        // Include body_id, which might have been set in the controller.
+        $body_id = request()->attributes->get('body_id');
+
         $view->with([
             'unreadMessagesCount' => $this->messageService->getUnreadMessagesCount(),
             'resources' => $resources,
             'currentPlayer' => $this->player,
             'currentPlanet' => $this->player->planets->current(),
             'planets' => $this->player->planets,
+            'body_id' => $body_id,
         ]);
     }
 

@@ -2,33 +2,48 @@
 
 namespace OGame\Http\Controllers\Abstracts;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use OGame\Http\Controllers\Controller;
-use OGame\Http\Traits\IngameTrait;
+use Illuminate\View\View;
+use OGame\Http\Controllers\OGameController;
 use OGame\Http\Traits\ObjectAjaxTrait;
 use OGame\Services\Objects\ObjectService;
+use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\UnitQueueService;
 
-abstract class AbstractUnitsController extends Controller
+abstract class AbstractUnitsController extends OGameController
 {
-    use IngameTrait;
     use ObjectAjaxTrait;
 
-    protected $planet;
+    protected PlanetService $planet;
 
     /**
-     * @var Index view route (used for redirecting).
+     * @var string Index view route (used for redirecting).
      */
-    protected $route_view_index;
+    protected string $route_view_index;
 
     /**
      * QueueService
      *
      * @var UnitQueueService
      */
-    protected $queue;
+    protected UnitQueueService $queue;
+
+    /**
+     * Objects that are shown on this building page.
+     *
+     * @var array<array<int>>
+     */
+    protected array $objects = [];
+
+    /**
+     * Name of view that is returned by this controller.
+     *
+     * @var string
+     */
+    protected string $view_name;
 
     /**
      * AbstractUnitsController constructor.
@@ -36,25 +51,26 @@ abstract class AbstractUnitsController extends Controller
     public function __construct(UnitQueueService $queue)
     {
         $this->queue = $queue;
+        parent::__construct();
     }
 
     /**
      * Shows the shipyard/defense index page
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects)
+    public function index(Request $request, PlayerService $player, ObjectService $objects) : View
     {
-        $this->player = $player;
-        $this->planet = $player->planets->current();
-
+        $planet = $player->planets->current();
         $objects_array = $objects->getUnitObjects();
 
         $count = 0;
 
         // Parse build queue for this planet.
-        $build_queue = $this->queue->retrieveQueue($this->planet);
+        $build_queue = $this->queue->retrieveQueue($planet);
         $build_queue = $this->queue->enrich($build_queue);
 
         // Extract active from queue.
@@ -67,7 +83,7 @@ abstract class AbstractUnitsController extends Controller
         }
 
         // Get total time of all items in queue
-        $queue_time_end = $this->queue->retrieveQueueTimeEnd($this->planet);
+        $queue_time_end = $this->queue->retrieveQueueTimeEnd($planet);
         $queue_time_countdown = 0;
         if ($queue_time_end > 0) {
             $queue_time_countdown = $queue_time_end - Carbon::now()->timestamp;
@@ -75,19 +91,17 @@ abstract class AbstractUnitsController extends Controller
 
         $units = [];
         foreach ($this->objects as $key_row => $objects_row) {
-            $buildings[$key_row] = [];
-
             foreach ($objects_row as $object_id) {
                 $count++;
 
                 // Get current level of building
-                $amount = $this->planet->getObjectAmount($object_id);
+                $amount = $planet->getObjectAmount($object_id);
 
                 // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object_id, $this->planet, $player);
+                $requirements_met = $objects->objectRequirementsMet($object_id, $planet, $player);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $this->planet->hasResources($objects->getObjectPrice($object_id, $this->planet));
+                $enough_resources = $planet->hasResources($objects->getObjectPrice($object_id, $planet));
 
                 $units[$key_row][$object_id] = array_merge($objects_array[$object_id], [
                     'amount' => $amount,
@@ -100,20 +114,24 @@ abstract class AbstractUnitsController extends Controller
         }
 
         return view($this->view_name)->with([
-            'planet_id' => $this->planet->getPlanetId(),
-            'planet_name' => $this->planet->getPlanetName(),
+            'planet_id' => $planet->getPlanetId(),
+            'planet_name' => $planet->getPlanetName(),
             'units' => $units,
             'build_active' => $build_active,
             'build_queue' => $build_queue,
             'build_queue_countdown' => $queue_time_countdown,
-            'body_id' => $this->body_id, // Sets <body> tag ID property.
         ]);
     }
 
     /**
      * Handles an incoming add buildrequest.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return RedirectResponse
+     * @throws \Exception
      */
-    public function addBuildRequest(Request $request, PlayerService $player)
+    public function addBuildRequest(Request $request, PlayerService $player) : RedirectResponse
     {
         // Explicitly verify CSRF token because this request supports both POST and GET.
         if (!hash_equals($request->session()->token(), $request->input('_token'))) {

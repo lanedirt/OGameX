@@ -5,6 +5,7 @@ namespace OGame\Actions\Fortify;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 use OGame\Models\User;
 
@@ -12,7 +13,12 @@ class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules;
 
-    private $firstNames = [
+    /**
+     * The first names to use when generating a unique username.
+     *
+     * @var array<string>
+     */
+    private array $firstNames = [
         "President", "Constable", "Commander", "Engineer", "Commodore",
         "Captain", "Czar", "Gamma", "Jarhead", "Technocrat",
         "Viceregent", "Admiral", "Emperor", "Tempus", "Geologist",
@@ -32,7 +38,12 @@ class CreateNewUser implements CreatesNewUsers
         "Frontiersman", "Trailblazer", "Pioneer", "Innovator", "Inventor"
     ];
 
-    private $lastNames = [
+    /**
+     * The last names to use when generating a unique username.
+     *
+     * @var array|string[]
+     */
+    private array $lastNames = [
         "Orbit", "Nova", "Quark", "Vega", "Rigel",
         "Io", "Europ", "Titan", "Ganym", "Calyp",
         "Atlas", "Deimos", "Phobos", "Janus", "Ariel",
@@ -59,6 +70,11 @@ class CreateNewUser implements CreatesNewUsers
     ];
 
 
+    /**
+     * Generate a random name based on the first and last name arrays.
+     *
+     * @return string
+     */
     private function generateName(): string
     {
         $firstName = $this->firstNames[array_rand($this->firstNames)];
@@ -66,13 +82,22 @@ class CreateNewUser implements CreatesNewUsers
         return $firstName . ' ' . $lastName;
     }
 
-    private function getUniqueSuffix($attempt): int
+    /**
+     * Generate a unique username suffix based on the attempt number.
+     *
+     * @param int $attempt
+     * @return int
+     */
+    private function getUniqueSuffix(int $attempt): int
     {
-        // Generate a unique suffix based on the attempt number.
-        // This could be a simple numeric increment or a more complex hash.
         return rand(100 * $attempt, 999 * $attempt);
     }
 
+    /**
+     * Generate a unique username that is not already in use.
+     *
+     * @return string
+     */
     public function generateUniqueName(): string
     {
         $attempt = 0;
@@ -98,6 +123,7 @@ class CreateNewUser implements CreatesNewUsers
      * Validate and create a newly registered user.
      *
      * @param array<string, string> $input
+     * @throws ValidationException
      */
     public function create(array $input): User
     {

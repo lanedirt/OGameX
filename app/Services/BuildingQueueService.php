@@ -94,9 +94,17 @@ class BuildingQueueService
 
         // Max amount of buildings that can be in the queue in a given time.
         $max_build_queue_count = 4; //@TODO: refactor into global / constant?
+        // TODO: refactor throw exception into a more user-friendly message.
         if (count($build_queue) >= $max_build_queue_count) {
             // Max amount of build queue items already exist, throw exception.
             throw new Exception('Maximum number of items already in queue.');
+        }
+
+        // Check if user satisifes requirements to build this object.
+        // TODO: refactor throw exception into a more user-friendly message.
+        $requirements_met = $this->objects->objectRequirementsMet($building_id, $planet, $planet->getPlayer());
+        if (!$requirements_met) {
+            throw new Exception('Requirements not met to build this object.');
         }
 
         // @TODO: add checks that current logged in user is owner of planet
@@ -225,6 +233,7 @@ class BuildingQueueService
      *  is used for when a few build queue items are finished at the exact
      *  same time, e.g. when a user closes its session and logs back in
      *  after a while.
+     * @throws Exception
      */
     public function start(PlanetService $planet, $time_start = false)
     {
@@ -296,10 +305,7 @@ class BuildingQueueService
             // we force that the planet is updated again which will grant
             // the building immediately without having to wait for a refresh.
             if ($queue_item->time_end_ < Carbon::now()->timestamp) {
-                // @TODO: refactor the planet update logic so this method
-                // can call only the part it needs directly without causing
-                // a major overhead.
-                $planet->update();
+                $planet->updateBuildingQueue();
             }
         }
     }
@@ -323,19 +329,16 @@ class BuildingQueueService
 
     /**
      * Cancels an active building queue record.
+     * @throws Exception
      */
     public function cancel(PlanetService $planet, $building_queue_id, $building_id)
     {
-        // TODO: add unittest for building and then canceling a build to assert
-        // that spent resources are returned correctly.
-
-        // @TODO: add user owner verify checks.
         $queue_item = $this->model->where([
             ['id', $building_queue_id],
             ['planet_id', $planet->getPlanetId()],
             ['object_id', $building_id],
             ['processed', 0],
-            //['time_end', '>', Carbon::now()->timestamp], //@TODO: add back in time_end when building processing logic works.
+            ['time_end', '>', Carbon::now()->timestamp],
         ])->first();
 
         // If object is found: add canceled flag.
@@ -349,7 +352,6 @@ class BuildingQueueService
                 ['object_id', $building_id],
                 ['object_level_target', '>', $queue_item->object_level_target],
                 ['processed', 0],
-                //['time_end', '>', Carbon::now()->timestamp], //@TODO: add back in time_end when building processing logic works.
             ])->get();
 
             // Add canceled flag to all entries with a higher level (if any).

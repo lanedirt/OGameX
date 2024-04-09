@@ -2,7 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\View\View;
 use OGame\Http\Traits\IngameTrait;
 
 class ChangeNickController extends Controller
@@ -12,10 +12,9 @@ class ChangeNickController extends Controller
     /**
      * Shows the notes popup page
      *
-     * @param int $id
-     * @return Response
+     * @return View
      */
-    public function overlay(Request $request)
+    public function overlay() : View
     {
         return view('ingame.changenick.overlay');
     }

@@ -2,7 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\View\View;
 use OGame\Http\Traits\IngameTrait;
 
 class PlanetMoveController extends Controller
@@ -12,10 +12,9 @@ class PlanetMoveController extends Controller
     /**
      * Shows the notes popup page
      *
-     * @param int $id
-     * @return Response
+     * @return View
      */
-    public function overlay(Request $request)
+    public function overlay() : View
     {
         // TODO: add correct template for this page.
         return view('ingame.notes.overlay');

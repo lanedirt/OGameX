@@ -277,7 +277,7 @@ class BuildQueueTest extends AccountTestCase
      * Verify that building ships without resources fails.
      * @throws BindingResolutionException
      */
-    public function testBuildQueueInsufficientResources(): void
+    public function testBuildQueueFailInsufficientResources(): void
     {
         $this->planetDeductResources(['metal' => 500, 'crystal' => 500]);
 
@@ -308,5 +308,39 @@ class BuildQueueTest extends AccountTestCase
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Metal\sMine\s*<\/span>\s*0\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
         $this->assertTrue($result === 1, 'Metal Mine has been built while there were no resources.');
+    }
+
+    /**
+     * Verify that building a fusion reactor without required technology fails.
+     * @throws BindingResolutionException
+     */
+    public function testBuildQueueFailUnfulfilledRequirements(): void
+    {
+        $this->planetAddResources(['metal' => 1000, 'crystal' => 1000, 'deuterium' => 1000]);
+
+        // Set the current time to a specific moment for testing
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
+        Carbon::setTestNow($testTime);
+
+        // ---
+        // Step 1: Issue a request to build a metal mine.
+        // ---
+        $this->post('/resources/add-buildrequest', [
+            '_token' => csrf_token(),
+            'type' => '12', // Fusion reactor
+            'planet_id' => $this->currentPlanetId,
+        ]);
+
+        // ---
+        // Step 2: Verify that nothing has been built as the user does not have the required technology.
+        // ---
+        $testTime = Carbon::create(2024, 1, 1, 13, 0, 0);
+        Carbon::setTestNow($testTime);
+
+        $response = $this->get('/resources');
+        $response->assertStatus(200);
+        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Fusion\sReactor\s*<\/span>\s*0\s*<\/span>/';
+        $result = preg_match($pattern, $response->getContent());
+        $this->assertTrue($result === 1, 'Fusion Reactor has been built while player has not satisfied building requirements.');
     }
 }

@@ -3,31 +3,54 @@
 namespace OGame\Http\Controllers\Abstracts;
 
 use Illuminate\Http\Request;
-use OGame\Http\Controllers\Controller;
+use Illuminate\View\View;
+use OGame\Http\Controllers\OGameController;
 use OGame\Http\Traits\IngameTrait;
 use OGame\Http\Traits\ObjectAjaxTrait;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\Objects\ObjectService;
+use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 
-abstract class AbstractBuildingsController extends Controller
+abstract class AbstractBuildingsController extends OGameController
 {
     use IngameTrait;
     use ObjectAjaxTrait;
 
-    protected $planet;
+    protected PlanetService $planet;
 
     /**
-     * @var Index view route (used for redirecting).
+     * @var string Index view route (used for redirecting).
      */
-    protected $route_view_index;
+    protected string $route_view_index;
 
     /**
-     * QueueService
+     * QueueService.
      *
      * @var BuildingQueueService
      */
-    protected $queue;
+    protected BuildingQueueService $queue;
+
+    /**
+     * Objects that are shown on this building page.
+     *
+     * @var array<array<int>>
+     */
+    protected array $objects = [];
+
+    /**
+     * Header filename objects.
+     *
+     * @var array<int>
+     */
+    protected array $header_filename_objects = [];
+
+    /**
+     * Name of view that is returned by this controller.
+     *
+     * @var string
+     */
+    protected string $view_name;
 
     /**
      * AbstractBuildingsController constructor.
@@ -35,15 +58,18 @@ abstract class AbstractBuildingsController extends Controller
     public function __construct(BuildingQueueService $queue)
     {
         $this->queue = $queue;
+        parent::__construct();
     }
 
     /**
-     * Shows the building index page
+     * Shows the building index page.
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects)
+    public function index(Request $request, PlayerService $player, ObjectService $objects): View
     {
         $this->planet = $player->planets->current();
 
@@ -113,7 +139,6 @@ abstract class AbstractBuildingsController extends Controller
             'build_active' => $build_active,
             'build_queue' => $build_queue,
             'build_queue_max' => $build_queue_max,
-            'body_id' => $this->body_id, // Sets <body> tag ID property.
         ]);
     }
 
@@ -146,7 +171,6 @@ abstract class AbstractBuildingsController extends Controller
 
         $this->queue->cancel($player->planets->current(), $building_queue_id, $building_id);
 
-        // @TODO: add checks if current user is owner of this build queue item.
         if (!empty($request->input('redirect')) && $request->input('redirect') == 'overview') {
             return redirect()->route('overview.index');
         } else {
