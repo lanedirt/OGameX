@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Models\BuildingQueue;
 use OGame\Services\Objects\ObjectService;
@@ -55,10 +56,10 @@ class BuildingQueueService
      *
      * @param array $queue_items
      *
-     * @return array
-     *  Array when an item exists. False if it does not.
+     * @return Collection<BuildingQueue>
+     *  Collection when an item exists. False if it does not.
      */
-    public function retrieveQueuedFromQueue(array $queue_items) : array
+    public function retrieveQueuedFromQueue(Collection $queue_items) : Collection
     {
         foreach ($queue_items as $key => $record) {
             if ($record['building'] == 1) {
@@ -72,7 +73,7 @@ class BuildingQueueService
     /**
      * Retrieve all build queue items that already should be finished for a planet.
      */
-    public function retrieveFinished($planet_id) : array
+    public function retrieveFinished($planet_id) : Collection
     {
         // Fetch queue items from model
         $queue_items = $this->model->where([
@@ -140,9 +141,9 @@ class BuildingQueueService
      * Retrieve full building queue for a planet (including currently building).
      *
      * @param PlanetService $planet
-     * @return array<BuildingQueue>
+     * @return Collection<BuildingQueue>
      */
-    public function retrieveQueue(PlanetService $planet) : array
+    public function retrieveQueue(PlanetService $planet) : Collection
     {
         // Fetch queue items from model
         $queue_items = $this->model->where([
