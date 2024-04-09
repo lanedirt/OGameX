@@ -94,9 +94,17 @@ class BuildingQueueService
 
         // Max amount of buildings that can be in the queue in a given time.
         $max_build_queue_count = 4; //@TODO: refactor into global / constant?
+        // TODO: refactor throw exception into a more user-friendly message.
         if (count($build_queue) >= $max_build_queue_count) {
             // Max amount of build queue items already exist, throw exception.
             throw new Exception('Maximum number of items already in queue.');
+        }
+
+        // Check if user satisifes requirements to build this object.
+        // TODO: refactor throw exception into a more user-friendly message.
+        $requirements_met = $this->objects->objectRequirementsMet($building_id, $planet, $planet->getPlayer());
+        if (!$requirements_met) {
+            throw new Exception('Requirements not met to build this object.');
         }
 
         // @TODO: add checks that current logged in user is owner of planet
@@ -325,8 +333,6 @@ class BuildingQueueService
      */
     public function cancel(PlanetService $planet, $building_queue_id, $building_id)
     {
-        // TODO: add unittest for building and then canceling a build to assert
-        // that spent resources are returned correctly.
         $queue_item = $this->model->where([
             ['id', $building_queue_id],
             ['planet_id', $planet->getPlanetId()],
