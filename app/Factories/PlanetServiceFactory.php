@@ -3,6 +3,7 @@
 namespace OGame\Factories;
 
 use http\Exception\RuntimeException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Models\Planet;
 use OGame\Services\PlanetService;
@@ -34,6 +35,7 @@ class PlanetServiceFactory
      *
      * @param $planetId
      * @return PlanetService
+     * @throws BindingResolutionException
      */
     public function make($planetId): PlanetService
     {
@@ -48,8 +50,10 @@ class PlanetServiceFactory
     /**
      * Returns a planetService either from local instances cache or creates a new one.
      *
+     * @param PlayerService $player
      * @param $planetId
      * @return PlanetService
+     * @throws BindingResolutionException
      */
     public function makeForPlayer(PlayerService $player, $planetId): PlanetService
     {
@@ -113,8 +117,9 @@ class PlanetServiceFactory
     /**
      * Creates a new random planet and then return the planetService instance for it.
      *
-     * @param $user_id
-     *  The user_id of which to generate the planet for.
+     * @param PlayerService $player
+     * @return PlanetService
+     * @throws BindingResolutionException
      */
     public function createForPlayer(PlayerService $player): PlanetService
     {

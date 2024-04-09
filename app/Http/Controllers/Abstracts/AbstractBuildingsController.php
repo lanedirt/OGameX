@@ -146,7 +146,6 @@ abstract class AbstractBuildingsController extends Controller
 
         $this->queue->cancel($player->planets->current(), $building_queue_id, $building_id);
 
-        // @TODO: add checks if current user is owner of this build queue item.
         if (!empty($request->input('redirect')) && $request->input('redirect') == 'overview') {
             return redirect()->route('overview.index');
         } else {
