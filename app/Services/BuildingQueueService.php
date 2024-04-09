@@ -326,10 +326,10 @@ class BuildingQueueService
     /**
      * Retrieve the item that is currently being build (if any).
      *
-     * @return ?array
+     * @return ?BuildingQueue
      *  Array when an item exists. False if it does not.
      */
-    public function retrieveCurrentlyBuildingFromQueue($queue_items) : ?array
+    public function retrieveCurrentlyBuildingFromQueue($queue_items) : ?BuildingQueue
     {
         foreach ($queue_items as $record) {
             if ($record['building'] == 1) {
