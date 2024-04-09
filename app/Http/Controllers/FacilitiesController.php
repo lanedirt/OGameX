@@ -2,8 +2,8 @@
 
 namespace OGame\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Services\BuildingQueueService;
@@ -46,13 +46,14 @@ class FacilitiesController extends AbstractBuildingsController
     /**
      * Handles the facilities page AJAX requests.
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
+     * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects)
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : View
     {
-        $this->building_type = 'station';
-
         return $this->ajaxHandler($request, $player, $objects);
     }
 }

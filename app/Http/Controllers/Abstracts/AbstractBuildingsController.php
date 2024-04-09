@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers\Abstracts;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
@@ -144,8 +145,13 @@ abstract class AbstractBuildingsController extends OGameController
 
     /**
      * Handles an incoming add buildrequest.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return RedirectResponse
+     * @throws \Exception
      */
-    public function addBuildRequest(Request $request, PlayerService $player)
+    public function addBuildRequest(Request $request, PlayerService $player) : RedirectResponse
     {
         // Explicitly verify CSRF token because this request supports both POST and GET.
         if (!hash_equals($request->session()->token(), $request->input('_token'))) {
@@ -163,8 +169,13 @@ abstract class AbstractBuildingsController extends OGameController
 
     /**
      * Handles an incoming cancel buildrequest.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return RedirectResponse
+     * @throws \Exception
      */
-    public function cancelBuildRequest(Request $request, PlayerService $player)
+    public function cancelBuildRequest(Request $request, PlayerService $player) : RedirectResponse
     {
         $building_id = $request->input('building_id');
         $building_queue_id = $request->input('building_queue_id');

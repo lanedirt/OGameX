@@ -1706,8 +1706,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Get all buildings (or specific building).
+     *
+     * @param bool $object_id
+     * @return array
      */
-    public function getBuildingObjects($object_id = FALSE)
+    public function getBuildingObjects($object_id = FALSE) : array
     {
         if (!empty($object_id)) {
             if (!empty($this->buildingObjects[$object_id])) {

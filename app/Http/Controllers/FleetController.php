@@ -35,6 +35,7 @@ class FleetController extends Controller
         $objects_array = $objects->getShipObjects();
         $units = [];
         $count = 0;
+
         foreach ($screen_objects as $key_row => $objects_row) {
             foreach ($objects_row as $object_id) {
                 $count++;
@@ -42,18 +43,9 @@ class FleetController extends Controller
                 // Get current level of building
                 $amount = $planet->getObjectAmount($object_id);
 
-                // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object_id, $planet, $player);
-
-                // Check if the current planet has enough resources to build this building.
-                $enough_resources = $planet->hasResources($objects->getObjectPrice($object_id, $planet));
-
                 $units[$key_row][$object_id] = array_merge($objects_array[$object_id], [
                     'amount' => $amount,
-                    'requirements_met' => $requirements_met,
                     'count' => $count,
-                    'enough_resources' => $enough_resources,
-                    'currently_building' => (!empty($build_active['id']) && $build_active['object']['id'] == $object_id),
                 ]);
             }
         }

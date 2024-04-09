@@ -2,7 +2,6 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PaymentController extends OGameController
@@ -20,7 +19,6 @@ class PaymentController extends OGameController
     /**
      * Shows the payment popup iframe (placeholder).
      *
-     * @param Request $request
      * @return View
      */
     public function iframe() : View

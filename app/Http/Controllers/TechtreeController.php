@@ -61,17 +61,17 @@ class TechtreeController extends OGameController
             ]);
         }
 
-        return false;
+        return view('empty');
     }
 
     /**
      * Returns techtree production table.
      *
-     * @param $object
+     * @param array $object
      * @param PlayerService $player
      * @return View
      */
-    public function getProductionTable($object, PlayerService $player): View
+    public function getProductionTable(array $object, PlayerService $player): View
     {
         $object_id = $object['id'];
         $planet = $player->planets->current();
@@ -189,11 +189,11 @@ class TechtreeController extends OGameController
     /**
      * Returns techtree rapidfire table.
      *
-     * @param $object
+     * @param array $object
      * @param ObjectService $objects
      * @return View
      */
-    public function getRapidfireTable($object, ObjectService $objects): View
+    public function getRapidfireTable(array $object, ObjectService $objects): View
     {
         // Loop through all other objects and see if they have rapidfire against this object
         // if so, create a new array with the rapidfire data same as above.
@@ -232,11 +232,11 @@ class TechtreeController extends OGameController
     /**
      * Returns techtree properties table.
      *
-     * @param $object
+     * @param array $object
      * @param PlayerService $player
      * @return View
      */
-    public function getPropertiesTable($object, PlayerService $player): View
+    public function getPropertiesTable(array $object, PlayerService $player): View
     {
         // Add tooltips for object properties
         if (empty($object['properties'])) {

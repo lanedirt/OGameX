@@ -4,6 +4,7 @@ namespace OGame\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * 
@@ -164,7 +165,7 @@ class Planet extends Model
     /**
      * Get the planet that owns the research queue record.
      */
-    public function planet()
+    public function planet(): BelongsTo
     {
         return $this->belongsTo('OGame\Models\Planet');
     }

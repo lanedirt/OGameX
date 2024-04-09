@@ -28,17 +28,19 @@ class BuildingQueueService
      *
      * @var ObjectService
      */
-    protected $objects;
+    protected ObjectService $objects;
 
     /**
      * The queue model where this class should get its data from.
      *
-     * @var
+     * @var BuildingQueue $model
      */
-    protected $model;
+    protected BuildingQueue $model;
 
     /**
      * BuildingQueue constructor.
+     *
+     * @param ObjectService $objects
      */
     public function __construct(ObjectService $objects)
     {
@@ -51,10 +53,12 @@ class BuildingQueueService
     /**
      * Retrieve queued items that are not being built yet.
      *
-     * @return mixed
+     * @param array $queue_items
+     *
+     * @return array
      *  Array when an item exists. False if it does not.
      */
-    public function retrieveQueuedFromQueue($queue_items)
+    public function retrieveQueuedFromQueue(array $queue_items) : array
     {
         foreach ($queue_items as $key => $record) {
             if ($record['building'] == 1) {
@@ -68,7 +72,7 @@ class BuildingQueueService
     /**
      * Retrieve all build queue items that already should be finished for a planet.
      */
-    public function retrieveFinished($planet_id)
+    public function retrieveFinished($planet_id) : array
     {
         // Fetch queue items from model
         $queue_items = $this->model->where([
@@ -86,8 +90,12 @@ class BuildingQueueService
 
     /**
      * Add a building to the building queue for the current planet.
+     *
+     * @param PlanetService $planet
+     * @param int $building_id
+     * @throws Exception
      */
-    public function add(PlanetService $planet, $building_id)
+    public function add(PlanetService $planet, int $building_id) : void
     {
         $build_queue = $this->retrieveQueue($planet);
         $build_queue = $this->enrich($build_queue);
@@ -130,8 +138,11 @@ class BuildingQueueService
 
     /**
      * Retrieve full building queue for a planet (including currently building).
+     *
+     * @param PlanetService $planet
+     * @return array<BuildingQueue>
      */
-    public function retrieveQueue(PlanetService $planet)
+    public function retrieveQueue(PlanetService $planet) : array
     {
         // Fetch queue items from model
         $queue_items = $this->model->where([
@@ -153,7 +164,7 @@ class BuildingQueueService
      *
      * @return array
      */
-    public function enrich($queue_items)
+    public function enrich($queue_items) : array
     {
         // Enrich information before we return it
         $return = array();
@@ -203,8 +214,11 @@ class BuildingQueueService
     /**
      * Get the amount of already existing queue items for a particular
      * building.
+     *
+     * @param PlanetService $planet
+     * @param int $building_id
      */
-    public function activeBuildingQueueItemCount(PlanetService $planet, $building_id)
+    public function activeBuildingQueueItemCount(PlanetService $planet, int $building_id)
     {
         // Fetch queue items from model
         $count = $this->model->where([
@@ -225,17 +239,15 @@ class BuildingQueueService
      * from the planet. If there are not enough resources the build attempt
      * will fail.
      *
-     * @param $planet_id
-     *  The planet ID for which to start the next item in the queue for.
-     *
-     * @param $time_start
+     * @param PlanetService $planet
+     * @param bool $time_start
      *  Optional parameter to indicate when the new item should start, this
      *  is used for when a few build queue items are finished at the exact
      *  same time, e.g. when a user closes its session and logs back in
      *  after a while.
      * @throws Exception
      */
-    public function start(PlanetService $planet, $time_start = false)
+    public function start(PlanetService $planet, int $time_start = 0)
     {
         // TODO: add unittest for case described above with $time_start.
         $queue_items = $this->model->where([
@@ -313,10 +325,10 @@ class BuildingQueueService
     /**
      * Retrieve the item that is currently being build (if any).
      *
-     * @return mixed
+     * @return ?array
      *  Array when an item exists. False if it does not.
      */
-    public function retrieveCurrentlyBuildingFromQueue($queue_items)
+    public function retrieveCurrentlyBuildingFromQueue($queue_items) : ?array
     {
         foreach ($queue_items as $record) {
             if ($record['building'] == 1) {
@@ -324,14 +336,19 @@ class BuildingQueueService
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
      * Cancels an active building queue record.
+     *
+     * @param PlanetService $planet
+     * @param int $building_queue_id
+     * @param int $building_id
+     *
      * @throws Exception
      */
-    public function cancel(PlanetService $planet, $building_queue_id, $building_id)
+    public function cancel(PlanetService $planet, int $building_queue_id, int $building_id): void
     {
         $queue_item = $this->model->where([
             ['id', $building_queue_id],
