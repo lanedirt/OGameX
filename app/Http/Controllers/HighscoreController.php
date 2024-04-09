@@ -2,22 +2,22 @@
 
 namespace OGame\Http\Controllers;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Request;
-use OGame\Http\Traits\IngameTrait;
+use Illuminate\View\View;
 use OGame\Services\HighscoreService;
 use OGame\Services\PlayerService;
 
-class HighscoreController extends Controller
+class HighscoreController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the highscore index page
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @return View
      */
-    public function index(Request $request, PlayerService $player)
+    public function index(Request $request, PlayerService $player) : View
     {
         return view('ingame.highscore.index')->with([
             'initialContent' => $this->ajax($request, $player),
@@ -27,10 +27,11 @@ class HighscoreController extends Controller
     /**
      * Returns highscore AJAX paging content.
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @return View
      */
-    public function ajax(Request $request, PlayerService $player)
+    public function ajax(Request $request, PlayerService $player) : View
     {
         // Check if we received category parameter, if so, use it to determine which highscore category to show.
         // 1 = players
@@ -54,10 +55,12 @@ class HighscoreController extends Controller
     /**
      * Returns highscore AJAX paging content.
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @return View
+     * @throws BindingResolutionException
      */
-    public function ajaxPlayer(Request $request, PlayerService $player)
+    public function ajaxPlayer(Request $request, PlayerService $player) : View
     {
         // Create highscore service.
         $highscoreService = app()->make(HighscoreService::class);
@@ -108,10 +111,12 @@ class HighscoreController extends Controller
     /**
      * Returns highscore AJAX paging content.
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @return View
+     * @throws BindingResolutionException
      */
-    public function ajaxAlliance(Request $request, PlayerService $player)
+    public function ajaxAlliance(Request $request, PlayerService $player) : View
     {
         // TODO: implement alliance highscore.
         // Create highscore service.

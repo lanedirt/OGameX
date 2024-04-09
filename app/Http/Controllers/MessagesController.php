@@ -2,25 +2,24 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use OGame\Http\Traits\IngameTrait;
+use Illuminate\View\View;
 use OGame\Services\MessageService;
 
-class MessagesController extends Controller
+class MessagesController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the messages index page.
      *
-     * @param int $id
-     * @return Application|Factory|View|\Illuminate\Foundation\Application
+     * @param Request $request
+     * @param MessageService $messageService
+     * @return View
      */
-    public function index(Request $request, MessageService $messageService): \Illuminate\Foundation\Application|View|Factory|Application
+    public function index(Request $request, MessageService $messageService): View
     {
+        $this->setBodyId('messages');
+
         // By default open the "Fleets" --> "Espionage" tab.
         $tab = $request->get('tab', 'fleets');
         $subtab = $request->get('subtab', 'espionage');
@@ -38,7 +37,6 @@ class MessagesController extends Controller
             'favorites' => $messageService->getUnreadMessagesCountForTab('favorites'),
         ];
 
-        $this->body_id = 'messages';
         return view('ingame.messages.index')->with([
             'body_id' => 'messages', // Sets <body> tag ID property.
             'unread_messages_count' => $unread_messages_count,
@@ -46,7 +44,15 @@ class MessagesController extends Controller
         ]);
     }
 
-    protected function tabContent(MessageService $messageService, $tab, $subtab = ''): \Illuminate\Foundation\Application|View|Factory|Application
+    /**
+     * Return tab content based on tab.
+     *
+     * @param MessageService $messageService
+     * @param string $tab
+     * @param string $subtab
+     * @return View
+     */
+    protected function tabContent(MessageService $messageService, string $tab, string $subtab = ''): View
     {
         $subtab_content = $this->subTabContent($messageService, $tab, $subtab);
 
@@ -91,7 +97,15 @@ class MessagesController extends Controller
         }
     }
 
-    protected function subTabContent(MessageService $messageService, $tab, $subtab = '')
+    /**
+     * Return subtab content based on tab.
+     *
+     * @param MessageService $messageService
+     * @param string $tab
+     * @param string $subtab
+     * @return View
+     */
+    protected function subTabContent(MessageService $messageService, string $tab, string $subtab = '') : View
     {
         $messages = $messageService->getMessagesForTab($tab, $subtab);
 
@@ -124,9 +138,9 @@ class MessagesController extends Controller
      *
      * @param Request $request
      * @param MessageService $messageService
-     * @return \Illuminate\Foundation\Application|View|Factory|Application
+     * @return View
      */
-    public function ajax(Request $request, MessageService $messageService): \Illuminate\Foundation\Application|View|Factory|Application
+    public function ajax(Request $request, MessageService $messageService): View
     {
         $tab = $request->get('tab', 'fleets');
         $subtab = $request->get('subtab', '');
@@ -145,9 +159,9 @@ class MessagesController extends Controller
      *
      * @param Request $request
      * @param MessageService $messageService
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function post(Request $request, MessageService $messageService)
+    public function post(Request $request, MessageService $messageService) : JsonResponse
     {
         $messageId = $request->get('messageId');
 

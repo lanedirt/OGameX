@@ -2,26 +2,27 @@
 
 namespace OGame\Http\Controllers;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\View;
+use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
-use OGame\Http\Traits\IngameTrait;
 use OGame\Models\Planet;
 use OGame\Services\PlayerService;
 
-class GalaxyController extends Controller
+class GalaxyController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the galaxy index page
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @return View
+     * @throws BindingResolutionException
      */
-    public function index(Request $request, PlayerService $player)
+    public function index(Request $request, PlayerService $player) : View
     {
-        $this->body_id = 'galaxy';
+        $this->setBodyId('galaxy');
 
         // Get current galaxy and system from current planet.
         $planet = $player->planets->current();
@@ -38,11 +39,9 @@ class GalaxyController extends Controller
         }
 
         return view('ingame.galaxy.index')->with([
-            'body_id' => $this->body_id,
             'current_galaxy' => $galaxy,
             'current_system' => $system,
             'espionage_probe_count' => 0,
-            'recycler_count' => 0,
             'recycler_count' => 0,
             'interplanetary_missiles_count' => 0,
             'used_slots' => 0,
@@ -56,8 +55,10 @@ class GalaxyController extends Controller
      *
      * @param $galaxy
      * @param $system
+     * @return mixed
+     * @throws BindingResolutionException
      */
-    public function getTable($galaxy, $system)
+    public function getTable($galaxy, $system) : string
     {
         // Retrieve all planets from this galaxy and system.
         $planet_list = Planet::where(['galaxy' => $galaxy, 'system' => $system])->get();
@@ -84,7 +85,7 @@ class GalaxyController extends Controller
             ];
         }
 
-        $view_response = $view = View::make('ingame.galaxy.table', [
+        $view = \Illuminate\Support\Facades\View::make('ingame.galaxy.table', [
             'current_galaxy' => $galaxy,
             'current_system' => $system,
             'espionage_probe_count' => 0,
@@ -102,10 +103,12 @@ class GalaxyController extends Controller
     /**
      * Shows the galaxy index page
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     * @throws BindingResolutionException
      */
-    public function ajax(Request $request, PlayerService $player)
+    public function ajax(Request $request, PlayerService $player) : JsonResponse
     {
         $galaxy = $request->input('galaxy');
         $system = $request->input('system');

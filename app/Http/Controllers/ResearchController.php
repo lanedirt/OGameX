@@ -3,23 +3,30 @@
 namespace OGame\Http\Controllers;
 
 use Illuminate\Http\Request;
-use OGame\Http\Traits\IngameTrait;
+use Illuminate\View\View;
 use OGame\Http\Traits\ObjectAjaxTrait;
 use OGame\Services\Objects\ObjectService;
+use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\ResearchQueueService;
 
-class ResearchController
+class ResearchController extends OGameController
 {
-    use IngameTrait;
     use ObjectAjaxTrait;
+
+    protected PlanetService $planet;
+
+    /**
+     * @var string Index view route (used for redirecting).
+     */
+    protected string $route_view_index;
 
     /**
      * QueueService
      *
      * @var ResearchQueueService
      */
-    protected $queue;
+    protected ResearchQueueService $queue;
 
     /**
      * ResourcesController constructor.
@@ -28,53 +35,51 @@ class ResearchController
     {
         $this->route_view_index = 'research.index';
         $this->queue = $queue;
+        parent::__construct();
     }
 
     /**
      * Shows the research index page
      *
-     * @param int $id
-     * @return Response
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects)
+    public function index(PlayerService $player, ObjectService $objects) : View
     {
-        $this->player = $player;
-        $this->planet = $player->planets->current();
+        $this->setBodyId('research');
+        $planet = $player->planets->current();
 
         // Prepare custom properties
-        $this->objects = [
+        $screen_objects = [
             0 => [113, 120, 121, 114, 122],
             1 => [115, 117, 118],
             2 => [106, 108, 124, 123, 199],
             3 => [109, 110, 111],
         ];
-        $this->body_id = 'research';
-        $this->view_name = 'ingame.research.index';
 
         $objects_array = $objects->getResearchObjects();
 
         $count = 0;
 
         // Parse build queue for this planet
-        $research_full_queue = $this->queue->retrieveQueue($this->planet);
+        $research_full_queue = $this->queue->retrieveQueue($planet);
         $build_active = $this->queue->enrich($this->queue->retrieveCurrentlyBuildingFromQueue($research_full_queue));
         $build_queue = $this->queue->enrich($this->queue->retrieveQueuedFromQueue($research_full_queue));
 
         $research = [];
-        foreach ($this->objects as $key_row => $objects_row) {
-            $buildings[$key_row] = [];
-
+        foreach ($screen_objects as $key_row => $objects_row) {
             foreach ($objects_row as $object_id) {
                 $count++;
 
                 // Get current level of building
-                $current_level = $this->player->getResearchLevel($object_id);
+                $current_level = $player->getResearchLevel($object_id);
 
                 // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object_id, $this->planet, $player);
+                $requirements_met = $objects->objectRequirementsMet($object_id, $planet, $player);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $this->planet->hasResources($objects->getObjectPrice($object_id, $this->planet));
+                $enough_resources = $planet->hasResources($objects->getObjectPrice($object_id, $planet));
 
                 $research[$key_row][$object_id] = array_merge($objects_array[$object_id], [
                     'current_level' => $current_level,
@@ -93,27 +98,27 @@ class ResearchController
             $build_queue_max = true;
         }
 
-        return view($this->view_name)->with([
-            'planet_id' => $this->planet->getPlanetId(),
-            'planet_name' => $this->planet->getPlanetName(),
+        return view('ingame.research.index')->with([
+            'planet_id' => $planet->getPlanetId(),
+            'planet_name' => $planet->getPlanetName(),
             'research' => $research,
             'build_active' => $build_active,
             'build_queue' => $build_queue,
             'build_queue_max' => $build_queue_max,
-            'body_id' => $this->body_id, // Sets <body> tag ID property.
         ]);
     }
 
     /**
      * Handles the research page AJAX requests.
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
+     * @throws \Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects)
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : View
     {
-        $this->building_type = 'research';
-
         return $this->ajaxHandler($request, $player, $objects);
     }
 
@@ -146,7 +151,6 @@ class ResearchController
 
         $this->queue->cancel($player, $player->planets->current(), $building_queue_id, $building_id);
 
-        // @TODO: add checks if current user is owner of this build queue item.
         if (!empty($request->input('redirect')) && $request->input('redirect') == 'overview') {
             return redirect()->route('overview.index');
         } else {

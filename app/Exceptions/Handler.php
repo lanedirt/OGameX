@@ -5,23 +5,19 @@ namespace OGame\Exceptions;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
     /**
-     * A list of the exception types that are not reported.
-     *
-     * @var array
+     * @inheritdoc
      */
     protected $dontReport = [
         //
     ];
 
     /**
-     * A list of the inputs that are never flashed for validation exceptions.
-     *
-     * @var array
+     * @inheritdoc
      */
     protected $dontFlash = [
         'password',
@@ -33,23 +29,25 @@ class Handler extends ExceptionHandler
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param Exception $exception
+     * @param Exception|Throwable $e
      * @return void
+     * @throws Throwable
      */
-    public function report(Exception|\Throwable $exception)
+    public function report(Exception|Throwable $e): void
     {
-        parent::report($exception);
+        parent::report($e);
     }
 
     /**
      * Render an exception into an HTTP response.
      *
      * @param Request $request
-     * @param Exception $exception
-     * @return Response
+     * @param Exception|Throwable $e
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws Throwable
      */
-    public function render($request, Exception|\Throwable $exception)
+    public function render($request, Exception|Throwable $e): \Symfony\Component\HttpFoundation\Response
     {
-        return parent::render($request, $exception);
+        return parent::render($request, $e);
     }
 }

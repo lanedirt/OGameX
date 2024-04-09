@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $name
  * @property int $galaxy
  * @property int $system
- * @property Planet|null $planet
+ * @property int $planet
  * @property int $planet_type
  * @property int $destroyed
  * @property int $diameter

@@ -3,19 +3,16 @@
 namespace OGame\Http\Controllers;
 
 use Illuminate\Http\Request;
-use OGame\Http\Traits\IngameTrait;
+use Illuminate\View\View;
 
-class PaymentController extends Controller
+class PaymentController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the payment popup page
      *
-     * @param int $id
-     * @return Response
+     * @return View
      */
-    public function overlay(Request $request)
+    public function overlay(): View
     {
         return view('ingame.payment.overlay');
     }
@@ -23,10 +20,10 @@ class PaymentController extends Controller
     /**
      * Shows the payment popup iframe (placeholder).
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @return View
      */
-    public function iframe(Request $request)
+    public function iframe() : View
     {
         // NOTE: this is a placeholder iframe src which is empty for now.
         return view('ingame.payment.iframe');

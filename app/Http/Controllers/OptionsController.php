@@ -2,24 +2,24 @@
 
 namespace OGame\Http\Controllers;
 
-use Auth;
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use OGame\Http\Traits\IngameTrait;
+use Illuminate\View\View;
 use OGame\Services\PlayerService;
 
-class OptionsController extends Controller
+class OptionsController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the overview index page
      *
-     * @param int $id
-     * @return Response
+     * @param PlayerService $player
+     * @return View
      */
-    public function index(Request $request, PlayerService $player)
+    public function index(PlayerService $player) : View
     {
+        $this->setBodyId('preferences');
+
         return view('ingame.options.index')->with([
             'username' => $player->getUsername(),
             'current_email' => $player->getEmail(),
@@ -33,9 +33,10 @@ class OptionsController extends Controller
      * @param Request $request
      * @param PlayerService $player
      *
-     * @return RedirectResponse
+     * @return array<string,string>
+     * @throws Exception
      */
-    public function processChangeUsername(Request $request, PlayerService $player)
+    public function processChangeUsername(Request $request, PlayerService $player) : array
     {
         $name = $request->input('new_username_username');
         $password = $request->input('new_username_password');
@@ -57,15 +58,17 @@ class OptionsController extends Controller
             return array('success_logout' => 'Settings saved');
         }
 
-        return false;
+        return [];
     }
 
     /**
      * Save handler for index() form.
      *
      * @param Request $request
+     * @param PlayerService $player
+     * @return RedirectResponse
      */
-    public function save(Request $request, PlayerService $player)
+    public function save(Request $request, PlayerService $player): RedirectResponse
     {
         // Define change handlers.
         $change_handlers = [

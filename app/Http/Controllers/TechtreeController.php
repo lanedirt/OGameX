@@ -2,28 +2,23 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use OGame\Http\Traits\IngameTrait;
+use Illuminate\View\View;
 use OGame\Services\Objects\ObjectService;
 use OGame\Services\Objects\Properties\Models\ObjectProperties;
 use OGame\Services\PlayerService;
 
-class TechtreeController extends Controller
+class TechtreeController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Returns techtree ajax content.
      *
      * @param Request $request
      * @param ObjectService $objects
      * @param PlayerService $player
-     * @return View|\Illuminate\Foundation\Application|Factory|false|Application
+     * @return View
      */
-    public function ajax(Request $request, ObjectService $objects, PlayerService $player): View|\Illuminate\Foundation\Application|Factory|false|Application
+    public function ajax(Request $request, ObjectService $objects, PlayerService $player): View
     {
         $object_id = $request->input('object_id');
         $tab = $request->input('tab');
@@ -74,9 +69,9 @@ class TechtreeController extends Controller
      *
      * @param $object
      * @param PlayerService $player
-     * @return Application|Factory|View|\Illuminate\Foundation\Application
+     * @return View
      */
-    public function getProductionTable($object, PlayerService $player): \Illuminate\Foundation\Application|View|Factory|Application
+    public function getProductionTable($object, PlayerService $player): View
     {
         $object_id = $object['id'];
         $planet = $player->planets->current();
@@ -137,9 +132,9 @@ class TechtreeController extends Controller
      *
      * @param $object
      * @param PlayerService $player
-     * @return Application|Factory|View|\Illuminate\Foundation\Application
+     * @return View
      */
-    public function getStorageTable($object, PlayerService $player): \Illuminate\Foundation\Application|View|Factory|Application
+    public function getStorageTable($object, PlayerService $player): View
     {
         $object_id = $object['id'];
         $planet = $player->planets->current();
@@ -196,9 +191,9 @@ class TechtreeController extends Controller
      *
      * @param $object
      * @param ObjectService $objects
-     * @return Application|Factory|\Illuminate\Foundation\Application|View
+     * @return View
      */
-    public function getRapidfireTable($object, ObjectService $objects): View|\Illuminate\Foundation\Application|Factory|Application
+    public function getRapidfireTable($object, ObjectService $objects): View
     {
         // Loop through all other objects and see if they have rapidfire against this object
         // if so, create a new array with the rapidfire data same as above.
@@ -238,10 +233,10 @@ class TechtreeController extends Controller
      * Returns techtree properties table.
      *
      * @param $object
-     * @param $player
-     * @return Application|Factory|\Illuminate\Foundation\Application|View
+     * @param PlayerService $player
+     * @return View
      */
-    public function getPropertiesTable($object, PlayerService $player): View|\Illuminate\Foundation\Application|Factory|Application
+    public function getPropertiesTable($object, PlayerService $player): View
     {
         // Add tooltips for object properties
         if (empty($object['properties'])) {
@@ -252,7 +247,7 @@ class TechtreeController extends Controller
         $properties = $player->planets->current()->getObjectProperties($object['id']);
 
         foreach ($object['properties'] as $property_key => $property_value) {
-            $object['tooltips'][$property_key] = $this->getPropertyTooltip($object, $properties, $property_key);
+            $object['tooltips'][$property_key] = $this->getPropertyTooltip($properties, $property_key);
         }
 
         return view('ingame.techtree.info.properties')->with([
@@ -264,12 +259,11 @@ class TechtreeController extends Controller
     /**
      * Returns techtree property tooltip.
      *
-     * @param $object
      * @param ObjectProperties $properties
      * @param string $property_key
-     * @return Application|Factory|\Illuminate\Foundation\Application|View
+     * @return View
      */
-    public function getPropertyTooltip($object, ObjectProperties $properties, string $property_key): View|\Illuminate\Foundation\Application|Factory|Application
+    public function getPropertyTooltip(ObjectProperties $properties, string $property_key): View
     {
         $property_name = 'N/a';
         $property_breakdown = [];

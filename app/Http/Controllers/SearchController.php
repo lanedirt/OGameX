@@ -2,20 +2,16 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Http\Request;
-use OGame\Http\Traits\IngameTrait;
+use Illuminate\View\View;
 
-class SearchController extends Controller
+class SearchController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the search popup page
      *
-     * @param int $id
-     * @return Response
+     * @return View
      */
-    public function overlay(Request $request)
+    public function overlay() : View
     {
         return view('ingame.search.overlay');
     }

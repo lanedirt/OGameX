@@ -3,6 +3,7 @@
 namespace OGame\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractUnitsController;
 use OGame\Services\Objects\ObjectService;
 use OGame\Services\PlayerService;
@@ -22,16 +23,19 @@ class DefenseController extends AbstractUnitsController
     /**
      * Shows the shipyard index page
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects)
+    public function index(Request $request, PlayerService $player, ObjectService $objects) : View
     {
+        $this->setBodyId('defense');
+
         // Prepare custom properties
         $this->objects = [
             0 => [401, 402, 403, 404, 405, 406, 407, 408, 502, 503],
         ];
-        $this->body_id = 'defense';
         $this->view_name = 'ingame.defense.index';
 
         return parent::index($request, $player, $objects);
@@ -40,13 +44,14 @@ class DefenseController extends AbstractUnitsController
     /**
      * Handles the research page AJAX requests.
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
+     * @throws \Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects)
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : View
     {
-        $this->building_type = 'defense';
-
         return $this->ajaxHandler($request, $player, $objects);
     }
 }

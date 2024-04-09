@@ -2,21 +2,16 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Http\Request;
-use OGame\Http\Traits\IngameTrait;
+use Illuminate\View\View;
 
-
-class PremiumController extends Controller
+class PremiumController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the facilities index page
      *
-     * @param int $id
-     * @return Response
+     * @return View
      */
-    public function index(Request $request)
+    public function index() : View
     {
         return view('ingame.premium.index');
     }

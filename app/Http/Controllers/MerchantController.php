@@ -2,26 +2,19 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Http\Request;
-use OGame\Http\Traits\IngameTrait;
+use Illuminate\View\View;
 
-
-class MerchantController extends Controller
+class MerchantController extends OGameController
 {
-    use IngameTrait;
-
     /**
-     * Shows the facilities index page
+     * Shows the merchant index page
      *
-     * @param int $id
-     * @return Response
+     * @return View
      */
-    public function index(Request $request)
+    public function index() : View
     {
-        $this->body_id = 'traderOverview';
+        $this->setBodyId('traderOverview');
 
-        return view('ingame.merchant.index')->with([
-            'body_id' => $this->body_id,
-        ]);
+        return view('ingame.merchant.index');
     }
 }

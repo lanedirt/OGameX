@@ -2,19 +2,26 @@
 
 namespace OGame\Factories;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Services\PlayerService;
 
 class PlayerServiceFactory
 {
-    protected $instances = [];
+    /**
+     * Cached instances of playerService.
+     *
+     * @var array<PlayerService>
+     */
+    protected array $instances = [];
 
     /**
      * Returns a playerService either from local instances cache or creates a new one.
      *
-     * @param $playerId
+     * @param int $playerId
      * @return PlayerService
+     * @throws BindingResolutionException
      */
-    public function make($playerId): PlayerService
+    public function make(int $playerId): PlayerService
     {
         if (!isset($this->instances[$playerId])) {
             $playerService = app()->make(PlayerService::class, ['player_id' => $playerId]);

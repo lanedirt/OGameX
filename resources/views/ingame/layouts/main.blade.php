@@ -104,11 +104,7 @@
     <script src="{{ asset('/js/fleetdispatcher.js') }}"></script>
     <script src="{{ asset('/js/logic571d.js') }}"></script>
 </head>
-<body @isset($body_id)
-      id="{!! $body_id !!}"
-    @endisset
-      class="ogame lang-en default no-touch"
->
+<body @isset($body_id)id="{!! $body_id !!}"@endisset class="ogame lang-en default no-touch">
 <div id="initial_welcome_dialog" title="Welcome to OGame!" style="display: none;">
     To help your game start get moving quickly, we’ve assigned you the name Commodore Nebula. You can change this at any time by clicking on the username.<br />
     Fleet Command has left you information on your first steps in your inbox, to help you be well-equipped for your start.<br />

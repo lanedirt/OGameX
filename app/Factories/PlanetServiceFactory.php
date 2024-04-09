@@ -12,7 +12,12 @@ use OGame\Services\SettingsService;
 
 class PlanetServiceFactory
 {
-    protected $instances = [];
+    /**
+     * Cached instances of planetService.
+     *
+     * @var array<PlanetService>
+     */
+    protected array $instances = [];
 
     /**
      * SettingsService.
@@ -33,11 +38,11 @@ class PlanetServiceFactory
      * Returns a planetService either from local instances cache or creates a new one. Note:
      * it is advised to use makeForPlayer() method if playerService is already available.
      *
-     * @param $planetId
+     * @param int $planetId
      * @return PlanetService
      * @throws BindingResolutionException
      */
-    public function make($planetId): PlanetService
+    public function make(int $planetId): PlanetService
     {
         if (!isset($this->instances[$planetId])) {
             $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
@@ -51,11 +56,11 @@ class PlanetServiceFactory
      * Returns a planetService either from local instances cache or creates a new one.
      *
      * @param PlayerService $player
-     * @param $planetId
+     * @param int $planetId
      * @return PlanetService
      * @throws BindingResolutionException
      */
-    public function makeForPlayer(PlayerService $player, $planetId): PlanetService
+    public function makeForPlayer(PlayerService $player, int $planetId): PlanetService
     {
         if (!isset($this->instances[$planetId])) {
             $planetService = app()->make(PlanetService::class, ['player' => $player, 'planet_id' => $planetId]);
@@ -68,9 +73,9 @@ class PlanetServiceFactory
     /**
      * Determine next available new planet position.
      *
-     * @return array|void
+     * @return array<string, int>
      */
-    public function determineNewPlanetPosition() {
+    public function determineNewPlanetPosition() : array {
         $lastAssignedGalaxy = $this->settings->get('last_assigned_galaxy', 1);
         $lastAssignedSystem = $this->settings->get('last_assigned_system', 1);
 
@@ -112,6 +117,7 @@ class PlanetServiceFactory
         }
 
         // If more than 100 tries have been done with no success, give up.
+        return [];
     }
 
     /**
