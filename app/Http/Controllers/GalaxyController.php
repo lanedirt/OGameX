@@ -89,7 +89,6 @@ class GalaxyController extends Controller
             'current_system' => $system,
             'espionage_probe_count' => 0,
             'recycler_count' => 0,
-            'recycler_count' => 0,
             'interplanetary_missiles_count' => 0,
             'used_slots' => 0,
             'max_slots' => 1,

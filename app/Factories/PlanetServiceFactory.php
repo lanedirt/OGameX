@@ -38,7 +38,7 @@ class PlanetServiceFactory
     public function make($planetId): PlanetService
     {
         if (!isset($this->instances[$planetId])) {
-            $planetService = app()->make(PlanetService::class, ['planet_id' => $planetId]);
+            $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
             $this->instances[$planetId] = $planetService;
         }
 
