@@ -3,11 +3,13 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Planet;
 use OGame\Services\Objects\ObjectService;
+use OGame\Services\Objects\Properties\Abstracts\ObjectPropertyService;
 use OGame\Services\Objects\Properties\AttackPropertyService;
 use OGame\Services\Objects\Properties\CapacityPropertyService;
 use OGame\Services\Objects\Properties\FuelPropertyService;
@@ -31,6 +33,7 @@ class PlanetService
      * @var ObjectService
      */
     public ObjectService $objects;
+
     /**
      * The planet object from the model.
      *
@@ -48,9 +51,9 @@ class PlanetService
     /**
      * Cache for services.
      *
-     * @var array
+     * @var array<ObjectPropertyService>
      */
-    private $serviceCache = [];
+    private array $objectPropertyServiceCache = [];
 
     /**
      * Planet constructor.
@@ -61,6 +64,7 @@ class PlanetService
      *
      * @param int $planet_id
      *  If supplied the constructor will try to load the planet from the database.
+     * @throws BindingResolutionException
      */
     public function __construct(PlayerService $player = null, int $planet_id = 0)
     {
@@ -92,8 +96,13 @@ class PlanetService
 
     /**
      * Load planet object by planet ID.
+     *
+     * @param int $id
+     * The planet ID to load.
+     *
+     * @return void
      */
-    public function loadByPlanetId($id)
+    public function loadByPlanetId(int $id) : void
     {
         // Fetch planet model
         $planet = Planet::where('id', $id)->first();
@@ -103,8 +112,10 @@ class PlanetService
 
     /**
      * Get the player object who owns this planet.
+     *
+     * @return PlayerService
      */
-    public function getPlayer()
+    public function getPlayer() : PlayerService
     {
         return $this->player;
     }
@@ -112,10 +123,10 @@ class PlanetService
     /**
      * Set the planet model directly. This is primarily used by unittests in order to mock the planet model.
      *
-     * @param $planet
+     * @param Planet $planet
      * @return void
      */
-    public function setPlanet($planet)
+    public function setPlanet(Planet $planet) : void
     {
         $this->planet = $planet;
     }
@@ -123,17 +134,19 @@ class PlanetService
     /**
      * Get planet name.
      *
-     * @return mixed
+     * @return string
      */
-    public function getPlanetName()
+    public function getPlanetName() : string
     {
         return $this->planet->name;
     }
 
     /**
      * Get planet coordinates as string.
+     *
+     * @return string
      */
-    public function getPlanetCoordinatesAsString()
+    public function getPlanetCoordinatesAsString() : string
     {
         $coordinates = $this->getPlanetCoordinates();
         return $coordinates['galaxy'] . ':' . $coordinates['system'] . ':' . $coordinates['planet'];
@@ -142,10 +155,10 @@ class PlanetService
     /**
      * Get planet coordinates in array.
      *
-     * @return array
+     * @return array<string,int>
      *  Array with coordinates (galaxy, system, planet)
      */
-    public function getPlanetCoordinates()
+    public function getPlanetCoordinates() : array
     {
         return [
             'galaxy' => $this->planet->galaxy,
@@ -156,16 +169,20 @@ class PlanetService
 
     /**
      * Get planet diameter.
+     *
+     * @return int
      */
-    public function getPlanetDiameter()
+    public function getPlanetDiameter() : int
     {
         return $this->planet->diameter;
     }
 
     /**
      * Get planet type (e.g. gas, ice, jungle etc.)
+     *
+     * @return string
      */
-    public function getPlanetType()
+    public function getPlanetType() : string
     {
         // Get system and planet.
         $coordinates = $this->getPlanetCoordinates();
@@ -199,8 +216,10 @@ class PlanetService
 
     /**
      * Get planet specific image type (e.g. which combination between type and variation).
+     *
+     * @return string
      */
-    public function getPlanetImageType()
+    public function getPlanetImageType() : string
     {
         // Get system and planet.
         $coordinates = $this->getPlanetCoordinates();
@@ -237,16 +256,23 @@ class PlanetService
 
     /**
      * Get planet metal production per second (decimal number).
+     *
+     * @return float
      */
-    public function getMetalProductionPerSecond()
+    public function getMetalProductionPerSecond() : float
     {
         return $this->getMetalProductionPerHour() / 3600;
     }
 
     /**
      * Get planet metal production per hour.
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
+     *
+     * @return float|string
      */
-    public function getMetalProductionPerHour($formatted = false)
+    public function getMetalProductionPerHour(bool $formatted = false) : float|string
     {
         $production = $this->planet->metal_production;
 
@@ -259,16 +285,24 @@ class PlanetService
 
     /**
      * Get planet crystal production per second (decimal number).
+     *
+     * @return float
+     * Crystal production per second.
      */
-    public function getCrystalProductionPerSecond()
+    public function getCrystalProductionPerSecond() : float
     {
         return $this->getCrystalProductionPerHour() / 3600;
     }
 
     /**
      * Get planet crystal production per hour.
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
+     *
+     * @return float|string
      */
-    public function getCrystalProductionPerHour($formatted = false)
+    public function getCrystalProductionPerHour(bool $formatted = false) : float|string
     {
         $production = $this->planet->crystal_production;
 
@@ -281,16 +315,23 @@ class PlanetService
 
     /**
      * Get planet deuterium production per second (decimal number).
+     *
+     * @return float
      */
-    public function getDeuteriumProductionPerSecond()
+    public function getDeuteriumProductionPerSecond() : float
     {
         return $this->getDeuteriumProductionPerHour() / 3600;
     }
 
     /**
      * Get planet deuterium production per hour.
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
+     *
+     * @return float|string
      */
-    public function getDeuteriumProductionPerHour($formatted = false)
+    public function getDeuteriumProductionPerHour($formatted = false) : float|string
     {
         $production = $this->planet->deuterium_production;
 
@@ -303,8 +344,14 @@ class PlanetService
 
     /**
      * Get planet energy amount.
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
+     *
+     * @return int|string
+     * Energy amount.
      */
-    public function getEnergy($formatted = false)
+    public function getEnergy(bool $formatted = false) : int|string
     {
         $energy_max = $this->planet->energy_max;
         $energy_used = $this->planet->energy_used;
@@ -320,8 +367,13 @@ class PlanetService
 
     /**
      * Removes resources from planet.
+     *
+     * @param array<string,int> $resources
+     * Array with resources to deduct.
+     *
+     * @throws Exception
      */
-    public function deductResources($resources)
+    public function deductResources(array $resources): void
     {
         // Sanity check that this planet has enough resources, if not throw
         // exception.
@@ -344,8 +396,13 @@ class PlanetService
 
     /**
      * Checks if this planet has equal or more than the requested resources.
+     *
+     * @param array<string,int> $resources
+     * Array with resources to check.
+     *
+     * @return bool
      */
-    public function hasResources($resources)
+    public function hasResources(array $resources): bool
     {
         if (!empty($resources['metal'])) {
             if ($this->getMetal() < $resources['metal']) {
@@ -371,11 +428,18 @@ class PlanetService
     /**
      * Get planet metal amount.
      *
-     * @return mixed
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
+     *
+     * @return int|string
      */
-    public function getMetal($formatted = false)
+    public function getMetal(bool $formatted = false) : int|string
     {
         $metal = $this->planet->metal;
+
+        if (empty($metal)) {
+            $metal = 0;
+        }
 
         if ($formatted) {
             $metal = AppUtil::formatNumberLong($metal);
@@ -386,8 +450,13 @@ class PlanetService
 
     /**
      * Get planet crystal amount.
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
+     *
+     * @return int|string
      */
-    public function getCrystal($formatted = false)
+    public function getCrystal(bool $formatted = false) : int|string
     {
         $crystal = $this->planet->crystal;
 
@@ -400,8 +469,13 @@ class PlanetService
 
     /**
      * Get planet deuterium amount.
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
+     *
+     * @return int|string
      */
-    public function getDeuterium($formatted = false)
+    public function getDeuterium(bool $formatted = false) : int|string
     {
         $deuterium = $this->planet->deuterium;
 
@@ -414,18 +488,29 @@ class PlanetService
 
     /**
      * Get the amount of a specific unit object on this planet. E.g. ships or defense.
+     *
+     * @param int $object_id
+     * The object ID of the unit object.
+     *
+     * @return int
      */
-    function getObjectAmount($object_id)
+    function getObjectAmount(int $object_id) : int
     {
         $object = $this->objects->getUnitObjects($object_id);
 
-        return $this->planet->{$object['machine_name']};
+        if (!empty($this->planet->{$object['machine_name']})) {
+            return $this->planet->{$object['machine_name']};
+        } else {
+            return 0;
+        }
     }
 
     /**
      * Get the total amount of ship unit objects on this planet that can fly.
+     *
+     * @return int
      */
-    function getFlightShipAmount()
+    function getFlightShipAmount() : int
     {
         $totalCount = 0;
 
@@ -443,11 +528,17 @@ class PlanetService
 
     /**
      * Gets the time of upgrading a building on this planet to the next level.
+     *
+     * @param int $object_id
+     * The object ID of the building.
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the time or not.
+     *
+     * @return int|string
      */
-    public function getBuildingConstructionTime($object_id, $formatted = FALSE)
+    public function getBuildingConstructionTime(int $object_id, bool $formatted = FALSE) : int|string
     {
-        $object = $this->objects->getObjects($object_id);
-
         $current_level = $this->getObjectLevel($object_id);
         $next_level = $current_level + 1;
         $price = $this->objects->getObjectPrice($object_id, $this);
@@ -481,8 +572,16 @@ class PlanetService
 
     /**
      * Gets the time of building a ship/defense unit on this planet.
+     *
+     * @param int $object_id
+     * The object ID of the unit.
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the time or not.
+     *
+     * @return int|string
      */
-    public function getUnitConstructionTime($object_id, $formatted = FALSE)
+    public function getUnitConstructionTime(int $object_id, bool $formatted = FALSE) : int|string
     {
         $object = $this->objects->getObjects($object_id);
 
@@ -509,8 +608,16 @@ class PlanetService
 
     /**
      * Gets the time of researching a technology.
+     *
+     * @param int $object_id
+     * The object ID of the technology.
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the time or not.
+     *
+     * @return int|string
      */
-    public function getTechnologyResearchTime($object_id, $formatted = FALSE)
+    public function getTechnologyResearchTime(int $object_id, bool $formatted = FALSE) : int|string
     {
         $price = $this->objects->getObjectPrice($object_id, $this);
 
@@ -536,8 +643,13 @@ class PlanetService
 
     /**
      * Gets the level of a building on this planet.
+     *
+     * @param int $object_id
+     * The object ID of the building.
+     *
+     * @return int
      */
-    public function getObjectLevel($object_id)
+    public function getObjectLevel(int $object_id) : int
     {
         $object = $this->objects->getObjects($object_id);
         $object_level = $this->planet->{$object['machine_name']};
@@ -552,10 +664,11 @@ class PlanetService
     /**
      * Sets the building production percentage.
      *
-     * @param $building_id
-     * @param $percentage
+     * @param int $building_id
+     * @param int $percentage
+     * @return bool
      */
-    public function setBuildingPercent($building_id, $percentage)
+    public function setBuildingPercent(int $building_id, int $percentage) : bool
     {
         $building = $this->objects->getBuildingObjects($building_id);
 
@@ -583,8 +696,10 @@ class PlanetService
     /**
      * Update this planet's resources, buildings, shipyard, defenses and research.
      * This should happen on every users page load and every time the planet is touched.
+     *
+     * @return void
      */
-    public function update()
+    public function update() : void
     {
         // ------
         // 1. Update resources amount in planet based on hourly production values.
@@ -624,7 +739,7 @@ class PlanetService
      *   but can be set to FALSE when update happens in bulk and the caller method calls
      *   the save planet itself to prevent on unnecessary multiple updates.
      */
-    public function updateResources($save_planet = true)
+    public function updateResources(bool $save_planet = true) : void
     {
         $time_last_update = $this->planet->time_last_update;
         $current_time = Carbon::now()->timestamp;
@@ -692,8 +807,13 @@ class PlanetService
 
     /**
      * Get planet metal storage (max amount this planet can contain).
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
+     *
+     * @return int|string
      */
-    public function getMetalStorage($formatted = false)
+    public function getMetalStorage(bool $formatted = false) : int|string
     {
         $storage = $this->planet->metal_max;
 
@@ -706,8 +826,11 @@ class PlanetService
 
     /**
      * Get planet crystal storage (max amount this planet can contain).
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
      */
-    public function getCrystalStorage($formatted = false)
+    public function getCrystalStorage(bool $formatted = false) : int|string
     {
         $storage = $this->planet->crystal_max;
 
@@ -720,8 +843,11 @@ class PlanetService
 
     /**
      * Get planet deuterium storage (max amount this planet can contain).
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
      */
-    public function getDeuteriumStorage($formatted = false)
+    public function getDeuteriumStorage(bool $formatted = false) : int|string
     {
         $storage = $this->planet->deuterium_max;
 
@@ -742,7 +868,7 @@ class PlanetService
      * but can be set to FALSE when update happens in bulk and the caller method calls
      * the save planet itself to prevent on unnecessary multiple updates.
      */
-    public function addResources($resources, $save_planet = true)
+    public function addResources($resources, bool $save_planet = true) : void
     {
         if (!empty($resources['metal'])) {
             $this->planet->metal += $resources['metal'];
@@ -767,8 +893,10 @@ class PlanetService
      *  Optional flag whether to save the planet in this method. This defaults to TRUE
      *  but can be set to FALSE when update happens in bulk and the caller method calls
      *  the save planet itself to prevent on unnecessary multiple updates.
+     *
+     * @throws Exception
      */
-    public function updateBuildingQueue($save_planet = true)
+    public function updateBuildingQueue(bool $save_planet = true) : void
     {
         $queue = resolve('OGame\Services\BuildingQueueService');
         $build_queue = $queue->retrieveFinished($this->getPlanetId());
@@ -790,7 +918,15 @@ class PlanetService
         }
     }
 
-    public function setObjectLevel($object_id, $level, $save_planet = true)
+    /**
+     * Set the level of an object on this planet.
+     *
+     * @param int $object_id
+     * @param int $level
+     * @param bool $save_planet
+     * @return void
+     */
+    public function setObjectLevel(int $object_id, int $level, bool $save_planet = true): void
     {
         $object = $this->objects->getObjects($object_id);
         $this->planet->{$object['machine_name']} = $level;
@@ -802,9 +938,9 @@ class PlanetService
     /**
      * Get planet ID.
      *
-     * @return mixed
+     * @return int
      */
-    public function getPlanetId()
+    public function getPlanetId(): int
     {
         return $this->planet->id;
     }
@@ -818,7 +954,7 @@ class PlanetService
      *   but can be set to FALSE when update happens in bulk and the caller method calls
      *   the save planet itself to prevent on unnecessary multiple updates.
      */
-    public function updateUnitQueue($save_planet = true)
+    public function updateUnitQueue(bool $save_planet = true) : void
     {
         $queue = resolve('OGame\Services\UnitQueueService');
         $unit_queue = $queue->retrieveBuilding($this->getPlanetId());
@@ -882,7 +1018,7 @@ class PlanetService
      *   but can be set to FALSE when update happens in bulk and the caller method calls
      *   the save planet itself to prevent on unnecessary multiple updates.
      */
-    public function updateResourceProductionStats($save_planet = true)
+    public function updateResourceProductionStats(bool $save_planet = true) : void
     {
         $production_total = [];
         $energy_production_total = 0;
@@ -920,8 +1056,10 @@ class PlanetService
 
     /**
      * Returns basic income (resources) information for this planet.
+     *
+     * @return array<string,int>
      */
-    public function getPlanetBasicIncome()
+    public function getPlanetBasicIncome() : array
     {
         $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
 
@@ -937,13 +1075,13 @@ class PlanetService
     /**
      * Update the planets resource production stats inner logic.
      *
-     * @param $production_total
-     * @param $energy_production_total
-     * @param $energy_consumption_total
-     * @param $save_planet
+     * @param array<string,int> $production_total
+     * @param int $energy_production_total
+     * @param int $energy_consumption_total
+     * @param bool $save_planet
      * @return void
      */
-    private function updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total, $save_planet = true)
+    private function updateResourceProductionStatsInner(array $production_total, int $energy_production_total, int $energy_consumption_total, bool $save_planet = true): void
     {
         foreach ($this->objects->getBuildingObjectsWithProduction() as $building) {
             // Retrieve all buildings that have production values.
@@ -977,10 +1115,10 @@ class PlanetService
     /**
      * Gets the production value of a building on this planet.
      *
-     * @param $building_id
+     * @param int $building_id
      *  The ID of the building to calculate the production for.
      *
-     * @param false $building_level
+     * @param int $building_level
      *  Optional parameter to calculate the production for a specific level
      *  of a building. Defaults to the current level.
      */
@@ -1038,7 +1176,7 @@ class PlanetService
      * @return int
      *  The production factor expressed as a percentage (min 0, max 100).
      */
-    public function getResourceProductionFactor()
+    public function getResourceProductionFactor(): int
     {
         if ($this->getEnergyProduction() == 0 || $this->getEnergyConsumption() == 0) {
             return 0;
@@ -1058,10 +1196,19 @@ class PlanetService
 
     /**
      * Get planet energy production.
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
+     *
+     * @return int|string
      */
-    public function getEnergyProduction($formatted = false)
+    public function getEnergyProduction(bool $formatted = false) : int|string
     {
         $energy_production = $this->planet->energy_max;
+
+        if (empty($energy_production)) {
+            $energy_production = 0;
+        }
 
         if ($formatted) {
             $energy_production = AppUtil::formatNumber($energy_production);
@@ -1072,8 +1219,13 @@ class PlanetService
 
     /**
      * Get planet energy consumption.
+     *
+     * @param bool $formatted
+     * Optional flag whether to format the number or not.
+     *
+     * @return int|string
      */
-    public function getEnergyConsumption($formatted = false)
+    public function getEnergyConsumption(bool $formatted = false): int|string
     {
         $energy_consumption = $this->planet->energy_used;
 
@@ -1087,9 +1239,12 @@ class PlanetService
     /**
      * Get building production percentage.
      *
+     * @param int $building_id
+     * The ID of the building to get the production percentage for.
+     *
      * @return int
      */
-    public function getBuildingPercent($building_id)
+    public function getBuildingPercent(int $building_id) : int
     {
         $building = $this->objects->getObjects($building_id);
 
@@ -1101,50 +1256,50 @@ class PlanetService
         return $this->planet->{$building['machine_name'] . '_percent'};
     }
 
-    // Example of using the refactored service for calculating structural integrity
-    public function getObjectPropertyDetails($objectId, $propertyName)
+    /**
+     * Get the object property service for a specific property.
+     *
+     * @param $propertyName
+     * @return ObjectPropertyService
+     * @throws Exception
+     */
+    public function getPropertyService($propertyName) : ObjectPropertyService
     {
-        // Factory or Dependency Injection to get the specific property service
-        $service = $this->getPropertyService($propertyName)->calculateProperty($objectId, $propertyName);
-        return $service->calculateProperty($objectId, $propertyName);
-    }
-
-    public function getPropertyService($propertyName)
-    {
-        if (!isset($this->serviceCache[$propertyName])) {
+        if (!isset($this->objectPropertyServiceCache[$propertyName])) {
             switch ($propertyName) {
                 case 'structural_integrity':
-                    $this->serviceCache[$propertyName] = new StructuralIntegrityPropertyService($this->objects, $this);
+                    $this->objectPropertyServiceCache[$propertyName] = new StructuralIntegrityPropertyService($this->objects, $this);
                     break;
                 case 'shield':
-                    $this->serviceCache[$propertyName] = new ShieldPropertyService($this->objects, $this);
+                    $this->objectPropertyServiceCache[$propertyName] = new ShieldPropertyService($this->objects, $this);
                     break;
                 case 'attack':
-                    $this->serviceCache[$propertyName] = new AttackPropertyService($this->objects, $this);
+                    $this->objectPropertyServiceCache[$propertyName] = new AttackPropertyService($this->objects, $this);
                     break;
                 case 'speed':
-                    $this->serviceCache[$propertyName] = new SpeedPropertyService($this->objects, $this);
+                    $this->objectPropertyServiceCache[$propertyName] = new SpeedPropertyService($this->objects, $this);
                     break;
                 case 'capacity':
-                    $this->serviceCache[$propertyName] = new CapacityPropertyService($this->objects, $this);
+                    $this->objectPropertyServiceCache[$propertyName] = new CapacityPropertyService($this->objects, $this);
                     break;
                 case 'fuel':
-                    $this->serviceCache[$propertyName] = new FuelPropertyService($this->objects, $this);
+                    $this->objectPropertyServiceCache[$propertyName] = new FuelPropertyService($this->objects, $this);
                     break;
                 default:
                     throw new \Exception('Unknown object property name: ' . $propertyName);
             }
         }
-        return $this->serviceCache[$propertyName];
+        return $this->objectPropertyServiceCache[$propertyName];
     }
 
     /**
      * Get all object properties for a specific object.
      *
-     * @param $objectId
+     * @param int $objectId
      * @return ObjectProperties
+     * @throws Exception
      */
-    public function getObjectProperties($objectId): ObjectProperties
+    public function getObjectProperties(int $objectId): ObjectProperties
     {
         $properties = [
             'structural_integrity',
@@ -1175,33 +1330,50 @@ class PlanetService
 
     /**
      * Get planet average temperature.
+     *
+     * @return int
      */
-    public function getPlanetTempAvg()
+    public function getPlanetTempAvg() : int
     {
         return round(($this->getPlanetTempMin() + $this->getPlanetTempMax()) / 2);
     }
 
     /**
      * Get planet minimum temperature.
+     *
+     * @return int
      */
-    public function getPlanetTempMin()
+    public function getPlanetTempMin() : int
     {
-        return $this->planet->temp_min;
+        if (!empty($this->planet->temp_min)) {
+            return $this->planet->temp_min;
+        }
+
+        return 0;
     }
 
     /**
      * Get planet maximum temperature.
+     *
+     * @return int
      */
-    public function getPlanetTempMax()
+    public function getPlanetTempMax() : int
     {
-        return $this->planet->temp_max;
+        if (!empty($this->planet->temp_max)) {
+            return $this->planet->temp_max;
+        }
+
+        return 0;
     }
 
     /**
      * Update this planet's resource storage stats.
      * This should happen on every users page load and every time the planet is touched.
+     *
+     * @param bool $save_planet
+     *  Optional flag whether to save the planet in this method. This defaults to TRUE.
      */
-    public function updateResourceStorageStats($save_planet = true)
+    public function updateResourceStorageStats(bool $save_planet = true) : void
     {
         $storage_total = [];
         foreach ($this->objects->getBuildingObjectsWithStorage() as $building) {
@@ -1229,6 +1401,14 @@ class PlanetService
 
     /**
      * Gets the max storage value for resources of a building on this planet.
+     *
+     * @param int $building_id
+     * The ID of the building to calculate the storage for.
+     *
+     * @param int|bool $building_level
+     * Optional parameter to calculate the storage for a specific level
+     *
+     * @return array<string,int>
      */
     public function getBuildingMaxStorage(int $building_id, int|bool $building_level = false): array
     {
@@ -1249,8 +1429,10 @@ class PlanetService
 
     /**
      * Calculate and return planet score based on levels of buildings and amount of units.
+     *
+     * @return int
      */
-    public function getPlanetScore()
+    public function getPlanetScore() : int
     {
         // For every object in the game, calculate the score based on how much resources it costs to build it.
         // For buildings with levels it is the sum of resources needed for all levels up to the current level.
@@ -1283,8 +1465,10 @@ class PlanetService
 
     /**
      * Calculate and return economy planet score based on levels of buildings and amount of units.
+     *
+     * @return int
      */
-    public function getPlanetScoreEconomy()
+    public function getPlanetScoreEconomy() : int
     {
         // Economy score includes:
         // 100% buildings/facilities
@@ -1337,9 +1521,9 @@ class PlanetService
     /**
      * Calculate planet military points.
      *
-     * @return float
+     * @return int
      */
-    public function getPlanetMilitaryScore()
+    public function getPlanetMilitaryScore() : int
     {
         // Military score includes:
         // 100% defense

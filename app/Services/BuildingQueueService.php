@@ -54,7 +54,7 @@ class BuildingQueueService
     /**
      * Retrieve queued items that are not being built yet.
      *
-     * @param array $queue_items
+     * @param Collection $queue_items
      *
      * @return Collection<BuildingQueue>
      *  Collection when an item exists. False if it does not.
@@ -76,7 +76,7 @@ class BuildingQueueService
     public function retrieveFinished($planet_id) : Collection
     {
         // Fetch queue items from model
-        $queue_items = $this->model->where([
+        return $this->model->where([
             ['planet_id', $planet_id],
             ['time_end', '<=', Carbon::now()->timestamp],
             ['building', 1],
@@ -85,8 +85,6 @@ class BuildingQueueService
         ])
             ->orderBy('time_start', 'asc')
             ->get();
-
-        return $queue_items;
     }
 
     /**
@@ -146,15 +144,13 @@ class BuildingQueueService
     public function retrieveQueue(PlanetService $planet) : Collection
     {
         // Fetch queue items from model
-        $queue_items = $this->model->where([
+        return $this->model->where([
             ['planet_id', $planet->getPlanetId()],
             ['processed', 0],
             ['canceled', 0],
         ])
             ->orderBy('time_start', 'asc')
             ->get();
-
-        return $queue_items;
     }
 
     /**
@@ -218,19 +214,18 @@ class BuildingQueueService
      *
      * @param PlanetService $planet
      * @param int $building_id
+     * @return int
      */
-    public function activeBuildingQueueItemCount(PlanetService $planet, int $building_id)
+    public function activeBuildingQueueItemCount(PlanetService $planet, int $building_id): int
     {
         // Fetch queue items from model
-        $count = $this->model->where([
+        return $this->model->where([
             ['planet_id', $planet->getPlanetId()],
             ['object_id', $building_id],
             ['processed', 0],
             ['canceled', 0],
         ])
             ->count();
-
-        return $count;
     }
 
     /**
@@ -241,14 +236,14 @@ class BuildingQueueService
      * will fail.
      *
      * @param PlanetService $planet
-     * @param bool $time_start
+     * @param int $time_start
      *  Optional parameter to indicate when the new item should start, this
      *  is used for when a few build queue items are finished at the exact
      *  same time, e.g. when a user closes its session and logs back in
      *  after a while.
      * @throws Exception
      */
-    public function start(PlanetService $planet, int $time_start = 0)
+    public function start(PlanetService $planet, int $time_start = 0): void
     {
         // TODO: add unittest for case described above with $time_start.
         $queue_items = $this->model->where([
