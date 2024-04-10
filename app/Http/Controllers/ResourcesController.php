@@ -168,11 +168,9 @@ class ResourcesController extends AbstractBuildingsController
 
         foreach ($request->input() as $key => $value) {
             if (stristr($key, 'last')) {
-                $object_id = str_replace('last', '', $key);
-                if (is_numeric($object_id)) {
-                    // Update percentage (in increments of 10)
-                    $this->planet->setBuildingPercent($object_id, $value);
-                }
+                $object_id = (int)str_replace('last', '', $key);
+                // Update percentage (in increments of 10)
+                $this->planet->setBuildingPercent($object_id, (int)$value);
             }
         }
 

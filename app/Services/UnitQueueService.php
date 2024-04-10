@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Models\UnitQueue;
 use OGame\Services\Objects\ObjectService;
@@ -16,18 +18,11 @@ use OGame\Services\Objects\ObjectService;
 class UnitQueueService
 {
     /**
-     * The planet object from the model.
-     *
-     * @var
-     */
-    protected $queue_item;
-
-    /**
      * Information about objects.
      *
      * @var ObjectService
      */
-    protected $objects;
+    protected ObjectService $objects;
 
     /**
      * The queue model where this class should get its data from.
@@ -49,53 +44,50 @@ class UnitQueueService
 
     /**
      * Retrieve current building build queue for a planet.
+     *
+     * @param PlanetService $planet
      */
-    public function retrieveQueue($planet)
+    public function retrieveQueue(PlanetService $planet) : Collection
     {
         // Fetch queue items from model
-        $queue_items = $this->model->where([
+        return $this->model->where([
             ['planet_id', $planet->getPlanetId()],
             ['processed', 0],
         ])
             ->orderBy('time_start', 'asc')
             ->get();
-
-        return $queue_items;
     }
 
     /**
      * Retrieve current building build queue for a planet.
+     *
+     * @param int $planet_id
+     * @return Collection<UnitQueue>
      */
-    public function retrieveBuilding($planet_id)
+    public function retrieveBuilding(int $planet_id) : Collection
     {
         // Fetch queue items from model
-        $queue_items = $this->model->where([
+        return $this->model->where([
             ['planet_id', $planet_id],
             ['time_start', '<=', Carbon::now()->timestamp],
             ['processed', 0],
         ])
             ->orderBy('time_start', 'asc')
             ->get();
-
-        return $queue_items;
     }
 
     /**
      * Enriches one or more queue_items to prepare it for rendering.
      *
-     * @param $queue_items
+     * @param Collection<UnitQueue> $queue_items
      *  Single queue_item or array of queue_items.
      *
      * @return array
      */
-    public function enrich($queue_items)
+    public function enrich(Collection $queue_items) : array
     {
         // Enrich information before we return it
         $return = array();
-
-        if (empty($queue_items)) {
-            return $return;
-        }
 
         // Convert single queue_item result to an array because the logic
         // beneath expects an array.
@@ -143,34 +135,41 @@ class UnitQueueService
 
         if ($return_type == 'single') {
             return $return[0];
-        } elseif ($return_type == 'array') {
+        } else {
             return $return;
         }
-
-        return $return;
     }
 
     /**
      * Get the amount of already existing queue items for a particular
      * building.
+     *
+     * @param PlanetService $planet
+     * @param int $building_id
+     * @return int
      */
-    public function activeBuildingQueueItemCount(PlanetService $planet, $building_id)
+    public function activeBuildingQueueItemCount(PlanetService $planet, int $building_id): int
     {
         // Fetch queue items from model
-        $count = $this->model->where([
+        return $this->model->where([
             ['planet_id', $planet->getPlanetId()],
             ['object_id', $building_id],
             ['processed', 0],
         ])
             ->count();
-
-        return $count;
     }
 
     /**
      * Add a building to the building queue for the current planet.
+     *
+     * @param PlanetService $planet
+     * @param int $object_id
+     * @param int $requested_build_amount
+     *
+     * @return void
+     * @throws Exception
      */
-    public function add(PlanetService $planet, $object_id, $requested_build_amount): void
+    public function add(PlanetService $planet, int $object_id, int $requested_build_amount): void
     {
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the building queue.
@@ -243,8 +242,11 @@ class UnitQueueService
      * Retrieve the end time of any items that are already in the queue.
      *
      * If there are no items in the queue, FALSE will be returned.
+     *
+     * @param PlanetService $planet
+     * @return int
      */
-    public function retrieveQueueTimeEnd($planet)
+    public function retrieveQueueTimeEnd(PlanetService $planet) : int
     {
         // Fetch queue items from model
         $queue_item = $this->model->where([
@@ -257,7 +259,7 @@ class UnitQueueService
         if ($queue_item) {
             return $queue_item->time_end;
         } else {
-            return false;
+            return 0;
         }
     }
 }

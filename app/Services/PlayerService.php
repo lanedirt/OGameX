@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use OGame\Models\User;
@@ -24,18 +25,21 @@ class PlayerService
      * @var PlanetListService
      */
     public PlanetListService $planets;
+
     /**
      * The user object from the model of this player.
      *
      * @var User
      */
     protected User $user;
+
     /**
      * The user tech object from the model of this player.
      *
      * @var UserTech
      */
     protected UserTech $user_tech;
+
     /**
      * @var ObjectService
      */
@@ -43,8 +47,10 @@ class PlayerService
 
     /**
      * Player constructor.
+     *
+     * @param int $player_id
      */
-    public function __construct($player_id)
+    public function __construct(int $player_id)
     {
         // Load the player object if a positive player ID is given.
         // If no player ID is given then player context will not be available, but this can be fine for unittests.
@@ -57,8 +63,11 @@ class PlayerService
 
     /**
      * Load player object by user ID.
+     *
+     * @param int $id
+     * @throws BindingResolutionException
      */
-    public function load($id): void
+    public function load(int $id): void
     {
         // Fetch user from model
         $user = User::where('id', $id)->first();
@@ -81,7 +90,13 @@ class PlayerService
         $this->planets = $planet_list_service;
     }
 
-    public function setUserTech($userTech): void
+    /**
+     * Set user tech object.
+     *
+     * @param UserTech $userTech
+     * @return void
+     */
+    public function setUserTech(UserTech $userTech): void
     {
         $this->user_tech = $userTech;
     }
@@ -89,7 +104,7 @@ class PlayerService
     /**
      * Get current player ID.
      */
-    public function getId()
+    public function getId() : int
     {
         return $this->user->id;
     }
@@ -105,9 +120,10 @@ class PlayerService
     /**
      * Set username property.
      *
-     * @param $username
+     * @param string $username
+     * @throws Exception
      */
-    public function setUsername($username): void
+    public function setUsername(string $username): void
     {
         if ($this->validateUsername($username)) {
             $this->user->username = $username;
@@ -118,14 +134,17 @@ class PlayerService
 
     /**
      * Validates a username.
+     *
+     * @param string $username
+     * @return false|int
      */
-    public function validateUsername($username): false|int
+    public function validateUsername(string $username): false|int
     {
         return preg_match('/^[A-Za-z][A-Za-z0-9\s]*(?:_[A-Za-z0-9\s]+)*$/', $username);
     }
 
     /**
-     * Get the users username.
+     * Get the user's username.
      *
      * @return string
      */
@@ -136,16 +155,21 @@ class PlayerService
 
     /**
      * Set email address.
+     *
+     * @param string $email
      */
-    public function setEmail($email): void
+    public function setEmail(string $email): void
     {
         $this->user->email = $email;
     }
 
     /**
      * Validates whether input matches current users password.
+     *
+     * @param string $password
+     * @return bool
      */
-    public function validatePassword($password): bool
+    public function validatePassword(string $password): bool
     {
         if (Auth::Attempt((['email' => $this->getEmail(), 'password' => $password]))) {
             return true;
@@ -156,16 +180,21 @@ class PlayerService
 
     /**
      * Get email address.
+     *
+     * @return string
      */
-    public function getEmail()
+    public function getEmail() : string
     {
         return $this->user->email;
     }
 
     /**
      * Gets the level of a research technology for this player.
+     *
+     * @param int $object_id
+     * @return int
      */
-    public function getResearchLevel($object_id)
+    public function getResearchLevel(int $object_id) : int
     {
         $research = $this->objects->getResearchObjects($object_id);
         $research_level = $this->user_tech->{$research['machine_name']};
@@ -180,12 +209,12 @@ class PlayerService
     /**
      * Set the level of a research technology for this player.
      *
-     * @param $object_id
-     * @param $level
-     * @param $save_to_db
+     * @param int $object_id
+     * @param int $level
+     * @param bool $save_to_db
      * @return void
      */
-    public function setResearchLevel($object_id, $level, $save_to_db = true): void
+    public function setResearchLevel(int $object_id, int $level, bool $save_to_db = true): void
     {
         $research = $this->objects->getResearchObjects($object_id);
 
@@ -198,16 +227,25 @@ class PlayerService
 
     /**
      * Get planet ID that player has currently selected / is looking at.
+     *
+     * @return int
      */
-    public function getCurrentPlanetId()
+    public function getCurrentPlanetId() : int
     {
+        if (!$this->user->planet_current) {
+            // If no current planet is set, return the first planet of the player.
+            return $this->planets->first()->getPlanetId();
+        }
+        
         return $this->user->planet_current;
     }
 
     /**
      * Set current planet ID (update).
+     *
+     * @param int $planet_id
      */
-    public function setCurrentPlanetId($planet_id)
+    public function setCurrentPlanetId(int $planet_id) : void
     {
         // Check if user owns this planet ID
         if ($this->planets->planetExistsAndOwnedByPlayer($planet_id)) {
@@ -218,8 +256,15 @@ class PlayerService
 
     /**
      * Update the player entity.
+     *
+     * This method is called every time the player logs in.
+     * It updates the player's last IP and time properties.
+     * It also updates the research queue.
+     *
+     * @return void
+     * @throws Exception
      */
-    public function update()
+    public function update() : void
     {
         // ------
         // 1. Update research queue
@@ -255,8 +300,11 @@ class PlayerService
 
     /**
      * Calculate and return planet score based on levels of buildings and amount of units.
+     *
+     * @return int
      */
-    public function getResearchScore() {
+    public function getResearchScore() : int
+    {
         // For every research in the game, calculate the score based on how much resources it costs to build it.
         // For research it is the sum of resources needed for all levels up to the current level.
         // The score is the sum of all these values.
@@ -273,7 +321,7 @@ class PlayerService
         }
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
-        $score = floor($resources_spent / 1000);
+        $score = (int)floor($resources_spent / 1000);
 
         return $score;
     }

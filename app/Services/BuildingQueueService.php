@@ -72,8 +72,11 @@ class BuildingQueueService
 
     /**
      * Retrieve all build queue items that already should be finished for a planet.
+     *
+     * @param int $planet_id
+     * @return Collection<BuildingQueue>
      */
-    public function retrieveFinished($planet_id) : Collection
+    public function retrieveFinished(int $planet_id) : Collection
     {
         // Fetch queue items from model
         return $this->model->where([
@@ -201,8 +204,6 @@ class BuildingQueueService
 
         if ($return_type == 'single') {
             return $return[0];
-        } elseif ($return_type == 'array') {
-            return $return;
         }
 
         return $return;

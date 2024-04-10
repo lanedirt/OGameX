@@ -1707,10 +1707,10 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     /**
      * Get all buildings (or specific building).
      *
-     * @param bool $object_id
+     * @param int $object_id
      * @return array
      */
-    public function getBuildingObjects($object_id = FALSE) : array
+    public function getBuildingObjects(int $object_id = 0) : array
     {
         if (!empty($object_id)) {
             if (!empty($this->buildingObjects[$object_id])) {
@@ -1725,8 +1725,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Get all buildings that have production values.
+     *
+     * @param int $object_id
+     * @return array
      */
-    public function getBuildingObjectsWithProduction($object_id = FALSE)
+    public function getBuildingObjectsWithProduction(int $object_id = 0) : array
     {
         $return = array();
 
@@ -1745,8 +1748,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Get all buildings that have storage values.
+     *
+     * @param int $object_id
+     * @return array
      */
-    public function getBuildingObjectsWithStorage($object_id = FALSE)
+    public function getBuildingObjectsWithStorage(int $object_id = 0) : array
     {
         $return = array();
 
@@ -1765,14 +1771,17 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Get all buildings (or specific building).
+     *
+     * @param int $object_id
+     * @return array
      */
-    public function getStationObjects($object_id = FALSE)
+    public function getStationObjects(int $object_id = 0) : array
     {
         if (!empty($object_id)) {
             if (!empty($this->stationObjects[$object_id])) {
                 return $this->stationObjects[$object_id];
             } else {
-                return FALSE;
+                return [];
             }
         } else {
             return $this->stationObjects;
@@ -1781,14 +1790,17 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Get all research (or specific research).
+     *
+     * @param int $object_id
+     * @return array
      */
-    public function getResearchObjects($object_id = FALSE)
+    public function getResearchObjects(int $object_id = 0) : array
     {
         if (!empty($object_id)) {
             if (!empty($this->researchObjects[$object_id])) {
                 return $this->researchObjects[$object_id];
             } else {
-                return FALSE;
+                return [];
             }
         } else {
             return $this->researchObjects;
@@ -1798,7 +1810,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     /**
      * Get all ships (or specific ship).
      */
-    public function getShipObjects($object_id = FALSE)
+    public function getShipObjects(int $object_id = 0) : array
     {
         $ship_objects = $this->militaryShipObjects + $this->civilShipObjects;
 
@@ -1806,7 +1818,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             if (!empty($ship_objects[$object_id])) {
                 return $ship_objects[$object_id];
             } else {
-                return FALSE;
+                return [];
             }
         } else {
             return $ship_objects;
@@ -1815,14 +1827,17 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Get all military ships (or specific ship).
+     *
+     * @param int $object_id
+     * @return array
      */
-    public function getMilitaryShipObjects($object_id = FALSE)
+    public function getMilitaryShipObjects(int $object_id = 0): array
     {
         if (!empty($object_id)) {
             if (!empty($this->militaryShipObjects[$object_id])) {
                 return $this->militaryShipObjects[$object_id];
             } else {
-                return FALSE;
+                return [];
             }
         } else {
             return $this->militaryShipObjects;
@@ -1831,14 +1846,17 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Get all civil ships (or specific ship).
+     *
+     * @param int $object_id
+     * @return array
      */
-    public function getCivilShipObjects($object_id = FALSE)
+    public function getCivilShipObjects(int $object_id = 0) : array
     {
         if (!empty($object_id)) {
             if (!empty($this->civilShipObjects[$object_id])) {
                 return $this->civilShipObjects[$object_id];
             } else {
-                return FALSE;
+                return [];
             }
         } else {
             return $this->civilShipObjects;
@@ -1847,14 +1865,17 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Get all defense (or specific defense).
+     *
+     * @param int $object_id
+     * @return array
      */
-    public function getDefenseObjects($object_id = FALSE)
+    public function getDefenseObjects(int $object_id = 0) : array
     {
         if (!empty($object_id)) {
             if (!empty($this->defenseObjects[$object_id])) {
                 return $this->defenseObjects[$object_id];
             } else {
-                return FALSE;
+                return [];
             }
         } else {
             return $this->defenseObjects;
@@ -1865,10 +1886,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
      * Check if object requirements are met (for building it).
      *
      * @param $building_id
-     *
+     * @param PlanetService $planet
+     * @param PlayerService $player
      * @return bool
      */
-    public function objectRequirementsMet($building_id, PlanetService $planet, PlayerService $player)
+    public function objectRequirementsMet($building_id, PlanetService $planet, PlayerService $player) : bool
     {
         $objects = $this->getObjects();
         $requirements = $objects[$building_id]['requirements'];
@@ -1891,8 +1913,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Get all objects (or specific object).
+     *
+     * @param int $object_id
+     * @return array
      */
-    public function getObjects($object_id = FALSE)
+    public function getObjects(int $object_id = 0) : array
     {
         // Create combined array of all object types.
         $all_objects = $this->buildingObjects +
@@ -1906,7 +1931,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             if (!empty($all_objects[$object_id])) {
                 return $all_objects[$object_id];
             } else {
-                return FALSE;
+                return [];
             }
         } else {
             return $all_objects;
@@ -1915,8 +1940,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Get all unit objects (or specific unit object).
+     *
+     * @param int $object_id
+     * @return array
      */
-    public function getUnitObjects($object_id = FALSE)
+    public function getUnitObjects(int $object_id = 0) : array
     {
         // Create combined array of the required object types.
         $unit_objects = $this->militaryShipObjects + $this->civilShipObjects + $this->defenseObjects;
@@ -1925,7 +1953,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             if (!empty($unit_objects[$object_id])) {
                 return $unit_objects[$object_id];
             } else {
-                return FALSE;
+                return [];
             }
         } else {
             return $unit_objects;
@@ -1935,8 +1963,12 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     /**
      * Calculates the max build amount of an object (unit) based on available
      * planet resources.
+     *
+     * @param int $object_id
+     * @param PlanetService $planet
+     * @return mixed
      */
-    public function getObjectMaxBuildAmount($object_id, PlanetService $planet)
+    public function getObjectMaxBuildAmount(int $object_id, PlanetService $planet) : int
     {
         $price = $this->getObjectPrice($object_id, $planet);
 
@@ -1967,8 +1999,13 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Gets the cost of upgrading a building on this planet to the next level.
+     *
+     * @param int $object_id
+     * @param PlanetService $planet
+     * @param bool $formatted
+     * @return array
      */
-    public function getObjectPrice($object_id, PlanetService $planet, $formatted = FALSE)
+    public function getObjectPrice(int $object_id, PlanetService $planet, bool $formatted = FALSE) : array
     {
         $object = $this->getObjects($object_id);
         $player = $planet->getPlayer();
@@ -2000,8 +2037,12 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
     /**
      * Gets the cost of building a building of a certain level or a unit.
+     *
+     * @param int $object_id
+     * @param int|null $level
+     * @return array<string,int>
      */
-    public function getObjectRawPrice($object_id, $level = NULL)
+    public function getObjectRawPrice(int $object_id, int $level = NULL) : array
     {
         $object = $this->getObjects($object_id);
 

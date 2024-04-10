@@ -251,7 +251,8 @@ class PlanetService
             $system_between_1_and_10_modifier = 9;
         }
 
-        return $base_for_system_1 + $system_between_1_and_10_modifier;
+        // Return a string
+        return $base_for_system_1 + $system_between_1_and_10_modifier . "";
     }
 
     /**
@@ -559,7 +560,7 @@ class PlanetService
 
         // @TODO: round this value up or down so it will be valid for
         // int storage in database.
-        $time_seconds = floor($time_seconds);
+        $time_seconds = (int)floor($time_seconds);
 
         // @TODO: calculation does not work correctly for all buildings yet.
         // Possible rounding error?
@@ -861,14 +862,14 @@ class PlanetService
     /**
      * Adds resources to a planet.
      *
-     * @param $resources
+     * @param array<string,int> $resources
      *
      * @param bool $save_planet
      * Optional flag whether to save the planet in this method. This defaults to TRUE
      * but can be set to FALSE when update happens in bulk and the caller method calls
      * the save planet itself to prevent on unnecessary multiple updates.
      */
-    public function addResources($resources, bool $save_planet = true) : void
+    public function addResources(array $resources, bool $save_planet = true) : void
     {
         if (!empty($resources['metal'])) {
             $this->planet->metal += $resources['metal'];
@@ -1121,6 +1122,8 @@ class PlanetService
      * @param int $building_level
      *  Optional parameter to calculate the production for a specific level
      *  of a building. Defaults to the current level.
+     *
+     * @return array<string,int>
      */
     public function getBuildingProduction(int $building_id, int $building_level = 0): array
     {
@@ -1250,7 +1253,7 @@ class PlanetService
 
         // Sanity check: model property exists.
         if (!isset($this->planet->{$building['machine_name'] . '_percent'})) {
-            return false;
+            return 0;
         }
 
         return $this->planet->{$building['machine_name'] . '_percent'};
@@ -1259,11 +1262,11 @@ class PlanetService
     /**
      * Get the object property service for a specific property.
      *
-     * @param $propertyName
+     * @param string $propertyName
      * @return ObjectPropertyService
      * @throws Exception
      */
-    public function getPropertyService($propertyName) : ObjectPropertyService
+    public function getPropertyService(string $propertyName) : ObjectPropertyService
     {
         if (!isset($this->objectPropertyServiceCache[$propertyName])) {
             switch ($propertyName) {
@@ -1314,7 +1317,7 @@ class PlanetService
 
         foreach ($properties as $propertyName) {
             $service = $this->getPropertyService($propertyName);
-            $calculatedProperties[$propertyName] = $service->calculateProperty($objectId, $propertyName);
+            $calculatedProperties[$propertyName] = $service->calculateProperty($objectId);
         }
 
         // Directly pass each calculated property to the ObjectProperties constructor
@@ -1335,7 +1338,7 @@ class PlanetService
      */
     public function getPlanetTempAvg() : int
     {
-        return round(($this->getPlanetTempMin() + $this->getPlanetTempMax()) / 2);
+        return (int)round(($this->getPlanetTempMin() + $this->getPlanetTempMax()) / 2);
     }
 
     /**
@@ -1458,7 +1461,7 @@ class PlanetService
         }
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
-        $score = floor($resources_spent / 1000);
+        $score = (int)floor($resources_spent / 1000);
 
         return $score;
     }
@@ -1513,7 +1516,7 @@ class PlanetService
         // TODO: add phalanx and jump gate (50%) when moon is implemented.
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
-        $score = floor($resources_spent / 1000);
+        $score = (int)floor($resources_spent / 1000);
 
         return $score;
     }
@@ -1567,7 +1570,7 @@ class PlanetService
         // TODO: add phalanx and jump gate (50%) when moon is implemented.
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
-        $score = floor($resources_spent / 1000);
+        $score = (int)floor($resources_spent / 1000);
 
         return $score;
     }

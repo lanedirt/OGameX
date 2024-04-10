@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Models\ResearchQueue;
 use OGame\Services\Objects\ObjectService;
@@ -17,18 +18,11 @@ use OGame\Services\Objects\ObjectService;
 class ResearchQueueService
 {
     /**
-     * The planet object from the model.
-     *
-     * @var
-     */
-    protected $queue_item;
-
-    /**
      * Information about objects.
      *
      * @var ObjectService
      */
-    protected $objects;
+    protected ObjectService $objects;
 
     /**
      * The queue model where this class should get its data from.
@@ -39,6 +33,8 @@ class ResearchQueueService
 
     /**
      * BuildingQueue constructor.
+     *
+     * @param ObjectService $objects
      */
     public function __construct(ObjectService $objects)
     {
@@ -51,10 +47,10 @@ class ResearchQueueService
     /**
      * Retrieve queued items that are not being built yet.
      *
-     * @return mixed
+     * @return \Illuminate\Support\Collection
      *  Array when an item exists. False if it does not.
      */
-    public function retrieveQueuedFromQueue($queue_items)
+    public function retrieveQueuedFromQueue(\Illuminate\Support\Collection $queue_items) : \Illuminate\Support\Collection
     {
         foreach ($queue_items as $key => $record) {
             if ($record['building'] == 1) {
@@ -67,11 +63,16 @@ class ResearchQueueService
 
     /**
      * Retrieve all build queue items that already should be finished for a planet.
+     *
+     * @param int $planet_id
+     * The planet ID for which to retrieve the finished items.
+     *
+     * @return Collection
      */
-    public function retrieveFinished($planet_id)
+    public function retrieveFinished(int $planet_id) : Collection
     {
         // Fetch queue items from model
-        $queue_items = $this->model->where([
+        return $this->model->where([
             ['planet_id', $planet_id],
             ['time_end', '<=', Carbon::now()->timestamp],
             ['building', 1],
@@ -80,17 +81,15 @@ class ResearchQueueService
         ])
             ->orderBy('time_start', 'asc')
             ->get();
-
-        return $queue_items;
     }
 
     /**
      * Retrieve all build queue items that already should be finished for a given user.
      */
-    public function retrieveFinishedForUser(PlayerService $player)
+    public function retrieveFinishedForUser(PlayerService $player) : \Illuminate\Support\Collection
     {
         // Fetch queue items from model
-        $queue_items = $this->model
+        return $this->model
             ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
@@ -103,14 +102,18 @@ class ResearchQueueService
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')
             ->get();
-
-        return $queue_items;
     }
 
     /**
      * Add a building to the building queue for the current planet.
+     *
+     * @param PlayerService $player
+     * @param PlanetService $planet
+     * @param int $building_id
+     * @return void
+     * @throws Exception
      */
-    public function add(PlayerService $player, PlanetService $planet, $building_id)
+    public function add(PlayerService $player, PlanetService $planet, int $building_id) : void
     {
         $build_queue = $this->retrieveQueue($planet);
         $build_queue = $this->enrich($build_queue);
@@ -145,11 +148,14 @@ class ResearchQueueService
 
     /**
      * Retrieve current building build queue for a planet.
+     *
+     * @param PlanetService $planet
+     * @return \Illuminate\Support\Collection
      */
-    public function retrieveQueue(PlanetService $planet)
+    public function retrieveQueue(PlanetService $planet) : \Illuminate\Support\Collection
     {
         // Fetch queue items from model
-        $queue_items = $this->model
+        return $this->model
             ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
@@ -160,8 +166,6 @@ class ResearchQueueService
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')
             ->get();
-
-        return $queue_items;
     }
 
     /**
@@ -170,14 +174,14 @@ class ResearchQueueService
      * @param $queue_items
      *  Single queue_item or array of queue_items.
      *
-     * @return array
+     * @return array<int, array<string, mixed>>
      */
-    public function enrich($queue_items)
+    public function enrich($queue_items) : array
     {
         // Enrich information before we return it
         $return = array();
 
-        if (empty($queue_items)) {
+        if (!$queue_items) {
             return $return;
         }
 
@@ -212,8 +216,6 @@ class ResearchQueueService
 
         if ($return_type == 'single') {
             return $return[0];
-        } elseif ($return_type == 'array') {
-            return $return;
         }
 
         return $return;
@@ -222,11 +224,15 @@ class ResearchQueueService
     /**
      * Get the amount of already existing queue items for a particular
      * building.
+     *
+     * @param PlayerService $player
+     * @param int $building_id
+     * @return int
      */
-    public function activeBuildingQueueItemCount(PlayerService $player, $building_id)
+    public function activeBuildingQueueItemCount(PlayerService $player, int $building_id) : int
     {
         // Fetch queue items from model
-        $count = $this->model
+        return $this->model
             ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
@@ -236,8 +242,6 @@ class ResearchQueueService
                 ['research_queues.canceled', 0],
             ])
             ->count();
-
-        return $count;
     }
 
     /**
@@ -247,16 +251,17 @@ class ResearchQueueService
      * from the planet. If there are not enough resources the build attempt
      * will fail.
      *
-     * @param $planet_id
-     *  The planet ID for which to start the next item in the queue for.
+     * @param PlayerService $player
      *
-     * @param $time_start
+     * @param int $time_start
      *  Optional parameter to indicate when the new item should start, this
      *  is used for when a few build queue items are finished at the exact
      *  same time, e.g. when a user closes its session and logs back in
      *  after a while.
+     * @return void
+     * @throws Exception
      */
-    public function start(PlayerService $player, $time_start = false)
+    public function start(PlayerService $player, int $time_start = 0) : void
     {
         $queue_items = $this->model
             ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
@@ -271,10 +276,6 @@ class ResearchQueueService
             ->get();
 
         foreach ($queue_items as $queue_item) {
-            if (empty($queue_item)) {
-                continue;
-            }
-
             $planet = $player->planets->childPlanetById($queue_item->planet_id);
 
             // See if the planet has enough resources for this build attempt.
@@ -301,7 +302,6 @@ class ResearchQueueService
 
                 continue;
             }
-
 
             // Sanity check: check if the planet has enough resources. If not,
             // then cancel build request.
@@ -343,10 +343,10 @@ class ResearchQueueService
     /**
      * Retrieve the item that is currently being build (if any).
      *
-     * @return mixed
+     * @return bool|ResearchQueue
      *  Array when an item exists. False if it does not.
      */
-    public function retrieveCurrentlyBuildingFromQueue($queue_items)
+    public function retrieveCurrentlyBuildingFromQueue($queue_items) : bool|ResearchQueue
     {
         foreach ($queue_items as $key => $record) {
             if ($record['building'] == 1) {
@@ -359,8 +359,14 @@ class ResearchQueueService
 
     /**
      * Cancels an active building queue record.
+     *
+     * @param PlayerService $player
+     * @param PlanetService $planet
+     * @param int $building_queue_id
+     * @param int $building_id
+     * @throws Exception
      */
-    public function cancel(PlayerService $player, PlanetService $planet, $building_queue_id, $building_id)
+    public function cancel(PlayerService $player, PlanetService $planet, int $building_queue_id, int $building_id): void
     {
         // @TODO: add user owner verify checks.
         $queue_item = $this->model->where([

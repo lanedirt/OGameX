@@ -16,7 +16,17 @@ class ObjectProperties
     public ObjectPropertyDetails $capacity;
     public ObjectPropertyDetails $fuel;
 
-    public function __construct($structural_integrity, $shield, $attack, $speed, $capacity, $fuel)
+    /**
+     * ObjectProperties constructor.
+     *
+     * @param ObjectPropertyDetails $structural_integrity
+     * @param ObjectPropertyDetails $shield
+     * @param ObjectPropertyDetails $attack
+     * @param ObjectPropertyDetails $speed
+     * @param ObjectPropertyDetails $capacity
+     * @param ObjectPropertyDetails $fuel
+     */
+    public function __construct(ObjectPropertyDetails $structural_integrity, ObjectPropertyDetails $shield, ObjectPropertyDetails $attack, ObjectPropertyDetails $speed, ObjectPropertyDetails $capacity, ObjectPropertyDetails $fuel)
     {
         $this->structuralIntegrity = $structural_integrity;
         $this->shield = $shield;

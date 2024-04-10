@@ -37,7 +37,7 @@ abstract class ObjectPropertyService
     /**
      * Get the raw value of a property.
      *
-     * @param int $objectId
+     * @param int $object_id
      * @return mixed
      */
     protected function getRawValue(int $object_id) {
@@ -52,11 +52,11 @@ abstract class ObjectPropertyService
     /**
      * Get the bonus percentage for a property.
      *
-     * @param $objectId
+     * @param int $object_id
      * @return int
      *  Bonus percentage as integer (e.g. 10 for 10% bonus, 110 for 110% bonus, etc.)
      */
-    abstract protected function getBonusPercentage($object_id): int;
+    abstract protected function getBonusPercentage(int $object_id): int;
 
     /**
      * Calculate the total value of a property.
