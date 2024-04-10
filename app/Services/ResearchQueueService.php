@@ -174,7 +174,7 @@ class ResearchQueueService
      * @param $queue_items
      *  Single queue_item or array of queue_items.
      *
-     * @return array<int, array<string, mixed>>
+     * @return array<int, array<string, mixed>>|array<string, mixed>
      */
     public function enrich($queue_items) : array
     {
