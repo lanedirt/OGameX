@@ -331,7 +331,7 @@ class ResearchQueueService
             // If the calculated end time is lower than the current time,
             // we force that the planet is updated again which will grant
             // the building immediately without having to wait for a refresh.
-            if ($queue_item->time_end_ < Carbon::now()->timestamp) {
+            if ($queue_item->time_end < Carbon::now()->timestamp) {
                 // @TODO: refactor the planet update logic so this method
                 // can call only the part it needs directly without causing
                 // a major overhead.

@@ -4,6 +4,7 @@ namespace OGame\Services;
 
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use OGame\Models\BuildingQueue;
 use OGame\Services\Objects\ObjectService;
@@ -56,7 +57,7 @@ class BuildingQueueService
      *
      * @param Collection $queue_items
      *
-     * @return Collection<BuildingQueue>
+     * @return Collection
      *  Collection when an item exists. False if it does not.
      */
     public function retrieveQueuedFromQueue(Collection $queue_items) : Collection
@@ -257,10 +258,6 @@ class BuildingQueueService
             ->get();
 
         foreach ($queue_items as $queue_item) {
-            if (empty($queue_item)) {
-                continue;
-            }
-
             // See if the planet has enough resources for this build attempt.
             $price = $this->objects->getObjectPrice($queue_item->object_id, $planet);
             $build_time = $planet->getBuildingConstructionTime($queue_item->object_id);
@@ -313,7 +310,7 @@ class BuildingQueueService
             // If the calculated end time is lower than the current time,
             // we force that the planet is updated again which will grant
             // the building immediately without having to wait for a refresh.
-            if ($queue_item->time_end_ < Carbon::now()->timestamp) {
+            if ($queue_item->time_end < Carbon::now()->timestamp) {
                 $planet->updateBuildingQueue();
             }
         }
@@ -322,10 +319,10 @@ class BuildingQueueService
     /**
      * Retrieve the item that is currently being build (if any).
      *
-     * @return ?BuildingQueue
+     * @return ?Model
      *  Array when an item exists. False if it does not.
      */
-    public function retrieveCurrentlyBuildingFromQueue($queue_items) : ?BuildingQueue
+    public function retrieveCurrentlyBuildingFromQueue(Collection $queue_items) : ?Model
     {
         foreach ($queue_items as $record) {
             if ($record['building'] == 1) {
