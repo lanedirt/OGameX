@@ -25,61 +25,63 @@ trait ObjectAjaxTrait
 
         $object_id = $request->input('type');
         if (empty($object_id)) {
-            throw new Exception('No building ID provided.');
+            throw new Exception('No object ID provided.');
         }
 
         $object = $objects->getObjects($object_id);
         if (empty($object)) {
-            throw new Exception('Incorrect building ID provided.');
+            throw new Exception('Incorrect object ID provided.');
         }
 
+        // Get object by ID
+        $object = $objects->getObjectById($object_id);
+
         $current_level = 0;
-        if ($object['type'] == 'building') {
-            $current_level = $planet->getObjectLevel($object['id']);
-        } elseif ($object['type'] == 'research') {
-            $current_level = $player->getResearchLevel($object['id']);
+        if ($object->type == 'building') {
+            $current_level = $planet->getObjectLevel($object->machine_name);
+        } elseif ($object->type == 'research') {
+            $current_level = $player->getResearchLevel($object->machine_name);
         }
         $next_level = $current_level + 1;
 
         // Check requirements of this object
-        $requirements_met = $objects->objectRequirementsMet($object_id, $planet, $player);
+        $requirements_met = $objects->objectRequirementsMet($object->machine_name, $planet, $player);
 
-        $price = $objects->getObjectPrice($object['id'], $planet);
-        $price_formatted = $objects->getObjectPrice($object['id'], $planet, true);
+        $price = $objects->getObjectPrice($object->machine_name, $planet);
 
         // Get max build amount of this object (unit).
-        $max_build_amount = $objects->getObjectMaxBuildAmount($object['id'], $planet);
+        $max_build_amount = $objects->getObjectMaxBuildAmount($object->machine_name, $planet);
 
         // Switch
-        switch ($object['type']) {
+        switch ($object->type) {
             case 'building':
             case 'station':
-                $production_time = $planet->getBuildingConstructionTime($object['id'], true);
+                $production_time = $planet->getBuildingConstructionTime($object->machine_name, true);
                 break;
             case 'ship':
             case 'defense':
-                $production_time = $planet->getUnitConstructionTime($object['id'], true);
+                $production_time = $planet->getUnitConstructionTime($object->machine_name, true);
                 break;
             case 'research':
-                $production_time = $planet->getTechnologyResearchTime($object['id'], true);
+                $production_time = $planet->getTechnologyResearchTime($object->machine_name, true);
                 break;
             default:
                 // Unknown object type, throw error.
-                throw new Exception('Unknown object type: ' . $object['type']);
+                throw new Exception('Unknown object type: ' . $object->type);
         }
 
         // Get current amount of this object (unit) on the current planet.
         $current_amount = 0;
-        if ($object['type'] == 'ship' || $object['type'] == 'defense') {
-            $current_amount = $planet->getObjectAmount($object['id']);
+        if ($object->type == 'ship' || $object->type == 'defense') {
+            $current_amount = $planet->getObjectAmount($object->machine_name);
         }
 
         $production_current = [];
         $production_next = [];
         $energy_difference = 0;
-        if (!empty($object['production'])) {
-            $production_current = $planet->getBuildingProduction($object['id']);
-            $production_next = $planet->getBuildingProduction($object['id'], $next_level);
+        if (!empty($object->production)) {
+            $production_current = $planet->getBuildingProduction($object->machine_name);
+            $production_next = $planet->getBuildingProduction($object->machine_name, $next_level);
             if (!empty($production_current['energy'])) {
                 $energy_difference = ($production_next['energy'] - $production_current['energy']) * -1;
             }
@@ -88,22 +90,23 @@ trait ObjectAjaxTrait
         $enough_resources = $planet->hasResources($price);
 
         // Storage capacity bar
-        $storage = !empty($object['storage']);
+        // TODO: implement storage in new structure.
+        $storage = !empty($object->storage);
         $current_storage = 0;
         $max_storage = 0;
         if ($storage) {
-            switch ($object['id']) {
-                case 22:
+            switch ($object->machine_name) {
+                case 'metal_store':
                     $max_storage = $planet->getMetalStorage();
                     $current_storage = $planet->getMetal();
                     break;
 
-                case 23:
+                case 'crystal_store':
                     $max_storage = $planet->getCrystalStorage();
                     $current_storage = $planet->getCrystal();
                     break;
 
-                case 24:
+                case 'deuterium_store':
                     $max_storage = $planet->getDeuteriumStorage();
                     $current_storage = $planet->getDeuterium();
                     break;
@@ -131,14 +134,13 @@ trait ObjectAjaxTrait
 
         return view('ingame.ajax.object')->with([
             'id' => $object_id,
-            'object_type' => $object['type'],
+            'object_type' => $object->type,
             'planet_id' => $planet->getPlanetId(),
             'current_level' => $current_level,
             'next_level' => $next_level,
-            'description' => $object['description'],
-            'title' => $object['title'],
+            'description' => $object->description,
+            'title' => $object->title,
             'price' => $price,
-            'price_formatted' => $price_formatted,
             'planet' => $planet,
             'production_time' => $production_time,
             'production_next' => $production_next,

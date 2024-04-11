@@ -2,14 +2,15 @@
 
 namespace OGame\Services\Objects\Models;
 
+use OGame\Services\Objects\Models\Fields\GameObjectAssets;
 use OGame\Services\Objects\Models\Fields\GameObjectPrice;
 use OGame\Services\Objects\Models\Fields\GameObjectRequirement;
 
 abstract class GameObject
 {
     public int $id;
-    public string $type;
     public string $title;
+    public string $type;
     public string $machine_name;
     public string $description;
     public string $description_long;
@@ -19,7 +20,7 @@ abstract class GameObject
      *
      * @var array<GameObjectRequirement>
      */
-    public array $requirements;
+    public array $requirements = [];
 
     /**
      * Price of the object.
@@ -27,4 +28,11 @@ abstract class GameObject
      * @var GameObjectPrice
      */
     public GameObjectPrice $price;
+
+    /**
+     * Assets of the object.
+     *
+     * @var GameObjectAssets
+     */
+    public GameObjectAssets $assets;
 }

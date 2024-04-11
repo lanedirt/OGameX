@@ -2,7 +2,7 @@
 
 namespace OGame\Services\Objects\Models\Fields;
 
-class GameObjectProduction
+class GameObjectCalculatedPriceFormatted
 {
     public string $metal;
     public string $crystal;

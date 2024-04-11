@@ -2,7 +2,18 @@
 
 namespace OGame\Services\Objects;
 
+use Exception;
 use OGame\Facades\AppUtil;
+use OGame\Models\Resources;
+use OGame\Services\Objects\Models\BuildingObject;
+use OGame\Services\Objects\Models\Fields\GameObjectAssets;
+use OGame\Services\Objects\Models\Fields\GameObjectCalculatedPrice;
+use OGame\Services\Objects\Models\Fields\GameObjectCalculatedPriceFormatted;
+use OGame\Services\Objects\Models\Fields\GameObjectPrice;
+use OGame\Services\Objects\Models\Fields\GameObjectProduction;
+use OGame\Services\Objects\Models\GameObject;
+use OGame\Services\Objects\Models\ShipObject;
+use OGame\Services\Objects\Models\UnitObject;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 
@@ -1724,6 +1735,127 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     }
 
     /**
+     * Get all buildings.
+     *
+     * @return array<BuildingObject>
+     */
+    public function getBuildingObjectsNew() : array
+    {
+        return BuildingObjects::get();
+    }
+
+    /**
+     * Get all ships.
+     *
+     * @return array<ShipObject>
+     */
+    public function getShipObjectsNew() : array
+    {
+        return ShipObjects::get();
+    }
+
+    /**
+     * Get specific building.
+     *
+     * @param string $machine_name
+     * @return BuildingObject
+     * @throws Exception
+     */
+    public function getBuildingObjectsByMachineName(string $machine_name) : BuildingObject
+    {
+        // Loop through all buildings and return the one with the matching UID
+        foreach (BuildingObjects::get() as $building) {
+            if ($building->machine_name == $machine_name) {
+                return $building;
+            }
+        }
+
+        throw new Exception('Building not found');
+    }
+
+    /**
+     * Get specific ship.
+     *
+     * @param string $machine_name
+     * @return ShipObject
+     * @throws Exception
+     */
+    public function getShipObjectsByMachineName(string $machine_name) : ShipObject
+    {
+        // Loop through all buildings and return the one with the matching UID
+        foreach (ShipObjects::get() as $ship) {
+            if ($ship->machine_name == $machine_name) {
+                return $ship;
+            }
+        }
+
+        throw new Exception('Ship not found');
+    }
+
+    /**
+     * Get specific game object.
+     *
+     * @param int $object_id
+     * @return BuildingObject
+     * @throws Exception
+     */
+    public function getObjectById(int $object_id) : GameObject
+    {
+        // Loop through all buildings and return the one with the matching UID
+        // TODO: replace buildingObjects with concatenated array of all objects.
+        $allObjects = array_merge(BuildingObjects::get(), ShipObjects::get());
+        foreach ($allObjects as $object) {
+            if ($object->id == $object_id) {
+                return $object;
+            }
+        }
+
+        throw new Exception('Game object not found with ID: ' . $object_id);
+    }
+
+    /**
+     * Get specific game object.
+     *
+     * @param string $machine_name
+     * @return BuildingObject
+     * @throws Exception
+     */
+    public function getObjectByMachineName(string $machine_name) : GameObject
+    {
+        // Loop through all buildings and return the one with the matching UID
+        // TODO: replace buildingObjects with concatenated array of all objects.
+        $allObjects = array_merge(BuildingObjects::get(), ShipObjects::get());
+        foreach ($allObjects as $object) {
+            if ($object->machine_name == $machine_name) {
+                return $object;
+            }
+        }
+
+        throw new Exception('Game object not found with machine name: ' . $machine_name);
+    }
+
+    /**
+     * Get specific unit object.
+     *
+     * @param string $machine_name
+     * @return BuildingObject
+     * @throws Exception
+     */
+    public function getUnitByMachineName(string $machine_name) : UnitObject
+    {
+        // Loop through all buildings and return the one with the matching UID
+        // TODO: replace shipobjects and add defenseobjects with concatenated array of all objects.
+        $allObjects = array_merge(ShipObjects::get());
+        foreach ($allObjects as $object) {
+            if ($object->machine_name == $machine_name) {
+                return $object;
+            }
+        }
+
+        throw new Exception('Unit object not found with machine name: ' . $machine_name);
+    }
+
+    /**
      * Get all buildings that have production values.
      *
      * @param int $object_id
@@ -1744,6 +1876,25 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         }
 
         return $return;
+    }
+
+    /**
+     * Get all buildings that have production values.
+     *
+     * @param string $machine_name
+     * @return BuildingObject
+     */
+    public function getBuildingObjectsWithProductionByMachineName(string $machine_name) : BuildingObject
+    {
+        $return = array();
+
+        foreach (BuildingObjects::get() as $object) {
+            if ($object->machine_name == $machine_name && !empty(($object->production))) {
+                return $object;
+            }
+        }
+
+        throw new Exception('Building not found with production value for machine name: ' . $machine_name);
     }
 
     /**
@@ -1885,30 +2036,31 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     /**
      * Check if object requirements are met (for building it).
      *
-     * @param $building_id
+     * @param string $machine_name
      * @param PlanetService $planet
      * @param PlayerService $player
      * @return bool
      */
-    public function objectRequirementsMet($building_id, PlanetService $planet, PlayerService $player) : bool
+    public function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player) : bool
     {
-        $objects = $this->getObjects();
-        $requirements = $objects[$building_id]['requirements'];
-
-        foreach ($requirements as $requirement_id => $requirement_level) {
-            $object = $objects[$requirement_id];
-            if ($object['type'] == 'research') {
-                if ($player->getResearchLevel($requirement_id) < $requirement_level) {
-                    return FALSE;
-                }
-            } else {
-                if ($planet->getObjectLevel($requirement_id) < $requirement_level) {
-                    return FALSE;
+        try {
+            $object = $this->getObjectByMachineName($machine_name);
+            foreach ($object->requirements as $requirement) {
+                if ($requirement->object->type == 'research') {
+                    if ($player->getResearchLevel($requirement->object->machine_name) < $requirement->level) {
+                        return false;
+                    }
+                } else {
+                    if ($planet->getObjectLevel($requirement->object->machine_name) < $requirement->level) {
+                        return false;
+                    }
                 }
             }
+        } catch (Exception $e) {
+            return false;
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -1964,30 +2116,30 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
      * Calculates the max build amount of an object (unit) based on available
      * planet resources.
      *
-     * @param int $object_id
+     * @param string $machine_name
      * @param PlanetService $planet
      * @return mixed
      */
-    public function getObjectMaxBuildAmount(int $object_id, PlanetService $planet) : int
+    public function getObjectMaxBuildAmount(string $machine_name, PlanetService $planet) : int
     {
-        $price = $this->getObjectPrice($object_id, $planet);
+        $price = $this->getObjectPrice($machine_name, $planet);
 
         // Calculate max build amount based on price
         $max_build_amount = [];
-        if ($price['metal'] > 0) {
-            $max_build_amount[] = floor($planet->getMetal() / $price['metal']);
+        if ($price->metal->rawValue > 0) {
+            $max_build_amount[] = floor($planet->getMetal() / $price->metal->rawValue);
         }
 
-        if ($price['crystal'] > 0) {
-            $max_build_amount[] = floor($planet->getCrystal() / $price['crystal']);
+        if ($price->crystal->rawValue > 0) {
+            $max_build_amount[] = floor($planet->getCrystal() / $price->crystal->rawValue);
         }
 
-        if ($price['deuterium'] > 0) {
-            $max_build_amount[] = floor($planet->getDeuterium() / $price['deuterium']);
+        if ($price->deuterium->rawValue > 0) {
+            $max_build_amount[] = floor($planet->getDeuterium() / $price->deuterium->rawValue);
         }
 
-        if ($price['energy'] > 0) {
-            $max_build_amount[] = floor($planet->getEnergy() / $price['energy']);
+        if ($price->energy->rawValue > 0) {
+            $max_build_amount[] = floor($planet->getEnergy() / $price->energy->rawValue);
         }
 
         // Get lowest divided value which is the maximum amount of times this ship
@@ -2000,36 +2152,33 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     /**
      * Gets the cost of upgrading a building on this planet to the next level.
      *
-     * @param int $object_id
+     * @param string $machine_name
      * @param PlanetService $planet
-     * @param bool $formatted
-     * @return array
+     * @return Resources
      */
-    public function getObjectPrice(int $object_id, PlanetService $planet, bool $formatted = FALSE) : array
+    public function getObjectPrice(string $machine_name, PlanetService $planet) : Resources
     {
-        $object = $this->getObjects($object_id);
+        try {
+            $object = $this->getObjectByMachineName($machine_name);
+        } catch (Exception $e) {
+            return new Resources(0,0,0,0);
+        }
+
         $player = $planet->getPlayer();
 
         // Price calculation for buildings or research (price depends on level)
-        if ($object['type'] == 'building' || $object['type'] == 'research') {
-            if ($object['type'] == 'building') {
-                $current_level = $planet->getObjectLevel($object['id']);
+        if ($object->type == 'building' || $object->type == 'research') {
+            if ($object->type == 'building') {
+                $current_level = $planet->getObjectLevel($object->id);
             } else {
-                $current_level = $player->getResearchLevel($object['id']);
+                $current_level = $player->getResearchLevel($object->id);
             }
 
-            $price = $this->getObjectRawPrice($object_id, $current_level + 1);
+            $price = $this->getObjectRawPrice($machine_name, $current_level + 1);
         }
         // Price calculation for fleet or defense (regular price per unit)
         else {
-            $price = $this->getObjectRawPrice($object_id);
-        }
-
-        // Optionally format the output.
-        if ($formatted) {
-            foreach ($price as &$element) {
-                $element = AppUtil::formatNumberShort($element);
-            }
+            $price = $this->getObjectRawPrice($machine_name);
         }
 
         return $price;
@@ -2038,54 +2187,55 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     /**
      * Gets the cost of building a building of a certain level or a unit.
      *
-     * @param int $object_id
-     * @param int|null $level
-     * @return array<string,int>
+     * @param string $machine_name
+     * @param int $level
+     * @return GameObjectCalculatedPrice
      */
-    public function getObjectRawPrice(int $object_id, int $level = NULL) : array
+    public function getObjectRawPrice(string $machine_name, int $level = 0) : Resources
     {
-        $object = $this->getObjects($object_id);
+        try {
+            $object = $this->getObjectByMachineName($machine_name);
+        } catch (Exception $e) {
+            return new Resources(0,0,0,0);
+        }
 
         // Price calculation for buildings or research (price depends on level)
-        if ($object['type'] == 'building' || $object['type'] == 'research') {
+        if ($object->type == 'building' || $object->type == 'research') {
             // Level 0 is free.
             if ($level == 0) {
-                return [
-                    'metal' => 0,
-                    'crystal' => 0,
-                    'deuterium' => 0,
-                    'energy' => 0,
-                ];
+                return new Resources(0,0,0,0);
+
             }
 
-            $base_price = $object['price'];
+            $base_price = $object->price;
 
             // Calculate price.
-            $price = [];
-            $price['metal'] = $base_price['metal'] * pow($base_price['factor'], $level - 1);
-            $price['crystal'] = $base_price['crystal'] * pow($base_price['factor'], $level - 1);
-            $price['deuterium'] = $base_price['deuterium'] * pow($base_price['factor'], $level - 1);
-            $price['energy'] = $base_price['energy'] * pow($base_price['factor'], $level - 1);
+            $metal = $base_price->resources->metal->rawValue * pow($base_price->factor, $level - 1);
+            $crystal = $base_price->resources->crystal->rawValue * pow($base_price->factor, $level - 1);
+            $deuterium = $base_price->resources->deuterium->rawValue * pow($base_price->factor, $level - 1);
+            $energy = $base_price->resources->energy->rawValue * pow($base_price->factor, $level - 1);
 
             // Round price
-            $price['metal'] = round($price['metal']);
-            $price['crystal'] = round($price['crystal']);
-            $price['deuterium'] = round($price['deuterium']);
-            $price['energy'] = round($price['energy']);
+            $metal = round($metal);
+            $crystal = round($crystal);
+            $deuterium = round($deuterium);
+            $energy = round($energy);
 
-            if (!empty($base_price['round_nearest_100'])) {
-                // Round to nearest 100.
-                $price['metal'] = round($price['metal'] / 100) * 100;
-                $price['crystal'] = round($price['crystal'] / 100) * 100;
-                $price['deuterium'] = round($price['deuterium'] / 100) * 100;
-                $price['energy'] = round($price['energy']);
+            if (!empty($base_price->roundNearest100)) {
+                // Round resource cost to nearest 100.
+                $metal = round($metal / 100) * 100;
+                $crystal = round($crystal / 100) * 100;
+                $deuterium = round($deuterium / 100) * 100;
             }
         }
         // Price calculation for fleet or defense (regular price per unit)
         else {
-            $price = $object['price'];
+            $metal = $object->price->resources->metal->rawValue;
+            $crystal = $object->price->resources->crystal->rawValue;
+            $deuterium = $object->price->resources->deuterium->rawValue;
+            $energy = $object->price->resources->energy->rawValue;
         }
 
-        return $price;
+        return new Resources($metal, $crystal, $deuterium, $energy);
     }
 }

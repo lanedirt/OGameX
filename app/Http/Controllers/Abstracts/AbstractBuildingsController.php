@@ -12,6 +12,7 @@ use OGame\Services\BuildingQueueService;
 use OGame\Services\Objects\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\ViewModels\BuildingViewModel;
 
 abstract class AbstractBuildingsController extends OGameController
 {
@@ -69,6 +70,7 @@ abstract class AbstractBuildingsController extends OGameController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws \Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects): View
     {
@@ -76,7 +78,8 @@ abstract class AbstractBuildingsController extends OGameController
 
         // Note: we add ship objects here as well because solar satellites are visible
         // on both resources page and ships page.
-        $objects_array = $objects->getBuildingObjects() + $objects->getStationObjects() + $objects->getShipObjects();
+        //$objects_array = $objects->getBuildingObjects() + $objects->getStationObjects() + $objects->getShipObjects();
+        $objects_array = $objects->getBuildingObjectsNew();
 
         $count = 0;
         $header_filename_parts = [];
@@ -90,31 +93,36 @@ abstract class AbstractBuildingsController extends OGameController
         foreach ($this->objects as $key_row => $objects_row) {
             $buildings[$key_row] = [];
 
-            foreach ($objects_row as $object_id) {
+            foreach ($objects_row as $object_machine_name) {
                 $count++;
 
+                // Get object
+                $object = $objects->getObjectByMachineName($object_machine_name);
+
                 // Get current level of building
-                $current_level = $this->planet->getObjectLevel($object_id);
+                $current_level = $this->planet->getObjectLevel($object_machine_name);
 
                 // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object_id, $this->planet, $player);
+                $requirements_met = $objects->objectRequirementsMet($object_machine_name, $this->planet, $player);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $this->planet->hasResources($objects->getObjectPrice($object_id, $this->planet));
+                $enough_resources = $this->planet->hasResources($objects->getObjectPrice($object_machine_name, $this->planet));
 
                 // If building level is 1 or higher, add to header filename parts to
                 // render the header of this planet.
-                if (in_array($object_id, $this->header_filename_objects) && $current_level >= 1) {
-                    $header_filename_parts[$object_id] = $object_id;
+                if (in_array($object->id, $this->header_filename_objects) && $current_level >= 1) {
+                    $header_filename_parts[$object->id] = $object->id;
                 }
 
-                $buildings[$key_row][$object_id] = array_merge($objects_array[$object_id], [
-                    'current_level' => $current_level,
-                    'requirements_met' => $requirements_met,
-                    'count' => $count,
-                    'enough_resources' => $enough_resources,
-                    'currently_building' => (!empty($build_active['id']) && $build_active['object']['id'] == $object_id),
-                ]);
+                $view_model = new BuildingViewModel();
+                $view_model->object = $object;
+                $view_model->current_level = $current_level;
+                $view_model->requirements_met = $requirements_met;
+                $view_model->count = $count;
+                $view_model->enough_resources = $enough_resources;
+                $view_model->currently_building = (!empty($build_active['id']) && $build_active['object']['id'] == $object->id);
+
+                $buildings[$key_row][$object->id] = $view_model;
             }
         }
 
