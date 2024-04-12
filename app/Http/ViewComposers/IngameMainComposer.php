@@ -79,10 +79,10 @@ class IngameMainComposer
             'energy' => [
                 'amount' => $current_planet->energy()->get(),
                 'amount_formatted' => $current_planet->energy()->getFormattedLong(),
-                'production' => $current_planet->getEnergyProduction(),
-                'production_formatted' => $current_planet->getEnergyProduction(true),
-                'consumption' => $current_planet->getEnergyConsumption(),
-                'consumption_formatted' => $current_planet->getEnergyConsumption(true),
+                'production' => $current_planet->energyProduction()->get(),
+                'production_formatted' => $current_planet->energyProduction()->getFormattedLong(),
+                'consumption' => $current_planet->energyConsumption()->get(),
+                'consumption_formatted' => $current_planet->energyConsumption()->getFormattedLong(),
             ],
         ];
 

@@ -824,9 +824,6 @@ class PlanetService
 
         // @TODO: add DB transaction wrapper
         foreach ($build_queue as $item) {
-            // Get object information of object (building).
-            $object = $this->objects->getObjects($item->object_id);
-
             // Update build queue record
             $item->processed = 1;
             $item->save();
@@ -861,11 +858,12 @@ class PlanetService
      * @param int $level
      * @param bool $save_planet
      * @return void
+     * @throws Exception
      */
     public function setObjectLevel(int $object_id, int $level, bool $save_planet = true): void
     {
-        $object = $this->objects->getObjects($object_id);
-        $this->planet->{$object['machine_name']} = $level;
+        $object = $this->objects->getObjectById($object_id);
+        $this->planet->{$object->machine_name} = $level;
         if ($save_planet) {
             $this->planet->save();
         }
@@ -1089,11 +1087,11 @@ class PlanetService
      */
     public function getResourceProductionFactor(): int
     {
-        if ($this->getEnergyProduction() == 0 || $this->getEnergyConsumption() == 0) {
+        if ($this->energyProduction()->get() == 0 || $this->energyConsumption()->get() == 0) {
             return 0;
         }
 
-        $production_factor = floor($this->getEnergyProduction() / $this->getEnergyConsumption() * 100);
+        $production_factor = floor($this->energyProduction()->get() / $this->energyConsumption()->get() * 100);
 
         // Force min 0, max 100.
         if ($production_factor > 100) {
@@ -1108,12 +1106,9 @@ class PlanetService
     /**
      * Get planet energy production.
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
-     *
-     * @return int|string
+     * @return Resource
      */
-    public function getEnergyProduction(bool $formatted = false): int|string
+    public function energyProduction(): Resource
     {
         $energy_production = $this->planet->energy_max;
 
@@ -1121,30 +1116,19 @@ class PlanetService
             $energy_production = 0;
         }
 
-        if ($formatted) {
-            $energy_production = AppUtil::formatNumber($energy_production);
-        }
-
-        return $energy_production;
+        return new Resource($energy_production);
     }
 
     /**
      * Get planet energy consumption.
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
-     *
-     * @return int|string
+     * @return Resource
      */
-    public function getEnergyConsumption(bool $formatted = false): int|string
+    public function energyConsumption(): Resource
     {
         $energy_consumption = $this->planet->energy_used;
 
-        if ($formatted) {
-            $energy_consumption = AppUtil::formatNumber($energy_consumption);
-        }
-
-        return $energy_consumption;
+        return new Resource($energy_consumption);
     }
 
     /**
@@ -1319,6 +1303,7 @@ class PlanetService
      * Calculate and return economy planet score based on levels of buildings and amount of units.
      *
      * @return int
+     * @throws Exception
      */
     public function getPlanetScoreEconomy(): int
     {
