@@ -526,7 +526,14 @@ class PlanetService
     public function getObjectLevel(string $machine_name): int
     {
         $object = $this->objects->getObjectByMachineName($machine_name);
-        return $this->planet->{$object->machine_name};
+        $level = $this->planet->{$object->machine_name};
+
+        // Required for unittests to work because db factories do not always set initial values.
+        if (empty($level)) {
+            $level = 0;
+        }
+
+        return $level;
     }
 
     /**
@@ -885,6 +892,7 @@ class PlanetService
      *   Optional flag whether to save the planet in this method. This defaults to TRUE
      *   but can be set to FALSE when update happens in bulk and the caller method calls
      *   the save planet itself to prevent on unnecessary multiple updates.
+     * @throws Exception
      */
     public function updateUnitQueue(bool $save_planet = true): void
     {
@@ -894,7 +902,7 @@ class PlanetService
         // @TODO: add DB transaction wrapper
         foreach ($unit_queue as $item) {
             // Get object information.
-            $object = $this->objects->getUnitObjects($item->object_id);
+            $object = $this->objects->getUnitObjectById($item->object_id);
 
             // Calculate if we can partially (or fully) complete this order
             // yet based on time per unit and amount of ordered units.
@@ -933,7 +941,7 @@ class PlanetService
                 $item->save();
 
                 // Update planet fleet amount
-                $this->planet->{$object['machine_name']} += $unit_amount;
+                $this->planet->{$object->machine_name} += $unit_amount;
                 if ($save_planet) {
                     $this->planet->save();
                 }
@@ -1382,7 +1390,7 @@ class PlanetService
         // Defense (100%)
         $defense_objects = $this->objects->getDefenseObjects();
         foreach ($defense_objects as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
             // Multiply raw_price by the amount of units.
             $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum();
         }
@@ -1390,7 +1398,7 @@ class PlanetService
         // Military ships (100%)
         $military_ships = $this->objects->getMilitaryShipObjects();
         foreach ($military_ships as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
             $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum();
         }
 

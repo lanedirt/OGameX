@@ -31,6 +31,7 @@ class MilitaryShipObjects
         $lightFighter->description_long = 'This is the first fighting ship all emperors will build. The light fighter is an agile ship, but vulnerable when it is on its own. In mass numbers, they can become a great threat to any empire. They are the first to accompany small and large cargoes to hostile planets with minor defenses.';
         $lightFighter->requirements = [
             new GameObjectRequirement('shipyard', 1),
+            new GameObjectRequirement('combustion_drive', 1),
         ];
         $lightFighter->price = new GameObjectPrice(3000, 1000, 0, 0);
         $lightFighter->rapidfire = [

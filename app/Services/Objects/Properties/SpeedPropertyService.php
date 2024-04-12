@@ -18,6 +18,7 @@ class SpeedPropertyService extends ObjectPropertyService
 
     /**
      * @inheritdoc
+     * @throws \Exception
      */
     protected function getBonusPercentage(PlanetService $planet): int
     {

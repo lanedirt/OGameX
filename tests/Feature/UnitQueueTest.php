@@ -21,15 +21,15 @@ class UnitQueueTest extends AccountTestCase
     private function basicSetup(): void
     {
         // Set the robotics factory to level 2
-        $this->planetSetObjectLevel(14, 2, true);
+        $this->planetSetObjectLevel('robot_factory', 2, true);
         // Set shipyard to level 1.
-        $this->planetSetObjectLevel(21, 1, true);
+        $this->planetSetObjectLevel('shipyard', 1, true);
         // Set the research lab to level 1.
         $this->planetSetObjectLevel('research_lab', 1, true);
         // Set energy technology to level 1.
-        $this->playerSetResearchLevel(113, 1);
+        $this->playerSetResearchLevel('energy_technology', 1);
         // Set combustion drive to level 1.
-        $this->playerSetResearchLevel(115, 1);
+        $this->playerSetResearchLevel('combustion_drive', 1);
     }
 
     /**
@@ -207,9 +207,9 @@ class UnitQueueTest extends AccountTestCase
         // Add resources to planet that test requires.
         $this->planetAddResources(new Resources(20000,0,0,0));
         // Set the robotics factory to level 2
-        $this->planetSetObjectLevel(14, 2, true);
+        $this->planetSetObjectLevel('robot_factory', 2, true);
         // Set shipyard to level 1.
-        $this->planetSetObjectLevel(21, 1, true);
+        $this->planetSetObjectLevel('shipyard', 1, true);
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);

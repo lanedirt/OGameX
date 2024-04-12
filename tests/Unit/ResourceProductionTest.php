@@ -2,8 +2,11 @@
 
 namespace Tests\Unit;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
+use OGame\Models\Resources;
+use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use PHPUnit\Framework\TestCase;
 
@@ -22,10 +25,11 @@ class ResourceProductionTest extends TestCase
         ->once()
         ->andReturn(false);*/
 
-    protected $planetService;
+    protected PlanetService $planetService;
 
     /**
      * Set up common test components.
+     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {
@@ -119,6 +123,6 @@ class ResourceProductionTest extends TestCase
         $this->expectException(\Exception::class);
 
         // Call the method that should throw the exception
-        $this->planetService->deductResources(['metal' => 9999, 'crystal' => 9999, 'deuterium' => 9999]);
+        $this->planetService->deductResources(new Resources(9999,9999,9999,0));
     }
 }

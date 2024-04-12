@@ -112,7 +112,8 @@ abstract class AccountTestCase extends TestCase
         $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
         $planetService = $playerService->planets->current();
         // Update the object level on the planet.
-        $planetService->setObjectLevel($machine_name, $object_level, true);
+        $object = $planetService->objects->getObjectByMachineName($machine_name);
+        $planetService->setObjectLevel($object->id, $object_level, true);
     }
 
     /**

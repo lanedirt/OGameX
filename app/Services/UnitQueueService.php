@@ -84,6 +84,7 @@ class UnitQueueService
      *  Single queue_item or array of queue_items.
      *
      * @return array
+     * @throws Exception
      */
     public function enrich(Collection $queue_items) : array
     {
@@ -99,7 +100,7 @@ class UnitQueueService
         }
 
         foreach ($queue_items as $item) {
-            $object = $this->objects->getUnitObjects($item->object_id);
+            $object = $this->objects->getUnitObjectById($item->object_id);
 
             $time_countdown = $item->time_end - Carbon::now()->timestamp;
             if ($time_countdown < 0) {
@@ -121,10 +122,10 @@ class UnitQueueService
             $return[] = [
                 'id' => $item->id,
                 'object' => [
-                    'id' => $object['id'],
-                    'title' => $object['title'],
+                    'id' => $object->id,
+                    'title' => $object->title,
                     'level_target' => $item->object_level_target,
-                    'assets' => $object['assets'],
+                    'assets' => $object->assets,
                 ],
                 'object_amount' => $item->object_amount,
                 'object_amount_remaining' => $item->object_amount - $item->object_amount_progress,

@@ -6,9 +6,9 @@ use OGame\Facades\AppUtil;
 
 class Resource
 {
-    protected int $rawValue = 0;
+    protected float $rawValue = 0;
 
-    public function __construct(int $rawValue)
+    public function __construct(float $rawValue)
     {
         $this->rawValue = $rawValue;
     }
@@ -36,9 +36,9 @@ class Resource
     /**
      * Get the raw value of the resource as integer.
      *
-     * @return int
+     * @return float
      */
-    public function get(): int
+    public function get(): float
     {
         return $this->rawValue;
     }
@@ -66,10 +66,10 @@ class Resource
     /**
      * Set the raw value of the resource.
      *
-     * @param int $value
+     * @param float $value
      * @return void
      */
-    public function set(int $value): void
+    public function set(float $value): void
     {
         $this->rawValue = $value;
     }

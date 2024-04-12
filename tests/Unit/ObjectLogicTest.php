@@ -33,12 +33,12 @@ class ObjectLogicTest extends TestCase
 
         $ships = $objectService->getShipObjects();
         foreach ($ships as $ship) {
-            $this->assertNotNull($ship['properties']['structural_integrity']);
-            $this->assertNotNull($ship['properties']['shield']);
-            $this->assertNotNull($ship['properties']['attack']);
-            $this->assertNotNull($ship['properties']['speed']);
-            $this->assertNotNull($ship['properties']['capacity']);
-            $this->assertNotNull($ship['properties']['fuel']);
+            $this->assertNotNull($ship->properties->structural_integrity);
+            $this->assertNotNull($ship->properties->shield);
+            $this->assertNotNull($ship->properties->attack);
+            $this->assertNotNull($ship->properties->speed);
+            $this->assertNotNull($ship->properties->capacity);
+            $this->assertNotNull($ship->properties->fuel);
         }
     }
 
@@ -48,11 +48,11 @@ class ObjectLogicTest extends TestCase
     public function testDefenceProperties() {
         $objectService = new ObjectService();
 
-        $ships = $objectService->getDefenseObjects();
-        foreach ($ships as $ship) {
-            $this->assertNotNull($ship['properties']['structural_integrity']);
-            $this->assertNotNull($ship['properties']['shield']);
-            $this->assertNotNull($ship['properties']['attack']);
+        $objects = $objectService->getDefenseObjects();
+        foreach ($objects as $object) {
+            $this->assertNotNull($object->properties->structural_integrity);
+            $this->assertNotNull($object->properties->shield);
+            $this->assertNotNull($object->properties->attack);
         }
     }
 }

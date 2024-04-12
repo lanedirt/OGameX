@@ -121,6 +121,7 @@ class HighscoreCalculationTest extends TestCase
 
     /**
      * Test that the planet score is calculated correctly based on building levels and unit count combined.
+     * @throws \Exception
      */
     public function testEconomyScore(): void
     {
@@ -136,12 +137,13 @@ class HighscoreCalculationTest extends TestCase
 
     /**
      * Test that the planet score is calculated correctly based on building levels and unit count combined.
+     * @throws \Exception
      */
     public function testMilitaryPoints(): void
     {
         $this->createAndConfigurePlanetModel([
             'metal_mine' => 10, // This should not affect the military points.
-            'small_cargo' => 10, // This should be calculcated as 50% because it is a civil ship.
+            'small_cargo' => 10, // This should be calculated as 50% because it is a civil ship.
             'light_fighter' => 10, // 100%
             'battle_ship' => 10, // 100%
         ]);

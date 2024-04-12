@@ -64,9 +64,19 @@ class ObjectService
         return ResearchObjects::get();
     }
 
+    /**
+     * Get all unit objects.
+     *
+     * @return array<UnitObject>
+     */
+    public function getUnitObjects() : array
+    {
+        return array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
+    }
+
 
     /**
-     * Get all ships.
+     * Get all ship objects.
      *
      * @return array<ShipObject>
      */

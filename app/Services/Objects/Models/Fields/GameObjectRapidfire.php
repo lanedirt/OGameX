@@ -14,9 +14,9 @@ class GameObjectRapidfire
     /**
      * Chance of rapidfire.
      *
-     * @var int
+     * @var float
      */
-    public int $chance;
+    public float $chance;
 
     /**
      * Amount of rapidfire.
@@ -32,7 +32,7 @@ class GameObjectRapidfire
      * @param int $chance
      * @param int $amount
      */
-    public function __construct(string $object_machine_name, int $chance, int $amount)
+    public function __construct(string $object_machine_name, float $chance, int $amount)
     {
         $this->object_machine_name = $object_machine_name;
         $this->chance = $chance;
