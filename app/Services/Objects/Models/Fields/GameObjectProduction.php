@@ -4,8 +4,8 @@ namespace OGame\Services\Objects\Models\Fields;
 
 class GameObjectProduction
 {
-    public string $metal;
-    public string $crystal;
-    public string $deuterium;
-    public string $energy;
+    public string $metal = 'return 0;';
+    public string $crystal = 'return 0;';
+    public string $deuterium = 'return 0;';
+    public string $energy = 'return 0;';
 }

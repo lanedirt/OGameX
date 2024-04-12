@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Planet;
+use OGame\Models\Resource;
 use OGame\Models\Resources;
 use OGame\Services\Objects\ObjectService;
 use OGame\Services\Objects\Properties\Abstracts\ObjectPropertyService;
@@ -368,12 +369,12 @@ class PlanetService
     /**
      * Removes resources from planet.
      *
-     * @param array<string,int> $resources
+     * @param Resources $resources
      * Array with resources to deduct.
      *
      * @throws Exception
      */
-    public function deductResources(array $resources): void
+    public function deductResources(Resources $resources): void
     {
         // Sanity check that this planet has enough resources, if not throw
         // exception.
@@ -381,14 +382,14 @@ class PlanetService
             throw new Exception('Planet does not have enough resources.');
         }
 
-        if (!empty($resources['metal'])) {
-            $this->planet->metal -= $resources['metal'];
+        if (!empty($resources->metal->get())) {
+            $this->planet->metal -= $resources->metal->get();
         }
-        if (!empty($resources['crystal'])) {
-            $this->planet->crystal -= $resources['crystal'];
+        if (!empty($resources->crystal->get())) {
+            $this->planet->crystal -= $resources->crystal->get();
         }
-        if (!empty($resources['deuterium'])) {
-            $this->planet->deuterium -= $resources['deuterium'];
+        if (!empty($resources->deuterium->get())) {
+            $this->planet->deuterium -= $resources->deuterium->get();
         }
 
         $this->planet->save();
@@ -523,7 +524,7 @@ class PlanetService
         $price = $this->objects->getObjectPrice($machine_name, $this);
 
         $robotfactory_level = $this->getObjectLevel('robot_factory');
-        $nanitefactory_level = $this->getObjectLevel('nanite_factory');
+        $nanitefactory_level = $this->getObjectLevel('nano_factory');
         $universe_speed = 8; // @TODO: implement universe speed.
 
         // The actual formula which return time in seconds
@@ -556,15 +557,12 @@ class PlanetService
      * The machine name of the object.
      *
      * @return int
+     * @throws Exception
      */
     public function getObjectLevel(string $machine_name): int
     {
-        try {
-            $object = $this->objects->getObjectByMachineName($machine_name);
-            return $this->planet->{$object->machine_name};
-        } catch (Exception $e) {
-            return 0;
-        }
+        $object = $this->objects->getObjectByMachineName($machine_name);
+        return $this->planet->{$object->machine_name};
     }
 
     /**
@@ -582,7 +580,7 @@ class PlanetService
         $object = $this->objects->getObjectByMachineName($machine_name);
 
         $shipyard_level = $this->getObjectLevel('shipyard');
-        $nanitefactory_level = $this->getObjectLevel('nanite_factory');
+        $nanitefactory_level = $this->getObjectLevel('nano_factory');
         $universe_speed = 8; // @TODO: implement actual universe speed (development speed).
 
         // The actual formula which return time in seconds
@@ -774,7 +772,7 @@ class PlanetService
                 }
             }
 
-            $this->addResources($resources_add, $save_planet);
+            $this->addResources(new Resources($resources_add['metal'], $resources_add['crystal'], $resources_add['deuterium'], 0), $save_planet);
             $this->planet->time_last_update = $current_time;
 
             if ($save_planet) {
@@ -839,23 +837,23 @@ class PlanetService
     /**
      * Adds resources to a planet.
      *
-     * @param array<string,int> $resources
+     * @param Resources $resources
      *
      * @param bool $save_planet
      * Optional flag whether to save the planet in this method. This defaults to TRUE
      * but can be set to FALSE when update happens in bulk and the caller method calls
      * the save planet itself to prevent on unnecessary multiple updates.
      */
-    public function addResources(array $resources, bool $save_planet = true): void
+    public function addResources(Resources $resources, bool $save_planet = true): void
     {
-        if (!empty($resources['metal'])) {
-            $this->planet->metal += $resources['metal'];
+        if (!empty($resources->metal->get())) {
+            $this->planet->metal += $resources->metal->get();
         }
-        if (!empty($resources['crystal'])) {
-            $this->planet->crystal += $resources['crystal'];
+        if (!empty($resources->crystal->get())) {
+            $this->planet->crystal += $resources->crystal->get();
         }
-        if (!empty($resources['deuterium'])) {
-            $this->planet->deuterium += $resources['deuterium'];
+        if (!empty($resources->deuterium->get())) {
+            $this->planet->deuterium += $resources->deuterium->get();
         }
 
         if ($save_planet) {
@@ -893,6 +891,11 @@ class PlanetService
 
             // Build the next item in queue (if there is any)
             $queue->start($this, $item->time_end);
+        }
+
+        if (count($build_queue) == 0) {
+            // If there were no finished queue item, we still check if we need to start the next one.
+            $queue->start($this);
         }
     }
 
@@ -998,27 +1001,19 @@ class PlanetService
      */
     public function updateResourceProductionStats(bool $save_planet = true): void
     {
-        $production_total = [];
+        $production_total = new Resources(0,0,0,0);
         $energy_production_total = 0;
         $energy_consumption_total = 0;
 
         // Get basic income resource values.
-        foreach ($this->getPlanetBasicIncome() as $key => $value) {
-            if (!empty($production_total[$key])) {
-                $production_total[$key] += $value;
-            } else {
-                $production_total[$key] = $value;
-            }
+        $production_total->add($this->getPlanetBasicIncome());
 
-            if ($key == 'energy') {
-                if ($value > 0) {
-                    $energy_production_total += $value;
-                } elseif ($value < 0) {
-                    // Multiplies the negative number with "-1" so it will become
-                    // a positive number, which is what the system expects.
-                    $energy_consumption_total += $value * -1;
-                }
-            }
+        $energy_production_total += $production_total->energy->get();
+        if ($production_total->energy->get() < 0) {
+            // Multiplies the negative number with "-1" so it will become
+            // a positive number, which is what the system expects.
+            $production_total->energy->add(new Resource($production_total->energy->get() * -1));
+            $energy_consumption_total += $production_total->energy->get() * -1;
         }
 
         // Calculate the production values twice:
@@ -1035,57 +1030,55 @@ class PlanetService
     /**
      * Returns basic income (resources) information for this planet.
      *
-     * @return array<string,int>
+     * @return Resources
      */
-    public function getPlanetBasicIncome(): array
+    public function getPlanetBasicIncome(): Resources
     {
         $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
 
         // @TODO: make these settings configurable in backend.
-        return [
-            'metal' => 30 * $universe_resource_multiplier,
-            'crystal' => 15 * $universe_resource_multiplier,
-            'deuterium' => 0,
-            'energy' => 0,
-        ];
+        return new Resources(
+            30 * $universe_resource_multiplier,
+            15 * $universe_resource_multiplier,
+            0,
+            0
+        );
     }
 
     /**
      * Update the planets resource production stats inner logic.
      *
-     * @param array<string,int> $production_total
+     * @param Resources $production_total
      * @param int $energy_production_total
      * @param int $energy_consumption_total
      * @param bool $save_planet
      * @return void
+     * @throws Exception
      */
-    private function updateResourceProductionStatsInner(array $production_total, int $energy_production_total, int $energy_consumption_total, bool $save_planet = true): void
+    private function updateResourceProductionStatsInner(Resources $production_total, int $energy_production_total, int $energy_consumption_total, bool $save_planet = true): void
     {
         foreach ($this->objects->getBuildingObjectsWithProduction() as $building) {
             // Retrieve all buildings that have production values.
-            $production = $this->getBuildingProduction($building['machine_name']);
+            $production = $this->getBuildingProduction($building->machine_name);
 
-            // Combine values to one array so we have the total production.
-            foreach ($production as $key => $value) {
-                if (!empty($production_total[$key])) {
-                    $production_total[$key] += $value;
-                } else {
-                    $production_total[$key] = $value;
-                }
+            if ($production->energy->get() > 0) {
+                $energy_production_total += $production->energy->get();
             }
-
-            if ($production['energy'] > 0) {
-                $energy_production_total += $production['energy'];
-            } elseif ($production['energy'] < 0) {
+            else {
                 // Multiplies the negative number with "-1" so it will become
                 // a positive number, which is what the system expects.
-                $energy_consumption_total += $production['energy'] * -1;
+                $production_total->energy->add(new Resource($production->energy->get() * -1));
+                $energy_consumption_total += $production->energy->get() * -1;
             }
+
+            // Combine values to one array so we have the total production.
+            $production_total->add($production);
         }
+
         // Write values to planet
-        $this->planet->metal_production = $production_total['metal'];
-        $this->planet->crystal_production = $production_total['crystal'];
-        $this->planet->deuterium_production = $production_total['deuterium'];
+        $this->planet->metal_production = $production_total->metal->get();
+        $this->planet->crystal_production = $production_total->crystal->get();
+        $this->planet->deuterium_production = $production_total->deuterium->get();
         $this->planet->energy_used = $energy_consumption_total;
         $this->planet->energy_max = $energy_production_total;
     }
@@ -1100,14 +1093,13 @@ class PlanetService
      *  Optional parameter to calculate the production for a specific level
      *  of a building. Defaults to the current level.
      *
-     * @return array<string,int>
+     * @return Resources
      * @throws Exception
      */
-    public function getBuildingProduction(string $machine_name, int $building_level = 0): array
+    public function getBuildingProduction(string $machine_name, int $building_level = 0): Resources
     {
         $building = $this->objects->getBuildingObjectsWithProductionByMachineName($machine_name);
 
-        $production = array();
         $resource_production_factor = 100; // Set default to 100, only override
         // when the building level is not set (which means current output is
         // asked for).
@@ -1124,27 +1116,19 @@ class PlanetService
         $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
 
         // TODO: check if this works correctly by looping through object values.. would be better to refactor.
-        foreach ($building->production as $resource => $production_formula) {
-            $production[$resource] = eval($production_formula) * $universe_resource_multiplier;
+        $production = new Resources(0,0,0,0);
+        $production->metal->set((eval($building->production->metal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
+        $production->crystal->set((eval($building->production->crystal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
+        $production->deuterium->set((eval($building->production->deuterium) * $universe_resource_multiplier) * ($resource_production_factor / 100));
+        $production->energy->set((eval($building->production->energy) * $universe_resource_multiplier)); // Energy is not affected by production factor.
 
-            // Apply production factor multiplier to all resources (except positive energy)
-            if ($resource == 'energy') {
-                // Do nothing
-            } else {
-                $production[$resource] = $production[$resource] * ($resource_production_factor / 100);
-            }
-
-            // Round down for energy.
-            // Round up for positive resources, round down for negative resources.
-            // This makes resource production better, and energy consumption worse.
-            if ($resource == 'energy') {
-                $production[$resource] = floor($production[$resource]);
-            } elseif ($production[$resource] > 0) {
-                $production[$resource] = ceil($production[$resource]);
-            } else {
-                $production[$resource] = floor($production[$resource]);
-            }
-        }
+        // Round down for energy.
+        // Round up for positive resources, round down for negative resources.
+        // This makes resource production better, and energy consumption worse.
+        $production->metal->set(ceil($production->metal->get()));
+        $production->crystal->set(ceil($production->crystal->get()));
+        $production->deuterium->set(ceil($production->deuterium->get()));
+        $production->energy->set(floor($production->energy->get()));
 
         return $production;
     }

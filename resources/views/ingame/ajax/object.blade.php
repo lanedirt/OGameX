@@ -121,7 +121,7 @@
         @elseif ($energy_difference < 0)
             <li>
                 Production:
-                <span class="time">{{ $production_next['energy'] }} <span class="undermark"> (+{{ ($energy_difference * -1) }})</span>
+                <span class="time">{{ $production_next->energy->get() }} <span class="undermark"> (+{{ ($energy_difference * -1) }})</span>
             </li>
         @endif
     </ul>

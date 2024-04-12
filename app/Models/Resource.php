@@ -42,4 +42,15 @@ class Resource
     {
         return AppUtil::formatNumberShort($this->rawValue);
     }
+
+    /**
+     * Set the raw value of the resource.
+     *
+     * @param int $value
+     * @return void
+     */
+    public function set(int $value): void
+    {
+        $this->rawValue = $value;
+    }
 }

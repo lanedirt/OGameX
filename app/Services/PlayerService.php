@@ -194,6 +194,7 @@ class PlayerService
      *
      * @param string $machine_name
      * @return int
+     * @throws Exception
      */
     public function getResearchLevel(string $machine_name) : int
     {

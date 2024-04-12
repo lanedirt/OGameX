@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use OGame\Models\BuildingQueue;
+use OGame\Models\Resources;
 use OGame\Services\Objects\ObjectService;
 
 /**
@@ -103,6 +104,8 @@ class BuildingQueueService
         $build_queue = $this->retrieveQueue($planet);
         $build_queue = $this->enrich($build_queue);
 
+        $building = $this->objects->getObjectById($building_id);
+
         // Max amount of buildings that can be in the queue in a given time.
         $max_build_queue_count = 4; //@TODO: refactor into global / constant?
         // TODO: refactor throw exception into a more user-friendly message.
@@ -113,23 +116,23 @@ class BuildingQueueService
 
         // Check if user satisifes requirements to build this object.
         // TODO: refactor throw exception into a more user-friendly message.
-        $requirements_met = $this->objects->objectRequirementsMet($building_id, $planet, $planet->getPlayer());
+        $requirements_met = $this->objects->objectRequirementsMet($building->machine_name, $planet, $planet->getPlayer());
         if (!$requirements_met) {
             throw new Exception('Requirements not met to build this object.');
         }
 
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the building queue.
-        $current_level = $planet->getObjectLevel($building_id);
+        $current_level = $planet->getObjectLevel($building->machine_name);
 
         // Check to see how many other items of this building there are already
         // in the queue, because if so then the level needs to be higher than that.
-        $amount = $this->activeBuildingQueueItemCount($planet, $building_id);
+        $amount = $this->activeBuildingQueueItemCount($planet, $building->id);
         $next_level = $current_level + $amount + 1;
 
         $queue = new $this->model;
         $queue->planet_id = $planet->getPlanetId();
-        $queue->object_id = $building_id;
+        $queue->object_id = $building->id;
         $queue->object_level_target = $next_level;
 
         // Save the new queue item
@@ -258,9 +261,11 @@ class BuildingQueueService
             ->get();
 
         foreach ($queue_items as $queue_item) {
+            $object = $this->objects->getObjectById($queue_item->object_id);
+
             // See if the planet has enough resources for this build attempt.
-            $price = $this->objects->getObjectPrice($queue_item->object_id, $planet);
-            $build_time = $planet->getBuildingConstructionTime($queue_item->object_id);
+            $price = $this->objects->getObjectPrice($object->machine_name, $planet);
+            $build_time = $planet->getBuildingConstructionTime($object->machine_name);
 
             // Only start the queue item if there are no other queue items building
             // for this planet.
@@ -274,7 +279,7 @@ class BuildingQueueService
             // Sanity check: check if the target level as stored in the database
             // is 1 higher than the current level. If not, then it means something
             // is wrong.
-            $current_level = $planet->getObjectLevel($queue_item->object_id);
+            $current_level = $planet->getObjectLevel($object->machine_name);
             if ($queue_item->object_level_target != ($current_level + 1)) {
                 // Error, cancel build queue item.
                 $this->cancel($planet, $queue_item->id, $queue_item->object_id);
@@ -302,9 +307,9 @@ class BuildingQueueService
             $queue_item->time_start = $time_start;
             $queue_item->time_end = $queue_item->time_start + $queue_item->time_duration;
             $queue_item->building = 1;
-            $queue_item->metal = $price['metal'];
-            $queue_item->crystal = $price['crystal'];
-            $queue_item->deuterium = $price['deuterium'];
+            $queue_item->metal = $price->metal->get();
+            $queue_item->crystal = $price->crystal->get();
+            $queue_item->deuterium = $price->deuterium->get();
             $queue_item->save();
 
             // If the calculated end time is lower than the current time,
@@ -375,11 +380,7 @@ class BuildingQueueService
 
             // Give back resources if the current entry was already building.
             if ($queue_item->building == 1) {
-                $planet->addResources([
-                    'metal' => $queue_item->metal,
-                    'crystal' => $queue_item->crystal,
-                    'deuterium' => $queue_item->deuterium,
-                ]);
+                $planet->addResources(new Resources($queue_item->metal, $queue_item->crystal, $queue_item->deuterium, 0));
             }
 
             // Add canceled flag to the main entry.

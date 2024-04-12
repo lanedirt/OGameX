@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
+use OGame\Models\Resources;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\Objects\ObjectService;
 use OGame\Services\PlayerService;
@@ -66,57 +67,45 @@ class ResourcesController extends AbstractBuildingsController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws \Exception
      */
     public function settings(Request $request, PlayerService $player, ObjectService $objects) : View
     {
+        $this->setBodyId('resourceSettings');
         $this->planet = $player->planets->current();
 
         $building_resource_rows = [];
         $building_energy_rows = [];
-        $production_total = [];
+        $production_total = new Resources(0,0,0,0);
 
         // Get basic income resource values.
-        foreach ($this->planet->getPlanetBasicIncome() as $key => $value) {
-            if (!empty($production_total[$key])) {
-                $production_total[$key] += $value;
-            } else {
-                $production_total[$key] = $value;
-            }
-        }
+        $production_total->add($this->planet->getPlanetBasicIncome());
 
         // Buildings that provide resource income
         // Get all buildings that have production values.
         foreach ($objects->getBuildingObjectsWithProduction() as $building) {
             // Retrieve all buildings that have production values.
-            $production = $this->planet->getBuildingProduction($building['id']);
+            $production = $this->planet->getBuildingProduction($building->machine_name);
+            $production_total->add($production);
 
-            // Combine values to one array so we have the total production.
-            foreach ($production as $key => $value) {
-                if (!empty($production_total[$key])) {
-                    $production_total[$key] += $value;
-                } else {
-                    $production_total[$key] = $value;
-                }
-            }
-
-            if ($production['energy'] < 0) {
+            if ($production->energy->get() < 0) {
                 // Building consumes energy (resource building)
                 $building_resource_rows[] = [
-                    'id' => $building['id'],
-                    'title' => $building['title'],
-                    'level' => $this->planet->getObjectLevel($building['id']),
+                    'id' => $building->id,
+                    'title' => $building->title,
+                    'level' => $this->planet->getObjectLevel($building->machine_name),
                     'production' => $production,
-                    'actual_energy_use' => floor($production['energy'] * ($this->planet->getResourceProductionFactor() / 100)),
-                    'percentage' => $this->planet->getBuildingPercent($building['id']),
+                    'actual_energy_use' => floor($production->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
+                    'percentage' => $this->planet->getBuildingPercent($building->machine_name),
                 ];
             } else {
                 // Building produces energy (energy building)
                 $building_energy_rows[] = [
-                    'id' => $building['id'],
-                    'title' => $building['title'],
-                    'level' => $this->planet->getObjectLevel($building['id']),
+                    'id' => $building->id,
+                    'title' => $building->title,
+                    'level' => $this->planet->getObjectLevel($building->machine_name),
                     'production' => $production,
-                    'percentage' => $this->planet->getBuildingPercent($building['id']),
+                    'percentage' => $this->planet->getBuildingPercent($building->machine_name),
                 ];
             }
         }
@@ -149,7 +138,6 @@ class ResourcesController extends AbstractBuildingsController
             'deuterium' => $this->planet->getDeuterium(),
             'deuterium_storage' => $this->planet->getDeuteriumStorage(),
             'deuterium_storage_formatted' => $this->planet->getDeuteriumStorage(true),
-            'body_id' => 'resourceSettings', // Sets <body> tag ID property.
         ]);
     }
 

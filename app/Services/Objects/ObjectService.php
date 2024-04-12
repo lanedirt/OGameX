@@ -1836,8 +1836,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     public function getObjectById(int $object_id) : GameObject
     {
         // Loop through all buildings and return the one with the matching UID
-        // TODO: replace buildingObjects with concatenated array of all objects.
-        $allObjects = array_merge(BuildingObjects::get(), ShipObjects::get());
+        $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), ShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
             if ($object->id == $object_id) {
                 return $object;
@@ -1857,8 +1856,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     public function getObjectByMachineName(string $machine_name) : GameObject
     {
         // Loop through all buildings and return the one with the matching UID
-        // TODO: replace buildingObjects with concatenated array of all objects.
-        $allObjects = array_merge(BuildingObjects::get(), ShipObjects::get());
+        $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), ShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
             if ($object->machine_name == $machine_name) {
                 return $object;
@@ -1912,21 +1910,16 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     /**
      * Get all buildings that have production values.
      *
-     * @param int $object_id
-     * @return array
+     * @return array<BuildingObject>
      */
-    public function getBuildingObjectsWithProduction(int $object_id = 0) : array
+    public function getBuildingObjectsWithProduction() : array
     {
         $return = array();
 
-        foreach ($this->buildingObjects as $key => $value) {
-            if (!empty(($value['production']))) {
-                $return[$key] = $value;
+        foreach (BuildingObjects::get() as $value) {
+            if (!empty(($value->production))) {
+                $return[] = $value;
             }
-        }
-
-        if (!empty($object_id)) {
-            return $return[$object_id];
         }
 
         return $return;
@@ -1937,6 +1930,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
      *
      * @param string $machine_name
      * @return BuildingObject
+     * @throws Exception
      */
     public function getBuildingObjectsWithProductionByMachineName(string $machine_name) : BuildingObject
     {
@@ -2206,23 +2200,19 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
      * @param string $machine_name
      * @param PlanetService $planet
      * @return Resources
+     * @throws Exception
      */
     public function getObjectPrice(string $machine_name, PlanetService $planet) : Resources
     {
-        try {
-            $object = $this->getObjectByMachineName($machine_name);
-        } catch (Exception $e) {
-            return new Resources(0,0,0,0);
-        }
-
+        $object = $this->getObjectByMachineName($machine_name);
         $player = $planet->getPlayer();
 
         // Price calculation for buildings or research (price depends on level)
-        if ($object->type == 'building' || $object->type == 'research') {
-            if ($object->type == 'building') {
-                $current_level = $planet->getObjectLevel($object->id);
+        if ($object->type == 'building' || $object->type == 'station' || $object->type == 'research') {
+            if ($object->type == 'building' || $object->type == 'station') {
+                $current_level = $planet->getObjectLevel($object->machine_name);
             } else {
-                $current_level = $player->getResearchLevel($object->id);
+                $current_level = $player->getResearchLevel($object->machine_name);
             }
 
             $price = $this->getObjectRawPrice($machine_name, $current_level + 1);
@@ -2251,11 +2241,10 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         }
 
         // Price calculation for buildings or research (price depends on level)
-        if ($object->type == 'building' || $object->type == 'research') {
+        if ($object->type == 'building' || $object->type == 'station' || $object->type == 'research') {
             // Level 0 is free.
             if ($level == 0) {
                 return new Resources(0,0,0,0);
-
             }
 
             $base_price = $object->price;

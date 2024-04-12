@@ -37,10 +37,11 @@ trait ObjectAjaxTrait
         $object = $objects->getObjectById($object_id);
 
         $current_level = 0;
-        if ($object->type == 'building') {
-            $current_level = $planet->getObjectLevel($object->machine_name);
-        } elseif ($object->type == 'research') {
+        if ($object->type == 'research') {
             $current_level = $player->getResearchLevel($object->machine_name);
+        }
+        else {
+            $current_level = $planet->getObjectLevel($object->machine_name);
         }
         $next_level = $current_level + 1;
 
@@ -82,8 +83,9 @@ trait ObjectAjaxTrait
         if (!empty($object->production)) {
             $production_current = $planet->getBuildingProduction($object->machine_name);
             $production_next = $planet->getBuildingProduction($object->machine_name, $next_level);
-            if (!empty($production_current['energy'])) {
-                $energy_difference = ($production_next['energy'] - $production_current['energy']) * -1;
+
+            if (!empty($production_current->energy->get())) {
+                $energy_difference = ($production_next->energy->get() - $production_current->energy->get()) * -1;
             }
         }
 
@@ -119,7 +121,7 @@ trait ObjectAjaxTrait
         $build_active_current = false;
         if (!empty($build_queue)) {
             foreach ($build_queue as $record) {
-                if ($object['id'] == $record['object']['id']) {
+                if ($object->id == $record['object']['id']) {
                     $build_active_current = $record;
                 }
             }
