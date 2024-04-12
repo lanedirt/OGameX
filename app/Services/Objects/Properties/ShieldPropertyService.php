@@ -18,17 +18,9 @@ class ShieldPropertyService extends ObjectPropertyService
     /**
      * @inheritdoc
      */
-    public function __construct(ObjectService $objects, PlanetService $planet)
+    protected function getBonusPercentage(PlanetService $planet): int
     {
-        parent::__construct($objects, $planet);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getBonusPercentage($object_id): int
-    {
-        $shielding_technology_level = $this->planet->getPlayer()->getResearchLevel(110);
+        $shielding_technology_level = $planet->getPlayer()->getResearchLevel('shielding_technology');
         // Every level technology gives 10% bonus.
         return $shielding_technology_level * 10;
     }

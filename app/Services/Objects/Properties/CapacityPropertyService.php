@@ -18,15 +18,7 @@ class CapacityPropertyService extends ObjectPropertyService
     /**
      * @inheritdoc
      */
-    public function __construct(ObjectService $objects, PlanetService $planet)
-    {
-        parent::__construct($objects, $planet);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getBonusPercentage($object_id): int
+    protected function getBonusPercentage(PlanetService $planet): int
     {
         // TODO: implement capacity bonus calculation per object id.
         return 0;

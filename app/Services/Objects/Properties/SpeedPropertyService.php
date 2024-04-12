@@ -2,6 +2,7 @@
 
 namespace OGame\Services\Objects\Properties;
 
+use OGame\Services\Objects\Models\Fields\GameObjectSpeedUpgrade;
 use OGame\Services\Objects\ObjectService;
 use OGame\Services\Objects\Properties\Abstracts\ObjectPropertyService;
 use OGame\Services\PlanetService;
@@ -18,15 +19,7 @@ class SpeedPropertyService extends ObjectPropertyService
     /**
      * @inheritdoc
      */
-    public function __construct(ObjectService $objects, PlanetService $planet)
-    {
-        parent::__construct($objects, $planet);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getBonusPercentage($object_id): int
+    protected function getBonusPercentage(PlanetService $planet): int
     {
         // Speed bonus is calculated based on main required drive technology.
         // Following technology gives amount of % per level:
@@ -40,25 +33,29 @@ class SpeedPropertyService extends ObjectPropertyService
         // and 20% bonus per level from impulse drive after level 5.
 
         // Get object itself.
-        $object = $this->objects->getObjects($object_id);
+        $object = $this->parent_object;
 
         // Get player's drive technology levels.
-        $combustion_drive_level = $this->planet->getPlayer()->getResearchLevel(115);
-        $impulse_drive_level = $this->planet->getPlayer()->getResearchLevel(117);
-        $hyperspace_drive_level = $this->planet->getPlayer()->getResearchLevel(118);
+        $combustion_drive_level = $planet->getPlayer()->getResearchLevel('combustion_drive');
+        $impulse_drive_level = $planet->getPlayer()->getResearchLevel('impulse_drive');
+        $hyperspace_drive_level = $planet->getPlayer()->getResearchLevel('hyperspace_drive');
 
         // Check if object has speed upgrade defined, if so, check if its eligible.
         $bonus_percentage_per_level = 0;
         $applicable_technology_level = 0;
-        if (!empty($object['speed_upgrade'])) {
-            foreach ($object['speed_upgrade'] as $technology_id => $speed_upgrade_from_level) {
-                if ($technology_id === 115 && $combustion_drive_level >= $speed_upgrade_from_level) {
+        if (!empty($object->properties->speed_upgrade)) {
+            /** @var GameObjectSpeedUpgrade $upgrade */
+            foreach ($object->properties->speed_upgrade as $upgrade) {
+                if ($upgrade->object_machine_name == 'combustion_drive' && $combustion_drive_level >= $upgrade->level) {
+                    // If combustion drive is defined, then it will override the default speed bonus.
                     $bonus_percentage_per_level = 10;
                     $applicable_technology_level = $combustion_drive_level;
-                } elseif ($technology_id === 117 && $impulse_drive_level >= $speed_upgrade_from_level) {
+                } elseif ($upgrade->object_machine_name == 'impulse_drive' && $impulse_drive_level >= $upgrade->level) {
+                    // If impulse drive is defined, then it will override combustion drive.
                     $bonus_percentage_per_level = 20;
                     $applicable_technology_level = $impulse_drive_level;
-                } elseif ($technology_id === 118 && $hyperspace_drive_level >= $speed_upgrade_from_level) {
+                } elseif ($upgrade->object_machine_name == 'hyperspace_drive' && $hyperspace_drive_level >= $upgrade->level) {
+                    // If hyperspace drive is defined, then it will override impulse drive.
                     $bonus_percentage_per_level = 30;
                     $applicable_technology_level = $hyperspace_drive_level;
                 }
@@ -67,20 +64,20 @@ class SpeedPropertyService extends ObjectPropertyService
 
         if ($bonus_percentage_per_level === 0) {
             // If no speed upgrade is defined, then check the main drive technology based on the required technologies.
-            if (array_key_exists(115, $object['requirements'])) {
-                // Combustion Drive is required.
-                $bonus_percentage_per_level = 10;
-                $applicable_technology_level = $combustion_drive_level;
-            }
-            else if (array_key_exists(117, $object['requirements'])) {
-                // Impulse Drive is required.
-                $bonus_percentage_per_level = 20;
-                $applicable_technology_level = $impulse_drive_level;
-            }
-            else if (array_key_exists(118, $object['requirements'])) {
-                // Hyperspace Drive is required.
-                $bonus_percentage_per_level = 30;
-                $applicable_technology_level = $hyperspace_drive_level;
+            foreach ($object->requirements as $requirement) {
+                if ($requirement->object_machine_name == 'combustion_drive') {
+                    // Combustion drive gives 10% bonus per level.
+                    $bonus_percentage_per_level = 10;
+                    $applicable_technology_level = $combustion_drive_level;
+                } elseif ($requirement->object_machine_name == 'impulse_drive') {
+                    // Impulse drive gives 20% bonus per level.
+                    $bonus_percentage_per_level = 20;
+                    $applicable_technology_level = $impulse_drive_level;
+                } elseif ($requirement->object_machine_name == 'hyperspace_drive') {
+                    // Hyperspace drive gives 30% bonus per level.
+                    $bonus_percentage_per_level = 30;
+                    $applicable_technology_level = $hyperspace_drive_level;
+                }
             }
         }
 

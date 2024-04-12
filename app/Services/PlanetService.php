@@ -51,13 +51,6 @@ class PlanetService
     protected PlayerService $player;
 
     /**
-     * Cache for services.
-     *
-     * @var array<ObjectPropertyService>
-     */
-    private array $objectPropertyServiceCache = [];
-
-    /**
      * Planet constructor.
      *
      * @param PlayerService|null $player
@@ -586,7 +579,7 @@ class PlanetService
         // The actual formula which return time in seconds
         $time_hours =
             (
-                ($object->properties->structural_integrity) // TODO: implement dynamic property retrieval which takes into account research levels.
+                ($object->properties->structural_integrity->rawValue)
                 /
                 (2500 * (1 + $shipyard_level) * $universe_speed * pow(2, $nanitefactory_level))
             );
@@ -1309,78 +1302,6 @@ class PlanetService
         $storage_deuterium = eval($building->storage->deuterium);
 
         return new Resources($storage_metal, $storage_crystal, $storage_deuterium, 0);
-    }
-
-    /**
-     * Get all object properties for a specific object.
-     *
-     * @param int $objectId
-     * @return ObjectProperties
-     * @throws Exception
-     */
-    public function getObjectProperties(int $objectId): ObjectProperties
-    {
-        $properties = [
-            'structural_integrity',
-            'shield',
-            'attack',
-            'speed',
-            'capacity',
-            'fuel',
-        ];
-
-        $calculatedProperties = [];
-
-        foreach ($properties as $propertyName) {
-            $service = $this->getPropertyService($propertyName);
-            $calculatedProperties[$propertyName] = $service->calculateProperty($objectId);
-        }
-
-        // Directly pass each calculated property to the ObjectProperties constructor
-        return new ObjectProperties(
-            $calculatedProperties['structural_integrity'],
-            $calculatedProperties['shield'],
-            $calculatedProperties['attack'],
-            $calculatedProperties['speed'],
-            $calculatedProperties['capacity'],
-            $calculatedProperties['fuel']
-        );
-    }
-
-    /**
-     * Get the object property service for a specific property.
-     *
-     * @param string $propertyName
-     * @return ObjectPropertyService
-     * @throws Exception
-     */
-    public function getPropertyService(string $propertyName): ObjectPropertyService
-    {
-        if (!isset($this->objectPropertyServiceCache[$propertyName])) {
-            switch ($propertyName) {
-                case 'structural_integrity':
-                    $this->objectPropertyServiceCache[$propertyName] = new StructuralIntegrityPropertyService($this->objects, $this);
-                    break;
-                case 'shield':
-                    $this->objectPropertyServiceCache[$propertyName] = new ShieldPropertyService($this->objects, $this);
-                    break;
-                case 'attack':
-                    $this->objectPropertyServiceCache[$propertyName] = new AttackPropertyService($this->objects, $this);
-                    break;
-                case 'speed':
-                    $this->objectPropertyServiceCache[$propertyName] = new SpeedPropertyService($this->objects, $this);
-                    break;
-                case 'capacity':
-                    $this->objectPropertyServiceCache[$propertyName] = new CapacityPropertyService($this->objects, $this);
-                    break;
-                case 'fuel':
-                    $this->objectPropertyServiceCache[$propertyName] = new FuelPropertyService($this->objects, $this);
-                    break;
-                default:
-                    throw new \Exception('Unknown object property name: ' . $propertyName);
-            }
-        }
-        return $this->objectPropertyServiceCache[$propertyName];
     }
 
     /**

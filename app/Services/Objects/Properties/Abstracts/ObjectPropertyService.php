@@ -2,9 +2,12 @@
 
 namespace OGame\Services\Objects\Properties\Abstracts;
 
+use OGame\Models\Planet;
+use OGame\Services\Objects\Models\GameObject;
 use OGame\Services\Objects\ObjectService;
 use OGame\Services\Objects\Properties\Models\ObjectPropertyDetails;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 use voku\helper\ASCII;
 
 /**
@@ -14,69 +17,46 @@ use voku\helper\ASCII;
  */
 abstract class ObjectPropertyService
 {
-    protected ObjectService $objects;
-
-    protected PlanetService $planet;
-
     /**
      * This is a placeholder for the property name set by the child class.
      *
      * @var string
      */
     protected string $propertyName = '';
+    protected int $base_value;
+    protected GameObject $parent_object;
 
-    /**
-     * ObjectPropertyService constructor.
-     */
-    public function __construct(ObjectService $objects, PlanetService $planet)
-    {
-        $this->objects = $objects;
-        $this->planet = $planet;
-    }
-
-    /**
-     * Get the raw value of a property.
-     *
-     * @param int $object_id
-     * @return mixed
-     */
-    protected function getRawValue(int $object_id) {
-        // Check if the property exists in the object
-        if (!array_key_exists($this->propertyName, $this->objects->getObjects($object_id)['properties'])) {
-            return 0;
-        }
-
-        return $this->objects->getObjects($object_id)['properties'][$this->propertyName];
+    public function __construct(GameObject $parentObject, int $baseValue) {
+        $this->parent_object = $parentObject;
+        $this->base_value = $baseValue;
     }
 
     /**
      * Get the bonus percentage for a property.
      *
-     * @param int $object_id
      * @return int
      *  Bonus percentage as integer (e.g. 10 for 10% bonus, 110 for 110% bonus, etc.)
      */
-    abstract protected function getBonusPercentage(int $object_id): int;
+    abstract protected function getBonusPercentage(PlanetService $planet): int;
 
     /**
      * Calculate the total value of a property.
      *
-     * @param int $object_id
+     * @param PlanetService $planet
      * @return ObjectPropertyDetails
      */
-    public function calculateProperty(int $object_id): ObjectPropertyDetails
+    public function calculateProperty(PlanetService $planet): ObjectPropertyDetails
     {
-        $rawValue = $this->getRawValue($object_id);
-        $bonusPercentage = $this->getBonusPercentage($object_id);
-        $bonusValue = (($rawValue / 100) * $bonusPercentage);
+        $bonusPercentage = $this->getBonusPercentage($planet);
+        $bonusValue = (($this->base_value / 100) * $bonusPercentage);
 
-        $totalValue = $rawValue + $bonusValue;
+        $totalValue = $this->base_value + $bonusValue;
 
         // Prepare the breakdown for future-proofing (assuming more components might be added)
         // TODO: Add more components to the breakdown if necessary like class bonuses, premium member
         // bonuses, item bonuses etc.
         $breakdown = [
-            'rawValue' => $rawValue,
+            'rawValue' => $this->base_value,
             'bonuses' => [
                 [
                     'type' => 'Research bonus',
@@ -87,6 +67,6 @@ abstract class ObjectPropertyService
             'totalValue' => $totalValue,
         ];
 
-        return new ObjectPropertyDetails($rawValue, $bonusValue, $totalValue, $breakdown);
+        return new ObjectPropertyDetails($this->base_value, $bonusValue, $totalValue, $breakdown);
     }
 }

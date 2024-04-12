@@ -18,17 +18,9 @@ class AttackPropertyService extends ObjectPropertyService
     /**
      * @inheritdoc
      */
-    public function __construct(ObjectService $objects, PlanetService $planet)
+    protected function getBonusPercentage(PlanetService $planet): int
     {
-        parent::__construct($objects, $planet);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function getBonusPercentage($object_id): int
-    {
-        $weapons_technology_level = $this->planet->getPlayer()->getResearchLevel(109);
+        $weapons_technology_level = $planet->getPlayer()->getResearchLevel('weapon_technology');
         // Every level technology gives 10% bonus.
         return $weapons_technology_level * 10;
     }

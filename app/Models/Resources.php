@@ -29,4 +29,13 @@ class Resources
         $this->deuterium->add($other->deuterium);
         $this->energy->add($other->energy);
     }
+
+    /**
+     * Returns sum of all resources.
+     *
+     * @return int
+     */
+    public function sum(): int {
+        return $this->metal->get() + $this->crystal->get() + $this->deuterium->get() + $this->energy->get();
+    }
 }

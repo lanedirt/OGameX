@@ -40,13 +40,7 @@ class CivilShipObjects
             new GameObjectRapidfire('espionage_probe', 80, 5),
             new GameObjectRapidfire('solar_satellite', 80, 5),
         ];
-        $smallCargo->properties = new GameObjectProperties();
-        $smallCargo->properties->structural_integrity = 4000;
-        $smallCargo->properties->shield = 10;
-        $smallCargo->properties->attack = 5;
-        $smallCargo->properties->speed = 10000;
-        $smallCargo->properties->capacity = 6250;
-        $smallCargo->properties->fuel = 10;
+        $smallCargo->properties = new GameObjectProperties($smallCargo, 4000, 10, 5, 10000, 6250, 10);
         $smallCargo->properties->speed_upgrade = [
             new GameObjectSpeedUpgrade('impulse_drive', 5),
         ];
@@ -75,13 +69,8 @@ To maximize the resources that can be stored in the holds, this ship has little 
             new GameObjectRapidfire('espionage_probe', 80, 5),
             new GameObjectRapidfire('solar_satellite', 80, 5),
         ];
-        $largeCargo->properties = new GameObjectProperties();
-        $largeCargo->properties->structural_integrity = 12000;
-        $largeCargo->properties->shield = 25;
-        $largeCargo->properties->attack = 5;
-        $largeCargo->properties->speed = 15000;
-        $largeCargo->properties->capacity = 31250;
-        $largeCargo->properties->fuel = 50;
+        $largeCargo->properties = new GameObjectProperties($largeCargo, 12000, 25, 5, 15000, 25000, 50);
+
         $largeCargo->assets = new GameObjectAssets();
         $largeCargo->assets->imgMicro = 'large_cargo_small.jpg';
         $largeCargo->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -106,13 +95,8 @@ This ship is used to prepare a newly discovered planet for colonization. Once it
             new GameObjectRapidfire('espionage_probe', 80, 5),
             new GameObjectRapidfire('solar_satellite', 80, 5),
         ];
-        $colonyShip->properties = new GameObjectProperties();
-        $colonyShip->properties->structural_integrity = 30000;
-        $colonyShip->properties->shield = 100;
-        $colonyShip->properties->attack = 50;
-        $colonyShip->properties->speed = 2500;
-        $colonyShip->properties->capacity = 7500;
-        $colonyShip->properties->fuel = 1000;
+        $colonyShip->properties = new GameObjectProperties($colonyShip, 30000, 100, 50, 2500, 7500, 100);
+
         $colonyShip->assets = new GameObjectAssets();
         $colonyShip->assets->imgMicro = 'colony_ship_small.jpg';
         $colonyShip->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -139,13 +123,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
             new GameObjectRapidfire('espionage_probe', 80, 5),
             new GameObjectRapidfire('solar_satellite', 80, 5),
         ];
-        $recycler->properties = new GameObjectProperties();
-        $recycler->properties->structural_integrity = 16000;
-        $recycler->properties->shield = 10;
-        $recycler->properties->attack = 1;
-        $recycler->properties->speed = 2000;
-        $recycler->properties->capacity = 20000;
-        $recycler->properties->fuel = 300;
+        $recycler->properties = new GameObjectProperties($recycler, 16000, 10, 1, 2000, 20000, 300);
         $recycler->properties->speed_upgrade = [
             new GameObjectSpeedUpgrade('impulse_drive', 17),
             new GameObjectSpeedUpgrade('hyperspace_drive', 15),
@@ -169,13 +147,8 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
             new GameObjectRequirement('espionage_technology', 2),
         ];
         $espionageProbe->price = new GameObjectPrice(0, 1000, 0, 0);
-        $espionageProbe->properties = new GameObjectProperties();
-        $espionageProbe->properties->structural_integrity = 1000;
-        $espionageProbe->properties->shield = 0;
-        $espionageProbe->properties->attack = 0;
-        $espionageProbe->properties->speed = 100000000;
-        $espionageProbe->properties->capacity = 0;
-        $espionageProbe->properties->fuel = 1;
+        $espionageProbe->properties = new GameObjectProperties($espionageProbe, 1000, 0, 0, 100000000, 0, 1);
+
         $espionageProbe->assets = new GameObjectAssets();
         $espionageProbe->assets->imgMicro = 'espionage_probe_small.jpg';
         $espionageProbe->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -195,13 +168,8 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
             new GameObjectRequirement('shipyard', 1),
         ];
         $solarSatellite->price = new GameObjectPrice(0, 2000, 500, 0);
-        $solarSatellite->properties = new GameObjectProperties();
-        $solarSatellite->properties->structural_integrity = 2000;
-        $solarSatellite->properties->shield = 1;
-        $solarSatellite->properties->attack = 1;
-        $solarSatellite->properties->speed = 0;
-        $solarSatellite->properties->capacity = 0;
-        $solarSatellite->properties->fuel = 1;
+        $solarSatellite->properties = new GameObjectProperties($solarSatellite, 2000, 1, 0, 0, 0, 1);
+
         $solarSatellite->assets = new GameObjectAssets();
         $solarSatellite->assets->imgMicro = 'solar_satellite_small.jpg';
         $solarSatellite->assets->imgSmall = 'robot_factory_micro.jpg';

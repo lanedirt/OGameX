@@ -37,14 +37,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('espionage_probe', 80, 5),
             new GameObjectRapidfire('solar_satellite', 80, 5),
         ];
-        $lightFighter->properties = new GameObjectProperties();
-        $lightFighter->properties->structural_integrity = 4000;
-        $lightFighter->properties->shield = 10;
-        $lightFighter->properties->attack = 50;
-        $lightFighter->properties->speed = 12500;
-        $lightFighter->properties->capacity = 50;
-        $lightFighter->properties->fuel = 20;
-
+        $lightFighter->properties = new GameObjectProperties($lightFighter, 4000, 10, 50, 12500, 50, 20);
         $lightFighter->assets = new GameObjectAssets();
         $lightFighter->assets->imgMicro = 'light_fighter_small.jpg';
         $lightFighter->assets->imgSmall = 'light_fighter_small.jpg';
@@ -71,15 +64,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('solar_satellite', 80, 5),
             new GameObjectRapidfire('small_cargo', 66.67, 3),
         ];
-
-        $heavyFighter->properties = new GameObjectProperties();
-        $heavyFighter->properties->structural_integrity = 10000;
-        $heavyFighter->properties->shield = 25;
-        $heavyFighter->properties->attack = 150;
-        $heavyFighter->properties->speed = 10000;
-        $heavyFighter->properties->capacity = 100;
-        $heavyFighter->properties->fuel = 75;
-
+        $heavyFighter->properties = new GameObjectProperties($heavyFighter, 10000, 25, 150, 10000, 100, 75);
         $heavyFighter->assets = new GameObjectAssets();
         $heavyFighter->assets->imgMicro = 'heavy_fighter_small.jpg';
         $heavyFighter->assets->imgSmall = 'heavy_fighter_small.jpg';
@@ -109,15 +94,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('light_fighter', 83.34, 6),
             new GameObjectRapidfire('rocket_launcher', 98, 10),
         ];
-
-        $cruiser->properties = new GameObjectProperties();
-        $cruiser->properties->structural_integrity = 27000;
-        $cruiser->properties->shield = 50;
-        $cruiser->properties->attack = 400;
-        $cruiser->properties->speed = 15000;
-        $cruiser->properties->capacity = 800;
-        $cruiser->properties->fuel = 300;
-
+        $cruiser->properties = new GameObjectProperties($cruiser, 27000, 50, 400, 15000, 800, 300);
         $cruiser->assets = new GameObjectAssets();
         $cruiser->assets->imgMicro = 'cruiser_small.jpg';
         $cruiser->assets->imgSmall = 'cruiser_small.jpg';
@@ -140,15 +117,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('espionage_probe', 80, 5),
             new GameObjectRapidfire('solar_satellite', 80, 5),
         ];
-
-        $battleship->properties = new GameObjectProperties();
-        $battleship->properties->structural_integrity = 60000;
-        $battleship->properties->shield = 200;
-        $battleship->properties->attack = 1000;
-        $battleship->properties->speed = 10000;
-        $battleship->properties->capacity = 1500;
-        $battleship->properties->fuel = 500;
-
+        $battleship->properties = new GameObjectProperties($battleship, 60000, 200, 1000, 10000, 1500, 500);
         $battleship->assets = new GameObjectAssets();
         $battleship->assets->imgMicro = 'battleship_small.jpg';
         $battleship->assets->imgSmall = 'battleship_small.jpg';
@@ -168,7 +137,6 @@ class MilitaryShipObjects
             new GameObjectRequirement('hyperspace_technology', 5),
             new GameObjectRequirement('laser_technology', 12),
         ];
-
         $battlecruiser->price = new GameObjectPrice(30000, 40000, 15000, 0);
         $battlecruiser->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 80, 5),
@@ -179,15 +147,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('small_cargo', 66.67, 3),
             new GameObjectRapidfire('large_cargo', 66.67, 3),
         ];
-
-        $battlecruiser->properties = new GameObjectProperties();
-        $battlecruiser->properties->structural_integrity = 70000;
-        $battlecruiser->properties->shield = 400;
-        $battlecruiser->properties->attack = 700;
-        $battlecruiser->properties->speed = 10000;
-        $battlecruiser->properties->capacity = 750;
-        $battlecruiser->properties->fuel = 250;
-
+        $battlecruiser->properties = new GameObjectProperties($battlecruiser, 70000, 400, 700, 10000, 750, 250);
         $battlecruiser->assets = new GameObjectAssets();
         $battlecruiser->assets->imgMicro = 'battlecruiser_small.jpg';
         $battlecruiser->assets->imgSmall = 'battlecruiser_small.jpg';
@@ -220,18 +180,10 @@ class MilitaryShipObjects
             new GameObjectRapidfire('gauss_cannon', 80, 5),
             new GameObjectRapidfire('plasma_turret', 80, 5),
         ];
-
-        $bomber->properties = new GameObjectProperties();
-        $bomber->properties->structural_integrity = 75000;
-        $bomber->properties->shield = 500;
-        $bomber->properties->attack = 1000;
-        $bomber->properties->speed = 4000;
-        $bomber->properties->capacity = 500;
-        $bomber->properties->fuel = 700;
+        $bomber->properties = new GameObjectProperties($bomber, 75000, 500, 1000, 4000, 500, 700);
         $bomber->properties->speed_upgrade = [
             new GameObjectSpeedUpgrade('hyperspace_drive', 8),
         ];
-
         $bomber->assets = new GameObjectAssets();
         $bomber->assets->imgMicro = 'bomber_small.jpg';
         $bomber->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -260,13 +212,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('light_laser', 90, 10),
             new GameObjectRapidfire('battle_cruiser', 50, 2),
         ];
-        $destroyer->properties = new GameObjectProperties();
-        $destroyer->properties->structural_integrity = 110000;
-        $destroyer->properties->shield = 500;
-        $destroyer->properties->attack = 200;
-        $destroyer->properties->speed = 5000;
-        $destroyer->properties->capacity = 2000;
-        $destroyer->properties->fuel = 1000;
+        $destroyer->properties = new GameObjectProperties($destroyer, 110000, 500, 200, 5000, 2000, 1000);
         $destroyer->assets = new GameObjectAssets();
         $destroyer->assets->imgMicro = 'destroyer_small.jpg';
         $destroyer->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -310,15 +256,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('gauss_cannon', 98, 50),
             new GameObjectRapidfire('battle_cruiser', 93.34, 15),
         ];
-
-        $deathstar->properties = new GameObjectProperties();
-        $deathstar->properties->structural_integrity = 9000000;
-        $deathstar->properties->shield = 50000;
-        $deathstar->properties->attack = 200000;
-        $deathstar->properties->speed = 100;
-        $deathstar->properties->capacity = 1000000;
-        $deathstar->properties->fuel = 1;
-
+        $deathstar->properties = new GameObjectProperties($deathstar, 9000000, 50000, 200000, 100, 1000000, 1);
         $deathstar->assets = new GameObjectAssets();
         $deathstar->assets->imgMicro = 'deathstar_small.jpg';
         $deathstar->assets->imgSmall = 'robot_factory_micro.jpg';

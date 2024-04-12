@@ -1,5 +1,5 @@
-@if (!empty($object['production']))
-    @if ($object->object->id == 4)
+@if (!empty($object->production))
+    @if ($object->id == 4)
         <!--  Basic energy production -->
         <table class="general_details">
             <thead>
@@ -53,7 +53,7 @@
             @endforeach
             </tbody>
         </table>
-    @elseif ($object->object->id == 12)
+    @elseif ($object->id == 12)
         <!--  Resource production -->
         <table class="general_details">
             <thead>

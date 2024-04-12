@@ -35,11 +35,7 @@ class DefenseObjects
             new GameObjectRequirement('shipyard', 1),
         ];
         $rocketLauncher->price = new GameObjectPrice(2000, 0, 0, 0);
-        $rocketLauncher->properties = new GameObjectProperties();
-        $rocketLauncher->properties->structural_integrity = 2000;
-        $rocketLauncher->properties->shield = 20;
-        $rocketLauncher->properties->attack = 80;
-
+        $rocketLauncher->properties = new GameObjectProperties($rocketLauncher, 2000, 20, 80, 0, 0, 0);
         $rocketLauncher->assets = new GameObjectAssets();
         $rocketLauncher->assets->imgMicro = 'rocket_launcher_small.jpg';
         $rocketLauncher->assets->imgSmall = 'rocket_launcher_small.jpg';
@@ -60,10 +56,7 @@ class DefenseObjects
             new GameObjectRequirement('laser_technology', 3),
         ];
         $lightLaser->price = new GameObjectPrice(1500, 500, 0, 0);
-        $lightLaser->properties = new GameObjectProperties();
-        $lightLaser->properties->structural_integrity = 2000;
-        $lightLaser->properties->shield = 25;
-        $lightLaser->properties->attack = 100;
+        $lightLaser->properties = new GameObjectProperties($lightLaser, 2000, 25, 100, 0, 0, 0);
         $lightLaser->assets = new GameObjectAssets();
         $lightLaser->assets->imgMicro = 'light_laser_small.jpg';
         $lightLaser->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -86,10 +79,7 @@ class DefenseObjects
             new GameObjectRequirement('energy_technology', 3),
         ];
         $heavyLaser->price = new GameObjectPrice(6000, 2000, 0, 0);
-        $heavyLaser->properties = new GameObjectProperties();
-        $heavyLaser->properties->structural_integrity = 8000;
-        $heavyLaser->properties->shield = 100;
-        $heavyLaser->properties->attack = 250;
+        $heavyLaser->properties = new GameObjectProperties($heavyLaser, 8000, 100, 250, 0, 0, 0);
         $heavyLaser->assets = new GameObjectAssets();
         $heavyLaser->assets->imgMicro = 'heavy_laser_small.jpg';
         $heavyLaser->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -115,10 +105,7 @@ class DefenseObjects
             new GameObjectRequirement('energy_technology', 6),
         ];
         $gaussCannon->price = new GameObjectPrice(20000, 15000, 2000, 0);
-        $gaussCannon->properties = new GameObjectProperties();
-        $gaussCannon->properties->structural_integrity = 35000;
-        $gaussCannon->properties->shield = 200;
-        $gaussCannon->properties->attack = 1100;
+        $gaussCannon->properties = new GameObjectProperties($gaussCannon, 35000, 200, 1100, 0, 0, 0);
         $gaussCannon->assets = new GameObjectAssets();
         $gaussCannon->assets->imgMicro = 'gauss_cannon_small.jpg';
         $gaussCannon->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -140,10 +127,7 @@ class DefenseObjects
         ];
 
         $ionCannon->price = new GameObjectPrice(2000, 6000, 0, 0);
-        $ionCannon->properties = new GameObjectProperties();
-        $ionCannon->properties->structural_integrity = 8000;
-        $ionCannon->properties->shield = 500;
-        $ionCannon->properties->attack = 150;
+        $ionCannon->properties = new GameObjectProperties($ionCannon, 8000, 500, 150, 0, 0, 0);
         $ionCannon->assets = new GameObjectAssets();
         $ionCannon->assets->imgMicro = 'ion_cannon_small.jpg';
         $ionCannon->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -165,10 +149,7 @@ class DefenseObjects
             new GameObjectRequirement('plasma_technology', 7),
         ];
         $plasmaTurret->price = new GameObjectPrice(50000, 50000, 30000, 0);
-        $plasmaTurret->properties = new GameObjectProperties();
-        $plasmaTurret->properties->structural_integrity = 100000;
-        $plasmaTurret->properties->shield = 300;
-        $plasmaTurret->properties->attack = 3000;
+        $plasmaTurret->properties = new GameObjectProperties($plasmaTurret, 100000, 300, 3000, 0, 0, 0);
         $plasmaTurret->assets = new GameObjectAssets();
         $plasmaTurret->assets->imgMicro = 'plasma_turret_small.jpg';
         $plasmaTurret->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -189,10 +170,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             new GameObjectRequirement('shield_technology', 2),
         ];
         $smallShieldDome->price = new GameObjectPrice(10000, 10000, 0, 0);
-        $smallShieldDome->properties = new GameObjectProperties();
-        $smallShieldDome->properties->structural_integrity = 20000;
-        $smallShieldDome->properties->shield = 2000;
-        $smallShieldDome->properties->attack = 1;
+        $smallShieldDome->properties = new GameObjectProperties($smallShieldDome, 20000, 2000, 1, 0, 0, 0);
         $smallShieldDome->assets = new GameObjectAssets();
         $smallShieldDome->assets->imgMicro = 'small_shield_dome_small.jpg';
         $smallShieldDome->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -214,10 +192,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             new GameObjectRequirement('shield_technology', 6),
         ];
         $largeShieldDome->price = new GameObjectPrice(50000, 50000, 0, 0);
-        $largeShieldDome->properties = new GameObjectProperties();
-        $largeShieldDome->properties->structural_integrity = 100000;
-        $largeShieldDome->properties->shield = 10000;
-        $largeShieldDome->properties->attack = 1;
+        $largeShieldDome->properties = new GameObjectProperties($largeShieldDome, 100000, 10000, 1, 0, 0, 0);
         $largeShieldDome->assets = new GameObjectAssets();
         $largeShieldDome->assets->imgMicro = 'large_shield_dome_small.jpg';
         $largeShieldDome->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -237,10 +212,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             new GameObjectRequirement('missile_silo', 2),
         ];
         $antiBallisticMissile->price = new GameObjectPrice(8000, 2000, 0, 0);
-        $antiBallisticMissile->properties = new GameObjectProperties();
-        $antiBallisticMissile->properties->structural_integrity = 8000;
-        $antiBallisticMissile->properties->shield = 1;
-        $antiBallisticMissile->properties->attack = 1;
+        $antiBallisticMissile->properties = new GameObjectProperties($antiBallisticMissile, 8000, 1, 1, 0, 0, 0);
         $antiBallisticMissile->assets = new GameObjectAssets();
         $antiBallisticMissile->assets->imgMicro = 'solar_satellite_small.jpg';
         $antiBallisticMissile->assets->imgSmall = 'robot_factory_micro.jpg';
@@ -261,10 +233,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             new GameObjectRequirement('impulse_drive', 1),
         ];
         $interplanetaryMissile->price = new GameObjectPrice(12500, 2500, 10000, 0);
-        $interplanetaryMissile->properties = new GameObjectProperties();
-        $interplanetaryMissile->properties->structural_integrity = 15000;
-        $interplanetaryMissile->properties->shield = 1;
-        $interplanetaryMissile->properties->attack = 12000;
+        $interplanetaryMissile->properties = new GameObjectProperties($interplanetaryMissile, 15000, 1, 12000, 0, 0, 0);
         $interplanetaryMissile->assets = new GameObjectAssets();
         $interplanetaryMissile->assets->imgMicro = 'solar_satellite_small.jpg';
         $interplanetaryMissile->assets->imgSmall = 'robot_factory_micro.jpg';
