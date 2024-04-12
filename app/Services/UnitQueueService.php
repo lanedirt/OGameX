@@ -5,6 +5,7 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Services\Objects\ObjectService;
 
@@ -179,11 +180,13 @@ class UnitQueueService
             return;
         }
 
+        $object = $this->objects->getUnitObjectById($object_id);
+
         // Sanity check: check if the planet has enough resources to build
         // the amount requested. If not, then adjust the ordered amount.
         // E.g. if a player orders 100 units but can only afford 60 units,
         // 60 units will be added to the queue and resources will be deducted.
-        $max_build_amount = $this->objects->getObjectMaxBuildAmount($object_id, $planet);
+        $max_build_amount = $this->objects->getObjectMaxBuildAmount($object->machine_name, $planet);
         if ($requested_build_amount > $max_build_amount) {
             $requested_build_amount = $max_build_amount;
         }
@@ -195,11 +198,14 @@ class UnitQueueService
         }
 
         // Get price per unit
-        $price = $this->objects->getObjectPrice($object_id, $planet);
+        $price_total = new Resources(0, 0, 0,0);
+        $price = $this->objects->getObjectPrice($object->machine_name, $planet);
 
-        // Multiply by amount of units
-        foreach ($price as &$price_amount) {
-            $price_amount = $price_amount * $requested_build_amount;
+        // Multiply price by amount of units
+        // TODO: add abstraction method to Resources() class to multiply resources.
+        // Check other multiply usages in codebase.
+        for ($i = 0; $i < $requested_build_amount; $i++) {
+            $price_total->add($price);
         }
 
         // @TODO: add abstraction and unittest to see if multiplication
@@ -207,7 +213,7 @@ class UnitQueueService
 
         // Calculate build time per unit
         // should be different from buildings.
-        $build_time_unit = $planet->getUnitConstructionTime($object_id);
+        $build_time_unit = $planet->getUnitConstructionTime($object->machine_name);
         $build_time_total = $build_time_unit * $requested_build_amount;
 
         // Time this order will start
@@ -227,9 +233,9 @@ class UnitQueueService
         $queue->time_duration = $build_time_total;
         $queue->time_start = $time_start;
         $queue->time_end = $queue->time_start + $queue->time_duration;
-        $queue->metal = $price['metal'];
-        $queue->crystal = $price['crystal'];
-        $queue->deuterium = $price['deuterium'];
+        $queue->metal = $price->metal->get();
+        $queue->crystal = $price->crystal->get();
+        $queue->deuterium = $price->deuterium->get();
 
         // All OK, deduct resources.
         $planet->deductResources($price);

@@ -12,6 +12,8 @@ use OGame\Services\Objects\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\UnitQueueService;
+use OGame\ViewModels\BuildingViewModel;
+use OGame\ViewModels\UnitViewModel;
 
 abstract class AbstractUnitsController extends OGameController
 {
@@ -91,25 +93,29 @@ abstract class AbstractUnitsController extends OGameController
 
         $units = [];
         foreach ($this->objects as $key_row => $objects_row) {
-            foreach ($objects_row as $object_id) {
+            foreach ($objects_row as $object_machine_name) {
                 $count++;
 
+                $object = $objects->getUnitByMachineName($object_machine_name);
+
                 // Get current level of building
-                $amount = $planet->getObjectAmount($object_id);
+                $amount = $planet->getObjectAmount($object->machine_name);
 
                 // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object_id, $planet, $player);
+                $requirements_met = $objects->objectRequirementsMet($object->machine_name, $planet, $player);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $planet->hasResources($objects->getObjectPrice($object_id, $planet));
+                $enough_resources = $planet->hasResources($objects->getObjectPrice($object->machine_name, $planet));
 
-                $units[$key_row][$object_id] = array_merge($objects_array[$object_id], [
-                    'amount' => $amount,
-                    'requirements_met' => $requirements_met,
-                    'count' => $count,
-                    'enough_resources' => $enough_resources,
-                    'currently_building' => (!empty($build_active['id']) && $build_active['object']['id'] == $object_id),
-                ]);
+                $view_model = new UnitViewModel();
+                $view_model->object = $object;
+                $view_model->count = $count;
+                $view_model->amount = $amount;
+                $view_model->requirements_met = $requirements_met;
+                $view_model->enough_resources = $enough_resources;
+                $view_model->currently_building = (!empty($build_active['id']) && $build_active['object']['id'] == $object->id);
+
+                $units[$key_row][$object->id] = $view_model;
             }
         }
 

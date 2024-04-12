@@ -1,0 +1,257 @@
+<?php
+
+namespace OGame\Services\Objects;
+
+use OGame\Services\Objects\Models\Fields\GameObjectAssets;
+use OGame\Services\Objects\Models\Fields\GameObjectPrice;
+use OGame\Services\Objects\Models\Fields\GameObjectProperties;
+use OGame\Services\Objects\Models\Fields\GameObjectRapidfire;
+use OGame\Services\Objects\Models\Fields\GameObjectRequirement;
+use OGame\Services\Objects\Models\Fields\GameObjectSpeedUpgrade;
+use OGame\Services\Objects\Models\ShipObject;
+
+class CivilShipObjects
+{
+    /**
+     * Returns all defined building objects.
+     *
+     * @return array<ShipObject>
+     */
+    public static function get() : array
+    {
+        $buildingObjectsNew = [];
+
+        // --- Deathstar ---
+        $deathstar = new ShipObject();
+        $deathstar->id = 214;
+        $deathstar->title = 'Deathstar';
+        $deathstar->machine_name = 'deathstar';
+        $deathstar->description = 'The destructive power of the deathstar is unsurpassed.';
+        $deathstar->description_long = 'The Deathstar is the most powerful ship ever created. This moon sized ship is the only ship that can be seen with the naked eye on the ground. By the time you spot it, unfortunately, it is too late to do anything.
+        
+        Armed with a gigantic graviton cannon, the most advanced weapons system ever created in the Universe, this massive ship has not only the capability of destroying entire fleets and defenses, but also has the capability of destroying entire moons. Only the most advanced empires have the capability to build a ship of this mammoth size.';
+
+        $deathstar->requirements = [
+            new GameObjectRequirement('shipyard', 12),
+            new GameObjectRequirement('hyperspace_drive', 7),
+            new GameObjectRequirement('hyperspace_technology', 6),
+            new GameObjectRequirement('graviton_technology', 1),
+        ];
+        $deathstar->price = new GameObjectPrice(5000000, 4000000, 1000000, 0);
+        $deathstar->rapidfire = [
+            new GameObjectRapidfire('espionage_probe', 99.6, 250),
+            new GameObjectRapidfire('solar_satellite', 99.6, 250),
+            new GameObjectRapidfire('light_fighter', 99.5, 200),
+            new GameObjectRapidfire('heavy_fighter', 99, 100),
+            new GameObjectRapidfire('cruiser', 96.97, 33),
+            new GameObjectRapidfire('battleship', 96.67, 30),
+            new GameObjectRapidfire('bomber', 96, 25),
+            new GameObjectRapidfire('destroyer', 80, 5),
+            new GameObjectRapidfire('small_cargo', 99.6, 250),
+            new GameObjectRapidfire('large_cargo', 99.6, 250),
+            new GameObjectRapidfire('colony_ship', 99.6, 250),
+            new GameObjectRapidfire('recycler', 99.6, 250),
+            new GameObjectRapidfire('rocket_launcher', 99.5, 200),
+            new GameObjectRapidfire('light_laser', 99.5, 200),
+            new GameObjectRapidfire('heavy_laser', 99, 100),
+            new GameObjectRapidfire('ion_cannon', 99, 100),
+            new GameObjectRapidfire('gauss_cannon', 98, 50),
+            new GameObjectRapidfire('battle_cruiser', 93.34, 15),
+        ];
+
+        $deathstar->properties = new GameObjectProperties();
+        $deathstar->properties->structural_integrity = 9000000;
+        $deathstar->properties->shield = 50000;
+        $deathstar->properties->attack = 200000;
+        $deathstar->properties->speed = 100;
+        $deathstar->properties->capacity = 1000000;
+        $deathstar->properties->fuel = 1;
+
+        $deathstar->assets = new GameObjectAssets();
+        $deathstar->assets->imgMicro = 'deathstar_small.jpg';
+        $deathstar->assets->imgSmall = 'robot_factory_micro.jpg';
+        $buildingObjectsNew[] = $deathstar;
+
+        // --- Small Cargo ---
+        $smallCargo = new ShipObject();
+        $smallCargo->id = 202;
+        $smallCargo->title = 'Small Cargo';
+        $smallCargo->machine_name = 'small_cargo';
+        $smallCargo->description = 'The small cargo is an agile ship which can quickly transport resources to other planets.';
+        $smallCargo->description_long = 'Transporters are about as large as fighters, yet they forego high-performance drives and on-board weaponry for gains in their freighting capacity. As a result, a transporter should only be sent into battles when it is accompanied by combat-ready ships.
+        
+        As soon as the Impulse Drive reaches research level 5, the small transporter travels with increased base speed and is geared with an Impulse Drive.';
+        $smallCargo->requirements = [
+            new GameObjectRequirement('shipyard', 2),
+            new GameObjectRequirement('combustion_drive', 2),
+        ];
+        $smallCargo->price = new GameObjectPrice(2000, 2000, 0, 0);
+        $smallCargo->rapidfire = [
+            new GameObjectRapidfire('espionage_probe', 80, 5),
+            new GameObjectRapidfire('solar_satellite', 80, 5),
+        ];
+        $smallCargo->properties = new GameObjectProperties();
+        $smallCargo->properties->structural_integrity = 4000;
+        $smallCargo->properties->shield = 10;
+        $smallCargo->properties->attack = 5;
+        $smallCargo->properties->speed = 10000;
+        $smallCargo->properties->capacity = 6250;
+        $smallCargo->properties->fuel = 10;
+        $smallCargo->properties->speed_upgrade = [
+            new GameObjectSpeedUpgrade('impulse_drive', 5),
+        ];
+        $smallCargo->assets = new GameObjectAssets();
+        $smallCargo->assets->imgMicro = 'small_cargo_small.jpg';
+        $smallCargo->assets->imgSmall = 'robot_factory_micro.jpg';
+        $buildingObjectsNew[] = $smallCargo;
+
+        // --- Large Cargo ---
+        $largeCargo = new ShipObject();
+        $largeCargo->id = 203;
+        $largeCargo->title = 'Large Cargo';
+        $largeCargo->machine_name = 'large_cargo';
+        $largeCargo->description = 'This cargo ship has a much larger cargo capacity than the small cargo, and is generally faster thanks to an improved drive.';
+        $largeCargo->description_long = 'As time evolved, the raids on colonies resulted in larger and larger amounts of resources being captured. As a result, Small Cargos were being sent out in mass numbers to compensate for the larger captures. It was quickly learned that a new class of ship was needed to maximize resources captured in raids, yet also be cost
+effective. After much development, the Large Cargo was born.
+
+To maximize the resources that can be stored in the holds, this ship has little in the way of weapons or armor. Thanks to the highly developed combustion engine installed, it serves as the most economical resource supplier between planets, and most effective in raids on hostile worlds.';
+        $largeCargo->requirements = [
+            new GameObjectRequirement('shipyard', 4),
+            new GameObjectRequirement('combustion_drive', 6),
+        ];
+        $largeCargo->price = new GameObjectPrice(6000, 6000, 0, 0);
+        $largeCargo->rapidfire = [
+            new GameObjectRapidfire('espionage_probe', 80, 5),
+            new GameObjectRapidfire('solar_satellite', 80, 5),
+        ];
+        $largeCargo->properties = new GameObjectProperties();
+        $largeCargo->properties->structural_integrity = 12000;
+        $largeCargo->properties->shield = 25;
+        $largeCargo->properties->attack = 5;
+        $largeCargo->properties->speed = 15000;
+        $largeCargo->properties->capacity = 31250;
+        $largeCargo->properties->fuel = 50;
+        $largeCargo->assets = new GameObjectAssets();
+        $largeCargo->assets->imgMicro = 'large_cargo_small.jpg';
+        $largeCargo->assets->imgSmall = 'robot_factory_micro.jpg';
+        $buildingObjectsNew[] = $largeCargo;
+
+        // --- Colony Ship ---
+        $colonyShip = new ShipObject();
+        $colonyShip->id = 208;
+        $colonyShip->title = 'Colony Ship';
+        $colonyShip->machine_name = 'colony_ship';
+        $colonyShip->description = 'Vacant planets can be colonised with this ship.';
+        $colonyShip->description_long = 'In the 20th Century, Man decided to go for the stars. First, it was landing on the Moon. After that, a space station was built. Mars was colonized soon afterwards. It was soon determined that our growth depended on colonizing other worlds. Scientists and engineers all over the world gathered together to develop mans greatest achievement ever. The Colony Ship is born.
+
+This ship is used to prepare a newly discovered planet for colonization. Once it arrives at the destination, the ship is instantly transformed into habitual living space to assist in populating and mining the new world. The maximum number of planets is thereby determined by the progress in astrophysics research.Two new levels of Astrotechnology allow for the colonization of one additional planet.';
+        $colonyShip->requirements = [
+            new GameObjectRequirement('shipyard', 4),
+            new GameObjectRequirement('combustion_drive', 3),
+        ];
+        $colonyShip->price = new GameObjectPrice(10000, 20000, 10000, 0);
+        $colonyShip->rapidfire = [
+            new GameObjectRapidfire('espionage_probe', 80, 5),
+            new GameObjectRapidfire('solar_satellite', 80, 5),
+        ];
+        $colonyShip->properties = new GameObjectProperties();
+        $colonyShip->properties->structural_integrity = 30000;
+        $colonyShip->properties->shield = 100;
+        $colonyShip->properties->attack = 50;
+        $colonyShip->properties->speed = 2500;
+        $colonyShip->properties->capacity = 7500;
+        $colonyShip->properties->fuel = 1000;
+        $colonyShip->assets = new GameObjectAssets();
+        $colonyShip->assets->imgMicro = 'colony_ship_small.jpg';
+        $colonyShip->assets->imgSmall = 'robot_factory_micro.jpg';
+        $buildingObjectsNew[] = $colonyShip;
+
+        // --- Recycler ---
+        $recycler = new ShipObject();
+        $recycler->id = 209;
+        $recycler->title = 'Recycler';
+        $recycler->machine_name = 'recycler';
+        $recycler->description = 'Recyclers are the only ships able to harvest debris fields floating in a planet`s orbit after combat.';
+        $recycler->description_long = 'Combat in space took on ever larger scales. Thousands of ships were destroyed and the resources of their remains seemed to be lost to the debris fields forever. Normal cargo ships couldn`t get close enough to these fields without risking substantial damage.
+A recent development in shield technologies efficiently bypassed this issue. A new class of ships were created that were similar to the Transporters: the Recyclers. Their efforts helped to gather the thought-lost resources and then salvage them. The debris no longer posed any real danger thanks to the new shields.
+
+As soon as Impulse Drive research has reached level 17, Recyclers are refitted with Impulse Drives. As soon as Hyperspace Drive research has reached level 15, Recyclers are refitted with Hyperspace Drives.';
+        $recycler->requirements = [
+            new GameObjectRequirement('shipyard', 4),
+            new GameObjectRequirement('combustion_drive', 6),
+            new GameObjectRequirement('shield_technology', 2),
+        ];
+        $recycler->price = new GameObjectPrice(10000, 6000, 2000, 0);
+        $recycler->rapidfire = [
+            new GameObjectRapidfire('espionage_probe', 80, 5),
+            new GameObjectRapidfire('solar_satellite', 80, 5),
+        ];
+        $recycler->properties = new GameObjectProperties();
+        $recycler->properties->structural_integrity = 16000;
+        $recycler->properties->shield = 10;
+        $recycler->properties->attack = 1;
+        $recycler->properties->speed = 2000;
+        $recycler->properties->capacity = 20000;
+        $recycler->properties->fuel = 300;
+        $recycler->properties->speed_upgrade = [
+            new GameObjectSpeedUpgrade('impulse_drive', 17),
+            new GameObjectSpeedUpgrade('hyperspace_drive', 15),
+        ];
+        $recycler->assets = new GameObjectAssets();
+        $recycler->assets->imgMicro = 'recycler_small.jpg';
+        $recycler->assets->imgSmall = 'robot_factory_micro.jpg';
+        $buildingObjectsNew[] = $recycler;
+
+        // --- Espionage Probe ---
+        $espionageProbe = new ShipObject();
+        $espionageProbe->id = 210;
+        $espionageProbe->title = 'Espionage Probe';
+        $espionageProbe->machine_name = 'espionage_probe';
+        $espionageProbe->description = 'Espionage probes are small, agile drones that provide data on fleets and planets over great distances.';
+        $espionageProbe->description_long = 'Espionage probes are small, agile drones that provide data on fleets and planets. Fitted with specially designed engines, it allows them to cover vast distances in only a few minutes. Once in orbit around the target planet, they quickly collect data and transmit the report back via your Deep Space Network for evaluation. But there is a risk to the intelligent gathering aspect. During the time the report is transmitted back to your network, the signal can be detected by the target and the probes can be destroyed.';
+        $espionageProbe->requirements = [
+            new GameObjectRequirement('shipyard', 3),
+            new GameObjectRequirement('combustion_drive', 3),
+            new GameObjectRequirement('espionage_technology', 2),
+        ];
+        $espionageProbe->price = new GameObjectPrice(0, 1000, 0, 0);
+        $espionageProbe->properties = new GameObjectProperties();
+        $espionageProbe->properties->structural_integrity = 1000;
+        $espionageProbe->properties->shield = 0;
+        $espionageProbe->properties->attack = 0;
+        $espionageProbe->properties->speed = 100000000;
+        $espionageProbe->properties->capacity = 0;
+        $espionageProbe->properties->fuel = 1;
+        $espionageProbe->assets = new GameObjectAssets();
+        $espionageProbe->assets->imgMicro = 'espionage_probe_small.jpg';
+        $espionageProbe->assets->imgSmall = 'robot_factory_micro.jpg';
+        $buildingObjectsNew[] = $espionageProbe;
+
+        // --- Solar Satellite ---
+        $solarSatellite = new ShipObject();
+        $solarSatellite->id = 212;
+        $solarSatellite->title = 'Solar Satellite';
+        $solarSatellite->machine_name = 'solar_satellite';
+        $solarSatellite->description = 'Solar satellites are simple platforms of solar cells, located in a high, stationary orbit. They gather sunlight and transmit it to the ground station via laser. A solar satellite produces 25 energy on this planet.';
+
+        $solarSatellite->description_long = 'Scientists discovered a method of transmitting electrical energy to the colony using specially designed satellites in a geosynchronous orbit. Solar Satellites gather solar energy and transmit it to a ground station using advanced laser technology. The efficiency of a solar satellite depends on the strength of the solar radiation it receives. In principle, energy production in orbits closer to the sun is greater than for planets in orbits distant from the sun.
+        Due to their good cost/performance ratio solar satellites can solve a lot of energy problems. But beware: Solar satellites can be easily destroyed in battle.';
+        $solarSatellite->requirements = [
+            new GameObjectRequirement('shipyard', 1),
+        ];
+        $solarSatellite->price = new GameObjectPrice(0, 2000, 500, 0);
+        $solarSatellite->properties = new GameObjectProperties();
+        $solarSatellite->properties->structural_integrity = 2000;
+        $solarSatellite->properties->shield = 1;
+        $solarSatellite->properties->attack = 1;
+        $solarSatellite->properties->speed = 0;
+        $solarSatellite->properties->capacity = 0;
+        $solarSatellite->properties->fuel = 1;
+        $solarSatellite->assets = new GameObjectAssets();
+        $solarSatellite->assets->imgMicro = 'solar_satellite_small.jpg';
+        $solarSatellite->assets->imgSmall = 'robot_factory_micro.jpg';
+        $buildingObjectsNew[] = $solarSatellite;
+
+        return $buildingObjectsNew;
+    }
+}

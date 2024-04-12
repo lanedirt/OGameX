@@ -9,9 +9,9 @@ class GameObjectSpeedUpgrade
     /**
      * Research object that is required for speed upgrade.
      *
-     * @var ResearchObject
+     * @var string
      */
-    public ResearchObject $object;
+    public string $object_machine_name;
 
     /**
      * Required level of the research object for speed upgrade.
@@ -19,4 +19,10 @@ class GameObjectSpeedUpgrade
      * @var int
      */
     public int $level;
+
+    public function __construct(string $object_machine_name, int $level)
+    {
+        $this->object_machine_name = $object_machine_name;
+        $this->level = $level;
+    }
 }

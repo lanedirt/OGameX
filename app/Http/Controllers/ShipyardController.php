@@ -37,8 +37,8 @@ class ShipyardController extends AbstractUnitsController
 
         // Prepare custom properties
         $this->objects = [
-            0 => [204, 205, 206, 207, 215, 211, 213, 214],
-            1 => [202, 203, 208, 209, 210, 212],
+            0 => ['light_fighter', 'heavy_fighter', 'cruiser', 'battle_ship', 'battlecruiser', 'bomber', 'destroyer', 'deathstar'],
+            1 => ['small_cargo', 'large_cargo', 'colony_ship', 'recycler', 'espionage_probe'],
         ];
         $this->view_name = 'ingame.shipyard.index';
 

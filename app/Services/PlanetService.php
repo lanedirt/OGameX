@@ -577,20 +577,19 @@ class PlanetService
      */
     public function getUnitConstructionTime(string $machine_name, bool $formatted = FALSE): int|string
     {
-        $object = $this->objects->getObjectByMachineName($machine_name);
+        $object = $this->objects->getUnitByMachineName($machine_name);
 
         $shipyard_level = $this->getObjectLevel('shipyard');
         $nanitefactory_level = $this->getObjectLevel('nano_factory');
         $universe_speed = 8; // @TODO: implement actual universe speed (development speed).
 
         // The actual formula which return time in seconds
-        $time_hours = 0.5;
-        /*$time_hours =
+        $time_hours =
             (
-                ($object['properties']['structural_integrity']) // TODO: implement dynamic property retrieval which takes into account research levels.
+                ($object->properties->structural_integrity) // TODO: implement dynamic property retrieval which takes into account research levels.
                 /
                 (2500 * (1 + $shipyard_level) * $universe_speed * pow(2, $nanitefactory_level))
-            );*/
+            );
 
         $time_seconds = $time_hours * 3600;
 

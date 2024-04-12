@@ -456,13 +456,13 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                     <div class="header"><h2>Combat ships</h2></div>
                                     <ul id="military" class="iconsUNUSED">
 										@foreach ($units[0] as $object)
-											<li class="technology {{ $object['class_name'] }} interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="{{ $object['id'] }}" data-status="{{ $object['amount'] == 0 ? 'off' : 'on' }}" data-is-spaceprovider="" aria-label="{{ $object['title'] }}" title="{{ $object['title'] }} ({{ $object['amount'] }})" data-ipi-hint="ipiFleetselect{{ $object['class_name'] }}">
+											<li class="technology {{ $object['class_name'] }} interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="{{ $object->object->id }}" data-status="{{ $object->amount == 0 ? 'off' : 'on' }}" data-is-spaceprovider="" aria-label="{{ $object->object->title }}" title="{{ $object->object->title }} ({{ $object->amount }})" data-ipi-hint="ipiFleetselect{{ $object['class_name'] }}">
 												<span class="icon sprite sprite_small small {{ $object['class_name'] }}">
-													<span class="amount" data-value="{{ $object['amount'] }}" data-bonus="0">
-														<span>{{ \OGame\Facades\AppUtil::formatNumberComma($object['amount']) }}</span> <span class="bonus"></span>
+													<span class="amount" data-value="{{ $object->amount }}" data-bonus="0">
+														<span>{{ \OGame\Facades\AppUtil::formatNumberComma($object->amount) }}</span> <span class="bonus"></span>
 													</span>
 												</span>
-												<input type="text" name="{{ $object['class_name'] }}" data-ipi-highlight-step="ipiFleetselect{{ $object['class_name'] }}" {{ $object['amount'] == 0 ? 'disabled' : '' }}>
+												<input type="text" name="{{ $object['class_name'] }}" data-ipi-highlight-step="ipiFleetselect{{ $object['class_name'] }}" {{ $object->amount == 0 ? 'disabled' : '' }}>
 											</li>
 										@endforeach
 										<!--
@@ -616,18 +616,18 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
 
 
 										@foreach ($units[1] as $object)
-											<li class="technology {{ $object['class_name'] }} interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="{{ $object['id'] }}" data-status="{{ $object['amount'] == 0 ? 'off' : 'on' }}" data-is-spaceprovider="" aria-label="{{ $object['title'] }}" title="{{ $object['title'] }} ({{ $object['amount'] }})" data-ipi-hint="ipiFleetselect{{ $object['class_name'] }}">
+											<li class="technology {{ $object['class_name'] }} interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="{{ $object->object->id }}" data-status="{{ $object->amount == 0 ? 'off' : 'on' }}" data-is-spaceprovider="" aria-label="{{ $object->object->title }}" title="{{ $object->object->title }} ({{ $object->amount }})" data-ipi-hint="ipiFleetselect{{ $object['class_name'] }}">
 
     <span class="icon sprite sprite_small small {{ $object['class_name'] }}">
 
 
 
-                    <span class="amount" data-value="{{ $object['amount'] }}" data-bonus="0">
-                <span>{{ $object['amount'] }}</span> <span class="bonus"></span>
+                    <span class="amount" data-value="{{ $object->amount }}" data-bonus="0">
+                <span>{{ $object->amount }}</span> <span class="bonus"></span>
             </span>
             </span>
 
-												<input type="text" name="{{ $object['class_name'] }}" data-ipi-highlight-step="ipiFleetselect{{ $object['class_name'] }}" {{ $object['amount'] == 0 ? 'disabled' : '' }}>
+												<input type="text" name="{{ $object['class_name'] }}" data-ipi-highlight-step="ipiFleetselect{{ $object['class_name'] }}" {{ $object->amount == 0 ? 'disabled' : '' }}>
 
 
 											</li>

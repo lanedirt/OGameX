@@ -1775,7 +1775,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
      */
     public function getShipObjectsNew() : array
     {
-        return ShipObjects::get();
+        return array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
     }
 
     /**
@@ -1817,7 +1817,8 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     public function getShipObjectsByMachineName(string $machine_name) : ShipObject
     {
         // Loop through all buildings and return the one with the matching UID
-        foreach (ShipObjects::get() as $ship) {
+        $shipObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
+        foreach ($shipObjects as $ship) {
             if ($ship->machine_name == $machine_name) {
                 return $ship;
             }
@@ -1836,7 +1837,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     public function getObjectById(int $object_id) : GameObject
     {
         // Loop through all buildings and return the one with the matching UID
-        $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), ShipObjects::get(), DefenseObjects::get());
+        $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
             if ($object->id == $object_id) {
                 return $object;
@@ -1856,7 +1857,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     public function getObjectByMachineName(string $machine_name) : GameObject
     {
         // Loop through all buildings and return the one with the matching UID
-        $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), ShipObjects::get(), DefenseObjects::get());
+        $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
             if ($object->machine_name == $machine_name) {
                 return $object;
@@ -1909,6 +1910,27 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     /**
      * Get specific unit object.
      *
+     * @param int $object_id
+     * @return UnitObject
+     * @throws Exception
+     */
+    public function getUnitObjectById(int $object_id) : UnitObject
+    {
+        // Loop through all buildings and return the one with the matching UID
+        // TODO: replace shipobjects and add defenseobjects with concatenated array of all objects.
+        $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
+        foreach ($allObjects as $object) {
+            if ($object->id == $object_id) {
+                return $object;
+            }
+        }
+
+        throw new Exception('Unit object not found with object ID: ' . $object_id);
+    }
+
+    /**
+     * Get specific unit object.
+     *
      * @param string $machine_name
      * @return UnitObject
      * @throws Exception
@@ -1917,7 +1939,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     {
         // Loop through all buildings and return the one with the matching UID
         // TODO: replace shipobjects and add defenseobjects with concatenated array of all objects.
-        $allObjects = array_merge(ShipObjects::get(), DefenseObjects::get());
+        $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
         foreach ($allObjects as $object) {
             if ($object->machine_name == $machine_name) {
                 return $object;

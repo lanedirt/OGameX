@@ -3,7 +3,7 @@
     <li>
         <a class="overlay reiter"
            data-overlay-same="true"
-           href="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object['id']]) }}">
+           href="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->object->id]) }}">
             <span>
                 Techtree            </span>
         </a>
@@ -11,7 +11,7 @@
     <li>
         <a class="overlay reiter"
            data-overlay-same="true"
-           href="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $object['id']]) }}">
+           href="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $object->object->id]) }}">
             <span>
                 Applications            </span>
         </a>
@@ -19,7 +19,7 @@
     <li>
         <a class="overlay reiter active"
            data-overlay-same="true"
-           href="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object['id']]) }}">
+           href="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->object->id]) }}">
             <span>
                 Techinfo            </span>
         </a>
@@ -27,14 +27,14 @@
     <li>
         <a class="overlay reiter"
            data-overlay-same="true"
-           href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => $object['id']]) }}">
+           href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => $object->object->id]) }}">
             <span>
                 Technology            </span>
         </a>
     </li>
 </ul>
 
-<div class="techtree" data-id="c28d1c5551545f27be33f22c5643c45e" data-title="Techinfo - {{ $object['title'] }}">
+<div class="techtree" data-id="c28d1c5551545f27be33f22c5643c45e" data-title="Techinfo - {{ $object->object->title }}">
     <div id="techinfo">
         <div class="techwrapper">
             <div class="leftcol {{ $object['type'] }} tech{{ $object_id }}">

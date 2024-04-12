@@ -115,10 +115,10 @@ abstract class AbstractBuildingsController extends OGameController
                 }
 
                 $view_model = new BuildingViewModel();
+                $view_model->count = $count;
                 $view_model->object = $object;
                 $view_model->current_level = $current_level;
                 $view_model->requirements_met = $requirements_met;
-                $view_model->count = $count;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = (!empty($build_active['id']) && $build_active['object']['id'] == $object->id);
 
