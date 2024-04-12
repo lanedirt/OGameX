@@ -404,18 +404,18 @@ class PlanetService
      */
     public function hasResources(Resources $resources): bool
     {
-        if (!empty($resources->metal->rawValue)) {
-            if ($this->getMetal() < $resources->metal->rawValue) {
+        if (!empty($resources->metal->get())) {
+            if ($this->getMetal() < $resources->metal->get()) {
                 return false;
             }
         }
-        if (!empty($resources->crystal->rawValue)) {
-            if ($this->getCrystal() < $resources->crystal->rawValue) {
+        if (!empty($resources->crystal->get())) {
+            if ($this->getCrystal() < $resources->crystal->get()) {
                 return false;
             }
         }
-        if (!empty($resources->deuterium->rawValue)) {
-            if ($this->getDeuterium() < $resources->deuterium->rawValue) {
+        if (!empty($resources->deuterium->get())) {
+            if ($this->getDeuterium() < $resources->deuterium->get()) {
                 return false;
             }
         }
@@ -531,7 +531,7 @@ class PlanetService
         // The actual formula which return time in seconds
         $time_hours =
             (
-                ($price->metal->rawValue + $price->crystal->rawValue)
+                ($price->metal->get() + $price->crystal->get())
                 /
                 (2500 * max((4 - ($next_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * pow(2, $nanitefactory_level))
             );
@@ -677,6 +677,7 @@ class PlanetService
      * This should happen on every users page load and every time the planet is touched.
      *
      * @return void
+     * @throws Exception
      */
     public function update(): void
     {
@@ -1282,28 +1283,23 @@ class PlanetService
      *
      * @param bool $save_planet
      *  Optional flag whether to save the planet in this method. This defaults to TRUE.
+     * @throws Exception
      */
     public function updateResourceStorageStats(bool $save_planet = true): void
     {
-        $storage_total = [];
+        $storage_sum = new Resources(0,0,0,0);
         foreach ($this->objects->getBuildingObjectsWithStorage() as $building) {
             // Retrieve all buildings that have production values.
-            $storage = $this->getBuildingMaxStorage($building['id']);
+            $storage = $this->getBuildingMaxStorage($building->machine_name);
 
-            // Combine values to one array so we have the total storage.
-            foreach ($storage as $key => $value) {
-                if (!empty($storage_total[$key])) {
-                    $storage_total[$key] += $value;
-                } else {
-                    $storage_total[$key] = $value;
-                }
-            }
+            // Combine values to one resource object so we have the total storage.
+            $storage_sum->add($storage);
         }
 
         // Write values to planet
-        $this->planet->metal_max = $storage_total['metal'];
-        $this->planet->crystal_max = $storage_total['crystal'];
-        $this->planet->deuterium_max = $storage_total['deuterium'];
+        $this->planet->metal_max = $storage_sum->metal->get();
+        $this->planet->crystal_max = $storage_sum->crystal->get();
+        $this->planet->deuterium_max = $storage_sum->deuterium->get();
         if ($save_planet) {
             $this->planet->save();
         }
@@ -1312,29 +1308,27 @@ class PlanetService
     /**
      * Gets the max storage value for resources of a building on this planet.
      *
-     * @param int $building_id
-     * The ID of the building to calculate the storage for.
-     *
+     * @param string $machine_name
      * @param int|bool $building_level
      * Optional parameter to calculate the storage for a specific level
      *
-     * @return array<string,int>
+     * @return Resources
+     * @throws Exception
      */
-    public function getBuildingMaxStorage(int $building_id, int|bool $building_level = false): array
+    public function getBuildingMaxStorage(string $machine_name, int|bool $building_level = false): Resources
     {
-        $building = $this->objects->getBuildingObjects($building_id);
+        $building = $this->objects->getBuildingObjectsByMachineName($machine_name);
 
         // NOTE: $building_level is used by eval() function in the formula.
         if (!$building_level) {
-            $building_level = $this->getObjectLevel($building_id);
+            $building_level = $this->getObjectLevel($machine_name);
         }
 
-        $storage = array();
-        foreach ($building['storage'] as $resource => $storage_formula) {
-            $storage[$resource] = eval($storage_formula);
-        }
+        $storage_metal = eval($building->storage->metal);
+        $storage_crystal = eval($building->storage->crystal);
+        $storage_deuterium = eval($building->storage->deuterium);
 
-        return $storage;
+        return new Resources($storage_metal, $storage_crystal, $storage_deuterium, 0);
     }
 
     /**

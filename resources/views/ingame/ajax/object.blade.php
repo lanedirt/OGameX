@@ -136,40 +136,40 @@
         @endif
 
         <ul id="costs">
-            @if (!empty($price->metal->rawValue))
-            <li class="metal tooltip" title="{!! $price->metal->formatted() !!} Metal">
+            @if (!empty($price->metal->get()))
+            <li class="metal tooltip" title="{!! $price->metal->getFormatted() !!} Metal">
                 <div class="resourceIcon metal"></div>
-                <div class="cost @if ($planet->getMetal() < $price->metal->rawValue)
+                <div class="cost @if ($planet->getMetal() < $price->metal->get())
                         overmark
                         @endif">
-                    {!! $price->metal->formatted() !!}	                </div>
+                    {!! $price->metal->getFormatted() !!}	                </div>
             </li>
             @endif
-            @if (!empty($price->crystal->rawValue))
-            <li class="crystal tooltip" title="{!! $price->crystal->formatted() !!} Crystal">
+            @if (!empty($price->crystal->get()))
+            <li class="crystal tooltip" title="{!! $price->crystal->getFormatted() !!} Crystal">
                 <div class="resourceIcon crystal"></div>
-                <div class="cost @if ($planet->getCrystal() < $price->crystal->rawValue)
+                <div class="cost @if ($planet->getCrystal() < $price->crystal->get())
                         overmark
                         @endif">
-                    {!!$price->crystal->formatted() !!}	                </div>
+                    {!!$price->crystal->getFormatted() !!}	                </div>
             </li>
             @endif
-            @if (!empty($price->deuterium->rawValue))
-            <li class="deuterium tooltip" title="{!! $price->deuterium->rawValue !!} Deuterium">
+            @if (!empty($price->deuterium->get()))
+            <li class="deuterium tooltip" title="{!! $price->deuterium->get() !!} Deuterium">
                 <div class="resourceIcon deuterium"></div>
-                <div class="cost @if ($planet->getDeuterium() < $price->deuterium->rawValue)
+                <div class="cost @if ($planet->getDeuterium() < $price->deuterium->get())
                         overmark
                         @endif">
-                    {!! $price->deuterium->formatted() !!}	                </div>
+                    {!! $price->deuterium->getFormatted() !!}	                </div>
             </li>
             @endif
-            @if (!empty($price->energy->rawValue))
-                <li class="energy tooltip" title="{!! $price->energy->formatted() !!} Energy">
+            @if (!empty($price->energy->get()))
+                <li class="energy tooltip" title="{!! $price->energy->getFormatted() !!} Energy">
                     <div class="resourceIcon energy"></div>
-                    <div class="cost @if ($planet->getEnergy() < $price->energy->rawValue)
+                    <div class="cost @if ($planet->getEnergy() < $price->energy->get())
                             overmark
                             @endif">
-                        {!! $price->energy->formatted() !!}	                </div>
+                        {!! $price->energy->getFormatted() !!}	                </div>
                 </li>
             @endif
         </ul>

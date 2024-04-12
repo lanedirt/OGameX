@@ -35,7 +35,7 @@ class ObjectPropertyDetails
      */
     public function __construct(int $rawValue, int $bonusValue, int $totalValue, array $breakdown = [])
     {
-        $this->rawValue = $rawValue;
+        $this->get() = $rawValue;
         $this->bonusValue = $bonusValue;
         $this->totalValue = $totalValue;
         $this->breakdown = $breakdown;

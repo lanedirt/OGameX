@@ -2,10 +2,14 @@
 
 namespace OGame\Services\Objects\Models\Fields;
 
-use OGame\Services\Objects\Models\GameObject;
-
 class GameObjectRequirement
 {
-    public GameObject $object;
+    public string $object_machine_name;
     public int $level;
+
+    public function __construct(string $object_machine_name, int $level)
+    {
+        $this->object_machine_name = $object_machine_name;
+        $this->level = $level;
+    }
 }

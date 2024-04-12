@@ -6,14 +6,39 @@ use OGame\Facades\AppUtil;
 
 class Resource
 {
-    public int $rawValue = 0;
+    protected int $rawValue = 0;
 
     public function __construct(int $rawValue)
     {
         $this->rawValue = $rawValue;
     }
 
-    public function formatted(): string
+    /**
+     * Add another resource to this one.
+     *
+     * @param Resource $other
+     * @return void
+     */
+    public function add(Resource $other): void {
+        $this->rawValue += $other->get();
+    }
+
+    /**
+     * Get the raw value of the resource as integer.
+     *
+     * @return int
+     */
+    public function get(): int
+    {
+        return $this->rawValue;
+    }
+
+    /**
+     * Get the formatted value of the resource as string.
+     *
+     * @return string
+     */
+    public function getFormatted(): string
     {
         return AppUtil::formatNumberShort($this->rawValue);
     }

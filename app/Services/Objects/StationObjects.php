@@ -6,15 +6,14 @@ use OGame\Services\Objects\Models\BuildingObject;
 use OGame\Services\Objects\Models\Fields\GameObjectAssets;
 use OGame\Services\Objects\Models\Fields\GameObjectPrice;
 use OGame\Services\Objects\Models\Fields\GameObjectProduction;
-use OGame\Services\Objects\Models\Fields\GameObjectRequirement;
-use OGame\Services\Objects\Models\Fields\GameObjectStorage;
+use OGame\Services\Objects\Models\StationObject;
 
-class BuildingObjects
+class StationObjects
 {
     /**
      * Returns all defined building objects.
      *
-     * @return array<BuildingObject>
+     * @return array<StationObject>
      */
     public static function get() : array
     {
@@ -113,10 +112,7 @@ class BuildingObjects
         30 * [Level Fusion Plant] * (1,05 + [Level Energy Technology] * 0,01) ^ [Level Fusion Plant]';
 
         $fusionReactor->price = new GameObjectPrice(900, 360, 180, 0, 1.8);
-        $fusionReactor->requirements = [
-            new GameObjectRequirement('deuterium_synthesizer', 5),
-            new GameObjectRequirement('research_lab', 5),
-        ];
+
         $fusionReactor->production = new GameObjectProduction();
         $fusionReactor->production->deuterium = 'return - (10 * $building_level * pow(1.1, $building_level));';
         $fusionReactor->production->energy = 'return (30 * $building_level * pow((1.05 + $energy_technology_level * 0.01), $building_level)) * (0.1 * $building_percentage);';
@@ -138,8 +134,6 @@ class BuildingObjects
         The Metal Storage protects a certain percentage of the mine`s daily production (max. 10 percent).';
 
         $metalStorage->price = new GameObjectPrice(1000, 0, 0, 0, 2);
-        $metalStorage->storage = new GameObjectStorage();
-        $metalStorage->storage->metal = 'return  5000 * floor(2.5 * exp(20 * $building_level / 33));';
 
         $metalStorage->assets = new GameObjectAssets();
         $metalStorage->assets->imgMicro = 'metal_store_micro.jpg';
@@ -157,9 +151,8 @@ class BuildingObjects
         $crystalStorage->description_long = 'The unprocessed crystal will be stored in these giant storage halls in the meantime. With each level of upgrade, it increases the amount of crystal can be stored. If the crystal stores are full, no further crystal will be mined.
             
         The Crystal Storage protects a certain percentage of the mine`s daily production (max. 10 percent).';
+
         $crystalStorage->price = new GameObjectPrice(1000, 500, 0, 0, 2);
-        $crystalStorage->storage = new GameObjectStorage();
-        $crystalStorage->storage->crystal = 'return  5000 * floor(2.5 * exp(20 * $building_level / 33));';
 
         $crystalStorage->assets = new GameObjectAssets();
         $crystalStorage->assets->imgMicro = 'crystal_store_micro.jpg';
@@ -178,8 +171,6 @@ class BuildingObjects
         The Deuterium Tank protects a certain percentage of the synthesizer`s daily production (max. 10 percent).';
 
         $deuteriumTank->price = new GameObjectPrice(1000, 1000, 0, 0, 2);
-        $deuteriumTank->storage = new GameObjectStorage();
-        $deuteriumTank->storage->deuterium = 'return  5000 * floor(2.5 * exp(20 * $building_level / 33));';
 
         $deuteriumTank->assets = new GameObjectAssets();
         $deuteriumTank->assets->imgMicro = 'deuterium_store_micro.jpg';

@@ -191,13 +191,13 @@ class PlayerService
     /**
      * Gets the level of a research technology for this player.
      *
-     * @param int $object_id
+     * @param string $machine_name
      * @return int
      */
-    public function getResearchLevel(int $object_id) : int
+    public function getResearchLevel(string $machine_name) : int
     {
-        $research = $this->objects->getResearchObjects($object_id);
-        $research_level = $this->user_tech->{$research['machine_name']};
+        $research = $this->objects->getResearchObjectByMachineName($machine_name);
+        $research_level = $this->user_tech->{$research->machine_name};
 
         if ($research_level) {
             return $research_level;
@@ -209,17 +209,17 @@ class PlayerService
     /**
      * Set the level of a research technology for this player.
      *
-     * @param int $object_id
+     * @param string $machine_name
      * @param int $level
      * @param bool $save_to_db
      * @return void
      */
-    public function setResearchLevel(int $object_id, int $level, bool $save_to_db = true): void
+    public function setResearchLevel(string $machine_name, int $level, bool $save_to_db = true): void
     {
-        $research = $this->objects->getResearchObjects($object_id);
+        $research = $this->objects->getResearchObjectByMachineName($machine_name);
 
         // Sanity check: if building does not exist yet then return 0.
-        $this->user_tech->{$research['machine_name']} = $level;
+        $this->user_tech->{$research->machine_name} = $level;
         if ($save_to_db) {
             $this->user_tech->save();
         }
@@ -236,7 +236,7 @@ class PlayerService
             // If no current planet is set, return the first planet of the player.
             return $this->planets->first()->getPlanetId();
         }
-        
+
         return $this->user->planet_current;
     }
 

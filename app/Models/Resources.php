@@ -16,4 +16,17 @@ class Resources
         $this->deuterium = new Resource($deuterium);
         $this->energy = new Resource($energy);
     }
+
+    /**
+     * Add another resources to this one.
+     *
+     * @param Resources $other
+     * @return void
+     */
+    public function add(Resources $other): void {
+        $this->metal->add($other->metal);
+        $this->crystal->add($other->crystal);
+        $this->deuterium->add($other->deuterium);
+        $this->energy->add($other->energy);
+    }
 }

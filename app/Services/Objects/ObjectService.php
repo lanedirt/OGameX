@@ -1835,6 +1835,27 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     }
 
     /**
+     * Get specific research object.
+     *
+     * @param string $machine_name
+     * @return BuildingObject
+     * @throws Exception
+     */
+    public function getResearchObjectByMachineName(string $machine_name) : UnitObject
+    {
+        // Loop through all buildings and return the one with the matching UID
+        // TODO: replace shipobjects and add defenseobjects with concatenated array of all objects.
+        $allObjects = array_merge(ResearchObjects::get());
+        foreach ($allObjects as $object) {
+            if ($object->machine_name == $machine_name) {
+                return $object;
+            }
+        }
+
+        throw new Exception('Unit object not found with machine name: ' . $machine_name);
+    }
+
+    /**
      * Get specific unit object.
      *
      * @param string $machine_name
@@ -1845,7 +1866,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     {
         // Loop through all buildings and return the one with the matching UID
         // TODO: replace shipobjects and add defenseobjects with concatenated array of all objects.
-        $allObjects = array_merge(ShipObjects::get());
+        $allObjects = array_merge(ShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
             if ($object->machine_name == $machine_name) {
                 return $object;
@@ -1900,21 +1921,16 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     /**
      * Get all buildings that have storage values.
      *
-     * @param int $object_id
-     * @return array
+     * @return array<BuildingObject>
      */
-    public function getBuildingObjectsWithStorage(int $object_id = 0) : array
+    public function getBuildingObjectsWithStorage() : array
     {
         $return = array();
 
-        foreach ($this->buildingObjects as $key => $value) {
-            if (!empty(($value['storage']))) {
-                $return[$key] = $value;
+        foreach (BuildingObjects::get() as $value) {
+            if (!empty(($value->storage))) {
+                $return[] = $value;
             }
-        }
-
-        if (!empty($object_id)) {
-            return $return[$object_id];
         }
 
         return $return;
@@ -2046,12 +2062,14 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         try {
             $object = $this->getObjectByMachineName($machine_name);
             foreach ($object->requirements as $requirement) {
-                if ($requirement->object->type == 'research') {
-                    if ($player->getResearchLevel($requirement->object->machine_name) < $requirement->level) {
+                // Load required object and check if requirements are met.
+                $object_required = $this->getObjectByMachineName($requirement->object_machine_name);
+                if ($object_required->type == 'research') {
+                    if ($player->getResearchLevel($object_required->machine_name) < $requirement->level) {
                         return false;
                     }
                 } else {
-                    if ($planet->getObjectLevel($requirement->object->machine_name) < $requirement->level) {
+                    if ($planet->getObjectLevel($object_required->machine_name) < $requirement->level) {
                         return false;
                     }
                 }
@@ -2126,20 +2144,20 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
         // Calculate max build amount based on price
         $max_build_amount = [];
-        if ($price->metal->rawValue > 0) {
-            $max_build_amount[] = floor($planet->getMetal() / $price->metal->rawValue);
+        if ($price->metal->get() > 0) {
+            $max_build_amount[] = floor($planet->getMetal() / $price->metal->get());
         }
 
-        if ($price->crystal->rawValue > 0) {
-            $max_build_amount[] = floor($planet->getCrystal() / $price->crystal->rawValue);
+        if ($price->crystal->get() > 0) {
+            $max_build_amount[] = floor($planet->getCrystal() / $price->crystal->get());
         }
 
-        if ($price->deuterium->rawValue > 0) {
-            $max_build_amount[] = floor($planet->getDeuterium() / $price->deuterium->rawValue);
+        if ($price->deuterium->get() > 0) {
+            $max_build_amount[] = floor($planet->getDeuterium() / $price->deuterium->get());
         }
 
-        if ($price->energy->rawValue > 0) {
-            $max_build_amount[] = floor($planet->getEnergy() / $price->energy->rawValue);
+        if ($price->energy->get() > 0) {
+            $max_build_amount[] = floor($planet->getEnergy() / $price->energy->get());
         }
 
         // Get lowest divided value which is the maximum amount of times this ship
@@ -2210,10 +2228,10 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
             $base_price = $object->price;
 
             // Calculate price.
-            $metal = $base_price->resources->metal->rawValue * pow($base_price->factor, $level - 1);
-            $crystal = $base_price->resources->crystal->rawValue * pow($base_price->factor, $level - 1);
-            $deuterium = $base_price->resources->deuterium->rawValue * pow($base_price->factor, $level - 1);
-            $energy = $base_price->resources->energy->rawValue * pow($base_price->factor, $level - 1);
+            $metal = $base_price->resources->metal->get() * pow($base_price->factor, $level - 1);
+            $crystal = $base_price->resources->crystal->get() * pow($base_price->factor, $level - 1);
+            $deuterium = $base_price->resources->deuterium->get() * pow($base_price->factor, $level - 1);
+            $energy = $base_price->resources->energy->get() * pow($base_price->factor, $level - 1);
 
             // Round price
             $metal = round($metal);
@@ -2230,10 +2248,10 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         }
         // Price calculation for fleet or defense (regular price per unit)
         else {
-            $metal = $object->price->resources->metal->rawValue;
-            $crystal = $object->price->resources->crystal->rawValue;
-            $deuterium = $object->price->resources->deuterium->rawValue;
-            $energy = $object->price->resources->energy->rawValue;
+            $metal = $object->price->resources->metal->get();
+            $crystal = $object->price->resources->crystal->get();
+            $deuterium = $object->price->resources->deuterium->get();
+            $energy = $object->price->resources->energy->get();
         }
 
         return new Resources($metal, $crystal, $deuterium, $energy);
