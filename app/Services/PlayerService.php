@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Models\UserTech;
 use OGame\Services\Objects\ObjectService;
@@ -308,20 +309,21 @@ class PlayerService
         // For every research in the game, calculate the score based on how much resources it costs to build it.
         // For research it is the sum of resources needed for all levels up to the current level.
         // The score is the sum of all these values.
-        $resources_spent = 0;
+        $resources_spent = new Resources(0, 0, 0, 0);
 
         // Create object array
-        $research_objects = $this->objects->getResearchObjects();
+        $research_objects = $this->objects->getResearchObjectsNew();
         foreach ($research_objects as $object) {
-            for ($i = 1; $i <= $this->getResearchLevel($object['id']); $i++) {
+            for ($i = 1; $i <= $this->getResearchLevel($object->machine_name); $i++) {
                 // Concatenate price which is array of metal, crystal and deuterium.
-                $raw_price = $this->objects->getObjectRawPrice($object['id'], $i);
-                $resources_spent += $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+                $raw_price = $this->objects->getObjectRawPrice($object->machine_name, $i);
+                $resources_spent->add($raw_price);
             }
         }
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
-        $score = (int)floor($resources_spent / 1000);
+        $resources_sum = $resources_spent->metal->get() + $resources_spent->crystal->get() + $resources_spent->deuterium->get();
+        $score = (int)floor($resources_sum / 1000);
 
         return $score;
     }

@@ -6,13 +6,16 @@ use Exception;
 use OGame\Facades\AppUtil;
 use OGame\Models\Resources;
 use OGame\Services\Objects\Models\BuildingObject;
+use OGame\Services\Objects\Models\DefenseObject;
 use OGame\Services\Objects\Models\Fields\GameObjectAssets;
 use OGame\Services\Objects\Models\Fields\GameObjectCalculatedPrice;
 use OGame\Services\Objects\Models\Fields\GameObjectCalculatedPriceFormatted;
 use OGame\Services\Objects\Models\Fields\GameObjectPrice;
 use OGame\Services\Objects\Models\Fields\GameObjectProduction;
 use OGame\Services\Objects\Models\GameObject;
+use OGame\Services\Objects\Models\ResearchObject;
 use OGame\Services\Objects\Models\ShipObject;
+use OGame\Services\Objects\Models\StationObject;
 use OGame\Services\Objects\Models\UnitObject;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -1745,6 +1748,27 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     }
 
     /**
+     * Get all buildings.
+     *
+     * @return array<StationObject>
+     */
+    public function getStationObjectsNew() : array
+    {
+        return StationObjects::get();
+    }
+
+    /**
+     * Get all buildings.
+     *
+     * @return array<ResearchObject>
+     */
+    public function getResearchObjectsNew() : array
+    {
+        return ResearchObjects::get();
+    }
+
+
+    /**
      * Get all ships.
      *
      * @return array<ShipObject>
@@ -1752,6 +1776,16 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     public function getShipObjectsNew() : array
     {
         return ShipObjects::get();
+    }
+
+    /**
+     * Get all ships.
+     *
+     * @return array<DefenseObject>
+     */
+    public function getDefenseObjectsNew() : array
+    {
+        return DefenseObjects::get();
     }
 
     /**
@@ -1838,13 +1872,12 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
      * Get specific research object.
      *
      * @param string $machine_name
-     * @return BuildingObject
+     * @return ResearchObject
      * @throws Exception
      */
-    public function getResearchObjectByMachineName(string $machine_name) : UnitObject
+    public function getResearchObjectByMachineName(string $machine_name) : ResearchObject
     {
         // Loop through all buildings and return the one with the matching UID
-        // TODO: replace shipobjects and add defenseobjects with concatenated array of all objects.
         $allObjects = array_merge(ResearchObjects::get());
         foreach ($allObjects as $object) {
             if ($object->machine_name == $machine_name) {
@@ -1859,7 +1892,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
      * Get specific unit object.
      *
      * @param string $machine_name
-     * @return BuildingObject
+     * @return UnitObject
      * @throws Exception
      */
     public function getUnitByMachineName(string $machine_name) : UnitObject
@@ -2207,7 +2240,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
      *
      * @param string $machine_name
      * @param int $level
-     * @return GameObjectCalculatedPrice
+     * @return Resources
      */
     public function getObjectRawPrice(string $machine_name, int $level = 0) : Resources
     {

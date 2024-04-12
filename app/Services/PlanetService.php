@@ -510,9 +510,7 @@ class PlanetService
     /**
      * Gets the time of upgrading a building on this planet to the next level.
      *
-     * @param int $object_id
-     * The object ID of the building.
-     *
+     * @param string $machine_name
      * @param bool $formatted
      * Optional flag whether to format the time or not.
      *
@@ -1407,6 +1405,7 @@ class PlanetService
      * Calculate and return planet score based on levels of buildings and amount of units.
      *
      * @return int
+     * @throws Exception
      */
     public function getPlanetScore(): int
     {
@@ -1414,27 +1413,29 @@ class PlanetService
         // For buildings with levels it is the sum of resources needed for all levels up to the current level.
         // For units it is the sum of resources needed to build the full sum of all units.
         // The score is the sum of all these values.
-        $resources_spent = 0;
+        $resources_spent = new Resources(0,0,0,0);
 
         // Create object array
-        $building_objects = $this->objects->getBuildingObjects() + $this->objects->getStationObjects();
+        $building_objects = $this->objects->getBuildingObjectsNew() + $this->objects->getStationObjectsNew();
         foreach ($building_objects as $object) {
-            for ($i = 1; $i <= $this->getObjectLevel($object['id']); $i++) {
+            for ($i = 1; $i <= $this->getObjectLevel($object->machine_name); $i++) {
                 // Concatenate price which is array of metal, crystal and deuterium.
-                $raw_price = $this->objects->getObjectRawPrice($object['id'], $i);
-                $resources_spent += $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+                $raw_price = $this->objects->getObjectRawPrice($object->machine_name, $i);
+                $resources_spent->add($raw_price);
             }
         }
-        $unit_objects = $this->objects->getShipObjects() + $this->objects->getDefenseObjects();
+        $unit_objects = $this->objects->getShipObjectsNew() + $this->objects->getDefenseObjectsNew();
         foreach ($unit_objects as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object['id']);
-            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
             // Multiply raw_price by the amount of units.
-            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+            for ($i = 0; $i < $this->getObjectAmount($object->machine_name); $i++) {
+                $resources_spent->add($raw_price);
+            }
         }
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
-        $score = (int)floor($resources_spent / 1000);
+        $resources_sum = $resources_spent->metal->get() + $resources_spent->crystal->get() + $resources_spent->deuterium->get();
+        $score = (int)floor($resources_sum / 1000);
 
         return $score;
     }
