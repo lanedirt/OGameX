@@ -20,6 +20,7 @@ class FleetController extends Controller
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws \Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects) : View
     {

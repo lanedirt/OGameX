@@ -62,8 +62,6 @@ class ResearchController extends OGameController
             3 => ['weapon_technology', 'shielding_technology', 'armor_technology'],
         ];
 
-        $objects_array = $objects->getResearchObjects();
-
         $count = 0;
 
         // Parse build queue for this planet
