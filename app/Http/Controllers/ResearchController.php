@@ -11,6 +11,7 @@ use OGame\Services\Objects\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\ResearchQueueService;
+use OGame\ViewModels\BuildingViewModel;
 
 class ResearchController extends OGameController
 {
@@ -46,6 +47,7 @@ class ResearchController extends OGameController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws Exception
      */
     public function index(PlayerService $player, ObjectService $objects) : View
     {
@@ -54,10 +56,10 @@ class ResearchController extends OGameController
 
         // Prepare custom properties
         $screen_objects = [
-            0 => [113, 120, 121, 114, 122],
-            1 => [115, 117, 118],
-            2 => [106, 108, 124, 123, 199],
-            3 => [109, 110, 111],
+            0 => ['energy_technology', 'laser_technology', 'ion_technology', 'hyperspace_technology', 'plasma_technology'],
+            1 => ['combustion_drive', 'impulse_drive', 'hyperspace_drive'],
+            2 => ['espionage_technology', 'computer_technology', 'astrophysics', 'intergalactic_research_network', 'graviton_technology'],
+            3 => ['weapon_technology', 'shielding_technology', 'armor_technology'],
         ];
 
         $objects_array = $objects->getResearchObjects();
@@ -71,25 +73,29 @@ class ResearchController extends OGameController
 
         $research = [];
         foreach ($screen_objects as $key_row => $objects_row) {
-            foreach ($objects_row as $object_id) {
+            foreach ($objects_row as $object_machine_name) {
                 $count++;
 
+                $object = $objects->getResearchObjectByMachineName($object_machine_name);
+
                 // Get current level of building
-                $current_level = $player->getResearchLevel($object_id);
+                $current_level = $player->getResearchLevel($object->machine_name);
 
                 // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object_id, $planet, $player);
+                $requirements_met = $objects->objectRequirementsMet($object->machine_name, $planet, $player);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $planet->hasResources($objects->getObjectPrice($object_id, $planet));
+                $enough_resources = $planet->hasResources($objects->getObjectPrice($object->machine_name, $planet));
 
-                $research[$key_row][$object_id] = array_merge($objects_array[$object_id], [
-                    'current_level' => $current_level,
-                    'requirements_met' => $requirements_met,
-                    'count' => $count,
-                    'enough_resources' => $enough_resources,
-                    'currently_building' => (!empty($build_active['id']) && $build_active['object']['id'] == $object_id),
-                ]);
+                $view_model = new BuildingViewModel();
+                $view_model->object = $object;
+                $view_model->current_level = $current_level;
+                $view_model->requirements_met = $requirements_met;
+                $view_model->count = $count;
+                $view_model->enough_resources = $enough_resources;
+                $view_model->currently_building = (!empty($build_active['id']) && $build_active['object']['id'] == $object->id);
+
+                $research[$key_row][$object->id] = $view_model;
             }
         }
 

@@ -193,24 +193,24 @@
             <div class="content">
                 <ul id="defensebuilding">
                     @foreach ($units[0] as $building)
-                        <li id="defense{{ $building['count'] }}" class="@if ($building['currently_building'])
+                        <li id="defense{{ $building['count'] }}" class="@if ($building->currently_building)
                                 on
-                            @elseif (!$building['requirements_met'])
+                            @elseif (!$building->requirements_met)
                                 off
-                            @elseif (!$building['enough_resources'])
+                            @elseif (!$building->enough_resources)
                                 disabled
                             @else
                                 on
                             @endif">
-                            <div class="item_box defense{{ $building['id'] }}">
+                            <div class="item_box defense{{ $building->object->id }}">
                                 <div class="buildingimg">
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{{ $building['title'] }} (0)@if (!$building['requirements_met'])
+                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{{ $building->object->title }} (0)@if (!$building->requirements_met)
                                             <br/>Requirements are not met
-                                            @endif" ref="{{ $building['id'] }}" id="details{{ $building['id'] }}" href="javascript:void(0);">
+                                            @endif" ref="{{ $building->object->id }}" id="details{{ $building->object->id }}" href="javascript:void(0);">
                         <span class="ecke">
                             <span class="level">
                                 <span class="textlabel">
-                                    {{ $building['title'] }}	                                </span>
+                                    {{ $building->object->title }}	                                </span>
                                 {{ $building['amount'] }}	                            </span>
                         </span>
                                     </a>

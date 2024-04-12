@@ -604,25 +604,24 @@ class PlanetService
     /**
      * Gets the time of researching a technology.
      *
-     * @param int $object_id
-     * The object ID of the technology.
-     *
+     * @param string $machine_name
      * @param bool $formatted
      * Optional flag whether to format the time or not.
      *
      * @return int|string
+     * @throws Exception
      */
-    public function getTechnologyResearchTime(int $object_id, bool $formatted = FALSE): int|string
+    public function getTechnologyResearchTime(string $machine_name, bool $formatted = FALSE): int|string
     {
-        $price = $this->objects->getObjectPrice($object_id, $this);
+        $price = $this->objects->getObjectPrice($machine_name, $this);
 
-        $research_lab_level = $this->getObjectLevel(31);
+        $research_lab_level = $this->getObjectLevel('research_lab');
         $universe_speed = 16; // @TODO: implement actual universe speed (research speed).
 
         // The actual formula which return time in seconds
         $time_hours =
             (
-                ($price['metal'] + $price['crystal'])
+                ($price->metal->get() + $price->crystal->get())
                 /
                 (1000 * (1 + $research_lab_level) * $universe_speed)
             );

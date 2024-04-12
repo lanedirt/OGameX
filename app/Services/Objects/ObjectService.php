@@ -1887,6 +1887,26 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     }
 
     /**
+     * Get specific research object.
+     *
+     * @param int $object_id
+     * @return ResearchObject
+     * @throws Exception
+     */
+    public function getResearchObjectById(int $object_id) : ResearchObject
+    {
+        // Loop through all buildings and return the one with the matching UID
+        $allObjects = array_merge(ResearchObjects::get());
+        foreach ($allObjects as $object) {
+            if ($object->id == $object_id) {
+                return $object;
+            }
+        }
+
+        throw new Exception('Unit object not found with object ID: ' . $object_id);
+    }
+
+    /**
      * Get specific unit object.
      *
      * @param string $machine_name

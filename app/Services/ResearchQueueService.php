@@ -125,9 +125,11 @@ class ResearchQueueService
             throw new Exception('Maximum number of items already in queue.');
         }
 
+        $object = $this->objects->getResearchObjectById($building_id);
+
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the building queue.
-        $current_level = $player->getResearchLevel($building_id);
+        $current_level = $player->getResearchLevel($object->machine_name);
 
         // Check to see how many other items of this building there are already
         // in the queue, because if so then the level needs to be higher than that.
@@ -278,9 +280,11 @@ class ResearchQueueService
         foreach ($queue_items as $queue_item) {
             $planet = $player->planets->childPlanetById($queue_item->planet_id);
 
+            $object = $this->objects->getResearchObjectById($queue_item->object_id);
+
             // See if the planet has enough resources for this build attempt.
-            $price = $this->objects->getObjectPrice($queue_item->object_id, $planet);
-            $build_time = $player->planets->current()->getTechnologyResearchTime($queue_item->object_id);
+            $price = $this->objects->getObjectPrice($object->machine_name, $planet);
+            $build_time = $player->planets->current()->getTechnologyResearchTime($object->machine_name);
 
             // Only start the queue item if there are no other queue items building
             // for this planet.
@@ -295,7 +299,7 @@ class ResearchQueueService
             // Sanity check: check if the target level as stored in the database
             // is 1 higher than the current level. If not, then it means something
             // is wrong.
-            $current_level = $player->getResearchLevel($queue_item->object_id);
+            $current_level = $player->getResearchLevel($object->machine_name);
             if ($queue_item->object_level_target != ($current_level + 1)) {
                 // Error, cancel build queue item.
                 $this->cancel($player, $planet, $queue_item->id, $queue_item->object_id);
