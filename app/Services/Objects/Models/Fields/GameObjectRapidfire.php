@@ -29,7 +29,7 @@ class GameObjectRapidfire
      * GameObjectRapidfire constructor.
      *
      * @param string $object_machine_name
-     * @param int $chance
+     * @param float $chance
      * @param int $amount
      */
     public function __construct(string $object_machine_name, float $chance, int $amount)

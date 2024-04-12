@@ -36,7 +36,7 @@ abstract class AbstractUnitsController extends OGameController
     /**
      * Objects that are shown on this building page.
      *
-     * @var array<array<int>>
+     * @var array<array<string>>
      */
     protected array $objects = [];
 
@@ -63,6 +63,7 @@ abstract class AbstractUnitsController extends OGameController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws \Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects) : View
     {

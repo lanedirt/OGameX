@@ -7,10 +7,10 @@ class AppUtil
     /**
      * Format a number without rounding it down. Show the full number.
      *
-     * @param int $number
+     * @param int|float $number
      * @return string
      */
-    public static function formatNumber(int $number): string
+    public static function formatNumber(int|float $number): string
     {
         // If number is less than 1,000, just return it with no formatting
         return number_format($number, 0, ',', ',');
@@ -20,10 +20,10 @@ class AppUtil
      * Format a number with K for thousands and Mn for millions, with one decimal place for thousands
      * when necessary, and no decimal places for millions.
      *
-     * @param int $number
+     * @param int|float $number
      * @return string
      */
-    public static function formatNumberShort(int $number): string
+    public static function formatNumberShort(int|float $number): string
     {
         if ($number >= 1000000) {
             // If number is 1,000,000 or higher, format as millions (Mn)
@@ -47,10 +47,10 @@ class AppUtil
      * Format a number above 1 million as "1.000Mn" with three decimal places, and
      * format numbers between 1,000 and 1 million with commas as thousands separator.
      *
-     * @param int $number
+     * @param int|float $number
      * @return string
      */
-    public static function formatNumberLong(int $number): string
+    public static function formatNumberLong(int|float $number): string
     {
         if ($number >= 1000000) {
             // If number is 1,000,000 or higher, format as "1.000Mn" with three decimal places
@@ -81,10 +81,10 @@ class AppUtil
      * Helper method to convert building/research time from seconds to human
      * readable format, including weeks and days if applicable.
      *
-     * @param int $seconds
+     * @param int|float $seconds
      * @return string
      */
-    public static function formatTimeDuration(int $seconds): string
+    public static function formatTimeDuration(int|float $seconds): string
     {
         $weeks = floor($seconds / 604800); // 60*60*24*7
         $days = floor(($seconds % 604800) / 86400); // Remaining seconds divided by number of seconds in a day

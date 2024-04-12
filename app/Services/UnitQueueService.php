@@ -124,7 +124,6 @@ class UnitQueueService
                 'object' => [
                     'id' => $object->id,
                     'title' => $object->title,
-                    'level_target' => $item->object_level_target,
                     'assets' => $object->assets,
                 ],
                 'object_amount' => $item->object_amount,
@@ -234,9 +233,9 @@ class UnitQueueService
         $queue->time_duration = $build_time_total;
         $queue->time_start = $time_start;
         $queue->time_end = $queue->time_start + $queue->time_duration;
-        $queue->metal = $price->metal->get();
-        $queue->crystal = $price->crystal->get();
-        $queue->deuterium = $price->deuterium->get();
+        $queue->metal = (int)$price->metal->get();
+        $queue->crystal = (int)$price->crystal->get();
+        $queue->deuterium = (int)$price->deuterium->get();
 
         // All OK, deduct resources.
         $planet->deductResources($price);

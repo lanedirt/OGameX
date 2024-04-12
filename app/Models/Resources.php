@@ -9,7 +9,7 @@ class Resources
     public Resource $deuterium;
     public Resource $energy;
 
-    public function __construct(int $metal, int $crystal, int $deuterium, int $energy)
+    public function __construct(int|float $metal, int|float $crystal, int|float $deuterium, int|float $energy)
     {
         $this->metal = new Resource($metal);
         $this->crystal = new Resource($crystal);
@@ -33,9 +33,9 @@ class Resources
     /**
      * Returns sum of all resources.
      *
-     * @return int
+     * @return float
      */
-    public function sum(): int {
+    public function sum(): float {
         return $this->metal->get() + $this->crystal->get() + $this->deuterium->get() + $this->energy->get();
     }
 

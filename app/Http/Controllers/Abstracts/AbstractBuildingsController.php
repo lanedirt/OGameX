@@ -36,7 +36,7 @@ abstract class AbstractBuildingsController extends OGameController
     /**
      * Objects that are shown on this building page.
      *
-     * @var array<array<int>>
+     * @var array<array<string>>
      */
     protected array $objects = [];
 
@@ -76,11 +76,6 @@ abstract class AbstractBuildingsController extends OGameController
     {
         $this->planet = $player->planets->current();
 
-        // Note: we add ship objects here as well because solar satellites are visible
-        // on both resources page and ships page.
-        //$objects_array = $objects->getBuildingObjects() + $objects->getStationObjects() + $objects->getShipObjects();
-        $objects_array = $objects->getBuildingObjects();
-
         $count = 0;
         $header_filename_parts = [];
 
@@ -92,7 +87,6 @@ abstract class AbstractBuildingsController extends OGameController
         $buildings = [];
         foreach ($this->objects as $key_row => $objects_row) {
             $buildings[$key_row] = [];
-
             foreach ($objects_row as $object_machine_name) {
                 $count++;
 

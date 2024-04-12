@@ -98,7 +98,7 @@ class ObjectService
     /**
      * Get all military ship objects.
      *
-     * @return array<MilitaryShipObjects>
+     * @return array<ShipObject>
      */
     public function getMilitaryShipObjects() : array
     {
@@ -108,7 +108,7 @@ class ObjectService
     /**
      * Get all civil ship objects.
      *
-     * @return array<CivilShipObjects>
+     * @return array<ShipObject>
      */
     public function getCivilShipObjects() : array
     {
@@ -365,7 +365,7 @@ class ObjectService
      *
      * @param string $machine_name
      * @param PlanetService $planet
-     * @return mixed
+     * @return int
      * @throws Exception
      */
     public function getObjectMaxBuildAmount(string $machine_name, PlanetService $planet) : int

@@ -38,7 +38,7 @@ class ResourcesController extends AbstractBuildingsController
         // Prepare custom properties
         $this->header_filename_objects = [1, 2, 3, 4]; // Building ID's that make up the header filename.
         $this->objects = [
-            0 => ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite'], // 212 TODO: add
+            0 => ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite'],
             1 => ['metal_store', 'crystal_store', 'deuterium_store', ],
         ];
         $this->view_name = 'ingame.resources.index';

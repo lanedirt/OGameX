@@ -45,7 +45,7 @@ class TechtreeController extends OGameController
                 'planet' => $planet,
                 'production_table' => $this->getProductionTable($object, $player, $objects),
                 'storage_table' => $this->getStorageTable($object, $player, $objects),
-                'rapidfire_table' => $this->getRapidfireTable($object, $objects, $objects),
+                'rapidfire_table' => $this->getRapidfireTable($object, $objects),
                 'properties_table' => $this->getPropertiesTable($object, $player, $objects),
             ]);
         } elseif ($tab == 3) {

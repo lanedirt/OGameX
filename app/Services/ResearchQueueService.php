@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Models\ResearchQueue;
+use OGame\Models\Resources;
 use OGame\Services\Objects\ObjectService;
 
 /**
@@ -323,13 +324,13 @@ class ResearchQueueService
                 $time_start = Carbon::now()->timestamp;
             }
 
-            $queue_item->time_duration = $build_time;
+            $queue_item->time_duration = (int)$build_time;
             $queue_item->time_start = $time_start;
             $queue_item->time_end = $queue_item->time_start + $queue_item->time_duration;
             $queue_item->building = 1;
-            $queue_item->metal = $price->metal->get();
-            $queue_item->crystal = $price->crystal->get();
-            $queue_item->deuterium = $price->deuterium->get();
+            $queue_item->metal = (int)$price->metal->get();
+            $queue_item->crystal = (int)$price->crystal->get();
+            $queue_item->deuterium = (int)$price->deuterium->get();
             $queue_item->save();
 
             // If the calculated end time is lower than the current time,
@@ -350,7 +351,7 @@ class ResearchQueueService
      * @return bool|ResearchQueue
      *  Array when an item exists. False if it does not.
      */
-    public function retrieveCurrentlyBuildingFromQueue($queue_items) : bool|ResearchQueue
+    public function retrieveCurrentlyBuildingFromQueue(\Illuminate\Support\Collection $queue_items) : bool|ResearchQueue
     {
         foreach ($queue_items as $key => $record) {
             if ($record['building'] == 1) {
@@ -405,11 +406,7 @@ class ResearchQueueService
 
             // Give back resources if the current entry was already building.
             if ($queue_item->building == 1) {
-                $planet->addResources([
-                    'metal' => $queue_item->metal,
-                    'crystal' => $queue_item->crystal,
-                    'deuterium' => $queue_item->deuterium,
-                ]);
+                $planet->addResources(new Resources($queue_item->metal, $queue_item->crystal, $queue_item->deuterium, 0));
             }
 
             // Add canceled flag to the main entry.

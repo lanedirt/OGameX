@@ -578,10 +578,10 @@ class PlanetService
      * @param bool $formatted
      * Optional flag whether to format the time or not.
      *
-     * @return int|string
+     * @return float|string
      * @throws Exception
      */
-    public function getTechnologyResearchTime(string $machine_name, bool $formatted = FALSE): int|string
+    public function getTechnologyResearchTime(string $machine_name, bool $formatted = FALSE): float|string
     {
         $price = $this->objects->getObjectPrice($machine_name, $this);
 
@@ -611,27 +611,23 @@ class PlanetService
      * @param int $building_id
      * @param int $percentage
      * @return bool
+     * @throws Exception
      */
     public function setBuildingPercent(int $building_id, int $percentage): bool
     {
-        $building = $this->objects->getBuildingObjects($building_id);
+        $building = $this->objects->getObjectById($building_id);
 
-        // Sanity check: building exists.
-        if (empty($building)) {
-            return false;
-        }
-
-        // Sanity check: percentage inside of allowed values.
+        // Sanity check: percentage inside allowed values.
         if (!is_numeric($percentage) || $percentage < 0 || $percentage > 10) {
             return false;
         }
 
         // Sanity check: model property exists.
-        if (!isset($this->planet->{$building['machine_name'] . '_percent'})) {
+        if (!isset($this->planet->{$building->machine_name . '_percent'})) {
             return false;
         }
 
-        $this->planet->{$building['machine_name'] . '_percent'} = $percentage;
+        $this->planet->{$building->machine_name . '_percent'} = $percentage;
         $this->planet->save();
 
         return true;
@@ -1014,7 +1010,7 @@ class PlanetService
      * @return void
      * @throws Exception
      */
-    private function updateResourceProductionStatsInner(Resources $production_total, int $energy_production_total, int $energy_consumption_total, bool $save_planet = true): void
+    private function updateResourceProductionStatsInner(Resources $production_total, int|float $energy_production_total, int|float $energy_consumption_total, bool $save_planet = true): void
     {
         foreach ($this->objects->getBuildingObjectsWithProduction() as $building) {
             // Retrieve all buildings that have production values.
@@ -1035,11 +1031,11 @@ class PlanetService
         }
 
         // Write values to planet
-        $this->planet->metal_production = $production_total->metal->get();
-        $this->planet->crystal_production = $production_total->crystal->get();
-        $this->planet->deuterium_production = $production_total->deuterium->get();
-        $this->planet->energy_used = $energy_consumption_total;
-        $this->planet->energy_max = $energy_production_total;
+        $this->planet->metal_production = (int)$production_total->metal->get();
+        $this->planet->crystal_production = (int)$production_total->crystal->get();
+        $this->planet->deuterium_production = (int)$production_total->deuterium->get();
+        $this->planet->energy_used = (int)$energy_consumption_total;
+        $this->planet->energy_max = (int)$energy_production_total;
     }
 
     /**
@@ -1224,9 +1220,9 @@ class PlanetService
         }
 
         // Write values to planet
-        $this->planet->metal_max = $storage_sum->metal->get();
-        $this->planet->crystal_max = $storage_sum->crystal->get();
-        $this->planet->deuterium_max = $storage_sum->deuterium->get();
+        $this->planet->metal_max = (int)$storage_sum->metal->get();
+        $this->planet->crystal_max = (int)$storage_sum->crystal->get();
+        $this->planet->deuterium_max = (int)$storage_sum->deuterium->get();
         if ($save_planet) {
             $this->planet->save();
         }
