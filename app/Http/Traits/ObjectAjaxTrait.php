@@ -28,12 +28,6 @@ trait ObjectAjaxTrait
             throw new Exception('No object ID provided.');
         }
 
-        $object = $objects->getObjects($object_id);
-        if (empty($object)) {
-            throw new Exception('Incorrect object ID provided.');
-        }
-
-        // Get object by ID
         $object = $objects->getObjectById($object_id);
 
         $current_level = 0;
@@ -99,18 +93,18 @@ trait ObjectAjaxTrait
         if ($storage) {
             switch ($object->machine_name) {
                 case 'metal_store':
-                    $max_storage = $planet->getMetalStorage();
-                    $current_storage = $planet->getMetal();
+                    $max_storage = $planet->metalStorage()->get();
+                    $current_storage = $planet->metal()->get();
                     break;
 
                 case 'crystal_store':
-                    $max_storage = $planet->getCrystalStorage();
-                    $current_storage = $planet->getCrystal();
+                    $max_storage = $planet->crystalStorage()->get();
+                    $current_storage = $planet->crystal()->get();
                     break;
 
                 case 'deuterium_store':
-                    $max_storage = $planet->getDeuteriumStorage();
-                    $current_storage = $planet->getDeuterium();
+                    $max_storage = $planet->deuteriumStorage()->get();
+                    $current_storage = $planet->deuterium()->get();
                     break;
             }
         }

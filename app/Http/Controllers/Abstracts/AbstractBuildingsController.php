@@ -79,7 +79,7 @@ abstract class AbstractBuildingsController extends OGameController
         // Note: we add ship objects here as well because solar satellites are visible
         // on both resources page and ships page.
         //$objects_array = $objects->getBuildingObjects() + $objects->getStationObjects() + $objects->getShipObjects();
-        $objects_array = $objects->getBuildingObjectsNew();
+        $objects_array = $objects->getBuildingObjects();
 
         $count = 0;
         $header_filename_parts = [];

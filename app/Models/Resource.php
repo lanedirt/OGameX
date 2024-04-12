@@ -24,6 +24,16 @@ class Resource
     }
 
     /**
+     * Multiply resource by a factor.
+     *
+     * @param int $factor
+     * @return void
+     */
+    public function multiply(int $factor): void {
+        $this->rawValue = $this->rawValue * $factor;
+    }
+
+    /**
      * Get the raw value of the resource as integer.
      *
      * @return int
@@ -34,13 +44,23 @@ class Resource
     }
 
     /**
-     * Get the formatted value of the resource as string.
+     * Get the formatted value of the resource as string (short, default).
      *
      * @return string
      */
     public function getFormatted(): string
     {
         return AppUtil::formatNumberShort($this->rawValue);
+    }
+
+    /**
+     * Get the formatted value of the resource as string (long).
+     *
+     * @return string
+     */
+    public function getFormattedLong(): string
+    {
+        return AppUtil::formatNumberLong($this->rawValue);
     }
 
     /**

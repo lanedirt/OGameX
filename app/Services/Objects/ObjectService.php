@@ -25,30 +25,11 @@ use OGame\Services\PlayerService;
 class ObjectService
 {
     /**
-     * Get all buildings (or specific building).
-     *
-     * @param int $object_id
-     * @return array
-     */
-    public function getBuildingObjects(int $object_id = 0) : array
-    {
-        if (!empty($object_id)) {
-            if (!empty($this->buildingObjects[$object_id])) {
-                return $this->buildingObjects[$object_id];
-            } else {
-                return FALSE;
-            }
-        } else {
-            return $this->buildingObjects;
-        }
-    }
-
-    /**
      * Get all buildings.
      *
      * @return array<BuildingObject>
      */
-    public function getBuildingObjectsNew() : array
+    public function getBuildingObjects() : array
     {
         return BuildingObjects::get();
     }
@@ -58,7 +39,7 @@ class ObjectService
      *
      * @return array<StationObject>
      */
-    public function getStationObjectsNew() : array
+    public function getStationObjects() : array
     {
         return StationObjects::get();
     }
@@ -68,7 +49,7 @@ class ObjectService
      *
      * @return array<ResearchObject>
      */
-    public function getResearchObjectsNew() : array
+    public function getResearchObjects() : array
     {
         return ResearchObjects::get();
     }
@@ -79,19 +60,39 @@ class ObjectService
      *
      * @return array<ShipObject>
      */
-    public function getShipObjectsNew() : array
+    public function getShipObjects() : array
     {
         return array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
     }
 
     /**
-     * Get all ships.
+     * Get all defense objects.
      *
      * @return array<DefenseObject>
      */
-    public function getDefenseObjectsNew() : array
+    public function getDefenseObjects() : array
     {
         return DefenseObjects::get();
+    }
+
+    /**
+     * Get all military ship objects.
+     *
+     * @return array<MilitaryShipObjects>
+     */
+    public function getMilitaryShipObjects() : array
+    {
+        return MilitaryShipObjects::get();
+    }
+
+    /**
+     * Get all civil ship objects.
+     *
+     * @return array<CivilShipObjects>
+     */
+    public function getCivilShipObjects() : array
+    {
+        return CivilShipObjects::get();
     }
 
     /**
@@ -101,7 +102,7 @@ class ObjectService
      * @return BuildingObject
      * @throws Exception
      */
-    public function getBuildingObjectsByMachineName(string $machine_name) : BuildingObject
+    public function getBuildingObjectByMachineName(string $machine_name) : BuildingObject
     {
         // Loop through all buildings and return the one with the matching UID
         foreach (BuildingObjects::get() as $building) {
@@ -120,7 +121,7 @@ class ObjectService
      * @return ShipObject
      * @throws Exception
      */
-    public function getShipObjectsByMachineName(string $machine_name) : ShipObject
+    public function getShipObjectByMachineName(string $machine_name) : ShipObject
     {
         // Loop through all buildings and return the one with the matching UID
         $shipObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
@@ -222,9 +223,7 @@ class ObjectService
      */
     public function getUnitObjectById(int $object_id) : UnitObject
     {
-        // Loop through all buildings and return the one with the matching UID
-        // TODO: replace shipobjects and add defenseobjects with concatenated array of all objects.
-        $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
+        $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
             if ($object->id == $object_id) {
                 return $object;
@@ -241,10 +240,9 @@ class ObjectService
      * @return UnitObject
      * @throws Exception
      */
-    public function getUnitByMachineName(string $machine_name) : UnitObject
+    public function getUnitObjectByMachineName(string $machine_name) : UnitObject
     {
         // Loop through all buildings and return the one with the matching UID
-        // TODO: replace shipobjects and add defenseobjects with concatenated array of all objects.
         $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
             if ($object->machine_name == $machine_name) {
@@ -282,8 +280,6 @@ class ObjectService
      */
     public function getBuildingObjectsWithProductionByMachineName(string $machine_name) : BuildingObject
     {
-        $return = array();
-
         foreach (BuildingObjects::get() as $object) {
             if ($object->machine_name == $machine_name && !empty(($object->production))) {
                 return $object;
@@ -309,119 +305,6 @@ class ObjectService
         }
 
         return $return;
-    }
-
-    /**
-     * Get all buildings (or specific building).
-     *
-     * @param int $object_id
-     * @return array
-     */
-    public function getStationObjects(int $object_id = 0) : array
-    {
-        if (!empty($object_id)) {
-            if (!empty($this->stationObjects[$object_id])) {
-                return $this->stationObjects[$object_id];
-            } else {
-                return [];
-            }
-        } else {
-            return $this->stationObjects;
-        }
-    }
-
-    /**
-     * Get all research (or specific research).
-     *
-     * @param int $object_id
-     * @return array
-     */
-    public function getResearchObjects(int $object_id = 0) : array
-    {
-        if (!empty($object_id)) {
-            if (!empty($this->researchObjects[$object_id])) {
-                return $this->researchObjects[$object_id];
-            } else {
-                return [];
-            }
-        } else {
-            return $this->researchObjects;
-        }
-    }
-
-    /**
-     * Get all ships (or specific ship).
-     */
-    public function getShipObjects(int $object_id = 0) : array
-    {
-        $ship_objects = $this->militaryShipObjects + $this->civilShipObjects;
-
-        if (!empty($object_id)) {
-            if (!empty($ship_objects[$object_id])) {
-                return $ship_objects[$object_id];
-            } else {
-                return [];
-            }
-        } else {
-            return $ship_objects;
-        }
-    }
-
-    /**
-     * Get all military ships (or specific ship).
-     *
-     * @param int $object_id
-     * @return array
-     */
-    public function getMilitaryShipObjects(int $object_id = 0): array
-    {
-        if (!empty($object_id)) {
-            if (!empty($this->militaryShipObjects[$object_id])) {
-                return $this->militaryShipObjects[$object_id];
-            } else {
-                return [];
-            }
-        } else {
-            return $this->militaryShipObjects;
-        }
-    }
-
-    /**
-     * Get all civil ships (or specific ship).
-     *
-     * @param int $object_id
-     * @return array
-     */
-    public function getCivilShipObjects(int $object_id = 0) : array
-    {
-        if (!empty($object_id)) {
-            if (!empty($this->civilShipObjects[$object_id])) {
-                return $this->civilShipObjects[$object_id];
-            } else {
-                return [];
-            }
-        } else {
-            return $this->civilShipObjects;
-        }
-    }
-
-    /**
-     * Get all defense (or specific defense).
-     *
-     * @param int $object_id
-     * @return array
-     */
-    public function getDefenseObjects(int $object_id = 0) : array
-    {
-        if (!empty($object_id)) {
-            if (!empty($this->defenseObjects[$object_id])) {
-                return $this->defenseObjects[$object_id];
-            } else {
-                return [];
-            }
-        } else {
-            return $this->defenseObjects;
-        }
     }
 
     /**
@@ -457,61 +340,13 @@ class ObjectService
     }
 
     /**
-     * Get all objects (or specific object).
-     *
-     * @param int $object_id
-     * @return array
-     */
-    public function getObjects(int $object_id = 0) : array
-    {
-        // Create combined array of all object types.
-        $all_objects = $this->buildingObjects +
-            $this->stationObjects +
-            $this->researchObjects +
-            $this->militaryShipObjects +
-            $this->civilShipObjects +
-            $this->defenseObjects;
-
-        if (!empty($object_id)) {
-            if (!empty($all_objects[$object_id])) {
-                return $all_objects[$object_id];
-            } else {
-                return [];
-            }
-        } else {
-            return $all_objects;
-        }
-    }
-
-    /**
-     * Get all unit objects (or specific unit object).
-     *
-     * @param int $object_id
-     * @return array
-     */
-    public function getUnitObjects(int $object_id = 0) : array
-    {
-        // Create combined array of the required object types.
-        $unit_objects = $this->militaryShipObjects + $this->civilShipObjects + $this->defenseObjects;
-
-        if (!empty($object_id)) {
-            if (!empty($unit_objects[$object_id])) {
-                return $unit_objects[$object_id];
-            } else {
-                return [];
-            }
-        } else {
-            return $unit_objects;
-        }
-    }
-
-    /**
      * Calculates the max build amount of an object (unit) based on available
      * planet resources.
      *
      * @param string $machine_name
      * @param PlanetService $planet
      * @return mixed
+     * @throws Exception
      */
     public function getObjectMaxBuildAmount(string $machine_name, PlanetService $planet) : int
     {
@@ -520,22 +355,22 @@ class ObjectService
         // Calculate max build amount based on price
         $max_build_amount = [];
         if ($price->metal->get() > 0) {
-            $max_build_amount[] = floor($planet->getMetal() / $price->metal->get());
+            $max_build_amount[] = floor($planet->metal()->get() / $price->metal->get());
         }
 
         if ($price->crystal->get() > 0) {
-            $max_build_amount[] = floor($planet->getCrystal() / $price->crystal->get());
+            $max_build_amount[] = floor($planet->crystal()->get() / $price->crystal->get());
         }
 
         if ($price->deuterium->get() > 0) {
-            $max_build_amount[] = floor($planet->getDeuterium() / $price->deuterium->get());
+            $max_build_amount[] = floor($planet->deuterium()->get() / $price->deuterium->get());
         }
 
         if ($price->energy->get() > 0) {
-            $max_build_amount[] = floor($planet->getEnergy() / $price->energy->get());
+            $max_build_amount[] = floor($planet->energy()->get() / $price->energy->get());
         }
 
-        // Get lowest divided value which is the maximum amount of times this ship
+        // Get the lowest divided value which is the maximum amount of times this ship
         // can be built right now.
         $max_build_amount = min($max_build_amount);
 

@@ -313,7 +313,7 @@ class PlayerService
         $resources_spent = new Resources(0, 0, 0, 0);
 
         // Create object array
-        $research_objects = $this->objects->getResearchObjectsNew();
+        $research_objects = $this->objects->getResearchObjects();
         foreach ($research_objects as $object) {
             for ($i = 1; $i <= $this->getResearchLevel($object->machine_name); $i++) {
                 // Concatenate price which is array of metal, crystal and deuterium.

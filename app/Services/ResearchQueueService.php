@@ -196,7 +196,7 @@ class ResearchQueueService
         }
 
         foreach ($queue_items as $item) {
-            $object = $this->objects->getResearchObjects($item->object_id);
+            $object = $this->objects->getResearchObjectById($item->object_id);
 
             $time_countdown = $item->time_end - Carbon::now()->timestamp;
             if ($time_countdown < 0) {
@@ -206,10 +206,10 @@ class ResearchQueueService
             $return[] = [
                 'id' => $item->id,
                 'object' => [
-                    'id' => $object['id'],
-                    'title' => $object['title'],
+                    'id' => $object->id,
+                    'title' => $object->title,
                     'level_target' => $item->object_level_target,
-                    'assets' => $object['assets'],
+                    'assets' => $object->assets,
                 ],
                 'time_countdown' => $time_countdown,
                 'time_total' => $item->time_end - $item->time_start,

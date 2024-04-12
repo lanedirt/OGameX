@@ -166,7 +166,7 @@
             @if (!empty($price->energy->get()))
                 <li class="energy tooltip" title="{!! $price->energy->getFormatted() !!} Energy">
                     <div class="resourceIcon energy"></div>
-                    <div class="cost @if ($planet->getEnergy() < $price->energy->get())
+                    <div class="cost @if ($planet->energy() < $price->energy->get())
                             overmark
                             @endif">
                         {!! $price->energy->getFormatted() !!}	                </div>

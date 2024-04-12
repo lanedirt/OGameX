@@ -339,24 +339,17 @@ class PlanetService
     /**
      * Get planet energy amount.
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
-     *
-     * @return int|string
+     * @return Resource
      * Energy amount.
      */
-    public function getEnergy(bool $formatted = false): int|string
+    public function energy(): Resource
     {
         $energy_max = $this->planet->energy_max;
         $energy_used = $this->planet->energy_used;
 
         $energy = $energy_max - $energy_used;
 
-        if ($formatted) {
-            $energy = AppUtil::formatNumberLong($energy);
-        }
-
-        return $energy;
+        return new Resource($energy);
     }
 
     /**
@@ -399,35 +392,30 @@ class PlanetService
     public function hasResources(Resources $resources): bool
     {
         if (!empty($resources->metal->get())) {
-            if ($this->getMetal() < $resources->metal->get()) {
+            if ($this->metal()->get() < $resources->metal->get()) {
                 return false;
             }
         }
         if (!empty($resources->crystal->get())) {
-            if ($this->getCrystal() < $resources->crystal->get()) {
+            if ($this->crystal()->get() < $resources->crystal->get()) {
                 return false;
             }
         }
         if (!empty($resources->deuterium->get())) {
-            if ($this->getDeuterium() < $resources->deuterium->get()) {
+            if ($this->deuterium()->get() < $resources->deuterium->get()) {
                 return false;
             }
         }
 
-        // None of the above checks failed which means the planet has
-        // enough resources.
         return true;
     }
 
     /**
      * Get planet metal amount.
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
-     *
-     * @return int|string
+     * @return Resource
      */
-    public function getMetal(bool $formatted = false): int|string
+    public function metal(): Resource
     {
         $metal = $this->planet->metal;
 
@@ -435,49 +423,31 @@ class PlanetService
             $metal = 0;
         }
 
-        if ($formatted) {
-            $metal = AppUtil::formatNumberLong($metal);
-        }
-
-        return $metal;
+        return new Resource($metal);
     }
 
     /**
      * Get planet crystal amount.
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
-     *
-     * @return int|string
+     * @return Resource
      */
-    public function getCrystal(bool $formatted = false): int|string
+    public function crystal(): Resource
     {
         $crystal = $this->planet->crystal;
 
-        if ($formatted) {
-            $crystal = AppUtil::formatNumberLong($crystal);
-        }
-
-        return $crystal;
+        return new Resource($crystal);
     }
 
     /**
      * Get planet deuterium amount.
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
-     *
-     * @return int|string
+     * @return Resource
      */
-    public function getDeuterium(bool $formatted = false): int|string
+    public function deuterium(): Resource
     {
         $deuterium = $this->planet->deuterium;
 
-        if ($formatted) {
-            $deuterium = AppUtil::formatNumberLong($deuterium);
-        }
-
-        return $deuterium;
+        return new Resource($deuterium);
     }
 
     /**
@@ -491,11 +461,11 @@ class PlanetService
 
         $objects = $this->objects->getShipObjects();
         foreach ($objects as $object) {
-            if ($object['id'] == 212) {
+            if ($object->machine_name == 'solar_satellite') {
                 // Do not count solar satellite as ship.
                 continue;
             }
-            $totalCount += $this->planet->{$object['machine_name']};
+            $totalCount += $this->planet->{$object->machine_name};
         }
 
         return $totalCount;
@@ -509,6 +479,7 @@ class PlanetService
      * Optional flag whether to format the time or not.
      *
      * @return int|string
+     * @throws Exception
      */
     public function getBuildingConstructionTime(string $machine_name, bool $formatted = FALSE): int|string
     {
@@ -570,7 +541,7 @@ class PlanetService
      */
     public function getUnitConstructionTime(string $machine_name, bool $formatted = FALSE): int|string
     {
-        $object = $this->objects->getUnitByMachineName($machine_name);
+        $object = $this->objects->getUnitObjectByMachineName($machine_name);
 
         $shipyard_level = $this->getObjectLevel('shipyard');
         $nanitefactory_level = $this->getObjectLevel('nano_factory');
@@ -731,35 +702,35 @@ class PlanetService
 
             // @TODO: add transactions for updating resources to prevent request collisions.
             // Metal calculation.
-            $max_metal = $this->getMetalStorage();
-            if ($this->getMetal() < $max_metal) {
+            $max_metal = $this->metalStorage()->get();
+            if ($this->metal()->get() < $max_metal) {
                 $resources_add['metal'] = ($this->planet->metal_production * $hours_difference);
 
                 // Prevent adding more metal than the max limit can support (storage limit).
-                if (($this->getMetal() + $resources_add['metal']) > $max_metal) {
-                    $resources_add['metal'] = $max_metal - $this->getMetal();
+                if (($this->metal()->get() + $resources_add['metal']) > $max_metal) {
+                    $resources_add['metal'] = $max_metal - $this->metal()->get();
                 }
             }
 
             // Crystal calculation.
-            $max_crystal = $this->getCrystalStorage();
-            if ($this->getCrystal() < $max_crystal) {
+            $max_crystal = $this->crystalStorage()->get();
+            if ($this->crystal()->get() < $max_crystal) {
                 $resources_add['crystal'] = ($this->planet->crystal_production * $hours_difference);
 
                 // Prevent adding more metal than the max limit can support (storage limit).
-                if (($this->getCrystal() + $resources_add['crystal']) > $max_crystal) {
-                    $resources_add['crystal'] = $max_metal - $this->getCrystal();
+                if (($this->crystal()->get() + $resources_add['crystal']) > $max_crystal) {
+                    $resources_add['crystal'] = $max_metal - $this->crystal()->get();
                 }
             }
 
             // Deuterium calculation.
-            $max_deuterium = $this->getDeuteriumStorage();
-            if ($this->getDeuterium() < $max_deuterium) {
+            $max_deuterium = $this->deuteriumStorage()->get();
+            if ($this->deuterium()->get() < $max_deuterium) {
                 $resources_add['deuterium'] = ($this->planet->deuterium_production * $hours_difference);
 
                 // Prevent adding more metal than the max limit can support (storage limit).
-                if (($this->getDeuterium() + $resources_add['deuterium']) > $max_deuterium) {
-                    $resources_add['deuterium'] = $max_deuterium - $this->getDeuterium();
+                if (($this->deuterium()->get() + $resources_add['deuterium']) > $max_deuterium) {
+                    $resources_add['deuterium'] = $max_deuterium - $this->deuterium()->get();
                 }
             }
 
@@ -775,54 +746,37 @@ class PlanetService
     /**
      * Get planet metal storage (max amount this planet can contain).
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
-     *
-     * @return int|string
+     * @return Resource
      */
-    public function getMetalStorage(bool $formatted = false): int|string
+    public function metalStorage(): Resource
     {
         $storage = $this->planet->metal_max;
 
-        if ($formatted) {
-            $storage = AppUtil::formatNumber($storage);
-        }
-
-        return $storage;
+        return new Resource($storage);
     }
 
     /**
      * Get planet crystal storage (max amount this planet can contain).
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
+     * @return Resource
      */
-    public function getCrystalStorage(bool $formatted = false): int|string
+    public function crystalStorage(): Resource
     {
         $storage = $this->planet->crystal_max;
 
-        if ($formatted) {
-            $storage = AppUtil::formatNumber($storage);
-        }
-
-        return $storage;
+        return new Resource($storage);
     }
 
     /**
      * Get planet deuterium storage (max amount this planet can contain).
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
+     * @return Resource
      */
-    public function getDeuteriumStorage(bool $formatted = false): int|string
+    public function deuteriumStorage(): Resource
     {
         $storage = $this->planet->deuterium_max;
 
-        if ($formatted) {
-            $storage = AppUtil::formatNumber($storage);
-        }
-
-        return $storage;
+        return new Resource($storage);
     }
 
     /**
@@ -1290,7 +1244,7 @@ class PlanetService
      */
     public function getBuildingMaxStorage(string $machine_name, int|bool $building_level = false): Resources
     {
-        $building = $this->objects->getBuildingObjectsByMachineName($machine_name);
+        $building = $this->objects->getBuildingObjectByMachineName($machine_name);
 
         // NOTE: $building_level is used by eval() function in the formula.
         if (!$building_level) {
@@ -1319,7 +1273,7 @@ class PlanetService
         $resources_spent = new Resources(0,0,0,0);
 
         // Create object array
-        $building_objects = $this->objects->getBuildingObjectsNew() + $this->objects->getStationObjectsNew();
+        $building_objects = $this->objects->getBuildingObjects() + $this->objects->getStationObjects();
         foreach ($building_objects as $object) {
             for ($i = 1; $i <= $this->getObjectLevel($object->machine_name); $i++) {
                 // Concatenate price which is array of metal, crystal and deuterium.
@@ -1327,17 +1281,15 @@ class PlanetService
                 $resources_spent->add($raw_price);
             }
         }
-        $unit_objects = $this->objects->getShipObjectsNew() + $this->objects->getDefenseObjectsNew();
+        $unit_objects = $this->objects->getShipObjects() + $this->objects->getDefenseObjects();
         foreach ($unit_objects as $object) {
             $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
             // Multiply raw_price by the amount of units.
-            for ($i = 0; $i < $this->getObjectAmount($object->machine_name); $i++) {
-                $resources_spent->add($raw_price);
-            }
+            $resources_spent->add($raw_price->multiply($this->getObjectAmount($object->machine_name)));
         }
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
-        $resources_sum = $resources_spent->metal->get() + $resources_spent->crystal->get() + $resources_spent->deuterium->get();
+        $resources_sum = $resources_spent->sum();
         $score = (int)floor($resources_sum / 1000);
 
         return $score;
@@ -1354,7 +1306,7 @@ class PlanetService
      */
     function getObjectAmount(string $machine_name): int
     {
-        $object = $this->objects->getUnitByMachineName($machine_name);
+        $object = $this->objects->getUnitObjectByMachineName($machine_name);
 
         if (!empty($this->planet->{$object->machine_name})) {
             return $this->planet->{$object->machine_name};
@@ -1388,7 +1340,7 @@ class PlanetService
             for ($i = 1; $i <= $this->getObjectLevel($object['id']); $i++) {
                 // Concatenate price which is array of metal, crystal and deuterium.
                 $raw_price = $this->objects->getObjectRawPrice($object['id'], $i);
-                $resources_spent += $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
+                $resources_spent += $raw_price->sum();
             }
         }
 
@@ -1396,18 +1348,14 @@ class PlanetService
         $defense_objects = $this->objects->getDefenseObjects();
         foreach ($defense_objects as $object) {
             $raw_price = $this->objects->getObjectRawPrice($object['id']);
-            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
-            // Multiply raw_price by the amount of units.
-            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+            $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum();
         }
 
         // Civil ships (50%)
         $civil_ships = $this->objects->getCivilShipObjects();
         foreach ($civil_ships as $object) {
             $raw_price = $this->objects->getObjectRawPrice($object['id']);
-            $raw_price_sum = ($raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium']) * 0.5;
-            // Multiply raw_price by the amount of units.
-            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+            $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum() * 0.5;
         }
 
         // TODO: add phalanx and jump gate (50%) when moon is implemented.
@@ -1422,6 +1370,7 @@ class PlanetService
      * Calculate planet military points.
      *
      * @return int
+     * @throws Exception
      */
     public function getPlanetMilitaryScore(): int
     {
@@ -1441,27 +1390,22 @@ class PlanetService
         $defense_objects = $this->objects->getDefenseObjects();
         foreach ($defense_objects as $object) {
             $raw_price = $this->objects->getObjectRawPrice($object['id']);
-            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
             // Multiply raw_price by the amount of units.
-            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+            $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum();
         }
 
         // Military ships (100%)
         $military_ships = $this->objects->getMilitaryShipObjects();
         foreach ($military_ships as $object) {
             $raw_price = $this->objects->getObjectRawPrice($object['id']);
-            $raw_price_sum = $raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium'];
-            // Multiply raw_price by the amount of units.
-            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+            $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum();
         }
 
         // Civil ships (50%)
         $civil_ships = $this->objects->getCivilShipObjects();
         foreach ($civil_ships as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object['id']);
-            $raw_price_sum = ($raw_price['metal'] + $raw_price['crystal'] + $raw_price['deuterium']) * 0.5;
-            // Multiply raw_price by the amount of units.
-            $resources_spent += $raw_price_sum * $this->getObjectAmount($object['id']);
+            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
+            $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum() * 0.5;
         }
 
         // TODO: add phalanx and jump gate (50%) when moon is implemented.

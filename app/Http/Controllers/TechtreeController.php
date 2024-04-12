@@ -81,7 +81,7 @@ class TechtreeController extends OGameController
         }
 
         // Reload object to get the BuildingObject
-        $object = $objects->getBuildingObjectsByMachineName($object->machine_name);
+        $object = $objects->getBuildingObjectByMachineName($object->machine_name);
 
         $planet = $player->planets->current();
         $current_level = $player->planets->current()->getObjectLevel($object->machine_name);
@@ -135,7 +135,7 @@ class TechtreeController extends OGameController
         }
 
         // Reload object to get the BuildingObject
-        $object = $objects->getBuildingObjectsByMachineName($object->machine_name);
+        $object = $objects->getBuildingObjectByMachineName($object->machine_name);
 
         $planet = $player->planets->current();
         $current_level = $player->planets->current()->getObjectLevel($object->machine_name);
@@ -237,7 +237,7 @@ class TechtreeController extends OGameController
         }
 
         // Load object again to get the UnitObject
-        $object = $objects->getUnitByMachineName($object->machine_name);
+        $object = $objects->getUnitObjectByMachineName($object->machine_name);
 
         // Get UnitObject properties...
         $properties = $object->properties;

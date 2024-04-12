@@ -95,7 +95,7 @@ abstract class AbstractUnitsController extends OGameController
             foreach ($objects_row as $object_machine_name) {
                 $count++;
 
-                $object = $objects->getUnitByMachineName($object_machine_name);
+                $object = $objects->getUnitObjectByMachineName($object_machine_name);
 
                 // Get current level of building
                 $amount = $planet->getObjectAmount($object->machine_name);

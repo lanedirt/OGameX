@@ -38,4 +38,19 @@ class Resources
     public function sum(): int {
         return $this->metal->get() + $this->crystal->get() + $this->deuterium->get() + $this->energy->get();
     }
+
+    /**
+     * Multiply all resources by a factor.
+     *
+     * @param int $factor
+     * @return Resources
+     */
+    public function multiply(int $factor): Resources {
+        $this->metal->multiply($factor);
+        $this->crystal->multiply($factor);
+        $this->deuterium->multiply($factor);
+        $this->energy->multiply($factor);
+
+        return $this;
+    }
 }
