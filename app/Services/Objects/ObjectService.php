@@ -1939,7 +1939,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
     {
         // Loop through all buildings and return the one with the matching UID
         // TODO: replace shipobjects and add defenseobjects with concatenated array of all objects.
-        $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
+        $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
             if ($object->machine_name == $machine_name) {
                 return $object;

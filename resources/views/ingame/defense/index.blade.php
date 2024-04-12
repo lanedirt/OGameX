@@ -192,8 +192,9 @@
             </div>
             <div class="content">
                 <ul id="defensebuilding">
-                    @foreach ($units[0] as $building)
-                        <li id="defense{{ $building['count'] }}" class="@if ($building->currently_building)
+                @php /** @var OGame\ViewModels\UnitViewModel $object */ @endphp
+                @foreach ($units[0] as $building)
+                        <li id="defense{{ $building->count }}" class="@if ($building->currently_building)
                                 on
                             @elseif (!$building->requirements_met)
                                 off
@@ -211,155 +212,13 @@
                             <span class="level">
                                 <span class="textlabel">
                                     {{ $building->object->title }}	                                </span>
-                                {{ $building['amount'] }}	                            </span>
+                                {{ $building->amount }}	                            </span>
                         </span>
                                     </a>
                                 </div>
                             </div>
                         </li>
                 @endforeach
-
-                    <!--<li id="defense1" class="off">
-                        <div class="item_box defense401">
-                            <div class="buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Rocket Launcher (0)<br/>Requirements are not met" ref="401" id="details401" href="javascript:void(0);">
-                    <span class="ecke">
-                        <span class="level">
-                            <span class="textlabel">
-                                Rocket Launcher                                </span>
-                            0                            </span>
-                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="defense2" class="off">
-                        <div class="item_box defense402">
-                            <div class="buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Light Laser (0)<br/>Requirements are not met" ref="402" id="details402" href="javascript:void(0);">
-                    <span class="ecke">
-                        <span class="level">
-                            <span class="textlabel">
-                                Light Laser                                </span>
-                            0                            </span>
-                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="defense3" class="off">
-                        <div class="item_box defense403">
-                            <div class="buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Heavy Laser (0)<br/>Requirements are not met" ref="403" id="details403" href="javascript:void(0);">
-                    <span class="ecke">
-                        <span class="level">
-                            <span class="textlabel">
-                                Heavy Laser                                </span>
-                            0                            </span>
-                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="defense4" class="off">
-                        <div class="item_box defense404">
-                            <div class="buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Gauss Cannon (0)<br/>Requirements are not met" ref="404" id="details404" href="javascript:void(0);">
-                    <span class="ecke">
-                        <span class="level">
-                            <span class="textlabel">
-                                Gauss Cannon                                </span>
-                            0                            </span>
-                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="defense5" class="off">
-                        <div class="item_box defense405">
-                            <div class="buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Ion Cannon (0)<br/>Requirements are not met" ref="405" id="details405" href="javascript:void(0);">
-                    <span class="ecke">
-                        <span class="level">
-                            <span class="textlabel">
-                                Ion Cannon                                </span>
-                            0                            </span>
-                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="defense6" class="off">
-                        <div class="item_box defense406">
-                            <div class="buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Plasma Turret (0)<br/>Requirements are not met" ref="406" id="details406" href="javascript:void(0);">
-                    <span class="ecke">
-                        <span class="level">
-                            <span class="textlabel">
-                                Plasma Turret                                </span>
-                            0                            </span>
-                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="defense7" class="off">
-                        <div class="item_box defense407">
-                            <div class="buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Small Shield Dome (0)<br/>Requirements are not met" ref="407" id="details407" href="javascript:void(0);">
-                    <span class="ecke">
-                        <span class="level">
-                            <span class="textlabel">
-                                Small Shield Dome                                </span>
-                            0                            </span>
-                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="defense8" class="off">
-                        <div class="item_box defense408">
-                            <div class="buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Large Shield Dome (0)<br/>Requirements are not met" ref="408" id="details408" href="javascript:void(0);">
-                    <span class="ecke">
-                        <span class="level">
-                            <span class="textlabel">
-                                Large Shield Dome                                </span>
-                            0                            </span>
-                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="defense9" class="off">
-                        <div class="item_box defense502">
-                            <div class="buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Anti-Ballistic Missiles (0)<br/>Requirements are not met" ref="502" id="details502" href="javascript:void(0);">
-                    <span class="ecke">
-                        <span class="level">
-                            <span class="textlabel">
-                                Anti-Ballistic Missiles                                </span>
-                            0                            </span>
-                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="defense10" class="off">
-                        <div class="item_box defense503">
-                            <div class="buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Interplanetary Missiles (0)<br/>Requirements are not met" ref="503" id="details503" href="javascript:void(0);">
-                    <span class="ecke">
-                        <span class="level">
-                            <span class="textlabel">
-                                Interplanetary Missiles                                </span>
-                            0                            </span>
-                    </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>-->
-
                 </ul>
                 <br class="clearfloat">
                 <div class="footer"></div>
