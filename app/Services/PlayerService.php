@@ -279,14 +279,14 @@ class PlayerService
             $planet = $this->planets->childPlanetById($item->planet_id);
 
             // Get object information of building.
-            $building = $planet->objects->getResearchObjects($item->object_id);
+            $object = $this->objects->getResearchObjectById($item->object_id);
+
+            // Update planet and update level of the building that has been processed.
+            $this->setResearchLevel($object->machine_name, $item->object_level_target, true);
 
             // Update build queue record
             $item->processed = 1;
             $item->save();
-
-            // Update planet and update level of the building that has been processed.
-            $this->setResearchLevel($item->object_id, $item->object_level_target, true);
 
             // Build the next item in queue (if there is any)
             $queue->start($this, $item->time_end);
