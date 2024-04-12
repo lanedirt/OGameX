@@ -167,6 +167,7 @@ class BuildingQueueService
      *  Single queue_item or array of queue_items.
      *
      * @return array
+     * @throws Exception
      */
     public function enrich($queue_items) : array
     {
@@ -186,7 +187,7 @@ class BuildingQueueService
         }
 
         foreach ($queue_items as $item) {
-            $object = $this->objects->getObjects($item->object_id);
+            $object = $this->objects->getObjectById($item->object_id);
 
             $time_countdown = $item->time_end - Carbon::now()->timestamp;
             if ($time_countdown < 0) {
@@ -196,10 +197,10 @@ class BuildingQueueService
             $return[] = [
                 'id' => $item->id,
                 'object' => [
-                    'id' => $object['id'],
-                    'title' => $object['title'],
+                    'id' => $object->id,
+                    'title' => $object->title,
                     'level_target' => $item->object_level_target,
-                    'assets' => $object['assets'],
+                    'assets' => $object->assets,
                 ],
                 'time_countdown' => $time_countdown,
                 'time_total' => $item->time_end - $item->time_start,

@@ -239,7 +239,7 @@
                             <tr class="data">
                                 <td title="Production of {{ $build_active['object_amount_remaining'] }} {{ $build_active['object']['title'] }} in progress" class="building tooltip" rowspan="2" valign="top">
                                     <a href="{{ route('shipyard.index', ['openTech' => 210]) }}" onclick="$('.detail_button[ref=210]').click(); return false;">
-                                        <img class="queuePic" width="40" height="40" alt="{{ $build_active['object']['title'] }}" src="{{ asset('img/objects/units/' . $build_active['object']['assets']['img']['small']) }}"></a>
+                                        <img class="queuePic" width="40" height="40" alt="{{ $build_active['object']['title'] }}" src="{{ asset('img/objects/units/' . $build_active['object']['assets']->imgSmall) }}"></a>
                                     <div class="shipSumCount" id="shipSumCount">{{ $build_active['object_amount_remaining'] }}</div>
                                 </td>
                                 <td class="desc timeProdShip">
@@ -284,7 +284,7 @@
 
 
                                     <a class="slideIn" ref="210" href="javascript:void(0);">
-                                        <img width="40" height="40" src="{{ asset('img/objects/units/' . $item['object']['assets']['img']['small']) }}">
+                                        <img width="40" height="40" src="{{ asset('img/objects/units/' . $item['object']['assets']->imgSmall) }}">
                                     </a>
                                     <span class="number">{{ $item['object_amount'] }}</span>
                                 </li>

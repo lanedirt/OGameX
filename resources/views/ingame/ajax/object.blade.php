@@ -139,7 +139,7 @@
             @if (!empty($price->metal->get()))
             <li class="metal tooltip" title="{!! $price->metal->getFormatted() !!} Metal">
                 <div class="resourceIcon metal"></div>
-                <div class="cost @if ($planet->getMetal() < $price->metal->get())
+                <div class="cost @if ($planet->metal()->get() < $price->metal->get())
                         overmark
                         @endif">
                     {!! $price->metal->getFormatted() !!}	                </div>
@@ -148,7 +148,7 @@
             @if (!empty($price->crystal->get()))
             <li class="crystal tooltip" title="{!! $price->crystal->getFormatted() !!} Crystal">
                 <div class="resourceIcon crystal"></div>
-                <div class="cost @if ($planet->getCrystal() < $price->crystal->get())
+                <div class="cost @if ($planet->crystal()->get() < $price->crystal->get())
                         overmark
                         @endif">
                     {!!$price->crystal->getFormatted() !!}	                </div>
@@ -157,7 +157,7 @@
             @if (!empty($price->deuterium->get()))
             <li class="deuterium tooltip" title="{!! $price->deuterium->get() !!} Deuterium">
                 <div class="resourceIcon deuterium"></div>
-                <div class="cost @if ($planet->getDeuterium() < $price->deuterium->get())
+                <div class="cost @if ($planet->deuterium()->get() < $price->deuterium->get())
                         overmark
                         @endif">
                     {!! $price->deuterium->getFormatted() !!}	                </div>
@@ -166,7 +166,7 @@
             @if (!empty($price->energy->get()))
                 <li class="energy tooltip" title="{!! $price->energy->getFormatted() !!} Energy">
                     <div class="resourceIcon energy"></div>
-                    <div class="cost @if ($planet->energy() < $price->energy->get())
+                    <div class="cost @if ($planet->energy()->get() < $price->energy->get())
                             overmark
                             @endif">
                         {!! $price->energy->getFormatted() !!}	                </div>

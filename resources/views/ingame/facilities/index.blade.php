@@ -281,7 +281,7 @@
                             <td class="first" rowspan="3">
                                 <div>
                                     <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="">
-                                        <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/buildings/' . $build_active['object']['assets']['img']['small']) !!}" alt="{!! $build_active['object']['title'] !!}">
+                                        <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/buildings/' . $build_active['object']['assets']->imgSmall) !!}" alt="{!! $build_active['object']['title'] !!}">
                                     </a>
                                     <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?">
                                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="15" width="15">
@@ -324,7 +324,7 @@
                                 @foreach ($build_queue as $item)
                                     <td>
                                         <a href="javascript:void(0);" class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet" onclick="cancelProduction({!! $item['object']['id'] !!},{!! $item['id'] !!},&quot;Cancel expansion of {!! $item['object']['title'] !!} to level {!! $item['object']['level_target'] !!}?&quot;); return false;" title="">
-                                            <img class="queuePic" src="{!! asset('img/objects/buildings/' . $item['object']['assets']['img']['micro']) !!}" height="28" width="28" alt="{!! $item['object']['title'] !!}">
+                                            <img class="queuePic" src="{!! asset('img/objects/buildings/' . $item['object']['assets']->imgMicro) !!}" height="28" width="28" alt="{!! $item['object']['title'] !!}">
                                             <span>{!! $item['object']['level_target'] !!}</span>
                                         </a>
                                     </td>

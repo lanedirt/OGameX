@@ -58,12 +58,12 @@ class Http200Test extends AccountTestCase
         $objectService = new ObjectService();
 
         foreach ($objectService->getBuildingObjects() as $object) {
-            $response = $this->get('ajax/resources?type=' . $object['id']);
+            $response = $this->get('ajax/resources?type=' . $object->id);
 
             try {
                 $response->assertStatus(200);
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
-                $customMessage = 'AJAX resource page for "' . $object['title'] . '" does not return HTTP 200.';
+                $customMessage = 'AJAX resource page for "' . $object->title . '" does not return HTTP 200.';
                 // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
                 $this->fail($customMessage);
             }
@@ -79,12 +79,12 @@ class Http200Test extends AccountTestCase
         $objectService = new ObjectService();
 
         foreach ($objectService->getStationObjects() as $object) {
-            $response = $this->get('ajax/facilities?type=' . $object['id']);
+            $response = $this->get('ajax/facilities?type=' . $object->id);
 
             try {
                 $response->assertStatus(200);
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
-                $customMessage = 'AJAX facilities page for "' . $object['title'] . '" does not return HTTP 200.';
+                $customMessage = 'AJAX facilities page for "' . $object->title . '" does not return HTTP 200.';
                 // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
                 $this->fail($customMessage);
             }
@@ -100,12 +100,12 @@ class Http200Test extends AccountTestCase
         $objectService = new ObjectService();
 
         foreach ($objectService->getResearchObjects() as $object) {
-            $response = $this->get('ajax/research?type=' . $object['id']);
+            $response = $this->get('ajax/research?type=' . $object->id);
 
             try {
                 $response->assertStatus(200);
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
-                $customMessage = 'AJAX research page for "' . $object['title'] . '" does not return HTTP 200.';
+                $customMessage = 'AJAX research page for "' . $object->title . '" does not return HTTP 200.';
                 // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
                 $this->fail($customMessage);
             }
@@ -121,12 +121,12 @@ class Http200Test extends AccountTestCase
         $objectService = new ObjectService();
 
         foreach ($objectService->getShipObjects() as $object) {
-            $response = $this->get('ajax/shipyard?type=' . $object['id']);
+            $response = $this->get('ajax/shipyard?type=' . $object->id);
 
             try {
                 $response->assertStatus(200);
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
-                $customMessage = 'AJAX shipyard page for "' . $object['title'] . '" does not return HTTP 200.';
+                $customMessage = 'AJAX shipyard page for "' . $object->title . '" does not return HTTP 200.';
                 // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
                 $this->fail($customMessage);
             }
@@ -142,12 +142,12 @@ class Http200Test extends AccountTestCase
         $objectService = new ObjectService();
 
         foreach ($objectService->getDefenseObjects() as $object) {
-            $response = $this->get('ajax/defense?type=' . $object['id']);
+            $response = $this->get('ajax/defense?type=' . $object->id);
 
             try {
                 $response->assertStatus(200);
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
-                $customMessage = 'AJAX defense page for "' . $object['title'] . '" does not return HTTP 200.';
+                $customMessage = 'AJAX defense page for "' . $object->title . '" does not return HTTP 200.';
                 // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
                 $this->fail($customMessage);
             }
@@ -163,12 +163,12 @@ class Http200Test extends AccountTestCase
         $objectService = new ObjectService();
 
         foreach ($objectService->getObjects() as $object) {
-            $response = $this->get('ajax/techtree?tab=2&object_id=' . $object['id']);
+            $response = $this->get('ajax/techtree?tab=2&object_id=' . $object->id);
 
             try {
                 $response->assertStatus(200);
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
-                $customMessage = 'AJAX techtree page for "' . $object['title'] . '" does not return HTTP 200.';
+                $customMessage = 'AJAX techtree page for "' . $object->title . '" does not return HTTP 200.';
                 // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
                 $this->fail($customMessage);
             }

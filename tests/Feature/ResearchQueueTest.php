@@ -5,6 +5,7 @@ namespace Feature;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use OGame\Models\Resources;
 use Tests\AccountTestCase;
 use Tests\TestCase;
 
@@ -20,9 +21,9 @@ class ResearchQueueTest extends AccountTestCase
     public function testResearchQueueEnergyTechnology(): void
     {
         // Add resources to planet that test requires.
-        $this->planetAddResources(['crystal' => 800, 'deuterium' => 400]);
+        $this->planetAddResources(new Resources(0,800,400,0));
         // Set the research lab to level 1.
-        $this->planetSetObjectLevel(31, 1, true);
+        $this->planetSetObjectLevel('research_lab', 1);
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
@@ -84,9 +85,9 @@ class ResearchQueueTest extends AccountTestCase
     public function testResearchQueueEnergyTechnologyFastBuild(): void
     {
         // Add resources to planet that test requires.
-        $this->planetAddResources(['crystal' => 800, 'deuterium' => 400]);
+        $this->planetAddResources(new Resources(0,800,400,0));
         // Set the research lab to level 1.
-        $this->planetSetObjectLevel(31, 1, true);
+        $this->planetSetObjectLevel('research_lab', 1);
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
@@ -144,9 +145,9 @@ class ResearchQueueTest extends AccountTestCase
     public function testResearchQueueMultiQueue(): void
     {
         // Add resources to planet that test requires.
-        $this->planetAddResources(['crystal' => 2400, 'deuterium' => 1200]);
+        $this->planetAddResources(new Resources(0,2400,1200,0));
         // Set the research lab to level 1.
-        $this->planetSetObjectLevel(31, 1, true);
+        $this->planetSetObjectLevel('research_lab', 1);
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
@@ -212,9 +213,9 @@ class ResearchQueueTest extends AccountTestCase
     public function testResearchQueueNonExistentPlanet(): void
     {
         // Add resources to planet that test requires.
-        $this->planetAddResources(['crystal' => 800, 'deuterium' => 400]);
+        $this->planetAddResources(new Resources(0,800,400,0));
         // Set the research lab to level 1.
-        $this->planetSetObjectLevel(31, 1, true);
+        $this->planetSetObjectLevel('research_lab', 1);
 
         // ---
         // Step 1: Issue a request to research energy technology

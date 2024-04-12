@@ -178,34 +178,45 @@ class TechtreeController extends OGameController
      */
     public function getRapidfireTable(GameObject $object, ObjectService $objects): View
     {
-        if ($object->type != 'unit') {
+        if ($object->type != 'ship' && $object->type != 'defense') {
             return view('empty');
         }
 
         // Loop through all other objects and see if they have rapidfire against this object
         // if so, create a new array with the rapidfire data same as above.
+
+        // Rapidfire array structure:
+        // [
+        //     'rapidfire' => GameObjectRapidfire,
+        //      'object' => GameObject
+        // ]
+
         $rapidfire_from = [];
         foreach ($objects->getObjects() as $from_object) {
-            if (empty($from_object['rapidfire'])) {
+            if (empty($from_object->rapidfire)) {
                 continue;
             }
 
-            foreach ($from_object['rapidfire'] as $target_objectid => $data) {
-                if ($target_objectid == $object['id']) {
-                    $rapidfire_from[$from_object['id']] = $data;
-                    $rapidfire_from[$from_object['id']]['object'] = $from_object;
+            foreach ($from_object->rapidfire as $rapidfire) {
+                if ($rapidfire->object_machine_name == $object->machine_name) {
+                    $rapidfire_from[$from_object->id] = [
+                        'rapidfire' => $rapidfire,
+                        'object' => $from_object,
+                    ];
                 }
             }
         }
 
         // Get rapidfire against other objects.
         $rapidfire_against = [];
-        if (!empty($object['rapidfire'])) {
-            foreach ($object['rapidfire'] as $target_objectid => $data) {
-                // Add objefct name to rapidfire array
-                $target_object = $objects->getObjects($target_objectid);
-                $rapidfire_against[$target_objectid] = $data;
-                $rapidfire_against[$target_objectid]['object'] = $target_object;
+        if (!empty($object->rapidfire)) {
+            foreach ($object->rapidfire as $rapidfire) {
+                // Add object name to rapidfire array
+                $object = $objects->getObjectByMachineName($rapidfire->object_machine_name);
+                $rapidfire_against[$object->id] = [
+                    'rapidfire' => $rapidfire,
+                    'object' => $object,
+                ];
             }
         }
 

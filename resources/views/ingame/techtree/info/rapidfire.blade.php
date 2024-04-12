@@ -1,13 +1,13 @@
 @if (!empty($rapidfire_against) || !empty($rapidfire_from))
     <ul class="rapid_fire">
-        @foreach ($rapidfire_from as $from => $value)
-            <li class="rapid_fire_from {{ $value['object']['class_name'] }}">
+        @foreach ($rapidfire_from as $from => $rapidfire_data)
+            <li class="rapid_fire_from {{ $rapidfire_data['object']->class_name }}">
                 Rapidfire from
-                <a href="#TODO_page=ajax&amp;component=technologytree&amp;ajax=1&amp;technologyId={{ $from }}&amp;tab=2" class="overlay" data-overlay-same="true">{{ $value['object']['title'] }}</a>:
-                <span class="value" data-value="{{ $value['amount'] }}">
+                <a href="#TODO_page=ajax&amp;component=technologytree&amp;ajax=1&amp;technologyId={{ $from }}&amp;tab=2" class="overlay" data-overlay-same="true">{{ $rapidfire_data['object']->title }}</a>:
+                <span class="value" data-value="{{ $rapidfire_data['rapidfire']->amount }}">
                     @php
                         // Assuming $value['chance'] is your float number
-                        $chance = $value['chance'];
+                        $chance = $rapidfire_data['rapidfire']->chance;
 
                         // Determine the correct number of decimal places
                         if (floor($chance) == $chance) {
@@ -26,21 +26,21 @@
                         }
 
                         // Format the amount normally since it's likely an integer
-                        $formattedAmount = number_format($value['amount']);
+                        $formattedAmount = number_format($rapidfire_data['rapidfire']->amount);
                     @endphp
                     {{ $formattedChance }}% ({{ $formattedAmount }})
                 </span>
             </li>
         @endforeach
 
-        @foreach ($rapidfire_against as $target => $value)
-            <li class="rapid_fire_against {{ $value['object']['class_name'] }}">
+        @foreach ($rapidfire_against as $target => $rapidfire_data)
+            <li class="rapid_fire_against {{ $rapidfire_data['object']->class_name }}">
                 Rapidfire against
-                <a href="#TODO_page=ajax&amp;component=technologytree&amp;ajax=1&amp;technologyId={{ $target }}&amp;tab=2" class="overlay" data-overlay-same="true">{{ $value['object']['title'] }}</a>:
-                <span class="value" data-value="{{ $value['amount'] }}">
+                <a href="#TODO_page=ajax&amp;component=technologytree&amp;ajax=1&amp;technologyId={{ $target }}&amp;tab=2" class="overlay" data-overlay-same="true">{{ $rapidfire_data['object']->title }}</a>:
+                <span class="value" data-value="{{ $rapidfire_data['rapidfire']->amount }}">
                     @php
                         // Assuming $value['chance'] is your float number
-                        $chance = $value['chance'];
+                        $chance = $rapidfire_data['rapidfire']->chance;
 
                         // Determine the correct number of decimal places
                         if (floor($chance) == $chance) {
@@ -59,7 +59,7 @@
                         }
 
                         // Format the amount normally since it's likely an integer
-                        $formattedAmount = number_format($value['amount']);
+                        $formattedAmount = number_format($rapidfire_data['rapidfire']->amount);
                     @endphp
                     {{ $formattedChance }}% ({{ $formattedAmount }})
                 </span>

@@ -210,7 +210,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('espionage_probe', 80, 5),
             new GameObjectRapidfire('solar_satellite', 80, 5),
             new GameObjectRapidfire('light_laser', 90, 10),
-            new GameObjectRapidfire('battle_cruiser', 50, 2),
+            new GameObjectRapidfire('battlecruiser', 50, 2),
         ];
         $destroyer->properties = new GameObjectProperties($destroyer, 110000, 500, 200, 5000, 2000, 1000);
         $destroyer->assets = new GameObjectAssets();
@@ -254,7 +254,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('heavy_laser', 99, 100),
             new GameObjectRapidfire('ion_cannon', 99, 100),
             new GameObjectRapidfire('gauss_cannon', 98, 50),
-            new GameObjectRapidfire('battle_cruiser', 93.34, 15),
+            new GameObjectRapidfire('battlecruiser', 93.34, 15),
         ];
         $deathstar->properties = new GameObjectProperties($deathstar, 9000000, 50000, 200000, 100, 1000000, 1);
         $deathstar->assets = new GameObjectAssets();

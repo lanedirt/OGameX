@@ -688,6 +688,12 @@ class PlanetService
         // every 30 seconds it still gets the 30 per hour overall instead
         // of getting 0 because every update the added resource rounds down to 0.
 
+        // TODO: add unittest to check that adding resources to planet via transport
+        // missions works correctly and that the resources are added to the planet.
+        // But that resources are not added by mine production. And that when resources
+        // are added in bulk e.g. after 2 days of inactivity it still maxes out at the
+        // storage limit.
+
         // TODO: another possible issue can arise when there are multiple mines
         // in build queue and planet is refreshed at a later time so everything
         // is processed in bulk... in this case it means that resources would update
@@ -700,41 +706,43 @@ class PlanetService
             // production.
             $hours_difference = ($current_time - $time_last_update) / 3600;
 
+            $add_resources = new Resources(0,0,0,0);
+
             // @TODO: add transactions for updating resources to prevent request collisions.
             // Metal calculation.
             $max_metal = $this->metalStorage()->get();
             if ($this->metal()->get() < $max_metal) {
-                $resources_add['metal'] = ($this->planet->metal_production * $hours_difference);
+                $add_resources->metal->add(new Resource($this->planet->metal_production * $hours_difference));
 
                 // Prevent adding more metal than the max limit can support (storage limit).
-                if (($this->metal()->get() + $resources_add['metal']) > $max_metal) {
-                    $resources_add['metal'] = $max_metal - $this->metal()->get();
+                if (($this->metal()->get() + $add_resources->metal->get()) > $max_metal) {
+                    $add_resources->metal->set($max_metal - $this->metal()->get());
                 }
             }
 
             // Crystal calculation.
             $max_crystal = $this->crystalStorage()->get();
             if ($this->crystal()->get() < $max_crystal) {
-                $resources_add['crystal'] = ($this->planet->crystal_production * $hours_difference);
+                $add_resources->crystal->add(new Resource($this->planet->crystal_production * $hours_difference));
 
                 // Prevent adding more metal than the max limit can support (storage limit).
-                if (($this->crystal()->get() + $resources_add['crystal']) > $max_crystal) {
-                    $resources_add['crystal'] = $max_metal - $this->crystal()->get();
+                if (($this->crystal()->get() + $add_resources->crystal->get()) > $max_crystal) {
+                    $add_resources->crystal->set($max_crystal - $this->crystal()->get());
                 }
             }
 
             // Deuterium calculation.
             $max_deuterium = $this->deuteriumStorage()->get();
             if ($this->deuterium()->get() < $max_deuterium) {
-                $resources_add['deuterium'] = ($this->planet->deuterium_production * $hours_difference);
+                $add_resources->deuterium->add(new Resource($this->planet->deuterium_production * $hours_difference));
 
                 // Prevent adding more metal than the max limit can support (storage limit).
-                if (($this->deuterium()->get() + $resources_add['deuterium']) > $max_deuterium) {
-                    $resources_add['deuterium'] = $max_deuterium - $this->deuterium()->get();
+                if (($this->deuterium()->get() + $add_resources->deuterium->get()) > $max_deuterium) {
+                    $add_resources->deuterium->set($max_deuterium - $this->deuterium()->get());
                 }
             }
 
-            $this->addResources(new Resources($resources_add['metal'], $resources_add['crystal'], $resources_add['deuterium'], 0), $save_planet);
+            $this->addResources($add_resources, $save_planet);
             $this->planet->time_last_update = $current_time;
 
             if ($save_planet) {
@@ -1320,11 +1328,11 @@ class PlanetService
         $resources_spent = 0;
 
         // Buildings (100%)
-        $building_objects = $this->objects->getBuildingObjects() + $this->objects->getStationObjects();
+        $building_objects = array_merge($this->objects->getBuildingObjects(), $this->objects->getStationObjects());
         foreach ($building_objects as $object) {
-            for ($i = 1; $i <= $this->getObjectLevel($object['id']); $i++) {
+            for ($i = 1; $i <= $this->getObjectLevel($object->machine_name); $i++) {
                 // Concatenate price which is array of metal, crystal and deuterium.
-                $raw_price = $this->objects->getObjectRawPrice($object['id'], $i);
+                $raw_price = $this->objects->getObjectRawPrice($object->machine_name, $i);
                 $resources_spent += $raw_price->sum();
             }
         }
@@ -1332,14 +1340,14 @@ class PlanetService
         // Defense (100%)
         $defense_objects = $this->objects->getDefenseObjects();
         foreach ($defense_objects as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
             $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum();
         }
 
         // Civil ships (50%)
         $civil_ships = $this->objects->getCivilShipObjects();
         foreach ($civil_ships as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object['id']);
+            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
             $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum() * 0.5;
         }
 

@@ -25,6 +25,16 @@ use OGame\Services\PlayerService;
 class ObjectService
 {
     /**
+     * Get all objects.
+     *
+     * @return array<GameObject>
+     */
+    public function getObjects() : array
+    {
+        return array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
+    }
+
+    /**
      * Get all buildings.
      *
      * @return array<BuildingObject>

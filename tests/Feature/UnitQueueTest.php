@@ -4,6 +4,7 @@ namespace Feature;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
+use OGame\Models\Resources;
 use Tests\AccountTestCase;
 
 /**
@@ -24,7 +25,7 @@ class UnitQueueTest extends AccountTestCase
         // Set shipyard to level 1.
         $this->planetSetObjectLevel(21, 1, true);
         // Set the research lab to level 1.
-        $this->planetSetObjectLevel(31, 1, true);
+        $this->planetSetObjectLevel('research_lab', 1, true);
         // Set energy technology to level 1.
         $this->playerSetResearchLevel(113, 1);
         // Set combustion drive to level 1.
@@ -39,7 +40,7 @@ class UnitQueueTest extends AccountTestCase
     {
         $this->basicSetup();
         // Add resources to planet that test requires.
-        $this->planetAddResources(['metal' => 30000, 'crystal' => 10000]);
+        $this->planetAddResources(new Resources(30000,10000, 0,0));
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
@@ -114,9 +115,9 @@ class UnitQueueTest extends AccountTestCase
 
         // Add more specific resources to planet that test requires.
         // For 5 light fighters
-        $this->planetAddResources(['metal' => 15000, 'crystal' => 5000]);
+        $this->planetAddResources(new Resources(15000,5000,0,0));
         // For 10 solar satellites
-        $this->planetAddResources(['crystal' => 20000, 'deuterium' => 5000]);
+        $this->planetAddResources(new Resources(0,20000,50000,0));
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
@@ -204,7 +205,7 @@ class UnitQueueTest extends AccountTestCase
         $this->basicSetup();
 
         // Add resources to planet that test requires.
-        $this->planetAddResources(['metal' => 20000]);
+        $this->planetAddResources(new Resources(20000,0,0,0));
         // Set the robotics factory to level 2
         $this->planetSetObjectLevel(14, 2, true);
         // Set shipyard to level 1.
@@ -279,7 +280,7 @@ class UnitQueueTest extends AccountTestCase
     {
         $this->basicSetup();
         // Add resources to planet that test requires.
-        $this->planetAddResources(['metal' => 30000, 'crystal' => 10000]);
+        $this->planetAddResources(new Resources(30000,10000,0,0));
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);

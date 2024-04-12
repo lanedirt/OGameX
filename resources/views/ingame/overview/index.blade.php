@@ -200,7 +200,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                 <td class="first" rowspan="3">
                                     <div>
                                         <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="">
-                                            <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/buildings/' . $build_active['object']['assets']['img']['small']) !!}" alt="{!! $build_active['object']['title'] !!}">
+                                            <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/buildings/' . $build_active['object']['assets']->imgSmall) !!}" alt="{!! $build_active['object']['title'] !!}">
                                         </a>
                                         <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="15" width="15">
@@ -245,7 +245,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                     @foreach ($build_queue as $item)
                                         <td>
                                             <a href="javascript:void(0);" class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet" onclick="cancelProduction({!! $item['object']['id'] !!},{!! $item['id'] !!},&quot;Cancel expansion of {!! $item['object']['title'] !!} to level {!! $item['object']['level_target'] !!}?&quot;); return false;" title="">
-                                                <img class="queuePic" src="{!! asset('img/objects/buildings/' . $item['object']['assets']['img']['micro']) !!}" height="28" width="28" alt="{!! $item['object']['title'] !!}">
+                                                <img class="queuePic" src="{!! asset('img/objects/buildings/' . $item['object']['assets']->imgMicro) !!}" height="28" width="28" alt="{!! $item['object']['title'] !!}">
                                                 <span>{!! $item['object']['level_target'] !!}</span>
                                             </a>
                                         </td>
@@ -284,7 +284,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                 <td class="first" rowspan="3">
                                     <div>
                                         <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelResearch({!! $research_active['object']['id'] !!},{!! $research_active['id'] !!},&quot;Cancel expansion of {!! $research_active['object']['title'] !!} to level {!! $research_active['object']['level_target'] !!}?&quot;); return false;" title="">
-                                            <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/research/' . $research_active['object']['assets']['img']['small']) !!}" alt="{!! $research_active['object']['title'] !!}">
+                                            <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/research/' . $research_active['object']['assets']->imgSmall) !!}" alt="{!! $research_active['object']['title'] !!}">
                                         </a>
                                         <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelResearch({!! $research_active['object']['id'] !!},{!! $research_active['id'] !!},&quot;Cancel expansion of {!! $research_active['object']['title'] !!} to level {!! $research_active['object']['level_target'] !!}?&quot;); return false;" title="Cancel expansion of {!! $research_active['object']['title'] !!} to level {!! $research_active['object']['level_target'] !!}?">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="15" width="15">
@@ -329,7 +329,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                     @foreach ($research_queue as $item)
                                         <td>
                                             <a href="javascript:void(0);" class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet" onclick="cancelResearch({!! $item['object']['id'] !!},{!! $item['id'] !!},&quot;Cancel expansion of {!! $item['object']['title'] !!} to level {!! $item['object']['level_target'] !!}?&quot;); return false;" title="">
-                                                <img class="queuePic" src="{!! asset('img/objects/research/' . $item['object']['assets']['img']['micro']) !!}" height="28" width="28" alt="{!! $item['object']['title'] !!}">
+                                                <img class="queuePic" src="{!! asset('img/objects/research/' . $item['object']['assets']->imgMicro) !!}" height="28" width="28" alt="{!! $item['object']['title'] !!}">
                                                 <span>{!! $item['object']['level_target'] !!}</span>
                                             </a>
                                         </td>
@@ -367,7 +367,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                             <tr class="data">
                                 <td title="Production of {{ $ship_active['object_amount_remaining'] }} {{ $ship_active['object']['title'] }} in progress" class="building tooltip" rowspan="2" valign="top">
                                     <a href="{{ route('shipyard.index', ['openTech' => $ship_active['object']['id']]) }}" onclick="$('.detail_button[ref=210]').click(); return false;">
-                                        <img class="queuePic" width="40" height="40" alt="{{ $ship_active['object']['title'] }}" src="{{ asset('img/objects/units/' . $ship_active['object']['assets']['img']['small']) }}"></a>
+                                        <img class="queuePic" width="40" height="40" alt="{{ $ship_active['object']['title'] }}" src="{{ asset('img/objects/units/' . $ship_active['object']['assets']->imgSmall) }}"></a>
                                     <div class="shipSumCount" id="shipSumCount">{{ $ship_active['object_amount_remaining'] }}</div>
                                 </td>
                                 <td class="desc timeProdShip">
@@ -410,7 +410,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                             @foreach ($ship_queue as $item)
                             <td class="tooltip" title="{{ $item['object_amount'] }}x {{ $item['object']['title'] }} in the building queue">
                                 <a class="queue_link dark_highlight_tablet" href="{{ route('shipyard.index', ['openTech' => $item['object']['id']]) }}">
-                                    <img class="queuePic" src="{{ asset('img/objects/units/' . $item['object']['assets']['img']['micro']) }}" height="28" width="28" alt="{{ $item['object']['title'] }}">
+                                    <img class="queuePic" src="{{ asset('img/objects/units/' . $item['object']['assets']->imgMicro) }}" height="28" width="28" alt="{{ $item['object']['title'] }}">
                                     {{ $item['object_amount'] }}                        </a>
                             </td>
                             @endforeach
