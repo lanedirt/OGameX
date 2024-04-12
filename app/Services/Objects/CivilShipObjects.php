@@ -21,62 +21,12 @@ class CivilShipObjects
     {
         $buildingObjectsNew = [];
 
-        // --- Deathstar ---
-        $deathstar = new ShipObject();
-        $deathstar->id = 214;
-        $deathstar->title = 'Deathstar';
-        $deathstar->machine_name = 'deathstar';
-        $deathstar->description = 'The destructive power of the deathstar is unsurpassed.';
-        $deathstar->description_long = 'The Deathstar is the most powerful ship ever created. This moon sized ship is the only ship that can be seen with the naked eye on the ground. By the time you spot it, unfortunately, it is too late to do anything.
-        
-        Armed with a gigantic graviton cannon, the most advanced weapons system ever created in the Universe, this massive ship has not only the capability of destroying entire fleets and defenses, but also has the capability of destroying entire moons. Only the most advanced empires have the capability to build a ship of this mammoth size.';
-
-        $deathstar->requirements = [
-            new GameObjectRequirement('shipyard', 12),
-            new GameObjectRequirement('hyperspace_drive', 7),
-            new GameObjectRequirement('hyperspace_technology', 6),
-            new GameObjectRequirement('graviton_technology', 1),
-        ];
-        $deathstar->price = new GameObjectPrice(5000000, 4000000, 1000000, 0);
-        $deathstar->rapidfire = [
-            new GameObjectRapidfire('espionage_probe', 99.6, 250),
-            new GameObjectRapidfire('solar_satellite', 99.6, 250),
-            new GameObjectRapidfire('light_fighter', 99.5, 200),
-            new GameObjectRapidfire('heavy_fighter', 99, 100),
-            new GameObjectRapidfire('cruiser', 96.97, 33),
-            new GameObjectRapidfire('battleship', 96.67, 30),
-            new GameObjectRapidfire('bomber', 96, 25),
-            new GameObjectRapidfire('destroyer', 80, 5),
-            new GameObjectRapidfire('small_cargo', 99.6, 250),
-            new GameObjectRapidfire('large_cargo', 99.6, 250),
-            new GameObjectRapidfire('colony_ship', 99.6, 250),
-            new GameObjectRapidfire('recycler', 99.6, 250),
-            new GameObjectRapidfire('rocket_launcher', 99.5, 200),
-            new GameObjectRapidfire('light_laser', 99.5, 200),
-            new GameObjectRapidfire('heavy_laser', 99, 100),
-            new GameObjectRapidfire('ion_cannon', 99, 100),
-            new GameObjectRapidfire('gauss_cannon', 98, 50),
-            new GameObjectRapidfire('battle_cruiser', 93.34, 15),
-        ];
-
-        $deathstar->properties = new GameObjectProperties();
-        $deathstar->properties->structural_integrity = 9000000;
-        $deathstar->properties->shield = 50000;
-        $deathstar->properties->attack = 200000;
-        $deathstar->properties->speed = 100;
-        $deathstar->properties->capacity = 1000000;
-        $deathstar->properties->fuel = 1;
-
-        $deathstar->assets = new GameObjectAssets();
-        $deathstar->assets->imgMicro = 'deathstar_small.jpg';
-        $deathstar->assets->imgSmall = 'robot_factory_micro.jpg';
-        $buildingObjectsNew[] = $deathstar;
-
         // --- Small Cargo ---
         $smallCargo = new ShipObject();
         $smallCargo->id = 202;
         $smallCargo->title = 'Small Cargo';
         $smallCargo->machine_name = 'small_cargo';
+        $smallCargo->class_name = 'transporterSmall';
         $smallCargo->description = 'The small cargo is an agile ship which can quickly transport resources to other planets.';
         $smallCargo->description_long = 'Transporters are about as large as fighters, yet they forego high-performance drives and on-board weaponry for gains in their freighting capacity. As a result, a transporter should only be sent into battles when it is accompanied by combat-ready ships.
         
@@ -110,6 +60,7 @@ class CivilShipObjects
         $largeCargo->id = 203;
         $largeCargo->title = 'Large Cargo';
         $largeCargo->machine_name = 'large_cargo';
+        $largeCargo->class_name = 'transporterLarge';
         $largeCargo->description = 'This cargo ship has a much larger cargo capacity than the small cargo, and is generally faster thanks to an improved drive.';
         $largeCargo->description_long = 'As time evolved, the raids on colonies resulted in larger and larger amounts of resources being captured. As a result, Small Cargos were being sent out in mass numbers to compensate for the larger captures. It was quickly learned that a new class of ship was needed to maximize resources captured in raids, yet also be cost
 effective. After much development, the Large Cargo was born.
@@ -141,6 +92,7 @@ To maximize the resources that can be stored in the holds, this ship has little 
         $colonyShip->id = 208;
         $colonyShip->title = 'Colony Ship';
         $colonyShip->machine_name = 'colony_ship';
+        $colonyShip->class_name = 'colonyShip';
         $colonyShip->description = 'Vacant planets can be colonised with this ship.';
         $colonyShip->description_long = 'In the 20th Century, Man decided to go for the stars. First, it was landing on the Moon. After that, a space station was built. Mars was colonized soon afterwards. It was soon determined that our growth depended on colonizing other worlds. Scientists and engineers all over the world gathered together to develop mans greatest achievement ever. The Colony Ship is born.
 
@@ -171,6 +123,7 @@ This ship is used to prepare a newly discovered planet for colonization. Once it
         $recycler->id = 209;
         $recycler->title = 'Recycler';
         $recycler->machine_name = 'recycler';
+        $recycler->class_name = 'recycler';
         $recycler->description = 'Recyclers are the only ships able to harvest debris fields floating in a planet`s orbit after combat.';
         $recycler->description_long = 'Combat in space took on ever larger scales. Thousands of ships were destroyed and the resources of their remains seemed to be lost to the debris fields forever. Normal cargo ships couldn`t get close enough to these fields without risking substantial damage.
 A recent development in shield technologies efficiently bypassed this issue. A new class of ships were created that were similar to the Transporters: the Recyclers. Their efforts helped to gather the thought-lost resources and then salvage them. The debris no longer posed any real danger thanks to the new shields.
@@ -207,6 +160,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $espionageProbe->id = 210;
         $espionageProbe->title = 'Espionage Probe';
         $espionageProbe->machine_name = 'espionage_probe';
+        $espionageProbe->class_name = 'espionageProbe';
         $espionageProbe->description = 'Espionage probes are small, agile drones that provide data on fleets and planets over great distances.';
         $espionageProbe->description_long = 'Espionage probes are small, agile drones that provide data on fleets and planets. Fitted with specially designed engines, it allows them to cover vast distances in only a few minutes. Once in orbit around the target planet, they quickly collect data and transmit the report back via your Deep Space Network for evaluation. But there is a risk to the intelligent gathering aspect. During the time the report is transmitted back to your network, the signal can be detected by the target and the probes can be destroyed.';
         $espionageProbe->requirements = [
@@ -232,6 +186,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $solarSatellite->id = 212;
         $solarSatellite->title = 'Solar Satellite';
         $solarSatellite->machine_name = 'solar_satellite';
+        $solarSatellite->class_name = 'solarSatellite';
         $solarSatellite->description = 'Solar satellites are simple platforms of solar cells, located in a high, stationary orbit. They gather sunlight and transmit it to the ground station via laser. A solar satellite produces 25 energy on this planet.';
 
         $solarSatellite->description_long = 'Scientists discovered a method of transmitting electrical energy to the colony using specially designed satellites in a geosynchronous orbit. Solar Satellites gather solar energy and transmit it to a ground station using advanced laser technology. The efficiency of a solar satellite depends on the strength of the solar radiation it receives. In principle, energy production in orbits closer to the sun is greater than for planets in orbits distant from the sun.

@@ -26,6 +26,7 @@ class MilitaryShipObjects
         $lightFighter->id = 204;
         $lightFighter->title = 'Light Fighter';
         $lightFighter->machine_name = 'light_fighter';
+        $lightFighter->class_name = 'fighterLight';
         $lightFighter->description = 'This is the first fighting ship all emperors will build. The light fighter is an agile ship, but vulnerable on its own. In mass numbers, they can become a great threat to any empire. They are the first to accompany small and large cargoes to hostile planets with minor defenses.';
         $lightFighter->description_long = 'This is the first fighting ship all emperors will build. The light fighter is an agile ship, but vulnerable when it is on its own. In mass numbers, they can become a great threat to any empire. They are the first to accompany small and large cargoes to hostile planets with minor defenses.';
         $lightFighter->requirements = [
@@ -54,6 +55,7 @@ class MilitaryShipObjects
         $heavyFighter->id = 205;
         $heavyFighter->title = 'Heavy Fighter';
         $heavyFighter->machine_name = 'heavy_fighter';
+        $heavyFighter->class_name = 'fighterHeavy';
         $heavyFighter->description = 'This fighter is better armoured and has a higher attack strength than the light fighter.';
         $heavyFighter->description_long = 'In developing the heavy fighter, researchers reached a point at which conventional drives no longer provided sufficient performance. In order to move the ship optimally, the impulse drive was used for the first time. This increased the costs, but also opened new possibilities. By using this drive, there was more energy left for weapons and shields; in addition, high-quality materials were used for this new family of fighters. With these changes, the heavy fighter represents a new era in ship technology and is the basis for cruiser technology.
             
@@ -88,6 +90,7 @@ class MilitaryShipObjects
         $cruiser->id = 206;
         $cruiser->title = 'Cruiser';
         $cruiser->machine_name = 'cruiser';
+        $cruiser->class_name = 'cruiser';
         $cruiser->description = 'Cruisers are armoured almost three times as heavily as heavy fighters and have more than twice the firepower. In addition, they are very fast.';
         $cruiser->description_long = 'With the development of the heavy laser and the ion cannon, light and heavy fighters encountered an alarmingly high number of defeats that increased with each raid. Despite many modifications, weapons strength and armour changes, it could not be increased fast enough to effectively counter these new defensive measures. Therefore, it was decided to build a new class of ship that combined more armor and more firepower. As a result of years of research and development, the Cruiser was born.
         
@@ -125,6 +128,7 @@ class MilitaryShipObjects
         $battleship->id = 207;
         $battleship->title = 'Battleship';
         $battleship->machine_name = 'battle_ship';
+        $battleship->class_name = 'battleship';
         $battleship->description = 'Battleships form the backbone of a fleet. Their heavy cannons, high speed, and large cargo holds make them opponents to be taken seriously.';
         $battleship->description_long = 'Once it became apparent that the cruiser was losing ground to the increasing number of defense structures it was facing, and with the loss of ships on missions at unacceptable levels, it was decided to build a ship that could face those same type of defense structures with as little loss as possible. After extensive development, the Battleship was born. Built to withstand the largest of battles, the Battleship features large cargo spaces, heavy cannons, and high hyperdrive speed. Once developed, it eventually turned out to be the backbone of every raiding Emperors fleet.';
         $battleship->requirements = [
@@ -155,6 +159,7 @@ class MilitaryShipObjects
         $battlecruiser->id = 215;
         $battlecruiser->title = 'Battlecruiser';
         $battlecruiser->machine_name = 'battlecruiser';
+        $battlecruiser->class_name = 'interceptor';
         $battlecruiser->description = 'The Battlecruiser is highly specialized in the interception of hostile fleets.';
         $battlecruiser->description_long = 'This ship is one of the most advanced fighting ships ever to be developed, and is particularly deadly when it comes to destroying attacking fleets. With its improved laser cannons on board and advanced Hyperspace engine, the Battlecruiser is a serious force to be dealt with in any attack. Due to the ships design and its large weapons system, the cargo holds had to be cut, but this is compensated for by the lowered fuel consumption.';
         $battlecruiser->requirements = [
@@ -193,6 +198,7 @@ class MilitaryShipObjects
         $bomber->id = 211;
         $bomber->title = 'Bomber';
         $bomber->machine_name = 'bomber';
+        $bomber->class_name = 'bomber';
         $bomber->description = 'The bomber was developed especially to destroy the planetary defenses of a world.';
         $bomber->description_long = 'Over the centuries, as defenses were starting to get larger and more sophisticated, fleets were starting to be destroyed at an alarming rate. It was decided that a new ship was needed to break defenses to ensure maximum results. After years of research and development, the Bomber was created.
         
@@ -236,6 +242,7 @@ class MilitaryShipObjects
         $destroyer->id = 213;
         $destroyer->title = 'Destroyer';
         $destroyer->machine_name = 'destroyer';
+        $destroyer->class_name = 'destroyer';
         $destroyer->description = 'The destroyer is the king of the warships.';
         $destroyer->description_long = 'The Destroyer is the result of years of work and development. With the development of Deathstars, it was decided that a class of ship was needed to defend against such a massive weapon. Thanks to its improved homing sensors, multi-phalanx Ion cannons, Gauss Cannons and Plasma Turrets, the Destroyer
         turned out to be one of the most fearsome ships created.
@@ -270,6 +277,7 @@ class MilitaryShipObjects
         $deathstar->id = 214;
         $deathstar->title = 'Deathstar';
         $deathstar->machine_name = 'deathstar';
+        $deathstar->class_name = 'deathstar';
         $deathstar->description = 'The destructive power of the deathstar is unsurpassed.';
         $deathstar->description_long = 'The Deathstar is the most powerful ship ever created. This moon sized ship is the only ship that can be seen with the naked eye on the ground. By the time you spot it, unfortunately, it is too late to do anything.
         
