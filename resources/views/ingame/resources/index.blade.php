@@ -166,13 +166,13 @@
 
         $(document).ready(function () {
             initResources();
-@if (!empty($build_active['id']))
+            @if (!empty($build_active))
             // Countdown for inline building element (pusher)
-            var elem = getElementByIdWithCache("b_resources{{ $build_active['object']['id'] }}");
+            var elem = getElementByIdWithCache("b_resources{{ $build_active->object->id }}");
             if(elem) {
-                new bauCountdown(elem, {{ $build_active['time_countdown'] }}, {{ $build_active['time_total'] }}, "{{ route('resources.index') }}");
+                new bauCountdown(elem, {{ $build_active->time_countdown }}, {{ $build_active->time_total }}, "{{ route('resources.index') }}");
             }
-@endif
+            @endif
         });
 
     </script>
@@ -345,22 +345,22 @@
                 <table cellpadding="0" cellspacing="0" class="construction active">
                     <tbody>
                     {{-- Building is actively being built. --}}
-                    @if (!empty($build_active['id']))
+                    @if (!empty($build_active))
                         <tr>
-                            <th colspan="2">{!! $build_active['object']['title'] !!}</th>
+                            <th colspan="2">{!! $build_active->object->title !!}</th>
                         </tr>
                         <tr class="data">
                             <td class="first" rowspan="3">
                                 <div>
-                                    <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="">
-                                        <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/buildings/' . $build_active['object']['assets']->imgSmall) !!}" alt="{!! $build_active['object']['title'] !!}">
+                                    <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelProduction({!! $build_active->object->id !!},{!! $build_active->id !!},&quot;Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?&quot;); return false;" title="">
+                                        <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/buildings/' . $build_active->object->assets->imgSmall) !!}" alt="{!! $build_active->object->title !!}">
                                     </a>
-                                    <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?">
+                                    <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelProduction({!! $build_active->object->id !!},{!! $build_active->id !!},&quot;Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?&quot;); return false;" title="Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?">
                                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="15" width="15">
                                     </a>
                                 </div>
                             </td>
-                            <td class="desc ausbau">Improve to						<span class="level">Level {!! $build_active['object']['level_target'] !!}</span>
+                            <td class="desc ausbau">Improve to <span class="level">Level {!! $build_active->level_target !!}</span>
                             </td>
                         </tr>
                         <tr class="data">
@@ -372,7 +372,7 @@
                                 <!-- JAVASCRIPT -->
                                 <script type="text/javascript">
                                 var timerHandler=new TimerHandler();
-                                new baulisteCountdown(getElementByIdWithCache("Countdown"), {!! $build_active['time_countdown'] !!}, "{!! route('resources.index') !!}");
+                                new baulisteCountdown(getElementByIdWithCache("Countdown"), {!! $build_active->time_countdown !!}, "{!! route('resources.index') !!}");
                                 </script>
                             </td>
                         </tr>

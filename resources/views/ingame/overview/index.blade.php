@@ -67,9 +67,9 @@
         $(document).ready(function() {
             gfSlider = new GFSlider(getElementByIdWithCache('detailWrapper'));
             initType();
-            @if (!empty($ship_active['id']))
+            @if (!empty($ship_active))
                 // Countdown for inline ship element (pusher)
-                new shipCountdown(getElementByIdWithCache('shipAllCountdown'), getElementByIdWithCache('shipCountdown'), getElementByIdWithCache('shipSumCount'), {{ $ship_active['time_countdown'] }}, {{ $ship_active['time_countdown_object_single'] }}, {{ $ship_queue_time_countdown }}, {{ $ship_active['object_amount_remaining'] }}, "{{ route('shipyard.index') }}");
+                new shipCountdown(getElementByIdWithCache('shipAllCountdown'), getElementByIdWithCache('shipCountdown'), getElementByIdWithCache('shipSumCount'), {{ $ship_active->time_countdown }}, {{ $ship_active->time_countdown_object_next }}, {{ $ship_queue_time_countdown }}, {{ $ship_active->object_amount_remaining }}, "{{ route('shipyard.index') }}");
             @endif
         });
     </script>
@@ -192,22 +192,22 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                     <table cellpadding="0" cellspacing="0" class="construction active">
                         <tbody>
                         {{-- Building is actively being built. --}}
-                        @if (!empty($build_active['id']))
+                        @if (!empty($build_active))
                             <tr>
-                                <th colspan="2">{!! $build_active['object']['title'] !!}</th>
+                                <th colspan="2">{!! $build_active->object->title !!}</th>
                             </tr>
                             <tr class="data">
                                 <td class="first" rowspan="3">
                                     <div>
-                                        <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="">
-                                            <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/buildings/' . $build_active['object']['assets']->imgSmall) !!}" alt="{!! $build_active['object']['title'] !!}">
+                                        <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelProduction({!! $build_active->object->id !!},{!! $build_active->id !!},&quot;Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?&quot;); return false;" title="">
+                                            <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/buildings/' . $build_active->object->assets->imgSmall) !!}" alt="{!! $build_active->object->title !!}">
                                         </a>
-                                        <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?">
+                                        <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelProduction({!! $build_active->object->id !!},{!! $build_active->id !!},&quot;Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?&quot;); return false;" title="Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="15" width="15">
                                         </a>
                                     </div>
                                 </td>
-                                <td class="desc ausbau">Improve to						<span class="level">Level {!! $build_active['object']['level_target'] !!}</span>
+                                <td class="desc ausbau">Improve to						<span class="level">Level {!! $build_active->level_target !!}</span>
                                 </td>
                             </tr>
                             <tr class="data">
@@ -220,7 +220,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                     <script type="text/javascript">
                                         $(document).ready(function() {
                                             var timerHandler = new TimerHandler();
-                                            new baulisteCountdown(getElementByIdWithCache("Countdown"), {!! $build_active['time_countdown'] !!}, "{!! route('resources.index') !!}");
+                                            new baulisteCountdown(getElementByIdWithCache("Countdown"), {!! $build_active->time_countdown !!}, "{!! route('resources.index') !!}");
                                         });
                                     </script>
                                 </td>
@@ -276,22 +276,23 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                     <table cellspacing="0" cellpadding="0" class="construction active">
                         <tbody>
                         {{-- Building is actively being built. --}}
-                        @if (!empty($research_active['id']))
+                        @php /** @var OGame\ViewModels\ResearchQueueViewModel $research_active */ @endphp
+                        @if (!empty($research_active))
                             <tr>
-                                <th colspan="2">{!! $research_active['object']['title'] !!}</th>
+                                <th colspan="2">{!! $research_active->object->title !!}</th>
                             </tr>
                             <tr class="data">
                                 <td class="first" rowspan="3">
                                     <div>
-                                        <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelResearch({!! $research_active['object']['id'] !!},{!! $research_active['id'] !!},&quot;Cancel expansion of {!! $research_active['object']['title'] !!} to level {!! $research_active['object']['level_target'] !!}?&quot;); return false;" title="">
-                                            <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/research/' . $research_active['object']['assets']->imgSmall) !!}" alt="{!! $research_active['object']['title'] !!}">
+                                        <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelResearch({!! $research_active->object->id !!},{!! $research_active->id !!},&quot;Cancel expansion of {!! $research_active->object->title !!} to level {!! $research_active->level_target !!}?&quot;); return false;" title="">
+                                            <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/research/' . $research_active->object->assets->imgSmall) !!}" alt="{!! $research_active->object->title !!}">
                                         </a>
-                                        <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelResearch({!! $research_active['object']['id'] !!},{!! $research_active['id'] !!},&quot;Cancel expansion of {!! $research_active['object']['title'] !!} to level {!! $research_active['object']['level_target'] !!}?&quot;); return false;" title="Cancel expansion of {!! $research_active['object']['title'] !!} to level {!! $research_active['object']['level_target'] !!}?">
+                                        <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelResearch({!! $research_active->object->id !!},{!! $research_active->id !!},&quot;Cancel expansion of {!! $research_active->object->title !!} to level {!! $research_active->level_target !!}?&quot;); return false;" title="Cancel expansion of {!! $research_active->object->title !!} to level {!! $research_active->level_target !!}?">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="15" width="15">
                                         </a>
                                     </div>
                                 </td>
-                                <td class="desc ausbau">Improve to						<span class="level">Level {!! $research_active['object']['level_target'] !!}</span>
+                                <td class="desc ausbau">Improve to						<span class="level">Level {!! $research_active->level_target !!}</span>
                                 </td>
                             </tr>
                             <tr class="data">
@@ -304,7 +305,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                     <script type="text/javascript">
                                         $(document).ready(function() {
                                             var timerHandler = new TimerHandler();
-                                            new baulisteCountdown(getElementByIdWithCache("researchCountdown"), {!! $research_active['time_countdown'] !!}, "{!! route('research.index') !!}");
+                                            new baulisteCountdown(getElementByIdWithCache("researchCountdown"), {!! $research_active->time_countdown !!}, "{!! route('research.index') !!}");
                                         });
                                     </script>
                                 </td>
@@ -359,19 +360,20 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                 <div class="content">
                     <table cellspacing="0" cellpadding="0" class="construction active">
                         <tbody>
+                        @php /** @var OGame\ViewModels\UnitQueueViewModel $ship_active */ @endphp
                         {{-- Building is actively being built. --}}
-                        @if (!empty($ship_active['id']))
+                        @if (!empty($ship_active))
                             <tr class="data">
-                                <th colspan="2">{{ $ship_active['object']['title'] }}</th>
+                                <th colspan="2">{{ $ship_active->object->title }}</th>
                             </tr>
                             <tr class="data">
-                                <td title="Production of {{ $ship_active['object_amount_remaining'] }} {{ $ship_active['object']['title'] }} in progress" class="building tooltip" rowspan="2" valign="top">
-                                    <a href="{{ route('shipyard.index', ['openTech' => $ship_active['object']['id']]) }}" onclick="$('.detail_button[ref=210]').click(); return false;">
-                                        <img class="queuePic" width="40" height="40" alt="{{ $ship_active['object']['title'] }}" src="{{ asset('img/objects/units/' . $ship_active['object']['assets']->imgSmall) }}"></a>
-                                    <div class="shipSumCount" id="shipSumCount">{{ $ship_active['object_amount_remaining'] }}</div>
+                                <td title="Production of {{ $ship_active->object_amount_remaining }} {{ $ship_active->object->title }} in progress" class="building tooltip" rowspan="2" valign="top">
+                                    <a href="{{ route('shipyard.index', ['openTech' => $ship_active->object->id]) }}" onclick="$('.detail_button[ref=210]').click(); return false;">
+                                        <img class="queuePic" width="40" height="40" alt="{{ $ship_active->object->title }}" src="{{ asset('img/objects/units/' . $ship_active->object->assets->imgSmall) }}"></a>
+                                    <div class="shipSumCount" id="shipSumCount">{{ $ship_active->object_amount_remaining }}</div>
                                 </td>
                                 <td class="desc timeProdShip">
-                                    Building duration <span class="shipCountdown" id="shipCountdown">{{ $ship_active['time_countdown'] }}</span>
+                                    Building duration <span class="shipCountdown" id="shipCountdown">{{ $ship_active->time_countdown }}</span>
                                 </td>
                             </tr>
                             <tr class="data">
@@ -390,7 +392,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                             </td>
                                         </tr>
                         @endif
-                        @if (empty($ship_active['id']))
+                        @if (empty($ship_active))
                         <tr>
                             <td colspan="2" class="idle">
                                 <a class="tooltip js_hideTipOnMobile
@@ -404,14 +406,18 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                         @endif
                         </tbody>
                     </table>
-                    @if (count($ship_queue) > 0)
+                    @php /** @var OGame\ViewModels\UnitQueueListViewModel $ship_queue */ @endphp
+                    @if ($ship_queue->count() > 0)
                     <table class="queue">
-                        <tbody><tr>
-                            @foreach ($ship_queue as $item)
-                            <td class="tooltip" title="{{ $item['object_amount'] }}x {{ $item['object']['title'] }} in the building queue">
-                                <a class="queue_link dark_highlight_tablet" href="{{ route('shipyard.index', ['openTech' => $item['object']['id']]) }}">
-                                    <img class="queuePic" src="{{ asset('img/objects/units/' . $item['object']['assets']->imgMicro) }}" height="28" width="28" alt="{{ $item['object']['title'] }}">
-                                    {{ $item['object_amount'] }}                        </a>
+                        <tbody>
+                        <tr>
+                        @php /** @var OGame\ViewModels\UnitQueueViewModel $item */ @endphp
+                        @foreach ($ship_queue->queue as $item)
+                            <td class="tooltip" title="{{ $item->object_amount }}x {{ $item->object->title }} in the building queue">
+                                <a class="queue_link dark_highlight_tablet" href="{{ route('shipyard.index', ['openTech' => $item->object->id]) }}">
+                                    <img class="queuePic" src="{{ asset('img/objects/units/' . $item->object->assets->imgSmall) }}" height="28" width="28" alt="{{ $item->object->title }}">
+                                    {{ $item->object_amount }}
+                                </a>
                             </td>
                             @endforeach
                         </tr>

@@ -8,6 +8,10 @@ use Illuminate\Support\Carbon;
 use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Services\Objects\ObjectService;
+use OGame\ViewModels\QueueListViewModel;
+use OGame\ViewModels\QueueViewModel;
+use OGame\ViewModels\UnitQueueListViewModel;
+use OGame\ViewModels\UnitQueueViewModel;
 
 /**
  * Class UnitQueueService.
@@ -47,16 +51,55 @@ class UnitQueueService
      * Retrieve current building build queue for a planet.
      *
      * @param PlanetService $planet
+     * @return UnitQueueListViewModel
+     * @throws Exception
      */
-    public function retrieveQueue(PlanetService $planet) : Collection
+    public function retrieveQueue(PlanetService $planet) : UnitQueueListViewModel
     {
         // Fetch queue items from model
-        return $this->model->where([
+        $queue_items = $this->model->where([
             ['planet_id', $planet->getPlanetId()],
             ['processed', 0],
         ])
             ->orderBy('time_start', 'asc')
             ->get();
+
+        // Convert to ViewModel array
+        $list = array();
+        foreach ($queue_items as $item) {
+            $object = $this->objects->getObjectById($item['object_id']);
+
+            $time_countdown = $item->time_end - Carbon::now()->timestamp;
+            if ($time_countdown < 0) {
+                $time_countdown = 0;
+            }
+
+            // Calculate when next unit will be processed and given.
+            $time_per_unit = ($item->time_end - $item->time_start) / $item->object_amount;
+
+            // Get timestamp where a unit has been presented lastly.
+            $last_update = $item->time_progress;
+            if ($last_update < $item->time_start) {
+                $last_update = $item->time_start;
+            }
+            $last_update_diff = Carbon::now()->timestamp - $last_update;
+            $time_countdown_next_single = $time_per_unit - $last_update_diff;
+
+            $viewModel = new UnitQueueViewModel(
+                $item['id'],
+                $object,
+                $time_countdown,
+                $item['time_end'] - $item['time_start'],
+                $item['object_amount'],
+                $item['object_amount'] - $item['object_amount_progress'],
+                $time_countdown_next_single
+            );
+
+            $list[] = $viewModel;
+        }
+
+        // Create QueueListViewModel
+        return new UnitQueueListViewModel($list);
     }
 
     /**
@@ -75,70 +118,6 @@ class UnitQueueService
         ])
             ->orderBy('time_start', 'asc')
             ->get();
-    }
-
-    /**
-     * Enriches one or more queue_items to prepare it for rendering.
-     *
-     * @param Collection<UnitQueue> $queue_items
-     *  Single queue_item or array of queue_items.
-     *
-     * @return array
-     * @throws Exception
-     */
-    public function enrich(Collection $queue_items) : array
-    {
-        // Enrich information before we return it
-        $return = array();
-
-        // Convert single queue_item result to an array because the logic
-        // beneath expects an array.
-        $return_type = 'array';
-        if (!empty($queue_items->id)) {
-            $return_type = 'single';
-            $queue_items = array($queue_items);
-        }
-
-        foreach ($queue_items as $item) {
-            $object = $this->objects->getUnitObjectById($item->object_id);
-
-            $time_countdown = $item->time_end - Carbon::now()->timestamp;
-            if ($time_countdown < 0) {
-                $time_countdown = 0;
-            }
-
-            // Calculate when next unit will be processed and given.
-            $time_per_unit = ($item->time_end - $item->time_start) / $item->object_amount;
-
-            // Get timestamp where a unit has been presented lastly.
-            $last_update = $item->time_progress;
-            if ($last_update < $item->time_start) {
-                $last_update = $item->time_start;
-            }
-            $last_update_diff = Carbon::now()->timestamp - $last_update;
-
-            $time_countdown_next_single = $time_per_unit - $last_update_diff;
-
-            $return[] = [
-                'id' => $item->id,
-                'object' => [
-                    'id' => $object->id,
-                    'title' => $object->title,
-                    'assets' => $object->assets,
-                ],
-                'object_amount' => $item->object_amount,
-                'object_amount_remaining' => $item->object_amount - $item->object_amount_progress,
-                'time_countdown' => $time_countdown,
-                'time_total' => $item->time_end - $item->time_start,
-                'time_countdown_object_single' => $time_countdown_next_single,
-            ];
-        }
-
-        if ($return_type == 'single') {
-            return $return[0];
-        } else {
-            return $return;
-        }
     }
 
     /**

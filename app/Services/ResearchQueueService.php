@@ -8,6 +8,10 @@ use Illuminate\Support\Carbon;
 use OGame\Models\ResearchQueue;
 use OGame\Models\Resources;
 use OGame\Services\Objects\ObjectService;
+use OGame\ViewModels\BuildingQueueListViewModel;
+use OGame\ViewModels\BuildingQueueViewModel;
+use OGame\ViewModels\ResearchQueueListViewModel;
+use OGame\ViewModels\ResearchQueueViewModel;
 
 /**
  * Class ResearchQueueService.
@@ -117,11 +121,9 @@ class ResearchQueueService
     public function add(PlayerService $player, PlanetService $planet, int $building_id) : void
     {
         $build_queue = $this->retrieveQueue($planet);
-        $build_queue = $this->enrich($build_queue);
 
         // Max amount of buildings that can be in the queue in a given time.
-        $max_build_queue_count = 4; //@TODO: refactor into global / constant?
-        if (count($build_queue) >= $max_build_queue_count) {
+        if ($build_queue->isQueueFull()) {
             // Max amount of build queue items already exist, throw exception.
             throw new Exception('Maximum number of items already in queue.');
         }
@@ -153,12 +155,13 @@ class ResearchQueueService
      * Retrieve current building build queue for a planet.
      *
      * @param PlanetService $planet
-     * @return \Illuminate\Support\Collection
+     * @return ResearchQueueListViewModel
+     * @throws Exception
      */
-    public function retrieveQueue(PlanetService $planet) : \Illuminate\Support\Collection
+    public function retrieveQueue(PlanetService $planet) : ResearchQueueListViewModel
     {
         // Fetch queue items from model
-        return $this->model
+        $queue_items = $this->model
             ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
@@ -169,59 +172,30 @@ class ResearchQueueService
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')
             ->get();
-    }
 
-    /**
-     * Enriches one or more queue_items to prepare it for rendering.
-     *
-     * @param $queue_items
-     *  Single queue_item or array of queue_items.
-     *
-     * @return array<int, array<string, mixed>>|array<string, mixed>
-     */
-    public function enrich($queue_items) : array
-    {
-        // Enrich information before we return it
-        $return = array();
-
-        if (!$queue_items) {
-            return $return;
-        }
-
-        // Convert single queue_item result to an array because the logic
-        // beneath expects an array.
-        $return_type = 'array';
-        if (!empty($queue_items->id)) {
-            $return_type = 'single';
-            $queue_items = array($queue_items);
-        }
-
+        // Convert to ViewModel array
+        $list = array();
         foreach ($queue_items as $item) {
             $object = $this->objects->getResearchObjectById($item->object_id);
-
             $time_countdown = $item->time_end - Carbon::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
             }
 
-            $return[] = [
-                'id' => $item->id,
-                'object' => [
-                    'id' => $object->id,
-                    'title' => $object->title,
-                    'level_target' => $item->object_level_target,
-                    'assets' => $object->assets,
-                ],
-                'time_countdown' => $time_countdown,
-                'time_total' => $item->time_end - $item->time_start,
-            ];
+            $viewModel = new ResearchQueueViewModel(
+                $item['id'],
+                $object,
+                $time_countdown,
+                $item['time_end'] - $item['time_start'],
+                $item['building'],
+                $item['object_level_target'],
+            );
+
+            $list[] = $viewModel;
         }
 
-        if ($return_type == 'single') {
-            return $return[0];
-        }
-
-        return $return;
+        // Create ResearchQueueListViewModel
+        return new ResearchQueueListViewModel($list);
     }
 
     /**
@@ -290,7 +264,7 @@ class ResearchQueueService
             // Only start the queue item if there are no other queue items building
             // for this planet.
             $build_queue = $this->retrieveQueue($planet);
-            $currently_building = $this->retrieveCurrentlyBuildingFromQueue($build_queue);
+            $currently_building = $build_queue->getCurrentlyBuildingFromQueue();
 
             if (!empty($currently_building)) {
                 // There already is something else building, don't start a new one.
@@ -343,23 +317,6 @@ class ResearchQueueService
                 $planet->update();
             }
         }
-    }
-
-    /**
-     * Retrieve the item that is currently being build (if any).
-     *
-     * @return bool|ResearchQueue
-     *  Array when an item exists. False if it does not.
-     */
-    public function retrieveCurrentlyBuildingFromQueue(\Illuminate\Support\Collection $queue_items) : bool|ResearchQueue
-    {
-        foreach ($queue_items as $key => $record) {
-            if ($record['building'] == 1) {
-                return $record;
-            }
-        }
-
-        return false;
     }
 
     /**

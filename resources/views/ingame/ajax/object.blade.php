@@ -187,7 +187,7 @@ build-it
             <span>
             @if ($object_type == 'ship' || $object_type == 'defense')
             Build
-            @elseif (!empty($build_active['id']))
+            @elseif (!empty($build_active->id))
             In queue
             @else
             Improve

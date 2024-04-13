@@ -73,16 +73,7 @@ abstract class AbstractUnitsController extends OGameController
 
         // Parse build queue for this planet.
         $build_queue = $this->queue->retrieveQueue($planet);
-        $build_queue = $this->queue->enrich($build_queue);
-
-        // Extract active from queue.
-        $build_active = [];
-        if (!empty($build_queue[0])) {
-            $build_active = $build_queue[0];
-
-            // Remove active from queue.
-            unset($build_queue[0]);
-        }
+        $build_active = $build_queue->getCurrentlyBuildingFromQueue();
 
         // Get total time of all items in queue
         $queue_time_end = $this->queue->retrieveQueueTimeEnd($planet);
@@ -113,7 +104,7 @@ abstract class AbstractUnitsController extends OGameController
                 $view_model->amount = $amount;
                 $view_model->requirements_met = $requirements_met;
                 $view_model->enough_resources = $enough_resources;
-                $view_model->currently_building = (!empty($build_active['id']) && $build_active['object']['id'] == $object->id);
+                $view_model->currently_building = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name);
 
                 $units[$key_row][$object->id] = $view_model;
             }

@@ -66,8 +66,8 @@ class ResearchController extends OGameController
 
         // Parse build queue for this planet
         $research_full_queue = $this->queue->retrieveQueue($planet);
-        $build_active = $this->queue->enrich($this->queue->retrieveCurrentlyBuildingFromQueue($research_full_queue));
-        $build_queue = $this->queue->enrich($this->queue->retrieveQueuedFromQueue($research_full_queue));
+        $build_active = $research_full_queue->getCurrentlyBuildingFromQueue();
+        $build_queue = $research_full_queue->getQueuedFromQueue();
 
         $research = [];
         foreach ($screen_objects as $key_row => $objects_row) {
@@ -91,16 +91,15 @@ class ResearchController extends OGameController
                 $view_model->requirements_met = $requirements_met;
                 $view_model->count = $count;
                 $view_model->enough_resources = $enough_resources;
-                $view_model->currently_building = (!empty($build_active['id']) && $build_active['object']['id'] == $object->id);
+                $view_model->currently_building = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name);
 
                 $research[$key_row][$object->id] = $view_model;
             }
         }
 
-        // Max amount of buildings that can be in the queue in a given time.
-        $max_build_queue_count = 4; //@TODO: refactor into global / constant?
+        // Max amount of research that can be in the queue in a given time.
         $build_queue_max = false;
-        if (count($build_queue) >= $max_build_queue_count) {
+        if ($research_full_queue->isQueueFull()) {
             $build_queue_max = true;
         }
 

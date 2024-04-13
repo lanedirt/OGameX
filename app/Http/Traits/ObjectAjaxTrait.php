@@ -109,22 +109,16 @@ trait ObjectAjaxTrait
             }
         }
 
+        $build_active_current = null;
         $build_queue = $this->queue->retrieveQueue($planet);
-        $build_queue = $this->queue->enrich($build_queue);
-
-        $build_active_current = false;
-        if (!empty($build_queue)) {
-            foreach ($build_queue as $record) {
-                if ($object->id == $record['object']['id']) {
-                    $build_active_current = $record;
-                }
-            }
+        $currently_building = $build_queue->getCurrentlyBuildingFromQueue();
+        if (!empty($currently_building) && $currently_building->object->machine_name == $object->machine_name) {
+            $build_active_current = $currently_building;
         }
 
         // Max amount of buildings that can be in the queue in a given time.
-        $max_build_queue_count = 4; //@TODO: refactor into global / constant?
         $build_queue_max = false;
-        if (count($build_queue) >= $max_build_queue_count) {
+        if ($build_queue->isQueueFull()) {
             $build_queue_max = true;
         }
 
@@ -143,7 +137,7 @@ trait ObjectAjaxTrait
             'energy_difference' => $energy_difference,
             'enough_resources' => $enough_resources,
             'requirements_met' => $requirements_met,
-            'build_active' => count($build_queue),
+            'build_active' => $build_queue->count(),
             'build_active_current' => $build_active_current,
             'build_queue_max' => $build_queue_max,
             'storage' => $storage,

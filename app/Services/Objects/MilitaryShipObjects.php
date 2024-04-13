@@ -40,8 +40,8 @@ class MilitaryShipObjects
         ];
         $lightFighter->properties = new GameObjectProperties($lightFighter, 4000, 10, 50, 12500, 50, 20);
         $lightFighter->assets = new GameObjectAssets();
-        $lightFighter->assets->imgMicro = 'light_fighter_small.jpg';
         $lightFighter->assets->imgSmall = 'light_fighter_small.jpg';
+        $lightFighter->assets->imgMicro = 'light_fighter_small.jpg';
         $buildingObjectsNew[] = $lightFighter;
 
         // --- Heavy Fighter ---
@@ -67,8 +67,8 @@ class MilitaryShipObjects
         ];
         $heavyFighter->properties = new GameObjectProperties($heavyFighter, 10000, 25, 150, 10000, 100, 75);
         $heavyFighter->assets = new GameObjectAssets();
-        $heavyFighter->assets->imgMicro = 'heavy_fighter_small.jpg';
         $heavyFighter->assets->imgSmall = 'heavy_fighter_small.jpg';
+        $heavyFighter->assets->imgMicro = 'heavy_fighter_small.jpg';
         $buildingObjectsNew[] = $heavyFighter;
 
         // --- Cruiser ---
@@ -97,8 +97,8 @@ class MilitaryShipObjects
         ];
         $cruiser->properties = new GameObjectProperties($cruiser, 27000, 50, 400, 15000, 800, 300);
         $cruiser->assets = new GameObjectAssets();
-        $cruiser->assets->imgMicro = 'cruiser_small.jpg';
         $cruiser->assets->imgSmall = 'cruiser_small.jpg';
+        $cruiser->assets->imgMicro = 'cruiser_small.jpg';
         $buildingObjectsNew[] = $cruiser;
 
         // --- Battleship ---
@@ -120,8 +120,8 @@ class MilitaryShipObjects
         ];
         $battleship->properties = new GameObjectProperties($battleship, 60000, 200, 1000, 10000, 1500, 500);
         $battleship->assets = new GameObjectAssets();
-        $battleship->assets->imgMicro = 'battleship_small.jpg';
         $battleship->assets->imgSmall = 'battleship_small.jpg';
+        $battleship->assets->imgMicro = 'battleship_small.jpg';
         $buildingObjectsNew[] = $battleship;
 
         // --- Battlecruiser ---
@@ -150,8 +150,8 @@ class MilitaryShipObjects
         ];
         $battlecruiser->properties = new GameObjectProperties($battlecruiser, 70000, 400, 700, 10000, 750, 250);
         $battlecruiser->assets = new GameObjectAssets();
-        $battlecruiser->assets->imgMicro = 'battlecruiser_small.jpg';
         $battlecruiser->assets->imgSmall = 'battlecruiser_small.jpg';
+        $battlecruiser->assets->imgMicro = 'battlecruiser_small.jpg';
         $buildingObjectsNew[] = $battlecruiser;
 
         // --- Bomber ---
@@ -186,8 +186,8 @@ class MilitaryShipObjects
             new GameObjectSpeedUpgrade('hyperspace_drive', 8),
         ];
         $bomber->assets = new GameObjectAssets();
-        $bomber->assets->imgMicro = 'bomber_small.jpg';
-        $bomber->assets->imgSmall = 'robot_factory_micro.jpg';
+        $bomber->assets->imgSmall = 'bomber_small.jpg';
+        $bomber->assets->imgMicro = 'robot_factory_micro.jpg';
         $buildingObjectsNew[] = $bomber;
 
         // --- Destroyer ---
@@ -215,8 +215,8 @@ class MilitaryShipObjects
         ];
         $destroyer->properties = new GameObjectProperties($destroyer, 110000, 500, 200, 5000, 2000, 1000);
         $destroyer->assets = new GameObjectAssets();
-        $destroyer->assets->imgMicro = 'destroyer_small.jpg';
-        $destroyer->assets->imgSmall = 'robot_factory_micro.jpg';
+        $destroyer->assets->imgSmall = 'destroyer_small.jpg';
+        $destroyer->assets->imgMicro = 'robot_factory_micro.jpg';
         $buildingObjectsNew[] = $destroyer;
 
         // --- Deathstar ---
@@ -259,8 +259,8 @@ class MilitaryShipObjects
         ];
         $deathstar->properties = new GameObjectProperties($deathstar, 9000000, 50000, 200000, 100, 1000000, 1);
         $deathstar->assets = new GameObjectAssets();
-        $deathstar->assets->imgMicro = 'deathstar_small.jpg';
-        $deathstar->assets->imgSmall = 'robot_factory_micro.jpg';
+        $deathstar->assets->imgSmall = 'deathstar_small.jpg';
+        $deathstar->assets->imgMicro = 'robot_factory_micro.jpg';
         $buildingObjectsNew[] = $deathstar;
 
         return $buildingObjectsNew;

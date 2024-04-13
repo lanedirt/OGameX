@@ -81,8 +81,8 @@ abstract class AbstractBuildingsController extends OGameController
 
         // Parse build queue for this planet
         $build_full_queue = $this->queue->retrieveQueue($this->planet);
-        $build_active = $this->queue->enrich($this->queue->retrieveCurrentlyBuildingFromQueue($build_full_queue));
-        $build_queue = $this->queue->enrich($this->queue->retrieveQueuedFromQueue($build_full_queue));
+        $build_active = $build_full_queue->getCurrentlyBuildingFromQueue();
+        $build_queue = $build_full_queue->getQueuedFromQueue();
 
         $buildings = [];
         foreach ($this->objects as $key_row => $objects_row) {
@@ -114,7 +114,7 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->current_level = $current_level;
                 $view_model->requirements_met = $requirements_met;
                 $view_model->enough_resources = $enough_resources;
-                $view_model->currently_building = (!empty($build_active['id']) && $build_active['object']['id'] == $object->id);
+                $view_model->currently_building = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name);
 
                 $buildings[$key_row][$object->id] = $view_model;
             }
