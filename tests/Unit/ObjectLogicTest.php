@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use PHPUnit\Framework\TestCase;
 
 class ObjectLogicTest extends TestCase

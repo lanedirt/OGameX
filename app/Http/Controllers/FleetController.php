@@ -5,7 +5,7 @@ namespace OGame\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Traits\IngameTrait;
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\ViewModels\UnitViewModel;
 

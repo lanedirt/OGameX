@@ -5,13 +5,11 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
-use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
-use OGame\Services\Objects\ObjectService;
-use OGame\ViewModels\QueueListViewModel;
-use OGame\ViewModels\QueueViewModel;
 use OGame\ViewModels\Queue\UnitQueueListViewModel;
 use OGame\ViewModels\Queue\UnitQueueViewModel;
+use OGame\ViewModels\QueueListViewModel;
+use OGame\ViewModels\QueueViewModel;
 
 /**
  * Class UnitQueueService.
@@ -177,15 +175,8 @@ class UnitQueueService
         }
 
         // Get price per unit
-        $price_total = new Resources(0, 0, 0,0);
-        $price = $this->objects->getObjectPrice($object->machine_name, $planet);
-
-        // Multiply price by amount of units
-        // TODO: add abstraction method to Resources() class to multiply resources.
-        // Check other multiply usages in codebase.
-        for ($i = 0; $i < $requested_build_amount; $i++) {
-            $price_total->add($price);
-        }
+        $price_per_unit = $this->objects->getObjectPrice($object->machine_name, $planet);
+        $total_price = $price_per_unit->multiply($requested_build_amount);
 
         // @TODO: add abstraction and unittest to see if multiplication
         // of resource prices works correctly in unit build orders.
@@ -212,12 +203,12 @@ class UnitQueueService
         $queue->time_duration = $build_time_total;
         $queue->time_start = $time_start;
         $queue->time_end = $queue->time_start + $queue->time_duration;
-        $queue->metal = (int)$price->metal->get();
-        $queue->crystal = (int)$price->crystal->get();
-        $queue->deuterium = (int)$price->deuterium->get();
+        $queue->metal = (int)$total_price->metal->get();
+        $queue->crystal = (int)$total_price->crystal->get();
+        $queue->deuterium = (int)$total_price->deuterium->get();
 
         // All OK, deduct resources.
-        $planet->deductResources($price);
+        $planet->deductResources($total_price);
 
         // Save the new queue item which will automatically start it.
         $queue->save();

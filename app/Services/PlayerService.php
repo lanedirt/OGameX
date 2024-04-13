@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Models\UserTech;
-use OGame\Services\Objects\ObjectService;
 
 /**
  * Class PlayerService.
@@ -59,7 +58,7 @@ class PlayerService
             $this->load($player_id);
         }
 
-        $this->objects = resolve('OGame\Services\Objects\ObjectService');
+        $this->objects = resolve('OGame\Services\ObjectService');
     }
 
     /**

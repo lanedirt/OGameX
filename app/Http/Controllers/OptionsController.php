@@ -23,7 +23,6 @@ class OptionsController extends OGameController
         return view('ingame.options.index')->with([
             'username' => $player->getUsername(),
             'current_email' => $player->getEmail(),
-            'body_id' => 'preferences', // Set <body> tag ID attribute.
         ]);
     }
 

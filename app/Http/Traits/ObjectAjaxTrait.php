@@ -5,7 +5,7 @@ namespace OGame\Http\Traits;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
 trait ObjectAjaxTrait

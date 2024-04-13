@@ -301,10 +301,10 @@ class UnitQueueTest extends AccountTestCase
     }
 
     /**
-     * Verify that building ships without resources fails.
+     * Verify that building ships deducts correct amount of resources from planet.
      * @throws BindingResolutionException
      */
-    public function testUnitQueueInsufficientResources(): void
+    public function testUnitQueueDeductResources(): void
     {
         $this->basicSetup();
 
@@ -336,5 +336,57 @@ class UnitQueueTest extends AccountTestCase
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\sFighter\s*<\/span>\s*0\s*<\/span>/';
         $result = preg_match($pattern, $response->getContent());
         $this->assertTrue($result === 1, 'Light Fighter units have been built while there were no resources.');
+    }
+
+    /**
+     * Verify that building ships without resources fails.
+     * @throws BindingResolutionException
+     */
+    public function testUnitQueueInsufficientResources(): void
+    {
+        $this->basicSetup();
+
+        // Set the current time to a specific moment for testing
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
+        Carbon::setTestNow($testTime);
+
+        $this->planetAddResources(new Resources(30000,10000, 0,0));
+
+        // Assert that we begin with 30500 metal and 10500 crystal.
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+
+        $pattern = '/<span\s+id="resources_metal"\s+class="[^"]*">\s*30,500\s*<\/span>/';
+        $result = preg_match($pattern, $response->getContent());
+        $this->assertTrue($result === 1, 'Not starting test at 30500 metal. Verify starting resources and update tests accordingly.');
+
+        $pattern = '/<span\s+id="resources_crystal"\s+class="[^"]*">\s*10,500\s*<\/span>/';
+        $result = preg_match($pattern, $response->getContent());
+        $this->assertTrue($result === 1, 'Not starting test at 10500 crystal. Verify starting resources and update tests accordingly.');
+
+        // ---
+        // Step 1: Issue a request to build 5 light fighters
+        // ---
+        $response = $this->post('/shipyard/add-buildrequest', [
+            '_token' => csrf_token(),
+            'type' => '204', // Light fighter
+            'amount' => 5,
+            'planet_id' => $this->currentPlanetId,
+        ]);
+
+        // Assert the response status is successful (302 redirect).
+        $response->assertStatus(302);
+
+        // Assert that after building 5 light fighters (=15k metal, 5k crystal) now have with 15500 metal and 5500 crystal left.
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+
+        $pattern = '/<span\s+id="resources_metal"\s+class="[^"]*">\s*15,500\s*<\/span>/';
+        $result = preg_match($pattern, $response->getContent());
+        $this->assertTrue($result === 1, 'Multiple unit build order incorrect amount of resources deducted.');
+
+        $pattern = '/<span\s+id="resources_crystal"\s+class="[^"]*">\s*5,500\s*<\/span>/';
+        $result = preg_match($pattern, $response->getContent());
+        $this->assertTrue($result === 1, 'Multiple unit build order incorrect amount of resources deducted.');
     }
 }

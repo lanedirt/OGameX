@@ -5,10 +5,8 @@ namespace OGame\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use OGame\Services\Objects\Models\BuildingObject;
-use OGame\Services\Objects\Models\GameObject;
-use OGame\Services\Objects\ObjectService;
-use OGame\Services\Objects\Properties\Models\ObjectProperties;
+use OGame\GameObjects\Models\GameObject;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
 class TechtreeController extends OGameController
@@ -260,81 +258,43 @@ class TechtreeController extends OGameController
         $capacity = $properties->capacity->calculate($player->planets->current());
         $fuel = $properties->fuel->calculate($player->planets->current());
 
-        // Get actual property values
-        $calculatedProperties = new ObjectProperties(
-            $structural_integrity,
-            $shield,
-            $attack,
-            $speed,
-            $capacity,
-            $fuel
-        );
+        $properties_array = [];
+        $properties_array['structural_integrity'] = $structural_integrity->totalValue;
+        $properties_array['shield'] = $shield->totalValue;
+        $properties_array['attack'] = $attack->totalValue;
+        $properties_array['speed'] = $speed->totalValue;
+        $properties_array['capacity'] = $capacity->totalValue;
+        $properties_array['fuel'] = $fuel->totalValue;
 
-        $tooltips = [];
-        $tooltips['structural_integrity'] = $this->getPropertyTooltip($calculatedProperties, 'structural_integrity');
-        $tooltips['shield'] = $this->getPropertyTooltip($calculatedProperties, 'shield');
-        $tooltips['attack'] = $this->getPropertyTooltip($calculatedProperties, 'attack');
-        $tooltips['speed'] = $this->getPropertyTooltip($calculatedProperties, 'speed');
-        $tooltips['capacity'] = $this->getPropertyTooltip($calculatedProperties, 'capacity');
-        $tooltips['fuel'] = $this->getPropertyTooltip($calculatedProperties, 'fuel');
+        $tooltips_array = [];
+        $tooltips_array['structural_integrity'] = $this->getPropertyTooltip($properties->structural_integrity->name, $structural_integrity->breakdown, $structural_integrity->totalValue);
+        $tooltips_array['shield'] = $this->getPropertyTooltip($properties->shield->name, $shield->breakdown, $structural_integrity->totalValue);
+        $tooltips_array['attack'] = $this->getPropertyTooltip($properties->attack->name, $attack->breakdown, $structural_integrity->totalValue);
+        $tooltips_array['speed'] = $this->getPropertyTooltip($properties->speed->name, $speed->breakdown, $structural_integrity->totalValue);
+        $tooltips_array['capacity'] = $this->getPropertyTooltip($properties->capacity->name, $capacity->breakdown, $structural_integrity->totalValue);
+        $tooltips_array['fuel'] = $this->getPropertyTooltip($properties->fuel->name, $fuel->breakdown, $structural_integrity->totalValue);
 
         return view('ingame.techtree.info.properties')->with([
             'object' => $object,
-            'tooltips' => $tooltips,
-            'properties' => $calculatedProperties,
+            'tooltips' => $tooltips_array,
+            'properties' => $properties_array,
         ]);
     }
 
     /**
      * Returns techtree property tooltip.
      *
-     * @param ObjectProperties $properties
-     * @param string $property_key
+     * @param string $name
+     * @param array<string, string|int|array<string,string|int>> $breakdown
+     * @param int $value
      * @return View
      */
-    public function getPropertyTooltip(ObjectProperties $properties, string $property_key): View
+    public function getPropertyTooltip(string $name, array $breakdown, int $value): View
     {
-        $property_name = 'N/a';
-        $property_breakdown = [];
-        $property_value = 0;
-        // TODO: refactor below breakDown and totalValue into statically types models.
-        switch ($property_key) {
-            case 'structural_integrity':
-                $property_name = 'Structural Integrity';
-                $property_breakdown = $properties->structuralIntegrity->breakdown;
-                $property_value = $properties->structuralIntegrity->totalValue;
-                break;
-            case 'shield':
-                $property_name = 'Shield Strength';
-                $property_breakdown = $properties->shield->breakdown;
-                $property_value = $properties->shield->totalValue;
-                break;
-            case 'attack':
-                $property_name = 'Attack Strength';
-                $property_breakdown = $properties->attack->breakdown;
-                $property_value = $properties->attack->totalValue;
-                break;
-            case 'speed':
-                $property_name = 'Speed';
-                $property_breakdown = $properties->speed->breakdown;
-                $property_value = $properties->speed->totalValue;
-                break;
-            case 'capacity':
-                $property_name = 'Capacity';
-                $property_breakdown = $properties->capacity->breakdown;
-                $property_value = $properties->capacity->totalValue;
-                break;
-            case 'fuel':
-                $property_name = 'Fuel Consumption';
-                $property_breakdown = $properties->fuel->breakdown;
-                $property_value = $properties->fuel->totalValue;
-                break;
-        }
-
         return view('ingame.techtree.info.property_tooltip')->with([
-            'property_name' => $property_name,
-            'property_breakdown' => $property_breakdown,
-            'property_value' => $property_value,
+            'property_name' => $name,
+            'property_breakdown' => $breakdown,
+            'property_value' => $value,
         ]);
     }
 }

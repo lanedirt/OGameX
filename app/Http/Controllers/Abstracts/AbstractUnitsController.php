@@ -8,11 +8,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
 use OGame\Http\Traits\ObjectAjaxTrait;
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\UnitQueueService;
-use OGame\ViewModels\BuildingViewModel;
 use OGame\ViewModels\UnitViewModel;
 
 abstract class AbstractUnitsController extends OGameController

@@ -10,15 +10,6 @@ use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Planet;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
-use OGame\Services\Objects\ObjectService;
-use OGame\Services\Objects\Properties\Abstracts\ObjectPropertyService;
-use OGame\Services\Objects\Properties\AttackPropertyService;
-use OGame\Services\Objects\Properties\CapacityPropertyService;
-use OGame\Services\Objects\Properties\FuelPropertyService;
-use OGame\Services\Objects\Properties\Models\ObjectProperties;
-use OGame\Services\Objects\Properties\ShieldPropertyService;
-use OGame\Services\Objects\Properties\SpeedPropertyService;
-use OGame\Services\Objects\Properties\StructuralIntegrityPropertyService;
 
 /**
  * Class PlanetService.
@@ -84,7 +75,7 @@ class PlanetService
             }
         }
 
-        $this->objects = resolve('OGame\Services\Objects\ObjectService');
+        $this->objects = resolve('OGame\Services\ObjectService');
     }
 
     /**

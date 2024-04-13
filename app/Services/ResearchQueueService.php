@@ -7,9 +7,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Models\ResearchQueue;
 use OGame\Models\Resources;
-use OGame\Services\Objects\ObjectService;
-use OGame\ViewModels\Queue\BuildingQueueListViewModel;
-use OGame\ViewModels\Queue\BuildingQueueViewModel;
 use OGame\ViewModels\Queue\ResearchQueueListViewModel;
 use OGame\ViewModels\Queue\ResearchQueueViewModel;
 

@@ -265,12 +265,12 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                         <td>
                                             <a href="javascript:void(0);"
                                                class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet"
-                                               onclick="cancelProduction({!! $item['object']['id'] !!},{!! $item['id'] !!},&quot;Cancel expansion of {!! $item['object']['title'] !!} to level {!! $item['object']['level_target'] !!}?&quot;); return false;"
+                                               onclick="cancelProduction({!! $item->object->id !!},{!! $item->id !!},&quot;Cancel expansion of {!! $item->object->title !!} to level {!! $item->level_target !!}?&quot;); return false;"
                                                title="">
                                                 <img class="queuePic"
-                                                     src="{!! asset('img/objects/buildings/' . $item['object']['assets']->imgMicro) !!}"
-                                                     height="28" width="28" alt="{!! $item['object']['title'] !!}">
-                                                <span>{!! $item['object']['level_target'] !!}</span>
+                                                     src="{!! asset('img/objects/buildings/' . $item->object->assets->imgSmall) !!}"
+                                                     height="28" width="28" alt="{!! $item->object->title !!}">
+                                                <span>{!! $item->level_target !!}</span>
                                             </a>
                                         </td>
                                     @endforeach
@@ -371,12 +371,12 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                         <td>
                                             <a href="javascript:void(0);"
                                                class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet"
-                                               onclick="cancelResearch({!! $item['object']['id'] !!},{!! $item['id'] !!},&quot;Cancel expansion of {!! $item['object']['title'] !!} to level {!! $item['object']['level_target'] !!}?&quot;); return false;"
+                                               onclick="cancelResearch({!! $item->object->id !!},{!! $item->id !!},&quot;Cancel expansion of {!! $item->object->title !!} to level {!! $item->level_target !!}?&quot;); return false;"
                                                title="">
                                                 <img class="queuePic"
-                                                     src="{!! asset('img/objects/research/' . $item['object']['assets']->imgMicro) !!}"
-                                                     height="28" width="28" alt="{!! $item['object']['title'] !!}">
-                                                <span>{!! $item['object']['level_target'] !!}</span>
+                                                     src="{!! asset('img/objects/research/' . $item->object->assets->imgSmall) !!}"
+                                                     height="28" width="28" alt="{!! $item->object->title !!}">
+                                                <span>{!! $item->level_target !!}</span>
                                             </a>
                                         </td>
                                     @endforeach

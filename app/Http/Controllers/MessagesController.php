@@ -38,7 +38,6 @@ class MessagesController extends OGameController
         ];
 
         return view('ingame.messages.index')->with([
-            'body_id' => 'messages', // Sets <body> tag ID property.
             'unread_messages_count' => $unread_messages_count,
             'tab_content' => $tab,
         ]);
