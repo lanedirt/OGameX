@@ -1,0 +1,20 @@
+name: PHPStan Code Analysis
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  phpstan-code-analysis:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+      with:
+        php-version: '8.2'
+    - uses: actions/checkout@v3
+    - name: PHPStan
+      uses: php-actions/phpstan@v3
+      with:
+        memory_limit: 256M
