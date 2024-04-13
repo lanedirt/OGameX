@@ -2,10 +2,11 @@
 
 namespace OGame\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use OGame\Services\Objects\ObjectService;
-use OGame\Services\Objects\Properties\Models\ObjectProperties;
+use OGame\GameObjects\Models\GameObject;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
 class TechtreeController extends OGameController
@@ -17,6 +18,7 @@ class TechtreeController extends OGameController
      * @param ObjectService $objects
      * @param PlayerService $player
      * @return View
+     * @throws Exception
      */
     public function ajax(Request $request, ObjectService $objects, PlayerService $player): View
     {
@@ -26,25 +28,23 @@ class TechtreeController extends OGameController
         $planet = $player->planets->current();
 
         // Load object
-        $object = $objects->getObjects($object_id);
+        $object = $objects->getObjectById($object_id);
 
         if ($tab == 1) {
             return view('ingame.techtree.techtree')->with([
                 'object' => $object,
                 'object_id' => $object_id,
                 'planet' => $planet,
-                'current_level' => $player->planets->current()->getObjectLevel($object_id),
             ]);
         } elseif ($tab == 2) {
             return view('ingame.techtree.techinfo')->with([
                 'object' => $object,
                 'object_id' => $object_id,
                 'planet' => $planet,
-                'current_level' => $player->planets->current()->getObjectLevel($object_id),
-                'production_table' => $this->getProductionTable($object, $player),
-                'storage_table' => $this->getStorageTable($object, $player),
+                'production_table' => $this->getProductionTable($object, $player, $objects),
+                'storage_table' => $this->getStorageTable($object, $player, $objects),
                 'rapidfire_table' => $this->getRapidfireTable($object, $objects),
-                'properties_table' => $this->getPropertiesTable($object, $player),
+                'properties_table' => $this->getPropertiesTable($object, $player, $objects),
             ]);
         } elseif ($tab == 3) {
             return view('ingame.techtree.technology')->with([
@@ -57,63 +57,53 @@ class TechtreeController extends OGameController
                 'object' => $object,
                 'object_id' => $object_id,
                 'planet' => $planet,
-                'current_level' => $player->planets->current()->getObjectLevel($object_id),
             ]);
         }
 
-        return false;
+        return view('empty');
     }
 
     /**
      * Returns techtree production table.
      *
-     * @param $object
+     * @param GameObject $object
      * @param PlayerService $player
+     * @param ObjectService $objects
      * @return View
+     * @throws Exception
      */
-    public function getProductionTable($object, PlayerService $player): View
+    public function getProductionTable(GameObject $object, PlayerService $player, ObjectService $objects): View
     {
-        $object_id = $object['id'];
+        if ($object->type != 'building') {
+            return view('empty');
+        }
+
+        // Reload object to get the BuildingObject
+        $object = $objects->getBuildingObjectByMachineName($object->machine_name);
+
         $planet = $player->planets->current();
-        $current_level = $player->planets->current()->getObjectLevel($object['id']);
+        $current_level = $player->planets->current()->getObjectLevel($object->machine_name);
 
         $production_table = [];
-        if (!empty($object['production'])) {
-            $production_amount_current_level = 0;
-            foreach ($planet->getBuildingProduction($object['id'], $current_level) as $type => $amount) {
-                if ($amount > 0) {
-                    $production_amount_current_level = $amount;
-                }
-            }
+        if (!empty($object->production)) {
+            $production_amount_current_level = $planet->getBuildingProduction($object->machine_name, $current_level)->sum();
 
             // Create production table array value
             // TODO: add unittest to verify that production calculation is correctly for various buildings.
             $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
             for ($i = $min_level; $i < $min_level + 15; $i++) {
-                $production_amount_previous_level = 0;
-                foreach ($planet->getBuildingProduction($object['id'], $i - 1) as $type => $amount) {
-                    if ($amount > 0) {
-                        $production_amount_previous_level = $amount;
-                    }
-                }
-
-                $production_array = $planet->getBuildingProduction($object['id'], $i);
-                $production_amount = 0;
-                foreach ($production_array as $type => $amount) {
-                    if ($amount > 0) {
-                        $production_amount = $amount;
-                    }
-                }
+                $production_amount_previous_level = $planet->getBuildingProduction($object->machine_name, $i - 1)->sum();
+                $production_amount = $planet->getBuildingProduction($object->machine_name, $i)->sum();
 
                 $production_table[] = [
                     'level' => $i,
                     'production' => $production_amount,
                     'production_difference' => $production_amount - $production_amount_current_level,
                     'production_difference_per_level' => ($i == $current_level) ? 0 : (($i - 1 < $current_level) ? ($production_amount - $production_amount_previous_level) * -1 : $production_amount - $production_amount_previous_level),
-                    'energy_balance' => $planet->getBuildingProduction($object['id'], $i)['energy'],
-                    'energy_difference' => ($i == $current_level) ? 0 : ($planet->getBuildingProduction($object['id'], $i)['energy'] - $planet->getBuildingProduction($object['id'], $current_level)['energy']),
-                    'deuterium_consumption' => $planet->getBuildingProduction($object['id'], $i)['deuterium'],
-                    'deuterium_consumption_per_level' => ($i == $current_level) ? 0 : ($planet->getBuildingProduction($object['id'], $i)['deuterium'] - $planet->getBuildingProduction($object['id'], $current_level)['deuterium']),
+                    'energy_balance' => $planet->getBuildingProduction($object->machine_name, $i)->energy->get(),
+                    'energy_difference' => ($i == $current_level) ? 0 : ($planet->getBuildingProduction($object->machine_name, $i)->energy->get() - $planet->getBuildingProduction($object->machine_name, $current_level)->energy->get()),
+                    'deuterium_consumption' => $planet->getBuildingProduction($object->machine_name, $i)->deuterium->get(),
+                    'deuterium_consumption_per_level' => ($i == $current_level) ? 0 : ($planet->getBuildingProduction($object->machine_name, $i)->deuterium->get() - $planet->getBuildingProduction($object->machine_name, $current_level)->deuterium->get()),
                     'protected' => 0,
                 ];
             }
@@ -123,50 +113,41 @@ class TechtreeController extends OGameController
             'object' => $object,
             'planet' => $planet,
             'production_table' => $production_table,
-            'current_level' => $player->planets->current()->getObjectLevel($object_id),
+            'current_level' => $player->planets->current()->getObjectLevel($object->machine_name),
         ]);
     }
 
     /**
      * Returns techtree storage table.
      *
-     * @param $object
+     * @param GameObject $object
      * @param PlayerService $player
+     * @param ObjectService $objects
      * @return View
+     * @throws Exception
      */
-    public function getStorageTable($object, PlayerService $player): View
+    public function getStorageTable(GameObject $object, PlayerService $player, ObjectService $objects): View
     {
-        $object_id = $object['id'];
+        if ($object->type != 'building') {
+            return view('empty');
+        }
+
+        // Reload object to get the BuildingObject
+        $object = $objects->getBuildingObjectByMachineName($object->machine_name);
+
         $planet = $player->planets->current();
-        $current_level = $player->planets->current()->getObjectLevel($object['id']);
+        $current_level = $player->planets->current()->getObjectLevel($object->machine_name);
 
         $storage_table = [];
-        if (!empty($object['storage'])) {
-            $storage_amount_current_level = 0;
-            foreach ($planet->getBuildingMaxStorage($object['id'], $current_level) as $type => $amount) {
-                if ($amount > 0) {
-                    $storage_amount_current_level = $amount;
-                }
-            }
+        if (!empty($object->storage)) {
+            $storage_amount_current_level = $planet->getBuildingMaxStorage($object->machine_name, $current_level)->sum();
 
             // Create storage table array value
             // TODO: add unittest to verify that storage calculation is correctly for various buildings.
             $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
             for ($i = $min_level; $i < $min_level + 15; $i++) {
-                $storage_amount_previous_level = 0;
-                foreach ($planet->getBuildingMaxStorage($object['id'], $i - 1) as $type => $amount) {
-                    if ($amount > 0) {
-                        $storage_amount_previous_level = $amount;
-                    }
-                }
-
-                $storage_array = $planet->getBuildingMaxStorage($object['id'], $i);
-                $storage_amount = 0;
-                foreach ($storage_array as $type => $amount) {
-                    if ($amount > 0) {
-                        $storage_amount = $amount;
-                    }
-                }
+                $storage_amount_previous_level = $planet->getBuildingMaxStorage($object->machine_name, $i - 1)->sum();
+                $storage_amount = $planet->getBuildingMaxStorage($object->machine_name, $i)->sum();
 
                 $storage_table[] = [
                     'level' => $i,
@@ -182,43 +163,58 @@ class TechtreeController extends OGameController
             'object' => $object,
             'planet' => $planet,
             'storage_table' => $storage_table,
-            'current_level' => $player->planets->current()->getObjectLevel($object_id),
+            'current_level' => $player->planets->current()->getObjectLevel($object->machine_name),
         ]);
     }
 
     /**
      * Returns techtree rapidfire table.
      *
-     * @param $object
+     * @param GameObject $object
      * @param ObjectService $objects
      * @return View
      */
-    public function getRapidfireTable($object, ObjectService $objects): View
+    public function getRapidfireTable(GameObject $object, ObjectService $objects): View
     {
+        if ($object->type != 'ship' && $object->type != 'defense') {
+            return view('empty');
+        }
+
         // Loop through all other objects and see if they have rapidfire against this object
         // if so, create a new array with the rapidfire data same as above.
+
+        // Rapidfire array structure:
+        // [
+        //     'rapidfire' => GameObjectRapidfire,
+        //      'object' => GameObject
+        // ]
+
         $rapidfire_from = [];
         foreach ($objects->getObjects() as $from_object) {
-            if (empty($from_object['rapidfire'])) {
+            if (empty($from_object->rapidfire)) {
                 continue;
             }
 
-            foreach ($from_object['rapidfire'] as $target_objectid => $data) {
-                if ($target_objectid == $object['id']) {
-                    $rapidfire_from[$from_object['id']] = $data;
-                    $rapidfire_from[$from_object['id']]['object'] = $from_object;
+            foreach ($from_object->rapidfire as $rapidfire) {
+                if ($rapidfire->object_machine_name == $object->machine_name) {
+                    $rapidfire_from[$from_object->id] = [
+                        'rapidfire' => $rapidfire,
+                        'object' => $from_object,
+                    ];
                 }
             }
         }
 
         // Get rapidfire against other objects.
         $rapidfire_against = [];
-        if (!empty($object['rapidfire'])) {
-            foreach ($object['rapidfire'] as $target_objectid => $data) {
-                // Add objefct name to rapidfire array
-                $target_object = $objects->getObjects($target_objectid);
-                $rapidfire_against[$target_objectid] = $data;
-                $rapidfire_against[$target_objectid]['object'] = $target_object;
+        if (!empty($object->rapidfire)) {
+            foreach ($object->rapidfire as $rapidfire) {
+                // Add object name to rapidfire array
+                $object = $objects->getObjectByMachineName($rapidfire->object_machine_name);
+                $rapidfire_against[$object->id] = [
+                    'rapidfire' => $rapidfire,
+                    'object' => $object,
+                ];
             }
         }
 
@@ -232,79 +228,73 @@ class TechtreeController extends OGameController
     /**
      * Returns techtree properties table.
      *
-     * @param $object
+     * @param GameObject $object
      * @param PlayerService $player
+     * @param ObjectService $objects
      * @return View
+     * @throws Exception
      */
-    public function getPropertiesTable($object, PlayerService $player): View
+    public function getPropertiesTable(GameObject $object, PlayerService $player, ObjectService $objects): View
     {
-        // Add tooltips for object properties
-        if (empty($object['properties'])) {
+        if ($object->type != 'ship' && $object->type != 'defense') {
             return view('empty');
         }
 
-        // Get actual property values
-        $properties = $player->planets->current()->getObjectProperties($object['id']);
-
-        foreach ($object['properties'] as $property_key => $property_value) {
-            $object['tooltips'][$property_key] = $this->getPropertyTooltip($properties, $property_key);
+        // Add tooltips for object properties
+        if (empty($object->properties)) {
+            return view('empty');
         }
+
+        // Load object again to get the UnitObject
+        $object = $objects->getUnitObjectByMachineName($object->machine_name);
+
+        // Get UnitObject properties...
+        $properties = $object->properties;
+
+        $structural_integrity = $properties->structural_integrity->calculate($player->planets->current());
+        $shield = $properties->shield->calculate($player->planets->current());
+        $attack = $properties->attack->calculate($player->planets->current());
+        $speed = $properties->speed->calculate($player->planets->current());
+        $capacity = $properties->capacity->calculate($player->planets->current());
+        $fuel = $properties->fuel->calculate($player->planets->current());
+
+        $properties_array = [];
+        $properties_array['structural_integrity'] = $structural_integrity->totalValue;
+        $properties_array['shield'] = $shield->totalValue;
+        $properties_array['attack'] = $attack->totalValue;
+        $properties_array['speed'] = $speed->totalValue;
+        $properties_array['capacity'] = $capacity->totalValue;
+        $properties_array['fuel'] = $fuel->totalValue;
+
+        $tooltips_array = [];
+        $tooltips_array['structural_integrity'] = $this->getPropertyTooltip($properties->structural_integrity->name, $structural_integrity->breakdown, $structural_integrity->totalValue);
+        $tooltips_array['shield'] = $this->getPropertyTooltip($properties->shield->name, $shield->breakdown, $structural_integrity->totalValue);
+        $tooltips_array['attack'] = $this->getPropertyTooltip($properties->attack->name, $attack->breakdown, $structural_integrity->totalValue);
+        $tooltips_array['speed'] = $this->getPropertyTooltip($properties->speed->name, $speed->breakdown, $structural_integrity->totalValue);
+        $tooltips_array['capacity'] = $this->getPropertyTooltip($properties->capacity->name, $capacity->breakdown, $structural_integrity->totalValue);
+        $tooltips_array['fuel'] = $this->getPropertyTooltip($properties->fuel->name, $fuel->breakdown, $structural_integrity->totalValue);
 
         return view('ingame.techtree.info.properties')->with([
             'object' => $object,
-            'properties' => $properties,
+            'tooltips' => $tooltips_array,
+            'properties' => $properties_array,
         ]);
     }
 
     /**
      * Returns techtree property tooltip.
      *
-     * @param ObjectProperties $properties
-     * @param string $property_key
+     * @param string $name
+     * @param array<string, string|int|array<string,string|int>> $breakdown
+     * @param int $value
      * @return View
      */
-    public function getPropertyTooltip(ObjectProperties $properties, string $property_key): View
+    public function getPropertyTooltip(string $name, array $breakdown, int $value): View
     {
-        $property_name = 'N/a';
-        $property_breakdown = [];
-        $property_value = 0;
-        switch ($property_key) {
-            case 'structural_integrity':
-                $property_name = 'Structural Integrity';
-                $property_breakdown = $properties->structuralIntegrity->breakdown;
-                $property_value = $properties->structuralIntegrity->totalValue;
-                break;
-            case 'shield':
-                $property_name = 'Shield Strength';
-                $property_breakdown = $properties->shield->breakdown;
-                $property_value = $properties->shield->totalValue;
-                break;
-            case 'attack':
-                $property_name = 'Attack Strength';
-                $property_breakdown = $properties->attack->breakdown;
-                $property_value = $properties->attack->totalValue;
-                break;
-            case 'speed':
-                $property_name = 'Speed';
-                $property_breakdown = $properties->speed->breakdown;
-                $property_value = $properties->speed->totalValue;
-                break;
-            case 'capacity':
-                $property_name = 'Capacity';
-                $property_breakdown = $properties->capacity->breakdown;
-                $property_value = $properties->capacity->totalValue;
-                break;
-            case 'fuel':
-                $property_name = 'Fuel Consumption';
-                $property_breakdown = $properties->fuel->breakdown;
-                $property_value = $properties->fuel->totalValue;
-                break;
-        }
-
         return view('ingame.techtree.info.property_tooltip')->with([
-            'property_name' => $property_name,
-            'property_breakdown' => $property_breakdown,
-            'property_value' => $property_value,
+            'property_name' => $name,
+            'property_breakdown' => $breakdown,
+            'property_value' => $value,
         ]);
     }
 }

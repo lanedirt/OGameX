@@ -12,7 +12,7 @@
         <input type="hidden" name="token"
                value="d99f68937305e0b2c3ff3f059259fcec">
         @php
-            /** @var OGame\ViewModels\MessageViewModel[] $messages */
+            /** @var OGame\ViewModels\QueueMessageViewModel[] $messages */
         @endphp
         @if (count($messages) === 0)
             <li class="no_msg">

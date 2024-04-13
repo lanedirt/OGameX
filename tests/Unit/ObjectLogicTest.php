@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use PHPUnit\Framework\TestCase;
 
 class ObjectLogicTest extends TestCase
@@ -28,31 +28,31 @@ class ObjectLogicTest extends TestCase
     /**
      * Test that all ship objects have properties such as structural integrity, shield etc. defined.
      */
-    public function testShipProperties() {
+    public function testShipProperties(): void {
         $objectService = new ObjectService();
 
         $ships = $objectService->getShipObjects();
         foreach ($ships as $ship) {
-            $this->assertNotNull($ship['properties']['structural_integrity']);
-            $this->assertNotNull($ship['properties']['shield']);
-            $this->assertNotNull($ship['properties']['attack']);
-            $this->assertNotNull($ship['properties']['speed']);
-            $this->assertNotNull($ship['properties']['capacity']);
-            $this->assertNotNull($ship['properties']['fuel']);
+            $this->assertNotNull($ship->properties->structural_integrity);
+            $this->assertNotNull($ship->properties->shield);
+            $this->assertNotNull($ship->properties->attack);
+            $this->assertNotNull($ship->properties->speed);
+            $this->assertNotNull($ship->properties->capacity);
+            $this->assertNotNull($ship->properties->fuel);
         }
     }
 
     /**
      * Test that all defense objects have properties such as structural integrity, shield etc. defined.
      */
-    public function testDefenceProperties() {
+    public function testDefenceProperties(): void {
         $objectService = new ObjectService();
 
-        $ships = $objectService->getDefenseObjects();
-        foreach ($ships as $ship) {
-            $this->assertNotNull($ship['properties']['structural_integrity']);
-            $this->assertNotNull($ship['properties']['shield']);
-            $this->assertNotNull($ship['properties']['attack']);
+        $objects = $objectService->getDefenseObjects();
+        foreach ($objects as $object) {
+            $this->assertNotNull($object->properties->structural_integrity);
+            $this->assertNotNull($object->properties->shield);
+            $this->assertNotNull($object->properties->attack);
         }
     }
 }

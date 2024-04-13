@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractUnitsController;
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\UnitQueueService;
 
@@ -30,6 +30,7 @@ class ShipyardController extends AbstractUnitsController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects) : View
     {
@@ -37,8 +38,8 @@ class ShipyardController extends AbstractUnitsController
 
         // Prepare custom properties
         $this->objects = [
-            0 => [204, 205, 206, 207, 215, 211, 213, 214],
-            1 => [202, 203, 208, 209, 210, 212],
+            0 => ['light_fighter', 'heavy_fighter', 'cruiser', 'battle_ship', 'battlecruiser', 'bomber', 'destroyer', 'deathstar'],
+            1 => ['small_cargo', 'large_cargo', 'colony_ship', 'recycler', 'espionage_probe', 'solar_satellite'],
         ];
         $this->view_name = 'ingame.shipyard.index';
 

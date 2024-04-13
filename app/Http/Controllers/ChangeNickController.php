@@ -3,12 +3,9 @@
 namespace OGame\Http\Controllers;
 
 use Illuminate\View\View;
-use OGame\Http\Traits\IngameTrait;
 
-class ChangeNickController extends Controller
+class ChangeNickController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the notes popup page
      *

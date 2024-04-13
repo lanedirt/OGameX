@@ -5,7 +5,7 @@ namespace OGame\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractUnitsController;
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\UnitQueueService;
 
@@ -34,7 +34,7 @@ class DefenseController extends AbstractUnitsController
 
         // Prepare custom properties
         $this->objects = [
-            0 => [401, 402, 403, 404, 405, 406, 407, 408, 502, 503],
+            0 => ['rocket_launcher', 'light_laser', 'heavy_laser', 'gauss_cannon', 'ion_cannon', 'plasma_turret', 'small_shield_dome', 'large_shield_dome', 'anti_ballistic_missile', 'interplanetary_missile'],
         ];
         $this->view_name = 'ingame.defense.index';
 

@@ -19,11 +19,11 @@ class OverviewController extends OGameController
      * @param PlayerService $player
      * @param BuildingQueueService $building_queue
      * @param ResearchQueueService $research_queue
-     * @param UnitQueueService $ship_queue
+     * @param UnitQueueService $unit_queue
      * @return View
      * @throws BindingResolutionException
      */
-    public function index(PlayerService $player, BuildingQueueService $building_queue, ResearchQueueService $research_queue, UnitQueueService $ship_queue) : View
+    public function index(PlayerService $player, BuildingQueueService $building_queue, ResearchQueueService $research_queue, UnitQueueService $unit_queue) : View
     {
         $this->setBodyId('overview');
 
@@ -31,29 +31,20 @@ class OverviewController extends OGameController
 
         // Parse building queue for this planet
         $build_full_queue = $building_queue->retrieveQueue($planet);
-        $build_active = $building_queue->enrich($building_queue->retrieveCurrentlyBuildingFromQueue($build_full_queue));
-        $build_queue_enriched = $building_queue->enrich($building_queue->retrieveQueuedFromQueue($build_full_queue));
+        $build_active = $build_full_queue->getCurrentlyBuildingFromQueue();
+        $build_queue = $build_full_queue->getQueuedFromQueue();
 
         // Parse research queue for this planet
         $research_full_queue = $research_queue->retrieveQueue($planet);
-        $research_active = $research_queue->enrich($research_queue->retrieveCurrentlyBuildingFromQueue($research_full_queue));
-        $research_queue_enriched = $research_queue->enrich($research_queue->retrieveQueuedFromQueue($research_full_queue));
+        $research_active = $research_full_queue->getCurrentlyBuildingFromQueue();
+        $research_queue = $research_full_queue->getQueuedFromQueue();
 
         // Parse ship queue for this planet.
-        $ship_full_queue = $ship_queue->retrieveQueue($planet);
-        $ship_queue_enriched = $ship_queue->enrich($ship_full_queue);
-
-        // Extract active from queue.
-        $ship_active = [];
-        if (!empty($ship_queue_enriched[0])) {
-            $ship_active = $ship_queue_enriched[0];
-
-            // Remove active from queue.
-            unset($ship_queue_enriched[0]);
-        }
+        $ship_queue = $unit_queue->retrieveQueue($planet);
+        $ship_active = $ship_queue->getCurrentlyBuildingFromQueue();
 
         // Get total time of all items in queue
-        $ship_queue_time_end = $ship_queue->retrieveQueueTimeEnd($planet);
+        $ship_queue_time_end = $unit_queue->retrieveQueueTimeEnd($planet);
         $ship_queue_time_countdown = 0;
         if ($ship_queue_time_end > 0) {
             $ship_queue_time_countdown = $ship_queue_time_end - Carbon::now()->timestamp;
@@ -68,16 +59,16 @@ class OverviewController extends OGameController
             'planet_temp_min' => $player->planets->current()->getPlanetTempMin(),
             'planet_temp_max' => $player->planets->current()->getPlanetTempMax(),
             'planet_coordinates' => $player->planets->current()->getPlanetCoordinatesAsString(),
-            'user_points' => $highscoreService->getPlayerScore($player, true), // @TODO
+            'user_points' => $highscoreService->getPlayerScore($player, true),
             'user_rank' => 0, // @TODO
             'max_rank' => 0, // @TODO
             'user_honor_points' => 0, // @TODO
             'build_active' => $build_active,
-            'build_queue' => $build_queue_enriched,
+            'build_queue' => $build_queue,
             'research_active' => $research_active,
-            'research_queue' => $research_queue_enriched,
+            'research_queue' => $research_queue,
             'ship_active' => $ship_active,
-            'ship_queue' => $ship_queue_enriched,
+            'ship_queue' => $ship_queue,
             'ship_queue_time_countdown' => $ship_queue_time_countdown,
         ]);
     }

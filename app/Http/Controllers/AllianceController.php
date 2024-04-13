@@ -2,20 +2,16 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Http\Request;
-use OGame\Http\Traits\IngameTrait;
+use Illuminate\View\View;
 
-
-class AllianceController extends Controller
+class AllianceController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the alliance index page
      *
-     * @return Response
+     * @return View
      */
-    public function index(Request $request)
+    public function index() : View
     {
         return view('ingame.alliance.index');
     }
@@ -23,9 +19,9 @@ class AllianceController extends Controller
     /**
      * Shows the alliance creation page
      *
-     * @return Response
+     * @return View
      */
-    public function create(Request $request)
+    public function create() : View
     {
         // TODO: create template.
         return view('ingame.alliance.create');

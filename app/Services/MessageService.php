@@ -16,6 +16,8 @@ class MessageService
 {
     /**
      * Define tabs and subtabs which message types they contain.
+     *
+     * @var array<string, array<string, array<int|string>>> $tabs
      */
     // TODO: refactor this to a typed array/class so sending messages with types is typesafe.
     protected array $tabs = [

@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Facades\AppUtil;
 use OGame\Models\User;
 
@@ -16,9 +17,9 @@ class HighscoreService
 {
     /**
      * Highscore type to calculate.
-     * @var numeric
+     * @var int
      */
-    protected $highscoreType;
+    protected int $highscoreType;
 
     /**
      * Highscore constructor.
@@ -30,10 +31,10 @@ class HighscoreService
     /**
      * Set the highscore type to calculate.
      *
-     * @param $type
+     * @param int $type
      * @return void
      */
-    public function setHighscoreType($type)
+    public function setHighscoreType(int $type): void
     {
         // 0 = general score
         // 1 = economy points
@@ -42,7 +43,14 @@ class HighscoreService
         $this->highscoreType = $type;
     }
 
-    public function getPlayerScore($player, $formatted = false) {
+    /**
+     * Get player score.
+     *
+     * @param PlayerService $player
+     * @param bool $formatted
+     * @return int|string
+     */
+    public function getPlayerScore(PlayerService $player, bool $formatted = false) {
         $score = 0;
         // Get score for buildings and units on player owned planets
         foreach ($player->planets->all() as $planet) {
@@ -61,11 +69,25 @@ class HighscoreService
         return $score;
     }
 
-    public function getPlayerScoreResearch(PlayerService $player) {
+    /**
+     * Get player research score.
+     *
+     * @param PlayerService $player
+     * @return int
+     */
+    public function getPlayerScoreResearch(PlayerService $player): int
+    {
         return $player->getResearchScore();
     }
 
-    public function getPlayerScoreMilitary(PlayerService $player) {
+    /**
+     * Get player military score.
+     *
+     * @param PlayerService $player
+     * @return int
+     */
+    public function getPlayerScoreMilitary(PlayerService $player): int
+    {
         $points = 0;
 
         // Get points (sum of all unit amounts) for units on player owned planets.
@@ -76,7 +98,14 @@ class HighscoreService
         return $points;
     }
 
-    public function getPlayerScoreEconomy(PlayerService $player) {
+    /**
+     * Get player economy score.
+     *
+     * @param PlayerService $player
+     * @return int
+     */
+    public function getPlayerScoreEconomy(PlayerService $player): int
+    {
         $points = 0;
 
         // Get score for buildings and units on player owned planets (economy specific calculation).
@@ -87,7 +116,15 @@ class HighscoreService
         return $points;
     }
 
-    public function getHighscorePlayers($offset_start = 0, $return_amount = 100)
+    /**
+     * Get highscore players.
+     *
+     * @param int $offset_start
+     * @param int $return_amount
+     * @return array<int, array<string,mixed>>
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function getHighscorePlayers(int $offset_start = 0, int $return_amount = 100): array
     {
         // Get all players
         $players = User::all();
@@ -152,10 +189,11 @@ class HighscoreService
     /**
      * Return rank of player.
      *
-     * @param $player
+     * @param PlayerService $player
      * @return int
+     * @throws BindingResolutionException
      */
-    public function getHighscorePlayerRank($player)
+    public function getHighscorePlayerRank(PlayerService $player): int
     {
         // TODO: this is a slow method, we should cache the highscore list and get the rank from there.
         // Get all players
@@ -176,9 +214,9 @@ class HighscoreService
     /**
      * Returns the amount of players in the game to determine paging for highscore page.
      *
-     * @return numeric
+     * @return int
      */
-    public function getHighscorePlayerAmount()
+    public function getHighscorePlayerAmount() : int
     {
         return User::count();
     }

@@ -2,7 +2,6 @@
 
 namespace Feature;
 
-use OGame\Services\Objects\ObjectService;
 use Tests\AccountTestCase;
 
 /**

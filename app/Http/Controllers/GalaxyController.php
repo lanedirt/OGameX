@@ -53,12 +53,12 @@ class GalaxyController extends OGameController
     /**
      * Get galaxy table (used for both static and AJAX requests)
      *
-     * @param $galaxy
-     * @param $system
-     * @return mixed
+     * @param int $galaxy
+     * @param int $system
+     * @return string
      * @throws BindingResolutionException
      */
-    public function getTable($galaxy, $system) : string
+    public function getTable(int $galaxy, int $system) : string
     {
         // Retrieve all planets from this galaxy and system.
         $planet_list = Planet::where(['galaxy' => $galaxy, 'system' => $system])->get();
@@ -104,11 +104,10 @@ class GalaxyController extends OGameController
      * Shows the galaxy index page
      *
      * @param Request $request
-     * @param PlayerService $player
      * @return JsonResponse
      * @throws BindingResolutionException
      */
-    public function ajax(Request $request, PlayerService $player) : JsonResponse
+    public function ajax(Request $request) : JsonResponse
     {
         $galaxy = $request->input('galaxy');
         $system = $request->input('system');

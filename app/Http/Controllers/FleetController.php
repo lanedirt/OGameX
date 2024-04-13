@@ -4,14 +4,12 @@ namespace OGame\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use OGame\Http\Traits\IngameTrait;
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
+use OGame\ViewModels\UnitViewModel;
 
-class FleetController extends Controller
+class FleetController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the fleet index page
      *
@@ -19,6 +17,7 @@ class FleetController extends Controller
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws \Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects) : View
     {
@@ -26,35 +25,30 @@ class FleetController extends Controller
         // 0 = military ships
         // 1 = civil ships
         $screen_objects = [
-            0 => [204, 205, 206, 207, 215, 211, 213, 214],
-            1 => [202, 203, 208, 209, 210],
+            0 => ['light_fighter', 'heavy_fighter', 'cruiser', 'battle_ship', 'battlecruiser', 'bomber', 'destroyer', 'deathstar'],
+            1 => ['small_cargo', 'large_cargo', 'colony_ship', 'recycler', 'espionage_probe'],
         ];
 
         $planet = $player->planets->current();
 
-        $objects_array = $objects->getShipObjects();
         $units = [];
         $count = 0;
+
         foreach ($screen_objects as $key_row => $objects_row) {
-            foreach ($objects_row as $object_id) {
+            foreach ($objects_row as $object_machine_name) {
                 $count++;
 
+                $object = $objects->getUnitObjectByMachineName($object_machine_name);
+
                 // Get current level of building
-                $amount = $planet->getObjectAmount($object_id);
+                $amount = $planet->getObjectAmount($object_machine_name);
 
-                // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object_id, $planet, $player);
+                $view_model = new UnitViewModel();
+                $view_model->object = $object;
+                $view_model->count = $count;
+                $view_model->amount = $amount;
 
-                // Check if the current planet has enough resources to build this building.
-                $enough_resources = $planet->hasResources($objects->getObjectPrice($object_id, $planet));
-
-                $units[$key_row][$object_id] = array_merge($objects_array[$object_id], [
-                    'amount' => $amount,
-                    'requirements_met' => $requirements_met,
-                    'count' => $count,
-                    'enough_resources' => $enough_resources,
-                    'currently_building' => (!empty($build_active['id']) && $build_active['object']['id'] == $object_id),
-                ]);
+                $units[$key_row][$object->id] = $view_model;
             }
         }
 

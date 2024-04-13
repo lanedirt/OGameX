@@ -1,4 +1,4 @@
-@if (!empty($object['storage']))
+@if (!empty($object->storage))
     <!-- Storage -->
     <table class="general_details">
         <thead>

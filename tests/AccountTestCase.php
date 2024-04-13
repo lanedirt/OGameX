@@ -2,7 +2,10 @@
 
 namespace Tests;
 
-use Illuminate\Support\Str;
+use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use OGame\Models\Resources;
+use OGame\Services\PlayerService;
 
 /**
  * Base class for tests that require account context. Common setup includes signup of new account and login.
@@ -26,8 +29,11 @@ abstract class AccountTestCase extends TestCase
     {
         parent::setUp();
 
-        // Create a new user and login so we can access ingame features
+        // Create a new user and login so we can access ingame features.
         $this->createAndLoginUser();
+
+        // We should now automatically be logged in. Retrieve meta fields to verify.
+        $this->retrieveMetaFields();
     }
 
     /**
@@ -58,21 +64,21 @@ abstract class AccountTestCase extends TestCase
         $this->assertNotEmpty($playerName);
         $this->assertNotEmpty($planetId);
 
-        $this->currentUserId = $playerId;
+        $this->currentUserId = (int)$playerId;
         $this->currentUsername = $playerName;
-        $this->currentPlanetId = $planetId;
+        $this->currentPlanetId = (int)$planetId;
     }
 
     /**
      * Add resources to current users current planet.
      *
-     * @param $resources
+     * @param Resources $resources
      * @return void
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
-    protected function planetAddResources($resources): void
+    protected function planetAddResources(Resources $resources): void
     {
-        $playerService = app()->make(\OGame\Services\PlayerService::class, ['player_id' => $this->currentUserId]);
+        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
         $planetService = $playerService->planets->current();
         // Update resources.
         $planetService->addResources($resources, true);
@@ -81,49 +87,52 @@ abstract class AccountTestCase extends TestCase
     /**
      * Deduct resources from current users current planet.
      *
-     * @param $resources
+     * @param Resources $resources
      * @return void
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
+     * @throws Exception
      */
-    protected function planetDeductResources($resources): void
+    protected function planetDeductResources(Resources $resources): void
     {
-        $playerService = app()->make(\OGame\Services\PlayerService::class, ['player_id' => $this->currentUserId]);
+        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
         $planetService = $playerService->planets->current();
         // Update resources.
-        $planetService->deductResources($resources, true);
+        $planetService->deductResources($resources);
     }
 
     /**
      * Set object level on current users current planet.
      *
-     * @param $object_id
-     * @param $object_level
+     * @param string $machine_name
+     * @param int $object_level
      * @return void
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
+     * @throws Exception
      */
-    protected function planetSetObjectLevel($object_id, $object_level): void
+    protected function planetSetObjectLevel(string $machine_name, int $object_level): void
     {
         // Update current users planet buildings to allow for research by mutating database.
-        $playerService = app()->make(\OGame\Services\PlayerService::class, ['player_id' => $this->currentUserId]);
+        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
         $planetService = $playerService->planets->current();
         // Update the object level on the planet.
-        $planetService->setObjectLevel($object_id, $object_level, true);
+        $object = $planetService->objects->getObjectByMachineName($machine_name);
+        $planetService->setObjectLevel($object->id, $object_level, true);
     }
 
     /**
      * Set object level on current users current planet.
      *
-     * @param $object_id
-     * @param $object_level
+     * @param string $machine_name
+     * @param int $object_level
      * @return void
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
-    protected function playerSetResearchLevel($object_id, $object_level): void
+    protected function playerSetResearchLevel(string $machine_name, int $object_level): void
     {
         // Update current users planet buildings to allow for research by mutating database.
-        $playerService = app()->make(\OGame\Services\PlayerService::class, ['player_id' => $this->currentUserId]);
+        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
         // Update the technology level for the player.
-        $playerService->setResearchLevel($object_id, $object_level, true);
+        $playerService->setResearchLevel($machine_name, $object_level, true);
     }
 
 }

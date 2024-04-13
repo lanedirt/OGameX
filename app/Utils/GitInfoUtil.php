@@ -4,17 +4,40 @@ namespace OGame\Utils;
 
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Class GitInfoUtil.
+ *
+ * A utility class for retrieving Git repository information if available.
+ *
+ * @package OGame\Utils
+ */
 class GitInfoUtil
 {
-    public static function getCurrentBranch() {
+    /**
+     * Get the current branch.
+     *
+     * @return string
+     */
+    public static function getCurrentBranch() : string {
         return exec('git rev-parse --abbrev-ref HEAD');
     }
 
-    public static function getCurrentCommitHash() {
+    /**
+     * Get the current commit hash.
+     *
+     * @return string
+     */
+    public static function getCurrentCommitHash() : string {
         return exec('git log --pretty="%h" -n1 HEAD');
     }
 
-    public static function getCurrentCommitDate($format = 'Y-m-d H:i:s') {
+    /**
+     * Get the date of the current commit.
+     *
+     * @param string $format
+     * @return string
+     */
+    public static function getCurrentCommitDate(string $format = 'Y-m-d H:i:s') : string {
         // Execute the git command to get the date of the current HEAD commit in the specified format
         $date = exec("git log -1 HEAD --format=%cd");
         $time = strtotime($date);
@@ -22,7 +45,12 @@ class GitInfoUtil
         return date($format, $time);
     }
 
-    public static function getCurrentTag() {
+    /**
+     * Get the current tag of the repository.
+     *
+     * @return string
+     */
+    public static function getCurrentTag() : string {
         // Attempt to get the exact tag matching the current commit
         $tag = exec('git describe --tags --exact-match 2>&1', $output, $returnVar);
 
@@ -40,7 +68,7 @@ class GitInfoUtil
      *
      * @return string
      */
-    public static function getAppVersion() {
+    public static function getAppVersion() : string {
         return Cache::remember('app_version', 3600, function () {
             // Try to retrieve dynamic version based on local Git repo (if exists).
             $tag = self::getCurrentTag();
@@ -63,7 +91,13 @@ class GitInfoUtil
         });
     }
 
-    public static function getAppVersionBranchCommit() {
+    /**
+     * Get app version with branch and commit hash. First try dynamically retrieving it from local Git repo if exists.
+     * Otherwise fallback to the statically defined version in config/app.php
+     *
+     * @return string
+     */
+    public static function getAppVersionBranchCommit() : string {
         return Cache::remember('app_version_full', 3600, function () {
             $branch = self::getCurrentBranch();
             $commit = self::getCurrentCommitHash();

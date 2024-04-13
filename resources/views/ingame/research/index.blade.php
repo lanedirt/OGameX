@@ -166,11 +166,11 @@
 
         $(document).ready(function () {
             initResources();
-            @if (!empty($build_active['id']))
+            @if (!empty($build_active))
             // Countdown for inline building element (pusher)
-            var elem = getElementByIdWithCache("b_research{{ $build_active['object']['id'] }}");
+            var elem = getElementByIdWithCache("b_research{{ $build_active->object->id }}");
             if(elem) {
-                new bauCountdown(elem, {{ $build_active['time_countdown'] }}, {{ $build_active['time_total'] }}, "{{ route('research.index') }}");
+                new bauCountdown(elem, {{ $build_active->time_countdown }}, {{ $build_active->time_total }}, "{{ route('research.index') }}");
             }
             @endif
         });
@@ -203,12 +203,13 @@
             <div id="wrapBattle" class="resLeft fleft">
                 <h2>Basic research</h2>
                 <ul id="base1" class="activate">
+                    @php /** @var OGame\ViewModels\QueueBuildingViewModel $building */ @endphp
                     @foreach ($research[0] as $building)
-                        <li class="@if ($building['currently_building'])
+                        <li class="@if ($building->currently_building)
                                 on
-                            @elseif (!$building['requirements_met'])
+                            @elseif (!$building->requirements_met)
                                 off
-                            @elseif (!$building['enough_resources'])
+                            @elseif (!$building->enough_resources)
                                 disabled
                             @elseif ($build_queue_max)
                                 disabled
@@ -216,41 +217,41 @@
                                 on
                             @endif
                                 ">
-                            <div class="item_box research{!! $building['id'] !!}">
+                            <div class="item_box research{!! $building->object->id !!}">
                                 <div class="buildingimg">
-                                    @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
+                                    @if ($building->requirements_met && $building->enough_resources)
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building->object->title !!} level {!! ($building->current_level + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building->object->id, 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
-                                    @if ($building['currently_building'])
+                                    @if ($building->currently_building)
                                         <div class="construction">
-                                            <div class="pusher" id="b_research{{ $building['id'] }}" style="height:100px;">
+                                            <div class="pusher" id="b_research{{ $building->object->id }}" style="height:100px;">
                                             </div>
-                                            <a class="slideIn timeLink" href="javascript:void(0);" ref="{{ $building['id'] }}">
+                                            <a class="slideIn timeLink" href="javascript:void(0);" ref="{{ $building->object->id }}">
                                                 <span class="time" id="test" name="zeit"></span>
                                             </a>
 
                                             <a class="detail_button slideIn"
-                                               id="details{{ $building['id'] }}"
-                                               ref="{{ $building['id'] }}"
+                                               id="details{{ $building->object->id }}"
+                                               ref="{{ $building->object->id }}"
                                                href="javascript:void(0);">
             <span class="eckeoben">
-                <span style="font-size:11px;" class="undermark"> {{ $building['current_level'] + 1 }}</span>
+                <span style="font-size:11px;" class="undermark"> {{ $building->current_level + 1 }}</span>
             </span>
             <span class="ecke">
-                <span class="level">{{ $building['current_level'] }}</span>
+                <span class="level">{{ $building->current_level }}</span>
             </span>
                                             </a>
                                         </div>
                                     @endif
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{!! $building['title'] !!}" ref="{!! $building['id'] !!}" id="details" href="javascript:void(0);">
+                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{!! $building->object->title !!}" ref="{!! $building->object->id !!}" id="details" href="javascript:void(0);">
                         <span class="ecke">
                             <span class="level">
                                <span class="textlabel">
-                                   {!! $building['title'] !!}
+                                   {!! $building->object->title !!}
                                </span>
-                                {!! $building['current_level'] !!}	                           </span>
+                                {!! $building->current_level !!}	                           </span>
                         </span>
                                     </a>
                                 </div>
@@ -262,12 +263,13 @@
             <div id="wrapBattle" class="resRight fleft">
                 <h2>Drive research</h2>
                 <ul id="base2" class="activate">
+                    @php /** @var OGame\ViewModels\QueueBuildingViewModel $building */ @endphp
                     @foreach ($research[1] as $building)
-                        <li class="@if ($building['currently_building'])
+                        <li class="@if ($building->currently_building)
                                 on
-                            @elseif (!$building['requirements_met'])
+                            @elseif (!$building->requirements_met)
                                 off
-                            @elseif (!$building['enough_resources'])
+                            @elseif (!$building->enough_resources)
                                 disabled
                             @elseif ($build_queue_max)
                                 disabled
@@ -275,41 +277,41 @@
                                 on
                             @endif
                                 ">
-                            <div class="item_box research{!! $building['id'] !!}">
+                            <div class="item_box research{!! $building->object->id !!}">
                                 <div class="buildingimg">
-                                    @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
+                                    @if ($building->requirements_met && $building->enough_resources)
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building->object->title !!} level {!! ($building->current_level + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building->object->id, 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
-                                    @if ($building['currently_building'])
+                                    @if ($building->currently_building)
                                         <div class="construction">
-                                            <div class="pusher" id="b_research{{ $building['id'] }}" style="height:100px;">
+                                            <div class="pusher" id="b_research{{ $building->object->id }}" style="height:100px;">
                                             </div>
-                                            <a class="slideIn timeLink" href="javascript:void(0);" ref="{{ $building['id'] }}">
+                                            <a class="slideIn timeLink" href="javascript:void(0);" ref="{{ $building->object->id }}">
                                                 <span class="time" id="test" name="zeit"></span>
                                             </a>
 
                                             <a class="detail_button slideIn"
-                                               id="details{{ $building['id'] }}"
-                                               ref="{{ $building['id'] }}"
+                                               id="details{{ $building->object->id }}"
+                                               ref="{{ $building->object->id }}"
                                                href="javascript:void(0);">
             <span class="eckeoben">
-                <span style="font-size:11px;" class="undermark"> {{ $building['current_level'] + 1 }}</span>
+                <span style="font-size:11px;" class="undermark"> {{ $building->current_level + 1 }}</span>
             </span>
             <span class="ecke">
-                <span class="level">{{ $building['current_level'] }}</span>
+                <span class="level">{{ $building->current_level }}</span>
             </span>
                                             </a>
                                         </div>
                                     @endif
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{!! $building['title'] !!}" ref="{!! $building['id'] !!}" id="details" href="javascript:void(0);">
+                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{!! $building->object->title !!}" ref="{!! $building->object->id !!}" id="details" href="javascript:void(0);">
                         <span class="ecke">
                             <span class="level">
                                <span class="textlabel">
-                                   {!! $building['title'] !!}
+                                   {!! $building->object->title !!}
                                </span>
-                                {!! $building['current_level'] !!}	                           </span>
+                                {!! $building->current_level !!}	                           </span>
                         </span>
                                     </a>
                                 </div>
@@ -320,12 +322,13 @@
             </div>        <div id="wrapBattle" class="resLeft fleft">
                 <h2>Advanced researches</h2>
                 <ul id="base3" class="activate">
+                    @php /** @var OGame\ViewModels\QueueBuildingViewModel $building */ @endphp
                     @foreach ($research[2] as $building)
-                        <li class="@if ($building['currently_building'])
+                        <li class="@if ($building->currently_building)
                                 on
-                            @elseif (!$building['requirements_met'])
+                            @elseif (!$building->requirements_met)
                                 off
-                            @elseif (!$building['enough_resources'])
+                            @elseif (!$building->enough_resources)
                                 disabled
                             @elseif ($build_queue_max)
                                 disabled
@@ -333,41 +336,41 @@
                                 on
                             @endif
                                 ">
-                            <div class="item_box research{!! $building['id'] !!}">
+                            <div class="item_box research{!! $building->object->id !!}">
                                 <div class="buildingimg">
-                                    @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
+                                    @if ($building->requirements_met && $building->enough_resources)
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building->object->title !!} level {!! ($building->current_level + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building->object->id, 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
-                                    @if ($building['currently_building'])
+                                    @if ($building->currently_building)
                                         <div class="construction">
-                                            <div class="pusher" id="b_research{{ $building['id'] }}" style="height:100px;">
+                                            <div class="pusher" id="b_research{{ $building->object->id }}" style="height:100px;">
                                             </div>
-                                            <a class="slideIn timeLink" href="javascript:void(0);" ref="{{ $building['id'] }}">
+                                            <a class="slideIn timeLink" href="javascript:void(0);" ref="{{ $building->object->id }}">
                                                 <span class="time" id="test" name="zeit"></span>
                                             </a>
 
                                             <a class="detail_button slideIn"
-                                               id="details{{ $building['id'] }}"
-                                               ref="{{ $building['id'] }}"
+                                               id="details{{ $building->object->id }}"
+                                               ref="{{ $building->object->id }}"
                                                href="javascript:void(0);">
             <span class="eckeoben">
-                <span style="font-size:11px;" class="undermark"> {{ $building['current_level'] + 1 }}</span>
+                <span style="font-size:11px;" class="undermark"> {{ $building->current_level + 1 }}</span>
             </span>
             <span class="ecke">
-                <span class="level">{{ $building['current_level'] }}</span>
+                <span class="level">{{ $building->current_level }}</span>
             </span>
                                             </a>
                                         </div>
                                     @endif
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{!! $building['title'] !!}" ref="{!! $building['id'] !!}" id="details" href="javascript:void(0);">
+                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{!! $building->object->title !!}" ref="{!! $building->object->id !!}" id="details" href="javascript:void(0);">
                         <span class="ecke">
                             <span class="level">
                                <span class="textlabel">
-                                   {!! $building['title'] !!}
+                                   {!! $building->object->title !!}
                                </span>
-                                {!! $building['current_level'] !!}
+                                {!! $building->current_level !!}
                             </span>
                         </span>
                                     </a>
@@ -379,12 +382,13 @@
             </div>        <div id="wrapBattle" class="resRight fleft">
                 <h2>Combat research</h2>
                 <ul id="base4" class="activate">
+                    @php /** @var OGame\ViewModels\QueueBuildingViewModel $building */ @endphp
                     @foreach ($research[3] as $building)
-                        <li class="@if ($building['currently_building'])
+                        <li class="@if ($building->currently_building)
                                 on
-                            @elseif (!$building['requirements_met'])
+                            @elseif (!$building->requirements_met)
                                 off
-                            @elseif (!$building['enough_resources'])
+                            @elseif (!$building->enough_resources)
                                 disabled
                             @elseif ($build_queue_max)
                                 disabled
@@ -392,93 +396,47 @@
                                 on
                             @endif
                                 ">
-                            <div class="item_box research{!! $building['id'] !!}">
+                            <div class="item_box research{!! $building->object->id !!}">
                                 <div class="buildingimg">
-                                    @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building['title'] !!} level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
+                                    @if ($building->requirements_met && $building->enough_resources)
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Research {!! $building->object->title !!} level {!! ($building->current_level + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('research.addbuildrequest.get', ['modus' => 1, 'type' => $building->object->id, 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
-                                    @if ($building['currently_building'])
+                                    @if ($building->currently_building)
                                         <div class="construction">
-                                            <div class="pusher" id="b_research{{ $building['id'] }}" style="height:100px;">
+                                            <div class="pusher" id="b_research{{ $building->object->id }}" style="height:100px;">
                                             </div>
-                                            <a class="slideIn timeLink" href="javascript:void(0);" ref="{{ $building['id'] }}">
+                                            <a class="slideIn timeLink" href="javascript:void(0);" ref="{{ $building->object->id }}">
                                                 <span class="time" id="test" name="zeit"></span>
                                             </a>
 
                                             <a class="detail_button slideIn"
-                                               id="details{{ $building['id'] }}"
-                                               ref="{{ $building['id'] }}"
+                                               id="details{{ $building->object->id }}"
+                                               ref="{{ $building->object->id }}"
                                                href="javascript:void(0);">
             <span class="eckeoben">
-                <span style="font-size:11px;" class="undermark"> {{ $building['current_level'] + 1 }}</span>
+                <span style="font-size:11px;" class="undermark"> {{ $building->current_level + 1 }}</span>
             </span>
             <span class="ecke">
-                <span class="level">{{ $building['current_level'] }}</span>
+                <span class="level">{{ $building->current_level }}</span>
             </span>
                                             </a>
                                         </div>
                                     @endif
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{!! $building['title'] !!}" ref="{!! $building['id'] !!}" id="details" href="javascript:void(0);">
+                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{!! $building->object->title !!}" ref="{!! $building->object->id !!}" id="details" href="javascript:void(0);">
                         <span class="ecke">
                             <span class="level">
                                <span class="textlabel">
-                                   {!! $building['title'] !!}
+                                   {!! $building->object->title !!}
                                </span>
-                                {!! $building['current_level'] !!}	                           </span>
+                                {!! $building->current_level !!}	                           </span>
                         </span>
                                     </a>
                                 </div>
                             </div>
                         </li>
                 @endforeach
-
-                    <!--<li class="off">
-                        <div class="item_box research109">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="109" id="details109" title="Weapons Technology<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Weapons Technology </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research110">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="110" id="details110" title="Shielding Technology<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Shielding Technology </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="off">
-                        <div class="item_box research111">
-                            <div class="buildingimg">
-                                <a href="javascript:void(0);" ref="111" id="details111" title="Armour Technology<br/>No research laboratory" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                                <span class="ecke">
-                                    <span class="level">
-                                        <span class="textlabel">Armour Technology </span>
-                                        0                                        <span class="undermark">
-                                                                                    </span>
-                                    </span>
-                                </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>-->
                 </ul>
             </div>        <br class="clearfloat">
         </div>    <div class="content-box-s">
@@ -487,22 +445,22 @@
                 <table cellspacing="0" cellpadding="0" class="construction active">
                     <tbody>
                     {{-- Building is actively being built. --}}
-                    @if (!empty($build_active['id']))
+                    @if (!empty($build_active))
                         <tr>
-                            <th colspan="2">{!! $build_active['object']['title'] !!}</th>
+                            <th colspan="2">{!! $build_active->object->title !!}</th>
                         </tr>
                         <tr class="data">
                             <td class="first" rowspan="3">
                                 <div>
-                                    <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="">
-                                        <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/research/' . $build_active['object']['assets']['img']['small']) !!}" alt="{!! $build_active['object']['title'] !!}">
+                                    <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelProduction({!! $build_active->object->id !!},{!! $build_active->id !!},&quot;Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?&quot;); return false;" title="">
+                                        <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/research/' . $build_active->object->assets->imgSmall) !!}" alt="{!! $build_active->object->title !!}">
                                     </a>
-                                    <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?">
+                                    <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelProduction({!! $build_active->object->id !!},{!! $build_active->id !!},&quot;Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?&quot;); return false;" title="Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?">
                                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="15" width="15">
                                     </a>
                                 </div>
                             </td>
-                            <td class="desc ausbau">Improve to						<span class="level">Level {!! $build_active['object']['level_target'] !!}</span>
+                            <td class="desc ausbau">Improve to						<span class="level">Level {!! $build_active->level_target !!}</span>
                             </td>
                         </tr>
                         <tr class="data">
@@ -514,7 +472,7 @@
                                 <!-- JAVASCRIPT -->
                                 <script type="text/javascript">
                                     var timerHandler=new TimerHandler();
-                                    new baulisteCountdown(getElementByIdWithCache("Countdown"), {!! $build_active['time_countdown'] !!}, "{!! route('research.index') !!}");
+                                    new baulisteCountdown(getElementByIdWithCache("Countdown"), {!! $build_active->time_countdown !!}, "{!! route('research.index') !!}");
                                 </script>
                             </td>
                         </tr>
@@ -532,14 +490,16 @@
                     @endif
 
                     {{-- Building queue has items. --}}
+                    @php /** @var array<OGame\ViewModels\QueueResearchQueueListViewModel> $build_queue */ @endphp
                     @if (count($build_queue) > 0)
                         <table class="queue">
                             <tbody><tr>
-                                @foreach ($build_queue as $item)
+                            @php /** @var OGame\ViewModels\QueueResearchQueueViewModel $item */ @endphp
+                            @foreach ($build_queue as $item)
                                     <td>
-                                        <a href="javascript:void(0);" class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet" onclick="cancelProduction({!! $item['object']['id'] !!},{!! $item['id'] !!},&quot;Cancel expansion of {!! $item['object']['title'] !!} to level {!! $item['object']['level_target'] !!}?&quot;); return false;" title="">
-                                            <img class="queuePic" src="{!! asset('img/objects/research/' . $item['object']['assets']['img']['micro']) !!}" height="28" width="28" alt="{!! $item['object']['title'] !!}">
-                                            <span>{!! $item['object']['level_target'] !!}</span>
+                                        <a href="javascript:void(0);" class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet" onclick="cancelProduction({!! $item->object->id !!},{!! $item->id !!},&quot;Cancel expansion of {!! $item->object->title !!} to level {!! $item->object->title !!}?&quot;); return false;" title="">
+                                            <img class="queuePic" src="{!! asset('img/objects/research/' . $item->object->assets->imgMicro) !!}" height="28" width="28" alt="{!! $item->object->title !!}">
+                                            <span>{!! $item->level_target !!}</span>
                                         </a>
                                     </td>
                                 @endforeach

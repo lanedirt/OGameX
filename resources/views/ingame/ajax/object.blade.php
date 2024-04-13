@@ -1,3 +1,6 @@
+@php /** @var OGame\Models\Resources $price */ @endphp
+
+
 <input type="hidden" name="modus" value="1">
 <input type="hidden" name="type" value="{!! $id !!}">
 <input type="hidden" name="planet_id" value="{!! $planet_id !!}">
@@ -30,7 +33,7 @@
     </a>
 
     @if ($build_active_current)
-    <a role="button" href="javascript:void(0);" class="tooltip abort_link js_hideTipOnMobile" title="Cancel expansion of {{ $title }} to level {{ $next_level }}?" onclick="cancelProduction({{ $build_active_current['object']['id'] }},{{ $build_active_current['id'] }},&quot;Cancel expansion of {{ $title }} to level {{ $next_level }}?&quot;); return false;"></a>
+    <a role="button" href="javascript:void(0);" class="tooltip abort_link js_hideTipOnMobile" title="Cancel expansion of {{ $title }} to level {{ $next_level }}?" onclick="cancelProduction({{ $build_active_current->object->id }},{{ $build_active_current->id }},&quot;Cancel expansion of {{ $title }} to level {{ $next_level }}?&quot;); return false;"></a>
     @endif
 </div>
 
@@ -118,7 +121,7 @@
         @elseif ($energy_difference < 0)
             <li>
                 Production:
-                <span class="time">{{ $production_next['energy'] }} <span class="undermark"> (+{{ ($energy_difference * -1) }})</span>
+                <span class="time">{{ $production_next->energy->get() }} <span class="undermark"> (+{{ ($energy_difference * -1) }})</span>
             </li>
         @endif
     </ul>
@@ -133,40 +136,40 @@
         @endif
 
         <ul id="costs">
-            @if (!empty($price['metal']))
-            <li class="metal tooltip" title="{!! $price_formatted['metal'] !!} Metal">
+            @if (!empty($price->metal->get()))
+            <li class="metal tooltip" title="{!! $price->metal->getFormatted() !!} Metal">
                 <div class="resourceIcon metal"></div>
-                <div class="cost @if ($planet->getMetal() < $price['metal'])
+                <div class="cost @if ($planet->metal()->get() < $price->metal->get())
                         overmark
                         @endif">
-                    {!! $price_formatted['metal'] !!}	                </div>
+                    {!! $price->metal->getFormatted() !!}	                </div>
             </li>
             @endif
-            @if (!empty($price['crystal']))
-            <li class="crystal tooltip" title="{!! $price_formatted['crystal'] !!} Crystal">
+            @if (!empty($price->crystal->get()))
+            <li class="crystal tooltip" title="{!! $price->crystal->getFormatted() !!} Crystal">
                 <div class="resourceIcon crystal"></div>
-                <div class="cost @if ($planet->getCrystal() < $price['crystal'])
+                <div class="cost @if ($planet->crystal()->get() < $price->crystal->get())
                         overmark
                         @endif">
-                    {!! $price_formatted['crystal'] !!}	                </div>
+                    {!!$price->crystal->getFormatted() !!}	                </div>
             </li>
             @endif
-            @if (!empty($price['deuterium']))
-            <li class="deuterium tooltip" title="{!! $price_formatted['deuterium'] !!} Deuterium">
+            @if (!empty($price->deuterium->get()))
+            <li class="deuterium tooltip" title="{!! $price->deuterium->get() !!} Deuterium">
                 <div class="resourceIcon deuterium"></div>
-                <div class="cost @if ($planet->getDeuterium() < $price['deuterium'])
+                <div class="cost @if ($planet->deuterium()->get() < $price->deuterium->get())
                         overmark
                         @endif">
-                    {!! $price_formatted['deuterium'] !!}	                </div>
+                    {!! $price->deuterium->getFormatted() !!}	                </div>
             </li>
             @endif
-            @if (!empty($price['energy']))
-                <li class="deuterium tooltip" title="{!! $price_formatted['energy'] !!} Energy">
+            @if (!empty($price->energy->get()))
+                <li class="energy tooltip" title="{!! $price->energy->getFormatted() !!} Energy">
                     <div class="resourceIcon energy"></div>
-                    <div class="cost @if ($planet->getDeuterium() < $price['energy'])
+                    <div class="cost @if ($planet->energy()->get() < $price->energy->get())
                             overmark
                             @endif">
-                        {!! $price_formatted['energy'] !!}	                </div>
+                        {!! $price->energy->getFormatted() !!}	                </div>
                 </li>
             @endif
         </ul>
@@ -184,7 +187,7 @@ build-it
             <span>
             @if ($object_type == 'ship' || $object_type == 'defense')
             Build
-            @elseif (!empty($build_active['id']))
+            @elseif (!empty($build_active->id))
             In queue
             @else
             Improve

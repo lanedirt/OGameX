@@ -8,10 +8,11 @@ use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
 use OGame\Http\Traits\ObjectAjaxTrait;
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\UnitQueueService;
+use OGame\ViewModels\UnitViewModel;
 
 abstract class AbstractUnitsController extends OGameController
 {
@@ -34,7 +35,7 @@ abstract class AbstractUnitsController extends OGameController
     /**
      * Objects that are shown on this building page.
      *
-     * @var array<array<int>>
+     * @var array<array<string>>
      */
     protected array $objects = [];
 
@@ -61,26 +62,18 @@ abstract class AbstractUnitsController extends OGameController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws \Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects) : View
     {
         $planet = $player->planets->current();
-        $objects_array = $objects->getUnitObjects();
 
         $count = 0;
 
         // Parse build queue for this planet.
-        $build_queue = $this->queue->retrieveQueue($planet);
-        $build_queue = $this->queue->enrich($build_queue);
-
-        // Extract active from queue.
-        $build_active = [];
-        if (!empty($build_queue[0])) {
-            $build_active = $build_queue[0];
-
-            // Remove active from queue.
-            unset($build_queue[0]);
-        }
+        $build_queue_full = $this->queue->retrieveQueue($planet);
+        $build_active = $build_queue_full->getCurrentlyBuildingFromQueue();
+        $build_queue = $build_queue_full->getQueuedFromQueue();
 
         // Get total time of all items in queue
         $queue_time_end = $this->queue->retrieveQueueTimeEnd($planet);
@@ -91,25 +84,29 @@ abstract class AbstractUnitsController extends OGameController
 
         $units = [];
         foreach ($this->objects as $key_row => $objects_row) {
-            foreach ($objects_row as $object_id) {
+            foreach ($objects_row as $object_machine_name) {
                 $count++;
 
+                $object = $objects->getUnitObjectByMachineName($object_machine_name);
+
                 // Get current level of building
-                $amount = $planet->getObjectAmount($object_id);
+                $amount = $planet->getObjectAmount($object->machine_name);
 
                 // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object_id, $planet, $player);
+                $requirements_met = $objects->objectRequirementsMet($object->machine_name, $planet, $player);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $planet->hasResources($objects->getObjectPrice($object_id, $planet));
+                $enough_resources = $planet->hasResources($objects->getObjectPrice($object->machine_name, $planet));
 
-                $units[$key_row][$object_id] = array_merge($objects_array[$object_id], [
-                    'amount' => $amount,
-                    'requirements_met' => $requirements_met,
-                    'count' => $count,
-                    'enough_resources' => $enough_resources,
-                    'currently_building' => (!empty($build_active['id']) && $build_active['object']['id'] == $object_id),
-                ]);
+                $view_model = new UnitViewModel();
+                $view_model->object = $object;
+                $view_model->count = $count;
+                $view_model->amount = $amount;
+                $view_model->requirements_met = $requirements_met;
+                $view_model->enough_resources = $enough_resources;
+                $view_model->currently_building = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name);
+
+                $units[$key_row][$object->id] = $view_model;
             }
         }
 

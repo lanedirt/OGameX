@@ -2,19 +2,19 @@
 
 namespace OGame\Http\Controllers\Abstracts;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
-use OGame\Http\Traits\IngameTrait;
 use OGame\Http\Traits\ObjectAjaxTrait;
 use OGame\Services\BuildingQueueService;
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\ViewModels\BuildingViewModel;
 
 abstract class AbstractBuildingsController extends OGameController
 {
-    use IngameTrait;
     use ObjectAjaxTrait;
 
     protected PlanetService $planet;
@@ -34,7 +34,7 @@ abstract class AbstractBuildingsController extends OGameController
     /**
      * Objects that are shown on this building page.
      *
-     * @var array<array<int>>
+     * @var array<array<string>>
      */
     protected array $objects = [];
 
@@ -68,52 +68,53 @@ abstract class AbstractBuildingsController extends OGameController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws \Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects): View
     {
         $this->planet = $player->planets->current();
-
-        // Note: we add ship objects here as well because solar satellites are visible
-        // on both resources page and ships page.
-        $objects_array = $objects->getBuildingObjects() + $objects->getStationObjects() + $objects->getShipObjects();
 
         $count = 0;
         $header_filename_parts = [];
 
         // Parse build queue for this planet
         $build_full_queue = $this->queue->retrieveQueue($this->planet);
-        $build_active = $this->queue->enrich($this->queue->retrieveCurrentlyBuildingFromQueue($build_full_queue));
-        $build_queue = $this->queue->enrich($this->queue->retrieveQueuedFromQueue($build_full_queue));
+        $build_active = $build_full_queue->getCurrentlyBuildingFromQueue();
+        $build_queue = $build_full_queue->getQueuedFromQueue();
 
         $buildings = [];
         foreach ($this->objects as $key_row => $objects_row) {
             $buildings[$key_row] = [];
-
-            foreach ($objects_row as $object_id) {
+            foreach ($objects_row as $object_machine_name) {
                 $count++;
 
+                // Get object
+                $object = $objects->getObjectByMachineName($object_machine_name);
+
                 // Get current level of building
-                $current_level = $this->planet->getObjectLevel($object_id);
+                $current_level = $this->planet->getObjectLevel($object_machine_name);
 
                 // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object_id, $this->planet, $player);
+                $requirements_met = $objects->objectRequirementsMet($object_machine_name, $this->planet, $player);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $this->planet->hasResources($objects->getObjectPrice($object_id, $this->planet));
+                $enough_resources = $this->planet->hasResources($objects->getObjectPrice($object_machine_name, $this->planet));
 
                 // If building level is 1 or higher, add to header filename parts to
                 // render the header of this planet.
-                if (in_array($object_id, $this->header_filename_objects) && $current_level >= 1) {
-                    $header_filename_parts[$object_id] = $object_id;
+                if (in_array($object->id, $this->header_filename_objects) && $current_level >= 1) {
+                    $header_filename_parts[$object->id] = $object->id;
                 }
 
-                $buildings[$key_row][$object_id] = array_merge($objects_array[$object_id], [
-                    'current_level' => $current_level,
-                    'requirements_met' => $requirements_met,
-                    'count' => $count,
-                    'enough_resources' => $enough_resources,
-                    'currently_building' => (!empty($build_active['id']) && $build_active['object']['id'] == $object_id),
-                ]);
+                $view_model = new BuildingViewModel();
+                $view_model->count = $count;
+                $view_model->object = $object;
+                $view_model->current_level = $current_level;
+                $view_model->requirements_met = $requirements_met;
+                $view_model->enough_resources = $enough_resources;
+                $view_model->currently_building = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name);
+
+                $buildings[$key_row][$object->id] = $view_model;
             }
         }
 
@@ -144,8 +145,13 @@ abstract class AbstractBuildingsController extends OGameController
 
     /**
      * Handles an incoming add buildrequest.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return RedirectResponse
+     * @throws \Exception
      */
-    public function addBuildRequest(Request $request, PlayerService $player)
+    public function addBuildRequest(Request $request, PlayerService $player) : RedirectResponse
     {
         // Explicitly verify CSRF token because this request supports both POST and GET.
         if (!hash_equals($request->session()->token(), $request->input('_token'))) {
@@ -163,8 +169,13 @@ abstract class AbstractBuildingsController extends OGameController
 
     /**
      * Handles an incoming cancel buildrequest.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return RedirectResponse
+     * @throws \Exception
      */
-    public function cancelBuildRequest(Request $request, PlayerService $player)
+    public function cancelBuildRequest(Request $request, PlayerService $player) : RedirectResponse
     {
         $building_id = $request->input('building_id');
         $building_queue_id = $request->input('building_queue_id');

@@ -3,12 +3,9 @@
 namespace OGame\Http\Controllers;
 
 use Illuminate\View\View;
-use OGame\Http\Traits\IngameTrait;
 
-class PlanetMoveController extends Controller
+class PlanetMoveController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the notes popup page
      *

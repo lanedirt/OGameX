@@ -16,7 +16,7 @@ class SettingsService
     /**
      * Array of setting objects.
      *
-     * @var array
+     * @var array<string, Setting>
      */
     protected array $settings = [];
 
@@ -33,7 +33,8 @@ class SettingsService
      *
      * @return void
      */
-    private function loadFromDatabase() {
+    private function loadFromDatabase(): void
+    {
         $settings = Setting::all();
         foreach ($settings as $setting) {
             $this->settings[$setting->key] = $setting;
@@ -43,13 +44,13 @@ class SettingsService
     /**
      * Get a setting value by key.
      *
-     * @param $key
-     * @param $default
+     * @param string $key
+     * @param string|int $default
      * @return string
      */
-    public function get($key, $default = null): string
+    public function get(string $key, string|int $default = ''): string
     {
-        // When a setting is accessed, load everythin from database.
+        // When a setting is accessed, load everything from database.
         // We do it here instead of in constructor so call to database
         // is only made when something on the page actually accesses
         // a settings value.
@@ -68,13 +69,13 @@ class SettingsService
     /**
      * Set a setting value by key.
      *
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param string|int $value
      * @return void
      */
-    public function set($key, $value): void
+    public function set(string $key, string|int $value): void
     {
-        // When a setting is accessed, load everythin from database.
+        // When a setting is accessed, load everything from database.
         // We do it here instead of in constructor so call to database
         // is only made when something on the page actually accesses
         // a settings value.

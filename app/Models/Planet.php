@@ -4,6 +4,7 @@ namespace OGame\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * 
@@ -21,13 +22,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $field_max
  * @property int $temp_min
  * @property int $temp_max
- * @property int $metal
+ * @property float $metal
  * @property int $metal_production
  * @property int $metal_max
- * @property int $crystal
+ * @property float $crystal
  * @property int $crystal_production
  * @property int $crystal_max
- * @property int $deuterium
+ * @property float $deuterium
  * @property int $deuterium_production
  * @property int $deuterium_max
  * @property int $energy_used
@@ -164,7 +165,7 @@ class Planet extends Model
     /**
      * Get the planet that owns the research queue record.
      */
-    public function planet()
+    public function planet(): BelongsTo
     {
         return $this->belongsTo('OGame\Models\Planet');
     }

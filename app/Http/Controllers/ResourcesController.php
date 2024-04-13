@@ -4,11 +4,11 @@ namespace OGame\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
+use OGame\Models\Resources;
 use OGame\Services\BuildingQueueService;
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
 class ResourcesController extends AbstractBuildingsController
@@ -37,8 +37,8 @@ class ResourcesController extends AbstractBuildingsController
         // Prepare custom properties
         $this->header_filename_objects = [1, 2, 3, 4]; // Building ID's that make up the header filename.
         $this->objects = [
-            0 => [1, 2, 3, 4, 12, 212],
-            1 => [22, 23, 24],
+            0 => ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite'],
+            1 => ['metal_store', 'crystal_store', 'deuterium_store', ],
         ];
         $this->view_name = 'ingame.resources.index';
 
@@ -66,57 +66,45 @@ class ResourcesController extends AbstractBuildingsController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws \Exception
      */
     public function settings(Request $request, PlayerService $player, ObjectService $objects) : View
     {
+        $this->setBodyId('resourceSettings');
         $this->planet = $player->planets->current();
 
         $building_resource_rows = [];
         $building_energy_rows = [];
-        $production_total = [];
+        $production_total = new Resources(0,0,0,0);
 
         // Get basic income resource values.
-        foreach ($this->planet->getPlanetBasicIncome() as $key => $value) {
-            if (!empty($production_total[$key])) {
-                $production_total[$key] += $value;
-            } else {
-                $production_total[$key] = $value;
-            }
-        }
+        $production_total->add($this->planet->getPlanetBasicIncome());
 
         // Buildings that provide resource income
         // Get all buildings that have production values.
         foreach ($objects->getBuildingObjectsWithProduction() as $building) {
             // Retrieve all buildings that have production values.
-            $production = $this->planet->getBuildingProduction($building['id']);
+            $production = $this->planet->getBuildingProduction($building->machine_name);
+            $production_total->add($production);
 
-            // Combine values to one array so we have the total production.
-            foreach ($production as $key => $value) {
-                if (!empty($production_total[$key])) {
-                    $production_total[$key] += $value;
-                } else {
-                    $production_total[$key] = $value;
-                }
-            }
-
-            if ($production['energy'] < 0) {
+            if ($production->energy->get() < 0) {
                 // Building consumes energy (resource building)
                 $building_resource_rows[] = [
-                    'id' => $building['id'],
-                    'title' => $building['title'],
-                    'level' => $this->planet->getObjectLevel($building['id']),
+                    'id' => $building->id,
+                    'title' => $building->title,
+                    'level' => $this->planet->getObjectLevel($building->machine_name),
                     'production' => $production,
-                    'actual_energy_use' => floor($production['energy'] * ($this->planet->getResourceProductionFactor() / 100)),
-                    'percentage' => $this->planet->getBuildingPercent($building['id']),
+                    'actual_energy_use' => floor($production->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
+                    'percentage' => $this->planet->getBuildingPercent($building->machine_name),
                 ];
             } else {
                 // Building produces energy (energy building)
                 $building_energy_rows[] = [
-                    'id' => $building['id'],
-                    'title' => $building['title'],
-                    'level' => $this->planet->getObjectLevel($building['id']),
+                    'id' => $building->id,
+                    'title' => $building->title,
+                    'level' => $this->planet->getObjectLevel($building->machine_name),
                     'production' => $production,
-                    'percentage' => $this->planet->getBuildingPercent($building['id']),
+                    'percentage' => $this->planet->getBuildingPercent($building->machine_name),
                 ];
             }
         }
@@ -140,16 +128,15 @@ class ResourcesController extends AbstractBuildingsController
             'building_energy_rows' => $building_energy_rows,
             'production_total' => $production_total,
             'production_factor' => $production_factor,
-            'metal' => $this->planet->getMetal(),
-            'metal_storage' => $this->planet->getMetalStorage(),
-            'metal_storage_formatted' => $this->planet->getMetalStorage(true),
-            'crystal' => $this->planet->getCrystal(),
-            'crystal_storage' => $this->planet->getCrystalStorage(),
-            'crystal_storage_formatted' => $this->planet->getCrystalStorage(true),
-            'deuterium' => $this->planet->getDeuterium(),
-            'deuterium_storage' => $this->planet->getDeuteriumStorage(),
-            'deuterium_storage_formatted' => $this->planet->getDeuteriumStorage(true),
-            'body_id' => 'resourceSettings', // Sets <body> tag ID property.
+            'metal' => $this->planet->metal()->get(),
+            'metal_storage' => $this->planet->metalStorage()->get(),
+            'metal_storage_formatted' => $this->planet->metalStorage()->getFormatted(),
+            'crystal' => $this->planet->crystal()->get(),
+            'crystal_storage' => $this->planet->crystalStorage()->get(),
+            'crystal_storage_formatted' => $this->planet->crystalStorage()->getFormatted(),
+            'deuterium' => $this->planet->deuterium()->get(),
+            'deuterium_storage' => $this->planet->deuteriumStorage()->get(),
+            'deuterium_storage_formatted' => $this->planet->deuteriumStorage()->getFormatted(),
         ]);
     }
 
@@ -168,11 +155,9 @@ class ResourcesController extends AbstractBuildingsController
 
         foreach ($request->input() as $key => $value) {
             if (stristr($key, 'last')) {
-                $object_id = str_replace('last', '', $key);
-                if (is_numeric($object_id)) {
-                    // Update percentage (in increments of 10)
-                    $this->planet->setBuildingPercent($object_id, $value);
-                }
+                $object_id = (int)str_replace('last', '', $key);
+                // Update percentage (in increments of 10)
+                $this->planet->setBuildingPercent($object_id, (int)$value);
             }
         }
 

@@ -10,7 +10,7 @@
             </ul>
             <input type="hidden" name="token" value="b5e7750a20009bf4c875f592bcc7a432">
             @php
-                /** @var OGame\ViewModels\MessageViewModel[] $messages */
+                /** @var OGame\ViewModels\QueueMessageViewModel[] $messages */
             @endphp
             @if (count($messages) === 0)
                 <li class="no_msg">

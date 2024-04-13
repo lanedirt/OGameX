@@ -7,45 +7,16 @@ use OGame\Models\UserTech;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use PHPUnit\Framework\TestCase;
+use Tests\UnitTestCase;
 
-class HighscoreCalculationTest extends TestCase
+class HighscoreCalculationTest extends UnitTestCase
 {
-    protected $planetService;
-    protected $playerService;
-
     /**
      * Set up common test components.
      */
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Initialize empty playerService object
-        $this->playerService = app()->make(PlayerService::class, ['player_id' => 0]);
-        // Initialize the planet service before each test
-        $this->planetService = app()->make(PlanetService::class, ['player' => $this->playerService, 'planet_id' => 0]);
-    }
-
-    /**
-     * Helper method to create a planet model with preconfigured levels.
-     */
-    protected function createAndConfigurePlanetModel(array $attributes): void
-    {
-        // Create fake planet eloquent model with additional attributes
-        $planetModelFake = Planet::factory()->make($attributes);
-        // Set the fake model to the planet service
-        $this->planetService->setPlanet($planetModelFake);
-    }
-
-    /**
-     * Helper method to create a user tech model with preconfigured levels.
-     */
-    protected function createAndConfigureUserTechModel(array $attributes): void
-    {
-        // Create fake user tech eloquent model with additional attributes
-        $userTechModelFake = UserTech::factory()->make($attributes);
-        // Set the fake model to the planet service
-        $this->playerService->setUserTech($userTechModelFake);
     }
 
     /**
@@ -53,7 +24,7 @@ class HighscoreCalculationTest extends TestCase
      */
     public function testBuildingScore(): void
     {
-        $this->createAndConfigurePlanetModel([
+        $this->createAndSetPlanetModel([
             'metal_mine' => 10,
             'crystal_mine' => 10,
             'solar_plant' => 10,
@@ -69,7 +40,7 @@ class HighscoreCalculationTest extends TestCase
      */
     public function testUnitScore(): void
     {
-        $this->createAndConfigurePlanetModel([
+        $this->createAndSetPlanetModel([
             'light_fighter' => 10,
             'battle_ship' => 10,
         ]);
@@ -85,7 +56,7 @@ class HighscoreCalculationTest extends TestCase
      */
     public function testBuildingUnitScore(): void
     {
-        $this->createAndConfigurePlanetModel([
+        $this->createAndSetPlanetModel([
             'metal_mine' => 10,
             'crystal_mine' => 10,
             'solar_plant' => 10,
@@ -105,7 +76,7 @@ class HighscoreCalculationTest extends TestCase
      */
     public function testPlayerResearchScore(): void
     {
-        $this->createAndConfigureUserTechModel([
+        $this->createAndSetUserTechModel([
             'laser_technology' => 3,
             'astrophysics' => 4,
             'shielding_technology' => 5,
@@ -121,10 +92,11 @@ class HighscoreCalculationTest extends TestCase
 
     /**
      * Test that the planet score is calculated correctly based on building levels and unit count combined.
+     * @throws \Exception
      */
     public function testEconomyScore(): void
     {
-        $this->createAndConfigurePlanetModel([
+        $this->createAndSetPlanetModel([
             'metal_mine' => 10,
             'small_cargo' => 10,
             'battle_ship' => 10, // This should not affect economy points as this is not a civil ship.
@@ -136,12 +108,13 @@ class HighscoreCalculationTest extends TestCase
 
     /**
      * Test that the planet score is calculated correctly based on building levels and unit count combined.
+     * @throws \Exception
      */
     public function testMilitaryPoints(): void
     {
-        $this->createAndConfigurePlanetModel([
+        $this->createAndSetPlanetModel([
             'metal_mine' => 10, // This should not affect the military points.
-            'small_cargo' => 10, // This should be calculcated as 50% because it is a civil ship.
+            'small_cargo' => 10, // This should be calculated as 50% because it is a civil ship.
             'light_fighter' => 10, // 100%
             'battle_ship' => 10, // 100%
         ]);

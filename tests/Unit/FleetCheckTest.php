@@ -2,39 +2,20 @@
 
 namespace Tests\Unit;
 
-use OGame\Factories\PlanetServiceFactory;
-use OGame\Models\Planet;
-use OGame\Services\PlayerService;
-use PHPUnit\Framework\TestCase;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Tests\UnitTestCase;
 
-class FleetCheckTest extends TestCase
+class FleetCheckTest extends UnitTestCase
 {
-    protected $planetService;
-
     /**
      * Set up common test components.
+     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Initialize empty playerService object directly without factory as we do not
-        // actually want to load a player from the database.
-        $playerService = app()->make(PlayerService::class, ['player_id' => 0]);
-        // Initialize the planet service with factory.
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-        $this->planetService = $planetServiceFactory->makeForPlayer($playerService, 0);
-    }
-
-    /**
-     * Helper method to create a planet model and configure it.
-     */
-    protected function createAndSetPlanetModel(array $attributes): void
-    {
-        // Create fake planet eloquent model with additional attributes
-        $planetModelFake = Planet::factory()->make($attributes);
-        // Set the fake model to the planet service
-        $this->planetService->setPlanet($planetModelFake);
+        $this->setUpPlanetService();
     }
 
     /**

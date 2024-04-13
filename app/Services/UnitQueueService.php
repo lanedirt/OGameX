@@ -2,9 +2,14 @@
 
 namespace OGame\Services;
 
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Models\UnitQueue;
-use OGame\Services\Objects\ObjectService;
+use OGame\ViewModels\Queue\UnitQueueListViewModel;
+use OGame\ViewModels\Queue\UnitQueueViewModel;
+use OGame\ViewModels\QueueListViewModel;
+use OGame\ViewModels\QueueViewModel;
 
 /**
  * Class UnitQueueService.
@@ -16,18 +21,11 @@ use OGame\Services\Objects\ObjectService;
 class UnitQueueService
 {
     /**
-     * The planet object from the model.
-     *
-     * @var
-     */
-    protected $queue_item;
-
-    /**
      * Information about objects.
      *
      * @var ObjectService
      */
-    protected $objects;
+    protected ObjectService $objects;
 
     /**
      * The queue model where this class should get its data from.
@@ -49,8 +47,12 @@ class UnitQueueService
 
     /**
      * Retrieve current building build queue for a planet.
+     *
+     * @param PlanetService $planet
+     * @return UnitQueueListViewModel
+     * @throws Exception
      */
-    public function retrieveQueue($planet)
+    public function retrieveQueue(PlanetService $planet) : UnitQueueListViewModel
     {
         // Fetch queue items from model
         $queue_items = $this->model->where([
@@ -60,53 +62,10 @@ class UnitQueueService
             ->orderBy('time_start', 'asc')
             ->get();
 
-        return $queue_items;
-    }
-
-    /**
-     * Retrieve current building build queue for a planet.
-     */
-    public function retrieveBuilding($planet_id)
-    {
-        // Fetch queue items from model
-        $queue_items = $this->model->where([
-            ['planet_id', $planet_id],
-            ['time_start', '<=', Carbon::now()->timestamp],
-            ['processed', 0],
-        ])
-            ->orderBy('time_start', 'asc')
-            ->get();
-
-        return $queue_items;
-    }
-
-    /**
-     * Enriches one or more queue_items to prepare it for rendering.
-     *
-     * @param $queue_items
-     *  Single queue_item or array of queue_items.
-     *
-     * @return array
-     */
-    public function enrich($queue_items)
-    {
-        // Enrich information before we return it
-        $return = array();
-
-        if (empty($queue_items)) {
-            return $return;
-        }
-
-        // Convert single queue_item result to an array because the logic
-        // beneath expects an array.
-        $return_type = 'array';
-        if (!empty($queue_items->id)) {
-            $return_type = 'single';
-            $queue_items = array($queue_items);
-        }
-
+        // Convert to ViewModel array
+        $list = array();
         foreach ($queue_items as $item) {
-            $object = $this->objects->getUnitObjects($item->object_id);
+            $object = $this->objects->getObjectById($item['object_id']);
 
             $time_countdown = $item->time_end - Carbon::now()->timestamp;
             if ($time_countdown < 0) {
@@ -122,55 +81,73 @@ class UnitQueueService
                 $last_update = $item->time_start;
             }
             $last_update_diff = Carbon::now()->timestamp - $last_update;
-
             $time_countdown_next_single = $time_per_unit - $last_update_diff;
 
-            $return[] = [
-                'id' => $item->id,
-                'object' => [
-                    'id' => $object['id'],
-                    'title' => $object['title'],
-                    'level_target' => $item->object_level_target,
-                    'assets' => $object['assets'],
-                ],
-                'object_amount' => $item->object_amount,
-                'object_amount_remaining' => $item->object_amount - $item->object_amount_progress,
-                'time_countdown' => $time_countdown,
-                'time_total' => $item->time_end - $item->time_start,
-                'time_countdown_object_single' => $time_countdown_next_single,
-            ];
+            $viewModel = new UnitQueueViewModel(
+                $item['id'],
+                $object,
+                $time_countdown,
+                $item['time_end'] - $item['time_start'],
+                $item['object_amount'],
+                $item['object_amount'] - $item['object_amount_progress'],
+                $time_countdown_next_single
+            );
+
+            $list[] = $viewModel;
         }
 
-        if ($return_type == 'single') {
-            return $return[0];
-        } elseif ($return_type == 'array') {
-            return $return;
-        }
+        // Create QueueListViewModel
+        return new UnitQueueListViewModel($list);
+    }
 
-        return $return;
+    /**
+     * Retrieve current building build queue for a planet.
+     *
+     * @param int $planet_id
+     * @return Collection<UnitQueue>
+     */
+    public function retrieveBuilding(int $planet_id) : Collection
+    {
+        // Fetch queue items from model
+        return $this->model->where([
+            ['planet_id', $planet_id],
+            ['time_start', '<=', Carbon::now()->timestamp],
+            ['processed', 0],
+        ])
+            ->orderBy('time_start', 'asc')
+            ->get();
     }
 
     /**
      * Get the amount of already existing queue items for a particular
      * building.
+     *
+     * @param PlanetService $planet
+     * @param int $building_id
+     * @return int
      */
-    public function activeBuildingQueueItemCount(PlanetService $planet, $building_id)
+    public function activeBuildingQueueItemCount(PlanetService $planet, int $building_id): int
     {
         // Fetch queue items from model
-        $count = $this->model->where([
+        return $this->model->where([
             ['planet_id', $planet->getPlanetId()],
             ['object_id', $building_id],
             ['processed', 0],
         ])
             ->count();
-
-        return $count;
     }
 
     /**
      * Add a building to the building queue for the current planet.
+     *
+     * @param PlanetService $planet
+     * @param int $object_id
+     * @param int $requested_build_amount
+     *
+     * @return void
+     * @throws Exception
      */
-    public function add(PlanetService $planet, $object_id, $requested_build_amount): void
+    public function add(PlanetService $planet, int $object_id, int $requested_build_amount): void
     {
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the building queue.
@@ -180,11 +157,13 @@ class UnitQueueService
             return;
         }
 
+        $object = $this->objects->getUnitObjectById($object_id);
+
         // Sanity check: check if the planet has enough resources to build
         // the amount requested. If not, then adjust the ordered amount.
         // E.g. if a player orders 100 units but can only afford 60 units,
         // 60 units will be added to the queue and resources will be deducted.
-        $max_build_amount = $this->objects->getObjectMaxBuildAmount($object_id, $planet);
+        $max_build_amount = $this->objects->getObjectMaxBuildAmount($object->machine_name, $planet);
         if ($requested_build_amount > $max_build_amount) {
             $requested_build_amount = $max_build_amount;
         }
@@ -196,19 +175,15 @@ class UnitQueueService
         }
 
         // Get price per unit
-        $price = $this->objects->getObjectPrice($object_id, $planet);
-
-        // Multiply by amount of units
-        foreach ($price as &$price_amount) {
-            $price_amount = $price_amount * $requested_build_amount;
-        }
+        $price_per_unit = $this->objects->getObjectPrice($object->machine_name, $planet);
+        $total_price = $price_per_unit->multiply($requested_build_amount);
 
         // @TODO: add abstraction and unittest to see if multiplication
         // of resource prices works correctly in unit build orders.
 
         // Calculate build time per unit
         // should be different from buildings.
-        $build_time_unit = $planet->getUnitConstructionTime($object_id);
+        $build_time_unit = $planet->getUnitConstructionTime($object->machine_name);
         $build_time_total = $build_time_unit * $requested_build_amount;
 
         // Time this order will start
@@ -228,12 +203,12 @@ class UnitQueueService
         $queue->time_duration = $build_time_total;
         $queue->time_start = $time_start;
         $queue->time_end = $queue->time_start + $queue->time_duration;
-        $queue->metal = $price['metal'];
-        $queue->crystal = $price['crystal'];
-        $queue->deuterium = $price['deuterium'];
+        $queue->metal = (int)$total_price->metal->get();
+        $queue->crystal = (int)$total_price->crystal->get();
+        $queue->deuterium = (int)$total_price->deuterium->get();
 
         // All OK, deduct resources.
-        $planet->deductResources($price);
+        $planet->deductResources($total_price);
 
         // Save the new queue item which will automatically start it.
         $queue->save();
@@ -243,8 +218,11 @@ class UnitQueueService
      * Retrieve the end time of any items that are already in the queue.
      *
      * If there are no items in the queue, FALSE will be returned.
+     *
+     * @param PlanetService $planet
+     * @return int
      */
-    public function retrieveQueueTimeEnd($planet)
+    public function retrieveQueueTimeEnd(PlanetService $planet) : int
     {
         // Fetch queue items from model
         $queue_item = $this->model->where([
@@ -257,7 +235,7 @@ class UnitQueueService
         if ($queue_item) {
             return $queue_item->time_end;
         } else {
-            return false;
+            return 0;
         }
     }
 }

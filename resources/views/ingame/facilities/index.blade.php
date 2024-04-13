@@ -168,13 +168,6 @@
 
         $(document).ready(function () {
             initStation();
-            @if (!empty($build_active['id']))
-            // Countdown for inline building element (pusher)
-            var elem = getElementByIdWithCache("b_facilities{{ $build_active['object']['id'] }}");
-            if(elem) {
-                new bauCountdown(elem, {{ $build_active['time_countdown'] }}, {{ $build_active['time_total'] }}, "{{ route('facilities.index') }}");
-            }
-            @endif
         });
 
     </script>
@@ -205,12 +198,13 @@
             </div>
             <div class="content">
                 <ul id="stationbuilding">
-                    @foreach ($buildings[0] as $building)
-                        <li id="button{!! $building['count']!!}" class="@if ($building['currently_building'])
+                @php /** @var OGame\ViewModels\QueueBuildingViewModel $building */ @endphp
+                @foreach ($buildings[0] as $building)
+                        <li id="button{!! $building->count!!}" class="@if ($building->currently_building)
                                 on
-                            @elseif (!$building['requirements_met'])
+                            @elseif (!$building->requirements_met)
                                 off
-                            @elseif (!$building['enough_resources'])
+                            @elseif (!$building->enough_resources)
                                 disabled
                             @elseif ($build_queue_max)
                                 disabled
@@ -218,175 +212,47 @@
                                 on
                             @endif
                                 ">
-                            <div class="station{!! $building['id'] !!}">
+                            <div class="station{!! $building->object->id !!}">
                                 <div class="stationlarge buildingimg">
-                                    @if ($building['requirements_met'] && $building['enough_resources'])
-                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Expand {!! $building['title'] !!} on level {!! ($building['current_level'] + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('facilities.addbuildrequest.get', ['modus' => 1, 'type' => $building['id'], 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
+                                    @if ($building->requirements_met && $building->enough_resources)
+                                        <a class="fastBuild tooltip js_hideTipOnMobile" title="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}" href="javascript:void(0);" onclick="sendBuildRequest('{!! route('facilities.addbuildrequest.get', ['modus' => 1, 'type' => $building->object->id, 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
                                             <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22" height="14">
                                         </a>
                                     @endif
-                                    @if ($building['currently_building'])
+                                    @if ($building->currently_building)
                                             <div class="construction">
-                                                <div class="pusher" id="b_facilities{{ $building['id'] }}" style="height:100px;">
+                                                <div class="pusher" id="b_resources{{ $building->object->id }}" style="height:100px;">
                                                 </div>
-                                                <a class="slideIn timeLink" href="javascript:void(0);" ref="{{ $building['id'] }}">
+                                                <a class="slideIn timeLink" href="javascript:void(0);" ref="{{ $building->object->id }}">
                                                     <span class="time" id="test" name="zeit"></span>
                                                 </a>
 
                                                 <a class="detail_button slideIn"
-                                                   id="details{{ $building['id'] }}"
-                                                   ref="{{ $building['id'] }}"
+                                                   id="details{{ $building->object->id }}"
+                                                   ref="{{ $building->object->id }}"
                                                    href="javascript:void(0);">
 				<span class="eckeoben">
-					<span style="font-size:11px;" class="undermark"> {{ $building['current_level'] + 1 }}</span>
+					<span style="font-size:11px;" class="undermark"> {{ $building->current_level + 1 }}</span>
 				</span>
 				<span class="ecke">
-					<span class="level">{{ $building['current_level'] }}</span>
+					<span class="level">{{ $building->current_level }}</span>
 				</span>
                                                 </a>
                                             </div>
                                     @endif
-                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{!! $building['title'] !!}" ref="{!! $building['id'] !!}" id="details" href="javascript:void(0);">
+                                    <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="{!! $building->object->title !!}" ref="{!! $building->object->id !!}" id="details" href="javascript:void(0);">
                         <span class="ecke">
                             <span class="level">
                                <span class="textlabel">
-                                   {!! $building['title'] !!}
+                                   {!! $building->object->title !!}
                                </span>
-                                {!! $building['current_level'] !!}	                           </span>
+                                {!! $building->current_level !!}	                           </span>
                         </span>
                                     </a>
                                 </div>
                             </div>
                         </li>
                 @endforeach
-                    <!--<li id="button0" class="disabled">
-                        <div class="item_box station14">
-                            <div class="stationlarge buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="" ref="14" id="details14" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Robotics Factory				                    </span>
-                                0                                    <span class="undermark">
-                                                                        </span>
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="button1" class="off">
-                        <div class="item_box station21">
-                            <div class="stationlarge buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Shipyard<br/>Requirements are not met" ref="21" id="details21" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Shipyard				                    </span>
-                                0                                    <span class="undermark">
-                                                                        </span>
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="button2" class="disabled">
-                        <div class="item_box station31">
-                            <div class="stationlarge buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="" ref="31" id="details31" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Research Lab				                    </span>
-                                0                                    <span class="undermark">
-                                                                        </span>
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="button3" class="disabled">
-                        <div class="item_box station34">
-                            <div class="stationlarge buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="" ref="34" id="details34" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Alliance Depot				                    </span>
-                                0                                    <span class="undermark">
-                                                                        </span>
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="button4" class="off">
-                        <div class="item_box station44">
-                            <div class="stationlarge buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="" ref="44" id="details44" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Missile Silo				                    </span>
-                                0                                    <span class="undermark">
-                                                                        </span>
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="button5" class="off">
-                        <div class="item_box station15">
-                            <div class="stationlarge buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="" ref="15" id="details15" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Nanite Factory				                    </span>
-                                0                                    <span class="undermark">
-                                                                        </span>
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="button6" class="off">
-                        <div class="item_box station33">
-                            <div class="stationlarge buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Terraformer<br/>Requirements are not met" ref="33" id="details33" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Terraformer				                    </span>
-                                0                                    <span class="undermark">
-                                                                        </span>
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li id="button7" class="off">
-                        <div class="item_box station36">
-                            <div class="stationlarge buildingimg">
-                                <a class="detail_button tooltip js_hideTipOnMobile slideIn" title="Space Dock<br/>Requirements are not met" ref="36" id="details36" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                                <span class="textlabel">
-                                    Space Dock				                    </span>
-                                0                                    <span class="undermark">
-                                                                        </span>
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>-->
                 </ul>
                 <div class="footer"></div>
             </div>
@@ -400,76 +266,9 @@
                 <table cellpadding="0" cellspacing="0" class="construction active">
                     <tbody>
                     {{-- Building is actively being built. --}}
-                    @if (!empty($build_active['id']))
-                        <tr>
-                            <th colspan="2">{!! $build_active['object']['title'] !!}</th>
-                        </tr>
-                        <tr class="data">
-                            <td class="first" rowspan="3">
-                                <div>
-                                    <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="">
-                                        <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/buildings/' . $build_active['object']['assets']['img']['small']) !!}" alt="{!! $build_active['object']['title'] !!}">
-                                    </a>
-                                    <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelProduction({!! $build_active['object']['id'] !!},{!! $build_active['id'] !!},&quot;Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?&quot;); return false;" title="Cancel expansion of {!! $build_active['object']['title'] !!} to level {!! $build_active['object']['level_target'] !!}?">
-                                        <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="15" width="15">
-                                    </a>
-                                </div>
-                            </td>
-                            <td class="desc ausbau">Improve to						<span class="level">Level {!! $build_active['object']['level_target'] !!}</span>
-                            </td>
-                        </tr>
-                        <tr class="data">
-                            <td class="desc">Duration:</td>
-                        </tr>
-                        <tr class="data">
-                            <td class="desc timer">
-                                <span id="Countdown">Loading...</span>
-                                <!-- JAVASCRIPT -->
-                                <script type="text/javascript">
-                                    var timerHandler=new TimerHandler();
-                                    new baulisteCountdown(getElementByIdWithCache("Countdown"), {!! $build_active['time_countdown'] !!}, "{!! route('facilities.index') !!}");
-                                </script>
-                            </td>
-                        </tr>
-                        <tr class="data">
-                            <td colspan="2">
-                                <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile building disabled" title="Reduces construction time by 50% of the total construction time (15s)." href="javascript:void(0);" rel="{{ route('shop.index', ['buyAndActivate' => 'cb4fd53e61feced0d52cfc4c1ce383bad9c05f67'])  }}">
-                                    <div class="build-faster-img" alt="Halve time"></div>
-                                    <span class="build-txt">Halve time</span>
-                            <span class="dm_cost overmark">
-                                Costs: 750 DM                            </span>
-                                    <span class="order_dm">Purchase Dark Matter</span>
-                                </a>
-                            </td>
-                        </tr>
-                    @endif
-
+                    @include ('ingame.shared.buildqueue.building-active', ['build_active' => $build_active])
                     {{-- Building queue has items. --}}
-                    @if (count($build_queue) > 0)
-                        <table class="queue">
-                            <tbody><tr>
-                                @foreach ($build_queue as $item)
-                                    <td>
-                                        <a href="javascript:void(0);" class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet" onclick="cancelProduction({!! $item['object']['id'] !!},{!! $item['id'] !!},&quot;Cancel expansion of {!! $item['object']['title'] !!} to level {!! $item['object']['level_target'] !!}?&quot;); return false;" title="">
-                                            <img class="queuePic" src="{!! asset('img/objects/buildings/' . $item['object']['assets']['img']['micro']) !!}" height="28" width="28" alt="{!! $item['object']['title'] !!}">
-                                            <span>{!! $item['object']['level_target'] !!}</span>
-                                        </a>
-                                    </td>
-                                @endforeach
-                            </tr>
-                            </tbody></table>
-                    @endif
-
-                    {{-- No buildings are being built. --}}
-                    @if (empty($build_active))
-                        <tr>
-                            <td colspan="2" class="idle">
-                                <a class="tooltip js_hideTipOnMobile
-                           " title="At the moment there is no building being built on this planet. Click here to get to facilities." href="{{ route('facilities.index') }}">
-                                    No buildings in construction.                            </a>
-                            </td>
-                        </tr>
-                    @endif
+                    @include ('ingame.shared.buildqueue.building-queue', ['build_queue' => $build_queue])
                     </tbody>
                 </table>
             </div>

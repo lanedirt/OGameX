@@ -68,10 +68,14 @@ class MessageViewModel
         // Pattern to match [player]{playerId}[/player] placeholders
         $body = preg_replace_callback('/\[player\](\d+)\[\/player\]/', function ($matches) {
             // Assuming getPlayerNameById is a method to get a player's name by ID
-            $playerServiceFactory =  app()->make(PlayerServiceFactory::class);
-            $playerService = $playerServiceFactory->make($matches[1]);
+            if (!is_numeric($matches[1])) {
+                return "Unknown Player";
+            }
 
-            if ($playerService) {
+            $playerServiceFactory =  app()->make(PlayerServiceFactory::class);
+            $playerService = $playerServiceFactory->make((int)$matches[1]);
+
+            if ($playerService->getId() > 0) {
                 $playerName = $playerService->getUsername();
             } else {
                 $playerName = "Unknown Player";

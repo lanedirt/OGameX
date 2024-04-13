@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Tests\AccountTestCase;
-use Tests\DatabaseTestCase;
 
 /**
  * Test factory classes.

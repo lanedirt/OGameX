@@ -1,3 +1,5 @@
+# Run PHPStan code analysis with `clear && ./vendor/bin/phpstan analyse --memory-limit=2G` command
+
 includes:
     - vendor/larastan/larastan/extension.neon
 
@@ -5,9 +7,12 @@ parameters:
 
     paths:
         - app/
+        - tests/
+        - resources/
 
     # Level 9 is the highest level
     level: 6
+    checkGenericClassInNonGenericObjectType: false
 
 #    ignoreErrors:
 #        - '#PHPDoc tag @var#'

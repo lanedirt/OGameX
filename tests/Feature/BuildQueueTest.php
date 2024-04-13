@@ -4,6 +4,7 @@ namespace Feature;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
+use OGame\Models\Resources;
 use Tests\AccountTestCase;
 
 /**
@@ -76,7 +77,7 @@ class BuildQueueTest extends AccountTestCase
     public function testBuildQueueFacilitiesRoboticsFactory(): void
     {
         // Add resources to planet that test requires.
-        $this->planetAddResources(['metal' => 400, 'crystal' => 120, 'deuterium' => 200]);
+        $this->planetAddResources(new Resources(400,120,200,0));
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
@@ -138,7 +139,7 @@ class BuildQueueTest extends AccountTestCase
     public function testBuildQueueFacilitiesRoboticsFactoryMultiQueue(): void
     {
         // Add resources to planet that test requires.
-        $this->planetAddResources(['metal' => 5000, 'crystal' => 5000, 'deuterium' => 5000]);
+        $this->planetAddResources(new Resources(5000,5000,5000,0));
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
@@ -279,7 +280,7 @@ class BuildQueueTest extends AccountTestCase
      */
     public function testBuildQueueFailInsufficientResources(): void
     {
-        $this->planetDeductResources(['metal' => 500, 'crystal' => 500]);
+        $this->planetDeductResources(new Resources(500, 500, 0, 0));
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
@@ -316,7 +317,7 @@ class BuildQueueTest extends AccountTestCase
      */
     public function testBuildQueueFailUnfulfilledRequirements(): void
     {
-        $this->planetAddResources(['metal' => 1000, 'crystal' => 1000, 'deuterium' => 1000]);
+        $this->planetAddResources(new Resources(1000,1000,1000, 0));
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);

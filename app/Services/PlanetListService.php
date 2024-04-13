@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet as Planet;
 
@@ -19,7 +20,7 @@ class PlanetListService
     /**
      * The planet object from the model.
      *
-     * @var array
+     * @var array<PlanetService>
      */
     protected array $planets = [];
 
@@ -41,8 +42,12 @@ class PlanetListService
 
     /**
      * Load all planets of specific user.
+     *
+     * @param int $id
+     * @return void
+     * @throws BindingResolutionException
      */
-    public function load($id)
+    public function load(int $id) : void
     {
         // Get all planets of user
         $planets = Planet::where('user_id', $id)->get();
@@ -80,8 +85,10 @@ class PlanetListService
 
     /**
      * Updates all planets in this planet list.
+     *
+     * @return void
      */
-    public function update()
+    public function update(): void
     {
         foreach ($this->planets as $planet) {
             $planet->update();
@@ -91,8 +98,9 @@ class PlanetListService
     /**
      * Get already loaded child planet by ID. Invokes an exception if the
      * planet is not found.
+     * @throws Exception
      */
-    public function childPlanetById($id)
+    public function childPlanetById(int $id): PlanetService
     {
         foreach ($this->planets as $planet) {
             if ($planet->getPlanetId() == $id) {
@@ -106,10 +114,10 @@ class PlanetListService
     /**
      * Checks whether planet with given ID exists and is owned by the current user.
      *
-     * @param $id
+     * @param int $id
      * @return bool
      */
-    public function planetExistsAndOwnedByPlayer($id)
+    public function planetExistsAndOwnedByPlayer(int $id): bool
     {
         foreach ($this->planets as $planet) {
             if ($planet->getPlanetId() == $id) {
@@ -141,24 +149,30 @@ class PlanetListService
 
     /**
      * Get first planet of player.
+     *
+     * @return PlanetService
      */
-    public function first()
+    public function first() : PlanetService
     {
         return $this->planets[0];
     }
 
     /**
      * Return array of planet objects.
+     *
+     * @return array<PlanetService>
      */
-    public function all()
+    public function all() : array
     {
         return $this->planets;
     }
 
     /**
      * Get amount of planets.
+     *
+     * @return int
      */
-    public function count()
+    public function count() : int
     {
         return count($this->planets);
     }

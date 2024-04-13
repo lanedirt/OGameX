@@ -2,12 +2,12 @@
 
 namespace OGame\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Services\BuildingQueueService;
-use OGame\Services\Objects\ObjectService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
 class FacilitiesController extends AbstractBuildingsController
@@ -36,7 +36,7 @@ class FacilitiesController extends AbstractBuildingsController
         // Prepare custom properties
         $this->header_filename_objects = [14, 21, 31, 34]; // Building ID's that make up the header filename.
         $this->objects = [
-            0 => [14, 21, 31, 34, 44, 15, 33, 36],
+            0 => ['robot_factory', 'shipyard', 'research_lab', 'alliance_depot', 'missile_silo', 'nano_factory', 'terraformer', 'space_dock'],
         ];
         $this->view_name = 'ingame.facilities.index';
 
@@ -46,13 +46,14 @@ class FacilitiesController extends AbstractBuildingsController
     /**
      * Handles the facilities page AJAX requests.
      *
-     * @param int $id
-     * @return Response
+     * @param Request $request
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @return View
+     * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects)
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : View
     {
-        $this->building_type = 'station';
-
         return $this->ajaxHandler($request, $player, $objects);
     }
 }
