@@ -29,8 +29,11 @@ abstract class AccountTestCase extends TestCase
     {
         parent::setUp();
 
-        // Create a new user and login so we can access ingame features
+        // Create a new user and login so we can access ingame features.
         $this->createAndLoginUser();
+
+        // We should now automatically be logged in. Retrieve meta fields to verify.
+        $this->retrieveMetaFields();
     }
 
     /**
@@ -61,9 +64,9 @@ abstract class AccountTestCase extends TestCase
         $this->assertNotEmpty($playerName);
         $this->assertNotEmpty($planetId);
 
-        $this->currentUserId = $playerId;
+        $this->currentUserId = (int)$playerId;
         $this->currentUsername = $playerName;
-        $this->currentPlanetId = $planetId;
+        $this->currentPlanetId = (int)$planetId;
     }
 
     /**
@@ -119,12 +122,12 @@ abstract class AccountTestCase extends TestCase
     /**
      * Set object level on current users current planet.
      *
-     * @param $machine_name
-     * @param $object_level
+     * @param string $machine_name
+     * @param int $object_level
      * @return void
      * @throws BindingResolutionException
      */
-    protected function playerSetResearchLevel($machine_name, $object_level): void
+    protected function playerSetResearchLevel(string $machine_name, int $object_level): void
     {
         // Update current users planet buildings to allow for research by mutating database.
         $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);

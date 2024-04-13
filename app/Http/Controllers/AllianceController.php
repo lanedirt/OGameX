@@ -3,12 +3,9 @@
 namespace OGame\Http\Controllers;
 
 use Illuminate\View\View;
-use OGame\Http\Traits\IngameTrait;
 
-class AllianceController extends Controller
+class AllianceController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the alliance index page
      *

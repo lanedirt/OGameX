@@ -4,10 +4,15 @@ namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Str;
+use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Planet;
+use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
+    protected PlanetService $planetService;
 
     /**
      * Create a new user and login via the register form on login page.
@@ -49,8 +54,34 @@ abstract class TestCase extends BaseTestCase
 
         // Check if we are authenticated after registration.
         $this->assertAuthenticated();
+    }
 
-        // We should now automatically be logged in. Retrieve meta fields to verify.
-        $this->retrieveMetaFields();
+    /**
+     * Helper method to create a planet model and configure it.
+     *
+     * @param array<string, int> $attributes
+     */
+    protected function createAndSetPlanetModel(array $attributes): void
+    {
+        // Create fake planet eloquent model with additional attributes
+        $planetModelFake = Planet::factory()->make($attributes);
+        // Set the fake model to the planet service
+        $this->planetService->setPlanet($planetModelFake);
+    }
+
+    /**
+     * Set up the planet service for testing.
+     *
+     * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    protected function setUpPlanetService(): void
+    {
+        // Initialize empty playerService object directly without factory as we do not
+        // actually want to load a player from the database.
+        $playerService = app()->make(PlayerService::class, ['player_id' => 0]);
+        // Initialize the planet service with factory.
+        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+        $this->planetService = $planetServiceFactory->makeForPlayer($playerService, 0);
     }
 }

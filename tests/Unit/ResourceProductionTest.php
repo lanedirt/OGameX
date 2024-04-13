@@ -3,30 +3,11 @@
 namespace Tests\Unit;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
-use OGame\Factories\PlanetServiceFactory;
-use OGame\Models\Planet;
 use OGame\Models\Resources;
-use OGame\Services\PlanetService;
-use OGame\Services\PlayerService;
-use PHPUnit\Framework\TestCase;
+use Tests\UnitTestCase;
 
-class ResourceProductionTest extends TestCase
+class ResourceProductionTest extends UnitTestCase
 {
-    // Debug:
-    // Build your mock object.
-    /*$mockPlanet = Mockery::mock(new OGame\Services\PlanetService);
-
-    // Have Laravel return the mocked object instead of the actual model.
-    $this->app->instance('OGame\Services\PlanetService', $mockPlanet);
-
-    // Tell your mocked instance what methods it should receive.
-    $mockProduct
-        ->shouldReceive('findByItemCode')
-        ->once()
-        ->andReturn(false);*/
-
-    protected PlanetService $planetService;
-
     /**
      * Set up common test components.
      * @throws BindingResolutionException
@@ -35,28 +16,7 @@ class ResourceProductionTest extends TestCase
     {
         parent::setUp();
 
-        // Initialize empty playerService object directly without factory as we do not
-        // actually want to load a player from the database.
-        $playerService = app()->make(PlayerService::class, ['player_id' => 0]);
-        // Initialize the planet service with factory.
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-        $this->planetService = $planetServiceFactory->makeForPlayer($playerService, 0);
-    }
-
-    /**
-     * Helper method to create a planet model with mine configurations and update resource stats.
-     */
-    protected function createAndConfigurePlanetModel(array $attributes, bool $updateStats = true): void
-    {
-        // Create fake planet eloquent model with additional attributes
-        $planetModelFake = Planet::factory()->make($attributes);
-        // Set the fake model to the planet service
-        $this->planetService->setPlanet($planetModelFake);
-
-        if ($updateStats) {
-            // Update resource production stats
-            $this->planetService->updateResourceProductionStats(false);
-        }
+        $this->setUpPlanetService();
     }
 
     /**
@@ -64,7 +24,7 @@ class ResourceProductionTest extends TestCase
      */
     public function testMineProduction(): void
     {
-        $this->createAndConfigurePlanetModel([
+        $this->createAndSetPlanetModel([
             'metal_mine_percent' => 10,
             'metal_mine' => 20,
             'crystal_mine_percent' => 10,
@@ -86,7 +46,7 @@ class ResourceProductionTest extends TestCase
      */
     public function testMineProductionNoEnergy(): void
     {
-        $this->createAndConfigurePlanetModel([
+        $this->createAndSetPlanetModel([
             'metal_mine_percent' => 10,
             'metal_mine' => 20,
             'crystal_mine_percent' => 10,
@@ -108,7 +68,7 @@ class ResourceProductionTest extends TestCase
      */
     public function testDeductTooManyResources(): void
     {
-        $this->createAndConfigurePlanetModel([
+        $this->createAndSetPlanetModel([
             'metal_mine_percent' => 10,
             'metal_mine' => 20,
             'crystal_mine_percent' => 10,

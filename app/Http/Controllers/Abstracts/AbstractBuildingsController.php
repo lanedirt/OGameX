@@ -6,7 +6,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
-use OGame\Http\Traits\IngameTrait;
 use OGame\Http\Traits\ObjectAjaxTrait;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\ObjectService;
@@ -16,7 +15,6 @@ use OGame\ViewModels\BuildingViewModel;
 
 abstract class AbstractBuildingsController extends OGameController
 {
-    use IngameTrait;
     use ObjectAjaxTrait;
 
     protected PlanetService $planet;

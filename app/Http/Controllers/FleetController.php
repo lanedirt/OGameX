@@ -4,15 +4,12 @@ namespace OGame\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use OGame\Http\Traits\IngameTrait;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\ViewModels\UnitViewModel;
 
-class FleetController extends Controller
+class FleetController extends OGameController
 {
-    use IngameTrait;
-
     /**
      * Shows the fleet index page
      *

@@ -28,7 +28,7 @@ class ObjectLogicTest extends TestCase
     /**
      * Test that all ship objects have properties such as structural integrity, shield etc. defined.
      */
-    public function testShipProperties() {
+    public function testShipProperties(): void {
         $objectService = new ObjectService();
 
         $ships = $objectService->getShipObjects();
@@ -45,7 +45,7 @@ class ObjectLogicTest extends TestCase
     /**
      * Test that all defense objects have properties such as structural integrity, shield etc. defined.
      */
-    public function testDefenceProperties() {
+    public function testDefenceProperties(): void {
         $objectService = new ObjectService();
 
         $objects = $objectService->getDefenseObjects();

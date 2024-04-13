@@ -3,50 +3,16 @@
 namespace Tests\Unit;
 
 use Exception;
-use OGame\Models\Planet;
-use OGame\Models\UserTech;
-use OGame\Services\PlanetService;
-use OGame\Services\PlayerService;
-use PHPUnit\Framework\TestCase;
+use Tests\UnitTestCase;
 
-class ObjectPropertiesTest extends TestCase
+class ObjectPropertiesTest extends UnitTestCase
 {
-    protected PlanetService $planetService;
-    protected PlayerService $playerService;
-
     /**
      * Set up common test components.
      */
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Initialize empty playerService object
-        $this->playerService = app()->make(PlayerService::class, ['player_id' => 0]);
-        // Initialize the planet service before each test
-        $this->planetService = app()->make(PlanetService::class, ['player' => $this->playerService, 'planet_id' => 0]);
-    }
-
-    /**
-     * Helper method to create a planet model with preconfigured levels.
-     */
-    protected function createAndConfigurePlanetModel(array $attributes): void
-    {
-        // Create fake planet eloquent model with additional attributes
-        $planetModelFake = Planet::factory()->make($attributes);
-        // Set the fake model to the planet service
-        $this->planetService->setPlanet($planetModelFake);
-    }
-
-    /**
-     * Helper method to create a user tech model with preconfigured levels.
-     */
-    protected function createAndConfigureUserTechModel(array $attributes): void
-    {
-        // Create fake user tech eloquent model with additional attributes
-        $userTechModelFake = UserTech::factory()->make($attributes);
-        // Set the fake model to the planet service
-        $this->playerService->setUserTech($userTechModelFake);
     }
 
     /**
@@ -55,8 +21,8 @@ class ObjectPropertiesTest extends TestCase
      */
     public function testStructuralIntegrityPropertyCalculation(): void
     {
-        $this->createAndConfigurePlanetModel([]);
-        $this->createAndConfigureUserTechModel([
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([
             'armor_technology' => 1,
         ]);
 
@@ -71,8 +37,8 @@ class ObjectPropertiesTest extends TestCase
      */
     public function testShieldPropertyCalculation(): void
     {
-        $this->createAndConfigurePlanetModel([]);
-        $this->createAndConfigureUserTechModel([
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([
             'shielding_technology' => 3,
         ]);
 
@@ -87,8 +53,8 @@ class ObjectPropertiesTest extends TestCase
      */
     public function testAttackPropertyCalculation(): void
     {
-        $this->createAndConfigurePlanetModel([]);
-        $this->createAndConfigureUserTechModel([
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([
             'weapon_technology' => 2,
         ]);
 
@@ -103,8 +69,8 @@ class ObjectPropertiesTest extends TestCase
      */
     public function testSpeedBasePropertyCalculation(): void
     {
-        $this->createAndConfigurePlanetModel([]);
-        $this->createAndConfigureUserTechModel([
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([
             'combustion_drive' => 5,
             'impulse_drive' => 3,
             'hyperspace_drive' => 4,
@@ -147,8 +113,8 @@ class ObjectPropertiesTest extends TestCase
      */
     public function testSpeedUpgradePropertyCalculation(): void
     {
-        $this->createAndConfigurePlanetModel([]);
-        $this->createAndConfigureUserTechModel([
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([
             'impulse_drive' => 5,
             'hyperspace_drive' => 15,
         ]);
@@ -175,8 +141,8 @@ class ObjectPropertiesTest extends TestCase
      */
     public function testCapacityPropertyCalculation(): void
     {
-        $this->createAndConfigurePlanetModel([]);
-        $this->createAndConfigureUserTechModel([
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([
             'armor_technology' => 1,
             'weapons_technology' => 2,
             'shielding_technology' => 3,
@@ -193,8 +159,8 @@ class ObjectPropertiesTest extends TestCase
      */
     public function testFuelPropertyCalculation(): void
     {
-        $this->createAndConfigurePlanetModel([]);
-        $this->createAndConfigureUserTechModel([
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([
             'armor_technology' => 1,
             'weapons_technology' => 2,
             'shielding_technology' => 3,
@@ -211,8 +177,8 @@ class ObjectPropertiesTest extends TestCase
      */
     public function testPropertyRetrieval(): void
     {
-        $this->createAndConfigurePlanetModel([]);
-        $this->createAndConfigureUserTechModel([]);
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([]);
 
         // Light fighter check
         $lightFighter = $this->planetService->objects->getShipObjectByMachineName('light_fighter');
@@ -229,12 +195,12 @@ class ObjectPropertiesTest extends TestCase
      */
     public function testPropertyBonusRetrieval(): void
     {
-        $this->createAndConfigureUserTechModel([
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([
             'armor_technology' => 1,
             'weapons_technology' => 2,
             'shielding_technology' => 3,
         ]);
-        $this->createAndConfigurePlanetModel([]);
 
         // Light fighter check
         $lightFighter = $this->planetService->objects->getShipObjectByMachineName('light_fighter');
