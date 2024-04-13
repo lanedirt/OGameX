@@ -37,8 +37,8 @@ class DefenseObjects
         $rocketLauncher->price = new GameObjectPrice(2000, 0, 0, 0);
         $rocketLauncher->properties = new GameObjectProperties($rocketLauncher, 2000, 20, 80, 0, 0, 0);
         $rocketLauncher->assets = new GameObjectAssets();
-        $rocketLauncher->assets->imgMicro = 'rocket_launcher_small.jpg';
         $rocketLauncher->assets->imgSmall = 'rocket_launcher_small.jpg';
+        $rocketLauncher->assets->imgMicro = 'rocket_launcher_small.jpg';
         $buildingObjectsNew[] = $rocketLauncher;
 
         // --- Light Laser ---
@@ -58,8 +58,8 @@ class DefenseObjects
         $lightLaser->price = new GameObjectPrice(1500, 500, 0, 0);
         $lightLaser->properties = new GameObjectProperties($lightLaser, 2000, 25, 100, 0, 0, 0);
         $lightLaser->assets = new GameObjectAssets();
-        $lightLaser->assets->imgMicro = 'light_laser_small.jpg';
-        $lightLaser->assets->imgSmall = 'robot_factory_micro.jpg';
+        $lightLaser->assets->imgSmall = 'light_laser_small.jpg';
+        $lightLaser->assets->imgMicro = 'robot_factory_micro.jpg';
 
         $buildingObjectsNew[] = $lightLaser;
 
@@ -81,8 +81,8 @@ class DefenseObjects
         $heavyLaser->price = new GameObjectPrice(6000, 2000, 0, 0);
         $heavyLaser->properties = new GameObjectProperties($heavyLaser, 8000, 100, 250, 0, 0, 0);
         $heavyLaser->assets = new GameObjectAssets();
-        $heavyLaser->assets->imgMicro = 'heavy_laser_small.jpg';
-        $heavyLaser->assets->imgSmall = 'robot_factory_micro.jpg';
+        $heavyLaser->assets->imgSmall = 'heavy_laser_small.jpg';
+        $heavyLaser->assets->imgMicro = 'robot_factory_micro.jpg';
 
         $buildingObjectsNew[] = $heavyLaser;
 
@@ -107,8 +107,8 @@ class DefenseObjects
         $gaussCannon->price = new GameObjectPrice(20000, 15000, 2000, 0);
         $gaussCannon->properties = new GameObjectProperties($gaussCannon, 35000, 200, 1100, 0, 0, 0);
         $gaussCannon->assets = new GameObjectAssets();
-        $gaussCannon->assets->imgMicro = 'gauss_cannon_small.jpg';
-        $gaussCannon->assets->imgSmall = 'robot_factory_micro.jpg';
+        $gaussCannon->assets->imgSmall = 'gauss_cannon_small.jpg';
+        $gaussCannon->assets->imgMicro = 'robot_factory_micro.jpg';
         $buildingObjectsNew[] = $gaussCannon;
 
         // --- Ion Cannon ---
@@ -129,8 +129,8 @@ class DefenseObjects
         $ionCannon->price = new GameObjectPrice(2000, 6000, 0, 0);
         $ionCannon->properties = new GameObjectProperties($ionCannon, 8000, 500, 150, 0, 0, 0);
         $ionCannon->assets = new GameObjectAssets();
-        $ionCannon->assets->imgMicro = 'ion_cannon_small.jpg';
-        $ionCannon->assets->imgSmall = 'robot_factory_micro.jpg';
+        $ionCannon->assets->imgSmall = 'ion_cannon_small.jpg';
+        $ionCannon->assets->imgMicro = 'robot_factory_micro.jpg';
         $buildingObjectsNew[] = $ionCannon;
 
         // --- Plasma Turret ---
@@ -151,8 +151,8 @@ class DefenseObjects
         $plasmaTurret->price = new GameObjectPrice(50000, 50000, 30000, 0);
         $plasmaTurret->properties = new GameObjectProperties($plasmaTurret, 100000, 300, 3000, 0, 0, 0);
         $plasmaTurret->assets = new GameObjectAssets();
-        $plasmaTurret->assets->imgMicro = 'plasma_turret_small.jpg';
-        $plasmaTurret->assets->imgSmall = 'robot_factory_micro.jpg';
+        $plasmaTurret->assets->imgSmall = 'plasma_turret_small.jpg';
+        $plasmaTurret->assets->imgMicro = 'robot_factory_micro.jpg';
         $buildingObjectsNew[] = $plasmaTurret;
 
         // --- Small Shield Dome ---
@@ -172,8 +172,8 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         $smallShieldDome->price = new GameObjectPrice(10000, 10000, 0, 0);
         $smallShieldDome->properties = new GameObjectProperties($smallShieldDome, 20000, 2000, 1, 0, 0, 0);
         $smallShieldDome->assets = new GameObjectAssets();
-        $smallShieldDome->assets->imgMicro = 'small_shield_dome_small.jpg';
-        $smallShieldDome->assets->imgSmall = 'robot_factory_micro.jpg';
+        $smallShieldDome->assets->imgSmall = 'small_shield_dome_small.jpg';
+        $smallShieldDome->assets->imgMicro = 'robot_factory_micro.jpg';
 
         $buildingObjectsNew[] = $smallShieldDome;
 
@@ -194,8 +194,8 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         $largeShieldDome->price = new GameObjectPrice(50000, 50000, 0, 0);
         $largeShieldDome->properties = new GameObjectProperties($largeShieldDome, 100000, 10000, 1, 0, 0, 0);
         $largeShieldDome->assets = new GameObjectAssets();
-        $largeShieldDome->assets->imgMicro = 'large_shield_dome_small.jpg';
-        $largeShieldDome->assets->imgSmall = 'robot_factory_micro.jpg';
+        $largeShieldDome->assets->imgSmall = 'large_shield_dome_small.jpg';
+        $largeShieldDome->assets->imgMicro = 'robot_factory_micro.jpg';
 
         $buildingObjectsNew[] = $largeShieldDome;
 
@@ -214,8 +214,8 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         $antiBallisticMissile->price = new GameObjectPrice(8000, 2000, 0, 0);
         $antiBallisticMissile->properties = new GameObjectProperties($antiBallisticMissile, 8000, 1, 1, 0, 0, 0);
         $antiBallisticMissile->assets = new GameObjectAssets();
-        $antiBallisticMissile->assets->imgMicro = 'solar_satellite_small.jpg';
-        $antiBallisticMissile->assets->imgSmall = 'robot_factory_micro.jpg';
+        $antiBallisticMissile->assets->imgSmall = 'solar_satellite_small.jpg';
+        $antiBallisticMissile->assets->imgMicro = 'robot_factory_micro.jpg';
 
         $buildingObjectsNew[] = $antiBallisticMissile;
 
@@ -235,8 +235,8 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         $interplanetaryMissile->price = new GameObjectPrice(12500, 2500, 10000, 0);
         $interplanetaryMissile->properties = new GameObjectProperties($interplanetaryMissile, 15000, 1, 12000, 0, 0, 0);
         $interplanetaryMissile->assets = new GameObjectAssets();
-        $interplanetaryMissile->assets->imgMicro = 'solar_satellite_small.jpg';
-        $interplanetaryMissile->assets->imgSmall = 'robot_factory_micro.jpg';
+        $interplanetaryMissile->assets->imgSmall = 'solar_satellite_small.jpg';
+        $interplanetaryMissile->assets->imgMicro = 'robot_factory_micro.jpg';
 
         $buildingObjectsNew[] = $interplanetaryMissile;
 

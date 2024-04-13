@@ -1,4 +1,4 @@
-@php /** @var \OGame\ViewModels\QueueQueue\BuildingQueueListViewModel $build_queue */ @endphp
+@php /** @var \OGame\ViewModels\Queue\BuildingQueueListViewModel $build_queue */ @endphp
 @if (count($build_queue) > 0)
     <table class="queue">
         <tbody>

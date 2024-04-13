@@ -1,4 +1,4 @@
-@php /** @var OGame\ViewModels\QueueBuildingQueueViewModel $build_active */ @endphp
+@php /** @var OGame\ViewModels\Queue\BuildingQueueViewModel $build_active */ @endphp
 @if (!empty($build_active))
     <script type="text/javascript">
         @if (!empty($build_active))

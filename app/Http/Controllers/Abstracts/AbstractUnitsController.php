@@ -72,8 +72,9 @@ abstract class AbstractUnitsController extends OGameController
         $count = 0;
 
         // Parse build queue for this planet.
-        $build_queue = $this->queue->retrieveQueue($planet);
-        $build_active = $build_queue->getCurrentlyBuildingFromQueue();
+        $build_queue_full = $this->queue->retrieveQueue($planet);
+        $build_active = $build_queue_full->getCurrentlyBuildingFromQueue();
+        $build_queue = $build_queue_full->getQueuedFromQueue();
 
         // Get total time of all items in queue
         $queue_time_end = $this->queue->retrieveQueueTimeEnd($planet);

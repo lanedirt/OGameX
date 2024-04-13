@@ -9,7 +9,7 @@ class ResearchQueueListViewModel extends QueueListViewModel
     /**
      * List of queue items.
      *
-     * @var array ResearchQueueViewModel[]
+     * @var array<ResearchQueueViewModel>
      */
     public array $queue;
 
@@ -46,6 +46,13 @@ class ResearchQueueListViewModel extends QueueListViewModel
      */
     public function getQueuedFromQueue() : array
     {
-        return parent::getQueuedFromQueue();
+        $queued = [];
+        foreach ($this->queue as $record) {
+            if ($record->building == 0) {
+                $queued[] = $record;
+            }
+        }
+
+        return $queued;
     }
 }

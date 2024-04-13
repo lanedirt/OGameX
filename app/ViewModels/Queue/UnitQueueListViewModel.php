@@ -9,7 +9,7 @@ class UnitQueueListViewModel extends QueueListViewModel
     /**
      * List of queue items.
      *
-     * @var array UnitQueueViewModel[]
+     * @var array<UnitQueueViewModel>
      */
     public array $queue;
 
@@ -45,6 +45,12 @@ class UnitQueueListViewModel extends QueueListViewModel
      */
     public function getQueuedFromQueue() : array
     {
-        return parent::getQueuedFromQueue();
+        $queued = [];
+        // Everything except the first
+        for ($i = 1; $i < count($this->queue); $i++) {
+            $queued[] = $this->queue[$i];
+        }
+
+        return $queued;
     }
 }
