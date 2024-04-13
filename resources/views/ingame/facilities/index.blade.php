@@ -168,13 +168,6 @@
 
         $(document).ready(function () {
             initStation();
-            @if (!empty($build_active))
-            // Countdown for inline building element (pusher)
-            var elem = getElementByIdWithCache("b_facilities{{ $build_active->object->id }}");
-            if(elem) {
-                new bauCountdown(elem, {{ $build_active->time_countdown }}, {{ $build_active['time_total'] }}, "{{ route('facilities.index') }}");
-            }
-            @endif
         });
 
     </script>
@@ -228,7 +221,7 @@
                                     @endif
                                     @if ($building->currently_building)
                                             <div class="construction">
-                                                <div class="pusher" id="b_facilities{{ $building->object->id }}" style="height:100px;">
+                                                <div class="pusher" id="b_resources{{ $building->object->id }}" style="height:100px;">
                                                 </div>
                                                 <a class="slideIn timeLink" href="javascript:void(0);" ref="{{ $building->object->id }}">
                                                     <span class="time" id="test" name="zeit"></span>
@@ -273,76 +266,9 @@
                 <table cellpadding="0" cellspacing="0" class="construction active">
                     <tbody>
                     {{-- Building is actively being built. --}}
-                    @if (!empty($build_active))
-                        <tr>
-                            <th colspan="2">{!! $build_active->object->title !!}</th>
-                        </tr>
-                        <tr class="data">
-                            <td class="first" rowspan="3">
-                                <div>
-                                    <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" style="display: block;" onclick="cancelProduction({!! $build_active->object->id !!},{!! $build_active->id !!},&quot;Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?&quot;); return false;" title="">
-                                        <img class="queuePic" width="40" height="40" src="{!! asset('img/objects/buildings/' . $build_active->object->assets->imgSmall) !!}" alt="{!! $build_active->object->title !!}">
-                                    </a>
-                                    <a href="javascript:void(0);" class="tooltip abortNow js_hideTipOnMobile" onclick="cancelProduction({!! $build_active->object->id !!},{!! $build_active->id !!},&quot;Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?&quot;); return false;" title="Cancel expansion of {!! $build_active->object->title !!} to level {!! $build_active->level_target !!}?">
-                                        <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="15" width="15">
-                                    </a>
-                                </div>
-                            </td>
-                            <td class="desc ausbau">Improve to						<span class="level">Level {!! $build_active->level_target !!}</span>
-                            </td>
-                        </tr>
-                        <tr class="data">
-                            <td class="desc">Duration:</td>
-                        </tr>
-                        <tr class="data">
-                            <td class="desc timer">
-                                <span id="Countdown">Loading...</span>
-                                <!-- JAVASCRIPT -->
-                                <script type="text/javascript">
-                                    var timerHandler=new TimerHandler();
-                                    new baulisteCountdown(getElementByIdWithCache("Countdown"), {!! $build_active->time_countdown !!}, "{!! route('facilities.index') !!}");
-                                </script>
-                            </td>
-                        </tr>
-                        <tr class="data">
-                            <td colspan="2">
-                                <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile building disabled" title="Reduces construction time by 50% of the total construction time (15s)." href="javascript:void(0);" rel="{{ route('shop.index', ['buyAndActivate' => 'cb4fd53e61feced0d52cfc4c1ce383bad9c05f67'])  }}">
-                                    <div class="build-faster-img" alt="Halve time"></div>
-                                    <span class="build-txt">Halve time</span>
-                            <span class="dm_cost overmark">
-                                Costs: 750 DM                            </span>
-                                    <span class="order_dm">Purchase Dark Matter</span>
-                                </a>
-                            </td>
-                        </tr>
-                    @endif
-
+                    @include ('ingame.shared.buildqueue.building-active', ['build_active' => $build_active])
                     {{-- Building queue has items. --}}
-                    @if (count($build_queue) > 0)
-                        <table class="queue">
-                            <tbody><tr>
-                                @foreach ($build_queue as $item)
-                                    <td>
-                                        <a href="javascript:void(0);" class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet" onclick="cancelProduction({!! $item['object']['id'] !!},{!! $item['id'] !!},&quot;Cancel expansion of {!! $item['object']['title'] !!} to level {!! $item['object']['level_target'] !!}?&quot;); return false;" title="">
-                                            <img class="queuePic" src="{!! asset('img/objects/buildings/' . $item['object']['assets']->imgMicro) !!}" height="28" width="28" alt="{!! $item['object']['title'] !!}">
-                                            <span>{!! $item['object']['level_target'] !!}</span>
-                                        </a>
-                                    </td>
-                                @endforeach
-                            </tr>
-                            </tbody></table>
-                    @endif
-
-                    {{-- No buildings are being built. --}}
-                    @if (empty($build_active))
-                        <tr>
-                            <td colspan="2" class="idle">
-                                <a class="tooltip js_hideTipOnMobile
-                           " title="At the moment there is no building being built on this planet. Click here to get to facilities." href="{{ route('facilities.index') }}">
-                                    No buildings in construction.                            </a>
-                            </td>
-                        </tr>
-                    @endif
+                    @include ('ingame.shared.buildqueue.building-queue', ['build_queue' => $build_queue])
                     </tbody>
                 </table>
             </div>
