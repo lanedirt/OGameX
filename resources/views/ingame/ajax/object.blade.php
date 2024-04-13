@@ -33,7 +33,7 @@
     </a>
 
     @if ($build_active_current)
-    <a role="button" href="javascript:void(0);" class="tooltip abort_link js_hideTipOnMobile" title="Cancel expansion of {{ $title }} to level {{ $next_level }}?" onclick="cancelProduction({{ $build_active_current['object']['id'] }},{{ $build_active_current['id'] }},&quot;Cancel expansion of {{ $title }} to level {{ $next_level }}?&quot;); return false;"></a>
+    <a role="button" href="javascript:void(0);" class="tooltip abort_link js_hideTipOnMobile" title="Cancel expansion of {{ $title }} to level {{ $next_level }}?" onclick="cancelProduction({{ $build_active_current->object->id }},{{ $build_active_current->id }},&quot;Cancel expansion of {{ $title }} to level {{ $next_level }}?&quot;); return false;"></a>
     @endif
 </div>
 
