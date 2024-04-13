@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\ViewModels;
+namespace OGame\ViewModels\Queue;
 
 use OGame\Services\Objects\Models\GameObject;
 

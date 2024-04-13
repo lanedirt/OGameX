@@ -189,7 +189,7 @@
             <div class="content">
                 <div id="battleships">
                     <ul id="military">
-                    @php /** @var OGame\ViewModels\UnitViewModel $object */ @endphp
+                    @php /** @var OGame\ViewModels\QueueUnitViewModel $object */ @endphp
                     @foreach ($units[0] as $object)
                             <li id="button{{ $object->count }}" class="@if ($object->currently_building)
                                     on

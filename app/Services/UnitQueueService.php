@@ -10,8 +10,8 @@ use OGame\Models\UnitQueue;
 use OGame\Services\Objects\ObjectService;
 use OGame\ViewModels\QueueListViewModel;
 use OGame\ViewModels\QueueViewModel;
-use OGame\ViewModels\UnitQueueListViewModel;
-use OGame\ViewModels\UnitQueueViewModel;
+use OGame\ViewModels\Queue\UnitQueueListViewModel;
+use OGame\ViewModels\Queue\UnitQueueViewModel;
 
 /**
  * Class UnitQueueService.

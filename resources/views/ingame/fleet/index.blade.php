@@ -455,7 +455,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                 <div id="battleships">
                                     <div class="header"><h2>Combat ships</h2></div>
                                     <ul id="military" class="iconsUNUSED">
-                                    @php /** @var OGame\ViewModels\UnitViewModel $object */ @endphp
+                                    @php /** @var OGame\ViewModels\QueueUnitViewModel $object */ @endphp
                                     @foreach ($units[0] as $object)
 											<li class="technology {{ $object->object->class_name }} interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="{{ $object->object->id }}" data-status="{{ $object->amount == 0 ? 'off' : 'on' }}" data-is-spaceprovider="" aria-label="{{ $object->object->title }}" title="{{ $object->object->title }} ({{ $object->amount }})" data-ipi-hint="ipiFleetselect{{ $object->object->class_name }}">
 												<span class="icon sprite sprite_small small {{ $object->object->class_name }}">
@@ -471,7 +471,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                 <div id="civilships">
                                     <div class="header"><h2>Civil ships</h2></div>
                                     <ul id="civil" class="iconsUNUSED">
-                                        @php /** @var OGame\ViewModels\UnitViewModel $object */ @endphp
+                                        @php /** @var OGame\ViewModels\QueueUnitViewModel $object */ @endphp
 										@foreach ($units[1] as $object)
 											<li class="technology {{ $object->object->class_name }} interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable" data-technology="{{ $object->object->id }}" data-status="{{ $object->amount == 0 ? 'off' : 'on' }}" data-is-spaceprovider="" aria-label="{{ $object->object->title }}" title="{{ $object->object->title }} ({{ $object->amount }})" data-ipi-hint="ipiFleetselect{{ $object->object->class_name }}">
 

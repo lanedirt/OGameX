@@ -209,7 +209,7 @@
             </div>
             <div class="content">
                 <ul id="building">
-                @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
+                @php /** @var OGame\ViewModels\QueueBuildingViewModel $building */ @endphp
                 @foreach ($buildings[0] as $building)
                         <li id="button{!! $building->count!!}" class="@if ($building->currently_building)
                                 on
@@ -267,7 +267,7 @@
                 </ul>
 
                 <ul id="storage">
-                @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
+                @php /** @var OGame\ViewModels\QueueBuildingViewModel $building */ @endphp
                 @foreach ($buildings[1] as $building)
                         <li id="button{!! $building->count!!}" class="@if ($building->currently_building)
                                 on

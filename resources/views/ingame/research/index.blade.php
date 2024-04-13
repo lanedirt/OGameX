@@ -203,7 +203,7 @@
             <div id="wrapBattle" class="resLeft fleft">
                 <h2>Basic research</h2>
                 <ul id="base1" class="activate">
-                    @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
+                    @php /** @var OGame\ViewModels\QueueBuildingViewModel $building */ @endphp
                     @foreach ($research[0] as $building)
                         <li class="@if ($building->currently_building)
                                 on
@@ -263,7 +263,7 @@
             <div id="wrapBattle" class="resRight fleft">
                 <h2>Drive research</h2>
                 <ul id="base2" class="activate">
-                    @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
+                    @php /** @var OGame\ViewModels\QueueBuildingViewModel $building */ @endphp
                     @foreach ($research[1] as $building)
                         <li class="@if ($building->currently_building)
                                 on
@@ -322,7 +322,7 @@
             </div>        <div id="wrapBattle" class="resLeft fleft">
                 <h2>Advanced researches</h2>
                 <ul id="base3" class="activate">
-                    @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
+                    @php /** @var OGame\ViewModels\QueueBuildingViewModel $building */ @endphp
                     @foreach ($research[2] as $building)
                         <li class="@if ($building->currently_building)
                                 on
@@ -382,7 +382,7 @@
             </div>        <div id="wrapBattle" class="resRight fleft">
                 <h2>Combat research</h2>
                 <ul id="base4" class="activate">
-                    @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
+                    @php /** @var OGame\ViewModels\QueueBuildingViewModel $building */ @endphp
                     @foreach ($research[3] as $building)
                         <li class="@if ($building->currently_building)
                                 on
@@ -490,11 +490,11 @@
                     @endif
 
                     {{-- Building queue has items. --}}
-                    @php /** @var array<OGame\ViewModels\ResearchQueueListViewModel> $build_queue */ @endphp
+                    @php /** @var array<OGame\ViewModels\QueueResearchQueueListViewModel> $build_queue */ @endphp
                     @if (count($build_queue) > 0)
                         <table class="queue">
                             <tbody><tr>
-                            @php /** @var OGame\ViewModels\ResearchQueueViewModel $item */ @endphp
+                            @php /** @var OGame\ViewModels\QueueResearchQueueViewModel $item */ @endphp
                             @foreach ($build_queue as $item)
                                     <td>
                                         <a href="javascript:void(0);" class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet" onclick="cancelProduction({!! $item->object->id !!},{!! $item->id !!},&quot;Cancel expansion of {!! $item->object->title !!} to level {!! $item->object->title !!}?&quot;); return false;" title="">

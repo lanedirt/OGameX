@@ -8,8 +8,8 @@ use Illuminate\Support\Carbon;
 use OGame\Models\BuildingQueue;
 use OGame\Models\Resources;
 use OGame\Services\Objects\ObjectService;
-use OGame\ViewModels\BuildingQueueListViewModel;
-use OGame\ViewModels\BuildingQueueViewModel;
+use OGame\ViewModels\Queue\BuildingQueueListViewModel;
+use OGame\ViewModels\Queue\BuildingQueueViewModel;
 
 /**
  * Class BuildingQueueService.

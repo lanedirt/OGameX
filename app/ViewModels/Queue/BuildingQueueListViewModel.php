@@ -1,8 +1,8 @@
 <?php
 
-namespace OGame\ViewModels;
+namespace OGame\ViewModels\Queue;
 
-class UnitQueueListViewModel extends QueueListViewModel
+class BuildingQueueListViewModel extends QueueListViewModel
 {
     /**
      * List of queue items.
@@ -14,7 +14,7 @@ class UnitQueueListViewModel extends QueueListViewModel
     /**
      * Constructor.
      *
-     * @param array<UnitQueueViewModel> $queue
+     * @param array<BuildingQueueViewModel> $queue
      */
     public function __construct(array $queue)
     {
@@ -24,13 +24,14 @@ class UnitQueueListViewModel extends QueueListViewModel
     /**
      * Returns the item in the queue that is currently building.
      *
-     * @return UnitQueueViewModel|null
+     * @return BuildingQueueViewModel|null
      */
-    public function getCurrentlyBuildingFromQueue() : ?UnitQueueViewModel
+    public function getCurrentlyBuildingFromQueue() : ?BuildingQueueViewModel
     {
-        // Return the first item in the queue if exists.
-        if (count($this->queue) > 0) {
-            return $this->queue[0];
+        foreach ($this->queue as $record) {
+            if ($record->building == 1) {
+                return $record;
+            }
         }
 
         return null;
@@ -39,7 +40,7 @@ class UnitQueueListViewModel extends QueueListViewModel
     /**
      * Returns the items in the queue that are queued.
      *
-     * @return array<UnitQueueViewModel>
+     * @return array<BuildingQueueViewModel>
      */
     public function getQueuedFromQueue() : array
     {

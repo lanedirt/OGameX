@@ -19,12 +19,11 @@ class OverviewController extends OGameController
      * @param PlayerService $player
      * @param BuildingQueueService $building_queue
      * @param ResearchQueueService $research_queue
-     * @param UnitQueueService $ship_queue
+     * @param UnitQueueService $unit_queue
      * @return View
      * @throws BindingResolutionException
-     * @throws \Exception
      */
-    public function index(PlayerService $player, BuildingQueueService $building_queue, ResearchQueueService $research_queue, UnitQueueService $unitQueue) : View
+    public function index(PlayerService $player, BuildingQueueService $building_queue, ResearchQueueService $research_queue, UnitQueueService $unit_queue) : View
     {
         $this->setBodyId('overview');
 
@@ -41,11 +40,11 @@ class OverviewController extends OGameController
         $research_queue = $research_full_queue->getQueuedFromQueue();
 
         // Parse ship queue for this planet.
-        $ship_queue = $unitQueue->retrieveQueue($planet);
+        $ship_queue = $unit_queue->retrieveQueue($planet);
         $ship_active = $ship_queue->getCurrentlyBuildingFromQueue();
 
         // Get total time of all items in queue
-        $ship_queue_time_end = $unitQueue->retrieveQueueTimeEnd($planet);
+        $ship_queue_time_end = $unit_queue->retrieveQueueTimeEnd($planet);
         $ship_queue_time_countdown = 0;
         if ($ship_queue_time_end > 0) {
             $ship_queue_time_countdown = $ship_queue_time_end - Carbon::now()->timestamp;

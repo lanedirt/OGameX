@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\ViewModels;
+namespace OGame\ViewModels\Queue;
 
 class QueueListViewModel
 {

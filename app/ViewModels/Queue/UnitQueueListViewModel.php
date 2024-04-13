@@ -1,20 +1,22 @@
 <?php
 
-namespace OGame\ViewModels;
+namespace OGame\ViewModels\Queue;
 
-class ResearchQueueListViewModel extends QueueListViewModel
+use OGame\ViewModels\Queue\UnitQueueViewModel;
+
+class UnitQueueListViewModel extends QueueListViewModel
 {
     /**
      * List of queue items.
      *
-     * @var array ResearchQueueViewModel[]
+     * @var array UnitQueueViewModel[]
      */
     public array $queue;
 
     /**
      * Constructor.
      *
-     * @param array<ResearchQueueViewModel> $queue
+     * @param array<UnitQueueViewModel> $queue
      */
     public function __construct(array $queue)
     {
@@ -24,14 +26,13 @@ class ResearchQueueListViewModel extends QueueListViewModel
     /**
      * Returns the item in the queue that is currently building.
      *
-     * @return ResearchQueueViewModel|null
+     * @return UnitQueueViewModel|null
      */
-    public function getCurrentlyBuildingFromQueue() : ?ResearchQueueViewModel
+    public function getCurrentlyBuildingFromQueue() : ?UnitQueueViewModel
     {
-        foreach ($this->queue as $record) {
-            if ($record->building == 1) {
-                return $record;
-            }
+        // Return the first item in the queue if exists.
+        if (count($this->queue) > 0) {
+            return $this->queue[0];
         }
 
         return null;
@@ -40,7 +41,7 @@ class ResearchQueueListViewModel extends QueueListViewModel
     /**
      * Returns the items in the queue that are queued.
      *
-     * @return array<ResearchQueueViewModel>
+     * @return array<UnitQueueViewModel>
      */
     public function getQueuedFromQueue() : array
     {

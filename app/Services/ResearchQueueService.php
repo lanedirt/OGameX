@@ -8,10 +8,10 @@ use Illuminate\Support\Carbon;
 use OGame\Models\ResearchQueue;
 use OGame\Models\Resources;
 use OGame\Services\Objects\ObjectService;
-use OGame\ViewModels\BuildingQueueListViewModel;
-use OGame\ViewModels\BuildingQueueViewModel;
-use OGame\ViewModels\ResearchQueueListViewModel;
-use OGame\ViewModels\ResearchQueueViewModel;
+use OGame\ViewModels\Queue\BuildingQueueListViewModel;
+use OGame\ViewModels\Queue\BuildingQueueViewModel;
+use OGame\ViewModels\Queue\ResearchQueueListViewModel;
+use OGame\ViewModels\Queue\ResearchQueueViewModel;
 
 /**
  * Class ResearchQueueService.

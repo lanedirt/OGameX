@@ -188,7 +188,7 @@
             </div>
             <div class="content">
                 <ul id="defensebuilding">
-                @php /** @var OGame\ViewModels\UnitViewModel $object */ @endphp
+                @php /** @var OGame\ViewModels\QueueUnitViewModel $object */ @endphp
                 @foreach ($units[0] as $building)
                         <li id="defense{{ $building->count }}" class="@if ($building->currently_building)
                                 on
