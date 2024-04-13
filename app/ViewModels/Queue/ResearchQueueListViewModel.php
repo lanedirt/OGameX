@@ -2,6 +2,8 @@
 
 namespace OGame\ViewModels\Queue;
 
+use OGame\ViewModels\Queue\Abstracts\QueueListViewModel;
+
 class ResearchQueueListViewModel extends QueueListViewModel
 {
     /**

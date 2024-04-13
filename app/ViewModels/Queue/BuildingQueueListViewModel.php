@@ -2,6 +2,8 @@
 
 namespace OGame\ViewModels\Queue;
 
+use OGame\ViewModels\Queue\Abstracts\QueueListViewModel;
+
 class BuildingQueueListViewModel extends QueueListViewModel
 {
     /**

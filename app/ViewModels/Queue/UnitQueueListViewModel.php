@@ -2,7 +2,7 @@
 
 namespace OGame\ViewModels\Queue;
 
-use OGame\ViewModels\Queue\UnitQueueViewModel;
+use OGame\ViewModels\Queue\Abstracts\QueueListViewModel;
 
 class UnitQueueListViewModel extends QueueListViewModel
 {
