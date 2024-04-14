@@ -47,38 +47,6 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!--[if (gt IE 9)|!(IE)]><!-->
-    <link rel="stylesheet" type="text/css" href="/css/43b7408a18e671621274f53b5cee56.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/fleets.css" media="screen" />
-    <!-- TODO: new style overrides, implement later -->
-    <!--<link rel="stylesheet" type="text/css" href="/css/990d5d349ed6e981658ff4e2e3444c.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/02base.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/sprites.css" media="screen" />-->
-    <!--<![endif]-->
-    <!--[if lt IE 10]>
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/a38a903f82bb4d2e7021f22bb14496.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/79452e4c157dbce5929452f810159e.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/9a111b0209f44edde46ca7dd9d303c.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/e81fd1c9005e83f852dd9a0560e3f7.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/da5d31cd0a99fc43fbbd9a06b52899.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/c5f033061127f4dbd170574705c787.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/a4ab94ec319cd1ed340abd608174e7.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/8d0216e7f6955a8cffbcc3184cd64d.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/c4669ba58ee728ac1bc7610f1f6a30.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/f468a2aecceb0bb7086230beedea62.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/ba2216eb24ccc0e410cfbe4fb135f1.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/2d769ad9c91469fa1fea767618fa1b.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/4633a3895446133a62a64ef54bc986.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/42f730c1520474b22c5dabbb840b43.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/4b46399f46a1b56773041f1f1abfdb.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/32b054a20d0f9aa3578a28af00096d.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/0b04dfcfe3acd740d8df12a3cc7758.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/css/ltie10/e7bb4d0526a879ed6cad775bfda300.css" media="screen" />
-    <![endif]-->
-    <link rel="stylesheet" type="text/css" href="/css/22b955f43c237ad23d644e8e52272a.css" media="screen" />
-    <!--[if IE 8]>
-    <link rel="stylesheet" type="text/css" href="/css/ie8/0db2335aa04275bf3d33e76a35aafd.css" media="screen" />
-    <![endif]-->
     <title>{{ config('app.name', 'Laravel') }}</title>
     <script type='text/javascript' src='/js/095a3a537441223e34647ad44e30ec.js'></script>
     <script type="text/javascript">
