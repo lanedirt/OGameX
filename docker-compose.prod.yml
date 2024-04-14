@@ -10,7 +10,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        OPCACHE_ENABLE: "0"  # Disable opcache for development
+        OPCACHE_ENABLE: "1" # Enable opcache for production
     image: digitalocean.com/php
     container_name: ogame-app
     restart: unless-stopped
