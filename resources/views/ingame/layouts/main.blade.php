@@ -45,23 +45,10 @@
     <meta name="ogame-planet-coordinates" content="{{ $currentPlanet->getPlanetCoordinatesAsString() }}"/>
     <meta name="ogame-planet-type" content="planet"/>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/ingame.css'])
 
     <title>{{ config('app.name', 'Laravel') }}</title>
-    <script type='text/javascript' src='/js/095a3a537441223e34647ad44e30ec.js'></script>
-    <script type="text/javascript">
-        var inventoryObj;
-    </script>
-    <script type="text/javascript">
-        $.holdReady(true);
-
-        var s = setInterval(function() {
-            if (typeof initEmpireEquipment === "function") {
-                $.holdReady(false);
-                clearInterval(s);
-            }
-        }, 1);
-    </script>
+    <script src="{{ asset('/js/jquery-1.12.4.min.js') }}"></script>
     <script src="{{ asset('/js/jquery.js') }}"></script>
     <script src="{{ asset('/js/chat.js') }}"></script>
     <script src="{{ asset('/js/inventory.js') }}"></script>
@@ -73,6 +60,17 @@
     <script src="{{ asset('/js/percentagebar.js') }}"></script>
     <script src="{{ asset('/js/fleetdispatcher.js') }}"></script>
     <script src="{{ asset('/js/logic571d.js') }}"></script>
+    <script type="text/javascript">
+        var inventoryObj;
+        $.holdReady(true);
+
+        var s = setInterval(function() {
+            if (typeof initEmpireEquipment === "function") {
+                $.holdReady(false);
+                clearInterval(s);
+            }
+        }, 1);
+    </script>
 </head>
 <body @isset($body_id)id="{!! $body_id !!}"@endisset class="ogame lang-en default no-touch">
 <div id="initial_welcome_dialog" title="Welcome to OGame!" style="display: none;">
@@ -93,16 +91,8 @@
     <div id="ie_message">
         <p><img src="/img/icons/e621aa80dbd4746a9f4f114c8d3853.gif" height="16" width="16" />Your currently used browser is outdated and may cause display errors on this website. Please update your browser to a newer version: <a href="http://www.microsoft.com/upgrade/">Internet Explorer</a> or <a href="http://www.mozilla-europe.org/de/firefox/">Mozilla Firefox</a></p>
     </div>
-    <script type="text/javascript">isIE = false;</script>
-    <!--[IF IE]>
-    <script type="text/javascript">
-        isIE = true;
-    </script>
-    <![endif]-->
-
     <!-- HEADER -->
     <!-- ONET 4 POLAND -->
-
     <div id="boxBG">
         <div id="box">
             <a name="anchor"></a>

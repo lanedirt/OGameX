@@ -232,7 +232,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                 <td class="desc timer">
                                     <span id="Countdown">Loading...</span>
                                     <!-- JAVASCRIPT -->
-                                    <script type="text/javascript">
+                                    <script type="module">
                                         $(document).ready(function () {
                                             var timerHandler = new TimerHandler();
                                             new baulisteCountdown(getElementByIdWithCache("Countdown"), {!! $build_active->time_countdown !!}, "{!! route('resources.index') !!}");
@@ -338,7 +338,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                 <td class="desc timer">
                                     <span id="researchCountdown">Loading...</span>
                                     <!-- JAVASCRIPT -->
-                                    <script type="text/javascript">
+                                    <script type="module">
                                         $(document).ready(function () {
                                             var timerHandler = new TimerHandler();
                                             new baulisteCountdown(getElementByIdWithCache("researchCountdown"), {!! $research_active->time_countdown !!}, "{!! route('research.index') !!}");

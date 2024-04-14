@@ -52,7 +52,7 @@
     <![endif]-->
 
     <!-- Styles -->
-    <!--<link href="{{ asset('css/app.css') }}" rel="stylesheet">-->
+    <!--<link href="{{ asset('css/ingame.css') }}" rel="stylesheet">-->
 
     <script type="text/javascript" src="js/outgame/6b1759b4d8ae0aeb3b4f566299ad46.js"></script>
     <script type="text/javascript" src="js/outgame/22838c9f0f7e8e3535367164b832ce.js"></script>
