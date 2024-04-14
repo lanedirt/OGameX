@@ -45,21 +45,10 @@
     <meta name="ogame-planet-coordinates" content="{{ $currentPlanet->getPlanetCoordinatesAsString() }}"/>
     <meta name="ogame-planet-type" content="planet"/>
 
-    <link rel="stylesheet" href="{{ mix('css/ingame.css') }}">
-
     <title>{{ config('app.name', 'Laravel') }}</title>
-    <script src="{{ asset('/js/jquery-1.12.4.min.js') }}"></script>
-    <script src="{{ asset('/js/jquery.js') }}"></script>
-    <script src="{{ asset('/js/chat.js') }}"></script>
-    <script src="{{ asset('/js/inventory.js') }}"></script>
-    <script src="{{ asset('/js/jquery-spinners.js') }}"></script>
-    <script src="{{ asset('/js/jquery-tipped.js') }}"></script>
-    <script src="{{ asset('/js/messages.js') }}"></script>
-    <script src="{{ asset('/js/tooltips.js') }}"></script>
-    <script src="{{ asset('/js/trader.js') }}"></script>
-    <script src="{{ asset('/js/percentagebar.js') }}"></script>
-    <script src="{{ asset('/js/fleetdispatcher.js') }}"></script>
-    <script src="{{ asset('/js/logic571d.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ mix('css/ingame.css') }}">
+    <script src="{{ mix('js/ingame.min.js') }}"></script>
 
     <script type="text/javascript">
         var inventoryObj;
@@ -358,7 +347,6 @@ Improved fleet escape rate">
             <!-- END HEADER -->
 
             <!-- LEFTMENU -->
-            <link rel="stylesheet" type="text/css" href="/css/22b955f43c237ad23d644e8e52272a.css" media="screen" />
             <div id='toolbarcomponent'><div id="links">
                     <ul id="menuTable" class="leftmenu">
 
