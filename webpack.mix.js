@@ -13,10 +13,10 @@ const mix = require('laravel-mix');
 
 mix.postCss('resources/css/ingame.css', 'public/css', [
         //
-    ]);
+    ]).version();
 mix.postCss('resources/css/outgame.css', 'public/css', [
     //
-]);
+]).version();
 
 mix.options({
     terser: {

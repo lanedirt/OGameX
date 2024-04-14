@@ -34,7 +34,7 @@
     <meta name="robots" content="index,follow" />
     <meta name="Revisit" content="After 14 days" />
     <title>{{ config('app.name', 'Laravel') }}</title>
-    
+
     <link rel="apple-touch-icon" href="/img/outgame/20da7e6c416e6cd5f8544a73f588e5.png"/>
     <link rel="stylesheet" href="{{ mix('css/outgame.css') }}">
     <script type="text/javascript" src="js/outgame/6b1759b4d8ae0aeb3b4f566299ad46.js"></script>
