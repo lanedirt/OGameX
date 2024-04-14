@@ -106,7 +106,7 @@ several performance optimizations and security settings that are not present in 
 2. Copy `.env.example` to `.env`.
 3. Launch the project using Docker Compose:
   ```
-  $ docker-compose -f docker-compose.prod.yml up -d --build --force-recreate
+  $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
   ```
 > Note: The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed.
 
