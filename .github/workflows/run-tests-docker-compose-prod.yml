@@ -1,4 +1,6 @@
 name: Docker Compose Production Build and Test
+# Note: This workflow will install ALL composer dependencies including dev packages in order to run tests.
+# The separate workflow "Docker Compose Production Build" will install only production dependencies and will not run tests.
 
 on:
   push:
