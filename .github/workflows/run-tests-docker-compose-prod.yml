@@ -15,8 +15,12 @@ jobs:
         options: --privileged
     steps:
       - uses: actions/checkout@v2
+      - name: Modify Dockerfile to disable USER www (which is not supported by GitHub Actions, as it runs as root)
+        run: |
+          sed -i '/USER www/s/^/#/' ./Dockerfile
       - name: Set up Docker Compose
         run: |
+          # Build the images and start the services
           docker compose -f docker-compose.prod.yml up -d
           # Ensure the database is ready
           docker compose exec -T ogame-db bash -c 'until mariadb -h "ogame-db" -u "root" -p"toor" -e "SELECT 1"; do sleep 1; done'
