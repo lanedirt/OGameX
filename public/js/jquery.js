@@ -19907,7 +19907,7 @@ document.createElement("canvas").getContext || function () {
     "function" == typeof define && define.amd ? define(["jquery"], b) : "undefined" != typeof module && module.exports ? module.exports = b : b(jQuery, window, document)
 }(function (b) {
     !function (k) {
-        var h = "function" == typeof define && define.amd, a = "undefined" != typeof module && module.exports, g = "https:" == document.location.protocol ? "https:" : "http:", l = "cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js";
+        var h = "function" == typeof define && define.amd, a = "undefined" != typeof module && module.exports, g = "https:" == document.location.protocol ? "https:" : "http:", l = "cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.js";
         h || (a ? require("jquery-mousewheel")(b) : b.event.special.mousewheel || b("head").append(decodeURI("%3Cscript src=" + g + "//" + l + "%3E%3C/script%3E"))), k()
     }(function () {
         var R, M = "mCustomScrollbar", af = "mCS", L = ".mCustomScrollbar", G = {

@@ -45,7 +45,7 @@
     <meta name="ogame-planet-coordinates" content="{{ $currentPlanet->getPlanetCoordinatesAsString() }}"/>
     <meta name="ogame-planet-type" content="planet"/>
 
-    @vite(['resources/css/ingame.css'])
+    <link rel="stylesheet" href="{{ mix('css/ingame.css') }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
     <script src="{{ asset('/js/jquery-1.12.4.min.js') }}"></script>
@@ -60,6 +60,7 @@
     <script src="{{ asset('/js/percentagebar.js') }}"></script>
     <script src="{{ asset('/js/fleetdispatcher.js') }}"></script>
     <script src="{{ asset('/js/logic571d.js') }}"></script>
+
     <script type="text/javascript">
         var inventoryObj;
         $.holdReady(true);

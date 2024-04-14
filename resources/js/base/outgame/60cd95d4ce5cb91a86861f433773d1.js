@@ -1,1 +1,0 @@
-var javascriptAvailable=true;
