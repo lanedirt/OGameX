@@ -100,6 +100,8 @@ After completing the setup, visit http://localhost to access OGameX. You first n
 For production there is a separate docker-compose file that is used to run the application. This file is called `docker-compose.prod.yml`. This configuration contains
 several performance optimizations and security settings that are not present in the development configuration.
 
+***Caution:*** the production configuration is not yet fully optimized and should be used with caution. As an example, the database root user uses a default password which should be changed to something unique.
+
 1. Clone the repository.
 2. Copy `.env.example` to `.env`.
 3. Launch the project using Docker Compose:
@@ -115,7 +117,7 @@ several performance optimizations and security settings that are not present in 
 
 5. Run Laravel setup commands to download composer dependencies, generate an encryption key, cache configuration and prepare the database:
   ```
-  $ composer install
+  $ composer install --no-dev
   $ php artisan key:generate
   $ php artisan migrate --force
   $ php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
