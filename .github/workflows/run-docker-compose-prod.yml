@@ -27,7 +27,7 @@ jobs:
       - name: Set Permissions
         run: docker compose exec -T ogame-app chmod -R 777 /var/www
       - name: Copy .env
-        run: docker compose exec -T ogame-app cp .env.example .env
+        run: docker compose exec -T ogame-app cp .env.example-prod .env
       - name: Run Laravel setup commands
         run: |
           docker compose exec -T ogame-app composer install --no-dev
