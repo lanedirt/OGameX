@@ -37,7 +37,7 @@ services:
     networks:
       - app-network
 
-  #MySQL Service
+  #MariaDB Service
   ogame-db:
     image: mariadb:11.3.2-jammy
     container_name: ogame-db

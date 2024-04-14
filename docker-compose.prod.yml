@@ -10,7 +10,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        OPCACHE_ENABLE: "1" # Enable opcache for production
+        OPCACHE_ENABLE: "1" # Enable opcache in production
     image: digitalocean.com/php
     container_name: ogame-app
     restart: unless-stopped
@@ -37,7 +37,7 @@ services:
     networks:
       - app-network
 
-  #MySQL Service
+  #MariaDB Service
   ogame-db:
     image: mariadb:11.3.2-jammy
     container_name: ogame-db
@@ -46,8 +46,7 @@ services:
     volumes:
      - ogame-dbdata:/var/lib/mysql
      - ./mysql/my.cnf:/etc/mysql/my.cnf
-    ports:
-      - "3306:3306"
+    # MariaDB port is not exposed to the host machine in production.
     environment:
       MYSQL_DATABASE: laravel
       MYSQL_ROOT_PASSWORD: toor
