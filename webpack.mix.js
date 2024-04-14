@@ -14,6 +14,9 @@ const mix = require('laravel-mix');
 mix.postCss('resources/css/ingame.css', 'public/css', [
         //
     ]);
+mix.postCss('resources/css/outgame.css', 'public/css', [
+    //
+]);
 
 mix.options({
     terser: {

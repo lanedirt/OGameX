@@ -34,26 +34,9 @@
     <meta name="robots" content="index,follow" />
     <meta name="Revisit" content="After 14 days" />
     <title>{{ config('app.name', 'Laravel') }}</title>
-
+    
     <link rel="apple-touch-icon" href="/img/outgame/20da7e6c416e6cd5f8544a73f588e5.png"/>
-    <link rel="stylesheet" type="text/css" href="css/outgame/eb9df5eeb514647c2061eb0deb26c6.css" />
-    <link rel="stylesheet" type="text/css" href="css/outgame/8eb0908b8ad7243d2e6c1efb829232.css" />
-    <link rel="stylesheet" type="text/css" href="css/outgame/f18de6efddc2c4fe6d29b8380d4905.css" />
-    <link rel="stylesheet" type="text/css" href="css/outgame/0d1c3e71d059f84a4a95afb652ed1d.css" />
-    <link rel="stylesheet" type="text/css" href="css/outgame/d22ddc446567b74f828e3cfa356f3b.css" />
-
-    <link rel="stylesheet" type="text/css" href="css/outgame/175d13751348e190f1ff2a51466c5f.css" />
-
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" type="text/css" href="css/outgame/8203e97695e64d89c5ed0efca2dd55.css" />
-    <![endif]-->
-    <!--[if lt IE 7]>
-    <link rel="stylesheet" type="text/css" href="css/outgame/9253d1dbc4e5de58100a2db4b3b5b1.css" />
-    <![endif]-->
-
-    <!-- Styles -->
-    <!--<link href="{{ asset('css/ingame.css') }}" rel="stylesheet">-->
-
+    <link rel="stylesheet" href="{{ mix('css/outgame.css') }}">
     <script type="text/javascript" src="js/outgame/6b1759b4d8ae0aeb3b4f566299ad46.js"></script>
     <script type="text/javascript" src="js/outgame/22838c9f0f7e8e3535367164b832ce.js"></script>
     <script type="text/javascript" src="js/outgame/22ef0d59ed3309209b51ac1d7d8674.js"></script>
