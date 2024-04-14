@@ -1,4 +1,4 @@
-name: Docker Compose Production Build and Test
+name: Docker Compose Production Build
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
         run: docker compose exec -T ogame-app cp .env.example .env
       - name: Run Laravel setup commands
         run: |
-          docker compose exec -T ogame-app composer install
+          docker compose exec -T ogame-app composer install --no-dev
           docker compose exec -T ogame-app php artisan key:generate
       - name: Run DB Migrations
         run: docker compose exec -T ogame-app php artisan migrate
