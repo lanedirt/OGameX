@@ -2,9 +2,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="{{ app()->getLocale() }}">
 <head>
-    <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <!--
      ===========================================
        ____   _____                     __   __
@@ -21,7 +18,8 @@
 
      This application is released under the MIT License. For more details, visit the GitHub repository.
     -->
-
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="language" content="en" />
     <meta name="author" content="OGameX" />
