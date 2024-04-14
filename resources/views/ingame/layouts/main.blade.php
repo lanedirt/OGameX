@@ -45,6 +45,8 @@
     <meta name="ogame-planet-coordinates" content="{{ $currentPlanet->getPlanetCoordinatesAsString() }}"/>
     <meta name="ogame-planet-type" content="planet"/>
 
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <!--[if (gt IE 9)|!(IE)]><!-->
     <link rel="stylesheet" type="text/css" href="/css/43b7408a18e671621274f53b5cee56.css" media="screen" />
     <link rel="stylesheet" type="text/css" href="/css/fleets.css" media="screen" />
