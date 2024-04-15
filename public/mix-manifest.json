@@ -1,8 +1,8 @@
 {
-    "/css/outgame.css": "/css/outgame.css?id=0edfd34484fc3ec74eca0604a470461f",
-    "/css/ingame.css": "/css/ingame.css?id=713416e94f178b1b3d7334376350c4b5",
+    "/css/ingame.css": "/css/ingame.css?id=c31cccc01e507f29fc05302c7d6938b9",
     "/js/ingame.js": "/js/ingame.js?id=b84a174c8a7768b819c85674d4353c98",
     "/js/ingame.min.js": "/js/ingame.min.js?id=b84a174c8a7768b819c85674d4353c98",
     "/js/outgame.js": "/js/outgame.js?id=5fa6ee5cdc34001db0bdccd06a7f676c",
-    "/js/outgame.min.js": "/js/outgame.min.js?id=5fa6ee5cdc34001db0bdccd06a7f676c"
+    "/js/outgame.min.js": "/js/outgame.min.js?id=5fa6ee5cdc34001db0bdccd06a7f676c",
+    "/css/outgame.css": "/css/outgame.css?id=0edfd34484fc3ec74eca0604a470461f"
 }

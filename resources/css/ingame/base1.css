@@ -3829,11 +3829,11 @@ ul#storage li a:link,ul#storage li a:visited,ul#den li a:link,ul#den li a:visite
     text-decoration: none
 }
 
-ul#storage li a:focus,ul#storage li a:active,ul#den li a:focus,ul#den li a:active {
+/*ul#storage li a:focus,ul#storage li a:active,ul#den li a:focus,ul#den li a:active {
     background: url("/img/icons/e3d481656bab1b216428a98a2e022e.gif") no-repeat;
     color: #ff9600;
     text-decoration: none
-}
+}*/
 
 ul#storage li#button7 {
     left: 11px
