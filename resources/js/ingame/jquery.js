@@ -355,7 +355,7 @@ document.createElement("canvas").getContext || function () {
  * Includes: core.js, widget.js, mouse.js, position.js, accordion.js, autocomplete.js, button.js, datepicker.js, dialog.js, draggable.js, droppable.js, effect.js, effect-blind.js, effect-bounce.js, effect-clip.js, effect-drop.js, effect-explode.js, effect-fade.js, effect-fold.js, effect-highlight.js, effect-puff.js, effect-pulsate.js, effect-scale.js, effect-shake.js, effect-size.js, effect-slide.js, effect-transfer.js, menu.js, progressbar.js, resizable.js, selectable.js, selectmenu.js, slider.js, sortable.js, spinner.js, tabs.js, tooltip.js
  * Copyright 2015 jQuery Foundation and other contributors; Licensed MIT */
 (function (b) {
-    "function" == typeof define && define.amd ? define(["jquery"], b) : b(jQuery)
+    "function" == typeof define && define.amd ? define(["./jquery"], b) : b(jQuery)
 })(function (e) {
     function l(B, A) {
         var q, k, w, x = B.nodeName.toLowerCase();
@@ -9335,7 +9335,7 @@ document.createElement("canvas").getContext || function () {
  */
 (function (b) {
     if (typeof define === "function" && define.amd) {
-        define(["jquery"], b)
+        define(["./jquery"], b)
     } else {
         b(jQuery)
     }
@@ -15550,45 +15550,45 @@ document.createElement("canvas").getContext || function () {
                 }
             }, lineCalculators = {
                 perpendicular: function (axis, ss, oss, es, oes) {
-                    with (paintInfo) {
-                        var sis = {
+                    var sis = {
                             x: [[[1, 2, 3, 4], null, [2, 1, 4, 3]], null, [[4, 3, 2, 1], null, [3, 4, 1, 2]]],
                             y: [[[3, 2, 1, 4], null, [2, 3, 4, 1]], null, [[4, 1, 2, 3], null, [1, 4, 3, 2]]]
-                        }, stubs = {
-                            x: [[startStubX, endStubX], null, [endStubX, startStubX]],
-                            y: [[startStubY, endStubY], null, [endStubY, startStubY]]
-                        }, midLines = {
-                            x: [[midx, startStubY], [midx, endStubY]],
-                            y: [[startStubX, midy], [endStubX, midy]]
-                        }, linesToEnd = {
-                            x: [[endStubX, startStubY]],
-                            y: [[startStubX, endStubY]]
-                        }, startToEnd = {
-                            x: [[startStubX, endStubY], [endStubX, endStubY]],
-                            y: [[endStubX, startStubY], [endStubX, endStubY]]
-                        }, startToMidToEnd = {
-                            x: [[startStubX, midy], [endStubX, midy], [endStubX, endStubY]],
-                            y: [[midx, startStubY], [midx, endStubY], [endStubX, endStubY]]
-                        }, otherStubs = {
-                            x: [startStubY, endStubY],
-                            y: [startStubX, endStubX]
-                        }, soIdx = orientations[axis][0], toIdx = orientations[axis][1], _so = so[soIdx] + 1, _to = to[toIdx] + 1, otherFlipped = (to[toIdx] == -1 && (otherStubs[axis][1] < otherStubs[axis][0])) || (to[toIdx] == 1 && (otherStubs[axis][1] > otherStubs[axis][0])), stub1 = stubs[axis][_so][0], stub2 = stubs[axis][_so][1], segmentIndexes = sis[axis][_so][_to];
-                        if (segment == segmentIndexes[3] || (segment == segmentIndexes[2] && otherFlipped)) {
-                            return midLines[axis]
-                        } else {
-                            if (segment == segmentIndexes[2] && stub2 < stub1) {
-                                return linesToEnd[axis]
-                            } else {
-                                if ((segment == segmentIndexes[2] && stub2 >= stub1) || (segment == segmentIndexes[1] && !otherFlipped)) {
-                                    return startToMidToEnd[axis]
-                                } else {
-                                    if (segment == segmentIndexes[0] || (segment == segmentIndexes[1] && otherFlipped)) {
-                                        return startToEnd[axis]
-                                    }
-                                }
-                            }
-                        }
-                    }
+                        },
+                        stubs = {
+                            x: [[paintInfo.startStubX, paintInfo.endStubX], null, [paintInfo.endStubX, paintInfo.startStubX]],
+                            y: [[paintInfo.startStubY, paintInfo.endStubY], null, [paintInfo.endStubY, paintInfo.startStubY]]
+                        },
+                        midLines = {
+                            x: [[paintInfo.midx, paintInfo.startStubY], [paintInfo.midx, paintInfo.endStubY]],
+                            y: [[paintInfo.startStubX, paintInfo.midy], [paintInfo.endStubX, paintInfo.midy]]
+                        },
+                        linesToEnd = {
+                            x: [[paintInfo.endStubX, paintInfo.startStubY]],
+                            y: [[paintInfo.startStubX, paintInfo.endStubY]]
+                        },
+                        startToEnd = {
+                            x: [[paintInfo.startStubX, paintInfo.endStubY], [paintInfo.endStubX, paintInfo.endStubY]],
+                            y: [[paintInfo.endStubX, paintInfo.startStubY], [paintInfo.endStubX, paintInfo.endStubY]]
+                        },
+                        startToMidToEnd = {
+                            x: [[paintInfo.startStubX, paintInfo.midy], [paintInfo.endStubX, paintInfo.midy], [paintInfo.endStubX, paintInfo.endStubY]],
+                            y: [[paintInfo.midx, paintInfo.startStubY], [paintInfo.midx, paintInfo.endStubY], [paintInfo.endStubX, paintInfo.endStubY]]
+                        },
+                        otherStubs = {
+                            x: [paintInfo.startStubY, paintInfo.endStubY],
+                            y: [paintInfo.startStubX, paintInfo.endStubX]
+                        },
+                        orientations = paintInfo.orientations,
+                        so = paintInfo.so,
+                        to = paintInfo.to,
+                        soIdx = orientations[axis][0],
+                        toIdx = orientations[axis][1],
+                        _so = so[soIdx] + 1,
+                        _to = to[toIdx] + 1,
+                        otherFlipped = (to[toIdx] == -1 && (otherStubs[axis][1] < otherStubs[axis][0])) || (to[toIdx] == 1 && (otherStubs[axis][1] > otherStubs[axis][0])),
+                        stub1 = stubs[axis][_so][0],
+                        stub2 = stubs[axis][_so][1],
+                        segmentIndexes = sis[axis][_so][_to];
                 },
                 orthogonal: function (axis, startStub, otherStartStub, endStub, otherEndStub) {
                     var pi = paintInfo, extent = {
@@ -17464,7 +17464,7 @@ document.createElement("canvas").getContext || function () {
  * http://jquery.org/license
  */
 !function (a) {
-    "function" == typeof define && define.amd ? define(["jquery"], a) : "object" == typeof exports ? module.exports = a : a(jQuery)
+    "function" == typeof define && define.amd ? define(["./jquery"], a) : "object" == typeof exports ? module.exports = a : a(jQuery)
 }(function (h) {
     function k(m) {
         var n = m || window.event, o = e.call(arguments, 1), v = 0, E = 0, p = 0, q = 0, r = 0, s = 0;
@@ -19904,11 +19904,11 @@ document.createElement("canvas").getContext || function () {
     }
 })(jQuery);
 !function (b) {
-    "function" == typeof define && define.amd ? define(["jquery"], b) : "undefined" != typeof module && module.exports ? module.exports = b : b(jQuery, window, document)
+    "function" == typeof define && define.amd ? define(["./jquery"], b) : "undefined" != typeof module && module.exports ? module.exports = b : b(jQuery, window, document)
 }(function (b) {
     !function (k) {
         var h = "function" == typeof define && define.amd, a = "undefined" != typeof module && module.exports, g = "https:" == document.location.protocol ? "https:" : "http:", l = "cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.js";
-        h || (a ? require("jquery-mousewheel")(b) : b.event.special.mousewheel || b("head").append(decodeURI("%3Cscript src=" + g + "//" + l + "%3E%3C/script%3E"))), k()
+        h || (a ? require("./jquery-mousewheel")(b) : b.event.special.mousewheel || b("head").append(decodeURI("%3Cscript src=" + g + "//" + l + "%3E%3C/script%3E"))), k()
     }(function () {
         var R, M = "mCustomScrollbar", af = "mCS", L = ".mCustomScrollbar", G = {
             setTop: 0,
@@ -20854,10 +20854,10 @@ var ogame = ogame || {};
  */
 (function (b) {
     if (typeof define === "function" && define.amd) {
-        define(["jquery"], b)
+        define(["./jquery"], b)
     } else {
         if (typeof exports === "object") {
-            b(require("jquery"))
+            b(require("./jquery"))
         } else {
             b(jQuery)
         }

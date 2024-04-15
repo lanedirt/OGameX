@@ -1,3 +1,9 @@
+/*! jQuery v1.12.4 | (c) jQuery Foundation | jquery.org/license */
+!function(a,b){"object"==typeof module&&"object"==typeof module.exports?module.exports=a.document?b(a,!0):function(a){if(!a.document)throw new Error("jQuery requires a window with a document");return b(a)}:b(a)}("undefined"!=typeof window?window:this,function(a,b){var c=[],d=a.document,e=c.slice,f=c.concat,g=c.push,h=c.indexOf,i={},j=i.toString,k=i.hasOwnProperty,l={},m="1.12.4",n=function(a,b){return new n.fn.init(a,b)},o=/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,p=/^-ms-/,q=/-([\da-z])/gi,r=function(a,b){return b.toUpperCase()};n.fn=n.prototype={jquery:m,constructor:n,selector:"",length:0,toArray:function(){return e.call(this)},get:function(a){return null!=a?0>a?this[a+this.length]:this[a]:e.call(this)},pushStack:function(a){var b=n.merge(this.constructor(),a);return b.prevObject=this,b.context=this.context,b},each:function(a){return n.each(this,a)},map:function(a){return this.pushStack(n.map(this,function(b,c){return a.call(b,c,b)}))},slice:function(){return this.pushStack(e.apply(this,arguments))},first:function(){return this.eq(0)},last:function(){return this.eq(-1)},eq:function(a){var b=this.length,c=+a+(0>a?b:0);return this.pushStack(c>=0&&b>c?[this[c]]:[])},end:function(){return this.prevObject||this.constructor()},push:g,sort:c.sort,splice:c.splice},n.extend=n.fn.extend=function(){var a,b,c,d,e,f,g=arguments[0]||{},h=1,i=arguments.length,j=!1;for("boolean"==typeof g&&(j=g,g=arguments[h]||{},h++),"object"==typeof g||n.isFunction(g)||(g={}),h===i&&(g=this,h--);i>h;h++)if(null!=(e=arguments[h]))for(d in e)a=g[d],c=e[d],g!==c&&(j&&c&&(n.isPlainObject(c)||(b=n.isArray(c)))?(b?(b=!1,f=a&&n.isArray(a)?a:[]):f=a&&n.isPlainObject(a)?a:{},g[d]=n.extend(j,f,c)):void 0!==c&&(g[d]=c));return g},n.extend({expando:"jQuery"+(m+Math.random()).replace(/\D/g,""),isReady:!0,error:function(a){throw new Error(a)},noop:function(){},isFunction:function(a){return"function"===n.type(a)},isArray:Array.isArray||function(a){return"array"===n.type(a)},isWindow:function(a){return null!=a&&a==a.window},isNumeric:function(a){var b=a&&a.toString();return!n.isArray(a)&&b-parseFloat(b)+1>=0},isEmptyObject:function(a){var b;for(b in a)return!1;return!0},isPlainObject:function(a){var b;if(!a||"object"!==n.type(a)||a.nodeType||n.isWindow(a))return!1;try{if(a.constructor&&!k.call(a,"constructor")&&!k.call(a.constructor.prototype,"isPrototypeOf"))return!1}catch(c){return!1}if(!l.ownFirst)for(b in a)return k.call(a,b);for(b in a);return void 0===b||k.call(a,b)},type:function(a){return null==a?a+"":"object"==typeof a||"function"==typeof a?i[j.call(a)]||"object":typeof a},globalEval:function(b){b&&n.trim(b)&&(a.execScript||function(b){a.eval.call(a,b)})(b)},camelCase:function(a){return a.replace(p,"ms-").replace(q,r)},nodeName:function(a,b){return a.nodeName&&a.nodeName.toLowerCase()===b.toLowerCase()},each:function(a,b){var c,d=0;if(s(a)){for(c=a.length;c>d;d++)if(b.call(a[d],d,a[d])===!1)break}else for(d in a)if(b.call(a[d],d,a[d])===!1)break;return a},trim:function(a){return null==a?"":(a+"").replace(o,"")},makeArray:function(a,b){var c=b||[];return null!=a&&(s(Object(a))?n.merge(c,"string"==typeof a?[a]:a):g.call(c,a)),c},inArray:function(a,b,c){var d;if(b){if(h)return h.call(b,a,c);for(d=b.length,c=c?0>c?Math.max(0,d+c):c:0;d>c;c++)if(c in b&&b[c]===a)return c}return-1},merge:function(a,b){var c=+b.length,d=0,e=a.length;while(c>d)a[e++]=b[d++];if(c!==c)while(void 0!==b[d])a[e++]=b[d++];return a.length=e,a},grep:function(a,b,c){for(var d,e=[],f=0,g=a.length,h=!c;g>f;f++)d=!b(a[f],f),d!==h&&e.push(a[f]);return e},map:function(a,b,c){var d,e,g=0,h=[];if(s(a))for(d=a.length;d>g;g++)e=b(a[g],g,c),null!=e&&h.push(e);else for(g in a)e=b(a[g],g,c),null!=e&&h.push(e);return f.apply([],h)},guid:1,proxy:function(a,b){var c,d,f;return"string"==typeof b&&(f=a[b],b=a,a=f),n.isFunction(a)?(c=e.call(arguments,2),d=function(){return a.apply(b||this,c.concat(e.call(arguments)))},d.guid=a.guid=a.guid||n.guid++,d):void 0},now:function(){return+new Date},support:l}),"function"==typeof Symbol&&(n.fn[Symbol.iterator]=c[Symbol.iterator]),n.each("Boolean Number String Function Array Date RegExp Object Error Symbol".split(" "),function(a,b){i["[object "+b+"]"]=b.toLowerCase()});function s(a){var b=!!a&&"length"in a&&a.length,c=n.type(a);return"function"===c||n.isWindow(a)?!1:"array"===c||0===b||"number"==typeof b&&b>0&&b-1 in a}var t=function(a){var b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u="sizzle"+1*new Date,v=a.document,w=0,x=0,y=ga(),z=ga(),A=ga(),B=function(a,b){return a===b&&(l=!0),0},C=1<<31,D={}.hasOwnProperty,E=[],F=E.pop,G=E.push,H=E.push,I=E.slice,J=function(a,b){for(var c=0,d=a.length;d>c;c++)if(a[c]===b)return c;return-1},K="checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|loop|multiple|open|readonly|required|scoped",L="[\\x20\\t\\r\\n\\f]",M="(?:\\\\.|[\\w-]|[^\\x00-\\xa0])+",N="\\["+L+"*("+M+")(?:"+L+"*([*^$|!~]?=)"+L+"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|("+M+"))|)"+L+"*\\]",O=":("+M+")(?:\\((('((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\")|((?:\\\\.|[^\\\\()[\\]]|"+N+")*)|.*)\\)|)",P=new RegExp(L+"+","g"),Q=new RegExp("^"+L+"+|((?:^|[^\\\\])(?:\\\\.)*)"+L+"+$","g"),R=new RegExp("^"+L+"*,"+L+"*"),S=new RegExp("^"+L+"*([>+~]|"+L+")"+L+"*"),T=new RegExp("="+L+"*([^\\]'\"]*?)"+L+"*\\]","g"),U=new RegExp(O),V=new RegExp("^"+M+"$"),W={ID:new RegExp("^#("+M+")"),CLASS:new RegExp("^\\.("+M+")"),TAG:new RegExp("^("+M+"|[*])"),ATTR:new RegExp("^"+N),PSEUDO:new RegExp("^"+O),CHILD:new RegExp("^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\("+L+"*(even|odd|(([+-]|)(\\d*)n|)"+L+"*(?:([+-]|)"+L+"*(\\d+)|))"+L+"*\\)|)","i"),bool:new RegExp("^(?:"+K+")$","i"),needsContext:new RegExp("^"+L+"*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\("+L+"*((?:-\\d)?\\d*)"+L+"*\\)|)(?=[^-]|$)","i")},X=/^(?:input|select|textarea|button)$/i,Y=/^h\d$/i,Z=/^[^{]+\{\s*\[native \w/,$=/^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,_=/[+~]/,aa=/'|\\/g,ba=new RegExp("\\\\([\\da-f]{1,6}"+L+"?|("+L+")|.)","ig"),ca=function(a,b,c){var d="0x"+b-65536;return d!==d||c?b:0>d?String.fromCharCode(d+65536):String.fromCharCode(d>>10|55296,1023&d|56320)},da=function(){m()};try{H.apply(E=I.call(v.childNodes),v.childNodes),E[v.childNodes.length].nodeType}catch(ea){H={apply:E.length?function(a,b){G.apply(a,I.call(b))}:function(a,b){var c=a.length,d=0;while(a[c++]=b[d++]);a.length=c-1}}}function fa(a,b,d,e){var f,h,j,k,l,o,r,s,w=b&&b.ownerDocument,x=b?b.nodeType:9;if(d=d||[],"string"!=typeof a||!a||1!==x&&9!==x&&11!==x)return d;if(!e&&((b?b.ownerDocument||b:v)!==n&&m(b),b=b||n,p)){if(11!==x&&(o=$.exec(a)))if(f=o[1]){if(9===x){if(!(j=b.getElementById(f)))return d;if(j.id===f)return d.push(j),d}else if(w&&(j=w.getElementById(f))&&t(b,j)&&j.id===f)return d.push(j),d}else{if(o[2])return H.apply(d,b.getElementsByTagName(a)),d;if((f=o[3])&&c.getElementsByClassName&&b.getElementsByClassName)return H.apply(d,b.getElementsByClassName(f)),d}if(c.qsa&&!A[a+" "]&&(!q||!q.test(a))){if(1!==x)w=b,s=a;else if("object"!==b.nodeName.toLowerCase()){(k=b.getAttribute("id"))?k=k.replace(aa,"\\$&"):b.setAttribute("id",k=u),r=g(a),h=r.length,l=V.test(k)?"#"+k:"[id='"+k+"']";while(h--)r[h]=l+" "+qa(r[h]);s=r.join(","),w=_.test(a)&&oa(b.parentNode)||b}if(s)try{return H.apply(d,w.querySelectorAll(s)),d}catch(y){}finally{k===u&&b.removeAttribute("id")}}}return i(a.replace(Q,"$1"),b,d,e)}function ga(){var a=[];function b(c,e){return a.push(c+" ")>d.cacheLength&&delete b[a.shift()],b[c+" "]=e}return b}function ha(a){return a[u]=!0,a}function ia(a){var b=n.createElement("div");try{return!!a(b)}catch(c){return!1}finally{b.parentNode&&b.parentNode.removeChild(b),b=null}}function ja(a,b){var c=a.split("|"),e=c.length;while(e--)d.attrHandle[c[e]]=b}function ka(a,b){var c=b&&a,d=c&&1===a.nodeType&&1===b.nodeType&&(~b.sourceIndex||C)-(~a.sourceIndex||C);if(d)return d;if(c)while(c=c.nextSibling)if(c===b)return-1;return a?1:-1}function la(a){return function(b){var c=b.nodeName.toLowerCase();return"input"===c&&b.type===a}}function ma(a){return function(b){var c=b.nodeName.toLowerCase();return("input"===c||"button"===c)&&b.type===a}}function na(a){return ha(function(b){return b=+b,ha(function(c,d){var e,f=a([],c.length,b),g=f.length;while(g--)c[e=f[g]]&&(c[e]=!(d[e]=c[e]))})})}function oa(a){return a&&"undefined"!=typeof a.getElementsByTagName&&a}c=fa.support={},f=fa.isXML=function(a){var b=a&&(a.ownerDocument||a).documentElement;return b?"HTML"!==b.nodeName:!1},m=fa.setDocument=function(a){var b,e,g=a?a.ownerDocument||a:v;return g!==n&&9===g.nodeType&&g.documentElement?(n=g,o=n.documentElement,p=!f(n),(e=n.defaultView)&&e.top!==e&&(e.addEventListener?e.addEventListener("unload",da,!1):e.attachEvent&&e.attachEvent("onunload",da)),c.attributes=ia(function(a){return a.className="i",!a.getAttribute("className")}),c.getElementsByTagName=ia(function(a){return a.appendChild(n.createComment("")),!a.getElementsByTagName("*").length}),c.getElementsByClassName=Z.test(n.getElementsByClassName),c.getById=ia(function(a){return o.appendChild(a).id=u,!n.getElementsByName||!n.getElementsByName(u).length}),c.getById?(d.find.ID=function(a,b){if("undefined"!=typeof b.getElementById&&p){var c=b.getElementById(a);return c?[c]:[]}},d.filter.ID=function(a){var b=a.replace(ba,ca);return function(a){return a.getAttribute("id")===b}}):(delete d.find.ID,d.filter.ID=function(a){var b=a.replace(ba,ca);return function(a){var c="undefined"!=typeof a.getAttributeNode&&a.getAttributeNode("id");return c&&c.value===b}}),d.find.TAG=c.getElementsByTagName?function(a,b){return"undefined"!=typeof b.getElementsByTagName?b.getElementsByTagName(a):c.qsa?b.querySelectorAll(a):void 0}:function(a,b){var c,d=[],e=0,f=b.getElementsByTagName(a);if("*"===a){while(c=f[e++])1===c.nodeType&&d.push(c);return d}return f},d.find.CLASS=c.getElementsByClassName&&function(a,b){return"undefined"!=typeof b.getElementsByClassName&&p?b.getElementsByClassName(a):void 0},r=[],q=[],(c.qsa=Z.test(n.querySelectorAll))&&(ia(function(a){o.appendChild(a).innerHTML="<a id='"+u+"'></a><select id='"+u+"-\r\\' msallowcapture=''><option selected=''></option></select>",a.querySelectorAll("[msallowcapture^='']").length&&q.push("[*^$]="+L+"*(?:''|\"\")"),a.querySelectorAll("[selected]").length||q.push("\\["+L+"*(?:value|"+K+")"),a.querySelectorAll("[id~="+u+"-]").length||q.push("~="),a.querySelectorAll(":checked").length||q.push(":checked"),a.querySelectorAll("a#"+u+"+*").length||q.push(".#.+[+~]")}),ia(function(a){var b=n.createElement("input");b.setAttribute("type","hidden"),a.appendChild(b).setAttribute("name","D"),a.querySelectorAll("[name=d]").length&&q.push("name"+L+"*[*^$|!~]?="),a.querySelectorAll(":enabled").length||q.push(":enabled",":disabled"),a.querySelectorAll("*,:x"),q.push(",.*:")})),(c.matchesSelector=Z.test(s=o.matches||o.webkitMatchesSelector||o.mozMatchesSelector||o.oMatchesSelector||o.msMatchesSelector))&&ia(function(a){c.disconnectedMatch=s.call(a,"div"),s.call(a,"[s!='']:x"),r.push("!=",O)}),q=q.length&&new RegExp(q.join("|")),r=r.length&&new RegExp(r.join("|")),b=Z.test(o.compareDocumentPosition),t=b||Z.test(o.contains)?function(a,b){var c=9===a.nodeType?a.documentElement:a,d=b&&b.parentNode;return a===d||!(!d||1!==d.nodeType||!(c.contains?c.contains(d):a.compareDocumentPosition&&16&a.compareDocumentPosition(d)))}:function(a,b){if(b)while(b=b.parentNode)if(b===a)return!0;return!1},B=b?function(a,b){if(a===b)return l=!0,0;var d=!a.compareDocumentPosition-!b.compareDocumentPosition;return d?d:(d=(a.ownerDocument||a)===(b.ownerDocument||b)?a.compareDocumentPosition(b):1,1&d||!c.sortDetached&&b.compareDocumentPosition(a)===d?a===n||a.ownerDocument===v&&t(v,a)?-1:b===n||b.ownerDocument===v&&t(v,b)?1:k?J(k,a)-J(k,b):0:4&d?-1:1)}:function(a,b){if(a===b)return l=!0,0;var c,d=0,e=a.parentNode,f=b.parentNode,g=[a],h=[b];if(!e||!f)return a===n?-1:b===n?1:e?-1:f?1:k?J(k,a)-J(k,b):0;if(e===f)return ka(a,b);c=a;while(c=c.parentNode)g.unshift(c);c=b;while(c=c.parentNode)h.unshift(c);while(g[d]===h[d])d++;return d?ka(g[d],h[d]):g[d]===v?-1:h[d]===v?1:0},n):n},fa.matches=function(a,b){return fa(a,null,null,b)},fa.matchesSelector=function(a,b){if((a.ownerDocument||a)!==n&&m(a),b=b.replace(T,"='$1']"),c.matchesSelector&&p&&!A[b+" "]&&(!r||!r.test(b))&&(!q||!q.test(b)))try{var d=s.call(a,b);if(d||c.disconnectedMatch||a.document&&11!==a.document.nodeType)return d}catch(e){}return fa(b,n,null,[a]).length>0},fa.contains=function(a,b){return(a.ownerDocument||a)!==n&&m(a),t(a,b)},fa.attr=function(a,b){(a.ownerDocument||a)!==n&&m(a);var e=d.attrHandle[b.toLowerCase()],f=e&&D.call(d.attrHandle,b.toLowerCase())?e(a,b,!p):void 0;return void 0!==f?f:c.attributes||!p?a.getAttribute(b):(f=a.getAttributeNode(b))&&f.specified?f.value:null},fa.error=function(a){throw new Error("Syntax error, unrecognized expression: "+a)},fa.uniqueSort=function(a){var b,d=[],e=0,f=0;if(l=!c.detectDuplicates,k=!c.sortStable&&a.slice(0),a.sort(B),l){while(b=a[f++])b===a[f]&&(e=d.push(f));while(e--)a.splice(d[e],1)}return k=null,a},e=fa.getText=function(a){var b,c="",d=0,f=a.nodeType;if(f){if(1===f||9===f||11===f){if("string"==typeof a.textContent)return a.textContent;for(a=a.firstChild;a;a=a.nextSibling)c+=e(a)}else if(3===f||4===f)return a.nodeValue}else while(b=a[d++])c+=e(b);return c},d=fa.selectors={cacheLength:50,createPseudo:ha,match:W,attrHandle:{},find:{},relative:{">":{dir:"parentNode",first:!0}," ":{dir:"parentNode"},"+":{dir:"previousSibling",first:!0},"~":{dir:"previousSibling"}},preFilter:{ATTR:function(a){return a[1]=a[1].replace(ba,ca),a[3]=(a[3]||a[4]||a[5]||"").replace(ba,ca),"~="===a[2]&&(a[3]=" "+a[3]+" "),a.slice(0,4)},CHILD:function(a){return a[1]=a[1].toLowerCase(),"nth"===a[1].slice(0,3)?(a[3]||fa.error(a[0]),a[4]=+(a[4]?a[5]+(a[6]||1):2*("even"===a[3]||"odd"===a[3])),a[5]=+(a[7]+a[8]||"odd"===a[3])):a[3]&&fa.error(a[0]),a},PSEUDO:function(a){var b,c=!a[6]&&a[2];return W.CHILD.test(a[0])?null:(a[3]?a[2]=a[4]||a[5]||"":c&&U.test(c)&&(b=g(c,!0))&&(b=c.indexOf(")",c.length-b)-c.length)&&(a[0]=a[0].slice(0,b),a[2]=c.slice(0,b)),a.slice(0,3))}},filter:{TAG:function(a){var b=a.replace(ba,ca).toLowerCase();return"*"===a?function(){return!0}:function(a){return a.nodeName&&a.nodeName.toLowerCase()===b}},CLASS:function(a){var b=y[a+" "];return b||(b=new RegExp("(^|"+L+")"+a+"("+L+"|$)"))&&y(a,function(a){return b.test("string"==typeof a.className&&a.className||"undefined"!=typeof a.getAttribute&&a.getAttribute("class")||"")})},ATTR:function(a,b,c){return function(d){var e=fa.attr(d,a);return null==e?"!="===b:b?(e+="","="===b?e===c:"!="===b?e!==c:"^="===b?c&&0===e.indexOf(c):"*="===b?c&&e.indexOf(c)>-1:"$="===b?c&&e.slice(-c.length)===c:"~="===b?(" "+e.replace(P," ")+" ").indexOf(c)>-1:"|="===b?e===c||e.slice(0,c.length+1)===c+"-":!1):!0}},CHILD:function(a,b,c,d,e){var f="nth"!==a.slice(0,3),g="last"!==a.slice(-4),h="of-type"===b;return 1===d&&0===e?function(a){return!!a.parentNode}:function(b,c,i){var j,k,l,m,n,o,p=f!==g?"nextSibling":"previousSibling",q=b.parentNode,r=h&&b.nodeName.toLowerCase(),s=!i&&!h,t=!1;if(q){if(f){while(p){m=b;while(m=m[p])if(h?m.nodeName.toLowerCase()===r:1===m.nodeType)return!1;o=p="only"===a&&!o&&"nextSibling"}return!0}if(o=[g?q.firstChild:q.lastChild],g&&s){m=q,l=m[u]||(m[u]={}),k=l[m.uniqueID]||(l[m.uniqueID]={}),j=k[a]||[],n=j[0]===w&&j[1],t=n&&j[2],m=n&&q.childNodes[n];while(m=++n&&m&&m[p]||(t=n=0)||o.pop())if(1===m.nodeType&&++t&&m===b){k[a]=[w,n,t];break}}else if(s&&(m=b,l=m[u]||(m[u]={}),k=l[m.uniqueID]||(l[m.uniqueID]={}),j=k[a]||[],n=j[0]===w&&j[1],t=n),t===!1)while(m=++n&&m&&m[p]||(t=n=0)||o.pop())if((h?m.nodeName.toLowerCase()===r:1===m.nodeType)&&++t&&(s&&(l=m[u]||(m[u]={}),k=l[m.uniqueID]||(l[m.uniqueID]={}),k[a]=[w,t]),m===b))break;return t-=e,t===d||t%d===0&&t/d>=0}}},PSEUDO:function(a,b){var c,e=d.pseudos[a]||d.setFilters[a.toLowerCase()]||fa.error("unsupported pseudo: "+a);return e[u]?e(b):e.length>1?(c=[a,a,"",b],d.setFilters.hasOwnProperty(a.toLowerCase())?ha(function(a,c){var d,f=e(a,b),g=f.length;while(g--)d=J(a,f[g]),a[d]=!(c[d]=f[g])}):function(a){return e(a,0,c)}):e}},pseudos:{not:ha(function(a){var b=[],c=[],d=h(a.replace(Q,"$1"));return d[u]?ha(function(a,b,c,e){var f,g=d(a,null,e,[]),h=a.length;while(h--)(f=g[h])&&(a[h]=!(b[h]=f))}):function(a,e,f){return b[0]=a,d(b,null,f,c),b[0]=null,!c.pop()}}),has:ha(function(a){return function(b){return fa(a,b).length>0}}),contains:ha(function(a){return a=a.replace(ba,ca),function(b){return(b.textContent||b.innerText||e(b)).indexOf(a)>-1}}),lang:ha(function(a){return V.test(a||"")||fa.error("unsupported lang: "+a),a=a.replace(ba,ca).toLowerCase(),function(b){var c;do if(c=p?b.lang:b.getAttribute("xml:lang")||b.getAttribute("lang"))return c=c.toLowerCase(),c===a||0===c.indexOf(a+"-");while((b=b.parentNode)&&1===b.nodeType);return!1}}),target:function(b){var c=a.location&&a.location.hash;return c&&c.slice(1)===b.id},root:function(a){return a===o},focus:function(a){return a===n.activeElement&&(!n.hasFocus||n.hasFocus())&&!!(a.type||a.href||~a.tabIndex)},enabled:function(a){return a.disabled===!1},disabled:function(a){return a.disabled===!0},checked:function(a){var b=a.nodeName.toLowerCase();return"input"===b&&!!a.checked||"option"===b&&!!a.selected},selected:function(a){return a.parentNode&&a.parentNode.selectedIndex,a.selected===!0},empty:function(a){for(a=a.firstChild;a;a=a.nextSibling)if(a.nodeType<6)return!1;return!0},parent:function(a){return!d.pseudos.empty(a)},header:function(a){return Y.test(a.nodeName)},input:function(a){return X.test(a.nodeName)},button:function(a){var b=a.nodeName.toLowerCase();return"input"===b&&"button"===a.type||"button"===b},text:function(a){var b;return"input"===a.nodeName.toLowerCase()&&"text"===a.type&&(null==(b=a.getAttribute("type"))||"text"===b.toLowerCase())},first:na(function(){return[0]}),last:na(function(a,b){return[b-1]}),eq:na(function(a,b,c){return[0>c?c+b:c]}),even:na(function(a,b){for(var c=0;b>c;c+=2)a.push(c);return a}),odd:na(function(a,b){for(var c=1;b>c;c+=2)a.push(c);return a}),lt:na(function(a,b,c){for(var d=0>c?c+b:c;--d>=0;)a.push(d);return a}),gt:na(function(a,b,c){for(var d=0>c?c+b:c;++d<b;)a.push(d);return a})}},d.pseudos.nth=d.pseudos.eq;for(b in{radio:!0,checkbox:!0,file:!0,password:!0,image:!0})d.pseudos[b]=la(b);for(b in{submit:!0,reset:!0})d.pseudos[b]=ma(b);function pa(){}pa.prototype=d.filters=d.pseudos,d.setFilters=new pa,g=fa.tokenize=function(a,b){var c,e,f,g,h,i,j,k=z[a+" "];if(k)return b?0:k.slice(0);h=a,i=[],j=d.preFilter;while(h){c&&!(e=R.exec(h))||(e&&(h=h.slice(e[0].length)||h),i.push(f=[])),c=!1,(e=S.exec(h))&&(c=e.shift(),f.push({value:c,type:e[0].replace(Q," ")}),h=h.slice(c.length));for(g in d.filter)!(e=W[g].exec(h))||j[g]&&!(e=j[g](e))||(c=e.shift(),f.push({value:c,type:g,matches:e}),h=h.slice(c.length));if(!c)break}return b?h.length:h?fa.error(a):z(a,i).slice(0)};function qa(a){for(var b=0,c=a.length,d="";c>b;b++)d+=a[b].value;return d}function ra(a,b,c){var d=b.dir,e=c&&"parentNode"===d,f=x++;return b.first?function(b,c,f){while(b=b[d])if(1===b.nodeType||e)return a(b,c,f)}:function(b,c,g){var h,i,j,k=[w,f];if(g){while(b=b[d])if((1===b.nodeType||e)&&a(b,c,g))return!0}else while(b=b[d])if(1===b.nodeType||e){if(j=b[u]||(b[u]={}),i=j[b.uniqueID]||(j[b.uniqueID]={}),(h=i[d])&&h[0]===w&&h[1]===f)return k[2]=h[2];if(i[d]=k,k[2]=a(b,c,g))return!0}}}function sa(a){return a.length>1?function(b,c,d){var e=a.length;while(e--)if(!a[e](b,c,d))return!1;return!0}:a[0]}function ta(a,b,c){for(var d=0,e=b.length;e>d;d++)fa(a,b[d],c);return c}function ua(a,b,c,d,e){for(var f,g=[],h=0,i=a.length,j=null!=b;i>h;h++)(f=a[h])&&(c&&!c(f,d,e)||(g.push(f),j&&b.push(h)));return g}function va(a,b,c,d,e,f){return d&&!d[u]&&(d=va(d)),e&&!e[u]&&(e=va(e,f)),ha(function(f,g,h,i){var j,k,l,m=[],n=[],o=g.length,p=f||ta(b||"*",h.nodeType?[h]:h,[]),q=!a||!f&&b?p:ua(p,m,a,h,i),r=c?e||(f?a:o||d)?[]:g:q;if(c&&c(q,r,h,i),d){j=ua(r,n),d(j,[],h,i),k=j.length;while(k--)(l=j[k])&&(r[n[k]]=!(q[n[k]]=l))}if(f){if(e||a){if(e){j=[],k=r.length;while(k--)(l=r[k])&&j.push(q[k]=l);e(null,r=[],j,i)}k=r.length;while(k--)(l=r[k])&&(j=e?J(f,l):m[k])>-1&&(f[j]=!(g[j]=l))}}else r=ua(r===g?r.splice(o,r.length):r),e?e(null,g,r,i):H.apply(g,r)})}function wa(a){for(var b,c,e,f=a.length,g=d.relative[a[0].type],h=g||d.relative[" "],i=g?1:0,k=ra(function(a){return a===b},h,!0),l=ra(function(a){return J(b,a)>-1},h,!0),m=[function(a,c,d){var e=!g&&(d||c!==j)||((b=c).nodeType?k(a,c,d):l(a,c,d));return b=null,e}];f>i;i++)if(c=d.relative[a[i].type])m=[ra(sa(m),c)];else{if(c=d.filter[a[i].type].apply(null,a[i].matches),c[u]){for(e=++i;f>e;e++)if(d.relative[a[e].type])break;return va(i>1&&sa(m),i>1&&qa(a.slice(0,i-1).concat({value:" "===a[i-2].type?"*":""})).replace(Q,"$1"),c,e>i&&wa(a.slice(i,e)),f>e&&wa(a=a.slice(e)),f>e&&qa(a))}m.push(c)}return sa(m)}function xa(a,b){var c=b.length>0,e=a.length>0,f=function(f,g,h,i,k){var l,o,q,r=0,s="0",t=f&&[],u=[],v=j,x=f||e&&d.find.TAG("*",k),y=w+=null==v?1:Math.random()||.1,z=x.length;for(k&&(j=g===n||g||k);s!==z&&null!=(l=x[s]);s++){if(e&&l){o=0,g||l.ownerDocument===n||(m(l),h=!p);while(q=a[o++])if(q(l,g||n,h)){i.push(l);break}k&&(w=y)}c&&((l=!q&&l)&&r--,f&&t.push(l))}if(r+=s,c&&s!==r){o=0;while(q=b[o++])q(t,u,g,h);if(f){if(r>0)while(s--)t[s]||u[s]||(u[s]=F.call(i));u=ua(u)}H.apply(i,u),k&&!f&&u.length>0&&r+b.length>1&&fa.uniqueSort(i)}return k&&(w=y,j=v),t};return c?ha(f):f}return h=fa.compile=function(a,b){var c,d=[],e=[],f=A[a+" "];if(!f){b||(b=g(a)),c=b.length;while(c--)f=wa(b[c]),f[u]?d.push(f):e.push(f);f=A(a,xa(e,d)),f.selector=a}return f},i=fa.select=function(a,b,e,f){var i,j,k,l,m,n="function"==typeof a&&a,o=!f&&g(a=n.selector||a);if(e=e||[],1===o.length){if(j=o[0]=o[0].slice(0),j.length>2&&"ID"===(k=j[0]).type&&c.getById&&9===b.nodeType&&p&&d.relative[j[1].type]){if(b=(d.find.ID(k.matches[0].replace(ba,ca),b)||[])[0],!b)return e;n&&(b=b.parentNode),a=a.slice(j.shift().value.length)}i=W.needsContext.test(a)?0:j.length;while(i--){if(k=j[i],d.relative[l=k.type])break;if((m=d.find[l])&&(f=m(k.matches[0].replace(ba,ca),_.test(j[0].type)&&oa(b.parentNode)||b))){if(j.splice(i,1),a=f.length&&qa(j),!a)return H.apply(e,f),e;break}}}return(n||h(a,o))(f,b,!p,e,!b||_.test(a)&&oa(b.parentNode)||b),e},c.sortStable=u.split("").sort(B).join("")===u,c.detectDuplicates=!!l,m(),c.sortDetached=ia(function(a){return 1&a.compareDocumentPosition(n.createElement("div"))}),ia(function(a){return a.innerHTML="<a href='#'></a>","#"===a.firstChild.getAttribute("href")})||ja("type|href|height|width",function(a,b,c){return c?void 0:a.getAttribute(b,"type"===b.toLowerCase()?1:2)}),c.attributes&&ia(function(a){return a.innerHTML="<input/>",a.firstChild.setAttribute("value",""),""===a.firstChild.getAttribute("value")})||ja("value",function(a,b,c){return c||"input"!==a.nodeName.toLowerCase()?void 0:a.defaultValue}),ia(function(a){return null==a.getAttribute("disabled")})||ja(K,function(a,b,c){var d;return c?void 0:a[b]===!0?b.toLowerCase():(d=a.getAttributeNode(b))&&d.specified?d.value:null}),fa}(a);n.find=t,n.expr=t.selectors,n.expr[":"]=n.expr.pseudos,n.uniqueSort=n.unique=t.uniqueSort,n.text=t.getText,n.isXMLDoc=t.isXML,n.contains=t.contains;var u=function(a,b,c){var d=[],e=void 0!==c;while((a=a[b])&&9!==a.nodeType)if(1===a.nodeType){if(e&&n(a).is(c))break;d.push(a)}return d},v=function(a,b){for(var c=[];a;a=a.nextSibling)1===a.nodeType&&a!==b&&c.push(a);return c},w=n.expr.match.needsContext,x=/^<([\w-]+)\s*\/?>(?:<\/\1>|)$/,y=/^.[^:#\[\.,]*$/;function z(a,b,c){if(n.isFunction(b))return n.grep(a,function(a,d){return!!b.call(a,d,a)!==c});if(b.nodeType)return n.grep(a,function(a){return a===b!==c});if("string"==typeof b){if(y.test(b))return n.filter(b,a,c);b=n.filter(b,a)}return n.grep(a,function(a){return n.inArray(a,b)>-1!==c})}n.filter=function(a,b,c){var d=b[0];return c&&(a=":not("+a+")"),1===b.length&&1===d.nodeType?n.find.matchesSelector(d,a)?[d]:[]:n.find.matches(a,n.grep(b,function(a){return 1===a.nodeType}))},n.fn.extend({find:function(a){var b,c=[],d=this,e=d.length;if("string"!=typeof a)return this.pushStack(n(a).filter(function(){for(b=0;e>b;b++)if(n.contains(d[b],this))return!0}));for(b=0;e>b;b++)n.find(a,d[b],c);return c=this.pushStack(e>1?n.unique(c):c),c.selector=this.selector?this.selector+" "+a:a,c},filter:function(a){return this.pushStack(z(this,a||[],!1))},not:function(a){return this.pushStack(z(this,a||[],!0))},is:function(a){return!!z(this,"string"==typeof a&&w.test(a)?n(a):a||[],!1).length}});var A,B=/^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,C=n.fn.init=function(a,b,c){var e,f;if(!a)return this;if(c=c||A,"string"==typeof a){if(e="<"===a.charAt(0)&&">"===a.charAt(a.length-1)&&a.length>=3?[null,a,null]:B.exec(a),!e||!e[1]&&b)return!b||b.jquery?(b||c).find(a):this.constructor(b).find(a);if(e[1]){if(b=b instanceof n?b[0]:b,n.merge(this,n.parseHTML(e[1],b&&b.nodeType?b.ownerDocument||b:d,!0)),x.test(e[1])&&n.isPlainObject(b))for(e in b)n.isFunction(this[e])?this[e](b[e]):this.attr(e,b[e]);return this}if(f=d.getElementById(e[2]),f&&f.parentNode){if(f.id!==e[2])return A.find(a);this.length=1,this[0]=f}return this.context=d,this.selector=a,this}return a.nodeType?(this.context=this[0]=a,this.length=1,this):n.isFunction(a)?"undefined"!=typeof c.ready?c.ready(a):a(n):(void 0!==a.selector&&(this.selector=a.selector,this.context=a.context),n.makeArray(a,this))};C.prototype=n.fn,A=n(d);var D=/^(?:parents|prev(?:Until|All))/,E={children:!0,contents:!0,next:!0,prev:!0};n.fn.extend({has:function(a){var b,c=n(a,this),d=c.length;return this.filter(function(){for(b=0;d>b;b++)if(n.contains(this,c[b]))return!0})},closest:function(a,b){for(var c,d=0,e=this.length,f=[],g=w.test(a)||"string"!=typeof a?n(a,b||this.context):0;e>d;d++)for(c=this[d];c&&c!==b;c=c.parentNode)if(c.nodeType<11&&(g?g.index(c)>-1:1===c.nodeType&&n.find.matchesSelector(c,a))){f.push(c);break}return this.pushStack(f.length>1?n.uniqueSort(f):f)},index:function(a){return a?"string"==typeof a?n.inArray(this[0],n(a)):n.inArray(a.jquery?a[0]:a,this):this[0]&&this[0].parentNode?this.first().prevAll().length:-1},add:function(a,b){return this.pushStack(n.uniqueSort(n.merge(this.get(),n(a,b))))},addBack:function(a){return this.add(null==a?this.prevObject:this.prevObject.filter(a))}});function F(a,b){do a=a[b];while(a&&1!==a.nodeType);return a}n.each({parent:function(a){var b=a.parentNode;return b&&11!==b.nodeType?b:null},parents:function(a){return u(a,"parentNode")},parentsUntil:function(a,b,c){return u(a,"parentNode",c)},next:function(a){return F(a,"nextSibling")},prev:function(a){return F(a,"previousSibling")},nextAll:function(a){return u(a,"nextSibling")},prevAll:function(a){return u(a,"previousSibling")},nextUntil:function(a,b,c){return u(a,"nextSibling",c)},prevUntil:function(a,b,c){return u(a,"previousSibling",c)},siblings:function(a){return v((a.parentNode||{}).firstChild,a)},children:function(a){return v(a.firstChild)},contents:function(a){return n.nodeName(a,"iframe")?a.contentDocument||a.contentWindow.document:n.merge([],a.childNodes)}},function(a,b){n.fn[a]=function(c,d){var e=n.map(this,b,c);return"Until"!==a.slice(-5)&&(d=c),d&&"string"==typeof d&&(e=n.filter(d,e)),this.length>1&&(E[a]||(e=n.uniqueSort(e)),D.test(a)&&(e=e.reverse())),this.pushStack(e)}});var G=/\S+/g;function H(a){var b={};return n.each(a.match(G)||[],function(a,c){b[c]=!0}),b}n.Callbacks=function(a){a="string"==typeof a?H(a):n.extend({},a);var b,c,d,e,f=[],g=[],h=-1,i=function(){for(e=a.once,d=b=!0;g.length;h=-1){c=g.shift();while(++h<f.length)f[h].apply(c[0],c[1])===!1&&a.stopOnFalse&&(h=f.length,c=!1)}a.memory||(c=!1),b=!1,e&&(f=c?[]:"")},j={add:function(){return f&&(c&&!b&&(h=f.length-1,g.push(c)),function d(b){n.each(b,function(b,c){n.isFunction(c)?a.unique&&j.has(c)||f.push(c):c&&c.length&&"string"!==n.type(c)&&d(c)})}(arguments),c&&!b&&i()),this},remove:function(){return n.each(arguments,function(a,b){var c;while((c=n.inArray(b,f,c))>-1)f.splice(c,1),h>=c&&h--}),this},has:function(a){return a?n.inArray(a,f)>-1:f.length>0},empty:function(){return f&&(f=[]),this},disable:function(){return e=g=[],f=c="",this},disabled:function(){return!f},lock:function(){return e=!0,c||j.disable(),this},locked:function(){return!!e},fireWith:function(a,c){return e||(c=c||[],c=[a,c.slice?c.slice():c],g.push(c),b||i()),this},fire:function(){return j.fireWith(this,arguments),this},fired:function(){return!!d}};return j},n.extend({Deferred:function(a){var b=[["resolve","done",n.Callbacks("once memory"),"resolved"],["reject","fail",n.Callbacks("once memory"),"rejected"],["notify","progress",n.Callbacks("memory")]],c="pending",d={state:function(){return c},always:function(){return e.done(arguments).fail(arguments),this},then:function(){var a=arguments;return n.Deferred(function(c){n.each(b,function(b,f){var g=n.isFunction(a[b])&&a[b];e[f[1]](function(){var a=g&&g.apply(this,arguments);a&&n.isFunction(a.promise)?a.promise().progress(c.notify).done(c.resolve).fail(c.reject):c[f[0]+"With"](this===d?c.promise():this,g?[a]:arguments)})}),a=null}).promise()},promise:function(a){return null!=a?n.extend(a,d):d}},e={};return d.pipe=d.then,n.each(b,function(a,f){var g=f[2],h=f[3];d[f[1]]=g.add,h&&g.add(function(){c=h},b[1^a][2].disable,b[2][2].lock),e[f[0]]=function(){return e[f[0]+"With"](this===e?d:this,arguments),this},e[f[0]+"With"]=g.fireWith}),d.promise(e),a&&a.call(e,e),e},when:function(a){var b=0,c=e.call(arguments),d=c.length,f=1!==d||a&&n.isFunction(a.promise)?d:0,g=1===f?a:n.Deferred(),h=function(a,b,c){return function(d){b[a]=this,c[a]=arguments.length>1?e.call(arguments):d,c===i?g.notifyWith(b,c):--f||g.resolveWith(b,c)}},i,j,k;if(d>1)for(i=new Array(d),j=new Array(d),k=new Array(d);d>b;b++)c[b]&&n.isFunction(c[b].promise)?c[b].promise().progress(h(b,j,i)).done(h(b,k,c)).fail(g.reject):--f;return f||g.resolveWith(k,c),g.promise()}});var I;n.fn.ready=function(a){return n.ready.promise().done(a),this},n.extend({isReady:!1,readyWait:1,holdReady:function(a){a?n.readyWait++:n.ready(!0)},ready:function(a){(a===!0?--n.readyWait:n.isReady)||(n.isReady=!0,a!==!0&&--n.readyWait>0||(I.resolveWith(d,[n]),n.fn.triggerHandler&&(n(d).triggerHandler("ready"),n(d).off("ready"))))}});function J(){d.addEventListener?(d.removeEventListener("DOMContentLoaded",K),a.removeEventListener("load",K)):(d.detachEvent("onreadystatechange",K),a.detachEvent("onload",K))}function K(){(d.addEventListener||"load"===a.event.type||"complete"===d.readyState)&&(J(),n.ready())}n.ready.promise=function(b){if(!I)if(I=n.Deferred(),"complete"===d.readyState||"loading"!==d.readyState&&!d.documentElement.doScroll)a.setTimeout(n.ready);else if(d.addEventListener)d.addEventListener("DOMContentLoaded",K),a.addEventListener("load",K);else{d.attachEvent("onreadystatechange",K),a.attachEvent("onload",K);var c=!1;try{c=null==a.frameElement&&d.documentElement}catch(e){}c&&c.doScroll&&!function f(){if(!n.isReady){try{c.doScroll("left")}catch(b){return a.setTimeout(f,50)}J(),n.ready()}}()}return I.promise(b)},n.ready.promise();var L;for(L in n(l))break;l.ownFirst="0"===L,l.inlineBlockNeedsLayout=!1,n(function(){var a,b,c,e;c=d.getElementsByTagName("body")[0],c&&c.style&&(b=d.createElement("div"),e=d.createElement("div"),e.style.cssText="position:absolute;border:0;width:0;height:0;top:0;left:-9999px",c.appendChild(e).appendChild(b),"undefined"!=typeof b.style.zoom&&(b.style.cssText="display:inline;margin:0;border:0;padding:1px;width:1px;zoom:1",l.inlineBlockNeedsLayout=a=3===b.offsetWidth,a&&(c.style.zoom=1)),c.removeChild(e))}),function(){var a=d.createElement("div");l.deleteExpando=!0;try{delete a.test}catch(b){l.deleteExpando=!1}a=null}();var M=function(a){var b=n.noData[(a.nodeName+" ").toLowerCase()],c=+a.nodeType||1;return 1!==c&&9!==c?!1:!b||b!==!0&&a.getAttribute("classid")===b},N=/^(?:\{[\w\W]*\}|\[[\w\W]*\])$/,O=/([A-Z])/g;function P(a,b,c){if(void 0===c&&1===a.nodeType){var d="data-"+b.replace(O,"-$1").toLowerCase();if(c=a.getAttribute(d),"string"==typeof c){try{c="true"===c?!0:"false"===c?!1:"null"===c?null:+c+""===c?+c:N.test(c)?n.parseJSON(c):c}catch(e){}n.data(a,b,c)}else c=void 0;
+}return c}function Q(a){var b;for(b in a)if(("data"!==b||!n.isEmptyObject(a[b]))&&"toJSON"!==b)return!1;return!0}function R(a,b,d,e){if(M(a)){var f,g,h=n.expando,i=a.nodeType,j=i?n.cache:a,k=i?a[h]:a[h]&&h;if(k&&j[k]&&(e||j[k].data)||void 0!==d||"string"!=typeof b)return k||(k=i?a[h]=c.pop()||n.guid++:h),j[k]||(j[k]=i?{}:{toJSON:n.noop}),"object"!=typeof b&&"function"!=typeof b||(e?j[k]=n.extend(j[k],b):j[k].data=n.extend(j[k].data,b)),g=j[k],e||(g.data||(g.data={}),g=g.data),void 0!==d&&(g[n.camelCase(b)]=d),"string"==typeof b?(f=g[b],null==f&&(f=g[n.camelCase(b)])):f=g,f}}function S(a,b,c){if(M(a)){var d,e,f=a.nodeType,g=f?n.cache:a,h=f?a[n.expando]:n.expando;if(g[h]){if(b&&(d=c?g[h]:g[h].data)){n.isArray(b)?b=b.concat(n.map(b,n.camelCase)):b in d?b=[b]:(b=n.camelCase(b),b=b in d?[b]:b.split(" ")),e=b.length;while(e--)delete d[b[e]];if(c?!Q(d):!n.isEmptyObject(d))return}(c||(delete g[h].data,Q(g[h])))&&(f?n.cleanData([a],!0):l.deleteExpando||g!=g.window?delete g[h]:g[h]=void 0)}}}n.extend({cache:{},noData:{"applet ":!0,"embed ":!0,"object ":"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"},hasData:function(a){return a=a.nodeType?n.cache[a[n.expando]]:a[n.expando],!!a&&!Q(a)},data:function(a,b,c){return R(a,b,c)},removeData:function(a,b){return S(a,b)},_data:function(a,b,c){return R(a,b,c,!0)},_removeData:function(a,b){return S(a,b,!0)}}),n.fn.extend({data:function(a,b){var c,d,e,f=this[0],g=f&&f.attributes;if(void 0===a){if(this.length&&(e=n.data(f),1===f.nodeType&&!n._data(f,"parsedAttrs"))){c=g.length;while(c--)g[c]&&(d=g[c].name,0===d.indexOf("data-")&&(d=n.camelCase(d.slice(5)),P(f,d,e[d])));n._data(f,"parsedAttrs",!0)}return e}return"object"==typeof a?this.each(function(){n.data(this,a)}):arguments.length>1?this.each(function(){n.data(this,a,b)}):f?P(f,a,n.data(f,a)):void 0},removeData:function(a){return this.each(function(){n.removeData(this,a)})}}),n.extend({queue:function(a,b,c){var d;return a?(b=(b||"fx")+"queue",d=n._data(a,b),c&&(!d||n.isArray(c)?d=n._data(a,b,n.makeArray(c)):d.push(c)),d||[]):void 0},dequeue:function(a,b){b=b||"fx";var c=n.queue(a,b),d=c.length,e=c.shift(),f=n._queueHooks(a,b),g=function(){n.dequeue(a,b)};"inprogress"===e&&(e=c.shift(),d--),e&&("fx"===b&&c.unshift("inprogress"),delete f.stop,e.call(a,g,f)),!d&&f&&f.empty.fire()},_queueHooks:function(a,b){var c=b+"queueHooks";return n._data(a,c)||n._data(a,c,{empty:n.Callbacks("once memory").add(function(){n._removeData(a,b+"queue"),n._removeData(a,c)})})}}),n.fn.extend({queue:function(a,b){var c=2;return"string"!=typeof a&&(b=a,a="fx",c--),arguments.length<c?n.queue(this[0],a):void 0===b?this:this.each(function(){var c=n.queue(this,a,b);n._queueHooks(this,a),"fx"===a&&"inprogress"!==c[0]&&n.dequeue(this,a)})},dequeue:function(a){return this.each(function(){n.dequeue(this,a)})},clearQueue:function(a){return this.queue(a||"fx",[])},promise:function(a,b){var c,d=1,e=n.Deferred(),f=this,g=this.length,h=function(){--d||e.resolveWith(f,[f])};"string"!=typeof a&&(b=a,a=void 0),a=a||"fx";while(g--)c=n._data(f[g],a+"queueHooks"),c&&c.empty&&(d++,c.empty.add(h));return h(),e.promise(b)}}),function(){var a;l.shrinkWrapBlocks=function(){if(null!=a)return a;a=!1;var b,c,e;return c=d.getElementsByTagName("body")[0],c&&c.style?(b=d.createElement("div"),e=d.createElement("div"),e.style.cssText="position:absolute;border:0;width:0;height:0;top:0;left:-9999px",c.appendChild(e).appendChild(b),"undefined"!=typeof b.style.zoom&&(b.style.cssText="-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;display:block;margin:0;border:0;padding:1px;width:1px;zoom:1",b.appendChild(d.createElement("div")).style.width="5px",a=3!==b.offsetWidth),c.removeChild(e),a):void 0}}();var T=/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/.source,U=new RegExp("^(?:([+-])=|)("+T+")([a-z%]*)$","i"),V=["Top","Right","Bottom","Left"],W=function(a,b){return a=b||a,"none"===n.css(a,"display")||!n.contains(a.ownerDocument,a)};function X(a,b,c,d){var e,f=1,g=20,h=d?function(){return d.cur()}:function(){return n.css(a,b,"")},i=h(),j=c&&c[3]||(n.cssNumber[b]?"":"px"),k=(n.cssNumber[b]||"px"!==j&&+i)&&U.exec(n.css(a,b));if(k&&k[3]!==j){j=j||k[3],c=c||[],k=+i||1;do f=f||".5",k/=f,n.style(a,b,k+j);while(f!==(f=h()/i)&&1!==f&&--g)}return c&&(k=+k||+i||0,e=c[1]?k+(c[1]+1)*c[2]:+c[2],d&&(d.unit=j,d.start=k,d.end=e)),e}var Y=function(a,b,c,d,e,f,g){var h=0,i=a.length,j=null==c;if("object"===n.type(c)){e=!0;for(h in c)Y(a,b,h,c[h],!0,f,g)}else if(void 0!==d&&(e=!0,n.isFunction(d)||(g=!0),j&&(g?(b.call(a,d),b=null):(j=b,b=function(a,b,c){return j.call(n(a),c)})),b))for(;i>h;h++)b(a[h],c,g?d:d.call(a[h],h,b(a[h],c)));return e?a:j?b.call(a):i?b(a[0],c):f},Z=/^(?:checkbox|radio)$/i,$=/<([\w:-]+)/,_=/^$|\/(?:java|ecma)script/i,aa=/^\s+/,ba="abbr|article|aside|audio|bdi|canvas|data|datalist|details|dialog|figcaption|figure|footer|header|hgroup|main|mark|meter|nav|output|picture|progress|section|summary|template|time|video";function ca(a){var b=ba.split("|"),c=a.createDocumentFragment();if(c.createElement)while(b.length)c.createElement(b.pop());return c}!function(){var a=d.createElement("div"),b=d.createDocumentFragment(),c=d.createElement("input");a.innerHTML="  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>",l.leadingWhitespace=3===a.firstChild.nodeType,l.tbody=!a.getElementsByTagName("tbody").length,l.htmlSerialize=!!a.getElementsByTagName("link").length,l.html5Clone="<:nav></:nav>"!==d.createElement("nav").cloneNode(!0).outerHTML,c.type="checkbox",c.checked=!0,b.appendChild(c),l.appendChecked=c.checked,a.innerHTML="<textarea>x</textarea>",l.noCloneChecked=!!a.cloneNode(!0).lastChild.defaultValue,b.appendChild(a),c=d.createElement("input"),c.setAttribute("type","radio"),c.setAttribute("checked","checked"),c.setAttribute("name","t"),a.appendChild(c),l.checkClone=a.cloneNode(!0).cloneNode(!0).lastChild.checked,l.noCloneEvent=!!a.addEventListener,a[n.expando]=1,l.attributes=!a.getAttribute(n.expando)}();var da={option:[1,"<select multiple='multiple'>","</select>"],legend:[1,"<fieldset>","</fieldset>"],area:[1,"<map>","</map>"],param:[1,"<object>","</object>"],thead:[1,"<table>","</table>"],tr:[2,"<table><tbody>","</tbody></table>"],col:[2,"<table><tbody></tbody><colgroup>","</colgroup></table>"],td:[3,"<table><tbody><tr>","</tr></tbody></table>"],_default:l.htmlSerialize?[0,"",""]:[1,"X<div>","</div>"]};da.optgroup=da.option,da.tbody=da.tfoot=da.colgroup=da.caption=da.thead,da.th=da.td;function ea(a,b){var c,d,e=0,f="undefined"!=typeof a.getElementsByTagName?a.getElementsByTagName(b||"*"):"undefined"!=typeof a.querySelectorAll?a.querySelectorAll(b||"*"):void 0;if(!f)for(f=[],c=a.childNodes||a;null!=(d=c[e]);e++)!b||n.nodeName(d,b)?f.push(d):n.merge(f,ea(d,b));return void 0===b||b&&n.nodeName(a,b)?n.merge([a],f):f}function fa(a,b){for(var c,d=0;null!=(c=a[d]);d++)n._data(c,"globalEval",!b||n._data(b[d],"globalEval"))}var ga=/<|&#?\w+;/,ha=/<tbody/i;function ia(a){Z.test(a.type)&&(a.defaultChecked=a.checked)}function ja(a,b,c,d,e){for(var f,g,h,i,j,k,m,o=a.length,p=ca(b),q=[],r=0;o>r;r++)if(g=a[r],g||0===g)if("object"===n.type(g))n.merge(q,g.nodeType?[g]:g);else if(ga.test(g)){i=i||p.appendChild(b.createElement("div")),j=($.exec(g)||["",""])[1].toLowerCase(),m=da[j]||da._default,i.innerHTML=m[1]+n.htmlPrefilter(g)+m[2],f=m[0];while(f--)i=i.lastChild;if(!l.leadingWhitespace&&aa.test(g)&&q.push(b.createTextNode(aa.exec(g)[0])),!l.tbody){g="table"!==j||ha.test(g)?"<table>"!==m[1]||ha.test(g)?0:i:i.firstChild,f=g&&g.childNodes.length;while(f--)n.nodeName(k=g.childNodes[f],"tbody")&&!k.childNodes.length&&g.removeChild(k)}n.merge(q,i.childNodes),i.textContent="";while(i.firstChild)i.removeChild(i.firstChild);i=p.lastChild}else q.push(b.createTextNode(g));i&&p.removeChild(i),l.appendChecked||n.grep(ea(q,"input"),ia),r=0;while(g=q[r++])if(d&&n.inArray(g,d)>-1)e&&e.push(g);else if(h=n.contains(g.ownerDocument,g),i=ea(p.appendChild(g),"script"),h&&fa(i),c){f=0;while(g=i[f++])_.test(g.type||"")&&c.push(g)}return i=null,p}!function(){var b,c,e=d.createElement("div");for(b in{submit:!0,change:!0,focusin:!0})c="on"+b,(l[b]=c in a)||(e.setAttribute(c,"t"),l[b]=e.attributes[c].expando===!1);e=null}();var ka=/^(?:input|select|textarea)$/i,la=/^key/,ma=/^(?:mouse|pointer|contextmenu|drag|drop)|click/,na=/^(?:focusinfocus|focusoutblur)$/,oa=/^([^.]*)(?:\.(.+)|)/;function pa(){return!0}function qa(){return!1}function ra(){try{return d.activeElement}catch(a){}}function sa(a,b,c,d,e,f){var g,h;if("object"==typeof b){"string"!=typeof c&&(d=d||c,c=void 0);for(h in b)sa(a,h,c,d,b[h],f);return a}if(null==d&&null==e?(e=c,d=c=void 0):null==e&&("string"==typeof c?(e=d,d=void 0):(e=d,d=c,c=void 0)),e===!1)e=qa;else if(!e)return a;return 1===f&&(g=e,e=function(a){return n().off(a),g.apply(this,arguments)},e.guid=g.guid||(g.guid=n.guid++)),a.each(function(){n.event.add(this,b,e,d,c)})}n.event={global:{},add:function(a,b,c,d,e){var f,g,h,i,j,k,l,m,o,p,q,r=n._data(a);if(r){c.handler&&(i=c,c=i.handler,e=i.selector),c.guid||(c.guid=n.guid++),(g=r.events)||(g=r.events={}),(k=r.handle)||(k=r.handle=function(a){return"undefined"==typeof n||a&&n.event.triggered===a.type?void 0:n.event.dispatch.apply(k.elem,arguments)},k.elem=a),b=(b||"").match(G)||[""],h=b.length;while(h--)f=oa.exec(b[h])||[],o=q=f[1],p=(f[2]||"").split(".").sort(),o&&(j=n.event.special[o]||{},o=(e?j.delegateType:j.bindType)||o,j=n.event.special[o]||{},l=n.extend({type:o,origType:q,data:d,handler:c,guid:c.guid,selector:e,needsContext:e&&n.expr.match.needsContext.test(e),namespace:p.join(".")},i),(m=g[o])||(m=g[o]=[],m.delegateCount=0,j.setup&&j.setup.call(a,d,p,k)!==!1||(a.addEventListener?a.addEventListener(o,k,!1):a.attachEvent&&a.attachEvent("on"+o,k))),j.add&&(j.add.call(a,l),l.handler.guid||(l.handler.guid=c.guid)),e?m.splice(m.delegateCount++,0,l):m.push(l),n.event.global[o]=!0);a=null}},remove:function(a,b,c,d,e){var f,g,h,i,j,k,l,m,o,p,q,r=n.hasData(a)&&n._data(a);if(r&&(k=r.events)){b=(b||"").match(G)||[""],j=b.length;while(j--)if(h=oa.exec(b[j])||[],o=q=h[1],p=(h[2]||"").split(".").sort(),o){l=n.event.special[o]||{},o=(d?l.delegateType:l.bindType)||o,m=k[o]||[],h=h[2]&&new RegExp("(^|\\.)"+p.join("\\.(?:.*\\.|)")+"(\\.|$)"),i=f=m.length;while(f--)g=m[f],!e&&q!==g.origType||c&&c.guid!==g.guid||h&&!h.test(g.namespace)||d&&d!==g.selector&&("**"!==d||!g.selector)||(m.splice(f,1),g.selector&&m.delegateCount--,l.remove&&l.remove.call(a,g));i&&!m.length&&(l.teardown&&l.teardown.call(a,p,r.handle)!==!1||n.removeEvent(a,o,r.handle),delete k[o])}else for(o in k)n.event.remove(a,o+b[j],c,d,!0);n.isEmptyObject(k)&&(delete r.handle,n._removeData(a,"events"))}},trigger:function(b,c,e,f){var g,h,i,j,l,m,o,p=[e||d],q=k.call(b,"type")?b.type:b,r=k.call(b,"namespace")?b.namespace.split("."):[];if(i=m=e=e||d,3!==e.nodeType&&8!==e.nodeType&&!na.test(q+n.event.triggered)&&(q.indexOf(".")>-1&&(r=q.split("."),q=r.shift(),r.sort()),h=q.indexOf(":")<0&&"on"+q,b=b[n.expando]?b:new n.Event(q,"object"==typeof b&&b),b.isTrigger=f?2:3,b.namespace=r.join("."),b.rnamespace=b.namespace?new RegExp("(^|\\.)"+r.join("\\.(?:.*\\.|)")+"(\\.|$)"):null,b.result=void 0,b.target||(b.target=e),c=null==c?[b]:n.makeArray(c,[b]),l=n.event.special[q]||{},f||!l.trigger||l.trigger.apply(e,c)!==!1)){if(!f&&!l.noBubble&&!n.isWindow(e)){for(j=l.delegateType||q,na.test(j+q)||(i=i.parentNode);i;i=i.parentNode)p.push(i),m=i;m===(e.ownerDocument||d)&&p.push(m.defaultView||m.parentWindow||a)}o=0;while((i=p[o++])&&!b.isPropagationStopped())b.type=o>1?j:l.bindType||q,g=(n._data(i,"events")||{})[b.type]&&n._data(i,"handle"),g&&g.apply(i,c),g=h&&i[h],g&&g.apply&&M(i)&&(b.result=g.apply(i,c),b.result===!1&&b.preventDefault());if(b.type=q,!f&&!b.isDefaultPrevented()&&(!l._default||l._default.apply(p.pop(),c)===!1)&&M(e)&&h&&e[q]&&!n.isWindow(e)){m=e[h],m&&(e[h]=null),n.event.triggered=q;try{e[q]()}catch(s){}n.event.triggered=void 0,m&&(e[h]=m)}return b.result}},dispatch:function(a){a=n.event.fix(a);var b,c,d,f,g,h=[],i=e.call(arguments),j=(n._data(this,"events")||{})[a.type]||[],k=n.event.special[a.type]||{};if(i[0]=a,a.delegateTarget=this,!k.preDispatch||k.preDispatch.call(this,a)!==!1){h=n.event.handlers.call(this,a,j),b=0;while((f=h[b++])&&!a.isPropagationStopped()){a.currentTarget=f.elem,c=0;while((g=f.handlers[c++])&&!a.isImmediatePropagationStopped())a.rnamespace&&!a.rnamespace.test(g.namespace)||(a.handleObj=g,a.data=g.data,d=((n.event.special[g.origType]||{}).handle||g.handler).apply(f.elem,i),void 0!==d&&(a.result=d)===!1&&(a.preventDefault(),a.stopPropagation()))}return k.postDispatch&&k.postDispatch.call(this,a),a.result}},handlers:function(a,b){var c,d,e,f,g=[],h=b.delegateCount,i=a.target;if(h&&i.nodeType&&("click"!==a.type||isNaN(a.button)||a.button<1))for(;i!=this;i=i.parentNode||this)if(1===i.nodeType&&(i.disabled!==!0||"click"!==a.type)){for(d=[],c=0;h>c;c++)f=b[c],e=f.selector+" ",void 0===d[e]&&(d[e]=f.needsContext?n(e,this).index(i)>-1:n.find(e,this,null,[i]).length),d[e]&&d.push(f);d.length&&g.push({elem:i,handlers:d})}return h<b.length&&g.push({elem:this,handlers:b.slice(h)}),g},fix:function(a){if(a[n.expando])return a;var b,c,e,f=a.type,g=a,h=this.fixHooks[f];h||(this.fixHooks[f]=h=ma.test(f)?this.mouseHooks:la.test(f)?this.keyHooks:{}),e=h.props?this.props.concat(h.props):this.props,a=new n.Event(g),b=e.length;while(b--)c=e[b],a[c]=g[c];return a.target||(a.target=g.srcElement||d),3===a.target.nodeType&&(a.target=a.target.parentNode),a.metaKey=!!a.metaKey,h.filter?h.filter(a,g):a},props:"altKey bubbles cancelable ctrlKey currentTarget detail eventPhase metaKey relatedTarget shiftKey target timeStamp view which".split(" "),fixHooks:{},keyHooks:{props:"char charCode key keyCode".split(" "),filter:function(a,b){return null==a.which&&(a.which=null!=b.charCode?b.charCode:b.keyCode),a}},mouseHooks:{props:"button buttons clientX clientY fromElement offsetX offsetY pageX pageY screenX screenY toElement".split(" "),filter:function(a,b){var c,e,f,g=b.button,h=b.fromElement;return null==a.pageX&&null!=b.clientX&&(e=a.target.ownerDocument||d,f=e.documentElement,c=e.body,a.pageX=b.clientX+(f&&f.scrollLeft||c&&c.scrollLeft||0)-(f&&f.clientLeft||c&&c.clientLeft||0),a.pageY=b.clientY+(f&&f.scrollTop||c&&c.scrollTop||0)-(f&&f.clientTop||c&&c.clientTop||0)),!a.relatedTarget&&h&&(a.relatedTarget=h===a.target?b.toElement:h),a.which||void 0===g||(a.which=1&g?1:2&g?3:4&g?2:0),a}},special:{load:{noBubble:!0},focus:{trigger:function(){if(this!==ra()&&this.focus)try{return this.focus(),!1}catch(a){}},delegateType:"focusin"},blur:{trigger:function(){return this===ra()&&this.blur?(this.blur(),!1):void 0},delegateType:"focusout"},click:{trigger:function(){return n.nodeName(this,"input")&&"checkbox"===this.type&&this.click?(this.click(),!1):void 0},_default:function(a){return n.nodeName(a.target,"a")}},beforeunload:{postDispatch:function(a){void 0!==a.result&&a.originalEvent&&(a.originalEvent.returnValue=a.result)}}},simulate:function(a,b,c){var d=n.extend(new n.Event,c,{type:a,isSimulated:!0});n.event.trigger(d,null,b),d.isDefaultPrevented()&&c.preventDefault()}},n.removeEvent=d.removeEventListener?function(a,b,c){a.removeEventListener&&a.removeEventListener(b,c)}:function(a,b,c){var d="on"+b;a.detachEvent&&("undefined"==typeof a[d]&&(a[d]=null),a.detachEvent(d,c))},n.Event=function(a,b){return this instanceof n.Event?(a&&a.type?(this.originalEvent=a,this.type=a.type,this.isDefaultPrevented=a.defaultPrevented||void 0===a.defaultPrevented&&a.returnValue===!1?pa:qa):this.type=a,b&&n.extend(this,b),this.timeStamp=a&&a.timeStamp||n.now(),void(this[n.expando]=!0)):new n.Event(a,b)},n.Event.prototype={constructor:n.Event,isDefaultPrevented:qa,isPropagationStopped:qa,isImmediatePropagationStopped:qa,preventDefault:function(){var a=this.originalEvent;this.isDefaultPrevented=pa,a&&(a.preventDefault?a.preventDefault():a.returnValue=!1)},stopPropagation:function(){var a=this.originalEvent;this.isPropagationStopped=pa,a&&!this.isSimulated&&(a.stopPropagation&&a.stopPropagation(),a.cancelBubble=!0)},stopImmediatePropagation:function(){var a=this.originalEvent;this.isImmediatePropagationStopped=pa,a&&a.stopImmediatePropagation&&a.stopImmediatePropagation(),this.stopPropagation()}},n.each({mouseenter:"mouseover",mouseleave:"mouseout",pointerenter:"pointerover",pointerleave:"pointerout"},function(a,b){n.event.special[a]={delegateType:b,bindType:b,handle:function(a){var c,d=this,e=a.relatedTarget,f=a.handleObj;return e&&(e===d||n.contains(d,e))||(a.type=f.origType,c=f.handler.apply(this,arguments),a.type=b),c}}}),l.submit||(n.event.special.submit={setup:function(){return n.nodeName(this,"form")?!1:void n.event.add(this,"click._submit keypress._submit",function(a){var b=a.target,c=n.nodeName(b,"input")||n.nodeName(b,"button")?n.prop(b,"form"):void 0;c&&!n._data(c,"submit")&&(n.event.add(c,"submit._submit",function(a){a._submitBubble=!0}),n._data(c,"submit",!0))})},postDispatch:function(a){a._submitBubble&&(delete a._submitBubble,this.parentNode&&!a.isTrigger&&n.event.simulate("submit",this.parentNode,a))},teardown:function(){return n.nodeName(this,"form")?!1:void n.event.remove(this,"._submit")}}),l.change||(n.event.special.change={setup:function(){return ka.test(this.nodeName)?("checkbox"!==this.type&&"radio"!==this.type||(n.event.add(this,"propertychange._change",function(a){"checked"===a.originalEvent.propertyName&&(this._justChanged=!0)}),n.event.add(this,"click._change",function(a){this._justChanged&&!a.isTrigger&&(this._justChanged=!1),n.event.simulate("change",this,a)})),!1):void n.event.add(this,"beforeactivate._change",function(a){var b=a.target;ka.test(b.nodeName)&&!n._data(b,"change")&&(n.event.add(b,"change._change",function(a){!this.parentNode||a.isSimulated||a.isTrigger||n.event.simulate("change",this.parentNode,a)}),n._data(b,"change",!0))})},handle:function(a){var b=a.target;return this!==b||a.isSimulated||a.isTrigger||"radio"!==b.type&&"checkbox"!==b.type?a.handleObj.handler.apply(this,arguments):void 0},teardown:function(){return n.event.remove(this,"._change"),!ka.test(this.nodeName)}}),l.focusin||n.each({focus:"focusin",blur:"focusout"},function(a,b){var c=function(a){n.event.simulate(b,a.target,n.event.fix(a))};n.event.special[b]={setup:function(){var d=this.ownerDocument||this,e=n._data(d,b);e||d.addEventListener(a,c,!0),n._data(d,b,(e||0)+1)},teardown:function(){var d=this.ownerDocument||this,e=n._data(d,b)-1;e?n._data(d,b,e):(d.removeEventListener(a,c,!0),n._removeData(d,b))}}}),n.fn.extend({on:function(a,b,c,d){return sa(this,a,b,c,d)},one:function(a,b,c,d){return sa(this,a,b,c,d,1)},off:function(a,b,c){var d,e;if(a&&a.preventDefault&&a.handleObj)return d=a.handleObj,n(a.delegateTarget).off(d.namespace?d.origType+"."+d.namespace:d.origType,d.selector,d.handler),this;if("object"==typeof a){for(e in a)this.off(e,b,a[e]);return this}return b!==!1&&"function"!=typeof b||(c=b,b=void 0),c===!1&&(c=qa),this.each(function(){n.event.remove(this,a,c,b)})},trigger:function(a,b){return this.each(function(){n.event.trigger(a,b,this)})},triggerHandler:function(a,b){var c=this[0];return c?n.event.trigger(a,b,c,!0):void 0}});var ta=/ jQuery\d+="(?:null|\d+)"/g,ua=new RegExp("<(?:"+ba+")[\\s/>]","i"),va=/<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:-]+)[^>]*)\/>/gi,wa=/<script|<style|<link/i,xa=/checked\s*(?:[^=]|=\s*.checked.)/i,ya=/^true\/(.*)/,za=/^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g,Aa=ca(d),Ba=Aa.appendChild(d.createElement("div"));function Ca(a,b){return n.nodeName(a,"table")&&n.nodeName(11!==b.nodeType?b:b.firstChild,"tr")?a.getElementsByTagName("tbody")[0]||a.appendChild(a.ownerDocument.createElement("tbody")):a}function Da(a){return a.type=(null!==n.find.attr(a,"type"))+"/"+a.type,a}function Ea(a){var b=ya.exec(a.type);return b?a.type=b[1]:a.removeAttribute("type"),a}function Fa(a,b){if(1===b.nodeType&&n.hasData(a)){var c,d,e,f=n._data(a),g=n._data(b,f),h=f.events;if(h){delete g.handle,g.events={};for(c in h)for(d=0,e=h[c].length;e>d;d++)n.event.add(b,c,h[c][d])}g.data&&(g.data=n.extend({},g.data))}}function Ga(a,b){var c,d,e;if(1===b.nodeType){if(c=b.nodeName.toLowerCase(),!l.noCloneEvent&&b[n.expando]){e=n._data(b);for(d in e.events)n.removeEvent(b,d,e.handle);b.removeAttribute(n.expando)}"script"===c&&b.text!==a.text?(Da(b).text=a.text,Ea(b)):"object"===c?(b.parentNode&&(b.outerHTML=a.outerHTML),l.html5Clone&&a.innerHTML&&!n.trim(b.innerHTML)&&(b.innerHTML=a.innerHTML)):"input"===c&&Z.test(a.type)?(b.defaultChecked=b.checked=a.checked,b.value!==a.value&&(b.value=a.value)):"option"===c?b.defaultSelected=b.selected=a.defaultSelected:"input"!==c&&"textarea"!==c||(b.defaultValue=a.defaultValue)}}function Ha(a,b,c,d){b=f.apply([],b);var e,g,h,i,j,k,m=0,o=a.length,p=o-1,q=b[0],r=n.isFunction(q);if(r||o>1&&"string"==typeof q&&!l.checkClone&&xa.test(q))return a.each(function(e){var f=a.eq(e);r&&(b[0]=q.call(this,e,f.html())),Ha(f,b,c,d)});if(o&&(k=ja(b,a[0].ownerDocument,!1,a,d),e=k.firstChild,1===k.childNodes.length&&(k=e),e||d)){for(i=n.map(ea(k,"script"),Da),h=i.length;o>m;m++)g=k,m!==p&&(g=n.clone(g,!0,!0),h&&n.merge(i,ea(g,"script"))),c.call(a[m],g,m);if(h)for(j=i[i.length-1].ownerDocument,n.map(i,Ea),m=0;h>m;m++)g=i[m],_.test(g.type||"")&&!n._data(g,"globalEval")&&n.contains(j,g)&&(g.src?n._evalUrl&&n._evalUrl(g.src):n.globalEval((g.text||g.textContent||g.innerHTML||"").replace(za,"")));k=e=null}return a}function Ia(a,b,c){for(var d,e=b?n.filter(b,a):a,f=0;null!=(d=e[f]);f++)c||1!==d.nodeType||n.cleanData(ea(d)),d.parentNode&&(c&&n.contains(d.ownerDocument,d)&&fa(ea(d,"script")),d.parentNode.removeChild(d));return a}n.extend({htmlPrefilter:function(a){return a.replace(va,"<$1></$2>")},clone:function(a,b,c){var d,e,f,g,h,i=n.contains(a.ownerDocument,a);if(l.html5Clone||n.isXMLDoc(a)||!ua.test("<"+a.nodeName+">")?f=a.cloneNode(!0):(Ba.innerHTML=a.outerHTML,Ba.removeChild(f=Ba.firstChild)),!(l.noCloneEvent&&l.noCloneChecked||1!==a.nodeType&&11!==a.nodeType||n.isXMLDoc(a)))for(d=ea(f),h=ea(a),g=0;null!=(e=h[g]);++g)d[g]&&Ga(e,d[g]);if(b)if(c)for(h=h||ea(a),d=d||ea(f),g=0;null!=(e=h[g]);g++)Fa(e,d[g]);else Fa(a,f);return d=ea(f,"script"),d.length>0&&fa(d,!i&&ea(a,"script")),d=h=e=null,f},cleanData:function(a,b){for(var d,e,f,g,h=0,i=n.expando,j=n.cache,k=l.attributes,m=n.event.special;null!=(d=a[h]);h++)if((b||M(d))&&(f=d[i],g=f&&j[f])){if(g.events)for(e in g.events)m[e]?n.event.remove(d,e):n.removeEvent(d,e,g.handle);j[f]&&(delete j[f],k||"undefined"==typeof d.removeAttribute?d[i]=void 0:d.removeAttribute(i),c.push(f))}}}),n.fn.extend({domManip:Ha,detach:function(a){return Ia(this,a,!0)},remove:function(a){return Ia(this,a)},text:function(a){return Y(this,function(a){return void 0===a?n.text(this):this.empty().append((this[0]&&this[0].ownerDocument||d).createTextNode(a))},null,a,arguments.length)},append:function(){return Ha(this,arguments,function(a){if(1===this.nodeType||11===this.nodeType||9===this.nodeType){var b=Ca(this,a);b.appendChild(a)}})},prepend:function(){return Ha(this,arguments,function(a){if(1===this.nodeType||11===this.nodeType||9===this.nodeType){var b=Ca(this,a);b.insertBefore(a,b.firstChild)}})},before:function(){return Ha(this,arguments,function(a){this.parentNode&&this.parentNode.insertBefore(a,this)})},after:function(){return Ha(this,arguments,function(a){this.parentNode&&this.parentNode.insertBefore(a,this.nextSibling)})},empty:function(){for(var a,b=0;null!=(a=this[b]);b++){1===a.nodeType&&n.cleanData(ea(a,!1));while(a.firstChild)a.removeChild(a.firstChild);a.options&&n.nodeName(a,"select")&&(a.options.length=0)}return this},clone:function(a,b){return a=null==a?!1:a,b=null==b?a:b,this.map(function(){return n.clone(this,a,b)})},html:function(a){return Y(this,function(a){var b=this[0]||{},c=0,d=this.length;if(void 0===a)return 1===b.nodeType?b.innerHTML.replace(ta,""):void 0;if("string"==typeof a&&!wa.test(a)&&(l.htmlSerialize||!ua.test(a))&&(l.leadingWhitespace||!aa.test(a))&&!da[($.exec(a)||["",""])[1].toLowerCase()]){a=n.htmlPrefilter(a);try{for(;d>c;c++)b=this[c]||{},1===b.nodeType&&(n.cleanData(ea(b,!1)),b.innerHTML=a);b=0}catch(e){}}b&&this.empty().append(a)},null,a,arguments.length)},replaceWith:function(){var a=[];return Ha(this,arguments,function(b){var c=this.parentNode;n.inArray(this,a)<0&&(n.cleanData(ea(this)),c&&c.replaceChild(b,this))},a)}}),n.each({appendTo:"append",prependTo:"prepend",insertBefore:"before",insertAfter:"after",replaceAll:"replaceWith"},function(a,b){n.fn[a]=function(a){for(var c,d=0,e=[],f=n(a),h=f.length-1;h>=d;d++)c=d===h?this:this.clone(!0),n(f[d])[b](c),g.apply(e,c.get());return this.pushStack(e)}});var Ja,Ka={HTML:"block",BODY:"block"};function La(a,b){var c=n(b.createElement(a)).appendTo(b.body),d=n.css(c[0],"display");return c.detach(),d}function Ma(a){var b=d,c=Ka[a];return c||(c=La(a,b),"none"!==c&&c||(Ja=(Ja||n("<iframe frameborder='0' width='0' height='0'/>")).appendTo(b.documentElement),b=(Ja[0].contentWindow||Ja[0].contentDocument).document,b.write(),b.close(),c=La(a,b),Ja.detach()),Ka[a]=c),c}var Na=/^margin/,Oa=new RegExp("^("+T+")(?!px)[a-z%]+$","i"),Pa=function(a,b,c,d){var e,f,g={};for(f in b)g[f]=a.style[f],a.style[f]=b[f];e=c.apply(a,d||[]);for(f in b)a.style[f]=g[f];return e},Qa=d.documentElement;!function(){var b,c,e,f,g,h,i=d.createElement("div"),j=d.createElement("div");if(j.style){j.style.cssText="float:left;opacity:.5",l.opacity="0.5"===j.style.opacity,l.cssFloat=!!j.style.cssFloat,j.style.backgroundClip="content-box",j.cloneNode(!0).style.backgroundClip="",l.clearCloneStyle="content-box"===j.style.backgroundClip,i=d.createElement("div"),i.style.cssText="border:0;width:8px;height:0;top:0;left:-9999px;padding:0;margin-top:1px;position:absolute",j.innerHTML="",i.appendChild(j),l.boxSizing=""===j.style.boxSizing||""===j.style.MozBoxSizing||""===j.style.WebkitBoxSizing,n.extend(l,{reliableHiddenOffsets:function(){return null==b&&k(),f},boxSizingReliable:function(){return null==b&&k(),e},pixelMarginRight:function(){return null==b&&k(),c},pixelPosition:function(){return null==b&&k(),b},reliableMarginRight:function(){return null==b&&k(),g},reliableMarginLeft:function(){return null==b&&k(),h}});function k(){var k,l,m=d.documentElement;m.appendChild(i),j.style.cssText="-webkit-box-sizing:border-box;box-sizing:border-box;position:relative;display:block;margin:auto;border:1px;padding:1px;top:1%;width:50%",b=e=h=!1,c=g=!0,a.getComputedStyle&&(l=a.getComputedStyle(j),b="1%"!==(l||{}).top,h="2px"===(l||{}).marginLeft,e="4px"===(l||{width:"4px"}).width,j.style.marginRight="50%",c="4px"===(l||{marginRight:"4px"}).marginRight,k=j.appendChild(d.createElement("div")),k.style.cssText=j.style.cssText="-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;display:block;margin:0;border:0;padding:0",k.style.marginRight=k.style.width="0",j.style.width="1px",g=!parseFloat((a.getComputedStyle(k)||{}).marginRight),j.removeChild(k)),j.style.display="none",f=0===j.getClientRects().length,f&&(j.style.display="",j.innerHTML="<table><tr><td></td><td>t</td></tr></table>",j.childNodes[0].style.borderCollapse="separate",k=j.getElementsByTagName("td"),k[0].style.cssText="margin:0;border:0;padding:0;display:none",f=0===k[0].offsetHeight,f&&(k[0].style.display="",k[1].style.display="none",f=0===k[0].offsetHeight)),m.removeChild(i)}}}();var Ra,Sa,Ta=/^(top|right|bottom|left)$/;a.getComputedStyle?(Ra=function(b){var c=b.ownerDocument.defaultView;return c&&c.opener||(c=a),c.getComputedStyle(b)},Sa=function(a,b,c){var d,e,f,g,h=a.style;return c=c||Ra(a),g=c?c.getPropertyValue(b)||c[b]:void 0,""!==g&&void 0!==g||n.contains(a.ownerDocument,a)||(g=n.style(a,b)),c&&!l.pixelMarginRight()&&Oa.test(g)&&Na.test(b)&&(d=h.width,e=h.minWidth,f=h.maxWidth,h.minWidth=h.maxWidth=h.width=g,g=c.width,h.width=d,h.minWidth=e,h.maxWidth=f),void 0===g?g:g+""}):Qa.currentStyle&&(Ra=function(a){return a.currentStyle},Sa=function(a,b,c){var d,e,f,g,h=a.style;return c=c||Ra(a),g=c?c[b]:void 0,null==g&&h&&h[b]&&(g=h[b]),Oa.test(g)&&!Ta.test(b)&&(d=h.left,e=a.runtimeStyle,f=e&&e.left,f&&(e.left=a.currentStyle.left),h.left="fontSize"===b?"1em":g,g=h.pixelLeft+"px",h.left=d,f&&(e.left=f)),void 0===g?g:g+""||"auto"});function Ua(a,b){return{get:function(){return a()?void delete this.get:(this.get=b).apply(this,arguments)}}}var Va=/alpha\([^)]*\)/i,Wa=/opacity\s*=\s*([^)]*)/i,Xa=/^(none|table(?!-c[ea]).+)/,Ya=new RegExp("^("+T+")(.*)$","i"),Za={position:"absolute",visibility:"hidden",display:"block"},$a={letterSpacing:"0",fontWeight:"400"},_a=["Webkit","O","Moz","ms"],ab=d.createElement("div").style;function bb(a){if(a in ab)return a;var b=a.charAt(0).toUpperCase()+a.slice(1),c=_a.length;while(c--)if(a=_a[c]+b,a in ab)return a}function cb(a,b){for(var c,d,e,f=[],g=0,h=a.length;h>g;g++)d=a[g],d.style&&(f[g]=n._data(d,"olddisplay"),c=d.style.display,b?(f[g]||"none"!==c||(d.style.display=""),""===d.style.display&&W(d)&&(f[g]=n._data(d,"olddisplay",Ma(d.nodeName)))):(e=W(d),(c&&"none"!==c||!e)&&n._data(d,"olddisplay",e?c:n.css(d,"display"))));for(g=0;h>g;g++)d=a[g],d.style&&(b&&"none"!==d.style.display&&""!==d.style.display||(d.style.display=b?f[g]||"":"none"));return a}function db(a,b,c){var d=Ya.exec(b);return d?Math.max(0,d[1]-(c||0))+(d[2]||"px"):b}function eb(a,b,c,d,e){for(var f=c===(d?"border":"content")?4:"width"===b?1:0,g=0;4>f;f+=2)"margin"===c&&(g+=n.css(a,c+V[f],!0,e)),d?("content"===c&&(g-=n.css(a,"padding"+V[f],!0,e)),"margin"!==c&&(g-=n.css(a,"border"+V[f]+"Width",!0,e))):(g+=n.css(a,"padding"+V[f],!0,e),"padding"!==c&&(g+=n.css(a,"border"+V[f]+"Width",!0,e)));return g}function fb(a,b,c){var d=!0,e="width"===b?a.offsetWidth:a.offsetHeight,f=Ra(a),g=l.boxSizing&&"border-box"===n.css(a,"boxSizing",!1,f);if(0>=e||null==e){if(e=Sa(a,b,f),(0>e||null==e)&&(e=a.style[b]),Oa.test(e))return e;d=g&&(l.boxSizingReliable()||e===a.style[b]),e=parseFloat(e)||0}return e+eb(a,b,c||(g?"border":"content"),d,f)+"px"}n.extend({cssHooks:{opacity:{get:function(a,b){if(b){var c=Sa(a,"opacity");return""===c?"1":c}}}},cssNumber:{animationIterationCount:!0,columnCount:!0,fillOpacity:!0,flexGrow:!0,flexShrink:!0,fontWeight:!0,lineHeight:!0,opacity:!0,order:!0,orphans:!0,widows:!0,zIndex:!0,zoom:!0},cssProps:{"float":l.cssFloat?"cssFloat":"styleFloat"},style:function(a,b,c,d){if(a&&3!==a.nodeType&&8!==a.nodeType&&a.style){var e,f,g,h=n.camelCase(b),i=a.style;if(b=n.cssProps[h]||(n.cssProps[h]=bb(h)||h),g=n.cssHooks[b]||n.cssHooks[h],void 0===c)return g&&"get"in g&&void 0!==(e=g.get(a,!1,d))?e:i[b];if(f=typeof c,"string"===f&&(e=U.exec(c))&&e[1]&&(c=X(a,b,e),f="number"),null!=c&&c===c&&("number"===f&&(c+=e&&e[3]||(n.cssNumber[h]?"":"px")),l.clearCloneStyle||""!==c||0!==b.indexOf("background")||(i[b]="inherit"),!(g&&"set"in g&&void 0===(c=g.set(a,c,d)))))try{i[b]=c}catch(j){}}},css:function(a,b,c,d){var e,f,g,h=n.camelCase(b);return b=n.cssProps[h]||(n.cssProps[h]=bb(h)||h),g=n.cssHooks[b]||n.cssHooks[h],g&&"get"in g&&(f=g.get(a,!0,c)),void 0===f&&(f=Sa(a,b,d)),"normal"===f&&b in $a&&(f=$a[b]),""===c||c?(e=parseFloat(f),c===!0||isFinite(e)?e||0:f):f}}),n.each(["height","width"],function(a,b){n.cssHooks[b]={get:function(a,c,d){return c?Xa.test(n.css(a,"display"))&&0===a.offsetWidth?Pa(a,Za,function(){return fb(a,b,d)}):fb(a,b,d):void 0},set:function(a,c,d){var e=d&&Ra(a);return db(a,c,d?eb(a,b,d,l.boxSizing&&"border-box"===n.css(a,"boxSizing",!1,e),e):0)}}}),l.opacity||(n.cssHooks.opacity={get:function(a,b){return Wa.test((b&&a.currentStyle?a.currentStyle.filter:a.style.filter)||"")?.01*parseFloat(RegExp.$1)+"":b?"1":""},set:function(a,b){var c=a.style,d=a.currentStyle,e=n.isNumeric(b)?"alpha(opacity="+100*b+")":"",f=d&&d.filter||c.filter||"";c.zoom=1,(b>=1||""===b)&&""===n.trim(f.replace(Va,""))&&c.removeAttribute&&(c.removeAttribute("filter"),""===b||d&&!d.filter)||(c.filter=Va.test(f)?f.replace(Va,e):f+" "+e)}}),n.cssHooks.marginRight=Ua(l.reliableMarginRight,function(a,b){return b?Pa(a,{display:"inline-block"},Sa,[a,"marginRight"]):void 0}),n.cssHooks.marginLeft=Ua(l.reliableMarginLeft,function(a,b){return b?(parseFloat(Sa(a,"marginLeft"))||(n.contains(a.ownerDocument,a)?a.getBoundingClientRect().left-Pa(a,{
+marginLeft:0},function(){return a.getBoundingClientRect().left}):0))+"px":void 0}),n.each({margin:"",padding:"",border:"Width"},function(a,b){n.cssHooks[a+b]={expand:function(c){for(var d=0,e={},f="string"==typeof c?c.split(" "):[c];4>d;d++)e[a+V[d]+b]=f[d]||f[d-2]||f[0];return e}},Na.test(a)||(n.cssHooks[a+b].set=db)}),n.fn.extend({css:function(a,b){return Y(this,function(a,b,c){var d,e,f={},g=0;if(n.isArray(b)){for(d=Ra(a),e=b.length;e>g;g++)f[b[g]]=n.css(a,b[g],!1,d);return f}return void 0!==c?n.style(a,b,c):n.css(a,b)},a,b,arguments.length>1)},show:function(){return cb(this,!0)},hide:function(){return cb(this)},toggle:function(a){return"boolean"==typeof a?a?this.show():this.hide():this.each(function(){W(this)?n(this).show():n(this).hide()})}});function gb(a,b,c,d,e){return new gb.prototype.init(a,b,c,d,e)}n.Tween=gb,gb.prototype={constructor:gb,init:function(a,b,c,d,e,f){this.elem=a,this.prop=c,this.easing=e||n.easing._default,this.options=b,this.start=this.now=this.cur(),this.end=d,this.unit=f||(n.cssNumber[c]?"":"px")},cur:function(){var a=gb.propHooks[this.prop];return a&&a.get?a.get(this):gb.propHooks._default.get(this)},run:function(a){var b,c=gb.propHooks[this.prop];return this.options.duration?this.pos=b=n.easing[this.easing](a,this.options.duration*a,0,1,this.options.duration):this.pos=b=a,this.now=(this.end-this.start)*b+this.start,this.options.step&&this.options.step.call(this.elem,this.now,this),c&&c.set?c.set(this):gb.propHooks._default.set(this),this}},gb.prototype.init.prototype=gb.prototype,gb.propHooks={_default:{get:function(a){var b;return 1!==a.elem.nodeType||null!=a.elem[a.prop]&&null==a.elem.style[a.prop]?a.elem[a.prop]:(b=n.css(a.elem,a.prop,""),b&&"auto"!==b?b:0)},set:function(a){n.fx.step[a.prop]?n.fx.step[a.prop](a):1!==a.elem.nodeType||null==a.elem.style[n.cssProps[a.prop]]&&!n.cssHooks[a.prop]?a.elem[a.prop]=a.now:n.style(a.elem,a.prop,a.now+a.unit)}}},gb.propHooks.scrollTop=gb.propHooks.scrollLeft={set:function(a){a.elem.nodeType&&a.elem.parentNode&&(a.elem[a.prop]=a.now)}},n.easing={linear:function(a){return a},swing:function(a){return.5-Math.cos(a*Math.PI)/2},_default:"swing"},n.fx=gb.prototype.init,n.fx.step={};var hb,ib,jb=/^(?:toggle|show|hide)$/,kb=/queueHooks$/;function lb(){return a.setTimeout(function(){hb=void 0}),hb=n.now()}function mb(a,b){var c,d={height:a},e=0;for(b=b?1:0;4>e;e+=2-b)c=V[e],d["margin"+c]=d["padding"+c]=a;return b&&(d.opacity=d.width=a),d}function nb(a,b,c){for(var d,e=(qb.tweeners[b]||[]).concat(qb.tweeners["*"]),f=0,g=e.length;g>f;f++)if(d=e[f].call(c,b,a))return d}function ob(a,b,c){var d,e,f,g,h,i,j,k,m=this,o={},p=a.style,q=a.nodeType&&W(a),r=n._data(a,"fxshow");c.queue||(h=n._queueHooks(a,"fx"),null==h.unqueued&&(h.unqueued=0,i=h.empty.fire,h.empty.fire=function(){h.unqueued||i()}),h.unqueued++,m.always(function(){m.always(function(){h.unqueued--,n.queue(a,"fx").length||h.empty.fire()})})),1===a.nodeType&&("height"in b||"width"in b)&&(c.overflow=[p.overflow,p.overflowX,p.overflowY],j=n.css(a,"display"),k="none"===j?n._data(a,"olddisplay")||Ma(a.nodeName):j,"inline"===k&&"none"===n.css(a,"float")&&(l.inlineBlockNeedsLayout&&"inline"!==Ma(a.nodeName)?p.zoom=1:p.display="inline-block")),c.overflow&&(p.overflow="hidden",l.shrinkWrapBlocks()||m.always(function(){p.overflow=c.overflow[0],p.overflowX=c.overflow[1],p.overflowY=c.overflow[2]}));for(d in b)if(e=b[d],jb.exec(e)){if(delete b[d],f=f||"toggle"===e,e===(q?"hide":"show")){if("show"!==e||!r||void 0===r[d])continue;q=!0}o[d]=r&&r[d]||n.style(a,d)}else j=void 0;if(n.isEmptyObject(o))"inline"===("none"===j?Ma(a.nodeName):j)&&(p.display=j);else{r?"hidden"in r&&(q=r.hidden):r=n._data(a,"fxshow",{}),f&&(r.hidden=!q),q?n(a).show():m.done(function(){n(a).hide()}),m.done(function(){var b;n._removeData(a,"fxshow");for(b in o)n.style(a,b,o[b])});for(d in o)g=nb(q?r[d]:0,d,m),d in r||(r[d]=g.start,q&&(g.end=g.start,g.start="width"===d||"height"===d?1:0))}}function pb(a,b){var c,d,e,f,g;for(c in a)if(d=n.camelCase(c),e=b[d],f=a[c],n.isArray(f)&&(e=f[1],f=a[c]=f[0]),c!==d&&(a[d]=f,delete a[c]),g=n.cssHooks[d],g&&"expand"in g){f=g.expand(f),delete a[d];for(c in f)c in a||(a[c]=f[c],b[c]=e)}else b[d]=e}function qb(a,b,c){var d,e,f=0,g=qb.prefilters.length,h=n.Deferred().always(function(){delete i.elem}),i=function(){if(e)return!1;for(var b=hb||lb(),c=Math.max(0,j.startTime+j.duration-b),d=c/j.duration||0,f=1-d,g=0,i=j.tweens.length;i>g;g++)j.tweens[g].run(f);return h.notifyWith(a,[j,f,c]),1>f&&i?c:(h.resolveWith(a,[j]),!1)},j=h.promise({elem:a,props:n.extend({},b),opts:n.extend(!0,{specialEasing:{},easing:n.easing._default},c),originalProperties:b,originalOptions:c,startTime:hb||lb(),duration:c.duration,tweens:[],createTween:function(b,c){var d=n.Tween(a,j.opts,b,c,j.opts.specialEasing[b]||j.opts.easing);return j.tweens.push(d),d},stop:function(b){var c=0,d=b?j.tweens.length:0;if(e)return this;for(e=!0;d>c;c++)j.tweens[c].run(1);return b?(h.notifyWith(a,[j,1,0]),h.resolveWith(a,[j,b])):h.rejectWith(a,[j,b]),this}}),k=j.props;for(pb(k,j.opts.specialEasing);g>f;f++)if(d=qb.prefilters[f].call(j,a,k,j.opts))return n.isFunction(d.stop)&&(n._queueHooks(j.elem,j.opts.queue).stop=n.proxy(d.stop,d)),d;return n.map(k,nb,j),n.isFunction(j.opts.start)&&j.opts.start.call(a,j),n.fx.timer(n.extend(i,{elem:a,anim:j,queue:j.opts.queue})),j.progress(j.opts.progress).done(j.opts.done,j.opts.complete).fail(j.opts.fail).always(j.opts.always)}n.Animation=n.extend(qb,{tweeners:{"*":[function(a,b){var c=this.createTween(a,b);return X(c.elem,a,U.exec(b),c),c}]},tweener:function(a,b){n.isFunction(a)?(b=a,a=["*"]):a=a.match(G);for(var c,d=0,e=a.length;e>d;d++)c=a[d],qb.tweeners[c]=qb.tweeners[c]||[],qb.tweeners[c].unshift(b)},prefilters:[ob],prefilter:function(a,b){b?qb.prefilters.unshift(a):qb.prefilters.push(a)}}),n.speed=function(a,b,c){var d=a&&"object"==typeof a?n.extend({},a):{complete:c||!c&&b||n.isFunction(a)&&a,duration:a,easing:c&&b||b&&!n.isFunction(b)&&b};return d.duration=n.fx.off?0:"number"==typeof d.duration?d.duration:d.duration in n.fx.speeds?n.fx.speeds[d.duration]:n.fx.speeds._default,null!=d.queue&&d.queue!==!0||(d.queue="fx"),d.old=d.complete,d.complete=function(){n.isFunction(d.old)&&d.old.call(this),d.queue&&n.dequeue(this,d.queue)},d},n.fn.extend({fadeTo:function(a,b,c,d){return this.filter(W).css("opacity",0).show().end().animate({opacity:b},a,c,d)},animate:function(a,b,c,d){var e=n.isEmptyObject(a),f=n.speed(b,c,d),g=function(){var b=qb(this,n.extend({},a),f);(e||n._data(this,"finish"))&&b.stop(!0)};return g.finish=g,e||f.queue===!1?this.each(g):this.queue(f.queue,g)},stop:function(a,b,c){var d=function(a){var b=a.stop;delete a.stop,b(c)};return"string"!=typeof a&&(c=b,b=a,a=void 0),b&&a!==!1&&this.queue(a||"fx",[]),this.each(function(){var b=!0,e=null!=a&&a+"queueHooks",f=n.timers,g=n._data(this);if(e)g[e]&&g[e].stop&&d(g[e]);else for(e in g)g[e]&&g[e].stop&&kb.test(e)&&d(g[e]);for(e=f.length;e--;)f[e].elem!==this||null!=a&&f[e].queue!==a||(f[e].anim.stop(c),b=!1,f.splice(e,1));!b&&c||n.dequeue(this,a)})},finish:function(a){return a!==!1&&(a=a||"fx"),this.each(function(){var b,c=n._data(this),d=c[a+"queue"],e=c[a+"queueHooks"],f=n.timers,g=d?d.length:0;for(c.finish=!0,n.queue(this,a,[]),e&&e.stop&&e.stop.call(this,!0),b=f.length;b--;)f[b].elem===this&&f[b].queue===a&&(f[b].anim.stop(!0),f.splice(b,1));for(b=0;g>b;b++)d[b]&&d[b].finish&&d[b].finish.call(this);delete c.finish})}}),n.each(["toggle","show","hide"],function(a,b){var c=n.fn[b];n.fn[b]=function(a,d,e){return null==a||"boolean"==typeof a?c.apply(this,arguments):this.animate(mb(b,!0),a,d,e)}}),n.each({slideDown:mb("show"),slideUp:mb("hide"),slideToggle:mb("toggle"),fadeIn:{opacity:"show"},fadeOut:{opacity:"hide"},fadeToggle:{opacity:"toggle"}},function(a,b){n.fn[a]=function(a,c,d){return this.animate(b,a,c,d)}}),n.timers=[],n.fx.tick=function(){var a,b=n.timers,c=0;for(hb=n.now();c<b.length;c++)a=b[c],a()||b[c]!==a||b.splice(c--,1);b.length||n.fx.stop(),hb=void 0},n.fx.timer=function(a){n.timers.push(a),a()?n.fx.start():n.timers.pop()},n.fx.interval=13,n.fx.start=function(){ib||(ib=a.setInterval(n.fx.tick,n.fx.interval))},n.fx.stop=function(){a.clearInterval(ib),ib=null},n.fx.speeds={slow:600,fast:200,_default:400},n.fn.delay=function(b,c){return b=n.fx?n.fx.speeds[b]||b:b,c=c||"fx",this.queue(c,function(c,d){var e=a.setTimeout(c,b);d.stop=function(){a.clearTimeout(e)}})},function(){var a,b=d.createElement("input"),c=d.createElement("div"),e=d.createElement("select"),f=e.appendChild(d.createElement("option"));c=d.createElement("div"),c.setAttribute("className","t"),c.innerHTML="  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>",a=c.getElementsByTagName("a")[0],b.setAttribute("type","checkbox"),c.appendChild(b),a=c.getElementsByTagName("a")[0],a.style.cssText="top:1px",l.getSetAttribute="t"!==c.className,l.style=/top/.test(a.getAttribute("style")),l.hrefNormalized="/a"===a.getAttribute("href"),l.checkOn=!!b.value,l.optSelected=f.selected,l.enctype=!!d.createElement("form").enctype,e.disabled=!0,l.optDisabled=!f.disabled,b=d.createElement("input"),b.setAttribute("value",""),l.input=""===b.getAttribute("value"),b.value="t",b.setAttribute("type","radio"),l.radioValue="t"===b.value}();var rb=/\r/g,sb=/[\x20\t\r\n\f]+/g;n.fn.extend({val:function(a){var b,c,d,e=this[0];{if(arguments.length)return d=n.isFunction(a),this.each(function(c){var e;1===this.nodeType&&(e=d?a.call(this,c,n(this).val()):a,null==e?e="":"number"==typeof e?e+="":n.isArray(e)&&(e=n.map(e,function(a){return null==a?"":a+""})),b=n.valHooks[this.type]||n.valHooks[this.nodeName.toLowerCase()],b&&"set"in b&&void 0!==b.set(this,e,"value")||(this.value=e))});if(e)return b=n.valHooks[e.type]||n.valHooks[e.nodeName.toLowerCase()],b&&"get"in b&&void 0!==(c=b.get(e,"value"))?c:(c=e.value,"string"==typeof c?c.replace(rb,""):null==c?"":c)}}}),n.extend({valHooks:{option:{get:function(a){var b=n.find.attr(a,"value");return null!=b?b:n.trim(n.text(a)).replace(sb," ")}},select:{get:function(a){for(var b,c,d=a.options,e=a.selectedIndex,f="select-one"===a.type||0>e,g=f?null:[],h=f?e+1:d.length,i=0>e?h:f?e:0;h>i;i++)if(c=d[i],(c.selected||i===e)&&(l.optDisabled?!c.disabled:null===c.getAttribute("disabled"))&&(!c.parentNode.disabled||!n.nodeName(c.parentNode,"optgroup"))){if(b=n(c).val(),f)return b;g.push(b)}return g},set:function(a,b){var c,d,e=a.options,f=n.makeArray(b),g=e.length;while(g--)if(d=e[g],n.inArray(n.valHooks.option.get(d),f)>-1)try{d.selected=c=!0}catch(h){d.scrollHeight}else d.selected=!1;return c||(a.selectedIndex=-1),e}}}}),n.each(["radio","checkbox"],function(){n.valHooks[this]={set:function(a,b){return n.isArray(b)?a.checked=n.inArray(n(a).val(),b)>-1:void 0}},l.checkOn||(n.valHooks[this].get=function(a){return null===a.getAttribute("value")?"on":a.value})});var tb,ub,vb=n.expr.attrHandle,wb=/^(?:checked|selected)$/i,xb=l.getSetAttribute,yb=l.input;n.fn.extend({attr:function(a,b){return Y(this,n.attr,a,b,arguments.length>1)},removeAttr:function(a){return this.each(function(){n.removeAttr(this,a)})}}),n.extend({attr:function(a,b,c){var d,e,f=a.nodeType;if(3!==f&&8!==f&&2!==f)return"undefined"==typeof a.getAttribute?n.prop(a,b,c):(1===f&&n.isXMLDoc(a)||(b=b.toLowerCase(),e=n.attrHooks[b]||(n.expr.match.bool.test(b)?ub:tb)),void 0!==c?null===c?void n.removeAttr(a,b):e&&"set"in e&&void 0!==(d=e.set(a,c,b))?d:(a.setAttribute(b,c+""),c):e&&"get"in e&&null!==(d=e.get(a,b))?d:(d=n.find.attr(a,b),null==d?void 0:d))},attrHooks:{type:{set:function(a,b){if(!l.radioValue&&"radio"===b&&n.nodeName(a,"input")){var c=a.value;return a.setAttribute("type",b),c&&(a.value=c),b}}}},removeAttr:function(a,b){var c,d,e=0,f=b&&b.match(G);if(f&&1===a.nodeType)while(c=f[e++])d=n.propFix[c]||c,n.expr.match.bool.test(c)?yb&&xb||!wb.test(c)?a[d]=!1:a[n.camelCase("default-"+c)]=a[d]=!1:n.attr(a,c,""),a.removeAttribute(xb?c:d)}}),ub={set:function(a,b,c){return b===!1?n.removeAttr(a,c):yb&&xb||!wb.test(c)?a.setAttribute(!xb&&n.propFix[c]||c,c):a[n.camelCase("default-"+c)]=a[c]=!0,c}},n.each(n.expr.match.bool.source.match(/\w+/g),function(a,b){var c=vb[b]||n.find.attr;yb&&xb||!wb.test(b)?vb[b]=function(a,b,d){var e,f;return d||(f=vb[b],vb[b]=e,e=null!=c(a,b,d)?b.toLowerCase():null,vb[b]=f),e}:vb[b]=function(a,b,c){return c?void 0:a[n.camelCase("default-"+b)]?b.toLowerCase():null}}),yb&&xb||(n.attrHooks.value={set:function(a,b,c){return n.nodeName(a,"input")?void(a.defaultValue=b):tb&&tb.set(a,b,c)}}),xb||(tb={set:function(a,b,c){var d=a.getAttributeNode(c);return d||a.setAttributeNode(d=a.ownerDocument.createAttribute(c)),d.value=b+="","value"===c||b===a.getAttribute(c)?b:void 0}},vb.id=vb.name=vb.coords=function(a,b,c){var d;return c?void 0:(d=a.getAttributeNode(b))&&""!==d.value?d.value:null},n.valHooks.button={get:function(a,b){var c=a.getAttributeNode(b);return c&&c.specified?c.value:void 0},set:tb.set},n.attrHooks.contenteditable={set:function(a,b,c){tb.set(a,""===b?!1:b,c)}},n.each(["width","height"],function(a,b){n.attrHooks[b]={set:function(a,c){return""===c?(a.setAttribute(b,"auto"),c):void 0}}})),l.style||(n.attrHooks.style={get:function(a){return a.style.cssText||void 0},set:function(a,b){return a.style.cssText=b+""}});var zb=/^(?:input|select|textarea|button|object)$/i,Ab=/^(?:a|area)$/i;n.fn.extend({prop:function(a,b){return Y(this,n.prop,a,b,arguments.length>1)},removeProp:function(a){return a=n.propFix[a]||a,this.each(function(){try{this[a]=void 0,delete this[a]}catch(b){}})}}),n.extend({prop:function(a,b,c){var d,e,f=a.nodeType;if(3!==f&&8!==f&&2!==f)return 1===f&&n.isXMLDoc(a)||(b=n.propFix[b]||b,e=n.propHooks[b]),void 0!==c?e&&"set"in e&&void 0!==(d=e.set(a,c,b))?d:a[b]=c:e&&"get"in e&&null!==(d=e.get(a,b))?d:a[b]},propHooks:{tabIndex:{get:function(a){var b=n.find.attr(a,"tabindex");return b?parseInt(b,10):zb.test(a.nodeName)||Ab.test(a.nodeName)&&a.href?0:-1}}},propFix:{"for":"htmlFor","class":"className"}}),l.hrefNormalized||n.each(["href","src"],function(a,b){n.propHooks[b]={get:function(a){return a.getAttribute(b,4)}}}),l.optSelected||(n.propHooks.selected={get:function(a){var b=a.parentNode;return b&&(b.selectedIndex,b.parentNode&&b.parentNode.selectedIndex),null},set:function(a){var b=a.parentNode;b&&(b.selectedIndex,b.parentNode&&b.parentNode.selectedIndex)}}),n.each(["tabIndex","readOnly","maxLength","cellSpacing","cellPadding","rowSpan","colSpan","useMap","frameBorder","contentEditable"],function(){n.propFix[this.toLowerCase()]=this}),l.enctype||(n.propFix.enctype="encoding");var Bb=/[\t\r\n\f]/g;function Cb(a){return n.attr(a,"class")||""}n.fn.extend({addClass:function(a){var b,c,d,e,f,g,h,i=0;if(n.isFunction(a))return this.each(function(b){n(this).addClass(a.call(this,b,Cb(this)))});if("string"==typeof a&&a){b=a.match(G)||[];while(c=this[i++])if(e=Cb(c),d=1===c.nodeType&&(" "+e+" ").replace(Bb," ")){g=0;while(f=b[g++])d.indexOf(" "+f+" ")<0&&(d+=f+" ");h=n.trim(d),e!==h&&n.attr(c,"class",h)}}return this},removeClass:function(a){var b,c,d,e,f,g,h,i=0;if(n.isFunction(a))return this.each(function(b){n(this).removeClass(a.call(this,b,Cb(this)))});if(!arguments.length)return this.attr("class","");if("string"==typeof a&&a){b=a.match(G)||[];while(c=this[i++])if(e=Cb(c),d=1===c.nodeType&&(" "+e+" ").replace(Bb," ")){g=0;while(f=b[g++])while(d.indexOf(" "+f+" ")>-1)d=d.replace(" "+f+" "," ");h=n.trim(d),e!==h&&n.attr(c,"class",h)}}return this},toggleClass:function(a,b){var c=typeof a;return"boolean"==typeof b&&"string"===c?b?this.addClass(a):this.removeClass(a):n.isFunction(a)?this.each(function(c){n(this).toggleClass(a.call(this,c,Cb(this),b),b)}):this.each(function(){var b,d,e,f;if("string"===c){d=0,e=n(this),f=a.match(G)||[];while(b=f[d++])e.hasClass(b)?e.removeClass(b):e.addClass(b)}else void 0!==a&&"boolean"!==c||(b=Cb(this),b&&n._data(this,"__className__",b),n.attr(this,"class",b||a===!1?"":n._data(this,"__className__")||""))})},hasClass:function(a){var b,c,d=0;b=" "+a+" ";while(c=this[d++])if(1===c.nodeType&&(" "+Cb(c)+" ").replace(Bb," ").indexOf(b)>-1)return!0;return!1}}),n.each("blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu".split(" "),function(a,b){n.fn[b]=function(a,c){return arguments.length>0?this.on(b,null,a,c):this.trigger(b)}}),n.fn.extend({hover:function(a,b){return this.mouseenter(a).mouseleave(b||a)}});var Db=a.location,Eb=n.now(),Fb=/\?/,Gb=/(,)|(\[|{)|(}|])|"(?:[^"\\\r\n]|\\["\\\/bfnrt]|\\u[\da-fA-F]{4})*"\s*:?|true|false|null|-?(?!0\d)\d+(?:\.\d+|)(?:[eE][+-]?\d+|)/g;n.parseJSON=function(b){if(a.JSON&&a.JSON.parse)return a.JSON.parse(b+"");var c,d=null,e=n.trim(b+"");return e&&!n.trim(e.replace(Gb,function(a,b,e,f){return c&&b&&(d=0),0===d?a:(c=e||b,d+=!f-!e,"")}))?Function("return "+e)():n.error("Invalid JSON: "+b)},n.parseXML=function(b){var c,d;if(!b||"string"!=typeof b)return null;try{a.DOMParser?(d=new a.DOMParser,c=d.parseFromString(b,"text/xml")):(c=new a.ActiveXObject("Microsoft.XMLDOM"),c.async="false",c.loadXML(b))}catch(e){c=void 0}return c&&c.documentElement&&!c.getElementsByTagName("parsererror").length||n.error("Invalid XML: "+b),c};var Hb=/#.*$/,Ib=/([?&])_=[^&]*/,Jb=/^(.*?):[ \t]*([^\r\n]*)\r?$/gm,Kb=/^(?:about|app|app-storage|.+-extension|file|res|widget):$/,Lb=/^(?:GET|HEAD)$/,Mb=/^\/\//,Nb=/^([\w.+-]+:)(?:\/\/(?:[^\/?#]*@|)([^\/?#:]*)(?::(\d+)|)|)/,Ob={},Pb={},Qb="*/".concat("*"),Rb=Db.href,Sb=Nb.exec(Rb.toLowerCase())||[];function Tb(a){return function(b,c){"string"!=typeof b&&(c=b,b="*");var d,e=0,f=b.toLowerCase().match(G)||[];if(n.isFunction(c))while(d=f[e++])"+"===d.charAt(0)?(d=d.slice(1)||"*",(a[d]=a[d]||[]).unshift(c)):(a[d]=a[d]||[]).push(c)}}function Ub(a,b,c,d){var e={},f=a===Pb;function g(h){var i;return e[h]=!0,n.each(a[h]||[],function(a,h){var j=h(b,c,d);return"string"!=typeof j||f||e[j]?f?!(i=j):void 0:(b.dataTypes.unshift(j),g(j),!1)}),i}return g(b.dataTypes[0])||!e["*"]&&g("*")}function Vb(a,b){var c,d,e=n.ajaxSettings.flatOptions||{};for(d in b)void 0!==b[d]&&((e[d]?a:c||(c={}))[d]=b[d]);return c&&n.extend(!0,a,c),a}function Wb(a,b,c){var d,e,f,g,h=a.contents,i=a.dataTypes;while("*"===i[0])i.shift(),void 0===e&&(e=a.mimeType||b.getResponseHeader("Content-Type"));if(e)for(g in h)if(h[g]&&h[g].test(e)){i.unshift(g);break}if(i[0]in c)f=i[0];else{for(g in c){if(!i[0]||a.converters[g+" "+i[0]]){f=g;break}d||(d=g)}f=f||d}return f?(f!==i[0]&&i.unshift(f),c[f]):void 0}function Xb(a,b,c,d){var e,f,g,h,i,j={},k=a.dataTypes.slice();if(k[1])for(g in a.converters)j[g.toLowerCase()]=a.converters[g];f=k.shift();while(f)if(a.responseFields[f]&&(c[a.responseFields[f]]=b),!i&&d&&a.dataFilter&&(b=a.dataFilter(b,a.dataType)),i=f,f=k.shift())if("*"===f)f=i;else if("*"!==i&&i!==f){if(g=j[i+" "+f]||j["* "+f],!g)for(e in j)if(h=e.split(" "),h[1]===f&&(g=j[i+" "+h[0]]||j["* "+h[0]])){g===!0?g=j[e]:j[e]!==!0&&(f=h[0],k.unshift(h[1]));break}if(g!==!0)if(g&&a["throws"])b=g(b);else try{b=g(b)}catch(l){return{state:"parsererror",error:g?l:"No conversion from "+i+" to "+f}}}return{state:"success",data:b}}n.extend({active:0,lastModified:{},etag:{},ajaxSettings:{url:Rb,type:"GET",isLocal:Kb.test(Sb[1]),global:!0,processData:!0,async:!0,contentType:"application/x-www-form-urlencoded; charset=UTF-8",accepts:{"*":Qb,text:"text/plain",html:"text/html",xml:"application/xml, text/xml",json:"application/json, text/javascript"},contents:{xml:/\bxml\b/,html:/\bhtml/,json:/\bjson\b/},responseFields:{xml:"responseXML",text:"responseText",json:"responseJSON"},converters:{"* text":String,"text html":!0,"text json":n.parseJSON,"text xml":n.parseXML},flatOptions:{url:!0,context:!0}},ajaxSetup:function(a,b){return b?Vb(Vb(a,n.ajaxSettings),b):Vb(n.ajaxSettings,a)},ajaxPrefilter:Tb(Ob),ajaxTransport:Tb(Pb),ajax:function(b,c){"object"==typeof b&&(c=b,b=void 0),c=c||{};var d,e,f,g,h,i,j,k,l=n.ajaxSetup({},c),m=l.context||l,o=l.context&&(m.nodeType||m.jquery)?n(m):n.event,p=n.Deferred(),q=n.Callbacks("once memory"),r=l.statusCode||{},s={},t={},u=0,v="canceled",w={readyState:0,getResponseHeader:function(a){var b;if(2===u){if(!k){k={};while(b=Jb.exec(g))k[b[1].toLowerCase()]=b[2]}b=k[a.toLowerCase()]}return null==b?null:b},getAllResponseHeaders:function(){return 2===u?g:null},setRequestHeader:function(a,b){var c=a.toLowerCase();return u||(a=t[c]=t[c]||a,s[a]=b),this},overrideMimeType:function(a){return u||(l.mimeType=a),this},statusCode:function(a){var b;if(a)if(2>u)for(b in a)r[b]=[r[b],a[b]];else w.always(a[w.status]);return this},abort:function(a){var b=a||v;return j&&j.abort(b),y(0,b),this}};if(p.promise(w).complete=q.add,w.success=w.done,w.error=w.fail,l.url=((b||l.url||Rb)+"").replace(Hb,"").replace(Mb,Sb[1]+"//"),l.type=c.method||c.type||l.method||l.type,l.dataTypes=n.trim(l.dataType||"*").toLowerCase().match(G)||[""],null==l.crossDomain&&(d=Nb.exec(l.url.toLowerCase()),l.crossDomain=!(!d||d[1]===Sb[1]&&d[2]===Sb[2]&&(d[3]||("http:"===d[1]?"80":"443"))===(Sb[3]||("http:"===Sb[1]?"80":"443")))),l.data&&l.processData&&"string"!=typeof l.data&&(l.data=n.param(l.data,l.traditional)),Ub(Ob,l,c,w),2===u)return w;i=n.event&&l.global,i&&0===n.active++&&n.event.trigger("ajaxStart"),l.type=l.type.toUpperCase(),l.hasContent=!Lb.test(l.type),f=l.url,l.hasContent||(l.data&&(f=l.url+=(Fb.test(f)?"&":"?")+l.data,delete l.data),l.cache===!1&&(l.url=Ib.test(f)?f.replace(Ib,"$1_="+Eb++):f+(Fb.test(f)?"&":"?")+"_="+Eb++)),l.ifModified&&(n.lastModified[f]&&w.setRequestHeader("If-Modified-Since",n.lastModified[f]),n.etag[f]&&w.setRequestHeader("If-None-Match",n.etag[f])),(l.data&&l.hasContent&&l.contentType!==!1||c.contentType)&&w.setRequestHeader("Content-Type",l.contentType),w.setRequestHeader("Accept",l.dataTypes[0]&&l.accepts[l.dataTypes[0]]?l.accepts[l.dataTypes[0]]+("*"!==l.dataTypes[0]?", "+Qb+"; q=0.01":""):l.accepts["*"]);for(e in l.headers)w.setRequestHeader(e,l.headers[e]);if(l.beforeSend&&(l.beforeSend.call(m,w,l)===!1||2===u))return w.abort();v="abort";for(e in{success:1,error:1,complete:1})w[e](l[e]);if(j=Ub(Pb,l,c,w)){if(w.readyState=1,i&&o.trigger("ajaxSend",[w,l]),2===u)return w;l.async&&l.timeout>0&&(h=a.setTimeout(function(){w.abort("timeout")},l.timeout));try{u=1,j.send(s,y)}catch(x){if(!(2>u))throw x;y(-1,x)}}else y(-1,"No Transport");function y(b,c,d,e){var k,s,t,v,x,y=c;2!==u&&(u=2,h&&a.clearTimeout(h),j=void 0,g=e||"",w.readyState=b>0?4:0,k=b>=200&&300>b||304===b,d&&(v=Wb(l,w,d)),v=Xb(l,v,w,k),k?(l.ifModified&&(x=w.getResponseHeader("Last-Modified"),x&&(n.lastModified[f]=x),x=w.getResponseHeader("etag"),x&&(n.etag[f]=x)),204===b||"HEAD"===l.type?y="nocontent":304===b?y="notmodified":(y=v.state,s=v.data,t=v.error,k=!t)):(t=y,!b&&y||(y="error",0>b&&(b=0))),w.status=b,w.statusText=(c||y)+"",k?p.resolveWith(m,[s,y,w]):p.rejectWith(m,[w,y,t]),w.statusCode(r),r=void 0,i&&o.trigger(k?"ajaxSuccess":"ajaxError",[w,l,k?s:t]),q.fireWith(m,[w,y]),i&&(o.trigger("ajaxComplete",[w,l]),--n.active||n.event.trigger("ajaxStop")))}return w},getJSON:function(a,b,c){return n.get(a,b,c,"json")},getScript:function(a,b){return n.get(a,void 0,b,"script")}}),n.each(["get","post"],function(a,b){n[b]=function(a,c,d,e){return n.isFunction(c)&&(e=e||d,d=c,c=void 0),n.ajax(n.extend({url:a,type:b,dataType:e,data:c,success:d},n.isPlainObject(a)&&a))}}),n._evalUrl=function(a){return n.ajax({url:a,type:"GET",dataType:"script",cache:!0,async:!1,global:!1,"throws":!0})},n.fn.extend({wrapAll:function(a){if(n.isFunction(a))return this.each(function(b){n(this).wrapAll(a.call(this,b))});if(this[0]){var b=n(a,this[0].ownerDocument).eq(0).clone(!0);this[0].parentNode&&b.insertBefore(this[0]),b.map(function(){var a=this;while(a.firstChild&&1===a.firstChild.nodeType)a=a.firstChild;return a}).append(this)}return this},wrapInner:function(a){return n.isFunction(a)?this.each(function(b){n(this).wrapInner(a.call(this,b))}):this.each(function(){var b=n(this),c=b.contents();c.length?c.wrapAll(a):b.append(a)})},wrap:function(a){var b=n.isFunction(a);return this.each(function(c){n(this).wrapAll(b?a.call(this,c):a)})},unwrap:function(){return this.parent().each(function(){n.nodeName(this,"body")||n(this).replaceWith(this.childNodes)}).end()}});function Yb(a){return a.style&&a.style.display||n.css(a,"display")}function Zb(a){if(!n.contains(a.ownerDocument||d,a))return!0;while(a&&1===a.nodeType){if("none"===Yb(a)||"hidden"===a.type)return!0;a=a.parentNode}return!1}n.expr.filters.hidden=function(a){return l.reliableHiddenOffsets()?a.offsetWidth<=0&&a.offsetHeight<=0&&!a.getClientRects().length:Zb(a)},n.expr.filters.visible=function(a){return!n.expr.filters.hidden(a)};var $b=/%20/g,_b=/\[\]$/,ac=/\r?\n/g,bc=/^(?:submit|button|image|reset|file)$/i,cc=/^(?:input|select|textarea|keygen)/i;function dc(a,b,c,d){var e;if(n.isArray(b))n.each(b,function(b,e){c||_b.test(a)?d(a,e):dc(a+"["+("object"==typeof e&&null!=e?b:"")+"]",e,c,d)});else if(c||"object"!==n.type(b))d(a,b);else for(e in b)dc(a+"["+e+"]",b[e],c,d)}n.param=function(a,b){var c,d=[],e=function(a,b){b=n.isFunction(b)?b():null==b?"":b,d[d.length]=encodeURIComponent(a)+"="+encodeURIComponent(b)};if(void 0===b&&(b=n.ajaxSettings&&n.ajaxSettings.traditional),n.isArray(a)||a.jquery&&!n.isPlainObject(a))n.each(a,function(){e(this.name,this.value)});else for(c in a)dc(c,a[c],b,e);return d.join("&").replace($b,"+")},n.fn.extend({serialize:function(){return n.param(this.serializeArray())},serializeArray:function(){return this.map(function(){var a=n.prop(this,"elements");return a?n.makeArray(a):this}).filter(function(){var a=this.type;return this.name&&!n(this).is(":disabled")&&cc.test(this.nodeName)&&!bc.test(a)&&(this.checked||!Z.test(a))}).map(function(a,b){var c=n(this).val();return null==c?null:n.isArray(c)?n.map(c,function(a){return{name:b.name,value:a.replace(ac,"\r\n")}}):{name:b.name,value:c.replace(ac,"\r\n")}}).get()}}),n.ajaxSettings.xhr=void 0!==a.ActiveXObject?function(){return this.isLocal?ic():d.documentMode>8?hc():/^(get|post|head|put|delete|options)$/i.test(this.type)&&hc()||ic()}:hc;var ec=0,fc={},gc=n.ajaxSettings.xhr();a.attachEvent&&a.attachEvent("onunload",function(){for(var a in fc)fc[a](void 0,!0)}),l.cors=!!gc&&"withCredentials"in gc,gc=l.ajax=!!gc,gc&&n.ajaxTransport(function(b){if(!b.crossDomain||l.cors){var c;return{send:function(d,e){var f,g=b.xhr(),h=++ec;if(g.open(b.type,b.url,b.async,b.username,b.password),b.xhrFields)for(f in b.xhrFields)g[f]=b.xhrFields[f];b.mimeType&&g.overrideMimeType&&g.overrideMimeType(b.mimeType),b.crossDomain||d["X-Requested-With"]||(d["X-Requested-With"]="XMLHttpRequest");for(f in d)void 0!==d[f]&&g.setRequestHeader(f,d[f]+"");g.send(b.hasContent&&b.data||null),c=function(a,d){var f,i,j;if(c&&(d||4===g.readyState))if(delete fc[h],c=void 0,g.onreadystatechange=n.noop,d)4!==g.readyState&&g.abort();else{j={},f=g.status,"string"==typeof g.responseText&&(j.text=g.responseText);try{i=g.statusText}catch(k){i=""}f||!b.isLocal||b.crossDomain?1223===f&&(f=204):f=j.text?200:404}j&&e(f,i,j,g.getAllResponseHeaders())},b.async?4===g.readyState?a.setTimeout(c):g.onreadystatechange=fc[h]=c:c()},abort:function(){c&&c(void 0,!0)}}}});function hc(){try{return new a.XMLHttpRequest}catch(b){}}function ic(){try{return new a.ActiveXObject("Microsoft.XMLHTTP")}catch(b){}}n.ajaxSetup({accepts:{script:"text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"},contents:{script:/\b(?:java|ecma)script\b/},converters:{"text script":function(a){return n.globalEval(a),a}}}),n.ajaxPrefilter("script",function(a){void 0===a.cache&&(a.cache=!1),a.crossDomain&&(a.type="GET",a.global=!1)}),n.ajaxTransport("script",function(a){if(a.crossDomain){var b,c=d.head||n("head")[0]||d.documentElement;return{send:function(e,f){b=d.createElement("script"),b.async=!0,a.scriptCharset&&(b.charset=a.scriptCharset),b.src=a.url,b.onload=b.onreadystatechange=function(a,c){(c||!b.readyState||/loaded|complete/.test(b.readyState))&&(b.onload=b.onreadystatechange=null,b.parentNode&&b.parentNode.removeChild(b),b=null,c||f(200,"success"))},c.insertBefore(b,c.firstChild)},abort:function(){b&&b.onload(void 0,!0)}}}});var jc=[],kc=/(=)\?(?=&|$)|\?\?/;n.ajaxSetup({jsonp:"callback",jsonpCallback:function(){var a=jc.pop()||n.expando+"_"+Eb++;return this[a]=!0,a}}),n.ajaxPrefilter("json jsonp",function(b,c,d){var e,f,g,h=b.jsonp!==!1&&(kc.test(b.url)?"url":"string"==typeof b.data&&0===(b.contentType||"").indexOf("application/x-www-form-urlencoded")&&kc.test(b.data)&&"data");return h||"jsonp"===b.dataTypes[0]?(e=b.jsonpCallback=n.isFunction(b.jsonpCallback)?b.jsonpCallback():b.jsonpCallback,h?b[h]=b[h].replace(kc,"$1"+e):b.jsonp!==!1&&(b.url+=(Fb.test(b.url)?"&":"?")+b.jsonp+"="+e),b.converters["script json"]=function(){return g||n.error(e+" was not called"),g[0]},b.dataTypes[0]="json",f=a[e],a[e]=function(){g=arguments},d.always(function(){void 0===f?n(a).removeProp(e):a[e]=f,b[e]&&(b.jsonpCallback=c.jsonpCallback,jc.push(e)),g&&n.isFunction(f)&&f(g[0]),g=f=void 0}),"script"):void 0}),n.parseHTML=function(a,b,c){if(!a||"string"!=typeof a)return null;"boolean"==typeof b&&(c=b,b=!1),b=b||d;var e=x.exec(a),f=!c&&[];return e?[b.createElement(e[1])]:(e=ja([a],b,f),f&&f.length&&n(f).remove(),n.merge([],e.childNodes))};var lc=n.fn.load;n.fn.load=function(a,b,c){if("string"!=typeof a&&lc)return lc.apply(this,arguments);var d,e,f,g=this,h=a.indexOf(" ");return h>-1&&(d=n.trim(a.slice(h,a.length)),a=a.slice(0,h)),n.isFunction(b)?(c=b,b=void 0):b&&"object"==typeof b&&(e="POST"),g.length>0&&n.ajax({url:a,type:e||"GET",dataType:"html",data:b}).done(function(a){f=arguments,g.html(d?n("<div>").append(n.parseHTML(a)).find(d):a)}).always(c&&function(a,b){g.each(function(){c.apply(this,f||[a.responseText,b,a])})}),this},n.each(["ajaxStart","ajaxStop","ajaxComplete","ajaxError","ajaxSuccess","ajaxSend"],function(a,b){n.fn[b]=function(a){return this.on(b,a)}}),n.expr.filters.animated=function(a){return n.grep(n.timers,function(b){return a===b.elem}).length};function mc(a){return n.isWindow(a)?a:9===a.nodeType?a.defaultView||a.parentWindow:!1}n.offset={setOffset:function(a,b,c){var d,e,f,g,h,i,j,k=n.css(a,"position"),l=n(a),m={};"static"===k&&(a.style.position="relative"),h=l.offset(),f=n.css(a,"top"),i=n.css(a,"left"),j=("absolute"===k||"fixed"===k)&&n.inArray("auto",[f,i])>-1,j?(d=l.position(),g=d.top,e=d.left):(g=parseFloat(f)||0,e=parseFloat(i)||0),n.isFunction(b)&&(b=b.call(a,c,n.extend({},h))),null!=b.top&&(m.top=b.top-h.top+g),null!=b.left&&(m.left=b.left-h.left+e),"using"in b?b.using.call(a,m):l.css(m)}},n.fn.extend({offset:function(a){if(arguments.length)return void 0===a?this:this.each(function(b){n.offset.setOffset(this,a,b)});var b,c,d={top:0,left:0},e=this[0],f=e&&e.ownerDocument;if(f)return b=f.documentElement,n.contains(b,e)?("undefined"!=typeof e.getBoundingClientRect&&(d=e.getBoundingClientRect()),c=mc(f),{top:d.top+(c.pageYOffset||b.scrollTop)-(b.clientTop||0),left:d.left+(c.pageXOffset||b.scrollLeft)-(b.clientLeft||0)}):d},position:function(){if(this[0]){var a,b,c={top:0,left:0},d=this[0];return"fixed"===n.css(d,"position")?b=d.getBoundingClientRect():(a=this.offsetParent(),b=this.offset(),n.nodeName(a[0],"html")||(c=a.offset()),c.top+=n.css(a[0],"borderTopWidth",!0),c.left+=n.css(a[0],"borderLeftWidth",!0)),{top:b.top-c.top-n.css(d,"marginTop",!0),left:b.left-c.left-n.css(d,"marginLeft",!0)}}},offsetParent:function(){return this.map(function(){var a=this.offsetParent;while(a&&!n.nodeName(a,"html")&&"static"===n.css(a,"position"))a=a.offsetParent;return a||Qa})}}),n.each({scrollLeft:"pageXOffset",scrollTop:"pageYOffset"},function(a,b){var c=/Y/.test(b);n.fn[a]=function(d){return Y(this,function(a,d,e){var f=mc(a);return void 0===e?f?b in f?f[b]:f.document.documentElement[d]:a[d]:void(f?f.scrollTo(c?n(f).scrollLeft():e,c?e:n(f).scrollTop()):a[d]=e)},a,d,arguments.length,null)}}),n.each(["top","left"],function(a,b){n.cssHooks[b]=Ua(l.pixelPosition,function(a,c){return c?(c=Sa(a,b),Oa.test(c)?n(a).position()[b]+"px":c):void 0})}),n.each({Height:"height",Width:"width"},function(a,b){n.each({
+padding:"inner"+a,content:b,"":"outer"+a},function(c,d){n.fn[d]=function(d,e){var f=arguments.length&&(c||"boolean"!=typeof d),g=c||(d===!0||e===!0?"margin":"border");return Y(this,function(b,c,d){var e;return n.isWindow(b)?b.document.documentElement["client"+a]:9===b.nodeType?(e=b.documentElement,Math.max(b.body["scroll"+a],e["scroll"+a],b.body["offset"+a],e["offset"+a],e["client"+a])):void 0===d?n.css(b,c,g):n.style(b,c,d,g)},b,f?d:void 0,f,null)}})}),n.fn.extend({bind:function(a,b,c){return this.on(a,null,b,c)},unbind:function(a,b){return this.off(a,null,b)},delegate:function(a,b,c,d){return this.on(b,a,c,d)},undelegate:function(a,b,c){return 1===arguments.length?this.off(a,"**"):this.off(b,a||"**",c)}}),n.fn.size=function(){return this.length},n.fn.andSelf=n.fn.addBack,"function"==typeof define&&define.amd&&define("jquery",[],function(){return n});var nc=a.jQuery,oc=a.$;return n.noConflict=function(b){return a.$===n&&(a.$=oc),b&&a.jQuery===n&&(a.jQuery=nc),n},b||(a.jQuery=a.$=n),n});
+
 document.createElement("canvas").getContext || function () {
     function q() {
     }
@@ -355,7 +361,7 @@ document.createElement("canvas").getContext || function () {
  * Includes: core.js, widget.js, mouse.js, position.js, accordion.js, autocomplete.js, button.js, datepicker.js, dialog.js, draggable.js, droppable.js, effect.js, effect-blind.js, effect-bounce.js, effect-clip.js, effect-drop.js, effect-explode.js, effect-fade.js, effect-fold.js, effect-highlight.js, effect-puff.js, effect-pulsate.js, effect-scale.js, effect-shake.js, effect-size.js, effect-slide.js, effect-transfer.js, menu.js, progressbar.js, resizable.js, selectable.js, selectmenu.js, slider.js, sortable.js, spinner.js, tabs.js, tooltip.js
  * Copyright 2015 jQuery Foundation and other contributors; Licensed MIT */
 (function (b) {
-    "function" == typeof define && define.amd ? define(["jquery"], b) : b(jQuery)
+    "function" == typeof define && define.amd ? define(["./jquery"], b) : b(jQuery)
 })(function (e) {
     function l(B, A) {
         var q, k, w, x = B.nodeName.toLowerCase();
@@ -9335,7 +9341,7 @@ document.createElement("canvas").getContext || function () {
  */
 (function (b) {
     if (typeof define === "function" && define.amd) {
-        define(["jquery"], b)
+        define(["./jquery"], b)
     } else {
         b(jQuery)
     }
@@ -15550,45 +15556,45 @@ document.createElement("canvas").getContext || function () {
                 }
             }, lineCalculators = {
                 perpendicular: function (axis, ss, oss, es, oes) {
-                    with (paintInfo) {
-                        var sis = {
+                    var sis = {
                             x: [[[1, 2, 3, 4], null, [2, 1, 4, 3]], null, [[4, 3, 2, 1], null, [3, 4, 1, 2]]],
                             y: [[[3, 2, 1, 4], null, [2, 3, 4, 1]], null, [[4, 1, 2, 3], null, [1, 4, 3, 2]]]
-                        }, stubs = {
-                            x: [[startStubX, endStubX], null, [endStubX, startStubX]],
-                            y: [[startStubY, endStubY], null, [endStubY, startStubY]]
-                        }, midLines = {
-                            x: [[midx, startStubY], [midx, endStubY]],
-                            y: [[startStubX, midy], [endStubX, midy]]
-                        }, linesToEnd = {
-                            x: [[endStubX, startStubY]],
-                            y: [[startStubX, endStubY]]
-                        }, startToEnd = {
-                            x: [[startStubX, endStubY], [endStubX, endStubY]],
-                            y: [[endStubX, startStubY], [endStubX, endStubY]]
-                        }, startToMidToEnd = {
-                            x: [[startStubX, midy], [endStubX, midy], [endStubX, endStubY]],
-                            y: [[midx, startStubY], [midx, endStubY], [endStubX, endStubY]]
-                        }, otherStubs = {
-                            x: [startStubY, endStubY],
-                            y: [startStubX, endStubX]
-                        }, soIdx = orientations[axis][0], toIdx = orientations[axis][1], _so = so[soIdx] + 1, _to = to[toIdx] + 1, otherFlipped = (to[toIdx] == -1 && (otherStubs[axis][1] < otherStubs[axis][0])) || (to[toIdx] == 1 && (otherStubs[axis][1] > otherStubs[axis][0])), stub1 = stubs[axis][_so][0], stub2 = stubs[axis][_so][1], segmentIndexes = sis[axis][_so][_to];
-                        if (segment == segmentIndexes[3] || (segment == segmentIndexes[2] && otherFlipped)) {
-                            return midLines[axis]
-                        } else {
-                            if (segment == segmentIndexes[2] && stub2 < stub1) {
-                                return linesToEnd[axis]
-                            } else {
-                                if ((segment == segmentIndexes[2] && stub2 >= stub1) || (segment == segmentIndexes[1] && !otherFlipped)) {
-                                    return startToMidToEnd[axis]
-                                } else {
-                                    if (segment == segmentIndexes[0] || (segment == segmentIndexes[1] && otherFlipped)) {
-                                        return startToEnd[axis]
-                                    }
-                                }
-                            }
-                        }
-                    }
+                        },
+                        stubs = {
+                            x: [[paintInfo.startStubX, paintInfo.endStubX], null, [paintInfo.endStubX, paintInfo.startStubX]],
+                            y: [[paintInfo.startStubY, paintInfo.endStubY], null, [paintInfo.endStubY, paintInfo.startStubY]]
+                        },
+                        midLines = {
+                            x: [[paintInfo.midx, paintInfo.startStubY], [paintInfo.midx, paintInfo.endStubY]],
+                            y: [[paintInfo.startStubX, paintInfo.midy], [paintInfo.endStubX, paintInfo.midy]]
+                        },
+                        linesToEnd = {
+                            x: [[paintInfo.endStubX, paintInfo.startStubY]],
+                            y: [[paintInfo.startStubX, paintInfo.endStubY]]
+                        },
+                        startToEnd = {
+                            x: [[paintInfo.startStubX, paintInfo.endStubY], [paintInfo.endStubX, paintInfo.endStubY]],
+                            y: [[paintInfo.endStubX, paintInfo.startStubY], [paintInfo.endStubX, paintInfo.endStubY]]
+                        },
+                        startToMidToEnd = {
+                            x: [[paintInfo.startStubX, paintInfo.midy], [paintInfo.endStubX, paintInfo.midy], [paintInfo.endStubX, paintInfo.endStubY]],
+                            y: [[paintInfo.midx, paintInfo.startStubY], [paintInfo.midx, paintInfo.endStubY], [paintInfo.endStubX, paintInfo.endStubY]]
+                        },
+                        otherStubs = {
+                            x: [paintInfo.startStubY, paintInfo.endStubY],
+                            y: [paintInfo.startStubX, paintInfo.endStubX]
+                        },
+                        orientations = paintInfo.orientations,
+                        so = paintInfo.so,
+                        to = paintInfo.to,
+                        soIdx = orientations[axis][0],
+                        toIdx = orientations[axis][1],
+                        _so = so[soIdx] + 1,
+                        _to = to[toIdx] + 1,
+                        otherFlipped = (to[toIdx] == -1 && (otherStubs[axis][1] < otherStubs[axis][0])) || (to[toIdx] == 1 && (otherStubs[axis][1] > otherStubs[axis][0])),
+                        stub1 = stubs[axis][_so][0],
+                        stub2 = stubs[axis][_so][1],
+                        segmentIndexes = sis[axis][_so][_to];
                 },
                 orthogonal: function (axis, startStub, otherStartStub, endStub, otherEndStub) {
                     var pi = paintInfo, extent = {
@@ -17464,7 +17470,7 @@ document.createElement("canvas").getContext || function () {
  * http://jquery.org/license
  */
 !function (a) {
-    "function" == typeof define && define.amd ? define(["jquery"], a) : "object" == typeof exports ? module.exports = a : a(jQuery)
+    "function" == typeof define && define.amd ? define(["./jquery"], a) : "object" == typeof exports ? module.exports = a : a(jQuery)
 }(function (h) {
     function k(m) {
         var n = m || window.event, o = e.call(arguments, 1), v = 0, E = 0, p = 0, q = 0, r = 0, s = 0;
@@ -19904,11 +19910,11 @@ document.createElement("canvas").getContext || function () {
     }
 })(jQuery);
 !function (b) {
-    "function" == typeof define && define.amd ? define(["jquery"], b) : "undefined" != typeof module && module.exports ? module.exports = b : b(jQuery, window, document)
+    "function" == typeof define && define.amd ? define(["./jquery"], b) : "undefined" != typeof module && module.exports ? module.exports = b : b(jQuery, window, document)
 }(function (b) {
     !function (k) {
         var h = "function" == typeof define && define.amd, a = "undefined" != typeof module && module.exports, g = "https:" == document.location.protocol ? "https:" : "http:", l = "cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.js";
-        h || (a ? require("jquery-mousewheel")(b) : b.event.special.mousewheel || b("head").append(decodeURI("%3Cscript src=" + g + "//" + l + "%3E%3C/script%3E"))), k()
+        h || (a ? require("./jquery-mousewheel")(b) : b.event.special.mousewheel || b("head").append(decodeURI("%3Cscript src=" + g + "//" + l + "%3E%3C/script%3E"))), k()
     }(function () {
         var R, M = "mCustomScrollbar", af = "mCS", L = ".mCustomScrollbar", G = {
             setTop: 0,
@@ -20854,10 +20860,10 @@ var ogame = ogame || {};
  */
 (function (b) {
     if (typeof define === "function" && define.amd) {
-        define(["jquery"], b)
+        define(["./jquery"], b)
     } else {
         if (typeof exports === "object") {
-            b(require("jquery"))
+            b(require("./jquery"))
         } else {
             b(jQuery)
         }
@@ -24610,3 +24616,14768 @@ var ogame = ogame || {};
     f.fn.select2.amd = d;
     return e
 }));
+ogame.chat = {
+    socket: null,
+    connected: false,
+    connecting: false,
+    timeout: null,
+    retryInterval: 5000,
+    playerId: null,
+    associationId: null,
+    data: {association: {}},
+    playernames: {},
+    playerList: null,
+    isLoadingPlayerList: false,
+    playerListSelector: new Array,
+    initConnection: function () {
+        console.log('ogame.chat init');
+        var c = ogame.chat;
+        if (c.connecting || c.connected || c.isMobile) {
+            c.socket.disconnect()
+        }
+        c.connecting = true;
+        try {
+            c.socket = io.connect("/chat", nodeParams);
+            c.socket.on("connect", function () {
+                clearTimeout(this.timeout);
+                c.socket.emit("authorize", session, function (a) {
+                    c.connecting = false;
+                    if (a) {
+                        c.connected = true
+                    } else {
+                        c.socket.disconnect()
+                    }
+                })
+            });
+            c.socket.on("chat", function (a) {
+                c.messageReceived(a)
+            });
+            c.socket.on("disconnect", function () {
+                c.connected = false;
+                c.connecting = false
+            })
+        } catch (d) {
+            c.connecting = false
+        }
+    },
+    initialize: function () {
+        var b = ogame.chat;
+        loadScript(nodeUrl, b.initConnection);
+        $(".new_msg_count[data-playerid]").each(function () {
+            b.saveMessageCounter($(this).data("new-messages"), $(this).data("playerid"))
+        });
+        this.updateTotalNewChatCounter();
+        $(".js_playerlist").on("click", ".playerlist_item", function () {
+            var a = $(this).hasClass("nothingThere");
+            if (!a) {
+                var d = $(this).data("msgid");
+                if (d) {
+                    b.loadChatLogWithPlayer(this, d)
+                } else {
+                    b.loadChatLogWithPlayer(this)
+                }
+            }
+        });
+        $(".js_playerlist").on("click", ".openAssociationChat", function () {
+            var a = $(this).data("msgid");
+            if (a) {
+                b.loadChatLogWithAssociation(this, a)
+            } else {
+                b.loadChatLogWithAssociation(this)
+            }
+        });
+        $("#chatMsgList").on("click", ".msg", function () {
+            var e = $(this).data("playerid");
+            var a = $(this).data("associationid");
+            if (e !== undefined && e > 0) {
+                b.saveMessageCounter(0, e);
+                ogame.messagemarker.setPartnerId(e);
+                ogame.messagemarker.updateNewMarker();
+                ogame.chat.updateTotalNewChatCounter();
+                var f = $(".playerlist .playerlist_item[data-playerId=" + e + "]").data("msgid");
+                if (f) {
+                    b.loadChatLogWithPlayer(this, f)
+                } else {
+                    b.loadChatLogWithPlayer(this)
+                }
+            } else {
+                var f = $(".playerlist .playerlist_item[data-associationId=" + a + "]").data("msgid");
+                b.saveMessageCounterAssociation(0, a);
+                if (f) {
+                    b.loadChatLogWithAssociation(this, f)
+                } else {
+                    b.loadChatLogWithAssociation(this)
+                }
+            }
+        });
+        $(".chat").on("click", ".sys_msg", function (f) {
+            var h = $(this).data("foreign-player-id");
+            var g = $(this).data("foreign-association-id");
+            var a = {playerId: h, associationId: g, ajax: 1};
+            console.log('chatLoadMoreMessages()');
+            $.ajax({
+                url: chatUrlLoadMoreMessages,
+                type: "POST",
+                dataType: "html",
+                data: a,
+                success: function (c) {
+                    $(".chat").each(function (e, d) {
+                        if (h !== undefined && h == $(d).data("foreign-player-id")) {
+                            $(d).html(c)
+                        } else {
+                            if (g !== undefined && g == $(d).data("foreign-association-id")) {
+                                $(d).html(c)
+                            }
+                        }
+                    })
+                },
+                error: function (e, c, d) {
+                }
+            })
+        });
+        $("body").on("click", ".js_openChat", function () {
+            b.loadChatLogWithPlayer(this)
+        });
+        if (typeof $.cookie("maximizeId") == "string" || typeof $.cookie("maximizeId") == "number") {
+            $('#chatMsgList .msg[data-playerid="' + $.cookie("maximizeId") + '"]').trigger("click");
+            $.cookie("maximizeId", null)
+        }
+    },
+    getTotalNewChatCounter: function () {
+        return ogame.messagecounter.sumNewChatMessages
+    },
+    updateTotalNewChatCounter: function () {
+        var b = 0;
+        if ($(".msg .new_msg_count").length > 0) {
+            $(".msg .new_msg_count").each(function () {
+                b += Number($(this).data("new-messages"))
+            })
+        } else {
+            if ($("#chatBarPlayerList .new_msg_count").length > 0) {
+                $("#chatBarPlayerList .new_msg_count").each(function () {
+                    b += Number($(this).data("new-messages"))
+                })
+            }
+        }
+        ogame.messagecounter.initialize(ogame.messagecounter.type_chat, ogame.chat.playerId);
+        if (ogame.messagecounter.sumNewChatMessages !== b) {
+            ogame.messagecounter.initChatCounter(b);
+            ogame.messagecounter.sumNewChatMessages = b;
+            ogame.messagecounter.update()
+        }
+        return b
+    },
+    retryConnection: function () {
+        var b = ogame.chat;
+        setTimeout(function () {
+            b.initConnection()
+        }, 5000)
+    },
+    sendMessage: function (u, r, n, m) {
+        var o = ogame.chat;
+        if ($.trim(n).length == 0) {
+            s("TEXT_EMPTY");
+            return
+        }
+        if (u > 0) {
+            var w = {playerId: u, text: n, mode: 1, ajax: 1}
+        } else {
+            var w = {associationId: r, text: n, mode: 3, ajax: 1}
+        }
+        if (typeof m !== "undefined" && typeof m.id !== "undefined") {
+            w.msg2reply = m.id
+        }
+        function v() {
+            console.log('v()');
+            $.ajax({
+                url: chatUrl,
+                type: "POST",
+                dataType: "json",
+                data: w,
+                success: function (a) {
+                    p(a)
+                },
+                error: function (a, b, c) {
+                }
+            })
+        }
+
+        function q(a) {
+            if (typeof a.refAuthor !== "undefined" && typeof a.refContent !== "undefined") {
+                $refData = {author: a.refAuthor, text: a.refContent}
+            } else {
+                $refData = 0
+            }
+            if (a.targetId !== undefined) {
+                o.addChatItem(a.targetId, 0, a.text, a.id, false, $refData, a.date)
+            } else {
+                o.addChatItem(u, a.targetAssociationId, a.text, a.id, false, $refData, a.date)
+            }
+        }
+
+        function s(a) {
+            if (chatLoca[a] !== undefined) {
+                errorBoxNotify(LocalizationStrings.error, chatLoca[a], LocalizationStrings.ok)
+            } else {
+                errorBoxNotify(LocalizationStrings.error, a, LocalizationStrings.ok)
+            }
+        }
+
+        function p(a) {
+            switch (a.status) {
+                case"NOT_AUTHORIZED":
+                    v();
+                    break;
+                case"OK":
+                    q(a);
+                    ogame.chat.cleanupUrl();
+                    break;
+                default:
+                    s(a.status)
+            }
+        }
+
+        v()
+    },
+    messageReceived: function (h) {
+        var g = ogame.chat;
+        if (typeof h.refAuthor !== "undefined" && typeof h.refText !== "undefined") {
+            $refData = {author: h.refAuhtor, text: h.refText}
+        } else {
+            $refData = 0
+        }
+        if (h.senderName !== undefined && h.senderId !== undefined) {
+            g.playernames[h.senderId] = h.senderName
+        }
+        if ($(".chat_bar_list").length) {
+            if (h.associationId !== undefined && h.associationId > 0) {
+                if (g.data.association[h.associationId] === undefined) {
+                    g.loadChatLogWithAssociation(h.associationId, null, function () {
+                        g.addChatItem(h.senderId, h.associationId, h.text, h.id, true, $refData, h.date)
+                    }, false)
+                } else {
+                    g.addChatItem(h.senderId, h.associationId, h.text, h.id, true, $refData, h.date)
+                }
+            } else {
+                if (g.data[h.senderId] === undefined) {
+                    g.loadChatLogWithPlayer(h.senderId, null, function () {
+                        g.addChatItem(h.senderId, 0, h.text, h.id, true, $refData, h.date)
+                    }, false)
+                } else {
+                    g.addChatItem(h.senderId, 0, h.text, h.id, true, $refData, h.date)
+                }
+            }
+        }
+        if (h.associationId !== undefined && h.associationId > 0) {
+            if ($('.chat_bar_list_item.open[data-associationid="' + h.associationId + '"]').length <= 0) {
+                var e = $('.new_msg_count[data-associationid="' + h.associationId + '"]').data("new-messages");
+                if (isNaN(e)) {
+                    e = 0
+                }
+                e++;
+                g.saveMessageCounterAssociation(e, h.associationId);
+                g.updateTotalNewChatCounter()
+            } else {
+                var f = {
+                    associationId: h.associationId,
+                    mode: 4,
+                    ajax: 1,
+                    updateUnread: 1
+                };
+                console.log('chatUrl()');
+                $.ajax({
+                    url: chatUrl,
+                    type: "POST",
+                    data: f,
+                    success: function (a) {
+                    },
+                    error: function (c, a, b) {
+                    }
+                })
+            }
+        } else {
+            if (h.senderId !== undefined && h.senderId > 0) {
+                ogame.messagemarker.setPartnerId(h.senderId);
+                if (!g.isOpen(h.senderId)) {
+                    ogame.messagecounter.initialize(ogame.messagecounter.type_chat, h.senderId);
+                    var e = parseInt(ogame.messagecounter.newChats[h.senderId]);
+                    if (isNaN(e)) {
+                        e = 0
+                    }
+                    e++;
+                    g.saveMessageCounter(e, h.senderId);
+                    ogame.messagemarker.updateNewMarker()
+                } else {
+                    g.saveMessageCounter(0, $(this).data("playerid"));
+                    ogame.messagemarker.updateNewMarker()
+                }
+            }
+        }
+    },
+    cleanupUrl: function () {
+        var k = window.location.href;
+        var h = k.indexOf("&");
+        if (h > 0) {
+            var g = k.indexOf("?");
+            var l = k.substring(0, g);
+            var f = l + "?page=chat";
+            window.history.pushState({}, "", f)
+        }
+    },
+    saveMessageCounter: function (c, d) {
+        if (isNaN(d) || d === 0) {
+            return false
+        }
+        $('.new_msg_count[data-playerid="' + d + '"]').data("new-messages", c);
+        ogame.messagecounter.newChats[d] = c
+    },
+    saveMessageCounterAssociation: function (c, d) {
+        if (isNaN(d) || d === 0) {
+            return false
+        }
+        $('.new_msg_count[data-associationid="' + d + '"]').data("new-messages", c);
+        $('.new_msg_count[data-associationid="' + d + '"]').text(c);
+        ogame.messagemarker.updateNewMarker()
+    },
+    isOpen: function (e) {
+        var f = false;
+        var d = $(".chatContent").data("chatplayerid");
+        if (d != "undefined" && d == e) {
+            f = true
+        } else {
+            $(".chat_box").each(function () {
+                if ($(this).attr("data-playerid") == e) {
+                    if ($(this).css("display") == "block") {
+                        f = true
+                    }
+                }
+            })
+        }
+        return f
+    },
+    loadChatLogWithPlayer: function (p, n, l, h) {
+        var m = ogame.chat;
+        var o;
+        if (typeof h == "undefined") {
+            h = true
+        }
+        if (typeof p == "number") {
+            o = p
+        } else {
+            o = $(p).attr("data-playerId")
+        }
+        var k = {playerId: o, mode: 2, ajax: 1, updateUnread: (h ? 1 : 0)};
+        if (typeof n == "number") {
+            k.msg2reply = n
+        }
+        console.log('chatUrl POST()');
+        $.ajax({
+            url: chatUrl, type: "POST", data: k, success: function (a) {
+                a = JSON.parse(a);
+                m.data[a.playerId] = {
+                    playerstatus: a.playerstatus,
+                    playerName: a.playerName,
+                    playerId: a.playerId,
+                    chatItems: a.chatItems,
+                    chatItemsByDateAsc: a.chatItemsByDateAsc
+                };
+                if (typeof l == "function") {
+                    l()
+                } else {
+                    if ($(p).parents("#chatBarPlayerList").length || $("body")[0].id != "chat") {
+                        m.showChat(a)
+                    } else {
+                        m.showChatHistory(a)
+                    }
+                }
+                var b = $(".chat_bar_list").find("[data-playerid='" + a.playerId + "']");
+                m.updateCustomScrollbar(b.find(".chat_box_ctn"))
+            }, error: function (c, a, b) {
+            }
+        })
+    },
+    loadChatLogWithAssociation: function (o, n, l, h) {
+        var m = ogame.chat;
+        var p;
+        if (typeof h == "undefined") {
+            h = true
+        }
+        if (typeof o == "number") {
+            p = o
+        } else {
+            p = $(o).attr("data-associationid")
+        }
+        var k = {associationId: p, mode: 4, ajax: 1, updateUnread: (h ? 1 : 0)};
+        if (typeof n == "number") {
+            k.msg2reply = n
+        }
+        console.log('chaturl POST()');
+        $.ajax({
+            url: chatUrl, type: "POST", data: k, success: function (a) {
+                a = JSON.parse(a);
+                m.data.association[a.associationId] = {
+                    playerstatus: a.playerstatus,
+                    associationName: a.associationName,
+                    associationId: a.associationId,
+                    chatItems: a.chatItems,
+                    chatItemsByDateAsc: a.chatItemsByDateAsc
+                };
+                if (typeof l == "function") {
+                    l()
+                } else {
+                    if ($(o).parents("#chatBarPlayerList").length || $("body")[0].id != "chat") {
+                        m.showChat(a)
+                    } else {
+                        m.showChatHistory(a)
+                    }
+                }
+                var b = $(".chat_bar_list").find("[data-associationid='" + a.associationId + "']");
+                m.updateCustomScrollbar(b.find(".chat_box_ctn"))
+            }, error: function (c, a, b) {
+            }
+        })
+    },
+    initChat: function (c, d) {
+        ogame.chat.playerId = c;
+        ogame.chat.isMobile = d;
+        ogame.chat.initPlayerlist();
+        ogame.chat.initialize();
+        ogame.chat.toggleVisibility();
+        ogame.chat.setVisibilityState();
+        ogame.chat.initMaximize();
+        ogame.chat.getInMaxChat()
+    },
+    getLastChatItemData: function () {
+        var l = ogame.chat;
+        var h = null;
+        $(".chat_box_ctn .mCustomScrollBox .mCSB_container").each(function () {
+            var a = $(this).children("ul.chat").children("li:last");
+            if (h === null || a.attr("data-chat-id") > h.attr("data-chat-id")) {
+                h = a
+            }
+        });
+        if (h === null) {
+            $("ul.largeChat").each(function () {
+                var a = $(this).children("li:last");
+                if (h === null || a.attr("data-chat-id") > h.attr("data-chat-id")) {
+                    h = a
+                }
+            })
+        }
+        if (h === null) {
+            return null
+        }
+        var k = h.children(".msg_head").find(".msg_date").html();
+        var f = h.find(".msg_content").html();
+        var g = {date: k, text: f};
+        return g
+    },
+    addChatItem: function (F, x, B, D, v, A, r) {
+        var u = ogame.chat;
+        var q;
+        if (x > 0) {
+            q = $(".chat_bar_list").find("[data-associationid='" + x + "']")
+        } else {
+            q = $(".chat_bar_list").find("[data-playerid='" + F + "']")
+        }
+        var y = {};
+        y.date = r;
+        y.newClass = "new";
+        if (v) {
+            if (u.data[F] !== undefined) {
+                y.playerName = u.data[F].playerName
+            } else {
+                y.playerName = u.playernames[F]
+            }
+            y.altClass = ""
+        } else {
+            y.playerName = playerName;
+            y.altClass = "odd"
+        }
+        y.chatID = D;
+        y.chatContent = B;
+        if (typeof A == "object") {
+            y.refData = A
+        }
+        if (!q.length) {
+            var E = u.createChatBarContainer(F);
+            u.updateChatBar(E);
+            q = $(".chat_bar_list").find("[data-playerid='" + F + "']")
+        }
+        var w = u.createChatItem(y);
+        var s = u.getLastChatItemData();
+        if (s !== null && (y.date != s.date || y.chatContent != s.text)) {
+            q.find(".chat").append(w);
+            u.updateCustomScrollbar(q.find(".chat_box_ctn"));
+            var C = $(".js_chatHistory");
+            if (C.length && (C.data("chatplayerid") == F || C.data("associationid") == x)) {
+                C.find(".chat.clearfix").append(w.clone());
+                u.updateCustomScrollbar($(".largeChatContainer"))
+            }
+        }
+    },
+    addToMoreBox: function (m) {
+        var l = ogame.chat;
+        var k = m.length;
+        if (k && $(".more_chat_bar_items").length < 1) {
+            $(".chat_bar_list").append(l.createMoreBox("more_chat_bar_items"))
+        }
+        var g = $(".more_chat_bar_items .more_items");
+        var h = $(".more_chat_bar_items .chat_box");
+        for (var n = 0; n <= k; n++) {
+            g.append(m.pop())
+        }
+        l.updateCustomScrollbar(h)
+    },
+    createChatBarContainer: function (f) {
+        var g = ogame.chat;
+        if (!f) {
+            return
+        }
+        var h = g.data[f];
+        g.data.playerId = f;
+        var e = $('<li class="chat_bar_list_item open" data-playerid="' + f + '"></li>');
+        e.append('<span class="playerstatus ' + h.playerstatus + '"></span>');
+        e.append('<span class="cb_playername">' + h.playerName + "</span>");
+        e.append('<span class="icon icon_close fright"></span>');
+        e.prepend(g.createChatBox(f));
+        return e
+    },
+    createChatBarContainerForAssociations: function (f) {
+        var g = ogame.chat;
+        if (!f) {
+            return
+        }
+        var h = g.data.association[f];
+        g.data.associationId = f;
+        var e = $('<li class="chat_bar_list_item open" data-associationId="' + f + '"></li>');
+        e.append('<span class="playerstatus ' + h.playerstatus + '"></span>');
+        e.append('<span class="cb_playername">' + h.associationName + "</span>");
+        e.append('<span class="icon icon_close fright"></span>');
+        e.prepend(g.createChatBoxForAssociations(f));
+        return e
+    },
+    closeChatBox: function (f, d) {
+        var e = $(".chat_bar_list_item");
+        $.each(e, function (b, a) {
+            if (f !== undefined && $(a).data("playerid") == f) {
+                $(a).addClass("outOfChatbar");
+                $(a).removeClass("open")
+            } else {
+                if (d !== undefined && $(a).data("associationid") == d) {
+                    $(a).addClass("outOfChatbar");
+                    $(a).removeClass("open")
+                }
+            }
+        })
+    },
+    getVisibleChats: function () {
+        if (typeof visibleChats == "undefined") {
+            visibleChats = {chatbar: false, players: [], associations: []}
+        }
+        return visibleChats
+    },
+    getVisibleChatPlayerIds: function () {
+        var k = ogame.chat;
+        var l = k.getVisibleChats();
+        var h = {};
+        var g = 0;
+        for (var f = 0; f < l.players.length; f++) {
+            if ($.inArray(l.players[f]["partnerId"], h) == -1) {
+                h[g] = l.players[f]["partnerId"];
+                g++
+            }
+        }
+        return h
+    },
+    getVisibleChatAssociationIds: function () {
+        var h = ogame.chat;
+        var k = h.getVisibleChats();
+        var l = {};
+        var g = 0;
+        for (var f = 0; f < k.associations.length; f++) {
+            if ($.inArray(k.associations[f]["partnerId"], l) == -1) {
+                l[g] = k.associations[f];
+                g++
+            }
+        }
+        return l
+    },
+    setVisibilityState: function () {
+        var n = ogame.chat;
+        var s = n.getVisibleChatPlayerIds();
+        var m = n.getVisibleChatAssociationIds();
+        var o = $("#chatBar .chat_bar_list .chat_bar_list_item");
+        for (var q = 0; q < o.length; q++) {
+            var l = o.get(q);
+            var u = $(l).data("playerid");
+            var r = $(l).data("associationid");
+            if (u !== undefined && !n.isInJson(u, s)) {
+                n.closeChatBox(u, 0)
+            } else {
+                if (r !== undefined && !n.isInJson(r, m)) {
+                    n.closeChatBox(0, r)
+                } else {
+                    l.style.display = "inline";
+                    if ($(l).hasClass("open")) {
+                        var p = $(l).find("div.chat_box")[0];
+                        p.style.display = "inline";
+                        n.updateCustomScrollbar($(l).find(".chat_box_ctn"), 1)
+                    }
+                }
+            }
+        }
+    },
+    isInJson: function (f, d) {
+        var e = null;
+        if ($.isEmptyObject(d)) {
+            e = false
+        }
+        if (e !== false) {
+            $.each(d, function (a, b) {
+                if (b == f) {
+                    e = true
+                }
+            });
+            if (e !== true) {
+                false
+            }
+        }
+        return e
+    },
+    toggleVisibility: function () {
+        $(".chat_bar_list_item .icon_close").on("click", function (f) {
+            var e = $(this).parent().data("playerid");
+            var d = $(this).closest(".chat_box");
+            if (!d.length) {
+                d = $(this).parent()[0];
+                d.style.display = "none"
+            }
+            if (e > 0) {
+                console.log('toggleVisibilityChat()');
+                $.ajax({
+                    type: "POST",
+                    url: "/game/index.php?page=ajaxChatToggleVisibility",
+                    data: {from: playerId, to: e, showState: 0},
+                    success: function (a) {
+                    },
+                    error: function (c, a, b) {
+                    }
+                })
+            }
+        });
+        $(".cb_playerlist_box .playerlist_item").on("click", function () {
+            var b = $(this).data("playerid");
+            if (b) {
+                console.log('cb_playerlist_box()');
+                $.ajax({
+                    type: "POST",
+                    url: "/game/index.php?page=ajaxChatToggleVisibility",
+                    data: {from: playerId, to: b, showState: 1},
+                    success: function (a) {
+                    },
+                    error: function (a, e, f) {
+                    }
+                })
+            }
+        })
+    },
+    initMaximize: function () {
+        $(".chat_bar_list").on("click.chatBar", ".chat_box .chat_box_title .icon_maximize", function () {
+            var c = $(this).parent();
+            var d = $(c).parent().data("playerid");
+            $.cookie("maximizeId", d);
+            $(".chat_bar_list_item.open .chat_box_title .icon_close").trigger("click");
+            window.location = bigChatLink + "&playerId=" + d
+        })
+    },
+    getInMaxChat: function () {
+        var b = location.href;
+        if (typeof bigChatLink == "undefined") {
+            bigChatLink = ""
+        }
+        if (bigChatLink == b) {
+            if ($.cookie("maximizeId") !== null) {
+                $("#chatMsgList .msg[data-playerId=" + $.cookie("maximizeId") + "]").trigger("click")
+            }
+        }
+        $.cookie("maximizeId", null)
+    },
+    createChatBox: function (l) {
+        var n = ogame.chat;
+        if (!l) {
+            return
+        }
+        var p = n.data[l];
+        var r = $('<div class="chat_box_title"></div>');
+        r.append('<span class="icon icon_close fright"></span>');
+        r.append('<span class="icon icon_maximize fright"></span>');
+        var m = $('<div class="chat_box_ctn"><ul class="chat clearfix"></ul></div>');
+        var k = {};
+        for (var q = 0; q < p.chatItemsByDateAsc.length; q++) {
+            k = p.chatItems[p.chatItemsByDateAsc[q]];
+            m.find(".chat").append(n.createChatItem(k))
+        }
+        var o = $('<div class="chat_box" data-playerid="' + l + '"></div>');
+        o.append(r);
+        o.append(m);
+        o.append('<textarea name="text" class="chat_box_textarea"></textarea>');
+        return o
+    },
+    createChatBoxForAssociations: function (r) {
+        var n = ogame.chat;
+        if (!r) {
+            return
+        }
+        var p = n.data.association[r];
+        var k = $('<div class="chat_box_title"></div>');
+        k.append('<span class="icon icon_close fright"></span>');
+        k.append('<span class="icon icon_maximize fright"></span>');
+        var m = $('<div class="chat_box_ctn"><ul class="chat clearfix"></ul></div>');
+        var l = {};
+        for (var q = 0; q < p.chatItemsByDateAsc.length; q++) {
+            l = p.chatItems[p.chatItemsByDateAsc[q]];
+            m.find(".chat").append(n.createChatItem(l))
+        }
+        var o = $('<div class="chat_box" data-associationId="' + r + '"></div>');
+        o.append(k);
+        o.append(m);
+        o.append('<textarea name="text" class="chat_box_textarea"></textarea>');
+        return o
+    },
+    createChatItem: function (m) {
+        if (!m) {
+            console.warn("no chatItem given");
+            return
+        }
+        var g = $('<div class="msg_head"></div>');
+        g.append('<span class="msg_date fright">' + getFormatedDate(m.date, "[d].[m].[Y] <span>[H]:[i]:[s]</span>") + "</span>");
+        g.append('<span class="msg_title blue_txt ' + m.newClass + '">' + m.playerName + "</span>");
+        var h = $('<li class="chat_msg ' + m.altClass + '" data-chat-id="' + m.chatID + '"></li>');
+        h.append(g);
+        if (typeof m.refData !== "undefined") {
+            var k = $('<div class="referenceMsg"></div>');
+            var n = '<div class="refAuthor">' + m.refData.author + "</div>";
+            var l = '<div class="refText new">' + m.refData.text + "</div>";
+            k.append(n);
+            k.append(l);
+            h.append(k)
+        }
+        h.append('<span class="msg_content">' + m.chatContent + "</span>");
+        h.append('<div class="speechbubble_arrow"></div>');
+        return h
+    },
+    createMoreBox: function (d) {
+        var c = $('<li class="chat_bar_list_item ' + d + '">' + chatLoca.MORE_USERS + '<span class="icon icon_close fright"></span></li>');
+        c.prepend($('<div class="chat_box"><ul class="more_items clearfix"></ul></div>'));
+        return c
+    },
+    filterPlayerlist: function () {
+        var l = [];
+        var h;
+        var k = $("#playerlistFilters").find('input[type="checkbox"]');
+        k.each(function () {
+            l.push($(this).attr("id"))
+        });
+        $(".playerlist_item").show();
+        h = false;
+        k.each(function () {
+            if ($(this).prop("checked")) {
+                h = true
+            }
+        });
+        if (!h) {
+            return
+        }
+        var f;
+        var g;
+        $(".playerlist_item").filter(function () {
+            f = false;
+            g = $(this);
+            $.each(l, function (b, a) {
+                if (g.data(a) === "off" && $("#" + a).prop("checked")) {
+                    f = true
+                }
+            });
+            (f === true) ? g.hide() : g.show()
+        })
+    },
+    initChatBar: function (d) {
+        var c = ogame.chat;
+        ogame.chat.playerId = d;
+        $("html").off(".chatBar");
+        $(window).resize(function () {
+            c.updateChatBar()
+        });
+        $(".chat_bar_list").on("click.chatBar", "#chatBarPlayerList", function (a) {
+            if ($(a.target).attr("id") !== "chatBarPlayerList" && !$(a.target).hasClass("onlineCount")) {
+                return
+            }
+            $(".cb_playerlist_box").toggle();
+            c.updateCustomScrollbar($(".scrollContainer"), true);
+            console.log('initChatBar()');
+            $.ajax({
+                url: chatUrl,
+                type: "POST",
+                dataType: "json",
+                data: {action: "toggleChatBar"},
+                success: function (b) {
+                },
+                error: function (h, b, g) {
+                }
+            })
+        }).on("click.chatBar", ".chat_bar_list_item", function (a) {
+            a.stopPropagation();
+            if (!isNaN($(this).data("playerid"))) {
+                ogame.messagemarker.toggle(ogame.messagemarker.action_remove, ogame.messagemarker.type_chattab, $(this).data("playerid"));
+                ogame.messagemarker.toggle(ogame.messagemarker.action_remove, ogame.messagemarker.type_chatbar, $(this).data("playerid"));
+                c.saveMessageCounter(0, $(this).data("playerid"));
+                ogame.messagemarker.setPartnerId($(this).data("playerid"));
+                ogame.messagemarker.updateNewMarker();
+                ogame.chat.updateTotalNewChatCounter()
+            } else {
+                if (!isNaN($(this).data("associationid") > 0)) {
+                    c.saveMessageCounterAssociation(0, $(this).data("associationid"))
+                }
+            }
+            console.log('chatUrl POST chatBarListRead()');
+            $.ajax({
+                url: chatUrl,
+                type: "POST",
+                dataType: "json",
+                data: {
+                    playerId: $(this).data("playerid"),
+                    action: "chatBarListRead"
+                },
+                success: function (b) {
+                },
+                error: function (h, b, g) {
+                }
+            });
+            if ($(this).closest(".more_items").length) {
+                c.swapChatBarItem($(this))
+            } else {
+                c.toggleChatBox($(a.target), $(this))
+            }
+            c.updateVisibleState()
+        }).on("click.chatBar", ".chat_bar_list_item > .icon_close", function (a) {
+            a.stopPropagation();
+            var b = $(this).closest(".chat_bar_list_item");
+            ogame.chat.closeChatBox(b.attr("data-playerid"), b.attr("data-associationid"));
+            b.remove("open");
+            c.updateChatBar()
+        }).on("keyup.chatBar", ".chat_box_textarea", function (a) {
+            if ((a.ctrlKey || a.keyCode == 10) && a.keyCode == 13) {
+                a.preventDefault();
+                var b = $(this).val();
+                $(this).val(b + "\n")
+            } else {
+                if ($.trim($(this).val().length > 0)) {
+                    a.preventDefault();
+                    c.submitChatBarMsg($(a.currentTarget), a.which, a.shiftKey, a.delegateTarget.scrollHeight)
+                }
+            }
+        }).on("click.chatBar", ".chat_box_textarea", function (a) {
+            ogame.messagemarker.toggle(ogame.messagemarker.action_remove, ogame.messagemarker.type_chattab, $(this).parent().parent().parent().data("playerid"));
+            ogame.messagemarker.toggle(ogame.messagemarker.action_remove, ogame.messagemarker.type_chatbar, $(this).parent().parent().parent().data("playerid"));
+            if ($(this).data("playerid") > 0) {
+                c.saveMessageCounter(0, $(this).data("playerid"))
+            } else {
+                if ($(this).data("associationid") > 0) {
+                    c.saveMessageCounterAssociation(0, $(this).data("associationid"))
+                }
+            }
+        })
+    },
+    initPlayerlist: function () {
+        var c = ogame.chat;
+        var d = ogame.tools;
+        $(".js_accordion").accordion({
+            collapsible: true,
+            heightStyle: "content"
+        });
+        $(".playerlist_item:odd").addClass("odd");
+        d.addHover(".playerlist_item, .msg, .playerlist_top_box .playerlist");
+        $(".js_playerlist").on("click.playerList", ".pl_filter_set", function () {
+            c.filterPlayerlist()
+        });
+        c.filterPlayerlist()
+    },
+    showChat: function (h) {
+        var e = false;
+        var g = ogame.chat;
+        $(".chat_bar_list_item").each(function () {
+            var a = $(this);
+            if ((h.playerId !== undefined && a.data("playerid") === h.playerId) || (h.associationId !== undefined && a.data("associationid") === h.associationId)) {
+                e = true;
+                if (a.hasClass("outOfChatbar")) {
+                    a.removeClass("outOfChatbar")
+                }
+                if (!a.hasClass("open")) {
+                    a.click();
+                    a[0].style.display = "inline"
+                } else {
+                    a.fadeTo("400", 0.3).fadeTo("400", 1)
+                }
+                a.find("textarea").focus()
+            }
+        });
+        if (!e) {
+            var f;
+            if (h.playerId !== undefined) {
+                f = g.createChatBarContainer(h.playerId)
+            } else {
+                f = g.createChatBarContainerForAssociations(h.associationId)
+            }
+            g.updateChatBar(f)
+        }
+    },
+    showChatHistory: function (e) {
+        var d = $(".js_chatHistory");
+        var f = e.data;
+        if (d.length) {
+            d.remove()
+        }
+        $("#chatList").remove();
+        $(f).insertAfter("#planet");
+        $("li.playerlist_item").removeClass("active");
+        $("li.playerlist_item[data-playerid='" + e.playerId + "']").addClass("active");
+        initBBCodeEditor(locaKeys, itemNames, false, ".new_msg_textarea", 2000, true)
+    },
+    submitChatBarMsg: function (p, l, h, m) {
+        var o = ogame.chat;
+        var n = parseInt($(".chat_box_textarea").css("max-height"));
+        var k = parseInt($(".chat_box_textarea").css("padding-top")) + parseInt($(".chat_box_textarea").css("padding-bottom"));
+        if (l === 13 && h) {
+            if (m <= (n + k)) {
+                p.css("height", m - k)
+            }
+            return
+        }
+        if (l === 13) {
+            if (p.parent(".chat_box").data("playerid") !== undefined) {
+                o.sendMessage(p.parent(".chat_box").data("playerid"), 0, p.val())
+            } else {
+                if (p.parent(".chat_box").data("associationid") !== undefined) {
+                    o.sendMessage(0, p.parent(".chat_box").data("associationid"), p.val())
+                }
+            }
+            p.val("")
+        }
+    },
+    swapChatBarItem: function (d) {
+        var f = ogame.chat;
+        var e = $(".more_chat_bar_items").prev();
+        e.removeClass("open").find(".icon_close").hide().end().find(".chat_box").hide();
+        e.remove();
+        d.addClass("open").find(".icon_close").show().end().find(".chat_box").show().end().insertBefore(".more_chat_bar_items");
+        f.addToMoreBox([e]);
+        f.updateChatBar();
+        f.updateCustomScrollbar(d.find(".chat_box_ctn"))
+    },
+    toggleChatBox: function (f, l) {
+        var h = ogame.chat;
+        if (f.parents(".chat_box").length && !f.hasClass("icon_close")) {
+            return
+        }
+        var k = l.children(".chat_box");
+        if (k.is(":visible")) {
+            k.hide();
+            l.removeClass("open")
+        } else {
+            if (!l.hasClass("more_chat_bar_items")) {
+                l.addClass("open");
+                h.updateChatBar()
+            }
+            k.show();
+            var g = k.find(".chat_box_ctn");
+            if (l.hasClass("more_chat_bar_items")) {
+                g = k
+            }
+            h.updateCustomScrollbar(g);
+            k.find("textarea").focus()
+        }
+        ogame.messagecounter.resetCounterByType(ogame.messagecounter.type_chat)
+    },
+    handleTooMuchWindows: function (o, l, u, s, p, r) {
+        var q = ogame.chat;
+        var n = true;
+        var m = [];
+        $($(".chat_bar_list > .chat_bar_list_item").get().reverse()).each(function () {
+            var a = $(this);
+            if (n) {
+                if (a.hasClass("more_chat_bar_items") || a.attr("id") === "chatBarPlayerList") {
+                    return
+                }
+                if (a.hasClass("open")) {
+                    o--
+                } else {
+                    l--
+                }
+                a.removeClass("open").find(".icon_close").hide().end().find(".chat_box").hide();
+                m.push(a);
+                a.remove();
+                widthTotal = s * l + u * o + p;
+                n = (widthTotal >= r) ? true : false
+            }
+        });
+        q.addToMoreBox(m)
+    },
+    getItemFromMorelist2Chatbar: function () {
+        var c = $(".more_items .chat_bar_list_item").first().remove();
+        var d = ogame.chat;
+        c.addClass("open").find(".icon_close").show().end().find(".chat_box").show().end().insertBefore(".more_chat_bar_items");
+        if ($(".more_items .chat_bar_list_item").length <= 0) {
+            $(".more_chat_bar_items").remove()
+        }
+        d.updateCustomScrollbar($(".more_chat_bar_items>.chat_box"));
+        d.updateCustomScrollbar(c.find(".chat_box_ctn"))
+    },
+    updateChatBar: function (n) {
+        var r = ogame.chat;
+        var o = $(".chat_bar_list > .chat_bar_list_item.open").length;
+        var v = $(".more_chat_bar_items").length;
+        var m = $(".chat_bar_list").children().length - o - v;
+        var u = 190;
+        var w = 270;
+        var q = 190;
+        var s = $("body").innerWidth();
+        if (n) {
+            o++
+        }
+        var p = u * m + w * o + q * v;
+        if (p >= s) {
+            r.handleTooMuchWindows(o, m, w, u, q, s)
+        } else {
+            if ((p + w) <= s && $(".more_chat_bar_items").length > 0) {
+                r.getItemFromMorelist2Chatbar()
+            }
+        }
+        if (n) {
+            n.insertAfter("#chatBarPlayerList");
+            r.updateCustomScrollbar(n.find(".chat_box_ctn"))
+        }
+    },
+    updateCustomScrollbar: function (c, d) {
+        if (!c || c.length == 0) {
+            return
+        }
+        if (c.hasClass("mCustomScrollbar")) {
+            c.mCustomScrollbar("update")
+        } else {
+            c.mCustomScrollbar({theme: "ogame"})
+        }
+        if (d !== true) {
+            c.mCustomScrollbar("scrollTo", "bottom", {scrollInertia: 0})
+        }
+        c.each(function () {
+            if ($(this).height() + "px" == $(this).css("max-height")) {
+                $(this).addClass("scrollbarPresent")
+            }
+        })
+    },
+    updateVisibleState: function () {
+        var b = {chatbar: false, players: [], associations: []};
+        $(".chat_bar_list>.chat_bar_list_item").each(function () {
+            var a = $(this);
+            if (a.attr("id") === "chatBarPlayerList" && a.children(".cb_playerlist_box").is(":visible")) {
+                b.chatbar = true
+            } else {
+                if (a.data("playerid") && a.children(".chat_box").is(":visible")) {
+                    b.players.push(a.data("playerid"))
+                } else {
+                    if (a.data("associationid") && a.children(".chat_box").is(":visible")) {
+                        b.associations.push(a.data("associationid"))
+                    }
+                }
+            }
+        });
+        $.cookie("visibleChats", JSON.stringify(b), {expires: 7})
+    },
+    showPlayerList: function (d) {
+        // TODO: this code is part of "0 Contact(s) online." chat system.
+        // TODO: re-enable this code when working on this feature. For now its disabled.
+        return;
+        var c = ogame.chat;
+        if ($.inArray(d, c.playerListSelector) === -1) {
+            c.playerListSelector.push(d)
+        }
+        if (c.isLoadingPlayerList === false && c.playerList === null) {
+            c.isLoadingPlayerList = true;
+            console.log('showPlayerList()');
+            $.ajax({
+                url: chatUrl,
+                type: "POST",
+                dataType: "json",
+                data: {action: "showPlayerList"},
+                success: function (a) {
+                    c.playerList = a.content;
+                    c.isLoadingPlayerList = false;
+                    c._showPlayerList()
+                },
+                error: function (f, a, b) {
+                    c.isLoadingPlayerList = false
+                }
+            })
+        } else {
+            c._showPlayerList()
+        }
+    },
+    _showPlayerList: function () {
+        var b = ogame.chat;
+        $.each(b.playerListSelector, function (a, d) {
+            $(d).html(b.playerList)
+        })
+    }
+};
+inventoryObj = {
+    currentPage: null,
+    currentItems: null,
+    currentItem: null,
+    currentCategory: null,
+    initalizeSlider: function (R, N, P, U, O, al, ac, ai, S) {
+        if (inventoryObj.currentItems == R && typeof(al) == "undefined" || al == false) {
+            return
+        }
+        inventoryObj.currentItems = R;
+        O = O || "slideIn";
+        ac = ac || "tooltipHTML js_hideTipOnMobile";
+        if (typeof(ai) == "undefined") {
+            ai = true
+        }
+        if (typeof(S) == "undefined") {
+            S = true
+        }
+        $("#" + N + "Box").remove(".anythingSlider");
+        var ag = [];
+        var af = 0;
+        for (var M in R) {
+            var W = R[M];
+            if (typeof(W.hide) != "undefined" && W.hide) {
+                continue
+            }
+            if (inventoryObj.currentPage == "shop" || inventoryObj.currentPage == "inventory") {
+                var T = af % inventoryObj.itemsPerSlide;
+                ag[af + (2 * (T % 3)) - 2 * Math.floor(T / 3)] = W
+            } else {
+                ag[af] = W
+            }
+            af++
+        }
+        var Q = 0, I = 0, L = $('<ul id="' + N + '" />');
+        for (var ak = ag.length; I < ak; I++) {
+            if (typeof(ag[I]) == "undefined") {
+                K.append('<div class="item_img"><div class="empty border5px"></div></div>');
+                continue
+            }
+            var W = ag[I];
+            if (I % inventoryObj.itemsPerSlide == 0) {
+                var K = $('<li class="slide_' + Q + '" />').appendTo(L);
+                Q++
+            }
+            var aj, V, Z;
+            if (inventoryObj.currentPage == "shop") {
+                aj = getNumberFormatShort(W.costs, null) + " " + loca.currency[W.currency];
+                V = "price"
+            } else {
+                aj = getNumberFormatShort(W.amount);
+                V = "amount"
+            }
+            var Y;
+            if (ai) {
+                Y = W.imageLarge + "-75x.png"
+            } else {
+                Y = W.imageLarge + "-100x.png"
+            }
+            var X;
+            if (W.canBeActivated || W.canBeBoughtAndActivated) {
+                X = "enabled"
+            } else {
+                X = "disabled"
+            }
+            if (W.isReduced) {
+                Z = '<div class="sale_badge ' + X + '"></div>'
+            } else {
+                Z = ""
+            }
+            var ad = (W.timeLeft != null) ? " js_is_active " : "";
+            var ae = "";
+            var aa = W.title;
+            if (N.indexOf("js_activeItemSlider") != -1) {
+                aa = "";
+                ae = (W.timeLeft != null) ? '<span class="js_duration undermark" data-total-duration="' + W.totalTime + '">' + W.timeLeft + "</span>" : ""
+            }
+            var ab = "";
+            if (W.timeLeft != null && N.indexOf("js_activeItemSlider") != -1) {
+                ab = '<div class="pusher"></div>'
+            }
+            var ah = "";
+            if ($.inArray(birthdayCategory, W.category) != -1) {
+                ah = '<div class="event_active_hint"></div>'
+            }
+            K.append('<div class="item_img r_' + W.rarity + '" style="background-image: url(/img/icons/items/' + Y + ');"><div class="item_img_box">' + ah + '<div class="activation ' + X + ad + '"></div><a href="javascript:void(0);" tabindex="1" title="' + aa + '" class="detail_button ' + ac + " " + O + '" ref="' + W.ref + '">' + Z + '<span class="ecke"><span class="level ' + V + '">' + aj + "</span></span></a></div>" + ae + ab + "</div>")
+        }
+        $("#" + N + "Box").prepend(L);
+        if (I % inventoryObj.itemsPerSlide != 0) {
+            for (var J = I % inventoryObj.itemsPerSlide; J < inventoryObj.itemsPerSlide; J++) {
+                $("#" + N + " li:last").append('<div class="item_img"><div class="empty border5px"></div></div>')
+            }
+        }
+        return mySlider = $("#" + N).anythingSlider({
+            startStopped: true,
+            buildStartStop: false,
+            expand: true,
+            resizeContents: false,
+            theme: "default",
+            infiniteSlides: false,
+            autoPlay: false,
+            easing: "swing",
+            resizeContents: true,
+            stopAtEnd: true,
+            playRtl: isRTLEnabled,
+            hashTags: true,
+            buildNavigation: S,
+            onInitialized: function (e, k) {
+                if (isMobile) {
+                    var h = 1000, f = 50, d = 0, b = 0, g = "ontouchend" in document, a = (g) ? "touchstart" : "mousedown", c = (g) ? "touchmove" : "mousemove", l = (g) ? "touchend" : "mouseup";
+                    k.$window.bind(a, function (m) {
+                        b = (new Date()).getTime();
+                        d = m.originalEvent.touches ? m.originalEvent.touches[0].pageX : m.pageX
+                    }).bind(l, function (m) {
+                        b = 0;
+                        d = 0
+                    }).bind(c, function (n) {
+                        var m = n.originalEvent.touches ? n.originalEvent.touches[0].pageX : n.pageX, o = (d === 0) ? 0 : Math.abs(m - d), p = (new Date()).getTime();
+                        if (b !== 0 && p - b < h && o > f) {
+                            if (m < d) {
+                                k.goForward()
+                            }
+                            if (m > d) {
+                                k.goBack()
+                            }
+                            b = 0;
+                            d = 0
+                        }
+                    })
+                }
+            }
+        })
+    },
+    initShop: function () {
+        var b = this;
+        $(window).unbind(".shop");
+        $(document).undelegate(".slideIn", "click.shop").delegate(".slideIn", "click.shop", function () {
+            if (b.currentItem == $(this).attr("ref")) {
+                b.currentItem = null;
+                $.bbq.pushState({item: ""})
+            } else {
+                b.currentItem = $(this).attr("ref");
+                $.bbq.pushState({item: $(this).attr("ref")})
+            }
+        });
+        $("button.to_shop").bind("click.shop", function () {
+            $.bbq.pushState({page: "shop"})
+        });
+        $("button.to_inventory").bind("click.shop", function () {
+            $.bbq.pushState({page: "inventory"})
+        });
+        $("button.buyResourcesLink").bind("click", function () {
+            reload_page($(this).data("link"))
+        });
+        $(".to_shop, .to_inventory").hover(function () {
+            $(this).addClass("hover")
+        }, function () {
+            $(this).removeClass("hover")
+        });
+        $(".categoryFilter li a").bind("click.shop", function () {
+            $.bbq.pushState({category: $(this).attr("rel")})
+        });
+        $(window).unbind("hashchange.shop").bind("hashchange.shop", function (a) {
+            b.onHashChange($.deparam.fragment(a.fragment))
+        });
+        b.onHashChange($.deparam.fragment());
+        inventoryObj.refreshResources()
+    },
+    onHashChange: function (l) {
+        if (typeof(l.page) == "undefined") {
+            var h = {
+                page: "shop",
+                category: $(".categoryFilter a:first").attr("rel")
+            };
+            if (typeof(l.item) != "undefined" && l.item != "") {
+                var k = inventoryObj.items_shop[l.item];
+                if (k.category.length > 0) {
+                    h.category = k.category[k.category.length - 1]
+                }
+            }
+            $.bbq.pushState(h);
+            return
+        }
+        var f = this.currentPage != l.page;
+        if (f) {
+            if (l.page == "inventory") {
+                this.openInventory();
+                $(".planetlink, .moonlink").fragment({page: l.inventory})
+            } else {
+                this.openShop();
+                $(".planetlink, .moonlink").fragment({page: l.shop})
+            }
+            this.updateCategoryAmount()
+        }
+        if (typeof(l.category) == "undefined") {
+            $.bbq.pushState({category: $(".categoryFilter a:first").attr("rel")});
+            return
+        } else {
+            if (l.category != this.currentCategory || f) {
+                this.changeCategory(l.category)
+            }
+        }
+        if (typeof(l.item) == "undefined" || l.item == "" && this.currentItem != null) {
+            $("#itemDetails a.close_details").click();
+            $(".planetlink, .moonlink").fragment({item: ""})
+        } else {
+            if (this.currentItem != l.item) {
+                var g = $(".slideIn[ref='" + l.item + "']");
+                if (g.length) {
+                    g.click()
+                } else {
+                    gfSlider.slideIn(getElementByIdWithCache("detail"), l.item)
+                }
+                $(".planetlink, .moonlink").fragment({item: l.item})
+            }
+        }
+    },
+    initShopDetails: function () {
+        var c = this;
+        var d = $.deparam.querystring().page;
+        $(document).undelegate("#itemDetails .close_details", "click").delegate("#itemDetails .close_details", "click", function () {
+            $("a.slideIn[ref=" + $(this).attr("ref") + "]:first").click()
+        }).undelegate("#itemDetails a.item.build-it", "click").delegate("#itemDetails a.item.build-it", "click", function () {
+            $.ajax({
+                url: $(this).attr("rel"),
+                data: {ajax: 1, token: buyToken},
+                type: "POST",
+                dataType: "json",
+                error: function () {
+                    fadeBox(translation.buyError, true)
+                },
+                success: function (a) {
+                    buyToken = a.newToken;
+                    if (a.error) {
+                        fadeBox(a.message, true)
+                    } else {
+                        fadeBox(a.message, false);
+                        inventoryObj.refreshResources();
+                        inventoryObj.refreshItemData(a.item)
+                    }
+                }
+            });
+            return false
+        }).undelegate("#itemDetails a.item.build-it_disabled.dm", "click").delegate("#itemDetails a.item.build-it_disabled.dm", "click", function () {
+            errorBoxDecision(LocalizationStrings.error, loca.buyDMDecision, LocalizationStrings.yes, LocalizationStrings.no, function () {
+                if ($("a.dm_button").length > 0) {
+                    $("a.dm_button").click()
+                } else {
+                    window.location.href = $("#darkmatter_box a").attr("href")
+                }
+            })
+        }).undelegate("#itemDetails a.activateItem.build-it", "click").delegate("#itemDetails a.activateItem.build-it", "click", function () {
+            var a = $(this);
+
+            function b() {
+                $.ajax({
+                    url: a.attr("rel"),
+                    data: {ajax: 1, token: activateToken, referrerPage: d},
+                    type: "POST",
+                    dataType: "json",
+                    error: function () {
+                        fadeBox(translation.buyError, true);
+                        $("#itemDetails a.activateItem").removeClass("build-it").addClass("build-it_disabled")
+                    },
+                    success: function (f) {
+                        activateToken = f.newToken;
+                        if (f.error) {
+                            fadeBox(f.message, true);
+                            $("#itemDetails a.activateItem").removeClass("build-it").addClass("build-it_disabled")
+                        } else {
+                            if (f.message.reload) {
+                                location.href = getRedirectLink();
+                                return
+                            }
+                            f = f.message;
+                            fadeBox(f.message, false);
+                            inventoryObj.refreshResources();
+                            inventoryObj.refreshItemData(f.item)
+                        }
+                    }
+                })
+            }
+
+            if (a.hasClass("isUpgrade")) {
+                errorBoxDecision(LocalizationStrings.activateItem.upgradeItemQuestionHeader, LocalizationStrings.activateItem.upgradeItemQuestion, LocalizationStrings.yes, LocalizationStrings.no, b)
+            } else {
+                b()
+            }
+            return false
+        }).undelegate("#itemDetails a.buyAndActivate.build-it", "click").delegate("#itemDetails a.buyAndActivate.build-it", "click", function () {
+            var a = $(this);
+
+            function b() {
+                $.ajax({
+                    url: a.attr("rel"),
+                    data: {ajax: 1, token: activateToken, referrerPage: d},
+                    type: "POST",
+                    dataType: "json",
+                    error: function () {
+                        fadeBox(translation.buyError, true);
+                        $("#itemDetails a.activateItem").removeClass("build-it").addClass("build-it_disabled")
+                    },
+                    success: function (f) {
+                        activateToken = f.newToken;
+                        if (f.error) {
+                            fadeBox(f.message, true);
+                            $("#itemDetails a.activateItem").removeClass("build-it").addClass("build-it_disabled")
+                        } else {
+                            if (f.message.reload) {
+                                location.href = getRedirectLink();
+                                return
+                            }
+                            f = f.message;
+                            fadeBox(f.message, false);
+                            inventoryObj.refreshResources();
+                            inventoryObj.refreshItemData(f.item)
+                        }
+                    }
+                })
+            }
+
+            if (a.hasClass("isUpgrade")) {
+                errorBoxDecision(LocalizationStrings.activateItem.upgradeItemQuestionHeader, LocalizationStrings.activateItem.upgradeItemQuestion, LocalizationStrings.yes, LocalizationStrings.no, b)
+            } else {
+                b()
+            }
+            return false
+        })
+    },
+    refreshResources: function () {
+        getAjaxResourcebox(function (b) {
+            $(".to_dark_matter .level").text(b.darkmatter.resources["actualFormat"])
+        })
+    },
+    refreshItemData: function (e) {
+        var d = e.ref;
+        changeTooltip($(".detail_button[ref='" + d + "']"), e.title);
+        $(".detail_button[ref='" + d + "'] span.amount, #itemDetails[data-uuid='" + d + "'] span.amount").html(tsdpkt(e.amount));
+        if (typeof(inventoryObj.items_inventory) != "undefined") {
+            if (inventoryObj.items_inventory.length == 0) {
+                inventoryObj.items_inventory = {}
+            } else {
+                if (e.amount <= 0) {
+                    delete inventoryObj.items_inventory[d]
+                } else {
+                    inventoryObj.items_inventory[d] = e
+                }
+            }
+        }
+        if (typeof(inventoryObj.items_shop) != "undefined") {
+            if (inventoryObj.items_shop.length == 0) {
+                inventoryObj.items_shop = {}
+            }
+            inventoryObj.items_shop[d] = e
+        }
+        changeTooltip($('#itemDetails[data-uuid="' + d + '"] a.activateItem, #itemDetails[data-uuid="' + d + '"] a.buyAndActivate'), e.activationTitle);
+        if (e.hasEnoughCurrency) {
+            $('#itemDetails[data-uuid="' + d + '"] a.item').addClass("build-it").removeClass("build-it_disabled")
+        } else {
+            $('#itemDetails[data-uuid="' + d + '"] a.item').removeClass("build-it").addClass("build-it_disabled")
+        }
+        if (e.amount > 0) {
+            $('#itemDetails[data-uuid="' + d + '"] a.activateItem').show();
+            $('#itemDetails[data-uuid="' + d + '"] a.buyAndActivate').hide();
+            if (e.canBeActivated) {
+                $('#itemDetails[data-uuid="' + d + '"] a.activateItem').removeClass("build-it_disabled").addClass("build-it")
+            } else {
+                $('#itemDetails[data-uuid="' + d + '"] a.activateItem').addClass("build-it_disabled").removeClass("build-it")
+            }
+        } else {
+            $('#itemDetails[data-uuid="' + d + '"] a.activateItem').hide();
+            $('#itemDetails[data-uuid="' + d + '"] a.buyAndActivate').show();
+            if (e.canBeBoughtAndActivated && e.hasEnoughCurrency) {
+                $('#itemDetails[data-uuid="' + d + '"] a.buyAndActivate').removeClass("build-it_disabled").addClass("build-it")
+            } else {
+                $('#itemDetails[data-uuid="' + d + '"] a.buyAndActivate').addClass("build-it_disabled").removeClass("build-it")
+            }
+        }
+        if (isMobile) {
+            var f = "";
+            if ($('#itemDetails[data-uuid="' + d + '"] a.activateItem:visible,#itemDetails[data-uuid="' + d + '"] a.buyAndActivate:visible').hasClass("build-it_disabled")) {
+                f += e.activationTitle
+            }
+            if (e.buyTitle.length && e.buyTitle != e.activationTitle) {
+                f += e.buyTitle
+            }
+            $('#itemDetails[data-uuid="' + d + '"] .info_txt').text(f)
+        }
+        if (e.timeLeft > 0 && e.extendable) {
+            $('#itemDetails[data-uuid="' + d + '"] a.activateItem span').html(loca.extend);
+            $('#itemDetails[data-uuid="' + d + '"] a.buyAndActivate span').html(loca.buyAndExtend)
+        } else {
+            $('#itemDetails[data-uuid="' + d + '"] a.activateItem span').html(loca.activate);
+            $('#itemDetails[data-uuid="' + d + '"] a.buyAndActivate span').html(loca.buyAndActivate)
+        }
+        if (e.isAnUpgrade) {
+            $('#itemDetails[data-uuid="' + d + '"] a.activateItem, #itemDetails[data-uuid="' + d + '"] a.buyAndActivate').addClass("isUpgrade")
+        } else {
+            $('#itemDetails[data-uuid="' + d + '"] a.activateItem, #itemDetails[data-uuid="' + d + '"] a.buyAndActivate').removeClass("isUpgrade")
+        }
+        if (this.inShop === true) {
+            this.changeCategory($(".categoryFilter a.active").attr("rel"))
+        }
+        this.updateCategoryAmount()
+    },
+    boughtItemHint: function () {
+        $(".to_inventory .bought_item_notice").show().fadeOut(1000)
+    },
+    openShop: function () {
+        this.currentPage = "shop";
+        $("#js_inventorySliderBox").hide();
+        $("#js_shopSliderBox").show();
+        $(".to_inventory").removeClass("active");
+        $(".to_shop").addClass("active");
+        $("#buttonz h2").text(loca.LOCA_PREMIUM_SHOP);
+        if (isMobile) {
+            $(".js_shopCurrentPage").html(loca.shopText)
+        }
+    },
+    openInventory: function () {
+        this.currentPage = "inventory";
+        $("#js_shopSliderBox").hide();
+        $("#js_inventorySliderBox").show();
+        $(".to_shop").removeClass("active");
+        $(".to_inventory").addClass("active");
+        $("#buttonz h2").text(loca.LOCA_PREMIUM_INVENTORY);
+        if (isMobile) {
+            $(".js_shopCurrentPage").html(loca.inventoryText)
+        }
+    },
+    changeCategory: function (c) {
+        inventoryObj.currentCategory = c;
+        $(".planetlink, .moonlink").fragment({category: c});
+        $(".categoryFilter li, .categoryFilter li a").removeClass("active");
+        $('.categoryFilter li a[rel="' + c + '"]').addClass("active").parent().addClass("active");
+        $(".anythingSlider").remove();
+        var d = function (m, a) {
+            var n = [];
+            var l = [];
+            var b = 0;
+            $.each(m, function (f) {
+                if (this.category != null) {
+                    var e = "$" + this.category.join("$") + "$";
+                    if (e.toLowerCase().indexOf("$" + c + "$") != -1) {
+                        n[inventoryObj.item_orders[c][this.ref]] = this;
+                        if (inventoryObj.item_orders[c][this.ref] > b) {
+                            b = inventoryObj.item_orders[c][this.ref]
+                        }
+                    }
+                }
+            });
+            for (var k = 0; k <= b; ++k) {
+                if (n[k]) {
+                    l[k] = n[k]
+                }
+            }
+            inventoryObj.initalizeSlider(l, a, 340, 340, null, null, null, false)
+        };
+        if (inventoryObj.currentPage == "shop") {
+            d(inventoryObj.items_shop, "js_shopSlider")
+        } else {
+            if (inventoryObj.currentPage == "inventory") {
+                d(inventoryObj.items_inventory, "js_inventorySlider")
+            }
+        }
+    },
+    updateCategoryAmount: function () {
+        var d;
+        if (inventoryObj.currentPage == "shop") {
+            d = inventoryObj.items_shop
+        } else {
+            if (inventoryObj.currentPage == "inventory") {
+                d = inventoryObj.items_inventory
+            } else {
+                return
+            }
+        }
+        var c = $(".categoryFilter");
+        c.find(".amount").text(0);
+        $.each(d, function (l) {
+            if (this.category != null) {
+                for (var a in this.category) {
+                    var b = this.category[a];
+                    var h = c.find('a[rel="' + b + '"] .amount');
+                    var k;
+                    if (inventoryObj.currentPage == "shop") {
+                        k = 1
+                    } else {
+                        if (inventoryObj.currentPage == "inventory") {
+                            k = this.amount
+                        }
+                    }
+                    h.text(tsdpkt(getValue(h.text()) + k))
+                }
+            }
+        });
+        $.each(c.find("li"), function (b) {
+            var a = inventoryObj.currentPage.slice(0, 1).toUpperCase() + inventoryObj.currentPage.slice(1);
+            if ($(this).hasClass("in" + a)) {
+                $(this).show()
+            } else {
+                $(this).hide();
+                if (!c.find("li:visible .active").length) {
+                    c.find("li:visible:first a").click()
+                }
+            }
+        })
+    }
+};
+/*
+ * Spinners 3.0.0
+ * (c) 2010-2012 Nick Stakenburg - http://www.nickstakenburg.com
+ *
+ * Spinners is freely distributable under the terms of an MIT-style license.
+ *
+ * GitHub: http://github.com/staaky/spinners
+ */
+var Spinners = {version: "3.0.0"};
+(function (b) {
+    function c(k) {
+        return k * Math.PI / 180
+    }
+
+    function d(k) {
+        this.element = k
+    }
+
+    function e(k, l) {
+        k && (this.element = k, a.remove(k), a.removeDetached(), this._position = 0, this._state = "stopped", this.setOptions(b.extend({
+            color: "#000",
+            dashes: 12,
+            radius: 5,
+            height: 5,
+            width: 1.8,
+            opacity: 1,
+            padding: 3,
+            rotation: 700
+        }, l || {})), this.drawPosition(0), a.add(this))
+    }
+
+    var f = {
+        scroll: function (l, m) {
+            if (!m) {
+                return l
+            }
+            var k = l.slice(0, m);
+            return l.slice(m, l.length).concat(k)
+        }, isElement: function (k) {
+            return k && 1 == k.nodeType
+        }, element: {
+            isAttached: function () {
+                return function (k) {
+                    for (; k && k.parentNode;) {
+                        k = k.parentNode
+                    }
+                    return !!k && !!k.body
+                }
+            }()
+        }
+    }, g = {
+        drawRoundedRectangle: function (l, n) {
+            var o = b.extend({
+                top: 0,
+                left: 0,
+                width: 0,
+                height: 0,
+                radius: 0
+            }, n || {}), p = o.left, q = o.top, k = o.width, m = o.height, o = o.radius;
+            l.beginPath(), l.moveTo(p + o, q), l.arc(p + k - o, q + o, o, c(-90), c(0), !1), l.arc(p + k - o, q + m - o, o, c(0), c(90), !1), l.arc(p + o, q + m - o, o, c(90), c(180), !1), l.arc(p + o, q + o, o, c(-180), c(-90), !1), l.closePath(), l.fill()
+        }
+    }, h = function () {
+        function l(n) {
+            var o = [];
+            0 == n.indexOf("#") && (n = n.substring(1)), n = n.toLowerCase();
+            if ("" != n.replace(m, "")) {
+                return null
+            }
+            3 == n.length ? (o[0] = n.charAt(0) + n.charAt(0), o[1] = n.charAt(1) + n.charAt(1), o[2] = n.charAt(2) + n.charAt(2)) : (o[0] = n.substring(0, 2), o[1] = n.substring(2, 4), o[2] = n.substring(4));
+            for (n = 0; n < o.length; n++) {
+                o[n] = parseInt(o[n], 16)
+            }
+            return o.red = o[0], o.green = o[1], o.blue = o[2], o
+        }
+
+        var m = RegExp("[0123456789abcdef]", "g"), k = function () {
+            function n(p, q, o) {
+                return p = p.toString(o || 10), Array(q - p.length).join("0") + p
+            }
+
+            return function (o, p, q) {
+                return "#" + n(o, 2, 16) + n(p, 2, 16) + n(q, 2, 16)
+            }
+        }();
+        return {
+            hex2rgb: l, hex2fill: function (n, p) {
+                "undefined" == typeof p && (p = 1);
+                var o = p, q = l(n);
+                return q[3] = o, q.opacity = o, "rgba(" + q.join() + ")"
+            }, rgb2hex: k
+        }
+    }();
+    b.extend(Spinners, {
+        enabled: !1, support: {
+            canvas: function () {
+                var k = b("<canvas>")[0];
+                return !!k.getContext && !!k.getContext("2d")
+            }()
+        }, init: function () {
+            if (this.support.canvas || window.G_vmlCanvasManager && window.attachEvent && -1 === navigator.userAgent.indexOf("Opera")) {
+                window.G_vmlCanvasManager && window.G_vmlCanvasManager.init_(document), this.enabled = !0
+            }
+        }, create: function (k, l) {
+            return d.create(k, l), this.get(k)
+        }, get: function (k) {
+            return new d(k)
+        }, play: function (k) {
+            return this.get(k).play(), this
+        }, pause: function (k) {
+            return this.get(k).pause(), this
+        }, toggle: function (k) {
+            return this.get(k).toggle(), this
+        }, stop: function (k) {
+            return this.get(k).stop(), this
+        }, remove: function (k) {
+            return this.get(k).remove(), this
+        }, removeDetached: function () {
+            return a.removeDetached(), this
+        }, center: function (k) {
+            return this.get(k).center(), this
+        }, setOptions: function (k, l) {
+            return this.get(k).setOptions(l), this
+        }, getDimensions: function (k) {
+            return k = 2 * a.get(k)[0].getLayout().workspace.radius, {
+                width: k,
+                height: k
+            }
+        }
+    });
+    var a = {
+        spinners: [], get: function (k) {
+            if (k) {
+                var l = [];
+                return b.each(this.spinners, function (n, m) {
+                    m && (f.isElement(k) ? m.element == k : b(m.element).is(k)) && l.push(m)
+                }), l
+            }
+        }, add: function (k) {
+            this.spinners.push(k)
+        }, remove: function (k) {
+            b(b.map(this.spinners, function (l) {
+                if (f.isElement(k) ? l.element == k : b(l.element).is(k)) {
+                    return l.element
+                }
+            })).each(b.proxy(function (l, m) {
+                this.removeByElement(m)
+            }, this))
+        }, removeByElement: function (k) {
+            var l = this.get(k)[0];
+            l && (l.remove(), this.spinners = b.grep(this.spinners, function (m) {
+                return m.element != k
+            }))
+        }, removeDetached: function () {
+            b.each(this.spinners, b.proxy(function (k, l) {
+                l && l.element && !f.element.isAttached(l.element) && this.remove(l.element)
+            }, this))
+        }
+    };
+    b.extend(d, {
+        create: function (k, l) {
+            if (k) {
+                var m = l || {}, n = [];
+                return f.isElement(k) ? n.push(new e(k, m)) : b(k).each(function (o, p) {
+                    n.push(new e(p, m))
+                }), n
+            }
+        }
+    }), b.extend(d.prototype, {
+        items: function () {
+            return a.get(this.element)
+        }, play: function () {
+            return b.each(this.items(), function (k, l) {
+                l.play()
+            }), this
+        }, stop: function () {
+            return b.each(this.items(), function (k, l) {
+                l.stop()
+            }), this
+        }, pause: function () {
+            return b.each(this.items(), function (k, l) {
+                l.pause()
+            }), this
+        }, toggle: function () {
+            return b.each(this.items(), function (k, l) {
+                l.toggle()
+            }), this
+        }, center: function () {
+            return b.each(this.items(), function (k, l) {
+                l.center()
+            }), this
+        }, setOptions: function (k) {
+            return b.each(this.items(), function (l, m) {
+                m.setOptions(k)
+            }), this
+        }, remove: function () {
+            return a.remove(this.element), this
+        }
+    }), b.extend(e.prototype, {
+        setOptions: function (k) {
+            this.options = b.extend({}, this.options, k || {}), this.options.radii && (k = this.options.radii, this.options.radius = Math.min(k[0], k[1]), this.options.height = Math.max(k[0], k[1]) - this.options.radius), this.options.dashWidth && (this.options.width = this.options.dashWidth), this.options.speed && (this.options.duration = 1000 * this.options.speed);
+            var k = this._state, l = this._position;
+            this._layout = null, this.build(), l && l >= this.options.dashes - 1 && (this._position = this.options.dashes - 1);
+            switch (k) {
+                case"playing":
+                    this.play();
+                    break;
+                case"paused":
+                case"stopped":
+                    this.drawPosition(this._position)
+            }
+            this._centered && this.center()
+        }, remove: function () {
+            this.canvas && (this.pause(), b(this.canvas).remove(), this.ctx = this.canvas = null)
+        }, build: function () {
+            this.remove();
+            var k = this.getLayout().workspace.radius;
+            return b(document.body).append(this.canvas = b("<canvas>").attr({
+                width: 2 * k,
+                height: 2 * k
+            }).css({zoom: 1})), window.G_vmlCanvasManager && G_vmlCanvasManager.initElement(this.canvas[0]), this.ctx = this.canvas[0].getContext("2d"), this.ctx.globalAlpha = this.options.opacity, b(this.element).append(this.canvas), this.ctx.translate(k, k), this
+        }, drawPosition: function (k) {
+            var l = this.getLayout().workspace, k = f.scroll(l.opacities, -1 * k), m = l.radius, l = this.options.dashes, n = c(360 / l);
+            this.ctx.clearRect(-1 * m, -1 * m, 2 * m, 2 * m);
+            for (m = 0; m < l; m++) {
+                this.drawDash(k[m], this.options.color), this.ctx.rotate(n)
+            }
+        }, drawDash: function (n, o) {
+            this.ctx.fillStyle = h.hex2fill(o, n);
+            var k = this.getLayout(), m = k.workspace.radius, l = k.dash.position, k = k.dash.dimensions;
+            g.drawRoundedRectangle(this.ctx, {
+                top: l.top - m,
+                left: l.left - m,
+                width: k.width,
+                height: k.height,
+                radius: Math.min(k.height, k.width) / 2
+            })
+        }, _nextPosition: function () {
+            var k = this.options.rotation / this.options.dashes;
+            this.nextPosition(), this._playTimer = window.setTimeout(b.proxy(this._nextPosition, this), k)
+        }, nextPosition: function () {
+            this._position == this.options.dashes - 1 && (this._position = -1), this._position++, this.drawPosition(this._position)
+        }, play: function () {
+            if ("playing" != this._state) {
+                this._state = "playing";
+                var k = this.options.rotation / this.options.dashes;
+                return this._playTimer = window.setTimeout(b.proxy(this._nextPosition, this), k), this
+            }
+        }, pause: function () {
+            if ("paused" != this._state) {
+                return this._pause(), this._state = "paused", this
+            }
+        }, _pause: function () {
+            this._playTimer && (window.clearTimeout(this._playTimer), this._playTimer = null)
+        }, stop: function () {
+            if ("stopped" != this._state) {
+                return this._pause(), this._position = 0, this.drawPosition(0), this._state = "stopped", this
+            }
+        }, toggle: function () {
+            return this["playing" == this._state ? "pause" : "play"](), this
+        }, getLayout: function () {
+            if (this._layout) {
+                return this._layout
+            }
+            for (var k = this.options, l = k.dashes, m = k.width, n = k.radius, o = k.radius + k.height, p = Math.max(m, o), p = Math.ceil(Math.max(p, Math.sqrt(o * o + m / 2 * (m / 2)))), k = p += k.padding, q = 1 / l, r = [], D = 0; D < l; D++) {
+                r.push((D + 1) * q)
+            }
+            return this._layout = l = {
+                workspace: {radius: k, opacities: r},
+                dash: {
+                    position: {top: p - o, left: p - m / 2},
+                    dimensions: {width: m, height: o - n}
+                }
+            }
+        }, center: function () {
+            var k = 2 * this.getLayout().workspace.radius;
+            b(this.element.parentNode).css({position: "relative"}), b(this.element).css({
+                position: "absolute",
+                height: k + "px",
+                width: k + "px",
+                top: "50%",
+                left: "50%",
+                marginLeft: -0.5 * k + "px",
+                marginTop: -0.5 * k + "px"
+            }), this._centered = !0
+        }
+    }), Spinners.init(), Spinners.enabled || (d.create = function () {
+        return []
+    })
+})(jQuery);
+
+
+/*
+ * Tipped - The jQuery Tooltip - v3.1.8
+ * (c) 2010-2013 Nick Stakenburg
+ *
+ * http://projects.nickstakenburg.com/tipped
+ *
+ * License: http://projects.nickstakenburg.com/tipped/license
+ */
+var Tipped = {version: "3.1.8"};
+Tipped.Skins = {
+    base: {
+        afterUpdate: false,
+        ajax: {cache: true, type: "get"},
+        background: {color: "#f2f2f2", opacity: 1},
+        border: {size: 1, color: "#000", opacity: 1},
+        closeButtonSkin: "default",
+        containment: {selector: "viewport"},
+        fadeIn: 180,
+        fadeOut: 220,
+        showDelay: 75,
+        hideDelay: 25,
+        radius: {size: 5, position: "background"},
+        hideAfter: false,
+        hideOn: {element: "self", event: "mouseleave"},
+        hideOthers: false,
+        hook: "topleft",
+        inline: false,
+        offset: {x: 0, y: 0},
+        onHide: false,
+        onShow: false,
+        shadow: {blur: 2, color: "#000", offset: {x: 0, y: 0}, opacity: 0.12},
+        showOn: "mousemove",
+        spinner: true,
+        stem: {height: 9, width: 18, offset: {x: 9, y: 9}, spacing: 2},
+        target: "self"
+    },
+    reset: {
+        ajax: false,
+        closeButton: false,
+        hideOn: [{element: "self", event: "mouseleave"}, {
+            element: "tooltip",
+            event: "mouseleave"
+        }],
+        hook: "topmiddle",
+        stem: true
+    },
+    dark: {
+        background: {color: "#282828"},
+        border: {color: "#9b9b9b", opacity: 0.4, size: 1},
+        shadow: {opacity: 0.02},
+        spinner: {color: "#fff"}
+    },
+    light: {
+        background: {color: "#fff"},
+        border: {color: "#646464", opacity: 0.4, size: 1},
+        shadow: {opacity: 0.04}
+    },
+    gray: {
+        background: {
+            color: [{position: 0, color: "#8f8f8f"}, {
+                position: 1,
+                color: "#808080"
+            }]
+        }, border: {color: "#131313", size: 1, opacity: 0.6}
+    },
+    tiny: {
+        background: {color: "#161616"},
+        border: {color: "#969696", opacity: 0.35, size: 1},
+        fadeIn: 0,
+        fadeOut: 0,
+        radius: 4,
+        stem: {width: 11, height: 6, offset: {x: 6, y: 6}},
+        shadow: false,
+        spinner: {color: "#fff"}
+    },
+    yellow: {
+        background: "#ffffaa",
+        border: {size: 1, color: "#6d5208", opacity: 0.4}
+    },
+    red: {
+        background: {
+            color: [{position: 0, color: "#e13c37"}, {
+                position: 1,
+                color: "#e13c37"
+            }]
+        },
+        border: {size: 1, color: "#150201", opacity: 0.6},
+        spinner: {color: "#fff"}
+    },
+    green: {
+        background: {
+            color: [{position: 0, color: "#4bb638"}, {
+                position: 1,
+                color: "#4aab3a"
+            }]
+        },
+        border: {size: 1, color: "#122703", opacity: 0.6},
+        spinner: {color: "#fff"}
+    },
+    blue: {
+        background: {
+            color: [{position: 0, color: "#4588c8"}, {
+                position: 1,
+                color: "#3d7cb9"
+            }]
+        }, border: {color: "#020b17", opacity: 0.6}, spinner: {color: "#fff"}
+    }
+};
+(function (b) {
+    b.extend(Tipped.Skins, {
+        black: b.extend(true, {}, Tipped.Skins.dark, {radius: 0}),
+        white: b.extend(true, {}, Tipped.Skins.light, {radius: 0})
+    })
+})(jQuery);
+Tipped.Skins.CloseButtons = {
+    base: {
+        diameter: 17,
+        border: 2,
+        x: {diameter: 10, size: 2, opacity: 1},
+        states: {
+            "default": {
+                background: {
+                    color: [{
+                        position: 0,
+                        color: "#1a1a1a"
+                    }, {position: 0.46, color: "#171717"}, {
+                        position: 0.53,
+                        color: "#121212"
+                    }, {position: 0.54, color: "#101010"}, {
+                        position: 1,
+                        color: "#000"
+                    }], opacity: 1
+                },
+                x: {color: "#fafafa", opacity: 1},
+                border: {color: "#fff", opacity: 1}
+            },
+            hover: {
+                background: {color: "#333", opacity: 1},
+                x: {color: "#e6e6e6", opacity: 1},
+                border: {color: "#fff", opacity: 1}
+            }
+        },
+        shadow: {blur: 1, color: "#000", offset: {x: 0, y: 0}, opacity: 0.5}
+    },
+    reset: {},
+    "default": {},
+    light: {
+        diameter: 17,
+        border: 2,
+        x: {diameter: 10, size: 2, opacity: 1},
+        states: {
+            "default": {
+                background: {
+                    color: [{
+                        position: 0,
+                        color: "#797979"
+                    }, {position: 0.48, color: "#717171"}, {
+                        position: 0.52,
+                        color: "#666"
+                    }, {position: 1, color: "#666"}], opacity: 1
+                },
+                x: {color: "#fff", opacity: 0.95},
+                border: {color: "#676767", opacity: 1}
+            },
+            hover: {
+                background: {
+                    color: [{
+                        position: 0,
+                        color: "#868686"
+                    }, {position: 0.48, color: "#7f7f7f"}, {
+                        position: 0.52,
+                        color: "#757575"
+                    }, {position: 1, color: "#757575"}], opacity: 1
+                },
+                x: {color: "#fff", opacity: 1},
+                border: {color: "#767676", opacity: 1}
+            }
+        }
+    }
+};
+eval(function (e, a, c, n, k, m) {
+    k = function (b) {
+        return (b < a ? "" : k(parseInt(b / a))) + ((b = b % a) > 35 ? String.fromCharCode(b + 29) : b.toString(36))
+    };
+    if (!"".replace(/^/, String)) {
+        while (c--) {
+            m[k(c)] = n[c] || k(c)
+        }
+        n = [function (b) {
+            return m[b]
+        }];
+        k = function () {
+            return "\\w+"
+        };
+        c = 1
+    }
+    while (c--) {
+        if (n[c]) {
+            e = e.replace(new RegExp("\\b" + k(c) + "\\b", "g"), n[c])
+        }
+    }
+    return e
+}('(12(a){12 c(a,b){13 c=[a,b];1a c.15=a,c.17=b,c}12 f(a){1N.5v&&5v[5v.6z?"6z":"8c"](a)}12 j(a){11.1g=a}12 k(a){13 b={};28(13 c 5w a)b[c]=a[c]+"2w";1a b}12 l(a,b){1a 1b.8d(a*a+b*b)}12 m(a){1a 2E*a/1b.2Z}12 n(a){1a a*1b.2Z/2E}12 o(a){1a 1/1b.4A(a)}12 v(b){1f(b){11.1g=b,u.1z(b);13 c=11.2e();11.19=a.1k({},c.19),11.2x=1,11.1o={},11.1V=a(b).1X("2p-1V"),u.30(11),11.29=11.19.1u.1D,11.6A=11.19.1l&&11.29,11.3a={x:0,y:0},11.3l={17:0,15:0},11.1P()}}12 x(b,c){11.1g=b,11.1g&&c&&(11.19=a.1k({31:3,1A:{x:0,y:0},1Q:"#4B",1K:.5,2L:1},20[2]||{}),11.2x=11.19.2L,11.1o={},11.1V=a(b).1X("2p-1V"),w.30(11),11.1P())}12 z(b){11.1g=b,11.1g&&(11.19=a.1k({31:5,1A:{x:0,y:0},1Q:"#4B",1K:.5,2L:1},20[1]||{}),11.2x=11.19.2L,11.1V=a(b).1X("2p-1V"),y.30(11),11.1P())}12 A(b,c){28(13 d 5w c)c[d]&&c[d].3D&&c[d].3D===5x?(b[d]=a.1k({},b[d])||{},A(b[d],c[d])):b[d]=c[d];1a b}12 C(b,c){1f(11.1g=b,11.1g){13 e=a(b).1X("2p-1V");e&&B.1z(b),e=h(),a(b).1X("2p-1V",e),11.1V=e;13 f;"8e"!=a.1p(c)||d.2j(c)?f=20[2]||{}:(f=c,c=1r),11.19=B.6B(f);13 g=b.6C("5y");1f(!c){13 i=b.6C("1X-2p");i?c=i:g&&(c=g)}g&&(a(b).1X("5z",g),b.8f("5y","")),11.2F=c,11.2k=11.19.2k||+B.19.4C,11.1o={2G:{14:1,18:1},5A:[],3b:[],2q:{4D:!1,2l:!1,1L:!1,3c:!1,1P:!1,4E:!1,5B:!1,3E:!1},5C:""};13 j=11.19.1C;11.1C="2M"==j?"2M":"4F"!=j&&j?d.2j(j)?j:j&&1x.6D(j)||11.1g:11.1g,11.6E(),B.30(11)}}13 b=6F.3F.8g,d={8h:12(c,d){13 e=c;1a 12(){13 c=[a.1v(e,11)].6G(b.5D(20));1a d.5E(11,c)}},2j:12(a){1a a&&1==a.8i},4G:12(a,c){13 d=b.5D(20,2);1a 8j(12(){1a a.5E(a,d)},c)},44:12(a){1a d.4G.5E(11,[a,1].6G(b.5D(20,1)))},5F:12(a){1a{x:a.5G,y:a.6H}},1g:{4H:12(a){13 b=0,d=0;8k b+=a.4I||0,d+=a.4J||0,a=a.4K;8l(a);1a c(d,b)},4L:12(b){13 e=a(b).1A(),f=d.1g.4H(b),g={17:a(1N).4I(),15:a(1N).4J()};1a e.15+=f.15-g.15,e.17+=f.17-g.17,c(e.15,e.17)},5H:12(){12 a(a){28(13 b=a;b&&b.4K;)b=b.4K;1a b}1a 12(b){13 c=a(b);1a!(!c||!c.3d)}}()}},e=12(a){12 b(b){13 c=5I(b+"([\\\\d.]+)").8m(a);1a c?5J(c[1]):!0}1a{3m:!(!1N.8n||-1!==a.3n("5K"))&&b("8o "),5K:a.3n("5K")>-1&&(!!1N.5L&&5L.6I&&5J(5L.6I())||7.55),5M:a.3n("6J/")>-1&&b("6J/"),4M:a.3n("4M")>-1&&-1===a.3n("8p")&&b("8q:"),6K:!!a.3e(/8r.*8s.*8t/),4N:a.3n("4N")>-1&&b("4N/")}}(8u.8v),g={32:{46:{5N:"1.4.4",5O:1N.46&&46.8w.8x}},6L:12(){12 b(b){28(13 c=b.3e(a),d=c&&c[1]&&c[1].2N(".")||[],e=0,f=0,g=d.2a;g>f;f++)e+=2O(d[f]*1b.6M(10,6-2*f));1a c&&c[3]?e-1:e}13 a=/^(\\d+(\\.?\\d+){0,3})([A-6N-8y-]+[A-6N-8z-9]+)?/;1a 12(a){11.32[a].6O||(11.32[a].6O=!0,(!11.32[a].5O||b(11.32[a].5O)<b(11.32[a].5N)&&!11.32[a].6P)&&(11.32[a].6P=!0,f("1S 8A "+a+" >= "+11.32[a].5N)))}}()},h=12(){13 a=0,b="8B";1a 12(c){28(c=c||b,a++;1x.6D(c+a);)a++;1a c+a}}(),i=12(){13 b=[];1a{1t:12(c){28(13 d=1r,e=0;b.2a>e;e++)b[e]&&b[e].47==c.47&&b[e].1p.6Q()==c.1p.6Q()&&a.6R(b[e].1X||{})==a.6R(c.1X||{})&&(d=b[e].4O);1a d},4P:12(c,d){11.1z(c.47),b.2n(a.1k({},c,{4O:d}))},1z:12(a){28(13 c=0;b.2a>c;c++)b[c]&&b[c].47==a&&3G b[c]},6S:12(){b=[]}}}();a.1k(1S,12(){1a{2H:{3f:12(){13 a=1x.22("3f");1a!(!a.3o||!a.3o("2d"))}(),3H:12(){6T{1a!!("8C"5w 1N||1N.6U&&1x 8D 6U)}6V(a){1a!1}}(),48:12(){13 b=["8E","8F","8G"],c=!1;1a a.1w(b,12(a,b){6T{1x.8H(b),c=!0}6V(d){}}),c}()},3p:12(){(11.2H.3f||e.3m)&&(g.6L("46"),a(1x).6W(12(){B.6X()}))},4Q:12(a,b,c){1a j.4Q(a,b,c),11.1t(a)},1t:12(a){1a 3q j(a)},5P:12(a){1a B.5P(a)},1W:12(a){1a 11.1t(a).1W(),11},1I:12(a){1a 11.1t(a).1I(),11},33:12(a){1a 11.1t(a).33(),11},2P:12(a){1a 11.1t(a).2P(),11},1z:12(a){1a 11.1t(a).1z(),11},4R:12(){1a B.4R(),11},5Q:12(a){1a B.5Q(a),11},5R:12(a){1a B.5R(a),11},1L:12(b){1f(d.2j(b))1a B.5S(b);1f("5T"!=a.1p(b)){13 c=a(b),e=0;1a a.1w(c,12(a,b){B.5S(b)&&e++}),e}1a B.3I().2a},5U:12(){1a B.5U(),11}}}()),a.1k(j,{4Q:12(b,c){1f(b){13 e=20[2]||{},f=[];1a B.6Y(),d.2j(b)?f.2n(3q C(b,c,e)):a(b).1w(12(a,b){f.2n(3q C(b,c,e))}),f}}}),a.1k(j.3F,{49:12(){1a B.2r.4S={x:0,y:0},B.1t(11.1g)},1W:12(){1a a.1w(11.49(),12(a,b){b.1W()}),11},1I:12(){1a a.1w(11.49(),12(a,b){b.1I()}),11},33:12(){1a a.1w(11.49(),12(a,b){b.33()}),11},2P:12(){1a a.1w(11.49(),12(a,b){b.2P()}),11},1z:12(){1a B.1z(11.1g),11}});13 p={4T:12(){13 b;1a b=e.6K?{14:1N.5V,18:1N.5W}:{18:a(1N).18(),14:a(1N).14()}}},q={3r:1b.1E(1b.4U(1N.3r?5J(1N.3r)||1:1,2)),3p:12(){12 a(a){13 b=a.3o("2d");b.8I(q.3r,q.3r)}1a 1N.4V&&!1S.2H.3f&&e.3m?12(b){4V.8J(b),a(b)}:12(b){a(b)}}(),3J:12(b,c){a(b).3g({14:c.14*11.3r,18:c.18*11.3r}).1q(k(c))},6Z:12(b){13 c=a.1k({17:0,15:0,14:0,18:0,1n:0},20[1]||{}),d=c,e=d.15,f=d.17,g=d.14,h=d.18,i=d.1n;1a i?(b.2f(),b.3s(e+i,f),b.26(e+g-i,f+i,i,n(-90),n(0),!1),b.26(e+g-i,f+h-i,i,n(0),n(90),!1),b.26(e+i,f+h-i,i,n(90),n(2E),!1),b.26(e+i,f+i,i,n(-2E),n(-90),!1),b.2g(),b.34(),3t 0):(b.70(e,f,g,h),3t 0)},8K:12(b,c){28(13 d=a.1k({x:0,y:0,1Q:"#4B"},20[2]||{}),e=0,f=c.2a;f>e;e++)28(13 g=0,h=c[e].2a;h>g;g++){13 i=2O(c[e].3u(g))*(1/9);b.2Q=t.2R(d.1Q,i),i&&b.70(d.x+g,d.y+e,1,1)}},4a:12(b,c){13 d;1f("2s"==a.1p(c))d=t.2R(c);1G 1f("2s"==a.1p(c.1Q))d=t.2R(c.1Q,"2y"==a.1p(c.1K)?c.1K:1);1G 1f(a.71(c.1Q)){13 e=a.1k({3K:0,3L:0,3M:0,3N:0},20[2]||{});d=q.72.73(b.8L(e.3K,e.3L,e.3M,e.3N),c.1Q,c.1K)}1a d}};q.72={73:12(b,c){28(13 d="2y"==a.1p(20[2])?20[2]:1,e=0,f=c.2a;f>e;e++){13 g=c[e];("5T"==a.1p(g.1K)||"2y"!=a.1p(g.1K))&&(g.1K=1),b.8M(g.1e,t.2R(g.1Q,g.1K*d))}1a b}};13 r={74:["3O","4b","3P","3Q","4c","4d","4e","4f","4g","4h","4i","3R"],4j:{75:/^(17|15|1R|1O)(17|15|1R|1O|2t|2S)$/,1J:/^(17|1R)/,35:/(2t|2S)/,76:/^(17|1R|15|1O)/},77:12(){13 a={17:"18",15:"14",1R:"18",1O:"14"};1a 12(b){1a a[b]}}(),35:12(a){1a!!a.3v().3e(11.4j.35)},78:12(a){1a!11.35(a)},2I:12(a){1a a.3v().3e(11.4j.1J)?"1J":"2b"},5X:12(a){13 b=1r,c=a.3v().3e(11.4j.76);1a c&&c[1]&&(b=c[1]),b},2N:12(a){1a a.3v().3e(11.4j.75)}},s={5Y:12(a){13 b=a.19.1l;1a{14:b.14,18:b.18}},4k:12(b,c){13 d=a.1k({3S:"1E"},20[2]||{}),e=b.19.1l,f=e.14,g=e.18,h=11.4W(f,g,c);1a d.3S&&(h.14=1b[d.3S](h.14),h.18=1b[d.3S](h.18)),{14:h.14,18:h.18}},4W:12(a,b,c){13 d=m(1b.79(.5*(b/a))),e=2E-d,f=1b.4A(n(e-90))*c,g=a+2*f,h=g*b/a;1a{14:g,18:h}},3T:12(a,b){13 c=11.4k(a,b),d=11.5Y(a),f=(r.35(a.29),1b.1E(c.18+b));1a a.19.1l.1A||0,a.19.1n&&a.19.1n.2u||0,{2z:{1c:{14:1b.1E(c.14),18:1b.1E(f)}},1i:{1c:c},1l:{1c:{14:d.14,18:d.18}}}},5Z:12(b,c,d){13 f=b.19,g={17:0,15:0},h={17:0,15:0},i=a.1k({},c),j=b.1i,k=k||11.3T(b,b.1i),l=k.2z.1c;d&&(l.18=d,j=0);13 m=r.2N(b.29),n=r.2I(b.29);1f(b.19.1l){13 o=r.5X(b.29);1f("17"==o?g.17=l.18-j:"15"==o&&(g.15=l.18-j),"1J"==n){1T(m[2]){1h"2t":1h"2S":h.15=.5*i.14;1B;1h"1O":h.15=i.14}"1R"==m[1]&&(h.17=i.18-j+l.18)}1G{1T(m[2]){1h"2t":1h"2S":h.17=.5*i.18;1B;1h"1R":h.17=i.18}"1O"==m[1]&&(h.15=i.14-j+l.18)}i[r.77(o)]+=l.18-j}1G 1f("1J"==n){1T(m[2]){1h"2t":1h"2S":h.15=.5*i.14;1B;1h"1O":h.15=i.14}"1R"==m[1]&&(h.17=i.18)}1G{1T(m[2]){1h"2t":1h"2S":h.17=.5*i.18;1B;1h"1R":h.17=i.18}"1O"==m[1]&&(h.15=i.14)}13 p=f.1n&&f.1n.2u||0,q=f.1i&&f.1i.2u||0;1f(b.19.1l){13 t=p&&"1m"==f.1n.1e?p:0,u=p&&"1i"==f.1n.1e?p:p+q,v=q+t+.5*k.1l.1c.14-.5*k.1i.1c.14,w=u>v?u-v:0,x=1b.1E(q+t+.5*k.1l.1c.14+w);1f("1J"==n)1T(m[2]){1h"15":h.15+=x;1B;1h"1O":h.15-=x}1G 1T(m[2]){1h"17":h.17+=x;1B;1h"1R":h.17-=x}}13 y;1f(f.1l&&(y=f.1l.1A)){13 z=s.60(y,b.6A,c,k.1i.1c,q,p);1f(y=z.1A,z.4l,"1J"==n)1T(m[2]){1h"15":h.15+=y.x;1B;1h"1O":h.15-=y.x}1G 1T(m[2]){1h"17":h.17+=y.y;1B;1h"1R":h.17-=y.y}}13 B;1f(f.1l&&(B=f.1l.8N))1f("1J"==n)1T(m[1]){1h"17":h.17-=B;1B;1h"1R":h.17+=B}1G 1T(m[1]){1h"15":h.15-=B;1B;1h"1O":h.15+=B}1a{1c:i,1e:{17:0,15:0},1m:{1e:g,1c:c},1l:{1c:l},2J:h}},60:12(b,c,d,e,f,g){13 h=r.2I(c),i=a.1k({},b),j={x:0,y:0},k=0;1a"1J"==h&&(k=d.14-e.14-2*f-2*g)<2*b.x&&(j.x=i.x,/(1O)$/.3h(c)&&(j.x*=-1),i.x=0),"2b"==h&&(k=d.18-e.18-2*f-2*g)<2*b.y&&(j.y=i.y,/(1R)$/.3h(c)&&(j.y*=-1),i.y=0),{1A:i,4l:j}}},t=12(){12 d(a){13 b=a;1a b.7a=a[0],b.7b=a[1],b.7c=a[2],b}12 e(a){1a 2O(a,16)}12 f(a){13 b=6F(3);1f(0==a.3n("#")&&(a=a.4X(1)),a=a.3v(),""!=a.61(c,""))1a 1r;3==a.2a?(b[0]=a.3u(0)+a.3u(0),b[1]=a.3u(1)+a.3u(1),b[2]=a.3u(2)+a.3u(2)):(b[0]=a.4X(0,2),b[1]=a.4X(2,4),b[2]=a.4X(4));28(13 f=0;b.2a>f;f++)b[f]=e(b[f]);1a d(b)}12 g(a,b){13 c=f(a);1a c[3]=b,c.1K=b,c}12 h(b,c){1a"5T"==a.1p(c)&&(c=1),"8O("+g(b,c).8P()+")"}12 i(a){1a"#"+(j(a)[2]>50?"4B":"8Q")}12 j(a){1a k(f(a))}12 k(a){13 f,g,h,a=d(a),b=a.7a,c=a.7b,e=a.7c,i=b>c?b:c;e>i&&(i=e);13 j=c>b?b:c;1f(j>e&&(j=e),h=i/8R,g=0!=i?(i-j)/i:0,0==g)f=0;1G{13 k=(i-b)/(i-j),l=(i-c)/(i-j),m=(i-e)/(i-j);f=b==i?m-l:c==i?2+k-m:4+l-k,f/=6,0>f&&(f+=1)}f=1b.23(7d*f),g=1b.23(62*g),h=1b.23(62*h);13 n=[];1a n[0]=f,n[1]=g,n[2]=h,n.8S=f,n.8T=g,n.8U=h,n}13 b="8V",c=5I("["+b+"]","g");1a{8W:f,2R:h,8X:i}}(),u={4Y:{},1t:12(b){1f(!b)1a 1r;13 c=1r,d=a(b).1X("2p-1V");1a d&&(c=11.4Y[d]),c},30:12(a){11.4Y[a.1V]=a},1z:12(a){13 b=11.1t(a);b&&(3G 11.4Y[b.1V],b.1z())}};a.1k(v.3F,12(){12 b(){11.1o.1u={};13 b=11.29;a.1w(r.74,a.1v(12(b,c){13 d,e=11.1o.1u[c]={};11.29=c;13 f=11.2o();d=f,e.2J=d.2J;13 g=d.1H.1c,h={17:d.1H.1e.17,15:d.1H.1e.15};1f(e.1H={1c:g,1e:h},e.1D={1c:d.21.1c},11.1s){13 i=11.1s.2o(),j=i.21.1e,k=e.1H.1e;a.1k(!0,e,{2J:i.2J,1H:{1e:{17:k.17+j.17,15:k.15+j.15}},1D:{1c:i.1D.1c}})}},11)),11.29=b}12 c(){11.36(),11.19.1s&&(w.1z(11.1g),11.19.1y&&11.19.1y.1s&&y.1z(11.1g)),11.2T&&(11.2T.1z(),11.2T=1r),11.1j&&(a(11.1j).1z(),11.1j=1r)}12 d(){11.1H&&(11.1y&&(a(11.1y).1z(),11.1y=1r,11.63=1r,11.64=1r),a(11.1H).1z(),11.1l=1r,11.1m=1r,11.1H=1r,11.1o={})}12 f(){13 a=11.2e();11.2G=a.1o.2G;13 b=a.19;11.1n=b.1n&&b.1n.2u||0,11.1i=b.1i&&b.1i.2u||0,11.2m=b.2m;13 c=1b.4U(11.2G.18,11.2G.14);11.1n>c/2&&(11.1n=1b.65(c/2)),"1i"==11.19.1n.1e&&11.1n>11.1i&&(11.1i=11.1n),11.1o={19:{1n:11.1n,1i:11.1i,2m:11.2m}}}12 g(){11.36(),1N.4V&&1N.4V.8Y(1x);13 b=11.2e(),c=11.19;11.1H=a("<2h>").1Y("8Z")[0],a(b.4Z).1Z(11.1H),11.51(),11.7e(b),c.1y&&(11.7f(b),c.1y.1s&&(11.2U?(11.2U.19=c.1y.1s,11.2U.1P()):11.2U=3q z(11.1g,a.1k({2L:11.2x},c.1y.1s)))),e.3m&&7>e.3m&&a(b.1j).66(11.2T=a("<91>").1Y("92").3g({93:0,4m:"94:\'\';"})),11.52(),c.1s&&(11.1s?(11.1s.19=c.1s,11.1s.1P()):11.1s=3q x(11.1g,11,a.1k({2L:11.2x},c.1s))),11.7g()}12 h(){13 b=11.2e(),c=a(b.1j),d=a(b.1j).67(".7h").7i()[0];1f(d){a(d).1q({14:"68",18:"68"});13 e=2O(c.1q("17")),f=2O(c.1q("15")),g=2O(c.1q("14"));c.1q({15:"-7j",17:"-7j",14:"95",18:"68"}),b.1F("1L")||a(b.1j).1W();13 h=B.53.69(d);b.19.3i&&"2y"==a.1p(b.19.3i)&&h.14>b.19.3i&&(a(d).1q({14:b.19.3i+"2w"}),h=B.53.69(d)),b.1F("1L")||a(b.1j).1I(),b.1o.2G=h,c.1q({15:f+"2w",17:e+"2w",14:g+"2w"}),11.1P()}}12 i(a,b,c){13 d=!1;11.4n(a)&&(d=!0),11.7k(b)&&(d=!0),c&&11.7l(c)&&(d=!0),d&&11.1P()}12 j(a){13 b=!1;1a(11.3l.15!=a.15||11.3l.17!=a.17)&&(b=!0,11.3l=a),b}12 l(a){13 b=!1;1a(11.3a.x!=a.x||11.3a.y!=a.y)&&(b=!0,11.3a=a),b}12 m(a){13 c=!1;1a 11.29!=a&&(c=!0,11.29=a),c}12 o(){1a B.1t(11.1g)[0]}12 p(){1a s.3T(11,11.1i)}12 u(){13 b=11.2e().19.1y,c=b.3w+2*b.1i;a(11.63).1q({15:-1*c+"2w"}),a(11.64).1q({15:0})}12 v(){13 b=11.2e().19.1y,c=b.3w+2*b.1i;a(11.63).1q({15:0}),a(11.64).1q({15:c+"2w"})}12 A(b){13 c=b.19.1y,d={14:c.3w+2*c.1i,18:c.3w+2*c.1i};a(b.1j).1Z(a(11.1y=1x.22("2h")).1Y("7m").1q(k(d)).1Z(a(11.7n=1x.22("2h")).1Y("96").1q(k(d)))),11.6a(b,"6b"),11.6a(b,"6c"),1S.2H.3H||e.4N||a(11.1y).3U("4o",a.1v(11.7o,11)).3U("54",a.1v(11.7p,11))}12 C(b,c){13 d=b.19.1y,e=d.3w,f=d.1i||0,g=d.x.3w,h=d.x.2u,j=(d.x.97,d.2q[c||"6b"]),l={14:e+2*f,18:e+2*f};g>=e&&(g=e-2);13 m;a(11.7n).1Z(a(11[c+"7q"]=1x.22("2h")).1Y("98").1q(a.1k(k(l),{15:("6c"==c?l.14:0)+"2w"}))),a(1x.3d).1Z(a(m=1x.22("3f"))),q.3J(m,l),q.3p(m);13 o=m.3o("2d");o.2L=11.2x,a(11[c+"7q"]).1Z(m),o.99(l.14/2,l.18/2),o.2Q=q.4a(o,j.1m,{3K:0,3L:0-e/2,3M:0,3N:0+e/2}),o.2f(),o.26(0,0,e/2,0,2*1b.2Z,!0),o.2g(),o.34(),f&&(o.2Q=q.4a(o,j.1i,{3K:0,3L:0-e/2-f,3M:0,3N:0+e/2+f}),o.2f(),o.26(0,0,e/2,1b.2Z,0,!1),o.1d((e+f)/2,0),o.26(0,0,e/2+f,0,1b.2Z,!0),o.26(0,0,e/2+f,1b.2Z,0,!0),o.1d(e/2,0),o.26(0,0,e/2,0,1b.2Z,!1),o.2g(),o.34());13 p=g/2,r=h/2;1f(r>p){13 s=r;r=p,p=s}o.2Q=t.2R(j.x.1Q||j.x,j.x.1K||1),o.56(n(45)),o.2f(),o.3s(0,0),o.1d(0,p);28(13 u=0;4>u;u++)o.1d(0,p),o.1d(r,p),o.1d(r,p-(p-r)),o.1d(p,r),o.1d(p,0),o.56(n(90));o.2g(),o.34()}12 D(b){13 l,m,o,p,q,c=a.1k({1l:!1,3x:1r,9a:1r,2f:!1,2g:!1,3y:1r,3z:1r,1n:0,1i:0,57:0,37:{x:0,y:0}},20[1]||{}),d=c.3y,e=c.3z,f=c.37,g=c.1i,h=c.1n,i=c.3x,j=d.1m.1e,k=d.1m.1c,t={x:1b.2V(11.3a.x),y:1b.2V(11.3a.y)},u={x:0,y:0},v={x:0,y:0};1f(e){l=e.1l.1c,m=e.2z.1e,o=e.2z.1c,p=o.14-l.14;13 w=c.57,x=g+h+.5*l.14-.5*e.1i.1c.14;q=1b.1E(w>x?w-x:0);13 y=s.60(f,i,k,e.1i.1c,g,h);f=y.1A,v=y.4l,u={x:1b.1U(k.14-2*1b.1U(q,f.x||0)-e.1i.1c.14-(2*h||0),0),y:1b.1U(k.18-2*1b.1U(q,f.y||0)-e.1i.1c.18-(2*h||0),0)},r.35(i)&&(u.x*=.5,u.y*=.5),t.x=1b.4U(t.x,u.x),t.y=1b.4U(t.y,u.y),r.35(i)&&(0>11.3a.x&&t.x>0&&(t.x*=-1),0>11.3a.y&&t.y>0&&(t.y*=-1)),11.3l&&11.3l.3A&&a.1w(11.3l.3A,12(b,c){a.1w("17 1O 1R 15".2N(" "),12(a,b){c==b&&5I("("+b+")$").3h(i)&&(t[/^(15|1O)$/.3h(b)?"x":"y"]=0)})})}13 z,A;1f(h?(z=j.15+g+h,A=j.17+g):(z=j.15+g,A=j.17+g),f&&f.x&&/^(3O|3R)$/.3h(i)&&(z+=f.x),c.2f&&b.2f(),b.3s(z,A),c.1l)1T(i){1h"3O":z=j.15+g,h&&(z+=h),z+=1b.1U(q,f.x||0),z+=t.x,b.1d(z,A),A-=l.18,z+=.5*l.14,b.1d(z,A),A+=l.18,z+=.5*l.14,b.1d(z,A);1B;1h"4b":1h"58":z=j.15+.5*k.14-.5*l.14,z+=t.x,b.1d(z,A),A-=l.18,z+=.5*l.14,b.1d(z,A),A+=l.18,z+=.5*l.14,b.1d(z,A),z=j.15+.5*k.14-.5*o.14,b.1d(z,A);1B;1h"3P":z=j.15+k.14-g-l.14,h&&(z-=h),z-=1b.1U(q,f.x||0),z-=t.x,b.1d(z,A),A-=l.18,z+=.5*l.14,b.1d(z,A),A+=l.18,z+=.5*l.14,b.1d(z,A)}1f(h?h&&(b.26(j.15+k.14-g-h,j.17+g+h,h,n(-90),n(0),!1),z=j.15+k.14-g,A=j.17+g+h):(z=j.15+k.14-g,A=j.17+g,b.1d(z,A)),c.1l)1T(i){1h"3Q":A=j.17+g,h&&(A+=h),A+=1b.1U(q,f.y||0),A+=t.y,b.1d(z,A),z+=l.18,A+=.5*l.14,b.1d(z,A),z-=l.18,A+=.5*l.14,b.1d(z,A);1B;1h"4c":1h"59":A=j.17+.5*k.18-.5*l.14,A+=t.y,b.1d(z,A),z+=l.18,A+=.5*l.14,b.1d(z,A),z-=l.18,A+=.5*l.14,b.1d(z,A);1B;1h"4d":A=j.17+k.18-g,h&&(A-=h),A-=l.14,A-=1b.1U(q,f.y||0),A-=t.y,b.1d(z,A),z+=l.18,A+=.5*l.14,b.1d(z,A),z-=l.18,A+=.5*l.14,b.1d(z,A)}1f(h?h&&(b.26(j.15+k.14-g-h,j.17+k.18-g-h,h,n(0),n(90),!1),z=j.15+k.14-g-h,A=j.17+k.18-g):(z=j.15+k.14-g,A=j.17+k.18-g,b.1d(z,A)),c.1l)1T(i){1h"4e":z=j.15+k.14-g,h&&(z-=h),z-=1b.1U(q,f.x||0),z-=t.x,b.1d(z,A),z-=.5*l.14,A+=l.18,b.1d(z,A),z-=.5*l.14,A-=l.18,b.1d(z,A);1B;1h"4f":1h"5a":z=j.15+.5*k.14+.5*l.14,z+=t.x,b.1d(z,A),z-=.5*l.14,A+=l.18,b.1d(z,A),z-=.5*l.14,A-=l.18,b.1d(z,A);1B;1h"4g":z=j.15+g+l.14,h&&(z+=h),z+=1b.1U(q,f.x||0),z+=t.x,b.1d(z,A),z-=.5*l.14,A+=l.18,b.1d(z,A),z-=.5*l.14,A-=l.18,b.1d(z,A)}1f(h?h&&(b.26(j.15+g+h,j.17+k.18-g-h,h,n(90),n(2E),!1),z=j.15+g,A=j.17+k.18-g-h):(z=j.15+g,A=j.17+k.18-g,b.1d(z,A)),c.1l)1T(i){1h"4h":A=j.17+k.18-g,h&&(A-=h),A-=1b.1U(q,f.y||0),A-=t.y,b.1d(z,A),z-=l.18,A-=.5*l.14,b.1d(z,A),z+=l.18,A-=.5*l.14,b.1d(z,A);1B;1h"4i":1h"5b":A=j.17+.5*k.18+.5*l.14,A+=t.y,b.1d(z,A),z-=l.18,A-=.5*l.14,b.1d(z,A),z+=l.18,A-=.5*l.14,b.1d(z,A);1B;1h"3R":A=j.17+g+l.14,h&&(A+=h),A+=1b.1U(q,f.y||0),A+=t.y,b.1d(z,A),z-=l.18,A-=.5*l.14,b.1d(z,A),z+=l.18,A-=.5*l.14,b.1d(z,A)}1a h?h&&(b.26(j.15+g+h,j.17+g+h,h,n(-2E),n(-90),!1),z=j.15+g+h,A=j.17+g,z+=1,b.1d(z,A)):(z=j.15+g,A=j.17+g,b.1d(z,A)),c.2g&&b.2g(),{x:z,y:A,1l:t,5c:v,37:f}}12 E(b){13 o,p,q,r,s,t,c=a.1k({1l:!1,3x:1r,2f:!1,2g:!1,3y:1r,3z:1r,1n:0,1i:0,7r:0,37:{x:0,y:0},5d:1r},20[1]||{}),d=c.3y,e=c.3z,g=(c.7r,c.37),h=c.1i,i=c.1n&&c.1n.2u||0,j=c.7s,k=c.3x,l=d.1m.1e,m=d.1m.1c,u=c.5d&&c.5d.1l||{x:0,y:0};1f(e){o=e.1l.1c,p=e.2z.1e,q=e.2z.1c,r=e.1i.1c,s=q.14-o.14;13 v=h+j+.5*o.14-.5*r.14;t=1b.1E(i>v?i-v:0)}13 w=l.15+h+j,x=l.17+h;j&&(w+=1),a.1k({},{x:w,y:x}),c.2f&&b.2f();13 z=a.1k({},{x:w,y:x});1f(x-=h,b.1d(w,x),i?i&&(b.26(l.15+i,l.17+i,i,n(-90),n(-2E),!0),w=l.15,x=l.17+i):(w=l.15,x=l.17,b.1d(w,x)),c.1l)1T(k){1h"3R":x=l.17+h,j&&(x+=j),x-=.5*r.14,x+=.5*o.14,x+=1b.1U(t,g.y||0),x+=u.y,b.1d(w,x),w-=r.18,x+=.5*r.14,b.1d(w,x),w+=r.18,x+=.5*r.14,b.1d(w,x);1B;1h"4i":1h"5b":x=l.17+.5*m.18-.5*r.14,x+=u.y,b.1d(w,x),w-=r.18,x+=.5*r.14,b.1d(w,x),w+=r.18,x+=.5*r.14,b.1d(w,x);1B;1h"4h":x=l.17+m.18-h-r.14,j&&(x-=j),x+=.5*r.14,x-=.5*o.14,x-=1b.1U(t,g.y||0),x-=u.y,b.1d(w,x),w-=r.18,x+=.5*r.14,b.1d(w,x),w+=r.18,x+=.5*r.14,b.1d(w,x)}1f(i?i&&(b.26(l.15+i,l.17+m.18-i,i,n(-2E),n(-9b),!0),w=l.15+i,x=l.17+m.18):(w=l.15,x=l.17+m.18,b.1d(w,x)),c.1l)1T(k){1h"4g":w=l.15+h,j&&(w+=j),w-=.5*r.14,w+=.5*o.14,w+=1b.1U(t,g.x||0),w+=u.x,b.1d(w,x),x+=r.18,w+=.5*r.14,b.1d(w,x),x-=r.18,w+=.5*r.14,b.1d(w,x);1B;1h"4f":1h"5a":w=l.15+.5*m.14-.5*r.14,w+=u.x,b.1d(w,x),x+=r.18,w+=.5*r.14,b.1d(w,x),x-=r.18,w+=.5*r.14,b.1d(w,x),w=l.15+.5*m.14+r.14,b.1d(w,x);1B;1h"4e":w=l.15+m.14-h-r.14,j&&(w-=j),w+=.5*r.14,w-=.5*o.14,w-=1b.1U(t,g.x||0),w-=u.x,b.1d(w,x),x+=r.18,w+=.5*r.14,b.1d(w,x),x-=r.18,w+=.5*r.14,b.1d(w,x)}1f(i?i&&(b.26(l.15+m.14-i,l.17+m.18-i,i,n(90),n(0),!0),w=l.15+m.14,x=l.17+m.14+i):(w=l.15+m.14,x=l.17+m.18,b.1d(w,x)),c.1l)1T(k){1h"4d":x=l.17+m.18-h,x+=.5*r.14,x-=.5*o.14,j&&(x-=j),x-=1b.1U(t,g.y||0),x-=u.y,b.1d(w,x),w+=r.18,x-=.5*r.14,b.1d(w,x),w-=r.18,x-=.5*r.14,b.1d(w,x);1B;1h"4c":1h"59":x=l.17+.5*m.18+.5*r.14,x+=u.y,b.1d(w,x),w+=r.18,x-=.5*r.14,b.1d(w,x),w-=r.18,x-=.5*r.14,b.1d(w,x);1B;1h"3Q":x=l.17+h,j&&(x+=j),x+=r.14,x-=.5*r.14-.5*o.14,x+=1b.1U(t,g.y||0),x+=u.y,b.1d(w,x),w+=r.18,x-=.5*r.14,b.1d(w,x),w-=r.18,x-=.5*r.14,b.1d(w,x)}1f(i?i&&(b.26(l.15+m.14-i,l.17+i,i,n(0),n(-90),!0),w=l.15+m.14-i,x=l.17):(w=l.15+m.14,x=l.17,b.1d(w,x)),c.1l)1T(k){1h"3P":w=l.15+m.14-h,w+=.5*r.14-.5*o.14,j&&(w-=j),w-=1b.1U(t,g.x||0),w-=u.x,b.1d(w,x),x-=r.18,w-=.5*r.14,b.1d(w,x),x+=r.18,w-=.5*r.14,b.1d(w,x);1B;1h"4b":1h"58":w=l.15+.5*m.14+.5*r.14,w+=u.x,b.1d(w,x),x-=r.18,w-=.5*r.14,b.1d(w,x),x+=r.18,w-=.5*r.14,b.1d(w,x),w=l.15+.5*m.14-r.14,b.1d(w,x),b.1d(w,x);1B;1h"3O":w=l.15+h+r.14,w-=.5*r.14,w+=.5*o.14,j&&(w+=j),w+=1b.1U(t,g.x||0),w+=u.x,b.1d(w,x),x-=r.18,w-=.5*r.14,b.1d(w,x),x+=r.18,w-=.5*r.14,b.1d(w,x)}b.1d(z.x,z.y-h),b.1d(z.x,z.y),c.2g&&b.2g()}12 F(b){13 c=11.2o(),d=11.19.1l&&11.4p(),e=11.29&&11.29.3v(),f=11.1n,h=11.1i,i=11.2m,k=({14:2*h+2*i+11.2G.14,18:2*h+2*i+11.2G.18},b.19.1l&&b.19.1l.1A||{x:0,y:0}),l=0,m=0;f&&(l="1m"==11.19.1n.1e?f:0,m="1i"==11.19.1n.1e?f:l+h),a(1x.3d).1Z(11.2W=1x.22("3f")),q.3J(11.2W,c.1H.1c),q.3p(11.2W);13 n=11.2W.3o("2d");n.2L=11.2x,a(11.1H).1Z(11.2W),n.2Q=q.4a(n,11.19.1m,{3K:0,3L:c.1m.1e.17+h,3M:0,3N:c.1m.1e.17+c.1m.1c.18-h}),n.9c=0;13 o;1f(o=11.6d(n,{2f:!0,2g:!0,1i:h,1n:l,57:m,3y:c,3z:d,1l:11.19.1l,3x:e,37:k}),n.34(),h){13 p=q.4a(n,11.19.1i,{3K:0,3L:c.1m.1e.17,3M:0,3N:c.1m.1e.17+c.1m.1c.18});n.2Q=p,o=11.6d(n,{2f:!0,2g:!1,1i:h,1n:l,57:m,3y:c,3z:d,1l:11.19.1l,3x:e,37:k}),11.7t(n,{2f:!1,2g:!0,1i:h,7s:l,1n:{2u:m,1e:11.19.1n.1e},3y:c,3z:d,1l:11.19.1l,3x:e,37:o.37,5d:o}),n.34()}11.3B=o}12 G(){13 i,a=11.2e(),b=11.2G,c=a.19,d=11.1n,f=11.1i,g=11.2m,h={14:2*f+2*g+b.14,18:2*f+2*g+b.18};1f(11.19.1l){13 j=11.4p();i=j.2z.1c}13 k=s.5Z(11,h),l=k.1c,m=k.1e,h=k.1m.1c,o=k.1m.1e;k.1l.1c;13 r,t,u,q={17:0,15:0},v={14:l.14,18:l.18};1f(c.1y){13 w=d;"1m"==c.1n.1e&&(w+=f);13 x=w-1b.9d(n(45))*w,y="1O";11.29.3v().3e(/^(3P|3Q)$/)&&(y="15");13 z=c.1y.3w+2*c.1y.1i,r={14:z,18:z};1f(q.15=o.15-z/2+("15"==y?x:h.14-x),q.17=o.17-z/2+x,"15"==y){1f(0>q.15){13 A=1b.2V(q.15);v.14+=A,m.15+=A,q.15=0}}1G{13 B=q.15+z-v.14;B>0&&(v.14+=B)}1f(0>q.17){13 C=1b.2V(q.17);v.18+=C,m.17+=C,q.17=0}1f(11.19.1y.1s){13 D=11.19.1y.1s,E=D.31,F=D.1A;1f(t={14:r.14+2*E,18:r.18+2*E},u={17:q.17-E+F.y,15:q.15-E+F.x},"15"==y){1f(0>u.15){13 A=1b.2V(u.15);v.14+=A,m.15+=A,q.15+=A,u.15=0}}1G{13 B=u.15+t.14-v.14;B>0&&(v.14+=B)}1f(0>u.17){13 C=1b.2V(u.17);v.18+=C,m.17+=C,q.17+=C,u.17=0}}}13 G=k.2J;G.17+=m.17,G.15+=m.15;13 H={15:1b.1E(m.15+o.15+11.1i+11.19.2m),17:1b.1E(m.17+o.17+11.1i+11.19.2m)},I={1D:{1c:{14:1b.1E(v.14),18:1b.1E(v.18)}},21:{1c:{14:1b.1E(v.14),18:1b.1E(v.18)}},1H:{1c:l,1e:{17:1b.23(m.17),15:1b.23(m.15)}},1m:{1c:{14:1b.1E(h.14),18:1b.1E(h.18)},1e:{17:1b.23(o.17),15:1b.23(o.15)}},2J:{17:1b.23(G.17),15:1b.23(G.15)},2F:{1e:H}};1a 11.19.1y&&(I.1y={1c:{14:1b.1E(r.14),18:1b.1E(r.18)},1e:{17:1b.23(q.17),15:1b.23(q.15)}},11.19.1y.1s&&(I.2U={1c:{14:1b.1E(t.14),18:1b.1E(t.18)},1e:{17:1b.23(u.17),15:1b.23(u.15)}})),I}12 H(){13 b=11.2o(),c=11.2e();a(c.1j).1q(k(b.1D.1c)),a(c.4Z).1q(k(b.21.1c)),11.2T&&11.2T.1q(k(b.1D.1c)),a(11.1H).1q(a.1k(k(b.1H.1c),k(b.1H.1e))),11.1y&&(a(11.1y).1q(k(b.1y.1e)),b.2U&&a(11.2U.1j).1q(k(b.2U.1e))),a(c.38).1q(k(b.2F.1e))}12 I(a){11.2x=a||0,11.1s&&(11.1s.2x=11.2x)}12 J(a){11.7u(a),11.1P()}1a{51:f,7g:b,1P:g,1z:c,36:d,2e:o,2P:h,5e:i,7l:j,7k:l,4n:m,7f:A,6a:C,7e:F,6d:D,7t:E,7o:u,7p:v,4p:p,2o:G,52:H,7u:I,9e:J}}());13 w={3j:{},1t:12(b){1f(!b)1a 1r;13 c=1r,d=a(b).1X("2p-1V");1a d&&(c=11.3j[d]),c},30:12(a){11.3j[a.1V]=a},1z:12(a){13 b=11.1t(a);b&&(3G 11.3j[b.1V],b.1z())},4q:12(a){1a 1b.2Z/2-1b.6M(a,1b.4A(a)*1b.2Z)}};w.4r={4k:12(a,b){13 c=u.1t(a.1g),d=c.4p().1i.1c,e=11.4W(d.14,d.18,b,{3S:!1});1a{14:e.14,18:e.18}},9f:12(a,b,c){13 d=.5*a,e=m(1b.9g(d/l(d,b))),f=2E-e-90,g=o(n(f))*c,h=2*(d+g),i=h/a*b;1a{14:h,18:i}},4W:12(a,b,c){13 d=m(1b.79(.5*(b/a))),e=2E-d,f=1b.4A(n(e-90))*c,g=a+2*f,h=g*b/a;1a{14:g,18:h}},3T:12(b){13 c=u.1t(b.1g),d=b.19.31,e=r.78(c.29),g=(r.2I(c.29),w.4r.4k(b,d)),h={2z:{1c:{14:1b.1E(g.14),18:1b.1E(g.18)},1e:{17:0,15:0}}};1f(d){h.2X=[];28(13 i=0;d>=i;i++){13 j=w.4r.4k(b,i,{3S:!1}),k={1e:{17:h.2z.1c.18-j.18,15:e?d-i:(h.2z.1c.14-j.14)/2},1c:j};h.2X.2n(k)}}1G h.2X=[a.1k({},h.2z)];1a h},56:12(a,b,c){s.56(a,b.3k(),c)}},a.1k(x.3F,12(){12 b(){1a B.1t(11.1g)[0]}12 c(){1a u.1t(11.1g)}12 d(){11.36()}12 e(){11.1j&&(a(11.1j).1z(),11.1l=1r,11.1m=1r,11.1H=1r,11.1j=1r,11.1o={})}12 f(){}12 g(){11.36(),11.51();13 b=11.2e(),c=11.3k();11.1j=a("<2h>").1Y("9h")[0],a(b.1j).66(11.1j),c.2T&&a(b.1j).66(c.2T),c.2o(),a(11.1j).1q({17:0,15:0}),11.7v(),11.52()}12 h(){1a 11.19.1K/(11.19.31+1)}12 i(){13 b=11.3k(),c=b.2o(),d=11.2e(),e=11.2o(),f=11.19.31,g=w.4r.3T(11),h=b.29,i=r.5X(h),j={17:f,15:f};1f(d.19.1l){13 l=g.2X[g.2X.2a-1];"15"==i&&(j.15+=1b.1E(l.1c.18)),"17"==i&&(j.17+=1b.1E(l.1c.18))}13 m=b.1o.19,n=m.1n,o=m.1i;"1m"==d.19.1n.1e&&n&&(n+=o);13 p=e.1H.1c;a(11.1j).1Z(a(11.1H=1x.22("2h")).1Y("9i").1q(k(p))).1q(k(p)),a(1x.3d).1Z(a(11.2W=1x.22("3f"))),q.3J(11.2W,e.1H.1c),q.3p(11.2W);13 s=11.2W.3o("2d");s.2L=11.2x,a(11.1H).1Z(11.2W);28(13 u=f+1,v=0;f>=v;v++)s.2Q=t.2R(11.19.1Q,w.4q(v*(1/u))*(11.19.1K/u)),q.6Z(s,{14:c.1m.1c.14+2*v,18:c.1m.1c.18+2*v,17:j.17-v,15:j.15-v,1n:n+v});1f(b.19.1l){13 x={x:j.15,y:j.17},y=g.2X[0].1c,z=b.19.1l,A=o;A+=.5*z.14;13 B=b.19.1n&&"1m"==b.19.1n.1e?b.19.1n.2u||0:0;B&&(A+=B);13 C=o+B+.5*z.14-.5*y.14,D=1b.1E(n>C?n-C:0),E=b.3B&&b.3B.1l||{x:0,y:0},F=b.3B&&b.3B.5c||{x:0,y:0};1f(A+=1b.1U(D,b.19.1l.1A&&b.19.1l.1A[i&&/^(15|1O)$/.3h(i)?"y":"x"]||0),"17"==i||"1R"==i){1T(h){1h"3O":1h"4g":x.x+=A+E.x-F.x;1B;1h"4b":1h"58":1h"4f":1h"5a":x.x+=.5*c.1m.1c.14+E.x;1B;1h"3P":1h"4e":x.x+=c.1m.1c.14-(A-E.x+F.x)}"1R"==i&&(x.y+=c.1m.1c.18);28(13 v=0,G=g.2X.2a;G>v;v++){s.2Q=t.2R(11.19.1Q,w.4q(v*(1/u))*(11.19.1K/u));13 f=g.2X[v];s.2f(),"17"==i?(s.3s(x.x,x.y-v),s.1d(x.x-.5*f.1c.14,x.y-v),s.1d(x.x,x.y-v-f.1c.18),s.1d(x.x+.5*f.1c.14,x.y-v)):(s.3s(x.x,x.y+v),s.1d(x.x-.5*f.1c.14,x.y+v),s.1d(x.x,x.y+v+f.1c.18),s.1d(x.x+.5*f.1c.14,x.y+v)),s.2g(),s.34()}}1G{1T(h){1h"3R":1h"3Q":x.y+=A+E.y-F.y;1B;1h"4i":1h"5b":1h"4c":1h"59":x.y+=.5*c.1m.1c.18+E.y;1B;1h"4h":1h"4d":x.y+=c.1m.1c.18-(A-E.y+F.y)}"1O"==i&&(x.x+=c.1m.1c.14);28(13 v=0,G=g.2X.2a;G>v;v++){s.2Q=t.2R(11.19.1Q,w.4q(v*(1/u))*(11.19.1K/u));13 f=g.2X[v];s.2f(),"15"==i?(s.3s(x.x-v,x.y),s.1d(x.x-v,x.y-.5*f.1c.14),s.1d(x.x-v-f.1c.18,x.y),s.1d(x.x-v,x.y+.5*f.1c.14)):(s.3s(x.x+v,x.y),s.1d(x.x+v,x.y-.5*f.1c.14),s.1d(x.x+v+f.1c.18,x.y),s.1d(x.x+v,x.y+.5*f.1c.14)),s.2g(),s.34()}}}}12 j(){13 b=11.3k();b.2G,b.1n;13 e=b.2o(),g=(11.2e(),11.19.31),h=a.1k({},e.1m.1c);h.14+=2*g,h.18+=2*g;13 i,k;1f(b.19.1l){13 l=w.4r.3T(11);i=l.2z.1c,k=i.18}13 m=s.5Z(b,h,k),n=m.1c,o=m.1e,h=m.1m.1c,p=m.1m.1e,r=e.1H.1e,t=e.1m.1e,u={17:r.17+t.17-(p.17+g)+11.19.1A.y,15:r.15+t.15-(p.15+g)+11.19.1A.x},v=e.2J,x=e.21.1c,y={17:0,15:0};1f(0>u.17){13 z=1b.2V(u.17);y.17+=z,u.17=0,v.17+=z}1f(0>u.15){13 A=1b.2V(u.15);y.15+=A,u.15=0,v.15+=A}13 B={18:1b.1U(n.18+u.17,x.18+y.17),14:1b.1U(n.14+u.15,x.14+y.15)},C={15:1b.1E(y.15+e.1H.1e.15+e.1m.1e.15+b.1i+b.2m),17:1b.1E(y.17+e.1H.1e.17+e.1m.1e.17+b.1i+b.2m)},D={1D:{1c:B},21:{1c:x,1e:y},1j:{1c:n,1e:u},1H:{1c:n,1e:{17:1b.23(o.17),15:1b.23(o.15)}},1m:{1c:{14:1b.1E(h.14),18:1b.1E(h.18)},1e:{17:1b.23(p.17),15:1b.23(p.15)}},2J:v,2F:{1e:C}};1a D}12 l(){13 b=11.2o(),c=11.3k(),d=11.2e();1f(a(d.1j).1q(k(b.1D.1c)),a(d.4Z).1q(a.1k(k(b.21.1e),k(b.21.1c))),c.2T&&c.2T.1q(k(b.1D.1c)),d.19.1y){13 e=c.2o(),f=b.21.1e,g=e.1y.1e;1f(a(c.1y).1q(k({17:f.17+g.17,15:f.15+g.15})),d.19.1y.1s){13 h=e.2U.1e;a(c.2U.1j).1q(k({17:f.17+h.17,15:f.15+h.15}))}}a(11.1j).1q(a.1k(k(b.1j.1c),k(b.1j.1e))),a(11.1H).1q(k(b.1H.1c)),a(d.38).1q(k(b.2F.1e))}1a{51:f,1z:d,36:e,1P:g,2e:b,3k:c,2o:j,7w:h,7v:i,52:l}}());13 y={3j:{},1t:12(b){1f(!b)1a 1r;13 c=a(b).1X("2p-1V");1a c?11.3j[c]:1r},30:12(a){11.3j[a.1V]=a},1z:12(a){13 b=11.1t(a);b&&(3G 11.3j[b.1V],b.1z())}};a.1k(z.3F,12(){12 b(){1a B.1t(11.1g)[0]}12 c(){1a u.1t(11.1g)}12 d(){1a 11.19.1K/(11.19.31+1)}12 e(){11.36()}12 f(){11.1j&&(a(11.1j).1z(),11.1j=1r)}12 g(){11.36();13 c=(11.2e(),11.3k()),d=c.2o().1y.1c,e=a.1k({},d),f=11.19.31;e.14+=2*f,e.18+=2*f,a(c.1y).6e(a(11.1j=1x.22("2h")).1Y("9j")),a(1x.3d).1Z(a(11.4s=1x.22("3f"))),q.3J(11.4s,e),q.3p(11.4s);13 g=11.4s.3o("2d");g.2L=11.2x,a(11.1j).1Z(11.4s);28(13 h=e.14/2,i=e.18/2,j=d.18/2,k=f+1,l=0;f>=l;l++)g.2Q=t.2R(11.19.1Q,w.4q(l*(1/k))*(11.19.1K/k)),g.2f(),g.26(h,i,j+l,n(0),n(7d),!0),g.2g(),g.34()}1a{1P:g,1z:e,36:f,2e:b,3k:c,7w:d}}());13 B={2A:{},19:{3V:"6f",4C:9k},6X:12(){12 b(){13 b=["2B"];1S.2H.3H&&(b.2n("9l"),a(1x.3d).3U("2B",12(){1a 3t 0})),a.1w(b,12(b,c){a(1x.7x).9m(".3C .7m, .3C .9n-1D",c,12(b){b.9o(),b.9p(),B.6g(a(b.1C).5f(".3C")[0]).1I()})}),a(1N).3U("3J",a.1v(11.7y,11))}1a b}(),7y:12(){11.5g&&(1N.6h(11.5g),11.5g=1r),11.5g=d.4G(a.1v(12(){13 b=11.3I();a.1w(b,12(a,b){b.1e()})},11),9q)},5h:12(b){13 d,c=a(b).1X("2p-1V");1f(!c){13 e=11.6g(a(b).5f(".3C")[0]);e&&e.1g&&(c=a(e.1g).1X("2p-1V"))}1a c&&(d=11.2A[c])?d:3t 0},5P:12(a){13 b;1a d.2j(a)&&(b=11.5h(a)),b&&b.1g},1t:12(b){13 c=[];1f(d.2j(b)){13 e=11.5h(b);e&&(c=[e])}1G a.1w(11.2A,12(d,e){e.1g&&a(e.1g).7z(b)&&c.2n(e)});1a c},6g:12(b){1f(!b)1a 1r;13 c=1r;1a a.1w(11.2A,12(a,d){d.1F("1P")&&d.1j===b&&(c=d)}),c},9r:12(b){13 c=[];1a a.1w(11.2A,12(d,e){e.1g&&a(e.1g).7z(b)&&c.2n(e)}),c},1W:12(b){1f(d.2j(b)){13 c=b,e=11.1t(c)[0];e&&e.1W()}1G a(b).1w(a.1v(12(a,b){13 c=11.1t(b)[0];c&&c.1W()},11))},1I:12(b){1f(d.2j(b)){13 c=11.1t(b)[0];c&&c.1I()}1G a(b).1w(a.1v(12(a,b){13 c=11.1t(b)[0];c&&c.1I()},11))},33:12(b){1f(d.2j(b)){13 c=b,e=11.1t(c)[0];e&&e.33()}1G a(b).1w(a.1v(12(a,b){13 c=11.1t(b)[0];c&&c.33()},11))},4R:12(){a.1w(11.3I(),12(a,b){b.1I()})},2P:12(b){1f(d.2j(b)){13 c=b,e=11.1t(c)[0];e&&e.2P()}1G a(b).1w(a.1v(12(a,b){13 c=11.1t(b)[0];c&&c.2P()},11))},3I:12(){13 b=[];1a a.1w(11.2A,12(a,c){c.1L()&&b.2n(c)}),b},5S:12(b){13 c=!1;1a d.2j(b)&&a.1w(11.3I()||[],12(a,d){1a d.1g==b?(c=!0,!1):3t 0}),c},7A:12(){13 c,b=0;1a a.1w(11.2A,12(a,d){d.2k>b&&(b=d.2k,c=d)}),c},7B:12(){1>=11.3I().2a&&a.1w(11.2A,12(b,c){c.1F("1P")&&!c.19.2k&&a(c.1j).1q({2k:c.2k=+B.19.4C})})},30:12(a){11.2A[a.1V]=a},5i:12(b){13 c=11.5h(b);1f(c){13 d=a(c.1g).1X("2p-1V");3G 11.2A[d],c.1I(),c.1z()}},1z:12(b){d.2j(b)?11.5i(b):a(b).1w(a.1v(12(a,b){11.5i(b)},11))},6Y:12(){a.1w(11.2A,a.1v(12(a,b){b.1g&&!d.1g.5H(b.1g)&&11.5i(b.1g)},11))},5Q:12(a){11.19.3V=a||"6f"},5R:12(a){11.19.4C=a||0},5U:12(){a.1w(11.2A,a.1v(12(a,b){b.1o&&b.1o.2l&&(b.1o.2l.6i(),b.1o.2l=1r),b.27("3c",!1)},11)),i.6S()},6B:12(){12 f(d){13 e;1a e="2s"==a.1p(d)?{1g:c.25&&c.25.1g||b.25.1g,2v:d}:A(a.1k({},b.25),d)}12 g(f){1a b=1S.2C.7C,c=A(a.1k({},b),1S.2C.6j),d=1S.2C.6k.7C,e=A(a.1k({},d),1S.2C.6k.6j),g=h,h(f)}12 h(g){g.21=g.21&&1S.2C[g.21]?g.21:1S.2C[B.19.3V]?B.19.3V:"6f";13 h=g.21?a.1k({},1S.2C[g.21]||1S.2C[B.19.3V]):{},i=A(a.1k({},c),h),j=A(a.1k({},i),g);1f(j.2c){13 k=c.2c||{},l=b.2c;"4t"==a.1p(j.2c)&&(j.2c={3W:k.3W||l.3W,1p:k.1p||l.1p}),j.2c=A(a.1k({},l),j.2c)}1f(j.1m&&"2s"==a.1p(j.1m)&&(j.1m={1Q:j.1m,1K:1}),j.1i){13 m,n=c.1i||{},o=b.1i;m="2y"==a.1p(j.1i)?{2u:j.1i,1Q:n.1Q||o.1Q,1K:n.1K||o.1K}:A(a.1k({},o),j.1i),j.1i=0===m.2u?!1:m}1f(j.1n){13 p;p="2y"==a.1p(j.1n)?{2u:j.1n,1e:c.1n&&c.1n.1e||b.1n.1e}:A(a.1k({},b.1n),j.1n),j.1n=0===p.2u?!1:p}13 q,s=s=j.1u&&j.1u.1C||"2s"==a.1p(j.1u)&&j.1u||c.1u&&c.1u.1C||"2s"==a.1p(c.1u)&&c.1u||b.1u&&b.1u.1C||b.1u,t=j.1u&&j.1u.1D||c.1u&&c.1u.1D||b.1u&&b.1u.1D||B.2r.6l(s);1f(j.1u?"2s"==a.1p(j.1u)?q={1C:j.1u,1D:B.2r.7D(j.1u)}:(q={1D:t,1C:s},j.1u.1D&&(q.1D=j.1u.1D),j.1u.1C&&(q.1C=j.1u.1C)):q={1D:t,1C:s},"2M"==j.1C){13 u=r.2I(q.1C);q.1C="1J"==u?q.1C.61(/(15|1O)/,"2t"):q.1C.61(/(17|1R)/,"2t")}j.1u=q;13 v;1f("2M"==j.1C?(v=a.1k({},b.1A),a.1k(v,1S.2C.6j.1A||{}),g.21&&a.1k(v,(1S.2C[g.21]||1S.2C[B.19.3V]).1A||{}),v=B.2r.7E(b.1A,b.1u,q.1C,!0),g.1A&&(v=a.1k(v,g.1A||{})),j.3X=0):v={x:j.1A.x,y:j.1A.y},j.1A=v,j.1y&&j.7F){13 w=a.1k({},1S.2C.6k[j.7F]),x=A(a.1k({},e),w);1f(x.2q&&a.1w(["6b","6c"],12(b,c){13 f=x.2q[c],g=e.2q&&e.2q[c];1f(f.1m){13 h=g&&g.1m;1f("2y"==a.1p(f.1m))f.1m={1Q:h&&h.1Q||d.2q[c].1m.1Q,1K:f.1m};1G 1f("2s"==a.1p(f.1m)){13 i=h&&"2y"==a.1p(h.1K)&&h.1K||d.2q[c].1m.1K;f.1m={1Q:f.1m,1K:i}}1G f.1m=A(a.1k({},d.2q[c].1m),f.1m)}1f(f.1i){13 j=g&&g.1i;f.1i="2y"==a.1p(f.1i)?{1Q:j&&j.1Q||d.2q[c].1i.1Q,1K:f.1i}:A(a.1k({},d.2q[c].1i),f.1i)}}),x.1s){13 z=e.1s&&e.1s.3D&&e.1s.3D==5x?e.1s:d.1s;x.1s.3D&&x.1s.3D==5x&&(z=A(z,x.1s)),x.1s=z}j.1y=x}1f(j.1s){13 C;C="4t"==a.1p(j.1s)?c.1s&&"4t"==a.1p(c.1s)?b.1s:c.1s?c.1s:b.1s:A(a.1k({},b.1s),j.1s||{}),"2y"==a.1p(C.1A)&&(C.1A={x:C.1A,y:C.1A}),j.1s=C}1f(j.1l){13 D={};D="4t"==a.1p(j.1l)?A({},b.1l):A(A({},b.1l),a.1k({},j.1l)),"2y"==a.1p(D.1A)&&(D.1A={x:D.1A,y:D.1A}),j.1l=D}1f(j.2Y&&("2s"==a.1p(j.2Y)?j.2Y={5j:j.2Y,7G:!0}:"4t"==a.1p(j.2Y)&&(j.2Y=j.2Y?{5j:"4T",7G:!0}:!1)),j.25&&"2B-9s"==j.25&&(j.7H=!0,j.25=!1),j.25)1f(a.71(j.25)){13 E=[];a.1w(j.25,12(a,b){E.2n(f(b))}),j.25=E}1G j.25=[f(j.25)];1a j.2K&&"2s"==a.1p(j.2K)&&(j.2K=[""+j.2K]),j.2m=0,j.1M&&(1N.6m||(j.1M=!1)),j}13 b,c,d,e;1a g}()};B.2r=12(){12 c(c){13 d=r.2N(c),e=d[1],f=d[2],g=r.2I(c),h=a.1k({1J:!0,2b:!0},20[1]||{});1a"1J"==g?(h.2b&&(e=b[e]),h.1J&&(f=b[f])):(h.2b&&(f=b[f]),h.1J&&(e=b[e])),e+f}12 f(a){13 d=r.2N(a);1a c(d[1]+b[d[2]])}12 h(b,c){a(b.1j).1q({17:c.17+"2w",15:c.15+"2w"})}12 j(a,b,d,e){13 g=y(a,b,d,e),h=d&&"2s"==7I d.1p?d.1p:"";1f(/9t$/.3h(h),1===g.3Y.3Z)1a l(a,g),g;13 m=b,n=e,o={1J:!g.3Y.1J,2b:!g.3Y.2b},p={1J:!1,2b:!1},q=r.2I(b);1a((p.2b="1J"==q&&o.2b)||(p.1J="2b"==q&&o.1J))&&(m=c(b,p),n=c(e,p),g=y(a,m,d,n),1===g.3Y.3Z)?(l(a,g),g):(g=k(g,a),l(a,g),g)}12 k(a,b){13 c=z(b),d=c.1c,e=c.1e,f=u.1t(b.1g).1o.1u[a.1u.1D].1D.1c,g=a.1e,h={17:0,15:0,3A:[]};1a e.15>g.15&&(h.15=e.15-g.15,h.3A.2n("15"),a.1e.15=e.15),e.17>g.17&&(h.17=g.17-e.17,h.3A.2n("17"),a.1e.17=e.17),e.15+d.14<g.15+f.14&&(h.15=e.15+d.14-(g.15+f.14),h.3A.2n("1O"),a.1e.15=e.15+d.14-f.14),e.17+d.18<g.17+f.18&&(h.17=e.17+d.18-(g.17+f.18),h.3A.2n("1R"),a.1e.17=e.17+d.18-f.18),a.7J=h,a}12 l(a,b){a.5e(b.1u.1D,b.3Y.4l,b.7J),h(a,b.1e)}12 m(a){1a a&&(/^2M|2B|3H$/.3h("2s"==7I a.1p&&a.1p||"")||a.5G>=0)}12 n(a,b,c){1a a>=b&&c>=a}12 o(a,b,c,d){13 e=n(a,c,d),f=n(b,c,d);1f(e&&f)1a b-a;1f(e&&!f)1a d-a;1f(!e&&f)1a b-c;13 g=n(c,a,b),h=n(d,a,b);1a g&&h?d-c:g&&!h?b-c:!g&&h?d-a:0}12 q(a,b){1a o(a.1e.15,a.1e.15+a.1c.14,b.1e.15,b.1e.15+b.1c.14)*o(a.1e.17,a.1e.17+a.1c.18,b.1e.17,b.1e.17+b.1c.18)}12 s(a,b){13 c=a.1c.14*a.1c.18;1a c?q(a,b)/c:0}12 t(a,b){13 c=r.2N(b),d=r.2I(b),e={15:0,17:0};1f("1J"==d){1T(c[2]){1h"2t":1h"2S":e.15=.5*a.14;1B;1h"1O":e.15=a.14}"1R"==c[1]&&(e.17=a.18)}1G{1T(c[2]){1h"2t":1h"2S":e.17=.5*a.18;1B;1h"1R":e.17=a.18}"1O"==c[1]&&(e.15=a.14)}1a e}12 v(b){13 c=d.1g.4L(b),e=d.1g.4H(b),f={17:a(1N).4I(),15:a(1N).4J()};1a c.15+=-1*(e.15-f.15),c.17+=-1*(e.17-f.17),c}12 y(b,e,f,g){13 h,i,j,k=u.1t(b.1g),l=k.19,n=l.1A,o=m(f);1f(o||!f){1f(j={14:24,18:24},o){13 p=d.5F(f);h={17:p.y-.5*j.18+6,15:p.x-.5*j.14+6}}1G{13 q=b.1o.2v;h={17:(q?q.y:0)-.5*j.18+6,15:(q?q.x:0)-.5*j.14+6}}b.1o.2v={x:h.15,y:h.17}}1G h=v(f),j={14:a(f).7K(),18:a(f).7L()};1f(l.1l&&"2M"!=l.1C){13 y=r.2N(g),A=r.2N(e),C=r.2I(g),D=k.1o.19,E=k.4p().1i.1c,F=D.1n,G=D.1i,H=F&&"1m"==l.1n.1e?F:0,I=F&&"1i"==l.1n.1e?F:F+G,J=G+H+.5*l.1l.14-.5*E.14,K=I>J?I-J:0;4u=1b.1E(G+H+.5*l.1l.14+K+l.1l.1A["1J"==C?"x":"y"]),"1J"==C&&"15"==y[2]&&"15"==A[2]||"1O"==y[2]&&"1O"==A[2]?(j.14-=2*4u,h.15+=4u):("2b"==C&&"17"==y[2]&&"17"==A[2]||"1R"==y[2]&&"1R"==A[2])&&(j.18-=2*4u,h.17+=4u)}i=a.1k({},h);13 L=o?c(l.1u.1D):l.1u.1C,M=t(j,L),N=t(j,g);({17:h.17+M.17+n.y,15:h.15+M.15+n.x}),h={15:h.15+N.15,17:h.17+N.17};13 P=a.1k({},n);P=x(P,L,g,"2M"==k.19.1C),h.17+=P.y,h.15+=P.x;13 k=u.1t(b.1g),Q=k.1o.1u,R=a.1k({},Q[e]),S={x:0,y:0},y=r.2N(g);1f("2t"!=y[2]){13 C=C=r.2I(g),T=B.2r.6l(g,"2b"==C?{1J:!0,2b:!1}:{1J:!1,2b:!0});e==T&&(S.y=k.3B.5c.y,S.x=k.3B.5c.x)}13 U={17:h.17-R.2J.17-S.y,15:h.15-R.2J.15-S.x};R.1D.1e=U;13 V={1J:!0,2b:!0},W={x:0,y:0};1f(b.19.2Y){13 X=z(b),Y=b.19.1s?w.1t(b.1g):k,Z=Y.2o().1D.1c;V.3Z=s({1c:Z,1e:U},X),1>V.3Z&&((U.15<X.1e.15||U.15+Z.14>X.1e.15+X.1c.14)&&(V.1J=!1,W.x=U.15<X.1e.15?U.15-X.1e.15:U.15+Z.14-(X.1e.15+X.1c.14)),(U.17<X.1e.17||U.17+Z.18>X.1e.17+X.1c.18)&&(V.2b=!1,W.y=U.17<X.1e.17?U.17-X.1e.17:U.17+Z.18-(X.1e.17+X.1c.18)))}1G V.3Z=1;V.4l=W;13 $=Q[e].1H,7M=s({1c:j,1e:i},{1c:$.1c,1e:{17:U.17+$.1e.17,15:U.15+$.1e.15}});1a{1e:U,3Z:{1C:7M},3Y:V,1u:{1D:e,1C:g}}}12 z(b){13 c={17:a(1N).4I(),15:a(1N).4J()},e=b.19,f=e.1C;("2M"==f||"4F"==f)&&(f=b.1g);13 g=a(f).5f(e.2Y.5j).7i()[0];1f(!g||"4T"==e.2Y.5j)1a{1c:p.4T(),1e:c};13 h=d.1g.4L(g),i=d.1g.4H(g);1a h.15+=-1*(i.15-c.15),h.17+=-1*(i.17-c.17),{1c:{14:a(g).5V(),18:a(g).5W()},1e:h}}13 b={15:"1O",1O:"15",17:"1R",1R:"17",2t:"2t",2S:"2S"};e.3m&&9>e.3m||e.4M&&2>e.4M||e.5M&&9u>e.5M;13 x=12(){13 a=[[-1,-1],[0,-1],[1,-1],[-1,0],[0,0],[1,0],[-1,1],[0,1],[1,1]],b={3R:0,3O:0,4b:1,58:1,3P:2,3Q:2,4c:5,59:5,4d:8,4e:8,4f:7,5a:7,4g:6,4h:6,4i:3,5b:3};1a 12(c,d,e,f){13 g=a[b[d]],h=a[b[e]],i=[1b.65(.5*1b.2V(g[0]-h[0]))?-1:1,1b.65(.5*1b.2V(g[1]-h[1]))?-1:1];1a r.35(d)||!r.35(e)||f||("1J"==r.2I(e)?i[0]=0:i[1]=0),{x:i[0]*c.x,y:i[1]*c.y}}}();1a{1t:y,4P:j,6l:c,7D:f,7N:v,7E:x,6n:m}}(),B.2r.4S={x:0,y:0},a(1x).6W(12(){13 b=B.2r;a(1x).3U("5k",12(a){b.4S={x:a.5G,y:a.6H}})}),B.53=12(){12 b(){a(1x.3d).1Z(a(1x.22("2h")).1Y("9v").1Z(a(1x.22("2h")).1Y("3C").1Z(a(11.1j=1x.22("2h")).1Y("7O"))))}12 c(b){1a{14:a(b).5V(),18:a(b).5W()}}12 e(b){13 d=c(b),e=b.4K;1a e&&a(e).1q({14:d.14+"2w"})&&c(b).18>d.18&&d.14++,a(e).1q({14:"62%"}),d}12 f(b,c,e){11.1j||11.1P();13 f=b.19,g=a.1k({1M:!1},20[3]||{});!f.7P&&!d.2j(c)||a(c).1X("7Q")||(f.7P&&"2s"==a.1p(c)&&(b.39=a("#"+c)[0],c=b.39),!b.40&&c&&d.1g.5H(c)&&(a(b.39).1X("7R",a(b.39).1q("7S")),b.40=1x.22("2h"),a(b.39).6e(a(b.40).1I())));13 h=1x.22("2h");a(11.1j).1Z(a(h).1Y("7h 9w").1Z(c)),d.2j(c)&&a(c).1W(),f.21&&a(h).1Y("9x"+b.19.21);13 i=a(h).67("7T[4m]").9y(12(){1a!(a(11).3g("18")&&a(11).3g("14"))});1f(i.2a>0&&!b.1F("3E")){b.27("3E",!0),f.1M&&(g.1M||b.1M||(b.1M=b.6o(f.1M)),b.1F("1L")&&(b.1e(),a(b.1j).1W()),b.1M.6p());13 j=0,k=1b.1U(9z,9A*(i.2a||0));b.2i("3E"),b.41("3E",a.1v(12(){i.1w(12(){11.6q=12(){}}),j>=i.2a||(11.5l(b,h),e&&e())},11),k),a.1w(i,a.1v(12(c,d){13 f=3q 9B;f.6q=a.1v(12(){f.6q=12(){};13 c=f.14,g=f.18,k=a(d).3g("14"),l=a(d).3g("18");k&&l||(!k&&l?(c=1b.23(l*c/g),g=l):!l&&k&&(g=1b.23(k*g/c),c=k),a(d).3g({14:c,18:g}),j++),j==i.2a&&(b.2i("3E"),b.1M&&(b.1M.1z(),b.1M=1r),b.1F("1L")&&a(b.1j).1I(),11.5l(b,h),e&&e())},11),f.4m=d.4m},11))}1G 11.5l(b,h),e&&e()}12 g(b,c){13 d=e(c),f={14:d.14-(2O(a(c).1q("2m-15"))||0)-(2O(a(c).1q("2m-1O"))||0),18:d.18-(2O(a(c).1q("2m-17"))||0)-(2O(a(c).1q("2m-1R"))||0)};b.19.3i&&"2y"==a.1p(b.19.3i)&&f.14>b.19.3i&&(a(c).1q({14:b.19.3i+"2w"}),d=e(c)),b.1o.2G=d,a(b.38).7U(c)}1a{1P:b,42:f,5l:g,69:e}}(),a.1k(C.3F,12(){12 b(a,b,c){11.1o.3b[a]=d.4G(b,c)}12 c(a){1a 11.1o.3b[a]}12 e(a){11.1o.3b[a]&&(1N.6h(11.1o.3b[a]),3G 11.1o.3b[a])}12 f(){a.1w(11.1o.3b,12(a,b){1N.6h(b)}),11.1o.3b=[]}12 g(b,c,d,e){c=c;13 f=a.1v(d,e||11);11.1o.5A.2n({1g:b,7V:c,7W:f}),a(b).3U(c,f)}12 h(){a.1w(11.1o.5A,12(b,c){a(c.1g).7X(c.7V,c.7W)})}12 j(a,b){11.1o.2q[a]=b}12 l(a){1a 11.1o.2q[a]}12 m(){11.2D(11.1g,"4o",11.5m),11.2D(11.1g,"54",a.1v(12(a){11.6r(a)},11)),11.19.2K&&a.1w(11.19.2K,a.1v(12(b,c){13 d=!1;"2B"==c&&(11.19.25&&a.1w(11.19.25,12(a,b){1a"4F"==b.1g&&"2B"==b.2v?(d=!0,!1):3t 0}),11.27("5B",d)),11.2D(11.1g,c,"2B"==c?d?11.33:11.1W:a.1v(12(){11.7Y()},11))},11)),11.19.25?a.1w(11.19.25,a.1v(12(b,c){13 d;1T(c.1g){1h"4F":1f(11.1F("5B")&&"2B"==c.2v)1a;d=11.1g;1B;1h"1C":d=11.1C}d&&11.2D(d,c.2v,"2B"==c.2v?11.1I:a.1v(12(){11.6s()},11))},11)):11.19.7Z&&11.19.2K&&!a.6t("2B",11.19.2K)>-1&&11.2D(11.1g,"54",a.1v(12(){11.2i("1W")},11));13 b=!1;!11.19.9C&&11.19.2K&&((b=a.6t("5k",11.19.2K)>-1)||a.6t("5n",11.19.2K)>-1)&&"2M"==11.1C&&11.2D(11.1g,b?"5k":"5n",12(a){11.1F("4E")&&11.1e(a)})}12 n(){11.2D(11.1j,1S.2H.3H?"5n":"4o",11.5m),11.2D(11.1j,"54",11.6r),11.2D(11.1j,1S.2H.3H?"5n":"4o",a.1v(12(){11.5o("4v")||11.1W()},11)),11.19.25&&a.1w(11.19.25,a.1v(12(b,c){13 d;1T(c.1g){1h"1D":d=11.1j}d&&11.2D(d,c.2v,c.2v.3e(/^(2B|5k|4o)$/)?11.1I:a.1v(12(){11.6s()},11))},11))}12 o(a,b,c){13 d=u.1t(11.1g);d&&d.5e(a,b,c)}12 p(a){13 b=u.1t(11.1g);b&&b.4n(a)}12 q(){11.4n(11.19.1u.1D)}12 r(){a(11.1j=1x.22("2h")).1Y("3C"),11.80()}12 s(){11.1P();13 a=u.1t(11.1g);a?a.1P():(3q v(11.1g),11.27("4E",!0))}12 t(){11.1F("1P")||(a(1x.3d).1Z(a(11.1j).1q({15:"-5p",17:"-5p",2k:11.2k}).1Z(a(11.4Z=1x.22("2h")).1Y("9D")).1Z(a(11.38=1x.22("2h")).1Y("7O"))),a(11.1j).1Y("9E"+11.19.21),11.19.7H&&(a(11.1g).1Y("81"),11.2D(1x.7x,"2B",a.1v(12(b){1f(11.1L()){13 c=a(b.1C).5f(".3C, .81")[0];(!c||c&&c!=11.1j&&c!=11.1g)&&11.1I()}},11))),1S.2H.48&&(11.19.4w||11.19.3X)&&(11.5q(11.19.4w),a(11.1j).1Y("6u")),11.82(),11.27("1P",!0),B.30(11))}12 w(){13 c;11.2F,11.40&&11.39&&((c=a(11.39).1X("7R"))&&a(11.39).1q({7S:c}),a(11.40).6e(11.39).1z(),11.40=1r)}12 x(){d.44(a.1v(12(){11.83()},11)),11.84(),11.6v(),d.44(a.1v(12(){a(11.1j).67("7T[4m]").7X("9F")},11)),u.1z(11.1g),11.1F("1P")&&11.1j&&(a(11.1j).1z(),11.1j=1r);13 c,b="5z";(c=a(11.1g).1X(b))&&a(11.1g).3g("5y",c).85("5z"),a(11.1g).85("2p-1V")}12 y(b){13 c=a.1k({4x:11.19.4x,1M:!1},20[1]||{});11.1P(),11.1F("1L")&&a(11.1j).1I(),B.53.42(11,b,a.1v(12(){13 b=11.1F("1L");b||11.27("1L",!0),11.86(),b||11.27("1L",!1),11.1F("1L")&&(a(11.1j).1I(),11.1e(),11.5r(),a(11.1j).1W()),11.27("3c",!0),c.4x&&c.4x(11.38.4y,11.1g),c.4z&&c.4z()},11),{1M:c.1M})}12 z(b){13 c,d={47:11.2F,1p:11.19.2c.1p,1X:11.19.2c.1X||{},87:11.19.2c.87||"7U"};1f(!(11.1F("2l")||11.19.2c.3W&&11.1F("3c"))){1f(11.19.2c.3W&&(c=i.1t(d)))1a 11.6w(c,{4z:a.1v(12(){11.1F("1L")&&11.19.43&&11.19.43(11.38.4y,11.1g)},11)}),3t 0;11.27("2l",!0),11.19.1M&&(11.1M?11.1M.6p():(11.1M=11.6o(11.19.1M),11.27("3c",!1)),11.1e(b)),11.1o.2l&&(11.1o.2l.6i(),11.1o.2l=1r),11.1o.2l=a.2c(a.1k({},d,{9G:a.1v(12(b,c,e){0!==e.9H&&(i.4P(d,e.4O),11.6w(e.4O,{4z:a.1v(12(){11.27("2l",!1),11.1F("1L")&&11.19.43&&11.19.43(11.38.4y,11.1g),11.1M&&(11.1M.1z(),11.1M=1r)},11)}))},11)}))}}12 A(b){13 c=a.1k({1M:11.19.1M&&11.1M},20[1]||{});11.42(b,c)}12 C(){13 b=1x.22("2h");a(b).1X("7Q",!0);13 c=6m.4Q(b,a.1k({},20[0]||{})),d=6m.5Y(b);1a a(b).1q(k(d)),11.42(b,{4x:!1,4z:12(){c.6p()}}),c}12 E(){1f(11.1F("1P")&&!11.19.2k){13 b=B.7A();b&&b!=11&&11.2k<=b.2k&&a(11.1j).1q({2k:11.2k=b.2k+1})}}12 F(){13 a=u.1t(11.1g);a&&(a.2P(),11.1L()&&11.1e())}12 G(a){1f(1S.2H.48){a=a||0;13 b=11.1j.9I;b.9J=a+"5s",b.9K=a+"5s",b.9L=a+"5s",b.9M=a+"5s"}}12 H(b){11.2i("1I"),11.2i("4v"),11.1F("1L")||11.5o("1W")||11.41("1W",a.1v(12(){11.2i("1W"),11.1W(b)},11),11.19.7Z||1)}12 I(b){1f(11.2i("1I"),11.2i("4v"),!11.1L()){1f("12"==a.1p(11.2F)||"12"==a.1p(11.1o.5t)){"12"!=a.1p(11.1o.5t)&&(11.1o.5t=11.2F);13 c=11.1o.5t(11.1g)||!1;1f(c!=11.1o.5C&&(11.1o.5C=c,11.27("3c",!1),11.6v()),11.2F=c,!c)1a}11.19.9N&&B.4R(),11.27("1L",!0),11.19.2c?11.88(b):11.1F("3c")||11.42(11.2F),11.1F("4E")&&11.1e(b),11.5r(),11.19.5u&&d.44(a.1v(12(){11.5m()},11)),"12"==a.1p(11.19.43)&&(!11.19.2c||11.19.2c&&11.19.2c.3W&&11.1F("3c"))&&11.19.43(11.38.4y,11.1g),1S.2H.48&&(11.19.4w||11.19.3X)&&(11.5q(11.19.4w),a(11.1j).1Y("89").8a("6u")),a(11.1j).1W()}}12 J(){11.2i("1W"),11.1F("1L")&&(11.27("1L",!1),1S.2H.48&&(11.19.4w||11.19.3X)?(11.5q(11.19.3X),a(11.1j).8a("89").1Y("6u"),11.41("4v",a.1v(11.6x,11),11.19.3X)):11.6x(),11.1o.2l&&(11.1o.2l.6i(),11.1o.2l=1r,11.27("2l",!1)))}12 K(){11.1F("1P")&&(a(11.1j).1q({15:"-5p",17:"-5p"}),B.7B(),"12"!=a.1p(11.19.8b)||11.1M||11.19.8b(11.38.4y,11.1g))}12 L(){11.2i("1W"),!11.5o("1I")&&11.1F("1L")&&11.41("1I",a.1v(12(){11.2i("1I"),11.2i("4v"),11.1I()},11),11.19.9O||1)}12 M(a){11[11.1L()?"1I":"1W"](a)}12 N(){1a 11.1F("1L")}12 O(){11.27("4D",!0),11.1F("1L")&&11.5r(),11.19.5u&&11.2i("6y")}12 P(){11.27("4D",!1),11.19.5u&&11.41("6y",a.1v(12(){11.2i("6y"),11.1F("4D")||11.1I()},11),11.19.5u)}13 D=12(b){1f(11.1L()){13 c;1f("2M"==11.19.1C){13 e=B.2r.6n(b),f=B.2r.4S;1f(e)f.x||f.y?(11.1o.2v={x:f.x,y:f.y},c=1r):c=b;1G{1f(f.x||f.y)11.1o.2v={x:f.x,y:f.y};1G 1f(!11.1o.2v){13 g=B.2r.7N(11.1g);11.1o.2v={x:g.15,y:g.17}}c=1r}}1G c=11.1C;1f(B.2r.4P(11,11.19.1u.1D,c,11.19.1u.1C),b&&B.2r.6n(b)){13 h={14:a(11.1j).7K(),18:a(11.1j).7L()},i=d.5F(b),g=d.1g.4L(11.1j);i.x>=g.15&&i.x<=g.15+h.14&&i.y>=g.17&&i.y<=g.17+h.18&&d.44(a.1v(12(){11.2i("1I")},11))}}};1a{1P:t,6E:r,86:s,80:m,82:n,1W:I,1I:J,6x:K,33:M,1L:N,7Y:H,6s:L,5q:G,27:j,1F:l,5m:O,6r:P,5o:c,41:b,2i:e,84:f,2D:g,83:h,5e:o,4n:p,9P:q,2P:F,42:y,88:z,6w:A,6o:C,1e:D,5r:E,6v:w,1z:x}}()),1S.3p()})(46);', 62, 610, "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||this|function|var|width|left||top|height|options|return|Math|dimensions|lineTo|position|if|element|case|border|container|extend|stem|background|radius|_cache|type|css|null|shadow|get|hook|proxy|each|document|closeButton|remove|offset|break|target|tooltip|ceil|getState|else|bubble|hide|horizontal|opacity|visible|spinner|window|right|build|color|bottom|Tipped|switch|max|uid|show|data|addClass|append|arguments|skin|createElement|round||hideOn|arc|setState|for|_hookPosition|length|vertical|ajax||getTooltip|beginPath|closePath|div|clearTimer|isElement|zIndex|xhr|padding|push|getOrderLayout|tipped|states|Position|string|middle|size|event|px|_globalAlpha|number|box|tooltips|click|Skins|setEvent|180|content|contentDimensions|support|getOrientation|anchor|showOn|globalAlpha|mouse|split|parseInt|refresh|fillStyle|hex2fill|center|iframeShim|closeButtonShadow|abs|bubbleCanvas|blurs|containment|PI|add|blur|scripts|toggle|fill|isCenter|cleanup|cornerOffset|contentElement|inlineContent|_stemCorrection|timers|updated|body|match|canvas|attr|test|maxWidth|shadows|getSkin|_adjustment|IE|indexOf|getContext|init|new|devicePixelRatio|moveTo|void|charAt|toLowerCase|diameter|hookPosition|layout|stemLayout|sides|_corrections|t_Tooltip|constructor|preloading_images|prototype|delete|touch|getVisible|resize|x1|y1|x2|y2|topleft|topright|righttop|lefttop|math|getLayout|bind|defaultSkin|cache|fadeOut|contained|overlap|inlineMarker|setTimer|update|onShow|defer||jQuery|url|cssTransitions|items|createFillStyle|topmiddle|rightmiddle|rightbottom|bottomright|bottommiddle|bottomleft|leftbottom|leftmiddle|regex|getBorderDimensions|correction|src|setHookPosition|mouseenter|getStemLayout|transition|Stem|closeButtonCanvas|boolean|sideOffset|fadeTransition|fadeIn|afterUpdate|firstChild|callback|cos|000|startingZIndex|active|skinned|self|delay|cumulativeScrollOffset|scrollTop|scrollLeft|parentNode|cumulativeOffset|Gecko|Chrome|responseText|set|create|hideAll|mouseBuffer|viewport|min|G_vmlCanvasManager|getCenterBorderDimensions|substring|skins|skinElement||prepare|order|UpdateQueue|mouseleave||rotate|borderRadius|topcenter|rightcenter|bottomcenter|leftcenter|corner|corrections|setHookPositionAndStemCorrection|closest|_resizeTimer|_getTooltip|_remove|selector|mousemove|_updateTooltip|setActive|touchmove|getTimer|10000px|setFadeDuration|raise|ms|contentFunction|hideAfter|console|in|Object|title|tipped_restore_title|events|toggles|fnCallContent|call|apply|pointer|pageX|isAttached|RegExp|parseFloat|Opera|opera|WebKit|required|available|findElement|setDefaultSkin|setStartingZIndex|isVisibleByElement|undefined|clearAjaxCache|innerWidth|innerHeight|getSide|getDimensions|getBubbleLayout|nullifyCornerOffset|replace|100|defaultCloseButton|hoverCloseButton|floor|prepend|find|auto|getMeasureElementDimensions|drawCloseButtonState|default|hover|_drawBackgroundPath|before|dark|getByTooltipElement|clearTimeout|abort|reset|CloseButtons|getInversedPosition|Spinners|isPointerEvent|insertSpinner|play|onload|setIdle|hideDelayed|inArray|t_hidden|_restoreInlineContent|afterAjaxUpdate|_hide|idle|warn|_stemPosition|createOptions|getAttribute|getElementById|_preBuild|Array|concat|pageY|version|AppleWebKit|MobileSafari|check|pow|Za|checked|notified|toUpperCase|param|clear|try|DocumentTouch|catch|ready|startDelegating|removeDetached|drawRoundedRectangle|fillRect|isArray|Gradient|addColorStops|positions|toOrientation|side|toDimension|isCorner|atan|red|green|blue|360|drawBubble|drawCloseButton|createHookCache|t_ContentContainer|first|25000px|setStemCorrection|setAdjustment|t_Close|closeButtonShift|closeButtonMouseover|closeButtonMouseout|CloseButton|stemOffset|backgroundRadius|_drawBorderPath|setGlobalAlpha|drawBackground|getBlurOpacity|documentElement|onWindowResize|is|getHighestTooltip|resetZ|base|getTooltipPositionFromTarget|adjustOffsetBasedOnHooks|closeButtonSkin|flip|hideOnClickOutside|typeof|adjustment|outerWidth|outerHeight|_|getAbsoluteOffset|t_Content|inline|isSpinner|tipped_restore_inline_display|display|img|html|eventName|handler|unbind|showDelayed|showDelay|createPreBuildObservers|t_hideOnClickOutside|createPostBuildObservers|clearEvents|clearTimers|removeData|_buildSkin|dataType|ajaxUpdate|t_visible|removeClass|onHide|log|sqrt|object|setAttribute|slice|wrap|nodeType|setTimeout|do|while|exec|attachEvent|MSIE|KHTML|rv|Apple|Mobile|Safari|navigator|userAgent|fn|jquery|z_|z0|requires|_t_uid_|ontouchstart|instanceof|WebKitTransitionEvent|TransitionEvent|OTransitionEvent|createEvent|scale|initElement|drawPixelArray|createLinearGradient|addColorStop|spacing|rgba|join|fff|255|hue|saturation|brightness|0123456789abcdef|hex2rgb|getSaturatedBW|init_|t_Bubble||iframe|t_iframeShim|frameBorder|javascript|15000px|t_CloseButtonShift|lineCap|t_CloseState|translate|stemCorrection|270|lineWidth|sin|setOpacity|getCenterBorderDimensions2|acos|t_Shadow|t_ShadowBubble|t_CloseButtonShadow|999999|touchstart|delegate|close|preventDefault|stopPropagation|200|getBySelector|outside|move|530|t_UpdateQueue|t_clearfix|t_Content_|filter|8e3|750|Image|fixed|t_Skin|t_Tooltip_|load|success|status|style|MozTransitionDuration|webkitTransitionDuration|OTransitionDuration|transitionDuration|hideOthers|hideDelay|resetHookPosition".split("|"), 0, {}));
+
+ogame.messagecounter = {
+    countData: {chat: 0, messages: 0, buddy: 0},
+    newChats: Array(),
+    type_chat: 10,
+    type_message: 11,
+    type_buddy: 12,
+    currentLinkSelector: null,
+    currentType: 0,
+    currentPlayer: null,
+    sumNewChatMessages: 0,
+    initialize: function (d, e) {
+        var f = ogame.messagecounter;
+        if (typeof e == "undefined" && d !== f.type_chat) {
+            f.currentPlayer = 0
+        }
+        if (typeof e == "undefined" && d == f.type_chat) {
+            return false
+        }
+        if (typeof e !== "undefined") {
+            f.currentPlayer = e
+        }
+        f.currentType = d;
+        switch (d) {
+            case f.type_chat:
+                f.currentLinkSelector = $("a.comm_menu.chat");
+                break;
+            case f.type_message:
+                f.currentLinkSelector = $("a.comm_menu.messages");
+                break;
+            case f.type_buddy:
+                f.currentLinkSelector = $("a.comm_menu.buddies");
+                break;
+            default:
+                return false
+        }
+        f.update()
+    },
+    initChatCounter: function (d) {
+        var c = ogame.messagecounter;
+        c.currentLinkSelector = $("a.comm_menu.chat");
+        c.currentType = c.type_chat;
+        c.setCount(d);
+        c.update()
+    },
+    update: function (f) {
+        var d = ogame.messagecounter;
+        var e;
+        if (f === undefined) {
+            e = chatLoca.X_NEW_CHATS
+        } else {
+            e = f
+        }
+        changeTooltip(d.currentLinkSelector, e.replace("#+#", d.getCount()))
+    },
+    resetCounterByType: function (l, h) {
+        var k = ogame.messagecounter;
+        var g = k.getIconSelectorByType(l);
+        var f;
+        if (h === undefined) {
+            f = chatLoca.X_NEW_CHATS
+        } else {
+            f = h
+        }
+        changeTooltip(g, f.replace("#+#", 0))
+    },
+    getCountSelectorByType: function (e) {
+        var f = ogame.messagecounter;
+        var d = "";
+        switch (e) {
+            case f.type_chat:
+                d = $("a.comm_menu.chat .new_msg_count");
+                break;
+            case f.type_message:
+                d = $("a.comm_menu.messages .new_msg_count");
+                break;
+            case f.type_buddy:
+                d = $("a.comm_menu.buddies .new_msg_count")
+        }
+        return d
+    },
+    getIconSelectorByType: function (d) {
+        var f = ogame.messagecounter;
+        var e = "";
+        switch (d) {
+            case f.type_chat:
+                e = $("a.comm_menu.chat");
+                break;
+            case f.type_message:
+                e = $("a.comm_menu.messages");
+                break;
+            case f.type_buddy:
+                e = $("a.comm_menu.buddies")
+        }
+        return e
+    },
+    getCounterHtml: function (c) {
+        var d = '<span class="new_msg_count">' + c + "</span>";
+        return d
+    },
+    getCount: function () {
+        var b = ogame.messagecounter;
+        switch (b.currentType) {
+            case b.type_chat:
+                return b.countData.chat;
+            case b.type_message:
+                return b.countData.messages;
+            case b.type_buddy:
+                return b.countData.buddy
+        }
+    },
+    setCount: function (d) {
+        var c = ogame.messagecounter;
+        switch (c.currentType) {
+            case c.type_chat:
+                c.countData.chat = d;
+                break;
+            case c.type_message:
+                c.countData.messages = d;
+                break;
+            case c.type_buddy:
+                c.countData.buddy = d;
+                break
+        }
+    },
+    updateCountData: function () {
+        var f = ogame.messagecounter;
+        if (f.isOpen()) {
+            f.setCount(0)
+        } else {
+            if (f.shouldAddCounter()) {
+                var d = 1
+            } else {
+                var e = f.getCountSelectorByType(f.currentType);
+                var d = e.html();
+                d = parseInt(d) + 1
+            }
+            f.setCount(d)
+        }
+    },
+    shouldAddCounter: function () {
+        var g = ogame.messagecounter;
+        var e = g.getCountSelectorByType(g.currentType);
+        var f = e.html();
+        var h = false;
+        if (typeof f == "undefined") {
+            h = true
+        }
+        return h
+    },
+    setNewCounter: function (d, c) {
+        d.html(c)
+    },
+    isOpen: function () {
+        var c = ogame.messagecounter;
+        var d = false;
+        switch (c.currentType) {
+            case c.type_chat:
+                d = ogame.chat.isOpen(c.currentPlayer);
+                break;
+            case c.type_message:
+                d = (location.href.indexOf("page=messages") > -1);
+                break;
+            case c.type_buddy:
+                d = (location.href.indexOf("page=buddies") > -1);
+                break
+        }
+        return d
+    }
+};
+ogame.messagemarker = {
+    type_chatbar: 10,
+    type_chattab: 11,
+    action_remove: 20,
+    action_add: 21,
+    currentCount: "",
+    currentSelector: "",
+    currentPlayernameObject: "",
+    currentListPlayernameObject: "",
+    currentPartnerId: "",
+    currentListItemSelector: "",
+    totalNewMessages: 0,
+    playerlist: new Array(),
+    newsInitialized: false,
+    effect: "none",
+    initialize: function () {
+        $(".new_msg_count[data-playerid]").each(function () {
+            var c = ogame.messagemarker;
+            var d = $(this).data("playerid");
+            if (d && $.inArray(d, c.playerlist) === -1) {
+                c.playerlist.push(d);
+                c.setPartnerId(d);
+                c.updateNewMarker()
+            }
+        });
+        ogame.messagemarker.effect = "highlight"
+    },
+    initMarker: function (e) {
+        var d = ogame.messagemarker;
+        var f = 0;
+        $.each(e, function (b, a) {
+            d.setPartnerId(a);
+            var c = $('.new_msg_count[data-playerid="' + a + '"]').data("new-messages");
+            if (c != null && c > 0) {
+                d.setSelectorByType(d.type_chatbar);
+                d.mark(d.currentSelector, d.currentPlayernameObject, c);
+                d.mark(d.currentListItemSelector, d.currentListPlayernameObject, c);
+                d.setSelectorByType(d.type_chattab);
+                d.mark(d.currentSelector, d.currentPlayernameObject, c)
+            }
+            f = f + 1
+        });
+        return f
+    },
+    setCounter: function (c, d) {
+        this.setPartnerId(c);
+        $('.new_msg_count[data-playerid="' + this.currentPartnerId + '"]').data("new-messages", d);
+        this.updateNewMarker()
+    },
+    toggle: function (h, e, g, f) {
+        this.setPartnerId(g);
+        this.currentCount = parseInt($('.new_msg_count[data-playerid="' + this.currentPartnerId + '"]').data("new-messages"));
+        if (h === this.action_add) {
+            this.updateNewMarker()
+        }
+        if (h === this.action_remove) {
+            this.removeNewMarker()
+        }
+    },
+    mark: function (e, d, f) {
+        $('.playerlist_item[data-playerid="' + this.currentPartnerId + '"] .playername').css("font-weight", "bold");
+        $('.cb_playername[data-playerid="' + this.currentPartnerId + '"]').css("font-weight", "bold")
+    },
+    addNewMarker: function () {
+        var b = false;
+        if (!$(this.currentSelector).find(".newMsgMarker").length) {
+            this.mark(this.currentSelector, this.currentPlayernameObject, this.currentCount);
+            b = true
+        }
+        if (!$(this.currentListItemSelector).find(".newMsgMarker").length) {
+            this.mark(this.currentListItemSelector, this.currentListPlayernameObject, this.currentCount);
+            b = true
+        }
+        if (!b) {
+            this.updateNewMarker()
+        }
+    },
+    removeNewMarker: function () {
+        $('.playerlist_item[data-playerid="' + this.currentPartnerId + '"] .playername').css("font-weight", "normal");
+        $('.cb_playername[data-playerid="' + this.currentPartnerId + '"]').css("font-weight", "normal")
+    },
+    updateNewMarker: function () {
+        var d = parseInt($('.new_msg_count[data-playerid="' + this.currentPartnerId + '"]').data("new-messages"));
+        var e = $(".new_msg_count.totalChatMessages").text();
+        var f = ogame.chat.updateTotalNewChatCounter();
+        if (d === 0) {
+            if (isNaN(this.currentPartnerId)) {
+                $(".new_msg_count.totalMessages.news").text(d).addClass("noMessage")
+            } else {
+                $('.new_msg_count[data-playerid="' + this.currentPartnerId + '"]').text(d).addClass("noMessage");
+                if (f === 0) {
+                    $(".new_msg_count.totalChatMessages").text(f).addClass("noMessage")
+                } else {
+                    if (e != f) {
+                        $(".new_msg_count.totalChatMessages").text(f).removeClass("noMessage").effect(ogame.messagemarker.effect, {}, 500)
+                    }
+                }
+            }
+        } else {
+            if (isNaN(this.currentPartnerId)) {
+                if (isNaN(d)) {
+                    $(".new_msg_count.totalMessages.news").text(0).addClass("noMessage")
+                } else {
+                    $(".new_msg_count.totalMessages.news").text(d).removeClass("noMessage").effect(ogame.messagemarker.effect, {}, 500)
+                }
+            } else {
+                $('.msg[data-playerid="' + this.currentPartnerId + '"]').addClass("msg_new");
+                $('.new_msg_count[data-playerid="' + this.currentPartnerId + '"]').text(d).removeClass("noMessage").effect(ogame.messagemarker.effect, {}, 500);
+                if (e != f) {
+                    $(".new_msg_count.totalChatMessages").text(f).removeClass("noMessage").effect(ogame.messagemarker.effect, {}, 500)
+                }
+            }
+        }
+    },
+    setSelectorByType: function (b) {
+        selector = "";
+        if (b == this.type_chatbar) {
+            selector = 'ul.chat_bar_list li.chat_bar_list_item[data-playerid="' + this.currentPartnerId + '"]'
+        }
+        if (b == this.type_chattab) {
+            selector = 'ul#chatMsgList li.msg[data-playerid="' + this.currentPartnerId + '"]'
+        }
+        this.currentListItemSelector = '.js_playerlist ul.playerlist li.playerlist_item[data-playerid="' + this.currentPartnerId + '"]';
+        this.currentSelector = selector;
+        this.currentPlayernameObject = $(selector).find(".cb_playername");
+        this.currentListPlayernameObject = $(this.currentListItemSelector).find(".playername")
+    },
+    setPartnerId: function (b) {
+        this.currentPartnerId = b
+    }
+};
+ogame.messages = {
+    data: {
+        initActions: {
+            "tabs-nfFleets": "initTabFleets",
+            "tabs-nfCommunication": "initTabCommunication",
+            "subtabs-nfCommunicationMessages": "initSubTabMessages"
+        }
+    }, addMessage: function (l, f, g) {
+        if (g !== false) {
+            g = true
+        }
+        if (l.attr("aria-selected") !== "true") {
+            console.warn("addMessage: not correct Tab, aria-selected = ", l.attr("aria-selected"), l);
+            return
+        }
+        if (!f) {
+            console.warn("addMessage: msgData is ", f);
+            return
+        }
+        var h = $("#" + l.attr("aria-controls")).find(".tab_inner");
+        var k = false;
+        if (g) {
+            k = true
+        }
+        ogame.messages.createMessageItem(f, h, k)
+    }, createMessageItem: function (o, l, m) {
+        var p = {};
+        for (var k in o) {
+            var n = o[k];
+            p[k] = n.msgID
+        }
+        var h = JSON.stringify(p);
+        $.ajax({
+            url: "?page=messages",
+            type: "POST",
+            dataType: "html",
+            data: {
+                messageId: h,
+                tabid: this.getCurrentMessageTab(),
+                action: 121,
+                ajax: 1
+            },
+            success: function (a) {
+                if (m) {
+                    l.prepend(a)
+                } else {
+                    var b = l.find(".favoriteCount");
+                    if (b.length > 0) {
+                        $(a).insertBefore(b)
+                    } else {
+                        l.append(a)
+                    }
+                }
+            },
+            error: function (c, a, b) {
+            }
+        })
+    }, createBroadcastMsgItem: function (f) {
+        if (!f) {
+            console.warn("createMessageItem: msgData is missing!");
+            return undefined
+        }
+        var g = $('<div class="msg_head"></div>');
+        g.append('<span class="msg_title blue_txt">' + f.title + "</span>");
+        g.append('<span class="msg_date fright">' + f.date + "</span><br>");
+        g.append('<span class="msg_sender_label">' + loca.LOCA_WRITE_MSG_FROM + ": </span>");
+        g.append('<span class="msg_sender">' + f.senderName + "</span>");
+        var h = $('<div class="msg_actions clearfix"></div>');
+        h.append('<a class="fright txt_link overlay" href="' + f.detailURL + '" data-overlay-title="' + loca.broadcasts + '">' + loca.details + "</a>");
+        h.append('<a class="fright txt_link comments_link overlay" href="' + f.commentsURL + '" data-overlay-title="' + loca.broadcasts + '">' + f.commentsCount + ' <span class="comments"></span></a></a>');
+        var e = $('<li class="msg ' + f.newClass + '" data-msg-id="' + f.msgID + '"></li>');
+        e.append('<div class="msg_status"></div>');
+        e.append(g);
+        e.append('<span class="msg_content">' + f.msgContent + "</span>");
+        e.append(h);
+        return e
+    }, createRecipient: function (m, g, n) {
+        var h, k;
+        $(".input_replacement").each(function () {
+            k = new RegExp($(this).data("recipient-cat"));
+            if (k.test(g)) {
+                h = $(this)
+            }
+        });
+        if (h === undefined) {
+            return
+        }
+        var l = h.children(".recipient_txt").filter(function () {
+            return ($(this).data("recipient-id") === m)
+        });
+        if (l.length === 0) {
+            if (!h.hasClass("focus")) {
+                h.addClass("focus")
+            }
+            h.append('<div class="recipient_txt" data-recipient-id="' + m + '" data-recipient-cat="' + g + '">' + n + '<a role="button" class="remove_recipient"></a></div>')
+        }
+    }, doInitAction: function (b) {
+        if (typeof ogame.messages[ogame.messages.data.initActions[b]] === "function") {
+            return ogame.messages[ogame.messages.data.initActions[b]]()
+        } else {
+            return console.warn("These is no function defined for action: ", b)
+        }
+    }, initCombatReportDetails: function () {
+        if ($("select").length > 0) {
+            $("select").ogameDropDown()
+        }
+    }, initDetailMessages: function (c) {
+        $(".detail_list_el:nth-of-type(4n + 3), .detail_list_el:nth-of-type(4n + 4)").addClass("odd");
+        var d = $(window).height() - 200;
+        $(".detail_msg_ctn").css("height", d);
+        $(".detail_msg_ctn").mCustomScrollbar({theme: "ogame"});
+        if (c) {
+            $("#scrollToComments").on("click", function () {
+                $(".detail_msg_ctn").mCustomScrollbar("scrollTo", "bottom")
+            });
+            initBBCodeEditor(locaKeys, itemNames, false, ".comment_textarea", 2000)
+        }
+        $("#messages ul.pagination").on("click", "li.p_li a", function () {
+            var a = $(this).data("tabid");
+            var b = $(this).data("messageid");
+            console.log('initDetailMessages()');
+            $.post("?page=messages", {
+                tabid: a,
+                messageId: b,
+                ajax: 1
+            }, function (h) {
+                var g = $(h).find("#messages .ui-dialog");
+                $(".overlayDiv").html(h)
+            })
+        })
+    }, initMessages: function () {
+        $(".js_tabs .tabs_btn_img").each(function () {
+            if ($(this).attr("rel")) {
+                $(this).attr("href", $(this).attr("rel"))
+            }
+        });
+        ogame.messages.initTabs($(".js_tabs"));
+        var b = ogame.messages.getCurrentMessageTab();
+        $("#contentWrapper #buttonz div.js_tabs.tabs_wrap.ui-tabs").on("click", "ul li.list_item", function () {
+            var a = ogame.messages.getCurrentMessageTab()
+        });
+        $("body").on("click", ".msg_actions .icon_not_favorited", function (d) {
+            var a = $(this).parents("li.msg").data("msg-id") || $(this).parents("div.detail_msg").data("msg-id");
+            $.ajax({
+                type: "POST",
+                url: "?page=messages",
+                dataType: "json",
+                data: {tabid: b, messageId: a, action: 101, ajax: 1},
+                success: function (f) {
+                    if (f[a]["result"] == true) {
+                        $(d.target).removeClass("icon_not_favorited").addClass("icon_favorited");
+                        changeTooltip($(d.target), loca.DELETE_FAV);
+                        var c = $(".favoriteTabFreeSlotCount");
+                        c.html(parseInt(c.html()) - 1)
+                    } else {
+                        if (f[a]["reason"] !== "undefined") {
+                            fadeBox(f[a]["reason"], 1)
+                        } else {
+                            fadeBox(loca.LOCA_GALAXY_ERROR_OCCURED, 1)
+                        }
+                    }
+                },
+                error: function () {
+                }
+            })
+        }).on("click", ".msg_actions .icon_favorited", function (d) {
+            var a = $(this).parents("li.msg").data("msg-id") || $(this).parents("div.detail_msg").data("msg-id");
+            $.ajax({
+                type: "POST",
+                url: "?page=messages",
+                dataType: "json",
+                data: {tabid: b, messageId: a, action: 102, ajax: 1},
+                success: function (f) {
+                    if (f[a]["result"] == true) {
+                        $(d.target).removeClass("icon_favorited").addClass("icon_not_favorited");
+                        changeTooltip($(d.target), loca.ADD_FAV);
+                        var c = $(".favoriteTabFreeSlotCount");
+                        c.html(parseInt(c.html()) + 1)
+                    } else {
+                        if (f[a]["reason"] !== "undefined") {
+                            fadeBox(f[a]["reason"], 1)
+                        } else {
+                            fadeBox(loca.LOCA_GALAXY_ERROR_OCCURED, 1)
+                        }
+                    }
+                },
+                error: function () {
+                }
+            })
+        }).on("click", ".js_actionKill", function (d) {
+            var a = $(this).parents("li.msg").data("msg-id");
+            console.log(a);
+            console.log('this is the message id');
+            $.ajax({
+                type: "POST",
+                url: "", // Self
+                dataType: "json",
+                data: {messageId: a, action: 103, ajax: 1},
+                success: function (c) {
+                    if (c[a] == true) {
+                        $(d.target).parents("li.msg").remove()
+                    } else {
+                        fadeBox(loca.LOCA_GALAXY_ERROR_OCCURED, 1)
+                    }
+                },
+                error: function () {
+                }
+            })
+        }).on("click", ".js_actionKillAll", function (a) {
+            console.log(ogame.messages.getCurrentMessageTab());
+            return;
+            $.ajax({
+                type: "POST",
+                url: "", // Self
+                dataType: "json",
+                data: {
+                    tabid: ogame.messages.getCurrentMessageTab(),
+                    messageId: -1,
+                    action: 103,
+                    ajax: 1
+                },
+                success: function (d) {
+                    if (d.result == true) {
+                        location.reload()
+                    } else {
+                        fadeBox(loca.LOCA_GALAXY_ERROR_OCCURED, 1)
+                    }
+                },
+                error: function () {
+                }
+            })
+        }).on("click", ".js_actionKillDetail", function (d) {
+            var a = $(".overlayDiv .detail_msg").data("msg-id");
+            $.ajax({
+                type: "POST",
+                url: "?page=messages",
+                dataType: "json",
+                data: {messageId: a, action: 103, ajax: 1},
+                success: function (c) {
+                    if (c[a] == true) {
+                        location.reload()
+                    } else {
+                        fadeBox(loca.LOCA_GALAXY_ERROR_OCCURED, 1)
+                    }
+                },
+                error: function () {
+                }
+            })
+        }).on("click", ".js_actionRevive", function (d) {
+            var a = $(this).parents("li.msg").data("msg-id");
+            if (a === undefined) {
+                a = $(this).parents("div.detail_msg").data("msg-id")
+            }
+            $.ajax({
+                type: "POST",
+                url: "?page=messages",
+                dataType: "json",
+                data: {tabid: b, messageId: a, action: 104, ajax: 1},
+                success: function (c) {
+                    if (c[a] == true) {
+                        $(d.target).parents("li.msg").remove();
+                        $(d.target).parents("div.ui-dialog").remove();
+                        $("li.msg[data-msg-id=" + a + "]").remove()
+                    } else {
+                        fadeBox(loca.LOCA_GALAXY_ERROR_OCCURED, 1)
+                    }
+                },
+                error: function () {
+                }
+            })
+        }).on("click", ".js_actionReviveAll", function (a) {
+            $.ajax({
+                type: "POST",
+                url: "?page=messages",
+                dataType: "json",
+                data: {
+                    tabid: ogame.messages.getCurrentMessageTab(),
+                    messageId: -1,
+                    action: 104,
+                    ajax: 1
+                },
+                success: function (d) {
+                    if (d.result == true) {
+                        location.reload()
+                    } else {
+                        fadeBox(loca.LOCA_GALAXY_ERROR_OCCURED, 1)
+                    }
+                },
+                error: function () {
+                }
+            })
+        }).on("click", ".js_actionDelete", function (d) {
+            var a = $(this).parents("li.msg").data("msg-id");
+            $.ajax({
+                type: "POST",
+                url: "?page=messages",
+                dataType: "json",
+                data: {tabid: b, messageId: a, action: 105, ajax: 1},
+                success: function (c) {
+                    if (c[a] == true) {
+                        $(d.target).parents("li.msg").remove()
+                    } else {
+                        fadeBox(loca.LOCA_GALAXY_ERROR_OCCURED, 1)
+                    }
+                },
+                error: function () {
+                }
+            })
+        }).on("click", ".js_actionDeleteAll", function (d) {
+            var a = $(this).parents("li.msg").data("msg-id");
+            $.ajax({
+                type: "POST",
+                url: "?page=messages",
+                dataType: "json",
+                data: {
+                    tabid: ogame.messages.getCurrentMessageTab(),
+                    messageId: -1,
+                    action: 105,
+                    ajax: 1
+                },
+                success: function (c) {
+                    if (c.result == true) {
+                        location.reload()
+                    } else {
+                        fadeBox(loca.LOCA_GALAXY_ERROR_OCCURED, 1)
+                    }
+                },
+                error: function () {
+                }
+            })
+        }).on("click", ".paginator", function (h) {
+            var f = $(this).data("tab");
+            var g = $(this).data("page");
+            var a = $(this).closest('div[class^="ui-tabs-panel"]');
+            $.ajax({
+                type: "POST",
+                url: "?page=messages",
+                dataType: "html",
+                data: {
+                    messageId: -1,
+                    tabid: f,
+                    action: 107,
+                    pagination: g,
+                    ajax: 1
+                },
+                success: function (c) {
+                    a.html(c)
+                },
+                error: function () {
+                }
+            })
+        }).on("click", ".jumpToAllianceApplications", function (a) {
+            location.href = "index.php?page=alliance&tab=applications"
+        })
+    }, selectCurrentMessageTab: function () {
+        var b = $(".subtabs .ui-state-active:visible");
+        if (!b.length) {
+            b = $(".js_tabs .ui-state-active:visible")
+        }
+        return b
+    }, getCurrentMessageTab: function () {
+        var b = $(".subtabs .ui-state-active:visible").attr("data-tabid");
+        if (!b) {
+            b = $(".js_tabs .ui-state-active:visible").attr("data-tabid")
+        }
+        return b
+    }, getCurrentEarliestMessage: function () {
+        return $(".ui-tabs-panel .tab_inner .msg:visible").last().attr("data-msg-id")
+    }, initCommentForm: function () {
+        ogame.messages.initWriteNewMsgBox($("#newCommentForm"));
+        $("#newCommentForm").on("click", ".js_send_comment", function (d) {
+            d.preventDefault();
+            var f = $(this).closest("form");
+            var e = f.find("input[name=messageId]").val();
+            $.ajax({
+                type: "POST",
+                url: f.attr("action"),
+                dataType: "json",
+                data: {
+                    messageId: e,
+                    ajax: 1,
+                    action: 108,
+                    text: f.find("textarea[name=text]").val()
+                },
+                success: function (a) {
+                    fadeBox(a.message, a.error);
+                    f.find("textarea[name=text]").val("");
+                    f.parent().after('<li class="msg"><div class="msg_status"></div><div class="msg_head">' + a.commentheader + '</div><div class="msg_content">' + a.commentcontent + "</div></li>");
+                    $("#scrollToComments").text(a.commentcount)
+                },
+                error: function (a) {
+                }
+            })
+        })
+    }, initShareReportOverlay: function () {
+        ogame.messages.initWriteNewMsgBox($("#newSharedReportForm"));
+        $("#newSharedReportForm").on("click", ".js_send_msg_share", function (e) {
+            e.preventDefault();
+            var l = $(this).closest("form");
+            var g = l.find("input[name=messageId]").val();
+            var h = l.find("li.select2-selection__choice");
+            var k = [];
+            h.each(function () {
+                k.push($(this).attr("title"))
+            });
+            $.ajax({
+                type: "POST",
+                url: l.attr("action"),
+                dataType: "json",
+                data: {
+                    messageId: g,
+                    empfaenger: k,
+                    ajax: 1,
+                    action: 106,
+                    text: l.find("textarea[name=text]").val()
+                },
+                success: function (a) {
+                    fadeBox(a.message, a.error);
+                    l.closest('div[class^="overlayDiv"').remove()
+                },
+                error: function (a) {
+                }
+            })
+        })
+    }, initSubTabMessages: function () {
+        $(".js_accordion").accordion({
+            collapsible: true,
+            heightStyle: "content",
+            active: false
+        });
+        ogame.messages.initWriteNewMsgBox($("#newMsgForm"));
+        $("html").off(".subtabmessages");
+        $("#newMsgForm").on("click.subtabmessages", ".js_send_msg", function (e) {
+            e.preventDefault();
+            var f = $(this).parents("form");
+            var d = {};
+            $(".input_replacement").children().each(function () {
+                if (typeof d[$(this).data("recipient-cat")] == "undefined") {
+                    d[$(this).data("recipient-cat")] = []
+                }
+                d[$(this).data("recipient-cat")].push($(this).data("recipient-id"))
+            });
+            $.ajax({
+                type: "POST",
+                url: f.attr("action"),
+                dataType: "json",
+                data: {empfaenger: d, text: f.find(".new_msg_textarea").val()},
+                success: function (a) {
+                    fadeBox(a.message, a.error);
+                    if (!a.error) {
+                        ogame.messages.sendSubtabMsg($(".new_msg_textarea").val(), d)
+                    }
+                },
+                error: function () {
+                }
+            })
+        })
+    }, initTabCommunication: function () {
+        console.info("-------------initTabCommunication");
+        ogame.messages.initTabs($(".js_subtabs_communication"))
+    }, initTabFleets: function () {
+        console.info("-------------initTabFleets");
+        ogame.messages.initTabs($(".js_subtabs_fleets"), ogame.messages.initTrash)
+    }, initTabs: function (c, d) {
+        c.tabs({
+            beforeLoad: function () {
+                $(".ajax_load_shadow").show()
+            }, load: function (a, b) {
+                console.info("load", b.tab.attr("id"));
+                ogame.messages.doInitAction(b.tab.attr("id"));
+                $(".ajax_load_shadow").hide();
+                if (typeof d === "function") {
+                    d(b.tab)
+                }
+            }, create: function (a, b) {
+                ogame.messages.doInitAction(b.tab.attr("id"))
+            }
+        })
+    }, initTrash: function (b) {
+        if (!b) {
+            return
+        }
+        $(".js_active_tab").html(b.data("subtabname"));
+        if (b.attr("id") === "subtabs-nfFleetTrash") {
+            $(".trash_box").addClass("trash_open");
+            $(".in_trash").show();
+            $(".not_in_trash").hide()
+        } else {
+            $(".trash_box").removeClass("trash_open");
+            $(".in_trash").hide();
+            $(".not_in_trash").show()
+        }
+    }, initWriteNewMsgBox: function (b) {
+        initBBCodeEditor(locaKeys, itemNames, false, ".new_msg_textarea", 2000);
+        $("html").off(".writeNewMsgBox");
+        $("html").on("click.writeNewMsgBox", function (a) {
+            if ($(".new_msg_label").hasClass("open") && $(a.target).parents(".recipient_select_box").length < 1) {
+                $(".input_replacement").removeClass("focus");
+                $(".new_msg_label").removeClass("open");
+                $(".new_msg_label").siblings(".recipient_select_box").hide()
+            }
+        });
+        b.on("click.writeNewMsgBox", ".input_replacement", function (a) {
+            a.stopPropagation();
+            ogame.messages.toggleRecipientSelectBox($(a.target).data("recipient-cat"))
+        }).on("click.writeNewMsgBox", ".new_msg_label", function (a) {
+            a.stopPropagation();
+            ogame.messages.toggleRecipientSelectBox($(a.currentTarget).data("recipient-cat"))
+        }).on("click.writeNewMsgBox", ".recipient_select_box .ally_rank", function () {
+            ogame.messages.toggleRecipientSelection($(this))
+        }).on("click.writeNewMsgBox", ".remove_recipient", function () {
+            ogame.messages.removeRecipient($(this).closest(".recipient_txt").data("recipient-id"))
+        })
+    }, removeRecipient: function (b) {
+        $(".ally_rank").filter(function () {
+            if ($(this).data("recipient-id") === b) {
+                $(this).removeClass("selected")
+            }
+        });
+        $(".recipient_txt").filter(function () {
+            if ($(this).data("recipient-id") === b) {
+                $(this).remove()
+            }
+        })
+    }, sendSubtabMsg: function (g, h) {
+        if (!g) {
+            console.warn("sendSubtabMsg: msg was empty");
+            return
+        }
+        if (!h) {
+            console.warn("sendSubtabMsg: msg had no recipients");
+            return
+        }
+        var f = {};
+        f.date = getFormatedDate(serverTime.getTime(), "[d].[m].[Y] <span>[H]:[i]:[s]</span>");
+        f.newClass = "msg_new";
+        f.title = h;
+        f.senderName = "100011";
+        f.msgID = "111";
+        f.msgContent = g;
+        f.commentsURL = "";
+        f.detailURL = "";
+        f.commentsCount = 0;
+        var e = array(f);
+        ogame.messages.addMessage($("#subtabs-nfCommunicationMessages"), e)
+    }, toggleRecipientSelectBox: function (b) {
+        $(".input_replacement").filter(function () {
+            if ($(this).data("recipient-cat") === b && !$(this).hasClass("focus")) {
+                $(this).addClass("focus")
+            }
+        });
+        $(".new_msg_label").filter(function () {
+            var e = $(this);
+            if (e.data("recipient-cat") === b) {
+                if (e.hasClass("open")) {
+                    e.removeClass("open").siblings(".recipient_select_box").hide()
+                } else {
+                    var a = e.siblings(".recipient_select_box"), f = a.find(".scroll_box");
+                    $(".new_msg_label").removeClass("open").siblings(".recipient_select_box").hide();
+                    e.addClass("open");
+                    a.show();
+                    (f.hasClass("mCustomScrollbar")) ? f.mCustomScrollbar("update") : f.mCustomScrollbar()
+                }
+            }
+        })
+    }, toggleRecipientSelection: function (d) {
+        var e = d.data("recipient-cat"), f = d.data("recipient-id");
+        if (d.hasClass("always_selected")) {
+            return
+        }
+        if (d.hasClass("complete_ally")) {
+            ogame.messages.toggleSelectAllRecipients(e);
+            return
+        }
+        if (!d.hasClass("selected")) {
+            ogame.messages.createRecipient(f, e, d.html());
+            d.addClass("selected")
+        } else {
+            ogame.messages.removeRecipient(f)
+        }
+    }, toggleSelectAllRecipients: function (h) {
+        var g = $(".complete_ally").hasClass("selected"), e = (g) ? "255" : "1", f = (g) ? "loca.founder" : "loca.completeAlliance";
+        $(".input_replacement").children().remove();
+        ogame.messages.createRecipient(e, h, f);
+        $(".recipient_list").filter(function () {
+            if ($(this).data("recipient-cat") === h) {
+                $(this).find(".ally_rank").each(function () {
+                    if (!$(this).hasClass("always_selected")) {
+                        (g) ? $(this).removeClass("selected") : $(this).addClass("selected")
+                    }
+                })
+            }
+        })
+    }
+};
+function initShowMessage() {
+    var b = $('.overlayDiv[data-page="showmessage"]');
+    $(".answerHeadline", b).click(function () {
+        $(this).toggleClass("open");
+        if ($(this).hasClass("open")) {
+            $(".answerForm", b).show();
+            $(".textWrapper", b).addClass("textWrapperSmall");
+            $(".textWrapper", b).removeClass("textWrapper")
+        } else {
+            $(".answerForm", b).hide();
+            $(".textWrapperSmall", b).addClass("textWrapper");
+            $(".textWrapperSmall", b).removeClass("textWrapperSmall")
+        }
+    });
+    $(".note > div:first-child", b).addClass("newMessage");
+    $(".info:odd", b).css("margin-left", "40px");
+    $("div.note p:first").after('<span class="seperator">');
+    $(".answerHeadline", b).hover(function () {
+        $(this).addClass("pushable")
+    }, function () {
+        $(this).removeClass("pushable")
+    });
+    $(".melden", b).click(function () {
+        manageErrorbox($(this).attr("rel"), 1)
+    })
+}
+function initNetworkAjax() {
+    var e = $(".reiter");
+    if (!$.isFunction(f)) {
+        var f = function () {
+            e.removeClass("active");
+            $(this).addClass("active");
+            ajaxLoad($(this).attr("id"), 1)
+        }
+    }
+    e.off("click");
+    e.click(f);
+    $("#checkAll").off("click").click(function () {
+        $(".checker").prop("checked", $(this).is(":checked"))
+    });
+    function d(a) {
+        $("#TR" + a).hide()
+    }
+
+    $(".overlay").click(function () {
+        var a = $(this).attr("id");
+        markAsRead(a)
+    });
+    $("#messageContent select").change(function () {
+        if (typeof($("select option:selected").attr("id")) == "undefined") {
+            $(".buttonOK").hide();
+            mod = ""
+        } else {
+            $(".buttonOK").show();
+            mod = $("select option:selected").attr("id")
+        }
+    });
+    $(".del").click(function () {
+        mod = $(this).attr("id")
+    });
+    $(".underlined").click(function () {
+        $(".buttonOK").hide()
+    });
+    reduceMsgCount(aktCat)
+}
+function MessageSlider(d) {
+    var f = this;
+    f.htmlobject = d;
+    var e = document.documentElement.clientHeight - 160;
+    this.open = function () {
+        if (!this.inAction) {
+            f.startTime = new Date().getTime();
+            f.inAction = true;
+            f.slideInStep()
+        }
+    }, this.slideInStep = function () {
+        time = new Date().getTime();
+        height = parseInt(f.currHeight * ((time - f.startTime) / 500));
+        if (height < f.currHeight) {
+            f.htmlobject.style.height = height + "px";
+            window.setTimeout(f.slideInStep, 10)
+        } else {
+            f.htmlobject.style.height = f.currHeight + "px";
+            f.inAction = false
+        }
+    }, this.close = function () {
+        if (!f.inAction) {
+            f.startTime = new Date().getTime();
+            f.inAction = true;
+            f.htmlobject.style.height = "0px";
+            f.inAction = false
+        }
+    }, f.inAction = false;
+    if (document.getElementById("messages")) {
+        f.currHeight = Math.min(document.getElementById("messages").offsetHeight, e)
+    } else {
+        f.currHeight = e
+    }
+}
+ogame.messages.combatreport = {
+    data: [{combatReportId: $(".detailReport").attr("data-combatreportid")}],
+    loca: [{weapon: "", shield: "", cover: ""}],
+    getCombatValueByCombatMember: function () {
+        var h = ogame.messages.combatreport;
+        var g = h.data.activeMember;
+        var f = {armorPercentage: 0, weaponPercentage: 0, shieldPercentage: 0};
+        var e = 0;
+        $.each(h.data.combatArray, function (b, a) {
+            if (h.check(true, g, {values: {is: {0: "all"}}})) {
+                f.armorPercentage += a.armorPercentage;
+                f.weaponPercentage += a.weaponPercentage;
+                f.shieldPercentage += a.shieldPercentage;
+                e++
+            } else {
+                if (a.ownerName == g) {
+                    f.armorPercentage = a.armorPercentage;
+                    f.weaponPercentage = a.weaponPercentage;
+                    f.shieldPercentage = a.shieldPercentage;
+                    e = 1
+                }
+            }
+        });
+        f.armorPercentage = Math.round(f.armorPercentage / e);
+        f.weaponPercentage = Math.round(f.weaponPercentage / e);
+        f.shieldPercentage = Math.round(f.shieldPercentage / e);
+        return f
+    },
+    setCombatValue: function () {
+        var c = ogame.messages.combatreport;
+        var d = c.getCombatValueByCombatMember();
+        $("." + c.data.combatside + "Weapon").text(c.loca.weapon + " " + d.weaponPercentage + "%");
+        $("." + c.data.combatside + "Shield").text(c.loca.shield + " " + d.shieldPercentage + "%");
+        $("." + c.data.combatside + "Cover").text(c.loca.cover + " " + d.armorPercentage + "%")
+    },
+    setCombatLoca: function (f, e, g) {
+        var h = ogame.messages.combatreport;
+        h.loca.weapon = f;
+        h.loca.shield = e;
+        h.loca.cover = g
+    },
+    isActive: function (g, e) {
+        var h = ogame.messages.combatreport;
+        for (var f in e) {
+            if (f == "length") {
+                continue
+            }
+            if (h.check(true, e[f][g])) {
+                return "on"
+            }
+        }
+        if (h.check(true, e[g])) {
+            return "on"
+        }
+        return "off"
+    },
+    setActiveFlag4Fleet: function (f, h) {
+        var e = ogame.messages.combatreport;
+        var g = e.getAllShipClasses(f);
+        $.each(g, function (d, a) {
+            var p = e.getShipIdByClass(a);
+            var r = e.isActive(p, h);
+            var q = e.getShipSelectors(p);
+            e.changeShipState(r, q.ship);
+            if (r == "off") {
+                var b = q.shipCount;
+                var c = q.loss;
+                var o = {ships: {}, losses: {}};
+                o.ships[b] = 0;
+                o.losses[c] = "";
+                e.setShipCount(o)
+            }
+            e.toggleShipShowState(q.ship)
+        })
+    },
+    search4Class: function (e, g) {
+        for (var f in e) {
+            if ($("." + e[f] + g)[0]) {
+                var h = e[f] + g;
+                return h
+            }
+        }
+        return false
+    },
+    getShipSelectors: function (k) {
+        var m = ogame.messages.combatreport;
+        var r = ["military", "civil", "defense"];
+        var n = m.search4Class(r, k);
+        var p = "." + m.data.combatside + " ." + n;
+        var o = "." + m.data.combatside + " ." + n + " .ecke";
+        var q = "." + m.data.combatside + " ." + n + " .lost_ships";
+        var l = {ship: p, shipCount: o, loss: q};
+        return l
+    },
+    getShipIdByClass: function (f) {
+        var e = f.length;
+        var d = f.substr(e - 3);
+        return d
+    },
+    changeShipState: function (c, d) {
+        if ($(d).hasClass("off") && c != "off") {
+            $(d).removeClass("off")
+        }
+        if ($(d).hasClass("on") && c != "on") {
+            $(d).removeClass("on")
+        }
+        if (!$(d).hasClass(c)) {
+            $(d).addClass(c)
+        }
+    },
+    toggleShipShowState: function (b) {
+        if ($(b).hasClass("off")) {
+            $(b).parent().hide()
+        }
+        if ($(b).hasClass("on")) {
+            $(b).parent().show()
+        }
+    },
+    getShipsByMembers: function (f) {
+        var d = ogame.messages.combatreport;
+        var e = [];
+        if (!d.check(true, d.data.combatArray.shipDetails)) {
+            $.each(d.data.combatArray, function (b, a) {
+                if (typeof a == "object" && typeof a.shipDetails != "undefined") {
+                    if (typeof e[a.ownerName] != "undefined") {
+                        $.extend(e[a.ownerName], a.shipDetails)
+                    } else {
+                        e[a.ownerName] = a.shipDetails
+                    }
+                } else {
+                    if (typeof e[a.ownerName] == "undefined") {
+                        e[a.ownerName] = {}
+                    }
+                }
+            })
+        } else {
+            if (typeof e[d.data.combatArray.ownerName] != "undefined") {
+                $.extend(e[d.data.combatArray.ownerName], d.data.combatArray.shipDetails)
+            } else {
+                e[d.data.combatArray.ownerName] = d.data.combatArray.shipDetails
+            }
+        }
+        if (f == "all") {
+            return e
+        } else {
+            return e[f]
+        }
+    },
+    getShipsByMembersAndCoords: function (h, l, f) {
+        var k = ogame.messages.combatreport;
+        var g = [];
+        if (!k.check(true, k.data.combatArray.shipDetails)) {
+            $.each(k.data.combatArray, function (b, a) {
+                if (l !== 0) {
+                    if (typeof a == "object" && typeof a.shipDetails != "undefined") {
+                        if (a.ownerCoordinates === l && a.ownerName == h && a.ownerPlanetType == f) {
+                            if (typeof g[a.ownerName] != "undefined") {
+                                $.extend(g[a.ownerName], a.shipDetails)
+                            } else {
+                                g[a.ownerName] = a.shipDetails
+                            }
+                        }
+                    }
+                } else {
+                    if (typeof a == "object" && typeof a.shipDetails != "undefined") {
+                        if (typeof g[a.ownerName] != "undefined") {
+                            $.extend(g[a.ownerName], a.shipDetails)
+                        } else {
+                            g[a.ownerName] = a.shipDetails
+                        }
+                    }
+                }
+            })
+        } else {
+            if (typeof g[k.data.combatArray.ownerName] != "undefined") {
+                $.extend(g[k.data.combatArray.ownerName], k.data.combatArray.shipDetails)
+            } else {
+                g[k.data.combatArray.ownerName] = k.data.combatArray.shipDetails
+            }
+        }
+        if (h == "all") {
+            return g
+        } else {
+            return g[h]
+        }
+    },
+    getShipCountArray: function (o, u) {
+        var q = ogame.messages.combatreport;
+        var y = q.check(true, u, {types: {0: "isEmpty"}}) ? false : true;
+        var p = {};
+        var r = {};
+        for (var n in o) {
+            var v = q.getShipSelectors(n);
+            var w = v.shipCount;
+            p[w] = parseInt(o[n]);
+            if (!y) {
+                var s = v.loss;
+                if (q.check(true, u[n])) {
+                    r[s] = parseInt(u[n])
+                }
+            }
+        }
+        var x = {ships: p, losses: r};
+        return x
+    },
+    setShipCount4All: function (u) {
+        var w = ogame.messages.combatreport;
+        var v = u.ships;
+        var A = w.check(true, u.losses) ? u.losses : {};
+        var H = {};
+        for (var y in v) {
+            var F = v[y];
+            var s = (w.check(true, A, {types: {0: "isEmpty"}}) && w.check(true, A[y])) ? A[y] : {};
+            H[y] = w.getShipCountArray(F, s)
+        }
+        var B = {};
+        var E = {};
+        for (var x in H) {
+            var G = H[x]["ships"];
+            var C = H[x]["losses"];
+            for (var D in G) {
+                if (w.check(true, B[D])) {
+                    B[D] = B[D] + G[D]
+                } else {
+                    B[D] = G[D]
+                }
+            }
+            for (var D in C) {
+                if (w.check(true, E[D])) {
+                    E[D] = E[D] + C[D]
+                } else {
+                    E[D] = C[D]
+                }
+            }
+        }
+        var r = {ships: B, losses: E};
+        w.setShipCount(r)
+    },
+    setShipCountByActiveMember: function (s, w, B, u, q) {
+        u = u || 0;
+        q = q || 1;
+        var v = ogame.messages.combatreport;
+        var E = {};
+        var F = {};
+        for (var D in w) {
+            var r = w[D]["ownerName"];
+            var C = w[D]["ownerCoordinates"];
+            var A = w[D]["ownerPlanetType"];
+            if (r == B) {
+                for (var x in s.ships[D]) {
+                    if (u !== 0) {
+                        if (u == C && q == A) {
+                            if (!(E.hasOwnProperty(x))) {
+                                E[x] = s.ships[D][x]
+                            } else {
+                                E[x] = E[x] + s.ships[D][x]
+                            }
+                        }
+                    } else {
+                        if (!(E.hasOwnProperty(x))) {
+                            E[x] = s.ships[D][x]
+                        } else {
+                            E[x] = E[x] + s.ships[D][x]
+                        }
+                    }
+                }
+                if (v.check(true, s.losses)) {
+                    for (var x in s.losses[D]) {
+                        if (u !== 0) {
+                            if (u == C && q == A) {
+                                if (!(F.hasOwnProperty(x))) {
+                                    F[x] = parseInt(s.losses[D][x])
+                                } else {
+                                    F[x] = F[x] + parseInt(s.losses[D][x])
+                                }
+                            }
+                        } else {
+                            if (!(F.hasOwnProperty(x))) {
+                                F[x] = parseInt(s.losses[D][x])
+                            } else {
+                                F[x] = F[x] + parseInt(s.losses[D][x])
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (v.check(true, E, {types: {0: "isEmpty"}})) {
+            var y = v.getShipCountArray(E, F);
+            v.setShipCount(y)
+        }
+    },
+    setShipCount: function (k) {
+        var h = ogame.messages.combatreport.data.combatside;
+        var f = k.ships;
+        var l = k.losses;
+        if (!$.isEmptyObject(f)) {
+            for (var g in f) {
+                $(g).text(f[g].toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."))
+            }
+        } else {
+            $("." + h + " .ecke").text("0")
+        }
+        if (!$.isEmptyObject(l)) {
+            for (var g in l) {
+                $(g).text("-" + l[g].toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."))
+            }
+        } else {
+            $("." + h + " .lost_ships").text("-")
+        }
+    },
+    getAllShipClasses: function (e) {
+        var f = e.map(function () {
+            var a = $(this).attr("class");
+            return a
+        }).get().join();
+        var d = [];
+        $.each(f.split(","), function (b, a) {
+            var c = a.split(" ");
+            d.push(c[1])
+        });
+        return d
+    },
+    displayShipData: function (k, l, m, p, o, h) {
+        o = typeof o !== "undefined" ? o : 0;
+        var n = ogame.messages.combatreport;
+        if (n.check(true, k, {values: {isNot: {0: "all"}}})) {
+            n.setShipCountByActiveMember(m, p, k, o, h)
+        } else {
+            n.setShipCount4All(n.data.combatRounds[l][n.data.combatRounds[l].length - 1])
+        }
+    },
+    initCombatText: function (f) {
+        var d = ogame.messages.combatreport;
+        var e = f.combatRounds.length - 1;
+        $(".combat_round_list .round_id").find("a").removeClass("active");
+        $(".combat_round_list .round_id[data-round=" + e + "]").find("a").addClass("active");
+        d.loadDataBySelectedRound(f.attackerJSON, f.defenderJSON, e)
+    },
+    setCombatText: function (v, G, s) {
+        var x = ogame.messages.combatreport;
+        var A = ".statistic_attacker";
+        var u = ".statistic_defender";
+        var C = ".hits";
+        var I = ".strength";
+        var E = ".absorbed";
+        var J = 0;
+        var B = 0;
+        var H = 0;
+        var F = 0;
+        var w = 0;
+        var D = 0;
+        if (x.check(true, v, {length: s})) {
+            for (var y in v) {
+                J = J + parseInt(v[y]["statistic"]["hits"]);
+                B = B + parseInt(v[y]["statistic"]["absorbedDamage"]);
+                H = H + parseInt(v[y]["statistic"]["fullStrength"]);
+                F = F + parseInt(G[y]["statistic"]["hits"]);
+                w = w + parseInt(G[y]["statistic"]["absorbedDamage"]);
+                D = D + parseInt(G[y]["statistic"]["fullStrength"])
+            }
+        } else {
+            J = parseInt(v[s]["statistic"]["hits"]);
+            B = parseInt(v[s]["statistic"]["absorbedDamage"]);
+            H = parseInt(v[s]["statistic"]["fullStrength"]);
+            F = parseInt(G[s]["statistic"]["hits"]);
+            w = parseInt(G[s]["statistic"]["absorbedDamage"]);
+            D = parseInt(G[s]["statistic"]["fullStrength"])
+        }
+        $(A + C).text(J.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."));
+        $(A + E).text(B.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."));
+        $(A + I).text(H.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."));
+        $(u + C).text(F.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."));
+        $(u + E).text(w.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."));
+        $(u + I).text(D.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."))
+    },
+    setCombatArray: function (f, g) {
+        var e = jQuery.extend(true, {}, f);
+        var h = ogame.messages.combatreport;
+        h.data.combatside = g;
+        h.data.memberSelection = false;
+        if ($("#" + h.data.combatside + "_select_combatreport").find(":selected").length > 0) {
+            h.data.memberSelection = true
+        }
+        if (h.data.memberSelection) {
+            h.data.activeMember = "" + $("#" + h.data.combatside + "_select_combatreport").find(":selected").val()
+        } else {
+            h.data.activeMember = "" + $("#" + h.data.combatside + "_select_combatreport").data("memberName")
+        }
+        h.data.activeMember = h.data.activeMember.split("|", 1)[0];
+        h.data.combatArray = e.member;
+        h.data.combatRounds = [];
+        h.data.combatRounds[g] = e.combatRounds
+    },
+    setCombatside: function (c) {
+        var d = ogame.messages.combatreport;
+        d.data.combatside = c
+    },
+    check: function (M, N, P) {
+        var P = (P != null && typeof P != "undefined" && typeof P == "object") ? P : false;
+        var F = false;
+        var D = 0;
+        var B = 0;
+        var I = 0;
+        var J = 0;
+        var C = false;
+        if (P != false) {
+            var K = P.values != null && typeof P.values != "undefined" && typeof P.values == "object" ? P.values : {};
+            var y = P.types != null && typeof P.types != "undefined" && typeof P.types == "object" ? P.types : {};
+            var x = P.length != null && typeof P.length != "undefined" ? P.length : false;
+            if (!jQuery.isEmptyObject(K)) {
+                for (G in K) {
+                    var O = K[G];
+                    if (G == "is" && !jQuery.isEmptyObject(O)) {
+                        for (var A in O) {
+                            if (N != O[A]) {
+                                D = D + 1
+                            }
+                        }
+                    }
+                    if (G == "isNot" && !jQuery.isEmptyObject(O)) {
+                        for (var H in O) {
+                            if (N == O[H]) {
+                                D = D + 1
+                            }
+                        }
+                    }
+                }
+            }
+            if (!jQuery.isEmptyObject(y)) {
+                if (y.isEmpty) {
+                    if (jQuery.isEmptyObject(N)) {
+                        B = B + 1
+                    }
+                }
+                for (var G in y) {
+                    if (typeof N == y[G]) {
+                        B = B + 1
+                    }
+                }
+            }
+            if (typeof N == "object") {
+                for (var G in N) {
+                    if (typeof N[G] != "undefined") {
+                        J = J + 1
+                    }
+                }
+            } else {
+                var L = N + "";
+                J = L.length
+            }
+            if (x !== false && typeof x == "number" && typeof J == "number") {
+                if (J != x) {
+                    I = I + 1
+                }
+                C = true
+            }
+        }
+        if (typeof N == "undefined" || N == null) {
+            B = B + 1
+        }
+        var w = D + B;
+        if (C != false) {
+            w = w + I
+        }
+        if (w == 0) {
+            F = true
+        }
+        var E = {
+            success: F,
+            allErrors: w,
+            valueErrors: D,
+            typeErrors: B,
+            type: typeof N,
+            length: J,
+            lengthChecked: C,
+            lengthError: I
+        };
+        if (M) {
+            return F
+        } else {
+            return E
+        }
+    },
+    loadData: function (e, f) {
+        var d = ogame.messages.combatreport;
+        d.setCombatArray(e, f);
+        d.loadDataBySelectedCombatMember(e, f);
+        d.setCombatValue()
+    },
+    loadDataBySelectedRound: function (E, F, B) {
+        var A = ogame.messages.combatreport;
+        var D = parseInt(B);
+        var K = $(".attacker .participant_select option:selected").val();
+        var G = $(".defender .participant_select option:selected").val();
+        var J = $(".attacker .participant_select option:selected").data("coords");
+        var L = $(".defender .participant_select option:selected").data("coords");
+        var I = [];
+        var H = [];
+        if (typeof J != "undefined") {
+            ids = K.split("|")[1].split(":");
+            I.push(ids);
+            K = K.split("|")[0]
+        } else {
+            if (K != "all" && typeof K != "undefined") {
+                J = 0;
+                $(".attacker .participant_select option").each(function () {
+                    if (K == $(this).val().split("|")[0] && typeof $(this).val().split("|")[1] != "undefined") {
+                        I.push($(this).val().split("|")[1].split(":"))
+                    }
+                })
+            } else {
+                I = []
+            }
+        }
+        if (typeof L != "undefined") {
+            ids = G.split("|")[1].split(":");
+            H.push(ids);
+            G = G.split("|")[0]
+        } else {
+            if (G != "all" && typeof G != "undefined") {
+                L = 0;
+                $(".defender .participant_select option").each(function () {
+                    if (G == $(this).val().split("|")[0] && typeof $(this).val().split("|")[1] != "undefined") {
+                        H.push($(this).val().split("|")[1].split(":"))
+                    }
+                })
+            } else {
+                H = []
+            }
+        }
+        if (I.length > 0) {
+            for (var x in E) {
+                if (x == "combatRounds") {
+                    for (var y in E[x][D]) {
+                        if (y == "ships") {
+                            for (var u in E[x][D][y]) {
+                                var C = $.inArray(u, I[0]);
+                                if (C == -1) {
+                                    delete E[x][D][y][u]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (H.length > 0) {
+            for (var x in F) {
+                if (x == "combatRounds") {
+                    for (var y in F[x][D]) {
+                        if (y == "ships") {
+                            for (var u in F[x][D][y]) {
+                                var C = $.inArray(u, H[0]);
+                                if (C == -1) {
+                                    delete F[x][D][y][u]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        var w = E.combatRounds;
+        var v = F.combatRounds;
+        if (A.check(true, w, {length: B})) {
+            D = D - 1
+        }
+        D = D + "";
+        A.setCombatside("attacker");
+        A.setShipCount4All(w[D]);
+        A.setCombatside("defender");
+        A.setShipCount4All(v[D]);
+        if (A.data.memberSelection) {
+        }
+        A.setCombatText(w, v, B)
+    },
+    resetDropDowns: function () {
+        $("#attacker_select_combatreport").val("all").ogameDropDown("refresh");
+        $("#defender_select_combatreport").val("all").ogameDropDown("refresh")
+    },
+    loadDataBySelectedCombatMember: function (u, q, n, l) {
+        var m = jQuery.extend(true, {}, u);
+        n = n || 0;
+        l = l || 1;
+        var p = ogame.messages.combatreport;
+        p.setCombatArray(m, q);
+        var o = $("." + p.data.combatside + " .buildingimg");
+        var r = $("." + p.data.combatside + " .defenseimg");
+        o = $.merge(o, r);
+        var s = p.getShipsByMembersAndCoords(p.data.activeMember, n, l);
+        p.setActiveFlag4Fleet(o, s);
+        p.displayShipData(p.data.activeMember, p.data.combatside, m.combatRounds[m.combatRounds.length - 1], m.member, n, l);
+        p.setCombatValue()
+    }
+};
+function closeDetails(f, d) {
+    var e = $("#fleet" + f);
+    e.children(".openDetails").children().children().attr("src", "/img/icons/de1e5f629d9e47d283488eee0c0ede.gif");
+    e.children(".quantity").show();
+    e.removeClass("detailsOpened");
+    e.addClass("detailsClosed");
+    currentMovementTabExtensionStates[f] = [0, d];
+    updateCookieStatus(currentMovementTabExtensionStates)
+}
+function openDetails(f, d) {
+    var e = $("#fleet" + f);
+    e.children(".openDetails").children().children().attr("src", "/img/icons/577565fadab7780b0997a76d0dca9b.gif");
+    e.children(".quantity").hide();
+    e.removeClass("detailsClosed");
+    e.addClass("detailsOpened");
+    currentMovementTabExtensionStates[f] = [1, d];
+    updateCookieStatus(currentMovementTabExtensionStates)
+}
+function updateCookieStatus(d) {
+    var e = JSON.stringify(d);
+    var f = JSON.stringify({expires: Math.round(new Date().getTime() / 1000) + 7 * 86400});
+    $.cookie("tabBoxFleets", e, f)
+}
+function openCloseDetails(c, d) {
+    if ($("#fleet" + c).attr("class") == "fleetDetails detailsOpened") {
+        closeDetails(c, d)
+    } else {
+        openDetails(c, d)
+    }
+}
+function hideTipsOnTabChange() {
+    $("select").ogameDropDown("hide");
+    Tipped.hideAll()
+}
+function changeTooltip(e, f) {
+    var d = $(e);
+    if (d.length == 0) {
+        return
+    }
+    removeTooltip(d);
+    d.attr("title", f);
+    initTooltips(d)
+}
+function removeTooltip(d) {
+    var c = $(d);
+    c.each(function () {
+        if ($(this).data("tooltipLoaded")) {
+            $(this).data("tooltipLoaded", false);
+            Tipped.remove($(this)[0])
+        }
+    })
+}
+function getTooltipOptions(d) {
+    var f = $(d);
+    var e = {
+        skin: "cloud",
+        maxWidth: 400,
+        closeButton: false,
+        hideOn: [{element: "self", event: "mouseleave"}, {
+            element: "tooltip",
+            event: "mouseenter"
+        }]
+    };
+    if (window.location.href.indexOf("galaxy") !== -1) {
+        e.maxWidth = 400
+    }
+    if (f.hasClass("tooltipPremium")) {
+        e.skin = "premium"
+    }
+    if (f.hasClass("tooltipLeft")) {
+        e.hook = {target: "leftmiddle", tooltip: "righttop"}
+    } else {
+        if (f.hasClass("tooltipRight")) {
+            e.hook = {target: "rightmiddle", tooltip: "lefttop"}
+        } else {
+            if (f.hasClass("tooltipBottom")) {
+                e.hook = {target: "bottommiddle", tooltip: "topmiddle"}
+            }
+        }
+    }
+    if (f.data("tooltip-width")) {
+        e.maxWidth = f.data("tooltip-width")
+    }
+    if (isMobile || f.hasClass("tooltipClose")) {
+        e.hideOthers = true;
+        e.hideOn = false
+    }
+    e.afterUpdate = function (a, c) {
+        if (isMobile && f.data("tooltip-button")) {
+            var h = $(document.createElement("div")).addClass("tooltipButton");
+            $(document.createElement("a")).addClass("btn_blue").attr("href", "javascript:void(0);").html(f.data("tooltip-button")).bind("click", function (g) {
+                if ($(c).not("a") && $(c).find("a").length) {
+                    c = $(c).find("a")[0]
+                }
+                var l = document.createEvent("MouseEvents");
+                l.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+                c.dispatchEvent(l)
+            }).appendTo(h);
+            $(a).append(h)
+        }
+        if (isMobile || f.hasClass("tooltipClose")) {
+            var b = $(document.createElement("div")).addClass("close-tooltip");
+            $(a).prepend(b)
+        }
+        Tipped.refresh(c)
+    };
+    return e
+}
+function getTooltipSelector(e) {
+    var f = ".tooltipPremium, .tooltip, .tooltipRight, .tooltipLeft, .tooltipBottom, .tooltipClose, .tooltipHTML, .tooltipRel, .tooltipAJAX, .tooltipCustom, .markItUpButton a";
+    if (typeof(e) == "undefined") {
+        e = f
+    } else {
+        if (typeof(e) == "string" && !e.match(/\.tooltip/)) {
+            var g = f.split(", ");
+            var h = e;
+            for (i in g) {
+                e += ", " + h + " " + g[i]
+            }
+        }
+    }
+    return e
+}
+function sanitizeTooltip(b) {
+    return b.replace(/<\s*script/g, "&lt;script")
+}
+function initTooltips(d) {
+    initTooltipSkins();
+    d = getTooltipSelector(d);
+    function f(b) {
+        var o = {};
+        var a = b.split("|");
+        var c = $(document.createElement("h1")).html(a[0]);
+        var n = $(document.createElement("div")).addClass("splitLine");
+        if (typeof a[2] !== "undefined" && typeof a[3] !== "undefined") {
+            var m = $(document.createElement("h1")).html(a[2]);
+            var p = $(document.createElement("div")).addClass("splitLine");
+            o = $(document.createElement("div")).css("display", "none").addClass("htmlTooltip").append(c).append(n).append(a[1] + "</br>").append(m).append(p).append(a[3])
+        } else {
+            o = $(document.createElement("div")).css("display", "none").addClass("htmlTooltip").append(c).append(n).append(a[1])
+        }
+        return o[0]
+    }
+
+    removeTooltip(d);
+    function e(b) {
+        var a = $(b);
+        if (a.data("tooltipLoaded")) {
+            return
+        }
+        a.data("tooltipLoaded", true);
+        if (isMobile && a.hasClass("js_hideTipOnMobile")) {
+            a.attr("title", "");
+            return
+        }
+        var c = getTooltipOptions(a);
+        if (a.hasClass("tooltipCustom")) {
+            if (c.hideOn != false) {
+                c.hideOn = [{
+                    element: "self",
+                    event: "mouseleave"
+                }, {element: "tooltip", event: "mouseleave"}]
+            }
+            c.afterUpdate = function (h) {
+                $(h).find(".tooltipCustom").each(function (g, m) {
+                    var n = getTooltipOptions(a);
+                    if ($(this).hasClass("tooltipHTML")) {
+                        n.inline = true;
+                        n.hideOthers = false;
+                        Tipped.create(this, f(sanitizeTooltip($(this).attr("title"))), n)
+                    } else {
+                        n.hideOthers = false;
+                        Tipped.create(this, sanitizeTooltip($(this).attr("title")), n)
+                    }
+                })
+            }
+        }
+        if (a.hasClass("tooltipHTML")) {
+            if (typeof(a.attr("title")) == "undefined" || a.attr("title").trim().length == 0) {
+                return
+            }
+            Tipped.create(a[0], f(sanitizeTooltip(a.attr("title"))), c);
+            return
+        }
+        if (a.hasClass("tooltipRel")) {
+            c.inline = true;
+            Tipped.create(a[0], a.attr("rel"), c);
+            return
+        }
+        if (a.hasClass("tooltipAJAX")) {
+            $.get(a.attr("rel"), {}, function (h) {
+                Tipped.create(a[0], h, c)
+            });
+            return
+        }
+        if (typeof(a.attr("title")) == "undefined" || a.attr("title").trim().length == 0) {
+            return
+        }
+        Tipped.create(a[0], sanitizeTooltip(a.attr("title")), c)
+    }
+
+    $(document).undelegate(d, "touchstart.tooltipClick").delegate(d, "touchstart.tooltipClick", function (a) {
+        if (Tipped.visible(this)) {
+            var b = document.createEvent("MouseEvents");
+            b.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+            this.dispatchEvent(b);
+            a.preventDefault();
+            a.stopPropagation()
+        }
+    });
+    if (typeof(d) == "string") {
+        $(document).undelegate(d, "mouseenter.tooltipLoad touchstart.tooltipLoad").delegate(d, "mouseenter.tooltipLoad touchstart.tooltipLoad", function (a) {
+            e(this)
+        })
+    } else {
+        $(d).each(function () {
+            e(this)
+        })
+    }
+}
+$(function () {
+    initTooltips()
+});
+function initTooltipSkins() {
+    jQuery.extend(Tipped.Skins, {
+        cloud: {
+            border: {
+                size: 1,
+                color: [{position: 0, color: "#44576b"}, {
+                    position: 1,
+                    color: "#2f3b47"
+                }]
+            },
+            background: {
+                color: [{position: 0, color: "#303a46"}, {
+                    position: 0.49,
+                    color: "#242d38"
+                }, {position: 0.81, color: "#10181f"}, {
+                    position: 1,
+                    color: "#0d1014"
+                }]
+            },
+            offset: {x: 0, y: -1, mouse: {x: -12, y: -12}},
+            stem: {height: 6, width: 11, offset: {x: 5, y: 5}, spacing: 0}
+        },
+        premium: {
+            border: {
+                size: 1,
+                color: [{position: 0, color: "#000"}, {
+                    position: 1,
+                    color: "#000"
+                }]
+            },
+            background: {
+                color: [{
+                    position: 0,
+                    color: "#a3e4f0"
+                }, {position: 0.15, color: "#1cbad7"}, {
+                    position: 1,
+                    color: "#0f78b1"
+                }]
+            },
+            offset: {x: 0, y: -1, mouse: {x: -12, y: -12}},
+            stem: {height: 6, width: 11, offset: {x: 5, y: 5}, spacing: 0}
+        }
+    })
+}
+function initTrader() {
+    var d = false;
+    var e = $.deparam.fragment();
+    if (typeof(e.animation) != "undefined") {
+        if (e.animation == "false") {
+            d = true
+        }
+    }
+    var f = {
+        $link: null, $panel: null, close: function () {
+            this.$panel.hide()
+        }, setPanel: function () {
+            this.$panel = $("#js_togglePanel" + traderObj.traderId.replace(/#div_trader/, ""))
+        }, init: function (k) {
+            var c = $(k + " .selectWrapper");
+            k = k.replace(/#div_trader/, "");
+            if (!c) {
+                return
+            }
+            this.$link = $("#js_toggleLink" + k);
+            this.$panel = $("#js_togglePanel" + k);
+            var a = this.$panel;
+            a.hide();
+            this.$link.unbind("click.selectLink").bind("click.selectLink", function (g) {
+                k = traderObj.traderId.replace(/#div_trader/, "");
+                if ($(this).hasClass("honor")) {
+                    return false
+                }
+                if (a.find("ul.active").has("li").length) {
+                    a.toggle()
+                }
+                return false
+            });
+            $(".selectWrapper .source").unbind("click.selectPlanetOrMoon").bind("click.selectPlanetOrMoon", function (g) {
+                f.selectPlanetOrMoon(this)
+            });
+            $("#" + a.attr("id")).find("li").unbind("click.selectSource").bind("click.selectSource", function (g) {
+                traderObj.selectSource(this);
+                return false
+            });
+            f.outerClick(c, a);
+            var b = null, l = 8000;
+            c.unbind("mouseout.closeSelect").bind("mouseout.closeSelect", function (g) {
+                g = g || window.event;
+                var h = (g.relatedTarget) ? g.relatedTarget : g.toElement;
+                if (h == c || f.isChildOf(h, c)) {
+                    return
+                }
+                b = setTimeout(function () {
+                    a.hide()
+                }, l)
+            }).unbind("mouseover.clearTimeout").bind("mouseover.clearTimeout", function () {
+                if (b) {
+                    clearTimeout(b)
+                }
+            })
+        }, isChildOf: function (a, b) {
+            b = b[0];
+            while (a && a != b) {
+                a = a.parentNode
+            }
+            return a == b
+        }, outerClick: function (b, a) {
+            $("body").bind("click.outerClick", function (c) {
+                if (!c) {
+                    c = window.event
+                }
+                if (!($(c.target).closest(".selectWrapper") == b) && a.is(":visible") != false) {
+                    a.toggle()
+                }
+            })
+        }, selectPlanetOrMoon: function (b) {
+            var o;
+            if ($(b).hasClass("selected")) {
+                return false
+            }
+            var p = "", a = null;
+            if ($(b).hasClass("js_honor")) {
+                $(traderObj.traderId + " .selectWrapper .source").removeClass("selected");
+                $(traderObj.traderId + " .js_honor").addClass("selected");
+                $(traderObj.traderId + " .toggleLink").addClass("honor");
+                var p = '<img height="18" src="/img/icons/f35675179214f8f6f0f8d75740d7db.png" alt="' + loca.honorPoints + '"/><span class="option_source">' + loca.honorPoints + "</span>";
+                $(traderObj.traderId + " .js_valSourcePlanet").html(p);
+                $(traderObj.traderId + " .normalResource").hide();
+                $(traderObj.traderId + " .honorResource").show();
+                return false
+            }
+            var q = $(traderObj.traderId + " .togglePanel");
+            var c = "planet";
+            if ($(b).hasClass("js_moon")) {
+                var n = 0;
+                c = "moon";
+                for (o in traderObj.planets) {
+                    if (traderObj.planets[o].isMoon) {
+                        n++
+                    }
+                }
+                if (n == 0) {
+                    return false
+                }
+            }
+            var r = traderObj.planets[traderObj.current.planet];
+            q.find("ul").hide().removeClass("active");
+            q.find("ul." + c).show().addClass("active");
+            $(traderObj.traderId + " .toggleLink").removeClass("honor");
+            $(traderObj.traderId + " .selectWrapper .source").removeClass("selected");
+            $(traderObj.traderId + " .js_" + c).addClass("selected");
+            if ($(b).hasClass("js_moon") ? r.isMoon : !r.isMoon) {
+                a = traderObj.current.planet
+            } else {
+                if (r.otherPlanet != null && typeof(traderObj.planets[r.otherPlanet]) != "undefined") {
+                    a = r.otherPlanet
+                } else {
+                    a = q.find("ul." + c + " li:first").attr("id")
+                }
+            }
+            $(traderObj.traderId + " .normalResource").show();
+            $(traderObj.traderId + " .honorResource").hide();
+            q.find("ul li#" + a).click();
+            return false
+        }, setToggleLink: function (b) {
+            var c = traderObj.traderId.replace(/#div_trader/, ""), h = $(b).find("span"), a = traderObj.planets[$(b).attr("id")].name;
+            if (a != h.text()) {
+                h.attr("title", a.replace(/\|/g, "&#124;"))
+            }
+            this.$link = $("#js_toggleLink" + c);
+            this.$link.html($(b).html())
+        }
+    };
+    traderObj = {
+        traderBGPos: {
+            "#div_traderResources": "0px 0px",
+            "#div_traderAuctioneer": "-546px 0px",
+            "#div_traderScrap": "0px -220px",
+            "#div_traderImportExport": "-546px -220px"
+        },
+        timer: 500,
+        planets: {},
+        honorOutput: 0,
+        price: 0,
+        deficit: 0,
+        priceImportExport: 0,
+        sumResources: 0,
+        traderId: null,
+        resources: ["Metal", "Crystal", "Deuterium"],
+        current: {planet: currentPlanetId, resource: "", sliderValue: ""},
+        barXPos: -180,
+        barYPos: 0,
+        percentPaid: 0,
+        switchingTrader: false,
+        checkOverbidden: function () {
+            if (playerBid == false || playerBid >= getValue($(".detail_value.currentSum").html())) {
+                $(".overbid_text").hide()
+            } else {
+                $(".overbid_text").show()
+            }
+        },
+        refresh: function () {
+            var c = traderObj.traderId;
+            if ("#" + $(this).closest(".div_trader").attr("id") !== c) {
+                return
+            }
+            var b = $(this).attr("class");
+            var a = new RegExp(/\b(js_slider\w*)\b/);
+            b = (a.test(b)) ? RegExp.$1 : false;
+            if (!b) {
+                return
+            }
+            traderObj.current.sliderValue = $(this).slider("value");
+            traderObj.current.resource = b.replace("js_slider", "").toLowerCase();
+            if (traderObj.current.resource == "honor") {
+                traderObj.honorOutput = traderObj.current.sliderValue
+            } else {
+                traderObj.planets[traderObj.current.planet].output[traderObj.current.resource] = traderObj.current.sliderValue
+            }
+            formatNumber($(c + " .js_amount.js_" + traderObj.current.resource), traderObj.current.sliderValue);
+            if (c == "#div_traderAuctioneer") {
+                traderObj.price = getValue($(c + " .js_price").html());
+                traderObj.sumAuctioneer();
+                traderObj.checkOverbidden()
+            } else {
+                if (c == "#div_traderImportExport") {
+                    traderObj.sumImportExport()
+                }
+            }
+        },
+        resetValues: function (b, c) {
+            b = b || traderObj.traderId;
+            c = c || false;
+            for (var h in traderObj.planets) {
+                for (var a in traderObj.planets[h].output) {
+                    traderObj.planets[h].output[a] = 0
+                }
+            }
+            traderObj.honorOutput = 0;
+            $(".js_amount").val(0);
+            if (traderObj.traderId == "#div_traderAuctioneer") {
+                traderObj.sumAuctioneer()
+            } else {
+                if (traderObj.traderId == "#div_traderImportExport") {
+                    traderObj.sumImportExport()
+                }
+            }
+            if (c) {
+                b = b.replace(/#div_trader/, "");
+                $("#js_togglePanel" + b).find("li#" + currentPlanetId).click()
+            }
+            f.close()
+        },
+        resetMaxAmount: function (c, r) {
+            var b = traderObj.traderId;
+            var s = traderObj.resources;
+            for (var o in traderObj.planets) {
+                for (var p = 0; p < s.length; p++) {
+                    var a = s[p].toLowerCase();
+                    traderObj.planets[o].input[a] = c[o][a]
+                }
+            }
+            for (var q = 0; q < s.length; q++) {
+                a = s[q].toLowerCase();
+                var u = traderObj.planets[traderObj.current.planet].input[a];
+                $(b + " .max_planet_" + a).html(number_format(u, 0))
+            }
+            honorScore = r;
+            $(b + " .max_planet_honor").html(number_format(Math.max(0, r), 0));
+            f.close()
+        },
+        selectSource: function (a) {
+            traderObj.current.planet = $(a).attr("id");
+            f.close();
+            f.setToggleLink($(a));
+            var o = traderObj.traderId;
+            var r = traderObj.current.planet;
+            var s = traderObj.resources;
+            for (var q = 0; q < s.length; q++) {
+                var b = s[q].toLowerCase();
+                var u = traderObj.planets[r].input[b];
+                if (o == "#div_traderImportExport") {
+                    var c = (traderObj.priceImportExport / multiplier[b]) - traderObj.sumResources + traderObj.planets[r].output[b];
+                    var p = Math.min(u, c)
+                }
+                $(o + " .max_planet_" + b).html(number_format(u, 0));
+                $(o + " .js_amount.js_" + b).val(number_format(traderObj.planets[r].output[b], 0))
+            }
+        },
+        selectTrader: function (o, a, m) {
+            a = a || traderObj.timer;
+            $.bbq.pushState({page: o, animation: "false"});
+            $(".planetlink, .moonlink").fragment({page: o, animation: "false"});
+            traderObj.traderId = "#div_" + o;
+            var n = traderObj.traderId, p = $(".back_to_overview");
+            var c = function () {
+                if (n == "#div_traderAuctioneer" || n == "#div_traderImportExport") {
+                    traderObj.resetValues(null, true)
+                }
+                var g = function () {
+                    $("#traderOverview").find(".c-left, .c-right").addClass("c-small");
+                    p.show();
+                    if (n == "#div_traderAuctioneer" || n == "#div_traderImportExport") {
+                        p.addClass("left");
+                        p.removeClass("right")
+                    } else {
+                        if (n == "#div_traderResources" || n == "#div_traderScrap") {
+                            p.addClass("right");
+                            p.removeClass("left")
+                        }
+                    }
+                    $("#planet #header_text h2").html(loca[o]).parent().show()
+                };
+                if (animation && !d) {
+                    $("#traderOverview").find(".c-left, .c-right").hide();
+                    $("#planet").animate({
+                        backgroundPosition: traderObj.traderBGPos[n],
+                        height: "250px"
+                    }, a, function () {
+                        $("#planet").addClass("detail");
+                        $("#traderOverview").find(".c-left, .c-right").show();
+                        g();
+                        if (n == "#div_traderResources") {
+                            showTradeNowButton()
+                        }
+                    })
+                } else {
+                    d = false;
+                    $("#planet").css("background-position", traderObj.traderBGPos[n]).css("height", "250px");
+                    g();
+                    if (n == "#div_traderResources") {
+                        showTradeNowButton()
+                    }
+                }
+                f.setPanel();
+                $("#planet").addClass("detail");
+                $(".js_trader").hide();
+                $(n).show();
+                if (n == "#div_traderResources" && typeof(m) != "undefined") {
+                    $(n + " .ui-tabs").tabs("option", "active", m)
+                }
+                traderObj.switchingTrader = false
+            };
+            if ($(traderObj.traderId).length == 0) {
+                var b = o.toLowerCase().replace(/^trader/, "");
+                $.ajax({
+                    url: traderUrl,
+                    type: "POST",
+                    data: {show: b, ajax: 1},
+                    beforeSend: function () {
+                        $("#loadingOverlay").addClass(b).show()
+                    },
+                    success: function (g) {
+                        $("#inhalt").append(g);
+                        $("#loadingOverlay").hide().removeClass(b);
+                        c()
+                    },
+                    error: function () {
+                        fadeBox(loca.error, true);
+                        $("#loadingOverlay").hide().removeClass(b)
+                    }
+                })
+            } else {
+                c()
+            }
+        },
+        submitAuction: function () {
+            var c = traderObj.traderId;
+            var b = getValue($(c + " .js_auctioneerSum").html());
+            if (!$(c + " .right_box .pay").hasClass("disabled") && traderObj.price > 0 && traderObj.deficit <= 0) {
+                $(c + " .right_box .pay").addClass("disabled");
+                var h = {planets: {}, honor: traderObj.honorOutput};
+                for (var a in traderObj.planets) {
+                    h.planets[a] = traderObj.planets[a].output
+                }
+                $.ajax({
+                    url: auctionUrl,
+                    type: "POST",
+                    data: {bid: h, token: auctioneerToken, ajax: 1},
+                    dataType: "json",
+                    success: function (g) {
+                        auctioneerToken = g.newToken;
+                        fadeBox(g.message, g.error);
+                        if (!g.error) {
+                            traderObj.resetValues(c, false);
+                            traderObj.resetMaxAmount(g.planetResources, g.honor);
+                            traderObj.reloadResources()
+                        }
+                    },
+                    error: function () {
+                        fadeBox(loca.error, true)
+                    }
+                })
+            }
+            return false
+        },
+        submitImportExport: function () {
+            if (!$(traderObj.traderId + " .right_box .pay").hasClass("disabled")) {
+                $(traderObj.traderId + " .right_box .pay").addClass("disabled");
+                var a = {planets: {}, honor: traderObj.honorOutput};
+                for (planetId in traderObj.planets) {
+                    a.planets[planetId] = traderObj.planets[planetId].output
+                }
+                $.ajax({
+                    url: importUrl,
+                    type: "POST",
+                    data: {
+                        action: "trade",
+                        bid: a,
+                        token: importToken,
+                        ajax: 1
+                    },
+                    dataType: "json",
+                    success: function (b) {
+                        importToken = b.newToken;
+                        fadeBox(b.message, b.error);
+                        if (!b.error) {
+                            for (planetId in traderObj.planets) {
+                                traderObj.planets[planetId].output = {
+                                    metal: 0,
+                                    crystal: 0,
+                                    deuterium: 0
+                                }
+                            }
+                            $(traderObj.traderId + " .bargain_overlay").show();
+                            $(traderObj.traderId + " .payment").hide();
+                            $(traderObj.traderId + " .image_140px a").addClass("slideIn");
+                            traderObj.reloadResources();
+                            traderObj.updateImportItem(b.item);
+                            traderObj.refresh()
+                        }
+                    },
+                    error: function () {
+                        fadeBox(loca.error, true)
+                    }
+                })
+            }
+            return false
+        },
+        reloadResources: function (a) {
+            getAjaxResourcebox(a)
+        },
+        changeImportItem: function () {
+            if ($(traderObj.traderId + " .import_bargain.change").hasClass("disabled")) {
+                if (darkMatter < importChangeCost) {
+                    errorBoxDecision(LocalizationStrings.error, loca.errorNotEnoughDM, LocalizationStrings.yes, LocalizationStrings.no, redirectPremium)
+                }
+            } else {
+                $(traderObj.traderId + " .import_bargain.change").addClass("disabled");
+                $.ajax({
+                    url: importUrl,
+                    type: "POST",
+                    data: {action: "bargain", token: importToken, ajax: 1},
+                    dataType: "json",
+                    success: function (a) {
+                        importToken = a.newToken;
+                        fadeBox(a.message, a.error);
+                        if (!a.error) {
+                            traderObj.updateImportItem(a.item);
+                            traderObj.reloadResources(function () {
+                                if (a.item.offersLeft > 0 && darkMatter >= importChangeCost) {
+                                    $(traderObj.traderId + " .import_bargain.change").removeClass("disabled")
+                                } else {
+                                    $(traderObj.traderId + " .import_bargain.change").addClass("disabled")
+                                }
+                            });
+                            traderObj.refresh()
+                        }
+                    },
+                    error: function () {
+                        fadeBox(loca.error, true)
+                    }
+                })
+            }
+            return false
+        },
+        updateImportItem: function (a) {
+            $(traderObj.traderId + " .got_item_text").html(a.itemText);
+            $(traderObj.traderId + " .bargain_text").html(a.bargainText);
+            $(traderObj.traderId + " .bargain_cost").html(a.bargainCostText);
+            importChangeCost = a.bargainCost;
+            $(traderObj.traderId + " .image_140px img").attr("src", "/img/icons/items/" + a.image + "-140x.png");
+            removeTooltip($(traderObj.traderId + " .image_140px a"));
+            $(traderObj.traderId + " .image_140px a").attr("ref", a.uuid).removeClass("tooltip").addClass("tooltipHTML").attr("title", a.tooltip);
+            initTooltips($(traderObj.traderId + " .image_140px a"));
+            $(traderObj.traderId + " .detail_button .amount").text(a.amount)
+        },
+        takeImportItem: function () {
+            if (!$(traderObj.traderId + " .import_bargain.take").hasClass("disabled")) {
+                $(traderObj.traderId + " .import_bargain.change").addClass("disabled");
+                $(traderObj.traderId + " .import_bargain.take").addClass("disabled");
+                $(traderObj.traderId + " .import_bargain.change").addClass("hidden");
+                $(traderObj.traderId + " .import_bargain.take").addClass("hidden");
+                $(traderObj.traderId + " .bargain_cost").addClass("hidden");
+                $.ajax({
+                    url: importUrl,
+                    type: "POST",
+                    data: {action: "takeItem", token: importToken, ajax: 1},
+                    dataType: "json",
+                    success: function (a) {
+                        importToken = a.newToken;
+                        fadeBox(a.message, a.error);
+                        if (!a.error) {
+                            var b = a.item.ref;
+                            changeTooltip($(".detail_button[ref='" + b + "']"), a.item.title);
+                            $(".detail_button[ref='" + b + "'] span.amount, #itemDetails[data-uuid='" + b + "'] span.amount").html(tsdpkt(a.item.amount));
+                            if (a.item.canBeActivated) {
+                                $('#itemDetails[data-uuid="' + b + '"] a.activateItem').removeClass("build-it_disabled").addClass("build-it")
+                            } else {
+                                $('#itemDetails[data-uuid="' + b + '"] a.activateItem').addClass("build-it_disabled").removeClass("build-it")
+                            }
+                            if (a.item.newOffer == false) {
+                                $(traderObj.traderId + " .bargain_text").html(a.item.noOfferMessage)
+                            } else {
+                                traderObj.resetImport(a.item.newOffer)
+                            }
+                        }
+                    },
+                    error: function () {
+                        fadeBox(loca.error, true)
+                    }
+                })
+            }
+            return false
+        },
+        resetImport: function (a) {
+            importChangeCost = a.bargainCost;
+            if (darkMatter >= importChangeCost) {
+                $(traderObj.traderId + " .import_bargain.change").removeClass("disabled")
+            } else {
+                $(traderObj.traderId + " .import_bargain.change").addClass("disabled")
+            }
+            $(traderObj.traderId + " .import_bargain.take").removeClass("disabled");
+            $(traderObj.traderId + " .import_bargain.change").removeClass("hidden");
+            $(traderObj.traderId + " .import_bargain.take").removeClass("hidden");
+            $(traderObj.traderId + " .bargain_cost").removeClass("hidden");
+            $(traderObj.traderId + " .bargain_overlay").hide();
+            $(traderObj.traderId + " .payment").show();
+            $(traderObj.traderId + " .image_140px img").attr("src", "/cdn/img/trader/container_" + a.rarity + ".jpg");
+            $(traderObj.traderId + " .image_140px a").removeClass("slideIn").attr("ref", "").removeClass("tooltipHTML").addClass("tooltip").removeClass("r_common_140px").removeClass("r_uncommon_140px").removeClass("r_rare_140px").removeClass("r_epic_140px").removeClass("r_buddy_140px").addClass("r_" + a.rarity + "_140px");
+            changeTooltip($(traderObj.traderId + " .image_140px a"), a.tooltip);
+            $(traderObj.traderId + " .js_import_price").removeClass("green_text").text(number_format(a.price, 0));
+            $(traderObj.traderId + " .image_140px .amount").text("?");
+            traderObj.priceImportExport = getValue($(".js_import_price").html());
+            traderObj.resetValues(null, true);
+            traderObj.init()
+        },
+        sumAuctioneer: function () {
+            var k = traderObj.traderId;
+            var a = traderObj.price;
+            if (a == 0) {
+                $("#div_traderAuctioneer .js_amount").attr("disabled", "disabled")
+            } else {
+                $("#div_traderAuctioneer .js_amount").removeAttr("disabled")
+            }
+            var c = 0;
+            for (var b in traderObj.planets) {
+                var l = traderObj.planets[b].output;
+                c += parseInt(l.metal) * multiplier.metal + parseInt(l.crystal) * multiplier.crystal + parseInt(l.deuterium) * multiplier.deuterium
+            }
+            c += parseInt(traderObj.honorOutput) * multiplier.honor;
+            c = Math.floor(c);
+            traderObj.deficit = (Number(auctioneer.calculateDeficit()) - Number(c));
+            if (traderObj.deficit > 0) {
+                $(" .js_deficit").html(number_format(traderObj.deficit, 0))
+            } else {
+                $(" .js_deficit").html(number_format(0, 0))
+            }
+            if (c > 0) {
+                $("#div_traderAuctioneer .js_auctioneerSum").html("+ " + number_format(c, 0))
+            } else {
+                $("#div_traderAuctioneer .js_auctioneerSum").html("")
+            }
+            $("#div_traderAuctioneer .js_alreadyBidden").html(number_format(Math.floor(playerBid + c), 0));
+            if (a > 0 && traderObj.deficit <= 0) {
+                $("#div_traderAuctioneer .right_box .pay").removeClass("disabled")
+            } else {
+                $("#div_traderAuctioneer .right_box .pay").addClass("disabled")
+            }
+        },
+        sumImportExport: function () {
+            var n = traderObj.traderId;
+            var m = 0;
+            var a = 0;
+            var b = 0;
+            traderObj.sumResources = 0;
+            for (var c in traderObj.planets) {
+                var o = traderObj.planets[c].output;
+                m += parseInt(o.metal) * multiplier.metal;
+                a += parseInt(o.crystal) * multiplier.crystal;
+                b += parseInt(o.deuterium) * multiplier.deuterium
+            }
+            var p = traderObj.honorOutput * multiplier.honor;
+            traderObj.sumResources += m + a + b + p;
+            if (traderObj.sumResources >= traderObj.priceImportExport) {
+                traderObj.sumResources = traderObj.priceImportExport
+            }
+            $(n + " .js_sum_price").html(number_format(Math.floor(traderObj.sumResources), 0));
+            if (traderObj.sumResources >= traderObj.priceImportExport) {
+                $(n + " .js_import_price").addClass("green_text");
+                $(n + " .right_box .pay").removeClass("disabled")
+            } else {
+                $(n + " .js_import_price").removeClass("green_text");
+                $(n + " .right_box .pay").addClass("disabled")
+            }
+        },
+        updateValues: function (w) {
+            var c = traderObj.traderId;
+            if (c !== "#" + w.closest(".div_trader").attr("id")) {
+                return
+            }
+            var r = w.attr("class");
+            var a = new RegExp(/\b(js_slider\w*)\b/);
+            r = (a.test(r)) ? RegExp.$1 : false;
+            if (!r) {
+                return
+            }
+            var s = traderObj.current.planet;
+            var p, b, v;
+            if (r.indexOf("More") != -1) {
+                v = r.replace("More", "");
+                p = "More"
+            } else {
+                if (r.indexOf("Max") != -1) {
+                    v = r.replace("Max", "");
+                    p = "Max"
+                }
+            }
+            traderObj.current.resource = v.replace("js_slider", "").toLowerCase() || null;
+            var u = traderObj.current.resource;
+            var q = 0;
+            if (u == "honor") {
+                q = Math.max(0, honorScore)
+            } else {
+                q = traderObj.planets[s].input[u]
+            }
+            b = getValue($(c + " ." + v + "Input").val());
+            if (p == "More") {
+                if (c == "#div_traderImportExport") {
+                    if (traderObj.sumResources <= traderObj.priceImportExport - 1000 * multiplier[u]) {
+                        b += 1000
+                    } else {
+                        if (traderObj.sumResources < traderObj.priceImportExport) {
+                            b += Math.ceil((traderObj.priceImportExport - traderObj.sumResources) / multiplier[u])
+                        }
+                    }
+                } else {
+                    if (c == "#div_traderAuctioneer" && traderObj.price > 0) {
+                        b += 1000
+                    }
+                }
+                if (b >= q) {
+                    b = Math.max(0, q)
+                }
+            } else {
+                if (p == "Max") {
+                    if (c == "#div_traderImportExport") {
+                        if (traderObj.sumResources == 0) {
+                            b = Math.min(q, Math.ceil(traderObj.priceImportExport / multiplier[u]))
+                        } else {
+                            if (traderObj.sumResources.isBetween(0, traderObj.priceImportExport - 1)) {
+                                b = Math.min(q, b + Math.ceil((traderObj.priceImportExport - traderObj.sumResources) / multiplier[u]));
+                                b = Math.max(0, b)
+                            }
+                        }
+                    } else {
+                        if (c == "#div_traderAuctioneer" && traderObj.price > 0) {
+                            b = Math.min(q, Math.ceil(getValue($(c + " .js_deficit").html()) / multiplier[u] + b))
+                        }
+                    }
+                    if (u == "honor" && b < 0) {
+                        b = 0
+                    }
+                }
+            }
+            $(c + " .js_amount." + v + "Input").val(number_format(b, 0));
+            if (u == "honor") {
+                traderObj.honorOutput = b
+            } else {
+                traderObj.planets[s].output[u] = b
+            }
+            if (c == "#div_traderImportExport") {
+                traderObj.sumImportExport()
+            } else {
+                if (c == "#div_traderAuctioneer" && traderObj.price > 0) {
+                    traderObj.sumAuctioneer();
+                    traderObj.checkOverbidden()
+                }
+            }
+        },
+        updateValuesInputCanged: function (B) {
+            var c = traderObj.traderId;
+            if (c !== "#" + B.closest(".div_trader").attr("id")) {
+                return
+            }
+            var v = B.attr("class");
+            var a = new RegExp(/\b(js_slider\w*)\b/);
+            v = (a.test(v)) ? RegExp.$1 : false;
+            if (!v) {
+                return
+            }
+            var A = v.replace("Input", "");
+            var x = A.replace("js_slider", "").toLowerCase();
+            var w = traderObj.current.planet;
+            var u = 0;
+            if (x == "honor") {
+                u = Math.max(0, honorScore)
+            } else {
+                u = parseInt(traderObj.planets[w].input[x])
+            }
+            var b = 0;
+            if (c == "#div_traderImportExport") {
+                var s = 0;
+                for (var r in traderObj.planets) {
+                    var y = traderObj.planets[r].output;
+                    if (x != "metal") {
+                        s += Math.floor(parseInt(y.metal) * multiplier.metal)
+                    }
+                    if (x != "crystal") {
+                        s += Math.floor(parseInt(y.crystal) * multiplier.crystal)
+                    }
+                    if (x != "deuterium") {
+                        s += Math.floor(parseInt(y.deuterium) * multiplier.deuterium)
+                    }
+                }
+                b = Math.min(getValue(B.val()), Math.ceil((traderObj.priceImportExport - s) / multiplier[x]))
+            } else {
+                if (c == "#div_traderAuctioneer") {
+                    b = getValue(B.val())
+                }
+            }
+            b = Math.min(b, u);
+            traderObj.planets[w].output[x] = b;
+            if (x == "honor") {
+                traderObj.honorOutput = b
+            } else {
+                traderObj.planets[w].output[x] = b
+            }
+            if (c == "#div_traderImportExport") {
+                traderObj.sumImportExport()
+            } else {
+                if (c == "#div_traderAuctioneer") {
+                    traderObj.sumAuctioneer();
+                    traderObj.checkOverbidden()
+                }
+            }
+            formatNumber(c + " .js_amount." + A + "Input", b)
+        },
+        init: function () {
+            $(".honorResource").hide();
+            $("#menuTable a.trader").unbind("click.gotoTrader").bind("click.gotoTrader", function (a) {
+                a.preventDefault();
+                traderObj.switchTrader("traderResources")
+            });
+            $(window).unbind("hashchange.switchTrader").bind("hashchange.switchTrader", function (a) {
+                var b = $.deparam.fragment(a.fragment);
+                if (typeof(b.page) == "undefined" || b.page == "" && traderObj.traderId != null) {
+                    traderObj.returnToOverview()
+                } else {
+                    traderObj.switchTrader(b.page)
+                }
+            });
+            $(".small_back_to_overview").unbind("mouseenter").unbind("mouseout").bind("mouseenter", function () {
+                $("#header_text").css("background-position", "0 -250px")
+            }).bind("mouseout", function () {
+                $("#header_text").css("background-position", "0 0")
+            })
+        },
+        initSliderTrader: function (a) {
+            $(a + " .js_valButton").unbind("click.valControl");
+            $(a + " .js_amount").unbind("keyup.inputVal");
+            f.init(a);
+            $(a + " .js_valButton").bind("click.valControl", function (b) {
+                traderObj.updateValues($(this));
+                b.stopPropagation()
+            });
+            $(a + " .js_amount").bind("keyup.inputVal", function (b) {
+                traderObj.updateValuesInputCanged($(this));
+                b.stopPropagation()
+            })
+        },
+        initImportExport: function () {
+            traderObj.planets = planetResources;
+            traderObj.priceImportExport = getValue($(".js_import_price").html());
+            traderObj.initSliderTrader("#div_traderImportExport");
+            $("#div_traderImportExport .right_box .pay").bind("click", function () {
+                traderObj.submitImportExport()
+            });
+            $("#div_traderImportExport .import_bargain.change").bind("click", function () {
+                traderObj.changeImportItem()
+            });
+            $("#div_traderImportExport .import_bargain.take").bind("click", function () {
+                traderObj.takeImportItem()
+            })
+        },
+        switchTrader: function (a) {
+            if (traderObj.switchingTrader) {
+                return
+            }
+            traderObj.switchingTrader = true;
+            Tipped.hideAll();
+            $("#planet .close_details:visible").click();
+            if ("#div_" + a == traderObj.traderId) {
+                return
+            }
+            if (traderObj.traderId != null || a == "" || a == null) {
+                traderObj.returnToOverview();
+                if (animation && !d) {
+                    setTimeout(function () {
+                        traderObj.selectTrader(a)
+                    }, 500)
+                } else {
+                    traderObj.selectTrader(a)
+                }
+            } else {
+                traderObj.selectTrader(a)
+            }
+        },
+        returnToOverview: function () {
+            Tipped.hideAll();
+            $("#planet #header_text h2").empty().parent().hide();
+            $("#traderOverview").find(".c-left, .c-right").hide();
+            var a = traderObj.traderId;
+            if (!a) {
+                return
+            }
+            $(a).hide();
+            $("#callTrader").hide();
+            if (animation && !d) {
+                $("#planet h2").hide();
+                $("#planet").animate({
+                    backgroundPosition: "-273px 0px",
+                    height: "470px"
+                }, 500, function () {
+                    $("#planet h2").show();
+                    $("#planet").removeClass("detail");
+                    $("#traderOverview").find(".c-left, .c-right").show();
+                    $(".js_trader").show()
+                })
+            } else {
+                $("#planet").removeClass("detail").css("background-position", "-273px 0px").css("height", "470px");
+                $(".js_trader").show()
+            }
+            $("#planet a").show();
+            $("#planet .back_to_overview").hide();
+            removeTooltip($("#planet .back_to_overview"));
+            $("#traderOverview").find(".c-left, .c-right").removeClass("c-small");
+            traderObj.traderId = null;
+            traderObj.switchingTrader = false
+        }
+    };
+    breakerObj = {
+        costs: null,
+        offer: null,
+        ships: {},
+        locked: false,
+        lastTechId: null,
+        initialize: function () {
+            this.offer = parseInt($(".scrap_offer_amount").html());
+            this.costs = breakerCosts;
+            var a = this;
+            $("#js_anythingSliderShips, #js_anythingSliderDefense").anythingSlider({
+                startStopped: true,
+                buildStartStop: false,
+                expand: true,
+                resizeContents: false,
+                theme: "default",
+                infiniteSlides: false,
+                autoPlay: false,
+                easing: "swing",
+                resizeContents: true,
+                stopAtEnd: true,
+                playRtl: isRTLEnabled,
+                buildNavigation: false,
+                onInitialized: function (u, y) {
+                    if (isMobile) {
+                        var x = 1000, v = 50, s = 0, c = 0, w = "ontouchend" in document, b = (w) ? "touchstart" : "mousedown", r = (w) ? "touchmove" : "mousemove", A = (w) ? "touchend" : "mouseup";
+                        y.$window.bind(b, function (g) {
+                            c = (new Date()).getTime();
+                            s = g.originalEvent.touches ? g.originalEvent.touches[0].pageX : g.pageX
+                        }).bind(A, function (g) {
+                            c = 0;
+                            s = 0
+                        }).bind(r, function (h) {
+                            h.preventDefault();
+                            var g = h.originalEvent.touches ? h.originalEvent.touches[0].pageX : h.pageX, k = (s === 0) ? 0 : Math.abs(g - s), l = (new Date()).getTime();
+                            if (c !== 0 && l - c < x && k > v) {
+                                if (g < s) {
+                                    y.goForward()
+                                }
+                                if (g > s) {
+                                    y.goBack()
+                                }
+                                c = 0;
+                                s = 0
+                            }
+                        })
+                    }
+                }
+            });
+            $("#js_anythingSliderDefense").parent().parent().hide();
+            $(".scrap_defense").bind("click.tabDefense", function () {
+                $(".scrap_ships").removeClass("selected");
+                $(this).addClass("selected");
+                $("#js_anythingSliderShips").parent().parent().hide();
+                $("#js_anythingSliderDefense").parent().parent().show()
+            });
+            $(".scrap_ships").bind("click.tabShips", function () {
+                $(".scrap_defense").removeClass("selected");
+                $(this).addClass("selected");
+                $("#js_anythingSliderDefense").parent().parent().hide();
+                $("#js_anythingSliderShips").parent().parent().show()
+            });
+            $(".buildingimg a").each(function () {
+                var h = $(this).attr("ref").substr(6, 3);
+                var b = $(this).find(".level");
+                var c = b.contents().filter(function () {
+                    return this.nodeType == 3
+                });
+                a.ships[h] = c.text().replace(/^\s+|\s+$/g, "");
+                c.remove();
+                b.append(tsdpkt(a.ships[h]))
+            });
+            $("#js_scrapBargain").unbind("click").bind("click", function () {
+                if (!$(this).hasClass("disabled")) {
+                    a.bargain(a)
+                }
+                return false
+            });
+            $("#js_scrapScrapIT").unbind("click").bind("click", function () {
+                if (!$(this).hasClass("disabled")) {
+                    a.trade(a)
+                }
+                return false
+            });
+            $("input.ship_amount").unbind("focus").bind("focus", function () {
+                a.lastTechId = $(this).attr("name").substr(2, 3);
+                $(this).val("")
+            });
+            $("input.ship_amount").unbind("keyup change").bind("keyup change", function (c) {
+                a.lastTechId = $(this).attr("name").substr(2, 3);
+                formatNumber(this, $(this).val());
+                var b = $(this);
+                clearTimeout(b.data("timer"));
+                b.data("timer", setTimeout(function () {
+                    b.removeData("timer");
+                    a.updateResources(a)
+                }, 300))
+            });
+            $(".buildingimg a").unbind("click").bind("click", function () {
+                return false
+            });
+            $(".js_maxShips").unbind("click").bind("click", function () {
+                if (!isMobile) {
+                    $($(this).attr("ref")).focus()
+                }
+                var b = a.ships[$(this).attr("ref").substr(6, 3)];
+                $($(this).attr("ref")).val(tsdpkt(b)).trigger("change");
+                a.updateResources(a);
+                return false
+            });
+            $(".sendAll").unbind("click").bind("click", function () {
+                $(".anythingSlider ul:visible input").each(function () {
+                    a.lastTechId = $(this).attr("name").substr(2, 3);
+                    var b = a.ships[a.lastTechId];
+                    $(this).val(tsdpkt(b))
+                });
+                a.updateResources(a, function (b) {
+                    if (b.error) {
+                        $(".anythingSlider ul:visible input").val("");
+                        $("#div_traderScrap .resource_amount").text(0);
+                        a.checkShips(a)
+                    }
+                })
+            });
+            $(".sendNone").unbind("click").bind("click", function () {
+                $(".anythingSlider ul:visible input").each(function () {
+                    a.lastTechId = $(this).attr("name").substr(2, 3);
+                    $(this).val("")
+                });
+                a.updateResources(a)
+            });
+            $("#js_bargainCost").text(tsdpkt(this.costs));
+            this.checkMoney(this);
+            this.checkShips(this);
+            this.updateBargain(this)
+        },
+        bargain: function (a) {
+            $("#js_scrapBargain").addClass("disabled");
+            $.ajax({
+                url: breakerCallLink,
+                type: "POST",
+                dataType: "json",
+                data: {bargain: 1, token: breakerToken},
+                beforeSend: function () {
+                    a.lock(a)
+                },
+                success: function (b) {
+                    a.unlock(a);
+                    breakerToken = b.newToken;
+                    fadeBox(b.message, b.error);
+                    if (!b.error) {
+                        a.costs = b.bargainPrice;
+                        a.offer = b.percentage;
+                        darkMatter = b.resources.dm;
+                        a.updateBargain(a);
+                        a.updateResources(a);
+                        traderObj.reloadResources(function () {
+                            a.checkMoney(a);
+                            Tipped.show($("#js_scrapBargain")[0])
+                        })
+                    }
+                    $(".scrap_trader_quote").text(b.quote)
+                },
+                error: function () {
+                    a.unlock(a)
+                }
+            })
+        },
+        trade: function (a) {
+            a.lock(a);
+            var b = a.getTradeArray();
+            var c = function c() {
+                var k = loca.breakerQuestion + '<br/><br/><div style="text-align: left; margin-left: 30px">';
+                var l = 0;
+                $.each(b, function (g) {
+                    k += this + "x " + loca.shipNames[g] + ", ";
+                    l++;
+                    if (l % 2 == 0) {
+                        k += "<br/>"
+                    }
+                });
+                k = k.replace(/, (<br\/>)?$/, "");
+                k += "</div>";
+                return k
+            };
+            errorBoxDecision(loca.breaker, c(), LocalizationStrings.yes, LocalizationStrings.no, function () {
+                $.ajax({
+                    url: breakerCallLink,
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        lastTechId: a.lastTechId,
+                        finishTrade: 1,
+                        trade: b,
+                        token: breakerToken
+                    },
+                    success: function (h) {
+                        a.unlock(a);
+                        breakerToken = h.newToken;
+                        if (h.error) {
+                            fadeBox(h.message, true)
+                        } else {
+                            fadeBox(h.message, false);
+                            a.offer = h.percentage;
+                            a.costs = h.bargainPrice;
+                            a.resetForm();
+                            a.updateBargain(a);
+                            $("#js_scrapAmountMetal").html(0);
+                            $("#js_scrapAmountCrystal").html(0);
+                            $("#js_scrapAmountDeuterium").html(0);
+                            traderObj.reloadResources(function () {
+                                a.updateShips(a)
+                            })
+                        }
+                        $(".scrap_trader_quote").text(h.quote)
+                    },
+                    error: function () {
+                        a.unlock(a);
+                        fadeBox(loca.error, true)
+                    }
+                })
+            }, function () {
+                a.unlock(a)
+            })
+        },
+        updateResources: function (b, a) {
+            if (b.locked) {
+                return
+            }
+            $.ajax({
+                url: breakerCallLink,
+                type: "POST",
+                dataType: "json",
+                data: {
+                    lastTechId: b.lastTechId,
+                    trade: b.getTradeArray(),
+                    token: breakerToken
+                },
+                beforeSend: function () {
+                    b.lock(b)
+                },
+                success: function (c) {
+                    breakerToken = c.newToken;
+                    if (c.error) {
+                        fadeBox(c.message, true)
+                    }
+                    b.locked = false;
+                    var k = false;
+                    for (var l in c.techAmount) {
+                        $("#ship_" + l).val(tsdpkt(c.techAmount[l]));
+                        if (!k && $("#ship_" + l).val() != b.ships[l]) {
+                            k = true
+                        }
+                    }
+                    $("#js_scrapAmountMetal").html(tsdpkt(c.resources.metal));
+                    $("#js_scrapAmountCrystal").html(tsdpkt(c.resources.crystal));
+                    $("#js_scrapAmountDeuterium").html(tsdpkt(c.resources.deuterium));
+                    if (!b.notFirstOffer) {
+                        $(".scrap_trader_quote").text(loca.breakerFirstOffer);
+                        b.notFirstOffer = true
+                    }
+                    if (k) {
+                        b.updateShips(b)
+                    } else {
+                        b.unlock(b)
+                    }
+                    if (typeof(a) == "function") {
+                        a(c)
+                    }
+                },
+                error: function () {
+                    b.unlock(b)
+                }
+            })
+        },
+        updateShips: function (a) {
+            $.ajax({
+                url: techUrl,
+                type: "POST",
+                dataType: "json",
+                beforeSend: function () {
+                    a.lock(a)
+                },
+                success: function (b) {
+                    $("#div_traderScrap .item").each(function () {
+                        var n = $(this).attr("id").substr(6, 3);
+                        if (typeof(b[n]) != "undefined") {
+                            var m = 0;
+                            if (b[n] != null) {
+                                m = getValue(b[n])
+                            }
+                            a.ships[n] = m;
+                            var c = $(this).find(".level");
+                            c.contents().filter(function () {
+                                return this.nodeType == 3
+                            }).remove();
+                            c.append(tsdpkt(m));
+                            if (b[n] != null) {
+                                var l = $("#button" + n);
+                                l.removeClass("on").removeClass("off");
+                                if (m > 0) {
+                                    l.addClass("on")
+                                } else {
+                                    l.addClass("off")
+                                }
+                            }
+                        }
+                    });
+                    a.unlock(a)
+                },
+                error: function () {
+                    a.unlock(a)
+                }
+            })
+        },
+        getTradeArray: function () {
+            var a = {};
+            $("input.ship_amount").each(function () {
+                var b = $(this).attr("name").substr(2, 3);
+                if (getValue($(this).val()) != 0) {
+                    a[b] = getValue($(this).val())
+                }
+            });
+            return a
+        },
+        resetForm: function () {
+            $("input.ship_amount").each(function () {
+                $(this).val("0")
+            });
+            removeTooltip($("#js_scrapBargain"));
+            $("#js_scrapBargain").removeClass("tooltip").removeAttr("title")
+        },
+        checkMoney: function (a) {
+            if (darkMatter < a.costs) {
+                $("#js_scrapBargain").addClass("disabled")
+            } else {
+                if (breakerMaximumPercent <= a.offer) {
+                    $("#js_scrapBargain").addClass("disabled").addClass("tooltip").attr("title", loca.infoMaxBargain);
+                    initTooltips($("#js_scrapBargain"))
+                } else {
+                    $("#js_scrapBargain").removeClass("disabled")
+                }
+            }
+        },
+        checkShips: function (a) {
+            var b = false;
+            $("input.ship_amount").each(function () {
+                if ($(this).val().length > 0 && getValue($(this).val()) > 0) {
+                    b = true
+                }
+            });
+            if (!b) {
+                $("#js_scrapScrapIT").addClass("disabled")
+            } else {
+                $("#js_scrapScrapIT").removeClass("disabled")
+            }
+        },
+        updateBargain: function (a) {
+            $(".scrap_offer_amount").css("height", a.offer / 100 * $(".scrap_offer_amount").parent().css("height").replace("px", ""));
+            $(".scrap_offer_amount").html(a.offer + "%");
+            $(".js_bargainCost").text(tsdpkt(a.costs))
+        },
+        lock: function (a) {
+            $("#js_scrapBargain").addClass("disabled");
+            $("#js_scrapScrapIT").addClass("disabled");
+            a.locked = true
+        },
+        unlock: function (a) {
+            a.locked = false;
+            a.checkShips(a);
+            a.checkMoney(a)
+        }
+    };
+    auctioneer = {
+        socket: null,
+        connected: false,
+        timeout: null,
+        retryInterval: 5000,
+        historyShown: false,
+        initConnection: function () {
+            try {
+                var a = auctioneer;
+                this.socket = new io.connect("/auctioneer", nodeParams);
+                console.log('auctioneer ioConnect()');
+                this.socket.on("connect", function () {
+                    a.connected = true;
+                    clearTimeout(this.timeout)
+                });
+                this.socket.on("disconnect", function () {
+                    a.connected = false;
+                    a.retryConnection()
+                });
+                this.socket.on("new auction", function (n) {
+                    auctionId = n.auctionId;
+                    var o = $("#div_traderAuctioneer .detail_value.currentPlayer").html();
+                    if (n.oldAuction.player == null) {
+                        o = loca.auctionNotSold
+                    } else {
+                        o = '<a href="' + n.oldAuction.player.link + '">' + n.oldAuction.player.name + "</a>"
+                    }
+                    removeTooltip($("#div_traderAuctioneer .image_140px .detail_button"));
+                    var c = $("#div_traderAuctioneer .image_140px .detail_button").attr("title");
+                    var p = $(".auction_history li:first").hasClass("even") ? "odd" : "even";
+                    var q = '                        <li class="' + p + '" style="display: none">                            <a href="javascript:void(0);"                               class="slideIn"                               ref="' + n.oldAuction.item.uuid + '">                                <img height="30" width="30"                                     src="/img/icons/items/' + n.oldAuction.item.imageSmall + '-small.png"                                     alt="" title="' + c + '"                                     class="item_img tooltipHTML tooltipLeft r_' + n.oldAuction.item.rarity + '"/>                            </a>                            <span class="detail sum">' + number_format(n.oldAuction.sum, 0) + '</span>                            <span class="detail player">' + o + '</span>                            <span class="detail date_time">' + n.oldAuction.time + "</span>                        </li>";
+                    $(".auction_history .history_content ul").prepend(q);
+                    $(".auction_history .history_content li:first").slideDown("slow");
+                    var r = $("#div_traderAuctioneer .auction_history li").length;
+                    if (r > 3) {
+                        $(".auction_history .history_content li:last").slideUp("slow", function () {
+                            $(".auction_history .history_content li:eq(21)").remove();
+                            var g = $(".auction_history .history_content li:eq(3)");
+                            g.addClass("more_auctions_li");
+                            if (auctioneer.historyShown) {
+                                g.show()
+                            }
+                        });
+                        $("#div_traderAuctioneer .auction_history .more").show()
+                    }
+                    $("#div_traderAuctioneer .image_140px .detail_button").attr("ref", n.item.uuid).attr("title", "").removeClass("r_common_140px").removeClass("r_uncommon_140px").removeClass("r_rare_140px").removeClass("r_epic_140px").addClass("r_" + n.item.rarity + "_140px");
+                    $("#div_traderAuctioneer .image_140px img").attr("src", "/img/icons/items/" + n.item.image + "-140x.png");
+                    $("#div_traderAuctioneer .left_header h2").html(loca.auctionRunning);
+                    a.setItemTooltip($("#div_traderAuctioneer .image_140px .detail_button"));
+                    a.setData({
+                        price: 1000,
+                        sum: 0,
+                        player: null,
+                        bids: 0,
+                        info: n.info
+                    });
+                    $("#div_traderAuctioneer .js_alreadyBidden").html(number_format(0, 0));
+                    $(".noAuctionOverlay").hide();
+                    traderObj.resetValues("#div_traderAuctioneer", false);
+                    traderObj.checkOverbidden()
+                });
+                this.socket.on("new bid", function (c) {
+                    if (c.player.id == playerId) {
+                        playerBid = c.sum;
+                        AuctionIdOflastPlayerBid = c.auctionId;
+                        $("#div_traderAuctioneer .js_alreadyBidden").html(number_format(Math.floor(playerBid), 0))
+                    }
+                    a.setData({
+                        price: c.price,
+                        sum: c.sum,
+                        player: c.player,
+                        bids: c.bids
+                    });
+                    traderObj.checkOverbidden()
+                });
+                this.socket.on("auction finished", function (c) {
+                    a.setData({
+                        price: 0,
+                        player: c.player,
+                        bids: c.bids,
+                        info: c.info
+                    });
+                    traderObj.resetValues("#div_traderAuctioneer", false);
+                    $("#div_traderAuctioneer .js_alreadyBidden").html(number_format(0, 0));
+                    $("#div_traderAuctioneer .js_auctioneerSum").html("");
+                    $("#div_traderAuctioneer .left_header h2").html(loca.auctionFinished);
+                    if (c.player != null) {
+                        if (c.player.id == playerId) {
+                            a.setItemTooltip($("#div_traderAuctioneer .image_140px .detail_button"))
+                        }
+                    }
+                    $(".noAuctionOverlay").show();
+                    traderObj.checkOverbidden()
+                });
+                this.socket.on("timeLeft", function (c) {
+                    a.setData({info: c})
+                })
+            } catch (b) {
+            }
+        },
+        setItemTooltip: function (a) {
+            $.ajax({
+                url: detailUrl,
+                data: {getDetails: 1, type: $(a).attr("ref"), ajax: 1},
+                dataType: "json",
+                success: function (b) {
+                    changeTooltip(a, b.title);
+                    $("#itemDetails[data-uuid='" + $(a).attr("ref") + "'] .amount,a.detail_button[ref='" + $(a).attr("ref") + "'] .amount").html(tsdpkt(b.amount))
+                },
+                error: function () {
+                    fadeBox(loca.error, true)
+                }
+            })
+        },
+        initialize: function () {
+            traderObj.initSliderTrader("#div_traderAuctioneer");
+            traderObj.planets = planetResources;
+            traderObj.price = getValue($(".js_price").html());
+            $("#div_traderAuctioneer .right_box .pay").bind("click", function () {
+                traderObj.submitAuction()
+            });
+            $("#div_traderAuctioneer .auction_history .more").bind("click", function () {
+                if (auctioneer.historyShown) {
+                    $(this).text("[" + loca.auctionShowMore + "]")
+                } else {
+                    $(this).text("[" + loca.auctionShowLess + "]")
+                }
+                auctioneer.historyShown = !auctioneer.historyShown;
+                $("#div_traderAuctioneer .auction_history .more_auctions_li").slideToggle("slow")
+            });
+            traderObj.sumAuctioneer();
+            traderObj.checkOverbidden();
+            this.initCountdown();
+            loadScript(nodeUrl, this.initConnection)
+        },
+        retryConnection: function () {
+            var a = this;
+            setTimeout(function () {
+                a.initConnection()
+            }, 5000)
+        },
+        setData: function (a) {
+            var b = false;
+            if (typeof(a.player) != "undefined") {
+                if (a.player == null) {
+                    $("#div_traderAuctioneer .detail_value.currentPlayer").text("");
+                    $("#div_traderAuctioneer .detail_value.currentPlayer").attr("href", "")
+                } else {
+                    $("#div_traderAuctioneer .detail_value.currentPlayer").text(a.player.name);
+                    $("#div_traderAuctioneer .detail_value.currentPlayer").attr("href", a.player.link);
+                    $("#div_traderAuctioneer .detail_value.currentPlayer").attr("data-player-id", a.player.id);
+                    $("#div_traderAuctioneer .detail_value.currentPlayer").data("playerId", a.player.id)
+                }
+                b = true
+            }
+            if (typeof(a.price) !== "undefined") {
+                traderObj.price = a.price;
+                $("#div_traderAuctioneer .js_price").html(number_format(Math.floor(a.price), 0));
+                b = true
+            }
+            if (typeof(a.sum) !== "undefined") {
+                $("#div_traderAuctioneer .detail_value.currentSum").html(number_format(Math.floor(a.sum), 0));
+                b = true
+            }
+            if (typeof(a.bids) !== "undefined") {
+                $("#div_traderAuctioneer .detail_value.numberOfBids").html(number_format(a.bids, 0));
+                b = true
+            }
+            if (typeof(a.info) !== "undefined" && $.trim($("#div_traderAuctioneer .auction_info").html()) != a.info) {
+                $("#div_traderAuctioneer .auction_info").html(a.info);
+                this.initCountdown();
+                b = true
+            }
+            if (b) {
+                this.flash();
+                traderObj.sumAuctioneer()
+            }
+        },
+        initCountdown: function () {
+            if (typeof(this.nextAuctionTimer) == "object") {
+                timerHandler.removeCallback(this.nextAuctionTimer.timer)
+            }
+            if ($(".nextAuction").length > 0) {
+                this.nextAuctionTimer = new simpleCountdown($(".nextAuction").get(0), $(".nextAuction").text())
+            }
+        },
+        flash: function () {
+            if (traderObj.traderId == "#div_traderAuctioneer") {
+                $("#div_traderAuctioneer .overlay").fadeIn("normal", function () {
+                    $(this).fadeOut("normal")
+                })
+            }
+        },
+        calculateDeficit: function () {
+            var a = 0;
+            if (Math.floor(traderObj.price) == 0) {
+                a = 0
+            } else {
+                if (auctionId != AuctionIdOflastPlayerBid) {
+                    a = Math.floor(traderObj.price)
+                } else {
+                    a = Math.floor(traderObj.price) - Math.floor(playerBid)
+                }
+            }
+            return Math.floor(a)
+        }
+    };
+    $(".js_trader").hover(function () {
+        var a = $(this).attr("id").replace("js_trader", "").toLowerCase();
+        $(this).addClass(a + "_link_hover")
+    }, function () {
+        var a = $(this).attr("id").replace("js_trader", "").toLowerCase();
+        $(".trader_link").each(function (c, b) {
+            $(this).removeClass(a + "_link_hover")
+        })
+    });
+    $(".right_box .pay, .value-control, .ui-slider-handle, .bargain, .scrap_it, .source").hover(function () {
+        $(this).addClass("hover")
+    }, function () {
+        $(this).removeClass("hover")
+    });
+    traderObj.init();
+    $(document).undelegate(".js_trader", "click").delegate(".js_trader", "click", function () {
+        var a = $(this).attr("id").replace("js_", "");
+        traderObj.switchTrader(a)
+    }).undelegate("#planet .js_backToOverview", "click").delegate("#planet .js_backToOverview", "click", function () {
+        $.bbq.pushState({page: "", animation: ""});
+        $(".planetlink, .moonlink").fragment({page: "", animation: ""})
+    });
+    var e = $.deparam.fragment();
+    if (typeof(e.page) != "undefined" && e.page != "") {
+        traderObj.selectTrader(e.page, undefined, e.tab)
+    }
+};
+function PercentageBar(elem) {
+    this.elem = $(elem);
+    this.elem.data('percentageBarInstance', this);
+    this.elem.disableSelection();
+    this.value = parseFloat(this.elem.attr('value') || 10 * 2);
+    this.minValue = parseInt(this.elem.attr('minValue') || 1 / 2);
+    this.steps = parseInt(this.elem.attr('steps') || 10 * 2);
+    this.stepSize = parseInt(this.elem.attr('stepSize') || 10 * 2);
+    this.useHalfStep = this.elem.attr('useHalfStep') === 'true' || false;
+    this.barFactor = 1;
+    this.valueOnEnter = null;
+    this.isDragging = false;
+    this.init();
+    this.updateBar();
+}
+
+PercentageBar.prototype.init = function () {
+    if (this.useHalfStep) {
+        this.barFactor = 2;
+    }
+
+    this.initBar();
+    this.initSteps();
+
+    if (document.createTouch === undefined) {
+        this.elem.on('mouseup', this.onMouseUp.bind(this));
+        this.elem.on('mousemove', this.onMouseMove.bind(this));
+        this.elem.on('mouseenter', this.onMouseEnter.bind(this));
+        this.elem.on('mouseleave', this.onMouseLeave.bind(this));
+    } else {
+        this.elem.on('touchstart', this.onTouchStart.bind(this));
+        this.elem.on('touchmove', this.onTouchMove.bind(this));
+        this.elem.on('touchend', this.onTouchEnd.bind(this));
+    }
+};
+
+PercentageBar.prototype.initSteps = function () {
+    let html = '<div class="steps">';
+
+    for (let i = 0; i < this.steps; ++i) {
+        let label = (i + 1) * this.stepSize;
+        html += '<div class="step' + (this.stepSize === 10 ? ' step2' : '') + '"  style="cursor: pointer" onclick="" data-step="' + (i + 1) / this.barFactor + '">' + label + '</div>';
+    }
+
+    this.elem.append(html);
+};
+
+PercentageBar.prototype.initBar = function () {
+    let html = '<div class="bar"></bar>';
+    this.elem.append(html);
+};
+
+PercentageBar.prototype.updateDrag = function (e) {
+    let xMin = this.elem.offset().left;
+    let xMax = xMin + this.elem.outerWidth();
+    let xCurrent = e.pageX;
+    let value = this.calcValue(xCurrent, xMin, xMax);
+    this.setValue(value);
+};
+
+PercentageBar.prototype.onMouseUp = function (e) {
+    if (this.valueOnEnter) {
+        this.valueOnEnter = this.getValue();
+        this.setValue(this.valueOnEnter);
+    }
+
+    this.updateDrag(e);
+};
+
+PercentageBar.prototype.onMouseMove = function (e) {
+    this.updateDrag(e);
+};
+
+PercentageBar.prototype.onMouseEnter = function (e) {
+    this.valueOnEnter = this.getValue();
+};
+
+PercentageBar.prototype.onMouseLeave = function (e) {
+    if (this.valueOnEnter > 0) {
+        this.setValue(this.valueOnEnter);
+    }
+};
+/**
+ * TOUCH EVENTS
+ */
+
+
+PercentageBar.prototype.onTouchStart = function (e) {
+    this.startDrag();
+};
+
+PercentageBar.prototype.onTouchMove = function (e) {};
+
+PercentageBar.prototype.onTouchEnd = function (e) {
+    if (this.valueOnEnter) {
+        this.valueOnEnter = this.getValue();
+        this.setValue(this.valueOnEnter);
+    }
+
+    this.updateDragTouch(e);
+    this.stopDrag();
+};
+
+PercentageBar.prototype.startDrag = function () {
+    this.isDragging = true;
+    this.valueOnEnter = this.getValue();
+};
+
+PercentageBar.prototype.stopDrag = function () {
+    this.isDragging = false;
+};
+
+PercentageBar.prototype.updateDragTouch = function (e) {
+    if (this.isDragging === true) {
+        let xMin = this.elem.offset().left;
+        let xMax = xMin + this.elem.outerWidth();
+        let xCurrent = e.originalEvent.pageX;
+
+        if (xCurrent === 0) {
+            xCurrent = e.originalEvent.changedTouches[0].pageX;
+        }
+
+        let value = this.calcValue(xCurrent, xMin, xMax);
+        this.setValue(value);
+    }
+};
+
+PercentageBar.prototype.calcValue = function (xCurrent, xMin, xMax) {
+    let x = clampInt(xCurrent, xMin, xMax);
+    let percent = (x - xMin) / (xMax - xMin);
+    let valueMin = Math.floor(percent * this.steps);
+    let valueMax = Math.ceil(percent * this.steps);
+    let value = Math.round((valueMax + valueMin) / 2) / this.barFactor;
+    return value;
+};
+
+PercentageBar.prototype.setValue = function (valueNew) {
+    let valueOld = this.value;
+    this.value = clampFloat(valueNew, this.minValue, this.steps);
+
+    if (valueOld !== valueNew) {
+        this.elem.trigger($.Event('change', {
+            value: this.value
+        }));
+    }
+
+    this.updateBar();
+};
+
+PercentageBar.prototype.getValue = function () {
+    return this.value;
+};
+
+PercentageBar.prototype.updateBar = function () {
+    let xMin = this.elem.offset().left;
+    let xMax = xMin + this.elem.outerWidth();
+    let width = parseInt(this.value / this.steps * (xMax - xMin) * this.barFactor);
+    this.elem.find('.bar').width(width);
+    this.elem.find('.step').toggleClass('selected', false);
+    this.elem.find('.step[data-step="' + this.value + '"]').toggleClass('selected', true);
+};
+
+function addPercentageBarPlugin() {
+    (function (jQ) {
+        jQ.fn.percentageBar = function (options) {
+            let percentageBarInstance = new PercentageBar(this, options);
+            return this;
+        };
+    })(jQuery);
+}
+$(function () {
+    $(".percentSelector").each(function () {
+        PercentSelector.initBar(this);
+    });
+});
+var PercentSelector = {};
+PercentSelector.fallbackMode = false; //($.browser.msie && $.browser.version < 9);
+//This will init a bar (calling this directly is useful for re-doing a bar's sizes in the event it's been resized).
+
+PercentSelector.initBar = function (bar) {
+    if (!bar) return;
+    var $bar = $(bar);
+    var height = $bar.innerHeight();
+    $bar.children(".PBcolorGrad").remove();
+    $bar.children(".PBoverlay").remove();
+    var opcAttr = $bar.attr("onpercentchange");
+
+    if (opcAttr) {
+        if (typeof opcAttr == "function") {
+            $bar.get(0).onpercentchange = opcAttr;
+        } else if (typeof opcAttr == "string") {
+            if (/^function/.test(opcAttr)) {
+                eval("$bar.get(0).onpercentchange = " + opcAttr);
+            } else {
+                eval("$bar.get(0).onpercentchange = function() {" + opcAttr + "}");
+            }
+        }
+    }
+
+    if (!PercentSelector.fallbackMode) {
+        $bar.append($("<canvas class='PBoverlay'></canvas>").css("height", height).css("width", $bar.innerWidth()));
+        $bar.append($("<div class='PBcolorGrad'></div>").css("height", height * 20).css("top", -(2 * height)));
+        PercentSelector.createOverlay($bar);
+    } else {
+        $bar.addClass("fallback");
+        $bar.append($("<div class='PBfallbackColor'></div>").css("height", height).css("width", $bar.innerWidth())); //$bar.append($("<div class='PBfallbackOverlay'></div>").css("height", height).css("width", $bar.innerWidth()).css("margin-top", -$bar.innerHeight()));
+    }
+
+    if ($bar.attr("percent") != null) {
+        //ok, I know this is odd. It's because setPercent ignores the change if it's changing to the percent
+        // the bar is already at. It remembers what percent it's at using the percent attribute. So trying to
+        // initialize it to the percent attribute causes problems. So I just "reset" the attribute to 100% and then
+        // re-initialize to the percent given.
+        var percent = parseInt($bar.attr("percent"));
+        $bar.attr("percent", 100);
+        PercentSelector.setPercent($bar, percent, true);
+    }
+
+    if (!bar.isBound) {
+        if (!($bar.attr("enabled") && $bar.attr("enabled").toLowerCase() == "false")) {
+            var $bindBar = $bar;
+
+            if (document.createTouch == undefined) {
+                $bindBar.bind("mousedown", PercentSelector.handlers.mouseDown);
+                $bindBar.bind("mousemove", PercentSelector.handlers.mouseMove);
+                $bindBar.bind("mouseup", PercentSelector.handlers.mouseUp);
+                $bindBar.bind("mouseout", PercentSelector.handlers.mouseOut);
+            } else {
+                $bindBar.bind("touchstart", PercentSelector.handlers.touchStart);
+                $bindBar.bind("touchmove", PercentSelector.handlers.touchMove);
+                $bindBar.bind("touchend", PercentSelector.handlers.touchEnd);
+            }
+        }
+
+        bar.isBound = true; //to prevent multi-binding!
+    }
+};
+
+PercentSelector.setPercent = function (bar, newPercent, animate) {
+    var $bar = $(bar);
+    var step = $bar.attr("step");
+    if (!step) step = 1;else step = parseInt(step);
+    newPercent = Math.round(newPercent / step) * step; //short circuit if the percent is not changing!
+
+    if (newPercent == parseInt($bar.attr("percent"))) return;
+    $bar.attr("percent", newPercent);
+
+    if (PercentSelector.fallbackMode) {
+        $bar.children(".PBfallbackColor").css("width", $bar.innerWidth() * newPercent / 100.0); //console.log("setting percent to: " + newPercent);
+    } else {
+        if (animate) {
+            $bar.children(".PBcolorGrad").css("-webkit-transition", "-webkit-transform 0.6s ease-in");
+            $bar.children(".PBcolorGrad").css("-moz-transition", "-moz-transform 0.6s ease-in");
+        } else {
+            $bar.children(".PBcolorGrad").css("-webkit-transition", "-webkit-transform 0.1s ease-in"); //turn off the animation in case it's on!
+
+            $bar.children(".PBcolorGrad").css("-moz-transition", "-moz-transform 0.1s ease-in"); //turn off the animation in case it's on!
+        }
+
+        var yTrans = Math.round($bar.children(".PBcolorGrad").outerHeight() * .90 * (100 - newPercent) / 100.0);
+        var xTrans = Math.round($bar.children(".PBcolorGrad").innerWidth() * ((100 - newPercent) / 100.0));
+
+        if (animate) {
+            setTimeout(function () {
+                $bar.children(".PBcolorGrad").css("-webkit-transform", "translate(-" + xTrans + "px, -" + yTrans + "px)");
+                $bar.children(".PBcolorGrad").css("-moz-transform", "translate(-" + xTrans + "px, -" + yTrans + "px)");
+                $bar.children(".PBcolorGrad").css("-ms-transform", "translate(-" + xTrans + "px, -" + yTrans + "px)");
+            }, 1);
+        } else {
+            $bar.children(".PBcolorGrad").css("-webkit-transform", "translate(-" + xTrans + "px, -" + yTrans + "px)");
+            $bar.children(".PBcolorGrad").css("-moz-transform", "translate(-" + xTrans + "px, -" + yTrans + "px)");
+            $bar.children(".PBcolorGrad").css("-ms-transform", "translate(-" + xTrans + "px, -" + yTrans + "px)");
+        }
+    }
+};
+
+PercentSelector.setPercentFromPageX = function (bar, page_x, animate) {
+    var $bar = $(bar);
+    var x = page_x - $bar.offset().left;
+    var width = $bar.outerWidth();
+    var percent = 100 * x / width;
+    if (percent > 100) percent = 100;
+    if (percent < 10) percent = 10;
+    percent = Math.round(percent);
+    PercentSelector.setPercent(bar, percent, animate);
+};
+
+PercentSelector.createOverlay = function (bar) {
+    var $bar = $(bar);
+    $overlay = $bar.children(".PBoverlay");
+    var width = $overlay.innerWidth();
+    var height = $overlay.innerHeight();
+    var canvas = $overlay.get(0);
+    canvas.width = width;
+    canvas.height = height;
+    var ctx = canvas.getContext("2d"); //Create the plastic overlay
+
+    var lingrad = ctx.createLinearGradient(0, 0, 0, height);
+    lingrad.addColorStop(0, 'rgba(0,0,0,0.05)');
+    lingrad.addColorStop(1, 'rgba(0,0,0,0.3)');
+    ctx.fillStyle = lingrad;
+    ctx.fillRect(0, 0, width, height);
+    ctx.clearRect(3, 3, width - 6, height - 6);
+    lingrad = ctx.createLinearGradient(0, 0, 0, height);
+    lingrad.addColorStop(0, 'rgba(0,0,0,0.2)');
+    lingrad.addColorStop(1, 'rgba(0,0,0,0.05)');
+    ctx.fillStyle = lingrad;
+    ctx.fillRect(3, 3, width - 6, height - 6); //create the steps
+
+    var step = $bar.attr("step");
+    if (!step) step = 100;
+    ctx.lineWidth = 1;
+    var maxWidth = width / step;
+    var stepWith = width / step;
+
+    for (var curStep = 0; curStep * step < 100; curStep += 1) {
+        var x = Math.floor(curStep * step * width / 100) - .5;
+        ctx.beginPath();
+        ctx.font = "12px serif";
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'black';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(((curStep + 1) * 10).toString(), x + stepWith / 2, height / 2, maxWidth); // ctx.strokeText(((curStep + 1) * 10).toString(), x + stepWith/2, height * 1, maxWidth);
+
+        ctx.moveTo(x, height);
+        ctx.lineTo(x, height * .75);
+        ctx.closePath();
+        ctx.stroke();
+    }
+};
+
+PercentSelector.handlers = {};
+/**** touch handling ****/
+
+PercentSelector.handlers.touchDragging = false;
+
+PercentSelector.handlers.touchStart = function (event) {
+    var touches = event.originalEvent.touches;
+    if (touches.length > 1) return;
+    event.preventDefault();
+    PercentSelector.handlers.touchDragging = false;
+};
+
+PercentSelector.handlers.touchEnd = function (event) {
+    touches = event.originalEvent.touches;
+    if (touches.length == 0) touches = event.originalEvent.changedTouches;
+    if (touches.length > 1) return;
+    var bar = touches[0].target.parentNode;
+    PercentSelector.setPercentFromPageX(bar, touches[0].pageX, true);
+
+    if (bar.onpercentchange != undefined) {
+        bar.onpercentchange($(bar).attr("percent"));
+    }
+
+    event.preventDefault();
+};
+
+PercentSelector.handlers.touchMove = function (event) {
+    PercentSelector.handlers.touchDragging = true;
+    var touches = event.originalEvent.touches;
+    if (touches.length > 1) return;
+    event.preventDefault();
+    PercentSelector.setPercentFromPageX(touches[0].target.parentNode, touches[0].pageX);
+};
+/*** mouse handling ***/
+
+
+PercentSelector.handlers.mouseDragging = false;
+
+PercentSelector.handlers.mouseDown = function (event) {
+    PercentSelector.handlers.mouseDragging = true;
+};
+
+PercentSelector.handlers.mouseOut = function (event) {
+    if (PercentSelector.handlers.mouseDragging) {
+        var bar = PercentSelector.fallbackMode ? event.currentTarget : event.originalEvent.target.parentNode; //         if (bar.onpercentchange != undefined) {
+        //             var x = eval(bar.onpercentchange);
+        // console.debug(x);
+        //             if (typeof x == 'function') {
+        //                 x($(bar).attr("percent"));
+        //             }
+        //             // bar.onpercentchange($(bar).attr("percent"));
+        //         }
+    }
+
+    PercentSelector.handlers.mouseDragging = false;
+};
+
+PercentSelector.handlers.mouseUp = function (event) {
+    PercentSelector.handlers.mouseDragging = false;
+    var bar = PercentSelector.fallbackMode ? event.currentTarget : event.originalEvent.target.parentNode;
+    PercentSelector.setPercentFromPageX(bar, event.pageX, true); // if (bar.onpercentchange != undefined) {
+    //     var x = eval(bar.onpercentchange);
+    //
+    //     if (typeof x == 'function') {
+    //         x($(bar).attr("percent"));
+    //     }
+    //     // bar.onpercentchange($(bar).attr("percent"));
+    // }
+    // if(bar.onpercentchange != undefined) {
+    //     bar.onpercentchange($(bar).attr("percent"));
+    // }
+};
+
+PercentSelector.handlers.mouseMove = function (event) {
+    if (PercentSelector.handlers.mouseDragging) {
+        event.preventDefault();
+        var bar = PercentSelector.fallbackMode ? event.currentTarget : event.originalEvent.target.parentNode;
+        PercentSelector.setPercentFromPageX(bar, event.pageX);
+    }
+};
+const FLEET_DISPATCH_PAGE1 = 'fleet1';
+const FLEET_DISPATCH_PAGE2 = 'fleet2';
+
+function FleetDispatcher(cfg) {
+    this.fleetHelper = new FleetHelper(cfg);
+    this.loading = false;
+    this.lifeformEnabled = cfg.lifeformEnabled;
+    this.checkTargetUrl = cfg.checkTargetUrl;
+    this.sendFleetUrl = cfg.sendFleetUrl;
+    this.saveSettingsUrl = cfg.saveSettingsUrl;
+    this.fleetBoxOrder = cfg.fleetBoxOrder || {};
+    this.token = cfg.token || null;
+    this.currentPlanet = cfg.currentPlanet;
+    this.targetPlanet = cfg.targetPlanet || null;
+    this.targetInhabited = cfg.targetInhabited || false;
+    this.targetPlayerId = cfg.targetPlayerId || this.fleetHelper.PLAYER_ID_SPACE;
+    this.targetPlayerName = cfg.targetPlayerName || '';
+    this.targetPlayerColorClass = cfg.targetPlayerColorClass || '';
+    this.targetPlayerRankIcon = cfg.targetPlayerRankIcon || '';
+    this.cargoCapacity = cfg.cargoCapacity;
+    this.fuelCapacity = cfg.fuelCapacity;
+    this.currentPage = FLEET_DISPATCH_PAGE1;
+    this.shipsOnPlanet = cfg.shipsOnPlanet || [];
+    this.shipsToSend = cfg.shipsToSend || [];
+    this.useHalfSteps = cfg.useHalfSteps || false;
+    this.planets = cfg.planets || [];
+    this.standardFleets = cfg.standardFleets || [];
+    this.unions = cfg.unions || [];
+    this.orders = [];
+    this.orderNames = cfg.orderNames || [];
+    this.orderDescriptions = cfg.orderDescriptions || [];
+    this.mission = cfg.mission || this.fleetHelper.MISSION_NONE;
+    this.union = 0;
+    this.targetIsStrong = false;
+    this.targetIsOutlaw = false;
+    this.targetIsBuddyOrAllyMember = false;
+    this.playerIsOutlaw = false;
+    this.retreatAfterDefenderRetreat = false;
+    this.lootFoodOnAttack = cfg.lootFoodOnAttack;
+    this.holdingTime = cfg.holdingTime;
+    this.expeditionTime = cfg.expeditionTime;
+    this.speedPercent = 10;
+    this.cargoMetal = 0;
+    this.cargoCrystal = 0;
+    this.cargoDeuterium = 0;
+    this.cargoFood = 0;
+    this.prioMetal = cfg.LOOT_PRIO_METAL;
+    this.prioCrystal = cfg.LOOT_PRIO_CRYSTAL;
+    this.prioDeuterium = cfg.LOOT_PRIO_DEUTERIUM;
+    this.prioFood = cfg.LOOT_PRIO_FOOD;
+    this.metalOnPlanet = cfg.metalOnPlanet;
+    this.crystalOnPlanet = cfg.crystalOnPlanet;
+    this.deuteriumOnPlanet = cfg.deuteriumOnPlanet;
+    this.foodOnPlanet = 0;
+
+    if (this.lifeformEnabled) {
+        this.foodOnPlanet = cfg.foodOnPlanet;
+    }
+
+    this.fleetCount = cfg.fleetCount;
+    this.maxFleetCount = cfg.maxFleetCount;
+    this.expeditionCount = cfg.expeditionCount;
+    this.maxExpeditionCount = cfg.maxExpeditionCount;
+    this.warningsEnabled = cfg.warningsEnabled;
+    this.playerId = cfg.playerId;
+    this.hasAdmiral = cfg.hasAdmiral;
+    this.hasCommander = cfg.hasCommander;
+    this.isOnVacation = cfg.isOnVacation;
+    this.moveInProgress = cfg.moveInProgress;
+    this.planetCount = cfg.planetCount;
+    this.explorationCount = cfg.explorationCount;
+    this.apiDataJson = cfg.apiDataJson;
+    this.apiCommonData = cfg.apiCommonData;
+    this.apiTechData = cfg.apiTechData;
+    this.apiDefenseData = cfg.apiDefenseData;
+    this.apiShipBaseData = cfg.apiShipBaseData;
+    this.loca = cfg.loca;
+    this.locadyn = cfg.locadyn;
+    this.errorCodeMap = cfg.errorCodeMap;
+    this.urlFleetCheck = cfg.urlFleetCheck;
+    this.additionalFlightSpeed = 0;
+    this.timerTimes = null;
+    this.fetchTargetPlayerDataTimeout = null;
+    this.deferred = [];
+    this.emptySystems = cfg.emptySystems;
+    this.inactiveSystems = cfg.inactiveSystems;
+}
+
+FleetDispatcher.prototype.init = function () {
+    this.initFleet1();
+    this.initFleet2();
+    let that = this;
+    $(function () {
+        $(".sortable").sortable({
+            handle: ".move-box",
+            tolerance: "pointer",
+            revert: true,
+            update: function (event, ui) {
+                a = $("#fleet2 #buttonz > div");
+                param = {};
+                that.appendTokenParams(param);
+
+                for (let i = 0; i < a.length; i++) {
+                    param[a[i].id] = i;
+                }
+
+                $.post(that.saveSettingsUrl, param, function (data) {
+                    data = JSON.parse(data);
+                    that.updateToken(data.newAjaxToken);
+                    token = data.newAjaxToken;
+                });
+            }
+        });
+        $(".sortable").disableSelection();
+    });
+    $('#fleetdispatchcomponent').on('keypress', async function (e) {
+        if (getKeyCode(e) === 13) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if ($('#fleet1').is(':visible')) {
+                await new Promise((resolve, reject) => setTimeout(() => resolve(), 250));
+                that.trySubmitFleet1();
+            } else if ($('#fleet2').is(':visible')) {
+                // we have to wait to the update of a token because it already started communication with backend
+                // should not trigger really but just as a safety measure
+                if (!that.fetchTargetPlayerDataTimeout) {
+                    await new Promise((resolve, reject) => setTimeout(() => resolve(), 250));
+                    that.trySubmitFleet2();
+                }
+            }
+
+            return false;
+        }
+    });
+};
+
+FleetDispatcher.prototype.displayErrors = function (errors) {
+    // only display the first error
+    let error = errors[0] || undefined;
+
+    if (error) {
+        fadeBox(error.message, true);
+    }
+};
+
+FleetDispatcher.prototype.refresh = function () {
+    switch (this.currentPage) {
+        case FLEET_DISPATCH_PAGE1:
+            this.refreshFleet1();
+            break;
+
+        case FLEET_DISPATCH_PAGE2:
+            this.refreshFleet2();
+            break;
+    }
+};
+
+FleetDispatcher.prototype.switchToPage = function (page) {
+    let that = this;
+
+    if (page === this.currentPage) {
+        return;
+    }
+
+    if (page === FLEET_DISPATCH_PAGE1) {
+        this.currentPage = page;
+        $('#' + FLEET_DISPATCH_PAGE1).show();
+        $('#' + FLEET_DISPATCH_PAGE2).hide();
+        that.focusSubmitFleet1();
+    }
+
+    if (page === FLEET_DISPATCH_PAGE2) {
+        this.currentPage = page;
+        $('#' + FLEET_DISPATCH_PAGE1).hide();
+        $('#' + FLEET_DISPATCH_PAGE2).show();
+        this.setTargetType(this.targetPlanet.type);
+        that.focusSendFleet();
+    }
+
+    if (this.currentPage === FLEET_DISPATCH_PAGE1 && this.timerTimes !== null) {
+        clearInterval(this.timerTimes);
+        this.timerTimes = null;
+    } // create timer to refresh fleet arrival and return times
+
+
+    if (this.currentPage === FLEET_DISPATCH_PAGE2) {
+        if (this.timerTimes === null) {
+            this.timerTimes = setInterval(function () {
+                that.refreshFleetTimes();
+            }, 1000);
+        }
+    }
+
+    this.refresh();
+};
+
+FleetDispatcher.prototype.startLoading = function () {
+    this.loading = true;
+    $('#fleetdispatchcomponent .ajax_loading').show();
+};
+
+FleetDispatcher.prototype.stopLoading = function () {
+    this.loading = false;
+    $('#fleetdispatchcomponent .ajax_loading').hide();
+};
+
+FleetDispatcher.prototype.updateToken = function (tokenNew) {
+    token = tokenNew;
+};
+
+FleetDispatcher.prototype.appendTokenParams = function (params) {
+    params.token = token;
+};
+
+FleetDispatcher.prototype.updateEmptySystems = function (newData) {
+    this.emptySystems = newData;
+};
+
+FleetDispatcher.prototype.updateInactiveSystems = function (newData) {
+    this.inactiveSystems = newData;
+};
+
+FleetDispatcher.prototype.appendShipParams = function (params) {
+    this.shipsToSend.forEach(function (ship) {
+        params['am' + ship.id] = ship.number;
+    });
+};
+
+FleetDispatcher.prototype.appendTargetParams = function (params) {
+    params.galaxy = this.targetPlanet.galaxy;
+    params.system = this.targetPlanet.system;
+    params.position = this.targetPlanet.position;
+    params.type = this.targetPlanet.type;
+};
+
+FleetDispatcher.prototype.appendCargoParams = function (params) {
+    params.metal = this.cargoMetal;
+    params.crystal = this.cargoCrystal;
+    params.deuterium = this.cargoDeuterium;
+
+    if (this.lifeformEnabled) {
+        params.food = this.cargoFood;
+    }
+};
+
+FleetDispatcher.prototype.appendPrioParams = function (params) {
+    params.prioMetal = this.prioMetal;
+    params.prioCrystal = this.prioCrystal;
+    params.prioDeuterium = this.prioDeuterium;
+
+    if (this.lifeformEnabled) {
+        params.prioFood = this.prioFood;
+    }
+};
+/**
+ * FLEET 1
+ */
+
+
+FleetDispatcher.prototype.initFleet1 = function () {
+    initToggleHeader('fleet1');
+    let that = this;
+    let elem = $('#fleet1');
+    elem.find('select.combatunits').ogameDropDown();
+    that.refresh();
+    elem.on('click', '#continueToFleet2', async function (e) {
+        e.preventDefault();
+        await new Promise((resolve, reject) => setTimeout(() => resolve(), 250));
+        that.trySubmitFleet1();
+    });
+    elem.on('keyup', '#technologies li input', function (e) {
+        e.preventDefault();
+        let shipId = parseInt($(e.currentTarget).closest('li').data('technology'));
+        let number = getValue($(e.currentTarget).val());
+        that.selectShip(shipId, number);
+    });
+    elem.on('focusout', '#technologies li input', function (e) {
+        e.preventDefault();
+        let shipId = parseInt($(e.currentTarget).closest('li').data('technology'));
+        let number = getValue($(e.currentTarget).val());
+        that.selectShip(shipId, number);
+        that.refresh();
+    });
+    elem.on('click', '#technologies li .icon', function (e) {
+        e.preventDefault();
+        let shipId = parseInt($(e.currentTarget).closest('li').data('technology'));
+
+        if (that.getNumberOfShipsSelected(shipId) < that.getNumberOfShipsOnPlanet(shipId)) {
+            that.selectMaxShips(shipId);
+        } else {
+            that.selectShip(shipId, 0);
+        }
+
+        that.refresh();
+        that.focusSubmitFleet1();
+    });
+    elem.on('click', '#sendall', function (e) {
+        e.preventDefault();
+        that.selectAllShips();
+        that.refresh();
+        that.focusSubmitFleet1();
+    });
+    elem.on('click', '#resetall', function (e) {
+        e.preventDefault();
+        that.resetShips();
+        that.refresh();
+        that.focusSubmitFleet1();
+    });
+    elem.on('click', '#combatunits', function (e) {
+        e.preventDefault();
+        initStandardFleet();
+    });
+    elem.on('change', '#standardfleet', function (e) {
+        let standardFleetId = getValue($('select.combatunits').val());
+        that.selectStandardFleet(standardFleetId);
+        that.refresh();
+    });
+};
+
+FleetDispatcher.prototype.focusSubmitFleet1 = function () {
+    $('#continueToFleet2').focus();
+};
+
+FleetDispatcher.prototype.hasShipsSelected = function () {
+    return this.getTotalNumberOfShipsSelected() > 0;
+};
+
+FleetDispatcher.prototype.hasFreeSlots = function () {
+    return this.maxFleetCount - this.fleetCount > 0;
+};
+
+FleetDispatcher.prototype.hasEnoughFuel = function () {
+    return this.deuteriumOnPlanet >= this.getConsumption();
+};
+
+FleetDispatcher.prototype.validateFleet1 = function (onError, onSuccess) {
+    if (!this.hasShipsSelected()) {
+        this.displayErrors([{
+            message: this.loca.LOCA_FLEET_NO_SELECTION
+        }]);
+        return false;
+    }
+
+    if (!this.hasFreeSlots()) {
+        this.displayErrors([{
+            message: this.loca.LOCA_FLEET_NO_FREE_SLOTS
+        }]);
+        return false;
+    }
+
+    return true;
+};
+
+FleetDispatcher.prototype.trySubmitFleet1 = function () {
+    if (this.validateFleet1() === false) {
+        return;
+    }
+
+    this.switchToPage(FLEET_DISPATCH_PAGE2);
+};
+
+FleetDispatcher.prototype.refreshFleet1 = function () {
+    this.refreshNavigationFleet1();
+    this.refreshShips();
+    this.refreshAPIData();
+    this.refreshStatusBarFleet();
+};
+
+FleetDispatcher.prototype.refreshNavigationFleet1 = function () {
+    let invalidInfo = '';
+
+    if (!this.hasShipsSelected()) {
+        $('#continueToFleet2').attr('class', 'continue off');
+        invalidInfo = this.loca.LOCA_FLEET_NO_SELECTION;
+    } else if (!this.hasFreeSlots()) {
+        $('#continueToFleet2').attr('class', 'continue off');
+        invalidInfo = this.loca.LOCA_FLEET_NO_FREE_SLOTS;
+    } else {
+        $('#continueToFleet2').attr('class', 'continue on');
+    }
+
+    $('#allornone .info').html(invalidInfo);
+};
+
+FleetDispatcher.prototype.refreshShips = function () {
+    let that = this;
+    $('#fleet1 #technologies li').each(function (i, elem) {
+        const shipId = $(elem).data('technology');
+        const ship = that.findShip(shipId);
+        const inputElem = $(elem).find('input');
+        const oldValue = inputElem.val() === '' ? '' : parseInt(inputElem.val());
+        const number = ship?.number ?? '';
+
+        if (oldValue !== number) {
+            inputElem.val(number);
+            const event = new Event('change');
+            inputElem.get(0).dispatchEvent(event);
+        }
+    });
+};
+
+FleetDispatcher.prototype.refreshAPIData = function () {
+    let apiShipData = this.shipsToSend.map(function (ship) {
+        return [ship.id, ship.number];
+    });
+
+    if (apiShipData.length < 1) {
+        apiShipData = this.apiShipBaseData;
+    }
+
+    let apiDataOld = [].concat(this.apiCommonData).concat(this.apiTechData).concat(apiShipData).concat(this.apiDefenseData).map(function (item) {
+        return item.join(';');
+    }).join('|');
+    let apiData = JSON.parse(JSON.stringify(this.apiDataJson));
+
+    if (this.shipsToSend.length > 0) {
+        Object.keys(apiData.ships).forEach(key => apiData.ships[key]['amount'] = 0);
+        this.shipsToSend.forEach(ship => {
+            apiData.ships[ship.id] = this.apiDataJson.ships[ship.id];
+            apiData.ships[ship.id].amount = ship.number;
+        });
+    }
+
+    let content = JSON.stringify(apiData);
+    let tooltip = document.createElement('div');
+    tooltip.textContent = this.loca.LOCA_API_FLEET_DATA;
+    tooltip.append(document.createElement('br'));
+    tooltip.append(document.createTextNode('API 1:'));
+    let oldInput = document.createElement('input');
+    oldInput.setAttribute('id', 'FLEETAPI');
+    oldInput.setAttribute('readonly', '1');
+    oldInput.setAttribute('onclick', 'select()');
+    oldInput.setAttribute('value', apiDataOld ?? '');
+    oldInput.value = apiDataOld ?? '';
+    tooltip.appendChild(oldInput);
+    tooltip.append(document.createElement('br'));
+    tooltip.append(document.createTextNode('API 2:'));
+    let jsonInput = document.createElement('input');
+    jsonInput.setAttribute('id', 'FLEETAPI_JSON');
+    jsonInput.setAttribute('readonly', '1');
+    jsonInput.setAttribute('onclick', 'select()');
+    jsonInput.setAttribute('value', content);
+    jsonInput.value = content;
+    tooltip.appendChild(jsonInput);
+    changeTooltip($(".show_fleet_apikey"), tooltip.outerHTML);
+};
+/**
+ * SHIP LOGIC
+ */
+
+
+FleetDispatcher.prototype.selectShip = function (shipId, number) {
+    let shipsAvailable = this.getNumberOfShipsOnPlanet(shipId);
+    number = Math.min(shipsAvailable, number);
+
+    if (number <= 0) {
+        this.removeShip(shipId);
+    } else if (this.hasShip(shipId)) {
+        this.updateShip(shipId, number);
+    } else {
+        this.addShip(shipId, number);
+    }
+
+    this.resetCargo();
+};
+
+FleetDispatcher.prototype.addShip = function (shipId, number) {
+    this.shipsToSend.push({
+        id: shipId,
+        number: number
+    });
+};
+
+FleetDispatcher.prototype.findShip = function (shipId) {
+    return this.shipsToSend.find(function (ship) {
+        return ship.id === shipId;
+    });
+};
+
+FleetDispatcher.prototype.getNumberOfShipsSelected = function (shipId) {
+    let ship = this.findShip(shipId);
+
+    if (ship !== undefined) {
+        return ship.number;
+    }
+
+    return 0;
+};
+
+FleetDispatcher.prototype.hasShip = function (shipId) {
+    return this.findShip(shipId) !== undefined;
+};
+
+FleetDispatcher.prototype.hasColonizationShip = function () {
+    return this.hasShip(this.SHIP_ID_COLONIZATION);
+};
+
+FleetDispatcher.prototype.hasRecycler = function () {
+    return this.hasShip(this.SHIP_ID_RECYCLER);
+};
+
+FleetDispatcher.prototype.hasValidTarget = function () {
+    return (this.targetPlanet.galaxy !== this.currentPlanet.galaxy || this.targetPlanet.system !== this.currentPlanet.system || this.targetPlanet.position !== this.currentPlanet.position || this.targetPlanet.type !== this.currentPlanet.type) && this.targetPlanet.galaxy > 0 && this.targetPlanet.system > 0 && this.targetPlanet.position > 0;
+};
+
+FleetDispatcher.prototype.removeShip = function (shipId) {
+    let shipIndex = this.shipsToSend.findIndex(function (ship) {
+        return ship.id === shipId;
+    });
+
+    if (shipIndex != -1) {
+        this.shipsToSend.splice(shipIndex, 1);
+    }
+};
+
+FleetDispatcher.prototype.updateShip = function (shipId, number) {
+    let ship = this.findShip(shipId);
+
+    if (ship) {
+        ship.number = number;
+    }
+};
+
+FleetDispatcher.prototype.getNumberOfShipsOnPlanet = function (shipId) {
+    let ship = this.shipsOnPlanet.find(function (ship) {
+        return ship.id === shipId;
+    });
+
+    if (ship) {
+        return ship.number;
+    }
+
+    return 0;
+};
+
+FleetDispatcher.prototype.getTotalNumberOfShipsSelected = function () {
+    let numberOfShipsSelected = 0;
+    this.shipsToSend.forEach(function (ship) {
+        numberOfShipsSelected += ship.number;
+    });
+    return numberOfShipsSelected;
+};
+
+FleetDispatcher.prototype.getShipIds = function () {
+    return this.shipsToSend.map(function (ship) {
+        return ship.id;
+    });
+};
+
+FleetDispatcher.prototype.resetShips = function () {
+    this.shipsToSend = [];
+};
+
+FleetDispatcher.prototype.selectAllShips = function () {
+    let that = this;
+    this.shipsOnPlanet.forEach(function (ship) {
+        that.selectShip(ship.id, ship.number);
+    });
+};
+
+FleetDispatcher.prototype.selectMaxShips = function (shipId) {
+    let number = this.getNumberOfShipsOnPlanet(shipId);
+    this.selectShip(shipId, number);
+};
+
+FleetDispatcher.prototype.selectShips = function (ships) {
+    for (let shipId in ships) {
+        let number = ships[shipId];
+        this.selectShip(parseInt(shipId), number);
+    }
+};
+
+FleetDispatcher.prototype.selectStandardFleet = function (standardFleetId) {
+    let standardFleet = this.standardFleets.find(function (item) {
+        return item.id === standardFleetId;
+    });
+
+    if (standardFleet === undefined || standardFleet.ships === undefined) {
+        return;
+    }
+
+    this.selectShips(standardFleet.ships);
+};
+/**
+ * FLEET 2
+ */
+
+
+FleetDispatcher.prototype.initFleet2 = function () {
+    // @todo jquery is loaded twice
+    addPercentageBarPlugin();
+    initToggleHeader('fleet2'); // reorder fleet-box snippets based on settings
+
+    let reorderFleetBox = Object.fromEntries(Object.entries(this.fleetBoxOrder).sort(([, a], [, b]) => a - b));
+    let parent = $("#fleet2 #buttonz");
+
+    for (let fleetBox in reorderFleetBox) {
+        let child = $("#fleet2 #buttonz #" + fleetBox);
+        $(parent).append(child);
+    }
+
+    let that = this;
+    let elem = $('#fleet2').off();
+    $('#speedPercentage').percentageBar().on('change', function (e) {
+        that.setFleetPercent(e.value);
+        that.refresh();
+    });
+    elem.find('#slbox').ogameDropDown();
+    elem.find('#aksbox').ogameDropDown();
+    elem.on('click', '#backToFleet1', function (e) {
+        e.preventDefault();
+        that.switchToPage(FLEET_DISPATCH_PAGE1);
+    }); // clear inputs on focus
+
+    elem.on('focus', '#galaxy', function () {
+        clearInput('#galaxy');
+        that.targetPlanet.galaxy = '';
+        that.refreshFleet2();
+    });
+    elem.on('focus', '#system', function () {
+        clearInput('#system');
+        that.targetPlanet.system = '';
+        that.refreshFleet2();
+    });
+    elem.on('focus', '#position', function () {
+        clearInput('#position');
+        that.targetPlanet.position = '';
+        that.refreshFleet2();
+    });
+    elem.on('keyup', '#galaxy, #system, #position', function (e) {
+        let coordinatesCount = (1 * $("#galaxy").val() > 0 ? 1 : 0) + (1 * $("#system").val() > 0 ? 1 : 0) + (1 * $("#position").val() > 0 ? 1 : 0);
+        that.updateTarget(coordinatesCount === 3);
+        that.updateTargetDropDowns();
+        that.refresh();
+
+        if (coordinatesCount !== 3) {
+            that.clearMissions();
+            that.updateTargetDropDowns();
+        }
+    });
+    elem.on('click', '#pbutton', function (e) {
+        e.preventDefault();
+        that.clearMissions();
+        that.setTargetType(that.fleetHelper.PLANETTYPE_PLANET);
+        that.updateTargetDropDowns();
+        that.refresh();
+    });
+    elem.on('click', '#mbutton', function (e) {
+        e.preventDefault();
+        that.clearMissions();
+        that.setTargetType(that.fleetHelper.PLANETTYPE_MOON);
+        that.updateTargetDropDowns();
+        that.refresh();
+    });
+    elem.on('click', '#dbutton', function (e) {
+        e.preventDefault();
+        that.clearMissions();
+        that.setTargetType(that.fleetHelper.PLANETTYPE_DEBRIS);
+        that.updateTargetDropDowns();
+        that.refresh();
+    });
+    elem.on('change', '#slbox', function (e) {
+        e.preventDefault();
+        that.selectShortLink($(e.currentTarget));
+        that.updateTarget();
+        that.refresh();
+    });
+    elem.on('change', '#aksbox', function (e) {
+        e.preventDefault();
+        that.selectCombatUnion($(e.currentTarget));
+        that.updateTarget();
+        that.refresh();
+    });
+    elem.on('click', '#selectMaxMetal', function (e) {
+        e.preventDefault();
+        that.selectMaxMetal();
+        that.refresh();
+        that.focusSendFleet();
+    });
+    elem.on('click', '#selectMinMetal', function (e) {
+        e.preventDefault();
+        that.selectMinMetal();
+        that.refresh();
+        that.focusSendFleet();
+    });
+    elem.on('click', '#selectMaxCrystal', function (e) {
+        e.preventDefault();
+        that.selectMaxCrystal();
+        that.refresh();
+        that.focusSendFleet();
+    });
+    elem.on('click', '#selectMinCrystal', function (e) {
+        e.preventDefault();
+        that.selectMinCrystal();
+        that.refresh();
+        that.focusSendFleet();
+    });
+    elem.on('click', '#selectMaxDeuterium', function (e) {
+        e.preventDefault();
+        that.selectMaxDeuterium();
+        that.refresh();
+        that.focusSendFleet();
+    });
+    elem.on('click', '#selectMinDeuterium', function (e) {
+        e.preventDefault();
+        that.selectMinDeuterium();
+        that.refresh();
+        that.focusSendFleet();
+    });
+    elem.on('click', '#selectMaxFood', function (e) {
+        e.preventDefault();
+        that.selectMaxFood();
+        that.refresh();
+        that.focusSendFleet();
+    });
+    elem.on('click', '#selectMinFood', function (e) {
+        e.preventDefault();
+        that.selectMinFood();
+        that.refresh();
+        that.focusSendFleet();
+    });
+    elem.on('click', '#allresources', function (e) {
+        e.preventDefault();
+        that.selectMaxAll();
+        that.refresh();
+        that.focusSendFleet();
+    });
+    elem.on('keyup', '#metal', function (e) {
+        that.updateMetal();
+        that.refresh();
+    });
+    elem.on('change', '#metal', function (e) {
+        that.updateMetal();
+        that.refresh();
+    });
+    elem.on('keyup', '#crystal', function (e) {
+        that.updateCrystal();
+        that.refresh();
+    });
+    elem.on('change', '#crystal', function (e) {
+        that.updateCrystal();
+        that.refresh();
+    });
+    elem.on('keyup', '#deuterium', function (e) {
+        that.updateDeuterium();
+        that.refresh();
+    });
+    elem.on('change', '#deuterium', function (e) {
+        that.updateDeuterium();
+        that.refresh();
+    });
+    elem.on('keyup', '#food', function (e) {
+        that.updateFood();
+        that.refresh();
+    });
+    elem.on('change', '#food', function (e) {
+        that.updateFood();
+        that.refresh();
+    });
+    elem.on('click', '#sendFleet', async function (e) {
+        e.preventDefault();
+        await new Promise((resolve, reject) => setTimeout(() => resolve(), 250));
+        that.trySubmitFleet2();
+    });
+    elem.on('click', '#missions > li > a', function (e) {
+        e.preventDefault();
+        let mission = parseInt($(e.currentTarget).data('mission') || this.fleetHelper.MISSION_NONE);
+        that.selectMission(mission);
+        that.focusSendFleet();
+    });
+    elem.on('click', '.prioButton', function (e) {
+        e.preventDefault();
+        let type = $(e.currentTarget).attr('data-resource-type');
+        let priority = parseInt($(e.currentTarget).attr('data-resource-prio'));
+        that.selectPriority(type, priority);
+        that.refresh();
+        that.focusSendFleet();
+    });
+
+    FleetDispatcher.prototype.focusSendFleet = function () {
+        $('#sendFleet').focus();
+    };
+
+    elem.on('change', 'input[name=retreatAfterDefenderRetreat]', function (e) {
+        that.selectRetreatAfterDefenderRetreat($(e.currentTarget).is(':checked'));
+    });
+    elem.on('change', 'input[name=lootFoodOnAttack]', function (e) {
+        that.selectLootFoodOnAttack($(e.currentTarget).is(':checked'));
+    });
+    elem.on('change keyup', '#holdingtime', function () {
+        that.updateHoldingTime();
+        that.refresh();
+        that.focusSendFleet();
+    });
+    elem.on('change keyup', '#expeditiontime', function (e) {
+        that.updateExpeditionTime();
+        that.refresh();
+        that.focusSendFleet();
+    });
+    this.fetchTargetPlayerData();
+};
+
+FleetDispatcher.prototype.validateFleet2 = function () {
+    if (!this.hasValidTarget() || !this.hasMission()) {
+        return false;
+    }
+
+    return true;
+};
+
+FleetDispatcher.prototype.trySubmitFleet2 = function () {
+    clearTimeout(this.fetchTargetPlayerDataTimeout);
+    this.fetchTargetPlayerDataTimeout = null;
+    let that = this; // call refreshNavigationFleet2 to show error messages if any
+
+    this.refreshNavigationFleet2(true);
+
+    if ($("#sendFleet.off").length === 1) {
+        return;
+    }
+
+    if (this.validateFleet2() === false) {
+        return;
+    }
+
+    if (this.moveInProgress) {
+        errorBoxDecision(this.loca.LOCA_ALL_NETWORK_ATTENTION, this.loca.LOCA_PLANETMOVE_BREAKUP_WARNING, this.loca.LOCA_ALL_YES, this.loca.LOCA_ALL_NO, function () {
+            that.submitFleet2();
+        });
+    } else if (this.warningsEnabled && this.targetIsStrong && !this.targetIsOutlaw && !this.targetIsBuddyOrAllyMember && !this.playerIsOutlaw && this.fleetHelper.isAggressiveMission(this.mission)) {
+        errorBoxDecision(this.loca.LOCA_ALL_NETWORK_ATTENTION, this.locadyn.locaAllOutlawWarning, this.loca.LOCA_ALL_YES, this.loca.LOCA_ALL_NO, function () {
+            that.submitFleet2();
+        });
+    } else if (this.mission === this.fleetHelper.MISSION_COLONIZE && this.fleetHelper.COLONIZATION_ENABLED === true && !this.hasFreePlanetSlots()) {
+        errorBoxDecision(this.loca.LOCA_ALL_NOTICE, this.loca.LOCA_FLEETSENDING_MAX_PLANET_WARNING, this.loca.LOCA_ALL_YES, this.loca.LOCA_ALL_NO, function () {
+            that.submitFleet2();
+        });
+    } else {
+        this.submitFleet2();
+    }
+};
+
+FleetDispatcher.prototype.refreshFleet2 = function () {
+    this.refreshNavigationFleet2();
+    this.refreshTarget();
+    this.refreshBriefing();
+    this.refreshCargo();
+    this.refreshPriorities();
+};
+
+FleetDispatcher.prototype.refreshTarget = function () {
+    if (this.targetPlanet.type === this.fleetHelper.PLANETTYPE_PLANET) {
+        $('#pbutton').attr('class', 'planet_selected');
+    } else {
+        $('#pbutton').attr('class', 'planet');
+    }
+
+    if (this.targetPlanet.type === this.fleetHelper.PLANETTYPE_DEBRIS) {
+        $('#dbutton').attr('class', 'debris_selected');
+    } else {
+        $('#dbutton').attr('class', 'debris');
+    }
+
+    if (this.targetPlanet.type === this.fleetHelper.PLANETTYPE_MOON) {
+        $('#mbutton').attr('class', 'moon_selected');
+    } else {
+        $('#mbutton').attr('class', 'moon');
+    }
+
+    $('#galaxy').val(this.targetPlanet.galaxy);
+    $('#system').val(this.targetPlanet.system);
+    $('#position').val(this.targetPlanet.position);
+    $('#type').val(this.targetPlanet.type);
+    $('#distanceValue').html(tsdpkt(this.getDistance()));
+    let planetName = this.getOwnPlanetName(this.targetPlanet, this.targetPlanet.type);
+
+    if (planetName !== undefined && planetName !== '') {
+        $('#targetPlanetName').html(planetName);
+    } else if (this.targetPlanet.type === this.fleetHelper.PLANETTYPE_PLANET) {
+        $('#targetPlanetName').html(this.loca.LOCA_ALL_PLANET);
+    } else if (this.targetPlanet.type === this.fleetHelper.PLANETTYPE_DEBRIS) {
+        $('#targetPlanetName').html(this.loca.LOCA_FLEET_DEBRIS);
+    } else if (this.targetPlanet.type === this.fleetHelper.PLANETTYPE_MOON) {
+        $('#targetPlanetName').html(this.loca.LOCA_ALL_MOON);
+    } // After we've chosen another Planet update the Missions
+
+
+    this.refreshMissions();
+};
+
+FleetDispatcher.prototype.refreshBriefing = function () {
+    this.refreshDuration();
+    this.refreshConsumption();
+    this.refreshStorage();
+    this.refreshFleetTimes();
+    this.refreshMaxSpeed();
+    this.refreshEmptySystems();
+    this.refreshInactiveSystems();
+};
+
+FleetDispatcher.prototype.refreshTargetPlanet = function () {
+    let targetName = '[' + this.targetPlanet.galaxy + ':' + this.targetPlanet.system + ':' + this.targetPlanet.position + '] ' + (this.targetPlanet.type === this.fleetHelper.PLANETTYPE_DEBRIS ? this.loca.LOCA_FLEET_DEBRIS : this.targetPlanet.name);
+    let elem = $('#fleet2 #targetPlanet');
+    let tooltip = this.targetInhabited === true ? this.loca.LOCA_ALL_PLAYER + ': ' + this.targetPlayerName : '';
+    elem.toggleClass('tooltip', this.targetInhabited).toggleClass('active', this.targetInhabited).attr('title', tooltip).html(targetName);
+    changeTooltip(elem);
+};
+
+FleetDispatcher.prototype.refreshDuration = function () {
+    let duration = this.getDuration();
+    duration = !isNaN(duration) && isFinite(duration) ? duration : 0;
+    $('#fleet2 #duration').html(formatTime(duration) + ' h');
+};
+
+FleetDispatcher.prototype.refreshConsumption = function () {
+    let fuelCapacity = this.getFuelCapacity();
+    let deuterium = getResourcesFromHeader('deuterium');
+    let consumption = this.getConsumption();
+    consumption = !isNaN(consumption) && isFinite(consumption) ? consumption : 0;
+    let styleClass = consumption > fuelCapacity || consumption > deuterium ? 'overmark' : 'undermark';
+    let fuelLevel = Math.ceil(100 * consumption / fuelCapacity);
+    let htmlConsumption = '<span class="' + styleClass + '">' + tsdpkt(consumption) + ' (' + fuelLevel + '%)</span>';
+    $('#fleet2 #consumption').html(htmlConsumption);
+};
+
+FleetDispatcher.prototype.refreshStorage = function () {
+    let cargoSpace = this.getFreeCargoSpace();
+    let styleClass = cargoSpace < 0 ? 'overmark' : 'undermark';
+    let htmlStorage = '<span class="' + styleClass + '">' + tsdpkt(cargoSpace) + '</span>';
+    $('#storage').html(htmlStorage);
+};
+
+FleetDispatcher.prototype.refreshFleetTimes = function () {
+    let duration = this.getDuration();
+    let holdingTime = 0;
+
+    if (this.mission === this.fleetHelper.MISSION_EXPEDITION) {
+        holdingTime = this.expeditionTime * 3600;
+    }
+
+    if (this.mission === this.fleetHelper.MISSION_HOLD) {
+        holdingTime = this.holdingTime * 3600;
+    }
+
+    duration = !isNaN(duration) && isFinite(duration) ? duration : 0;
+    holdingTime = !isNaN(holdingTime) && isFinite(holdingTime) ? holdingTime : 0;
+    let arrivalTime = getFormatedDate(serverTime.getTime() + duration * 1000, '[d].[m].[y] [G]:[i]:[s]');
+    let returnTime = getFormatedDate(serverTime.getTime() + (2 * duration + holdingTime) * 1000, '[d].[m].[y] [G]:[i]:[s]');
+    $('#fleet2 #arrivalTime').html(arrivalTime);
+    $('#fleet2 #returnTime').html(returnTime);
+
+    if (this.mission === this.fleetHelper.MISSION_UNIONATTACK) {
+        let union = this.getUnionData(this.union);
+
+        if (union !== null) {
+            let durationAKS = parseInt(union.time - serverTime.getTime() / 1000);
+            let unionArrivalTime = formatTime(durationAKS);
+            $('#durationAKS').html(unionArrivalTime);
+        }
+    }
+};
+
+FleetDispatcher.prototype.refreshMaxSpeed = function () {
+    let maxSpeed = this.getMaxSpeed();
+    $('#maxspeed').html(tsdpkt(maxSpeed));
+};
+
+FleetDispatcher.prototype.refreshEmptySystems = function () {
+    $('#emptySystems').html(this.emptySystems);
+};
+
+FleetDispatcher.prototype.refreshInactiveSystems = function () {
+    $('#inactiveSystems').html(this.inactiveSystems);
+};
+
+FleetDispatcher.prototype.getPlanetIcon = function (planetType, showTooltip) {
+    showTooltip = showTooltip || true;
+    let className = '';
+    let name = '';
+
+    switch (planetType) {
+        case this.fleetHelper.PLANETTYPE_MOON:
+            className = "moon";
+            name = this.loca.LOCA_ALL_MOON;
+            break;
+
+        case this.fleetHelper.PLANETTYPE_DEBRIS:
+            className = "tf";
+            name = this.loca.LOCA_FLEET_DEBRIS;
+            break;
+
+        case this.fleetHelper.PLANETTYPE_PLANET:
+        default:
+            className = "planet";
+            name = this.loca.LOCA_ALL_PLANET;
+    }
+
+    let title = '';
+
+    if (showTooltip) {
+        className += " tooltip js_hideTipOnMobile";
+        title = ' title="' + name + '"';
+    }
+
+    return '<figure class="planetIcon ' + className + '"' + title + '></figure>';
+};
+
+FleetDispatcher.prototype.updateTarget = function (fetch = true) {
+    let galaxy = clampInt(getValue($('#galaxy').val()), 1, this.fleetHelper.MAX_GALAXY, true);
+    let system = clampInt(getValue($('#system').val()), 1, this.fleetHelper.MAX_SYSTEM, true);
+    let position = clampInt(getValue($('#position').val()), 1, this.fleetHelper.MAX_POSITION, true);
+    this.targetPlanet.galaxy = galaxy;
+    this.targetPlanet.system = system;
+    this.targetPlanet.position = position;
+
+    if (this.targetPlanet.position === this.fleetHelper.EXPEDITION_POSITION) {
+        this.targetPlanet.type = this.fleetHelper.PLANETTYPE_PLANET;
+    }
+
+    clearTimeout(this.fetchTargetPlayerDataTimeout);
+
+    if (fetch && $('#fleet2').is(':visible')) {
+        let that = this;
+        this.fetchTargetPlayerDataTimeout = setTimeout(() => {
+            that.deferred.push($.Deferred()); // check if this is the only target fetch in queue or there are other pending calls
+
+            if (that.deferred.length === 1) {
+                that.fetchTargetPlayerData();
+            }
+
+            that.deferred[that.deferred.length - 1].done(() => {
+                if (that.deferred.length !== 0) {
+                    that.fetchTargetPlayerData();
+                }
+            });
+        }, 500);
+    }
+};
+
+FleetDispatcher.prototype.updateTargetDropDowns = function () {
+    this.resetDropDown("#slbox");
+    this.resetDropDown("#aksbox");
+};
+
+FleetDispatcher.prototype.resetDropDown = function (elementId) {
+    let coords = [this.targetPlanet.galaxy, this.targetPlanet.system, this.targetPlanet.position, this.targetPlanet.type].join('#');
+    let selection = $(elementId).find("option[value^=\"" + coords + "\"]");
+
+    if (selection.length === 0) {
+        $(elementId).ogameDropDown('select', '-');
+    }
+};
+
+FleetDispatcher.prototype.selectShortLink = function (elem) {
+    let value = elem.val();
+    let parts = value.split('#');
+
+    if (parts instanceof Array && parts.length >= 5) {
+        $('#galaxy').val(parts[0]);
+        $('#system').val(parts[1]);
+        $('#position').val(parts[2]);
+        this.setTargetType(parseInt(parts[3]), true);
+    }
+};
+
+FleetDispatcher.prototype.setTargetType = function (type, doNotFetchDataAboutTarget) {
+    this.targetPlanet.type = type;
+
+    if (!doNotFetchDataAboutTarget && $('#fleet2').is(':visible')) {
+        clearTimeout(this.fetchTargetPlayerDataTimeout);
+        this.fetchTargetPlayerDataTimeout = null;
+        this.fetchTargetPlayerData();
+    }
+};
+
+FleetDispatcher.prototype.selectCombatUnion = function (elem) {
+    let value = elem.val();
+    let parts = value.split('#');
+
+    if (parts instanceof Array && parts.length >= 5) {
+        $('#galaxy').val(parts[0]);
+        $('#system').val(parts[1]);
+        $('#position').val(parts[2]);
+        this.setTargetType(parseInt(parts[3]), true);
+        this.union = parseInt(parts[5]);
+    } else {
+        this.mission = this.fleetHelper.MISSION_NONE;
+        this.union = 0;
+    }
+};
+
+FleetDispatcher.prototype.setFleetPercent = function (speedPercent) {
+    this.speedPercent = speedPercent;
+};
+
+FleetDispatcher.prototype.findOwnPlanet = function (coords, type) {
+    if (!coords) return undefined;
+    if (!type) return undefined;
+    let planet = this.planets.find(function (elem) {
+        if (elem.galaxy != coords.galaxy) return false;
+        if (elem.system != coords.system) return false;
+        if (elem.position != coords.position) return false;
+        if (elem.type != type) return false;
+        return true;
+    });
+    return planet;
+};
+
+FleetDispatcher.prototype.getOwnPlanetName = function (coords, type) {
+    if (!coords) return undefined;
+    if (!type) return undefined;
+    let planet = this.findOwnPlanet(coords, type);
+
+    if (planet) {
+        return planet.name;
+    }
+
+    return undefined;
+};
+
+FleetDispatcher.prototype.getDistance = function () {
+    return this.fleetHelper.calcDistance(this.currentPlanet, this.targetPlanet, this.emptySystems, this.inactiveSystems);
+};
+
+FleetDispatcher.prototype.getConsumption = function () {
+    return this.fleetHelper.calcConsumption(this.shipsToSend, this.getDistance(), this.speedPercent, this.getHoldingTime(), this.mission);
+};
+
+FleetDispatcher.prototype.getDuration = function () {
+    let distance = this.getDistance();
+    let maxSpeed = this.getMaxSpeed();
+    return this.fleetHelper.calcDuration(distance, maxSpeed, this.speedPercent, this.mission);
+};
+
+FleetDispatcher.prototype.getHoldingTime = function () {
+    switch (this.mission) {
+        case this.fleetHelper.MISSION_EXPEDITION:
+            return this.expeditionTime;
+
+        case this.fleetHelper.MISSION_HOLD:
+            return this.holdingTime;
+
+        default:
+            return 0;
+    }
+};
+
+FleetDispatcher.prototype.getMaxSpeed = function () {
+    let shipIds = this.getShipIds();
+    return this.fleetHelper.getMaxSpeed(shipIds);
+};
+
+FleetDispatcher.prototype.getCargoCapacity = function () {
+    let that = this;
+    let cargoCapacity = 0;
+    this.shipsToSend.forEach(function (ship) {
+        cargoCapacity += that.fleetHelper.calcCargoCapacity(ship.id, ship.number);
+    });
+    return Math.floor(cargoCapacity);
+};
+
+FleetDispatcher.prototype.getFuelCapacity = function () {
+    let that = this;
+    let fuelCapacity = 0;
+    this.shipsToSend.forEach(function (ship) {
+        fuelCapacity += that.fleetHelper.calcFuelCapacity(ship.id, ship.number);
+    });
+    return Math.floor(fuelCapacity);
+};
+
+FleetDispatcher.prototype.getFreeCargoSpace = function () {
+    return this.getCargoCapacity() - this.cargoMetal - this.cargoCrystal - this.cargoDeuterium - this.cargoFood;
+};
+
+FleetDispatcher.prototype.getUsedCargoSpace = function () {
+    return this.cargoMetal + this.cargoCrystal + this.cargoDeuterium + this.cargoFood;
+};
+
+FleetDispatcher.prototype.setOrders = function (ordersNew) {
+    this.orders = ordersNew;
+};
+
+FleetDispatcher.prototype.setTargetInhabited = function (inhabitedNew) {
+    this.targetInhabited = inhabitedNew;
+};
+
+FleetDispatcher.prototype.setTargetPlayerId = function (targetPlayerIdNew) {
+    this.targetPlayerId = targetPlayerIdNew;
+};
+
+FleetDispatcher.prototype.setTargetPlayerName = function (targetPlayerNameNew) {
+    this.targetPlayerName = targetPlayerNameNew;
+};
+
+FleetDispatcher.prototype.setTargetIsStrong = function (targetIsStrongNew) {
+    this.targetIsStrong = targetIsStrongNew;
+};
+
+FleetDispatcher.prototype.setTargetIsOutlaw = function (targetIsOutlawNew) {
+    this.targetIsOutlaw = targetIsOutlawNew;
+};
+
+FleetDispatcher.prototype.setTargetIsBuddyOrAllyMember = function (targetIsBuddyOrAllyMemberNew) {
+    this.targetIsBuddyOrAllyMember = targetIsBuddyOrAllyMemberNew;
+};
+
+FleetDispatcher.prototype.setPlayerIsOutlaw = function (playerIsOutlawNew) {
+    this.playerIsOutlaw = playerIsOutlawNew;
+};
+
+FleetDispatcher.prototype.setTargetPlayerColorClass = function (targetPlayerColorClassNew) {
+    this.targetPlayerColorClass = targetPlayerColorClassNew;
+};
+
+FleetDispatcher.prototype.setTargetPlayerRankIcon = function (targetPlayerRankIconNew) {
+    this.targetPlayerRankIcon = targetPlayerRankIconNew;
+};
+
+FleetDispatcher.prototype.setTargetPlanet = function (targetPlanetNew) {
+    this.targetPlanet = targetPlanetNew;
+};
+
+FleetDispatcher.prototype.fetchTargetPlayerData = function () {
+    if (!this.fetchTargetPlayerDataTimeout) {
+        this.fetchTargetPlayerDataTimeout = true;
+    }
+
+    let that = this; // Prevent spaming the Planets (Destination)
+
+    this.startLoading();
+    let params = {};
+    this.appendShipParams(params);
+    this.appendTargetParams(params);
+    this.appendTokenParams(params);
+    params.union = this.union;
+
+    if (this.hasColonizationShip()) {
+        params.cs = 1;
+    }
+
+    if (this.hasRecycler()) {
+        params.recycler = 1;
+    }
+
+    $.post(this.checkTargetUrl, params, function (response) {
+        let data = JSON.parse(response);
+        let status = data.status || 'failure';
+        $("#additionalFleetSpeedInfo").html(data.additionalFlightSpeedinfo);
+        that.fleetHelper.shipsData = data.shipsData;
+
+        if (status === 'success') {
+            let {
+                targetPlanet
+            } = data;
+
+            if (targetPlanet && parseInt($('#galaxy').val()) === targetPlanet.galaxy && parseInt($('#system').val()) === targetPlanet.system && parseInt($('#position').val()) === targetPlanet.position) {
+                that.refreshDataAfterAjax(data);
+                that.refreshStatusBarFleet();
+            }
+        } else {
+            that.setTargetPlayerNameOnStatusBarFleet();
+            that.setTargetPlayerPlanetNameOnStatusBarFleet();
+
+            if (that.currentPage === "fleet2") {
+                that.clearMissions();
+                that.updateTargetDropDowns();
+                that.displayErrors(data.errors);
+            }
+        }
+
+        if (that.currentPage === "fleet2") {
+            if (that.mission !== that.fleetHelper.MISSION_NONE && !that.isMissionAvailable(that.mission)) {
+                that.mission = that.fleetHelper.MISSION_NONE;
+            } //select ACS attack if no mission is selected and if union is selected
+
+
+            if (that.union !== 0 && that.hasMission() === false && that.isMissionAvailable(that.fleetHelper.MISSION_UNIONATTACK)) {
+                that.selectMission(that.fleetHelper.MISSION_UNIONATTACK);
+            }
+
+            that.validateMissions();
+        }
+
+        that.updateToken(data.newAjaxToken);
+        that.updateEmptySystems(data.emptySystems);
+        that.updateInactiveSystems(data.inactiveSystems);
+        that.refreshTargetPlanet();
+        that.refreshFleet2();
+        that.fetchTargetPlayerDataTimeout = null;
+        that.stopLoading();
+
+        if (data.bashingSystemLimitReached) {
+            $('#attackMissionsDisabledBashingLimit').show();
+        } else {
+            $('#attackMissionsDisabledBashingLimit').hide();
+        }
+
+        let deferred = that.deferred.shift();
+
+        if (deferred) {
+            deferred.resolve();
+        }
+    });
+};
+
+FleetDispatcher.prototype.setTargetPlayerNameOnStatusBarFleet = function (serverResponse) {
+    let elemTargetPlayerName = $('#statusBarFleet .targetPlayerName');
+    let targetPlayerName = '';
+
+    if (!serverResponse) {
+        targetPlayerName = this.loca.LOCA_EVENTH_ENEMY_INFINITELY_SPACE;
+    } else {
+        if (serverResponse.targetPlanet && serverResponse.targetPlanet.type === this.fleetHelper.PLANETTYPE_DEBRIS) {
+            targetPlayerName = this.loca.LOCA_EVENTH_ENEMY_INFINITELY_SPACE;
+        } else {
+            if (!serverResponse.targetPlayerName) {
+                targetPlayerName = this.loca.LOCA_EVENTH_ENEMY_INFINITELY_SPACE;
+            } else if (serverResponse.targetPlayerId === this.playerId) {
+                targetPlayerName = serverResponse.targetPlayerName;
+            } else {
+                targetPlayerName = serverResponse.targetPlayerRankIcon + '<span class="status_abbr_{color}">{name}</span>';
+                targetPlayerName = targetPlayerName.replace('{color}', serverResponse.targetPlayerColorClass);
+                targetPlayerName = targetPlayerName.replace('{name}', serverResponse.targetPlayerName);
+            }
+        }
+    }
+
+    elemTargetPlayerName.closest('li').show();
+    elemTargetPlayerName.html(targetPlayerName);
+};
+
+FleetDispatcher.prototype.setTargetPlayerPlanetNameOnStatusBarFleet = function (serverResponse) {
+    let targetName;
+
+    if (!serverResponse || serverResponse && !serverResponse.targetPlanet) {
+        let planetIcon = this.getPlanetIcon(this.fleetHelper.PLANETTYPE_PLANET, false);
+        targetName = `[${$('#galaxy').val()}:${$('#system').val()}:${$('#position').val()}] ${planetIcon} ?`;
+    } else {
+        let planetIcon = this.getPlanetIcon(serverResponse.targetPlanet.type, false);
+        targetName = '[' + serverResponse.targetPlanet.galaxy + ':' + serverResponse.targetPlanet.system + ':' + serverResponse.targetPlanet.position + '] ' + planetIcon + serverResponse.targetPlanet.name;
+    }
+
+    $('#statusBarFleet .targetName').html(targetName);
+};
+
+FleetDispatcher.prototype.submitFleet2 = function (force) {
+    force = force || false;
+    let that = this;
+    let params = {};
+    this.appendTokenParams(params);
+    this.appendShipParams(params);
+    this.appendTargetParams(params);
+    this.appendCargoParams(params);
+    this.appendPrioParams(params);
+    params.mission = this.mission;
+    params.speed = this.speedPercent;
+    params.retreatAfterDefenderRetreat = this.retreatAfterDefenderRetreat === true ? 1 : 0;
+    params.lootFoodOnAttack = this.lootFoodOnAttack === true ? 1 : 0;
+    params.union = this.union;
+    if (force) params.force = force;
+    params.holdingtime = this.getHoldingTime();
+    this.startLoading();
+    $.post(this.sendFleetUrl, params, function (response) {
+        let data = JSON.parse(response); // request successful
+
+        if (data.success === true) {
+            fadeBox(data.message, false);
+            $("#sendFleet").removeAttr("disabled");
+            window.location = data.redirectUrl;
+        } // request failed
+        else {
+            // @TODO display confirmation popup to infringe bashlimit rules
+            if (data.responseArray && data.responseArray.limitReached && !data.responseArray.force) {
+                that.updateToken(data.newAjaxToken || '');
+                errorBoxDecision(that.loca.LOCA_ALL_NETWORK_ATTENTION, that.locadyn.localBashWarning, that.loca.LOCA_ALL_YES, that.loca.LOCA_ALL_NO, function () {
+                    that.submitFleet2(true);
+                });
+            } else {
+                that.displayErrors(data.errors);
+                that.updateToken(data.newAjaxToken || '');
+                $("#sendFleet").removeAttr("disabled");
+                that.stopLoading();
+            }
+        }
+    });
+};
+
+FleetDispatcher.prototype.refreshNavigationFleet2 = function (displayErrors = false) {
+    let invalidInfo = null;
+    const sendFleetElement = document.getElementById('sendFleet');
+
+    if (!this.hasShipsSelected()) {
+        sendFleetElement.classList.add('off');
+        sendFleetElement.classList.remove('on');
+        invalidInfo = this.loca.LOCA_FLEET_NO_SELECTION;
+    } else if (!this.hasMission()) {
+        sendFleetElement.classList.add('off');
+        sendFleetElement.classList.remove('on');
+        invalidInfo = this.loca.LOCA_FLEETSENDING_NO_MISSION_SELECTED;
+    } else if (!this.hasFreeSlots()) {
+        sendFleetElement.classList.add('off');
+        sendFleetElement.classList.remove('on');
+        invalidInfo = this.loca.LOCA_FLEET_NO_FREE_SLOTS;
+    } else if (!this.hasEnoughFuel()) {
+        sendFleetElement.classList.add('off');
+        sendFleetElement.classList.remove('on');
+        invalidInfo = this.loca.LOCA_FLEETSENDING_NOT_ENOUGH_FOIL;
+    } else {
+        sendFleetElement.classList.add('on');
+        sendFleetElement.classList.remove('off');
+        sendFleetElement.removeAttribute('disabled');
+    }
+
+    if (displayErrors && invalidInfo != null) {
+        this.displayErrors([{
+            message: invalidInfo
+        }]);
+    }
+};
+
+FleetDispatcher.prototype.refreshStatusBarFleet = function () {
+    this.hasValidTarget();
+    let missionData = this.getMissionData(this.mission);
+    let missionName = missionData !== null ? missionData.name : this.loca.LOCA_FLEET_NO_SELECTION;
+    let planetIcon = this.getPlanetIcon(this.targetPlanet.type, false);
+    let targetName = '[' + this.targetPlanet.galaxy + ':' + this.targetPlanet.system + ':' + this.targetPlanet.position + '] ' + planetIcon + (this.targetPlanet.type === this.fleetHelper.PLANETTYPE_DEBRIS ? this.loca.LOCA_FLEET_DEBRIS : this.targetPlanet.name);
+    $('#statusBarFleet .missionName').text(missionName);
+    $('#statusBarFleet .targetName').html(targetName);
+    let elemTargetPlayerName = $('#statusBarFleet .targetPlayerName');
+
+    if (this.targetPlanet.type === this.fleetHelper.PLANETTYPE_DEBRIS) {
+        elemTargetPlayerName.closest('li').hide();
+        elemTargetPlayerName.html('');
+    } else {
+        let targetPlayerName = '';
+
+        if (this.targetPlayerId === 0 || this.fleetHelper.isPlayerSpace(this.targetPlayerId)) {
+            targetPlayerName = this.loca.LOCA_EVENTH_ENEMY_INFINITELY_SPACE;
+        } else if (this.targetPlayerId === this.playerId) {
+            targetPlayerName = this.targetPlayerName;
+        } else {
+            targetPlayerName = this.targetPlayerRankIcon + '<span class="status_abbr_{color}">{name}</span>';
+            targetPlayerName = targetPlayerName.replace('{color}', this.targetPlayerColorClass);
+            targetPlayerName = targetPlayerName.replace('{name}', this.targetPlayerName);
+        }
+
+        elemTargetPlayerName.closest('li').show();
+        elemTargetPlayerName.html(targetPlayerName);
+    }
+};
+
+FleetDispatcher.prototype.clearMissions = function () {
+    this.mission = this.fleetHelper.MISSION_NONE;
+
+    for (let order in this.orders) {
+        this.orders[order] = false;
+    }
+};
+
+FleetDispatcher.prototype.validateMissions = function () {
+    let invalid = false;
+
+    if (!this.hasShipsSelected()) {
+        invalid = true;
+    } else if (!this.hasFreeSlots()) {
+        invalid = true;
+    } else if (!this.hasValidTarget() || Object.values(this.orders).indexOf(true) === -1) {
+        invalid = true;
+    }
+
+    if (invalid) {
+        this.clearMissions();
+    }
+};
+
+FleetDispatcher.prototype.refreshMissions = function () {
+    $('#missions>li>a.selected').removeClass('selected'); //select expedition if no mission is selected and if it is the only one available
+
+    if (this.isOnlyMissionAvailable(this.fleetHelper.MISSION_EXPEDITION)) {
+        if (this.hasMission() === false) {
+            this.selectMission(this.fleetHelper.MISSION_EXPEDITION);
+        }
+
+        this.updateExpeditionTime();
+    } // refresh mission buttons
+
+
+    for (let mission in this.orders) {
+        let missionData = this.getMissionData(mission);
+        $('#missions>li#button' + mission).toggleClass('on', missionData.isAvailable === true).toggleClass('off', missionData.isAvailable === false);
+    } // @TODO LOCA_FLEET_NO_SELECTION when no mission selected
+    // refresh mission
+
+
+    let missionData = this.getMissionData(this.mission);
+
+    if (missionData !== null) {
+        $('.missionName').text(missionData.name);
+        $('.mission_description').text(missionData.description);
+        $('#missions>li#button' + this.mission + '>a').toggleClass('selected', true);
+
+        if (missionData.isAvailable === false) {
+            $('.briefing_overlay').show();
+            $('#missionNameWrapper').addClass('off');
+        } else {
+            $('.briefing_overlay').hide();
+            $('#missionNameWrapper').removeClass('off');
+        }
+    } else {
+        $('.briefing_overlay').show();
+        $('#missionNameWrapper').addClass('off');
+        $('.missionName').text(this.loca.LOCA_FLEET_NO_SELECTION);
+        $('.mission_description').text('');
+    }
+
+    $('form input[name="mission"]').val(this.mission);
+    $('#fightAfterRetreat,' + '#aks,' + '#holdtimeline,' + '#expeditiontimeline,' + '.prioButton,' + '.fleet_dispatch_toggle_wrap').hide();
+
+    if (this.mission === this.fleetHelper.MISSION_ATTACK) {
+        $('#fightAfterRetreat').show();
+        $('.prioButton').show();
+        $('.fleet_dispatch_toggle_wrap').show();
+    }
+
+    if (this.mission === this.fleetHelper.MISSION_UNIONATTACK) {
+        $('#aks').show();
+        $('.prioButton').show();
+        $('.fleet_dispatch_toggle_wrap').show();
+    }
+
+    if (this.mission === this.fleetHelper.MISSION_DESTROY) {
+        $('.prioButton').show();
+        $('.fleet_dispatch_toggle_wrap').show();
+    }
+
+    if (this.mission === this.fleetHelper.MISSION_HOLD) {
+        $('#holdtimeline').show();
+    }
+
+    if (this.mission === this.fleetHelper.MISSION_EXPEDITION) {
+        $('#expeditiontimeline').show();
+    }
+};
+
+FleetDispatcher.prototype.refreshCargo = function () {
+    formatNumber($('#metal'), this.cargoMetal);
+    formatNumber($('#crystal'), this.cargoCrystal);
+    formatNumber($('#deuterium'), this.cargoDeuterium);
+
+    if (this.lifeformEnabled) {
+        formatNumber($('#food'), this.cargoFood);
+    }
+
+    let cargoSpaceUsed = this.getUsedCargoSpace();
+    let cargoSpaceFree = this.getFreeCargoSpace();
+    let cargoCapacity = this.getCargoCapacity();
+    let styleClass = cargoSpaceFree < 0 ? 'overmark' : 'undermark';
+    $('#remainingresources').html('<span class="' + styleClass + '">' + tsdpkt(cargoSpaceFree) + '</style>');
+    $('#maxresources').html(tsdpkt(cargoCapacity));
+    $('#loadRoom .bar_container').data('currentAmount', cargoSpaceUsed).data('capacity', cargoCapacity);
+    refreshBars('bar_container', 'filllevel_bar');
+};
+
+FleetDispatcher.prototype.refreshPriorities = function () {
+    $('form input[name="prioMetal"]').val(this.prioMetal);
+    $('form input[name="prioCrystal"]').val(this.prioCrystal);
+    $('form input[name="prioDeuterium"]').val(this.prioDeuterium);
+
+    if (this.lifeformEnabled) {
+        $('form input[name="prioFood"]').val(this.prioFood);
+    }
+
+    $('#prioM1').attr('src', '/img/icons/4b53e83f8b8583ea279fd26f3a55a5.gif');
+    $('#prioM2').attr('src', '/img/icons/8afbd59ffe091239a7c6f1e961b267.gif');
+    $('#prioM3').attr('src', '/img/icons/4acc67e1ca4d8debb1b114abcb7c1e.gif');
+
+    if (this.lifeformEnabled) {
+        $('#prioM4').attr('src', '/img/icons/8860dee24c03537549ad782922b6b5.gif');
+    }
+
+    switch (this.prioMetal) {
+        case 1:
+            $('#prioM1').attr('src', '/img/icons/b357323b99e20a46fc0b2495728351.gif');
+            break;
+
+        case 2:
+            $('#prioM2').attr('src', '/img/icons/f8959fe540cd329f3a764ad9aeaf93.gif');
+            break;
+
+        case 3:
+            $('#prioM3').attr('src', '/img/icons/823b3270ed0f4a243287c12d4ee5f8.gif');
+            break;
+
+        case 4:
+            $('#prioM4').attr('src', '/img/icons/43bf98a73ba1abb53860f2c5b8edc3.gif');
+            break;
+    }
+
+    $('#prioC1').attr('src', '/img/icons/4b53e83f8b8583ea279fd26f3a55a5.gif');
+    $('#prioC2').attr('src', '/img/icons/8afbd59ffe091239a7c6f1e961b267.gif');
+    $('#prioC3').attr('src', '/img/icons/4acc67e1ca4d8debb1b114abcb7c1e.gif');
+
+    if (this.lifeformEnabled) {
+        $('#prioC4').attr('src', '/img/icons/8860dee24c03537549ad782922b6b5.gif');
+    }
+
+    switch (this.prioCrystal) {
+        case 1:
+            $('#prioC1').attr('src', '/img/icons/b357323b99e20a46fc0b2495728351.gif');
+            break;
+
+        case 2:
+            $('#prioC2').attr('src', '/img/icons/f8959fe540cd329f3a764ad9aeaf93.gif');
+            break;
+
+        case 3:
+            $('#prioC3').attr('src', '/img/icons/823b3270ed0f4a243287c12d4ee5f8.gif');
+            break;
+
+        case 4:
+            $('#prioC4').attr('src', '/img/icons/43bf98a73ba1abb53860f2c5b8edc3.gif');
+            break;
+    }
+
+    $('#prioD1').attr('src', '/img/icons/4b53e83f8b8583ea279fd26f3a55a5.gif');
+    $('#prioD2').attr('src', '/img/icons/8afbd59ffe091239a7c6f1e961b267.gif');
+    $('#prioD3').attr('src', '/img/icons/4acc67e1ca4d8debb1b114abcb7c1e.gif');
+
+    if (this.lifeformEnabled) {
+        $('#prioD4').attr('src', '/img/icons/8860dee24c03537549ad782922b6b5.gif');
+    }
+
+    switch (this.prioDeuterium) {
+        case 1:
+            $('#prioD1').attr('src', '/img/icons/b357323b99e20a46fc0b2495728351.gif');
+            break;
+
+        case 2:
+            $('#prioD2').attr('src', '/img/icons/f8959fe540cd329f3a764ad9aeaf93.gif');
+            break;
+
+        case 3:
+            $('#prioD3').attr('src', '/img/icons/823b3270ed0f4a243287c12d4ee5f8.gif');
+            break;
+
+        case 4:
+            $('#prioD4').attr('src', '/img/icons/43bf98a73ba1abb53860f2c5b8edc3.gif');
+            break;
+    }
+
+    if (this.lifeformEnabled) {
+        $('#prioF1').attr('src', '/img/icons/4b53e83f8b8583ea279fd26f3a55a5.gif');
+        $('#prioF2').attr('src', '/img/icons/8afbd59ffe091239a7c6f1e961b267.gif');
+        $('#prioF3').attr('src', '/img/icons/4acc67e1ca4d8debb1b114abcb7c1e.gif');
+        $('#prioF4').attr('src', '/img/icons/8860dee24c03537549ad782922b6b5.gif');
+
+        switch (this.prioFood) {
+            case 1:
+                $('#prioF1').attr('src', '/img/icons/b357323b99e20a46fc0b2495728351.gif');
+                break;
+
+            case 2:
+                $('#prioF2').attr('src', '/img/icons/f8959fe540cd329f3a764ad9aeaf93.gif');
+                break;
+
+            case 3:
+                $('#prioF3').attr('src', '/img/icons/823b3270ed0f4a243287c12d4ee5f8.gif');
+                break;
+
+            case 4:
+                $('#prioF4').attr('src', '/img/icons/43bf98a73ba1abb53860f2c5b8edc3.gif');
+                break;
+        }
+    }
+};
+
+FleetDispatcher.prototype.isMissionAvailable = function (missionId) {
+    return this.orders[missionId] === true;
+};
+
+FleetDispatcher.prototype.hasMission = function () {
+    return this.fleetHelper.isMissionValid(this.mission) && this.isMissionAvailable(this.mission);
+};
+
+FleetDispatcher.prototype.hasFreePlanetSlots = function () {
+    return this.planetCount < this.fleetHelper.MAX_NUMBER_OF_PLANETS;
+};
+
+FleetDispatcher.prototype.getAvailableMissions = function () {
+    let missions = [];
+
+    for (let mission in this.orders) {
+        if (this.orders[mission] === true) {
+            missions.push(parseInt(mission));
+        }
+    }
+
+    return missions;
+};
+
+FleetDispatcher.prototype.isOnlyMissionAvailable = function (missionId) {
+    let missionsAvailable = this.getAvailableMissions();
+    return missionsAvailable.length === 1 && missionsAvailable[0] === missionId;
+};
+
+FleetDispatcher.prototype.getMissionData = function (missionId) {
+    if (missionId === this.fleetHelper.MISSION_NONE) {
+        return null;
+    }
+
+    return {
+        isAvailable: this.orders[missionId] || false,
+        name: this.orderNames[missionId] || '',
+        description: this.orderDescriptions[missionId] || ''
+    };
+};
+
+FleetDispatcher.prototype.getUnionData = function (unionId) {
+    for (let i = 0; i < this.unions.length; ++i) {
+        if (this.unions[i].id === unionId) {
+            return this.unions[i];
+        }
+    }
+
+    return null;
+};
+
+FleetDispatcher.prototype.selectMaxMetal = function () {
+    let amount;
+    amount = this.getCargoCapacity() - this.cargoCrystal - this.cargoDeuterium - this.cargoFood;
+    amount = Math.max(amount, 0);
+    amount = Math.min(amount, this.metalOnPlanet);
+    this.cargoMetal = Math.max(this.cargoMetal, amount);
+};
+
+FleetDispatcher.prototype.selectMinMetal = function () {
+    this.cargoMetal = 0;
+};
+
+FleetDispatcher.prototype.selectMaxCrystal = function () {
+    let amount;
+    amount = this.getCargoCapacity() - this.cargoMetal - this.cargoDeuterium - this.cargoFood;
+    amount = Math.max(amount, 0);
+    amount = Math.min(amount, this.crystalOnPlanet);
+    this.cargoCrystal = Math.max(this.cargoCrystal, amount);
+};
+
+FleetDispatcher.prototype.getDeuteriumOnPlanetWithoutConsumption = function () {
+    return Math.max(0, this.deuteriumOnPlanet - this.getConsumption());
+};
+
+FleetDispatcher.prototype.selectMinCrystal = function () {
+    this.cargoCrystal = 0;
+};
+
+FleetDispatcher.prototype.selectMaxDeuterium = function () {
+    let amount;
+    amount = this.getCargoCapacity() - this.cargoMetal - this.cargoCrystal - this.cargoFood;
+    amount = Math.max(amount, 0);
+    amount = Math.min(amount, this.getDeuteriumOnPlanetWithoutConsumption());
+    this.cargoDeuterium = Math.max(this.cargoDeuterium, amount);
+};
+
+FleetDispatcher.prototype.selectMinDeuterium = function () {
+    this.cargoDeuterium = 0;
+};
+
+FleetDispatcher.prototype.selectMaxFood = function () {
+    let amount;
+    amount = this.getCargoCapacity() - this.cargoMetal - this.cargoCrystal - this.cargoDeuterium;
+    amount = Math.max(amount, 0);
+    amount = Math.min(amount, this.foodOnPlanet);
+    this.cargoFood = Math.max(this.cargoFood, amount);
+};
+
+FleetDispatcher.prototype.selectMinFood = function () {
+    this.cargoFood = 0;
+};
+
+FleetDispatcher.prototype.selectMaxAll = function () {
+    this.cargoMetal = 0;
+    this.cargoCrystal = 0;
+    this.cargoDeuterium = 0;
+    this.selectMaxDeuterium();
+    this.selectMaxCrystal();
+    this.selectMaxMetal();
+
+    if ($("#food_box").length) {
+        this.cargoFood = 0;
+        this.selectMaxFood();
+    }
+};
+
+FleetDispatcher.prototype.resetCargo = function () {
+    this.cargoMetal = 0;
+    this.cargoCrystal = 0;
+    this.cargoDeuterium = 0;
+    this.cargoFood = 0;
+};
+
+FleetDispatcher.prototype.updateCargo = function () {
+    this.updateMetal();
+    this.updateCrystal();
+    this.updateDeuterium();
+
+    if ($("#food_box").length) {
+        this.updateFood();
+    }
+};
+
+FleetDispatcher.prototype.updateMetal = function () {
+    let amount = getValue($('#metal').val());
+    let cargoSpace = this.getCargoCapacity() - this.cargoCrystal - this.cargoDeuterium - this.cargoFood;
+    this.cargoMetal = Math.min(amount, this.metalOnPlanet, cargoSpace);
+};
+
+FleetDispatcher.prototype.updateCrystal = function () {
+    let amount = getValue($('#crystal').val());
+    let cargoSpace = this.getCargoCapacity() - this.cargoMetal - this.cargoDeuterium - this.cargoFood;
+    this.cargoCrystal = Math.min(amount, this.crystalOnPlanet, cargoSpace);
+};
+
+FleetDispatcher.prototype.updateDeuterium = function () {
+    let amount = getValue($('#deuterium').val());
+    let cargoSpace = this.getCargoCapacity() - this.cargoMetal - this.cargoCrystal - this.cargoFood;
+    let deuteriumOnPlanetWithoutConsumption = this.getDeuteriumOnPlanetWithoutConsumption();
+    this.cargoDeuterium = Math.min(amount, this.deuteriumOnPlanet, cargoSpace, deuteriumOnPlanetWithoutConsumption);
+};
+
+FleetDispatcher.prototype.updateFood = function () {
+    if (!this.lifeformEnabled) return;
+    let amount = getValue($('#food').val());
+    let cargoSpace = this.getCargoCapacity() - this.cargoMetal - this.cargoCrystal - this.cargoDeuterium;
+    this.cargoFood = Math.min(amount, this.foodOnPlanet, cargoSpace);
+};
+
+FleetDispatcher.prototype.selectMission = function (mission) {
+    if (this.fleetHelper.isMissionValid(mission)) {
+        this.mission = mission;
+    }
+
+    this.updateHoldingTime();
+    this.updateExpeditionTime();
+    this.refresh();
+};
+
+FleetDispatcher.prototype.selectRetreatAfterDefenderRetreat = function (retreatAfterDefenderRetreat) {
+    this.retreatAfterDefenderRetreat = retreatAfterDefenderRetreat;
+};
+
+FleetDispatcher.prototype.selectLootFoodOnAttack = function (lootFoodOnAttack) {
+    this.lootFoodOnAttack = lootFoodOnAttack;
+};
+
+FleetDispatcher.prototype.updateHoldingTime = function () {
+    if (this.mission === this.fleetHelper.MISSION_HOLD) {
+        this.holdingTime = getValue($('#fleet2 #holdingtime').val());
+    } else {
+        this.holdingTime = 0;
+    }
+};
+
+FleetDispatcher.prototype.updateExpeditionTime = function () {
+    if (this.mission === this.fleetHelper.MISSION_EXPEDITION) {
+        this.expeditionTime = getValue($('#fleet2 #expeditiontime').val());
+    } else {
+        this.expeditionTime = 0;
+    }
+};
+
+FleetDispatcher.prototype.selectPriority = function (type, priority) {
+    if (!this.lifeformEnabled && priority === 4) return;
+
+    switch (type) {
+        case 'metal':
+            if (this.prioMetal === priority) break;
+            if (this.prioCrystal === priority) this.prioCrystal = this.prioMetal;
+            if (this.prioDeuterium === priority) this.prioDeuterium = this.prioMetal;
+            if (this.prioFood === priority) this.prioFood = this.prioMetal;
+            this.prioMetal = priority;
+            break;
+
+        case 'crystal':
+            if (this.prioCrystal === priority) break;
+            if (this.prioMetal === priority) this.prioMetal = this.prioCrystal;
+            if (this.prioDeuterium === priority) this.prioDeuterium = this.prioCrystal;
+            if (this.prioFood === priority) this.prioFood = this.prioCrystal;
+            this.prioCrystal = priority;
+            break;
+
+        case 'deuterium':
+            if (this.prioDeuterium === priority) break;
+            if (this.prioMetal === priority) this.prioMetal = this.prioDeuterium;
+            if (this.prioCrystal === priority) this.prioCrystal = this.prioDeuterium;
+            if (this.prioFood === priority) this.prioFood = this.prioDeuterium;
+            this.prioDeuterium = priority;
+            break;
+
+        case 'food':
+            if (this.prioFood === priority) break;
+            if (this.prioMetal === priority) this.prioMetal = this.prioFood;
+            if (this.prioCrystal === priority) this.prioCrystal = this.prioFood;
+            if (this.prioDeuterium === priority) this.prioDeuterium = this.prioFood;
+            this.prioFood = priority;
+            break;
+    }
+};
+
+FleetDispatcher.prototype.refreshDataAfterAjax = function (data) {
+    this.setOrders(data.orders);
+    this.setTargetInhabited(data.targetInhabited);
+    this.setTargetPlayerId(data.targetPlayerId);
+    this.setTargetPlayerName(data.targetPlayerName);
+    this.setTargetIsStrong(data.targetIsStrong);
+    this.setTargetIsOutlaw(data.targetIsOutlaw);
+    this.setTargetIsBuddyOrAllyMember(data.targetIsBuddyOrAllyMember);
+    this.setTargetPlayerColorClass(data.targetPlayerColorClass);
+    this.setTargetPlayerRankIcon(data.targetPlayerRankIcon);
+    this.setPlayerIsOutlaw(data.playerIsOutlaw);
+    this.setTargetPlanet(data.targetPlanet);
+};
+function FleetHelper(cfg) {
+    // player specific ship data
+    this.shipsData = cfg.shipsData; // game constants
+
+    this.COLONIZATION_ENABLED = cfg.COLONIZATION_ENABLED;
+    this.MAX_NUMBER_OF_PLANETS = cfg.MAX_NUMBER_OF_PLANETS;
+    this.PLAYER_ID_LEGOR = cfg.PLAYER_ID_LEGOR;
+    this.PLAYER_ID_SPACE = cfg.PLAYER_ID_SPACE; // mission constants
+
+    this.MISSION_NONE = cfg.missions.MISSION_NONE;
+    this.MISSION_ATTACK = cfg.missions.MISSION_ATTACK;
+    this.MISSION_UNIONATTACK = cfg.missions.MISSION_UNIONATTACK;
+    this.MISSION_TRANSPORT = cfg.missions.MISSION_TRANSPORT;
+    this.MISSION_DEPLOY = cfg.missions.MISSION_DEPLOY;
+    this.MISSION_HOLD = cfg.missions.MISSION_HOLD;
+    this.MISSION_ESPIONAGE = cfg.missions.MISSION_ESPIONAGE;
+    this.MISSION_COLONIZE = cfg.missions.MISSION_COLONIZE;
+    this.MISSION_RECYCLE = cfg.missions.MISSION_RECYCLE;
+    this.MISSION_DESTROY = cfg.missions.MISSION_DESTROY;
+    this.MISSION_MISSILEATTACK = cfg.missions.MISSION_MISSILEATTACK;
+    this.MISSION_EXPEDITION = cfg.missions.MISSION_EXPEDITION; // galaxy related constants
+
+    this.DONUT_GALAXY = cfg.DONUT_GALAXY;
+    this.DONUT_SYSTEM = cfg.DONUT_SYSTEM;
+    this.MAX_GALAXY = cfg.MAX_GALAXY;
+    this.MAX_SYSTEM = cfg.MAX_SYSTEM;
+    this.MAX_POSITION = cfg.MAX_POSITION;
+    this.EXPEDITION_POSITION = cfg.EXPEDITION_POSITION; // fleet related constants
+
+    this.SPEEDFAKTOR_FLEET_PEACEFUL = cfg.SPEEDFAKTOR_FLEET_PEACEFUL;
+    this.SPEEDFAKTOR_FLEET_WAR = cfg.SPEEDFAKTOR_FLEET_WAR;
+    this.SPEEDFAKTOR_FLEET_HOLDING = cfg.SPEEDFAKTOR_FLEET_HOLDING;
+    this.FLEET_DEUTERIUM_SAVE_FACTOR = cfg.FLEET_DEUTERIUM_SAVE_FACTOR; // target types
+
+    this.PLANETTYPE_PLANET = cfg.PLANETTYPE_PLANET;
+    this.PLANETTYPE_DEBRIS = cfg.PLANETTYPE_DEBRIS;
+    this.PLANETTYPE_MOON = cfg.PLANETTYPE_MOON;
+}
+
+FleetHelper.prototype.isPlayerSpace = function (playerId) {
+    return playerId === this.PLAYER_ID_SPACE;
+};
+
+FleetHelper.prototype.isPlayerLegor = function (playerId) {
+    return playerId === this.PLAYER_ID_LEGOR;
+};
+
+FleetHelper.prototype.calcDistance = function (from, to, emptySystems, inactiveSystems) {
+    let diffGalaxy = Math.abs(from.galaxy - to.galaxy);
+    let diffSystem = Math.abs(from.system - to.system);
+    let diffPlanet = Math.abs(from.position - to.position);
+
+    if (diffGalaxy != 0) {
+        let diff2 = Math.abs(diffGalaxy - this.MAX_GALAXY);
+
+        if (this.DONUT_GALAXY == 1 && diff2 < diffGalaxy) {
+            return diff2 * 20000;
+        } else {
+            return diffGalaxy * 20000;
+        }
+    } else if (diffSystem != 0) {
+        let diff2 = Math.abs(diffSystem - this.MAX_SYSTEM);
+        let deltaSystem = 0;
+
+        if (this.DONUT_SYSTEM == 1 && diff2 < diffSystem) {
+            deltaSystem = diff2;
+        } else {
+            deltaSystem = diffSystem;
+        }
+
+        deltaSystem = Math.max(deltaSystem - emptySystems - inactiveSystems, 1);
+        return deltaSystem * 5 * 19 + 2700;
+    } else if (diffPlanet != 0) {
+        return diffPlanet * 5 + 1000;
+    } else {
+        return 5;
+    }
+};
+
+FleetHelper.prototype.getFleetSpeedFaktor = function (mission) {
+    let peaceful = [this.MISSION_TRANSPORT, this.MISSION_DEPLOY, this.MISSION_COLONIZE, this.MISSION_EXPEDITION];
+    let war = [this.MISSION_ATTACK, this.MISSION_UNIONATTACK, this.MISSION_ESPIONAGE, this.MISSION_RECYCLE, this.MISSION_DESTROY, this.MISSION_MISSILEATTACK];
+    let holding = [this.MISSION_HOLD];
+    if (peaceful.includes(mission)) return this.SPEEDFAKTOR_FLEET_PEACEFUL;else if (war.includes(mission)) return this.SPEEDFAKTOR_FLEET_WAR;else if (holding.includes(mission)) return this.SPEEDFAKTOR_FLEET_HOLDING;else return 0;
+};
+
+FleetHelper.prototype.calcDuration = function (distance, maxSpeed, speedPercent, mission) {
+    mission = mission || this.MISSION_NONE;
+    return Math.max(Math.round((35000 / speedPercent * Math.sqrt(distance * 10 / maxSpeed) + 10) / this.getFleetSpeedFaktor(mission)), 1);
+};
+
+FleetHelper.prototype.calcConsumption = function (ships, distance, speedPercent, holdingTime, mission) {
+    mission = mission || this.MISSION_NONE;
+    let that = this;
+    let consumption = 0;
+    let holdingCosts = 0;
+    let shipIds = ships.map(function (ship) {
+        return ship.id;
+    });
+    let maxSpeed = this.getMaxSpeed(shipIds);
+    let duration = this.calcDuration(distance, maxSpeed, speedPercent, mission);
+    let speedValue = Math.max(0.5, duration * this.getFleetSpeedFaktor(mission) - 10);
+    ships.forEach(function (ship) {
+        if (ship.number) {
+            let shipData = that.getShipData(ship.id);
+            let shipSpeedValue = 35000 / speedValue * Math.sqrt(distance * 10 / shipData.speed);
+            holdingCosts += shipData.fuelConsumption * ship.number * holdingTime;
+            consumption += Math.max(shipData.fuelConsumption * ship.number * distance / 35000 * (shipSpeedValue / 10 + 1) * (shipSpeedValue / 10 + 1), 1);
+        }
+    });
+    consumption = Math.round(consumption);
+    consumption += holdingTime > 0 ? Math.max(Math.floor(holdingCosts / 10), 1) : 0;
+    return consumption;
+};
+
+FleetHelper.prototype.calcCargoCapacity = function (shipId, number) {
+    let shipData = this.getShipData(shipId);
+    return Math.floor(shipData.baseCargoCapacity * number);
+};
+
+FleetHelper.prototype.calcFuelCapacity = function (shipId, number) {
+    let shipData = this.getShipData(shipId);
+    return shipData.baseFuelCapacity * number;
+};
+
+FleetHelper.prototype.getMaxSpeed = function (shipIds) {
+    let that = this;
+    let speeds = [];
+    shipIds.forEach(function (shipId) {
+        let shipData = that.getShipData(shipId);
+        if (shipData && shipData.speed) speeds.push(shipData.speed);
+    });
+    let maxSpeed = speeds.reduce(function (a, b) {
+        return Math.min(a, b);
+    }, 1000000000);
+    return maxSpeed;
+};
+
+FleetHelper.prototype.getShipData = function (shipId) {
+    // shipsData is undefined when you switch to fast
+    // the Planets (Target Planet)
+    if (typeof this.shipsData === 'undefined') return null;
+    return this.shipsData[shipId];
+};
+
+FleetHelper.prototype.isAggressiveMission = function (mission) {
+    switch (mission) {
+        case this.MISSION_ATTACK:
+        case this.MISSION_UNIONATTACK:
+        case this.MISSION_ESPIONAGE:
+        case this.MISSION_DESTROY:
+            return true;
+    }
+
+    return false;
+};
+
+FleetHelper.prototype.isMissionValid = function (mission) {
+    switch (mission) {
+        case this.MISSION_ATTACK:
+        case this.MISSION_UNIONATTACK:
+        case this.MISSION_TRANSPORT:
+        case this.MISSION_DEPLOY:
+        case this.MISSION_HOLD:
+        case this.MISSION_ESPIONAGE:
+        case this.MISSION_COLONIZE:
+        case this.MISSION_RECYCLE:
+        case this.MISSION_DESTROY:
+        case this.MISSION_MISSILEATTACK:
+        case this.MISSION_EXPEDITION:
+            return true;
+    }
+
+    return false;
+};
+function reloadEventbox(m) {
+    var n;
+    if (typeof(m) == "string") {
+        n = $.parseJSON(m)
+    } else {
+        n = m
+    }
+    var o = typeof n.eventText;
+    var l = parseInt(n.friendly) + parseInt(n.neutral) + parseInt(n.hostile);
+    if (l > 0) {
+        if ($("#eventboxFilled .event_list").length > 0) {
+            return
+        }
+        var k;
+        var p = $('<p class="event_list">');
+        if ($("body").attr("id") === "galaxy") {
+            p.append('<span class="next_event">' + eventboxLoca.nextEvent + ': <span class="countdown" id="tempcounter" name="countdown"></span></span>').append('<span class="next_event">' + eventboxLoca.nextEventText + ': <span class="' + n.eventType + '">' + n.eventText + "</span></span>");
+            k = p
+        } else {
+            var h = (l === 1) ? eventboxLoca.mission : eventboxLoca.missions;
+            k = $('<p class="event_list">' + l + " " + h + ": </p>");
+            if (n.friendly) {
+                k.append('<span class="undermark">' + n.friendly + " " + eventboxLoca.friendly + "</span>")
+            }
+            if (n.neutral) {
+                if (n.friendly) {
+                    k.append(", ")
+                }
+                k.append('<span class="middlemark">' + n.neutral + " " + eventboxLoca.neutral + "</span>")
+            }
+            if (n.hostile) {
+                if (n.friendly || n.neutral) {
+                    k.append(", ")
+                }
+                k.append('<span class="overmark">' + n.hostile + " " + eventboxLoca.hostile + "</span>")
+            }
+            p.append('<span class="next_event">' + eventboxLoca.nextEvent + ': <span class="countdown" id="tempcounter" name="countdown"></span></span>').append('<span class="next_event">' + eventboxLoca.nextEventText + ': <span class="' + n.eventType + '">' + n.eventText + "</span></span>");
+            k.append(p)
+        }
+        $("#eventboxFilled").prepend(k)
+    }
+    if (o === "string" || o === "undefined") {
+        $("#eventboxLoading").hide();
+        if (l > 0) {
+            $("#eventboxBlank").hide();
+            $("#eventboxFilled").show();
+            new simpleCountdown(getElementByIdWithCache("tempcounter"), n.eventTime, function () {
+                setTimeout(getAjaxEventbox, 3000)
+            })
+        } else {
+            $("#eventboxBlank").show();
+            $("#eventboxFilled").hide()
+        }
+    }
+}
+function reloadResources(d, f) {
+    var e;
+    if (typeof(d) == "string") {
+        e = $.parseJSON(d)
+    } else {
+        e = d
+    }
+    reloadResourceTicker(e);
+    $("#resources_metal").html(e.metal.resources["actualFormat"]);
+    $("#resources_metal").attr("class", e.metal["class"]);
+    changeTooltip($("#metal_box"), e.metal.tooltip);
+    $("#resources_crystal").html(e.crystal.resources["actualFormat"]);
+    $("#resources_crystal").attr("class", e.crystal["class"]);
+    changeTooltip($("#crystal_box"), e.crystal.tooltip);
+    $("#resources_deuterium").html(e.deuterium.resources["actualFormat"]);
+    $("#resources_deuterium").attr("class", e.deuterium["class"]);
+    changeTooltip($("#deuterium_box"), e.deuterium.tooltip);
+    $("#resources_energy").html(e.energy.resources["actualFormat"]);
+    $("#resources_energy").attr("class", e.energy["class"]);
+    changeTooltip($("#energy_box"), e.energy.tooltip);
+    $("#resources_darkmatter").html(e.darkmatter.resources["actualFormat"]);
+    $("#resources_darkmatter").attr("class", e.darkmatter["class"]);
+    changeTooltip($("#darkmatter_box"), e.darkmatter.tooltip);
+    honorScore = e.honorScore;
+    darkMatter = e.darkmatter.resources["actual"];
+    if (typeof(f) == "function") {
+        f(e)
+    }
+}
+function reloadResourceTicker(b) {
+    if (typeof(b) == "string") {
+        b = $.parseJSON(b)
+    }
+    resourceTickerMetal = {
+        available: b.metal.resources["actual"],
+        limit: b.metal.resources["max"],
+        production: b.metal.resources["production"],
+        valueElem: "resources_metal"
+    };
+    resourceTickerCrystal = {
+        available: b.crystal.resources["actual"],
+        limit: b.crystal.resources["max"],
+        production: b.crystal.resources["production"],
+        valueElem: "resources_crystal"
+    };
+    resourceTickerDeuterium = {
+        available: b.deuterium.resources["actual"],
+        limit: b.deuterium.resources["max"],
+        production: b.deuterium.resources["production"],
+        valueElem: "resources_deuterium"
+    };
+    if (!vacation) {
+        if (typeof(metalTicker) != "undefined") {
+            timerHandler.removeCallback(metalTicker.intervalObj)
+        }
+        if (typeof(crystalTicker) != "undefined") {
+            timerHandler.removeCallback(crystalTicker.intervalObj)
+        }
+        if (typeof(deuteriumTicker) != "undefined") {
+            timerHandler.removeCallback(deuteriumTicker.intervalObj)
+        }
+        metalTicker = new resourceTicker(resourceTickerMetal);
+        crystalTicker = new resourceTicker(resourceTickerCrystal);
+        deuteriumTicker = new resourceTicker(resourceTickerDeuterium)
+    }
+}
+function reloadRightmenu(b) {
+    $.get(b, {}, displayRightmenu)
+}
+function displayRightmenu(b) {
+    $("#rechts").replaceWith(b);
+    initPlanetSorting()
+}
+function ajaxFormSubmit(l, f, k) {
+    var h = $("#" + l + "").serialize();
+    var g = null;
+    if (k != null && typeof k == "function") {
+        g = k
+    }
+    $.ajax({type: "POST", url: f, data: h, success: g})
+}
+function initConnectionErrorFunction() {
+    if (isMobile) {
+        document.addEventListener("deviceready", function () {
+            $(document).ajaxError(function (h, g, e, f) {
+                HostApp.ShowNoConnectionScreen()
+            })
+        }, false)
+    }
+}
+function initAllianceInfo() {
+    initConnectionErrorFunction();
+    initTooltips();
+    initOverlays();
+    initHideElements()
+}
+function manageTabs(f) {
+    var d = "#" + f;
+    var e = $(d).attr("rel");
+    if ($(d).hasClass("opened")) {
+        $(d).addClass("closed");
+        $(d).removeClass("opened");
+        $("#" + e).hide()
+    } else {
+        $(d).removeClass("closed");
+        $(d).addClass("opened");
+        $("#" + e).show();
+        $(".alliancetexts").keyup()
+    }
+}
+function ajaxLoad(b) {
+    $("#eins select").ogameDropDown("destroy");
+    $("#eins").html('<div class="ajaxLoad">' + LocalizationStrings.loading + "</div>");
+    console.log('AjaxLoad()');
+    $.post(b, {ajax: 1}, function (a) {
+        $("#eins").html(a).find("select").ogameDropDown()
+    })
+}
+function initAlliance() {
+    initToggleHeader("alliance");
+    $(".navi").click(function () {
+        var b = $(this).attr("rel");
+        $("#tab-ally li").removeClass("aktiv");
+        $(this).parent().addClass("aktiv");
+        hideTipsOnTabChange();
+        ajaxLoad(b)
+    })
+}
+function initAllianceBroadcast() {
+    $("#allianceBroadCast").submit(function () {
+        var b = $(this);
+        if ($.trim(b.find('textarea[name="text"]').val()).length == 0) {
+            errorBoxNotify(LocalizationStrings.error, chatLoca.TEXT_EMPTY, LocalizationStrings.ok);
+            return false
+        }
+        $.post(b.attr("action"), b.serialize() + "&ajax=1", function (f) {
+            try {
+                var a = $.parseJSON(f);
+                if (typeof a.message != "undefined") {
+                    $('textarea[name="text"]').val("");
+                    errorBoxNotify(LocalizationStrings.error, a.message, LocalizationStrings.ok)
+                }
+            } catch (e) {
+                $("#eins").html(f)
+            }
+        });
+        return false
+    })
+}
+function initAllianceManagement() {
+    $(".contentz").tabs({activate: hideTipsOnTabChange});
+    $(".allyTagChange").tabs({activate: hideTipsOnTabChange});
+    $(".quitAlly").tabs({activate: hideTipsOnTabChange});
+    $(".dissolve").bind("click", dissolve);
+    $(".deleteRank").bind("click", deleteRank);
+    $(".transferLeadership").bind("click", transferLeadership);
+    $(".takeoverLeadership").bind("click", takeoverLeadership)
+}
+function initBBCodeEditor(s, H, C, E, D, v) {
+    var A;
+    if (typeof(E) == "undefined" || E == null) {
+        A = $("textarea:not(.markItUpEditor)")
+    } else {
+        A = $(E).filter(":not(.markItUpEditor)")
+    }
+    if (A.length == 0) {
+        return
+    }
+    var C = C || false;
+    var u = [];
+    for (var B = 6; B <= 30; B += 2) {
+        u.push({
+            name: B,
+            openWith: "[size=" + B + "]",
+            closeWith: "[/size]",
+            placeHolder: "Text",
+            className: "fontSize" + B
+        })
+    }
+    var G = [];
+    $.each(H, function (a, b) {
+        G.push({name: b, replaceWith: "[item]" + a + "[/item]"})
+    });
+    function J(b) {
+        if (b.selection.length == 0) {
+            return
+        }
+        var a = $(b.textarea);
+        var e = a.getSelection();
+        var g = a.val().indexOf(b.openWith, e.start);
+        var c = g + b.openWith.length;
+        var f = typeof(b.placeHolder) == "string" ? b.placeHolder.length : 0;
+        var d = {start: c, end: c + f};
+        a.setSelection(d)
+    }
+
+    function I(b) {
+        var d = b.openWith;
+        var a = $(b.textarea);
+        var e = a.getSelection();
+        a.siblings(".colorpicker").val("").colorpicker("open").colorpicker("option", "close", function (g, f) {
+            var k = d.replace(/%colorCode%/, f.formatted);
+            var h = "%colorCode%".length - f.formatted.length;
+            e.start = e.start - h;
+            e.end = e.end - h;
+            a.val(a.val().replace(d, k)).setSelection(e)
+        });
+        var c = a.siblings(".markItUpHeader").find("." + b.className);
+        $(".ui-colorpicker:visible").css("top", c.offset().top + c.height()).css("left", c.offset().left);
+        $(".ui-colorpicker").draggable();
+        $(".ui-colorpicker-rgb-r .ui-colorpicker-number").focus();
+        return b
+    }
+
+    function w(a) {
+        var f = $(a.textarea);
+        var e = f.getSelection();
+        var d = a.openWith;
+        var b = $("#backgroundImagePicker");
+        if (b.is(":visible")) {
+            b.dialog("close")
+        }
+        b.find("input:checked").prop("checked", false);
+        b.find(".url").val("http://").focus();
+        openOverlay(b, {
+            type: "inline",
+            title: s.backgroundImage,
+            close: function () {
+                var g = b.find(".url").val();
+                var l = b.find(".repeatX:checked").length;
+                var m = b.find(".repeatY:checked").length;
+                var h = "";
+                if (l && m) {
+                    h = "yes"
+                } else {
+                    if (l) {
+                        h = "yes-x"
+                    } else {
+                        if (m) {
+                            h = "yes-y"
+                        }
+                    }
+                }
+                if (h.length) {
+                    g += " image-repeat=" + h
+                }
+                var k = d.replace(/%image%/, g);
+                var n = "%image%".length - g.length;
+                e.start = e.start - n;
+                e.end = e.end - n;
+                f.val(f.val().replace(d, k)).setSelection(e)
+            }
+        });
+        var c = f.siblings(".markItUpHeader").find("." + a.className);
+        b.parent().css("top", c.offset().top + c.height()).css("left", c.offset().left);
+        return a
+    }
+
+    var y = v ? [{
+        name: s.bold,
+        key: "B",
+        openWith: "[b]",
+        closeWith: "[/b]",
+        className: "bold"
+    }, {
+        name: s.italic,
+        key: "I",
+        openWith: "[i]",
+        closeWith: "[/i]",
+        className: "italic"
+    }, {
+        name: s.fontColor,
+        afterInsert: I,
+        openWith: "[color=%colorCode%]",
+        closeWith: "[/color]",
+        placeHolder: s.textPlaceHolder,
+        className: "fontColor"
+    }, {name: s.fontSize, className: "fontSize", dropMenu: u}, {
+        name: s.list,
+        openWith: "[*]",
+        multiline: true,
+        openBlockWith: "[list]\n",
+        closeBlockWith: "\n[/list]",
+        className: "list",
+        afterMultiInsert: J,
+        placeHolder: s.textPlaceHolder
+    }, {
+        name: s.coordinates,
+        openWith: "[coordinates]",
+        closeWith: "[/coordinates]",
+        placeHolder: s.coordinatePlaceHolder,
+        className: "coordinates"
+    }] : [{
+        name: s.bold,
+        key: "B",
+        openWith: "[b]",
+        closeWith: "[/b]",
+        className: "bold"
+    }, {
+        name: s.italic,
+        key: "I",
+        openWith: "[i]",
+        closeWith: "[/i]",
+        className: "italic"
+    }, {
+        name: s.fontColor,
+        afterInsert: I,
+        openWith: "[color=%colorCode%]",
+        closeWith: "[/color]",
+        placeHolder: s.textPlaceHolder,
+        className: "fontColor"
+    }, {name: s.fontSize, className: "fontSize", dropMenu: u}, {
+        name: s.list,
+        openWith: "[*]",
+        multiline: true,
+        openBlockWith: "[list]\n",
+        closeBlockWith: "\n[/list]",
+        className: "list",
+        afterMultiInsert: J,
+        placeHolder: s.textPlaceHolder
+    }, {
+        name: s.link,
+        key: "L",
+        openWith: "[url=[![" + s.link + ":!:http://]!]]",
+        closeWith: "[/url]",
+        placeHolder: s.textPlaceHolder,
+        className: "link"
+    }, {
+        name: s.coordinates,
+        openWith: "[coordinates]",
+        closeWith: "[/coordinates]",
+        placeHolder: s.coordinatePlaceHolder,
+        className: "coordinates"
+    }];
+    var F = v ? [{
+        name: s.underline,
+        key: "U",
+        openWith: "[u]",
+        closeWith: "[/u]",
+        className: "underline"
+    }, {
+        name: s.stroke,
+        key: "S",
+        openWith: "[s]",
+        closeWith: "[/s]",
+        className: "strikeThrough"
+    }, {
+        name: s.sub,
+        openWith: "[sub]",
+        closeWith: "[/sub]",
+        className: "sub"
+    }, {
+        name: s.sup,
+        openWith: "[sup]",
+        closeWith: "[/sup]",
+        className: "sup"
+    }, {separator: "-"}, {
+        name: s.item,
+        className: "item",
+        dropMenu: G
+    }, {
+        name: s.player,
+        openWith: "[player]",
+        closeWith: "[/player]",
+        placeHolder: s.playerPlaceHolder,
+        className: "player"
+    }, {separator: "-"}, {
+        name: s.alignLeft,
+        openWith: "[align=left]",
+        closeWith: "[/align]",
+        className: "leftAlign"
+    }, {
+        name: s.alignCenter,
+        openWith: "[align=center]",
+        closeWith: "[/align]",
+        className: "centerAlign"
+    }, {
+        name: s.alignRight,
+        openWith: "[align=right]",
+        closeWith: "[/align]",
+        className: "rightAlign"
+    }, {
+        name: s.alignJustify,
+        openWith: "[align=justify]",
+        closeWith: "[/align]",
+        className: "justifyAlign"
+    }, {separator: "-"}, {
+        name: s.code,
+        openWith: "[code]",
+        closeWith: "[/code]",
+        className: "code"
+    }, {separator: "-"}, {
+        name: s.email,
+        key: "E",
+        openWith: "[email=[![" + s.email + ":!:]!]]",
+        closeWith: "[/email]",
+        placeHolder: s.textPlaceHolder,
+        className: "email"
+    }, {
+        name: s.preview,
+        className: "preview",
+        call: "preview"
+    }] : [{
+        name: s.underline,
+        key: "U",
+        openWith: "[u]",
+        closeWith: "[/u]",
+        className: "underline"
+    }, {
+        name: s.stroke,
+        key: "S",
+        openWith: "[s]",
+        closeWith: "[/s]",
+        className: "strikeThrough"
+    }, {
+        name: s.sub,
+        openWith: "[sub]",
+        closeWith: "[/sub]",
+        className: "sub"
+    }, {
+        name: s.sup,
+        openWith: "[sup]",
+        closeWith: "[/sup]",
+        className: "sup"
+    }, {
+        name: s.backgroundColor,
+        afterInsert: I,
+        openWith: "[background color=%colorCode%]",
+        closeWith: "[/background]",
+        placeHolder: s.textPlaceHolder,
+        className: "backgroundColor"
+    }, {
+        name: s.backgroundImage,
+        afterInsert: w,
+        openWith: "[background image=%image%]",
+        closeWith: "[/background]",
+        placeHolder: s.textPlaceHolder,
+        className: "backgroundImage"
+    }, {separator: "-"}, {
+        name: s.item,
+        className: "item",
+        dropMenu: G
+    }, {
+        name: s.player,
+        openWith: "[player]",
+        closeWith: "[/player]",
+        placeHolder: s.playerPlaceHolder,
+        className: "player"
+    }, {
+        name: s.tooltip,
+        openWith: '[tooltip position="top" text="[![Tooltip Text:!:Tooltip Text]!]"]',
+        closeWith: "[/tooltip]",
+        placeHolder: s.textPlaceHolder,
+        className: "tooltip"
+    }, {separator: "-"}, {
+        name: s.alignLeft,
+        openWith: "[align=left]",
+        closeWith: "[/align]",
+        className: "leftAlign"
+    }, {
+        name: s.alignCenter,
+        openWith: "[align=center]",
+        closeWith: "[/align]",
+        className: "centerAlign"
+    }, {
+        name: s.alignRight,
+        openWith: "[align=right]",
+        closeWith: "[/align]",
+        className: "rightAlign"
+    }, {
+        name: s.alignJustify,
+        openWith: "[align=justify]",
+        closeWith: "[/align]",
+        className: "justifyAlign"
+    }, {separator: "-"}, {
+        name: s.block,
+        openWith: "[p]",
+        closeWith: "[/p]",
+        className: "block"
+    }, {
+        name: s.code,
+        openWith: "[code]",
+        closeWith: "[/code]",
+        className: "code"
+    }, {
+        name: s.spoiler,
+        openWith: "[spoiler]",
+        closeWith: "[/spoiler]",
+        className: "spoiler"
+    }, {separator: "-"}, {
+        name: s.hr,
+        openWith: "[hr]",
+        className: "hr"
+    }, {separator: "-"}, {
+        name: s.picture,
+        key: "Z",
+        replaceWith: "[img][![" + s.picture + ":!:http://]!][/img]",
+        className: "picture"
+    }, {
+        name: s.email,
+        key: "E",
+        openWith: "[email=[![" + s.email + ":!:]!]]",
+        closeWith: "[/email]",
+        placeHolder: s.textPlaceHolder,
+        className: "email"
+    }, {name: s.preview, className: "preview", call: "preview"}];
+    if (!C) {
+        $.each(F, function (a) {
+            if (this.className == "picture" || this.className == "backgroundImage") {
+                F.splice(a, 1)
+            }
+        })
+    }
+    if (isMobile) {
+        $.each(y, function (a) {
+            if (this.className == "fontColor" || this.className == "backgroundColor") {
+                y.splice(a, 1)
+            }
+        });
+        $.each(F, function (a) {
+            if (this.className == "fontColor" || this.className == "backgroundColor") {
+                F.splice(a, 1)
+            }
+        })
+    }
+    var x = {
+        onShiftEnter: {keepDefault: false, replaceWith: "\n"},
+        onCtrlEnter: {keepDefault: false, openWith: "\n[p]", closeWith: "[/p]"},
+        onTab: {keepDefault: false, replaceWith: "\t"},
+        markupSet: [y, F],
+        resizeHandle: false,
+        previewParserPath: bbcodePreviewUrl + "&imgAllowed=" + (C ? 1 : 0),
+        previewAutoRefresh: true,
+        previewParserVar: "text",
+        previewInElement: $('<div class="miu_preview_container"></div>'),
+        afterInsert: function (a) {
+            $(a.textarea).trigger("keyup")
+        }
+    };
+    $.colorpicker.regional.custom = s.colorPicker;
+    A.each(function () {
+        var a = $(this);
+        a.markItUp(x).after($('<input type="hidden" class="colorpicker"/>').colorpicker({
+            color: "#000000",
+            colorFormat: "#HEX",
+            hsv: false,
+            parts: "popup",
+            regional: "custom",
+            showCancelButton: false
+        }));
+        x.previewInElement.insertAfter(a);
+        $(".miu_advanced .preview").hide();
+        var b = $('<div class="miu_footer clearfix"></div>');
+        b.append('<a role="button" class="fright txt_link preview_link">' + s.preview + "</a>").append('<span class="fleft"><span class="cnt_chars">' + D + "</span> " + s.charsLeft + "</span>");
+        b.insertAfter(a);
+        a.on("keyup.bbCodeEditor", function () {
+            if (a.val().length > D) {
+                a.val(a.val().substr(0, D))
+            }
+            a.closest(".markItUpContainer").find(".cnt_chars").html(D - a.val().length)
+        });
+        $(".miu_preview_container").hide();
+        $(".preview_link").on("click.bbCodeEditor", function () {
+            $(".miu_preview_container").show();
+            $(".preview").click()
+        });
+        if (isMobile) {
+            a.siblings(".markItUpHeader").find("a").attr("title", "");
+            a.siblings(".markItUpHeader").find("li:not(.markItUpDropMenu) a").bind("mouseup", function () {
+                a.focus()
+            })
+        } else {
+            a.siblings(".markItUpHeader").find("ul ul a").attr("title", "")
+        }
+        if ($("#backgroundImagePicker").length == 0) {
+            $("body").append($('<div id="backgroundImagePicker" style="display: none;"><table><tr><td>' + s.backgroundImage + ':</td><td><input type="text" class="url"/></td></tr><tr><td>' + s.backgroundImagePicker.repeatX + ':</td><td><input type="checkbox" class="repeatX"/></td></tr><tr><td>' + s.backgroundImagePicker.repeatY + ':</td><td><input type="checkbox" class="repeatY"/></td></tr></table><div><a href="javascript:void(0);" class="btn_blue">' + s.backgroundImagePicker.ok + "</a></div></div>"));
+            $("#backgroundImagePicker").find("a").bind("click", function () {
+                $("#backgroundImagePicker").dialog("close")
+            })
+        }
+    });
+    $(".toggle_miu_advanced").on("click.bbCodeEditor", function () {
+        if ($(".miu_advanced").is(":visible")) {
+            $(".miu_advanced").hide();
+            $(this).removeClass("hide_miu_advanced").addClass("show_miu_advanced")
+        } else {
+            $(".miu_advanced").show();
+            $(this).removeClass("show_miu_advanced").addClass("hide_miu_advanced")
+        }
+    })
+}
+function initBBCodes() {
+    $(document).undelegate(".spoilerHeader", "click").delegate(".spoilerHeader", "click", function () {
+        var b = this;
+        $(this).next(".spoilerText").toggle(0, function () {
+            Tipped.refresh(b)
+        })
+    })
+}
+ogame.buddies = {
+    initBuddyList: function () {
+        $.tablesorter.addParser({
+            id: "coordinates", is: function (b) {
+                return false
+            }, format: function (f) {
+                var d = $.trim(f).slice(1, -1).split(":");
+                var e = (d[0] * 16384) + (d[1] * 32) + d[2] * 1;
+                return e
+            }, type: "numeric"
+        });
+        $.tablesorter.addParser({
+            id: "commaDigit", is: function (e, c) {
+                var f = c.config;
+                return jQuery.tablesorter.isDigit(e.replace(/\./g, ""), f)
+            }, format: function (b) {
+                return jQuery.tablesorter.formatFloat(b.replace(/\./g, ""))
+            }, type: "numeric"
+        });
+        $(".content_table").tablesorter({
+            widgets: ["zebra"],
+            headers: {
+                0: {sorter: false},
+                2: {sorter: "commaDigit"},
+                5: {sorter: "coordinates"},
+                6: {sorter: false}
+            },
+            cssHeader: "ct_sortable_title",
+            cssAsc: "ct_sort_asc",
+            cssDesc: "ct_sort_desc"
+        });
+        $("#buddylist").off(".buddyList");
+        $("#buddylist").on("click.buddyList", ".deleteBuddy", deleteBuddy);
+        $("#chatContent").on("click.chat_info", ".deleteBuddy", deleteBuddy)
+    }, initBuddies: function () {
+        $(".zebra tr").mouseover(function () {
+            $(this).addClass("over")
+        }).mouseout(function () {
+            $(this).removeClass("over")
+        });
+        $(".js_accordion").accordion({
+            collapsible: true,
+            heightStyle: "content"
+        });
+        $(".js_tabs").tabs();
+        $(".js_scrollbar").mCustomScrollbar({theme: "ogame"})
+    }
+};
+function initInviteCodes() {
+    $("#buddyinvite .code").click(function () {
+        $(this).selectText()
+    })
+}
+function incrementBuddyCount() {
+    var c = parseInt($("#buddyCount").text()) + 1;
+    var d = parseInt($("#newRequestCount").text()) - 1;
+    updateRequestCount(d);
+    updateBuddyCount(c)
+}
+function updateRequestCount(b) {
+    $("#newRequestCount").html(b)
+}
+function updateBuddyCount(b) {
+    $("#buddyCount").html(b)
+}
+function reportMessage(f, d, e) {
+    $.ajax({
+        type: "POST",
+        url: "?page=reportSpam_ajax",
+        dataType: "json",
+        data: {messageId: f, from: d, to: e},
+        success: function (a) {
+            fadeBox(a.message, !a.result)
+        },
+        error: function () {
+        }
+    })
+}
+function reportAllyMessage(c, d) {
+    $.ajax({
+        type: "POST",
+        url: "?page=reportSpam_ajax",
+        dataType: "json",
+        data: {messageId: c, from: d},
+        success: function (a) {
+            fadeBox(a.message, !a.result)
+        },
+        error: function () {
+        }
+    })
+}
+var elem, messageId, senderId;
+function reportAllyRoundMessage(h, e, g, f) {
+    elem = h;
+    messageId = e;
+    senderId = g;
+    errorBoxDecision(LocalizationStrings.attention, f, LocalizationStrings.yes, LocalizationStrings.no, reportMessageCallback)
+}
+function reportMessageCallback() {
+    elem.hide();
+    reportAllyMessage(messageId, senderId)
+}
+function requestsReady() {
+    $(document).on("click", ".acceptRequest", acceptRequest);
+    $(document).on("click", ".rejectRequest", rejectRequest);
+    $(document).on("click", ".cancelRequest", cancelRequest);
+    $(document).on("click", ".reportRequest", reportRequest)
+}
+function initBuddyRequestForm() {
+    $(".overlayDiv .buddyRequest form").unbind("submit").bind("submit", function (c) {
+        var d = $(this);
+        c.preventDefault();
+        $.post(d.attr("action"), d.serialize(), "html").done(function (a) {
+            document.open();
+            document.write(a);
+            document.close()
+        }).fail(function () {
+            var a = window.location.href;
+            window.location = a.substring(0, a.indexOf("?")) + "?page=buddies"
+        }).always(function () {
+            return false
+        })
+    });
+    $(".buddyRequest").each(function () {
+        var c = $(this);
+        var d = c.parents(".ui-dialog").find(".ui-dialog-title");
+        if (!d.find("span.buddyName").length) {
+            d.append($(document.createElement("span")).addClass("buddyName").text(" (" + c.attr("data-title") + ")"))
+        }
+    })
+}
+function initBuyResourceOverlay(g, e, h) {
+    $(".close_buyResourceOverlay").on("click", function () {
+        $("#buyResourceOverlayBody").closest(".ui-dialog").find(".ui-icon-closethick").click()
+    });
+    var f = function () {
+        if (g && e) {
+            errorBoxDecision(h.allNetworkAttention, h.slotWarning, h.allYes, h.allNo, sendDMAcceptanceForm)
+        } else {
+            sendDMAcceptanceForm()
+        }
+    };
+    $("#premiumConfirmButton").on("click", function (a) {
+        a.preventDefault();
+        f()
+    });
+    $(document).on("ajaxShowOverlay", function (a) {
+        $("#premiumConfirmButton").focus()
+    });
+    $("#premiumConfirmButton").on("keyup", function (a) {
+        a.stopPropagation();
+        if (a.keyCode == 13) {
+            f()
+        }
+    })
+}
+function sendDMAcceptanceForm() {
+    $("#premiumAcceptForm").submit();
+    return
+}
+function openBuyResourceDialog(b) {
+    openOverlay(b, {"class": "buyResourceDialog"})
+}
+function abortBuyResource() {
+    $(".overlaydiv .abort_button").on("click", function () {
+        $(".overlaydiv").dialog("close")
+    })
+}
+function initBuyResources() {
+    refreshBars("bar_container", "filllevel_bar");
+    $(".fill_resource").on("click", ".fillup", onChangeToPremium).on("click", ".btn_premium", submitBuyRequest)
+}
+function onChangeToPremium(g) {
+    var f = $(g.currentTarget).find(".btn_blue"), h = f.closest(".fillup"), e = f.closest(".fill_resource_ctn").find(".premium_bar");
+    $(".fillup").removeClass("premium").parent().find(".current_stock span").removeClass("premium_txt").each(function () {
+        var a = $(this);
+        a.text(a.data("currentAmount"))
+    });
+    $(".fill_resource .btn_premium").html(loca.fillUpResource).attr("class", "btn_blue");
+    $(".premium_bar").css("width", "0%").data("premiumPercent", 0);
+    if (f.attr("disabled") == "disabled") {
+        return
+    }
+    f.html(loca.buyNow).attr("class", "btn_premium small");
+    h.addClass("premium");
+    h.parent().find(".current_stock span").addClass("premium_txt").text(f.data("newValueFormatted"));
+    e.data("premiumPercent", f.data("premiumPercent"));
+    changeTooltip(e, "+" + tsdpkt(Math.floor(f.data("premiumValue"))));
+    refreshBars("bar_container", "filllevel_bar", "premium_bar")
+}
+function submitBuyRequest(l) {
+    var n = $(l.currentTarget), m = n.data("resource"), e = n.data("premiumCosts"), k = n.data("packageType"), h = n.data("traderBuyResource");
+    $.ajax({
+        url: "index.php?page=traderOverview",
+        data: {buyResource: m, buyPackage: k, costs: e, token: h, ajax: 1},
+        type: "POST",
+        dataType: "json",
+        success: function (a) {
+            refreshToken = function (b) {
+                $(".btn_blue").each(function () {
+                    $(this).data("traderBuyResource", b)
+                })
+            };
+            refreshToken(a.buyResourceToken);
+            if (!a.success) {
+                fadeBox(a.message, true);
+                return
+            }
+            getAjaxResourcebox(function (b) {
+                $(".fill_resource .bar_container").each(function () {
+                    var c = $(this);
+                    c.data("currentAmount", b[c.data("resource")]["resources"]["actual"]);
+                    c.parent().find(".current_stock span").html(a[c.data("resource")]).data("currentAmount", a[c.data("resource")]);
+                    refreshBars("fill_resource .bar_container", "filllevel_bar")
+                })
+            });
+            $(".fill_resource .fillup").each(function () {
+                var c = $(this);
+                var d = c.find("a");
+                var g = d.data("resource");
+                var b = d.data("packageType");
+                if (!a.possiblePackages[g][b]["isBuyable"]) {
+                    d.attr("disabled", "disabled");
+                    c.attr("disabled", "disabled");
+                    c.addClass("disabled")
+                }
+                d.data("premiumCosts", a.possiblePackages[g][b]["costs"]);
+                d.data("premiumValue", a.possiblePackages[g][b]["resources"]);
+                d.data("newValueFormatted", a.possiblePackages[g][b]["newValueFormatted"]);
+                if (a.possiblePackages[g][b]["displayCosts"]) {
+                    c.find(".fillup_cost .premium_txt").html(a.possiblePackages[g][b]["formattedCosts"])
+                } else {
+                    c.find(".fillup_cost").addClass("overmark").html("-")
+                }
+                if (b == 3) {
+                    var f = d.data("buyButtonClass");
+                    if (!a.possiblePackages[g][b]["isCapped"] && c.children("." + f).length) {
+                        c.children("." + f).removeClass(f).addClass("fillup_100percent");
+                        c.children(".fillup_txt").html(loca.fillUpTo)
+                    }
+                }
+            })
+        },
+        error: function () {
+        }
+    })
+}
+function countdown(l, g, f) {
+    if (g == null || g == "") {
+        g = 2
+    }
+    var h = this;
+    h.countValue = parseInt(f) || -1;
+    h.timestamp = 0;
+    h.maxDigits = parseInt(g);
+    h.delimiter = " ";
+    h.approx = "";
+    h.showunits = true;
+    h.zerofill = false;
+    var k = new Date();
+    h.startTime = k.getTime();
+    h.startLeftoverTime = parseInt(l);
+    this.getCurrentTimestring = function () {
+        return h.formatTime(h.getLeftoverTime())
+    };
+    this.getLeftoverTime = function () {
+        var a = new Date();
+        return Math.round((h.startLeftoverTime + ((a.getTime() - h.startTime) * h.countValue) / 1000))
+    };
+    this.formatTime = function (a) {
+        return formatTimeWrapper(a, h.maxDigits, h.showunits, h.delimiter, h.zerofill, h.approx)
+    }
+}
+function formatTimeWrapper(o, u, q, v, s, n) {
+    var k = [];
+    k.week = 604800;
+    k.day = 86400;
+    k.hour = 3600;
+    k.minute = 60;
+    k.second = 1;
+    var w = "";
+    for (var r in k) {
+        var p = Math.floor(o / k[r]);
+        if (u > 0 && (p > 0 || s && w != "")) {
+            o = o - p * k[r];
+            if (w != "") {
+                w += v;
+                if (p < 10 && p > 0 && s) {
+                    p = "0" + p
+                }
+                if (p == 0) {
+                    p = "00"
+                }
+            }
+            w += p + (q ? LocalizationStrings.timeunits["short"][r] : "");
+            u--
+        }
+    }
+    if (o > 0) {
+        w = n + w
+    }
+    return w
+}
+function bauCountdown(k, l, f, g) {
+    if (typeof(k) == "object") {
+        var h = this;
+        h.totalTime = f;
+        h.startHeight = k.offsetHeight;
+        h.htmlObj = $(k);
+        h.timeHtmlObj = h.htmlObj.siblings(".timeLink").find(".time");
+        this.updateCountdown = function () {
+            h.countdown.getCurrentTimestring();
+            timestamp = h.countdown.getLeftoverTime();
+            timestring = h.countdown.getCurrentTimestring();
+            h.timeHtmlObj.text(timestring);
+            var a = Math.max(0, timestamp) / h.totalTime;
+            if (a > 0) {
+                var b = Math.round(h.startHeight * a);
+                h.htmlObj.css({
+                    height: b + "px",
+                    marginTop: (h.startHeight - b) + "px"
+                })
+            } else {
+                h.timeHtmlObj.text(LocalizationStrings.status.ready);
+                h.htmlObj.css({height: h.startHeight + "px", marginTop: 0});
+                if (timestamp <= -1 && timestamp > -10 && !isOverlayOpen()) {
+                    reload_page(g)
+                }
+            }
+        };
+        if (h.timeHtmlObj.length) {
+            h.countdown = new countdown(l);
+            timerHandler.appendCallback(h.updateCountdown);
+            h.updateCountdown()
+        } else {
+            window.status = "kein timeHtmlObj"
+        }
+    }
+}
+function schiffbauCountdown(o, k, m, q, r, l) {
+    if (typeof(o) == "object") {
+        var n = this;
+        n.totalTime = r;
+        n.oneShipTime = r;
+        n.shipCount = k;
+        n.currentShips = m;
+        n.startHeight = o.offsetHeight;
+        n.htmlObj = $(o);
+        var p = n.htmlObj.siblings(".timeLink");
+        n.timeHtmlObj = p.find(".time");
+        n.countHtmlObj = $("#shipcount");
+        n.shipsHtmlObj = $("#bestand");
+        this.updateCountdown = function () {
+            n.countdown.getCurrentTimestring();
+            timestamp = n.countdown.getLeftoverTime();
+            timestring = n.countdown.getCurrentTimestring();
+            n.timeHtmlObj.text(timestring);
+            var a = Math.max(0, timestamp) / n.totalTime;
+            if (a > 0) {
+                var b = Math.round(n.startHeight * a);
+                n.htmlObj.css({
+                    height: b + "px",
+                    marginTop: (n.startHeight - b) + "px"
+                })
+            } else {
+                if (n.shipCount > 0) {
+                    n.shipCount--;
+                    n.currentShips++
+                }
+                if (n.shipCount >= 0) {
+                    n.countHtmlObj.text(n.shipCount);
+                    $("#shipcount").text(n.shipCount)
+                }
+                n.shipsHtmlObj.text(gfNumberGetHumanReadable(n.currentShips));
+                if (n.shipCount > 0) {
+                    n.countdown = new countdown(r);
+                    n.timeHtmlObj.text("-")
+                } else {
+                    if (timestamp <= -1 && timestamp > -10) {
+                        if (l != null && timestamp > -10 && !isOverlayOpen()) {
+                            reload_page(l)
+                        }
+                        timerHandler.removeCallback(n.timer)
+                    }
+                    n.timeHtmlObj.text(LocalizationStrings.status.ready)
+                }
+            }
+        };
+        if (n.timeHtmlObj && n.countHtmlObj && n.shipsHtmlObj) {
+            totalTime = Math.floor(k * r);
+            n.countdown = new countdown(q);
+            n.timer = timerHandler.appendCallback(n.updateCountdown);
+            n.updateCountdown()
+        } else {
+            window.status = "kein: timeHtmlObj oder countHtmlObj oder shipsHtmlObj"
+        }
+    }
+}
+function baulisteCountdown(k, f, g, l) {
+    if (typeof(k) == "object") {
+        var h = this;
+        h.timeHtmlObj = k;
+        h.updateCountdown = function () {
+            var a = h.countdown.getLeftoverTime();
+            if (a > 0) {
+                $(h.timeHtmlObj).html(h.countdown.getCurrentTimestring())
+            } else {
+                $(h.timeHtmlObj).html(LocalizationStrings.status.ready);
+                if (typeof(l) == "function") {
+                    l()
+                }
+                if (a <= -1 && a > -10) {
+                    if (g != null && a > -10 && !isOverlayOpen()) {
+                        reload_page(g)
+                    }
+                    timerHandler.removeCallback(h.timer)
+                }
+            }
+        };
+        if (h.timeHtmlObj) {
+            h.countdown = new countdown(f, 3);
+            h.timer = timerHandler.appendCallback(h.updateCountdown);
+            h.updateCountdown()
+        }
+    }
+}
+function eventboxCountdown(l, n, h, m, g) {
+    if (typeof(l) == "object") {
+        var k = this;
+        k.timeHtmlObj = l;
+        this.updateCountdown = function () {
+            k.countdown.getCurrentTimestring();
+            var a = k.countdown.getLeftoverTime();
+            var b = k.countdown.getCurrentTimestring();
+            if (a > 0) {
+                $(k.timeHtmlObj).html(b)
+            } else {
+                timerHandler.removeCallback(k.timer);
+                $(k.timeHtmlObj).html(LocalizationStrings.status.ready);
+                if (!timerHandler.checkEventsAlreadyQueued) {
+                    timerHandler.checkEventsAlreadyQueued = true;
+                    setTimeout(function () {
+                        console.log('eventboxCountdown()');
+                        $.post(m, {ids: g}, function (c) {
+                            var e = $.parseJSON(c);
+                            for (var d in e.rows) {
+                                $(h).find("#eventRow-" + e.rows[d]).remove();
+                                $(".union" + e.rows[d]).remove()
+                            }
+                            $(".eventFleet").removeClass("odd");
+                            $(".partnerInfo").removeClass("part-even");
+                            $(".eventFleet:odd").addClass("odd");
+                            $(".partnerInfo:even").addClass("part-even");
+                            timerHandler.checkEventsAlreadyQueued = false
+                        })
+                    }, 2500)
+                }
+            }
+        };
+        if (k.timeHtmlObj) {
+            k.countdown = new countdown(n, 3);
+            k.timer = timerHandler.appendCallback(k.updateCountdown);
+            k.updateCountdown()
+        }
+    }
+}
+function simpleCountdown(k, g, l, f) {
+    if (typeof(k) == "object") {
+        var h = this;
+        h.timeHtmlObj = $(k)[0];
+        this.updateCountdown = function () {
+            var a = h.countdownObject.getLeftoverTime();
+            var b = h.countdownObject.getCurrentTimestring();
+            if (a > 0) {
+                $("#" + h.timeHtmlObj.id).text(b);
+                if (typeof f == "string" && $.isFunction(window[f])) {
+                    window[f]()
+                } else {
+                    if ($.isFunction(f)) {
+                        f()
+                    }
+                }
+            } else {
+                timerHandler.removeCallback(h.timer);
+                $("#" + h.timeHtmlObj.id).text(LocalizationStrings.status.ready);
+                if (typeof l == "string" && $.isFunction(window[l])) {
+                    window[l]()
+                } else {
+                    if ($.isFunction(l)) {
+                        l()
+                    }
+                }
+            }
+        };
+        if (typeof(h.timer) != "undefined") {
+            timerHandler.removeCallback(h.timer)
+        }
+        if (h.timeHtmlObj) {
+            h.countdownObject = new countdown(g, 3);
+            h.timer = timerHandler.appendCallback(h.updateCountdown);
+            h.updateCountdown()
+        }
+    }
+}
+function countdownWithTickFunction(m, p, h, n, o, k) {
+    if (typeof(m) == "object") {
+        var l = this;
+        l.timeHtmlObj = m;
+        if (typeof($(m).attr("data-countdown")) != "undefined") {
+            timerHandler.removeCallback($(m).attr("data-countdown"))
+        }
+        this.updateCountdown = function () {
+            timestamp = l.countdown.getLeftoverTime();
+            timestring = l.countdown.getCurrentTimestring();
+            if (timestamp > 0) {
+                l.timeHtmlObj.innerHTML = timestring;
+                if (typeof o == "string" && $.isFunction(window[o])) {
+                    window[o](timestamp, h)
+                } else {
+                    if ($.isFunction(o)) {
+                        o(timestamp, h)
+                    }
+                }
+            } else {
+                timerHandler.removeCallback(l.timer);
+                l.timeHtmlObj.innerHTML = LocalizationStrings.status.ready;
+                if (typeof n == "string" && $.isFunction(window[n])) {
+                    window[n]()
+                } else {
+                    if ($.isFunction(n)) {
+                        n()
+                    }
+                }
+            }
+        };
+        if (l.timeHtmlObj) {
+            l.countdown = new countdown(p, k);
+            l.timer = timerHandler.appendCallback(l.updateCountdown);
+            l.updateCountdown();
+            $(m).attr("data-countdown", l.timer)
+        }
+        return l
+    }
+}
+function reloadCountdown(h, e, f) {
+    if (typeof(h) == "object") {
+        var g = this;
+        g.timeHtmlObj = h;
+        this.updateCountdown = function () {
+            g.countdown.getCurrentTimestring();
+            timestamp = g.countdown.getLeftoverTime();
+            timestring = g.countdown.getCurrentTimestring();
+            if (timestamp > 0) {
+                g.timeHtmlObj.innerHTML = timestring
+            } else {
+                g.timeHtmlObj.innerHTML = LocalizationStrings.status.ready;
+                if (timestamp <= -2 && timestamp > -10 && !isOverlayOpen()) {
+                    reload_page(f)
+                }
+            }
+        };
+        if (g.timeHtmlObj) {
+            g.countdown = new countdown(e, 3);
+            timerHandler.appendCallback(g.updateCountdown);
+            g.updateCountdown()
+        }
+    }
+}
+function movementImageCountdown(m, p, n, k, h, o) {
+    if (typeof(m) == "object") {
+        var l = this;
+        l.timeHtmlObj = m;
+        this.updateCountdown = function () {
+            l.countdown.getCurrentTimestring();
+            var a = l.countdown.getLeftoverTime();
+            var b = l.countdown.getCurrentTimestring();
+            if (a > 0) {
+                percent = 100 - a / (n / 100);
+                if (!k) {
+                    pixel = Math.abs((o / 100) * percent)
+                } else {
+                    pixel = (o * 2) - Math.abs(((o * 2) / 100) * percent)
+                }
+                pixel = Math.round(pixel);
+                if (h) {
+                    l.timeHtmlObj.style.marginRight = pixel + "px"
+                } else {
+                    l.timeHtmlObj.style.marginLeft = pixel + "px"
+                }
+            }
+        };
+        if (l.timeHtmlObj) {
+            l.countdown = new countdown(p, 3);
+            timerHandler.appendCallback(l.updateCountdown);
+            l.updateCountdown()
+        }
+    }
+}
+function shipCountdown(r, o, l, q, u, m, n, p) {
+    if ((typeof(r) == "object") && (typeof(o) == "object") && (typeof(l) == "object")) {
+        var s = this;
+        s.totalTimeHtmlObj = r;
+        s.unitTimeHtmlObj = o;
+        s.sumCountHtmlObj = l;
+        this.updateCountdown = function () {
+            s.unitCountdown.getCurrentTimestring();
+            unitTimestamp = s.unitCountdown.getLeftoverTime();
+            unitTimestring = s.unitCountdown.getCurrentTimestring();
+            s.totalCountdown.getCurrentTimestring();
+            totalTimestamp = s.totalCountdown.getLeftoverTime();
+            totalTimestring = s.totalCountdown.getCurrentTimestring();
+            if (unitTimestamp > 0) {
+                s.unitTimeHtmlObj.innerHTML = unitTimestring
+            } else {
+                n--;
+                s.unitTimeHtmlObj.innerHTML = LocalizationStrings.status.ready;
+                if (n > 0) {
+                    s.unitCountdown = new countdown(q);
+                    s.sumCountHtmlObj.innerHTML = n
+                } else {
+                    s.sumCountHtmlObj.innerHTML = 0
+                }
+            }
+            if (n > 0) {
+                s.totalTimeHtmlObj.innerHTML = totalTimestring
+            } else {
+                s.totalTimeHtmlObj.innerHTML = LocalizationStrings.status.ready;
+                if (!isOverlayOpen()) {
+                    reload_page(p)
+                }
+            }
+        };
+        if ((s.totalTimeHtmlObj) && (s.unitTimeHtmlObj) && (s.sumCountHtmlObj)) {
+            s.totalCountdown = new countdown(m);
+            s.unitCountdown = new countdown(u);
+            timerHandler.appendCallback(s.updateCountdown);
+            s.updateCountdown()
+        }
+    }
+}
+function reload_page(b) {
+    if (timerHandler && timerHandler.pageReloadAlreadyTriggered == false) {
+        timerHandler.pageReloadAlreadyTriggered = true;
+        openParentLocation(b)
+    }
+}
+function initItemActivation(c) {
+    inventoryObj.initalizeSlider(inventoryObj.items_inventory, "js_activeItemSlider", 395, 172, " ", true, " ", true, true);
+    if (typeof(c) == "undefined" || c.length == 0 || c == 1) {
+        var d = $(".item_img_box .detail_button").filter(":first");
+        if (d.length === 0) {
+            $("#noItems").show();
+            $("#itemDetailBox").hide();
+            return
+        } else {
+            $.bbq.pushState({item: d.attr("ref")})
+        }
+    } else {
+        $.bbq.pushState({item: c});
+        $(window).trigger("hashchange")
+    }
+    $("#activeBuffDetails .js_is_active").each(function () {
+        $durationEl = $(this).parent().siblings(".js_duration");
+        $pusherEl = $(this).parent().siblings(".pusher");
+        startCooldown($durationEl, $pusherEl, 75)
+    });
+    $(document).undelegate("#activeBuffDetails .detail_button", "click.updateItemDetails").delegate("#activeBuffDetails .detail_button", "click.updateItemDetails", function () {
+        if ($(this).hasClass("active")) {
+            return
+        }
+        $("#activeBuffDetails .detail_button").removeClass("active");
+        $(this).addClass("active");
+        $.bbq.pushState({item: $(this).attr("ref")})
+    }).undelegate("#activeBuffDetails .build-it", "click.activateItem").delegate("#activeBuffDetails .build-it", "click.activateItem", function () {
+        activateItem($(this).attr("ref"))
+    }).undelegate("#activeBuffDetails .buyAndActivate.dm.build-it_disabled", "click.activateItem").delegate("#activeBuffDetails .buyAndActivate.dm.build-it_disabled", "click.activateItem", function () {
+        if (vacation) {
+            return
+        }
+        var a = $(this).attr("ref");
+        if ($("#js_activeItemSlider>li a[ref='" + a + "']").length == 0) {
+            return
+        }
+        errorBoxDecision(LocalizationStrings.error, translation.buyDMDecision, LocalizationStrings.yes, LocalizationStrings.no, function () {
+            window.location.href = $("#darkmatter_box a").attr("href")
+        })
+    }).undelegate("#activeBuffDetails .close_detail", "click.changeHash").delegate("#activeBuffDetails .close_detail", "click.changeHash", function () {
+        $.bbq.pushState({item: ""})
+    })
+}
+function initBuffBar() {
+    $(".sliderWrapper .active_items").anythingSlider({
+        resizeContents: false,
+        buildNavigation: false,
+        buildStartStop: false,
+        infiniteSlides: false,
+        stopAtEnd: true
+    });
+    $(".sliderWrapper .active_items").removeClass("hidden");
+    $(window).unbind("hashchange.openBuffBar").bind("hashchange.openBuffBar", function (k) {
+        var l = $.deparam.fragment(k.fragment);
+        if (typeof(l.item) != "undefined") {
+            var f = $("#buffBar .activate_item");
+            $("#buffBar a").removeClass("active");
+            var h = l.item;
+            if (h != "") {
+                if ($("#activeBuffDetails:visible").length) {
+                    if (typeof(inventoryObj.items_inventory[h]) == "undefined") {
+                        var g = $("#activeBuffDetails .detail_button").filter(":first");
+                        $.bbq.pushState({item: g.attr("ref")});
+                        return
+                    }
+                    $("#buffBar a[ref='" + l.item + "']").addClass("active");
+                    f.addClass("active");
+                    $("#noItems").hide();
+                    $("#itemDetailBox").show();
+                    updateItemDetails(h)
+                } else {
+                    $("#buffBar a[ref='" + l.item + "']").addClass("active");
+                    f.addClass("active");
+                    gfSlider.slideIn(getElementByIdWithCache("detail"), h)
+                }
+            } else {
+                if ($("#activeBuffDetails .detail_button").filter(":first").length === 0) {
+                    $("#noItems").show();
+                    $("#itemDetailBox").hide()
+                }
+                $("#activeBuffDetails .close_details").click();
+                f.removeClass("active")
+            }
+        }
+    });
+    $(document).undelegate("#buffBar a", "click.openDetails").delegate("#buffBar a", "click.openDetails", function () {
+        if ($(this).hasClass("active")) {
+            $.bbq.pushState({item: ""})
+        } else {
+            $.bbq.pushState({item: $(this).attr("ref")})
+        }
+    });
+    $("#buffBar").unbind("click.openDetails").bind("click.openDetails", function (b) {
+        if (!$(b.target).is("#buffBar .activate_item") && !$(b.target).is(".arrow a")) {
+            $("#buffBar .activate_item").click()
+        }
+    });
+    $("#buffBar .active_items div:not(.activate_item)").each(function () {
+        $durationEl = $(this).find(".js_duration");
+        $pusherEl = $(this).find(".pusher");
+        startCooldown($durationEl, $pusherEl, 32)
+    });
+    $(window).trigger("hashchange")
+}
+function getItem(b) {
+    if (typeof(inventoryObj.items_inventory[b]) != "undefined") {
+        return inventoryObj.items_inventory[b]
+    }
+    return null
+}
+function updateItemDetails(e) {
+    var h = getItem(e);
+    $("#activeBuffDetails .detail_button").removeClass("active");
+    $('#activeBuffDetails .detail_button[ref="' + e + '"]').addClass("active");
+    $("#activeBuffDetails .js_itemName").html(h.name);
+    $("#activeBuffDetails .js_itemEffect").html(h.effect);
+    $("#activeBuffDetails .js_itemAmount").html(h.amount);
+    if (h.firstStatus) {
+        $("#activeBuffDetails .js_itemDurationStatus").html(translation.durationType[h.firstStatus])
+    } else {
+        $("#activeBuffDetails .js_itemDurationStatus").html(translation.durationType.effecting)
+    }
+    if (h.duration) {
+        if (h.durationExtension) {
+            $("#activeBuffDetails .js_itemDuration").html(formatTimeWrapper(h.duration, 2, true, " ", false, "") + h.durationExtension)
+        } else {
+            $("#activeBuffDetails .js_itemDuration").html(formatTimeWrapper(h.duration, 2, true, " ", false, ""))
+        }
+    } else {
+        if (h.duration === null) {
+            if (h.moonOnlyItem) {
+                $("#activeBuffDetails .js_itemDuration").html(translation.permanentMoon)
+            } else {
+                $("#activeBuffDetails .js_itemDuration").html(translation.permanent)
+            }
+        } else {
+            $("#activeBuffDetails .js_itemDuration").html(translation.now)
+        }
+    }
+    if (h.timeLeft) {
+        $("#activeBuffDetails .js_itemTimeLeftTxt").show();
+        $("#activeBuffDetails .js_itemTimeLeft").html(formatTimeWrapper(h.timeLeft, 2, true, " ", false, ""))
+    } else {
+        $("#activeBuffDetails .js_itemTimeLeftTxt").hide()
+    }
+    var g = $("#activationButton");
+    g.attr("ref", e);
+    g.removeClass("buyAndActivate activateItem build-it_disabled build-it dm bp").addClass(h.currency);
+    if (h.amount > 0) {
+        g.addClass("activateItem").html("<span>" + ((h.timeLeft > 0 && h.extendable) ? translation.extend : translation.activate) + "</span>").addClass(h.canBeActivated ? "build-it" : "build-it_disabled")
+    } else {
+        var f = (h.timeLeft > 0 && h.extendable) ? translation.buyAndExtend : translation.buyAndActivate;
+        f = f.replace(/%price%/, tsdpkt(h.costs));
+        f = f.replace(/%currency%/, translation.currencies[h.currency]);
+        g.addClass("buyAndActivate").html("<span>" + f + "</span>").addClass(h.canBeBoughtAndActivated && h.hasEnoughCurrency ? "build-it" : "build-it_disabled")
+    }
+}
+function activateItem(e) {
+    var f = {
+        ajax: 1,
+        token: activateToken,
+        referrerPage: $.deparam.querystring().page
+    };
+    var h = getItem(e);
+    if (h.amount > 0) {
+        f.item = e
+    } else {
+        f.buyAndActivate = e
+    }
+    function g() {
+        $.ajax({
+            cache: false,
+            url: inventoryObj.inventoryUrl,
+            data: f,
+            type: "POST",
+            dataType: "json",
+            success: function (F, P, D) {
+                activateToken = F.newToken;
+                if (F.error) {
+                    fadeBox(F.message, true);
+                    return
+                }
+                if (F.message.reload) {
+                    location.href = getRedirectLink();
+                    return
+                }
+                fadeBox(F.message.message, false);
+                if (F.message.buff != false) {
+                    var a = getItem(F.message.buff);
+                    var H = true;
+                    var Q = $(".active_items");
+                    var c = Q.data("AnythingSlider");
+                    var I;
+                    Q.find("li a").removeClass("active");
+                    Q.find("li a.activate_item").addClass("active");
+                    Q.find("div[data-id=" + F.message.buffId + "]").each(function () {
+                        $(this).hide().show("pulsate").find("a").addClass("active");
+                        H = false;
+                        I = $(this)
+                    });
+                    if (H == true) {
+                        var N = $('<div data-uuid="' + a.ref + '" data-id="' + F.message.buffId + '"><div class="js_duration" style="display: none;"></div><a href="javascript:void(0);" ref="' + a.ref + '" class="detail_button slideIn active_item active r_' + F.message.item.rarity + ' border3px tooltipHTML" title="' + F.message.item.toolTip + '"><div class="pusher" style="height: 0%; "></div><img src="/img/icons/items/' + a.image + '-small.png" alt=""/></a></div>');
+                        var E = 14;
+                        var d = c.currentPage;
+                        var b = c.options.animationTime;
+                        if (typeof(F.message.upgraded) != "undefined") {
+                            for (var R in F.message.upgraded) {
+                                var G = F.message.upgraded[R];
+                                Q.find("div[data-uuid=" + G + "]").remove()
+                            }
+                            var K = $(document.createDocumentFragment());
+                            var O = Q.find("li > div");
+                            O.each(function (l, k) {
+                                if (l % E == 0) {
+                                }
+                                $(this).appendTo(K.children().last())
+                            });
+                            c.updateSlider()
+                        }
+                        var J = Q.children().last().children().length;
+                        if (J < E) {
+                            N.hide().appendTo(Q.children().last()).show("pulsate");
+                            if (d == c.pages) {
+                                c.options.animationTime = 0
+                            }
+                            c.gotoPage(c.pages);
+                            if (d == c.pages) {
+                                c.options.animationTime = b
+                            }
+                        } else {
+                            N = N.hide().wrap("<li/>");
+                            N.parent().appendTo(Q).children().last();
+                            c.updateSlider();
+                            if (d == c.pages) {
+                                c.options.animationTime = 0
+                            }
+                            c.gotoPage(c.pages);
+                            if (d == c.pages) {
+                                c.options.animationTime = b
+                            }
+                            N.show("pulsate")
+                        }
+                        I = N
+                    } else {
+                        console.log(a.ref);
+                        var L = $('<div data-uuid="' + a.ref + '" data-id="' + F.message.buffId + '"><div class="js_duration" style="display: none;"></div><a href="javascript:void(0);" ref="' + a.ref + '" class="detail_button slideIn active_item active r_' + F.message.item.rarity + ' border3px tooltipHTML" title="' + F.message.item.toolTip + '"><div class="pusher" style="height: 0%; "></div><img src="/img/icons/items/' + a.image + '-small.png" alt=""/></a></div>');
+                        var G = a.ref;
+                        Q.find("div[data-uuid=" + G + "]").remove();
+                        L.hide().appendTo(Q.children().last()).show("pulsate");
+                        I = L
+                    }
+                }
+                var C = I.find(".pusher");
+                var M = I.find(".js_duration");
+                M.attr("data-total-duration", F.message.totalDuration).text(F.message.item.timeLeft);
+                startCooldown(M, C, 32);
+                getAjaxResourcebox();
+                $.ajax({
+                    type: "POST",
+                    url: detailUrl,
+                    data: {type: e},
+                    beforeSend: function () {
+                        $("#detailWrapper .detail_screen").html('<p class="ajaxLoad">' + LocalizationStrings.loading + "</p>")
+                    },
+                    success: function (k) {
+                        $("#detailWrapper .detail_screen").html(k)
+                    }
+                })
+            },
+            error: function (a) {
+                fadeBox("Error!", true)
+            }
+        })
+    }
+
+    if (h.isAnUpgrade) {
+        errorBoxDecision(LocalizationStrings.activateItem.upgradeItemQuestionHeader, LocalizationStrings.activateItem.upgradeItemQuestion, LocalizationStrings.yes, LocalizationStrings.no, g);
+        return
+    }
+    g()
+}
+function initEmpireEquipment() {
+    $(".overview_equipment .item_img_box .hidden").each(function () {
+        startCooldown($(this), $(this).parent().parent().find(".pusher"), 32)
+    })
+}
+function startCooldown(e, f, g) {
+    if ($.trim(e.text()).match(/^\d+$/)) {
+        var h = new countdownWithTickFunction(e[0], parseInt($.trim(e.text())), parseInt(e.attr("data-total-duration")), function () {
+            location.href = getRedirectLink()
+        }, function (b, a) {
+            var d = 1 - (b / a);
+            var c = Math.floor(g * d);
+            f.css("height", c + "px")
+        })
+    }
+}
+function errorBoxAsArray(b) {
+    if (b.type == "notify") {
+        notifyBoxAsArray(b)
+    } else {
+        if (b.type == "decision") {
+            decisionBoxAsArray(b)
+        } else {
+            if (b.type == "fadeBox") {
+                fadeBox(b.text, b.failed)
+            }
+        }
+    }
+}
+function notifyBoxAsArray(b) {
+    errorBoxNotify(b.title, b.text, b.buttonOk, String(b.okFunction), b.removeOpen, b.modal)
+}
+function fadeBox(d, e, f) {
+    if (e) {
+        $("#fadeBoxStyle").attr("class", "failed")
+    } else {
+        $("#fadeBoxStyle").attr("class", "success")
+    }
+    $("#fadeBoxContent").html(d);
+    $("#fadeBox").stop(false, true).show().fadeOut(10000, f)
+}
+function decisionBoxAsArray(b) {
+    errorBoxDecision(b.title, b.text, b.buttonOk, b.buttonNOk, String(b.okFunction), String(b.nokFunction), b.removeOpen)
+}
+function errorBoxDecision(q, s, y, n, v, x, w) {
+    var r = getIEVersion() <= 9 && (w || false);
+    var p = $("#errorBoxDecision");
+    p.find("#errorBoxDecisionHead").html(q);
+    p.find("#errorBoxDecisionContent").html(s);
+    var o = function (a) {
+        a.stopPropagation();
+        if (typeof(p.data("uiDialog")) != "undefined") {
+            p.dialog("destroy")
+        }
+        if (typeof(v) == "function") {
+            v()
+        }
+        if (v == "submit_form") {
+            $("#planetMaintenanceDelete").submit()
+        }
+    };
+    var u = function (a) {
+        a.stopPropagation();
+        if (typeof(p.data("uiDialog")) != "undefined") {
+            p.dialog("destroy")
+        }
+        if (x == "checkPassword") {
+            location.reload()
+        }
+        if (typeof(x) == "function") {
+            x()
+        }
+    };
+    p.find(".yes, .no").unbind("click");
+    p.unbind("keydown.yesHandler");
+    setTimeout(function () {
+        var b = p.find(".yes");
+        var a = p.find(".no");
+        b.unbind("click").bind("click", o).focus().find("#errorBoxDecisionYes").html(y);
+        a.unbind("click").bind("click", u).find("#errorBoxDecisionNo").html(n);
+        if (r) {
+            b.attr("href", "#");
+            a.attr("href", "#")
+        } else {
+            b.attr("href", "javascript:void(0);");
+            a.attr("href", "javascript:void(0);")
+        }
+        p.bind("keydown.yesHandler", function (c) {
+            if (c.which == KeyEvent.DOM_VK_RETURN) {
+                p.find(".yes").trigger("click")
+            }
+        })
+    }, 100);
+    Tipped.hideAll();
+    p.dialog({
+        resizable: false,
+        modal: true,
+        title: q,
+        close: u,
+        width: 400,
+        dialogClass: "errorBox"
+    })
+}
+function errorBoxNotify(n, p, m, q, r) {
+    var o = getIEVersion() <= 9 && (r || false);
+    var l = $("#errorBoxNotify");
+    l.find("#errorBoxNotifyHead").html(n);
+    l.find("#errorBoxNotifyContent").html(p);
+    var u = function (a) {
+        a.stopPropagation();
+        l.dialog("destroy");
+        if (typeof(q) == "function") {
+            q()
+        } else {
+            if (typeof(window[q]) == "function") {
+                window[q]()
+            }
+        }
+    };
+    var s = l.find(".ok");
+    s.unbind("click").bind("click", u).find("#errorBoxNotifyOk").html(m);
+    if (o) {
+        s.attr("href", "#")
+    } else {
+        s.attr("href", "javascript:void(0);")
+    }
+    Tipped.hideAll();
+    l.dialog({
+        resizable: false,
+        modal: true,
+        title: n,
+        close: u,
+        width: 400,
+        dialogClass: "errorBox"
+    })
+}
+function eventBDayInitGalaxy() {
+    if (isMobile) {
+        $(".js_bday_details").hide();
+        $(".bdaySlotBox .name").click(function (b) {
+            $(".row").children().each(function () {
+                if ($(this).html().trim()) {
+                    $(this).removeClass("active")
+                }
+            });
+            $(".bdaySlotBox .name").removeClass("active");
+            $(".js_detailRow").hide();
+            $(this).toggleClass("active");
+            if ($(b.target).attr("class").indexOf("planet") !== -1) {
+                $(".js_detailRowPlanet17").toggle()
+            } else {
+                if ($(b.target).attr("class").indexOf("debris") !== -1) {
+                    $(".js_detailRowDebris17").toggle()
+                }
+            }
+        })
+    }
+}
+function eventBDayInit() {
+    var b = $(".event_box");
+    $("#eventBDayWrapper").click(function (a) {
+        if ($(a.target).attr("id") === "BDayContent" || $(a.target).attr("id") === "BDayEventClose" || $(a.target).closest("#BDayHeader").length > 0) {
+            b.hide();
+            $(".bday_box").removeClass("active")
+        }
+        a.stopPropagation()
+    });
+    $(".bday_box").click(function (d) {
+        $(".bday_box").removeClass("active");
+        var a = $(d.target).closest(".bday_box").attr("id").replace("box", "");
+        b.removeClass().addClass("event_box " + eventBoxData[a].eventTypeClass);
+        if (eventBoxData[a] !== undefined) {
+            b.attr("id", "eventBox" + a).show();
+            $("#box" + a).addClass("active");
+            if (eventBoxData[a].eventTypeClass !== "future") {
+                $("#eventBox" + a + " #BDayEventDate").html(eventBoxData[a].date + ": ")
+            } else {
+                $("#eventBox" + a + " #BDayEventDate").html("")
+            }
+            $("#eventBox" + a + " #BDayEventTitle").html(eventBoxData[a].title);
+            $("#eventBox" + a + " #BDayofficerImg").attr("src", eventBoxData[a].eventOfficerImgSrc);
+            if (eventBoxData[a].eventTypeClass !== "future" || eventBoxData[a].txtChronic !== undefined) {
+                $("#eventBox" + a + " #BDayEventTxtChronic").html(eventBoxData[a].txtChronic);
+                $("#eventBox" + a + " #BDayChronic").show()
+            } else {
+                $("#eventBox" + a + " #BDayChronic").hide()
+            }
+            if (eventBoxData[a].eventImgSrc === undefined && eventBoxData[a].eventTypeClass === "future") {
+                $("#eventBox" + a + " #BDayEventImg").attr("src", "/img/icons/d995359d038c9a0c21aed16b3cc162.png")
+            } else {
+                $("#eventBox" + a + " #BDayEventImg").attr("src", eventBoxData[a].eventImgSrc)
+            }
+            if (eventBoxData[a].eventTxtDesc === undefined) {
+                $("#eventBox" + a + " #BDayEventTxtDesc").html("")
+            } else {
+                $("#eventBox" + a + " #BDayEventTxtDesc").html(eventBoxData[a].eventTxtDesc)
+            }
+            $("#eventBox" + a + " #BDayEventPastTxt").hide();
+            if (eventBoxData[a].eventTypeClass === "past") {
+                $("#eventBox" + a + " #BDayEventPastTxt").html(eventPastTxt).show()
+            }
+            $("#eventBox" + a + " #BDayEventBtnCTA").hide();
+            if ((eventBoxData[a].eventTypeClass !== ("past" || "future")) && eventBoxData[a].btnCTA !== undefined) {
+                $("#eventBox" + a + " #BDayEventBtnCTA").html(eventBoxData[a].btnCTA).attr("href", eventBoxData[a].btnCTALink).show()
+            }
+        }
+    })
+}
+function initBDayEventHints() {
+    $(document).undelegate(".event_build_faster, .event_active_hint", "click").delegate(".event_build_faster, .event_active_hint", "click", function (b) {
+        b.stopPropagation();
+        if ($(this).parent().attr("id") === "expeditionbutton") {
+            doExpedition()
+        } else {
+            $(this).siblings(".detail_button").click()
+        }
+    })
+}
+function initEventTable() {
+    $(".eventFleet:odd").addClass("odd");
+    $(".partnerInfo:even").addClass("part-even");
+    $(".partnerInfo").hide();
+    $(document).undelegate(".toggleDetails", "click").delegate(".toggleDetails", "click", function () {
+        var b = $(".partnerInfo." + $(this).attr("rel"));
+        if ($(b).is(":hidden")) {
+            $(b).show();
+            $(this).parents("tr").addClass("detailsOpened").removeClass("detailsClosed")
+        } else {
+            $(b).hide();
+            $(this).parents("tr").addClass("detailsClosed").removeClass("detailsOpened")
+        }
+    })
+}
+function initExodus() {
+    if ($("#exodus-indicator").length && exodus.ready == false) {
+        exodus.ready = true;
+        exodus.createIndicator();
+        var d = function (a) {
+            if ($("#exodus-timer").hasClass("end-soon")) {
+                return
+            }
+            if (a < 86400) {
+                $("#exodus-timer").addClass("end-soon")
+            }
+        };
+        var c = parseInt($("#exodus-timer").attr("data-timeleft"));
+        d(c);
+        new simpleCountdown(getElementByIdWithCache("exodus-timer"), c, function () {
+            $("#exodus-timer").remove()
+        }, function (a) {
+            d(a)
+        })
+    }
+}
+var exodus = {
+    ready: false,
+    noServers: true,
+    secondaryShown: false,
+    createIndicator: function () {
+        exodus.indicator = $("#exodus-indicator");
+        if (exodus.indicator.length > 0) {
+            exodus.indicator.bind("click", exodus.showDialog)
+        }
+    },
+    appendServerRow: function (h, l, m, o) {
+        var p = (exodus.data["migration-host"] == l.host);
+        var k = $('<li class="' + (exodus.odd++ % 2 ? "odd" : "even") + '" id="server-' + l.id + '"/>').bind("click", function () {
+            if ($(this).hasClass("disabled")) {
+                return
+            } else {
+                if ($(this).hasClass("row-selected")) {
+                    exodus.confirmButton.removeClass("confirm");
+                    $(this).removeClass("row-selected");
+                    exodus.markedServer = null
+                } else {
+                    exodus.markedServer = l;
+                    if (exodus.markedServer != exodus.selectedServer) {
+                        exodus.confirmButton.addClass("confirm")
+                    } else {
+                        if (exodus.confirmButton.hasClass("confirm")) {
+                            exodus.confirmButton.removeClass("confirm")
+                        }
+                    }
+                    h.find("li").removeClass("row-selected");
+                    $(this).addClass("row-selected")
+                }
+            }
+        }).hide().append($('<span class="exodus-universe-treeview-column-checkbox"/>').append($("<span/>"))).append($('<span class="exodus-universe-treeview-column-name"/>').text(l.name)).append($('<span class="exodus-universe-treeview-column-startdate"/>').text(l.since)).append($('<span class="exodus-universe-treeview-column-free-spaces"/>')).append($('<span class="exodus-universe-treeview-column-features"/>').text(l.features));
+        h.append(k);
+        var n = $('<li id="wait-server-' + l.id + '"/>').append($('<img alt="' + exodus.data.translations.loading + '" src="' + exodus.data["load-image"] + '"/>'));
+        h.append(n);
+        if (p) {
+            exodus.markedServer = l;
+            exodus.selectedServer = l;
+            k.addClass("server-selected");
+            k.addClass("row-selected")
+        }
+        $.jsonp({
+            url: "https://" + l.host + "/service/exodus.php?action=getServerInfo&data=" + l.data + "&callback=?",
+            error: function () {
+                exodus.handleError(l.id, exodus.data.translations["error-no-server"]);
+                $("#server-" + l.id).show();
+                $("#wait-server-" + l.id).remove();
+                if (exodus.noServers && m) {
+                    exodus.showSecondaryServers(h)
+                }
+            },
+            success: function (a) {
+                if (!a.currentPlayerCount) {
+                    exodus.handleError(l.id, exodus.data.translations["error-no-server"]);
+                    $("#server-" + l.id).show();
+                    $("#wait-server-" + l.id).remove();
+                    return
+                }
+                $("#server-" + l.id + " .exodus-universe-treeview-column-free-spaces").text(a.freeSlots);
+                if (a.alreadyMigrating) {
+                    exodus.handleSuccess(l.id, exodus.data.translations["success-server-selected"]);
+                    if (!o) {
+                        exodus.noServers = false
+                    }
+                } else {
+                    if (a.alreadyRegistered) {
+                        exodus.handleError(l.id, exodus.data.translations["error-account"])
+                    } else {
+                        if (a.usernameInUse) {
+                            exodus.handleError(l.id, exodus.data.translations["error-name-in-use"])
+                        } else {
+                            if (a.freeSlots <= 0) {
+                                exodus.handleError(l.id, exodus.data.translations["error-no-free-slots"])
+                            } else {
+                                if (!o) {
+                                    exodus.noServers = false
+                                }
+                            }
+                        }
+                    }
+                }
+                if (exodus.noServers && m) {
+                    exodus.showSecondaryServers(h)
+                }
+                $("#server-" + l.id).show();
+                $("#wait-server-" + l.id).remove()
+            }
+        })
+    },
+    handleError: function (d, c) {
+        $("#server-" + d).find("span.exodus-success").remove();
+        $("#server-" + d).find("span.exodus-error").remove();
+        $("#server-" + d).append('<span class="exodus-error"><strong>' + exodus.data.translations["error-impossible"] + "</strong><br/>" + c + "</span>");
+        $("#server-" + d).addClass("disabled")
+    },
+    handleSuccess: function (d, c) {
+        $("#server-" + d).find("span.exodus-success").remove();
+        $("#server-" + d).find("span.exodus-error").remove();
+        $("#server-" + d).append('<span class="exodus-success"><strong>' + c + "</strong></span>")
+    },
+    showSecondaryServers: function (d) {
+        for (var c = 0; c < exodus.data["secondary-servers"].length; c++) {
+            exodus.appendServerRow(d, exodus.data["secondary-servers"][c], false, true)
+        }
+        exodus.secondaryShown = true
+    },
+    showDialog: function () {
+        if (exodus.isOpen != null) {
+            if (exodus.isOpen == false) {
+                exodus.overlay.show();
+                exodus.dialog.show();
+                $("html, body").animate({scrollTop: 0}, 100)
+            }
+            return
+        }
+        exodus.data = {
+            "load-image": exodus.indicator.attr("data-load-image"),
+            "exodus-start": exodus.indicator.attr("data-exodus-start"),
+            "exodus-end": exodus.indicator.attr("data-exodus-end"),
+            "next-migration": exodus.indicator.attr("data-next-migration"),
+            translations: $.parseJSON(exodus.indicator.attr("data-translations")),
+            "migration-host": exodus.indicator.attr("data-migration-host"),
+            "primary-servers": $.parseJSON(exodus.indicator.attr("data-primary-servers")),
+            "secondary-servers": $.parseJSON(exodus.indicator.attr("data-secondary-servers")),
+            "user-data": exodus.indicator.attr("data-user-data"),
+            "user-validation": exodus.indicator.attr("data-user-validation"),
+            "see-dialog": exodus.indicator.attr("data-user-see-dialog"),
+            "ally-id": exodus.indicator.attr("data-user-ally-id"),
+            "buddy-amount": exodus.indicator.attr("data-user-buddy-amount")
+        };
+        if (exodus.data["user-validation"] == 0) {
+            errorBoxNotify(LocalizationStrings.error, exodus.data.translations["error-user-not-validated"], LocalizationStrings.ok);
+            return
+        }
+        exodus.isOpen = true;
+        exodus.selectedServer = null;
+        exodus.markedServer = null;
+        exodus.dialog = $('<div id="exodus-dialog"/>');
+        exodus.overlay = $('<div id="exodus-overlay"/>');
+        var h = $('<div id="exodus-header"/>');
+        var f = $('<div id="exodus-close" class="ui-icon ui-icon-closethick"/>');
+        var k = $('<div id="exodus-content"/>');
+        var l = $('<div id="exodus-top-content"/>');
+        var g = $('<ul id="exodus-tab-bar"/>');
+        exodus.overlay.bind("click", exodus.closeDialog);
+        f.bind("click", exodus.closeDialog);
+        h.append($('<div id="exodus-header-content"/>').text(exodus.data.translations["exodus-dialog-title"]));
+        l.text(exodus.data.translations["exodus-period"] + " " + exodus.data["exodus-start"] + " – " + exodus.data["exodus-end"]);
+        if (exodus.data["next-migration"] != "") {
+            l.append($('<span id="exodus-next-migration"/>').text(exodus.data["next-migration"]));
+            l.append($("<span/>").text(": " + exodus.data.translations["next-migration-processing"]))
+        }
+        allyView = $('<li id="ally-show"/>').text(exodus.data.translations["tab-ally-mebers"]);
+        allyView.bind("click", function () {
+            exodus.showAllyMemberTab()
+        });
+        buddyView = $('<li id="buddy-show"/>').text(exodus.data.translations["tab-buddies"]);
+        buddyView.bind("click", function () {
+            exodus.showBuddyTab()
+        });
+        serverView = $('<li id="uni-select"/>').text(exodus.data.translations["tab-uni-selection"]);
+        serverView.bind("click", function () {
+            exodus.showServerSelection()
+        });
+        rulesView = $('<li id="rules-show"/>').text(exodus.data.translations["tab-rules"]);
+        rulesView.bind("click", function () {
+            exodus.showRulesTab()
+        });
+        g.append(serverView);
+        if (exodus.data["ally-id"] > 0) {
+            g.append(allyView)
+        }
+        if (exodus.data["buddy-amount"] > 0) {
+            g.append(buddyView)
+        }
+        g.append(rulesView);
+        k.append(l).append(g);
+        exodus.dialog.append(h).append(k).append(f);
+        $("body").append(exodus.overlay).append(exodus.dialog);
+        if (exodus.data["see-dialog"] == "0") {
+            exodus.showRulesTab();
+            exodus.data["see-dialog"] = "1";
+            exodus.indicator.attr("data-user-see-dialog", 1);
+            $.jsonp({
+                url: "/service/exodus.php?action=seeDialog&data=" + exodus.data["user-data"] + "&callback=?",
+                error: function (a) {
+                    errorBoxNotify(LocalizationStrings.error, "TEST: " + exodus.data["user-data"], LocalizationStrings.ok)
+                },
+                success: ""
+            })
+        } else {
+            exodus.showServerSelection()
+        }
+        $("html, body").animate({scrollTop: 0}, 100)
+    },
+    closeDialog: function () {
+        exodus.dialog.hide();
+        exodus.overlay.hide();
+        exodus.isOpen = false
+    },
+    createButton: function (b) {
+        return $('<div class="exodus-button"/>').append($('<div class="exodus-button-left"/>')).append($('<div class="exodus-button-label"/>').text(b)).append($('<div class="exodus-button-right"/>'))
+    },
+    showServerSelection: function () {
+        this.resetView("#uni-select");
+        if (exodus.tabContent != null) {
+            exodus.tabContent.show()
+        } else {
+            exodus.tabContent = $('<div id="exodus-tab-content"/>');
+            exodus.universeTreeviewHeader = $('<div id="exodus-universe-treeview-header"/>').append($('<span class="exodus-universe-treeview-column-checkbox"/>').text("\u2714").css("visibility", "hidden")).append($('<span class="exodus-universe-treeview-column-name"/>').text(exodus.data.translations["uni-selection-name"])).append($('<span class="exodus-universe-treeview-column-startdate"/>').text(exodus.data.translations["uni-selection-start"])).append($('<span class="exodus-universe-treeview-column-free-spaces"/>').text(exodus.data.translations["uni-selection-free-spaces"])).append($('<span class="exodus-universe-treeview-column-features"/>').text(exodus.data.translations["uni-selection-specifics"]));
+            var e = $('<ul id="exodus-universe-treeview"/>');
+            exodus.confirmButton = exodus.createButton(exodus.data.translations["uni-selection-confirm"]);
+            exodus.revertButton = exodus.createButton(exodus.data.translations["uni-selection-revert"]);
+            exodus.confirmButton.bind("click", function () {
+                if (!$(this).hasClass("confirm") || exodus.markedServer == null) {
+                    return
+                }
+                var a = exodus.markedServer;
+                $.jsonp({
+                    url: "https://" + a.host + "/service/exodus.php?action=requestMigration&data=" + a.data + "&callback=?",
+                    error: function () {
+                        exodus.handleError(a.id, exodus.data.translations["error-no-server"])
+                    },
+                    success: function (b) {
+                        if (b.errorMessage) {
+                            exodus.handleError(a.id, exodus.data.translations["error-no-server"])
+                        } else {
+                            if (exodus.selectedServer != null) {
+                                e.find("li").removeClass("row-selected");
+                                e.find("li").removeClass("server-selected");
+                                $("#server-" + exodus.selectedServer.id).find("span.exodus-success").remove();
+                                $("#server-" + exodus.selectedServer.id).find("span.exodus-error").remove()
+                            }
+                            exodus.indicator.attr("data-migration-host", a.host);
+                            exodus.data["migration-host"] = a.host;
+                            $("#exodus-indicator-waiting").attr("id", "exodus-indicator-acknowledged");
+                            exodus.handleSuccess(a.id, exodus.data.translations["success-server-selected"]);
+                            exodus.revertButton.addClass("cancel");
+                            $("#server-" + a.id).addClass("server-selected");
+                            exodus.selectedServer = a;
+                            var c = $("#server-" + a.id).find("span.exodus-universe-treeview-column-free-players");
+                            c.text(parseInt(c.text()) - 1);
+                            exodus.confirmButton.removeClass("confirm")
+                        }
+                    }
+                })
+            });
+            exodus.revertButton.bind("click", function () {
+                if (!$(this).hasClass("cancel") || exodus.selectedServer == null) {
+                    return
+                }
+                var a = exodus.selectedServer;
+                $.jsonp({
+                    url: "https://" + a.host + "/service/exodus.php?action=cancelMigration&data=" + a.data + "&callback=?",
+                    error: function () {
+                        exodus.closeDialog()
+                    },
+                    success: function (b) {
+                        if (b.errorMessage) {
+                            exodus.closeDialog()
+                        } else {
+                            exodus.indicator.attr("data-migration-host", "");
+                            $("#exodus-indicator-acknowledged").attr("id", "exodus-indicator-waiting");
+                            e.find("li").removeClass("row-selected");
+                            e.find("li").removeClass("server-selected");
+                            $("#server-" + a.id).find("span.exodus-success").remove();
+                            $("#server-" + a.id).find("span.exodus-error").remove();
+                            exodus.confirmButton.removeClass("confirm");
+                            exodus.revertButton.removeClass("cancel");
+                            var c = $("#server-" + a.id).find("span.exodus-universe-treeview-column-free-players");
+                            c.text(parseInt(c.text()) + 1);
+                            exodus.markedServer = null;
+                            exodus.selectedServer = null
+                        }
+                    }
+                })
+            });
+            if (exodus.data["migration-host"] != "") {
+                exodus.revertButton.addClass("cancel")
+            }
+            exodus.tabContent.append(exodus.universeTreeviewHeader).append(e).append(exodus.confirmButton).append(exodus.revertButton);
+            exodus.odd = 0;
+            for (var d = 0; d < exodus.data["primary-servers"].length; d++) {
+                var f = (exodus.data["primary-servers"].length == d + 1);
+                exodus.appendServerRow(e, exodus.data["primary-servers"][d], f, false)
+            }
+            if (!exodus.secondaryShown) {
+                for (var d = 0; d < exodus.data["secondary-servers"].length; d++) {
+                    if (exodus.data["migration-host"] == exodus.data["secondary-servers"][d]["host"]) {
+                        exodus.appendServerRow(e, exodus.data["secondary-servers"][d], false, true)
+                    }
+                }
+                exodus.secondaryShown = true
+            }
+            $("#exodus-content").append(exodus.tabContent)
+        }
+    },
+    showAllyMemberTab: function () {
+        this.resetView("#ally-show");
+        if (exodus.allyMemberContent != null) {
+            exodus.allyMemberContent.show()
+        } else {
+            exodus.allyMemberContent = $('<div id="exodus-ally-content"/>');
+            $.jsonp({
+                url: "/service/exodus.php?action=getAllyMemberSelection&data=" + exodus.data["user-data"] + "&callback=?",
+                error: function () {
+                },
+                success: function (g) {
+                    if (g.errorMessage) {
+                        exodus.closeDialog()
+                    } else {
+                        var h = $('<div id="exodus-universe-treeview-header"/>').append($('<span class="exodus-universe-treeview-column-member-name"/>').text(exodus.data.translations["ally-members-name"])).append($('<span class="exodus-universe-treeview-column-server-name"/>').text(exodus.data.translations["ally-members-server"]));
+                        var l = $('<div id="exodus-universe-treeview"/>');
+                        for (var f = 0; f < g.length; f++) {
+                            var k = $('<li id="server-' + f + '" class="' + (f % 2 ? "odd" : "even") + '"/>').append($('<span class="exodus-universe-treeview-column-member-name"/>').text(g[f].db_character));
+                            if (g[f].server_name != null) {
+                                k.append($('<span class="exodus-universe-treeview-column-server-name"/>').text(g[f].server_name))
+                            } else {
+                                k.append($('<span class="exodus-universe-treeview-column-server-name"/>').text(exodus.data.translations["ally-member-no-selction"]))
+                            }
+                            l.append(k)
+                        }
+                        exodus.allyMemberContent.append(h);
+                        exodus.allyMemberContent.append(l);
+                        $("#exodus-content").append(exodus.allyMemberContent)
+                    }
+                }
+            })
+        }
+    },
+    showBuddyTab: function () {
+        this.resetView("#buddy-show");
+        if (exodus.buddyContent != null) {
+            exodus.buddyContent.show()
+        } else {
+            exodus.buddyContent = $('<div id="exodus-buddy-content"/>');
+            $.jsonp({
+                url: "/service/exodus.php?action=getBuddySelection&data=" + exodus.data["user-data"] + "&callback=?",
+                error: function () {
+                },
+                success: function (d) {
+                    if (d.errorMessage) {
+                        exodus.closeDialog()
+                    } else {
+                        header = $('<div id="exodus-universe-treeview-header"/>').append($('<span class="exodus-universe-treeview-column-member-name"/>').text(exodus.data.translations["ally-members-name"])).append($('<span class="exodus-universe-treeview-column-server-name"/>').text(exodus.data.translations["ally-members-server"]));
+                        var c = $('<div id="exodus-universe-treeview"/>');
+                        for (i = 0; i < d.length; i++) {
+                            row = $('<li id="server-' + i + '" class="' + (i % 2 ? "odd" : "even") + '"/>').append($('<span class="exodus-universe-treeview-column-member-name"/>').text(d[i].db_character));
+                            if (d[i].server_name != null) {
+                                row.append($('<span class="exodus-universe-treeview-column-server-name"/>').text(d[i].server_name))
+                            } else {
+                                row.append($('<span class="exodus-universe-treeview-column-server-name"/>').text(exodus.data.translations["ally-member-no-selction"]))
+                            }
+                            c.append(row)
+                        }
+                        exodus.buddyContent.append(header);
+                        exodus.buddyContent.append(c);
+                        $("#exodus-content").append(exodus.buddyContent)
+                    }
+                }
+            })
+        }
+    },
+    showRulesTab: function () {
+        this.resetView("#rules-show");
+        rules = new Array("uni-fusion", "pre-exodus", "exodus-phase", "post-exodus", "exodus-uni", "target-uni");
+        if (exodus.rulesContent != null) {
+            exodus.rulesContent.show()
+        } else {
+            exodus.rulesContent = $('<div id="exodus-rules-content"/>');
+            rule = $('<div class="exodus_rule"/>');
+            for (var b = 0; b < rules.length; b++) {
+                rule.append($('<h2 class="exodus-rule-title" />').text(exodus.data.translations["title-" + rules[b]]));
+                rule.append($('<p class="exodus-rule-description" />').text(exodus.data.translations["description-" + rules[b]]));
+                exodus.rulesContent.append(rule)
+            }
+            $("#exodus-content").append(exodus.rulesContent)
+        }
+    },
+    resetView: function (b) {
+        if ($(b).hasClass("selected")) {
+            return
+        }
+        if ($("#uni-select").hasClass("selected")) {
+            exodus.tabContent.hide()
+        } else {
+            if ($("#buddy-show").hasClass("selected")) {
+                exodus.buddyContent.hide()
+            } else {
+                if ($("#ally-show").hasClass("selected")) {
+                    exodus.allyMemberContent.hide()
+                } else {
+                    if ($("#rules-show").hasClass("selected")) {
+                        exodus.rulesContent.hide()
+                    }
+                }
+            }
+        }
+        $("#uni-select").removeClass("selected");
+        $("#ally-show").removeClass("selected");
+        $("#buddy-show").removeClass("selected");
+        $("#rules-show").removeClass("selected");
+        $(b).addClass("selected")
+    }
+};
+function initFleet1() {
+    checkShips("shipsChosen");
+    initToggleHeader("fleet1");
+    $(".combatunits").unbind("change").bind("change", function () {
+        setTemplate(shipTemplates[$(this).val()], maxShips);
+        checkShips("shipsChosen")
+    });
+    focusOnTabChange("#continue", true)
+}
+function setTemplate(d, e) {
+    for (var f in d) {
+        if (!$("#ship_" + f).attr("disabled")) {
+            $("#ship_" + f).val(d[f])
+        }
+        if (typeof e[f] == "undefined") {
+            e[f] = 0
+        }
+        checkIntInput("#ship_" + f, 0, e[f])
+    }
+}
+function resetForm() {
+    $(".fleetValues").val("")
+}
+function checkShips(D) {
+    if (document.forms[D] != undefined) {
+        var s = 0;
+        var r = document.forms[D].length;
+        for (var w = 0; w < r; w++) {
+            var C = document.forms[D].elements[w].id;
+            if (typeof C != "undefined") {
+                expl = C.split("_");
+                if (expl[0] == "ship") {
+                    value = document.forms[D].elements[w].value;
+                    if (!$("#" + C).attr("disabled") && value != "") {
+                        s = s + value
+                    }
+                }
+            }
+        }
+        var p = "";
+        if (s == 0 || !sendingEnabled) {
+            validated = false;
+            $("#continue").attr("class", "off");
+            p = loca.fleetNoSelection;
+            if (!sendingEnabled) {
+                p = loca.fleetNoFreeSlots
+            }
+        } else {
+            validated = true;
+            $("#continue").attr("class", "on")
+        }
+        var y = createAPIFleet(D);
+        if (!$("#FLEETAPI").val()) {
+            var x = $(".show_fleet_apikey").attr("title");
+            var A = x.indexOf("value='") + 7;
+            var u = x.indexOf("' readonly");
+            var q = x.slice(0, A);
+            var B = x.slice(u, x.length);
+            var v = q + y + B;
+            $(".show_fleet_apikey").attr("title", v)
+        } else {
+            $("#FLEETAPI").val(y)
+        }
+        $("#allornone .info").html(p)
+    }
+}
+function createAPIFleet(h) {
+    var k = "";
+    if (document.forms[h] != undefined) {
+        var g = document.forms[h].length;
+        for (var l = 0; l < g; l++) {
+            var f = document.forms[h].elements[l].id;
+            expl = f.split("_");
+            if (expl[0] == "ship") {
+                value = document.forms[h].elements[l].value;
+                if (value > 0 || value != "") {
+                    type = expl[1];
+                    k = k + type + ";" + value + "|"
+                }
+            }
+        }
+    }
+    k = k.substring(0, k.length - 1);
+    return techData + k
+}
+function initStandardFleet() {
+    $(".list tr:even").addClass("alt");
+    $(".standardFleetSubmit").unbind("click").bind("click", function () {
+        $(this).parents("form").submit()
+    });
+    $(".standardFleetReset").unbind("click").bind("click", function () {
+        $(this).parents("form")[0].reset()
+    });
+    $(".changeFleet").unbind("click").bind("click", function () {
+        $(".combatunits").val($(this).attr("rel")).trigger("change");
+        $(this).parents(".ui-dialog").find(".ui-dialog-titlebar-close").click()
+    })
+}
+function setShipsFleet(e, h, f) {
+    $("#template_id").val(f);
+    $("#template_name").val(h);
+    for (var g in e) {
+        $("#ship" + g).val(e[g])
+    }
+}
+function toggleMaxShips(h, g, f) {
+    var e = $(h).find("#ship_" + g);
+    if (parseInt(e.val()) !== f) {
+        e.val(f)
+    } else {
+        e.val("")
+    }
+    $("#continue").focus()
+}
+function initFleet2() {
+    updateVariables();
+    timerHandler.appendCallback(updateTimesFleet2);
+    if (!isMobile) {
+        $("#galaxy").focus()
+    }
+    initToggleHeader("fleet2");
+    initBackButton();
+    focusOnTabChange("#continue", true);
+    detachEventHandlers();
+    attachEventHandlers();
+    if ($(".combatunits>option:selected").length) {
+        $(".combatunits>option:selected").change()
+    }
+}
+function attachEventHandlers() {
+    var b = $("#speed");
+    $(document).on("mouseover focus", "#speedLinks>a", function (a) {
+        b.val($(this).attr("data-value"));
+        updateVariables()
+    }).on("mouseleave blur", "#speedLinks>a", function (a) {
+        resetSpeedToSelected()
+    }).on("mouseup touchstart", "#speedLinks>a", function (a) {
+        $("#speedLinks>a.selected").removeClass("selected");
+        $(this).addClass("selected").focus();
+        b.val($(this).attr("data-value"));
+        updateVariables()
+    }).on("keyup", "#speedLinks>a", function (a) {
+        if (a.keyCode == KeyEvent.DOM_VK_LEFT) {
+            $(this).prev().focus()
+        } else {
+            if (a.keyCode == KeyEvent.DOM_VK_RIGHT) {
+                $(this).next().focus()
+            } else {
+                if (a.keyCode == KeyEvent.DOM_VK_RETURN) {
+                    a.stopPropagation();
+                    a.preventDefault();
+                    if ($(this).hasClass("selected")) {
+                        trySubmit()
+                    } else {
+                        $(this).trigger("mouseup")
+                    }
+                }
+            }
+        }
+    }).on("keypress", "#speedLinks>a", function (a) {
+        if (a.keyCode == KeyEvent.DOM_VK_RETURN) {
+            a.stopPropagation();
+            a.preventDefault();
+            if ($(this).hasClass("selected")) {
+                trySubmit()
+            } else {
+                $(this).click()
+            }
+        }
+    }).on("keypress", "#contentWrapper #inhalt", submitOnEnter)
+}
+function detachEventHandlers() {
+    $(document).off("mouseover focus mouseleave blur mouseup touchstart keyup keypress", "#speedLinks>a").off("keypress", "#contentWrapper #inhalt")
+}
+function resetSpeedToSelected() {
+    if (currentPage == "fleet2") {
+        $("#speed").val($("#speedLinks>a.selected").attr("data-value"));
+        updateVariables()
+    }
+}
+function initBackButton() {
+    $("#back").unbind("click").bind("click", function () {
+        resetSpeedToSelected();
+        $(this).parents("form").attr("action", returnLink).submit()
+    })
+}
+function prepareVariables() {
+    checkCoords();
+    speed = $("#speed").val()
+}
+function setTType(b) {
+    b = b == null ? $("#type").val() : b;
+    if (b == 1) {
+        $("#pbutton").attr("class", "planet_selected")
+    } else {
+        $("#pbutton").attr("class", "planet")
+    }
+    if (b == 2) {
+        $("#dbutton").attr("class", "debris_selected")
+    } else {
+        $("#dbutton").attr("class", "debris")
+    }
+    if (b == 3) {
+        $("#mbutton").attr("class", "moon_selected")
+    } else {
+        $("#mbutton").attr("class", "moon")
+    }
+    if (b == 1) {
+        $("#targetPlanetName").html(locaAllPlanet)
+    } else {
+        if (b == 2) {
+            $("#targetPlanetName").html(locaAllDebris)
+        } else {
+            if (b == 3) {
+                $("#targetPlanetName").html(locaAllMoon)
+            }
+        }
+    }
+    $("#type").val(b)
+}
+function shortLinkChange(d) {
+    var e;
+    if (d != null) {
+        e = $("#aksbox").val()
+    } else {
+        e = $("#slbox").val()
+    }
+    if (e != "-") {
+        var f = e.split("#");
+        $("#galaxy").val(f[0]);
+        $("#system").val(f[1]);
+        $("#position").val(f[2]);
+        setTType(f[3]);
+        $("#targetPlanetName").html(f[4]);
+        targetGalaxy = f[0];
+        targetSystem = f[1];
+        targetPosition = f[2]
+    }
+    focusContinueButton()
+}
+function focusContinueButton() {
+    setTimeout(function () {
+        $("#continue").focus()
+    }, 100)
+}
+function handleUnion() {
+    if ($("#aksbox").val() == "-") {
+        document.details.union.value = 0;
+        document.details.mission.value = mission
+    } else {
+        parts = $("#aksbox").val().split("#");
+        document.details.union.value = parts[5];
+        document.details.mission.value = missionUnionattack
+    }
+}
+function hideStatusBar() {
+    if ($(".fleetStatus") && (targetGalaxy != defaultTargetGalaxy || targetSystem != defaultTargetSystem || targetPosition != defaultTargetPosition)) {
+        $(".fleetStatus").hide();
+        $("input[name='mission']").value = ""
+    }
+}
+function checkCoords() {
+    checkIntInput("#galaxy", 1, maxGalaxy);
+    checkIntInput("#system", 1, maxSystem);
+    checkIntInput("#position", 1, maxPosition);
+    targetGalaxy = $("#galaxy").val();
+    targetSystem = $("#system").val();
+    targetPosition = $("#position").val();
+    if (targetPosition == 16) {
+        setTType(1);
+        modifyPlanetName();
+        checkOk()
+    }
+}
+function checkTarget() {
+    var d = checkUrl;
+    var c = {};
+    c.galaxy = $("#galaxy").val();
+    c.system = $("#system").val();
+    c.planet = $("#position").val();
+    c.type = $("#type").val();
+    if ($("form[name='details'] input[name='am" + colonizationID + "']").length > 0 && $("form[name='details'] input[name='am" + colonizationID + "']").val() > 0) {
+        c.cs = 1
+    }
+    if ($("form[name='details'] input[name='am" + recyclerID + "']").length > 0 && $("form[name='details'] input[name='am" + recyclerID + "']").val() > 0) {
+        c.recycler = 1
+    }
+    console.log('checkTarget()');
+    $.post(d, c, displayError)
+}
+function updateTimesFleet2() {
+    var d = getFormatedDate(serverTime.getTime() + 1000 * duration, "[d].[m].[y] [G]:[i]:[s]");
+    var c = getFormatedDate(serverTime.getTime() + 1000 * 2 * duration, "[d].[m].[y] [G]:[i]:[s]");
+    if (document.getElementById) {
+        $("#arrivalTime").html(d);
+        $("#returnTime").html(c)
+    }
+}
+function initFleet3() {
+    timerHandler.appendCallback(updateTimesFleet3);
+    if (!isMobile) {
+        $("#metal").focus()
+    }
+    initToggleHeader("fleet3");
+    initBackButton();
+    updatePrioButtons();
+    if ($("#missions .on .selected").length) {
+        $("#missions .on .selected")[0].onclick()
+    }
+    $("#contentWrapper #inhalt").unbind("keydown.continue").bind("keydown.continue", function (b) {
+        if (b.keyCode == KeyEvent.DOM_VK_RETURN) {
+            trySubmit()
+        }
+    })
+}
+function updatePrioButtons() {
+    $("#prioM1").attr("src", "/img/icons/4b53e83f8b8583ea279fd26f3a55a5.gif");
+    $("#prioM2").attr("src", "/img/icons/8afbd59ffe091239a7c6f1e961b267.gif");
+    $("#prioM3").attr("src", "/img/icons/4acc67e1ca4d8debb1b114abcb7c1e.gif");
+    switch (prioMetal) {
+        case 1:
+            $("#prioM1").attr("src", "/img/icons/b357323b99e20a46fc0b2495728351.gif");
+            break;
+        case 2:
+            $("#prioM2").attr("src", "/img/icons/f8959fe540cd329f3a764ad9aeaf93.gif");
+            break;
+        case 3:
+            $("#prioM3").attr("src", "/img/icons/823b3270ed0f4a243287c12d4ee5f8.gif");
+            break
+    }
+    $("#prioC1").attr("src", "/img/icons/4b53e83f8b8583ea279fd26f3a55a5.gif");
+    $("#prioC2").attr("src", "/img/icons/8afbd59ffe091239a7c6f1e961b267.gif");
+    $("#prioC3").attr("src", "/img/icons/4acc67e1ca4d8debb1b114abcb7c1e.gif");
+    switch (prioCrystal) {
+        case 1:
+            $("#prioC1").attr("src", "/img/icons/b357323b99e20a46fc0b2495728351.gif");
+            break;
+        case 2:
+            $("#prioC2").attr("src", "/img/icons/f8959fe540cd329f3a764ad9aeaf93.gif");
+            break;
+        case 3:
+            $("#prioC3").attr("src", "/img/icons/823b3270ed0f4a243287c12d4ee5f8.gif");
+            break
+    }
+    $("#prioD1").attr("src", "/img/icons/4b53e83f8b8583ea279fd26f3a55a5.gif");
+    $("#prioD2").attr("src", "/img/icons/8afbd59ffe091239a7c6f1e961b267.gif");
+    $("#prioD3").attr("src", "/img/icons/4acc67e1ca4d8debb1b114abcb7c1e.gif");
+    switch (prioDeuterium) {
+        case 1:
+            $("#prioD1").attr("src", "/img/icons/b357323b99e20a46fc0b2495728351.gif");
+            break;
+        case 2:
+            $("#prioD2").attr("src", "/img/icons/f8959fe540cd329f3a764ad9aeaf93.gif");
+            break;
+        case 3:
+            $("#prioD3").attr("src", "/img/icons/823b3270ed0f4a243287c12d4ee5f8.gif");
+            break
+    }
+}
+function selectPrio(d, c) {
+    switch (d) {
+        case"metal":
+            if (prioMetal == c) {
+                break
+            }
+            if (prioCrystal == c) {
+                prioCrystal = prioMetal
+            }
+            if (prioDeuterium == c) {
+                prioDeuterium = prioMetal
+            }
+            prioMetal = c;
+            break;
+        case"crystal":
+            if (prioCrystal == c) {
+                break
+            }
+            if (prioMetal == c) {
+                prioMetal = prioCrystal
+            }
+            if (prioDeuterium == c) {
+                prioDeuterium = prioCrystal
+            }
+            prioCrystal = c;
+            break;
+        case"deuterium":
+            if (prioDeuterium == c) {
+                break
+            }
+            if (prioMetal == c) {
+                prioMetal = prioDeuterium
+            }
+            if (prioCrystal == c) {
+                prioCrystal = prioDeuterium
+            }
+            prioDeuterium = c;
+            break
+    }
+    $('form input[name="prioMetal"]').val(prioMetal);
+    $('form input[name="prioCrystal"]').val(prioCrystal);
+    $('form input[name="prioDeuterium"]').val(prioDeuterium);
+    updatePrioButtons()
+}
+function updateHoldingOrExpTime() {
+    if ($('form input[name="mission"]').val() == missionHold) {
+        $('form input[name="holdingOrExpTime"]').val($('form input[name="holdingtime"]').val());
+        holdingTime = $('form [name="holdingtime"]').val()
+    } else {
+        if ($('form input[name="mission"]').val() == missionExpedition) {
+            $('form input[name="holdingOrExpTime"]').val($('form input[name="expeditiontime"]').val());
+            holdingTime = $('form [name="expeditiontime"]').val()
+        } else {
+            $('form input[name="holdingOrExpTime"]').val(0);
+            holdingTime = 0
+        }
+    }
+}
+function checkRessourceByType(h) {
+    var g = getValue($("#" + h).val());
+    var f = 0;
+    var k = 0;
+    if (h == "metal") {
+        f = metalOnPlanet;
+        k = cargoSpace - crystal - deuterium
+    } else {
+        if (h == "crystal") {
+            f = crystalOnPlanet;
+            k = cargoSpace - metal - deuterium
+        } else {
+            if (h == "deuterium") {
+                f = deuteriumOnPlanet;
+                k = cargoSpace - metal - crystal
+            } else {
+                f = metalOnPlanet;
+                k = cargoSpace - crystal - deuterium
+            }
+        }
+    }
+    if (g != "") {
+        var l = parseInt(g);
+        l = isNaN(l) ? 0 : l;
+        l = Math.abs(l);
+        l = Math.min(l, f);
+        if (l > k) {
+            l = k
+        }
+        updateRessVarByType(h, l);
+        formatNumber($("#" + h), l)
+    } else {
+        updateRessVarByType(h, 0)
+    }
+}
+function updateRessVarByType(d, c) {
+    if (d == "metal") {
+        metal = c
+    } else {
+        if (d == "crystal") {
+            crystal = c
+        } else {
+            if (d == "deuterium") {
+                deuterium = c
+            } else {
+                metal = c
+            }
+        }
+    }
+}
+function resetByRessourceType(b) {
+    if (b == "metal") {
+        metal = 0
+    }
+    if (b == "crystal") {
+        crystal = 0
+    }
+    if (b == "deuterium") {
+        deuterium = 0
+    }
+    $("#" + b).val(0);
+    updateVariables()
+}
+function maxMetal() {
+    var b;
+    b = cargoSpace - crystal - deuterium;
+    b = Math.max(b, 0);
+    b = Math.min(b, metalOnPlanet);
+    metal = Math.max(metal, b);
+    formatNumber($("#metal"), metal)
+}
+function maxCrystal() {
+    var b;
+    b = cargoSpace - metal - deuterium;
+    b = Math.max(b, 0);
+    b = Math.min(b, crystalOnPlanet);
+    crystal = Math.max(crystal, b);
+    formatNumber($("#crystal"), crystal)
+}
+function maxDeuterium() {
+    var b;
+    b = cargoSpace - metal - crystal;
+    b = Math.max(b, 0);
+    b = Math.min(b, deuteriumOnPlanet - consumption);
+    b = Math.max(b, 0);
+    deuterium = Math.max(deuterium, b);
+    formatNumber($("#deuterium"), deuterium)
+}
+function maxAll() {
+    metal = 0;
+    crystal = 0;
+    deuterium = 0;
+    maxDeuterium();
+    maxCrystal();
+    maxMetal()
+}
+function updateTimesFleet3() {
+    durationAKS = durationAKS - 1;
+    checkTimes()
+}
+function checkTimes() {
+    var f = duration;
+    if ($("#missionButton2").hasClass("selected")) {
+        f = Math.max(durationAKS, duration)
+    }
+    var e = serverTime.getTime() + 1000 * f;
+    var d = e + 1000 * duration + holdingTime * 3600 * 1000;
+    if (durationAKS >= duration) {
+        $("#durationAKS").html(getFormatedTime(durationAKS))
+    }
+    $("#arrivalTime").text(getFormatedDate(e, "[d].[m].[y] [G]:[i]:[s]"));
+    $("#returnTime").text(getFormatedDate(d, "[d].[m].[y] [G]:[i]:[s]"))
+}
+function setSelected(b) {
+    $("#missions>li>a.selected").removeClass("selected");
+    $("#missionButton" + b).addClass("selected");
+    isAggressiveMission = ((b == 1) || (b == 2) || (b == 6) || (b == 9));
+    $("#fightAfterRetreat,#aks,#holdtimeline,#expeditiontimeline,.prioButton").hide();
+    switch (b) {
+        case 1:
+            $("#fightAfterRetreat").show();
+            $(".prioButton").show();
+            break;
+        case 2:
+            $("#aks").show();
+            $(".prioButton").show();
+            break;
+        case 5:
+            $("#holdtimeline").show();
+            break;
+        case 8:
+            $("#expeditiontimeline").hide();
+            break;
+        case 15:
+            $("#expeditiontimeline").show();
+            break
+    }
+    checkTimes()
+}
+function updateMission(g, e, f, h) {
+    $(".missionName").text(g);
+    $(".mission_description").text(e);
+    $("#missionNameWrapper").removeClass("off");
+    $(".briefing_overlay").hide();
+    if (f == "off") {
+        $("#missionNameWrapper").addClass("off");
+        $(".briefing_overlay").show()
+    }
+    $('form input[name="mission"]').val(h);
+    updateHoldingOrExpTime();
+    updateVariables()
+}
+var validated = false;
+var sendingEnabled = true;
+var shipIDs = [];
+var speeds = [];
+var completeConsumptions = [];
+var maxSpeed = 0;
+var speedFactor = 1;
+var maxGalaxy = null;
+var maxSystem = null;
+var maxPosition = null;
+var DONUT_GALAXY = null;
+var DONUT_SYSTEM = null;
+var currentGalaxy = 1;
+var currentSystem = 1;
+var currentPosition = 1;
+var currentPlanetType = 1;
+var targetGalaxy = 1;
+var targetSystem = 1;
+var targetPosition = 1;
+var defaultTargetGalaxy = 1;
+var defaultTargetSystem = 1;
+var defaultTargetPosition = 1;
+var speed = 0;
+var holdingTime = 0;
+var metal = 0;
+var crystal = 0;
+var deuterium = 0;
+var currentDeuterium = 0;
+var returnLink = "";
+var checkUrl = "";
+var colonizationID = 0;
+var missionNone = null;
+var missionUnionattack = null;
+var distance = 5;
+var duration = 0;
+var consumption = 0;
+var cargoSpace = 0;
+var cargoLeft = 0;
+var locaAllPlanet = "";
+var locaAllMoon = "";
+var locaAllDebris = "";
+var metal = 0;
+var crystal = 0;
+var deuterium = 0;
+var distance = 5;
+var duration = 0;
+var consumption = 0;
+var cargoCapacity = 0;
+var fuelCapacity = 0;
+var metalOnPlanet = 0;
+var crystalOnPlanet = 0;
+var deuteriumOnPlanet = 0;
+var returnLink = "";
+var missionHold = null;
+var missionExpedition = null;
+var durationAKS = 0;
+var prioMetal;
+var prioCrystal;
+var prioDeuterium;
+var isAggressiveMission = false;
+function getDistance() {
+    var e;
+    var f;
+    var h;
+    var g;
+    e = Math.abs(currentGalaxy - targetGalaxy);
+    f = Math.abs(currentSystem - targetSystem);
+    h = Math.abs(currentPosition - targetPosition);
+    if (e != 0) {
+        g = Math.abs(e - maxGalaxy);
+        if (DONUT_GALAXY == 1 && (g < e)) {
+            return g * 20000
+        } else {
+            return e * 20000
+        }
+    } else {
+        if (f != 0) {
+            g = Math.abs(f - maxSystem);
+            if (DONUT_SYSTEM == 1 && (g < f)) {
+                return g * 5 * 19 + 2700
+            } else {
+                return f * 5 * 19 + 2700
+            }
+        } else {
+            if (h != 0) {
+                return h * 5 + 1000
+            } else {
+                return 5
+            }
+        }
+    }
+}
+function getDuration() {
+    return Math.round(((35000 / speed * Math.sqrt(distance * 10 / maxSpeed) + 10) / speedFactor))
+}
+function getConsumption(h) {
+    var k = 0;
+    var f = 0;
+    var g = 0;
+    var l = Math.max(1, duration * speedFactor - 10);
+    for (i = 0, maxI = shipIDs.length; i < maxI; i++) {
+        if (h == 0 || h == null || shipIDs[i] == h) {
+            g++;
+            shipSpeedValue = 35000 / l * Math.sqrt(distance * 10 / speeds[i]);
+            f += completeConsumptions[i] * holdingTime;
+            k += completeConsumptions[i] * distance / 35000 * ((shipSpeedValue / 10) + 1) * ((shipSpeedValue / 10) + 1)
+        }
+    }
+    if (g > 0) {
+        k = Math.round(k) + 1;
+        if (holdingTime > 0) {
+            k += Math.max(Math.floor(f / 10), 1)
+        }
+        k = Math.ceil(Math.round(k * fleetDeutSaveFactor));
+        return k
+    } else {
+        return 0
+    }
+}
+function getFreeStorage() {
+    return cargoCapacity
+}
+function updateVariables() {
+    if (currentPage == "fleet2") {
+        prepareVariables()
+    }
+    distance = getDistance();
+    duration = getDuration();
+    consumption = getConsumption();
+    cargoSpace = getFreeStorage();
+    cargoLeft = cargoSpace - metal - crystal - deuterium;
+    refreshFormData()
+}
+function refreshFormData() {
+    $("#duration").html(formatTime(duration) + " h");
+    $("#distanceValue").html(tsdpkt(distance));
+    styleClass = cargoSpace < 0 ? "overmark" : "undermark";
+    $("#storage").html('<span class="' + styleClass + '">' + tsdpkt(cargoSpace) + "</span>");
+    styleClass = ((consumption > fuelCapacity) || (consumption > $("#resources_deuterium").text().replace(/\./g, ""))) ? "overmark" : "undermark";
+    $("#consumption").html('<span class="' + styleClass + '">' + tsdpkt(consumption) + " (" + Math.ceil(100 * consumption / fuelCapacity) + "%)</span>");
+    styleClass = cargoLeft < 0 ? "overmark" : "undermark";
+    $("#remainingresources").html('<span class="' + styleClass + '">' + tsdpkt(cargoLeft) + "</style>");
+    $(".bar_container").data("currentAmount", cargoSpace - cargoLeft);
+    $(".bar_container").data("capacity", cargoSpace);
+    refreshBars("bar_container", "filllevel_bar");
+    setTType();
+    if (currentPage == "fleet2") {
+        modifyPlanetName()
+    }
+    checkOk()
+}
+function modifyPlanetName() {
+    newName = getOwnName();
+    if (newName != "") {
+        $("#targetPlanetName").html(newName);
+        $("#statusTarget").html(newName)
+    }
+    hideStatusBar()
+}
+function checkOk() {
+    switch (currentPage) {
+        case"fleet2":
+            if ((currentGalaxy == $("#galaxy").val() && currentSystem == $("#system").val() && currentPosition == $("#position").val() && currentPlanetType == $("#type").val()) || $("#galaxy").val() == "" || $("#system").val() == "" || $("#position").val() == "" || consumption > currentDeuterium || consumption > fuelCapacity || cargoSpace < 0) {
+                validated = false;
+                $("#continue").attr("class", "off")
+            } else {
+                validated = true;
+                $("#continue").attr("class", "on")
+            }
+            break;
+        case"fleet3":
+            if (isMissionValid() && cargoLeft >= 0) {
+                validated = true;
+                $("#start").attr("class", "on")
+            } else {
+                validated = false;
+                $("#start").attr("class", "off")
+            }
+            break
+    }
+}
+if (typeof Object.assign !== "function") {
+    Object.assign = function (g) {
+        if (g == null) {
+            throw new TypeError("Cannot convert undefined or null to object")
+        }
+        g = Object(g);
+        for (var e = 1; e < arguments.length; e++) {
+            var h = arguments[e];
+            if (h != null) {
+                for (var f in h) {
+                    if (Object.prototype.hasOwnProperty.call(h, f)) {
+                        g[f] = h[f]
+                    }
+                }
+            }
+        }
+        return g
+    }
+}
+if (typeof Number.isInteger !== "function") {
+    Number.isInteger = function (b) {
+        return (typeof b === "number" && isFinite(b) && b > -9007199254740992 && b < 9007199254740992 && Math.floor(b) === b)
+    }
+}
+var Formatter = {
+    timeUnits: {
+        second: 1,
+        minute: 60,
+        hour: 60 * 60,
+        day: 24 * 60 * 60,
+        week: 7 * 24 * 60 * 60
+    }, secondsToTime: function (k, h) {
+        var l = {
+            segments: -1,
+            delimiter: " ",
+            units: {
+                weeks: "w",
+                days: "d",
+                hours: "h",
+                minutes: "m",
+                seconds: "s"
+            },
+            now: "now"
+        };
+        h = Object.assign(l, h);
+        if (!Number.isInteger(k)) {
+            throw"Integer expected for parameter seconds"
+        }
+        if (k <= 0) {
+            return h.now
+        }
+        var m = {
+            weeks: Math.floor(k / Formatter.timeUnits.week),
+            days: Math.floor((k % Formatter.timeUnits.week) / Formatter.timeUnits.day),
+            hours: Math.floor((k % Formatter.timeUnits.day) / Formatter.timeUnits.hour),
+            minutes: Math.floor((k % Formatter.timeUnits.hour) / Formatter.timeUnits.minute),
+            seconds: k % Formatter.timeUnits.minute
+        };
+        var g = [];
+        for (var n in m) {
+            if ((m[n] > 0) && (h.segments == -1 || g.length < h.segments)) {
+                g.push(m[n] + h.units[n])
+            }
+        }
+        return g.join(h.delimiter)
+    }, secondsToPeriod: function (h) {
+        if (!Number.isInteger(h)) {
+            throw"Integer expected for parameter seconds"
+        }
+        if (h <= 0) {
+            return "PT0H0M0S"
+        }
+        var k = {
+            days: {value: Math.floor(h / Formatter.timeUnits.day), unit: "D"},
+            hours: {
+                value: Math.floor((h % Formatter.timeUnits.day) / Formatter.timeUnits.hour),
+                unit: "H"
+            },
+            minutes: {
+                value: Math.floor((h % Formatter.timeUnits.hour) / Formatter.timeUnits.minute),
+                unit: "M"
+            },
+            seconds: {value: h % Formatter.timeUnits.minute, unit: "S"}
+        };
+        var f = [], g = [];
+        for (var l in k) {
+            if (k[l].value > 0) {
+                if (l == "days") {
+                    f.push(k[l].value + k[l].unit)
+                } else {
+                    g.push(k[l].value + k[l].unit)
+                }
+            }
+        }
+        return "P" + f.join("") + (g.length > 0 ? "T" + g.join("") : "")
+    }, numberToString: function (M, K) {
+        var L = 0;
+        var J = 3;
+        var v = 1;
+        var F = 2;
+        var y = 3;
+        var w = function (a, b) {
+            if (typeof a !== "number") {
+                throw"Numeric expected for parameter number"
+            }
+            if (!Number.isInteger(b)) {
+                throw"Integer expected for parameter precision"
+            }
+            if (b <= 0) {
+                return Math.round(a)
+            }
+            return Math.round(a * Math.pow(10, b)) / Math.pow(10, b)
+        };
+        var N = function (a, b) {
+            if (typeof a !== "number") {
+                throw"Numeric expected for parameter number"
+            }
+            if (!Number.isInteger(b)) {
+                throw"Integer expected for parameter precision"
+            }
+            if (b <= 0) {
+                return Math.ceil(a)
+            }
+            return Math.ceil(a * Math.pow(10, b)) / Math.pow(10, b)
+        };
+        var C = function (a, b) {
+            if (typeof a !== "number") {
+                throw"Numeric expected for parameter number"
+            }
+            if (!Number.isInteger(b)) {
+                throw"Integer expected for parameter precision"
+            }
+            if (b <= 0) {
+                return Math.floor(a)
+            }
+            return Math.floor(a * Math.pow(10, b)) / Math.pow(10, b)
+        };
+        var G = function (b, a, c) {
+            switch (a) {
+                case v:
+                    b = w(b, c);
+                    break;
+                case F:
+                    b = N(b, c);
+                    break;
+                case y:
+                    b = C(b, c);
+                    break
+            }
+            return b
+        };
+        var I = {
+            transform: v,
+            precision: {minimum: L, maximum: J},
+            separators: {thousands: ",", decimals: "."},
+            boundaries: {1000000: "M", 1000000000: "Bn"}
+        };
+        K = Object.assign(I, K);
+        if (typeof M !== "number") {
+            throw"Numeric expected for parameter number"
+        }
+        if (typeof K.precision === "undefined" || typeof K.precision.minimum === "undefined") {
+            throw"Minimum precision not specified"
+        }
+        if (typeof K.precision === "undefined" || typeof K.precision.maximum === "undefined") {
+            throw"Maximum precision not specified"
+        }
+        if (K.precision.minimum > K.precision.maximum) {
+            throw"Minimum precision larger than maximum precision"
+        }
+        var x = Object.keys(K.boundaries).sort(function (a, b) {
+            return parseFloat(b) - parseFloat(a)
+        });
+        var H = "";
+        for (var D = 0; D < x.length; D++) {
+            var B = parseInt(x[D]);
+            if (B === 0) {
+                continue
+            }
+            if (Math.abs(M) >= B) {
+                M /= B;
+                H = K.boundaries[x[D]];
+                break
+            }
+        }
+        var A = K.precision.maximum;
+        while ((M = G(M, K.transform, A)) == G(M, K.transform, A - 1) && A > K.precision.minimum) {
+            A--
+        }
+        M = M.toFixed(A);
+        var E = M.toString().split(".");
+        E[0] = E[0].replace(/\B(?=(\d{3})+(?!\d))/g, K.separators.thousands);
+        return E.join(K.separators.decimals) + H
+    }
+};
+function submitOnKey(b) {
+    if (b == 37) {
+        system = system > 1 ? parseInt(system) - 1 : maxSystems;
+        loadContent(galaxy, system, true)
+    } else {
+        if (b == 39) {
+            system = system < maxSystems ? parseInt(system) + 1 : 1;
+            loadContent(galaxy, system, true)
+        } else {
+            if (b == 40) {
+                galaxy = galaxy > 1 ? parseInt(galaxy) - 1 : maxGalaxies;
+                loadContent(galaxy, system, true)
+            } else {
+                if (b == 38) {
+                    galaxy = galaxy < maxGalaxies ? parseInt(galaxy) + 1 : 1;
+                    loadContent(galaxy, system, true)
+                }
+            }
+        }
+    }
+}
+function keyevent(d) {
+    var c;
+    if ($(":focus").closest(".ui-dialog").length) {
+        return true
+    }
+    if ($(":focus").closest(".chat_box_textarea").length) {
+        return true
+    }
+    if (window.event) {
+        c = window.event.keyCode
+    } else {
+        if (d) {
+            c = d.which
+        } else {
+            return true
+        }
+    }
+    submitOnKey(c)
+}
+function launchMissiles(b) {
+    var b = $.parseJSON(b);
+    if (b.status) {
+        $("#missileValue").html(b.rockets)
+    }
+    errorBoxAsArray(b.errorbox);
+    $("#rocketattack").parent().dialog("close")
+}
+function errorBoxSubmitYes() {
+    location.href = officersLink
+}
+function movePlanet(d, e) {
+    function f() {
+        console.log('movePlanet()');
+        $.post(d, function (a) {
+            if ((a == "") || (a == null)) {
+                fadeBox(galaxyLoca.reservationSuccess, false);
+                setTimeout('reload_page("' + e + '")', 3000)
+            } else {
+                fadeBox(a, true)
+            }
+        })
+    }
+
+    errorBoxDecision(galaxyLoca.questionTitle, galaxyLoca.question, LocalizationStrings.yes, LocalizationStrings.no, f)
+}
+function addToTable(n, q, m) {
+    var l = n;
+    if (m != null) {
+        l += " (" + tsdpkt(m) + ") " + LocalizationStrings.ok
+    }
+    if (isMobile) {
+        fadeBox(l, q != "success");
+        return
+    }
+    var r = new Date();
+    var s = "fleetstatus" + r.getTime();
+    var o = 'id="' + s + '"';
+    var p = 'class="' + q + '"';
+    var u = "<div " + o + " " + p + ">" + l + "</div>";
+    if ($("#fleetstatusrow").has("div").length) {
+        $("#fleetstatusrow").empty()
+    }
+    $(u).prependTo("#fleetstatusrow").fadeOut(3000, function () {
+        $(this).remove()
+    })
+}
+function setShips(d, e) {
+    var f = document.getElementById(d);
+    f.innerHTML = e
+}
+function displayContentGalaxy(c) {
+    dataObject = c; // JSON.parse(c);
+    var d = getTooltipSelector("#inhalt");
+    removeTooltip(d);
+    $("#galaxyContent").html(dataObject.galaxy);
+    tabletInitGalaxyDetails();
+    eventBDayInitGalaxy();
+    $("#galaxyLoading").hide();
+    if (preserveSystemOnPlanetChange) {
+        $(".planetlink, .moonlink").querystring({
+            galaxy: galaxy,
+            system: system
+        })
+    }
+    updateAjaxResourcebox(dataObject.resources)
+}
+function submitForm() {
+    galaxy = $("#galaxy_input").val();
+    system = $("#system_input").val();
+    if (0 === galaxy.length || !$.isNumeric(+galaxy)) {
+        galaxy = 1
+    }
+    if (0 === system.length || !$.isNumeric(+system)) {
+        system = 1
+    }
+    loadContent(galaxy, system, true)
+}
+function loadContent(f, d, e) {
+    $("#galaxyLoading").show();
+    if (0 === f.length || !$.isNumeric(+f)) {
+        f = 1
+    }
+    if (0 === d.length || !$.isNumeric(+d)) {
+        d = 1
+    }
+    $("#galaxy_input").val(f);
+    $("#system_input").val(d);
+    removeTooltip($("#galaxytable tbody *"));
+    if (e) {
+        $.each(buildListCountdowns, function () {
+            timerHandler.removeCallback(this.timer)
+        })
+    }
+    console.log('loadContent()');
+    $.post(contentLink, {galaxy: f, system: d}, displayContentGalaxy)
+}
+function errorBoxDeuterium() {
+    fadeBox(galaxyLoca.deuteriumNeeded, true)
+}
+function doScan(d, c) {
+    sendShips(constants.espionage, galaxy, system, d, c, spionageAmount)
+}
+function initPhalanx() {
+    getAjaxResourcebox();
+    $(".eventFleet:odd").addClass("odd");
+    $(".partnerInfo:even").addClass("part-even");
+    $(".toggleInfos").click(function () {
+        id = $(this).attr("rel");
+        if ($(this).attr("class") == "toggleInfos infosOpen") {
+            $(this).removeClass("infosOpen");
+            $(this).addClass("infosClosed");
+            $(this).children().attr("src", "/img/icons/de1e5f629d9e47d283488eee0c0ede.gif");
+            $("." + id).attr("style", "display: none;")
+        } else {
+            $(this).addClass("infosOpen");
+            $(this).removeClass("infosClosed");
+            $(this).children().attr("src", "/img/icons/577565fadab7780b0997a76d0dca9b.gif");
+            $("." + id).attr("style", "display: block;")
+        }
+    });
+    var b = $(".overlayDiv.phalanx").siblings(".ui-dialog-titlebar");
+    if (b.find(".refreshPhalanxLink").length) {
+        $("#phalanxWrap .refreshPhalanxLink").remove()
+    } else {
+        b.find(".ui-dialog-title").append($("#phalanxWrap .refreshPhalanxLink"))
+    }
+}
+function initMissleAttackLayer() {
+    $("#rocketattack").parent().dialog("option", "title", $("#rocketattack").attr("data-title"));
+    $("#rocketattack input#anz").keyup(function () {
+        checkIntInput($(this), 1, $(this).data("max"))
+    }).change(function () {
+        checkIntInput($(this), 1, $(this).data("max"))
+    }).focus();
+    $("#rocketattack #number").bind("click", function () {
+        var a = $("#rocketattack input#anz");
+        if (parseInt(a.val()) != a.data("max")) {
+            a.val(a.data("max"))
+        } else {
+            a.val("1")
+        }
+    });
+    $("#rocketattack #priority a").bind("click", function () {
+        var d = $(this);
+        var a = $("#primaryTarget");
+        $("#rocketattack #priority a").not(d).removeClass("active");
+        if (d.hasClass("active")) {
+            d.removeClass("active");
+            a.val("");
+            $("#noPriorityInfo").show()
+        } else {
+            d.addClass("active");
+            a.val(d.attr("ref"));
+            $("#noPriorityInfo").hide()
+        }
+    });
+    $("form#rocketForm").submit(function () {
+        ajaxFormSubmit("rocketForm", $(this).attr("action"), launchMissiles);
+        return false
+    });
+    function b() {
+        var a = $("#rocketattack #arrivalTime #timer");
+        a.html(getFormatedDate(serverTime.getTime() + 1000 * a.data("duration"), "[d].[m].[y] [G]:[i]:[s]"))
+    }
+
+    timerHandler.appendCallback(b);
+    b()
+}
+function displayMiniFleetMessage(d) {
+    var f = d.message;
+    if (typeof(d.coordinates) != "undefined") {
+        f += " [" + d.coordinates.galaxy + ":" + d.coordinates.system + ":" + d.coordinates.position + "]"
+    }
+    if (d.success) {
+        var e = "#ownFleetStatus_" + d.coordinates.position + "_" + d.planetType;
+        switch (d.type) {
+            case 1:
+                $(e).removeClass("fleetNeutral");
+                $(e).attr("title", galaxyLoca.fleetAttacking).addClass("fleetHostile").addClass("tooltip");
+                break;
+            case 2:
+                $(e).attr("title", galaxyLoca.fleetUnderway).addClass("fleetNeutral").addClass("tooltip");
+                break
+        }
+        addToTable(f, "success", d.shipsSent);
+        $("#slotUsed").html(tsdpkt(d.slots));
+        setShips("probeValue", tsdpkt(d.probes));
+        setShips("recyclerValue", tsdpkt(d.recyclers));
+        setShips("missileValue", tsdpkt(d.missiles))
+    } else {
+        addToTable(f, "error")
+    }
+    shipsendingDone = 1
+}
+function filterToggle(d) {
+    var e = d.target;
+    var f;
+    switch (e.id) {
+        case"filter_empty":
+            f = ".empty_filter";
+            break;
+        case"filter_inactive":
+            f = ".inactive_filter";
+            break;
+        case"filter_vacation":
+            f = ".vacation_filter";
+            break;
+        case"filter_strong":
+            f = ".strong_filter";
+            break;
+        case"filter_newbie":
+            f = ".newbie_filter";
+            break
+    }
+    e = $(e);
+    if (e.hasClass("filter_active")) {
+        e.removeClass("filter_active");
+        $(f).each(function (b, a) {
+            $(this).removeClass("filtered_" + $(d.target)[0].id)
+        });
+        sendFilterToggle($(d.target)[0].id, 0);
+        d.stopPropagation()
+    } else {
+        e.addClass("filter_active");
+        $(f).each(function (b, a) {
+            $(this).addClass("filtered_" + $(d.target)[0].id)
+        });
+        sendFilterToggle($(d.target)[0].id, 1);
+        d.stopPropagation()
+    }
+}
+function sendFilterToggle(c, d) {
+    $.ajax({
+        type: "POST",
+        url: "?page=togglefilter",
+        dataType: "json",
+        data: {id: c, state: d},
+        success: function (a) {
+        },
+        error: function () {
+        }
+    })
+}
+var DOM_GET_ELEMENT_BY_ID_CACHE = [];
+function getElementByIdWithCache(b) {
+    if (!DOM_GET_ELEMENT_BY_ID_CACHE[b]) {
+        DOM_GET_ELEMENT_BY_ID_CACHE[b] = document.getElementById(b)
+    }
+    return DOM_GET_ELEMENT_BY_ID_CACHE[b]
+}
+function number_format(v, x, o, w) {
+    o = o || LocalizationStrings.decimalPoint;
+    w = w || LocalizationStrings.thousandSeperator;
+    var q = "";
+    var p = v.toString();
+    var r = p.indexOf("e");
+    if (r > -1) {
+        q = p.substring(r);
+        v = parseFloat(p.substring(0, r))
+    }
+    if (x != null) {
+        var n = Math.pow(10, x);
+        v = Math.round(v * n) / n
+    }
+    var y = v < 0 ? "-" : "";
+    var s = (v > 0 ? Math.floor(v) : Math.abs(Math.ceil(v))).toString();
+    var u = v.toString().substring(s.length + y.length);
+    o = o != null ? o : ".";
+    u = x != null && x > 0 || u.length > 1 ? (o + u.substring(1)) : "";
+    if (x != null && x > 0) {
+        for (i = u.length - 1, z = x; i < z; ++i) {
+            u += "0"
+        }
+    }
+    w = (w != o || u.length == 0) ? w : null;
+    if (w != null && w != "") {
+        for (i = s.length - 3; i > 0; i -= 3) {
+            s = s.substring(0, i) + w + s.substring(i)
+        }
+    }
+    return y + s + u + q
+}
+function gfNumberGetHumanReadable(g, e, f) {
+    g = Math.floor(g);
+    e = e || false;
+    var h = "";
+    var f = f || 3;
+    if (e) {
+        if (g >= 1000000000) {
+            h = LocalizationStrings.unitMilliard;
+            g = g / 1000000000
+        } else {
+            if (g >= 1000000) {
+                h = LocalizationStrings.unitMega;
+                g = g / 1000000
+            }
+        }
+    }
+    floorWithPrecision = function (a, b) {
+        return Math.floor(a * Math.pow(10, b)) / Math.pow(10, b)
+    };
+    g = floorWithPrecision(g, f);
+    while (f >= 0) {
+        if (floorWithPrecision(g, f - 1) != g) {
+            break
+        }
+        f = f - 1
+    }
+    return number_format(g, f, LocalizationStrings.decimalPoint, LocalizationStrings.thousandSeperator) + h
+}
+function getNumberFormatShort(f, e) {
+    if (typeof(e) == "undefined") {
+        e = 0
+    }
+    f = Math.floor(f);
+    var d = "";
+    if (f >= 1000000000) {
+        d = LocalizationStrings.unitMilliard;
+        f = f / 1000000000
+    }
+    if (f >= 1000000) {
+        d = LocalizationStrings.unitMega;
+        f = f / 1000000
+    }
+    if (f >= 1000) {
+        d = LocalizationStrings.unitKilo;
+        f = f / 1000
+    }
+    return number_format(f, e, LocalizationStrings.decimalPoint, LocalizationStrings.thousandSeperator) + d
+}
+function createExpireTime(c) {
+    var d = new Date();
+    c = c * 1000;
+    d.setTime(c);
+    return d
+}
+function initHighscore() {
+    $("a.navButton, a.subnavButton").click(function () {
+        var h = $(this).attr("rel");
+        var a = $(this).parent();
+        var l = "";
+        if (a.attr("id") == "typeButtons") {
+            $("#typeButtons > a.active").removeClass("active")
+        } else {
+            if (a.attr("id") == "categoryButtons") {
+                $("#categoryButtons > a.active").removeClass("active");
+                $("#typeButtons a.active").each(function () {
+                    h = $(this).attr("rel")
+                })
+            }
+        }
+        if (searchRelId != null && a.attr("id") == "typeButtons" || a.attr("id") == "subnav_fleet") {
+            l = "&searchRelId=" + searchRelId
+        }
+        $(".subnavButton[rel!=" + h + "]").removeClass("active");
+        $("#stat_list_content").html(LocalizationStrings.loading);
+        $(this).addClass("active");
+        var b = $("#categoryButtons > a.active").attr("rel");
+        var k = highscoreContentUrl + "?category=" + b + "&type=" + h + l;
+        if ((a.attr("id") == "typeButtons" || $(this).hasClass("subnavButton")) && searchSite != site) {
+            k = k + "&site=" + site
+        }
+        removeTooltip(getTooltipSelector("#highscoreContent #ranks"));
+        ajaxSumbit(k, "send", "stat_list_content");
+        if ($(".navButton.active").attr("rel") == 1) {
+            $("#highscoreContent .header h2").text(highscoreLoca.playerHighscore)
+        } else {
+            $("#highscoreContent .header h2").text(highscoreLoca.allianceHighscore)
+        }
+    });
+    $(".stat_filter").click(function () {
+        var a = $(this).attr("id");
+        $(".subnav").hide();
+        $("#subnav_" + a).fadeIn("slow")
+    });
+    var d = $("#ranks").offset().top;
+    var c = $("#scrollToTop");
+    $(window).unbind("scroll.highscoreTop").bind("scroll.highscoreTop", function (a) {
+        var b = $(this).scrollTop();
+        if (b > d) {
+            c.css("visibility", "visible")
+        } else {
+            c.css("visibility", "hidden")
+        }
+    });
+    $(document).undelegate(".scrollToTop", "click").delegate(".scrollToTop", "click", function () {
+        $("html, body").animate({scrollTop: 0}, 50)
+    })
+}
+function initHighscoreContent() {
+    if (userWantsFocus) {
+        if ($("#position" + searchPosition).length > 0) {
+            $("html, body").animate({scrollTop: Math.max(0, $("#position" + searchPosition).offset().top - 200)}, 1000)
+        }
+    }
+    $(".changeSite").change(function () {
+        var a = $(this).val();
+        $("#stat_list_content").html('<div class="ajaxLoad">' + LocalizationStrings.loading + "</div>");
+        ajaxCall(highscoreContentUrl + "?category=" + currentCategory + "&type=" + currentType + "&page=" + a, "stat_list_content")
+    });
+    var d = $("#scrollToTop");
+    var e = $("#ranks thead .score");
+
+    function f() {
+        if (e.length) {
+            d.css("left", e.offset().left)
+        }
+    }
+
+    f();
+    $(window).unbind("resize.highscoreTop").bind("resize.highscoreTop", f)
+}
+function saveImperiumOrder(e, d) {
+    var f = "impSortOrder";
+    if (d) {
+        f = "impSortOrderMoon"
+    }
+    $.ajax({
+        url: saveUrl,
+        method: "post",
+        dataType: "json",
+        data: {ajax: 1, type: f, planets: $(e).sortable("toArray")}
+    })
+}
+function clearImperiumOrder() {
+    $.ajax({
+        url: saveUrl,
+        method: "post",
+        dataType: "json",
+        data: {ajax: 1, type: "reset"},
+        success: function (b) {
+            if (!b.error) {
+                location.reload()
+            }
+        }
+    })
+}
+function createSummaryHtml(n) {
+    var q = "";
+    var l = null;
+    var o = 0;
+    var r = 0;
+    var k = "";
+    q = q + '<div class="planetHead"><div class="planetname">' + n.translations.summary + '</div><div class="planetImg"><img src="/img/icons/7efb2e73ca11d2344bbed43668da10.jpg"/></div><div class="planetData"><ul><li class="coords textLeft"></li><li class="fields textRight"></li></ul></div><div class="clearfloat"/></div>';
+    for (group in n.groups) {
+        q = q + '<div class="row" /><div class="values ' + group + " group" + group + '">';
+        for (r = 0; k = n.groups[group][r]; r++) {
+            if (n.translations.planets[k] == null) {
+                continue
+            }
+            var m = {hourly: 0, daily: 0, weekly: 0};
+            if (k == "name") {
+                o = n.translations.summary
+            } else {
+                o = 0;
+                if (group == "research") {
+                    if (!isNaN(n.planets[0][k])) {
+                        o = n.planets[0][k]
+                    }
+                } else {
+                    $.each(n.planets, function () {
+                        l = this;
+                        if (!isNaN(l[k])) {
+                            o = o + parseInt(l[k]);
+                            if (group == "supply" && !isNaN(l.production.hourly[k - 1])) {
+                                m.hourly += l.production.hourly[k - 1];
+                                m.daily += l.production.daily[k - 1];
+                                m.weekly += l.production.weekly[k - 1]
+                            }
+                        }
+                    })
+                }
+            }
+            if (group == "supply" || group == "station") {
+                o = "&#x00F8; " + tsdpkt(round(o / n.planets.length, 1))
+            } else {
+                if (group == "items") {
+                    o = "&nbsp;"
+                } else {
+                    o = tsdpkt(o)
+                }
+            }
+            if (group == "supply" && k != "name" && m.hourly > 0) {
+                var p = "<table><tr><td>" + n.translations.production.hourly + ":</td><td style=&quot;text-align: right;&quot;>" + tsdpkt(m.hourly) + "</td></tr><tr><td>" + n.translations.production.daily + ":</td><td style=&quot;text-align: right;&quot;>" + tsdpkt(m.daily) + "</td></tr><tr><td>" + n.translations.production.weekly + ":</td><td style=&quot;text-align: right;&quot;>" + tsdpkt(m.weekly) + "</td></tr></table>";
+                p = p.replace(/</, "&lt;").replace(/>/, "&gt;");
+                q = q + '<div class="tooltipRight ' + k + '" title="' + p + '">' + o + "</div>"
+            } else {
+                q = q + '<div class="' + k + '">' + o + "</div>"
+            }
+        }
+        q = q + "</div>"
+    }
+    q = '<div id="planet0" class="planet summary">' + q + "</div>";
+    return q
+}
+function createHeaderHtml(g) {
+    var h = "";
+    var e = 0;
+    var f = "";
+    h = h + '<div id="wrapTL"><div id="tab-left"><a id="planetsTab" href="javascript:void(0);" class="active" title=""><span>' + g.translations.planetsTab + '</span></a><a id="moonsTab" href="javascript:void(0);" title="" class=""><span>' + g.translations.moonsTab + "</span></a></div></div>";
+    for (group in g.groups) {
+        h = h + '<div id="' + group + '" class="firstCat headers ' + group + " headers" + group + '" group="' + group + '"><h3 class="open"><span>' + g.translations.groups[group] + '</span></h3><ul class="secondCat ' + group + " group" + group + '">';
+        for (e = 0; f = g.groups[group][e]; e++) {
+            if (g.translations.planets[f] == null) {
+                continue
+            }
+            h += '<li class="' + f + '">';
+            if (g.translations.planets[f + "_full"] != g.translations.planets[f]) {
+                h += '<span class="tooltipLeft" title="' + g.translations.planets[f + "_full"] + '">' + g.translations.planets[f] + "</span>"
+            } else {
+                h += "<span>" + g.translations.planets[f] + "</span>"
+            }
+            h += "</li>"
+        }
+        h = h + "</ul></div>"
+    }
+    h = '<div id="empireTab"><div class="wrapTab"><div class="tab-part01"></div><h2>' + g.translations.header + '</h2><span class="reset"><img src="/img/icons/f805c477d15ae3131b7c39c7d70e48.gif" width="16" height="16"><a href="javascript:void(0);" onClick="clearImperiumOrder(); return false;">' + g.translations.reset + '</a></span><div class="wrapCorner"></div><br class="clearfloat"/></div></div><div class="header">' + h + "</div>";
+    return h
+}
+function createPlanetsHtml(m) {
+    var r = "";
+    var q = "";
+    var n = "";
+    var l = "";
+    var k = "";
+    var o = 0;
+    var p = "";
+    $.each(m.planets, function () {
+        r = this;
+        n = "";
+        l = "";
+        q = (r.name.length > 13) ? r.name.substr(0, 11) + "..." : r.name;
+        n += '<div class="planetHead">';
+        if (r.name != q) {
+            n += '<div class="planetname tooltip" title="' + r.name + '">' + q + "</div>"
+        } else {
+            n += '<div class="planetname">' + q + "</div>"
+        }
+        if (isMobile) {
+            n += '<div class="planetImg"><img class="' + r.border + '" src="' + r.image + '"/></div><div class="planetData"><div class="planetDataTop odd"><ul><li class="coords textLeft"><a class="dark_highlight_tablet" href="' + r.coordinatesLink + '" >' + r.coordinates + '</a></li><li class="coords"><span class="dark_highlight_tablet energy tooltipRight" title="' + (r.type == 3 ? r.diameterTooltip : r.energyTooltip) + '">' + (r.type == 3 ? "\u2300: " + r.diameter : r.energyDescr + r.energy) + '</span></li></ul></div><div class="planetDataTop"><ul class="planet_data_2"><li class="fields textLeft">' + r.fieldUsed + "/" + r.fieldMax + '</li><li class="fields textLeft">' + r.temperature + '</li></ul></div></div><div class="clearfloat"/></div>'
+        } else {
+            n += '<div class="planetImg"><img class="' + r.border + '" src="' + r.image + '"/></div><div class="planetData"><div class="planetDataTop odd"><ul><li class="coords textLeft"><a href="' + r.coordinatesLink + '" >' + r.coordinates + '</a></li><li class="fields textRight">' + r.fieldUsed + "/" + r.fieldMax + '</li></ul></div><div class="planetDataTop"><ul><li class="coords textLeft">' + (r.type == 3 ? r.diameterDescr : r.energyDescr) + '</li><li class="coords textRight">' + (r.type == 3 ? r.diameter : r.energy) + '</li></ul></div><div class="planetDataBottom odd"><ul><li class="fields textCenter">' + r.temperature + '</li></ul></div></div><div class="clearfloat"/></div>'
+        }
+        for (var a in m.groups) {
+            n = n + '<div class="row" /><div class="values ' + a + " group" + a + '">';
+            for (o = 0; p = m.groups[a][o]; o++) {
+                p = String(p);
+                if (r[p + "_html"] != null) {
+                    p = p + "_html"
+                }
+                l = p;
+                if (p.substring(p.length - 5) == "_html") {
+                    l = p.substring(0, p.length - 5)
+                }
+                n = n + '<div class="' + l + '">' + r[p] + "</div>"
+            }
+            n = n + "</div>"
+        }
+        k = k + '<div id="planet' + this.id + '" class="planet">' + n + "</div>"
+    });
+    return k
+}
+function createImperiumHtml(n, r, p, m) {
+    var u = 0;
+    if (typeof p.planets != "undefined") {
+        u = p.planets.length
+    }
+    var q = 345 + u * 165;
+    $("#mainWrapper").attr("style", "width: " + q + "px");
+    $(r).show();
+    var o = createHeaderHtml(p) + '<div class="planetWrapper">' + createPlanetsHtml(p) + createSummaryHtml(p) + '</div><br class="clearfloat"/>';
+    $(n).append(o);
+    $(n + " .planetWrapper").sortable({
+        start: function () {
+            removeTooltip(getTooltipSelector())
+        }, update: function () {
+            saveImperiumOrder(n + " .planetWrapper", m)
+        }
+    }).disableSelection();
+    for (group in p.groups) {
+        $(n + " .headers" + group).click(function () {
+            var b = n + " .group" + $(this).attr("group");
+            var a = "#" + $(this).attr("group") + " h3";
+            $(b).toggle();
+            $(a).removeClass("openhover").removeClass("closehover").removeClass("close").removeClass("open");
+            if ($(b).attr("style").toLowerCase().substr(9, 4) == "none") {
+                $(a).addClass("close");
+                $.cookie("impToggleState" + $(this).attr("group"), "1", {expires: 365})
+            } else {
+                $(a).addClass("open");
+                $.cookie("impToggleState" + $(this).attr("group"), "0", {expires: 365})
+            }
+        });
+        var s = $.cookie("impToggleState" + group);
+        if (s != null && s == "1") {
+            $("#" + group + " > h3").removeClass("open");
+            $("#" + group + " > h3").addClass("close");
+            $(n + " .group" + group).toggle()
+        }
+    }
+    $(r).hide();
+    var l = $.inArray(0, empireOrder);
+    if (l > -1) {
+        $(".planetWrapper .planet:eq(" + l + "):not(:last-child)").before($("#planet0"))
+    }
+    initTooltips()
+}
+function displayMessage(b) {
+    location.reload(true)
+}
+function doUpgrade(m, q, p, l, n) {
+    if (forcedToVacation) {
+        errorBoxNotify(LocalizationStrings.error, LocalizationStrings.forcedVacationWarning, LocalizationStrings.ok);
+        return
+    }
+    var o = {};
+    o.modus = p;
+    o.techid = m;
+    o.listid = l;
+    o.planet = q;
+    var r = LocalizationStrings.lastSlotWarningPlanet;
+    var k = upgradeUrl;
+    if (p == 2) {
+        k += "&token=" + cancelBuildingToken
+    }
+    if (planetType == 1) {
+        r = LocalizationStrings.lastSlotWarningMoon
+    }
+    console.log('doUpgrade()');
+    if (n) {
+        errorBoxDecision(LocalizationStrings.attention, r, LocalizationStrings.yes, LocalizationStrings.no, function () {
+            $.post(k, o, displayMessage)
+        })
+    } else {
+        $.post(k, o, displayMessage)
+    }
+}
+function initEmpire() {
+    initConnectionErrorFunction();
+    $(".secondCat").each(function () {
+        $(this).find("li:last").addClass("catbox-end")
+    });
+    $(".values").each(function () {
+        if (!$(this).hasClass("groupitems")) {
+            $(this).find("div:even").addClass("even");
+            $(this).find("div:odd").addClass("odd");
+            $(this).find("div:last").addClass("box-end")
+        }
+        if ($(this).children().hasClass("equipment")) {
+            $(this).children(".equipment").addClass("box-end")
+        }
+    });
+    $("#settings li:last").addClass("set-end");
+    $(".header h3").hover(function () {
+        $(this).addClass($(this).attr("class") + "hover")
+    }, function () {
+        $(this).removeClass("openhover").removeClass("closehover")
+    });
+    $(".header h3").click(function () {
+        $(this).removeClass("openhover").removeClass("closehover");
+        var b = $(this).attr("class");
+        if (b == "open") {
+            $(this).addClass("close")
+        } else {
+            $(this).addClass("open")
+        }
+        $(this).removeClass(b)
+    });
+    $(".planet").hover(function () {
+        $(this).addClass("move")
+    }, function () {
+        $(this).removeClass("move")
+    });
+    $(".values div img").hover(function () {
+        $(this).addClass("imghover")
+    }, function () {
+        $(this).removeClass("imghover")
+    });
+    $("#planetsTab").click(function () {
+        window.location.href = empireUrl + "&planetType=0"
+    });
+    if (moonCount > 0) {
+        $("#moonsTab").click(function () {
+            window.location.href = empireUrl + "&planetType=1"
+        })
+    } else {
+        $("#moonsTab").addClass("nomoons")
+    }
+    if (planetType == 1) {
+        $("#planetsTab").removeClass("active");
+        $("#moonsTab").addClass("active")
+    }
+    initBuffBarEmpire()
+}
+function initBuffBarEmpire() {
+    var b = $(".empireItems");
+    b.anythingSlider({
+        resizeContents: false,
+        buildNavigation: false,
+        buildStartStop: false,
+        infiniteSlides: false,
+        stopAtEnd: true
+    });
+    b.removeClass("hidden")
+}
+function toggleEvents(b) {
+    if ($("#eventboxContent").is(":hidden")) {
+        $("#eventboxContent").slideDown("fast");
+        $("#js_eventDetailsClosed").hide();
+        $("#js_eventDetailsOpen").show();
+        if (typeof toggleEvents.loaded == "undefined" || !toggleEvents.loaded) {
+            $("#eventboxContent").html('<img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif" />');
+            $.get(eventlistLink, function (a) {
+                $("#eventboxContent").html(a);
+                toggleEvents.loaded = true
+            })
+        }
+    } else {
+        if (b) {
+            return
+        }
+        $("#eventboxContent").slideUp("fast");
+        $("#js_eventDetailsClosed").show();
+        $("#js_eventDetailsOpen").hide()
+    }
+    $("#contentWrapper select").ogameDropDown("hide")
+}
+function changeSetting(l, k, h, f, g) {
+    $.ajax({
+        type: "POST",
+        url: changeSettingsLink,
+        dataType: "json",
+        data: {token: changeSettingsToken, key: l, value: k},
+        success: function (a) {
+            changeSettingsToken = a.newToken;
+            if (a.message.length > 0) {
+                fadeBox(a.message, a.error)
+            }
+            if (!a.error && typeof(h) == "function") {
+                h()
+            } else {
+                if (a.error && typeof(f) == "function") {
+                    f()
+                }
+            }
+        },
+        error: function (a) {
+            if (typeof(g) == "undefined" || g) {
+                fadeBox(LocalizationStrings.error, true)
+            }
+            if (a.error && typeof(f) == "function") {
+                f()
+            }
+        }
+    })
+}
+function getOverlayText(b) {
+    if (b.hasClass("building") && b.children().hasClass("build-faster-img")) {
+        return locaPremium.buildingHalfOverlay
+    } else {
+        if (b.hasClass("building") && b.children().hasClass("build-finish-img")) {
+            return locaPremium.buildingFullOverlay
+        } else {
+            if (b.hasClass("ships") && b.children().hasClass("build-faster-img")) {
+                return locaPremium.shipsHalfOverlay
+            } else {
+                if (b.hasClass("ships") && b.children().hasClass("build-finish-img")) {
+                    return locaPremium.shipsFullOverlay
+                } else {
+                    if (b.hasClass("research") && b.children().hasClass("build-faster-img")) {
+                        return locaPremium.researchHalfOverlay
+                    } else {
+                        if (b.hasClass("research") && b.children().hasClass("build-finish-img")) {
+                            return locaPremium.researchFullOverlay
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+function getFastBuildPrice(b) {
+    if (b.hasClass("building")) {
+        return priceBuilding
+    } else {
+        if (b.hasClass("research")) {
+            return priceResearch
+        } else {
+            if (b.hasClass("ships")) {
+                return priceShips
+            }
+        }
+    }
+}
+function getRedirectLink(f) {
+    var d = {};
+    if (f != undefined) {
+        for (var e in f) {
+            d[e] = f[e]
+        }
+        return $.param.fragment($.param.querystring(window.location.href, d), {})
+    } else {
+        return window.location.href.split("#")[0]
+    }
+}
+function sendShips(h, k, l, g, n, m) {
+    if (shipsendingDone == 1) {
+        shipsendingDone = 0;
+        params = {
+            mission: h,
+            galaxy: k,
+            system: l,
+            position: g,
+            type: n,
+            shipCount: m,
+            token: miniFleetToken
+        };
+        $.ajax(miniFleetLink, {
+            data: params,
+            dataType: "json",
+            type: "POST",
+            success: function (a) {
+                if (typeof(a.newToken) != "undefined") {
+                    miniFleetToken = a.newToken
+                }
+                displayMiniFleetMessage(a.response)
+            }
+        })
+    }
+}
+function sendShipsWithPopup(h, k, l, g, n, m) {
+    params = {
+        mission: h,
+        galaxy: k,
+        system: l,
+        position: g,
+        type: n,
+        shipCount: m,
+        token: miniFleetToken
+    };
+    $.ajax(miniFleetLink, {
+        data: params,
+        dataType: "json",
+        type: "POST",
+        success: function (a) {
+            if (typeof(a.newToken) != "undefined") {
+                miniFleetToken = a.newToken
+            }
+            fadeBox(a.response.message + " " + a.response.coordinates.galaxy + ":" + a.response.coordinates.system + ":" + a.response.coordinates.position, !a.response.success)
+        }
+    })
+}
+function outlawWarning(q, u, s, p, n, l, m) {
+    if (typeof(m) != "function") {
+        if (q == constants.espionage) {
+            m = r
+        } else {
+            if (q == constants.missleattack) {
+                m = o
+            }
+        }
+    }
+    if (showOutlawWarning) {
+        errorBoxDecision(LocalizationStrings.attention, LocalizationStrings.outlawWarning, LocalizationStrings.yes, LocalizationStrings.no, m)
+    } else {
+        m()
+    }
+    function r() {
+        sendShips(q, u, s, p, n, l)
+    }
+
+    function o() {
+        openOverlay(missleAttackLink + "&galaxy=" + u + "&system=" + s + "&position=" + p + "&planetType=" + n, {modal: true})
+    }
+}
+function initThousandSeparator() {
+    $(".checkThousandSeparator").unbind("keyup.checkThousandSeparator").bind("keyup.checkThousandSeparator", function (e) {
+        if (e.which == 8 || e.which == 46) {
+            var f = $(this).getSelection();
+            var g = $(this).val();
+            if (g.substr(f.start - 1, 1) == LocalizationStrings.thousandSeperator) {
+                var h;
+                if (e.which == 8) {
+                    h = g.substr(0, f.start - 2) + g.substr(f.start - 1)
+                } else {
+                    h = g.substr(0, f.start) + g.substr(f.start + 1)
+                }
+                formatNumber($(this), h)
+            }
+        }
+    })
+}
+function initIndex() {
+    initConnectionErrorFunction();
+    timerHandler.appendCallback(function () {
+        localTime = new Date();
+        serverTime = new Date(localTime.valueOf() + timeDiff);
+        $(".OGameClock").html(getFormatedDate(serverTime.getTime(), "[d].[m].[Y] <span>[H]:[i]:[s]</span>"))
+    });
+    $("select").ogameDropDown();
+    $("#planet .slot").hover(function () {
+        $(this).addClass("slot-hover")
+    }, function () {
+        $(this).removeClass("slot-hover")
+    });
+    $("#eventboxFilled").hover(function () {
+        $(this).addClass("eventboxHover")
+    }, function () {
+        $(this).removeClass("qeventboxHover")
+    });
+    $(document).undelegate(".eventToggle", "click").delegate(".eventToggle", "click", function () {
+        toggleEvents();
+        return false
+    }).undelegate("a.build-faster", "click").delegate("a.build-faster", "click", function () {
+        var d = $(this);
+        if (darkMatter < getFastBuildPrice(d)) {
+            errorBoxDecision(LocalizationStrings.error, loca.errorNotEnoughDM, LocalizationStrings.yes, LocalizationStrings.no, redirectPremium);
+            return
+        }
+        var a = $.deparam.querystring().page;
+        errorBoxDecision(loca.notice, getOverlayText(d), LocalizationStrings.yes, LocalizationStrings.no, function () {
+            $.ajax({
+                url: d.attr("rel"),
+                data: {ajax: 1, token: activateToken, referrerPage: a},
+                type: "POST",
+                dataType: "json",
+                error: function () {
+                    fadeBox(LocalizationStrings.error, true);
+                    d.addClass("disabled")
+                },
+                success: function (c) {
+                    activateToken = c.newToken;
+                    if (c.error) {
+                        fadeBox(c.message, true);
+                        d.addClass("disabled")
+                    } else {
+                        location.href = getRedirectLink()
+                    }
+                }
+            });
+            return false
+        })
+    }).undelegate(".slideIn", "click").delegate(".slideIn", "click", function () {
+        $(".slideIn").removeClass("active");
+        var a = $(this).attr("ref");
+        $("a[ref='" + a + "']").addClass("active");
+        Tipped.hideAll();
+        $("html, body").animate({scrollTop: 0}, 500);
+        gfSlider.slideIn(getElementByIdWithCache("detail"), a)
+    });
+    if ($("#eventboxContent").is(":visible")) {
+        toggleEvents.loaded = true;
+        $("#js_eventDetailsClosed").hide();
+        $("#js_eventDetailsOpen").show()
+    }
+    $("#banner_skyscraper a.close_details").click(function () {
+        changeSetting("hideBanner", $(this).attr("ref"), function () {
+            $("#banner_skyscraper").remove()
+        })
+    });
+    var b = $("#wreckFieldCountDown");
+    if (b) {
+    }
+    initHideElements();
+    initOverlays();
+    initThousandSeparator();
+    initExodus();
+    initTooltips();
+    initAjaxResourcebox();
+    initPlanetSorting();
+    initRetinaImages();
+    initBDayEventHints()
+}
+function initPlanetSorting() {
+    $("#planetList.sortable").sortable({
+        start: function () {
+            Tipped.hideAll()
+        }, stop: function () {
+            Tipped.hideAll();
+            changeSetting("customPlanetOrder", $(this).sortable("toArray"))
+        }
+    });
+    if ($(".lockPlanets").hasClass("closed")) {
+        $("#planetList.sortable").sortable("disable")
+    }
+    $(".lockPlanets").unbind("click").bind("click", function () {
+        var b = $(this);
+        changeSetting("planetOrderLocked", b.hasClass("open") ? 1 : 0, function () {
+            var a;
+            if (b.hasClass("open")) {
+                b.removeClass("open").addClass("closed");
+                $("#planetList.sortable").sortable("disable");
+                a = LocalizationStrings.planetOrder.unlock
+            } else {
+                b.removeClass("closed").addClass("open");
+                $("#planetList.sortable").sortable("enable");
+                a = LocalizationStrings.planetOrder.lock
+            }
+            changeTooltip(b, a)
+        })
+    })
+}
+function initHideElements() {
+    $(document).undelegate("html", "touchstart.hideElem click.hideElem").delegate("html", "touchstart.hideElem click.hideElem", function (l) {
+        l.stopPropagation();
+        if ($(this).data("noclick")) {
+            return
+        }
+        if (isMobile) {
+            var h = l.target.tagName.toUpperCase();
+            if (!(h === "TEXTAREA" || h === "INPUT" || h === "SELECT")) {
+                document.activeElement.blur()
+            }
+            if (!$(l.target).parents(".markItUpHeader ul").length) {
+                $(".markItUpHeader ul ul").hide()
+            }
+        }
+        if (!$(l.target).parents(".t_Tooltip").length) {
+            Tipped.hideAll()
+        }
+        if (!isMobile) {
+            if ($(l.target).parents(".ui-dialog").length || $(l.target).parents(".t_Tooltip").length) {
+                return
+            }
+            var k = $(".overlayDiv");
+            if (typeof(k.data("uiDialog")) != "undefined") {
+                var n = k.find(".markItUpDropMenu[id]");
+                for (var e = 0; e < n.length; ++e) {
+                    var m = $("body>ul[rel=" + n[e].id + "]");
+                    m.hide()
+                }
+                k.dialog("close")
+            }
+        }
+    })
+}
+function initJumpgate() {
+    $("select").ogameDropDown();
+    $(".list tr:even").addClass("alt");
+    $(document).undelegate("#jumpgateForm .ship_input_row .textinput", "keyup change input").delegate("#jumpgateForm .ship_input_row .textinput", "keyup change input", function () {
+        checkIntInput(this, 0, $(this).attr("rel"))
+    }).undelegate("#jumpgateForm .ship_input_row .textinput", "focus").delegate("#jumpgateForm .ship_input_row .textinput", "focus", function () {
+        $(this).val("")
+    });
+    $("#jumpgate .answerHeadline, .js_openStandardMoonMenu").click(function () {
+        if (!player.hasCommander) {
+            errorBoxNotify(LocalizationStrings.error, translation.changeSettingOnlyWithCommander, LocalizationStrings.ok, null, false)
+        } else {
+            $("#jumpgate").find(".answerHeadline").toggleClass("open");
+            $(".thirdCol").toggleClass("hidden")
+        }
+    });
+    $(".js_executeJumpButton").click(function () {
+        var d = $("#jumpgateForm").find('select[name="zm"]').val();
+        if (d != 0) {
+            var c = true;
+            $(".ship_selection_table input").each(function () {
+                if ($(this).val() > 0) {
+                    c = false
+                }
+            });
+            if (!c) {
+                ajaxFormSubmit("jumpgateForm", $(this).attr("data-url"), jumpgateDone)
+            } else {
+                fadeBox(translation.noShipsWereSelected, true)
+            }
+        } else {
+            fadeBox(translation.validTargetNeeded, true)
+        }
+    })
+}
+function jumpgateDone(b) {
+    var b = $.parseJSON(b);
+    if (b.status) {
+        planet = b.targetMoon;
+        $(".overlayDiv").dialog("destroy")
+    }
+    errorBoxAsArray(b.errorbox);
+    if (typeof(b.newToken) != "undefined") {
+        setNewTokenData(b.newToken)
+    }
+}
+function jumpgateDefaultTargetSelectionCallback(f) {
+    var f = $.parseJSON(f);
+    if (f.status) {
+        var e = $("#jumpgateForm").find('select[name="zm"]');
+        e.find("option").removeAttr("selected");
+        var d = e.find('option[value="' + f.targetMoon + '"]');
+        if (d.length) {
+            d.attr("selected", "selected")
+        } else {
+            if (e.find('option[value="0"]').length == 0) {
+                e.append($(document.createElement("option")).attr("value", 0).attr("selected", "selected").text("--"))
+            } else {
+                e.find('option[value="0"]').attr("selected", "selected")
+            }
+        }
+        e.trigger("change");
+        e.ogameDropDown("refresh")
+    }
+    errorBoxAsArray(f.errorbox);
+    if (typeof(f.newToken) != "undefined") {
+        setNewTokenData(f.newToken)
+    }
+}
+function setNewTokenData(b) {
+    $('#jumpgateForm input[name="token"]').val(b);
+    $('#jumpgateDefaultTargetSelectionForm input[name="token"]').val(b)
+}
+if (typeof KeyEvent == "undefined") {
+    var KeyEvent = {
+        DOM_VK_CANCEL: 3,
+        DOM_VK_HELP: 6,
+        DOM_VK_BACK_SPACE: 8,
+        DOM_VK_TAB: 9,
+        DOM_VK_CLEAR: 12,
+        DOM_VK_RETURN: 13,
+        DOM_VK_ENTER: 14,
+        DOM_VK_SHIFT: 16,
+        DOM_VK_CONTROL: 17,
+        DOM_VK_ALT: 18,
+        DOM_VK_PAUSE: 19,
+        DOM_VK_CAPS_LOCK: 20,
+        DOM_VK_ESCAPE: 27,
+        DOM_VK_SPACE: 32,
+        DOM_VK_PAGE_UP: 33,
+        DOM_VK_PAGE_DOWN: 34,
+        DOM_VK_END: 35,
+        DOM_VK_HOME: 36,
+        DOM_VK_LEFT: 37,
+        DOM_VK_UP: 38,
+        DOM_VK_RIGHT: 39,
+        DOM_VK_DOWN: 40,
+        DOM_VK_PRINTSCREEN: 44,
+        DOM_VK_INSERT: 45,
+        DOM_VK_DELETE: 46,
+        DOM_VK_0: 48,
+        DOM_VK_1: 49,
+        DOM_VK_2: 50,
+        DOM_VK_3: 51,
+        DOM_VK_4: 52,
+        DOM_VK_5: 53,
+        DOM_VK_6: 54,
+        DOM_VK_7: 55,
+        DOM_VK_8: 56,
+        DOM_VK_9: 57,
+        DOM_VK_SEMICOLON: 59,
+        DOM_VK_EQUALS: 61,
+        DOM_VK_A: 65,
+        DOM_VK_B: 66,
+        DOM_VK_C: 67,
+        DOM_VK_D: 68,
+        DOM_VK_E: 69,
+        DOM_VK_F: 70,
+        DOM_VK_G: 71,
+        DOM_VK_H: 72,
+        DOM_VK_I: 73,
+        DOM_VK_J: 74,
+        DOM_VK_K: 75,
+        DOM_VK_L: 76,
+        DOM_VK_M: 77,
+        DOM_VK_N: 78,
+        DOM_VK_O: 79,
+        DOM_VK_P: 80,
+        DOM_VK_Q: 81,
+        DOM_VK_R: 82,
+        DOM_VK_S: 83,
+        DOM_VK_T: 84,
+        DOM_VK_U: 85,
+        DOM_VK_V: 86,
+        DOM_VK_W: 87,
+        DOM_VK_X: 88,
+        DOM_VK_Y: 89,
+        DOM_VK_Z: 90,
+        DOM_VK_CONTEXT_MENU: 93,
+        DOM_VK_NUMPAD0: 96,
+        DOM_VK_NUMPAD1: 97,
+        DOM_VK_NUMPAD2: 98,
+        DOM_VK_NUMPAD3: 99,
+        DOM_VK_NUMPAD4: 100,
+        DOM_VK_NUMPAD5: 101,
+        DOM_VK_NUMPAD6: 102,
+        DOM_VK_NUMPAD7: 103,
+        DOM_VK_NUMPAD8: 104,
+        DOM_VK_NUMPAD9: 105,
+        DOM_VK_MULTIPLY: 106,
+        DOM_VK_ADD: 107,
+        DOM_VK_SEPARATOR: 108,
+        DOM_VK_SUBTRACT: 109,
+        DOM_VK_DECIMAL: 110,
+        DOM_VK_DIVIDE: 111,
+        DOM_VK_F1: 112,
+        DOM_VK_F2: 113,
+        DOM_VK_F3: 114,
+        DOM_VK_F4: 115,
+        DOM_VK_F5: 116,
+        DOM_VK_F6: 117,
+        DOM_VK_F7: 118,
+        DOM_VK_F8: 119,
+        DOM_VK_F9: 120,
+        DOM_VK_F10: 121,
+        DOM_VK_F11: 122,
+        DOM_VK_F12: 123,
+        DOM_VK_F13: 124,
+        DOM_VK_F14: 125,
+        DOM_VK_F15: 126,
+        DOM_VK_F16: 127,
+        DOM_VK_F17: 128,
+        DOM_VK_F18: 129,
+        DOM_VK_F19: 130,
+        DOM_VK_F20: 131,
+        DOM_VK_F21: 132,
+        DOM_VK_F22: 133,
+        DOM_VK_F23: 134,
+        DOM_VK_F24: 135,
+        DOM_VK_NUM_LOCK: 144,
+        DOM_VK_SCROLL_LOCK: 145,
+        DOM_VK_COMMA: 188,
+        DOM_VK_PERIOD: 190,
+        DOM_VK_SLASH: 191,
+        DOM_VK_BACK_QUOTE: 192,
+        DOM_VK_OPEN_BRACKET: 219,
+        DOM_VK_BACK_SLASH: 220,
+        DOM_VK_CLOSE_BRACKET: 221,
+        DOM_VK_QUOTE: 222,
+        DOM_VK_META: 224
+    }
+}
+(function (b) {
+    b.fn.extend({
+        ogameDropDown: function (l) {
+            if (b("body.showOldDropdowns").length) {
+                return this
+            }
+            function a(e) {
+                var d = e.outerHeight();
+                var g = b('.dropdown.currentlySelected[rel="' + e.attr("id") + '"]');
+                if (g.length) {
+                    var p = Math.min(b(window).innerWidth() + b(window).scrollLeft() - e.width() - 3, g.offset().left);
+                    var c;
+                    var f = Math.ceil(g.offset().top);
+                    if (f + g.height() + d + b("#siteFooter").outerHeight() >= b(window).innerHeight() + b(window).scrollTop()) {
+                        c = f - d + 1
+                    } else {
+                        c = f + g.height() + 1
+                    }
+                    e.css("left", p).css("top", c).css("min-width", g.width())
+                }
+            }
+
+            var k = {
+                destroy: function () {
+                    b(this).filter("select.dropdownInitialized").each(function () {
+                        var c = b(this);
+                        b('.dropdown[rel="' + c.data("dropdownId") + '"]').remove();
+                        b("ul#" + c.data("dropdownId")).remove();
+                        c.removeClass("dropdownInitialized").data("dropdownId", "").show()
+                    })
+                }, hide: function () {
+                    b(this).filter("select.dropdownInitialized").each(function () {
+                        var c = b('.currentlySelected[rel="' + b(this).data("dropdownId") + '"]');
+                        c.find("a").removeClass("hover");
+                        b(".dropdownList#" + c.attr("rel")).hide()
+                    })
+                }, reposition: function () {
+                    b(this).filter("select.dropdownInitialized").each(function () {
+                        a(b("#" + b(this).data("dropdownId")))
+                    })
+                }, refresh: function () {
+                    var d = b(this).find("option[selected]");
+                    var e = getIEVersion() < 999 ? "#" : "javascript:void(0);";
+                    var c = b('a[class="' + d.attr("class") + '"][rel="' + b(this).data("dropdownId") + '"]').text(d.text())
+                }
+            };
+            if (typeof(l) == "string") {
+                if (typeof(k[l]) == "function") {
+                    k[l].call(this)
+                }
+                return this
+            }
+            b(this).filter("select:not(.dropdownInitialized)").each(function () {
+                var r = b(this);
+                var e = "dropdown" + Math.floor(Math.random() * 1000);
+                var u = r.find("option[selected]");
+                if (u.length == 0) {
+                    u = r.find("option:first-child")
+                }
+                var d = getIEVersion() < 999 ? "#" : "javascript:void(0);";
+                var g = b('<a class="' + u.attr("class") + '" data-value="' + u.val() + '" rel="' + e + '" href="' + d + '">' + u.text() + "</a>");
+                var s = b('<span class="dropdown currentlySelected ' + r.attr("class") + '" rel="' + e + '"></span>').append(g).width(r.css("width").length ? r.css("width") : r.width()).data("selectElement", r);
+                if (r.is("[readonly]") || r.is(":disabled")) {
+                    s.addClass("disabled")
+                }
+                r.after(s).hide().addClass("dropdownInitialized").data("dropdownId", e);
+                var c = b('<ul class="dropdown dropdownList" id="' + e + '"></ul>').delegate("a", "click", function (o) {
+                    o.stopPropagation();
+                    g.html(b(this).html()).attr("class", b(this).attr("class")).attr("data-value", b(this).attr("data-value"));
+                    c.hide().find("a").removeClass("focus");
+                    b(this).addClass("focus");
+                    var p = b(this).attr("data-value");
+                    r.val(b(this).attr("data-value")).trigger("change").find('option[value="' + p + '"], option:contains("' + p + '")').trigger("click")
+                });
+
+                function f() {
+                    if (r.is(r.is("[readonly]") || ":disabled")) {
+                        return
+                    }
+                    if (!c.hasClass("initialized")) {
+                        c.addClass("initialized");
+                        r.find("option").each(function () {
+                            var o = b(this).html();
+                            if (typeof(b(this).attr("data-html")) != "undefined") {
+                                o = b(this).attr("data-html")
+                            }
+                            if (typeof(b(this).attr("data-html-prepend")) != "undefined") {
+                                o = b(this).attr("data-html-prepend") + o
+                            }
+                            if (typeof(b(this).attr("data-html-append")) != "undefined") {
+                                o += b(this).attr("data-html-append")
+                            }
+                            $li = b('<li><a class="' + b(this).attr("class") + '" data-value="' + b(this).val() + '">' + o + "</a></li>");
+                            c.append($li);
+                            if (b(this).is(":selected")) {
+                                $li.find("a").addClass("focus")
+                            }
+                        })
+                    }
+                }
+
+                g.bind("focus", function (o) {
+                    b(".dropdownList").not(c).hide();
+                    b(".dropdown.currentlySelected").removeClass("focus");
+                    b(this).addClass("hover");
+                    s.addClass("focus");
+                    f()
+                }).bind("mousewheel", function (o) {
+                    f();
+                    b(this).unbind("mousewheel")
+                }).bind("click", function (o) {
+                    o.preventDefault();
+                    if (r.is(r.is("[readonly]") || ":disabled")) {
+                        return
+                    }
+                    b(".dropdownList").not(c).hide();
+                    b(".dropdown.currentlySelected").removeClass("focus");
+                    s.addClass("focus");
+                    if (c.is(":hidden")) {
+                        b(this).addClass("hover");
+                        f();
+                        a(c);
+                        b(window).unbind("resize.dropdown" + e).bind("resize.dropdown" + e, function () {
+                            a(c)
+                        });
+                        c.show();
+                        if (c.hasScrollbar()) {
+                            c.find("a").css("padding-right", 22)
+                        }
+                    } else {
+                        b(this).removeClass("hover");
+                        b(window).unbind("resize.dropdown" + e);
+                        c.hide()
+                    }
+                });
+                b("body").append(c)
+            });
+            var m = "";
+            var h;
+
+            function n(g, q) {
+                m = g;
+                clearTimeout(h);
+                h = setTimeout(function () {
+                    m = ""
+                }, 1500);
+                var d = b(".dropdownList:visible");
+                var r = false;
+                if (d.length == 0) {
+                    var e = b(".dropdown.currentlySelected.focus");
+                    if (e.length) {
+                        d = b("#" + e.attr("rel"));
+                        r = true
+                    } else {
+                        return
+                    }
+                }
+                var c = m.toLowerCase();
+                var f = d.find("a").filter(function () {
+                    if (b(this).attr("data-value").toLowerCase().indexOf(c) == 0) {
+                        return true
+                    }
+                    return b(this).text().trim().toLowerCase().indexOf(c) == 0
+                });
+                if (f.length) {
+                    q.preventDefault();
+                    d.find("a").removeClass("focus");
+                    b(f.get(0)).addClass("focus").focus();
+                    if (r) {
+                        f.click()
+                    }
+                } else {
+                    clearTimeout(h);
+                    m = ""
+                }
+            }
+
+            b(document).undelegate("html", "touchstart.dropdown click.dropdown").delegate("html", "touchstart.dropdown click.dropdown", function (c) {
+                if (b(c.target).closest(".dropdown").length == 0) {
+                    b(".dropdownList").hide();
+                    b(".currentlySelected a").removeClass("hover");
+                    b(".currentlySelected").removeClass("focus")
+                }
+            }).undelegate(".dropdown", "mousewheel.dropdown").delegate(".dropdown", "mousewheel.dropdown", function (e, B) {
+                e.preventDefault();
+                var x = b(e.target).closest(".dropdown");
+                var f;
+                if (x.hasClass("currentlySelected")) {
+                    f = b("#" + x.attr("rel"))
+                } else {
+                    f = x
+                }
+                var d = b('[rel="' + f.attr("id") + '"] a');
+                var y = f.find("a:focus");
+                if (y.length == 0) {
+                    y = f.find("a.focus")
+                }
+                if (y.length == 0) {
+                    y = f.find('a[data-value="' + d.attr("data-value") + '"]')
+                }
+                var v = y.parent();
+                var A = null;
+                var g = Math.abs(B);
+                if (B > 0) {
+                    for (var c = 0; c < g; c++) {
+                        if (v.is(":first-child")) {
+                            A = v.find("a");
+                            break
+                        } else {
+                            A = v.prev().find("a")
+                        }
+                        v = A.parent()
+                    }
+                } else {
+                    for (var c = 0; c < g; c++) {
+                        if (v.is(":last-child")) {
+                            A = v.find("a");
+                            break
+                        } else {
+                            A = v.next().find("a")
+                        }
+                        v = A.parent()
+                    }
+                }
+                if (A != null) {
+                    v = A.parent();
+                    f.find("a").removeClass("focus");
+                    A.addClass("focus").focus();
+                    if (f.is(":hidden")) {
+                        A.click()
+                    } else {
+                        var w = v.position().top;
+                        if (w < 0) {
+                            f.scrollTop(f.scrollTop() + w)
+                        } else {
+                            if (w + v.outerHeight() > f.innerHeight()) {
+                                f.scrollTop(f.scrollTop() + w + v.outerHeight() - f.innerHeight())
+                            }
+                        }
+                    }
+                }
+            }).undelegate("*", "focus.dropdown").delegate("*", "focus.dropdown", function (c) {
+                if (b(c.target).closest(".dropdown").length == 0) {
+                    b(".currentlySelected a").removeClass("hover");
+                    b(".currentlySelected").removeClass("focus")
+                }
+            }).unbind("keydown.dropdown").bind("keydown.dropdown ", function (f) {
+                if (b(":focus").length > 0 && b(":focus").parents(".dropdown").length == 0) {
+                    return
+                }
+                var e = false;
+                var s = b(".dropdownList:visible");
+                if (s.length == 0) {
+                    var g = b(".dropdown.currentlySelected.focus");
+                    if (g.length) {
+                        s = b("#" + g.attr("rel"));
+                        e = true
+                    } else {
+                        return
+                    }
+                }
+                var d = b('[rel="' + s.attr("id") + '"] a');
+                var w = s.find("a:focus");
+                if (w.length == 0) {
+                    w = s.find("a.focus")
+                }
+                if (w.length == 0) {
+                    w = s.find('a[data-value="' + d.attr("data-value") + '"]')
+                }
+                var u = w.parent();
+                var c = null;
+                if (f.keyCode == KeyEvent.DOM_VK_UP || f.keyCode == KeyEvent.DOM_VK_DOWN || typeof(delta) != "undefined") {
+                    if (f.keyCode == KeyEvent.DOM_VK_UP) {
+                        if (u.is(":first-child")) {
+                            c = u.find("a")
+                        } else {
+                            c = u.prev().find("a")
+                        }
+                        u = c.parent()
+                    } else {
+                        if (u.is(":last-child")) {
+                            c = u.find("a")
+                        } else {
+                            c = u.next().find("a")
+                        }
+                        u = c.parent()
+                    }
+                    f.preventDefault()
+                } else {
+                    if (f.keyCode == KeyEvent.DOM_VK_BACK_SPACE) {
+                        n(m.substring(0, m.length - 1), f)
+                    } else {
+                        if (f.keyCode == KeyEvent.DOM_VK_RETURN) {
+                            f.preventDefault();
+                            if (e) {
+                                d.parents("form").submit();
+                                return
+                            } else {
+                                e = true;
+                                c = w
+                            }
+                        } else {
+                            if (f.keyCode == KeyEvent.DOM_VK_ESCAPE) {
+                                c = s.find('[data-value="' + d.attr("data-value") + '"]');
+                                e = true
+                            }
+                        }
+                    }
+                }
+                if (c != null) {
+                    u = c.parent();
+                    s.find("a").removeClass("focus");
+                    c.addClass("focus").focus();
+                    if (e) {
+                        c.click()
+                    } else {
+                        var v = u.position().top;
+                        if (v < 0) {
+                            s.scrollTop(s.scrollTop() + v)
+                        } else {
+                            if (v + u.outerHeight() > s.innerHeight()) {
+                                s.scrollTop(s.scrollTop() + v + u.outerHeight() - s.innerHeight())
+                            }
+                        }
+                    }
+                }
+            }).unbind("keypress.dropdown").bind("keypress.dropdown", function (c) {
+                if (b(":focus").length > 0 && b(":focus").parents(".dropdown").length == 0 || c.charCode == 0) {
+                    return
+                }
+                n(m + String.fromCharCode(c.charCode), c)
+            });
+            return b(this)
+        }, selectText: function () {
+            var a, k, g = this[0], l = {
+                func: "function",
+                obj: "object"
+            }, h = function (d, c) {
+                return typeof c === d
+            };
+            if (h(l.obj, g.ownerDocument) && h(l.obj, g.ownerDocument.defaultView) && h(l.func, g.ownerDocument.defaultView.getSelection)) {
+                k = g.ownerDocument.defaultView.getSelection();
+                if (h(l.func, k.setBaseAndExtent)) {
+                    k.setBaseAndExtent(g, 0, g, b(g).contents().size())
+                } else {
+                    if (h(l.func, g.ownerDocument.createRange)) {
+                        a = g.ownerDocument.createRange();
+                        if (h(l.func, a.selectNodeContents) && h(l.func, k.removeAllRanges) && h(l.func, k.addRange)) {
+                            a.selectNodeContents(g);
+                            k.removeAllRanges();
+                            k.addRange(a)
+                        }
+                    }
+                }
+            } else {
+                if (h(l.obj, document.body) && h(l.obj, document.body.createTextRange)) {
+                    a = document.body.createTextRange();
+                    if (h(l.obj, a.moveToElementText) && h(l.obj, a.select)) {
+                        a.moveToElementText(g);
+                        a.select()
+                    }
+                }
+            }
+            return this
+        }, hasScrollbar: function () {
+            return this.get(0).scrollHeight > this.innerHeight()
+        }
+    })
+})(jQuery);
+
+function preCloseMovements() {
+    $.each(currentMovementTabExtensionStates, function (g, h) {
+        if (h[0] == 0) {
+            var e = $("#fleet" + g + " span.openDetails a");
+            var f = e.attr("data-end-time");
+            closeDetails(g, f)
+        }
+    })
+}
+function initMovement() {
+    initToggleHeader("movement");
+    preCloseMovements();
+    if (b == undefined) {
+        var b = 0
+    }
+    $("a.openCloseDetails").click(function () {
+        openCloseDetails($(this).attr("data-mission-id"), $(this).attr("data-end-time"))
+    });
+    $(".closeAll").click(function () {
+        if (b == 0) {
+            b = 1;
+            $(".closeAll").children().removeClass("all_open").addClass("all_closed")
+        } else {
+            b = 0;
+            $(".closeAll").children().removeClass("all_closed").addClass("all_open")
+        }
+        $("a.openCloseDetails").each(function () {
+            if (b === 1) {
+                closeDetails($(this).attr("data-mission-id"), $(this).attr("data-end-time"))
+            } else {
+                if (b === 0) {
+                    openDetails($(this).attr("data-mission-id"), $(this).attr("data-end-time"))
+                }
+            }
+        })
+    });
+    timerHandler.appendCallback(function () {
+    })
+}
+function addUserToUnion() {
+    $("#participantselect").append($("#buddyselect").find("li.ui-selected"))
+}
+function removeUserFromUnion() {
+    $("#buddyselect").append($("#participantselect").find("li.ui-selected"))
+}
+function addUserToUnionByForm() {
+    var d = $("#unionUserSearch").find('[name="addtogroup"]');
+    var f = d.val();
+    var e = $("#participantselect");
+    if (e.find('li[ref="' + f + '"]').length == 0) {
+        e.append($(document.createElement("li")).attr("ref", f).text(f))
+    }
+    d.val("")
+}
+function setUnionUsers() {
+    var b = "";
+    $("#participantselect").find("li").each(function () {
+        b += $(this).attr("ref") + ";"
+    });
+    b = b.substring(0, b.length - 1);
+    $("#unionUsers").val(b)
+}
+function unionUser(d) {
+    var c = $.parseJSON(d);
+    if (c.status) {
+        addUserToUnionByForm()
+    } else {
+        errorBoxAsArray(c.errorbox)
+    }
+}
+function initFederationLayer() {
+    $("#switch").click(function () {
+        var b = $("#searchFed");
+        b.find("> .wrap").toggle();
+        b.find("> #honorWarning").toggle()
+    });
+    $("#buddyselect, #participantselect").selectable({filter: "li:not(.undermark)"});
+    $(document).undelegate("ul#buddyselect li", "dblclick").delegate("ul#buddyselect li", "dblclick", function () {
+        addUserToUnion()
+    }).undelegate("ul#participantselect li", "dblclick").delegate("ul#participantselect li", "dblclick", function () {
+        removeUserFromUnion()
+    })
+}
+function submit_unionform() {
+    setUnionUsers();
+    ajaxFormSubmit("unionform", $("form#unionform").attr("action"), unionEdit)
+}
+function recallShipCountdown(f, h) {
+    var g = this;
+    var e = $(".reversal_time[ref='" + f + "']");
+    if (isMobile && e.length) {
+        this.updateCountdown = function () {
+            var b = g.countdown.getLeftoverTime();
+            var a = getFormatedDate(new Date(b * 1000 + timeDiff), "[d].[m].[Y] [H]:[i]:[s]");
+            e.html(a)
+        };
+        g.countdown = new countdown(h, 3, 2);
+        g.timer = timerHandler.appendCallback(g.updateCountdown);
+        g.updateCountdown()
+    }
+}
+function initNotesForm() {
+    $("select").ogameDropDown();
+    $("#createNote .text").trigger("keyup");
+    if ($("#popupContent").length) {
+        initNotes()
+    }
+}
+function initNotes() {
+    $("select").ogameDropDown();
+    function c(a) {
+        var b = false;
+        $(a).find(":input").each(function () {
+            if (typeof($(this).data("value")) != "undefined") {
+                if ($(this).data("value") != $(this).val()) {
+                    b = true
+                }
+            }
+        });
+        return b
+    }
+
+    var d = $(".overlayDiv.notices");
+    d.find(".openOverlay").unbind("click").bind("click", function () {
+        var b = $(this).attr("data-overlay-class");
+        var f = {
+            title: $(this).attr("data-title"), close: function () {
+                var e = $("." + b);
+                if (c(e.find("form"))) {
+                    errorBoxDecision(LocalizationStrings.question, locaNotes.changesNotSaved + "<br/><br/>" + locaNotes.questionSaveChanges, LocalizationStrings.yes, LocalizationStrings.no, function () {
+                        e.find("form").trigger("submit");
+                        e.remove()
+                    }, function () {
+                        e.remove()
+                    }, true)
+                } else {
+                    e.remove()
+                }
+            }, "class": b
+        };
+        openOverlay($(this).attr("href"), f);
+        if (b.indexOf("newNote-") === 0) {
+            var a = parseInt(b.replace(/^newNote-/, "")) + 1;
+            $(this).attr("data-overlay-class", "newNote-" + a)
+        }
+        return false
+    });
+    $(document).undelegate("#noteList form", "submit").delegate("#noteList form", "submit", function () {
+        console.log('noteList submit()');
+        $.post($("#noteList").attr("rel"), $(this).serialize(), function (a) {
+            d.html(a)
+        })
+    }).undelegate("#createNote form [type=submit]", "click").delegate("#createNote form [type=submit]", "click", function (a) {
+        a.preventDefault();
+        $(this).parents("form").submit()
+    }).undelegate("#createNote form", "submit").delegate("#createNote form", "submit", function (a) {
+        a.preventDefault();
+        var b = $(this);
+        $.ajax({
+            url: $(this).attr("rel"),
+            type: "post",
+            data: b.serialize(),
+            dataType: "json",
+            error: function () {
+                fadeBox(LocalizationStrings.error, true)
+            },
+            success: function (f) {
+                if (f.error != null) {
+                    fadeBox(f.error, true)
+                } else {
+                    if ($("#popupContent").length) {
+                        $(window).unbind("beforeunload.checkChanges");
+                        location.href = b.attr("rel") + "&popup=1"
+                    } else {
+                        if (b.parents(".overlayDiv").is(":visible")) {
+                            b.parents(".overlayDiv").dialog("option", "close", function () {
+                                $(this).remove()
+                            }).dialog("close")
+                        }
+                        if (f.success != null) {
+                            fadeBox(f.success, false)
+                        }
+                        d.load(d.find("#noteList").attr("rel"))
+                    }
+                }
+            }
+        });
+        return false
+    }).undelegate("#createNote .textBox", "keyup touchstart change").delegate("#createNote .textBox", "keyup touchstart change", function () {
+        var a = $(this).val().length;
+        var f = $(this).attr("data-max-length");
+        if (a > f) {
+            var b = $(this).getSelection();
+            $(this).val($(this).val().substr(0, f));
+            a = f;
+            $(this).setSelection(b)
+        }
+        $(this).parents("form").find(".cntChars").text(a)
+    });
+    $(window).unbind("beforeunload.checkChanges").bind("beforeunload.checkChanges", function () {
+        var a = false;
+        $("#createNote form").each(function () {
+            if (c(this)) {
+                a = true
+            }
+        });
+        if (a) {
+            return locaNotes.changesNotSaved
+        }
+    })
+}
+function scrollToTopOfDialog(b) {
+    $("html, body").stop().animate({scrollTop: Math.max(0, b.offset().top - 300)}, 200)
+}
+function openOverlay(N, G) {
+    console.log('openOverlay start');
+    if (typeof(openOverlay.index) == "undefined") {
+        openOverlay.index = 0
+    } else {
+        openOverlay.index++
+    }
+    var T = openOverlay.index;
+    var G = G || {};
+    if ((typeof(G.type) == "undefined" || G.type != "inline") && !N.match(new RegExp("^(" + ogameUrl + "|" + startpageUrl + ")"))) {
+        console.log('overlay a href does not match regex? opening new tab');
+        window.open("redir.php?url=" + encodeURIComponent(N), "_newtab");
+        return
+    }
+    if (typeof(G.height) == "undefined") {
+        G.height = "auto"
+    }
+    if (typeof(G.width) == "undefined") {
+        G.width = "auto"
+    }
+    if (typeof(G.position) == "undefined") {
+        if (isMobile && !isMobileApp) {
+            G.position = {my: "top", at: "top"}
+        } else {
+            G.position = {my: "center", at: "center"}
+        }
+    }
+    G.closeText = "";
+    if ($(".overlayDiv").length && !isMobile) {
+        var K = $(".overlayDiv:last");
+        var M = K.offset();
+        G.position = {
+            my: "left top",
+            at: "left+" + (M.left + 10) + " top+" + (M.top + 10)
+        }
+    }
+    function B(a) {
+        var b = a.parent(".ui-dialog");
+        if (b.length) {
+            b.css("top", Math.max(0, parseInt(b.css("top").replace(/px$/, "")))).css("left", Math.max(0, parseInt(b.css("left").replace(/px$/, ""))))
+        }
+    }
+
+    var Q = G.type;
+    delete G.type;
+    if (Q != "inline") {
+        var P = $(document.createElement("img")).attr("src", "/img/icons/4161a64a933a5345d00cb9fdaa25c7.gif").attr("alt", LocalizationStrings.loading);
+        var L = $(document.createElement("div")).css("text-align", "center").css("margin-top", "20px").append(P);
+        var C = $(document.createElement("div")).addClass("overlayDiv").css("display", "none").append(L).appendTo("body");
+        var H = function () {
+            C.find("select").ogameDropDown("destroy");
+            C.remove();
+            Tipped.hideAll()
+        };
+        switch (typeof(G.close)) {
+            case"function":
+                break;
+            case"string":
+                var A = G.close.split(" ");
+                G.close = function () {
+                    $.each(A, function (a, b) {
+                        if (b == "__default") {
+                            H()
+                        } else {
+                            window[b]()
+                        }
+                    })
+                };
+                break;
+            default:
+                G.close = H;
+                break
+        }
+    }
+    if (typeof(N) == "string") {
+        var R = $.deparam($.param.querystring(N));
+        if (typeof(R.page) != "undefined") {
+            C.attr("data-page", R.page)
+        }
+        if (!isMobile && $.inArray(R.page, popupWindows) != -1) {
+            var J = Math.max(0, Math.floor($(window).height() / 2 - G.popupHeight / 2));
+            var O = Math.max(0, Math.floor($(window).width() / 2 - G.popupWidth / 2));
+            var U = window.open(N + "&popup=1", R.page, "width=" + G.popupWidth + ",height=" + G.popupHeight + ",scrollbars=yes,resizable=yes,top=" + J + ",left=" + O);
+            C.remove();
+            U.focus();
+            return
+        }
+    }
+    if (typeof(G["class"]) != "undefined") {
+        var S = G["class"].split(" ").join(".");
+        if ($(".overlayDiv." + S).length) {
+            $.get(N, {}, function (a) {
+                $(".overlayDiv." + G["class"]).empty().append(a).dialog("moveToTop")
+            });
+            C.remove();
+            C = $(".overlayDiv." + S);
+            if (typeof(R.page) != "undefined") {
+                C.attr("data-page", R.page)
+            }
+            if (typeof(G.title) != "undefined") {
+                C.dialog("option", "title", G.title)
+            }
+            scrollToTopOfDialog(C);
+            return true
+        } else {
+            C.addClass(G["class"])
+        }
+    }
+    if (Q == "inline") {
+        C = $(N)
+    }
+    if (isNaN(G.dragStart) && isNaN(G.dragStop)) {
+        var D;
+        G.dragStart = function () {
+            $("html").data("noclick", true);
+            C.dialog("option", "width", C.width()).dialog("option", "height", C.height());
+            D = {
+                bg: C.css("background"),
+                image: C.css("background-image"),
+                x: C.css("background-position-x"),
+                y: C.css("background-position-y"),
+                position: C.css("background-position")
+            };
+            C.find("select").ogameDropDown("hide");
+            C.children().hide();
+            var d = C.find(".markItUpDropMenu[id]");
+            for (var e = 0; e < d.length; ++e) {
+                var a = $("body>ul[rel=" + d[e].id + "]");
+                var c = (typeof a.attr("old_left") == "undefined" ? -18 : 0);
+                var b = (typeof a.attr("old_left") == "undefined" ? -6 : 0);
+                a.attr("old_top", C.offset()["top"] + c).attr("old_left", C.offset()["left"] + b).hide()
+            }
+            C.css("background", "#000000")
+        };
+        G.dragStop = function () {
+            setTimeout(function () {
+                $("html").data("noclick", false)
+            }, 100);
+            if (typeof(C.bg) == "undefined" || C.bg.length == 0) {
+                C.css("background-image", D.image);
+                if (typeof(D.position) == "undefined" || D.position.length == 0) {
+                    C.css("background-position-x", D.x).css("background-position-y", D.y)
+                } else {
+                    C.css("background-position", D.position)
+                }
+            } else {
+                C.css("background", D.bg)
+            }
+            C.children().show();
+            var c = C.find(".markItUpDropMenu[id]");
+            for (var a = 0; a < c.length; ++a) {
+                var b = $("body>ul[rel=" + c[a].id + "]");
+                b.css({
+                    top: (parseInt(b.css("top")) - b.attr("old_top") + C.offset()["top"]) + "px",
+                    left: (parseInt(b.css("left")) - b.attr("old_left") + C.offset()["left"]) + "px"
+                });
+                if ($(c[a]).attr("data-opened") == 1) {
+                    b.show()
+                }
+            }
+            C.dialog("option", "width", G.width).dialog("option", "height", G.height);
+            B(C)
+        }
+    }
+    if (isNaN(G.resizable)) {
+        G.resizable = false
+    }
+    if (isMobile) {
+        G.draggable = false
+    }
+    if (G.modal) {
+        G.open = function () {
+            $(".ui-widget-overlay").css("height", "").css("width", "")
+        }
+    }
+    switch (Q) {
+        case"iframe":
+            var E = overlayWidth;
+            var I = overlayHeight;
+            if (typeof(G.iframeWidth) != "undefined") {
+                E = G.iframeWidth;
+                delete G.iframeWidth
+            }
+            if (typeof(G.iframeHeight) != "undefined") {
+                I = G.iframeHeight;
+                delete G.iframeHeight
+            }
+            C.html("<iframe allowTransparency='true'frameborder='0' hspace='0' src='" + N + "' id='TB_iframeContent' name='TB_iframeContent" + Math.round(Math.random() * 1000) + "' style='width:" + (E + 25) + "px;height:" + (I + 1) + "px;' ></iframe>").dialog(G).dialog("moveToTop");
+            B(C);
+            break;
+        case"inline":
+            var F = $(N);
+            var V = F.parent();
+            F.addClass("overlayDiv").dialog(G).dialog("moveToTop");
+            B(F);
+            break;
+        default:
+            C.dialog(G).dialog("moveToTop");
+            $.get(N, {}).done(function (a) {
+                C.empty().append(a).dialog("option", "position", C.dialog("option", "position"));
+                setTimeout(function () {
+                    C.dialog("option", "position", C.dialog("option", "position"));
+                    B(C)
+                }, 100);
+                $(document).trigger("ajaxShowOverlay")
+            }).fail(function () {
+            })
+    }
+    Tipped.hideAll();
+    $("select").ogameDropDown("hide");
+    if (!isMobile) {
+        $(window).bind("resize.overlay" + T, function () {
+            if (C.is(":data(dialog)")) {
+                C.dialog("option", "position", C.dialog("option", "position"));
+                B(C)
+            } else {
+                $(window).unbind("resize.overlay" + T)
+            }
+        })
+    }
+
+    console.log('openOverlay finish');
+}
+function isOverlayOpen() {
+    return $(".overlayDiv").length > 0
+}
+function initOverlays() {
+    $(document).undelegate('a[href*="overlay=1"], button[data-target*="overlay=1"], a.overlay, button.overlay', "click").delegate('a[href*="overlay=1"], button[data-target*="overlay=1"], a.overlay, button.overlay', "click", function (k) {
+        k.preventDefault();
+        var e = $(this).attr("href") || $(this).attr("data-target");
+        if ($(this).data("overlay-same")) {
+            var h = $(this).parents(".ui-dialog");
+            var l = h.find(".overlayDiv");
+            if ($(this).data("overlay-same") && l.length > 0) {
+                $.get(e, {}, function (a) {
+                    removeTooltip(l.find(getTooltipSelector()));
+                    l.empty().append(a).dialog("moveToTop");
+                    l.dialog("option", "position", l.dialog("option", "position"));
+                    h.hide();
+                    h.show()
+                });
+                return false
+            }
+        }
+        var g = {zIndex: 4000};
+        if ($(this).data("overlay-title")) {
+            g.title = $(this).data("overlay-title")
+        } else {
+            if (typeof($(this).attr("title")) != "undefined" && $(this).attr("title").length) {
+                g.title = $(this).attr("title")
+            } else {
+                if ($(this).data("tipped_restore_title")) {
+                    g.title = $(this).data("tipped_restore_title").replace(/^.+\|/, "")
+                }
+            }
+        }
+        if ($(this).data("overlay-class")) {
+            g["class"] = $(this).data("overlay-class")
+        }
+        if ($(this).data("overlay-width")) {
+            g.width = $(this).data("overlay-width")
+        }
+        if ($(this).data("overlay-height")) {
+            g.height = $(this).data("overlay-height")
+        }
+        if ($(this).data("overlay-popup-width")) {
+            g.popupWidth = $(this).data("overlay-popup-width")
+        }
+        if ($(this).data("overlay-popup-height")) {
+            g.popupHeight = $(this).data("overlay-popup-height")
+        }
+        if ($(this).data("overlay-modal")) {
+            g.modal = $(this).data("overlay-modal");
+            g.resizable = false;
+            g.draggable = false
+        }
+        if ($(this).data("overlay-iframe")) {
+            g.type = "iframe";
+            if ($(this).data("iframe-width")) {
+                g.iframeWidth = $(this).data("iframe-width")
+            }
+            if ($(this).data("iframe-height")) {
+                g.iframeHeight = $(this).data("iframe-height")
+            }
+        } else {
+            if ($(this).data("overlay-inline")) {
+                g.type = "inline";
+                e = $(this).data("overlay-inline")
+            }
+        }
+        if ($(this).data("overlay-close")) {
+            g.close = $(this).data("overlay-close")
+        }
+        console.log('openOverlay called?')
+        openOverlay(e, g);
+        return false
+    })
+}
+function initOverview() {
+    $(".cancelMove").click(function () {
+        var c = $(this);
+        var d = window.location;
+        errorBoxDecision(planetMoveLoca.askTitle, planetMoveLoca.askCancel, planetMoveLoca.yes, planetMoveLoca.no, function () {
+            $.ajax({
+                method: "get",
+                url: c.attr("rel"),
+                dataType: "json",
+                cache: false,
+                success: function (a) {
+                    if (a.error.length > 0) {
+                        fadeBox(a.error, true)
+                    } else {
+                        location.href = getRedirectLink()
+                    }
+                },
+                error: function () {
+                    fadeBox(planetMoveLoca.error, true)
+                }
+            })
+        })
+    });
+    $(document).undelegate("#planetMaintenanceDelete", "submit").delegate("#planetMaintenanceDelete", "submit", function (b) {
+        b.preventDefault();
+        ajaxFormSubmit("planetMaintenanceDelete", $(this).attr("action"), planetGivenup)
+    }).undelegate("#abandonplanet #block", "click").delegate("#abandonplanet #block", "click", function (c) {
+        c.preventDefault();
+        if (isMobileOnly || isFacebookUser) {
+            var d = $("#giveupHeadline").attr("rel") == 3 ? loca.moonGiveupQuestion : loca.planetGiveupQuestion;
+            d = d.replace("%planetName%", $("#giveupName").text()).replace("%planetCoordinates%", $("#giveupCoordinates").text());
+            errorBoxDecision($("#giveupHeadline").text(), d, LocalizationStrings.yes, LocalizationStrings.no, function () {
+                $("#planetMaintenanceDelete").submit()
+            })
+        } else {
+            show_hide_menus("#validate");
+            show_hide_menus("#giveUpNotification")
+        }
+    }).undelegate(".openPlanetRenameGiveupBox", "click").delegate(".openPlanetRenameGiveupBox", "click", function (b) {
+        b.stopPropagation();
+        openPlanetRenameGiveupBox()
+    })
+}
+function clearField() {
+    currentValue = $("#planetName").val();
+    if (defaultName == currentValue) {
+        clearInput("#planetName")
+    }
+}
+function fillField() {
+    currentValue = $("#planetName").val();
+    if (currentValue == "") {
+        $("#planetName").val(defaultName)
+    }
+}
+function openBuddyOverlay(d, c) {
+    openOverlay(d, {"class": "buddies", title: c})
+}
+function planetGivenup(b) {
+    var b = $.parseJSON(b);
+    errorBoxAsArray(b.errorbox);
+    if (typeof(b.newToken) == "string") {
+        $("#planetMaintenanceDelete input[name='token']").val(b.newToken)
+    }
+    if (typeof(b.password_checked) != "undefined" && b.password_checked) {
+        $("#planetMaintenanceDelete").attr("action", b.intend)
+    }
+}
+function initPreferences() {
+    $(".category").click(function () {
+        document.prefs.reset()
+    });
+    $("div.wrap > div.group").hide();
+    $("div.wrap > div.group:first,div.wrap:eq(1) > div.group:eq(0),div.wrap:eq(2) > div.group:eq(0),div.wrap:eq(3) > div.group:eq(0)").show();
+    $("div.wrap > div.bar").click(function () {
+        $(this).next("div.group:hidden").slideDown("fast", function () {
+            Tipped.show($(":input:visible"))
+        }).siblings("div.group:visible").slideUp("fast", function () {
+            Tipped.hide($(":input:not(:visible)"))
+        });
+        $(".formError").validationEngine("closePrompt")
+    });
+    $(".content .bar").hover(function () {
+        $(this).addClass("bar-hover")
+    }, function () {
+        $(this).removeClass("bar-hover")
+    });
+    $("#newpass1").bind("keyup", function () {
+        var u = $(this).val();
+        var E = u.length;
+        var w = u.match(/[^A-Za-z\d]/);
+        var x = u.match(/\d/);
+        var s = u.match(/[a-z]/) && u.match(/[A-Z]/);
+        var D = 0;
+        var q = 4;
+        var v = {
+            length: false,
+            "mixed-case": false,
+            "special-chars": false,
+            numbers: false
+        };
+        if (E >= passwordMinLength && E <= passwordMaxLength) {
+            v.length = true;
+            D++
+        }
+        if (s) {
+            v["mixed-case"] = true;
+            D++
+        }
+        if (x) {
+            v.numbers = true;
+            D++
+        }
+        if (w) {
+            v["special-chars"] = true;
+            D++
+        }
+        for (var F in v) {
+            var y = v[F];
+            var A = $("#password-meter-status-" + F);
+            A.find("img.status-checked").css("visibility", y ? "visible" : "hidden")
+        }
+        var C = Math.floor(D / q * 2);
+        var r = new Array("low", "medium", "high");
+        for (var B in r) {
+            if (B != C) {
+                $("#password-meter-rating-" + r[B]).removeClass("arrow")
+            } else {
+                $("#password-meter-rating-" + r[B]).addClass("arrow")
+            }
+        }
+    });
+    $(".contentzs").tabs({
+        beforeActivate: function (d, c) {
+            $("input#selectedTab").val($(c.tab).parent().prevAll().length)
+        }, activate: function () {
+            Tipped.hide($("input:not(:visible)"));
+            Tipped.show($("input:visible"))
+        }, active: selectedTab
+    });
+    $("#sortSetting").unbind("change").bind("change", function () {
+        var d = "settings_order";
+        if ($(this).val() == customSorting) {
+            var e = $("#sortOrder");
+            e.attr("disabled", "disabled").attr("name", "");
+            $("#sortOrderHidden").attr("name", d).val(e.val());
+            $("#sortOrder").next(".dropdown").addClass("disabled")
+        } else {
+            $("#sortOrder").next(".dropdown").removeClass("disabled");
+            var f = $("#sortOrderHidden");
+            f.attr("name", "");
+            $("#sortOrder").removeClass("disabled").attr("name", d).removeAttr("disabled").val(f.val())
+        }
+    }).trigger("change");
+    if (moveInProgress) {
+        $("form#prefs").on("submit", function (c) {
+            var d = $(this);
+            if (d.find("input#urlaubs_modus.notOnVacation:checked").length) {
+                errorBoxDecision(LocalizationStrings.attention, preferenceLoca.planetMoveQuestion, LocalizationStrings.yes, LocalizationStrings.no, function () {
+                    d.off("submit").submit()
+                });
+                c.preventDefault();
+                return false
+            }
+        })
+    }
+    if (isMobileOnly) {
+        $("#prefs").bind("submit", function () {
+            var b = $(this);
+            if (!b.data("asking") && $("#db_character", b).val().length) {
+                b.data("asking", true);
+                errorBoxDecision(preferenceLoca.changeNameTitle, preferenceLoca.changeNameQuestion.replace("%newName%", $("#db_character", b).val()), LocalizationStrings.yes, LocalizationStrings.no, function () {
+                    b.submit();
+                    b.data("asking", false)
+                }, function () {
+                    b.data("asking", false)
+                });
+                return false
+            }
+        })
+    }
+    if (tabsDisabled) {
+        $(".contentzs").tabs("option", "disabled", [1, 2]);
+        $("#tabGeneral, #tabRepresentation").attr("title", preferenceLoca.tabDisabled).attr("class", "tooltip")
+    }
+    $("div.wrap:visible > div.bar:eq(" + openGroup + ")").click()
+}
+function display_info(b) {
+    if (document.getElementById("infoInput").innerHTML == "" || document.getElementById("infoInput").innerHTML != get_displayText(b)) {
+        document.getElementById("infoInput").innerHTML = get_displayText(b)
+    }
+}
+function display_error(b) {
+    if (document.getElementById("errorInput").innerHTML == "" || document.getElementById("errorInput").innerHTML != get_errorText(b)) {
+        document.getElementById("errorInput").innerHTML = get_errorText(b);
+        document.getElementById("error").style.display = "block"
+    }
+}
+function hide_error(b) {
+    document.getElementById("errorInput").innerHTML = "";
+    document.getElementById("error").style.display = "none"
+}
+function checkUsername() {
+    var b = document.forms["new"].elements.username.value;
+    if (b.length < 3 || b.length >= 20) {
+        display_error("username")
+    } else {
+        hide_error()
+    }
+}
+function checkEmail() {
+    var b = document.forms["new"].elements.email.value;
+    validate = b.match(/[a-zA-Z0-9]+@+[a-zA-Z0-9]+[.]+[a-zA-Z0-9]{2,4}/);
+    if (b.length < 3 || b.length >= 64 || !validate) {
+        display_error("email")
+    } else {
+        hide_error()
+    }
+}
+var TECHID_REPAIR_DOCK = 36;
+var burnUpCountDownForStationScreen = {};
+var repairTimeDownForStationScreen = {};
+function displayBurnUpEnquiry() {
+    var b = $("input.burnUpButton");
+    errorBoxDecision(b.data("loca_box_text"), b.data("loca_decision_text"), b.data("loca_yes"), b.data("loca_no"), function () {
+        $.ajax({
+            url: b.data("url"), success: function (a) {
+                var d = jQuery.parseJSON(a);
+                if (d.success) {
+                    fadeBox(d.reason, false, function () {
+                    });
+                    redirectSpaceDock()
+                } else {
+                    fadeBox(d.reason, true, function () {
+                    })
+                }
+            }
+        })
+    }, function () {
+    })
+}
+function startWreckFieldRepairs() {
+    var b = $("input.startRepairsButton");
+    $.ajax({
+        url: b.data("url"), success: function (a) {
+            var d = jQuery.parseJSON(a);
+            if (d.success) {
+                fadeBox(d.reason, false, function () {
+                });
+                redirectSpaceDock()
+            } else {
+                fadeBox(d.reason, true, function () {
+                })
+            }
+        }
+    })
+}
+function reCommissionShips() {
+    var b = $("input.reCommissionButton");
+    $.ajax({
+        url: b.data("url"), success: function (a) {
+            var d = jQuery.parseJSON(a);
+            if (d.success) {
+                fadeBox(d.reason, false, function () {
+                });
+                redirectSpaceDock()
+            } else {
+                fadeBox(d.reason, true, function () {
+                })
+            }
+        }
+    })
+}
+function registerBurnUpCountDown(e) {
+    var f = $(e);
+    var d = $(e).data("duration");
+    if (d > 0) {
+        if (!burnUpCountDownForStationScreen[e]) {
+            burnUpCountDownForStationScreen[e] = new simpleCountdown(f, d, function () {
+                location.reload()
+            })
+        }
+    }
+}
+function registerRepairTimeCountDown(e) {
+    var d = $(e);
+    var f = $(e).data("duration");
+    if (f > 0) {
+        if (!repairTimeDownForStationScreen[e]) {
+            repairTimeDownForStationScreen[e] = new simpleCountdown(d, f, function () {
+                location.reload()
+            })
+        }
+    }
+}
+$(document).on("click", "input.burnUpButton", displayBurnUpEnquiry);
+$(document).on("click", "input.startRepairsButton", startWreckFieldRepairs);
+$(document).on("click", "input.reCommissionButton", reCommissionShips);
+$(document).on("ajaxShowElement", function (d, c) {
+    if (c == TECHID_REPAIR_DOCK) {
+        registerBurnUpCountDown("#burnUpCountDownForStationScreen");
+        registerRepairTimeCountDown("#repairTimeCountDownForStationScreen")
+    }
+});
+$(document).on("ajaxShowOverlay", function (b) {
+    registerBurnUpCountDown("#burnUpCountDownForRepairOverlay");
+    registerRepairTimeCountDown("#repairTimeCountDownForRepairOverlay")
+});
+function resourceTicker(e) {
+    var f = this;
+    f.config = e;
+    f.htmlObj = document.getElementById(f.config.valueElem);
+    var d = new Date();
+    f.startTime = d.getTime();
+    f.updateResource = function () {
+        var a = new Date().getTime();
+        nrResource = f.config.available + f.config.production * (a - f.startTime) / 1000;
+        nrResource = Math.max(0, Math.floor(nrResource));
+        if (nrResource < f.config.available || nrResource >= f.config.available && nrResource < f.config.limit) {
+            f.htmlObj.innerHTML = gfNumberGetHumanReadable(nrResource, isMobile);
+            if (nrResource >= f.config.limit[1]) {
+                f.htmlObj.className = "overmark"
+            } else {
+                if (nrResource >= f.config.limit * 0.9 && nrResource < f.config.limit) {
+                    f.htmlObj.className = "middlemark"
+                } else {
+                    if (nrResource <= f.config.limit * 0.9) {
+                        f.htmlObj.className = ""
+                    }
+                }
+            }
+            if (f.config.production < 0 && nrResource == 0 || f.config.production == 0) {
+                timerHandler.removeCallback(f.intervalObj)
+            }
+        } else {
+            if (f.config.production > 0 && nrResource >= f.config.available && nrResource >= f.config.limit) {
+                nrResource = gfNumberGetHumanReadable(f.config.limit, isMobile);
+                f.htmlObj.innerHTML = nrResource;
+                f.htmlObj.className = "overmark";
+                timerHandler.removeCallback(f.intervalObj)
+            }
+        }
+    };
+    if (f.config.production > 0 && f.config.available >= f.config.limit) {
+        return
+    }
+    if (f.config.production <= 0 && f.config.available == 0) {
+        return
+    }
+    f.intervalObj = timerHandler.appendCallback(f.updateResource)
+}
+function initResourceTrader() {
+    $(".big_tabs").tabs({activate: hideTipsOnTabChange});
+    $(".resource_link").on("click", onSelectResource);
+    $(".btn_calltrader").on("click", callTrader)
+}
+function onSelectResource(f) {
+    var e = $(f.currentTarget);
+    if (!e.hasClass("active")) {
+        $(".resource_link").removeClass("active");
+        e.addClass("active");
+        $(".btn_calltrader").attr("disabled", false).data("offerId", e.data("resourceId"));
+        var d = $(".getNewTraderDiv");
+        if (d.hasClass("hidden") && !e.hasClass("oldTraderActive") || !d.hasClass("hidden") && e.hasClass("oldTraderActive")) {
+            d.parent().children().toggleClass("hidden")
+        }
+    }
+}
+function showTradeNowButton() {
+    if ($("#callTrader").hasClass("traderActive")) {
+        $("#callTrader").show()
+    } else {
+        $("#callTrader").hide()
+    }
+}
+function calcCosts(c, d) {
+    return Math.ceil(d * factor[offer_id] / factor[c])
+}
+function calcInputFromCosts(c, d) {
+    return Math.max(Math.floor(d / factor[offer_id] * factor[c]), 0)
+}
+function setValue(c, d) {
+    if (offer_id == c) {
+        $("#" + c + "_value_label").html(number_format(d, 0, loca.decimalPoint, loca.thousandsSeparator))
+    } else {
+        formatNumber("#" + c + "_value", d)
+    }
+}
+function checkValue(b) {
+    setValue(b, Math.min(getValue($("#" + b + "_value").val()), Math.round(storage[b])));
+    free_id = 6 - b - offer_id;
+    offer_costs = calcCosts(free_id, getValue($("#" + free_id + "_value").val()));
+    costs = calcCosts(b, getValue($("#" + b + "_value").val()));
+    freeOfferCosts = Math.round(offer_amount - (offer_costs));
+    if (costs > freeOfferCosts) {
+        setValue(b, calcInputFromCosts(b, freeOfferCosts));
+        costs = calcCosts(b, getValue($("#" + b + "_value").val()))
+    }
+    offer_costs = offer_costs + costs;
+    setValue(offer_id, offer_costs);
+    document.getElementById(b + "_storage").innerHTML = number_format((storage[b] - getValue($("#" + b + "_value").val())), 0, loca.decimalPoint, loca.thousandsSeparator)
+}
+function setMaxValue(b) {
+    setValue(b, storage[b]);
+    checkValue(b)
+}
+function callTrader(h) {
+    if ($(h.currentTarget).attr("disabled") == "disabled") {
+        return
+    }
+    var g = $(h.currentTarget).data("offerId"), e = $(h.currentTarget).data("askOverwrite");
+    if (typeof(e) == "undefined") {
+        e = true
+    }
+    if (darkMatter < traderCosts) {
+        errorBoxDecision(LocalizationStrings.error, loca.errorNotEnoughDM, LocalizationStrings.yes, LocalizationStrings.no, redirectPremium);
+        return
+    }
+    function f() {
+        if (!$(".call_trader_box .getNewTraderDiv").hasClass("hidden")) {
+            $(".call_trader_box").children().toggleClass("hidden")
+        }
+        $(".resource_list .resource_link").removeClass("oldTraderActive").filter(function (a) {
+            return $(this).data("resourceId") == g
+        }).addClass("oldTraderActive");
+        $("#callTrader").show().addClass("traderActive");
+        console.log('f() traderCallLink');
+
+        $.post(traderCallLink, {
+            offer_id: g,
+            token: traderResourcesToken
+        }, function (a) {
+            a = $.parseJSON(a);
+            traderResourcesToken = a.newToken;
+            if (a.status == "1") {
+                traderObj.reloadResources();
+                $("#callTrader").addClass("traderActive").show();
+                openOverlay(traderOverlayLink, {"class": "traderlayer"});
+                var d = $("#activeTrader");
+                var b = "metal";
+                var c = loca.traderResourceTitleMetal;
+                switch (g) {
+                    case 2:
+                        b = "crystal";
+                        c = loca.traderResourceTitleCrystal;
+                        break;
+                    case 3:
+                        b = "deut";
+                        c = loca.traderResourceTitleDeuterium;
+                        break
+                }
+                d.find(".left_content #material").attr("class", b);
+                d.find("p.stimulus").html(c);
+                d.show();
+                $("#boxHeader, #boxFooter").show()
+            } else {
+                errorBoxAsArray(a.errorbox)
+            }
+        })
+    }
+
+    if (e && $("#callTrader").is(":visible")) {
+        errorBoxDecision(loca.traderResourceNewQuestionHeadline, loca.traderResourceNewQuestion, LocalizationStrings.yes, LocalizationStrings.no, f)
+    } else {
+        f()
+    }
+}
+function tradeDone(b) {
+    b = $.parseJSON(b);
+    traderResourcesToken = b.newToken;
+    if (b.status == "1") {
+        $(".overlayDiv.traderlayer").dialog("close");
+        $(".call_trader_box").children().toggleClass("hidden");
+        traderObj.reloadResources();
+        $("#callTrader").removeClass("traderActive").hide();
+        $(".resource_link").removeClass("oldTraderActive active");
+        $(".btn_calltrader").attr("disabled", true);
+        $("#activeTrader").hide()
+    }
+    errorBoxAsArray(b.errorbox)
+}
+function closeSearch() {
+    if (typeof(currentPage != "undefined")) {
+        if (currentPage == "fleet1" || currentPage == "fleet2") {
+            $("a#continue").focus()
+        } else {
+            if (currentPage == "fleet3") {
+                $("a#start").focus()
+            }
+        }
+    }
+}
+function GFSlider(d) {
+    var c = this;
+    c.duration = 500;
+    c.zIndex = 10;
+    c.intervalTime = 30;
+    c.lastTid = 0;
+    c.inAction = false;
+    c.isOpen = false;
+    c.lastObj = false;
+    c.currHeight = d.offsetHeight;
+    c.opacity = 1;
+    c.header = document.getElementById("header_text");
+    c.ressButton = document.getElementById("resources_button");
+    c.areaMap = document.getElementById("transImg");
+    this.slideIn = function (b, a, f) {
+        if (!c.inAction) {
+            c.slideInObj = b;
+            if (c.lastTid != a || f) {
+                b.opacity = 1;
+                c.lastTid = a;
+                $("#detail").html('<div id="techDetailLoading"></div>');
+                if (!c.isOpen) {
+                    if (c.ressButton) {
+                        c.ressButton.style.display = "none"
+                    }
+                    b.style.height = "1px";
+                    b.style.display = "block";
+                    b.style.overflow = "hidden";
+                    c.inAction = true;
+                    c.startTime = new Date().getTime();
+                    c.slideInStep();
+                    c.isOpen = true
+                } else {
+                    loadDetails(c.lastTid)
+                }
+            } else {
+                c.header.style.display = "block";
+                c.opacity = 0;
+                c.lastTid = 0;
+                c.inAction = true;
+                c.isOpen = false;
+                c.startTime = new Date().getTime();
+                c.slideOutObj = c.slideInObj;
+                c.slideOutStep()
+            }
+        }
+    };
+    this.slideInStep = function () {
+        d = c.slideInObj;
+        var a = new Date().getTime();
+        var b = parseInt(c.currHeight * ((a - c.startTime) / c.duration));
+        if (b < c.currHeight) {
+            d.style.height = (b) + "px";
+            d.style.marginTop = (c.currHeight - 1 - b) + "px";
+            window.setTimeout(c.slideInStep, c.intervalTime);
+            c.opacity = Math.max(c.opacity - 0.1, 0);
+            c.header.style.opacity = c.opacity;
+            c.header.style.filter = "Alpha(opacity=" + (0.5 * 100) + ")"
+        } else {
+            d.style.height = c.currHeight + "px";
+            d.style.marginTop = "0px";
+            c.inAction = false;
+            c.header.style.display = "none";
+            loadDetails(c.lastTid);
+            if (c.lastObj && d != c.lastObj) {
+                c.hideLast()
+            }
+            c.lastObj = d
+        }
+    };
+    this.slideOutStep = function () {
+        d = c.slideInObj;
+        var a = new Date().getTime();
+        height = parseInt(c.currHeight * ((a - c.startTime) / c.duration));
+        if (height < c.currHeight) {
+            d.style.height = (c.currHeight - 1 - height) + "px";
+            d.style.marginTop = (height) + "px";
+            window.setTimeout(c.slideOutStep, c.intervalTime);
+            c.opacity = Math.max(c.opacity + 0.1, 0);
+            c.header.style.opacity = c.opacity
+        } else {
+            d.style.height = c.currHeight + "px";
+            d.style.marginTop = "0px";
+            c.opacity = 1;
+            c.header.style.opacity = c.opacity;
+            if (c.ressButton) {
+                c.ressButton.style.display = "block"
+            }
+            d.style.display = "none";
+            c.inAction = false;
+            c.hideLast()
+        }
+    };
+    this.hideLast = function () {
+        if (c.lastObj) {
+            $(".slideIn").removeClass("active");
+            c.lastObj.style.display = "none";
+            c.inAction = false
+        }
+        $(document).trigger("ajaxHideElement", c.lastTid)
+    };
+    this.hide = function (a) {
+        $(".slideIn").removeClass("active");
+        c.slideOutObj = a;
+        c.opacity = 1;
+        c.header.style.opacity = c.opacity;
+        c.header.style.display = "block";
+        if (c.ressButton) {
+            c.ressButton.style.display = "block"
+        }
+        if (c.areaMap) {
+            c.areaMap.style.display = "block"
+        }
+        c.slideOutObj.style.display = "none";
+        c.inAction = false;
+        c.lastTid = 0;
+        c.isOpen = false
+    }
+}
+function rocketsDestroyed(b) {
+    var b = $.parseJSON(b);
+    errorBoxAsArray(b.errorbox);
+    if (!b.errorbox.failed) {
+        $(".rocketlayer").dialog("close");
+        gfSlider.slideIn(getElementByIdWithCache("detail"), techID, true)
+    }
+}
+function supplyFleet(b) {
+    var b = $.parseJSON(b);
+    if (b.status) {
+        getAjaxResourcebox();
+        supplyTimes[b.id] = b.time;
+        new simpleCountdown($("#holdingTime-" + b.id), b.time)
+    }
+    errorBoxAsArray(b.errorbox)
+}
+function updateSupplyDetails(e, f, d) {
+    $("#shipCount").html(gfNumberGetHumanReadable(e));
+    $("#deutCosts").html(gfNumberGetHumanReadable(f));
+    $("span.countdown").hide();
+    $("#holdingTime-" + d).show()
+}
+function initAllianceDepot() {
+    $(".overlayDiv[data-page='allydepotlayer'] select").ogameDropDown();
+    $(".holdingTime:first-child").show();
+    for (var b in supplyTimes) {
+        new simpleCountdown($("#holdingTime-" + b), supplyTimes[b])
+    }
+    $("#supplyTimeInput").focus(function () {
+        clearInput(this)
+    }).keyup(function () {
+        var a = getValue($("#resources_deuterium").text());
+        var d = getValue($("#deutCosts").text());
+        checkIntInput(this, 1, Math.floor(a / d))
+    })
+}
+function tabletInitOverviewAdvice() {
+    if (!isMobile) {
+        return false
+    }
+    var f = $(".adviceWrapper");
+    var d = f.find("#exodus-indicator, #exodus-timer");
+    var e = f.find("#exodus-indicator-processed");
+    f.prev().before(d);
+    f.prev().before(e);
+    $("#planetdata").after(f)
+}
+function tabletInitGalaxyDetails() {
+    if (!isMobile) {
+        return false
+    }
+    var b = ["js_planet", "js_moon", "js_debris", "js_playerName", "js_allyTag"];
+    $(".js_detailRow").css("display", "none");
+    $(".js_detailRow").each(function (e) {
+        e = $(this).attr("rel");
+        for (var f = 0; f < b.length; f++) {
+            var a = $("." + b[f] + e);
+            if (a === undefined || a.length == 0) {
+                if (e == 17) {
+                    continue
+                }
+                return
+            }
+            if (a.attr("class").indexOf("js_no_action") >= 0) {
+                continue
+            }
+            a.unbind();
+            a.bind("click.planet", function (c) {
+                if ($(this).hasClass("active")) {
+                    $(".row *.active").removeClass("active");
+                    $(".js_detailRow").css("display", "none")
+                } else {
+                    $(".row *.active").removeClass("active");
+                    if ($(".bdaySlotBox")) {
+                        $(".bdaySlotBox .name").removeClass("active")
+                    }
+                    $(".js_detailRow").css("display", "none");
+                    if ($(this).html().trim()) {
+                        $(this).addClass("active");
+                        if ($(this).attr("class").indexOf("js_planet") >= 0) {
+                            elem = ".js_detailRowPlanet" + e
+                        } else {
+                            if ($(this).attr("class").indexOf("js_moon") >= 0) {
+                                elem = ".js_detailRowMoon" + e
+                            } else {
+                                if ($(this).attr("class").indexOf("js_debris") >= 0) {
+                                    elem = ".js_detailRowDebris" + e
+                                } else {
+                                    if ($(this).attr("class").indexOf("js_playerName") >= 0) {
+                                        elem = ".js_detailRowPlayer" + e
+                                    } else {
+                                        if ($(this).attr("class").indexOf("js_allyTag") >= 0) {
+                                            elem = ".js_detailRowAlliance" + e
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (e == 17) {
+                            $(elem).css("display", "block")
+                        } else {
+                            $(elem).css("display", "table-row")
+                        }
+                    }
+                }
+            })
+        }
+    });
+    $("a.planetMoveIcons").bind("click", function (a) {
+        a.stopPropagation()
+    })
+}
+function tabletToggleTechtreeInfos(f) {
+    if (!isMobile) {
+        return false
+    }
+    var e = $("div.techtree[data-id='" + f + "']");
+    var d = e.find(".techImage a");
+    d.each(function () {
+        var b = $(this);
+        var c = b.parent().hasClass("built") ? "undermark" : "overmark";
+        var a = b.data("tech-name");
+        var h = b.data("tech-type");
+        b.append('<div class="short_info" style="display: none"><span class="' + c + '">' + a + "</span><br/>" + h + "</div>")
+    });
+    if (d.length) {
+        e.append($('<a id="toggleDetails" href="javascript:void(0)" class="btn_blue">' + LocalizationStrings.moreDetails + "</a>").click(function () {
+            var a = e.find(".short_info");
+            if (a.is(":visible")) {
+                $(this).text(LocalizationStrings.moreDetails)
+            } else {
+                $(this).text(LocalizationStrings.lessDetails)
+            }
+            a.toggle()
+        }))
+    }
+}
+function tabletInitEmpire() {
+    if (!isMobile) {
+        return false
+    }
+    var b = $("#mainWrapper").width();
+    b = (b < 1024) ? "1024" : b;
+    $("#outerWrapper").width(b);
+    $(".reset").hide()
+}
+function tabletInitPayment() {
+    if (!isMobile) {
+        return false
+    }
+    $("#payment").parent(".overlayDiv").dialog("option", "title", paymentLoca.title);
+    document.addEventListener("deviceready", function () {
+        $("#mobilePayment a.js_buyPacket").unbind("click").bind("click", function () {
+            HostApp.StartPayment($(this).attr("ref"), userData.id, constants.name, constants.language)
+        });
+        HostApp.OnPaymentFinished = function () {
+            getAjaxResourcebox(function (b) {
+                fadeBox(paymentLoca.success, false);
+                $("#payment").parent().dialog("close");
+                $("#planet #content .level span").attr("class", "undermark").text(b.darkmatter.string)
+            })
+        };
+        HostApp.OnPaymentFailed = function () {
+            fadeBox(paymentLoca.error, true)
+        }
+    }, false)
+}
+function tabletInitGalaxy() {
+    if (!isMobile) {
+        return false
+    }
+    $("#galaxyContent").wipetouch({
+        wipeLeft: function (b) {
+            if (!$("#galaxyLoading:visible").length) {
+                submitOnKey(39)
+            }
+        },
+        wipeRight: function (b) {
+            if (!$("#galaxyLoading:visible").length) {
+                submitOnKey(37)
+            }
+        },
+        preventDefault: false,
+        preventDefaultWhenTriggering: true,
+        moveX: 180,
+        moveY: 60
+    })
+}
+function initRetinaImages() {
+    if ($(".js_replace2x").css("font-size") == "1px") {
+        $("img.js_replace2x").each(function () {
+            $(this).attr("src", $(this).attr("rel"))
+        })
+    }
+}
+function setupOverlay(e, d, f) {
+    $(".build-it_premium").addClass("overlay");
+    $(".build-it_premium").attr("href", e);
+    $(".build-it_premium").data("overlay-title", d);
+    $(".build-it_premium").data("techid", f)
+}
+function setupBuildinglistForBuildItButton(e, f, d) {
+    new baulisteCountdown(document.getElementById("possibleInTime"), buildableAt, pageToReload)
+}
+function drawErrorbox(p, n, l, h, o, m) {
+    var m = m == undefined ? false : m;
+    var k = m !== false ? $("." + m) : $(".build-it_disabled");
+    if (typeof(o) == "undefined" || o == "") {
+        o = document.location.href
+    }
+    k.click(function () {
+        if (l !== undefined && h !== undefined && o !== undefined) {
+            if (p == "notify") {
+                errorBoxNotify(l, n, h.allOk, function () {
+                    window.location.href = o
+                })
+            }
+            if (p == "decision") {
+                errorBoxDecision(l, n, h.allYes, h.allNo, function () {
+                    window.location.href = o
+                })
+            }
+        }
+        if (p == "fadeBox") {
+            fadeBox(n, true)
+        }
+    })
+}
+function initializeBuildItButton() {
+    if (hasCommander && buildableAt > 0) {
+        setupBuildinglistForBuildItButton(loca.allDetailNow, techID, showSlotWarning)
+    }
+    if (buttonState) {
+        $(".build-it").on("click", function () {
+            sendBuildRequest(null, null, showSlotWarning)
+        })
+    } else {
+        if (couldBeBuild) {
+            $errorCount = showErrors()
+        } else {
+            $errorCount = 99
+        }
+        if ((error == null || error == 0) && $errorCount == 0) {
+            $(".build-it_premium").on("click", function () {
+                var c = $("#number").val();
+                if (typeof c == "undefined") {
+                    c = 1
+                }
+                var d = links.overlay + "&amount=" + c;
+                setupOverlay(d, overlayTitle, techID)
+            })
+        }
+    }
+    $(document).off("keypress.submitBuild").on("keypress.submitBuild", "#contentWrapper #inhalt #number", function (c) {
+        if (c.keyCode != 13) {
+            return
+        }
+        c.stopPropagation();
+        var d = $(".build-it_premium");
+        if (d.length) {
+            d.trigger("click")
+        } else {
+            $(".build-it").trigger("click")
+        }
+    })
+}
+function showErrors() {
+    var b = {allYes: loca.allYes, allNo: loca.allNo, allOk: loca.allOk};
+    if (isBuildlistNeeded) {
+        if (!hasCommander && !(isShip || isRocket)) {
+            drawErrorbox("decision", loca.infoBuildlist, loca.allError, b, links.decisionCommander, "build-it_premium");
+            return 1
+        }
+        if (isRocketAndStorageNotFree) {
+            drawErrorbox("notify", loca.noRocketsiloCapacity, loca.allError, b, links.notify);
+            return 1
+        }
+    } else {
+        if (error !== null && error !== 0) {
+            if (premiumerror) {
+                if (showErrorOnPremiumbutton) {
+                    drawErrorbox("decision", errorlist[error], loca.allError, b, links[error], buttonClass);
+                    return 1
+                } else {
+                    drawErrorbox("decision", errorlist[error], loca.allError, b, links[error]);
+                    return 1
+                }
+            } else {
+                if (isRocketAndStorageNotFree) {
+                    drawErrorbox("notify", loca.noRocketsiloCapacity, loca.allError, b, links.notify);
+                    return 1
+                } else {
+                    if (isBusy) {
+                        return 1
+                    } else {
+                        drawErrorbox("notify", errorlist[error], loca.allError, b, "");
+                        return 1
+                    }
+                }
+            }
+        }
+    }
+    return 0
+}
+function initTechDetailsAjax() {
+    initializeBuildItButton();
+    refreshBars("bar_container", "filllevel_bar")
+}
+function initGlobalTechtree(c) {
+    var d = $("div.techtree[data-id='" + c + "']");
+    d.find(".headline").unbind("click").bind("click", function () {
+        $(this).next().toggle(function () {
+            var a = d.parents(".ui-dialog");
+            a.hide();
+            $(this).toggleClass("open");
+            a.show()
+        })
+    });
+    if (openTree == "all") {
+        d.find(".techtree_content").show(0, function () {
+            $(this).addClass("open")
+        })
+    } else {
+        if (openTree != null) {
+            d.find(".techtree_content_" + openTree).show(0, function () {
+                $(this).addClass("open")
+            })
+        }
+    }
+}
+function initOverlayName() {
+    $("div.techtree").each(function () {
+        if (typeof($(this).attr("data-title")) != "undefined") {
+            $(this).parent(".overlayDiv").dialog("option", "title", $(this).attr("data-title"))
+        }
+    })
+}
+function initTechtree(g) {
+    var h = $("div.techtree[data-id='" + g + "']");
+    var e = h.find(".techImage").outerHeight(true);
+    var f = 20;
+    h.find(".techWrapper.depth1").each(function () {
+        f += $(this).outerWidth()
+    });
+    h.css("width", f);
+    $(document).ready(function () {
+        var d = jsPlumb.getInstance();
+        d.Defaults.Container = h.find(".graph");
+        d.Defaults.Connector = ["Flowchart", {cornerRadius: 20}];
+        d.Defaults.Endpoint = ["Rectangle", {
+            cssClass: "endpoint",
+            width: 1,
+            height: 1
+        }];
+        d.Defaults.Anchors = ["ContinuousTop", "ContinuousBottom"];
+        var H = {};
+        $.each(endpoints, function () {
+            var m = h.find(".tech" + this.toString());
+            d.addEndpoint(m);
+            var k = Math.floor(m.find("a").offset().left);
+            var l = Math.floor(m.find("a").offset().top);
+            H[this] = [k, l]
+        });
+        var D;
+        do {
+            D = false;
+            $.each(connections, function () {
+                var k = h.find(".tech" + this.source + " a");
+                var l = h.find(".tech" + this.target + " a");
+                if (k.offset().top >= l.offset().top - 10 && k.offset().top <= l.offset().top + 10) {
+                    k.parent().css("margin-top", parseInt(k.parent().css("margin-top").replace(/px/, "")) + e);
+                    k.parent().parent().find("a[data-tech-id]").each(function () {
+                        H[$(this).attr("data-tech-id")][1] += e
+                    });
+                    D = true
+                }
+            })
+        } while (D);
+        var B = [];
+        var F = [];
+        for (var C in H) {
+            if (B.indexOf(H[C][0]) == -1) {
+                B.push(H[C][0])
+            }
+            if (F.indexOf(H[C][1]) == -1) {
+                F.push(H[C][1])
+            }
+        }
+        B.sort(function (k, l) {
+            return (k > l ? 1 : -1)
+        });
+        F.sort(function (k, l) {
+            return (k > l ? 1 : -1)
+        });
+        var b = {};
+        for (var G in H) {
+            b[G] = {left: B.indexOf(H[G][0]), top: F.indexOf(H[G][1])}
+        }
+        connections.sort(function (k, l) {
+            return (Math.abs(b[k.source]["left"] - b[k.target]["left"]) < Math.abs(b[l.source]["left"] - b[l.target]["left"])) ? -1 : 1
+        });
+        var w = {
+            hasRequirements: {strokeStyle: "#015100", lineWidth: 3},
+            hasNotRequirements: {strokeStyle: " #510009", lineWidth: 3}
+        };
+        var x = [[0, 0.5, -1, 0], [0, 0.3, -1, 0], [0, 0.7, -1, 0], [0, 0.9, -1, 0]];
+        var c = [[1, 0.5, 1, 0], [1, 0.3, 1, 0], [1, 0.7, 1, 0], [1, 0.9, 1, 0]];
+        var E = [[0.5, 1, 0, 1], [0.3, 1, 0, 1], [0.7, 1, 0, 1], [0.9, 1, 0, 1]];
+        var y = [[0.5, 0, 0, -1], [0.3, 0, 0, -1], [0.7, 0, 0, -1], [0.9, 0, 0, -1]];
+        var A = {};
+
+        function a(l, m, n, k) {
+            if (!k[l]) {
+                k[l] = {}
+            }
+            if (k[l][m] == undefined) {
+                k[l][m] = 0
+            }
+            ++k[l][m];
+            return n[k[l][m] - 1]
+        }
+
+        $.each(connections, function () {
+            var m = h.find(".tech" + this.source + " a");
+            var l = h.find(".tech" + this.target + " a");
+            var k = {
+                source: m,
+                target: l,
+                overlays: [["Arrow", {
+                    location: -5,
+                    paintStyle: w[this.paintStyle],
+                    width: 8,
+                    length: 8,
+                    foldback: 0.8
+                }], ["Label", {
+                    label: this.label,
+                    cssClass: "label " + this.paintStyle,
+                    location: 0.85
+                }]],
+                paintStyle: w[this.paintStyle],
+                hoverPaintStyle: {strokeStyle: "rgb(255, 255, 0)"}
+            };
+            if (b[this.target].left < b[this.source].left) {
+                if (!lineInCoordinatesBlocked(b, b[this.source].left, b[this.source].top, b[this.source].left, b[this.target].top) && !positionInCoordinatesBlocked(b, b[this.source].left, b[this.target].top) && !lineInCoordinatesBlocked(b, b[this.source].left, b[this.target].top, b[this.target].left, b[this.target].top)) {
+                    k.anchors = [a(this.source, "top", y, A), a(this.target, "right", c, A)]
+                } else {
+                    k.anchors = [a(this.source, "left", x, A), a(this.target, "bottom", E, A)];
+                    k.overlays[1][1] = readableVersionOfLabel(k.overlays[1][1], A[this.target].bottom)
+                }
+            } else {
+                if (b[this.target].left > b[this.source].left) {
+                    if (!lineInCoordinatesBlocked(b, b[this.source].left, b[this.source].top, b[this.source].left, b[this.target].top) && !positionInCoordinatesBlocked(b, b[this.source].left, b[this.target].top) && !lineInCoordinatesBlocked(b, b[this.source].left, b[this.target].top, b[this.target].left, b[this.target].top)) {
+                        k.anchors = [a(this.source, "top", y, A), a(this.target, "left", x, A)]
+                    } else {
+                        k.anchors = [a(this.source, "right", c, A), a(this.target, "bottom", E, A)];
+                        k.overlays[1][1] = readableVersionOfLabel(k.overlays[1][1], A[this.target].bottom)
+                    }
+                } else {
+                    if (b[this.target].top < b[this.source].top - 1 && lineInCoordinatesBlocked(b, b[this.source].left, b[this.source].top, b[this.target].left, b[this.target].top)) {
+                        k.anchors = [a(this.source, "left", x, A), a(this.target, "left", x, A)]
+                    } else {
+                        k.anchors = [a(this.source, "top", y, A), a(this.target, "bottom", E, A)];
+                        k.overlays[1][1] = readableVersionOfLabel(k.overlays[1][1], A[this.target].bottom)
+                    }
+                }
+            }
+            d.connect(k)
+        })
+    });
+    tabletToggleTechtreeInfos(g)
+}
+function readableVersionOfLabel(e, f) {
+    e.location = (-0.05 * f + 0.85);
+    var d = e.label.indexOf("/");
+    if (d) {
+    }
+    return e
+}
+function lineInCoordinatesBlocked(n, p, o, m, q) {
+    if (p == m) {
+        for (var r in n) {
+            if (n[r].left == p && o > n[r].top && q < n[r].top) {
+                return true
+            }
+        }
+    } else {
+        if (o == q && p > m) {
+            for (var k in n) {
+                if (n[k].top == o && p > n[k].left && m < n[k].left) {
+                    return true
+                }
+            }
+        } else {
+            if (o == q && p < m) {
+                for (var l in n) {
+                    if (n[l].top == o && p < n[l].left && m > n[l].left) {
+                        return true
+                    }
+                }
+            }
+        }
+    }
+    return false
+}
+function positionInCoordinatesBlocked(g, h, e) {
+    for (var f in g) {
+        if (g[f].left == h && g[f].top == e) {
+            return true
+        }
+    }
+    return false
+}
+var javascriptAvailable = true;
+var days = new Array("Mon", "Tus", "Wed", "Thu", "Fri", "Sat", "Sun");
+var months = new Array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+function getFormatedDate(d, f) {
+    var e = new Date();
+    e.setTime(d);
+    str = f;
+    str = str.replace("[d]", dezInt(e.getDate(), 2));
+    str = str.replace("[D]", days[e.getDay()]);
+    str = str.replace("[m]", dezInt(e.getMonth() + 1, 2));
+    str = str.replace("[M]", months[e.getMonth()]);
+    str = str.replace("[j]", parseInt(e.getDate()));
+    str = str.replace("[Y]", e.getFullYear());
+    str = str.replace("[y]", e.getFullYear().toString().substr(2, 4));
+    str = str.replace("[G]", e.getHours());
+    str = str.replace("[H]", dezInt(e.getHours(), 2));
+    str = str.replace("[i]", dezInt(e.getMinutes(), 2));
+    str = str.replace("[s]", dezInt(e.getSeconds(), 2));
+    return str
+}
+function dezInt(g, m, k) {
+    k = (k) ? k : "0";
+    var l = (g < 0) ? "-" : "", h = (k == "0") ? l : "";
+    g = Math.abs(parseInt(g, 10));
+    m -= ("" + g).length;
+    for (var n = 1; n <= m; n++) {
+        h += "" + k
+    }
+    h += ((k != "0") ? l : "") + g;
+    return h
+}
+function getFormatedTime(b) {
+    hours = Math.floor(b / 3600);
+    timeleft = b % 3600;
+    minutes = Math.floor(timeleft / 60);
+    timeleft = timeleft % 60;
+    seconds = timeleft;
+    return dezInt(hours, 2) + ":" + dezInt(minutes, 2) + ":" + dezInt(seconds, 2)
+}
+function tsdpkt(h) {
+    var f = "";
+    if (h < 0) {
+        f = "-"
+    }
+    h = Math.abs(h);
+    var e = h % 1000;
+    while (h >= 1000) {
+        var g = "";
+        if ((h % 1000) < 100) {
+            g = "0"
+        }
+        if ((h % 1000) < 10) {
+            g = "00"
+        }
+        if ((h % 1000) == 0) {
+            g = "00"
+        }
+        h = Math.abs((h - (h % 1000)) / 1000);
+        e = h % 1000 + LocalizationStrings.thousandSeperator + g + e
+    }
+    e = f + e;
+    return e
+}
+function formatTime(f) {
+    var e = Math.floor(f / 3600);
+    f -= e * 3600;
+    var d = Math.floor(f / 60);
+    f -= d * 60;
+    if (d < 10) {
+        d = "0" + d
+    }
+    if (f < 10) {
+        f = "0" + f
+    }
+    return e + ":" + d + ":" + f
+}
+function round(f, g) {
+    if (g < 1 || g > 14) {
+        return false
+    }
+    var h = Math.pow(10, g);
+    var e = (Math.round(f * h) / h).toString();
+    if (e.indexOf(".") == -1) {
+        e += "."
+    }
+    e += h.toString().substring(1);
+    return e.substring(0, e.indexOf(".") + g + 1)
+}
+function show_hide_menus(b) {
+    if ($(b).is(":visible")) {
+        $(b).hide()
+    } else {
+        $(b).show()
+    }
+}
+function change_class(b) {
+    if (document.getElementById(b).className == "closed") {
+        document.getElementById(b).className = "opened"
+    } else {
+        document.getElementById(b).className = "closed"
+    }
+}
+function show_hide_tbl(f) {
+    var e = document.getElementById(f);
+    try {
+        if (e) {
+            e.style.display = (e.style.display == "none" ? "table-row" : "none")
+        }
+    } catch (d) {
+        e.style.display = "block"
+    }
+}
+function cntchar(f, d) {
+    var e = $(f);
+    if (e.val().length > d) {
+        e.val(e.val().substr(0, d))
+    }
+    e.parents("form").find(".cntChars").text(e.val().length)
+}
+function getSession() {
+    return $('meta[name="ogame-session"]').attr("content")
+}
+function showGalaxy(f, d, e) {
+    openParentLocation("index.php?page=galaxy&no_header=1&galaxy=" + f + "&system=" + d + "&planet=" + e)
+}
+function openParentLocation(c) {
+    try {
+        window.opener.document.location.href = c
+    } catch (d) {
+        try {
+            window.parent.document.location.href = c
+        } catch (d) {
+            document.location.href = c
+        }
+    }
+}
+function submitOnEnter(d) {
+    var c;
+    if (window.event) {
+        c = window.event.keyCode
+    } else {
+        if (d) {
+            c = d.which
+        } else {
+            return true
+        }
+    }
+    if (c == 13) {
+        trySubmit();
+        return false
+    } else {
+        return true
+    }
+}
+function formSubmitOnEnter(d, e) {
+    var f;
+    if (window.event) {
+        f = window.event.keyCode
+    } else {
+        if (e) {
+            f = e.which
+        } else {
+            return true
+        }
+    }
+    if (f == 13) {
+        document.forms[d].submit();
+        return false
+    } else {
+        return true
+    }
+}
+function setMaxIntInput(e, d) {
+    for (var f in d) {
+        if (!$(e).find("#ship_" + f).attr("disabled")) {
+            $(e).find("#ship_" + f).val(d[f]);
+            checkIntInput($(e).find("ship_" + f), 0, d[f])
+        }
+    }
+}
+function clearInput(b) {
+    $(b).val("")
+}
+function checkIntInput(g, f, h) {
+    var e = $(g).val();
+    if (typeof e != "undefined" && e != "") {
+        intVal = Math.abs(getValue(e));
+        if (h != null) {
+            intVal = Math.min(intVal, h)
+        }
+        $(g).val(intVal)
+    }
+}
+function handlerToSubmitAjaxForm(c) {
+    var d = "submit_" + String(c);
+    if ($.isFunction(window[d])) {
+        window[d]()
+    }
+    return false
+}
+function ajaxCall(d, c) {
+    $("#" + c + " select").ogameDropDown("destroy");
+    $("#" + c).html('<p class="ajaxLoad"></p>');
+    console.log('ajaxCall()');
+    $.post(d, function (a) {
+        $("#" + c).html(a);
+        $("#" + c + " select").ogameDropDown()
+    })
+}
+function ajaxSumbit(e, d, f) {
+    $("#" + f + " select").ogameDropDown("destroy");
+    $("#" + f).html('<p class="ajaxLoad"><?=LOCA_ALL_AJAXLOAD ?></p>');
+    console.log('ajaxSubmit()');
+    $.post(e, $("#" + d).serialize(), function (a) {
+        $("#" + f).html(a);
+        $("#" + f + " select").ogameDropDown()
+    })
+}
+Number.prototype.isBetween = function (c, d) {
+    return this >= c && this <= d
+};
+function getValue(b) {
+    result = parseInt(b.toString().replace(/^k$/, "1000").replace(/k/, "000").replace(/^0+/, "").replace(/[^0-9]/g, ""));
+    return isNaN(result) ? 0 : result
+}
+function loadScript(e, g) {
+    if (typeof(loadScript.loadedScripts) == "undefined") {
+        loadScript.loadedScripts = {}
+    }
+    if (typeof(loadScript.loadedScripts[e]) == "undefined") {
+        loadScript.loadedScripts[e] = true;
+        var f = document.createElement("script");
+        f.type = "text/javascript";
+        if (f.readyState) {
+            f.onreadystatechange = function () {
+                if (f.readyState == "loaded" || f.readyState == "complete") {
+                    f.onreadystatechange = null;
+                    g()
+                }
+            }
+        } else {
+            f.onload = function () {
+                g()
+            }
+        }
+        f.src = e;
+        var h = document.getElementsByTagName("head")[0];
+        h.appendChild(f)
+    } else {
+        g()
+    }
+}
+function formatNumber(f, h) {
+    var l = number_format(getValue(h), 0, LocalizationStrings.decimalPoint, LocalizationStrings.thousandsSeparator);
+    var k = $(f);
+    var g = k.getSelection();
+    if (k.val() != l) {
+        if (k.val().length != l.length) {
+            g.start = g.start + (l.length - k.val().length);
+            g.end = g.end + (l.length - k.val().length)
+        }
+    }
+    k.val(l);
+    if (k.is(":focus")) {
+        k.setSelection(g)
+    }
+}
+function initToggleHeader(b) {
+    $("a.toggleHeader").click(function () {
+        $("#planet").toggleClass("shortHeader");
+        $(".c-left").toggleClass("shortCorner");
+        $(".c-right").toggleClass("shortCorner");
+        changeSetting("headerImage", b + "|" + ($("#planet.shortHeader").length == 1))
+    })
+}
+function initFormValidation() {
+    $("form.formValidation").validationEngine({
+        validationEventTrigger: "keyup blur",
+        promptPosition: "centerRight"
+    })
+}
+Function.prototype.clone = function () {
+    var e = this;
+    var f = function () {
+        return e.apply(this, arguments)
+    };
+    f.prototype = e.prototype;
+    for (var d in e) {
+        if (e.hasOwnProperty(d) && d !== "prototype") {
+            f[d] = e[d]
+        }
+    }
+    return f
+};
+jQuery.fn.slideFadeToggle = function (e, f, d) {
+    return this.animate({opacity: "toggle", width: "toggle"}, e, f, d)
+};
+function focusOnTabChange(e, d) {
+    var f = function () {
+        $(e).focus()
+    };
+    if (d == true) {
+        $(document).ready(f)
+    }
+    $(window).unbind("blur").bind("blur", f)
+}
+function getIEVersion() {
+    var b = 999;
+    if (navigator.appVersion.indexOf("MSIE") != -1) {
+        b = parseFloat(navigator.appVersion.split("MSIE")[1])
+    }
+    return b
+}
+ogame.tools = {
+    addHover: function (b) {
+        $(b).on({
+            mouseenter: function () {
+                $(this).addClass("over")
+            }, mouseleave: function () {
+                $(this).removeClass("over")
+            }
+        })
+    }, scrollToTop: function () {
+        var b = $(".scroll_to_top");
+        $(window).on("scroll.scrollToTop", function () {
+            $(".scroll_to_top").css({visibility: (b.offset().top > window.innerHeight) ? "visible" : "hidden"}, 600)
+        });
+        b.on("click.scrollToTop", function () {
+            $("body, html").animate({scrollTop: 0}, 600)
+        })
+    }
+};
+function refreshBars(f, h, e) {
+    var g = $("." + f);
+    g.each(function () {
+        var a = $(this), o = a.data("currentAmount"), p = a.data("capacity"), n = o / p * 100, b = a.find("." + h);
+        if (n > 100) {
+            n = 100
+        } else {
+            if (n == 0) {
+                n = 0
+            } else {
+                if (n < 1.3) {
+                    n = 1.3
+                }
+            }
+        }
+        b.css("width", n + "%");
+        if (n < 90) {
+            b.attr("class", h + " filllevel_undermark")
+        } else {
+            if (n > 90 && n < 100) {
+                b.attr("class", h + " filllevel_middlemark")
+            } else {
+                b.attr("class", h + " filllevel_overmark")
+            }
+        }
+        if (e) {
+            var c = a.find("." + e), d = c.data("premiumPercent");
+            if ((n + d) > 100) {
+                d = 100 - n
+            }
+            c.css("width", d + "%")
+        }
+    })
+}
+var TimerHandler = function (d, c) {
+    if (typeof(d) == "undefined") {
+        d = 1000
+    }
+    this._interval = d;
+    this._callbacks = new Array();
+    this._intervalId = null;
+    this._lastId = 0;
+    this.pageReloadAlreadyTriggered = false;
+    this.checkEventsAlreadyQueued = false;
+    if (c != false) {
+        this.startTimer()
+    }
+};
+TimerHandler.prototype.appendCallback = function (c) {
+    var d = this._lastId++;
+    this._callbacks[d] = c;
+    return d
+};
+TimerHandler.prototype.removeCallback = function (b) {
+    this._callbacks[b] = null
+};
+TimerHandler.prototype.startTimer = function () {
+    var b = this;
+    this._intervalId = window.setInterval(function () {
+        b._timer()
+    }, this._interval)
+};
+TimerHandler.prototype.stopTimer = function () {
+    window.clearInterval(this._intervalId)
+};
+TimerHandler.prototype._timer = function () {
+    for (var b in this._callbacks) {
+        if (this._callbacks[b] != null) {
+            this._callbacks[b]()
+        }
+    }
+};

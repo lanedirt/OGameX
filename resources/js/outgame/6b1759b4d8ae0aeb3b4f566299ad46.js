@@ -1,0 +1,1 @@
+var ogame=ogame||{};

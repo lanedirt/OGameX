@@ -100,10 +100,11 @@ After completing the setup, visit http://localhost to access OGameX. You first n
 For production there is a separate docker-compose file that is used to run the application. This file is called `docker-compose.prod.yml`. This configuration contains
 several performance optimizations and security settings that are not present in the development configuration.
 
-***Caution:*** the production configuration is not yet fully optimized and should be used with caution. As an example, the database root user uses a default password which should be changed to something unique.
+***Caution:*** the production configuration is not yet fully optimized and should be used with caution. As an example, the database root user uses a default password which should be changed to something unique. 
+You should review all settings before deploying this project to a publicly accessible server.
 
 1. Clone the repository.
-2. Copy `.env.example` to `.env`.
+2. Copy `.env.example-prod` to `.env`.
 3. Launch the project using Docker Compose:
   ```
   $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate

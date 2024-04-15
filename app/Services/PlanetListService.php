@@ -87,6 +87,7 @@ class PlanetListService
      * Updates all planets in this planet list.
      *
      * @return void
+     * @throws Exception
      */
     public function update(): void
     {

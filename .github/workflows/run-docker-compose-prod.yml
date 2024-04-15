@@ -27,12 +27,12 @@ jobs:
       - name: Set Permissions
         run: docker compose exec -T ogame-app chmod -R 777 /var/www
       - name: Copy .env
-        run: docker compose exec -T ogame-app cp .env.example .env
+        run: docker compose exec -T ogame-app cp .env.example-prod .env
       - name: Run Laravel setup commands
         run: |
           docker compose exec -T ogame-app composer install --no-dev
           docker compose exec -T ogame-app php artisan key:generate
       - name: Run DB Migrations
-        run: docker compose exec -T ogame-app php artisan migrate
+        run: docker compose exec -T ogame-app php artisan migrate --force
       - name: Run configuration cache commands
         run: docker compose exec -T ogame-app php artisan cache:clear && docker compose exec -T ogame-app php artisan config:cache && docker compose exec -T ogame-app php artisan route:cache && docker compose exec -T ogame-app php artisan view:cache

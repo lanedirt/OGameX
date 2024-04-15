@@ -2,9 +2,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="{{ app()->getLocale() }}">
 <head>
-    <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <!--
      ===========================================
        ____   _____                     __   __
@@ -21,7 +18,8 @@
 
      This application is released under the MIT License. For more details, visit the GitHub repository.
     -->
-
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="language" content="en" />
     <meta name="author" content="OGameX" />
@@ -36,35 +34,8 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <link rel="apple-touch-icon" href="/img/outgame/20da7e6c416e6cd5f8544a73f588e5.png"/>
-    <link rel="stylesheet" type="text/css" href="css/outgame/eb9df5eeb514647c2061eb0deb26c6.css" />
-    <link rel="stylesheet" type="text/css" href="css/outgame/8eb0908b8ad7243d2e6c1efb829232.css" />
-    <link rel="stylesheet" type="text/css" href="css/outgame/f18de6efddc2c4fe6d29b8380d4905.css" />
-    <link rel="stylesheet" type="text/css" href="css/outgame/0d1c3e71d059f84a4a95afb652ed1d.css" />
-    <link rel="stylesheet" type="text/css" href="css/outgame/d22ddc446567b74f828e3cfa356f3b.css" />
-
-    <link rel="stylesheet" type="text/css" href="css/outgame/175d13751348e190f1ff2a51466c5f.css" />
-
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" type="text/css" href="css/outgame/8203e97695e64d89c5ed0efca2dd55.css" />
-    <![endif]-->
-    <!--[if lt IE 7]>
-    <link rel="stylesheet" type="text/css" href="css/outgame/9253d1dbc4e5de58100a2db4b3b5b1.css" />
-    <![endif]-->
-
-    <!-- Styles -->
-    <!--<link href="{{ asset('css/app.css') }}" rel="stylesheet">-->
-
-    <script type="text/javascript" src="js/outgame/6b1759b4d8ae0aeb3b4f566299ad46.js"></script>
-    <script type="text/javascript" src="js/outgame/22838c9f0f7e8e3535367164b832ce.js"></script>
-    <script type="text/javascript" src="js/outgame/22ef0d59ed3309209b51ac1d7d8674.js"></script>
-    <script type="text/javascript" src="js/outgame/f02d853270851b55790fb41a4113e9.js"></script>
-    <script type="text/javascript" src="js/outgame/799ec2f0eba935380926ea7756db23.js"></script>
-    <script type="text/javascript" src="js/outgame/d0437255213d95b42db39070285d8c.js"></script>
-    <script type="text/javascript" src="js/outgame/0b5c68ed173515e7cb0965c287aa0c.js"></script>
-    <script type="text/javascript" src="js/outgame/4c590fd581de4bc24b47347d879e94.js"></script>
-    <script type="text/javascript" src="js/outgame/6871e1cb7f618a30edcba23801e23c.js"></script>
-    <script type="text/javascript" src="js/outgame/0136dd84cb21c44f18865ec6f6b10a.js"></script>
-    <script type="text/javascript" src="js/outgame/60cd95d4ce5cb91a86861f433773d1.js"></script>
+    <link rel="stylesheet" href="{{ mix('css/outgame.css') }}">
+    <script type="text/javascript" src="{{ mix('js/outgame.min.js') }}"></script>
 
     <script type="text/javascript">
         // <![CDATA[
