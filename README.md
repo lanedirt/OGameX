@@ -5,7 +5,7 @@ OGameX is an open-source OGame clone aiming to recreate the official OGame exper
 
 ### Demo sites where you can see OGameX in action:
 - Main branch (nightly builds): [https://main.ogamex.dev](https://main.ogamex.dev)
-- Latest stable release **(0.2.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
+- Latest stable release **(0.3.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
 
 ## Table of Contents
 - [1. Example screenshots](#1-example-screenshots)
@@ -44,13 +44,14 @@ OGameX is under active development with several core features already implemente
 - Basic galaxy overview
 - Planet switching
 - Highscore system
+- Basic messages system
 
 ### a) Upcoming Features
 
-New features are continiously being added. Upcoming features:
-
-- Messages system
+New features are continuously being added. Upcoming features:
 - Fleet dispatch missions (combat, transport, espionage, and more)
+- Colonizing planets
+- Support for Moons
 - Alliance system
 
 ## 5. Contributing
