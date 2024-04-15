@@ -124,10 +124,11 @@ class PlanetServiceFactory
      * Creates a new random planet and then return the planetService instance for it.
      *
      * @param PlayerService $player
+     * @param string $planetName
      * @return PlanetService
      * @throws BindingResolutionException
      */
-    public function createForPlayer(PlayerService $player): PlanetService
+    public function createForPlayer(PlayerService $player, string $planetName = 'Colony'): PlanetService
     {
         $new_position = $this->determineNewPlanetPosition();
         if (empty($new_position['galaxy']) || empty($new_position['system']) || empty($new_position['position'])) {
@@ -138,7 +139,7 @@ class PlanetServiceFactory
         // Position is available
         $planet = new Planet;
         $planet->user_id = $player->getId();
-        $planet->name = 'MyPlanet';
+        $planet->name = $planetName;
         $planet->galaxy = $new_position['galaxy'];
         $planet->system = $new_position['system'];
         $planet->planet = $new_position['position'];

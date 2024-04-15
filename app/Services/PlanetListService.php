@@ -63,9 +63,10 @@ class PlanetListService
             // TODO: move this logic to the user creation logic as well as the tech records.
             // As a test: give all players two random planets. (this should be just one, uncomment the below after dev)
 
+            $planetNames = ['Homeworld', 'Colony'];
             for ($i = 0; $i < 2; $i++) {
                 $planetServiceFactory = app()->make(PlanetServiceFactory::class);
-                $planetService = $planetServiceFactory->createForPlayer($this->player);
+                $planetService = $planetServiceFactory->createForPlayer($this->player, $planetNames[$i]);
 
                 $this->planets[] = $planetService;
             }
