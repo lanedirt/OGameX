@@ -1,5 +1,16 @@
 @php /** @var OGame\ViewModels\Queue\UnitQueueViewModel $build_active */ @endphp
 @if (!empty($build_active))
+    <script type="text/javascript">
+        @if (!empty($build_active))
+        $(document).ready(function () {
+            // Countdown for inline building element (pusher)
+            var elem = getElementByIdWithCache("b_resources{{ $build_active->object->id }}");
+            if(elem) {
+                new bauCountdown(elem, {{ $build_active->time_countdown }}, {{ $build_active->time_total }}, "{{ url()->current() }}");
+            }
+        });
+        @endif
+    </script>
     <script>
         $(document).ready(function () {
             @if (!empty($build_active))

@@ -105,6 +105,7 @@ abstract class AbstractUnitsController extends OGameController
                 $view_model->requirements_met = $requirements_met;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name);
+                $view_model->currently_building_amount = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name) ? $build_active->object_amount_remaining : 0;
 
                 $units[$key_row][$object->id] = $view_model;
             }
