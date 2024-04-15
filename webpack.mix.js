@@ -49,6 +49,7 @@ mix.scripts([
     'resources/js/outgame/6871e1cb7f618a30edcba23801e23c.js',
     'resources/js/outgame/0136dd84cb21c44f18865ec6f6b10a.js',
     'resources/js/outgame/60cd95d4ce5cb91a86861f433773d1.js',
+    'resources/js/outgame/b55eb79922e157d28e811c7452ab10.js',
 ], 'public/js/outgame.js').minify('public/js/outgame.js').version();
 
 mix.postCss('resources/css/ingame.css', 'public/css', [
