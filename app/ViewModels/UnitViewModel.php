@@ -12,4 +12,5 @@ class UnitViewModel
     public bool $requirements_met;
     public bool $enough_resources;
     public bool $currently_building;
+    public int $currently_building_amount;
 }
