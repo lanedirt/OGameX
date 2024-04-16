@@ -16,14 +16,11 @@ class BootstrapTest extends TestCase
     public function testLoginRedirect(): void
     {
         $response = $this->get('/');
-
-        // TODO: below sometimes results in redirect to /overview which is not
-        // correct when there is no authenticated user yet. Check this later.
         $response->assertStatus(301);
     }
 
     /**
-     * Verify that registering an new account works as expected.
+     * Verify that registering a new account works as expected.
      */
     public function testAccountCreation(): void
     {

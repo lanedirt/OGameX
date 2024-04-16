@@ -39,9 +39,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is in the queue and is still level 0.
         $response = $this->get('/resources');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Metal\s+Mine\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Metal mine is not still at level 0 directly after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal mine is not still at level 0 directly after build request issued.');
 
         // ---
         // Step 3: Verify the building is still in the build queue 2 seconds later.
@@ -52,9 +50,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is still in the queue and is still level 0.
         $response = $this->get('/resources');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Metal\s+Mine\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Metal mine is not still at level 0 two seconds after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal mine is not still at level 0 directly after build request issued.');
 
         // ---
         // Step 4: Verify the building is finished 1 minute later.
@@ -65,9 +61,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is finished and is now level 1.
         $response = $this->get('/resources');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Metal\s+Mine\s*<\/span>\s*1\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Metal mine is not at level 1 one minute after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 1, 'Metal mine is not at level 1 one minute after build request issued.');
     }
 
     /**
@@ -101,9 +95,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is in the queue and is still level 0.
         $response = $this->get('/facilities');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Robotics\s+Factory\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Robotics factory is not still at level 0 directly after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'robot_factory', 0, 'Robotics factory is not still at level 0 directly after build request issued.');
 
         // ---
         // Step 3: Verify the building is still in the build queue 2 seconds later.
@@ -114,9 +106,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is still in the queue and is still level 0.
         $response = $this->get('/facilities');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Robotics\s+Factory\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Robotics factory is not still at level 0 two seconds after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'robot_factory', 0, 'Robotics factory is not still at level 0 two seconds after build request issued.');
 
         // ---
         // Step 4: Verify the building is finished 10 minutes later.
@@ -127,9 +117,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is finished and is now level 1.
         $response = $this->get('/facilities');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Robotics\s+Factory\s*<\/span>\s*1\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Robotics factory is not at level 1 ten minutes after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'robot_factory', 1, 'Robotics factory is not at level 1 ten minutes after build request issued.');
     }
 
     /**
@@ -167,9 +155,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is in the queue and is still level 0.
         $response = $this->get('/facilities');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Robotics\s+Factory\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Robotics factory is not still at level 0 directly after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'robot_factory', 0, 'Robotics factory is not still at level 0 directly after build request issued.');
 
         // ---
         // Step 3: Verify that one building is finished 30s later.
@@ -180,9 +166,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is finished and is now level 1.
         $response = $this->get('/facilities');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Robotics\s+Factory\s*<\/span>\s*1\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Robotics factory is not at level 1 30s after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'robot_factory', 1, 'Robotics factory is not at level 1 30s after build request issued.');
 
         // ---
         // Step 3: Verify that both building upgrades are finished 5 minutes later.
@@ -193,9 +177,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is finished and is now level 2.
         $response = $this->get('/facilities');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Robotics\s+Factory\s*<\/span>\s*2\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Robotics factory is not at level 2 5m after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'robot_factory', 2, 'Robotics factory is not at level 2 5m after build request issued.');
     }
 
     /**
@@ -221,9 +203,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is in the queue and is still level 0.
         $response = $this->get('/resources');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Metal\s+Mine\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Metal mine is not still at level 0 directly after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal mine is not still at level 0 directly after build request issued.');
 
         // ---
         // Step 3: Verify the building is still in the build queue 2 seconds later.
@@ -234,9 +214,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is still in the queue and is still level 0.
         $response = $this->get('/resources');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Metal\s+Mine\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Metal mine is not still at level 0 two seconds after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal mine is not still at level 0 two seconds after build request issued.');
 
         // ---
         // Step 4: Verify the building is finished 1 minute later.
@@ -247,9 +225,7 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is finished and is now level 1.
         $response = $this->get('/resources');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Metal\s+Mine\s*<\/span>\s*1\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Metal mine is not at level 1 one minute after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 1, 'Metal mine is not at level 1 one minute after build request issued.');
     }
 
     /**
@@ -306,9 +282,7 @@ class BuildQueueTest extends AccountTestCase
 
         $response = $this->get('/resources');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Metal\sMine\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Metal Mine has been built while there were no resources.');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal Mine has been built while there were no resources.');
     }
 
     /**
@@ -340,8 +314,6 @@ class BuildQueueTest extends AccountTestCase
 
         $response = $this->get('/resources');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Fusion\sReactor\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Fusion Reactor has been built while player has not satisfied building requirements.');
+        $this->assertObjectLevelOnPage($response, 'fusion_plant', 0, 'Fusion Reactor has been built while player has not satisfied building requirements.');
     }
 }
