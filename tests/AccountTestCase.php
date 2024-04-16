@@ -4,6 +4,7 @@ namespace Tests;
 
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Testing\TestResponse;
 use OGame\Models\Resources;
 use OGame\Services\PlayerService;
 
@@ -47,7 +48,7 @@ abstract class AccountTestCase extends TestCase
         $response = $this->get('/overview');
         if ($response->status() !== 200) {
             // Log first 200 chars.
-            $this->fail('Failed to retrieve overview page after registration. Response HTTP code: ' . $response->status() . '. Response first 2k chars: ' . substr($response->getContent(),0,2000));
+            $this->fail('Failed to retrieve overview page after registration. Response HTTP code: ' . $response->status() . '. Response first 2k chars: ' . substr($response->getContent(), 0, 2000));
         }
         $content = $response->getContent();
 
@@ -78,10 +79,11 @@ abstract class AccountTestCase extends TestCase
      */
     protected function planetAddResources(Resources $resources): void
     {
-        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
-        $planetService = $playerService->planets->current();
+        if (!isset($this->planetService)) {
+            $this->planetService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId])->planets->current();
+        }
         // Update resources.
-        $planetService->addResources($resources, true);
+        $this->planetService->addResources($resources, true);
     }
 
     /**
@@ -94,10 +96,11 @@ abstract class AccountTestCase extends TestCase
      */
     protected function planetDeductResources(Resources $resources): void
     {
-        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
-        $planetService = $playerService->planets->current();
+        if (!isset($this->planetService)) {
+            $this->planetService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId])->planets->current();
+        }
         // Update resources.
-        $planetService->deductResources($resources);
+        $this->planetService->deductResources($resources);
     }
 
     /**
@@ -111,12 +114,12 @@ abstract class AccountTestCase extends TestCase
      */
     protected function planetSetObjectLevel(string $machine_name, int $object_level): void
     {
-        // Update current users planet buildings to allow for research by mutating database.
-        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
-        $planetService = $playerService->planets->current();
+        if (!isset($this->planetService)) {
+            $this->planetService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId])->planets->current();
+        }
         // Update the object level on the planet.
-        $object = $planetService->objects->getObjectByMachineName($machine_name);
-        $planetService->setObjectLevel($object->id, $object_level, true);
+        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+        $this->planetService->setObjectLevel($object->id, $object_level, true);
     }
 
     /**
@@ -135,4 +138,69 @@ abstract class AccountTestCase extends TestCase
         $playerService->setResearchLevel($machine_name, $object_level, true);
     }
 
+    /**
+     * Assert that the object level is as expected on the page.
+     *
+     * @param TestResponse $response
+     * @param string $machine_name
+     * @param int $expected_level
+     * @param string $error_message
+     * @return void
+     */
+    protected function assertObjectLevelOnPage(TestResponse $response, string $machine_name, int $expected_level, string $error_message = ''): void
+    {
+        // Get object name from machine name.
+        try {
+            if (!isset($this->planetService)) {
+                $this->planetService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId])->planets->current();
+            }
+            $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+        } catch (Exception $e) {
+            $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
+        }
+        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*' . $object->title . '\s*<\/span>\s*(\d+)\s*<\/span>/';
+
+        if (preg_match($pattern, $response->getContent(), $matches)) {
+            $actual_level = $matches[1];  // The captured digits
+            if (!empty($error_message)) {
+                $this->assertEquals($expected_level, $actual_level, $error_message);
+            } else {
+                $this->assertEquals($expected_level, $actual_level, $object->title . ' is at level (' . $actual_level . ') while it is expected to be at level (' . $expected_level . ').');
+            }
+        } else {
+            $this->fail('No matching level found on page for object ' . $object->title);
+        }
+    }
+
+    /**
+     * Assert that the resources are as expected on the page.
+     *
+     * @param TestResponse $response
+     * @param Resources $resources
+     * @return void
+     */
+    protected function assertResourcesOnPage(TestResponse $response, Resources $resources): void{
+        if ($resources->metal->get() > 0) {
+            $pattern = '/<span\s+id="resources_metal" class="[^"]*">\s*' . $resources->metal->getFormattedLong() . '\s*<\/span>/';
+            $result = preg_match($pattern, $response->getContent());
+            $this->assertTrue($result === 1, 'Resource metal is not at ' . $resources->metal->getFormattedLong() . '.');
+        }
+        if ($resources->crystal->get() > 0) {
+            $pattern = '/<span\s+id="resources_crystal" class="[^"]*">\s*' . $resources->crystal->getFormattedLong() . '\s*<\/span>/';
+            $result = preg_match($pattern, $response->getContent());
+            $this->assertTrue($result === 1, 'Resource crystal is not at ' . $resources->crystal->getFormattedLong() . '.');
+        }
+
+        if ($resources->deuterium->get() > 0) {
+            $pattern = '/<span\s+id="resources_deuterium" class="[^"]*">\s*' . $resources->deuterium->getFormattedLong() . '\s*<\/span>/';
+            $result = preg_match($pattern, $response->getContent());
+            $this->assertTrue($result === 1, 'Resource deuterium is not at ' . $resources->deuterium->getFormattedLong() . '.');
+        }
+
+        if ($resources->energy->get() > 0) {
+            $pattern = '/<span\s+id="resources_energy" class="[^"]*">\s*' . $resources->energy->getFormattedLong() . '\s*<\/span>/';
+            $result = preg_match($pattern, $response->getContent());
+            $this->assertTrue($result === 1, 'Resource energy is not at ' . $resources->energy->getFormattedLong() . '.');
+        }
+    }
 }

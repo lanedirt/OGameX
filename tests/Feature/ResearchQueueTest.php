@@ -47,9 +47,7 @@ class ResearchQueueTest extends AccountTestCase
         // Check if the research is in the queue and is still level 0.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Energy technology is not still at level 0 two seconds after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 0, 'Energy technology is not still at level 0 two seconds after build request issued.');
 
         // ---
         // Step 3: Verify the research is still in the build queue 1 minute later.
@@ -60,9 +58,7 @@ class ResearchQueueTest extends AccountTestCase
         // Check if the technology is still in the queue and is still level 0.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Energy technology is not still at level 0 two seconds after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 0, 'Energy technology is not still at level 0 two seconds after build request issued.');
 
         // ---
         // Step 4: Verify the research is finished 10 minute later.
@@ -73,9 +69,7 @@ class ResearchQueueTest extends AccountTestCase
         // Check if the technology research is finished and is now level 1.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*1\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Energy technology is not at level one 10 minutes after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 1, 'Energy technology is not at level one 10 minutes after build request issued.');
     }
 
     /**
@@ -107,9 +101,7 @@ class ResearchQueueTest extends AccountTestCase
         // Check if the research is in the queue and is still level 0.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Energy technology is not still at level 0 two seconds after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 0, 'Energy technology is not still at level 0 two seconds after build request issued.');
 
         // ---
         // Step 3: Verify the research is still in the build queue 1 minute later.
@@ -120,9 +112,7 @@ class ResearchQueueTest extends AccountTestCase
         // Check if the technology is still in the queue and is still level 0.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Energy technology is not still at level 0 two seconds after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 0, 'Energy technology is not still at level 0 two seconds after build request issued.');
 
         // ---
         // Step 4: Verify the research is finished 10 minute later.
@@ -133,9 +123,7 @@ class ResearchQueueTest extends AccountTestCase
         // Check if the technology research is finished and is now level 1.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*1\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Energy technology is not at level one 10 minutes after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 1, 'Energy technology is not at level one 10 minutes after build request issued.');
     }
 
     /**
@@ -175,9 +163,7 @@ class ResearchQueueTest extends AccountTestCase
         // Check if the research is in the queue and is still level 0.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Energy technology is not still at level 0 two seconds after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 0, 'Energy technology is not still at level 0 two seconds after build request issued.');
 
         // ---
         // Step 3: Verify that 1 research queue item is finished 15 minutes later.
@@ -188,9 +174,7 @@ class ResearchQueueTest extends AccountTestCase
         // Check if the research is finished and is now level 1.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*1\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Energy technology is not at level one 15 minutes after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 1, 'Energy technology is not at level one 15 minutes after build request issued.');
 
         // ---
         // Step 3: Verify that 1 research queue item is finished 330 minutes later.
@@ -201,9 +185,7 @@ class ResearchQueueTest extends AccountTestCase
         // Check if the research is finished and is now level 1.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Energy\sTechnology\s*<\/span>\s*2\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Energy technology is not at level two 30 minutes after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 2, 'Energy technology is not at level two 30 minutes after build request issued.');
     }
 
     /**
@@ -223,17 +205,10 @@ class ResearchQueueTest extends AccountTestCase
 
         // ---------
 
-        // Verify that we begin the test with 500 metal and 500 crystal
+        // Verify that we begin the test with expected resources.
         $response = $this->get('/research');
         $response->assertStatus(200);
-
-        $pattern = '/<span\s+id="resources_crystal" class="">\s*1,300\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Not starting test at 1300 crystal. Verify starting resources and update tests accordingly.');
-
-        $pattern = '/<span\s+id="resources_deuterium" class="">\s*400\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Not starting test at 400 deuterium. Verify starting resources and update tests accordingly.');
+        $this->assertResourcesOnPage($response, new Resources(0, 1300, 400, 0));
 
         $response = $this->post('/research/add-buildrequest', [
             '_token' => csrf_token(),
@@ -248,13 +223,7 @@ class ResearchQueueTest extends AccountTestCase
         $response->assertStatus(200);
 
         // Assert that resources have been actually deducted
-        $pattern = '/<span\s+id="resources_crystal" class="">\s*500\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Resources have not been properly deducted when starting research.');
-
-        $pattern = '/<span\s+id="resources_deuterium" class="">\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Resources have not been properly deducted when starting research.');
+        $this->assertResourcesOnPage($response, new Resources(0, 500, 0, 0));
 
         $response->assertSee('Cancel expansion of Energy Technology');
         // Extract first and second number on page which looks like this where num1/num2 are ints:
@@ -289,13 +258,7 @@ class ResearchQueueTest extends AccountTestCase
         $response->assertStatus(200);
 
         // Assert that resources have been refunded.
-        $pattern = '/<span\s+id="resources_crystal" class="">\s*1,300\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Resources have not been refunded after research build cancellation.');
-
-        $pattern = '/<span\s+id="resources_deuterium" class="">\s*400\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Resources have not been refunded after research build cancellation.');
+        $this->assertResourcesOnPage($response, new Resources(0, 1300, 400, 0));
     }
 
     /**

@@ -49,8 +49,6 @@
         }
         function cancelProductionStart() {
             $('<form id="cancelProductionStart" action="{{ route('research.cancelbuildrequest') }}" method="POST" style="display: none;">{{ csrf_field() }}<input type="hidden" name="building_id" value="' + cancelProduction_id + '" /> <input type="hidden" name="building_queue_id" value="' + production_listid + '" /></form>').appendTo('body').submit();
-
-            //window.location.replace("{!! route('research.cancelbuildrequest') !!}?_token=" + csrfToken + "&techid=" + cancelProduction_id + "&listid=" + production_listid);
         }
         $(document).ready(function () {
             initEventTable();
@@ -384,14 +382,14 @@
                     @endif
 
                     {{-- Building queue has items. --}}
-                    @php /** @var array<OGame\ViewModels\QueueResearchQueueListViewModel> $build_queue */ @endphp
+                    @php /** @var array<OGame\ViewModels\Queue\ResearchQueueListViewModel> $build_queue */ @endphp
                     @if (count($build_queue) > 0)
                         <table class="queue">
                             <tbody><tr>
-                            @php /** @var OGame\ViewModels\QueueResearchQueueViewModel $item */ @endphp
+                            @php /** @var OGame\ViewModels\Queue\ResearchQueueViewModel $item */ @endphp
                             @foreach ($build_queue as $item)
                                     <td>
-                                        <a href="javascript:void(0);" class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet" onclick="cancelProduction({!! $item->object->id !!},{!! $item->id !!},&quot;Cancel expansion of {!! $item->object->title !!} to level {!! $item->object->title !!}?&quot;); return false;" title="">
+                                        <a href="javascript:void(0);" class="queue_link tooltip js_hideTipOnMobile dark_highlight_tablet" onclick="cancelProduction({!! $item->object->id !!},{!! $item->id !!},&quot;Cancel expansion of {!! $item->object->title !!} to level {!! $item->level_target !!}?&quot;); return false;" title="">
                                             <img class="queuePic" src="{!! asset('img/objects/research/' . $item->object->assets->imgMicro) !!}" height="28" width="28" alt="{!! $item->object->title !!}">
                                             <span>{!! $item->level_target !!}</span>
                                         </a>

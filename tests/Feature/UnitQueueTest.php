@@ -64,9 +64,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\s*Fighter\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter is not at 0 units directly after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 0, 'Light Fighter is not at 0 units directly after build request issued.');
 
         // ---
         // Step 3: Verify the ships are still in the build queue 1 minute later.
@@ -76,9 +74,7 @@ class UnitQueueTest extends AccountTestCase
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\s*Fighter\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter is not at 0 units 1m after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 0, 'Light Fighter is not at 0 units 1m after build request issued.');
 
         // ---
         // Step 4: Verify that some ships are finished 30 minute later.
@@ -88,9 +84,7 @@ class UnitQueueTest extends AccountTestCase
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\sFighter\s*<\/span>\s*3\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter build job has not completed exactly 3 units 15m after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 3, 'Light Fighter build job has not completed exactly 3 units 15m after build request issued.');
 
         // ---
         // Step 5: Verify that ALL ships are finished 15 minute later.
@@ -100,9 +94,7 @@ class UnitQueueTest extends AccountTestCase
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\sFighter\s*<\/span>\s*10\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter build job is not finished yet 2h after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 10, 'Light Fighter build job is not finished yet 2h after build request issued.');
     }
 
     /**
@@ -158,12 +150,8 @@ class UnitQueueTest extends AccountTestCase
         // ---
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\s*Fighter\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter is not at 0 units directly after build request issued.');
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Solar\s*Satellite\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Solar Satellite is not at 0 units directly after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 0, 'Light Fighter is not at 0 units directly after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'solar_satellite', 0, 'Solar Satellite is not at 0 units directly after build request issued.');
 
         // ---
         // Step 3: Verify that the light fighters and partial solar satellites are finished 30 minute later.
@@ -173,12 +161,8 @@ class UnitQueueTest extends AccountTestCase
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\s*Fighter\s*<\/span>\s*3\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter is not at 3 units 25m after build request issued.');
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Solar\s*Satellite\s*<\/span>\s*2\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Solar Satellite is not at 2 units 25m after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 3, 'Light Fighter is not at 3 units 25m after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'solar_satellite', 2, 'Solar Satellite is not at 2 units 25m after build request issued.');
 
         // ---
         // Step 5: Verify that ALL ships are finished 30 minute later.
@@ -188,12 +172,8 @@ class UnitQueueTest extends AccountTestCase
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\sFighter\s*<\/span>\s*5\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter build job is not finished 2h after build request issued.');
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Solar\s*Satellite\s*<\/span>\s*10\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Solar Satellite build job is not finished 2h after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light Fighter build job is not finished 2h after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'solar_satellite', 10, 'Solar Satellite build job is not finished 2h after build request issued.');
     }
 
     /**
@@ -231,9 +211,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         $response = $this->get('/defense');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Rocket\s*Launcher\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Rocket Launcher is not at 0 units directly after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'rocket_launcher', 0, 'Rocket Launcher is not at 0 units directly after build request issued.');
 
         // ---
         // Step 3: Verify the defense units are still in the build queue 1 minute later.
@@ -243,9 +221,7 @@ class UnitQueueTest extends AccountTestCase
 
         $response = $this->get('/defense');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Rocket\s*Launcher\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Rocket Launcher is not at 0 units 30 seconds after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'rocket_launcher', 0, 'Rocket Launcher is not at 0 units 30 seconds after build request issued.');
 
         // ---
         // Step 4: Verify that some defense units are finished 10 minute later.
@@ -255,9 +231,7 @@ class UnitQueueTest extends AccountTestCase
 
         $response = $this->get('/defense');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Rocket\sLauncher\s*<\/span>\s*3\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Rocket Launcher build job has not completed exactly 3 units 10 minutes after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'rocket_launcher', 3, 'Rocket Launcher build job has not completed exactly 3 units 10 minutes after build request issued.');
 
         // ---
         // Step 5: Verify that ALL defense units are finished 1h later.
@@ -267,9 +241,7 @@ class UnitQueueTest extends AccountTestCase
 
         $response = $this->get('/defense');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Rocket\sLauncher\s*<\/span>\s*10\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Rocket Launcher build job is not finished yet 1h after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'rocket_launcher', 10, 'Rocket Launcher build job is not finished yet 1h after build request issued.');
     }
 
     /**
@@ -333,9 +305,7 @@ class UnitQueueTest extends AccountTestCase
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Light\sFighter\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Light Fighter units have been built while there were no resources.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 0, 'Light Fighter units have been built while there were no resources.');
     }
 
     /**
@@ -355,14 +325,7 @@ class UnitQueueTest extends AccountTestCase
         // Assert that we begin with 30500 metal and 10500 crystal.
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
-
-        $pattern = '/<span\s+id="resources_metal"\s+class="[^"]*">\s*30,500\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Not starting test at 30500 metal. Verify starting resources and update tests accordingly.');
-
-        $pattern = '/<span\s+id="resources_crystal"\s+class="[^"]*">\s*10,500\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Not starting test at 10500 crystal. Verify starting resources and update tests accordingly.');
+        $this->assertResourcesOnPage($response, new Resources(30500, 10500, 0, 0));
 
         // ---
         // Step 1: Issue a request to build 5 light fighters
@@ -381,12 +344,6 @@ class UnitQueueTest extends AccountTestCase
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
 
-        $pattern = '/<span\s+id="resources_metal"\s+class="[^"]*">\s*15,500\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Multiple unit build order incorrect amount of resources deducted.');
-
-        $pattern = '/<span\s+id="resources_crystal"\s+class="[^"]*">\s*5,500\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
-        $this->assertTrue($result === 1, 'Multiple unit build order incorrect amount of resources deducted.');
+        $this->assertResourcesOnPage($response, new Resources(15500, 5500, 0, 0));
     }
 }

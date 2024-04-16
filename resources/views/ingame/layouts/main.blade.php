@@ -573,66 +573,6 @@ Improved fleet escape rate">
                 </div>
             </div>            <!-- END LEFTMENU -->
 
-            <!-- CONTENT AREA -->
-            <div id="contentWrapper"
-                 class="with_chat_bar">
-
-                @yield('content')
-
-            </div>
-            <!-- END CONTENT AREA -->
-
-            <!-- RIGHTMENU -->
-            <div id="rechts">
-                <div id="norm">
-                    <div id="myWorlds">
-                        <div id="countColonies">
-                            <p class="textCenter">
-                                <span>{{ $planets->count() }}/{{ $planets->count() }}</span> Planets
-                            </p>
-                        </div>
-                        <div id="planetList"
-                        >
-                            <!-- @var PlanetService $planet -->
-                            @php
-                                // Get all current query parameters
-                                $currentQueryParams = request()->query();
-                            @endphp
-
-                            @foreach ($planets->all() as $planet)
-                                @php
-                                    // Set or replace the 'cp' parameter
-                                   $currentQueryParams['cp'] = $planet->getPlanetId();
-                                   // Generate the URL to the current route with the updated query parameters
-                                   $urlToCurrentWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
-                                @endphp
-
-                                <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }} " id="planet-{{ $planet->getPlanetId() }}">
-                                    <a href="{{ $urlToCurrentWithUpdatedParam }}"
-                                       title="&lt;b&gt;{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinatesAsString() }}]&lt;/b&gt;&lt;br/&gt;12.800km (0/188)&lt;br&gt;47°C to 87°C&lt;br/&gt;&lt;a href=&quot;#TODO_overview&amp;cp=33734581&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_resources&amp;cp=33734581&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=research&amp;cp=33734581&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=station&amp;cp=33734581&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=shipyard&amp;cp=33734581&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=defense&amp;cp=33734581&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=fleet1&amp;cp=33734581&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=galaxy&amp;cp=33734581&amp;galaxy=4&amp;system=358&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
-                                       class="planetlink {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'active' : '' }}  tooltipRight tooltipClose js_hideTipOnMobile"
-                                    >
-                                        <img class="planetPic js_replace2x"
-                                             alt="{{ $planet->getPlanetName() }}"
-                                             src="/img/icons/a8821a3ef84e0acd053aef2e98972a.png"
-                                             width="48"
-                                             height ="48"
-                                        />
-                                        <span class="planet-name ">{!! $planet->getPlanetName() !!}</span>
-                                        <span class="planet-koords ">[{!! $planet->getPlanetCoordinatesAsString() !!}]</span>
-                                    </a>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="banner_skyscraper" name="banner_skyscraper">
-
-            </div>
-
-            <!-- END RIGHTMENU -->
-
             <!-- JAVASCRIPT -->
             <script type="text/javascript">
                 var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
@@ -1078,6 +1018,65 @@ Improved fleet escape rate">
                     });
                 });</script>            <!-- END JAVASCRIPT -->
 
+            <!-- CONTENT AREA -->
+            <div id="contentWrapper"
+                 class="with_chat_bar">
+
+                @yield('content')
+
+            </div>
+            <!-- END CONTENT AREA -->
+
+            <!-- RIGHTMENU -->
+            <div id="rechts">
+                <div id="norm">
+                    <div id="myWorlds">
+                        <div id="countColonies">
+                            <p class="textCenter">
+                                <span>{{ $planets->count() }}/{{ $planets->count() }}</span> Planets
+                            </p>
+                        </div>
+                        <div id="planetList"
+                        >
+                            <!-- @var PlanetService $planet -->
+                            @php
+                                // Get all current query parameters
+                                $currentQueryParams = request()->query();
+                            @endphp
+
+                            @foreach ($planets->all() as $planet)
+                                @php
+                                    // Set or replace the 'cp' parameter
+                                   $currentQueryParams['cp'] = $planet->getPlanetId();
+                                   // Generate the URL to the current route with the updated query parameters
+                                   $urlToCurrentWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
+                                @endphp
+
+                                <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }} " id="planet-{{ $planet->getPlanetId() }}">
+                                    <a href="{{ $urlToCurrentWithUpdatedParam }}"
+                                       title="&lt;b&gt;{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinatesAsString() }}]&lt;/b&gt;&lt;br/&gt;12.800km (0/188)&lt;br&gt;47°C to 87°C&lt;br/&gt;&lt;a href=&quot;#TODO_overview&amp;cp=33734581&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_resources&amp;cp=33734581&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=research&amp;cp=33734581&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=station&amp;cp=33734581&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=shipyard&amp;cp=33734581&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=defense&amp;cp=33734581&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=fleet1&amp;cp=33734581&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=galaxy&amp;cp=33734581&amp;galaxy=4&amp;system=358&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
+                                       class="planetlink {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'active' : '' }}  tooltipRight tooltipClose js_hideTipOnMobile"
+                                    >
+                                        <img class="planetPic js_replace2x"
+                                             alt="{{ $planet->getPlanetName() }}"
+                                             src="/img/icons/a8821a3ef84e0acd053aef2e98972a.png"
+                                             width="48"
+                                             height ="48"
+                                        />
+                                        <span class="planet-name ">{!! $planet->getPlanetName() !!}</span>
+                                        <span class="planet-koords ">[{!! $planet->getPlanetCoordinatesAsString() !!}]</span>
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="banner_skyscraper" name="banner_skyscraper">
+
+            </div>
+
+            <!-- END RIGHTMENU -->
         </div><!-- box -->
 
     </div><!-- boxBG -->

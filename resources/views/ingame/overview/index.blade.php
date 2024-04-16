@@ -48,8 +48,6 @@
 
         function cancelProductionStart() {
             $('<form id="cancelProductionStart" action="{{ route('resources.cancelbuildrequest') }}" method="POST" style="display: none;">{{ csrf_field() }}<input type="hidden" name="building_id" value="' + cancelProduction_id + '" /> <input type="hidden" name="building_queue_id" value="' + production_listid + '" /> <input type="hidden" name="redirect" value="overview" /></form>').appendTo('body').submit();
-
-            //window.location.replace("{!! route('resources.cancelbuildrequest') !!}?_token=" + csrfToken + "&techid=" + cancelProduction_id + "&listid=" + production_listid);
         }
 
         function cancelResearch(id, listid, question) {
@@ -60,8 +58,6 @@
 
         function cancelResearchStart() {
             $('<form id="cancelProductionStart" action="{{ route('research.cancelbuildrequest') }}" method="POST" style="display: none;">{{ csrf_field() }}<input type="hidden" name="building_id" value="' + cancelProduction_id + '" /> <input type="hidden" name="building_queue_id" value="' + production_listid + '" /> <input type="hidden" name="redirect" value="overview" /></form>').appendTo('body').submit();
-
-            //window.location.replace("{!! route('research.cancelbuildrequest') !!}?_token=" + csrfToken + "&techid=" + cancelProduction_id + "&listid=" + production_listid);
         }
 
         function initType() {
@@ -303,7 +299,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                     <table cellspacing="0" cellpadding="0" class="construction active">
                         <tbody>
                         {{-- Building is actively being built. --}}
-                        @php /** @var OGame\ViewModels\QueueResearchQueueViewModel $research_active */ @endphp
+                        @php /** @var OGame\ViewModels\Queue\ResearchQueueViewModel $research_active */ @endphp
                         @if (!empty($research_active))
                             <tr>
                                 <th colspan="2">{!! $research_active->object->title !!}</th>
