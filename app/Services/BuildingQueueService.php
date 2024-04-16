@@ -54,25 +54,6 @@ class BuildingQueueService
     }
 
     /**
-     * Retrieve queued items that are not being built yet.
-     *
-     * @param Collection $queue_items
-     *
-     * @return Collection
-     *  Collection when an item exists. False if it does not.
-     */
-    public function retrieveQueuedFromQueue(Collection $queue_items) : Collection
-    {
-        foreach ($queue_items as $key => $record) {
-            if ($record['building'] == 1) {
-                unset($queue_items[$key]);
-            }
-        }
-
-        return $queue_items;
-    }
-
-    /**
      * Retrieve all build queue items that already should be finished for a planet.
      *
      * @param int $planet_id
@@ -308,7 +289,7 @@ class BuildingQueueService
             ['planet_id', $planet->getPlanetId()],
             ['object_id', $building_id],
             ['processed', 0],
-            ['time_end', '>', Carbon::now()->timestamp],
+            ['canceled', 0],
         ])->first();
 
         // If object is found: add canceled flag.
@@ -322,6 +303,7 @@ class BuildingQueueService
                 ['object_id', $building_id],
                 ['object_level_target', '>', $queue_item->object_level_target],
                 ['processed', 0],
+                ['canceled', 0],
             ])->get();
 
             // Add canceled flag to all entries with a higher level (if any).

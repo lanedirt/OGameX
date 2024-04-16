@@ -327,13 +327,12 @@ class ResearchQueueService
      */
     public function cancel(PlayerService $player, PlanetService $planet, int $building_queue_id, int $building_id): void
     {
-        // @TODO: add user owner verify checks.
         $queue_item = $this->model->where([
             ['id', $building_queue_id],
             ['planet_id', $planet->getPlanetId()],
             ['object_id', $building_id],
             ['processed', 0],
-            //['time_end', '>', Carbon::now()->timestamp], //@TODO: add back in time_end when building processing logic works.
+            ['canceled', 0],
         ])->first();
 
         // If object is found: add canceled flag.
@@ -347,7 +346,7 @@ class ResearchQueueService
                 ['object_id', $building_id],
                 ['object_level_target', '>', $queue_item->object_level_target],
                 ['processed', 0],
-                //['time_end', '>', Carbon::now()->timestamp], //@TODO: add back in time_end when building processing logic works.
+                ['canceled', 0],
             ])->get();
 
             // Add canceled flag to all entries with a higher level (if any).
