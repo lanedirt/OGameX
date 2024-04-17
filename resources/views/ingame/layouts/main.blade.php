@@ -52,7 +52,7 @@
         var inventoryObj;
         $.holdReady(true);
 
-        var s = setInterval(function() {
+        var s = setInterval(function () {
             if (typeof initEmpireEquipment === "function") {
                 $.holdReady(false);
                 clearInterval(s);
@@ -60,12 +60,15 @@
         }, 1);
     </script>
 </head>
-<body @isset($body_id)id="{!! $body_id !!}"@endisset class="ogame lang-en default no-touch">
+<body @isset($body_id)id="{!! $body_id !!}" @endisset class="ogame lang-en default no-touch">
 <div id="initial_welcome_dialog" title="Welcome to OGame!" style="display: none;">
-    To help your game start get moving quickly, we’ve assigned you the name Commodore Nebula. You can change this at any time by clicking on the username.<br />
-    Fleet Command has left you information on your first steps in your inbox, to help you be well-equipped for your start.<br />
-    <br />
-    Have fun playing!        </div>
+    To help your game start get moving quickly, we’ve assigned you the name Commodore Nebula. You can change this at any
+    time by clicking on the username.<br/>
+    Fleet Command has left you information on your first steps in your inbox, to help you be well-equipped for your
+    start.<br/>
+    <br/>
+    Have fun playing!
+</div>
 <div class="contentBoxBody">
     <noscript>
         <div id="messagecenter">
@@ -77,7 +80,10 @@
         </div>
     </noscript>
     <div id="ie_message">
-        <p><img src="/img/icons/e621aa80dbd4746a9f4f114c8d3853.gif" height="16" width="16" />Your currently used browser is outdated and may cause display errors on this website. Please update your browser to a newer version: <a href="http://www.microsoft.com/upgrade/">Internet Explorer</a> or <a href="http://www.mozilla-europe.org/de/firefox/">Mozilla Firefox</a></p>
+        <p><img src="/img/icons/e621aa80dbd4746a9f4f114c8d3853.gif" height="16" width="16"/>Your currently used browser
+            is outdated and may cause display errors on this website. Please update your browser to a newer version: <a
+                    href="http://www.microsoft.com/upgrade/">Internet Explorer</a> or <a
+                    href="http://www.mozilla-europe.org/de/firefox/">Mozilla Firefox</a></p>
     </div>
     <!-- HEADER -->
     <!-- ONET 4 POLAND -->
@@ -85,7 +91,7 @@
         <div id="box">
             <a name="anchor"></a>
             <div id="info" class="header normal">
-                <a href="{{ route('overview.index') }}"><img src="/img/layout/pixel.gif" id="logoLink" /></a>
+                <a href="{{ route('overview.index') }}"><img src="/img/layout/pixel.gif" id="logoLink"/></a>
                 <div id="star"></div>
                 <div id="star1"></div>
                 <div id="star2"></div>
@@ -93,19 +99,22 @@
                 <div id="bar">
                     <ul>
                         <li id="playerName">
-                            Player:
-                                                                <span class="textBeefy">
-                            <a href="{{ route('changenick.overlay') }}"
-                               class="overlay textBeefy"
-                               data-overlay-title="Change player name"
-                               data-overlay-popup-width="400"
-                               data-overlay-popup-height="200"
-                            >{!! $currentPlayer->getUsername() !!}</a>
-                        </span>
+                            @lang('Player'):
+                            <span class="textBeefy">
+                                <a href="{{ route('changenick.overlay') }}"
+                                   class="overlay textBeefy"
+                                   data-overlay-title="Change player name"
+                                   data-overlay-popup-width="400"
+                                   data-overlay-popup-height="200"
+                                >
+                                    {!! $currentPlayer->getUsername() !!}
+                                </a>
+                            </span>
                         </li>
                         <li>
-                            <a href="{{ route('highscore.index') }}" accesskey="">Highscore</a>
-                            (0)                </li>
+                            <a href="{{ route('highscore.index') }}" accesskey="">@lang('Highscore')</a>
+                            (0)
+                        </li>
                         <li>
                             <a href="{{ route('notes.overlay') }}"
                                class="overlay" data-overlay-title="My notes"
@@ -113,26 +122,26 @@
                                data-overlay-popup-width="750"
                                data-overlay-popup-height="480"
                                accesskey="">
-                                Notes</a>
+                                @lang('Notes')</a>
                         </li>
                         <li>
                             <a class=""
                                accesskey=""
                                href="{{ route('buddies.index') }}"
                             >
-                                Buddies</a>
+                                @lang('Buddies')</a>
                         </li>
                         <li><a class="overlay"
                                href="{{ route('search.overlay') }}"
                                data-overlay-title="Search Universe"
                                data-overlay-close="__default closeSearch"
                                data-overlay-class="search"
-                               accesskey="">Search</a>
+                               accesskey="">@lang('Search')</a>
                         </li>
-                        <li><a href="{{ route('options.index') }}" accesskey="">Options</a></li>
-                        <li><a href="#">Support</a></li>
+                        <li><a href="{{ route('options.index') }}" accesskey="">@lang('Options')</a></li>
+                        <li><a href="#">@lang('Support')</a></li>
                         <li><a href="{{ route('logout') }}" onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">Log out</a>
+                                                     document.getElementById('logout-form').submit();">@lang('Log out')</a>
 
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                 {{ csrf_field() }}
@@ -141,122 +150,126 @@
                         <li class="OGameClock">16.12.2017 <span>12:18:12</span></li>
                     </ul>
 
-                </div>    	<ul id="resources">
+                </div>
+                <ul id="resources">
                     <li id="metal_box" class="metal tooltipHTML"
-                        title="Metal:| &lt;table class=&quot;resourceTooltip&quot;&gt;
+                        title="@lang('Metal'):| &lt;table class=&quot;resourceTooltip&quot;&gt;
             &lt;tr&gt;
-                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;th&gt;@lang('Available'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;&quot;&gt;{!! $resources['metal']['amount_formatted'] !!}&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;th&gt;@lang('Storage capacity'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;th&gt;@lang('Current production'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+{!! $resources['metal']['production_hour'] !!}&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;th&gt;@lang('Den Capacity'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
         &lt;/table&gt;">
                         <div class="resourceIcon metal"></div>
-                <span class="value">
-                    <span id="resources_metal" class="{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}">
+                        <span class="value">
+                    <span id="resources_metal"
+                          class="{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}">
                         {!! $resources['metal']['amount_formatted'] !!}                    </span>
                 </span>
                     </li>
                     <li id="crystal_box" class="crystal tooltipHTML"
-                        title="Crystal:| &lt;table class=&quot;resourceTooltip&quot;&gt;
+                        title="@lang('Crystal'):| &lt;table class=&quot;resourceTooltip&quot;&gt;
             &lt;tr&gt;
-                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;th&gt;@lang('Available'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;&quot;&gt;{!! $resources['crystal']['amount_formatted'] !!}&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;th&gt;@lang('Storage capacity'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;th&gt;@lang('Current production'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+{!! $resources['crystal']['production_hour'] !!}&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;th&gt;@lang('Den Capacity'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
         &lt;/table&gt;">
                         <div class="resourceIcon crystal"></div>
-                <span class="value">
-                    <span id="resources_crystal" class="{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}">
+                        <span class="value">
+                    <span id="resources_crystal"
+                          class="{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}">
                         {!! $resources['crystal']['amount_formatted'] !!}                    </span>
                 </span>
                     </li>
                     <li id="deuterium_box" class="deuterium tooltipHTML"
-                        title="Deuterium:| &lt;table class=&quot;resourceTooltip&quot;&gt;
+                        title="@lang('Deuterium'):| &lt;table class=&quot;resourceTooltip&quot;&gt;
             &lt;tr&gt;
-                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;th&gt;@lang('Available'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;&quot;&gt;{!! $resources['deuterium']['amount_formatted'] !!}&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;th&gt;@lang('Storage capacity'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;th&gt;@lang('Current production'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;{!! $resources['deuterium']['production_hour'] !!}&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;th&gt;@lang('Den Capacity'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
         &lt;/table&gt;">
                         <div class="resourceIcon deuterium"></div>
-                <span class="value">
-                    <span id="resources_deuterium" class="{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}">
+                        <span class="value">
+                    <span id="resources_deuterium"
+                          class="{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}">
                         {!! $resources['deuterium']['amount_formatted'] !!}                    </span>
                	</span>
                     </li>
                     <li id="energy_box" class="energy tooltipHTML"
-                        title="Energy:| &lt;table class=&quot;resourceTooltip&quot;&gt;
+                        title="@lang('Energy'):| &lt;table class=&quot;resourceTooltip&quot;&gt;
             &lt;tr&gt;
-                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;th&gt;@lang('Available'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;&quot;&gt;{!! $resources['energy']['amount_formatted'] !!} &lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;th&gt;@lang('Current production'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;{!! $resources['energy']['production'] !!} &lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
             &lt;tr&gt;
-                &lt;th&gt;Consumption:&lt;/th&gt;
+                &lt;th&gt;@lang('Consumption'):&lt;/th&gt;
                 &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;{!! $resources['energy']['consumption'] !!} &lt;/span&gt;&lt;/td&gt;
             &lt;/tr&gt;
         &lt;/table&gt;">
                         <div class="resourceIcon energy"></div>
-                <span class="value">
+                        <span class="value">
                     <span id="resources_energy" class="{{ $resources['energy']['amount'] < 0 ? 'overmark' : '' }}">
                             {!! $resources['energy']['amount_formatted'] !!}			            </span>
                     </span>
                     </li>
                     <li id="darkmatter_box" class="darkmatter dark_highlight_tablet tooltipHTML"
-                        title="Dark Matter:| &lt;table class=&quot;resourceTooltip&quot;&gt;
+                        title="@lang('Dark Matter'):| &lt;table class=&quot;resourceTooltip&quot;&gt;
                 &lt;tr&gt;
-                    &lt;th&gt;Available:&lt;/th&gt;
+                    &lt;th&gt;@lang('Available'):&lt;/th&gt;
                     &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
                 &lt;/tr&gt;
                 &lt;tr&gt;
-                    &lt;th&gt;Purchased:&lt;/th&gt;
+                    &lt;th&gt;@lang('Purchased'):&lt;/th&gt;
                     &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
                 &lt;/tr&gt;
                 &lt;tr&gt;
-                    &lt;th&gt;Found:&lt;/th&gt;
+                    &lt;th&gt;@lang('Found'):&lt;/th&gt;
                     &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
                 &lt;/tr&gt;
             &lt;/table&gt;"
-                        data-tooltip-button="Purchase Dark Matter">
+                        data-tooltip-button="@lang('Purchase Dark Matter')">
                         <a class="overlay" href="{{ route('payment.overlay') }}">
-                            <img src="/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif" />
-                    <span class="value">
+                            <img src="/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif"/>
+                            <span class="value">
                         <span id="resources_darkmatter">
                             0                        </span>
                     </span>
@@ -265,30 +278,30 @@
                 </ul>
 
 
-
                 <div id="officers" class="">
 
                     <a href="{{ route('premium.index', ['openDetail' => 2]) }}"
-                       class="tooltipHTML   commander js_hideTipOnMobile" title="Hire Commander|+40 favourites, building queue, empire view, shortcuts, transport scanner, advertisement free* &lt;span style=&quot;font-size:10px;line-height:10px;&quot;&gt;(*excludes: game related references)&lt;/span&gt;">
+                       class="tooltipHTML   commander js_hideTipOnMobile"
+                       title="@lang('Hire Commander')|@lang('+40 favourites, building queue, empire view, shortcuts, transport scanner, advertisement free*') &lt;span style=&quot;font-size:10px;line-height:10px;&quot;&gt;(@lang('*excludes: game related references'))&lt;/span&gt;">
                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
                     </a>
 
                     <a href="{{ route('premium.index', ['openDetail' => 3]) }}"
-                       class="tooltipHTML   admiral js_hideTipOnMobile" title="Hire Admiral|Max. fleet slots +2,
-Max. expeditions +1,
-Improved fleet escape rate">
+                       class="tooltipHTML   admiral js_hideTipOnMobile" title="@lang('Hire Admiral')|@lang('Max. fleet slots +2, Max. expeditions +1, Improved fleet escape rate')">
                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
                     </a>
                     <a href="{{ route('premium.index', ['openDetail' => 4]) }}"
-                       class="tooltipHTML   engineer js_hideTipOnMobile" title="Hire Engineer|Halves losses to defenses, +10% energy production">
+                       class="tooltipHTML   engineer js_hideTipOnMobile"
+                       title="@lang('Hire Engineer')|@lang('Halves losses to defenses, +10% energy production')">
                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
                     </a>
                     <a href="{{ route('premium.index', ['openDetail' => 5]) }}"
-                       class="tooltipHTML   geologist js_hideTipOnMobile" title="Hire Geologist|+10% mine production">
+                       class="tooltipHTML   geologist js_hideTipOnMobile" title="@lang('Hire Geologist')|@lang('+10% mine production')">
                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
                     </a>
                     <a href="{{ route('premium.index', ['openDetail' => 6]) }}"
-                       class="tooltipHTML   technocrat js_hideTipOnMobile" title="Hire Technocrat|+2 espionage levels, 25% less research time">
+                       class="tooltipHTML   technocrat js_hideTipOnMobile"
+                       title="@lang('Hire Technocrat')|@lang('+2 espionage levels, 25% less research time')">
                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
                     </a>
                 </div>
@@ -296,9 +309,10 @@ Improved fleet escape rate">
                     <!-- Neue Nachrichten-Zähler -->
                     <a class=" comm_menu messages tooltip js_hideTipOnMobile"
                        href="{{ route('messages.index') }}"
-                       title="{{ $unreadMessagesCount }} unread message(s)">
+                       title="{{ $unreadMessagesCount }} @lang('unread message(s)')">
                         @if ($unreadMessagesCount > 0)
-                            <span class="new_msg_count totalMessages  news" data-new-messages="{{ $unreadMessagesCount }}">
+                            <span class="new_msg_count totalMessages  news"
+                                  data-new-messages="{{ $unreadMessagesCount }}">
                                 {{ $unreadMessagesCount }}
                             </span>
                         @endif
@@ -308,7 +322,7 @@ Improved fleet escape rate">
                        href="#"
                        title="0 unread conversation(s)">
                         <!-- js modification !-->
-                <span class="new_msg_count totalChatMessages noMessage" data-new-messages="0">
+                        <span class="new_msg_count totalChatMessages noMessage" data-new-messages="0">
                     0                </span>
                     </a>
                     <div id="messages_collapsed">
@@ -323,13 +337,16 @@ Improved fleet escape rate">
 
                         </div>
                         <div id="eventboxLoading" class="textCenter textBeefy" style="display: block;">
-                            <img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif" />load...</div>
+                            <img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif"/>@lang('load...')
+                        </div>
                         <div id="eventboxBlank" class="textCenter" style="display: none;">
-                            No fleet movement</div>            </div>
-                    <div id="attack_alert" class="tooltip eventToggle noAttack" title="">
-                        <a href="{{ route('overview.index') }}#TODO_page=eventList" ></a>
+                            @lang('No fleet movement')
+                        </div>
                     </div>
-                    <br class="clearfloat" />
+                    <div id="attack_alert" class="tooltip eventToggle noAttack" title="">
+                        <a href="{{ route('overview.index') }}#TODO_page=eventList"></a>
+                    </div>
+                    <br class="clearfloat"/>
                 </div><!-- #message-wrapper -->
 
                 <div id="helper">
@@ -345,7 +362,8 @@ Improved fleet escape rate">
             <!-- END HEADER -->
 
             <!-- LEFTMENU -->
-            <div id='toolbarcomponent'><div id="links">
+            <div id='toolbarcomponent'>
+                <div id="links">
                     <ul id="menuTable" class="leftmenu">
 
                         <li>
@@ -354,9 +372,7 @@ Improved fleet escape rate">
                                                class="tooltipRight js_hideTipOnMobile "
                                                target="_self"
                                                title="Rewards">
-                            <div class="menuImage overview {{(Request::is('rewards') || Request::is('overview') ? 'highlighted' : '') }}
-                                ">
-                            </div>
+                            <div class="menuImage overview {{(Request::is('rewards') || Request::is('overview') ? 'highlighted' : '') }}"></div>
                         </a>
                                     </span>
                             <a class="menubutton {{(Request::is('overview') ? 'selected' : '') }}"
@@ -364,7 +380,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Overview</span>
+                                <span class="textlabel">@lang('Overview')</span>
                             </a>
                         </li>
 
@@ -384,7 +400,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Resources</span>
+                                <span class="textlabel">@lang('Resources')</span>
                             </a>
                         </li>
 
@@ -397,7 +413,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Facilities</span>
+                                <span class="textlabel">@lang('Facilities')</span>
                             </a>
                         </li>
 
@@ -416,7 +432,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Merchant</span>
+                                <span class="textlabel">@lang('Merchant')</span>
                             </a>
                         </li>
 
@@ -435,7 +451,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Research</span>
+                                <span class="textlabel">@lang('Research')</span>
                             </a>
                         </li>
 
@@ -448,7 +464,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Shipyard</span>
+                                <span class="textlabel">@lang('Shipyard')</span>
                             </a>
                         </li>
 
@@ -461,7 +477,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Defense</span>
+                                <span class="textlabel">@lang('Defense')</span>
                             </a>
                         </li>
 
@@ -480,7 +496,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Fleet</span>
+                                <span class="textlabel">@lang('Fleet')</span>
                             </a>
                         </li>
 
@@ -493,7 +509,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Galaxy</span>
+                                <span class="textlabel">@lang('Galaxy')</span>
                             </a>
                         </li>
 
@@ -506,7 +522,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Alliance</span>
+                                <span class="textlabel">@lang('Alliance')</span>
                             </a>
                         </li>
 
@@ -519,7 +535,7 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Recruit Officers</span>
+                                <span class="textlabel">@lang('Recruit Officers')</span>
                             </a>
                         </li>
 
@@ -538,13 +554,14 @@ Improved fleet escape rate">
                                accesskey=""
                                target="_self"
                             >
-                                <span class="textlabel">Shop</span>
+                                <span class="textlabel">@lang('Shop')</span>
                             </a>
                         </li>
                     </ul>
 
                     <div class="adviceWrapper">
-                        <div id='advicebarcomponent' class='advicebar injectedComponent parent toolbar'><div class="adviceWrapper">
+                        <div id='advicebarcomponent' class='advicebar injectedComponent parent toolbar'>
+                            <div class="adviceWrapper">
 
                                 <div id="advice-bar">
 
@@ -558,7 +575,8 @@ Improved fleet escape rate">
                                        class="tooltipHTML tooltipRight advice"
                                        title="Not validated|Your account has not been validated yet. Click here to receive a new validation link."
                                     >
-                                        <img src="/img/icons/09980161fadf11b18189770e1d78d2.gif" height="32" width="32" />
+                                        <img src="/img/icons/09980161fadf11b18189770e1d78d2.gif" height="32"
+                                             width="32"/>
                                     </a>
                                 </div>
 
@@ -578,9 +596,11 @@ Improved fleet escape rate">
                 var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
                 var vacation = 0;
                 var timerHandler = new TimerHandler();
+
                 function redirectPremium() {
                     location.href = "{{ route('premium.index', ['showDarkMatter' => 1]) }}#TODO_premium&showDarkMatter=1";
                 }
+
                 var playerId = "1";
                 var playerName = "Admin";
                 var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
@@ -686,21 +706,27 @@ Improved fleet escape rate">
                     "nextEvent": "Next",
                     "nextEventText": "Type"
                 };
+
                 function redirectLogout() {
                     location.href = "{{ route('overview.index') }}";
                 }
+
                 function redirectOverview() {
                     location.href = "{{ route('overview.index') }}";
                 }
+
                 function redirectPlatformLogout() {
                     location.href = "{{ route('overview.index') }}";
                 }
+
                 function redirectSpaceDock() {
                     location.href = "{{ route('facilities.index', ['openTech' => 36]) }}";
                 }
+
                 function initAjaxEventbox() {
                     reloadEventbox({"hostile": 0, "neutral": 0, "friendly": 0});
                 }
+
                 function initAjaxResourcebox() {
                     reloadResources({
                         "metal": {
@@ -710,7 +736,7 @@ Improved fleet escape rate">
                                 "max": {!! $resources['metal']['storage'] !!},
                                 "production": {!! $resources['metal']['production_second'] !!}
                             },
-                            "tooltip": "Metal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">{!! $resources['metal']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">{!! $resources['metal']['storage_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"@if ($resources['metal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['metal']['production_hour'] > 0)+@endif{!! $resources['metal']['production_hour_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>",
+                            "tooltip": "Metal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>@lang('Available'):<\/th>\n                <td><span class=\"\">{!! $resources['metal']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">{!! $resources['metal']['storage_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"@if ($resources['metal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['metal']['production_hour'] > 0)+@endif{!! $resources['metal']['production_hour_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>",
                             "class": "{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}"
                         },
                         "crystal": {
@@ -720,7 +746,7 @@ Improved fleet escape rate">
                                 "max": {!! $resources['crystal']['storage'] !!},
                                 "production": {!! $resources['crystal']['production_second'] !!}
                             },
-                            "tooltip": "Crystal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">{!! $resources['crystal']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">{!! $resources['crystal']['storage_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"@if ($resources['crystal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['crystal']['production_hour'] > 0)+@endif{!! $resources['crystal']['production_hour_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>",
+                            "tooltip": "Crystal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>@lang('Available'):<\/th>\n                <td><span class=\"\">{!! $resources['crystal']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">{!! $resources['crystal']['storage_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"@if ($resources['crystal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['crystal']['production_hour'] > 0)+@endif{!! $resources['crystal']['production_hour_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>",
                             "class": "{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}"
                         },
                         "deuterium": {
@@ -730,7 +756,7 @@ Improved fleet escape rate">
                                 "max": {!! $resources['deuterium']['storage'] !!},
                                 "production": {!! $resources['deuterium']['production_second'] !!}
                             },
-                            "tooltip": "Deuterium|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">{!! $resources['deuterium']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">{!! $resources['deuterium']['storage_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"@if ($resources['deuterium']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['deuterium']['production_hour'] > 0)+@endif{!! $resources['deuterium']['production_hour_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>",
+                            "tooltip": "Deuterium|<table class=\"resourceTooltip\">\n            <tr>\n                <th>@lang('Available'):<\/th>\n                <td><span class=\"\">{!! $resources['deuterium']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">{!! $resources['deuterium']['storage_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"@if ($resources['deuterium']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['deuterium']['production_hour'] > 0)+@endif{!! $resources['deuterium']['production_hour_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>",
                             "class": "{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}"
                         },
                         "energy": {
@@ -738,7 +764,7 @@ Improved fleet escape rate">
                                 "actual": {!! $resources['energy']['amount'] !!},
                                 "actualFormat": "{!! $resources['energy']['amount_formatted'] !!}"
                             },
-                            "tooltip": "Energy|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">{!! $resources['energy']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"{{ $resources['energy']['production'] > 0 ? 'undermark' : 'overmark' }}\">{{ $resources['energy']['production'] > 0 ? '+' : '' }}{!! $resources['energy']['production_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Consumption:<\/th>\n                <td><span class=\"{{ $resources['energy']['consumption'] > 0 ? 'overmark' : '' }}\">{{ $resources['energy']['consumption'] > 0 ? '-' : '' }}{!! $resources['energy']['consumption_formatted'] !!}<\/span><\/td>\n            <\/tr>\n        <\/table>",
+                            "tooltip": "Energy|<table class=\"resourceTooltip\">\n            <tr>\n                <th>@lang('Available'):<\/th>\n                <td><span class=\"\">{!! $resources['energy']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"{{ $resources['energy']['production'] > 0 ? 'undermark' : 'overmark' }}\">{{ $resources['energy']['production'] > 0 ? '+' : '' }}{!! $resources['energy']['production_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Consumption:<\/th>\n                <td><span class=\"{{ $resources['energy']['consumption'] > 0 ? 'overmark' : '' }}\">{{ $resources['energy']['consumption'] > 0 ? '-' : '' }}{!! $resources['energy']['consumption_formatted'] !!}<\/span><\/td>\n            <\/tr>\n        <\/table>",
                             "class": "{{ $resources['energy']['amount'] < 0 ? 'overmark' : '' }}"
                         },
                         "darkmatter": {
@@ -747,32 +773,38 @@ Improved fleet escape rate">
                                 "actualFormat": "0"
                             },
                             "string": "0 Dark Matter",
-                            "tooltip": "Dark Matter|<table class=\"resourceTooltip\">\n                <tr>\n                    <th>Available:<\/th>\n                    <td><span class=\"\">0<\/span><\/td>\n                <\/tr>\n                <tr>\n                    <th>Purchased:<\/th>\n                    <td><span class=\"\">0<\/span><\/td>\n                <\/tr>\n                <tr>\n                    <th>Found:<\/th>\n                    <td><span class=\"\">0<\/span><\/td>\n                <\/tr>\n            <\/table>",
+                            "tooltip": "Dark Matter|<table class=\"resourceTooltip\">\n                <tr>\n                    <th>@lang('Available'):<\/th>\n                    <td><span class=\"\">0<\/span><\/td>\n                <\/tr>\n                <tr>\n                    <th>Purchased:<\/th>\n                    <td><span class=\"\">0<\/span><\/td>\n                <\/tr>\n                <tr>\n                    <th>Found:<\/th>\n                    <td><span class=\"\">0<\/span><\/td>\n                <\/tr>\n            <\/table>",
                             "class": ""
                         },
                         "honorScore": 0
                     });
                 }
+
                 function getAjaxEventbox() {
                     $.get("{{ route('overview.index') }}#TODO_page=fetchEventbox&ajax=1", reloadEventbox, "text");
                 }
+
                 function updateAjaxResourcebox(data) {
                     reloadResources(data);
                 }
+
                 function getAjaxResourcebox(callback) {
                     $.get("{{ route('overview.index') }}#TODO_page=fetchResources&ajax=1", function (data) {
                         reloadResources(data, callback);
                     }, "text");
                 }
+
                 var changeSettingsLink = "#TODO_page=changeSettings";
                 var changeSettingsToken = "ea77594feda8933a60595311a0f56512";
                 var eventlistLink = "{{ route('overview.index') }}#TODO_page=eventList&ajax=1";
+
                 function openAnnouncement() {
                     openOverlay("{{ route('overview.index') }}#TODO_page=announcement&ajax=1", {
                         'class': 'announcement',
                         zIndex: 4000
                     });
                 }
+
                 var planetMoveLoca = {
                     "askTitle": "Resettle Planet",
                     "askCancel": "Are you sure that you wish to cancel this planet relocation? The normal waiting time will thereby be maintained.",
@@ -781,6 +813,7 @@ Improved fleet escape rate">
                     "success": "The planet relocation was successfully cancelled.",
                     "error": "Error"
                 };
+
                 function openPlanetRenameGiveupBox() {
                     openOverlay("{{ route('overview.index') }}#TODO_page=planetlayer", {
                         title: "Abandon\/Rename Homeworld",
@@ -807,6 +840,7 @@ Improved fleet escape rate">
                     "planetGiveupQuestion": "Are you sure you want to abandon the planet %planetName% %planetCoordinates%?",
                     "moonGiveupQuestion": "Are you sure you want to abandon the moon %planetName% %planetCoordinates%?"
                 });
+
                 function type() {
                     var destination = document.getElementById(textDestination[currentIndex]);
                     if (destination) {
@@ -834,17 +868,27 @@ Improved fleet escape rate">
                         }
                     }
                 }
-                function planetRenamed(data)
-                {var data=$.parseJSON(data);if(data["status"]){$("#planetNameHeader").html(data["newName"]);reloadRightmenu("{{ route('overview.index') }}#TODO_page=rightmenu&renamed=1&pageToLink=overview");$(".overlayDiv.planetRenameOverlay").dialog('close');}
-                    errorBoxAsArray(data["errorbox"]);}
+
+                function planetRenamed(data) {
+                    var data = $.parseJSON(data);
+                    if (data["status"]) {
+                        $("#planetNameHeader").html(data["newName"]);
+                        reloadRightmenu("{{ route('overview.index') }}#TODO_page=rightmenu&renamed=1&pageToLink=overview");
+                        $(".overlayDiv.planetRenameOverlay").dialog('close');
+                    }
+                    errorBoxAsArray(data["errorbox"]);
+                }
+
                 function reloadPage() {
                     location.href = "{{ route('overview.index') }}";
                 }
+
                 var demolish_id;
                 var buildUrl;
+
                 function loadDetails(type) {
                     url = "{{ route('overview.index', ['ajax' => 1]) }}";
-                    if (typeof(detailUrl) != 'undefined') {
+                    if (typeof (detailUrl) != 'undefined') {
                         url = detailUrl;
                     }
                     $.get(url, {type: type}, function (data) {
@@ -854,6 +898,7 @@ Improved fleet escape rate">
                         $(document).trigger("ajaxShowElement", (typeof techID === 'undefined' ? 0 : techID));
                     });
                 }
+
                 function sendBuildRequest(url, ev, showSlotWarning) {
                     console.debug("sendBuildRequest");
                     if (ev != undefined) {
@@ -870,6 +915,7 @@ Improved fleet escape rate">
                             return true;
                         }
                     }
+
                     function build() {
                         if (url == null) {
                             sendForm();
@@ -891,19 +937,23 @@ Improved fleet escape rate">
                     }
                     return false;
                 }
+
                 function fastBuild() {
                     location.href = buildUrl;
                     return false;
                 }
+
                 function sendForm() {
                     document.form.submit();
                     return false;
                 }
+
                 function demolishBuilding(id, question) {
                     demolish_id = id;
                     question += "<br/><br/>" + $("#demolish" + id).html();
                     errorBoxDecision("Caution", "" + question + "", "yes", "No", demolishStart);
                 }
+
                 function demolishStart() {
                     window.location.replace("{{ route('resources.index', ['modus' => 3]) }}&token=9c8a2a05984ebfd30e88ea2fd9da03df&type=" + demolish_id);
                 }
@@ -1033,7 +1083,7 @@ Improved fleet escape rate">
                     <div id="myWorlds">
                         <div id="countColonies">
                             <p class="textCenter">
-                                <span>{{ $planets->count() }}/{{ $planets->count() }}</span> Planets
+                                <span>{{ $planets->count() }}/{{ $planets->count() }}</span> @lang('Planets')
                             </p>
                         </div>
                         <div id="planetList"
@@ -1052,7 +1102,8 @@ Improved fleet escape rate">
                                    $urlToCurrentWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
                                 @endphp
 
-                                <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }} " id="planet-{{ $planet->getPlanetId() }}">
+                                <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }} "
+                                     id="planet-{{ $planet->getPlanetId() }}">
                                     <a href="{{ $urlToCurrentWithUpdatedParam }}"
                                        title="&lt;b&gt;{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinatesAsString() }}]&lt;/b&gt;&lt;br/&gt;12.800km (0/188)&lt;br&gt;47°C to 87°C&lt;br/&gt;&lt;a href=&quot;#TODO_overview&amp;cp=33734581&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_resources&amp;cp=33734581&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=research&amp;cp=33734581&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=station&amp;cp=33734581&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=shipyard&amp;cp=33734581&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=defense&amp;cp=33734581&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=fleet1&amp;cp=33734581&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=galaxy&amp;cp=33734581&amp;galaxy=4&amp;system=358&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
                                        class="planetlink {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'active' : '' }}  tooltipRight tooltipClose js_hideTipOnMobile"
@@ -1061,7 +1112,7 @@ Improved fleet escape rate">
                                              alt="{{ $planet->getPlanetName() }}"
                                              src="/img/icons/a8821a3ef84e0acd053aef2e98972a.png"
                                              width="48"
-                                             height ="48"
+                                             height="48"
                                         />
                                         <span class="planet-name ">{!! $planet->getPlanetName() !!}</span>
                                         <span class="planet-koords ">[{!! $planet->getPlanetCoordinatesAsString() !!}]</span>
@@ -1088,29 +1139,45 @@ Improved fleet escape rate">
     <ul class="chat_bar_list">
         <li id="chatBarPlayerList" class="chat_bar_pl_list_item">
             <div class="cb_playerlist_box"
-                 style="display:none;"            >
+                 style="display:none;">
             </div>
-            <span class="onlineCount">0 Contact(s) online</span>
+            <span class="onlineCount">@lang(':count Contact(s) online', ['count' => 0])</span>
         </li>
     </ul><!-- END Chat Bar List -->
 </div>
 <!-- END Chat Bar -->
 
 <button class="scroll_to_top">
-    <span class="arrow"></span>Back to top        </button>
+    <span class="arrow"></span>@lang('Back to top')
+</button>
 
 <div id="siteFooter">
     <div class="content" style="font-size:10px">
         <div class="fleft textLeft">
-            <a href="#TODO_changelog&ajax=1" class="tooltip js_hideTipOnMobile overlay" data-class="noXScrollbar" data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="Patch notes">
+            <a href="#TODO_changelog&ajax=1" class="tooltip js_hideTipOnMobile overlay" data-class="noXScrollbar"
+               data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="Patch notes">
                 {{ \OGame\Utils\GitInfoUtil::getAppVersion() }}</a>
-            <a class="homeLink" href="https://github.com/lanedirt/ogamex" target="_blank">© OGameX. All rights reserved.</a>
+            <a class="homeLink" href="https://github.com/lanedirt/ogamex" target="_blank">© OGameX. @lang('All rights reserved.')</a>
         </div>
         <div class="fright textRight">
             <a href="http://wiki.ogame.org/" target="_blank">Help</a>|
+            @switch ($locale)
+                @case('en')
+                    <a href="{{ route('language.switch', ['lang' => 'en']) }}" class="bold">English</a>|
+                    <a href="{{ route('language.switch', ['lang' => 'nl']) }}">Dutch</a>|
+                    @break
+                @case('nl')
+                    <a href="{{ route('language.switch', ['lang' => 'en']) }}">English</a>|
+                    <a href="{{ route('language.switch', ['lang' => 'nl']) }}" class="bold">Dutch</a>|
+                    @break
+                @default
+                    <a href="{{ route('language.switch', ['lang' => 'en']) }}" class="bold">English</a>|
+                    <a href="{{ route('language.switch', ['lang' => 'nl']) }}">Dutch</a>|
+            @endswitch
             <a href="#">Board</a>|
-            <a class="overlay-temp" href="#" data-overlay-iframe="true" data-iframe-width="450" data-overlay-title="Rules">Rules</a>|
-            <a href="#">Legal</a>
+            <a class="overlay-temp" href="#" data-overlay-iframe="true" data-iframe-width="450"
+               data-overlay-title="Rules">@lang('Rules')</a>|
+            <a href="#">@lang('Legal')</a>
         </div>
     </div><!-- -->
 </div>
@@ -1120,7 +1187,42 @@ Improved fleet escape rate">
 <noscript>
     <style type="text/css">
 
-        body {margin:0; padding:0;} #mmonetbar { background:transparent url('/img/bg/ab65c4951f415dff50d74738c953b5.jpg') repeat-x; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; height:32px; left:0; padding:0; position:absolute; text-align:center; top:0; width:100%; z-index:3000; } #mmonetbar #mmoContent { height:32px; margin:0 auto; width:1024px; position: relative; } #mmonetbar #mmoLogo { float:left; display:block; height:32px; width:108px; text-indent: -9999px; } #mmonetbar #mmoNews, #mmonetbar #mmoGame, #mmonetbar #mmoFocus, #pagefoldtarget { display:none !important; }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #mmonetbar {
+            background: transparent url('/img/bg/ab65c4951f415dff50d74738c953b5.jpg') repeat-x;
+            font: normal 11px Tahoma, Arial, Helvetica, sans-serif;
+            height: 32px;
+            left: 0;
+            padding: 0;
+            position: absolute;
+            text-align: center;
+            top: 0;
+            width: 100%;
+            z-index: 3000;
+        }
+
+        #mmonetbar #mmoContent {
+            height: 32px;
+            margin: 0 auto;
+            width: 1024px;
+            position: relative;
+        }
+
+        #mmonetbar #mmoLogo {
+            float: left;
+            display: block;
+            height: 32px;
+            width: 108px;
+            text-indent: -9999px;
+        }
+
+        #mmonetbar #mmoNews, #mmonetbar #mmoGame, #mmonetbar #mmoFocus, #pagefoldtarget {
+            display: none !important;
+        }
     </style>
 </noscript>
 
@@ -1130,14 +1232,14 @@ Improved fleet escape rate">
     //mmoTicker();    mmoToggleDisplay.init("mmoGamesOverviewPanel");
 
     @if (\Session::has('success'))
-        $(document).ready(function () {
-            fadeBox("{!! \Session::get('success') !!}", 0);
-        });
+    $(document).ready(function () {
+        fadeBox("{!! \Session::get('success') !!}", 0);
+    });
     @endif
     @if (\Session::has('error'))
-        $(document).ready(function () {
-            fadeBox("{!! \Session::get('error') !!}", 1);
-        });
+    $(document).ready(function () {
+        fadeBox("{!! \Session::get('error') !!}", 1);
+    });
     @endif
     @if (\Session::has('success_logout'))
     $(document).ready(function () {
@@ -1160,7 +1262,7 @@ Improved fleet escape rate">
                 <div style="float:left; width:180px;">
                     <a href="javascript:void(0);" class="no"><span id="errorBoxDecisionNo">.</span></a>
                 </div>
-                <br class="clearfloat" />
+                <br class="clearfloat"/>
             </div>
         </div>
         <div class="foot"></div>
@@ -1185,11 +1287,50 @@ Improved fleet escape rate">
                         <span id="errorBoxNotifyOk">.</span>
                     </a>
                 </div>
-                <br class="clearfloat" />
+                <br class="clearfloat"/>
             </div>
         </div>
         <div class="foot"></div>
     </div>
 </div>
-<script type="text/javascript">var visibleChats = {"players":[],"associations":[]};var bigChatLink = "{{ route('overview.index') }}#TODO_page=chat";var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"Spoiler","moreopts":"More Options","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"Cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};</script>    </body>
+<script type="text/javascript">var visibleChats = {"players": [], "associations": []};
+    var bigChatLink = "{{ route('overview.index') }}#TODO_page=chat";
+    var locaKeys = {
+        "bold": "@lang('Bold')",
+        "italic": "@lang('Italic')",
+        "underline": "@lang('Underline')",
+        "stroke": "@lang('Strikethrough')",
+        "sub": "@lang('Subscript')",
+        "sup": "@lang('Superscript')",
+        "fontColor": "@lang('Font colour')",
+        "fontSize": "@lang('Font size')",
+        "backgroundColor": "@lang('Background colour')",
+        "backgroundImage": "@lang('Background image')",
+        "tooltip": "@lang('Tool-tip')",
+        "alignLeft": "@lang('Left align')",
+        "alignCenter": "@lang('Centre align')",
+        "alignRight": "@lang('Right align')",
+        "alignJustify": "@lang('Justify')",
+        "block": "@lang('Break')",
+        "code": "@lang('Code')",
+        "spoiler": "@lang('Spoiler')",
+        "moreopts": "@lang('More Options')",
+        "list": "@lang('List')",
+        "hr": "@lang('Horizontal line')",
+        "picture": "@lang('Image')",
+        "link": "@lang('Link')",
+        "email": "@lang('Email')",
+        "player": "@lang('Player')",
+        "item": "@lang('Item')",
+        "coordinates": "@lang('Coordinates')",
+        "preview": "@lang('Preview')",
+        "textPlaceHolder": "@lang('Text...')",
+        "playerPlaceHolder": "@lang('Player ID or name')",
+        "itemPlaceHolder": "@lang('Item ID')",
+        "coordinatePlaceHolder": "@lang('Galaxy:system:position')",
+        "charsLeft": "@lang('Characters remaining')",
+        "colorPicker": {"ok": "@lang('Ok')", "cancel": "@lang('Cancel')", "rgbR": "R", "rgbG": "G", "rgbB": "B"},
+        "backgroundImagePicker": {"ok": "Ok", "repeatX": "@lang('Repeat horizontally')", "repeatY": "@lang('Repeat vertically')"}
+    };</script>
+</body>
 </html>

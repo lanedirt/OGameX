@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/overview', 301);
 
 // Group: all logged in pages:
-Route::middleware(['auth', 'globalgame'])->group(function () {
+Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::namespace('OGame\Http\Controllers')->group(function () {
         Route::get('/overview', 'OverviewController@index')->name('overview.index');
 
@@ -93,6 +93,8 @@ Route::middleware(['auth', 'globalgame'])->group(function () {
         Route::get('/overlay/changenick', 'ChangeNickController@overlay')->name('changenick.overlay');
         Route::get('/overlay/payment', 'PaymentController@overlay')->name('payment.overlay');
         Route::get('/overlay/payment/iframe', 'PaymentController@iframe')->name('payment.iframesrc');
+
+        Route::get('/lang/{lang}', 'LanguageController@switchLang')->name('language.switch');
 
     });
 });

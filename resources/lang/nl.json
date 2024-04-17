@@ -1,0 +1,27 @@
+{
+  "Overview": "Overzicht",
+  "Resources": "Grondstoffen",
+  "Facilities": "Faciliteiten",
+  "Research": "Onderzoek",
+  "Shipyard": "Scheepswerf",
+  "Defense": "Verdediging",
+  "Fleet": "Vloot",
+  "Galaxy": "Melkweg",
+  "Empire": "Rijk",
+  "Alliance": "Alliantie",
+  "Trade": "Handel",
+  "Premium": "Premium",
+
+  "Player": "Speler",
+  "All rights reserved.": "Alle rechten voorbehouden.",
+
+  "Metal Mine": "Metaalmijn",
+  "Used in the extraction of metal ore, metal mines are of primary importance to all emerging and established empires.": "Gebruikt bij de winning van metaalertsen, metaalmijnen zijn van primair belang voor alle opkomende en gevestigde rijken.",
+
+  "Crystal Mine": "Kristalmijn",
+  "Crystals are the main resource used to build electronic circuits and form certain alloy compounds.": "Kristallen zijn de belangrijkste grondstof die wordt gebruikt om elektronische schakelingen te bouwen en bepaalde legeringen te vormen.",
+
+  "No fleet movement": "Geen vlootbeweging",
+
+  "end_of_file": "end_of_file"
+}

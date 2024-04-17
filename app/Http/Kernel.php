@@ -20,6 +20,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use OGame\Http\Middleware\GlobalGame;
+use OGame\Http\Middleware\Locale;
 use OGame\Http\Middleware\RedirectIfAuthenticated;
 
 class Kernel extends HttpKernel
@@ -49,11 +50,9 @@ class Kernel extends HttpKernel
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
-            // \Illuminate\Session\Middleware\AuthenticateSession::class,
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            GlobalGame::class,
         ],
         'api' => [
             'throttle:60,1',
@@ -75,5 +74,7 @@ class Kernel extends HttpKernel
         'can' => Authorize::class,
         'guest' => RedirectIfAuthenticated::class,
         'throttle' => ThrottleRequests::class,
+        'globalgame' => GlobalGame::class,
+        'locale' => Locale::class,
     ];
 }

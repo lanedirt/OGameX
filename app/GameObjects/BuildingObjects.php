@@ -23,9 +23,9 @@ class BuildingObjects
         // --- Metal Mine ---
         $metalMine = new BuildingObject();
         $metalMine->id = 1;
-        $metalMine->title = 'Metal Mine';
+        $metalMine->title = __('Metal Mine');
         $metalMine->machine_name = 'metal_mine';
-        $metalMine->description = 'Used in the extraction of metal ore, metal mines are of primary importance to all emerging and established empires.';
+        $metalMine->description = __('Used in the extraction of metal ore, metal mines are of primary importance to all emerging and established empires.');
         $metalMine->description_long = 'Metal is the primary resource used in the foundation of your Empire. At greater depths, the mines can produce more output of viable metal for use in the construction of buildings, ships, defense systems, and research. As the mines drill deeper, more energy is required for maximum production. As metal is the most abundant of all resources available, its value is considered to be the lowest of all resources for trading.';
 
         $metalMine->price = new GameObjectPrice(60, 15, 0, 0, 1.5);
@@ -43,9 +43,9 @@ class BuildingObjects
         // --- Crystal Mine ---
         $crystalMine = new BuildingObject();
         $crystalMine->id = 2;
-        $crystalMine->title = 'Crystal Mine';
+        $crystalMine->title = __('Crystal Mine');
         $crystalMine->machine_name = 'crystal_mine';
-        $crystalMine->description = 'Crystals are the main resource used to build electronic circuits and form certain alloy compounds.';
+        $crystalMine->description = __('Crystals are the main resource used to build electronic circuits and form certain alloy compounds.');
         $crystalMine->description_long = 'Crystal mines supply the main resource used to produce electronic circuits and from certain alloy compounds. Mining crystal consumes some one and half times more energy than a mining metal, making crystal more valuable. Almost all ships and all buildings require crystal. Most crystals required to build spaceships, however, are very rare, and like metal can only be found at a certain depth. Therefore, building mines in deeper strata will increase the amount of crystal produced.';
 
         $crystalMine->price = new GameObjectPrice(48, 24, 0, 0, 1.6);
