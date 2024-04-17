@@ -19,7 +19,7 @@ class GlobalGame
      * @return mixed
      * @throws BindingResolutionException
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): mixed
     {
         if (Auth::check()) {
             // Get objects.

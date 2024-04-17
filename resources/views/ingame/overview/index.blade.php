@@ -11,15 +11,15 @@
     <!-- JAVASCRIPT -->
     <script type="text/javascript">
         var textContent = [];
-        textContent[0] = "Diameter:";
+        textContent[0] = "@lang('Diameter'):";
         textContent[1] = "{!! $planet_diameter !!}km (<span>0<\/span>\/<span>188<\/span>)";
-        textContent[2] = "Temperature:";
+        textContent[2] = "@lang('Temperature'):";
         textContent[3] = "{!! $planet_temp_min !!}\u00b0C to {!! $planet_temp_max !!}\u00b0C";
-        textContent[4] = "Position:";
+        textContent[4] = "@lang('Position'):";
         textContent[5] = "<a  href=\"{{ route('galaxy.index', ['galaxy' => 4, 'system' => 4, 'position' => 4])  }}\" >[{!! $planet_coordinates !!}]<\/a>";
-        textContent[6] = "Points:";
+        textContent[6] = "@lang('Points'):";
         textContent[7] = "<a href='{{ route('highscore.index')  }}'>{{ $user_points }} (Place {!! $user_rank !!} of {!! $max_rank !!})<\/a>";
-        textContent[8] = "Honour points:";
+        textContent[8] = "@lang('Honour points'):";
         textContent[9] = "0";
 
         var textDestination = [];
@@ -86,7 +86,7 @@
                     <h2>
                         <a href="javascript:void(0);" class="openPlanetRenameGiveupBox">
 
-                            <p class="planetNameOverview">Overview -</p>
+                            <p class="planetNameOverview">@lang('Overview') -</p>
                             <span id="planetNameHeader">
                             {{ $planet_name }}
                         </span>
@@ -149,20 +149,20 @@
                         <div class="planetMoveStart fleft" style="display: inline;">
                             <a class="tooltipLeft dark_highlight_tablet fleft"
                                href='{{ route('galaxy.index') }}'
-                               title="The relocation allows you to move your planets to another position in a distant system of your choosing.<br /><br />
+                               title="@lang('The relocation allows you to move your planets to another position in a distant system of your choosing.<br /><br />
 The actual relocation first takes place 24 hours after activation. In this time, you can use your planets as normal. A countdown shows you how much time remains prior to the relocation.<br /><br />
 Once the countdown has run down and the planet is to be moved, none of your fleets that are stationed there can be active. At this time, there should also be nothing in construction, nothing being repaired and nothing researched. If there is a construction task, a repair task or a fleet still active upon the countdown`s expiry, the relocation will be cancelled.<br /><br />
-If the relocation is successful, you will be charged 240.000 Dark Matter. The planets, the buildings and the stored resources including moon will be moved immediately. Your fleets travel to the new coordinates automatically with the speed of the slowest ship. The jump gate to a relocated moon is deactivated for 24 hours."
+If the relocation is successful, you will be charged 240.000 Dark Matter. The planets, the buildings and the stored resources including moon will be moved immediately. Your fleets travel to the new coordinates automatically with the speed of the slowest ship. The jump gate to a relocated moon is deactivated for 24 hours.')"
                                data-tooltip-button="To galaxy">
                                 <span class="planetMoveIcons settings planetMoveDefault icon fleft"></span>
-                                <span class="planetMoveOverviewMoveLink">Relocate</span>
+                                <span class="planetMoveOverviewMoveLink">@lang('Relocate')</span>
                             </a>
 
                         </div>
 
                         <a class="dark_highlight_tablet float_right openPlanetRenameGiveupBox"
                            href="javascript:void(0);">
-                            <span class="planetMoveOverviewGivUpLink">Abandon/Rename</span>
+                            <span class="planetMoveOverviewGivUpLink">@lang('Abandon/Rename')</span>
                             <span class="planetMoveIcons settings planetMoveGiveUp icon"></span>
                         </a>
                     </div>
@@ -188,7 +188,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
 
             <div class="content-box-s">
                 <div class="header">
-                    <h3>Buildings</h3>
+                    <h3>@lang('Buildings')</h3>
                 </div>
                 <div class="content">
                     <table cellpadding="0" cellspacing="0" class="construction active">
@@ -217,16 +217,16 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                         </a>
                                     </div>
                                 </td>
-                                <td class="desc ausbau">Improve to <span
-                                            class="level">Level {!! $build_active->level_target !!}</span>
+                                <td class="desc ausbau">@lang('Improve to') <span
+                                            class="level">@lang('Level') {!! $build_active->level_target !!}</span>
                                 </td>
                             </tr>
                             <tr class="data">
-                                <td class="desc">Duration:</td>
+                                <td class="desc">@lang('Duration'):</td>
                             </tr>
                             <tr class="data">
                                 <td class="desc timer">
-                                    <span id="Countdown">Loading...</span>
+                                    <span id="Countdown">@lang('Loading...')</span>
                                     <!-- JAVASCRIPT -->
                                     <script type="module">
                                         $(document).ready(function () {
@@ -243,10 +243,10 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                        href="javascript:void(0);"
                                        rel="{{ route('shop.index') }}&amp;buyAndActivate=cb4fd53e61feced0d52cfc4c1ce383bad9c05f67">
                                         <div class="build-faster-img" alt="Halve time"></div>
-                                        <span class="build-txt">Halve time</span>
+                                        <span class="build-txt">@lang('Halve time')</span>
                                         <span class="dm_cost overmark">
                                 Costs: 750 DM                            </span>
-                                        <span class="order_dm">Purchase Dark Matter</span>
+                                        <span class="order_dm">@lang('Purchase Dark Matter')</span>
                                     </a>
                                 </td>
                             </tr>
@@ -281,9 +281,9 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                 <td colspan="2" class="idle">
                                     <a class="tooltip js_hideTipOnMobile
                            "
-                                       title="At the moment there is no building being built on this planet. Click here to get to resources."
+                                       title="@lang('At the moment there is no building being built on this planet. Click here to get to resources.')"
                                        href="{{ route('resources.index') }}">
-                                        No buildings in construction.<br/>(To resources) </a>
+                                        @lang('No buildings in construction.')<br/>(@lang('To resources')) </a>
                                 </td>
                             </tr>
                         @endif
@@ -294,7 +294,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
             </div>
 
             <div class="content-box-s">
-                <div class="header"><h3>Research</h3></div>
+                <div class="header"><h3>@lang('Research')</h3></div>
                 <div class="content">
                     <table cellspacing="0" cellpadding="0" class="construction active">
                         <tbody>
@@ -323,16 +323,16 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                         </a>
                                     </div>
                                 </td>
-                                <td class="desc ausbau">Improve to <span
+                                <td class="desc ausbau">@lang('Improve to') <span
                                             class="level">Level {!! $research_active->level_target !!}</span>
                                 </td>
                             </tr>
                             <tr class="data">
-                                <td class="desc">Duration:</td>
+                                <td class="desc">@lang('Duration'):</td>
                             </tr>
                             <tr class="data">
                                 <td class="desc timer">
-                                    <span id="researchCountdown">Loading...</span>
+                                    <span id="researchCountdown">@lang('Loading...')</span>
                                     <!-- JAVASCRIPT -->
                                     <script type="module">
                                         $(document).ready(function () {
@@ -349,7 +349,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                        href="javascript:void(0);"
                                        rel="{{ route('shop.index') }}&amp;buyAndActivate=cb4fd53e61feced0d52cfc4c1ce383bad9c05f67">
                                         <div class="build-faster-img" alt="Halve time"></div>
-                                        <span class="build-txt">Halve time</span>
+                                        <span class="build-txt">@lang('Halve time')</span>
                                         <span class="dm_cost overmark">
                                 Costs: 750 DM                            </span>
                                         <span class="order_dm">Purchase Dark Matter</span>
@@ -388,7 +388,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                     <a class="tooltip js_hideTipOnMobile
                            " title="There is no research done at the moment. Click here to get to your research lab."
                                        href="{{ route('research.index') }}">
-                                        There is no research in progress at the moment.<br/>(To research)
+                                        @lang('There is no research in progress at the moment').<br/>(@lang('To research'))
                                     </a>
                                 </td>
                             </tr>
@@ -399,11 +399,11 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                 <div class="footer"></div>
             </div>
             <div class="content-box-s">
-                <div class="header"><h3>Shipyard</h3></div>
+                <div class="header"><h3>@lang('Shipyard')</h3></div>
                 <div class="content">
                     <table cellspacing="0" cellpadding="0" class="construction active">
                         <tbody>
-                        @php /** @var \OGame\ViewModels\QueueQueue\UnitQueueViewModel $ship_active */ @endphp
+                        @php /** @var \OGame\ViewModels\Queue\UnitQueueViewModel $ship_active */ @endphp
                         {{-- Building is actively being built. --}}
                         @if (!empty($ship_active))
                             <tr class="data">
@@ -421,13 +421,13 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                          id="shipSumCount">{{ $ship_active->object_amount_remaining }}</div>
                                 </td>
                                 <td class="desc timeProdShip">
-                                    Building duration <span class="shipCountdown"
+                                    @lang('Building duration') <span class="shipCountdown"
                                                             id="shipCountdown">{{ $ship_active->time_countdown }}</span>
                                 </td>
                             </tr>
                             <tr class="data">
                                 <td class="desc timeProdAll">
-                                    Total time: <br><span class="shipAllCountdown"
+                                    @lang('Total time'): <br><span class="shipAllCountdown"
                                                           id="shipAllCountdown">{{ $ship_queue_time_countdown }}</span>
                                 </td>
                             </tr>
@@ -438,7 +438,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                                        href="javascript:void(0);"
                                        rel="{{ route('shop.index') }}&amp;buyAndActivate=75accaa0d1bc22b78d83b89cd437bdccd6a58887">
                                         <div class="build-faster-img" alt="Halve time"></div>
-                                        <span class="build-txt">Halve time</span>
+                                        <span class="build-txt">@lang('Halve time')</span>
                                         <span class="dm_cost ">
                                 Costs: 750 DM                            </span>
                                     </a>
@@ -452,7 +452,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                            "
                                        title="At the moment there are no ships or defense being built on this planet. Click here to get to the shipyard."
                                        href="{{ route('shipyard.index') }}">
-                                        No ships/defense in construction.<br/>(To shipyard) </a>
+                                        @lang('No ships/defense in construction.')<br/>(@lang('To shipyard')) </a>
 
                                 </td>
                             </tr>

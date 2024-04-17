@@ -4,6 +4,7 @@ namespace OGame\Http\Controllers;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\View\View;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\HighscoreService;

@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use OGame\Http\Middleware\GlobalGame;
+use OGame\Http\Middleware\Locale;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,7 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // Add GlobalGame middleware which loads currently logged-in user information.
         $middleware->alias([
-            'globalgame' => \OGame\Http\Middleware\GlobalGame::class,
+            'globalgame' => GlobalGame::class,
+            'locale' => Locale::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
