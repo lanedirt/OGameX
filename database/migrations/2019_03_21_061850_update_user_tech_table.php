@@ -10,7 +10,7 @@ return new class extends Migration {
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         if (!Schema::hasColumn('users_tech', 'armor_technology')) {
             Schema::table('users_tech', function (Blueprint $table) {
@@ -24,7 +24,7 @@ return new class extends Migration {
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         if (Schema::hasColumn('users_tech', 'armor_technology')) {
             Schema::table('users_tech', function (Blueprint $table) {

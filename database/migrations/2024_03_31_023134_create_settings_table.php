@@ -7,7 +7,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up(): void
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->string('key')->primary();
@@ -24,7 +29,12 @@ return new class extends Migration
         ]);
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down(): void
     {
         Schema::dropIfExists('settings');
     }

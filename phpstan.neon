@@ -7,6 +7,7 @@ parameters:
 
     paths:
         - app/
+        - database/
         - tests/
         - resources/
 

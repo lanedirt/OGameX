@@ -2,7 +2,28 @@
 
 namespace Database\Factories;
 
-class UserTechFactory extends OGame\Models\UserTechFactory
+use Illuminate\Database\Eloquent\Factories\Factory;
+use OGame\Models\UserTech;
+
+/**
+ * @extends Factory<UserTech>
+ */
+class UserTechFactory extends Factory
 {
-    // This is a copy of the original file required for the unit tests to access the factory.
+    /**
+     * The name of the factory's corresponding model.
+     */
+    protected $model = UserTech::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'energy_technology' => 0,
+        ];
+    }
 }
