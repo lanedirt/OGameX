@@ -8,7 +8,6 @@ use OGame\Models\Planet;
 use OGame\Models\UserTech;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
-use PHPUnit\Framework\TestCase;
 
 abstract class UnitTestCase extends TestCase
 {
@@ -21,9 +20,9 @@ abstract class UnitTestCase extends TestCase
      */
     protected function setUp(): void
     {
+        parent::setUp();
         $this->setUpPlayerService();
         $this->setUpPlanetService();
-        parent::setUp();
     }
 
     /**

@@ -3,9 +3,9 @@
 namespace Tests\Unit;
 
 use OGame\Services\ObjectService;
-use PHPUnit\Framework\TestCase;
+use Tests\UnitTestCase;
 
-class ObjectLogicTest extends TestCase
+class ObjectLogicTest extends UnitTestCase
 {
     /**
      * Verify that object service returns actual objects.

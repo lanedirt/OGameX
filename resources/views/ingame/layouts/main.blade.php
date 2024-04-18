@@ -173,10 +173,7 @@
         &lt;/table&gt;">
                         <div class="resourceIcon metal"></div>
                         <span class="value">
-                    <span id="resources_metal"
-                          class="{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}">
-                        {!! $resources['metal']['amount_formatted'] !!}                    </span>
-                </span>
+                    <span id="resources_metal" class="{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}">{!! $resources['metal']['amount_formatted'] !!}</span></span>
                     </li>
                     <li id="crystal_box" class="crystal tooltipHTML"
                         title="@lang('Crystal'):| &lt;table class=&quot;resourceTooltip&quot;&gt;
@@ -199,9 +196,7 @@
         &lt;/table&gt;">
                         <div class="resourceIcon crystal"></div>
                         <span class="value">
-                    <span id="resources_crystal"
-                          class="{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}">
-                        {!! $resources['crystal']['amount_formatted'] !!}                    </span>
+                    <span id="resources_crystal" class="{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}">{!! $resources['crystal']['amount_formatted'] !!}                    </span>
                 </span>
                     </li>
                     <li id="deuterium_box" class="deuterium tooltipHTML"
@@ -225,9 +220,7 @@
         &lt;/table&gt;">
                         <div class="resourceIcon deuterium"></div>
                         <span class="value">
-                    <span id="resources_deuterium"
-                          class="{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}">
-                        {!! $resources['deuterium']['amount_formatted'] !!}                    </span>
+                    <span id="resources_deuterium" class="{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}">{!! $resources['deuterium']['amount_formatted'] !!}                    </span>
                	</span>
                     </li>
                     <li id="energy_box" class="energy tooltipHTML"

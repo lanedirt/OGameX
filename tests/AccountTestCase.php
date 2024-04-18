@@ -181,7 +181,7 @@ abstract class AccountTestCase extends TestCase
      */
     protected function assertResourcesOnPage(TestResponse $response, Resources $resources): void{
         if ($resources->metal->get() > 0) {
-            $pattern = '/<span\s+id="resources_metal" class="[^"]*">\s*' . $resources->metal->getFormattedLong() . '\s*<\/span>/';
+            $pattern = '/<span id="resources_metal" class="[^"]*">\s*' . $resources->metal->getFormattedLong() . '\s*<\/span>/';
             $result = preg_match($pattern, $response->getContent());
             $this->assertTrue($result === 1, 'Resource metal is not at ' . $resources->metal->getFormattedLong() . '.');
         }
