@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::table('planets', function (Blueprint $table) {
             // Change columns to float
-            $table->float('metal', 16, 5)->change();
-            $table->float('crystal', 16, 5)->change();
-            $table->float('deuterium', 16, 5)->change();
+            $table->float('metal', 16)->change();
+            $table->float('crystal', 16)->change();
+            $table->float('deuterium', 16)->change();
         });
     }
 
