@@ -43,8 +43,9 @@ class OverviewController extends OGameController
         $research_queue = $research_full_queue->getQueuedFromQueue();
 
         // Parse ship queue for this planet.
-        $ship_queue = $unit_queue->retrieveQueue($planet);
-        $ship_active = $ship_queue->getCurrentlyBuildingFromQueue();
+        $ship_full_queue = $unit_queue->retrieveQueue($planet);
+        $ship_active = $ship_full_queue->getCurrentlyBuildingFromQueue();
+        $ship_queue = $ship_full_queue->getQueuedFromQueue();
 
         // Get total time of all items in queue
         $ship_queue_time_end = $unit_queue->retrieveQueueTimeEnd($planet);
