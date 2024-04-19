@@ -294,7 +294,7 @@ class PlayerService
         // ------
         // 2. Update last_ip and time properties.
         // ------
-        $this->user->time = Carbon::now()->timestamp;
+        $this->user->time = (string)Carbon::now()->timestamp;
         $this->user->last_ip = request()->ip();
         $this->user->save();
     }

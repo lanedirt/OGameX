@@ -512,7 +512,7 @@ class PlanetService
                 (2500 * (1 + $shipyard_level) * $universe_speed * pow(2, $nanitefactory_level))
             );
 
-        return (int)$time_hours * 3600;
+        return (int)($time_hours * 3600);
     }
 
     /**
@@ -537,7 +537,7 @@ class PlanetService
                 (1000 * (1 + $research_lab_level) * $universe_speed)
             );
 
-        return (int)$time_hours * 3600;
+        return (int)($time_hours * 3600);
     }
 
     /**
@@ -1047,7 +1047,7 @@ class PlanetService
             $production_factor = 0;
         }
 
-        return $production_factor;
+        return (int)$production_factor;
     }
 
     /**

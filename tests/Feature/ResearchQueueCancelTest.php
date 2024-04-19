@@ -55,6 +55,9 @@ class ResearchQueueCancelTest extends AccountTestCase
 
         // Extract the first and second number from the first cancelProduction call
         $cancelProductionCall = $response->getContent();
+        if (empty($cancelProductionCall)) {
+            $cancelProductionCall = '';
+        }
         $cancelProductionCall = explode('onclick="cancelProduction(', $cancelProductionCall);
         $cancelProductionCall = explode(',', $cancelProductionCall[1]);
         $number1 = $cancelProductionCall[0];
@@ -130,6 +133,9 @@ class ResearchQueueCancelTest extends AccountTestCase
 
         // Extract the first and second number from the first cancelProduction call
         $cancelProductionCall = $response->getContent();
+        if (empty($cancelProductionCall)) {
+            $cancelProductionCall = '';
+        }
         $cancelProductionCall = explode('onclick="cancelProduction(', $cancelProductionCall);
         $cancelProductionCall = explode(',', $cancelProductionCall[1]);
         $number1 = $cancelProductionCall[0];
@@ -199,7 +205,9 @@ class ResearchQueueCancelTest extends AccountTestCase
 
         // Extract the content from the response
         $pageContent = $response->getContent();
-
+        if (empty($pageContent)) {
+            $pageContent = '';
+        }
         // Use a regular expression to find all matches of 'onclick="cancelProduction(num1,num2,'
         preg_match_all('/onclick="cancelProduction\((\d+),(\d+),/', $pageContent, $matches);
 

@@ -50,6 +50,9 @@ class BuildQueueCancelTest extends AccountTestCase
 
         // Extract the first and second number from the first cancelProduction call
         $cancelProductionCall = $response->getContent();
+        if (empty($cancelProductionCall)) {
+            $cancelProductionCall = '';
+        }
         $cancelProductionCall = explode('onclick="cancelProduction(', $cancelProductionCall);
         $cancelProductionCall = explode(',', $cancelProductionCall[1]);
         $number1 = $cancelProductionCall[0];
@@ -82,9 +85,13 @@ class BuildQueueCancelTest extends AccountTestCase
 
         // Verify that Metal Mine is still at level 0
         $response = $this->get('/resources');
+        $content = $response->getContent();
+        if (empty($content)) {
+            $content = '';
+        }
         $response->assertStatus(200);
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Metal\sMine\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $response->getContent());
+        $result = preg_match($pattern, $content);
         $this->assertTrue($result === 1, 'Metal Mine has been built while all jobs should have been canceled.');
     }
 
@@ -122,6 +129,9 @@ class BuildQueueCancelTest extends AccountTestCase
 
         // Extract the first and second number from the first cancelProduction call
         $cancelProductionCall = $response->getContent();
+        if (empty($cancelProductionCall)) {
+            $cancelProductionCall = '';
+        }
         $cancelProductionCall = explode('onclick="cancelProduction(', $cancelProductionCall);
         $cancelProductionCall = explode(',', $cancelProductionCall[1]);
         $number1 = $cancelProductionCall[0];
@@ -186,6 +196,9 @@ class BuildQueueCancelTest extends AccountTestCase
 
         // Extract the content from the response
         $pageContent = $response->getContent();
+        if (empty($pageContent)) {
+            $pageContent = '';
+        }
 
         // Use a regular expression to find all matches of 'onclick="cancelProduction(num1,num2,'
         preg_match_all('/onclick="cancelProduction\((\d+),(\d+),/', $pageContent, $matches);

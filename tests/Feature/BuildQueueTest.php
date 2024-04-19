@@ -2,6 +2,7 @@
 
 namespace Feature;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Models\Resources;
@@ -315,5 +316,18 @@ class BuildQueueTest extends AccountTestCase
         $response = $this->get('/resources');
         $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'fusion_plant', 0, 'Fusion Reactor has been built while player has not satisfied building requirements.');
+    }
+
+    /**
+     * Verify that building construction time is calculated correctly (higher than 0)
+     * @throws Exception
+     */
+    public function testBuildingProductionTime(): void
+    {
+        // Add resources to planet to initialize planet.
+        $this->planetAddResources(new Resources(400,120,200,0));
+
+        $building_construction_time = $this->planetService->getBuildingConstructionTime('metal_mine');
+        $this->assertGreaterThan(0, $building_construction_time);
     }
 }

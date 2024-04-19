@@ -19,7 +19,12 @@ class GitInfoUtil
      * @return string
      */
     public static function getCurrentBranch() : string {
-        return exec('git rev-parse --abbrev-ref HEAD');
+        $return = exec('git rev-parse --abbrev-ref HEAD');
+        if (!$return) {
+            return '';
+        } else {
+            return $return;
+        }
     }
 
     /**
@@ -28,7 +33,12 @@ class GitInfoUtil
      * @return string
      */
     public static function getCurrentCommitHash() : string {
-        return exec('git log --pretty="%h" -n1 HEAD');
+        $return = exec('git log --pretty="%h" -n1 HEAD');
+        if (!$return) {
+            return '';
+        } else {
+            return $return;
+        }
     }
 
     /**
@@ -40,9 +50,17 @@ class GitInfoUtil
     public static function getCurrentCommitDate(string $format = 'Y-m-d H:i:s') : string {
         // Execute the git command to get the date of the current HEAD commit in the specified format
         $date = exec("git log -1 HEAD --format=%cd");
-        $time = strtotime($date);
+        if (!$date) {
+            return '';
+        }
 
-        return date($format, $time);
+        $time = strtotime($date);
+        if (!empty($time)) {
+            return date($format, $time);
+        }
+        else {
+            return '';
+        }
     }
 
     /**
@@ -55,7 +73,7 @@ class GitInfoUtil
         $tag = exec('git describe --tags --exact-match 2>&1', $output, $returnVar);
 
         // Check if the command was successful, indicated by $returnVar being 0
-        if ($returnVar === 0) {
+        if ($returnVar === 0 && !empty($tag)) {
             return $tag; // Return the tag if found
         } else {
             return ''; // Return an empty string if no exact tag match is found
