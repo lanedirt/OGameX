@@ -3,6 +3,7 @@
 namespace OGame\Http\Controllers\Abstracts;
 
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -127,23 +128,27 @@ abstract class AbstractUnitsController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @return RedirectResponse
+     * @return JsonResponse
      * @throws Exception
      */
-    public function addBuildRequest(Request $request, PlayerService $player) : RedirectResponse
+    public function addBuildRequest(Request $request, PlayerService $player) : JsonResponse
     {
         // Explicitly verify CSRF token because this request supports both POST and GET.
         if (!hash_equals($request->session()->token(), $request->input('_token'))) {
-            return redirect()->route($this->route_view_index);
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid token.',
+            ]);
         }
 
-        $building_id = $request->input('type');
-        $planet_id = $request->input('planet_id');
+        $building_id = $request->input('technologyId');
         $amount = $request->input('amount');
 
-        $planet = $player->planets->childPlanetById($planet_id);
-        $this->queue->add($planet, $building_id, $amount);
+        $this->queue->add($player->planets->current(), $building_id, $amount);
 
-        return redirect()->route($this->route_view_index);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Added to build order.',
+        ]);
     }
 }

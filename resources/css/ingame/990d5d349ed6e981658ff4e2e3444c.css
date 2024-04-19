@@ -16889,7 +16889,6 @@ table.legende td.abbreviation {
 .no-touch #galaxytable  tr.row td.debris img:hover,
 .no-touch #galaxytable  tr.row td.playername:hover,
 .no-touch #galaxytable  tr.row td.allytag span.allytagwrapper:hover {
-    /*  https://jira.gameforge.com/browse/OGAME-4658 */
     /*color:#55ccdd;*/
     /* cursor:pointer;*/
 }
@@ -31251,24 +31250,6 @@ a.refreshPhalanxLink span {
 #planetbarcomponent #planetbarcomponent .hightlightPlanet {
     background-color: rgba(153,204,0,0.11);
 }
-/*
-@note https://jira.gameforge.com/browse/OGAME-4208 removed background with frame
- */
-/*
-#planetbarcomponent .hoverPlanet:hover {
-    box-shadow: 0 0 1px 0 #99CC00 inset;
-}
-
-#planetbarcomponent .hightlightMoon {
-    background-color: rgba(255,150,0,0.11);
-}
-
-/*
-@note https://jira.gameforge.com/browse/OGAME-4208 removed background with frame
-#planetbarcomponent .hoverMoon:hover {
-    box-shadow: 0 0 1px 0 #FF9600 inset;
-}
-*/
 
 #planetbarcomponent .gatenetworkActive img {
     box-shadow: 0px 0px 6px 2px #F00ECE, inset 0px 0px 3px 2px #F00ECE;

@@ -100,7 +100,7 @@
         </div>
         <script type="text/javascript">
             var planetMoveInProgress = false;
-            var lastBuildingSlot = {"showWarning":false,"slotWarning":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item (e.g. <a href=\"https:\/\/s255-en.ogame.gameforge.com\/game\/index.php?page&#61;shop#page&#61;shop&amp;category&#61;c18170d3125b9941ef3a86bd28dded7bf2066a6a&amp;item&#61;04e58444d6d0beb57b3e998edc34c60f8318825a\" class=\"tooltipHTML itemLink\">Gold Planet Fields<\/a>) to obtain more slots. Are you sure you want to build this building?"};
+            var lastBuildingSlot = {"showWarning":false,"slotWarning":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item (e.g. <a href=\"#index.php?page&#61;shop#page&#61;shop&amp;category&#61;c18170d3125b9941ef3a86bd28dded7bf2066a6a&amp;item&#61;04e58444d6d0beb57b3e998edc34c60f8318825a\" class=\"tooltipHTML itemLink\">Gold Planet Fields<\/a>) to obtain more slots. Are you sure you want to build this building?"};
 
         </script>
     </div>
