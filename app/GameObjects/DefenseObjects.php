@@ -44,7 +44,7 @@ class DefenseObjects
         $lightLaser->id = 402;
         $lightLaser->title = 'Light Laser';
         $lightLaser->machine_name = 'light_laser';
-        $lightLaser->class_name = 'lightLaser';
+        $lightLaser->class_name = 'laserCannonLight';
         $lightLaser->description = 'Concentrated firing at a target with photons can produce significantly greater damage than standard ballistic weapons.';
         $lightLaser->description_long = 'As technology developed and more sophisticated ships were created, it was determined that a stronger line of defense was needed to counter the attacks. As Laser Technology advanced, a new weapon was designed to provide the next level of defense. Light Lasers are simple ground based weapons that utilize special targeting systems to track the enemy and fire a high intensity laser designed to cut through the hull of the target. In order to be kept cost effective, they were fitted with an improved shielding system, however the structural integrity is the same as that of the Rocket Launcher.
         
@@ -66,7 +66,7 @@ class DefenseObjects
         $heavyLaser->id = 403;
         $heavyLaser->title = 'Heavy Laser';
         $heavyLaser->machine_name = 'heavy_laser';
-        $heavyLaser->class_name = 'heavyLaser';
+        $heavyLaser->class_name = 'laserCannonHeavy';
         $heavyLaser->description = 'The heavy laser is the logical development of the light laser.';
         $heavyLaser->description_long = 'The Heavy Laser is a practical, improved version of the Light Laser. Being more balanced than the Light Laser with improved alloy composition, it utilizes stronger, more densely packed beams, and even better onboard targeting systems.
         
@@ -136,7 +136,7 @@ class DefenseObjects
         $plasmaTurret->id = 406;
         $plasmaTurret->title = 'Plasma Turret';
         $plasmaTurret->machine_name = 'plasma_turret';
-        $plasmaTurret->class_name = 'plasmaTurret';
+        $plasmaTurret->class_name = 'plasmaCannon';
         $plasmaTurret->description = 'Plasma Turrets release the energy of a solar flare and surpass even the destroyer in destructive effect.';
 
         $plasmaTurret->description_long = 'One of the most advanced defense weapons systems ever developed, the Plasma Turret uses a large nuclear reactor fuel cell to power an electromagnetic accelerator that fires a pulse, or toroid, of plasma. During operation, the Plasma turret first locks on a target and begins the process of firing. A plasma sphere is created in the turrets core by super heating and compressing gases, stripping them of their ions. Once the gas is superheated, compressed, and a plasma sphere is created, it is then loaded into the electromagnetic accelerator which is energized. Once fully energized, the accelerator is activated, which results in the plasma sphere being launched at an extremely high rate of speed to the intended target. From the targets perspective, the approaching bluish ball of plasma is impressive, but once it strikes, it causes instant destruction.
@@ -158,7 +158,7 @@ class DefenseObjects
         $smallShieldDome->id = 407;
         $smallShieldDome->title = 'Small Shield Dome';
         $smallShieldDome->machine_name = 'small_shield_dome';
-        $smallShieldDome->class_name = 'smallShieldDome';
+        $smallShieldDome->class_name = 'shieldDomeSmall';
         $smallShieldDome->description = 'The small shield dome covers an entire planet with a field which can absorb a tremendous amount of energy.';
         $smallShieldDome->description_long = 'Colonizing new worlds brought about a new danger, space debris. A large asteroid could easily wipe out the world and all inhabitants. Advancements in shielding technology provided scientists with a way to develop a shield to protect an entire planet not only from space debris but, as it was learned, from an enemy attack. By creating a large electromagnetic field around the planet, space debris that would normally have destroyed the planet was deflected, and attacks from enemy Empires were thwarted. The first generators were large and the shield provided moderate protection, but it was later discovered that small shields did not afford the protection from larger scale attacks. The small shield dome was the prelude to a stronger, more advanced planetary shielding system to come.
 
@@ -180,7 +180,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         $largeShieldDome->id = 408;
         $largeShieldDome->title = 'Large Shield Dome';
         $largeShieldDome->machine_name = 'large_shield_dome';
-        $largeShieldDome->class_name = 'largeShieldDome';
+        $largeShieldDome->class_name = 'shieldDomeLarge';
         $largeShieldDome->description = 'The evolution of the small shield dome can employ significantly more energy to withstand attacks.';
         $largeShieldDome->description_long = 'The Large Shield Dome is the next step in the advancement of planetary shields, it is the result of years of work improving the Small Shield Dome. Built to withstand a larger barrage of enemy fire by providing a higher energized electromagnetic field, large domes provide a longer period of protection before collapsing.
         
@@ -202,7 +202,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         $antiBallisticMissile->id = 502;
         $antiBallisticMissile->title = 'Anti-Ballistic Missiles';
         $antiBallisticMissile->machine_name = 'anti_ballistic_missile';
-        $antiBallisticMissile->class_name = 'antiBallisticMissile';
+        $antiBallisticMissile->class_name = 'missileInterceptor';
         $antiBallisticMissile->description = 'Anti-Ballistic Missiles destroy attacking interplanetary missiles';
 
         $antiBallisticMissile->description_long = 'Anti Ballistic Missiles (ABM) are your only line of defense when attacked by Interplanetary Missiles (IPM) on your planet or moon. When a launch of IPMs is detected, these missiles automatically arm, process a launch code in their flight computers, target the inbound IPM, and launch to intercept. During the flight, the target IPM is constantly tracked and course corrections are applied until the ABM reaches the target and destroys the attacking IPM. Each ABM destroys one incoming IPM.';
@@ -222,7 +222,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         $interplanetaryMissile->id = 503;
         $interplanetaryMissile->title = 'Interplanetary Missiles';
         $interplanetaryMissile->machine_name = 'interplanetary_missile';
-        $interplanetaryMissile->class_name = 'interplanetaryMissile';
+        $interplanetaryMissile->class_name = 'missileInterplanetary';
         $interplanetaryMissile->description = 'Interplanetary Missiles destroy enemy defenses. Your interplanetary missiles have got a coverage of ?? systems.';
 
         $interplanetaryMissile->description_long = 'Interplanetary Missiles (IPM) are your offensive weapon to destroy the defenses of your target. Using state of the art tracking technology, each missile targets a certain number of defenses for destruction. Tipped with an anti-matter bomb, they deliver a destructive force so severe that destroyed shields and defenses cannot be repaired. The only way to counter these missiles is with ABMs.';

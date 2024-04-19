@@ -2,6 +2,8 @@
 
 namespace OGame\Http\Controllers;
 
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractUnitsController;
@@ -27,6 +29,7 @@ class DefenseController extends AbstractUnitsController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects) : View
     {
@@ -47,10 +50,10 @@ class DefenseController extends AbstractUnitsController
      * @param Request $request
      * @param PlayerService $player
      * @param ObjectService $objects
-     * @return View
-     * @throws \Exception
+     * @return JsonResponse
+     * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : View
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : JsonResponse
     {
         return $this->ajaxHandler($request, $player, $objects);
     }

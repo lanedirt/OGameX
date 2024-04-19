@@ -26,7 +26,11 @@
         @endif
 >
 
-                        <span class="icon sprite sprite_small small {{ $building->object->class_name }}">
+                        <span class="icon sprite @if ($building->object->type == 'defense')
+                            sprite_medium medium
+                         @else
+                            sprite_small small
+                         @endif{{ $building->object->class_name }}">
                             @if ($building->currently_building)
                                 <span class="targetamount" data-value="54" data-bonus="0">
                                     {{ $building->amount + $building->currently_building_amount }}
