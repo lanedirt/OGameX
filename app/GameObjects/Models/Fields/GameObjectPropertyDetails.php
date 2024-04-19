@@ -9,7 +9,7 @@ class GameObjectPropertyDetails
     public int $totalValue;
 
     /**
-     * @var array<string, string|int|array<string,string|int>>
+     * @var array<string,array<int, array<string, float|int|string>>|float|int>
      */
     public array $breakdown;
     /*
@@ -30,7 +30,7 @@ class GameObjectPropertyDetails
      * @param int $rawValue
      * @param int $bonusValue
      * @param int $totalValue
-     * @param array<string, string|int|array<string,string|int>> $breakdown
+     * @param array<string,array<int, array<string, float|int|string>>|float|int> $breakdown
      */
     public function __construct(int $rawValue, int $bonusValue, int $totalValue, array $breakdown = [])
     {

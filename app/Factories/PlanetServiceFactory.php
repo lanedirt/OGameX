@@ -163,7 +163,7 @@ class PlanetServiceFactory
         $planet->solar_plant_percent = 10;
         $planet->fusion_plant_percent = 10;
 
-        $planet->time_last_update = Carbon::now()->timestamp;
+        $planet->time_last_update = (int)Carbon::now()->timestamp;
         $planet->save();
 
         // Update settings with the last assigned galaxy and system if they changed.

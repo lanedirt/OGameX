@@ -162,7 +162,7 @@ class ObjectService
      * Get specific game object.
      *
      * @param int $object_id
-     * @return BuildingObject
+     * @return GameObject
      * @throws Exception
      */
     public function getObjectById(int $object_id) : GameObject
@@ -182,7 +182,7 @@ class ObjectService
      * Get specific game object.
      *
      * @param string $machine_name
-     * @return BuildingObject
+     * @return GameObject
      * @throws Exception
      */
     public function getObjectByMachineName(string $machine_name) : GameObject
