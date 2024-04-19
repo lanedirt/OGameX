@@ -8,6 +8,7 @@
         </div>
     @endif
 
+    <div id="resourcesettingscomponent">
     <div id="inhalt">
         <div id="planet" class="shortHeader">
             <h2>Resource settings - {{ $planet_name }}</h2>
@@ -498,6 +499,7 @@
             <div class="footerRS"></div>
         </div>
         <br class="clearfloat">
+    </div>
     </div>
 
     <script type="text/javascript">
