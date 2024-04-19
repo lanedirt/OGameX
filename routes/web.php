@@ -39,7 +39,7 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
         Route::get('/research', 'ResearchController@index')->name('research.index');
         Route::get('/ajax/research', 'ResearchController@ajax')->name('research.ajax');
         Route::get('/research/add-buildrequest', 'ResearchController@addBuildRequest')->name('research.addbuildrequest');
-        Route::post('/research/add-buildrequest', 'ResearchController@addBuildRequest')->name('research.addbuildrequest.get');
+        Route::post('/research/add-buildrequest', 'ResearchController@addBuildRequest')->name('research.addbuildrequest.post');
         Route::post('/research/cancel-buildrequest', 'ResearchController@cancelBuildRequest')->name('research.cancelbuildrequest');
 
         // Shipyard

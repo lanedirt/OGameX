@@ -166,7 +166,6 @@ abstract class AbstractBuildingsController extends OGameController
         $building_id = $request->input('technologyId');
         $this->queue->add($player->planets->current(), $building_id);
 
-        // Return JSON
         return response()->json([
             'status' => 'success',
             'message' => 'Building construction started.',
@@ -188,7 +187,6 @@ abstract class AbstractBuildingsController extends OGameController
 
         $this->queue->cancel($player->planets->current(), $building_queue_id, $building_id);
 
-        // Return JSON
         return response()->json([
             'status' => 'success',
             'message' => 'Building construction canceled.',

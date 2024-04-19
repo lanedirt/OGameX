@@ -1,4 +1,4 @@
-@php /** @var OGame\ViewModels\Queue\BuildingQueueListViewModel $build_queue */ @endphp
+@php /** @var OGame\ViewModels\Queue\ResearchQueueListViewModel $build_queue */ @endphp
 @if (count($build_queue) > 0)
     <table class="queue">
         <tbody>
@@ -9,7 +9,7 @@
                        onclick="cancelbuilding({!! $item->object->id !!},{!! $item->id !!},&quot;Cancel expansion of {!! $item->object->title !!} to level {!! $item->level_target !!}?&quot;); return false;"
                        title="">
                         <img class="queuePic"
-                             src="{!! asset('img/objects/buildings/' . $item->object->assets->imgMicro) !!}" height="28"
+                             src="{!! asset('img/objects/research/' . $item->object->assets->imgMicro) !!}" height="28"
                              width="28" alt="{!! $item->object->title !!}">
                         <span>{!! $item->level_target !!}</span>
                     </a>
