@@ -46,11 +46,15 @@ abstract class AccountTestCase extends TestCase
     {
         //  Extract current user planet ID based on meta tag in the overview page
         $response = $this->get('/overview');
-        if ($response->status() !== 200) {
-            // Log first 200 chars.
-            $this->fail('Failed to retrieve overview page after registration. Response HTTP code: ' . $response->status() . '. Response first 2k chars: ' . substr($response->getContent(), 0, 2000));
-        }
         $content = $response->getContent();
+        if (empty($content)) {
+            $content = '';
+        }
+
+        if ($response->status() !== 200) {
+            // Return first 2k chars for debug purposes.
+            $this->fail('Failed to retrieve overview page after registration. Response HTTP code: ' . $response->status() . '. Response first 2k chars: ' . substr($content, 0, 2000));
+        }
 
         preg_match('/<meta name="ogame-player-id" content="([^"]+)"/', $content, $playerIdMatches);
         preg_match('/<meta name="ogame-player-name" content="([^"]+)"/', $content, $playerNameMatches);
@@ -160,7 +164,11 @@ abstract class AccountTestCase extends TestCase
         }
         $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*' . $object->title . '\s*<\/span>\s*(\d+)\s*<\/span>/';
 
-        if (preg_match($pattern, $response->getContent(), $matches)) {
+        $content = $response->getContent();
+        if (empty($content)) {
+            $content = '';
+        }
+        if (preg_match($pattern, $content, $matches)) {
             $actual_level = $matches[1];  // The captured digits
             if (!empty($error_message)) {
                 $this->assertEquals($expected_level, $actual_level, $error_message);
@@ -180,26 +188,31 @@ abstract class AccountTestCase extends TestCase
      * @return void
      */
     protected function assertResourcesOnPage(TestResponse $response, Resources $resources): void{
+        $content = $response->getContent();
+        if (empty($content)) {
+            $content = '';
+        }
+
         if ($resources->metal->get() > 0) {
             $pattern = '/<span id="resources_metal" class="[^"]*">\s*' . $resources->metal->getFormattedLong() . '\s*<\/span>/';
-            $result = preg_match($pattern, $response->getContent());
+            $result = preg_match($pattern, $content);
             $this->assertTrue($result === 1, 'Resource metal is not at ' . $resources->metal->getFormattedLong() . '.');
         }
         if ($resources->crystal->get() > 0) {
             $pattern = '/<span\s+id="resources_crystal" class="[^"]*">\s*' . $resources->crystal->getFormattedLong() . '\s*<\/span>/';
-            $result = preg_match($pattern, $response->getContent());
+            $result = preg_match($pattern, $content);
             $this->assertTrue($result === 1, 'Resource crystal is not at ' . $resources->crystal->getFormattedLong() . '.');
         }
 
         if ($resources->deuterium->get() > 0) {
             $pattern = '/<span\s+id="resources_deuterium" class="[^"]*">\s*' . $resources->deuterium->getFormattedLong() . '\s*<\/span>/';
-            $result = preg_match($pattern, $response->getContent());
+            $result = preg_match($pattern, $content);
             $this->assertTrue($result === 1, 'Resource deuterium is not at ' . $resources->deuterium->getFormattedLong() . '.');
         }
 
         if ($resources->energy->get() > 0) {
             $pattern = '/<span\s+id="resources_energy" class="[^"]*">\s*' . $resources->energy->getFormattedLong() . '\s*<\/span>/';
-            $result = preg_match($pattern, $response->getContent());
+            $result = preg_match($pattern, $content);
             $this->assertTrue($result === 1, 'Resource energy is not at ' . $resources->energy->getFormattedLong() . '.');
         }
     }

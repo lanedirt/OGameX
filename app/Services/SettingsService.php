@@ -60,7 +60,7 @@ class SettingsService
 
         // If it doesn't exist, return default.
         if (empty($this->settings[$key])) {
-            return $default;
+            return (string)$default;
         }
 
         return $this->settings[$key]->value;

@@ -174,7 +174,7 @@ class ResearchQueueService
         $list = array();
         foreach ($queue_items as $item) {
             $object = $this->objects->getResearchObjectById($item->object_id);
-            $time_countdown = $item->time_end - Carbon::now()->timestamp;
+            $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
             }
@@ -292,7 +292,7 @@ class ResearchQueueService
             $planet->deductResources($price);
 
             if (!$time_start) {
-                $time_start = Carbon::now()->timestamp;
+                $time_start = (int)Carbon::now()->timestamp;
             }
 
             $queue_item->time_duration = (int)$build_time;

@@ -2,6 +2,7 @@
 
 namespace Feature;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -232,6 +233,9 @@ class ResearchQueueTest extends AccountTestCase
 
         // Extract the first and second number from the first cancelProduction call
         $cancelProductionCall = $response->getContent();
+        if (empty($cancelProductionCall)) {
+            $cancelProductionCall = '';
+        }
         $cancelProductionCall = explode('onclick="cancelProduction(', $cancelProductionCall);
         $cancelProductionCall = explode(',', $cancelProductionCall[1]);
         $number1 = $cancelProductionCall[0];
@@ -283,5 +287,19 @@ class ResearchQueueTest extends AccountTestCase
 
         // Assert the response status has failed (500).
         $response->assertStatus(500);
+    }
+
+    /**
+     * Verify that research construction time is calculated correctly (higher than 0)
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testResearchProductionTime() : void
+    {
+        // Add resources to planet to initialize planet.
+        $this->planetAddResources(new Resources(400,120,200,0));
+
+        $research_time = $this->planetService->getTechnologyResearchTime('energy_technology');
+        $this->assertGreaterThan(0, $research_time);
     }
 }

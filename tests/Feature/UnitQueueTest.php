@@ -346,4 +346,16 @@ class UnitQueueTest extends AccountTestCase
 
         $this->assertResourcesOnPage($response, new Resources(15500, 5500, 0, 0));
     }
+
+    /**
+     * Verify that unit construction time is calculated correctly (higher than 0)
+     * @throws BindingResolutionException
+     */
+    public function testUnitProductionTime(): void
+    {
+        $this->basicSetup();
+
+        $unit_construction_time = $this->planetService->getUnitConstructionTime('light_fighter');
+        $this->assertGreaterThan(0, $unit_construction_time);
+    }
 }
