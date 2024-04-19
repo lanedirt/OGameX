@@ -60,7 +60,7 @@
         }, 1);
     </script>
 </head>
-<body @isset($body_id)id="{!! $body_id !!}" @endisset class="ogame lang-en default no-touch">
+<body id="ingamepage" class="ogame lang-en default no-touch">
 <div id="initial_welcome_dialog" title="Welcome to OGame!" style="display: none;">
     To help your game start get moving quickly, we’ve assigned you the name Commodore Nebula. You can change this at any
     time by clicking on the username.<br/>
@@ -69,38 +69,18 @@
     <br/>
     Have fun playing!
 </div>
-<div class="contentBoxBody">
-    <noscript>
-        <div id="messagecenter">
-            <div id="javamessagebox">
-                        <span class="overmark">
-                            <strong>Please activate JavaScript to continue with the game.</strong>
-                        </span>
-            </div>
-        </div>
-    </noscript>
-    <div id="ie_message">
-        <p><img src="/img/icons/e621aa80dbd4746a9f4f114c8d3853.gif" height="16" width="16"/>Your currently used browser
-            is outdated and may cause display errors on this website. Please update your browser to a newer version: <a
-                    href="http://www.microsoft.com/upgrade/">Internet Explorer</a> or <a
-                    href="http://www.mozilla-europe.org/de/firefox/">Mozilla Firefox</a></p>
-    </div>
-    <!-- HEADER -->
-    <!-- ONET 4 POLAND -->
-    <div id="boxBG">
-        <div id="box">
-            <a name="anchor"></a>
-            <div id="info" class="header normal">
-                <a href="{{ route('overview.index') }}"><img src="/img/layout/pixel.gif" id="logoLink"/></a>
-                <div id="star"></div>
-                <div id="star1"></div>
-                <div id="star2"></div>
-                <div id="clearAdvice"></div>
-                <div id="bar">
-                    <ul>
-                        <li id="playerName">
-                            @lang('Player'):
-                            <span class="textBeefy">
+
+<div id="pageContent">
+    <div id="top">
+        <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
+        <div id="headerbarcomponent" class="">
+            <div id="bar">
+                <ul>
+                    <li id="playerName">
+                        @lang('Player'):
+                        <selected-language-icon style="background-image: url('/img/flags/a176fcd6f3e3de2bed6a73a8b1d5e7.png');"></selected-language-icon>
+
+                        <span class="textBeefy">
                                 <a href="{{ route('changenick.overlay') }}"
                                    class="overlay textBeefy"
                                    data-overlay-title="Change player name"
@@ -110,256 +90,210 @@
                                     {!! $currentPlayer->getUsername() !!}
                                 </a>
                             </span>
-                        </li>
-                        <li>
-                            <a href="{{ route('highscore.index') }}" accesskey="">@lang('Highscore')</a>
-                            (0)
-                        </li>
-                        <li>
-                            <a href="{{ route('notes.overlay') }}"
-                               class="overlay" data-overlay-title="My notes"
-                               data-overlay-class="notices"
-                               data-overlay-popup-width="750"
-                               data-overlay-popup-height="480"
-                               accesskey="">
-                                @lang('Notes')</a>
-                        </li>
-                        <li>
-                            <a class=""
-                               accesskey=""
-                               href="{{ route('buddies.index') }}"
-                            >
-                                @lang('Buddies')</a>
-                        </li>
-                        <li><a class="overlay"
-                               href="{{ route('search.overlay') }}"
-                               data-overlay-title="Search Universe"
-                               data-overlay-close="__default closeSearch"
-                               data-overlay-class="search"
-                               accesskey="">@lang('Search')</a>
-                        </li>
-                        <li><a href="{{ route('options.index') }}" accesskey="">@lang('Options')</a></li>
-                        <li><a href="#">@lang('Support')</a></li>
-                        <li><a href="{{ route('logout') }}" onclick="event.preventDefault();
+                    </li>
+                    <li>
+                        <a href="{{ route('highscore.index') }}" accesskey="">@lang('Highscore')</a>
+                        (0)
+                    </li>
+                    <li>
+                        <a href="{{ route('notes.overlay') }}"
+                           class="overlay" data-overlay-title="My notes"
+                           data-overlay-class="notices"
+                           data-overlay-popup-width="750"
+                           data-overlay-popup-height="480"
+                           accesskey="">
+                            @lang('Notes')</a>
+                    </li>
+                    <li>
+                        <a class=""
+                           accesskey=""
+                           href="{{ route('buddies.index') }}"
+                        >
+                            @lang('Buddies')</a>
+                    </li>
+                    <li><a class="overlay"
+                           href="{{ route('search.overlay') }}"
+                           data-overlay-title="Search Universe"
+                           data-overlay-close="__default closeSearch"
+                           data-overlay-class="search"
+                           accesskey="">@lang('Search')</a>
+                    </li>
+                    <li><a href="{{ route('options.index') }}" accesskey="">@lang('Options')</a></li>
+                    <li><a href="#">@lang('Support')</a></li>
+                    <li><a href="{{ route('logout') }}" onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">@lang('Log out')</a>
 
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                {{ csrf_field() }}
-                            </form>
-                        </li>
-                        <li class="OGameClock">16.12.2017 <span>12:18:12</span></li>
-                    </ul>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            {{ csrf_field() }}
+                        </form>
+                    </li>
+                    <li class="OGameClock">16.12.2017 <span>12:18:12</span></li>
+                </ul>
+            </div>
+        </div>
+        <div id="resourcesbarcomponent" class="">
+            <div id="resources">
 
-                </div>
-                <ul id="resources">
-                    <li id="metal_box" class="metal tooltipHTML"
-                        title="@lang('Metal'):| &lt;table class=&quot;resourceTooltip&quot;&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Available'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;&quot;&gt;{!! $resources['metal']['amount_formatted'] !!}&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Storage capacity'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Current production'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+{!! $resources['metal']['production_hour'] !!}&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Den Capacity'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-        &lt;/table&gt;">
+                <div class="resource_tile metal">
+                    <div id="metal_box" class="metal tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="Metal|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['metal']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['metal']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['metal']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>" data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1=" data-ipi-hint="ipiResourcemetal">
                         <div class="resourceIcon metal"></div>
                         <span class="value">
-                    <span id="resources_metal" class="{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}">{!! $resources['metal']['amount_formatted'] !!}</span></span>
-                    </li>
-                    <li id="crystal_box" class="crystal tooltipHTML"
-                        title="@lang('Crystal'):| &lt;table class=&quot;resourceTooltip&quot;&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Available'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;&quot;&gt;{!! $resources['crystal']['amount_formatted'] !!}&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Storage capacity'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Current production'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+{!! $resources['crystal']['production_hour'] !!}&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Den Capacity'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-        &lt;/table&gt;">
+                        <span id="resources_metal" class="{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['metal']['amount'] !!}">{!! $resources['metal']['amount_formatted'] !!}</span>
+                    </span>
+                    </div>
+                </div>
+                <div class="resource_tile crystal">
+                    <div id="crystal_box" class="crystal tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="@lang('Crystal')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['crystal']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['crystal']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['crystal']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>" data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1=" data-ipi-hint="ipiResourcecrystal">
                         <div class="resourceIcon crystal"></div>
                         <span class="value">
-                    <span id="resources_crystal" class="{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}">{!! $resources['crystal']['amount_formatted'] !!}                    </span>
-                </span>
-                    </li>
-                    <li id="deuterium_box" class="deuterium tooltipHTML"
-                        title="@lang('Deuterium'):| &lt;table class=&quot;resourceTooltip&quot;&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Available'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;&quot;&gt;{!! $resources['deuterium']['amount_formatted'] !!}&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Storage capacity'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Current production'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;{!! $resources['deuterium']['production_hour'] !!}&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Den Capacity'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-        &lt;/table&gt;">
+                        <span id="resources_crystal" class="{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['crystal']['amount'] !!}">{!! $resources['crystal']['amount_formatted'] !!}</span>
+                    </span>
+                    </div>
+                </div>
+                <div class="resource_tile deuterium">
+                    <div id="deuterium_box" class="deuterium tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="@lang('Deuterium')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['deuterium']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['deuterium']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['deuterium']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>" data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1=" data-ipi-hint="ipiResourcedeuterium">
                         <div class="resourceIcon deuterium"></div>
                         <span class="value">
-                    <span id="resources_deuterium" class="{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}">{!! $resources['deuterium']['amount_formatted'] !!}                    </span>
-               	</span>
-                    </li>
-                    <li id="energy_box" class="energy tooltipHTML"
-                        title="@lang('Energy'):| &lt;table class=&quot;resourceTooltip&quot;&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Available'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;&quot;&gt;{!! $resources['energy']['amount_formatted'] !!} &lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Current production'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;{!! $resources['energy']['production'] !!} &lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;th&gt;@lang('Consumption'):&lt;/th&gt;
-                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;{!! $resources['energy']['consumption'] !!} &lt;/span&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-        &lt;/table&gt;">
+                        <span id="resources_deuterium" class="{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['deuterium']['amount'] !!}">{!! $resources['deuterium']['amount_formatted'] !!}</span>
+                    </span>
+                    </div>
+                </div>
+                <div class="resource_tile energy">
+                    <div id="energy_box" class="energy tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="@lang('Energy')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['energy']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Current production:')</th><td><span class=&quot;undermark&quot;>+{!! $resources['energy']['production_formatted'] !!}</span></td></tr><tr><th>@lang('Consumption')</th><td><span class=&quot;overmark&quot;>-{!! $resources['energy']['consumption_formatted'] !!}</span></td></tr></table>" data-ipi-hint="ipiResourceenergy">
                         <div class="resourceIcon energy"></div>
                         <span class="value">
-                    <span id="resources_energy" class="{{ $resources['energy']['amount'] < 0 ? 'overmark' : '' }}">
-                            {!! $resources['energy']['amount_formatted'] !!}			            </span>
+                        <span id="resources_energy" class="{{ $resources['energy']['amount'] < 0 ? 'overmark' : '' }}" data-raw="{!! $resources['energy']['amount'] !!}">{!! $resources['energy']['amount_formatted'] !!}</span>
                     </span>
-                    </li>
-                    <li id="darkmatter_box" class="darkmatter dark_highlight_tablet tooltipHTML"
-                        title="@lang('Dark Matter'):| &lt;table class=&quot;resourceTooltip&quot;&gt;
-                &lt;tr&gt;
-                    &lt;th&gt;@lang('Available'):&lt;/th&gt;
-                    &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
-                &lt;/tr&gt;
-                &lt;tr&gt;
-                    &lt;th&gt;@lang('Purchased'):&lt;/th&gt;
-                    &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
-                &lt;/tr&gt;
-                &lt;tr&gt;
-                    &lt;th&gt;@lang('Found'):&lt;/th&gt;
-                    &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
-                &lt;/tr&gt;
-            &lt;/table&gt;"
-                        data-tooltip-button="@lang('Purchase Dark Matter')">
-                        <a class="overlay" href="{{ route('payment.overlay') }}">
-                            <img src="/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif"/>
-                            <span class="value">
-                        <span id="resources_darkmatter">
-                            0                        </span>
-                    </span>
-                        </a>
-                    </li>
-                </ul>
-
-
-                <div id="officers" class="">
-
-                    <a href="{{ route('premium.index', ['openDetail' => 2]) }}"
-                       class="tooltipHTML   commander js_hideTipOnMobile"
-                       title="@lang('Hire Commander')|@lang('+40 favourites, building queue, empire view, shortcuts, transport scanner, advertisement free*') &lt;span style=&quot;font-size:10px;line-height:10px;&quot;&gt;(@lang('*excludes: game related references'))&lt;/span&gt;">
-                        <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
-                    </a>
-
-                    <a href="{{ route('premium.index', ['openDetail' => 3]) }}"
-                       class="tooltipHTML   admiral js_hideTipOnMobile" title="@lang('Hire Admiral')|@lang('Max. fleet slots +2, Max. expeditions +1, Improved fleet escape rate')">
-                        <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
-                    </a>
-                    <a href="{{ route('premium.index', ['openDetail' => 4]) }}"
-                       class="tooltipHTML   engineer js_hideTipOnMobile"
-                       title="@lang('Hire Engineer')|@lang('Halves losses to defenses, +10% energy production')">
-                        <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
-                    </a>
-                    <a href="{{ route('premium.index', ['openDetail' => 5]) }}"
-                       class="tooltipHTML   geologist js_hideTipOnMobile" title="@lang('Hire Geologist')|@lang('+10% mine production')">
-                        <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
-                    </a>
-                    <a href="{{ route('premium.index', ['openDetail' => 6]) }}"
-                       class="tooltipHTML   technocrat js_hideTipOnMobile"
-                       title="@lang('Hire Technocrat')|@lang('+2 espionage levels, 25% less research time')">
-                        <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="30" height="30"/>
-                    </a>
+                    </div>
                 </div>
-                <div id="message-wrapper">
-                    <!-- Neue Nachrichten-Zähler -->
-                    <a class=" comm_menu messages tooltip js_hideTipOnMobile"
-                       href="{{ route('messages.index') }}"
-                       title="{{ $unreadMessagesCount }} @lang('unread message(s)')">
-                        @if ($unreadMessagesCount > 0)
-                            <span class="new_msg_count totalMessages  news"
-                                  data-new-messages="{{ $unreadMessagesCount }}">
+                <div class="resource_tile population">
+                    <div id="population_box" class="population tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="Population|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>100</span></td></tr><tr><th>Living Space
+</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Satisfied</th><td><span class=&quot;undermark&quot;>0</span></td></tr><tr><th>Hungry</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Growth rate</th><td><span class=&quot;&quot;>±0</span></td></tr><tr><th>Bunker Space
+</th><td><span class=&quot;middlemark&quot;>100</span></td></tr></table>" data-ipi-hint="ipiResourcepopulation">
+                        <div class="resourceIcon population"></div>
+                        <span class="value">
+                        <span id="resources_population" data-raw="100" class="overmark">100</span>
+                    </span>
+                    </div>
+                </div>
+                <div class="resource_tile food">
+                    <div id="food_box" class="food tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="Food|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Storage capacity</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Overproduction</th><td><span class=&quot;undermark&quot;>0</span></td></tr><tr><th>Consumption</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Consumed in</th><td><span class=&quot;overmark timeTillFoodRunsOut&quot;>~</span></td></tr></table>" data-ipi-hint="ipiResourcefood">
+                        <div class="resourceIcon food"></div>
+                        <span class="value">
+                        <span id="resources_food" data-raw="0" class="overmark">0</span>
+                    </span>
+                    </div>
+                </div>
+                <div class="resource_tile darkmatter">
+                    <div id="darkmatter_box" class="darkmatter tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="@lang('Dark Matter')|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;&quot;>19,890</span></td></tr><tr><th>Purchased</th><td><span class=&quot;&quot;>225</span></td></tr><tr><th>Found</th><td><span class=&quot;&quot;>19,665</span></td></tr></table>" data-tooltip-button="Purchase Dark Matter" data-ipi-hint="ipiResourcedarkmatter">
+                        <a href="#TODO_page=payment" class="overlay">
+                            <img src="/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif">
+                            <div class="resourceIcon darkmatter"></div>
+                        </a>
+                        <span class="value">
+                        <span id="resources_darkmatter" data-raw="19890" class="overlay">19,890</span>
+                    </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="commandercomponent" class="">
+            <div id="lifeform" class="fleft">
+                <a href="#TODO_page=ingame&amp;component=lfsettings" class="tooltipHTML js_hideTipOnMobile ipiHintable" title="Lifeform|No lifeforms
+" data-ipi-hint="ipiLifeformSettings">
+                    <div class="resourceIcon population"></div>
+                </a>
+            </div>
+            <div id="characterclass" class="fleft">
+                <a href="#TODO_=ingame&amp;component=characterclassselection" class="tooltipHTML js_hideTipOnMobile ipiHintable" title="Your class: Collector|+25% mine production<br>+10% energy production<br>+100% speed for Transporters<br>+25% cargo bay for Transporters<br>+50% Crawler bonus<br>+10% more usable Crawlers with Geologist<br>Overload the Crawlers up to 150%<br>+10% discount on acceleration (building)" data-ipi-hint="ipiCharacterclassSettings">
+                    <div class="sprite characterclass medium miner"></div>
+                </a>
+            </div>
+            <div id="officers" class="  fright">
+                <a href="#TODO_=premium&amp;openDetail=2" class="tooltipHTML   commander js_hideTipOnMobile " title="Hire commander|&amp;#43;40 favorites, building queue, shortcuts, transport scanner, advertisement-free* <span style=&quot;font-size: 10px; line-height: 10px&quot;>(*excludes: game related references)</span>">
+                    <img src="/img/layout/pixel.gif" width="30" height="30">
+                </a>
+                <a href="#TODO_page=premium&amp;openDetail=3" class="tooltipHTML    admiral js_hideTipOnMobile " title="Hire admiral|Max. fleet slots +2,
+Max. expeditions +1,
+Improved fleet escape rate,
+Combat simulation save slots +20">
+                    <img src="/img/layout/pixel.gif" width="30" height="30">
+                </a>
+                <a href="#TODO_page=premium&amp;openDetail=4" class="tooltipHTML    engineer js_hideTipOnMobile " title="Hire engineer|Halves losses to defenses, +10% energy production">
+                    <img src="/img/layout/pixel.gif" width="30" height="30">
+                </a>
+                <a href="#TODO_page=premium&amp;openDetail=5" class="tooltipHTML    geologist js_hideTipOnMobile " title="Hire geologist|+10% mine production">
+                    <img src="/img/layout/pixel.gif" width="30" height="30">
+                </a>
+                <a href="#TODO_page=premium&amp;openDetail=6" class="tooltipHTML    technocrat js_hideTipOnMobile " title="Hire technocrat|+2 espionage levels, 25% less research time">
+                    <img src="/img/layout/pixel.gif" width="30" height="30">
+                </a>
+            </div>
+        </div>
+        <div id="notificationbarcomponent" class="">
+            <div id="message-wrapper">
+                <a class=" comm_menu messages tooltip js_hideTipOnMobile"
+                   href="{{ route('messages.index') }}"
+                   title="{{ $unreadMessagesCount }} @lang('unread message(s)')">
+                    @if ($unreadMessagesCount > 0)
+                        <span class="new_msg_count totalMessages  news"
+                              data-new-messages="{{ $unreadMessagesCount }}">
                                 {{ $unreadMessagesCount }}
                             </span>
-                        @endif
-                    </a>
-                    <!-- Neue Chatnachrichten-Zähler -->
-                    <a class=" comm_menu chat tooltip js_hideTipOnMobile"
-                       href="#"
-                       title="0 unread conversation(s)">
-                        <!-- js modification !-->
-                        <span class="new_msg_count totalChatMessages noMessage" data-new-messages="0">
+                    @endif
+                </a>
+                <!-- Neue Chatnachrichten-Zähler -->
+                <a class=" comm_menu chat tooltip js_hideTipOnMobile tpd-hideOnClickOutside"
+                   href="#"
+                   title="0 unread conversation(s)">
+                    <!-- js modification !-->
+                    <span class="new_msg_count totalChatMessages noMessage" data-new-messages="0">
                     0                </span>
-                    </a>
-                    <div id="messages_collapsed">
-                        <div id="eventboxFilled" class="eventToggle" style="display: none;">
-                            <a id="js_eventDetailsClosed" class="tooltipRight js_hideTipOnMobile"
-                               href="javascript:void(0);"
-                               title="More details"></a>
-                            <a id="js_eventDetailsOpen" class="tooltipRight open js_hideTipOnMobile"
-                               href="javascript:void(0);"
-                               title="Less detail"></a>
+                </a>
+                <div id="messages_collapsed">
+                    <div id="eventboxFilled" class="eventToggle" style="display: none;">
+                        <a id="js_eventDetailsClosed" class="tooltipRight js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="More details"></a>
+                        <a id="js_eventDetailsOpen" class="tooltipRight open js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="Less detail"></a>
 
 
-                        </div>
-                        <div id="eventboxLoading" class="textCenter textBeefy" style="display: block;">
-                            <img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif"/>@lang('load...')
-                        </div>
-                        <div id="eventboxBlank" class="textCenter" style="display: none;">
-                            @lang('No fleet movement')
-                        </div>
                     </div>
-                    <div id="attack_alert" class="tooltip eventToggle noAttack" title="">
-                        <a href="{{ route('overview.index') }}#TODO_page=eventList"></a>
+                    <div id="eventboxLoading" class="textCenter textBeefy" style="display: block;">
+                        <img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif"/>@lang('load...')
                     </div>
-                    <br class="clearfloat"/>
-                </div><!-- #message-wrapper -->
-
-                <div id="helper">
-                    <a class="tooltip tooltipClose"
-                       href="#"
-                       title="Tutorial overview<br/><a href='#'>Rewards</a>"
-                    >?</a>
-
+                    <div id="eventboxBlank" class="textCenter" style="display: none;">
+                        @lang('No fleet movement')
+                    </div>
                 </div>
+                <div id="attack_alert" class="tooltip noAttack" title="">
+                    <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
+                </div>
+            </div>
+        </div>
 
-                <div id="selectedPlanetName" class="textCenter">{!! $planets->first()->getPlanetName() !!}</div>
-            </div><!-- Info -->
-            <!-- END HEADER -->
+    </div>
+    <div id="left">
+        <div id="ipimenucomponent" class="">
+            <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable " title="" data-ipi-hint="ipiMenu"><div id="ipimenucontent"><a href="#TODO_page=ajax&amp;component=ipioverview&amp;action=overviewLayer&amp;ajax=1" class="overlay textBeefy" data-overlay-title="" id="ipiInnerMenuContentHolder">
+                        <div class="ipiMenuHead">
+                            Directives
+                        </div>
 
-            <!-- LEFTMENU -->
-            <div id='toolbarcomponent'>
-                <div id="links">
-                    <ul id="menuTable" class="leftmenu">
+                        <div class="ipiMenuBody hidden"></div>
+                        <div class="ipiMenuFooter hidden"></div>
+                    </a>
 
-                        <li>
+
+                </div></div>
+        </div>
+        <div id="toolbarcomponent" class="">
+            <div id="links">
+                <ul id="menuTable" class="leftmenu">
+
+                    <li>
                 <span class="menu_icon">
                                             <a href="{{ route('rewards.index') }}"
                                                class="tooltipRight js_hideTipOnMobile "
@@ -368,16 +302,16 @@
                             <div class="menuImage overview {{(Request::is('rewards') || Request::is('overview') ? 'highlighted' : '') }}"></div>
                         </a>
                                     </span>
-                            <a class="menubutton {{(Request::is('overview') ? 'selected' : '') }}"
-                               href="{{ route('overview.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Overview')</span>
-                            </a>
-                        </li>
+                        <a class="menubutton {{(Request::is('overview') ? 'selected' : '') }}"
+                           href="{{ route('overview.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Overview')</span>
+                        </a>
+                    </li>
 
-                        <li>
+                    <li>
                 <span class="menu_icon">
                                             <a href="{{ route('resources.settings') }}"
                                                class="tooltipRight js_hideTipOnMobile "
@@ -388,29 +322,29 @@
                             </div>
                         </a>
                                     </span>
-                            <a class="menubutton {{(Request::is('resources*') ? 'selected' : '') }}"
-                               href="{{ route('resources.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Resources')</span>
-                            </a>
-                        </li>
+                        <a class="menubutton {{(Request::is('resources*') ? 'selected' : '') }}"
+                           href="{{ route('resources.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Resources')</span>
+                        </a>
+                    </li>
 
-                        <li>
+                    <li>
                 <span class="menu_icon">
                                             <div class="menuImage station {{(Request::is('facilities') ? 'highlighted' : '') }}"></div>
                                     </span>
-                            <a class="menubutton {{(Request::is('facilities') ? 'selected' : '') }}"
-                               href="{{ route('facilities.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Facilities')</span>
-                            </a>
-                        </li>
+                        <a class="menubutton {{(Request::is('facilities') ? 'selected' : '') }}"
+                           href="{{ route('facilities.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Facilities')</span>
+                        </a>
+                    </li>
 
-                        <li>
+                    <li>
                 <span class="menu_icon">
                                             <a href="{{ route('merchant.index') }}#page=traderResources&amp;animation=false"
                                                class="trader tooltipRight js_hideTipOnMobile "
@@ -420,16 +354,16 @@
                             </div>
                         </a>
                                     </span>
-                            <a class="menubutton premiumHighligt {{(Request::is('merchant') ? 'selected' : '') }}"
-                               href="{{ route('merchant.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Merchant')</span>
-                            </a>
-                        </li>
+                        <a class="menubutton premiumHighligt {{(Request::is('merchant') ? 'selected' : '') }}"
+                           href="{{ route('merchant.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Merchant')</span>
+                        </a>
+                    </li>
 
-                        <li>
+                    <li>
                 <span class="menu_icon">
                                             <a href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => 1, 'open' => 'all']) }}"
                                                class="overlay tooltipRight js_hideTipOnMobile "
@@ -439,42 +373,42 @@
                             </div>
                         </a>
                                     </span>
-                            <a class="menubutton {{(Request::is('research') ? 'selected' : '') }}"
-                               href="{{ route('research.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Research')</span>
-                            </a>
-                        </li>
+                        <a class="menubutton {{(Request::is('research') ? 'selected' : '') }}"
+                           href="{{ route('research.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Research')</span>
+                        </a>
+                    </li>
 
-                        <li>
+                    <li>
                 <span class="menu_icon">
                                             <div class="menuImage shipyard {{(Request::is('shipyard') ? 'highlighted' : '') }}"></div>
                                     </span>
-                            <a class="menubutton {{(Request::is('shipyard') ? 'selected' : '') }}"
-                               href="{{ route('shipyard.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Shipyard')</span>
-                            </a>
-                        </li>
+                        <a class="menubutton {{(Request::is('shipyard') ? 'selected' : '') }}"
+                           href="{{ route('shipyard.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Shipyard')</span>
+                        </a>
+                    </li>
 
-                        <li>
+                    <li>
                 <span class="menu_icon">
                                             <div class="menuImage defense {{(Request::is('defense') ? 'highlighted' : '') }}"></div>
                                     </span>
-                            <a class="menubutton {{(Request::is('defense') ? 'selected' : '') }}"
-                               href="{{ route('defense.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Defense')</span>
-                            </a>
-                        </li>
+                        <a class="menubutton {{(Request::is('defense') ? 'selected' : '') }}"
+                           href="{{ route('defense.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Defense')</span>
+                        </a>
+                    </li>
 
-                        <li>
+                    <li>
                 <span class="menu_icon">
                                             <a href="{{ route('fleet.movement') }}"
                                                class="tooltipRight js_hideTipOnMobile "
@@ -484,55 +418,55 @@
                             </div>
                         </a>
                                     </span>
-                            <a class="menubutton {{(Request::is('fleet*') ? 'selected' : '') }}"
-                               href="{{ route('fleet.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Fleet')</span>
-                            </a>
-                        </li>
+                        <a class="menubutton {{(Request::is('fleet*') ? 'selected' : '') }}"
+                           href="{{ route('fleet.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Fleet')</span>
+                        </a>
+                    </li>
 
-                        <li>
+                    <li>
                 <span class="menu_icon">
                                             <div class="menuImage galaxy {{(Request::is('galaxy') ? 'highlighted' : '') }}"></div>
                                     </span>
-                            <a class="menubutton {{(Request::is('galaxy') ? 'selected' : '') }}"
-                               href="{{ route('galaxy.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Galaxy')</span>
-                            </a>
-                        </li>
+                        <a class="menubutton {{(Request::is('galaxy') ? 'selected' : '') }}"
+                           href="{{ route('galaxy.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Galaxy')</span>
+                        </a>
+                    </li>
 
-                        <li>
+                    <li>
                 <span class="menu_icon">
                                             <div class="menuImage alliance {{(Request::is('alliance') ? 'highlighted' : '') }}"></div>
                                     </span>
-                            <a class="menubutton {{(Request::is('alliance') ? 'selected' : '') }}"
-                               href="{{ route('alliance.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Alliance')</span>
-                            </a>
-                        </li>
+                        <a class="menubutton {{(Request::is('alliance') ? 'selected' : '') }}"
+                           href="{{ route('alliance.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Alliance')</span>
+                        </a>
+                    </li>
 
-                        <li>
+                    <li>
                 <span class="menu_icon">
                                             <div class="menuImage premium {{(Request::is('premium') ? 'highlighted' : '') }}"></div>
                                     </span>
-                            <a class="menubutton premiumHighligt officers {{(Request::is('premium') ? 'selected' : '') }}"
-                               href="{{ route('premium.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Recruit Officers')</span>
-                            </a>
-                        </li>
+                        <a class="menubutton premiumHighligt officers {{(Request::is('premium') ? 'selected' : '') }}"
+                           href="{{ route('premium.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Recruit Officers')</span>
+                        </a>
+                    </li>
 
-                        <li>
+                    <li>
                 <span class="menu_icon">
                                             <a href="{{ route('shop.index') }}#page=inventory"
                                                class="tooltipRight js_hideTipOnMobile "
@@ -542,49 +476,296 @@
                             </div>
                         </a>
                                     </span>
-                            <a class="menubutton premiumHighligt {{(Request::is('shop') ? 'selected' : '') }}"
-                               href="{{ route('shop.index') }}"
-                               accesskey=""
-                               target="_self"
-                            >
-                                <span class="textlabel">@lang('Shop')</span>
-                            </a>
-                        </li>
-                    </ul>
+                        <a class="menubutton premiumHighligt {{(Request::is('shop') ? 'selected' : '') }}"
+                           href="{{ route('shop.index') }}"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">@lang('Shop')</span>
+                        </a>
+                    </li>
+                </ul>
 
-                    <div class="adviceWrapper">
-                        <div id='advicebarcomponent' class='advicebar injectedComponent parent toolbar'>
-                            <div class="adviceWrapper">
-
-                                <div id="advice-bar">
-
-
-                                    <!--
-                                    class="overlay"
-                                       data-overlay-modal="true"
-                                       data-overlay-title="Confirm Email Address"
-                                    -->
-                                    <a href="#"
-                                       class="tooltipHTML tooltipRight advice"
-                                       title="Not validated|Your account has not been validated yet. Click here to receive a new validation link."
-                                    >
-                                        <img src="/img/icons/09980161fadf11b18189770e1d78d2.gif" height="32"
-                                             width="32"/>
-                                    </a>
-                                </div>
-
-                            </div>
-
-                        </div>
-                    </div>
-                    <div id="toolLinksWrapper">
-                        <ul id="menuTableTools" class="leftmenu"></ul>
-                    </div>
-                    <br class="clearfloat"/>
+                <div id="toolLinksWrapper">
+                    <ul id="menuTableTools" class="leftmenu"></ul>
                 </div>
-            </div>            <!-- END LEFTMENU -->
+                <br class="clearfloat">
+            </div>    </div>
+        <div id="advicebarcomponent" class="">
+            <div class="adviceWrapper">
 
-            <!-- JAVASCRIPT -->
+                <div id="advice-bar">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="middle">
+        <div id="eventlistcomponent" class="">
+            <div id="eventboxContent" style="display: none;">    <div id="eventListWrap">
+                    <div id="eventHeader">
+                        <a class="close_details eventToggle" href="javascript:toggleEvents();">
+                        </a>
+                        <h2>Events</h2>
+                    </div>
+                    <table id="eventContent">
+                        <tbody>
+                        <tr class="eventFleet" id="eventRow-3717429" data-mission-type="15" data-return-flight="false" data-arrival-time="1713536448">
+                            <td class="countDown">
+                                <span id="counter-eventlist-3717429" class="friendly textBeefy">10m 5s</span>
+                            </td>
+                            <td class="arrivalTime">15:20:48 Clock</td>
+                            <td class="missionFleet">
+                                <img src="https://gf1.geo.gfsrv.net/cdnf7/892b08269e0e0bbde60b090099f547.gif" class="tooltipHTML" title="Own fleet | Expedition" alt="">
+                            </td>
+
+                            <td class="originFleet">
+                                <figure class="planetIcon planet"></figure>Farm1
+                            </td>
+                            <td class="coordsOrigin">
+                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=5&amp;system=38" target="_top">
+                                    [5:38:8]
+                                </a>
+                            </td>
+
+                            <td class="detailsFleet">
+                                <span>58</span>
+                            </td>
+                            <td class="icon_movement">
+            <span class="tooltip tooltipRight tooltipClose" title="<div class=&quot;htmlTooltip&quot;>
+    <h1>Fleet details:</h1>
+    <div class=&quot;splitLine&quot;></div>
+            <table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;>
+            <tr>
+                <th colspan=&quot;3&quot;>Ships:</th>
+            </tr>
+                                                <tr>
+                        <td colspan=&quot;2&quot;>Small Cargo:</td>
+                        <td class=&quot;value&quot;>11</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Large Cargo:</td>
+                        <td class=&quot;value&quot;>46</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Cruiser:</td>
+                        <td class=&quot;value&quot;>1</td>
+                    </tr>
+                                                        <tr>
+                    <td colspan=&quot;3&quot;>&amp;nbsp;</td>
+                </tr>
+                <tr>
+                    <th colspan=&quot;3&quot;>Shipment:</th>
+                </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Metal:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Crystal:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Deuterium:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Food:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    </table>
+    </div>
+">
+                &nbsp;
+            </span>
+                            </td>
+
+                            <td class="destFleet">
+                                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Deep space
+                            </td>
+                            <td class="destCoords">
+                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=5&amp;system=38" target="_top">
+                                    [5:38:16]
+                                </a>
+                            </td>
+
+                            <td class="sendMail">
+                            </td>    <td class="sendProbe">
+                            </td>
+                            <td class="sendMail">
+                            </td>
+                        </tr>
+
+                        <tr class="eventFleet" id="eventRow-3717430" data-mission-type="15" data-return-flight="true" data-arrival-time="1713537495">
+                            <td class="countDown">
+                                <span id="counter-eventlist-3717430" class="friendly textBeefy">27m 32s</span>
+                            </td>
+                            <td class="arrivalTime">15:38:15 Clock</td>
+                            <td class="missionFleet">
+                                <img src="https://gf1.geo.gfsrv.net/cdnf7/892b08269e0e0bbde60b090099f547.gif" class="tooltipHTML" title="Own fleet | Expedition (R)" alt="">
+                            </td>
+
+                            <td class="originFleet">
+                                <figure class="planetIcon planet"></figure>Farm1
+                            </td>
+                            <td class="coordsOrigin">
+                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=5&amp;system=38" target="_top">
+                                    [5:38:8]
+                                </a>
+                            </td>
+
+                            <td class="detailsFleet">
+                                <span>58</span>
+                            </td>
+                            <td class="icon_movement_reserve">
+            <span class="tooltip tooltipRight tooltipClose" title="<div class=&quot;htmlTooltip&quot;>
+    <h1>Fleet details:</h1>
+    <div class=&quot;splitLine&quot;></div>
+            <table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;>
+            <tr>
+                <th colspan=&quot;3&quot;>Ships:</th>
+            </tr>
+                                                <tr>
+                        <td colspan=&quot;2&quot;>Small Cargo:</td>
+                        <td class=&quot;value&quot;>11</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Large Cargo:</td>
+                        <td class=&quot;value&quot;>46</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Cruiser:</td>
+                        <td class=&quot;value&quot;>1</td>
+                    </tr>
+                                                        <tr>
+                    <td colspan=&quot;3&quot;>&amp;nbsp;</td>
+                </tr>
+                <tr>
+                    <th colspan=&quot;3&quot;>Shipment:</th>
+                </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Metal:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Crystal:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Deuterium:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Food:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    </table>
+    </div>
+">
+                &nbsp;
+            </span>
+                            </td>
+
+                            <td class="destFleet">
+                                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Deep space
+                            </td>
+                            <td class="destCoords">
+                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=5&amp;system=38" target="_top">
+                                    [5:38:16]
+                                </a>
+                            </td>
+
+                            <td class="sendMail">
+                            </td>    <td class="sendProbe">
+                            </td>
+                            <td class="sendMail">
+                            </td>
+                        </tr>
+
+                        <tr class="eventFleet" id="eventRow-3717244" data-mission-type="3" data-return-flight="true" data-arrival-time="1713539113">
+                            <td class="countDown">
+                                <span id="counter-eventlist-3717244" class="friendly textBeefy">54m 30s</span>
+                            </td>
+                            <td class="arrivalTime">16:05:13 Clock</td>
+                            <td class="missionFleet">
+                                <img src="https://gf1.geo.gfsrv.net/cdn38/2af2939219d8227a11a50ff4df7b51.gif" class="tooltipHTML" title="Own fleet | Transport (R)" alt="">
+                            </td>
+
+                            <td class="originFleet">
+                                <figure class="planetIcon planet"></figure>Farm1
+                            </td>
+                            <td class="coordsOrigin">
+                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=361" target="_top">
+                                    [1:361:7]
+                                </a>
+                            </td>
+
+                            <td class="detailsFleet">
+                                <span>1</span>
+                            </td>
+                            <td class="icon_movement_reserve">
+            <span class="tooltip tooltipRight tooltipClose" title="<div class=&quot;htmlTooltip&quot;>
+    <h1>Fleet details:</h1>
+    <div class=&quot;splitLine&quot;></div>
+            <table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;>
+            <tr>
+                <th colspan=&quot;3&quot;>Ships:</th>
+            </tr>
+                                                <tr>
+                        <td colspan=&quot;2&quot;>Large Cargo:</td>
+                        <td class=&quot;value&quot;>1</td>
+                    </tr>
+                                                        <tr>
+                    <td colspan=&quot;3&quot;>&amp;nbsp;</td>
+                </tr>
+                <tr>
+                    <th colspan=&quot;3&quot;>Shipment:</th>
+                </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Metal:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Crystal:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Deuterium:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    <tr>
+                        <td colspan=&quot;2&quot;>Food:</td>
+                        <td class=&quot;value&quot;>0</td>
+                    </tr>
+                                    </table>
+    </div>
+">
+                &nbsp;
+            </span>
+                            </td>
+
+                            <td class="destFleet">
+                                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>BirbTown
+                            </td>
+                            <td class="destCoords">
+                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=2&amp;system=3" target="_top">
+                                    [2:3:6]
+                                </a>
+                            </td>
+
+                            <td class="sendMail">
+                            </td>    <td class="sendProbe">
+                            </td>
+                            <td class="sendMail">
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                    <div id="eventFooter"></div>
+                </div>
+        </div>
+
             <script type="text/javascript">
                 var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
                 var vacation = 0;
@@ -1061,26 +1242,21 @@
                     });
                 });</script>            <!-- END JAVASCRIPT -->
 
-            <!-- CONTENT AREA -->
-            <div id="contentWrapper"
-                 class="with_chat_bar">
 
-                @yield('content')
-
-            </div>
-            <!-- END CONTENT AREA -->
-
-            <!-- RIGHTMENU -->
+            @yield('content')
+        </div>
+    </div>
+    <div id="right">
+        <div id="planetbarcomponent" class="">
             <div id="rechts">
                 <div id="norm">
                     <div id="myWorlds">
                         <div id="countColonies">
                             <p class="textCenter">
-                                <span>{{ $planets->count() }}/{{ $planets->count() }}</span> @lang('Planets')
+                                <span>6/6</span> Planets
                             </p>
                         </div>
-                        <div id="planetList"
-                        >
+                        <div id="planetList">
                             <!-- @var PlanetService $planet -->
                             @php
                                 // Get all current query parameters
@@ -1095,37 +1271,34 @@
                                    $urlToCurrentWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
                                 @endphp
 
-                                <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }} "
-                                     id="planet-{{ $planet->getPlanetId() }}">
-                                    <a href="{{ $urlToCurrentWithUpdatedParam }}"
-                                       title="&lt;b&gt;{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinatesAsString() }}]&lt;/b&gt;&lt;br/&gt;12.800km (0/188)&lt;br&gt;47°C to 87°C&lt;br/&gt;&lt;a href=&quot;#TODO_overview&amp;cp=33734581&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_resources&amp;cp=33734581&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=research&amp;cp=33734581&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=station&amp;cp=33734581&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=shipyard&amp;cp=33734581&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=defense&amp;cp=33734581&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=fleet1&amp;cp=33734581&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;#TODO_page=galaxy&amp;cp=33734581&amp;galaxy=4&amp;system=358&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
-                                       class="planetlink {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'active' : '' }}  tooltipRight tooltipClose js_hideTipOnMobile"
-                                    >
-                                        <img class="planetPic js_replace2x"
-                                             alt="{{ $planet->getPlanetName() }}"
-                                             src="/img/icons/a8821a3ef84e0acd053aef2e98972a.png"
-                                             width="48"
-                                             height="48"
-                                        />
+                                <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }}" id="planet-{{ $planet->getPlanetId() }}">
+                                    <a href="{{ $urlToCurrentWithUpdatedParam }}" data-link="{{ $urlToCurrentWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinatesAsString() }}]</b><br/>@lang('Lifeform'): Humans
+<br/>12,800km (152/193)<br>20°C to 60°C<br/><a href=&quot;#TODO=ingame&amp;component=overview&amp;cp=33624092&quot;>@lang('Overview')</a><br/><a href=&quot;#TODO=ingame&amp;component=supplies&amp;cp=33624092&quot;>@lang('Resources')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=lfbuildings&amp;cp=33624092&quot;>@lang('Lifeform')</a><br/><a href=&quot;#TODOpage=ingame&amp;component=research&amp;cp=33624092&quot;>@lang('Research')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=facilities&amp;cp=33624092&quot;>@lang('Facilities')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=shipyard&amp;cp=33624092&quot;>@lang('Shipyard')</a><br/><a href=&quot;#TODO_component=defenses&amp;cp=33624092&quot;>@lang('Defense')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=fleetdispatch&amp;cp=33624092&quot;>@lang('Fleet')</a><br/><a href=&quot;#TODO_component=galaxy&amp;cp=33624092&amp;galaxy=2&amp;system=3&amp;position=6&quot;>@lang('Galaxy')</a>" class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiPlanetHomeplanet">
+                                        <img class="planetPic js_replace2x" alt="{{ $planet->getPlanetName() }}" src="/img/icons/a8821a3ef84e0acd053aef2e98972a.png" width="48" height="48">
                                         <span class="planet-name ">{!! $planet->getPlanetName() !!}</span>
                                         <span class="planet-koords ">[{!! $planet->getPlanetCoordinatesAsString() !!}]</span>
                                     </a>
+                                    <!--
+                                    <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile" title="<b>Moon [2:3:6]</b><br>8,888km (0/1)<br/><a href=&quot;#TODO_ingame&amp;component=overview&amp;cp=33644212&quot;>Overview</a><br/><a href=&quot;#TODO_page=ingame&amp;component=supplies&amp;cp=33644212&quot;>Resources</a><br/><a href=&quot;#TODO=ingame&amp;component=facilities&amp;cp=33644212&quot;>Facilities</a><br/><a href=&quot;#TODO=ingame&amp;component=defenses&amp;cp=33644212&quot;>Defense</a><br/><a href=&quot;#TODO=ingame&amp;component=fleetdispatch&amp;cp=33644212&quot;>Fleet</a><br/><a href=&quot;#TODO=ingame&amp;component=galaxy&amp;cp=33644212&amp;galaxy=2&amp;system=3&amp;position=6&quot;>Galaxy</a>" href="#TODO=ingame&amp;component=shipyard&amp;cp=33644212" data-link="#TODO=ingame&amp;component=shipyard&amp;cp=33644212" data-jumpgatelevel="0">
+                                        <img src="/img/icons/9c9f0a78e85bcf40c2ccfc08db5cb4.gif" width="16" height="16" alt="Moon" class="icon-moon">
+                                    </a>
+                                    -->
                                 </div>
                             @endforeach
                         </div>
                     </div>
                 </div>
-            </div>
-            <div id="banner_skyscraper" name="banner_skyscraper">
-
-            </div>
-
-            <!-- END RIGHTMENU -->
-        </div><!-- box -->
-
-    </div><!-- boxBG -->
-
-</div><!-- contentBoxBody -->
+            </div>    </div>
+        <div id="bannerSkyscrapercomponent" class="">
+            <div id="banner_skyscraper" class="desktop" name="banner_skyscraper">
+                <div style="position: relative;">
+                    <a class="tooltipLeft " title="" href="#TODO=shop">
+                        <img src="/img/banners/de0dadddb0285ba78b026ce18fc898.jpg" alt="">
+                    </a>
+                </div>
+            </div>    </div>
+    </div>
+</div>
 
 <!-- Chat Bar -->
 <div id="chatBar">
