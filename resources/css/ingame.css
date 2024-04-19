@@ -3,11 +3,14 @@
 @import "ingame/jquery.ui.css";
 @import "ingame/modules/fleets.css";
 @import "ingame/22b955f43c237ad23d644e8e52272a.css";
+@import "ingame/990d5d349ed6e981658ff4e2e3444c.css";
+@import "ingame/02base.css";
+@import "ingame/modules/sprites.css";
 
 
 /* New style overrides that conflict with some existing styles, implement later */
 /*
-@import "base/990d5d349ed6e981658ff4e2e3444c.css";
+
 @import "base/02base.css";
 @import "modules/sprites.css";
  */
