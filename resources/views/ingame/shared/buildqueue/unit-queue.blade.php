@@ -1,23 +1,18 @@
 @php /** @var array<\OGame\ViewModels\Queue\UnitQueueViewModel> $build_queue */ @endphp
 @if (count($build_queue) > 0)
-    <div id="pqueue">
-        <div class="header"><h3><span>Production queue</span></h3></div>
-        <div class="body">
-            <ul class="item">
-                @php /** @var \OGame\ViewModels\Queue\UnitQueueViewModel $item */ @endphp
-                @foreach ($build_queue as $item)
-                    <li class="tooltip"
-                        title="{{ $item->object_amount }} {{ $item->object->title }}<br>Building duration {{ $item->time_total }}s">
-                        <a class="slideIn" ref="{{ $item->object->id }}" href="javascript:void(0);">
-                            <img width="40" height="40"
-                                 src="{{ asset('img/objects/units/' . $item->object->assets->imgSmall) }}">
-                        </a>
-                        <span class="number">{{ $item->object_amount }}</span>
-                    </li>
-                @endforeach
-            </ul>
-            <div class="clearfloat"></div>
-        </div>
-        <div class="footer"></div>
-    </div>
+    <table class="queue">
+        <tbody>
+        <tr>
+            @foreach ($build_queue as $item)
+                <td>
+                        <img class="queuePic"
+                             src="{!! asset('img/objects/units/' . $item->object->assets->imgSmall) !!}" height="28"
+                             width="28" alt="{!! $item->object->title !!}">
+                    <br />
+                    {!! $item->object_amount !!}
+                </td>
+            @endforeach
+        </tr>
+        </tbody>
+    </table>
 @endif

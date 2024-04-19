@@ -163,12 +163,19 @@
 
             </div>
 
-            <button class="downgrade" data-technology="3" data-name="{{ $title }}">
-
-                <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
-                     data-ipi-hint="ipiTechnologyTearDowndeuteriumSynthesizer"></div>
-                <span class="label">tear down</span>
-            </button>
+            @if ($object_type == 'ship' || $object_type == 'defense')
+                <div class="build_amount">
+                    <label for="build_amount">Number:</label>
+                    <input type="text" name="build_amount" id="build_amount" min="0" max="{{ $max_build_amount }}" onfocus="clearInput(this);" onkeyup="checkIntInput(this, 1, {{ $max_build_amount }});event.stopPropagation();">
+                    <button class="maximum">[max. {{ $max_build_amount }}]</button>
+                </div>
+            @elseif ($object_type == 'building' || $object_type == 'station')
+                <button class="downgrade" data-technology="3" data-name="{{ $title }}">
+                    <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
+                         data-ipi-hint="ipiTechnologyTearDowndeuteriumSynthesizer"></div>
+                    <span class="label">tear down</span>
+                </button>
+            @endif
 
             <div class="build-it_wrap">
                 <div class="ipiHintable" data-ipi-hint="ipiTechnologyUpgradedeuteriumSynthesizer">

@@ -65557,18 +65557,6 @@ function initEmpire() {
 function initBuffBarEmpire() {
   $('.empireItems').removeClass('hidden');
 }
-function showGoogleAnalytics() {
-  var gaJsHost = "https:" == document.location.protocol ? "https://ssl." : "http://www.";
-  document.write(decodeURI("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-
-  try {
-    var pageTracker = _gat._getTracker("UA-11968132-1");
-
-    pageTracker._setDomainName(".ogame.gameforge.com");
-
-    pageTracker._trackPageview();
-  } catch (err) {}
-}
 
 function changeSetting(key, value, success, error, showError) {
   $.ajax({
