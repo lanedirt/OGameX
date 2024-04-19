@@ -25,7 +25,7 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
         Route::post('/resources/settings', 'ResourcesController@settingsUpdate')->name('resources.settingsUpdate');
         Route::get('/ajax/resources', 'ResourcesController@ajax')->name('resources.ajax');
         Route::get('/resources/add-buildrequest', 'ResourcesController@addBuildRequest')->name('resources.addbuildrequest');
-        Route::post('/resources/add-buildrequest', 'ResourcesController@addBuildRequest')->name('resources.addbuildrequest.get');
+        Route::post('/resources/add-buildrequest', 'ResourcesController@addBuildRequest')->name('resources.addbuildrequest.post');
         Route::post('/resources/cancel-buildrequest', 'ResourcesController@cancelBuildRequest')->name('resources.cancelbuildrequest');
 
         // Facilities

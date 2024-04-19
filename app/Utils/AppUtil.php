@@ -115,4 +115,43 @@ class AppUtil
 
         return trim($formatted_string);
     }
+
+    /**
+     * Helper method to convert building/research time from seconds to <time datetime=""> format.
+     *
+     * @param int|float $seconds
+     * @return string
+     */
+    public static function formatDateTimeDuration(int|float $seconds): string
+    {
+        // TODO: add unittest for this and check what is the expected output for hours/days/weeks.
+        $weeks = floor($seconds / 604800); // 60*60*24*7
+        $days = floor(($seconds % 604800) / 86400); // Remaining seconds divided by number of seconds in a day
+        $hours = floor(($seconds % 86400) / 3600); // Remaining seconds divided by number of seconds in an hour
+        $minutes = floor(($seconds / 60) % 60);
+        $seconds = $seconds % 60;
+
+        $formatted_string = '';
+        if ($weeks > 0) {
+            $formatted_string .= $weeks . 'W';
+        }
+
+        if ($days > 0) {
+            $formatted_string .= $days . 'D';
+        }
+
+        if ($hours > 0) {
+            $formatted_string .= $hours . 'H';
+        }
+
+        if ($minutes > 0) {
+            $formatted_string .= $minutes . 'M';
+        }
+
+        if ($seconds > 0) {
+            $formatted_string .= $seconds . 'S';
+        }
+
+        return 'PT' . trim($formatted_string);
+    }
 }

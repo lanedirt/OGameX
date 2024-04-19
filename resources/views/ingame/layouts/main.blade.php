@@ -516,7 +516,7 @@ Combat simulation save slots +20">
                             </td>
                             <td class="arrivalTime">15:20:48 Clock</td>
                             <td class="missionFleet">
-                                <img src="https://gf1.geo.gfsrv.net/cdnf7/892b08269e0e0bbde60b090099f547.gif" class="tooltipHTML" title="Own fleet | Expedition" alt="">
+                                <img src="/img/fleet/892b08269e0e0bbde60b090099f547.gif" class="tooltipHTML" title="Own fleet | Expedition" alt="">
                             </td>
 
                             <td class="originFleet">
@@ -602,7 +602,7 @@ Combat simulation save slots +20">
                             </td>
                             <td class="arrivalTime">15:38:15 Clock</td>
                             <td class="missionFleet">
-                                <img src="https://gf1.geo.gfsrv.net/cdnf7/892b08269e0e0bbde60b090099f547.gif" class="tooltipHTML" title="Own fleet | Expedition (R)" alt="">
+                                <img src="/img/fleet/892b08269e0e0bbde60b090099f547.gif" class="tooltipHTML" title="Own fleet | Expedition (R)" alt="">
                             </td>
 
                             <td class="originFleet">
@@ -688,7 +688,7 @@ Combat simulation save slots +20">
                             </td>
                             <td class="arrivalTime">16:05:13 Clock</td>
                             <td class="missionFleet">
-                                <img src="https://gf1.geo.gfsrv.net/cdn38/2af2939219d8227a11a50ff4df7b51.gif" class="tooltipHTML" title="Own fleet | Transport (R)" alt="">
+                                <img src="/img/fleet/2af2939219d8227a11a50ff4df7b51.gif" class="tooltipHTML" title="Own fleet | Transport (R)" alt="">
                             </td>
 
                             <td class="originFleet">
@@ -955,7 +955,8 @@ Combat simulation save slots +20">
                 }
 
                 function getAjaxEventbox() {
-                    $.get("{{ route('overview.index') }}#TODO_page=fetchEventbox&ajax=1", reloadEventbox, "text");
+                    // TODO: re-enable
+                    //$.get("{{ route('overview.index') }}#TODO_page=fetchEventbox&ajax=1", reloadEventbox, "text");
                 }
 
                 function updateAjaxResourcebox(data) {
@@ -1436,10 +1437,8 @@ Combat simulation save slots +20">
 </div>
 
 <div id="fadeBox" class="fadeBox fixedPostion" style="display:none;">
-    <div>
-        <span id="fadeBoxStyle" class="success"></span>
-        <p id="fadeBoxContent"></p>
-    </div>
+    <span id="fadeBoxStyle" class="success"></span>
+    <p id="fadeBoxContent"></p>
 </div>
 
 <div id="notifyTB" style="display:none;">

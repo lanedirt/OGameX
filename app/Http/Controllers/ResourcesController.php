@@ -2,6 +2,8 @@
 
 namespace OGame\Http\Controllers;
 
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -29,6 +31,7 @@ class ResourcesController extends AbstractBuildingsController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects): View
     {
@@ -37,8 +40,7 @@ class ResourcesController extends AbstractBuildingsController
         // Prepare custom properties
         $this->header_filename_objects = [1, 2, 3, 4]; // Building ID's that make up the header filename.
         $this->objects = [
-            0 => ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite'],
-            1 => ['metal_store', 'crystal_store', 'deuterium_store', ],
+            0 => ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite', 'metal_store', 'crystal_store', 'deuterium_store'],
         ];
         $this->view_name = 'ingame.resources.index';
 
@@ -51,10 +53,10 @@ class ResourcesController extends AbstractBuildingsController
      * @param Request $request
      * @param PlayerService $player
      * @param ObjectService $objects
-     * @return View
-     * @throws \Exception
+     * @return JsonResponse
+     * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : View
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : JsonResponse
     {
         return $this->ajaxHandler($request, $player, $objects);
     }
@@ -66,7 +68,7 @@ class ResourcesController extends AbstractBuildingsController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
-     * @throws \Exception
+     * @throws Exception
      */
     public function settings(Request $request, PlayerService $player, ObjectService $objects) : View
     {

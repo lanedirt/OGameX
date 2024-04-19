@@ -12,6 +12,12 @@ abstract class GameObject
     public string $title;
     public string $type;
     public string $machine_name;
+    /**
+     * Optional class name of the object used in frontend which differs from the machine name.
+     *
+     * @var string
+     */
+    public string $class_name = '';
     public string $description;
     public string $description_long;
 
