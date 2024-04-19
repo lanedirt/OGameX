@@ -3,6 +3,7 @@
 namespace OGame\Http\Controllers;
 
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
@@ -28,6 +29,7 @@ class FacilitiesController extends AbstractBuildingsController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
+     * @throws Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects): View
     {
@@ -49,10 +51,10 @@ class FacilitiesController extends AbstractBuildingsController
      * @param Request $request
      * @param PlayerService $player
      * @param ObjectService $objects
-     * @return View
+     * @return JsonResponse
      * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : View
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : JsonResponse
     {
         return $this->ajaxHandler($request, $player, $objects);
     }

@@ -23,6 +23,7 @@ class StationObjects
         $roboticsFactory->id = 14;
         $roboticsFactory->title = 'Robotics Factory';
         $roboticsFactory->machine_name = 'robot_factory';
+        $roboticsFactory->class_name = 'roboticsFactory';
         $roboticsFactory->description = 'Robotic factories provide construction robots to aid in the construction of buildings. Each level increases the speed of the upgrade of buildings.';
         $roboticsFactory->description_long = 'The Robotics Factory primary goal is the production of State of the Art construction robots. Each upgrade to the robotics factory results in the production of faster robots, which is used to reduce the time needed to construct buildings.';
         $roboticsFactory->price = new GameObjectPrice(400, 120, 200, 0, 2);
@@ -37,6 +38,7 @@ class StationObjects
         $shipyard->id = 21;
         $shipyard->title = 'Shipyard';
         $shipyard->machine_name = 'shipyard';
+        $shipyard->class_name = 'shipyard';
         $shipyard->description = 'All types of ships and defensive facilities are built in the planetary shipyard.';
         $shipyard->description_long = 'The planetary shipyard is responsible for the construction of spacecraft and defensive mechanisms. As the shipyard is upgraded, it can produce a wider variety of vehicles at a much greater rate of speed. If a nanite factory is present on the planet, the speed at which ships are constructed is massively increased.';
         $shipyard->requirements = [
@@ -54,6 +56,7 @@ class StationObjects
         $researchLab->id = 31;
         $researchLab->title = 'Research Lab';
         $researchLab->machine_name = 'research_lab';
+        $researchLab->class_name = 'researchLaboratory';
         $researchLab->description = 'A research lab is required in order to conduct research into new technologies.';
         $researchLab->description_long = 'An essential part of any empire, Research Labs are where new technologies are discovered and older technologies are improved upon. With each level of the Research Lab constructed, the speed in which new technologies are researched is increased, while also unlocking newer technologies to research. In order to conduct research as quickly as possible, research scientists are immediately dispatched to the colony to begin work and development. In this way, knowledge about new technologies can easily be disseminated throughout the empire.';
         $researchLab->price = new GameObjectPrice(200, 400, 200, 0, 2);
@@ -68,6 +71,7 @@ class StationObjects
         $allianceDepot->id = 34;
         $allianceDepot->title = 'Alliance Depot';
         $allianceDepot->machine_name = 'alliance_depot';
+        $allianceDepot->class_name = 'allianceDepot';
         $allianceDepot->description = 'The alliance depot supplies fuel to friendly fleets in orbit helping with defense.';
         $allianceDepot->description_long = 'The alliance depot supplies fuel to friendly fleets in orbit helping with defense. For each upgrade level of the alliance depot, a special demand of deuterium per hour can be sent to an orbiting fleet.';
         $allianceDepot->price = new GameObjectPrice(20000, 40000, 0, 0, 2);
@@ -82,6 +86,7 @@ class StationObjects
         $missileSilo->id = 44;
         $missileSilo->title = 'Missile Silo';
         $missileSilo->machine_name = 'missile_silo';
+        $missileSilo->class_name = 'missileSilo';
         $missileSilo->description = 'Missile silos are used to store missiles.';
         $missileSilo->description_long = 'Missile silos are used to construct, store and launch interplanetary and anti-ballistic missiles. With each level of the silo, five interplanetary missiles or ten anti-ballistic missiles can be stored. One Interplanetary missile uses the same space as two Anti-Ballistic missiles. Storage of both Interplanetary missiles and Anti-Ballistic missiles in the same silo is allowed.';
         $missileSilo->requirements = [
@@ -99,6 +104,7 @@ class StationObjects
         $naniteFactory->id = 15;
         $naniteFactory->title = 'Nanite Factory';
         $naniteFactory->machine_name = 'nano_factory';
+        $naniteFactory->class_name = 'naniteFactory';
         $naniteFactory->description = 'This is the ultimate in robotics technology. Each level cuts the construction time for buildings, ships, and defenses.';
         $naniteFactory->description_long = 'A nanomachine, also called a nanite, is a mechanical or electromechanical device whose dimensions are measured in nanometers (millionths of a millimeter, or units of 10^-9 meter). The microscopic size of nanomachines translates into higher operational speed. This factory produces nanomachines that are the ultimate evolution in robotics technology. Once constructed, each upgrade significantly decreases production time for buildings, ships, and defensive structures.';
         $naniteFactory->requirements = [
@@ -117,6 +123,7 @@ class StationObjects
         $terraformer->id = 33;
         $terraformer->title = 'Terraformer';
         $terraformer->machine_name = 'terraformer';
+        $terraformer->class_name = 'terraformer';
         $terraformer->description = 'The terraformer increases the usable surface of planets.';
 $terraformer->description_long = 'With the increasing construction on planets, even the living space for the colony is becoming more and more limited. Traditional methods such as high-rise and underground construction are increasingly becoming insufficient. A small group of high-energy physicists and nano engineers eventually came to the solution: terraforming.
 Making use of tremendous amounts of energy, the terraformer can make whole stretches of land or even continents arable. This building houses the production of nanites created specifically for this purpose, which ensure a consistent ground quality throughout.
@@ -141,6 +148,7 @@ Once built, the terraformer cannot be dismantled.';
         $spaceDock->id = 36;
         $spaceDock->title = 'Space Dock';
         $spaceDock->machine_name = 'space_dock';
+        $spaceDock->class_name = 'repairDock';
         $spaceDock->description = 'Wreckages can be repaired in the Space Dock.';
         $spaceDock->description_long = 'The Space Dock offers the possibility to repair ships destroyed in battle which left behind wreckage. The repair time takes a maximum of 12 hours, but it takes at least 30 minutes until the ships can be put back into service.
         
