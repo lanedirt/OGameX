@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers\Abstracts;
 
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -62,7 +63,7 @@ abstract class AbstractUnitsController extends OGameController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
-     * @throws \Exception
+     * @throws Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects) : View
     {
@@ -79,7 +80,7 @@ abstract class AbstractUnitsController extends OGameController
         $queue_time_end = $this->queue->retrieveQueueTimeEnd($planet);
         $queue_time_countdown = 0;
         if ($queue_time_end > 0) {
-            $queue_time_countdown = $queue_time_end - Carbon::now()->timestamp;
+            $queue_time_countdown = $queue_time_end - (int)Carbon::now()->timestamp;
         }
 
         $units = [];
@@ -127,7 +128,7 @@ abstract class AbstractUnitsController extends OGameController
      * @param Request $request
      * @param PlayerService $player
      * @return RedirectResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function addBuildRequest(Request $request, PlayerService $player) : RedirectResponse
     {

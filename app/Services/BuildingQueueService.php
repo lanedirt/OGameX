@@ -144,7 +144,7 @@ class BuildingQueueService
         foreach ($queue_items as $item) {
             $object = $this->objects->getObjectById($item['object_id']);
 
-            $time_countdown = $item->time_end - Carbon::now()->timestamp;
+            $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
             }
@@ -217,7 +217,7 @@ class BuildingQueueService
 
             // See if the planet has enough resources for this build attempt.
             $price = $this->objects->getObjectPrice($object->machine_name, $planet);
-            $build_time = $planet->getBuildingConstructionTime($object->machine_name);
+            $build_time = (int)$planet->getBuildingConstructionTime($object->machine_name);
 
             // Only start the queue item if there are no other queue items building
             // for this planet.
@@ -252,7 +252,7 @@ class BuildingQueueService
             $planet->deductResources($price);
 
             if (!$time_start) {
-                $time_start = Carbon::now()->timestamp;
+                $time_start = (int)Carbon::now()->timestamp;
             }
 
             $queue_item->time_duration = $build_time;

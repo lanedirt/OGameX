@@ -5,6 +5,7 @@ namespace OGame\Http\Traits;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use OGame\Facades\AppUtil;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
@@ -51,14 +52,14 @@ trait ObjectAjaxTrait
         switch ($object->type) {
             case 'building':
             case 'station':
-                $production_time = $planet->getBuildingConstructionTime($object->machine_name, true);
+                $production_time = AppUtil::formatTimeDuration($planet->getBuildingConstructionTime($object->machine_name));
                 break;
             case 'ship':
             case 'defense':
-                $production_time = $planet->getUnitConstructionTime($object->machine_name, true);
+                $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 break;
             case 'research':
-                $production_time = $planet->getTechnologyResearchTime($object->machine_name, true);
+                $production_time = AppUtil::formatTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
                 break;
             default:
                 // Unknown object type, throw error.

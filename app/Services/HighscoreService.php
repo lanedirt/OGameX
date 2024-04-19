@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Facades\AppUtil;
 use OGame\Models\User;
@@ -47,10 +48,11 @@ class HighscoreService
      * Get player score.
      *
      * @param PlayerService $player
-     * @param bool $formatted
-     * @return int|string
+     * @return int
+     * @throws Exception
      */
-    public function getPlayerScore(PlayerService $player, bool $formatted = false) {
+    public function getPlayerScore(PlayerService $player): int
+    {
         $score = 0;
         // Get score for buildings and units on player owned planets
         foreach ($player->planets->all() as $planet) {
@@ -61,10 +63,6 @@ class HighscoreService
         $score += $player->getResearchScore();
 
         // TODO: add score for fleets that are not on a planet (flying missions).
-
-        if ($formatted) {
-            $score = AppUtil::formatNumber($score);
-        }
 
         return $score;
     }
@@ -85,6 +83,7 @@ class HighscoreService
      *
      * @param PlayerService $player
      * @return int
+     * @throws Exception
      */
     public function getPlayerScoreMilitary(PlayerService $player): int
     {

@@ -94,7 +94,7 @@ class HighscoreController extends OGameController
             $page = $currentPlayerPage;
         }
 
-        $offset_start = ($page - 1) * 100;
+        $offset_start = (int)($page - 1) * 100;
 
         // Get highscore players content view statically to insert into page.
         return view('ingame.highscore.players_points')->with([

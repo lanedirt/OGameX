@@ -252,20 +252,11 @@ class PlanetService
     /**
      * Get planet metal production per hour.
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
-     *
-     * @return float|string
+     * @return float
      */
-    public function getMetalProductionPerHour(bool $formatted = false): float|string
+    public function getMetalProductionPerHour(): float
     {
-        $production = $this->planet->metal_production;
-
-        if ($formatted) {
-            $production = AppUtil::formatNumber($production);
-        }
-
-        return $production;
+        return $this->planet->metal_production;
     }
 
     /**
@@ -282,20 +273,11 @@ class PlanetService
     /**
      * Get planet crystal production per hour.
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
-     *
-     * @return float|string
+     * @return float
      */
-    public function getCrystalProductionPerHour(bool $formatted = false): float|string
+    public function getCrystalProductionPerHour(): float
     {
-        $production = $this->planet->crystal_production;
-
-        if ($formatted) {
-            $production = AppUtil::formatNumber($production);
-        }
-
-        return $production;
+        return $this->planet->crystal_production;
     }
 
     /**
@@ -311,20 +293,11 @@ class PlanetService
     /**
      * Get planet deuterium production per hour.
      *
-     * @param bool $formatted
-     * Optional flag whether to format the number or not.
-     *
-     * @return float|string
+     * @return float
      */
-    public function getDeuteriumProductionPerHour($formatted = false): float|string
+    public function getDeuteriumProductionPerHour(): float
     {
-        $production = $this->planet->deuterium_production;
-
-        if ($formatted) {
-            $production = AppUtil::formatNumber($production);
-        }
-
-        return $production;
+        return $this->planet->deuterium_production;
     }
 
     /**
@@ -466,13 +439,10 @@ class PlanetService
      * Gets the time of upgrading a building on this planet to the next level.
      *
      * @param string $machine_name
-     * @param bool $formatted
-     * Optional flag whether to format the time or not.
-     *
-     * @return int|string
+     * @return int
      * @throws Exception
      */
-    public function getBuildingConstructionTime(string $machine_name, bool $formatted = FALSE): int|string
+    public function getBuildingConstructionTime(string $machine_name): int
     {
         $current_level = $this->getObjectLevel($machine_name);
         $next_level = $current_level + 1;
@@ -494,15 +464,7 @@ class PlanetService
 
         // @TODO: round this value up or down so it will be valid for
         // int storage in database.
-        $time_seconds = (int)floor($time_seconds);
-
-        // @TODO: calculation does not work correctly for all buildings yet.
-        // Possible rounding error?
-        if ($formatted) {
-            return AppUtil::formatTimeDuration($time_seconds);
-        } else {
-            return $time_seconds;
-        }
+        return (int)floor($time_seconds);
     }
 
     /**
@@ -531,13 +493,10 @@ class PlanetService
      * Gets the time of building a ship/defense unit on this planet.
      *
      * @param string $machine_name
-     * @param bool $formatted
-     * Optional flag whether to format the time or not.
-     *
-     * @return int|string
+     * @return int
      * @throws Exception
      */
-    public function getUnitConstructionTime(string $machine_name, bool $formatted = FALSE): int|string
+    public function getUnitConstructionTime(string $machine_name): int
     {
         $object = $this->objects->getUnitObjectByMachineName($machine_name);
 
@@ -553,26 +512,17 @@ class PlanetService
                 (2500 * (1 + $shipyard_level) * $universe_speed * pow(2, $nanitefactory_level))
             );
 
-        $time_seconds = $time_hours * 3600;
-
-        if ($formatted) {
-            return AppUtil::formatTimeDuration($time_seconds);
-        } else {
-            return $time_seconds;
-        }
+        return (int)$time_hours * 3600;
     }
 
     /**
      * Gets the time of researching a technology.
      *
      * @param string $machine_name
-     * @param bool $formatted
-     * Optional flag whether to format the time or not.
-     *
-     * @return float|string
+     * @return float
      * @throws Exception
      */
-    public function getTechnologyResearchTime(string $machine_name, bool $formatted = FALSE): float|string
+    public function getTechnologyResearchTime(string $machine_name): float
     {
         $price = $this->objects->getObjectPrice($machine_name, $this);
 
@@ -587,13 +537,7 @@ class PlanetService
                 (1000 * (1 + $research_lab_level) * $universe_speed)
             );
 
-        $time_seconds = $time_hours * 3600;
-
-        if ($formatted) {
-            return AppUtil::formatTimeDuration($time_seconds);
-        } else {
-            return $time_seconds;
-        }
+        return (int)$time_hours * 3600;
     }
 
     /**
@@ -674,7 +618,7 @@ class PlanetService
     public function updateResources(bool $save_planet = true): void
     {
         $time_last_update = $this->planet->time_last_update;
-        $current_time = Carbon::now()->timestamp;
+        $current_time = (int)Carbon::now()->timestamp;
         $resources_add = [];
 
         // TODO: add unittest to check that updating fractional resources
@@ -902,13 +846,13 @@ class PlanetService
             if ($last_update < $item->time_start) {
                 $last_update = $item->time_start;
             }
-            $last_update_diff = Carbon::now()->timestamp - $last_update;
+            $last_update_diff = (int)Carbon::now()->timestamp - $last_update;
 
             // If difference between last update and now is equal to or bigger
             // than the time per unit, give the unit and record progress.
             if ($last_update_diff >= $time_per_unit) {
                 // Get exact amount of units to reward
-                $unit_amount = floor($last_update_diff / $time_per_unit);
+                $unit_amount = (int)floor($last_update_diff / $time_per_unit);
 
                 // Unit amount cannot be more than the order in total.
                 if ($item->object_amount_progress + $unit_amount > $item->object_amount) {

@@ -4,6 +4,7 @@ namespace OGame\Http\ViewComposers;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use OGame\Facades\AppUtil;
 use OGame\Models\Message;
 use OGame\Services\MessageService;
 use OGame\Services\PlayerService;
@@ -50,7 +51,7 @@ class IngameMainComposer
                 'amount' => $current_planet->metal()->get(),
                 'amount_formatted' => $current_planet->metal()->getFormattedLong(),
                 'production_hour' => $current_planet->getMetalProductionPerHour(),
-                'production_hour_formatted' => $current_planet->getMetalProductionPerHour(true),
+                'production_hour_formatted' => AppUtil::formatNumber($current_planet->getMetalProductionPerHour()),
                 'production_second' => $current_planet->getMetalProductionPerSecond(),
                 'storage' => $current_planet->metalStorage()->get(),
                 'storage_formatted' => $current_planet->metalStorage()->getFormattedLong(),
@@ -60,7 +61,7 @@ class IngameMainComposer
                 'amount' => $current_planet->crystal()->get(),
                 'amount_formatted' => $current_planet->crystal()->getFormattedLong(),
                 'production_hour' => $current_planet->getCrystalProductionPerHour(),
-                'production_hour_formatted' => $current_planet->getCrystalProductionPerHour(true),
+                'production_hour_formatted' => AppUtil::formatNumber($current_planet->getCrystalProductionPerHour()),
                 'production_second' => $current_planet->getCrystalProductionPerSecond(),
                 'storage' => $current_planet->crystalStorage()->get(),
                 'storage_formatted' => $current_planet->crystalStorage()->getFormattedLong(),
@@ -70,7 +71,7 @@ class IngameMainComposer
                 'amount' => $current_planet->deuterium()->get(),
                 'amount_formatted' => $current_planet->deuterium()->getFormattedLong(),
                 'production_hour' => $current_planet->getDeuteriumProductionPerHour(),
-                'production_hour_formatted' => $current_planet->getDeuteriumProductionPerHour(true),
+                'production_hour_formatted' => AppUtil::formatNumber($current_planet->getDeuteriumProductionPerHour()),
                 'production_second' => $current_planet->getDeuteriumProductionPerSecond(),
                 'storage' => $current_planet->deuteriumStorage()->get(),
                 'storage_formatted' => $current_planet->deuteriumStorage()->getFormattedLong(),

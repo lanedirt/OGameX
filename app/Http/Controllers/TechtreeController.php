@@ -285,7 +285,7 @@ class TechtreeController extends OGameController
      * Returns techtree property tooltip.
      *
      * @param string $name
-     * @param array<string, string|int|array<string,string|int>> $breakdown
+     * @param array<string,array<int, array<string, float|int|string>>|float|int> $breakdown
      * @param int $value
      * @return View
      */

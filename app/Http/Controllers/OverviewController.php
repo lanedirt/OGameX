@@ -6,6 +6,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\View\View;
+use OGame\Facades\AppUtil;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\HighscoreService;
 use OGame\Services\PlayerService;
@@ -23,6 +24,7 @@ class OverviewController extends OGameController
      * @param UnitQueueService $unit_queue
      * @return View
      * @throws BindingResolutionException
+     * @throws \Exception
      */
     public function index(PlayerService $player, BuildingQueueService $building_queue, ResearchQueueService $research_queue, UnitQueueService $unit_queue) : View
     {
@@ -48,7 +50,7 @@ class OverviewController extends OGameController
         $ship_queue_time_end = $unit_queue->retrieveQueueTimeEnd($planet);
         $ship_queue_time_countdown = 0;
         if ($ship_queue_time_end > 0) {
-            $ship_queue_time_countdown = $ship_queue_time_end - Carbon::now()->timestamp;
+            $ship_queue_time_countdown = $ship_queue_time_end - (int)Carbon::now()->timestamp;
         }
 
         $highscoreService = app()->make(HighscoreService::class);
@@ -60,7 +62,7 @@ class OverviewController extends OGameController
             'planet_temp_min' => $player->planets->current()->getPlanetTempMin(),
             'planet_temp_max' => $player->planets->current()->getPlanetTempMax(),
             'planet_coordinates' => $player->planets->current()->getPlanetCoordinatesAsString(),
-            'user_points' => $highscoreService->getPlayerScore($player, true),
+            'user_points' => AppUtil::formatNumber($highscoreService->getPlayerScore($player)),
             'user_rank' => 0, // @TODO
             'max_rank' => 0, // @TODO
             'user_honor_points' => 0, // @TODO
