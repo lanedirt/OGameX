@@ -1,3 +1,5 @@
+@php /** @var OGame\Services\PlanetService $planet */ @endphp
+
 @extends('ingame.layouts.main')
 
 @section('content')
@@ -15,7 +17,7 @@
         <script type="text/javascript">
             var token = "85cb33c35cf4c438287916336573a3b3";
 
-            var checkTargetUrl = ""
+            var checkTargetUrl = "{{ route('fleet.dispatch.checktarget') }}"
             var sendFleetUrl = ""
             var saveSettingsUrl = ""
 
@@ -822,7 +824,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             <div class="res_wrap border3px">
                                                 <div class="resourceIcon metal tooltip" title="Metal"></div>
                                                 <div class="res">
-                                                    <input type="text" pattern="[0-9,.]*" class="checkThousandSeparator hideNumberSpin" name="metal" tabindex="1" id="metal" value="0">
+                                                    <input type="text" pattern="[0-9,.]*" class="checkThousandSeparator hideNumberSpin" name="metal" tabindex="1" id="metal" value="{{ $planet->metal()->get() }}">
                                                     <a id="selectMinMetal" class="min">
                                                         <img src="/img/icons/45494a6e18d52e5c60c8fb56dfbcc4.gif">
                                                     </a>
@@ -835,7 +837,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             <div class="res_wrap border3px">
                                                 <div class="resourceIcon crystal tooltip" title="Crystal"></div>
                                                 <div class="res">
-                                                    <input type="text" pattern="[0-9,.]*" class="checkThousandSeparator hideNumberSpin" name="crystal" id="crystal" value="0" tabindex="2">
+                                                    <input type="text" pattern="[0-9,.]*" class="checkThousandSeparator hideNumberSpin" name="crystal" id="crystal" value="{{ $planet->crystal()->get() }}" tabindex="2">
                                                     <a id="selectMinCrystal" class="min">
                                                         <img src="/img/icons/45494a6e18d52e5c60c8fb56dfbcc4.gif">
                                                     </a>
@@ -847,7 +849,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             <div class="res_wrap border3px">
                                                 <div class="resourceIcon deuterium tooltip" title="Deuterium"></div>
                                                 <div class="res">
-                                                    <input type="text" pattern="[0-9,.]*" class="checkThousandSeparator hideNumberSpin" name="deuterium" id="deuterium" value="0" tabindex="3">
+                                                    <input type="text" pattern="[0-9,.]*" class="checkThousandSeparator hideNumberSpin" name="deuterium" id="deuterium" value="{{ $planet->deuterium()->get() }}" tabindex="3">
                                                     <a id="selectMinDeuterium" class="min">
                                                         <img src="/img/icons/45494a6e18d52e5c60c8fb56dfbcc4.gif">
                                                     </a>

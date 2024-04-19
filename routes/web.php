@@ -57,7 +57,10 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 
         // Fleet
         Route::get('/fleet', 'FleetController@index')->name('fleet.index');
+        Route::post('/ajax/fleet/dispatch/check-target', 'FleetController@dispatchCheckTarget')->name('fleet.dispatch.checktarget');
+
         Route::get('/fleet/movement', 'FleetController@movement')->name('fleet.movement');
+
 
         // Galaxy
         Route::get('/galaxy', 'GalaxyController@index')->name('galaxy.index');

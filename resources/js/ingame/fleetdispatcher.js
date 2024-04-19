@@ -915,7 +915,7 @@ FleetDispatcher.prototype.refreshDuration = function () {
 
 FleetDispatcher.prototype.refreshConsumption = function () {
     let fuelCapacity = this.getFuelCapacity();
-    let deuterium = getResourcesFromHeader('deuterium');
+    let deuterium = getValue($('#deuterium').val());
     let consumption = this.getConsumption();
     consumption = !isNaN(consumption) && isFinite(consumption) ? consumption : 0;
     let styleClass = consumption > fuelCapacity || consumption > deuterium ? 'overmark' : 'undermark';
@@ -1243,8 +1243,7 @@ FleetDispatcher.prototype.fetchTargetPlayerData = function () {
         params.recycler = 1;
     }
 
-    $.post(this.checkTargetUrl, params, function (response) {
-        let data = JSON.parse(response);
+    $.post(this.checkTargetUrl, params, function (data) {
         let status = data.status || 'failure';
         $("#additionalFleetSpeedInfo").html(data.additionalFlightSpeedinfo);
         that.fleetHelper.shipsData = data.shipsData;
