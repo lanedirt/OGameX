@@ -3,6 +3,7 @@
 namespace OGame\Http\Traits;
 
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Facades\AppUtil;
@@ -17,14 +18,14 @@ trait ObjectAjaxTrait
      * @param Request $request
      * @param PlayerService $player
      * @param ObjectService $objects
-     * @return View
+     * @return JsonResponse
      * @throws Exception
      */
-    public function ajaxHandler(Request $request, PlayerService $player, ObjectService $objects) : View
+    public function ajaxHandler(Request $request, PlayerService $player, ObjectService $objects): JsonResponse
     {
         $planet = $player->planets->current();
 
-        $object_id = $request->input('type');
+        $object_id = $request->input('technology');
         if (empty($object_id)) {
             throw new Exception('No object ID provided.');
         }
@@ -49,17 +50,22 @@ trait ObjectAjaxTrait
         $max_build_amount = $objects->getObjectMaxBuildAmount($object->machine_name, $planet);
 
         // Switch
+        $production_time = '';
+        $production_datetime = '';
         switch ($object->type) {
             case 'building':
             case 'station':
                 $production_time = AppUtil::formatTimeDuration($planet->getBuildingConstructionTime($object->machine_name));
+                $production_datetime = AppUtil::formatDateTimeDuration($planet->getBuildingConstructionTime($object->machine_name));
                 break;
             case 'ship':
             case 'defense':
                 $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
+                $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 break;
             case 'research':
                 $production_time = AppUtil::formatTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
+                $production_datetime = AppUtil::formatDateTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
                 break;
             default:
                 // Unknown object type, throw error.
@@ -123,8 +129,9 @@ trait ObjectAjaxTrait
             $build_queue_max = true;
         }
 
-        return view('ingame.ajax.object')->with([
+        $view_html = view('ingame.ajax.object')->with([
             'id' => $object_id,
+            'object' => $object,
             'object_type' => $object->type,
             'planet_id' => $planet->getPlanetId(),
             'current_level' => $current_level,
@@ -134,6 +141,7 @@ trait ObjectAjaxTrait
             'price' => $price,
             'planet' => $planet,
             'production_time' => $production_time,
+            'production_datetime' => $production_datetime,
             'production_next' => $production_next,
             'energy_difference' => $energy_difference,
             'enough_resources' => $enough_resources,
@@ -146,6 +154,24 @@ trait ObjectAjaxTrait
             'max_storage' => $max_storage,
             'max_build_amount' => $max_build_amount,
             'current_amount' => $current_amount,
+        ]);
+
+        return response()->json([
+            'target' => 'technologydetails',
+            'content' => [
+                'technologydetails' => $view_html->render(),
+            ],
+            'files' => [
+                'js' => [],
+                'css' => [],
+            ],
+            'newAjaxToken' => csrf_token(),
+            'page' => [
+                'stateObj' => [],
+                'title' => 'OGameX',
+                'url' => route('resources.index'),
+            ],
+            'serverTime' => time(),
         ]);
     }
 }
