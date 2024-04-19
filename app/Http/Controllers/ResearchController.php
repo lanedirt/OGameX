@@ -3,6 +3,7 @@
 namespace OGame\Http\Controllers;
 
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -119,10 +120,10 @@ class ResearchController extends OGameController
      * @param Request $request
      * @param PlayerService $player
      * @param ObjectService $objects
-     * @return View
+     * @return JsonResponse
      * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : View
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : JsonResponse
     {
         return $this->ajaxHandler($request, $player, $objects);
     }
@@ -132,23 +133,26 @@ class ResearchController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @return RedirectResponse
+     * @return JsonResponse
      * @throws Exception
      */
-    public function addBuildRequest(Request $request, PlayerService $player) : RedirectResponse
+    public function addBuildRequest(Request $request, PlayerService $player) : JsonResponse
     {
         // Explicitly verify CSRF token because this request supports both POST and GET.
         if (!hash_equals($request->session()->token(), $request->input('_token'))) {
-            return redirect()->route($this->route_view_index);
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid token.',
+            ]);
         }
 
-        $building_id = $request->input('type');
-        $planet_id = $request->input('planet_id');
+        $building_id = $request->input('technologyId');
+        $this->queue->add($player, $player->planets->current(), $building_id);
 
-        $planet = $player->planets->childPlanetById($planet_id);
-        $this->queue->add($player, $planet, $building_id);
-
-        return redirect()->route($this->route_view_index);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Building construction started.',
+        ]);
     }
 
     /**
@@ -156,19 +160,19 @@ class ResearchController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @return RedirectResponse
+     * @return JsonResponse
+     * @throws Exception
      */
-    public function cancelBuildRequest(Request $request, PlayerService $player) : RedirectResponse
+    public function cancelBuildRequest(Request $request, PlayerService $player) : JsonResponse
     {
-        $building_id = $request->input('building_id');
-        $building_queue_id = $request->input('building_queue_id');
+        $building_id = $request->input('technologyId');
+        $building_queue_id = $request->input('listId');
 
         $this->queue->cancel($player, $player->planets->current(), $building_queue_id, $building_id);
 
-        if (!empty($request->input('redirect')) && $request->input('redirect') == 'overview') {
-            return redirect()->route('overview.index');
-        } else {
-            return redirect()->route($this->route_view_index);
-        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Building construction canceled.',
+        ]);
     }
 }

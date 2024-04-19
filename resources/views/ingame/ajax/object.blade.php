@@ -58,7 +58,7 @@
 
             <div class="costs">
 
-                <p>@lang('Required to improve to level') {!! $current_level !!}:</p>
+                <p>@lang('Required to improve to level') {!! $next_level !!}:</p>
 
                 <ul class="ipiHintable" data-ipi-hint="">
                     @if (!empty($price->metal->get()))
