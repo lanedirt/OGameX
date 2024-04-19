@@ -1254,7 +1254,7 @@ Combat simulation save slots +20">
                     <div id="myWorlds">
                         <div id="countColonies">
                             <p class="textCenter">
-                                <span>6/6</span> Planets
+                                <span>2/2</span> Planets
                             </p>
                         </div>
                         <div id="planetList">

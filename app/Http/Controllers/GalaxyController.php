@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
 use OGame\Services\PlayerService;
+use OGame\ViewModels\GalaxyRowViewModel;
 
 class GalaxyController extends OGameController
 {
@@ -46,7 +47,7 @@ class GalaxyController extends OGameController
             'interplanetary_missiles_count' => 0,
             'used_slots' => 0,
             'max_slots' => 1,
-            'galaxy_table_html' => $this->getTable($galaxy, $system),
+            'galaxy_table_html' => $this->getTable($galaxy, $system, $player),
         ]);
     }
 
@@ -55,10 +56,11 @@ class GalaxyController extends OGameController
      *
      * @param int $galaxy
      * @param int $system
+     * @param PlayerService $player
      * @return string
      * @throws BindingResolutionException
      */
-    public function getTable(int $galaxy, int $system) : string
+    public function getTable(int $galaxy, int $system, PlayerService $player) : string
     {
         // Retrieve all planets from this galaxy and system.
         $planet_list = Planet::where(['galaxy' => $galaxy, 'system' => $system])->get();
@@ -72,17 +74,8 @@ class GalaxyController extends OGameController
         // Render galaxy rows
         $galaxy_rows = [];
         for ($i = 1; $i <= 15; $i++) {
-            $planet = false;
-
-            // Check if planet exists, if so, pass information.
-            if (!empty($planets[$i])) {
-                // Planet exists.
-                $planet = $planets[$i];
-            }
-
-            $galaxy_rows[$i] = [
-                'planet' => $planet,
-            ];
+            $viewModel = new GalaxyRowViewModel($i, $planets[$i] ?? null);
+            $galaxy_rows[] = $viewModel;
         }
 
         $view = \Illuminate\Support\Facades\View::make('ingame.galaxy.table', [
@@ -94,6 +87,7 @@ class GalaxyController extends OGameController
             'used_slots' => 0,
             'max_slots' => 1,
             'galaxy_rows' => $galaxy_rows,
+            'player' => $player,
         ]);
         $view_html = $view->render();
 
