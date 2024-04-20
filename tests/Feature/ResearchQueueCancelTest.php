@@ -16,6 +16,7 @@ class ResearchQueueCancelTest extends AccountTestCase
      * Verify that when adding more than one of the same technology to the research queue, that cancellation
      * of the first research in the queue will cancel all research of that type in the queue.
      * @throws BindingResolutionException
+     * @throws \Exception
      */
     public function testResearchQueueCancelMultiple(): void
     {
@@ -32,13 +33,7 @@ class ResearchQueueCancelTest extends AccountTestCase
         // Step 1: Issue a request to build three levels of energy technology
         // ---
         for ($i = 0; $i <= 3; $i++) {
-            $response = $this->post('/research/add-buildrequest', [
-                '_token' => csrf_token(),
-                'type' => '113', // Energy Technology
-                'planet_id' => $this->currentPlanetId,
-            ]);
-            // Assert the response status is successful (302 redirect).
-            $response->assertStatus(302);
+            $this->addResearchBuildRequest('energy_technology');
         }
 
         // Access the build queue page to verify the buildings are in the queue
@@ -46,19 +41,18 @@ class ResearchQueueCancelTest extends AccountTestCase
         Carbon::setTestNow($testTime);
 
         $response = $this->get('/research');
-        $response->assertStatus(200);
-        $response->assertSee('Cancel expansion of Energy Technology');
+        $this->assertObjectInQueue($response, 'energy_technology', 'Energy Technology is expected in build queue but cannot be found.');
 
         // Extract first and second number on page which looks like this where num1/num2 are ints:
         // "cancelProduction(num1,num2,"
-        $response->assertSee('cancelProduction(');
+        $response->assertSee('cancelbuilding(');
 
         // Extract the first and second number from the first cancelProduction call
         $cancelProductionCall = $response->getContent();
         if (empty($cancelProductionCall)) {
             $cancelProductionCall = '';
         }
-        $cancelProductionCall = explode('onclick="cancelProduction(', $cancelProductionCall);
+        $cancelProductionCall = explode('onclick="cancelbuilding(', $cancelProductionCall);
         $cancelProductionCall = explode(',', $cancelProductionCall[1]);
         $number1 = $cancelProductionCall[0];
         $number2 = $cancelProductionCall[1];
@@ -69,20 +63,12 @@ class ResearchQueueCancelTest extends AccountTestCase
         }
 
         // Do POST to cancel build queue item:
-        $response = $this->post('/research/cancel-buildrequest', [
-            '_token' => csrf_token(),
-            'building_id' => $number1,
-            'building_queue_id' => $number2,
-            'planet_id' => $this->currentPlanetId,
-        ]);
-
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        $this->cancelResearchBuildRequest($number1, $number2);
 
         // Verify that all buildings in the queue are now canceled
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $response->assertDontSee('Cancel expansion of Energy Technology');
+        $this->assertObjectNotInQueue($response, 'energy_technology', 'Energy Technology is in build queue but should have been canceled.');
 
         // Advance time by 30 minutes
         $testTime = Carbon::create(2024, 1, 1, 12, 30, 0);
@@ -98,6 +84,7 @@ class ResearchQueueCancelTest extends AccountTestCase
     /**
      * Verify that when canceling a building in the build queue, the resources are refunded.
      * @throws BindingResolutionException
+     * @throws \Exception
      */
     public function testResearchQueueCancelRefundResources(): void
     {
@@ -115,28 +102,22 @@ class ResearchQueueCancelTest extends AccountTestCase
         $response->assertStatus(200);
         $this->assertResourcesOnPage($response, new Resources(500, 1300, 400, 0));
 
-        $response = $this->post('/research/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '113', // Energy Technology
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        $this->addResearchBuildRequest('energy_technology');
 
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $response->assertSee('Cancel expansion of Energy Technology');
+        $this->assertObjectInQueue($response, 'energy_technology', 'Energy Technology is not in build queue.');
 
         // Extract first and second number on page which looks like this where num1/num2 are ints:
         // "cancelProduction(num1,num2,"
-        $response->assertSee('cancelProduction(');
+        $response->assertSee('cancelbuilding(');
 
         // Extract the first and second number from the first cancelProduction call
         $cancelProductionCall = $response->getContent();
         if (empty($cancelProductionCall)) {
             $cancelProductionCall = '';
         }
-        $cancelProductionCall = explode('onclick="cancelProduction(', $cancelProductionCall);
+        $cancelProductionCall = explode('onclick="cancelbuilding(', $cancelProductionCall);
         $cancelProductionCall = explode(',', $cancelProductionCall[1]);
         $number1 = $cancelProductionCall[0];
         $number2 = $cancelProductionCall[1];
@@ -147,15 +128,8 @@ class ResearchQueueCancelTest extends AccountTestCase
         }
 
         // Do POST to cancel build queue item:
-        $response = $this->post('/research/cancel-buildrequest', [
-            '_token' => csrf_token(),
-            'building_id' => $number1,
-            'building_queue_id' => $number2,
-            'planet_id' => $this->currentPlanetId,
-        ]);
+        $this->cancelResearchBuildRequest($number1, $number2);
 
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
         $response = $this->get('/research');
         $response->assertStatus(200);
 
@@ -166,6 +140,7 @@ class ResearchQueueCancelTest extends AccountTestCase
     /**
      * Verify that canceling a second entry in the build queue works.
      * @throws BindingResolutionException
+     * @throws \Exception
      */
     public function testBuildQueueCancelSecondEntry(): void
     {
@@ -182,34 +157,24 @@ class ResearchQueueCancelTest extends AccountTestCase
         $response->assertStatus(200);
 
         // Build one level of energy technology
-        $response = $this->post('/research/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '113', // Energy Technology
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        $response->assertStatus(302);
+        $this->addResearchBuildRequest('energy_technology');
         // Then build one level of computer technology
-        $response = $this->post('/research/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '108', // Computer Technology
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        $response->assertStatus(302);
+        $this->addResearchBuildRequest('computer_technology');
 
         $response = $this->get('/research');
         $response->assertStatus(200);
 
         // Extract first and second number on page which looks like this where num1/num2 are ints:
         // "cancelProduction(num1,num2,"
-        $response->assertSee('Cancel expansion of Computer Technology to level 1?');
+        $this->assertObjectInQueue($response, 'computer_technology', 'Computer Technology is not in build queue.');
 
         // Extract the content from the response
         $pageContent = $response->getContent();
         if (empty($pageContent)) {
             $pageContent = '';
         }
-        // Use a regular expression to find all matches of 'onclick="cancelProduction(num1,num2,'
-        preg_match_all('/onclick="cancelProduction\((\d+),(\d+),/', $pageContent, $matches);
+        // Use a regular expression to find all matches of 'onclick="cancelbuilding(num1,num2,'
+        preg_match_all('/onclick="cancelbuilding\((\d+),(\d+),/', $pageContent, $matches);
 
         // Check if there are at least three matches
         // First active build queue has two cancelProduction buttons.
@@ -220,22 +185,14 @@ class ResearchQueueCancelTest extends AccountTestCase
             $number2 = $matches[2][2];  // Second occurrence, second number
 
             // Do POST to cancel build queue item:
-            $response = $this->post('/research/cancel-buildrequest', [
-                '_token' => csrf_token(),
-                'building_id' => $number1,
-                'building_queue_id' => $number2,
-                'planet_id' => $this->currentPlanetId,
-            ]);
-
-            // Assert the response status is successful (302 redirect).
-            $response->assertStatus(302);
+            $this->cancelResearchBuildRequest($number1, $number2);
 
             // Assert that cancel build queue for computer technology is no longer visible
             $response = $this->get('/research');
             $response->assertStatus(200);
-            $response->assertDontSee('Cancel expansion of Computer Technology to level 1?');
+            $this->assertObjectNotInQueue($response, 'computer_technology', 'Computer Technology is in build queue but should have been canceled.');
         } else {
-            $this->throwException(new BindingResolutionException('Less than two "cancelProduction" calls found.'));
+            $this->throwException(new BindingResolutionException('Less than two "cancelbuilding" calls found.'));
         }
     }
 }
