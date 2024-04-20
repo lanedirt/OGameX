@@ -27,13 +27,7 @@ class BuildQueueCancelTest extends AccountTestCase
         // Step 1: Issue a request to build three metal mines
         // ---
         for ($i = 0; $i <= 3; $i++) {
-            $response = $this->post('/resources/add-buildrequest', [
-                '_token' => csrf_token(),
-                'type' => '1', // Metal mine
-                'planet_id' => $this->currentPlanetId,
-            ]);
-            // Assert the response status is successful (302 redirect).
-            $response->assertStatus(302);
+            $this->addResourceBuildRequest('metal_mine');
         }
 
         // Access the build queue page to verify the buildings are in the queue
@@ -66,13 +60,12 @@ class BuildQueueCancelTest extends AccountTestCase
         // Do POST to cancel build queue item:
         $response = $this->post('/resources/cancel-buildrequest', [
             '_token' => csrf_token(),
-            'building_id' => $number1,
-            'building_queue_id' => $number2,
-            'planet_id' => $this->currentPlanetId,
+            'technologyId' => $number1,
+            'listId' => $number2,
         ]);
 
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        // Assert the response status is successful
+        $response->assertStatus(200);
 
         // Verify that all buildings in the queue are now canceled
         $response = $this->get('/resources');
@@ -98,6 +91,7 @@ class BuildQueueCancelTest extends AccountTestCase
     /**
      * Verify that when canceling a building in the build queue, the resources are refunded.
      * @throws BindingResolutionException
+     * @throws \Exception
      */
     public function testBuildQueueCancelRefundResources(): void
     {
@@ -110,14 +104,7 @@ class BuildQueueCancelTest extends AccountTestCase
         $response->assertStatus(200);
 
         $this->assertResourcesOnPage($response, new Resources(500, 500, 0, 0));
-
-        $response = $this->post('/resources/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '1', // Metal mine
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        $this->addResourceBuildRequest('metal_mine');
 
         $response = $this->get('/resources');
         $response->assertStatus(200);
@@ -150,8 +137,8 @@ class BuildQueueCancelTest extends AccountTestCase
             'planet_id' => $this->currentPlanetId,
         ]);
 
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        // Assert the response status is successful
+        $response->assertStatus(200);
         $response = $this->get('/resources');
         $response->assertStatus(200);
 
@@ -173,19 +160,9 @@ class BuildQueueCancelTest extends AccountTestCase
         $response->assertStatus(200);
 
         // Build one level of metal mine
-        $response = $this->post('/resources/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '1', // Metal mine
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        $response->assertStatus(302);
+        $this->addResourceBuildRequest('metal_mine');
         // Then build one level of crystal mine
-        $response = $this->post('/resources/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '2', // Crystal mine
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        $response->assertStatus(302);
+        $this->addResourceBuildRequest('crystal_mine');
 
         $response = $this->get('/resources');
         $response->assertStatus(200);
@@ -218,9 +195,7 @@ class BuildQueueCancelTest extends AccountTestCase
                 'building_queue_id' => $number2,
                 'planet_id' => $this->currentPlanetId,
             ]);
-
-            // Assert the response status is successful (302 redirect).
-            $response->assertStatus(302);
+            $response->assertStatus(200);
 
             // Assert that cancel build queue for crystal mine is no longer visible
             $response = $this->get('/resources');

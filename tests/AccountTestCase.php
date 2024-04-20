@@ -41,6 +41,7 @@ abstract class AccountTestCase extends TestCase
      * Retrieve meta fields from page response to extract player id and planet id.
      *
      * @return void
+     * @throws BindingResolutionException
      */
     protected function retrieveMetaFields(): void
     {
@@ -72,6 +73,11 @@ abstract class AccountTestCase extends TestCase
         $this->currentUserId = (int)$playerId;
         $this->currentUsername = $playerName;
         $this->currentPlanetId = (int)$planetId;
+
+        // Load the current planet service.
+        if (!isset($this->planetService)) {
+            $this->planetService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId])->planets->current();
+        }
     }
 
     /**
@@ -79,13 +85,9 @@ abstract class AccountTestCase extends TestCase
      *
      * @param Resources $resources
      * @return void
-     * @throws BindingResolutionException
      */
     protected function planetAddResources(Resources $resources): void
     {
-        if (!isset($this->planetService)) {
-            $this->planetService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId])->planets->current();
-        }
         // Update resources.
         $this->planetService->addResources($resources, true);
     }
@@ -100,9 +102,6 @@ abstract class AccountTestCase extends TestCase
      */
     protected function planetDeductResources(Resources $resources): void
     {
-        if (!isset($this->planetService)) {
-            $this->planetService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId])->planets->current();
-        }
         // Update resources.
         $this->planetService->deductResources($resources);
     }
@@ -118,9 +117,6 @@ abstract class AccountTestCase extends TestCase
      */
     protected function planetSetObjectLevel(string $machine_name, int $object_level): void
     {
-        if (!isset($this->planetService)) {
-            $this->planetService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId])->planets->current();
-        }
         // Update the object level on the planet.
         $object = $this->planetService->objects->getObjectByMachineName($machine_name);
         $this->planetService->setObjectLevel($object->id, $object_level, true);
@@ -155,9 +151,6 @@ abstract class AccountTestCase extends TestCase
     {
         // Get object name from machine name.
         try {
-            if (!isset($this->planetService)) {
-                $this->planetService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId])->planets->current();
-            }
             $object = $this->planetService->objects->getObjectByMachineName($machine_name);
         } catch (Exception $e) {
             $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
@@ -215,5 +208,20 @@ abstract class AccountTestCase extends TestCase
             $result = preg_match($pattern, $content);
             $this->assertTrue($result === 1, 'Resource energy is not at ' . $resources->energy->getFormattedLong() . '.');
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function addResourceBuildRequest(string $machine_name): void
+    {
+        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+
+        $response = $this->post('/resources/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+        ]);
+        // Assert the response status is successful
+        $response->assertStatus(200);
     }
 }
