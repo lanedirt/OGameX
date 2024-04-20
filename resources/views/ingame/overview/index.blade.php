@@ -205,7 +205,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                         <div class="footer"></div>
                     </div>
                 </div>
-                <div id="productionboxlfbuildingcomponent" class="productionboxlfbuilding injectedComponent parent overview"><div class="content-box-s">
+                <!--<div id="productionboxlfbuildingcomponent" class="productionboxlfbuilding injectedComponent parent overview"><div class="content-box-s">
                         <div class="header">
                             <h3>Lifeform Buildings
                             </h3>
@@ -237,6 +237,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                         window.token = '69834f4d6fbeae853fa4fd22814d592c'
                     </script>
                 </div>
+            </div>-->
             </div>
             <div class="productionBoxResearch boxColumn research">
                 <div id="productionboxresearchcomponent" class="productionboxresearch injectedComponent parent overview">
@@ -251,7 +252,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                         <div class="footer"></div>
                     </div>
                 </div>
-                <div id="productionboxlfresearchcomponent" class="productionboxlfresearch injectedComponent parent overview"><div class="content-box-s">
+                <!--<div id="productionboxlfresearchcomponent" class="productionboxlfresearch injectedComponent parent overview"><div class="content-box-s">
                         <div class="header">
                             <h3>Lifeform Research
                             </h3>
@@ -274,16 +275,16 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                             </table>
                         </div>
                         <div class="footer"></div>
-                    </div>
-                    <script type="text/javascript">
-                        var scheduleBuildListEntryUrl = '#TODOpage=componentOnly&component=buildlistactions&action=scheduleEntry&asJson=1';
-                        var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
-                        redirectPremiumLink = '#TODOpage=premium&showDarkMatter=1'
+                    </div>-->
+                <script type="text/javascript">
+                    var scheduleBuildListEntryUrl = '#TODOpage=componentOnly&component=buildlistactions&action=scheduleEntry&asJson=1';
+                    var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
+                    redirectPremiumLink = '#TODOpage=premium&showDarkMatter=1'
 
-                        window.token = '69834f4d6fbeae853fa4fd22814d592c'
-                    </script>
-                </div>
+                    window.token = '69834f4d6fbeae853fa4fd22814d592c'
+                </script>
             </div>
+
             <div class="productionBoxShips boxColumn ship">
 
                 <div id="productionboxshipyardcomponent" class="productionboxshipyard injectedComponent parent overview">

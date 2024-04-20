@@ -78,6 +78,9 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 
 
         Route::get('/alliance', 'AllianceController@index')->name('alliance.index');
+        Route::get('/ajax/alliance/create', 'AllianceController@ajaxCreate')->name('alliance.ajax.create');
+
+
         Route::get('/premium', 'PremiumController@index')->name('premium.index');
         Route::get('/shop', 'ShopController@index')->name('shop.index');
 
