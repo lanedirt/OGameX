@@ -69431,7 +69431,10 @@ let reloadEventBoxTimer = null;
 function reloadEventbox(data) {
   var evalData;
 
-  // TODO: reenable
+  // TODO: remove this code up until return
+    $("#eventboxLoading").hide();
+    $("#eventboxBlank").show();
+
   return;
 
   if (typeof data === 'string') {
