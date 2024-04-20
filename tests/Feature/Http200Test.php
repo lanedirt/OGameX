@@ -58,13 +58,14 @@ class Http200Test extends AccountTestCase
         $objectService = new ObjectService();
 
         foreach ($objectService->getBuildingObjects() as $object) {
-            $response = $this->get('ajax/resources?type=' . $object->id);
+            $response = $this->get('ajax/resources?technology=' . $object->id);
 
             try {
                 $response->assertStatus(200);
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
                 $customMessage = 'AJAX resource page for "' . $object->title . '" does not return HTTP 200.';
-                // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
+                // Optionally, include original message:
+                $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
                 $this->fail($customMessage);
             }
         }
@@ -79,7 +80,7 @@ class Http200Test extends AccountTestCase
         $objectService = new ObjectService();
 
         foreach ($objectService->getStationObjects() as $object) {
-            $response = $this->get('ajax/facilities?type=' . $object->id);
+            $response = $this->get('ajax/facilities?technology=' . $object->id);
 
             try {
                 $response->assertStatus(200);
@@ -100,7 +101,7 @@ class Http200Test extends AccountTestCase
         $objectService = new ObjectService();
 
         foreach ($objectService->getResearchObjects() as $object) {
-            $response = $this->get('ajax/research?type=' . $object->id);
+            $response = $this->get('ajax/research?technology=' . $object->id);
 
             try {
                 $response->assertStatus(200);
@@ -121,7 +122,7 @@ class Http200Test extends AccountTestCase
         $objectService = new ObjectService();
 
         foreach ($objectService->getShipObjects() as $object) {
-            $response = $this->get('ajax/shipyard?type=' . $object->id);
+            $response = $this->get('ajax/shipyard?technology=' . $object->id);
 
             try {
                 $response->assertStatus(200);
@@ -142,7 +143,7 @@ class Http200Test extends AccountTestCase
         $objectService = new ObjectService();
 
         foreach ($objectService->getDefenseObjects() as $object) {
-            $response = $this->get('ajax/defense?type=' . $object->id);
+            $response = $this->get('ajax/defense?technology=' . $object->id);
 
             try {
                 $response->assertStatus(200);

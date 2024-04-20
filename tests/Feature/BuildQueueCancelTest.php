@@ -35,34 +35,29 @@ class BuildQueueCancelTest extends AccountTestCase
         Carbon::setTestNow($testTime);
 
         $response = $this->get('/resources');
-        $response->assertStatus(200);
-        $response->assertSee('Cancel expansion of Metal Mine');
+        $this->assertObjectInQueue($response, 'metal_mine', 'Metal mine is expected in build queue but cannot be found.');
 
         // Extract first and second number on page which looks like this where num1/num2 are ints:
         // "cancelProduction(num1,num2,"
-        $response->assertSee('cancelProduction(');
+        $response->assertSee('cancelbuilding(');
 
         // Extract the first and second number from the first cancelProduction call
         $cancelProductionCall = $response->getContent();
         if (empty($cancelProductionCall)) {
             $cancelProductionCall = '';
         }
-        $cancelProductionCall = explode('onclick="cancelProduction(', $cancelProductionCall);
+        $cancelProductionCall = explode('onclick="cancelbuilding(', $cancelProductionCall);
         $cancelProductionCall = explode(',', $cancelProductionCall[1]);
-        $number1 = $cancelProductionCall[0];
-        $number2 = $cancelProductionCall[1];
+        $number1 = (int)trim($cancelProductionCall[0]);
+        $number2 = (int)trim($cancelProductionCall[1]);
 
         // Check if both numbers are integers. If not, throw an exception.
         if (!is_numeric($number1) || !is_numeric($number2)) {
             throw new BindingResolutionException('Could not extract the building queue ID from the page.');
         }
 
-        // Do POST to cancel build queue item:
-        $response = $this->post('/resources/cancel-buildrequest', [
-            '_token' => csrf_token(),
-            'technologyId' => $number1,
-            'listId' => $number2,
-        ]);
+        // Cancel build queue item:
+        $this->cancelResourceBuildRequest($number1, $number2);
 
         // Assert the response status is successful
         $response->assertStatus(200);
@@ -70,7 +65,7 @@ class BuildQueueCancelTest extends AccountTestCase
         // Verify that all buildings in the queue are now canceled
         $response = $this->get('/resources');
         $response->assertStatus(200);
-        $response->assertDontSee('Cancel expansion of Metal Mine');
+        $this->assertObjectNotInQueue($response, 'metal_mine', 'Metal mine is in build queue but should have been canceled.');
 
         // Advance time by 30 minutes
         $testTime = Carbon::create(2024, 1, 1, 12, 30, 0);
@@ -78,14 +73,7 @@ class BuildQueueCancelTest extends AccountTestCase
 
         // Verify that Metal Mine is still at level 0
         $response = $this->get('/resources');
-        $content = $response->getContent();
-        if (empty($content)) {
-            $content = '';
-        }
-        $response->assertStatus(200);
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*Metal\sMine\s*<\/span>\s*0\s*<\/span>/';
-        $result = preg_match($pattern, $content);
-        $this->assertTrue($result === 1, 'Metal Mine has been built while all jobs should have been canceled.');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal Mine has been built while all jobs should have been canceled.');
     }
 
     /**
@@ -107,38 +95,30 @@ class BuildQueueCancelTest extends AccountTestCase
         $this->addResourceBuildRequest('metal_mine');
 
         $response = $this->get('/resources');
-        $response->assertStatus(200);
-        $response->assertSee('Cancel expansion of Metal Mine');
+        $this->assertObjectInQueue($response, 'metal_mine', 'Metal mine is not in build queue.');
 
         // Extract first and second number on page which looks like this where num1/num2 are ints:
         // "cancelProduction(num1,num2,"
-        $response->assertSee('cancelProduction(');
+        $response->assertSee('cancelbuilding(');
 
         // Extract the first and second number from the first cancelProduction call
         $cancelProductionCall = $response->getContent();
         if (empty($cancelProductionCall)) {
             $cancelProductionCall = '';
         }
-        $cancelProductionCall = explode('onclick="cancelProduction(', $cancelProductionCall);
+        $cancelProductionCall = explode('onclick="cancelbuilding(', $cancelProductionCall);
         $cancelProductionCall = explode(',', $cancelProductionCall[1]);
-        $number1 = $cancelProductionCall[0];
-        $number2 = $cancelProductionCall[1];
+        $number1 = (int)trim($cancelProductionCall[0]);
+        $number2 = (int)trim($cancelProductionCall[1]);
 
         // Check if both numbers are integers. If not, throw an exception.
         if (!is_numeric($number1) || !is_numeric($number2)) {
             throw new BindingResolutionException('Could not extract the building queue ID from the page.');
         }
 
-        // Do POST to cancel build queue item:
-        $response = $this->post('/resources/cancel-buildrequest', [
-            '_token' => csrf_token(),
-            'building_id' => $number1,
-            'building_queue_id' => $number2,
-            'planet_id' => $this->currentPlanetId,
-        ]);
+        // Cancel build queue item:
+        $this->cancelResourceBuildRequest($number1, $number2);
 
-        // Assert the response status is successful
-        $response->assertStatus(200);
         $response = $this->get('/resources');
         $response->assertStatus(200);
 
@@ -168,8 +148,8 @@ class BuildQueueCancelTest extends AccountTestCase
         $response->assertStatus(200);
 
         // Extract first and second number on page which looks like this where num1/num2 are ints:
-        // "cancelProduction(num1,num2,"
-        $response->assertSee('Cancel expansion of Crystal Mine to level 1?');
+        // "cancelbuilding(num1,num2,"
+        $this->assertObjectInQueue($response, 'crystal_mine', 'Crystal mine is not in build queue.');
 
         // Extract the content from the response
         $pageContent = $response->getContent();
@@ -178,29 +158,22 @@ class BuildQueueCancelTest extends AccountTestCase
         }
 
         // Use a regular expression to find all matches of 'onclick="cancelProduction(num1,num2,'
-        preg_match_all('/onclick="cancelProduction\((\d+),(\d+),/', $pageContent, $matches);
+        preg_match_all('/onclick="cancelbuilding\((\d+),(\d+),/', $pageContent, $matches);
 
         // Check if there are at least three matches
-        // First active build queue has two cancelProduction buttons.
-        // The second active build queue has one cancelProduction button which will be the third.
+        // First active build queue has two cancelbuilding buttons.
+        // The second active build queue has one cancelbuilding button which will be the third.
         if (count($matches[0]) >= 3) {
             // Access the numbers from the second occurrence
-            $number1 = $matches[1][2];  // Second occurrence, first number
-            $number2 = $matches[2][2];  // Second occurrence, second number
+            $number1 = (int)trim($matches[1][2]);  // Second occurrence, first number
+            $number2 = (int)trim($matches[2][2]);  // Second occurrence, second number
 
-            // Do POST to cancel build queue item:
-            $response = $this->post('/resources/cancel-buildrequest', [
-                '_token' => csrf_token(),
-                'building_id' => $number1,
-                'building_queue_id' => $number2,
-                'planet_id' => $this->currentPlanetId,
-            ]);
-            $response->assertStatus(200);
+            // Cancel build queue item:
+            $this->cancelResourceBuildRequest($number1, $number2);
 
             // Assert that cancel build queue for crystal mine is no longer visible
             $response = $this->get('/resources');
-            $response->assertStatus(200);
-            $response->assertDontSee('Cancel expansion of Crystal Mine to level 1?');
+            $this->assertObjectNotInQueue($response, 'crystal_mine', 'Crystal mine is not in build queue.');
         } else {
             $this->throwException(new BindingResolutionException('Less than two "cancelProduction" calls found.'));
         }
