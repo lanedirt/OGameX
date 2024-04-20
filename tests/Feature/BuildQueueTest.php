@@ -33,7 +33,6 @@ class BuildQueueTest extends AccountTestCase
         // ---
         // Check if the building is in the queue and is still level 0.
         $response = $this->get('/resources');
-        $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal mine is not still at level 0 directly after build request issued.');
 
         // ---
@@ -44,7 +43,6 @@ class BuildQueueTest extends AccountTestCase
 
         // Check if the building is still in the queue and is still level 0.
         $response = $this->get('/resources');
-        $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal mine is not still at level 0 directly after build request issued.');
 
         // ---
@@ -55,13 +53,12 @@ class BuildQueueTest extends AccountTestCase
 
         // Check if the building is finished and is now level 1.
         $response = $this->get('/resources');
-        $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'metal_mine', 1, 'Metal mine is not at level 1 one minute after build request issued.');
     }
 
     /**
      * Verify that building a robotics factory on the facilities page works as expected.
-     * @throws BindingResolutionException
+     * @throws Exception
      */
     public function testBuildQueueFacilitiesRoboticsFactory(): void
     {
@@ -75,21 +72,13 @@ class BuildQueueTest extends AccountTestCase
         // ---
         // Step 1: Issue a request to build a robotics factory.
         // ---
-        $response = $this->post('/facilities/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '14', // Robotics factory
-            'planet_id' => $this->currentPlanetId,
-        ]);
-
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        $this->addFacilitiesBuildRequest('robot_factory');
 
         // ---
         // Step 2: Verify the building is in the build queue
         // ---
         // Check if the building is in the queue and is still level 0.
         $response = $this->get('/facilities');
-        $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'robot_factory', 0, 'Robotics factory is not still at level 0 directly after build request issued.');
 
         // ---
@@ -100,7 +89,6 @@ class BuildQueueTest extends AccountTestCase
 
         // Check if the building is still in the queue and is still level 0.
         $response = $this->get('/facilities');
-        $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'robot_factory', 0, 'Robotics factory is not still at level 0 two seconds after build request issued.');
 
         // ---
@@ -111,13 +99,13 @@ class BuildQueueTest extends AccountTestCase
 
         // Check if the building is finished and is now level 1.
         $response = $this->get('/facilities');
-        $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'robot_factory', 1, 'Robotics factory is not at level 1 ten minutes after build request issued.');
     }
 
     /**
      * Verify that building a robotics factory on the facilities page works as expected.
      * @throws BindingResolutionException
+     * @throws Exception
      */
     public function testBuildQueueFacilitiesRoboticsFactoryMultiQueue(): void
     {
@@ -131,25 +119,14 @@ class BuildQueueTest extends AccountTestCase
         // ---
         // Step 1: Issue a request to build two robotics factory upgrades.
         // ---
-        $response = $this->post('/facilities/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '14', // Robotics factory
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        $response->assertStatus(302);
-        $response = $this->post('/facilities/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '14', // Robotics factory
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        $response->assertStatus(302);
+        $this->addFacilitiesBuildRequest('robot_factory');
+        $this->addFacilitiesBuildRequest('robot_factory');
 
         // ---
         // Step 2: Verify the building is in the build queue
         // ---
         // Check if the building is in the queue and is still level 0.
         $response = $this->get('/facilities');
-        $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'robot_factory', 0, 'Robotics factory is not still at level 0 directly after build request issued.');
 
         // ---
@@ -160,7 +137,6 @@ class BuildQueueTest extends AccountTestCase
 
         // Check if the building is finished and is now level 1.
         $response = $this->get('/facilities');
-        $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'robot_factory', 1, 'Robotics factory is not at level 1 30s after build request issued.');
 
         // ---
@@ -171,7 +147,6 @@ class BuildQueueTest extends AccountTestCase
 
         // Check if the building is finished and is now level 2.
         $response = $this->get('/facilities');
-        $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'robot_factory', 2, 'Robotics factory is not at level 2 5m after build request issued.');
     }
 
@@ -206,7 +181,7 @@ class BuildQueueTest extends AccountTestCase
 
     /**
      * Verify that building a fusion reactor without required technology fails.
-     * @throws BindingResolutionException
+     * @throws BindingResolutionException|Exception
      */
     public function testBuildQueueFailUnfulfilledRequirements(): void
     {
@@ -219,7 +194,7 @@ class BuildQueueTest extends AccountTestCase
         // ---
         // Step 1: Issue a request to build a fusion reactor.
         // ---
-        $this->addResourceBuildRequest('fusion_plant');
+        $this->addResourceBuildRequest('fusion_plant', true);
 
         // ---
         // Step 2: Verify that nothing has been built as the user does not have the required technology.

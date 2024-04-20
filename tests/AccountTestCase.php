@@ -149,20 +149,25 @@ abstract class AccountTestCase extends TestCase
      */
     protected function assertObjectLevelOnPage(TestResponse $response, string $machine_name, int $expected_level, string $error_message = ''): void
     {
+        // Assert response is successful
+        $response->assertStatus(200);
+
         // Get object name from machine name.
         try {
             $object = $this->planetService->objects->getObjectByMachineName($machine_name);
         } catch (Exception $e) {
             $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
         }
-        $pattern = '/<span\s+class="level">\s*<span\s+class="textlabel">\s*' . $object->title . '\s*<\/span>\s*(\d+)\s*<\/span>/';
+
+        // Update pattern to extract level from data-value attribute
+        $pattern = '/<li[^>]*\bclass="[^"]*\b' . preg_quote($object->class_name, '/') . '\b[^"]*"[^>]*>.*?<span[^>]+class="level"[^>]*data-value="(\d+)"[^>]*>/s';
 
         $content = $response->getContent();
         if (empty($content)) {
             $content = '';
         }
         if (preg_match($pattern, $content, $matches)) {
-            $actual_level = $matches[1];  // The captured digits
+            $actual_level = $matches[1];  // The captured digits from data-value
             if (!empty($error_message)) {
                 $this->assertEquals($expected_level, $actual_level, $error_message);
             } else {
@@ -172,6 +177,7 @@ abstract class AccountTestCase extends TestCase
             $this->fail('No matching level found on page for object ' . $object->title);
         }
     }
+
 
     /**
      * Assert that the resources are as expected on the page.
@@ -210,10 +216,39 @@ abstract class AccountTestCase extends TestCase
         }
     }
 
+    protected function assertObjectInQueue(TestResponse $response, string $machine_name, string $error_message = ''): void
+    {
+        // Get object name from machine name.
+        try {
+            $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+        } catch (Exception $e) {
+            $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
+        }
+
+        // Check if cancel text is present on page.
+        $response->assertSee('Cancel production of ' . $object->title, $error_message);
+    }
+
+    protected function assertObjectNotInQueue(TestResponse $response, string $machine_name, string $error_message = ''): void
+    {
+        // Get object name from machine name.
+        try {
+            $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+        } catch (Exception $e) {
+            $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
+        }
+
+        // Check if cancel text is present on page.
+        $response->assertDontSee('Cancel production of ' . $object->title, $error_message);
+    }
+
     /**
+     * Add a resource build request to the current users current planet.
+     * @param string $machine_name
+     * @return void
      * @throws Exception
      */
-    protected function addResourceBuildRequest(string $machine_name): void
+    protected function addResourceBuildRequest(string $machine_name, bool $ignoreErrors = false): void
     {
         $object = $this->planetService->objects->getObjectByMachineName($machine_name);
 
@@ -221,6 +256,146 @@ abstract class AccountTestCase extends TestCase
             '_token' => csrf_token(),
             'technologyId' => $object->id,
         ]);
+
+        if ($ignoreErrors) {
+            return;
+        }
+
+        // Assert the response status is successful
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Cancel a resource build request on the current users current planet.
+     *
+     * @param int $objectId
+     * @param int $buildQueueId
+     * @return void
+     */
+    protected function cancelResourceBuildRequest(int $objectId, int $buildQueueId): void
+    {
+        $response = $this->post('/resources/cancel-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $objectId,
+            'listId' => $buildQueueId,
+        ]);
+
+        // Assert the response status is successful
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Add a facilities build request to the current users current planet.
+     * @param string $machine_name
+     * @return void
+     * @throws Exception
+     */
+    protected function addFacilitiesBuildRequest(string $machine_name): void
+    {
+        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+
+        $response = $this->post('/facilities/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+        ]);
+        // Assert the response status is successful
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Cancel a facilities build request on the current users current planet.
+     *
+     * @param int $objectId
+     * @param int $buildQueueId
+     * @return void
+     */
+    protected function cancelFacilitiesBuildRequest(int $objectId, int $buildQueueId): void
+    {
+        $response = $this->post('/facilities/cancel-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $objectId,
+            'listId' => $buildQueueId,
+        ]);
+
+        // Assert the response status is successful
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Add a research build request to the current users current planet.
+     * @param string $machine_name
+     * @return void
+     * @throws Exception
+     */
+    protected function addResearchBuildRequest(string $machine_name): void
+    {
+        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+
+        $response = $this->post('/research/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+        ]);
+        // Assert the response status is successful
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Cancel a research build request on the current users current planet.
+     *
+     * @param int $objectId
+     * @param int $buildQueueId
+     * @return void
+     */
+    protected function cancelResearchBuildRequest(int $objectId, int $buildQueueId): void
+    {
+        $response = $this->post('/research/cancel-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $objectId,
+            'listId' => $buildQueueId,
+        ]);
+
+        // Assert the response status is successful
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Add a shipyard build request to the current users current planet.
+     * @param string $machine_name
+     * @param int $amount
+     * @return void
+     * @throws Exception
+     */
+    protected function addShipyardBuildRequest(string $machine_name, int $amount): void
+    {
+        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+
+        $response = $this->post('/shipyard/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+            'amount' => $amount,
+        ]);
+
+        // Assert the response status is successful
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Add a defense build request to the current users current planet.
+     * @param string $machine_name
+     * @param int $amount
+     * @return void
+     * @throws Exception
+     */
+    protected function addDefenseBuildRequest(string $machine_name, int $amount): void
+    {
+        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+
+        $response = $this->post('/defense/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+            'amount' => $amount,
+        ]);
+
         // Assert the response status is successful
         $response->assertStatus(200);
     }
