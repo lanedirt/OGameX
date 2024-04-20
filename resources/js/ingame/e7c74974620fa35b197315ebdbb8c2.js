@@ -48166,8 +48166,7 @@ function setShips(ship, count) {
   }
 }
 
-function renderContentGalaxy(data) {
-  var json = $.parseJSON(data);
+function renderContentGalaxy(json) {
   token = json.token;
   updateOverlayToken('phalanxSystemDialog', json.token);
   updateOverlayToken('phalanxDialog', json.token);
@@ -48181,7 +48180,8 @@ function renderContentGalaxy(data) {
   $("input#galaxy_input").val(json.system.galaxy);
   $("input#system_input").val(json.system.system);
   canSwitchGalaxy = json.system.canSwitchGalaxy;
-  getAjaxResourcebox();
+  // TODO: re-enable
+  //getAjaxResourcebox();
   $.each(json.filterSettings, function (key, value) {
     if (value) {
       $(`#filterCell #${key}`).addClass('filter_active');
@@ -49345,7 +49345,8 @@ function loadContent(galaxy, system) {
 
   $.post(contentLink, {
     galaxy: galaxy,
-    system: system
+    system: system,
+    _token: token
   }, displayContentGalaxy);
 }
 
@@ -49376,8 +49377,9 @@ function loadContentNew(galaxy, system) {
   if (inProgress === false) {
     inProgress = true;
     $.post(galaxyContentLink, {
-      galaxy: galaxy,
-      system: system
+        galaxy: galaxy,
+        system: system,
+        _token: token
     }, renderContentGalaxy);
   }
 }
