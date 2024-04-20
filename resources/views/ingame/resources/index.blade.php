@@ -22,7 +22,6 @@
             <div id="technologydetails_wrapper">
                 <div id="technologydetails_content" style="animation-duration: 0s !important"></div>
             </div>
-
             <div id="technologies">
                 <h3>
                     Resource buildings
@@ -56,9 +55,7 @@
                                 data-status="on"
                                 title="{{ $building->object->title }}"
                                 @endif
-                        >
-
-                        <span class="icon sprite @if (in_array($building->object->machine_name, ['metal_store','crystal_store','deuterium_store'])) sprite_small small @else sprite_medium medium @endif {{ $building->object->class_name }}">
+                        ><span class="icon sprite @if (in_array($building->object->machine_name, ['metal_store','crystal_store','deuterium_store'])) sprite_small small @else sprite_medium medium @endif {{ $building->object->class_name }}">
                             <button
                                     class="upgrade tooltip hideOthers js_hideTipOnMobile"
                                     aria-label="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}" title="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}"
@@ -72,59 +69,7 @@
                             <span class="stockAmount">{{ $building->current_level }}</span>
                             <span class="bonus"></span>
                             </span>
-                        </span>
-
-                            <!--
-
-                            <div class="supply{!! $building->object->id !!}">
-                                <div class="buildingimg">
-                                    @if ($building->requirements_met && $building->enough_resources && $building->object->type != 'ship')
-                                <a class="fastBuild tooltip js_hideTipOnMobile"
-                                   title="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}"
-                                           href="javascript:void(0);"
-                                           onclick="sendBuildRequest('{!! route('resources.addbuildrequest.post', ['modus' => 1, 'type' => $building->object->id, 'planet_id' => $planet_id, '_token' => csrf_token()]) !!}', null, 1);">
-                                            <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="22"
-                                                 height="14">
-                                        </a>
-                                    @endif
-                            @if ($building->currently_building)
-                                <div class="construction">
-                                    <div class="pusher" id="b_resources{{ $building->object->id }}"
-                                                 style="height:100px;">
-                                            </div>
-                                            <a class="slideIn timeLink" href="javascript:void(0);"
-                                               ref="{{ $building->object->id }}">
-                                                <span class="time" id="test" name="zeit"></span>
-                                            </a>
-
-                                            <a class="detail_button slideIn"
-                                               id="details{{ $building->object->id }}"
-                                               ref="{{ $building->object->id }}"
-                                               href="javascript:void(0);">
-            <span class="eckeoben">
-                <span style="font-size:11px;" class="undermark"> {{ $building->current_level + 1 }}</span>
-            </span>
-                                                <span class="ecke">
-                <span class="level">{{ $building->current_level }}</span>
-            </span>
-                                            </a>
-                                        </div>
-                                    @endif
-                            <a class="detail_button tooltip js_hideTipOnMobile slideIn"
-                               title="{!! $building->object->title !!}" ref="{!! $building->object->id !!}"
-                                       id="details" href="javascript:void(0);">
-                        <span class="ecke">
-                            <span class="level">
-                               <span class="textlabel">
-                                   {!! $building->object->title !!}
-                            </span>
-{!! $building->current_level !!}	                           </span>
-                        </span>
-                                    </a>
-                                </div>
-                            </div>
-                            -->
-                        </li>
+                        </span></li>
                     @endforeach
                 </ul>
             </div>
