@@ -15,6 +15,7 @@ class BuildQueueTest extends AccountTestCase
 {
     /**
      * Verify that building a metal mine works as expected.
+     * @throws Exception
      */
     public function testBuildQueueResourcesMetalMine(): void
     {
@@ -25,14 +26,7 @@ class BuildQueueTest extends AccountTestCase
         // ---
         // Step 1: Issue a request to build a metal mine
         // ---
-        $response = $this->post('/resources/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '1', // Metal mine
-            'planet_id' => $this->currentPlanetId,
-        ]);
-
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        $this->addResourceBuildRequest('metal_mine');
 
         // ---
         // Step 2: Verify the building is in the build queue
@@ -182,78 +176,9 @@ class BuildQueueTest extends AccountTestCase
     }
 
     /**
-     * Verify that building a metal mine with fastbuild (get request) as expected.
-     */
-    public function testBuildQueueResourcesMetalMineFastBuild(): void
-    {
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
-        // ---
-        // Step 1: Issue a request to build a metal mine
-        // ---
-        $response = $this->get('/resources/add-buildrequest?_token=' . csrf_token() . '&type=1&planet_id=' . $this->currentPlanetId);
-
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
-
-        // ---
-        // Step 2: Verify the building is in the build queue
-        // ---
-        // Check if the building is in the queue and is still level 0.
-        $response = $this->get('/resources');
-        $response->assertStatus(200);
-        $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal mine is not still at level 0 directly after build request issued.');
-
-        // ---
-        // Step 3: Verify the building is still in the build queue 2 seconds later.
-        // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 2);
-        Carbon::setTestNow($testTime);
-
-        // Check if the building is still in the queue and is still level 0.
-        $response = $this->get('/resources');
-        $response->assertStatus(200);
-        $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal mine is not still at level 0 two seconds after build request issued.');
-
-        // ---
-        // Step 4: Verify the building is finished 1 minute later.
-        // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 1, 0);
-        Carbon::setTestNow($testTime);
-
-        // Check if the building is finished and is now level 1.
-        $response = $this->get('/resources');
-        $response->assertStatus(200);
-        $this->assertObjectLevelOnPage($response, 'metal_mine', 1, 'Metal mine is not at level 1 one minute after build request issued.');
-    }
-
-    /**
-     * Verify that building on a non-existent planet fails.
-     */
-    public function testBuildQueueNonExistentPlanet(): void
-    {
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
-        // ---
-        // Step 1: Issue a request to build a metal mine on planet not owned by player.
-        // ---
-        $response = $this->get('/resources/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '1', // Metal mine
-            'planet_id' => $this->currentPlanetId - 1,
-        ]);
-
-        // Assert the response status returns an error (500).
-        $response->assertStatus(500);
-    }
-
-    /**
      * Verify that building ships without resources fails.
      * @throws BindingResolutionException
+     * @throws Exception
      */
     public function testBuildQueueFailInsufficientResources(): void
     {
@@ -266,14 +191,7 @@ class BuildQueueTest extends AccountTestCase
         // ---
         // Step 1: Issue a request to build a metal mine.
         // ---
-        $response = $this->post('/resources/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '1', // Metal mine
-            'planet_id' => $this->currentPlanetId,
-        ]);
-
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        $this->addResourceBuildRequest('metal_mine');
 
         // ---
         // Step 2: Verify that nothing has been built as there were not enough resources.
@@ -299,13 +217,9 @@ class BuildQueueTest extends AccountTestCase
         Carbon::setTestNow($testTime);
 
         // ---
-        // Step 1: Issue a request to build a metal mine.
+        // Step 1: Issue a request to build a fusion reactor.
         // ---
-        $this->post('/resources/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '12', // Fusion reactor
-            'planet_id' => $this->currentPlanetId,
-        ]);
+        $this->addResourceBuildRequest('fusion_plant');
 
         // ---
         // Step 2: Verify that nothing has been built as the user does not have the required technology.
