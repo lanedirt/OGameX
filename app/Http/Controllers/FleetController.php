@@ -7,7 +7,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\Resource;
+use OGame\Models\Resources;
+use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -178,8 +182,60 @@ class FleetController extends OGameController
      *
      * @return JsonResponse
      */
-    public function dispatchSendFleet() : JsonResponse
+    public function dispatchSendFleet(PlayerService $player) : JsonResponse
     {
+        // Expected form data
+        /*
+         token: 91cf2833548771ba423894d1f3dddb3c
+am202: 1
+galaxy: 1
+system: 1
+position: 12
+type: 1
+metal: 0
+crystal: 0
+deuterium: 0
+food: 0
+prioMetal: 2
+prioCrystal: 3
+prioDeuterium: 4
+prioFood: 1
+mission: 3
+speed: 10
+retreatAfterDefenderRetreat: 0
+lootFoodOnAttack: 0
+union: 0
+holdingtime: 0
+         */
+
+        // Get the current player's planet
+        $planet = $player->planets->current();
+
+        // Extract units from the request and create a unit collection.
+        // Loop through all input fields and get all units prefixed with "am".
+        $units = new UnitCollection();
+        foreach (request()->all() as $key => $value) {
+            if (strpos($key, 'am') === 0) {
+                $unit_id = (int)str_replace('am', '', $key);
+                // Create GameObject
+                $unitObject = $player->planets->current()->objects->getUnitObjectById($unit_id);
+                $units->addUnit($unitObject, (int)$value);
+            }
+        }
+
+        // Extract resources from the request
+        $metal = (int)request()->input('metal');
+        $crystal = (int)request()->input('crystal');
+        $deuterium = (int)request()->input('deuterium');
+        $resources = new Resources($metal, $crystal, $deuterium, 0);
+
+        // Extract mission type from the request
+        $mission_type = (int)request()->input('mission');
+
+        // Create a new fleet mission
+        $fleetMissionService = app()->make(FleetMissionService::class);
+        $fleetMissionService->create($planet, $mission_type, $units, $resources);
+
         return response()->json([
             'components' => [],
             'message' => 'Your fleet has been successfully sent.',
