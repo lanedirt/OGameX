@@ -56,7 +56,7 @@ class GalaxyController extends OGameController
      * @param int $galaxy
      * @param int $system
      * @param PlayerService $player
-     * @return array<string, mixed>
+     * @return array<int, array<string, array<int|string, array<string, array<string,bool>|bool|int|string>|bool|int|string>|int|string>>
      * @throws BindingResolutionException
      */
     public function getGalaxyArray(int $galaxy, int $system, PlayerService $player) : array
