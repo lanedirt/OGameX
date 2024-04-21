@@ -47077,8 +47077,7 @@ FleetDispatcher.prototype.fetchTargetPlayerData = function () {
     params.recycler = 1;
   }
 
-  $.post(this.checkTargetUrl, params, function (response) {
-    let data = JSON.parse(response);
+  $.post(this.checkTargetUrl, params, function (data) {
     let status = data.status || 'failure';
     $("#additionalFleetSpeedInfo").html(data.additionalFlightSpeedinfo);
     that.fleetHelper.shipsData = data.shipsData;
@@ -47195,9 +47194,7 @@ FleetDispatcher.prototype.submitFleet2 = function (force) {
   if (force) params.force = force;
   params.holdingtime = this.getHoldingTime();
   this.startLoading();
-  $.post(this.sendFleetUrl, params, function (response) {
-    let data = JSON.parse(response); // request successful
-
+  $.post(this.sendFleetUrl, params, function (data) {
     if (data.success === true) {
       fadeBox(data.message, false);
       $("#sendFleet").removeAttr("disabled");

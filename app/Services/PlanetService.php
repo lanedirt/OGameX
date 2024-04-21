@@ -126,29 +126,14 @@ class PlanetService
     }
 
     /**
-     * Get planet coordinates as string.
-     *
-     * @return string
-     */
-    public function getPlanetCoordinatesAsString(): string
-    {
-        $coordinates = $this->getPlanetCoordinates();
-        return $coordinates['galaxy'] . ':' . $coordinates['system'] . ':' . $coordinates['planet'];
-    }
-
-    /**
      * Get planet coordinates in array.
      *
-     * @return array<string,int>
+     * @return Planet\Coordinate
      *  Array with coordinates (galaxy, system, planet)
      */
-    public function getPlanetCoordinates(): array
+    public function getPlanetCoordinates(): Planet\Coordinate
     {
-        return [
-            'galaxy' => $this->planet->galaxy,
-            'system' => $this->planet->system,
-            'planet' => $this->planet->planet,
-        ];
+        return new Planet\Coordinate($this->planet->galaxy, $this->planet->system, $this->planet->planet);
     }
 
     /**
@@ -189,13 +174,13 @@ class PlanetService
             15 => ['odd' => 'normal', 'even' => 'gas'],
         ];
 
-        if ($coordinates['system'] % 2 == 0) {
+        if ($coordinates->system % 2 == 0) {
             $odd_even = 'even';
         } else {
             $odd_even = 'odd';
         }
 
-        return $map_array[$coordinates['planet']][$odd_even];
+        return $map_array[$coordinates->position][$odd_even];
     }
 
     /**
@@ -207,8 +192,8 @@ class PlanetService
     {
         // Get system and planet.
         $coordinates = $this->getPlanetCoordinates();
-        $system = $coordinates['system'];
-        $planet = $coordinates['planet'];
+        $system = $coordinates->system;
+        $planet = $coordinates->position;
 
         // Mapping array starts at 1:1:x, for every system higher 1 gets added.
         $map_array = [

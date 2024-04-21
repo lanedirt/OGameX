@@ -28,8 +28,8 @@ class GalaxyController extends OGameController
         // Get current galaxy and system from current planet.
         $planet = $player->planets->current();
         $coordinates = $planet->getPlanetCoordinates();
-        $galaxy = $coordinates['galaxy'];
-        $system = $coordinates['system'];
+        $galaxy = $coordinates->galaxy;
+        $system = $coordinates->system;
 
         // Get galaxy and system querystring params if set instead.
         $galaxy_qs = $request->input('galaxy', '0');
@@ -102,7 +102,7 @@ class GalaxyController extends OGameController
                             ],
                             'availableMissions' => [],
                             'fleet' => [],
-                            'imageInformation' => $planet->getPlanetType() . '_' . $planet->getPlanetCoordinates()['planet'],
+                            'imageInformation' => $planet->getPlanetType() . '_' . $planet->getPlanetCoordinates()->position,
                             'isDestroyed' => false,
                             'planetId' => $planet->getPlanetId(),
                             'planetName' => $planet->getPlanetName(),

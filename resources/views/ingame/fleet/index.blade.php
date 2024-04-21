@@ -18,7 +18,7 @@
             var token = "85cb33c35cf4c438287916336573a3b3";
 
             var checkTargetUrl = "{{ route('fleet.dispatch.checktarget') }}"
-            var sendFleetUrl = ""
+            var sendFleetUrl = "{{ route('fleet.dispatch.sendfleet') }}"
             var saveSettingsUrl = ""
 
             var fleetBoxOrder = {"fleetboxdestination":0,"fleetboxmission":1,"fleetboxbriefingandresources":2}
@@ -55,12 +55,12 @@
             var orderNames = {"15":"Expedition","7":"Colonisation","8":"Recycle Debris Field","3":"Transport","4":"Deployment","6":"Espionage","5":"ACS Defend","1":"Attack","2":"ACS Attack","9":"Moon Destruction"};
             var orderDescriptions = {"1":"Attacks the fleet and defense of your opponent.","2":"Honourable battles can become dishonourable battles if strong players enter through ACS. The attacker`s sum of total military points in comparison to the defender`s sum of total military points is the decisive factor here.","3":"Transports your resources to other planets.","4":"Sends your fleet permanently to another planet of your empire.","5":"Defend the planet of your team-mate.","6":"Spy the worlds of foreign emperors.","7":"Colonizes a new planet.","8":"Send your recyclers to a debris field to collect the resources floating around there.","9":"Destroys the moon of your enemy.","15":"Send your ships to the furthest reaches of space to complete exciting quests."};
 
-            var currentPlanet = {"galaxy":7,"system":158,"position":10,"type":1,"name":"MyBaseYo"};
-            var targetPlanet = {"galaxy":7,"system":158,"position":10,"type":1,"name":"MyBaseYo"};
+            var currentPlanet = {"galaxy":{{ $planet->getPlanetCoordinates()->galaxy }},"system":{{ $planet->getPlanetCoordinates()->system }},"position":{{ $planet->getPlanetCoordinates()->position }},"type":1,"name":"{{ $planet->getPlanetName() }}"};
+            var targetPlanet = {"galaxy":{{ $planet->getPlanetCoordinates()->galaxy }},"system":{{ $planet->getPlanetCoordinates()->system }},"position":{{ $planet->getPlanetCoordinates()->position }},"type":1,"name":"{{ $planet->getPlanetName() }}"};
             var shipsOnPlanet = [@foreach ($units as $unitGroup)@foreach ($unitGroup as $unit)@if($unit->amount > 0){"id":{{ $unit->object->id }},"number":{{ $unit->amount }}},@endif @endforeach @endforeach];
             var useHalfSteps = true;
             var shipsToSend = [];
-            var planets = [{"galaxy":7,"system":158,"position":10,"type":1,"name":"MyBaseYo"}];
+            var planets = [{"galaxy":{{ $planet->getPlanetCoordinates()->galaxy }},"system": {{ $planet->getPlanetCoordinates()->system }},"position": {{ $planet->getPlanetCoordinates()->position }},"type":1,"name":"{{ $planet->getPlanetName() }}"}];
             var standardFleets = [];
             var unions = [];
 
@@ -74,10 +74,10 @@
             var holdingTime = 1;
             var expeditionTime = 0;
             var lifeformEnabled = true;
-            var metalOnPlanet = 43812;
-            var crystalOnPlanet = 17736;
-            var deuteriumOnPlanet = 8159;
-            var foodOnPlanet = 40;
+            var metalOnPlanet = {{ $planet->metal()->getRounded() }};
+            var crystalOnPlanet = {{ $planet->crystal()->getRounded() }};
+            var deuteriumOnPlanet = {{ $planet->deuterium()->getRounded() }};
+            var foodOnPlanet = 0;
 
             var fleetCount = 3;
             var maxFleetCount = 4;
@@ -113,8 +113,8 @@
 
             });
 
-            var apiDataJson = {"coords":"7:158:10","characterClassId":2,"allianceClassId":0,"researches":{"109":1,"110":0,"111":6,"115":5,"117":3,"118":0,"114":0},"defenses":{"401":{"amount":1,"weapon":0,"shield":0,"armor":0},"402":{"amount":1,"weapon":0,"shield":0,"armor":0},"403":{"amount":0,"weapon":0,"shield":0,"armor":0},"404":{"amount":0,"weapon":0,"shield":0,"armor":0},"405":{"amount":0,"weapon":0,"shield":0,"armor":0},"406":{"amount":0,"weapon":0,"shield":0,"armor":0},"407":{"amount":0,"weapon":0,"shield":0,"armor":0},"408":{"amount":0,"weapon":0,"shield":0,"armor":0}},"ships":{"204":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"205":{"amount":1,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"206":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"207":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"215":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"211":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"213":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"214":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"218":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"219":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"202":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"203":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"208":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"209":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"210":{"amount":6,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"212":{"amount":2,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"217":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"401":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"402":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"403":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"404":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"405":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"406":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"407":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"408":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0}},"missiles":{"502":{"amount":0},"503":{"amount":0}},"bonuses":{"recycleAttackerFleet":0,"moonChanceIncrease":0,"lifeformProtection":0,"spaceDockExtender":0,"denCapacity":{"metal":0,"crystal":0,"deuterium":0},"characterClassBooster":{"1":0,"2":0,"3":0}},"fleetspeed":10}
-            var apiCommonData = [["coords","7:158:10"],["characterClassId",2]];
+            var apiDataJson = {"coords":"{{ $planet->getPlanetCoordinates()->asString() }}","characterClassId":2,"allianceClassId":0,"researches":{"109":1,"110":0,"111":6,"115":5,"117":3,"118":0,"114":0},"defenses":{"401":{"amount":1,"weapon":0,"shield":0,"armor":0},"402":{"amount":1,"weapon":0,"shield":0,"armor":0},"403":{"amount":0,"weapon":0,"shield":0,"armor":0},"404":{"amount":0,"weapon":0,"shield":0,"armor":0},"405":{"amount":0,"weapon":0,"shield":0,"armor":0},"406":{"amount":0,"weapon":0,"shield":0,"armor":0},"407":{"amount":0,"weapon":0,"shield":0,"armor":0},"408":{"amount":0,"weapon":0,"shield":0,"armor":0}},"ships":{"204":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"205":{"amount":1,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"206":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"207":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"215":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"211":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"213":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"214":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"218":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"219":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"202":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"203":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"208":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"209":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"210":{"amount":6,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"212":{"amount":2,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"217":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"401":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"402":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"403":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"404":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"405":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"406":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"407":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0},"408":{"amount":0,"weapon":0,"shield":0,"armor":0,"cargo":0,"speed":0,"fuel":0}},"missiles":{"502":{"amount":0},"503":{"amount":0}},"bonuses":{"recycleAttackerFleet":0,"moonChanceIncrease":0,"lifeformProtection":0,"spaceDockExtender":0,"denCapacity":{"metal":0,"crystal":0,"deuterium":0},"characterClassBooster":{"1":0,"2":0,"3":0}},"fleetspeed":10}
+            var apiCommonData = [["coords","{{ $planet->getPlanetCoordinates()->asString() }}"],["characterClassId",2]];
             var apiTechData = [[109,1],[115,5],[110,0],[117,3],[111,6],[118,0],[114,0]];
             var apiDefenseData = [[401,1],[402,1]];
             var apiShipBaseData = [[202,0],[204,0],[205,1],[208,0],[210,6],[212,2],[217,0]];
@@ -446,7 +446,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                     <div class="fleetStatus" id="statusBarFleet">
                         <ul>
                             <li><span class="title">Mission:</span> <span class="missionName">Nothing has been selected</span></li>
-                            <li><span class="title">Target:</span> <span class="targetName">[7:158:10] <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>MyBaseYo</span></li>
+                            <li><span class="title">Target:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>MyBaseYo</span></li>
                             <li><span class="title">Player’s Name:</span> <span class="targetPlayerName">President Hati</span></li>
                         </ul>
                     </div>
@@ -549,7 +549,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 <div class="fleetStatus" id="statusBarFleet">
                     <ul>
                         <li><span class="title">Mission:</span> <span class="missionName">Nothing has been selected</span></li>
-                        <li><span class="title">Target:</span> <span class="targetName">[7:158:10] <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>MyBaseYo</span></li>
+                        <li><span class="title">Target:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>MyBaseYo</span></li>
                         <li><span class="title">Player’s Name:</span> <span class="targetPlayerName">President Hati</span></li>
                     </ul>
                 </div>
@@ -595,7 +595,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         </div>
                                         <div class="coords">
                                             Coordinates:
-                                            <span style="color: #ffffff; font-weight: bold;">7:158:10</span>
+                                            <span style="color: #ffffff; font-weight: bold;">{{ $planet->getPlanetCoordinates()->asString() }}</span>
                                         </div>
                                     </td>
                                     <td id="distance">
@@ -773,7 +773,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             </li>
                                             <li>
                                                 Target:
-                                                <span class="value tooltip active tpd-hideOnClickOutside" id="targetPlanet" title="">[7:158:10] MyBaseYo</span>
+                                                <span class="value tooltip active tpd-hideOnClickOutside" id="targetPlanet" title="">[{{ $planet->getPlanetCoordinates()->asString() }}] {{ $planet->getPlanetName() }}</span>
                                             </li>
                                             <li>
                                                 Duration of flight (one way):
@@ -903,7 +903,8 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                     <!-- START: Speed percentage -->
                                     <div class="percentageBarWrapper">
                                         <div id="speedPercentage" class="percentageBar" style="float:left;width:600px;margin-left:20px" value="10" steps="20" stepsize="5" minvalue="0.5" usehalfstep="true">
-                                            <div class="bar" style="width: 600px;"></div><div class="steps"><div class="step" style="cursor: pointer" onclick="" data-step="0.5">5</div><div class="step" style="cursor: pointer" onclick="" data-step="1">10</div><div class="step" style="cursor: pointer" onclick="" data-step="1.5">15</div><div class="step" style="cursor: pointer" onclick="" data-step="2">20</div><div class="step" style="cursor: pointer" onclick="" data-step="2.5">25</div><div class="step" style="cursor: pointer" onclick="" data-step="3">30</div><div class="step" style="cursor: pointer" onclick="" data-step="3.5">35</div><div class="step" style="cursor: pointer" onclick="" data-step="4">40</div><div class="step" style="cursor: pointer" onclick="" data-step="4.5">45</div><div class="step" style="cursor: pointer" onclick="" data-step="5">50</div><div class="step" style="cursor: pointer" onclick="" data-step="5.5">55</div><div class="step" style="cursor: pointer" onclick="" data-step="6">60</div><div class="step" style="cursor: pointer" onclick="" data-step="6.5">65</div><div class="step" style="cursor: pointer" onclick="" data-step="7">70</div><div class="step" style="cursor: pointer" onclick="" data-step="7.5">75</div><div class="step" style="cursor: pointer" onclick="" data-step="8">80</div><div class="step" style="cursor: pointer" onclick="" data-step="8.5">85</div><div class="step" style="cursor: pointer" onclick="" data-step="9">90</div><div class="step" style="cursor: pointer" onclick="" data-step="9.5">95</div><div class="step selected" style="cursor: pointer" onclick="" data-step="10">100</div></div></div>
+                                        <div class="bar" style="width: 600px;"></div>
+                                        <div class="steps"><div class="step" style="cursor: pointer" onclick="" data-step="0.5">5</div><div class="step" style="cursor: pointer" onclick="" data-step="1">10</div><div class="step" style="cursor: pointer" onclick="" data-step="1.5">15</div><div class="step" style="cursor: pointer" onclick="" data-step="2">20</div><div class="step" style="cursor: pointer" onclick="" data-step="2.5">25</div><div class="step" style="cursor: pointer" onclick="" data-step="3">30</div><div class="step" style="cursor: pointer" onclick="" data-step="3.5">35</div><div class="step" style="cursor: pointer" onclick="" data-step="4">40</div><div class="step" style="cursor: pointer" onclick="" data-step="4.5">45</div><div class="step" style="cursor: pointer" onclick="" data-step="5">50</div><div class="step" style="cursor: pointer" onclick="" data-step="5.5">55</div><div class="step" style="cursor: pointer" onclick="" data-step="6">60</div><div class="step" style="cursor: pointer" onclick="" data-step="6.5">65</div><div class="step" style="cursor: pointer" onclick="" data-step="7">70</div><div class="step" style="cursor: pointer" onclick="" data-step="7.5">75</div><div class="step" style="cursor: pointer" onclick="" data-step="8">80</div><div class="step" style="cursor: pointer" onclick="" data-step="8.5">85</div><div class="step" style="cursor: pointer" onclick="" data-step="9">90</div><div class="step" style="cursor: pointer" onclick="" data-step="9.5">95</div><div class="step selected" style="cursor: pointer" onclick="" data-step="10">100</div></div></div>
                                         <div id="percentStatus" style="float:left; font-size:12px;"></div>
                                         <script>
                                             $('.percentSelector').bind('click', function(){

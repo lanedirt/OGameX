@@ -27,7 +27,7 @@ mix.scripts([
     'resources/js/ingame/messages.js',
     'resources/js/ingame/tooltips.js',
     'resources/js/ingame/trader.js',
-    'resources/js/ingame/percentagebar.js',
+    //'resources/js/ingame/percentagebar.js',
     //'resources/js/ingame/logic571d.js',
     'resources/js/ingame/timerhandler.js',
     'resources/js/ingame/e7c74974620fa35b197315ebdbb8c2.js',

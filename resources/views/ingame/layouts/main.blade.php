@@ -40,7 +40,7 @@
     <!-- TODO: update with current planet details -->
     <meta name="ogame-planet-id" content="{{ $currentPlanet->getPlanetId() }}"/>
     <meta name="ogame-planet-name" content="{{ $currentPlanet->getPlanetName() }}"/>
-    <meta name="ogame-planet-coordinates" content="{{ $currentPlanet->getPlanetCoordinatesAsString() }}"/>
+    <meta name="ogame-planet-coordinates" content="{{ $currentPlanet->getPlanetCoordinates()->asString() }}"/>
     <meta name="ogame-planet-type" content="planet"/>
 
     <title>{{ config('app.name', 'Laravel') }}</title>
@@ -1273,11 +1273,11 @@ Combat simulation save slots +20">
                                 @endphp
 
                                 <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }}" id="planet-{{ $planet->getPlanetId() }}">
-                                    <a href="{{ $urlToCurrentWithUpdatedParam }}" data-link="{{ $urlToCurrentWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinatesAsString() }}]</b><br/>@lang('Lifeform'): Humans
+                                    <a href="{{ $urlToCurrentWithUpdatedParam }}" data-link="{{ $urlToCurrentWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>@lang('Lifeform'): Humans
 <br/>12,800km (152/193)<br>20°C to 60°C<br/><a href=&quot;#TODO=ingame&amp;component=overview&amp;cp=33624092&quot;>@lang('Overview')</a><br/><a href=&quot;#TODO=ingame&amp;component=supplies&amp;cp=33624092&quot;>@lang('Resources')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=lfbuildings&amp;cp=33624092&quot;>@lang('Lifeform')</a><br/><a href=&quot;#TODOpage=ingame&amp;component=research&amp;cp=33624092&quot;>@lang('Research')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=facilities&amp;cp=33624092&quot;>@lang('Facilities')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=shipyard&amp;cp=33624092&quot;>@lang('Shipyard')</a><br/><a href=&quot;#TODO_component=defenses&amp;cp=33624092&quot;>@lang('Defense')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=fleetdispatch&amp;cp=33624092&quot;>@lang('Fleet')</a><br/><a href=&quot;#TODO_component=galaxy&amp;cp=33624092&amp;galaxy=2&amp;system=3&amp;position=6&quot;>@lang('Galaxy')</a>" class="planetlink {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiPlanetHomeplanet">
                                         <img class="planetPic js_replace2x" alt="{{ $planet->getPlanetName() }}" src="/img/icons/a8821a3ef84e0acd053aef2e98972a.png" width="48" height="48">
                                         <span class="planet-name ">{!! $planet->getPlanetName() !!}</span>
-                                        <span class="planet-koords ">[{!! $planet->getPlanetCoordinatesAsString() !!}]</span>
+                                        <span class="planet-koords ">[{!! $planet->getPlanetCoordinates()->asString() !!}]</span>
                                     </a>
                                     <!--
                                     <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile" title="<b>Moon [2:3:6]</b><br>8,888km (0/1)<br/><a href=&quot;#TODO_ingame&amp;component=overview&amp;cp=33644212&quot;>Overview</a><br/><a href=&quot;#TODO_page=ingame&amp;component=supplies&amp;cp=33644212&quot;>Resources</a><br/><a href=&quot;#TODO=ingame&amp;component=facilities&amp;cp=33644212&quot;>Facilities</a><br/><a href=&quot;#TODO=ingame&amp;component=defenses&amp;cp=33644212&quot;>Defense</a><br/><a href=&quot;#TODO=ingame&amp;component=fleetdispatch&amp;cp=33644212&quot;>Fleet</a><br/><a href=&quot;#TODO=ingame&amp;component=galaxy&amp;cp=33644212&amp;galaxy=2&amp;system=3&amp;position=6&quot;>Galaxy</a>" href="#TODO=ingame&amp;component=shipyard&amp;cp=33644212" data-link="#TODO=ingame&amp;component=shipyard&amp;cp=33644212" data-jumpgatelevel="0">
