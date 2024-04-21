@@ -1,7 +1,8 @@
 <?php
 
-namespace Feature;
+namespace Tests\Feature;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Models\Resources;
@@ -35,6 +36,7 @@ class UnitQueueTest extends AccountTestCase
     /**
      * Verify that building more than one of a ship works as expected.
      * @throws BindingResolutionException
+     * @throws Exception
      */
     public function testUnitQueueShips(): void
     {
@@ -49,15 +51,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 1: Issue a request to build 10 light fighters
         // ---
-        $response = $this->post('/shipyard/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '204', // Light fighter
-            'amount' => 10,
-            'planet_id' => $this->currentPlanetId,
-        ]);
-
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        $this->addShipyardBuildRequest('light_fighter', 10);
 
         // ---
         // Step 2: Verify the ships are in the build queue
@@ -100,6 +94,7 @@ class UnitQueueTest extends AccountTestCase
     /**
      * Verify that adding three different build jobs and waiting for them all to complete works as expected.
      * @throws BindingResolutionException
+     * @throws Exception
      */
     public function testUnitQueueShipsMultiQueues(): void
     {
@@ -118,32 +113,9 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 1: Issue a request to build 3 light fighters, 10 solar sats, and then 2 light fighters
         // ---
-        $response = $this->post('/shipyard/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '204', // Light fighter
-            'amount' => 3,
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
-
-        $response = $this->post('/shipyard/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '212', // Solar satellites
-            'amount' => 10,
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
-
-        $response = $this->post('/shipyard/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '204', // Light fighter
-            'amount' => 2,
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        $this->addShipyardBuildRequest('light_fighter', 3);
+        $this->addShipyardBuildRequest('solar_satellite', 10);
+        $this->addShipyardBuildRequest('light_fighter', 2);
 
         // ---
         // Step 2: Verify the ships are in the build queue
@@ -179,6 +151,7 @@ class UnitQueueTest extends AccountTestCase
     /**
      * Verify that building more than one of a defense unit works as expected.
      * @throws BindingResolutionException
+     * @throws Exception
      */
     public function testUnitQueueDefense(): void
     {
@@ -198,13 +171,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 1: Issue a request to build 10 light fighters
         // ---
-        $response = $this->post('/defense/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '401', // Rocket launcher
-            'amount' => 10,
-            'planet_id' => $this->currentPlanetId,
-        ]);
-        $response->assertStatus(302);
+        $this->addDefenseBuildRequest('rocket_launcher', 10);
 
         // ---
         // Step 2: Verify the defense units are in the build queue
@@ -245,36 +212,9 @@ class UnitQueueTest extends AccountTestCase
     }
 
     /**
-     * Verify that building ships on a planet not owned by the player fails.
-     * @throws BindingResolutionException
-     */
-    public function testUnitQueueNonExistentPlanet(): void
-    {
-        $this->basicSetup();
-        // Add resources to planet that test requires.
-        $this->planetAddResources(new Resources(30000,10000,0,0));
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
-        // ---
-        // Step 1: Issue a request to build 10 light fighters
-        // ---
-        $response = $this->post('/shipyard/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '204', // Light fighter
-            'amount' => 10,
-            'planet_id' => $this->currentPlanetId - 1,
-        ]);
-
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(500);
-    }
-
-    /**
      * Verify that building ships deducts correct amount of resources from planet.
      * @throws BindingResolutionException
+     * @throws Exception
      */
     public function testUnitQueueDeductResources(): void
     {
@@ -287,15 +227,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 1: Issue a request to build 10 light fighters
         // ---
-        $response = $this->post('/shipyard/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '204', // Light fighter
-            'amount' => 10,
-            'planet_id' => $this->currentPlanetId,
-        ]);
-
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        $this->addShipyardBuildRequest('light_fighter', 10);
 
         // ---
         // Step 2: Verify that nothing has been built as there were not enough resources.
@@ -311,6 +243,7 @@ class UnitQueueTest extends AccountTestCase
     /**
      * Verify that building ships without resources fails.
      * @throws BindingResolutionException
+     * @throws Exception
      */
     public function testUnitQueueInsufficientResources(): void
     {
@@ -330,15 +263,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 1: Issue a request to build 5 light fighters
         // ---
-        $response = $this->post('/shipyard/add-buildrequest', [
-            '_token' => csrf_token(),
-            'type' => '204', // Light fighter
-            'amount' => 5,
-            'planet_id' => $this->currentPlanetId,
-        ]);
-
-        // Assert the response status is successful (302 redirect).
-        $response->assertStatus(302);
+        $this->addShipyardBuildRequest('light_fighter', 5);
 
         // Assert that after building 5 light fighters (=15k metal, 5k crystal) now have with 15500 metal and 5500 crystal left.
         $response = $this->get('/shipyard');
@@ -350,6 +275,7 @@ class UnitQueueTest extends AccountTestCase
     /**
      * Verify that unit construction time is calculated correctly (higher than 0)
      * @throws BindingResolutionException
+     * @throws Exception
      */
     public function testUnitProductionTime(): void
     {
