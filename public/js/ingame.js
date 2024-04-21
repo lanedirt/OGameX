@@ -63593,7 +63593,7 @@ function eventBDayInit() {
       }
 
       if (eventBoxData[boxId].eventImgSrc === undefined && eventBoxData[boxId].eventTypeClass === 'future') {
-        $('#eventBox' + boxId + ' #BDayEventImg').attr('src', '//gf3.geo.gfsrv.net/cdn82/d995359d038c9a0c21aed16b3cc162.png');
+        $('#eventBox' + boxId + ' #BDayEventImg').attr('src', '/img/icons/d995359d038c9a0c21aed16b3cc162.png');
       } else {
         $('#eventBox' + boxId + ' #BDayEventImg').attr('src', eventBoxData[boxId].eventImgSrc);
       }
@@ -69648,7 +69648,7 @@ function openOverlay(url, dialogParams) {
   delete dialogParams.type;
 
   if (type !== 'inline') {
-    var loadImage = $(document.createElement('img')).attr('src', '//gf1.geo.gfsrv.net/cdnc6/4161a64a933a5345d00cb9fdaa25c7.gif').attr('alt', LocalizationStrings.loading);
+    var loadImage = $(document.createElement('img')).attr('src', '/img/icons/4161a64a933a5345d00cb9fdaa25c7.gif').attr('alt', LocalizationStrings.loading);
     var centerDiv = $(document.createElement('div')).css('text-align', 'center').css('margin-top', '20px').append(loadImage);
     var dialog = $(document.createElement("div")).addClass('overlayDiv').css('display', 'none').append(centerDiv).appendTo("body");
 
@@ -77658,105 +77658,105 @@ FleetDispatcher.prototype.refreshPriorities = function () {
     $('form input[name="prioFood"]').val(this.prioFood);
   }
 
-  $('#prioM1').attr('src', '//gf1.geo.gfsrv.net/cdn91/4b53e83f8b8583ea279fd26f3a55a5.gif');
-  $('#prioM2').attr('src', '//gf3.geo.gfsrv.net/cdn26/8afbd59ffe091239a7c6f1e961b267.gif');
-  $('#prioM3').attr('src', '//gf1.geo.gfsrv.net/cdn0a/4acc67e1ca4d8debb1b114abcb7c1e.gif');
+  $('#prioM1').attr('src', '/img/icons/4b53e83f8b8583ea279fd26f3a55a5.gif');
+  $('#prioM2').attr('src', '/img/icons/8afbd59ffe091239a7c6f1e961b267.gif');
+  $('#prioM3').attr('src', '/img/icons/4acc67e1ca4d8debb1b114abcb7c1e.gif');
 
   if (this.lifeformEnabled) {
-    $('#prioM4').attr('src', '//gf2.geo.gfsrv.net/cdna8/8860dee24c03537549ad782922b6b5.gif');
+    $('#prioM4').attr('src', '/img/icons/8860dee24c03537549ad782922b6b5.gif');
   }
 
   switch (this.prioMetal) {
     case 1:
-      $('#prioM1').attr('src', '//gf1.geo.gfsrv.net/cdn9c/b357323b99e20a46fc0b2495728351.gif');
+      $('#prioM1').attr('src', '/img/icons/b357323b99e20a46fc0b2495728351.gif');
       break;
 
     case 2:
-      $('#prioM2').attr('src', '//gf3.geo.gfsrv.net/cdnb1/f8959fe540cd329f3a764ad9aeaf93.gif');
+      $('#prioM2').attr('src', '/img/icons/f8959fe540cd329f3a764ad9aeaf93.gif');
       break;
 
     case 3:
-      $('#prioM3').attr('src', '//gf1.geo.gfsrv.net/cdnf2/823b3270ed0f4a243287c12d4ee5f8.gif');
+      $('#prioM3').attr('src', '/img/icons/823b3270ed0f4a243287c12d4ee5f8.gif');
       break;
 
     case 4:
-      $('#prioM4').attr('src', '//gf3.geo.gfsrv.net/cdn29/43bf98a73ba1abb53860f2c5b8edc3.gif');
+      $('#prioM4').attr('src', '/img/icons/43bf98a73ba1abb53860f2c5b8edc3.gif');
       break;
   }
 
-  $('#prioC1').attr('src', '//gf1.geo.gfsrv.net/cdn91/4b53e83f8b8583ea279fd26f3a55a5.gif');
-  $('#prioC2').attr('src', '//gf3.geo.gfsrv.net/cdn26/8afbd59ffe091239a7c6f1e961b267.gif');
-  $('#prioC3').attr('src', '//gf1.geo.gfsrv.net/cdn0a/4acc67e1ca4d8debb1b114abcb7c1e.gif');
+  $('#prioC1').attr('src', '/img/icons/4b53e83f8b8583ea279fd26f3a55a5.gif');
+  $('#prioC2').attr('src', '/img/icons/8afbd59ffe091239a7c6f1e961b267.gif');
+  $('#prioC3').attr('src', '/img/icons/4acc67e1ca4d8debb1b114abcb7c1e.gif');
 
   if (this.lifeformEnabled) {
-    $('#prioC4').attr('src', '//gf2.geo.gfsrv.net/cdna8/8860dee24c03537549ad782922b6b5.gif');
+    $('#prioC4').attr('src', '/img/icons/8860dee24c03537549ad782922b6b5.gif');
   }
 
   switch (this.prioCrystal) {
     case 1:
-      $('#prioC1').attr('src', '//gf1.geo.gfsrv.net/cdn9c/b357323b99e20a46fc0b2495728351.gif');
+      $('#prioC1').attr('src', '/img/icons/b357323b99e20a46fc0b2495728351.gif');
       break;
 
     case 2:
-      $('#prioC2').attr('src', '//gf3.geo.gfsrv.net/cdnb1/f8959fe540cd329f3a764ad9aeaf93.gif');
+      $('#prioC2').attr('src', '/img/icons/f8959fe540cd329f3a764ad9aeaf93.gif');
       break;
 
     case 3:
-      $('#prioC3').attr('src', '//gf1.geo.gfsrv.net/cdnf2/823b3270ed0f4a243287c12d4ee5f8.gif');
+      $('#prioC3').attr('src', '/img/icons/823b3270ed0f4a243287c12d4ee5f8.gif');
       break;
 
     case 4:
-      $('#prioC4').attr('src', '//gf3.geo.gfsrv.net/cdn29/43bf98a73ba1abb53860f2c5b8edc3.gif');
+      $('#prioC4').attr('src', '/img/icons/43bf98a73ba1abb53860f2c5b8edc3.gif');
       break;
   }
 
-  $('#prioD1').attr('src', '//gf1.geo.gfsrv.net/cdn91/4b53e83f8b8583ea279fd26f3a55a5.gif');
-  $('#prioD2').attr('src', '//gf3.geo.gfsrv.net/cdn26/8afbd59ffe091239a7c6f1e961b267.gif');
-  $('#prioD3').attr('src', '//gf1.geo.gfsrv.net/cdn0a/4acc67e1ca4d8debb1b114abcb7c1e.gif');
+  $('#prioD1').attr('src', '/img/icons/4b53e83f8b8583ea279fd26f3a55a5.gif');
+  $('#prioD2').attr('src', '/img/icons/8afbd59ffe091239a7c6f1e961b267.gif');
+  $('#prioD3').attr('src', '/img/icons/4acc67e1ca4d8debb1b114abcb7c1e.gif');
 
   if (this.lifeformEnabled) {
-    $('#prioD4').attr('src', '//gf2.geo.gfsrv.net/cdna8/8860dee24c03537549ad782922b6b5.gif');
+    $('#prioD4').attr('src', '/img/icons/8860dee24c03537549ad782922b6b5.gif');
   }
 
   switch (this.prioDeuterium) {
     case 1:
-      $('#prioD1').attr('src', '//gf1.geo.gfsrv.net/cdn9c/b357323b99e20a46fc0b2495728351.gif');
+      $('#prioD1').attr('src', '/img/icons/b357323b99e20a46fc0b2495728351.gif');
       break;
 
     case 2:
-      $('#prioD2').attr('src', '//gf3.geo.gfsrv.net/cdnb1/f8959fe540cd329f3a764ad9aeaf93.gif');
+      $('#prioD2').attr('src', '/img/icons/f8959fe540cd329f3a764ad9aeaf93.gif');
       break;
 
     case 3:
-      $('#prioD3').attr('src', '//gf1.geo.gfsrv.net/cdnf2/823b3270ed0f4a243287c12d4ee5f8.gif');
+      $('#prioD3').attr('src', '/img/icons/823b3270ed0f4a243287c12d4ee5f8.gif');
       break;
 
     case 4:
-      $('#prioD4').attr('src', '//gf3.geo.gfsrv.net/cdn29/43bf98a73ba1abb53860f2c5b8edc3.gif');
+      $('#prioD4').attr('src', '/img/icons/43bf98a73ba1abb53860f2c5b8edc3.gif');
       break;
   }
 
   if (this.lifeformEnabled) {
-    $('#prioF1').attr('src', '//gf1.geo.gfsrv.net/cdn91/4b53e83f8b8583ea279fd26f3a55a5.gif');
-    $('#prioF2').attr('src', '//gf3.geo.gfsrv.net/cdn26/8afbd59ffe091239a7c6f1e961b267.gif');
-    $('#prioF3').attr('src', '//gf1.geo.gfsrv.net/cdn0a/4acc67e1ca4d8debb1b114abcb7c1e.gif');
-    $('#prioF4').attr('src', '//gf2.geo.gfsrv.net/cdna8/8860dee24c03537549ad782922b6b5.gif');
+    $('#prioF1').attr('src', '/img/icons/4b53e83f8b8583ea279fd26f3a55a5.gif');
+    $('#prioF2').attr('src', '/img/icons/8afbd59ffe091239a7c6f1e961b267.gif');
+    $('#prioF3').attr('src', '/img/icons/4acc67e1ca4d8debb1b114abcb7c1e.gif');
+    $('#prioF4').attr('src', '/img/icons/8860dee24c03537549ad782922b6b5.gif');
 
     switch (this.prioFood) {
       case 1:
-        $('#prioF1').attr('src', '//gf1.geo.gfsrv.net/cdn9c/b357323b99e20a46fc0b2495728351.gif');
+        $('#prioF1').attr('src', '/img/icons/b357323b99e20a46fc0b2495728351.gif');
         break;
 
       case 2:
-        $('#prioF2').attr('src', '//gf3.geo.gfsrv.net/cdnb1/f8959fe540cd329f3a764ad9aeaf93.gif');
+        $('#prioF2').attr('src', '/img/icons/f8959fe540cd329f3a764ad9aeaf93.gif');
         break;
 
       case 3:
-        $('#prioF3').attr('src', '//gf1.geo.gfsrv.net/cdnf2/823b3270ed0f4a243287c12d4ee5f8.gif');
+        $('#prioF3').attr('src', '/img/icons/823b3270ed0f4a243287c12d4ee5f8.gif');
         break;
 
       case 4:
-        $('#prioF4').attr('src', '//gf3.geo.gfsrv.net/cdn29/43bf98a73ba1abb53860f2c5b8edc3.gif');
+        $('#prioF4').attr('src', '/img/icons/43bf98a73ba1abb53860f2c5b8edc3.gif');
         break;
     }
   }

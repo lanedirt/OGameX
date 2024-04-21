@@ -52,7 +52,7 @@ class BuildQueueCancelTest extends AccountTestCase
         $number2 = (int)trim($cancelProductionCall[1]);
 
         // Check if both numbers are integers. If not, throw an exception.
-        if (!is_numeric($number1) || !is_numeric($number2)) {
+        if (empty($number1) || empty($number2)) {
             throw new BindingResolutionException('Could not extract the building queue ID from the page.');
         }
 
@@ -112,7 +112,7 @@ class BuildQueueCancelTest extends AccountTestCase
         $number2 = (int)trim($cancelProductionCall[1]);
 
         // Check if both numbers are integers. If not, throw an exception.
-        if (!is_numeric($number1) || !is_numeric($number2)) {
+        if (empty($number1) || empty($number2)) {
             throw new BindingResolutionException('Could not extract the building queue ID from the page.');
         }
 

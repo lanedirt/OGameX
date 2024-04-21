@@ -20,7 +20,7 @@
                 </div>
             </header>
             <div id="technologydetails_wrapper">
-                <div id="technologydetails_content" style="animation-duration: 0s !important"></div>
+                <div id="technologydetails_content"></div>
             </div>
             <div id="technologies">
                 <h3>

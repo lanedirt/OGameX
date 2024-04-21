@@ -226,7 +226,16 @@ abstract class AccountTestCase extends TestCase
         }
 
         // Check if cancel text is present on page.
-        $response->assertSee('Cancel production of ' . $object->title, $error_message);
+        try {
+            $response->assertSee('Cancel production of ' . $object->title);
+        }
+        catch (Exception $e) {
+            if (!empty($error_message)) {
+                $this->fail($error_message . '. Error: ' . $e->getMessage());
+            } else {
+                $this->fail('Object ' . $object->title . ' is not in the queue. Error: ' . $e->getMessage());
+            }
+        }
     }
 
     protected function assertObjectNotInQueue(TestResponse $response, string $machine_name, string $error_message = ''): void
@@ -239,12 +248,22 @@ abstract class AccountTestCase extends TestCase
         }
 
         // Check if cancel text is present on page.
-        $response->assertDontSee('Cancel production of ' . $object->title, $error_message);
+        try {
+            $response->assertDontSee('Cancel production of ' . $object->title);
+        }
+        catch (Exception $e) {
+            if (!empty($error_message)) {
+                $this->fail($error_message . '. Error: ' . $e->getMessage());
+            } else {
+                $this->fail('Object ' . $object->title . ' is not in the queue. Error: ' . $e->getMessage());
+            }
+        }
     }
 
     /**
      * Add a resource build request to the current users current planet.
      * @param string $machine_name
+     * @param bool $ignoreErrors
      * @return void
      * @throws Exception
      */

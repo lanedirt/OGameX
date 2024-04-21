@@ -162,11 +162,11 @@ class ResearchQueueTest extends AccountTestCase
         }
         $cancelProductionCall = explode('onclick="cancelbuilding(', $cancelProductionCall);
         $cancelProductionCall = explode(',', $cancelProductionCall[1]);
-        $number1 = $cancelProductionCall[0];
-        $number2 = $cancelProductionCall[1];
+        $number1 = (int)$cancelProductionCall[0];
+        $number2 = (int)$cancelProductionCall[1];
 
         // Check if both numbers are integers. If not, throw an exception.
-        if (!is_numeric($number1) || !is_numeric($number2)) {
+        if (empty($number1) || empty($number2)) {
             throw new BindingResolutionException('Could not extract the research queue ID from the page.');
         }
 
