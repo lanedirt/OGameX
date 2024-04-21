@@ -156,6 +156,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|Planet whereTimeLastUpdate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Planet whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Planet whereUserId($value)
+ * @method static \Database\Factories\PlanetFactory factory($count = null, $state = [])
  * @mixin \Eloquent
  */
 class Planet extends Model
