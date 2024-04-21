@@ -44,6 +44,16 @@ class Resource
     }
 
     /**
+     * Get the rounded (floored) value of the resource as integer.
+     *
+     * @return int
+     */
+    public function getRounded(): int
+    {
+        return (int) round($this->rawValue);
+    }
+
+    /**
      * Get the formatted value of the resource as string (short, default).
      *
      * @return string

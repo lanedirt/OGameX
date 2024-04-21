@@ -50,7 +50,7 @@
                             <h1>Planet: <span class="textNormal">BirbTown</span></h1>
                             <div class="splitLine"></div>
                             <ul class="ListImage">
-                                <li><span>[{{ $row->planet->getPlanetCoordinatesAsString() }}]</span></li>
+                                <li><span>[{{ $row->planet->getPlanetCoordinates()->asString() }}]</span></li>
                                 <li><div class="planetTooltip microplanet jungle_10"></div></li>
                             </ul>
                             <ul class="ListLinks">

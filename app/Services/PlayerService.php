@@ -49,6 +49,7 @@ class PlayerService
      * Player constructor.
      *
      * @param int $player_id
+     * @throws BindingResolutionException
      */
     public function __construct(int $player_id)
     {
@@ -59,6 +60,17 @@ class PlayerService
         }
 
         $this->objects = resolve('OGame\Services\ObjectService');
+    }
+
+    /**
+     * Checks if this object is equal to another object.
+     *
+     * @param ?PlayerService $other
+     * @return bool
+     */
+    public function equals(?PlayerService $other): bool
+    {
+        return $other != null && $this->getId() == $other->getId();
     }
 
     /**

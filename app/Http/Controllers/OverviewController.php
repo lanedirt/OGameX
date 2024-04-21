@@ -62,7 +62,7 @@ class OverviewController extends OGameController
             'planet_diameter' => $player->planets->current()->getPlanetDiameter(),
             'planet_temp_min' => $player->planets->current()->getPlanetTempMin(),
             'planet_temp_max' => $player->planets->current()->getPlanetTempMax(),
-            'planet_coordinates' => $player->planets->current()->getPlanetCoordinatesAsString(),
+            'planet_coordinates' => $player->planets->current()->getPlanetCoordinates()->asString(),
             'user_points' => AppUtil::formatNumber($highscoreService->getPlayerScore($player)),
             'user_rank' => 0, // @TODO
             'max_rank' => 0, // @TODO
