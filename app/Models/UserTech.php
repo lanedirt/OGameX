@@ -53,6 +53,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereWeaponTechnology($value)
+ * @method static \Database\Factories\UserTechFactory factory($count = null, $state = [])
  * @mixin \Eloquent
  */
 class UserTech extends Model
