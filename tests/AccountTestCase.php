@@ -160,7 +160,7 @@ abstract class AccountTestCase extends TestCase
         }
 
         // Update pattern to extract level from data-value attribute
-        $pattern = '/<li[^>]*\bclass="[^"]*\b' . preg_quote($object->class_name, '/') . '\b[^"]*"[^>]*>.*?<span[^>]+class="level"[^>]*data-value="(\d+)"[^>]*>/s';
+        $pattern = '/<li[^>]*\bclass="[^"]*\b' . preg_quote($object->class_name, '/') . '\b[^"]*"[^>]*>.*?<span[^>]+class="(?:level|amount)"[^>]*data-value="(\d+)"[^>]*>/s';
 
         $content = $response->getContent();
         if (empty($content)) {

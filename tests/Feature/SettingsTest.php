@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature;
+namespace Tests\Feature;
 
 use OGame\Services\SettingsService;
 use Tests\TestCase;
