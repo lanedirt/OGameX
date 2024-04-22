@@ -3,16 +3,10 @@
 namespace OGame\Services;
 
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Resources;
-use OGame\Models\UnitQueue;
-use OGame\ViewModels\Queue\UnitQueueListViewModel;
-use OGame\ViewModels\Queue\UnitQueueViewModel;
-use OGame\ViewModels\QueueListViewModel;
-use OGame\ViewModels\QueueViewModel;
 
 /**
  * Class UnitQueueService.
@@ -60,8 +54,13 @@ class FleetMissionService
      */
     public function create(PlanetService $planet, int $missionType, UnitCollection $units, Resources $resources): void
     {
-        // @TODO: add checks that current logged in user is owner of planet
-        // and is able to add this object to the building queue.
+        // TODO: add sanity checks for the input data that enough resources and enough units, enough cargospace etc.
+        if (!$planet->hasResources($resources)) {
+            throw new Exception('Not enough resources on the planet to send the fleet.');
+        }
+        if (!$planet->hasUnits($units)) {
+            throw new Exception('Not enough units on the planet to send the fleet.');
+        }
 
         // Time this fleet mission will depart (now)
         $time_start = (int)Carbon::now()->timestamp;
@@ -87,6 +86,7 @@ class FleetMissionService
         }
 
         // TODO: deduct units from planet
+        $planet->removeUnits($units, false);
 
         // Fill in the resources
         $mission->metal = $resources->metal->getRounded();

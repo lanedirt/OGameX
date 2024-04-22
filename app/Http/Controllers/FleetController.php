@@ -181,6 +181,7 @@ class FleetController extends OGameController
      * Handles the dispatch of a fleet.
      *
      * @return JsonResponse
+     * @throws \Exception
      */
     public function dispatchSendFleet(PlayerService $player) : JsonResponse
     {

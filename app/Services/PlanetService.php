@@ -7,6 +7,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Planet;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
@@ -113,6 +114,15 @@ class PlanetService
     public function setPlanet(Planet $planet): void
     {
         $this->planet = $planet;
+    }
+
+    /**
+     * Returns true if the underlying planet model has been initialized. For unittests this can be used to check
+     * if the planet model itself has been set up already.
+     */
+    public function planetInitialized(): bool
+    {
+        return !empty($this->planet);
     }
 
     /**
@@ -352,6 +362,24 @@ class PlanetService
         }
         if (!empty($resources->deuterium->get())) {
             if ($this->deuterium()->get() < $resources->deuterium->get()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if this planet has equal or more than the requested units.
+     *
+     * @param UnitCollection $units
+     * @return bool
+     * @throws Exception
+     */
+    public function hasUnits(UnitCollection $units): bool
+    {
+        foreach ($units->units as $unit) {
+            if ($this->getObjectAmount($unit->unitObject->machine_name) < $unit->amount) {
                 return false;
             }
         }
@@ -857,11 +885,64 @@ class PlanetService
                 $item->save();
 
                 // Update planet fleet amount
-                $this->planet->{$object->machine_name} += $unit_amount;
-                if ($save_planet) {
-                    $this->planet->save();
-                }
+                $this->addUnit($object->machine_name, $unit_amount, $save_planet);
             }
+        }
+    }
+
+    /**
+     * Add a unit to this planet.
+     *
+     * @param string $machine_name
+     * @param int $amount
+     * @param bool $save_planet
+     * @return void
+     * @throws Exception
+     */
+    public function addUnit(string $machine_name, int $amount, bool $save_planet = true): void
+    {
+        $object = $this->objects->getUnitObjectByMachineName($machine_name);
+        $this->planet->{$object->machine_name} += $amount;
+
+        if ($save_planet) {
+            $this->planet->save();
+        }
+    }
+
+    /**
+     * Remove a single unit from this planet by machine name.
+     *
+     * @param string $machine_name
+     * @param int $amount
+     * @param bool $save_planet
+     * @return void
+     * @throws Exception
+     */
+    public function removeUnit(string $machine_name, int $amount, bool $save_planet): void
+    {
+        $object = $this->objects->getUnitObjectByMachineName($machine_name);
+        if ($this->planet->{$object->machine_name} < $amount) {
+            throw new Exception('Planet does not have enough units.');
+        }
+        $this->planet->{$object->machine_name} -= $amount;
+
+        if ($save_planet) {
+            $this->planet->save();
+        }
+    }
+
+    /**
+     * Remove units from this planet by unit collection.
+     *
+     * @param UnitCollection $units
+     * @param bool $save_planet
+     * @return void
+     * @throws Exception
+     */
+    public function removeUnits(UnitCollection $units, bool $save_planet) : void
+    {
+        foreach ($units->units as $unit) {
+            $this->removeUnit($unit->unitObject->machine_name, $unit->amount, $save_planet);
         }
     }
 
@@ -873,6 +954,7 @@ class PlanetService
      *   Optional flag whether to save the planet in this method. This defaults to TRUE
      *   but can be set to FALSE when update happens in bulk and the caller method calls
      *   the save planet itself to prevent on unnecessary multiple updates.
+     * @throws Exception
      */
     public function updateResourceProductionStats(bool $save_planet = true): void
     {

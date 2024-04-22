@@ -17,15 +17,15 @@ class CsrfTest extends AccountTestCase
     public function testFastBuildQueuesWithoutCsrfFail(): void
     {
         // Resources: Missing: _token=' . csrf_token() . '
-        $response = $this->get('/resources/add-buildrequest?&type=1&planet_id=' . $this->currentPlanetId);
+        $response = $this->get('/resources/add-buildrequest?&type=1&planet_id=' . $this->planetService->getPlanetId());
         $response->assertStatus(500);
 
         // Facilities: Missing: _token=' . csrf_token() . '
-        $response = $this->get('/facilities/add-buildrequest?&type=14&planet_id=' . $this->currentPlanetId);
+        $response = $this->get('/facilities/add-buildrequest?&type=14&planet_id=' . $this->planetService->getPlanetId());
         $response->assertStatus(500);
 
         // Research: Missing: _token=' . csrf_token() . '
-        $response = $this->get('/research/add-buildrequest?&type=113&planet_id=' . $this->currentPlanetId);
+        $response = $this->get('/research/add-buildrequest?&type=113&planet_id=' . $this->planetService->getPlanetId());
         $response->assertStatus(500);
     }
 }

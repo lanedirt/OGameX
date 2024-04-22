@@ -16,9 +16,7 @@ class UnitCollection
      */
     public function addUnit(UnitObject $unitObject, int $amount): void
     {
-        $entry = new UnitEntry();
-        $entry->unitObject = $unitObject;
-        $entry->amount = $amount;
+        $entry = new UnitEntry($unitObject, $amount);
 
         $this->units[] = $entry;
     }

@@ -53,8 +53,11 @@ class PlanetServiceFactory
     {
         if (!isset($this->instancesById[$planetId])) {
             $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
-            $this->instancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
             $this->instancesById[$planetId] = $planetService;
+
+            if ($planetService->planetInitialized()) {
+                $this->instancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
+            }
         }
 
         return $this->instancesById[$planetId];
@@ -73,8 +76,10 @@ class PlanetServiceFactory
     {
         if (!isset($this->instancesById[$planetId])) {
             $planetService = app()->make(PlanetService::class, ['player' => $player, 'planet_id' => $planetId]);
-            $this->instancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
             $this->instancesById[$planetId] = $planetService;
+            if ($planetService->planetInitialized()) {
+                $this->instancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
+            }
         }
 
         return $this->instancesById[$planetId];
@@ -112,6 +117,7 @@ class PlanetServiceFactory
      * Determine next available new planet position.
      *
      * @return Planet\Coordinate
+     * @throws \Exception
      */
     public function determineNewPlanetPosition() : Planet\Coordinate {
         $lastAssignedGalaxy = (int)$this->settings->get('last_assigned_galaxy', 1);
