@@ -62,6 +62,7 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 
         Route::get('/fleet/movement', 'FleetController@movement')->name('fleet.movement');
         Route::get('/ajax/fleet/eventbox/fetch', 'FleetEventsController@fetchEventBox')->name('fleet.eventbox.fetch');
+        Route::get('/ajax/fleet/eventlist/fetch', 'FleetEventsController@fetchEventList')->name('fleet.eventlist.fetch');
 
 
         // Galaxy

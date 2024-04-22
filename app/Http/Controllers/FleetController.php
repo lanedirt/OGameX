@@ -185,6 +185,14 @@ class FleetController extends OGameController
      */
     public function dispatchSendFleet(PlayerService $player) : JsonResponse
     {
+        // Get target coordinates
+        $galaxy = request()->input('galaxy');
+        $system = request()->input('system');
+        $position = request()->input('position');
+        $type = request()->input('type');
+
+        // TODO: add sanity check if all required fields are present in the request.
+
         // Expected form data
         /*
          token: 91cf2833548771ba423894d1f3dddb3c
@@ -212,6 +220,10 @@ holdingtime: 0
         // Get the current player's planet
         $planet = $player->planets->current();
 
+        // Load the target planet
+        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+        $target_planet = $planetServiceFactory->makeForCoordinate(new Coordinate($galaxy, $system, $position));
+
         // Extract units from the request and create a unit collection.
         // Loop through all input fields and get all units prefixed with "am".
         $units = new UnitCollection();
@@ -235,7 +247,7 @@ holdingtime: 0
 
         // Create a new fleet mission
         $fleetMissionService = app()->make(FleetMissionService::class);
-        $fleetMissionService->create($planet, $mission_type, $units, $resources);
+        $fleetMissionService->create($planet, $target_planet, $mission_type, $units, $resources);
 
         return response()->json([
             'components' => [],

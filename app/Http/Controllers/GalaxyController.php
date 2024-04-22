@@ -181,126 +181,6 @@ class GalaxyController extends OGameController
         $galaxy = $request->input('galaxy');
         $system = $request->input('system');
 
-        /*
-         System json content:
-        availableMissiles
-:
-0
-availablePathfinders
-:
-0
-availableProbes
-:
-149
-availableRecyclers
-:
-1
-canColonize
-:
-true
-canExpedition
-:
-true
-canFly
-:
-true
-canSendSystemDiscovery
-:
-true
-canSwitchGalaxy
-:
-true
-canSystemEspionage
-:
-false
-canSystemPhalanx
-:
-false
-currentPlanetId
-:
-33673712
-deuteriumInDebris
-:
-true
-galaxy
-:
-7
-galaxyContent
-:
-[,…]
-hasAdmiral
-:
-false
-hasBirthdayPlanet
-:
-false
-isOutlaw
-:
-false
-maximumFleetSlots
-:
-13
-playerId
-:
-113970
-settingsProbeCount
-:
-3
-showOutlawWarning
-:
-true
-slotsColonized
-:
-3
-switchGalaxyDeuteriumCosts
-:
-10
-system
-:
-158
-toGalaxyLink
-:
-"https://s254-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=158"
-usedFleetSlots
-:
-1
-         */
-
-        /*
-         * Galaxy json content:
-         * actions
-:
-[]
-availableMissions
-:
-[{missionType: 0, planetMovePossible: true, moveAction: "prepareMove", title: "Relocate",…},…]
-galaxy
-:
-7
-planets
-:
-[]
-player
-:
-{playerId: 99999, playerName: "Deep space"}
-playerId
-:
-99999
-playerName
-:
-"Deep space"
-position
-:
-1
-positionFilters
-:
-"empty_filter"
-system
-:
-158
-         */
-
-
         return response()->json([
             'components' => [],
             'filterSettings' => [],
@@ -334,7 +214,7 @@ system
                 'showOutlawWarning' => true,
                 'slotsColonized' => 3,
                 'switchGalaxyDeuteriumCosts' => 10,
-                'toGalaxyLink' => 'https://s254-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=7&system=158',
+                'toGalaxyLink' => route('galaxy.index', ['galaxy' => $galaxy, 'system' => $system]),
                 'usedFleetSlots' => 1
             ],
         ]);

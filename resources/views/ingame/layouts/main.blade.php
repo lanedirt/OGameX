@@ -502,268 +502,7 @@ Combat simulation save slots +20">
     </div>
     <div id="middle">
         <div id="eventlistcomponent" class="">
-            <div id="eventboxContent" style="display: none;">    <div id="eventListWrap">
-                    <div id="eventHeader">
-                        <a class="close_details eventToggle" href="javascript:toggleEvents();">
-                        </a>
-                        <h2>Events</h2>
-                    </div>
-                    <table id="eventContent">
-                        <tbody>
-                        <tr class="eventFleet" id="eventRow-3717429" data-mission-type="15" data-return-flight="false" data-arrival-time="1713536448">
-                            <td class="countDown">
-                                <span id="counter-eventlist-3717429" class="friendly textBeefy">10m 5s</span>
-                            </td>
-                            <td class="arrivalTime">15:20:48 Clock</td>
-                            <td class="missionFleet">
-                                <img src="/img/fleet/892b08269e0e0bbde60b090099f547.gif" class="tooltipHTML" title="Own fleet | Expedition" alt="">
-                            </td>
-
-                            <td class="originFleet">
-                                <figure class="planetIcon planet"></figure>Farm1
-                            </td>
-                            <td class="coordsOrigin">
-                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=5&amp;system=38" target="_top">
-                                    [5:38:8]
-                                </a>
-                            </td>
-
-                            <td class="detailsFleet">
-                                <span>58</span>
-                            </td>
-                            <td class="icon_movement">
-            <span class="tooltip tooltipRight tooltipClose" title="<div class=&quot;htmlTooltip&quot;>
-    <h1>Fleet details:</h1>
-    <div class=&quot;splitLine&quot;></div>
-            <table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;>
-            <tr>
-                <th colspan=&quot;3&quot;>Ships:</th>
-            </tr>
-                                                <tr>
-                        <td colspan=&quot;2&quot;>Small Cargo:</td>
-                        <td class=&quot;value&quot;>11</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Large Cargo:</td>
-                        <td class=&quot;value&quot;>46</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Cruiser:</td>
-                        <td class=&quot;value&quot;>1</td>
-                    </tr>
-                                                        <tr>
-                    <td colspan=&quot;3&quot;>&amp;nbsp;</td>
-                </tr>
-                <tr>
-                    <th colspan=&quot;3&quot;>Shipment:</th>
-                </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Metal:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Crystal:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Deuterium:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Food:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    </table>
-    </div>
-">
-                &nbsp;
-            </span>
-                            </td>
-
-                            <td class="destFleet">
-                                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Deep space
-                            </td>
-                            <td class="destCoords">
-                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=5&amp;system=38" target="_top">
-                                    [5:38:16]
-                                </a>
-                            </td>
-
-                            <td class="sendMail">
-                            </td>    <td class="sendProbe">
-                            </td>
-                            <td class="sendMail">
-                            </td>
-                        </tr>
-
-                        <tr class="eventFleet" id="eventRow-3717430" data-mission-type="15" data-return-flight="true" data-arrival-time="1713537495">
-                            <td class="countDown">
-                                <span id="counter-eventlist-3717430" class="friendly textBeefy">27m 32s</span>
-                            </td>
-                            <td class="arrivalTime">15:38:15 Clock</td>
-                            <td class="missionFleet">
-                                <img src="/img/fleet/892b08269e0e0bbde60b090099f547.gif" class="tooltipHTML" title="Own fleet | Expedition (R)" alt="">
-                            </td>
-
-                            <td class="originFleet">
-                                <figure class="planetIcon planet"></figure>Farm1
-                            </td>
-                            <td class="coordsOrigin">
-                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=5&amp;system=38" target="_top">
-                                    [5:38:8]
-                                </a>
-                            </td>
-
-                            <td class="detailsFleet">
-                                <span>58</span>
-                            </td>
-                            <td class="icon_movement_reserve">
-            <span class="tooltip tooltipRight tooltipClose" title="<div class=&quot;htmlTooltip&quot;>
-    <h1>Fleet details:</h1>
-    <div class=&quot;splitLine&quot;></div>
-            <table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;>
-            <tr>
-                <th colspan=&quot;3&quot;>Ships:</th>
-            </tr>
-                                                <tr>
-                        <td colspan=&quot;2&quot;>Small Cargo:</td>
-                        <td class=&quot;value&quot;>11</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Large Cargo:</td>
-                        <td class=&quot;value&quot;>46</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Cruiser:</td>
-                        <td class=&quot;value&quot;>1</td>
-                    </tr>
-                                                        <tr>
-                    <td colspan=&quot;3&quot;>&amp;nbsp;</td>
-                </tr>
-                <tr>
-                    <th colspan=&quot;3&quot;>Shipment:</th>
-                </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Metal:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Crystal:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Deuterium:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Food:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    </table>
-    </div>
-">
-                &nbsp;
-            </span>
-                            </td>
-
-                            <td class="destFleet">
-                                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Deep space
-                            </td>
-                            <td class="destCoords">
-                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=5&amp;system=38" target="_top">
-                                    [5:38:16]
-                                </a>
-                            </td>
-
-                            <td class="sendMail">
-                            </td>    <td class="sendProbe">
-                            </td>
-                            <td class="sendMail">
-                            </td>
-                        </tr>
-
-                        <tr class="eventFleet" id="eventRow-3717244" data-mission-type="3" data-return-flight="true" data-arrival-time="1713539113">
-                            <td class="countDown">
-                                <span id="counter-eventlist-3717244" class="friendly textBeefy">54m 30s</span>
-                            </td>
-                            <td class="arrivalTime">16:05:13 Clock</td>
-                            <td class="missionFleet">
-                                <img src="/img/fleet/2af2939219d8227a11a50ff4df7b51.gif" class="tooltipHTML" title="Own fleet | Transport (R)" alt="">
-                            </td>
-
-                            <td class="originFleet">
-                                <figure class="planetIcon planet"></figure>Farm1
-                            </td>
-                            <td class="coordsOrigin">
-                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=361" target="_top">
-                                    [1:361:7]
-                                </a>
-                            </td>
-
-                            <td class="detailsFleet">
-                                <span>1</span>
-                            </td>
-                            <td class="icon_movement_reserve">
-            <span class="tooltip tooltipRight tooltipClose" title="<div class=&quot;htmlTooltip&quot;>
-    <h1>Fleet details:</h1>
-    <div class=&quot;splitLine&quot;></div>
-            <table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;>
-            <tr>
-                <th colspan=&quot;3&quot;>Ships:</th>
-            </tr>
-                                                <tr>
-                        <td colspan=&quot;2&quot;>Large Cargo:</td>
-                        <td class=&quot;value&quot;>1</td>
-                    </tr>
-                                                        <tr>
-                    <td colspan=&quot;3&quot;>&amp;nbsp;</td>
-                </tr>
-                <tr>
-                    <th colspan=&quot;3&quot;>Shipment:</th>
-                </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Metal:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Crystal:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Deuterium:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    <tr>
-                        <td colspan=&quot;2&quot;>Food:</td>
-                        <td class=&quot;value&quot;>0</td>
-                    </tr>
-                                    </table>
-    </div>
-">
-                &nbsp;
-            </span>
-                            </td>
-
-                            <td class="destFleet">
-                                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>BirbTown
-                            </td>
-                            <td class="destCoords">
-                                <a href="#TODO=ingame&amp;component=galaxy&amp;galaxy=2&amp;system=3" target="_top">
-                                    [2:3:6]
-                                </a>
-                            </td>
-
-                            <td class="sendMail">
-                            </td>    <td class="sendProbe">
-                            </td>
-                            <td class="sendMail">
-                            </td>
-                        </tr>
-
-                        </tbody>
-                    </table>
-                    <div id="eventFooter"></div>
-                </div>
+            <div id="eventboxContent" style="display: none;">
         </div>
 
             <script type="text/javascript">
@@ -881,6 +620,12 @@ Combat simulation save slots +20">
                     "nextEventText": "Type"
                 };
 
+                var ajaxEventboxURI = "{{ route('fleet.eventbox.fetch') }}";
+                var ajaxRecallFleetURI = "#TODO_page=ingame&component=movement&action=recallFleetAjax&ajax=1&asJson=1";
+                var ajaxResourceboxURI = "#TODO_game\/index.php?page=fetchResources&ajax=1";
+                var currentSpaceObjectId = 33624092;
+                var ajaxReloadComponentURI = "#TODO_index.php?page=standalone&ajax=1";
+
                 function redirectLogout() {
                     location.href = "{{ route('overview.index') }}";
                 }
@@ -950,10 +695,6 @@ Combat simulation save slots +20">
                     });
                 }
 
-                function getAjaxEventbox() {
-                    $.get("{{ route('fleet.eventbox.fetch') }}", reloadEventbox, "text");
-                }
-
                 function updateAjaxResourcebox(data) {
                     reloadResources(data);
                 }
@@ -966,7 +707,7 @@ Combat simulation save slots +20">
 
                 var changeSettingsLink = "#TODO_page=changeSettings";
                 var changeSettingsToken = "ea77594feda8933a60595311a0f56512";
-                var eventlistLink = "{{ route('overview.index') }}#TODO_page=eventList&ajax=1";
+                var eventlistLink = "{{ route('fleet.eventlist.fetch') }}";
 
                 function openAnnouncement() {
                     openOverlay("{{ route('overview.index') }}#TODO_page=announcement&ajax=1", {
