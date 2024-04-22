@@ -53,6 +53,7 @@ class FleetDispatchTest extends AccountTestCase
             'metal' => $resources->metal->get(),
             'crystal' => $resources->crystal->get(),
             'deuterium' => $resources->deuterium->get(),
+            '_token' => csrf_token(),
         ], $unitsArray));
 
         // Assert that the fleet was dispatched successfully.
