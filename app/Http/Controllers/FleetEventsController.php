@@ -90,7 +90,7 @@ class FleetEventsController extends OGameController
             $fleet_events[] = $eventRowViewModel;
         }
 
-        return view('ingame.fleetevents.eventList')->with(
+        return view('ingame.fleetevents.eventlist')->with(
             [
                 'fleet_events' => $fleet_events,
             ]

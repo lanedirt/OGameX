@@ -58,6 +58,10 @@ class FleetDispatchTest extends AccountTestCase
 
         // Assert that the fleet was dispatched successfully.
         $post->assertStatus($assertStatus);
+
+        // Assert that eventbox fetch works when a fleet mission is active.
+        $this->get('/ajax/fleet/eventbox/fetch')->assertStatus(200);
+        $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);
     }
 
     /**
