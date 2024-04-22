@@ -60,7 +60,7 @@
         }, 1);
     </script>
 </head>
-<body id="ingamepage" class="ogame lang-en default no-touch">
+<body id="{{ !empty($body_id) ? $body_id : 'ingamepage' }}" class="ogame lang-en default no-touch">
 <div id="initial_welcome_dialog" title="Welcome to OGame!" style="display: none;">
     To help your game start get moving quickly, we’ve assigned you the name Commodore Nebula. You can change this at any
     time by clicking on the username.<br/>
