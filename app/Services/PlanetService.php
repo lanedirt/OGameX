@@ -615,6 +615,11 @@ class PlanetService
         // ------
         $this->updateResourceStorageStats(false);
 
+        // -----
+        // 6. Update fleet missions that affect this planet
+        // -----
+        $this->updateFleetMissions(false);
+
         // Save the planet manually here to prevent it from happening 5+ times in the methods above.
         $this->planet->save();
     }
@@ -1413,5 +1418,15 @@ class PlanetService
         $score = (int)floor($resources_spent / 1000);
 
         return $score;
+    }
+
+    public function updateFleetMissions(bool $save_planet = true): void
+    {
+        $fleet_missions = resolve('OGame\Services\FleetMissionService');
+        $missions = $fleet_missions->getMissionsByPlanetId($this->getPlanetId());
+
+        foreach ($missions as $mission) {
+            $fleet_missions->updateMission($mission);
+        }
     }
 }

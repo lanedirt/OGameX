@@ -3,6 +3,7 @@
 namespace OGame\ViewModels;
 
 use Illuminate\Support\Carbon;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Message;
 
@@ -56,13 +57,12 @@ class MessageViewModel
 
     public function getBody(): string
     {
-        $body = $this->body;
+        $body = nl2br($this->body);
 
         // Find and replace the following placeholders:
         // [player]{playerId}[/player] with the player name.
         // [alliance]{allianceId}[/alliance] with the alliance name.
         // [planet]{planetId}[/planet] with the planet name and coordinates.
-
         // TODO: Implement the other placeholders.
         // TODO: add unittests to cover the placeholder replacements.
         // Pattern to match [player]{playerId}[/player] placeholders
@@ -84,7 +84,27 @@ class MessageViewModel
            return $playerName;
         }, $body);
 
-        return nl2br($body);
+        $body = preg_replace_callback('/\[planet\](\d+)\[\/planet\]/', function ($matches) {
+            // Assuming getPlayerNameById is a method to get a player's name by ID
+            if (!is_numeric($matches[1])) {
+                return "Unknown Planet";
+            }
+
+            $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+            $planetService = $planetServiceFactory->make((int)$matches[1]);
+
+            if ($planetService->getPlanetId() > 0) {
+                $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
+                                    <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
+                                ' . $planetService->getPlanetName() . ' [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
+            } else {
+                $planetName = "Unknown Planet";
+            }
+
+            return $planetName;
+        }, $body);
+
+        return $body;
     }
 
     public function isNew(): bool

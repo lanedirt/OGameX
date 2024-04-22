@@ -40,7 +40,7 @@ class FleetEventsController extends OGameController
             $friendlyMissions = [
                 'mission_count' => $friendlyMissionRows->count(),
                 'type_next_mission' => $fleetMissionService->missionTypeToLabel($friendlyMissionRows->first()->mission_type),
-                'time_next_mission' => $friendlyMissionRows->first()->time_arrival - (int)Carbon::now()->timestamp ?? 0,
+                'time_next_mission' => $friendlyMissionRows->first()->time_arrival - (int)Carbon::now()->timestamp,
             ];
         }
 

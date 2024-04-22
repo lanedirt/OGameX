@@ -33,8 +33,8 @@ class MessageService
                 21, // Expedition report
             ],
             'transport' => [
-                31, // Own fleet reaching a planet
-                32, // Resource delivery by foreign fleet
+                'transport_arrived' => 31, // Own fleet reaching a planet
+                'transport_received' => 32, // Resource delivery by foreign fleet
             ],
             'other' => [
                 'return_of_fleet' => 41, // Return of fleet
