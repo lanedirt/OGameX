@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Testing\TestResponse;
 use OGame\Models\Resources;
+use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 
 /**
@@ -13,15 +14,10 @@ use OGame\Services\PlayerService;
  */
 abstract class AccountTestCase extends TestCase
 {
-    /**
-     * @var int
-     */
     protected int $currentUserId = 0;
     protected string $currentUsername = '';
-    /**
-     * @var int
-     */
     protected int $currentPlanetId = 0;
+    protected PlanetService $secondPlanetService;
 
     /**
      * Set up common test components.
@@ -74,10 +70,9 @@ abstract class AccountTestCase extends TestCase
         $this->currentUsername = $playerName;
         $this->currentPlanetId = (int)$planetId;
 
-        // Load the current planet service.
-        if (!isset($this->planetService)) {
-            $this->planetService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId])->planets->current();
-        }
+        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
+        $this->planetService = $playerService->planets->current();
+        $this->secondPlanetService = $playerService->planets->all()[1];
     }
 
     /**
@@ -120,6 +115,21 @@ abstract class AccountTestCase extends TestCase
         // Update the object level on the planet.
         $object = $this->planetService->objects->getObjectByMachineName($machine_name);
         $this->planetService->setObjectLevel($object->id, $object_level, true);
+    }
+
+    /**
+     * Add units to current users current planet.
+     *
+     * @param string $machine_name
+     * @param int $amount
+     * @return void
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    protected function planetAddUnit(string $machine_name, int $amount): void
+    {
+        // Update the object level on the planet.
+        $this->planetService->addUnit($machine_name, $amount);
     }
 
     /**

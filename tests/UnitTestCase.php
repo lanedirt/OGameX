@@ -29,6 +29,7 @@ abstract class UnitTestCase extends TestCase
      * Helper method to create a planet model and configure it.
      *
      * @param array<string, int> $attributes
+     * @throws \Exception
      */
     protected function createAndSetPlanetModel(array $attributes): void
     {
