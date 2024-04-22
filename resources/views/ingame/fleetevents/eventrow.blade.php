@@ -7,22 +7,22 @@
         data-arrival-time="{{ $fleet_event_row->mission_time_arrival }}"
     >
         <td class="countDown">
-        <span id="counter-eventlist-4097319" class="friendly textBeefy">
+        <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="friendly textBeefy">
                     load...
         </span>
         </td>
-        <td class="arrivalTime">15:52:29 Clock</td>
+        <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
             <img src="https://gf1.geo.gfsrv.net/cdn38/2af2939219d8227a11a50ff4df7b51.gif" class="tooltipHTML"  title="Own fleet | Transport (R)" alt=""/>
         </td>
 
         <td class="originFleet">
             <figure class="planetIcon planet"></figure>
-            {{ $fleet_event_row->origin_planet_name }}
+            {{ $fleet_event_row->destination_planet_name }}
         </td>
         <td class="coordsOrigin">
-            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->origin_planet_coords->galaxy, 'system' => $fleet_event_row->origin_planet_coords->system]) }}" target="_top">
-                [{{ $fleet_event_row->origin_planet_coords->asString() }}]
+            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->destination_planet_coords->galaxy, 'system' => $fleet_event_row->destination_planet_coords->system]) }}" target="_top">
+                [{{ $fleet_event_row->destination_planet_coords->asString() }}]
             </a>
         </td>
 
@@ -77,11 +77,12 @@
         -->
 
         <td class="destFleet">
-            <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Farm1
+            <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
+            {{ $fleet_event_row->origin_planet_name }}
         </td>
         <td class="destCoords">
-            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->destination_planet_coords->galaxy, 'system' => $fleet_event_row->destination_planet_coords->system]) }}" target="_top">
-                [1:361:7]
+            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->origin_planet_coords->galaxy, 'system' => $fleet_event_row->origin_planet_coords->system]) }}" target="_top">
+                [{{ $fleet_event_row->origin_planet_coords->asString() }}]
             </a>
         </td>
 

@@ -247,7 +247,7 @@ holdingtime: 0
 
         // Create a new fleet mission
         $fleetMissionService = app()->make(FleetMissionService::class);
-        $fleetMissionService->create($planet, $target_planet, $mission_type, $units, $resources);
+        $fleetMissionService->createNewFromPlanet($planet, $target_planet, $mission_type, $units, $resources);
 
         return response()->json([
             'components' => [],

@@ -915,6 +915,21 @@ class PlanetService
     }
 
     /**
+     * Add collection of units to this planet.
+     *
+     * @param UnitCollection $units
+     * @param bool $save_planet
+     * @return void
+     * @throws Exception
+     */
+    public function addUnits(UnitCollection $units, bool $save_planet = true): void
+    {
+        foreach ($units->units as $unit) {
+            $this->addUnit($unit->unitObject->machine_name, $unit->amount, $save_planet);
+        }
+    }
+
+    /**
      * Remove a single unit from this planet by machine name.
      *
      * @param string $machine_name

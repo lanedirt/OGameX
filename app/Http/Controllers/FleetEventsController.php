@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\ViewModels\FleetEventRowViewModel;
 
@@ -39,7 +40,7 @@ class FleetEventsController extends OGameController
             // TODO: refactor data retrieval and processing... duplicate with fetchEventList
             $friendlyMissions = [
                 'mission_count' => $friendlyMissionRows->count(),
-                'type_next_mission' => $fleetMissionService->missionTypeToLabel($friendlyMissionRows->first()->mission_type),
+                'type_next_mission' => $fleetMissionService->missionTypeToLabel($friendlyMissionRows->first()->mission_type) . ($friendlyMissionRows->first()->parent_id ? ' (R)' : ''),
                 'time_next_mission' => $friendlyMissionRows->first()->time_arrival - (int)Carbon::now()->timestamp,
             ];
         }
@@ -79,7 +80,7 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->id = $row->id;
             $eventRowViewModel->mission_type = $row->mission_type;
             $eventRowViewModel->mission_time_arrival = $row->time_arrival;
-            $eventRowViewModel->is_return_trip = false; // TODO: implement return trips
+            $eventRowViewModel->is_return_trip = !empty($row->parent_id); // If mission has a parent, it is a return trip
             $eventRowViewModel->origin_planet_name = $planetFromService->getPlanetName(); // TODO: implement null planet from/to checks
             $eventRowViewModel->origin_planet_coords = $planetFromService->getPlanetCoordinates();
             $eventRowViewModel->destination_planet_name = $planetToService->getPlanetName(); // TODO: implement null planet from/to checks
@@ -88,6 +89,24 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
             $eventRowViewModel->resources = $fleetMissionService->getResources($row);
             $fleet_events[] = $eventRowViewModel;
+
+            // Check if this is a transport mission parent, if so, add the return trip to the list.
+            // TODO: refactor this logic to abstracted classes per mission type where these eventList rendering are done.
+            if ($eventRowViewModel->mission_type == 3 && !$eventRowViewModel->is_return_trip) {
+                $returnTripRow = new FleetEventRowViewModel();
+                $returnTripRow->is_return_trip = true;
+                $returnTripRow->id = $row->parent_id + 999999; // Add a large number to avoid id conflicts
+                $returnTripRow->mission_type = $eventRowViewModel->mission_type;
+                $returnTripRow->mission_time_arrival = $row->time_arrival + ($row->time_arrival - $row->time_departure); // Round trip arrival time is double the time of the first trip
+                $returnTripRow->origin_planet_name = $planetToService->getPlanetName();
+                $returnTripRow->origin_planet_coords = $planetToService->getPlanetCoordinates();
+                $returnTripRow->destination_planet_name = $planetFromService->getPlanetName();
+                $returnTripRow->destination_planet_coords = $planetFromService->getPlanetCoordinates();
+                $returnTripRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
+                $returnTripRow->fleet_units = $eventRowViewModel->fleet_units;
+                $returnTripRow->resources = new Resources(0,0,0,0);
+                $fleet_events[] = $returnTripRow;
+            }
         }
 
         return view('ingame.fleetevents.eventlist')->with(
