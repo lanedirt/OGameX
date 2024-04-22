@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
@@ -51,6 +52,11 @@ class FleetMissionService
     protected ObjectService $objects;
 
     /**
+     * @var MessageService $messageService
+     */
+    protected MessageService $messageService;
+
+    /**
      * The queue model where this class should get its data from.
      *
      * @var FleetMission
@@ -60,10 +66,11 @@ class FleetMissionService
     /**
      * FleetMissionService constructor.
      */
-    public function __construct(PlayerService $player, ObjectService $objects)
+    public function __construct(PlayerService $player, ObjectService $objects, MessageService $messageService)
     {
         $this->player = $player;
         $this->objects = $objects;
+        $this->messageService = $messageService;
 
         $model_name = 'OGame\Models\FleetMission';
         $this->model = new $model_name();
@@ -152,7 +159,7 @@ class FleetMissionService
      */
     public function calculateFleetMissionDuration(): int
     {
-        return 600;
+        return 15;
     }
 
     /**
@@ -233,5 +240,65 @@ class FleetMissionService
             $mission->deuterium,
             0
         );
+    }
+
+    /**
+     * Get missions that are either from or to the given planet that have reached the arrival time
+     * but are not processed yet.
+     *
+     * @param int $planetId
+     * @return Collection
+     */
+    public function getMissionsByPlanetId(int $planetId): Collection
+    {
+        return $this->model
+            ->where(function ($query) use ($planetId) {
+                $query->where('planet_id_from', $planetId)
+                    ->orWhere('planet_id_to', $planetId);
+            })
+            ->where('time_arrival', '<=', Carbon::now()->timestamp)
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->get();
+    }
+
+    /**
+     * Process a fleet mission.
+     *
+     * @param FleetMission $mission
+     * @return void
+     * @throws BindingResolutionException
+     */
+    public function updateMission(FleetMission $mission): void
+    {
+        // Sanity check: only process missions that have arrived.
+        if ($mission->time_arrival > Carbon::now()->timestamp) {
+            return;
+        }
+
+        // TODO: make an abstraction layer where each mission is its own class and process/cancel logic is stored there.
+        switch ($mission->mission_type) {
+            case 3:
+                // Transport
+                // Get source planet
+
+                // Get the target planet
+                // Load the target planet
+                $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+                $target_planet = $planetServiceFactory->make($mission->planet_id_to);
+
+                // Add resources to the target planet
+                $target_planet->addResources($this->getResources($mission));
+
+                // Mark the mission as processed
+                $mission->processed = 1;
+                $mission->save();
+
+                // Send a message to the player that the mission has arrived
+                // TODO: make message content translatable by using tokens instead of directly inserting dynamic content.
+                $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Reaching a planet', 'Your fleet from planet [planet]' . $mission->planet_id_from . '[/planet] reaches the planet [planet]' . $mission->planet_id_to . '[/planet] and delivers its goods:
+Metal: ' . $mission->metal . ' Crystal: ' . $mission->crystal . ' Deuterium: ' . $mission->deuterium, 'transport_arrived');
+                break;
+        }
     }
 }

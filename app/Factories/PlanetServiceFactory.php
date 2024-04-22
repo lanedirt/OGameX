@@ -106,7 +106,7 @@ class PlanetServiceFactory
 
             $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planet->id]);
             $this->instancesByCoordinate[$coordinate->asString()] = $planetService;
-            $this->instancesById[$planetService->getId()] = $planetService;
+            $this->instancesById[$planetService->getPlanetId()] = $planetService;
             return $this->instancesByCoordinate[$coordinate->asString()];
         }
 
@@ -177,7 +177,7 @@ class PlanetServiceFactory
         $new_position = $this->determineNewPlanetPosition();
         if (empty($new_position->galaxy) || empty($new_position->system) || empty($new_position->position)) {
             // Failed to get a new position for the to be created planet. Throw exception.
-            throw new RuntimeException('Unable to determine new planet position.');
+            throw new \Exception('Unable to determine new planet position.');
         }
 
         // Position is available

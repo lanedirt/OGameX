@@ -55,7 +55,6 @@ class MessagesController extends OGameController
     {
         $subtab_content = $this->subTabContent($messageService, $tab, $subtab);
 
-
         switch ($tab) {
             case 'fleets':
                 // Load unread messages count for each subtab based on tab.
