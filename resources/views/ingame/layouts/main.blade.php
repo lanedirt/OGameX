@@ -897,10 +897,6 @@ Combat simulation save slots +20">
                     location.href = "{{ route('facilities.index', ['openTech' => 36]) }}";
                 }
 
-                function initAjaxEventbox() {
-                    reloadEventbox({"hostile": 0, "neutral": 0, "friendly": 0});
-                }
-
                 function initAjaxResourcebox() {
                     reloadResources({
                         "metal": {
@@ -955,8 +951,7 @@ Combat simulation save slots +20">
                 }
 
                 function getAjaxEventbox() {
-                    // TODO: re-enable
-                    //$.get("{{ route('overview.index') }}#TODO_page=fetchEventbox&ajax=1", reloadEventbox, "text");
+                    $.get("{{ route('fleet.eventbox.fetch') }}", reloadEventbox, "text");
                 }
 
                 function updateAjaxResourcebox(data) {
@@ -1219,7 +1214,6 @@ Combat simulation save slots +20">
                 };
                 $(document).ready(function () {
                     initIndex();
-                    initAjaxEventbox();
                     initOverview();
                     initBuffBar();
                     tabletInitOverviewAdvice();

@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('fleet_missions', function (Blueprint $table) {
             $table->id();
+
+            // Foreign key to the user that this message belongs to.
+            $table->integer('user_id', false, true);
+            $table->foreign('user_id')->references('id')->on('users');
+
             $table->integer('planet_id_from', false, true);
             $table->foreign('planet_id_from')->references('id')->on('planets');
 

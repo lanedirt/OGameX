@@ -39169,20 +39169,13 @@ function getAjaxEventbox() {
     return;
   }
 
-  // TODO: re-enable
-  //$.get(ajaxEventboxURI, reloadEventbox, "text");
+  $.get(ajaxEventboxURI, reloadEventbox, "text");
 }
 
 let reloadEventBoxTimer = null;
 
 function reloadEventbox(data) {
   var evalData;
-
-  // TODO: remove this code up until return
-    $("#eventboxLoading").hide();
-    $("#eventboxBlank").show();
-
-  return;
 
   if (typeof data === 'string') {
     evalData = $.parseJSON(data);
