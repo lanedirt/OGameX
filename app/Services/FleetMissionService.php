@@ -3,9 +3,12 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 
 /**
@@ -43,6 +46,11 @@ class FleetMissionService
     protected PlayerService $player;
 
     /**
+     * @var ObjectService $objects
+     */
+    protected ObjectService $objects;
+
+    /**
      * The queue model where this class should get its data from.
      *
      * @var FleetMission
@@ -52,9 +60,10 @@ class FleetMissionService
     /**
      * FleetMissionService constructor.
      */
-    public function __construct(PlayerService $player)
+    public function __construct(PlayerService $player, ObjectService $objects)
     {
         $this->player = $player;
+        $this->objects = $objects;
 
         $model_name = 'OGame\Models\FleetMission';
         $this->model = new $model_name();
@@ -64,13 +73,14 @@ class FleetMissionService
      * Creates a new fleet mission for the current planet.
      *
      * @param PlanetService $planet
+     * @param PlanetService $targetPlanet
      * @param int $missionType
      * @param UnitCollection $units
      * @param Resources $resources
      * @return void
      * @throws Exception
      */
-    public function create(PlanetService $planet, int $missionType, UnitCollection $units, Resources $resources): void
+    public function create(PlanetService $planet, PlanetService $targetPlanet, int $missionType, UnitCollection $units, Resources $resources): void
     {
         // TODO: add sanity checks for the input data that enough resources and enough units, enough cargospace etc.
         if (!$planet->hasResources($resources)) {
@@ -95,9 +105,13 @@ class FleetMissionService
         $mission->time_arrival = $time_end;
 
         // TODO: update these to the actual target coordinates
-        $mission->galaxy_to = 1;
-        $mission->system_to = 1;
-        $mission->position_to = 1;
+
+        $mission->planet_id_to = $targetPlanet->getPlanetId();
+        // Coordinates
+        $coords = $targetPlanet->getPlanetCoordinates();
+        $mission->galaxy_to = $coords->galaxy;
+        $mission->system_to = $coords->system;
+        $mission->position_to = $coords->position;
 
         // Fill in the units
         foreach ($units->units as $unit) {
@@ -155,30 +169,69 @@ class FleetMissionService
     /**
      * Get all active fleet missions for the current user.
      *
-     * @return array<string,string|int>
+     * @return Collection<FleetMission>
      */
-    public function getActiveFleetMissionsForCurrentPlayer() : array
+    public function getActiveFleetMissionsForCurrentPlayer() : Collection
     {
-        $missions = $this->model->where([
+        return $this->model->where([
                 ['user_id', $this->player->getId()],
                 ['processed', 0],
             ])
             ->orderBy('time_arrival', 'asc')
             ->get();
+    }
 
-        if ($missions->isEmpty()) {
-            return [
-                'mission_count' => 0,
-                'type_next_mission' => 'None',
-                'time_next_mission' => 0,
-            ];
+    /**
+     * Get the total unit count of a fleet mission.
+     *
+     * @param FleetMission $mission
+     * @return int
+     */
+    public function getFleetUnitCount(FleetMission $mission): int
+    {
+        // Loop through all known unit types and sum them up.
+        $unit_count = 0;
+
+        foreach ($this->objects->getShipObjects() as $ship) {
+            $unit_count += $mission->{$ship->machine_name};
         }
 
-        // TODO: make it a (view)model return type
-        return [
-            'mission_count' => $missions->count(),
-            'type_next_mission' => $this->missionTypeToLabel($missions->first()->mission_type),
-            'time_next_mission' => (int)Carbon::now()->timestamp - $missions->first()->time_arrival ?? 0,
-        ];
+        return $unit_count;
+    }
+
+    /**
+     * Returns the units of a fleet mission.
+     *
+     * @param FleetMission $mission
+     * @return UnitCollection
+     */
+    public function getFleetUnits(FleetMission $mission): UnitCollection
+    {
+        $units = new UnitCollection();
+
+        foreach ($this->objects->getShipObjects() as $ship) {
+            $amount = $mission->{$ship->machine_name};
+            if ($amount > 0) {
+                $units->addUnit($ship, $mission->{$ship->machine_name});
+            }
+        }
+
+        return $units;
+    }
+
+    /**
+     * Returns the resources of a fleet mission.
+     *
+     * @param FleetMission $mission
+     * @return Resources
+     */
+    public function getResources(FleetMission $mission): Resources
+    {
+        return new Resources(
+            $mission->metal,
+            $mission->crystal,
+            $mission->deuterium,
+            0
+        );
     }
 }

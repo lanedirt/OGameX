@@ -33404,9 +33404,6 @@ function refreshFleetEvents(force) {
     return;
   }
 
-  // TODO: re-enable later
-  return;
-
   if (!$("#eventboxContent").is(":hidden") || force === true) {
     $("#eventboxContent").html('<img height="16" width="16" src="//gf3.geo.gfsrv.net/cdne3/3f9884806436537bdec305aa26fc60.gif" />');
     $.ajax({
