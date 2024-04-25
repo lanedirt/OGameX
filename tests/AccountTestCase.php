@@ -428,4 +428,39 @@ abstract class AccountTestCase extends TestCase
         // Assert the response status is successful
         $response->assertStatus(200);
     }
+
+    /**
+     * View the messages page for the current user in order to mark all default system
+     * messages as read.
+     *
+     * @return void
+     */
+    protected function playerSetAllMessagesRead(): void
+    {
+        // Access the main messages page where default register message is sent to
+        // in order to mark all messages as read.
+        $response = $this->get('/ajax/messages?tab=universe');
+        // Assert the response status is successful
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Asserts that a message has been received in the specified tab/subtab and that it contains the specified text.
+     *
+     * @param string $tab
+     * @param string $subtab
+     * @param array $must_contain
+     * @return void
+     */
+    protected function assertMessageReceivedAndContains(string $tab, string $subtab, array $must_contain) : void {
+        // Assert that message has been sent to player.
+        $response = $this->get('/overview');
+        // Assert that page contains "1 unread message(s)" text.
+        $response->assertSee('1 unread message(s)');
+        $response = $this->get('/ajax/messages?tab=' . $tab . '&subtab=' . $subtab);
+        $response->assertStatus(200);
+        foreach ($must_contain as $needle) {
+            $response->assertSee($needle, false);
+        }
+    }
 }

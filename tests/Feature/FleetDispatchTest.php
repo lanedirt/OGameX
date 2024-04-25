@@ -180,6 +180,9 @@ class FleetDispatchTest extends AccountTestCase
         $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 30);
         Carbon::setTestNow($fleetParentTime);
 
+        // Set all messages as read to avoid unread messages count in the overview.
+        $this->playerSetAllMessagesRead();
+
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -187,6 +190,15 @@ class FleetDispatchTest extends AccountTestCase
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId);
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
+
+        // Assert that message has been sent to player and contains the correct information.
+        $this->assertMessageReceivedAndContains('fleets', 'transport', [
+            'reaches the planet',
+            'Metal: 100',
+            'Crystal: 100',
+            $this->planetService->getPlanetName(),
+            $this->secondPlanetService->getPlanetName()
+        ]);
 
         // Assert that a return trip has been launched by checking the active missions for the current planet.
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
@@ -209,6 +221,14 @@ class FleetDispatchTest extends AccountTestCase
         // Assert that the units have been returned to the origin planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units after return trip.');
+
+        // Assert that message has been sent to player and contains the correct information.
+        $this->assertMessageReceivedAndContains('fleets', 'other', [
+            'Your fleet is returning from',
+            'The fleet doesn\'t deliver goods',
+            $this->planetService->getPlanetName(),
+            $this->secondPlanetService->getPlanetName()
+        ]);
     }
 
     /**

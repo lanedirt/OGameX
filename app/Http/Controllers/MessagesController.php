@@ -67,7 +67,6 @@ class MessagesController extends OGameController
                 ];
 
                 return view('ingame.messages.tabs.fleets.tab')->with([
-                    'subtab_content' => $subtab_content,
                     'unread_messages_count' => $unread_messages_count,
                 ]);
             case 'communication':
@@ -78,7 +77,6 @@ class MessagesController extends OGameController
                 ];
 
                 return view('ingame.messages.tabs.communication.tab')->with([
-                    'subtab_content' => $subtab_content,
                     'unread_messages_count' => $unread_messages_count,
                 ]);
             case 'economy':
