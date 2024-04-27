@@ -1,78 +1,35 @@
 <?php
 
-namespace Tests\Feature;
+namespace Feature;
 
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Carbon;
-use OGame\GameObjects\Models\UnitCollection;
-use OGame\Models\Resources;
-use OGame\Services\FleetMissionService;
-use Tests\AccountTestCase;
+use Tests\FleetDispatchTestCase;
 
 /**
  * Test that fleet dispatch works as expected.
  */
-class FleetDispatchTest extends AccountTestCase
+class FleetDispatchTransportTest extends FleetDispatchTestCase
 {
     /**
-     * Prepare the planet for the test so it has the required buildings and research.
-     *
-     * @return void
-     * @throws BindingResolutionException
+     * @var int The mission type for the test.
      */
-    private function basicSetup(): void
-    {
-        // Set the robotics factory to level 2
-        $this->planetSetObjectLevel('robot_factory', 2);
-        // Set shipyard to level 1.
-        $this->planetSetObjectLevel('shipyard', 1);
-        // Set the research lab to level 1.
-        $this->planetSetObjectLevel('research_lab', 1);
-        // Set energy technology to level 1.
-        $this->playerSetResearchLevel('energy_technology', 1);
-        // Set combustion drive to level 1.
-        $this->playerSetResearchLevel('combustion_drive', 1);
-        // Add light cargo ship to the planet.
-        $this->planetAddUnit('small_cargo', 5);
-    }
+    protected int $missionType = 3;
 
-    private function sendTransportMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200) : void {
-        // Convert units to array.
-        $unitsArray = [];
-        foreach ($units->units as $unit) {
-            $unitsArray['am' . $unit->unitObject->id] = $unit->amount;
-        }
+    /**
+     * @var string The mission name for the test, displayed in UI.
+     */
+    protected string $missionName = 'Transport';
 
-        // Send fleet to the second planet of the test user.
-        $post = $this->post('/ajax/fleet/dispatch/send-fleet', array_merge([
-            'galaxy' => $this->secondPlanetService->getPlanetCoordinates()->galaxy,
-            'system' => $this->secondPlanetService->getPlanetCoordinates()->system,
-            'position' => $this->secondPlanetService->getPlanetCoordinates()->position,
-            'type' => 1,
-            'mission' => 3, // Transport mission
-            'metal' => $resources->metal->get(),
-            'crystal' => $resources->crystal->get(),
-            'deuterium' => $resources->deuterium->get(),
-            '_token' => csrf_token(),
-        ], $unitsArray));
-
-        // Assert that the fleet was dispatched successfully.
-        $post->assertStatus($assertStatus);
-
-        // Assert that eventbox fetch works when a fleet mission is active.
-        $this->get('/ajax/fleet/eventbox/fetch')->assertStatus(200);
-        $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);
-    }
+    protected bool $hasReturnMission = true;
 
     /**
      * Verify that dispatching a transport fleet launches a return trip and brings back units to origin planet.
      * @throws BindingResolutionException
      * @throws Exception
      */
-    public function testDispatchFleetReturnTrip(): void
+   /* public function testDispatchFleetReturnTrip(): void
     {
-        // TODO: extract message checks here and implement in base tests.
         $this->basicSetup();
 
         // Set time to static time 2024-01-01
@@ -150,5 +107,5 @@ class FleetDispatchTest extends AccountTestCase
             $this->planetService->getPlanetName(),
             $this->secondPlanetService->getPlanetName()
         ]);
-    }
+    }*/
 }

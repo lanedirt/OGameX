@@ -7,6 +7,8 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\DeploymentMission;
 use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
@@ -38,6 +40,15 @@ class FleetMissionService
         8 => 'Recycle',
         9 => 'Destroy',
         15 => 'Expedition',
+    ];
+
+    /**
+     * Mission type to class mapping.
+     * @var array<int, class-string> $missionTypeToClass
+     */
+    protected array $missionTypeToClass = [
+        3 => TransportMission::class,
+        4 => DeploymentMission::class,
     ];
 
     /**
@@ -106,7 +117,9 @@ class FleetMissionService
      */
     public function missionTypeToLabel(int $missionType): string
     {
-        return $this->type_to_label[$missionType] ?? 'Unknown';
+        // Call static method on mission class.
+        $className = $this->missionTypeToClass[$missionType];
+        return $className::getName();
     }
 
     /**
@@ -230,6 +243,13 @@ class FleetMissionService
             ]);
             $transportMission->start($planet, $targetPlanet, $missionType, $units, $resources, $parent_id);
         }
+        elseif ($missionType == 4) {
+            $deployMission = app()->make(DeploymentMission::class, [
+                'fleetMissionService' => $this,
+                'messageService' => $this->messageService,
+            ]);
+            $deployMission->start($planet, $targetPlanet, $missionType, $units, $resources, $parent_id);
+        }
         return;
     }
 
@@ -257,6 +277,14 @@ class FleetMissionService
                     'messageService' => $this->messageService,
                 ]);
                 $transportMission->process($mission);
+                break;
+            case 4:
+                // Deploy
+                $deployMission = app()->make(DeploymentMission::class, [
+                    'fleetMissionService' => $this,
+                    'messageService' => $this->messageService,
+                ]);
+                $deployMission->process($mission);
                 break;
         }
     }

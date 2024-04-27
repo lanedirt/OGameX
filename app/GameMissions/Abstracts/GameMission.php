@@ -12,7 +12,7 @@ use OGame\Services\PlanetService;
 
 abstract class GameMission
 {
-    protected string $name;
+    protected static string $name;
 
     protected FleetMissionService $fleetMissionService;
 
@@ -24,9 +24,20 @@ abstract class GameMission
         $this->messageService = $messageService;
     }
 
+    public static function getName(): string
+    {
+        return static::$name;
+    }
+
     /**
      * Start a new mission.
      *
+     * @param PlanetService $planet
+     * @param PlanetService $targetPlanet
+     * @param int $missionType
+     * @param UnitCollection $units
+     * @param Resources $resources
+     * @param int $parent_id
      * @return void
      */
     public abstract function start(PlanetService $planet, PlanetService $targetPlanet, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): void;
@@ -34,14 +45,16 @@ abstract class GameMission
     /**
      * Cancel an already started mission.
      *
+     * @param FleetMission $mission
      * @return void
      */
-    public abstract function cancel(): void;
+    public abstract function cancel(FleetMission $mission): void;
 
 
     /**
      * Process the mission.
      *
+     * @param FleetMission $mission
      * @return void
      */
     public function process(FleetMission $mission): void {
@@ -60,6 +73,7 @@ abstract class GameMission
     /**
      * Process the mission arrival (first stage, required).
      *
+     * @param FleetMission $mission
      * @return void
      */
     protected abstract function processArrival(FleetMission $mission): void;
@@ -67,6 +81,7 @@ abstract class GameMission
     /**
      * Process the mission return (second stage, optional).
      *
+     * @param FleetMission $mission
      * @return void
      */
     protected abstract function processReturn(FleetMission $mission): void;

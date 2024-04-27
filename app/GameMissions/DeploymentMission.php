@@ -11,9 +11,9 @@ use OGame\Models\FleetMission;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 
-class TransportMission extends GameMission
+class DeploymentMission extends GameMission
 {
-    protected static string $name = 'Transport';
+    protected static string $name = 'Deployment';
 
     public function start(PlanetService $planet, PlanetService $targetPlanet, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): void
     {
@@ -81,7 +81,9 @@ class TransportMission extends GameMission
 
     public function cancel(FleetMission $mission): void
     {
-
+        // TODO: cancel main mission, then start return mission
+        // based on how long main mission actually took (set time_arrival to now)
+        $this->startReturn($mission);
     }
 
     /**
@@ -96,14 +98,22 @@ class TransportMission extends GameMission
         // Add resources to the target planet
         $target_planet->addResources($this->fleetMissionService->getResources($mission));
 
+        // TODO: message with resources delivered is different than message with no resources delivered
+        /**
+
+        Your fleet is returning from planet Homeworld [1:237:6] to planet FARRT [1:237:8].
+
+        The fleet is delivering:
+
+        Metal: 1
+        Crystal: 0
+        Deuterium: 0
+        Food: 0
+         */
+
         // Send a message to the player that the mission has arrived
         // TODO: make message content translatable by using tokens instead of directly inserting dynamic content.
-        $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Reaching a planet', 'Your fleet from planet [planet]' . $mission->planet_id_from . '[/planet] reaches the planet [planet]' . $mission->planet_id_to . '[/planet] and delivers its goods:
-Metal: ' . $mission->metal . ' Crystal: ' . $mission->crystal . ' Deuterium: ' . $mission->deuterium, 'transport_arrived');
-
-        // Create and start the return mission.
-        $this->startReturn($mission);
-
+        $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Fleet deployment', 'One of your fleets from [planet]' . $mission->planet_id_from . '[/planet] has reached [planet]' . $mission->planet_id_to . '[/planet]. The fleet doesn`t deliver goods.', 'fleet_deployment');
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();
