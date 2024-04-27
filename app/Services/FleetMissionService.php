@@ -226,14 +226,22 @@ class FleetMissionService
      * Get a fleet mission by its ID.
      *
      * @param int $id
+     * @param bool $only_active
      * @return FleetMission
      */
-    public function getFleetMissionById(int $id): FleetMission
+    public function getFleetMissionById(int $id, bool $only_active = true): FleetMission
     {
-        return $this->model
-            ->where('id', $id)
-            ->where('processed', 0)
-            ->first();
+        if ($only_active) {
+            return $this->model
+                ->where('id', $id)
+                ->where('processed', 0)
+                ->first();
+        }
+        else {
+            return $this->model
+                ->where('id', $id)
+                ->first();
+        }
     }
 
     /**
@@ -255,14 +263,14 @@ class FleetMissionService
                 'fleetMissionService' => $this,
                 'messageService' => $this->messageService,
             ]);
-            $transportMission->start($planet, $targetPlanet, $missionType, $units, $resources, $parent_id);
+            $transportMission->start($planet, $targetPlanet, $units, $resources, $parent_id);
         }
         elseif ($missionType == 4) {
             $deployMission = app()->make(DeploymentMission::class, [
                 'fleetMissionService' => $this,
                 'messageService' => $this->messageService,
             ]);
-            $deployMission->start($planet, $targetPlanet, $missionType, $units, $resources, $parent_id);
+            $deployMission->start($planet, $targetPlanet, $units, $resources, $parent_id);
         }
         return;
     }

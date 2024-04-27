@@ -212,7 +212,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         $response->assertStatus(200);
 
         // Assert that the fleet mission is processed.
-        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId);
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId,  false);
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Check that message has been received by calling extended method
@@ -291,5 +291,108 @@ abstract class FleetDispatchTestCase extends AccountTestCase
             $response->assertSee('data-return-flight="false"', false);
             $response->assertDontSee('data-return-flight="true"', false);
         }
+    }
+
+    /**
+     * Verify that canceling/recalling an active mission works.
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testDispatchFleetRecallMission(): void
+    {
+        $this->basicSetup();
+
+        // Set time to static time 2024-01-01
+        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
+        Carbon::setTestNow($startTime);
+
+        // Assert that we begin with 5 small cargo ships on planet.
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');
+
+        // Send fleet to the second planet of the test user.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
+
+        // Get just dispatched fleet mission ID from database.
+        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+
+        // Advance time by 1 minute
+        $fleetParentTime = $startTime->copy()->addMinutes(1);
+        Carbon::setTestNow($fleetParentTime);
+
+        // Cancel the mission
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $fleetMissionId,
+            '_token' => csrf_token(),
+        ]);
+        $response->assertStatus(200);
+
+        // Assert that the original mission is now canceled.
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertTrue($fleetMission->canceled == 1, 'Fleet mission is not canceled after fleet recall is requested.');
+
+        // Assert that only the return trip is now visible.
+        // The eventbox should only show 1 mission (the parent).
+        $response = $this->get('/ajax/fleet/eventbox/fetch');
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['friendly' => 1]);
+        $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
+    }
+
+    /**
+     * Verify that canceling/recalling an active mission twice results in an error.
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testDispatchFleetRecallMissionTwiceError(): void
+    {
+        $this->basicSetup();
+
+        // Set time to static time 2024-01-01
+        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
+        Carbon::setTestNow($startTime);
+
+        // Assert that we begin with 5 small cargo ships on planet.
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');
+
+        // Send fleet to the second planet of the test user.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
+
+        // Get just dispatched fleet mission ID from database.
+        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+
+        // Advance time by 1 minute
+        $fleetParentTime = $startTime->copy()->addMinutes(1);
+        Carbon::setTestNow($fleetParentTime);
+
+        // Cancel the mission
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $fleetMissionId,
+            '_token' => csrf_token(),
+        ]);
+        $response->assertStatus(200);
+
+        // Cancel it again
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $fleetMissionId,
+            '_token' => csrf_token(),
+        ]);
+        // Expecting a 500 error because the mission is already canceled.
+        $response->assertStatus(500);
+
+        // The eventbox should only show 1 mission (the first recalled mission).
+        $response = $this->get('/ajax/fleet/eventbox/fetch');
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['friendly' => 1]);
+        $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
     }
 }

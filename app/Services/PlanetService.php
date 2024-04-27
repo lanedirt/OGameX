@@ -319,7 +319,7 @@ class PlanetService
      *
      * @throws Exception
      */
-    public function deductResources(Resources $resources): void
+    public function deductResources(Resources $resources, $save_planet = true): void
     {
         // Sanity check that this planet has enough resources, if not throw
         // exception.
@@ -337,7 +337,9 @@ class PlanetService
             $this->planet->deuterium -= $resources->deuterium->get();
         }
 
-        $this->planet->save();
+        if ($save_planet) {
+            $this->planet->save();
+        }
     }
 
     /**
