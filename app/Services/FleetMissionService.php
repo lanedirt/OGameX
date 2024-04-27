@@ -123,6 +123,18 @@ class FleetMissionService
     }
 
     /**
+     * Returns whether a mission type has a return mission by default.
+     *
+     * @param int $missionType
+     * @return bool
+     */
+    public function missionHasReturnMission(int $missionType): bool
+    {
+        $className = $this->missionTypeToClass[$missionType];
+        return $className::hasReturnMission();
+    }
+
+    /**
      * Get all active fleet missions for the current user.
      *
      * @return Collection<FleetMission>

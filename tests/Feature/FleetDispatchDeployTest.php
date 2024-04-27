@@ -24,10 +24,9 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     protected function messageCheckMissionArrival(): void
     {
         // Assert that message has been sent to player and contains the correct information.
-        $this->assertMessageReceivedAndContains('fleets', 'transport', [
-            'reaches the planet',
-            'Metal: 100',
-            'Crystal: 100',
+        $this->assertMessageReceivedAndContains('fleets', 'other', [
+            'One of your fleets from',
+            'has reached',
             $this->planetService->getPlanetName(),
             $this->secondPlanetService->getPlanetName()
         ]);

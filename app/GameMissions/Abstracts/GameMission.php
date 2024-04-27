@@ -2,7 +2,6 @@
 
 namespace OGame\GameMissions\Abstracts;
 
-use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Resources;
@@ -12,7 +11,15 @@ use OGame\Services\PlanetService;
 
 abstract class GameMission
 {
+    /**
+     * @var string The name of the mission shown in the GUI.
+     */
     protected static string $name;
+
+    /**
+     * @var bool Whether this mission has a return mission by default.
+     */
+    protected static bool $hasReturnMission;
 
     protected FleetMissionService $fleetMissionService;
 
@@ -27,6 +34,11 @@ abstract class GameMission
     public static function getName(): string
     {
         return static::$name;
+    }
+
+    public static function hasReturnMission(): bool
+    {
+        return static::$hasReturnMission;
     }
 
     /**

@@ -79,6 +79,7 @@ class FleetEventsController extends OGameController
             $eventRowViewModel = new FleetEventRowViewModel();
             $eventRowViewModel->id = $row->id;
             $eventRowViewModel->mission_type = $row->mission_type;
+            $eventRowViewModel->mission_label = $fleetMissionService->missionTypeToLabel($row->mission_type);
             $eventRowViewModel->mission_time_arrival = $row->time_arrival;
             $eventRowViewModel->is_return_trip = !empty($row->parent_id); // If mission has a parent, it is a return trip
             $eventRowViewModel->origin_planet_name = $planetFromService->getPlanetName(); // TODO: implement null planet from/to checks
@@ -92,11 +93,12 @@ class FleetEventsController extends OGameController
 
             // Check if this is a transport mission parent, if so, add the return trip to the list.
             // TODO: refactor this logic to abstracted classes per mission type where these eventList rendering are done.
-            if ($eventRowViewModel->mission_type == 3 && !$eventRowViewModel->is_return_trip) {
+            if ($fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
                 $returnTripRow = new FleetEventRowViewModel();
                 $returnTripRow->is_return_trip = true;
                 $returnTripRow->id = $row->parent_id + 999999; // Add a large number to avoid id conflicts
                 $returnTripRow->mission_type = $eventRowViewModel->mission_type;
+                $returnTripRow->mission_label = $fleetMissionService->missionTypeToLabel($eventRowViewModel->mission_type);
                 $returnTripRow->mission_time_arrival = $row->time_arrival + ($row->time_arrival - $row->time_departure); // Round trip arrival time is double the time of the first trip
                 $returnTripRow->origin_planet_name = $planetToService->getPlanetName();
                 $returnTripRow->origin_planet_coords = $planetToService->getPlanetCoordinates();

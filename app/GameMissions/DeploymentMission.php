@@ -15,6 +15,8 @@ class DeploymentMission extends GameMission
 {
     protected static string $name = 'Deployment';
 
+    protected static bool $hasReturnMission = false;
+
     public function start(PlanetService $planet, PlanetService $targetPlanet, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): void
     {
         // TODO: add sanity checks for the input data that enough resources and enough units, enough cargospace etc.

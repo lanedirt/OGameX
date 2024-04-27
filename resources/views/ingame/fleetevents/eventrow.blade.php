@@ -13,7 +13,7 @@
         </td>
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
-            <img src="https://gf1.geo.gfsrv.net/cdn38/2af2939219d8227a11a50ff4df7b51.gif" class="tooltipHTML"  title="Own fleet | Transport (R)" alt=""/>
+            <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"  title="Own fleet | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
         </td>
 
         <td class="originFleet">
@@ -105,7 +105,7 @@
         </td>
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
-            <img src="https://gf1.geo.gfsrv.net/cdn38/2af2939219d8227a11a50ff4df7b51.gif" class="tooltipHTML"  title="Own fleet | Transport" alt=""/>
+            <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"  title="Own fleet | {{ $fleet_event_row->mission_label }}" alt=""/>
         </td>
 
         <td class="originFleet">

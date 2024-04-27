@@ -272,7 +272,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         $response->assertStatus(200);
         $response->assertJsonFragment(['friendly' => 1]);
 
-        // The event list should show 2 missions (the parent and the to-be-created return trip).
+        // The event list should show either 1 or 2 missions (the parent and the to-be-created return trip).
         $response = $this->get('/ajax/fleet/eventlist/fetch');
         $response->assertStatus(200);
         if ($this->hasReturnMission) {
