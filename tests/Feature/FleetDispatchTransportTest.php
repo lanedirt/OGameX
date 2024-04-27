@@ -2,6 +2,10 @@
 
 namespace Feature;
 
+use Illuminate\Support\Carbon;
+use OGame\GameObjects\Models\UnitCollection;
+use OGame\Models\Message;
+use OGame\Models\Resources;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -42,5 +46,34 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
             $this->planetService->getPlanetName(),
             $this->secondPlanetService->getPlanetName()
         ]);
+    }
+
+    public function testDispatchFleetToOtherPlayer(): void
+    {
+        $this->basicSetup();
+
+        // Set time to static time 2024-01-01
+        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
+        Carbon::setTestNow($startTime);
+
+        // Send fleet to a planet of another player.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $secondPlayer = $this->sendMissionToOtherPlayer($unitCollection, new Resources(100, 0, 0, 0));
+
+        // Increase time by 10 hours to ensure the mission is done.
+        Carbon::setTestNow($startTime->copy()->addHours(10));
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that last message sent to second player contains the transport confirm message.
+        $lastMessage = Message::where('user_id', $secondPlayer->getId())
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $this->assertStringContainsString('An incoming fleet from planet', $lastMessage->body);
+        $this->assertStringContainsString('has reached your planet', $lastMessage->body);
     }
 }

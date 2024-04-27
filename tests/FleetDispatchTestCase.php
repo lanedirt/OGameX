@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
+use OGame\Services\PlayerService;
 
 /**
  * Base class to test that fleet missions work as expected.
@@ -42,7 +43,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      * @return void
      * @throws BindingResolutionException
      */
-    private function basicSetup(): void
+    protected function basicSetup(): void
     {
         // Set the robotics factory to level 2
         $this->planetSetObjectLevel('robot_factory', 2);
@@ -58,10 +59,10 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         $this->planetAddUnit('small_cargo', 5);
     }
 
-    protected abstract function messageCheckMissionArrival();
-    protected abstract function messageCheckMissionReturn();
+    protected abstract function messageCheckMissionArrival(): void;
+    protected abstract function messageCheckMissionReturn(): void;
 
-    private function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200) : void {
+    protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200) : void {
         // Convert units to array.
         $unitsArray = [];
         foreach ($units->units as $unit) {
@@ -87,6 +88,43 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         // Assert that eventbox fetch works when a fleet mission is active.
         $this->get('/ajax/fleet/eventbox/fetch')->assertStatus(200);
         $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);
+    }
+
+    protected function sendMissionToOtherPlayer(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlayerService {
+        // Convert units to array.
+        $unitsArray = [];
+        foreach ($units->units as $unit) {
+            $unitsArray['am' . $unit->unitObject->id] = $unit->amount;
+        }
+
+        // Get the first planet of the other player.
+        // TODO: would be better to retrieve a planet near the current player for travel times and deut consumption etc.
+        $secondPlayerId = $this->getSecondPlayerId();
+        $playerFactory = app()->make(\OGame\Factories\PlayerServiceFactory::class);
+        $secondPlayerService = $playerFactory->make($secondPlayerId);
+        $secondPlayerPlanet = $secondPlayerService->planets->first();
+
+        // Send fleet to the second planet of the test user.
+        $post = $this->post('/ajax/fleet/dispatch/send-fleet', array_merge([
+            'galaxy' => $secondPlayerPlanet->getPlanetCoordinates()->galaxy,
+            'system' => $secondPlayerPlanet->getPlanetCoordinates()->system,
+            'position' => $secondPlayerPlanet->getPlanetCoordinates()->position,
+            'type' => 1,
+            'mission' => $this->missionType,
+            'metal' => $resources->metal->get(),
+            'crystal' => $resources->crystal->get(),
+            'deuterium' => $resources->deuterium->get(),
+            '_token' => csrf_token(),
+        ], $unitsArray));
+
+        // Assert that the fleet was dispatched successfully.
+        $post->assertStatus($assertStatus);
+
+        // Assert that eventbox fetch works when a fleet mission is active.
+        $this->get('/ajax/fleet/eventbox/fetch')->assertStatus(200);
+        $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);
+
+        return $secondPlayerService;
     }
 
     /**

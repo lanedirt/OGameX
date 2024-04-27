@@ -76,6 +76,24 @@ abstract class AccountTestCase extends TestCase
     }
 
     /**
+     * Get a random second user id from the database. This is useful for testing interactions between two players.
+     *
+     * @return int
+     */
+    protected function getSecondPlayerId(): int
+    {
+        $playerIds = \DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
+        if (count($playerIds) < 1) {
+            // Create user if there are not enough in the database.
+            $this->createAndLoginUser();
+            $playerIds = \DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
+        }
+
+        return $playerIds[0];
+    }
+
+
+    /**
      * Add resources to current users current planet.
      *
      * @param Resources $resources
