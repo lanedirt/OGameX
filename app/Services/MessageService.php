@@ -40,7 +40,7 @@ class MessageService
                 'return_of_fleet' => 41, // Return of fleet
                 'outlaw_notification' => 42, // Outlaw notification
                 'wreckage_created' => 43, // Wreckage created on own planet after battle
-                'fleet_deployment' => 44, // Wreckage created on own planet after battle
+                'fleet_deployment' => 44, // Fleet deployment reached the target planet
             ],
         ],
         'communication' => [

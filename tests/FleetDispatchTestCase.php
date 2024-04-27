@@ -27,6 +27,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
 
     /**
      * @var bool Whether the mission has a return mission by default.
+     * Note: a mission that can be canceled still requires return mission logic.
      */
     protected bool $hasReturnMission = true;
 
@@ -56,6 +57,9 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         // Add light cargo ship to the planet.
         $this->planetAddUnit('small_cargo', 5);
     }
+
+    protected abstract function messageCheckMissionArrival();
+    protected abstract function messageCheckMissionReturn();
 
     private function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200) : void {
         // Convert units to array.
@@ -211,6 +215,9 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId);
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
+        // Check that message has been received by calling extended method
+        $this->messageCheckMissionArrival();
+
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         if ($this->hasReturnMission) {
             // Assert that a return trip has been launched by checking the active missions for the current planet.
@@ -233,13 +240,13 @@ abstract class FleetDispatchTestCase extends AccountTestCase
             // Assert that the units have been returned to the origin planet.
             $response = $this->get('/shipyard');
             $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units after return trip.');
+
+            $this->messageCheckMissionReturn();
         }
         else {
             // Assert that NO return trip has been launched by checking the active missions for the current planet.
             $this->assertCount(0, $activeMissions, 'Return trip launched after fleet with deployment mission has arrived at destination.');
         }
-
-        // TODO: add back checks for messages sent and received which is specific for every mission...
     }
 
     /**
