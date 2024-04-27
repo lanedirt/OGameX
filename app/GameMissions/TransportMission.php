@@ -83,7 +83,13 @@ class TransportMission extends GameMission
 
     public function cancel(FleetMission $mission): void
     {
+        // Mark parent mission as canceled.
+        $mission->canceled = 1;
+        $mission->processed = 1;
+        $mission->save();
 
+        // Start the return mission.
+        $this->startReturn($mission);
     }
 
     /**
@@ -111,12 +117,9 @@ Metal: ' . $mission->metal . ' Crystal: ' . $mission->crystal . ' Deuterium: ' .
         $mission->save();
     }
 
-    protected function startReturn(FleetMission $mission): void {
+    protected function startReturn(FleetMission $parentMission): void {
         // No need to check for resources and units, as the return mission takes the units from the original
         // mission and the resources are already delivered. Nothing is deducted from the planet.
-        // Get parent mission
-        $parentMission = $this->fleetMissionService->getFleetMissionById($mission->id);
-
         // Time this fleet mission will depart (arrival time of the parent mission)
         $time_start = $parentMission->time_arrival;
 

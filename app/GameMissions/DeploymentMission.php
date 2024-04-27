@@ -83,6 +83,11 @@ class DeploymentMission extends GameMission
 
     public function cancel(FleetMission $mission): void
     {
+        // Mark parent mission as canceled.
+        $mission->canceled = 1;
+        $mission->processed = 1;
+        $mission->save();
+
         // TODO: cancel main mission, then start return mission
         // based on how long main mission actually took (set time_arrival to now)
         $this->startReturn($mission);

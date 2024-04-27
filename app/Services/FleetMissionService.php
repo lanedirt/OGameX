@@ -219,7 +219,6 @@ class FleetMissionService
             })
             ->where('time_arrival', '<=', Carbon::now()->timestamp)
             ->where('processed', 0)
-            ->where('canceled', 0)
             ->get();
     }
 
@@ -231,7 +230,10 @@ class FleetMissionService
      */
     public function getFleetMissionById(int $id): FleetMission
     {
-        return $this->model->find($id);
+        return $this->model
+            ->where('id', $id)
+            ->where('processed', 0)
+            ->first();
     }
 
     /**
@@ -297,6 +299,39 @@ class FleetMissionService
                     'messageService' => $this->messageService,
                 ]);
                 $deployMission->process($mission);
+                break;
+        }
+    }
+
+    /**
+     * Cancel a fleet mission.
+     *
+     * @param FleetMission $mission
+     * @return void
+     */
+    public function cancelMission(FleetMission $mission): void
+    {
+        // Sanity check: only process missions that have not been processed yet.
+        if ($mission->processed) {
+            return;
+        }
+
+        switch ($mission->mission_type) {
+            case 3:
+                // Transport
+                $transportMission = app()->make(TransportMission::class, [
+                    'fleetMissionService' => $this,
+                    'messageService' => $this->messageService,
+                ]);
+                $transportMission->cancel($mission);
+                break;
+            case 4:
+                // Deploy
+                $deployMission = app()->make(DeploymentMission::class, [
+                    'fleetMissionService' => $this,
+                    'messageService' => $this->messageService,
+                ]);
+                $deployMission->cancel($mission);
                 break;
         }
     }

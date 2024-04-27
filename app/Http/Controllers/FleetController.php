@@ -257,4 +257,22 @@ holdingtime: 0
             'success' => true,
         ]);
     }
+
+    public function dispatchRecallFleet(): JsonResponse {
+        // Get the fleet mission id
+        $fleet_mission_id = request()->input('fleet_mission_id');
+
+        // Get the fleet mission service
+        $fleetMissionService = app()->make(FleetMissionService::class);
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleet_mission_id);
+
+        // Recall the fleet mission
+        $fleetMissionService->cancelMission($fleetMission);
+
+        return response()->json([
+            'components' => [],
+            'newAjaxToken' => csrf_token(),
+            'success' => true,
+        ]);
+    }
 }

@@ -26,8 +26,7 @@
             "yes",
             "No",
             function() {
-                $.post(ajaxRecallFleetURI, {fleetId: fleetId, token: token}, (response) => {
-                    let data = JSON.parse(response)
+                $.post(ajaxRecallFleetURI, {fleet_mission_id: fleetId, _token: '{{ csrf_token() }}'}, (data) => {
                     token = data.newAjaxToken
 
                     if (data.success) {
