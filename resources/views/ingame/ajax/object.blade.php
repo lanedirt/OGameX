@@ -9,6 +9,11 @@
                 data-target="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $id]) }}"
                 data-ipi-hint="ipiTechnologyTreedeuteriumSynthesizer"> techtree
         </button>
+        @if ($object_type == 'building' || $object_type == 'station' || $object_type == 'research')
+            @if (!empty($build_active_current) && $build_active_current->object->id == $object->id)
+                <a role="button" href="javascript:void(0);" class="tooltip abort_link js_hideTipOnMobile" title="" onclick="cancelbuilding({{ $object->id }},{{ $build_active_current->id }},'Cancel expansion of {{ $object->title }} to level {{ $build_active_current->level_target }}?'); return false;"></a>
+            @endif
+        @endif
     </div>
 
     <div class="content">
