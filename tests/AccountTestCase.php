@@ -467,7 +467,7 @@ abstract class AccountTestCase extends TestCase
      *
      * @param string $tab
      * @param string $subtab
-     * @param array $must_contain
+     * @param array<int,string> $must_contain
      * @return void
      */
     protected function assertMessageReceivedAndContains(string $tab, string $subtab, array $must_contain) : void {

@@ -316,10 +316,11 @@ class PlanetService
      *
      * @param Resources $resources
      * Array with resources to deduct.
+     * @param bool $save_planet
      *
      * @throws Exception
      */
-    public function deductResources(Resources $resources, $save_planet = true): void
+    public function deductResources(Resources $resources, bool $save_planet = true): void
     {
         // Sanity check that this planet has enough resources, if not throw
         // exception.
