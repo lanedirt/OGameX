@@ -641,58 +641,76 @@ Combat simulation save slots +20">
                     location.href = "{{ route('facilities.index', ['openTech' => 36]) }}";
                 }
 
-                function initAjaxResourcebox() {
-                    reloadResources({
+                reloadResources({
+                    "resources": {
+                        "population": {
+                            "amount": 100,
+                            "storage": 0,
+                            "safeCapacity": 0,
+                            "growthRate": 0,
+                            "capableToFeed": 0,
+                            "needFood": 0,
+                            "singleFoodConsumption": 0,
+                            "tooltip": "@lang('Population')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"overmark\">100<\/span><\/td><\/tr><tr><th>@lang('Living Space')\n<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Satisfied')<\/th><td><span class=\"undermark\">0<\/span><\/td><\/tr><tr><th>@lang('Hungry')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Growth rate')<\/th><td><span class=\"\">\u00b10<\/span><\/td><\/tr><tr><th>@lang('Bunker Space')\n<\/th><td><span class=\"middlemark\">100<\/span><\/td><\/tr><\/table>",
+                            "classesListItem": ""
+                        },
+                        "food": {
+                            "amount": 0,
+                            "storage": 0,
+                            "capableToFeed": 0,
+                            "production": 0,
+                            "consumption": 0,
+                            "timeTillFoodRunsOut": 0,
+                            "vacationMode": "",
+                            "tooltip": "@lang('Food')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Storage capacity')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Overproduction')<\/th><td><span class=\"undermark\">0<\/span><\/td><\/tr><tr><th>@lang('Consumption')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Consumed in')<\/th><td><span class=\"overmark timeTillFoodRunsOut\">~<\/span><\/td><\/tr><\/table>",
+                            "classesListItem": ""
+                        },
                         "metal": {
-                            "resources": {
-                                "actualFormat": "{!! $resources['metal']['amount_formatted'] !!}",
-                                "actual": {!! $resources['metal']['amount'] !!},
-                                "max": {!! $resources['metal']['storage'] !!},
-                                "production": {!! $resources['metal']['production_second'] !!}
-                            },
-                            "tooltip": "Metal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>@lang('Available'):<\/th>\n                <td><span class=\"\">{!! $resources['metal']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">{!! $resources['metal']['storage_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"@if ($resources['metal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['metal']['production_hour'] > 0)+@endif{!! $resources['metal']['production_hour_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>",
-                            "class": "{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}"
+                            "amount": {!! $resources['metal']['amount'] !!},
+                            "storage": {!! $resources['metal']['storage'] !!},
+                            "baseProduction": 0, // TODO: add base production separately?
+                            "production": {!! $resources['metal']['production_second'] !!},
+                            "tooltip": "@lang('Metal')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"\">{!! $resources['metal']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Storage capacity')<\/th><td><span class=\"\">{!! $resources['metal']['storage_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Current production'):<\/th><td><span class=\"@if ($resources['metal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['metal']['production_hour'] > 0)+@endif{!! $resources['metal']['production_hour_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Den Capacity'):<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>",
+                            "classesListItem": "",
+                            "shopUrl": "#TODO_category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&item=859d82d316b83848f7365d21949b3e1e63c7841f&page=shop&panel1-1="
                         },
                         "crystal": {
-                            "resources": {
-                                "actualFormat": "{!! $resources['crystal']['amount_formatted'] !!}",
-                                "actual": {!! $resources['crystal']['amount'] !!},
-                                "max": {!! $resources['crystal']['storage'] !!},
-                                "production": {!! $resources['crystal']['production_second'] !!}
-                            },
-                            "tooltip": "Crystal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>@lang('Available'):<\/th>\n                <td><span class=\"\">{!! $resources['crystal']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">{!! $resources['crystal']['storage_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"@if ($resources['crystal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['crystal']['production_hour'] > 0)+@endif{!! $resources['crystal']['production_hour_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>",
-                            "class": "{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}"
+                            "amount": {!! $resources['crystal']['amount'] !!},
+                            "storage": {!! $resources['crystal']['storage'] !!},
+                            "baseProduction": 0, // TODO: add base production separately?
+                            "production": {!! $resources['crystal']['production_second'] !!},
+                            "tooltip": "@lang('Crystal')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"\">{!! $resources['crystal']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Storage capacity')<\/th><td><span class=\"\">{!! $resources['crystal']['storage_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Current production'):<\/th><td><span class=\"@if ($resources['crystal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['crystal']['production_hour'] > 0)+@endif{!! $resources['crystal']['production_hour_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Den Capacity'):<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>",
+                            "classesListItem": "",
+                            "shopUrl": "#TODO_page=shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&item=bb2f6843226ef598f0b567b92c51b283de90aa48&page=shop&panel1-1="
                         },
                         "deuterium": {
-                            "resources": {
-                                "actualFormat": "{!! $resources['deuterium']['amount_formatted'] !!}",
-                                "actual": {!! $resources['deuterium']['amount'] !!},
-                                "max": {!! $resources['deuterium']['storage'] !!},
-                                "production": {!! $resources['deuterium']['production_second'] !!}
-                            },
-                            "tooltip": "Deuterium|<table class=\"resourceTooltip\">\n            <tr>\n                <th>@lang('Available'):<\/th>\n                <td><span class=\"\">{!! $resources['deuterium']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">{!! $resources['deuterium']['storage_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"@if ($resources['deuterium']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['deuterium']['production_hour'] > 0)+@endif{!! $resources['deuterium']['production_hour_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>",
-                            "class": "{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}"
+                            "amount": {!! $resources['deuterium']['amount'] !!},
+                            "storage": {!! $resources['deuterium']['storage'] !!},
+                            "baseProduction": 0, // TODO: add base production separately?
+                            "production": {!! $resources['deuterium']['production_second'] !!},
+                            "tooltip": "@lang('Deuterium')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"\">{!! $resources['deuterium']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Storage capacity')<\/th><td><span class=\"\">{!! $resources['deuterium']['storage_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Current production'):<\/th><td><span class=\"@if ($resources['deuterium']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['deuterium']['production_hour'] > 0)+@endif{!! $resources['deuterium']['production_hour_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Den Capacity'):<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>",
+                            "classesListItem": "",
+                            "shopUrl": "#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&item=cb72ed207dd871832a850ee29f1c1f83aa3f4f36&page=shop&panel1-1="
                         },
                         "energy": {
-                            "resources": {
-                                "actual": {!! $resources['energy']['amount'] !!},
-                                "actualFormat": "{!! $resources['energy']['amount_formatted'] !!}"
-                            },
-                            "tooltip": "Energy|<table class=\"resourceTooltip\">\n            <tr>\n                <th>@lang('Available'):<\/th>\n                <td><span class=\"\">{!! $resources['energy']['amount_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"{{ $resources['energy']['production'] > 0 ? 'undermark' : 'overmark' }}\">{{ $resources['energy']['production'] > 0 ? '+' : '' }}{!! $resources['energy']['production_formatted'] !!}<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Consumption:<\/th>\n                <td><span class=\"{{ $resources['energy']['consumption'] > 0 ? 'overmark' : '' }}\">{{ $resources['energy']['consumption'] > 0 ? '-' : '' }}{!! $resources['energy']['consumption_formatted'] !!}<\/span><\/td>\n            <\/tr>\n        <\/table>",
-                            "class": "{{ $resources['energy']['amount'] < 0 ? 'overmark' : '' }}"
+                            "amount": {!! $resources['energy']['amount'] !!},
+                            "tooltip": "@lang('Energy')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"\">{!! $resources['energy']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>Current production:<\/th><td><span class=\"{{ $resources['energy']['production'] > 0 ? 'undermark' : 'overmark' }}\">{{ $resources['energy']['production'] > 0 ? '+' : '' }}{!! $resources['energy']['production_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Consumption')<\/th><td><span class=\"{{ $resources['energy']['consumption'] > 0 ? 'overmark' : '' }}\">{{ $resources['energy']['consumption'] > 0 ? '-' : '' }}{!! $resources['energy']['consumption_formatted'] !!}<\/span><\/td><\/tr><\/table>",
+                            "classesListItem": ""
                         },
                         "darkmatter": {
-                            "resources": {
-                                "actual": 0,
-                                "actualFormat": "0"
-                            },
-                            "string": "0 Dark Matter",
-                            "tooltip": "Dark Matter|<table class=\"resourceTooltip\">\n                <tr>\n                    <th>@lang('Available'):<\/th>\n                    <td><span class=\"\">0<\/span><\/td>\n                <\/tr>\n                <tr>\n                    <th>Purchased:<\/th>\n                    <td><span class=\"\">0<\/span><\/td>\n                <\/tr>\n                <tr>\n                    <th>Found:<\/th>\n                    <td><span class=\"\">0<\/span><\/td>\n                <\/tr>\n            <\/table>",
-                            "class": ""
-                        },
-                        "honorScore": 0
-                    });
-                }
+                            "amount": 22500,
+                            "tooltip": "Dark Matter|<table class=\"resourceTooltip\"><tr><th>Available:<\/th><td><span class=\"\">22,500<\/span><\/td><\/tr><tr><th>Purchased<\/th><td><span class=\"\">0<\/span><\/td><\/tr><tr><th>Found<\/th><td><span class=\"\">22,500<\/span><\/td><\/tr><\/table>",
+                            "classesListItem": "",
+                            "classes": "overlay",
+                            "link": "#TODO_page=payment",
+                            "img": "/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif"
+                        }
+                    },
+                    "techs": {
+                        // TODO: add tech levels as far as they are available
+                    },
+                    "honorScore": 11,
+                });
 
                 function updateAjaxResourcebox(data) {
                     reloadResources(data);
