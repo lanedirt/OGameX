@@ -19,6 +19,8 @@ class HighscoreController extends OGameController
      */
     public function index(Request $request, PlayerService $player) : View
     {
+        $this->setBodyId('highscore');
+
         return view('ingame.highscore.index')->with([
             'initialContent' => $this->ajax($request, $player),
         ]);

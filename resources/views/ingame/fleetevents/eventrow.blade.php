@@ -190,7 +190,7 @@
             $("#counter-eventlist-{{ $fleet_event_row->id }}"),
             {{ $fleet_event_row->mission_time_arrival }} - {{ time() }},
             $("#eventListWrap"),
-            "https:\/\/s255-en.ogame.gameforge.com\/game\/index.php?page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
+            "#TODO_page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
             [0,1]
         );
     })(jQuery);

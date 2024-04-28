@@ -34,6 +34,7 @@ class Http200Test extends AccountTestCase
             '/shop',
             '/buddies',
             '/rewards',
+            '/highscore',
         ];
 
         foreach ($routes as $route) {
@@ -43,7 +44,8 @@ class Http200Test extends AccountTestCase
                 $response->assertStatus(200);
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
                 $customMessage = 'Main page "' . $route . '" does not return HTTP 200.';
-                // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
+                // Include HTML error message (first 2k chars)
+                $customMessage .= "\nResponse: " . substr($response->getContent(), 0, 2000);
                 $this->fail($customMessage);
             }
         }

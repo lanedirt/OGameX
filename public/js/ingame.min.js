@@ -64340,7 +64340,7 @@ function initHighscore() {
     $('#stat_list_content').html(LocalizationStrings['loading']);
     $(this).addClass('active');
     var category = $("#categoryButtons > a.active").attr('rel');
-    var url = highscoreContentUrl + '&category=' + category + '&type=' + type + searchRelString;
+    var url = highscoreContentUrl + '?category=' + category + '&type=' + type + searchRelString;
 
     if (($parent.attr('id') == 'typeButtons' || $(this).hasClass('subnavButton')) && searchSite != site) {
       url = url + "&site=" + site;
@@ -64391,7 +64391,7 @@ function initHighscoreContent() {
   $(".changeSite").change(function () {
     var value = $(this).val();
     $("#stat_list_content").html('<div class="ajaxLoad">' + LocalizationStrings.loading + '</div>');
-    ajaxCall(highscoreContentUrl + '&category=' + currentCategory + '&type=' + currentType + '&site=' + value, '#stat_list_content', initHighscoreContent);
+    ajaxCall(highscoreContentUrl + '?category=' + currentCategory + '&type=' + currentType + '&page=' + value, '#stat_list_content', initHighscoreContent);
   }); // scroll to top buttons
 
   var scrollToTopButton = $("#scrollToTop");
