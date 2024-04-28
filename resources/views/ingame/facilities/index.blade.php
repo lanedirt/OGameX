@@ -54,11 +54,17 @@
                         >
 
                         <span class="icon sprite sprite_medium medium {{ $building->object->class_name }}">
-                            <button
-                                    class="upgrade tooltip hideOthers js_hideTipOnMobile"
-                                    aria-label="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}" title="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}"
-                                    data-technology="{{ $building->object->id }}" data-is-spaceprovider="">
-                            </button>
+                            @if ($building->currently_building)
+                            @elseif (!$building->requirements_met)
+                            @elseif (!$building->enough_resources)
+                            @elseif ($build_queue_max)
+                            @else
+                                <button
+                                        class="upgrade tooltip hideOthers js_hideTipOnMobile"
+                                        aria-label="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}" title="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}"
+                                        data-technology="{{ $building->object->id }}" data-is-spaceprovider="">
+                                </button>
+                            @endif
                             @if ($building->currently_building)
                                 <div class="cooldownBackground"></div>
                                 <time-counter><time class="countdown buildingCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>

@@ -175,11 +175,12 @@
                     <button class="maximum">[max. {{ $max_build_amount }}]</button>
                 </div>
             @elseif ($object_type == 'building' || $object_type == 'station')
-                <button class="downgrade" data-technology="3" data-name="{{ $title }}">
+                <!-- TODO: implement downgrade feature -->
+                <!--<button class="downgrade" data-technology="3" data-name="{{ $title }}">
                     <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
                          data-ipi-hint="ipiTechnologyTearDowndeuteriumSynthesizer"></div>
                     <span class="label">tear down</span>
-                </button>
+                </button>-->
             @endif
 
             <div class="build-it_wrap">
