@@ -5,11 +5,11 @@ OGameX is an open-source OGame clone aiming to recreate the official OGame exper
 
 ### Demo sites where you can see OGameX in action:
 - Main branch (nightly builds): [https://main.ogamex.dev](https://main.ogamex.dev)
-- Latest stable release **(0.3.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
+- Latest stable release **(0.4.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
 
 ## Table of Contents
 - [1. Example screenshots](#1-example-screenshots)
-- [2. Background](#2-background)
+- [2. About the author](#2-about-the-author)
 - [3. Goal](#3-goal)
 - [4. Current State of the Project](#4-current-state-of-the-project)
   - [a) Upcoming Features](#a-upcoming-features)
@@ -22,13 +22,13 @@ OGameX is an open-source OGame clone aiming to recreate the official OGame exper
 - [9. License](#9-license)
 
 ## 1. Example screenshots
-<img width="1051" alt="Screenshot 2024-03-20 at 22 15 36" src="https://github.com/lanedirt/OGameX/assets/6917405/f054a8fc-ca2c-43d1-9831-d2886a7cad40">
-<img width="1075" alt="Screenshot 2024-03-20 at 22 15 44" src="https://github.com/lanedirt/OGameX/assets/6917405/b3a01356-1e2c-48f7-8603-159caedc2c2b">
-<img width="1084" alt="Screenshot 2024-03-20 at 22 15 55" src="https://github.com/lanedirt/OGameX/assets/6917405/1c137e70-c3c2-47c7-b91f-b7a9eb10b1bc">
+<img width="1130" alt="Screenshot 2024-04-28 at 16 57 38" src="https://github.com/lanedirt/OGameX/assets/6917405/ae1a4852-5c88-42ad-9242-27c8e088577c">
+<img width="1174" alt="Screenshot 2024-04-28 at 16 57 09" src="https://github.com/lanedirt/OGameX/assets/6917405/f586c9f0-c335-45ae-bdb6-8793dda83103">
+<img width="1142" alt="Screenshot 2024-04-28 at 16 58 08" src="https://github.com/lanedirt/OGameX/assets/6917405/37a419e0-5ace-457d-b1b7-382dc317782c">
 
-## 2. Background
+## 2. About the author
 
-My journey into software development began in 2007 at the age of 14 when I discovered the source code for Ugamela, an early open-source PHP clone of OGame. I really liked running my own browser game server and dedicated myself to modifying this version and translating it to Dutch, leading to the launch of OGameX.nl. This server, active from 2007 to 2009, nurtured a small yet engaged community. This experience not only sparked my passion for software development but also laid the groundwork for my professional career. OGame has always held a special place in my heart, which is why now, 15 years later, I've decided to return to it and create this open-source clone from the ground up.
+My ([@lanedirt](https://github.com/lanedirt)) journey into software development began in 2007 at the age of 14 when I discovered the source code for Ugamela, an early open-source PHP clone of OGame. I really liked running my own browser game server and dedicated myself to modifying this version and translating it to Dutch, leading to the launch of OGameX.nl. This server, active from 2007 to 2009, nurtured a small yet engaged community. This experience not only sparked my passion for software development but also laid the groundwork for my professional career. OGame has always held a special place in my heart, which is why now, 15 years later, I've decided to return to it and create this open-source clone from the ground up.
 
 ## 3. Goal
 
@@ -45,14 +45,19 @@ OGameX is under active development with several core features already implemente
 - Planet switching
 - Highscore system
 - Basic messages system
+- Fleet dispatch missions
+  - Transport
+  - Deployment
 
 ### a) Upcoming Features
 
 New features are continuously being added. Upcoming features:
-- Fleet dispatch missions (combat, transport, espionage, and more)
-- Colonizing planets
+- Remaining fleet dispatch missions (colonization, recycling, attack)
+- Battlesystem
 - Support for Moons
 - Alliance system
+- Improve galaxy overview
+- Improve message system
 
 ## 5. Contributing
 
