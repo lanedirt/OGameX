@@ -247,13 +247,31 @@ holdingtime: 0
 
         // Create a new fleet mission
         $fleetMissionService = app()->make(FleetMissionService::class);
-        $fleetMissionService->create($planet, $target_planet, $mission_type, $units, $resources);
+        $fleetMissionService->createNewFromPlanet($planet, $target_planet, $mission_type, $units, $resources);
 
         return response()->json([
             'components' => [],
             'message' => 'Your fleet has been successfully sent.',
             'newAjaxToken' => csrf_token(),
             'redirectUrl' => route('fleet.index'),
+            'success' => true,
+        ]);
+    }
+
+    public function dispatchRecallFleet(): JsonResponse {
+        // Get the fleet mission id
+        $fleet_mission_id = request()->input('fleet_mission_id');
+
+        // Get the fleet mission service
+        $fleetMissionService = app()->make(FleetMissionService::class);
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleet_mission_id);
+
+        // Recall the fleet mission
+        $fleetMissionService->cancelMission($fleetMission);
+
+        return response()->json([
+            'components' => [],
+            'newAjaxToken' => csrf_token(),
             'success' => true,
         ]);
     }

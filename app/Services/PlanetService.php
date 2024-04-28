@@ -316,10 +316,11 @@ class PlanetService
      *
      * @param Resources $resources
      * Array with resources to deduct.
+     * @param bool $save_planet
      *
      * @throws Exception
      */
-    public function deductResources(Resources $resources): void
+    public function deductResources(Resources $resources, bool $save_planet = true): void
     {
         // Sanity check that this planet has enough resources, if not throw
         // exception.
@@ -337,7 +338,9 @@ class PlanetService
             $this->planet->deuterium -= $resources->deuterium->get();
         }
 
-        $this->planet->save();
+        if ($save_planet) {
+            $this->planet->save();
+        }
     }
 
     /**
@@ -911,6 +914,21 @@ class PlanetService
 
         if ($save_planet) {
             $this->planet->save();
+        }
+    }
+
+    /**
+     * Add collection of units to this planet.
+     *
+     * @param UnitCollection $units
+     * @param bool $save_planet
+     * @return void
+     * @throws Exception
+     */
+    public function addUnits(UnitCollection $units, bool $save_planet = true): void
+    {
+        foreach ($units->units as $unit) {
+            $this->addUnit($unit->unitObject->machine_name, $unit->amount, $save_planet);
         }
     }
 

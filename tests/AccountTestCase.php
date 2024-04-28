@@ -76,6 +76,24 @@ abstract class AccountTestCase extends TestCase
     }
 
     /**
+     * Get a random second user id from the database. This is useful for testing interactions between two players.
+     *
+     * @return int
+     */
+    protected function getSecondPlayerId(): int
+    {
+        $playerIds = \DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
+        if (count($playerIds) < 1) {
+            // Create user if there are not enough in the database.
+            $this->createAndLoginUser();
+            $playerIds = \DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
+        }
+
+        return $playerIds[0];
+    }
+
+
+    /**
      * Add resources to current users current planet.
      *
      * @param Resources $resources
@@ -427,5 +445,40 @@ abstract class AccountTestCase extends TestCase
 
         // Assert the response status is successful
         $response->assertStatus(200);
+    }
+
+    /**
+     * View the messages page for the current user in order to mark all default system
+     * messages as read.
+     *
+     * @return void
+     */
+    protected function playerSetAllMessagesRead(): void
+    {
+        // Access the main messages page where default register message is sent to
+        // in order to mark all messages as read.
+        $response = $this->get('/ajax/messages?tab=universe');
+        // Assert the response status is successful
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Asserts that a message has been received in the specified tab/subtab and that it contains the specified text.
+     *
+     * @param string $tab
+     * @param string $subtab
+     * @param array<int,string> $must_contain
+     * @return void
+     */
+    protected function assertMessageReceivedAndContains(string $tab, string $subtab, array $must_contain) : void {
+        // Assert that message has been sent to player.
+        $response = $this->get('/overview');
+        // Assert that page contains "1 unread message(s)" text.
+        $response->assertSee('1 unread message(s)');
+        $response = $this->get('/ajax/messages?tab=' . $tab . '&subtab=' . $subtab);
+        $response->assertStatus(200);
+        foreach ($must_contain as $needle) {
+            $response->assertSee($needle, false);
+        }
     }
 }

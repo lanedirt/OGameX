@@ -7,6 +7,9 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\DeploymentMission;
+use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
@@ -37,6 +40,15 @@ class FleetMissionService
         8 => 'Recycle',
         9 => 'Destroy',
         15 => 'Expedition',
+    ];
+
+    /**
+     * Mission type to class mapping.
+     * @var array<int, class-string> $missionTypeToClass
+     */
+    protected array $missionTypeToClass = [
+        3 => TransportMission::class,
+        4 => DeploymentMission::class,
     ];
 
     /**
@@ -76,71 +88,6 @@ class FleetMissionService
         $this->model = new $model_name();
     }
 
-    /**
-     * Creates a new fleet mission for the current planet.
-     *
-     * @param PlanetService $planet
-     * @param PlanetService $targetPlanet
-     * @param int $missionType
-     * @param UnitCollection $units
-     * @param Resources $resources
-     * @return void
-     * @throws Exception
-     */
-    public function create(PlanetService $planet, PlanetService $targetPlanet, int $missionType, UnitCollection $units, Resources $resources): void
-    {
-        // TODO: add sanity checks for the input data that enough resources and enough units, enough cargospace etc.
-        if (!$planet->hasResources($resources)) {
-            throw new Exception('Not enough resources on the planet to send the fleet.');
-        }
-        if (!$planet->hasUnits($units)) {
-            throw new Exception('Not enough units on the planet to send the fleet.');
-        }
-
-        // Time this fleet mission will depart (now)
-        $time_start = (int)Carbon::now()->timestamp;
-
-        // Time fleet mission will arrive
-        $time_end = $time_start + $this->calculateFleetMissionDuration();
-
-        $mission = new $this->model;
-        $mission->user_id = $planet->getPlayer()->getId();
-        $mission->planet_id_from = $planet->getPlanetId();
-        // TODO: validate mission type
-        $mission->mission_type = $missionType;
-        $mission->time_departure = $time_start;
-        $mission->time_arrival = $time_end;
-
-        // TODO: update these to the actual target coordinates
-
-        $mission->planet_id_to = $targetPlanet->getPlanetId();
-        // Coordinates
-        $coords = $targetPlanet->getPlanetCoordinates();
-        $mission->galaxy_to = $coords->galaxy;
-        $mission->system_to = $coords->system;
-        $mission->position_to = $coords->position;
-
-        // Fill in the units
-        foreach ($units->units as $unit) {
-            $mission->{$unit->unitObject->machine_name} = $unit->amount;
-        }
-
-        // TODO: deduct units from planet
-        $planet->removeUnits($units, false);
-
-        // Fill in the resources
-        $mission->metal = $resources->metal->getRounded();
-        $mission->crystal = $resources->crystal->getRounded();
-        $mission->deuterium = $resources->deuterium->getRounded();
-
-        // TODO: deduct resources from planet
-
-        // All OK, deduct resources.
-        $planet->deductResources($resources);
-
-        // Save the new fleet mission.
-        $mission->save();
-    }
 
     /**
      * Calculate the max speed of a fleet based on the current planet and fleet content.
@@ -159,7 +106,7 @@ class FleetMissionService
      */
     public function calculateFleetMissionDuration(): int
     {
-        return 15;
+        return 300;
     }
 
     /**
@@ -170,7 +117,21 @@ class FleetMissionService
      */
     public function missionTypeToLabel(int $missionType): string
     {
-        return $this->type_to_label[$missionType] ?? 'Unknown';
+        // Call static method on mission class.
+        $className = $this->missionTypeToClass[$missionType];
+        return $className::getName();
+    }
+
+    /**
+     * Returns whether a mission type has a return mission by default.
+     *
+     * @param int $missionType
+     * @return bool
+     */
+    public function missionHasReturnMission(int $missionType): bool
+    {
+        $className = $this->missionTypeToClass[$missionType];
+        return $className::hasReturnMission();
     }
 
     /**
@@ -258,8 +219,60 @@ class FleetMissionService
             })
             ->where('time_arrival', '<=', Carbon::now()->timestamp)
             ->where('processed', 0)
-            ->where('canceled', 0)
             ->get();
+    }
+
+    /**
+     * Get a fleet mission by its ID.
+     *
+     * @param int $id
+     * @param bool $only_active
+     * @return FleetMission
+     */
+    public function getFleetMissionById(int $id, bool $only_active = true): FleetMission
+    {
+        if ($only_active) {
+            return $this->model
+                ->where('id', $id)
+                ->where('processed', 0)
+                ->first();
+        }
+        else {
+            return $this->model
+                ->where('id', $id)
+                ->first();
+        }
+    }
+
+    /**
+     * Creates a new fleet mission for the current planet.
+     *
+     * @param PlanetService $planet
+     * @param PlanetService $targetPlanet
+     * @param int $missionType
+     * @param UnitCollection $units
+     * @param Resources $resources
+     * @param int $parent_id
+     * @return void
+     * @throws Exception
+     */
+    public function createNewFromPlanet(PlanetService $planet, PlanetService $targetPlanet, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): void
+    {
+        if ($missionType == 3) {
+            $transportMission = app()->make(TransportMission::class, [
+                'fleetMissionService' => $this,
+                'messageService' => $this->messageService,
+            ]);
+            $transportMission->start($planet, $targetPlanet, $units, $resources, $parent_id);
+        }
+        elseif ($missionType == 4) {
+            $deployMission = app()->make(DeploymentMission::class, [
+                'fleetMissionService' => $this,
+                'messageService' => $this->messageService,
+            ]);
+            $deployMission->start($planet, $targetPlanet, $units, $resources, $parent_id);
+        }
+        return;
     }
 
     /**
@@ -268,6 +281,7 @@ class FleetMissionService
      * @param FleetMission $mission
      * @return void
      * @throws BindingResolutionException
+     * @throws Exception
      */
     public function updateMission(FleetMission $mission): void
     {
@@ -280,24 +294,52 @@ class FleetMissionService
         switch ($mission->mission_type) {
             case 3:
                 // Transport
-                // Get source planet
+                $transportMission = app()->make(TransportMission::class, [
+                    'fleetMissionService' => $this,
+                    'messageService' => $this->messageService,
+                ]);
+                $transportMission->process($mission);
+                break;
+            case 4:
+                // Deploy
+                $deployMission = app()->make(DeploymentMission::class, [
+                    'fleetMissionService' => $this,
+                    'messageService' => $this->messageService,
+                ]);
+                $deployMission->process($mission);
+                break;
+        }
+    }
 
-                // Get the target planet
-                // Load the target planet
-                $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-                $target_planet = $planetServiceFactory->make($mission->planet_id_to);
+    /**
+     * Cancel a fleet mission.
+     *
+     * @param FleetMission $mission
+     * @return void
+     */
+    public function cancelMission(FleetMission $mission): void
+    {
+        // Sanity check: only process missions that have not been processed yet.
+        if ($mission->processed) {
+            return;
+        }
 
-                // Add resources to the target planet
-                $target_planet->addResources($this->getResources($mission));
-
-                // Mark the mission as processed
-                $mission->processed = 1;
-                $mission->save();
-
-                // Send a message to the player that the mission has arrived
-                // TODO: make message content translatable by using tokens instead of directly inserting dynamic content.
-                $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Reaching a planet', 'Your fleet from planet [planet]' . $mission->planet_id_from . '[/planet] reaches the planet [planet]' . $mission->planet_id_to . '[/planet] and delivers its goods:
-Metal: ' . $mission->metal . ' Crystal: ' . $mission->crystal . ' Deuterium: ' . $mission->deuterium, 'transport_arrived');
+        switch ($mission->mission_type) {
+            case 3:
+                // Transport
+                $transportMission = app()->make(TransportMission::class, [
+                    'fleetMissionService' => $this,
+                    'messageService' => $this->messageService,
+                ]);
+                $transportMission->cancel($mission);
+                break;
+            case 4:
+                // Deploy
+                $deployMission = app()->make(DeploymentMission::class, [
+                    'fleetMissionService' => $this,
+                    'messageService' => $this->messageService,
+                ]);
+                $deployMission->cancel($mission);
                 break;
         }
     }

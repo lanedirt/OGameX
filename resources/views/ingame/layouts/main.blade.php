@@ -621,8 +621,7 @@ Combat simulation save slots +20">
                 };
 
                 var ajaxEventboxURI = "{{ route('fleet.eventbox.fetch') }}";
-                var ajaxRecallFleetURI = "#TODO_page=ingame&component=movement&action=recallFleetAjax&ajax=1&asJson=1";
-                var ajaxResourceboxURI = "#TODO_game\/index.php?page=fetchResources&ajax=1";
+                var ajaxRecallFleetURI = "{{ route('fleet.dispatch.recallfleet') }}";
                 var currentSpaceObjectId = 33624092;
                 var ajaxReloadComponentURI = "#TODO_index.php?page=standalone&ajax=1";
 
