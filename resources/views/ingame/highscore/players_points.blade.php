@@ -12,20 +12,20 @@
 
         <div class="pagebar">
             @if ($highscoreCurrentPage > 1)
-                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => 1, 'type' => $highscoreCurrentType]) }}#ategory=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site=1', 'stat_list_content'); return false;">«</a>&nbsp;
+                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => 1, 'type' => $highscoreCurrentType]) }}', '#stat_list_content'); return false;">«</a>&nbsp;
             @endif
             @for ($i = 1; $i <= ceil($highscorePlayerAmount / 100); $i++)
                 @if ($highscoreCurrentPage == $i)
                     <span class=" activePager">{{ $i }}</span>
                 @else
-                    <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => $i, 'type' => $highscoreCurrentType]) }}#highscoreContent&amp;category=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site={{ $i }}', 'stat_list_content'); return false;">
+                    <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => $i, 'type' => $highscoreCurrentType]) }}', '#stat_list_content'); return false;">
                         {{ $i }}
                     </a>
                 @endif
                 &nbsp;
             @endfor
             @if ($highscoreCurrentPage < floor($highscorePlayerAmount / 100))
-                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => floor($highscorePlayerAmount / 100) + 1, 'type' => $highscoreCurrentType]) }}#highscoreContent&amp;category=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site=x', 'stat_list_content'); return false;">»</a>
+                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => floor($highscorePlayerAmount / 100) + 1, 'type' => $highscoreCurrentType]) }}', '#stat_list_content'); return false;">»</a>
             @endif
         </div>
         <select class="changeSite fright">
@@ -81,7 +81,7 @@
                     <td class="name">
 
                         <a href="
-{{ route('galaxy.index', ['galaxy' => $highscorePlayer['planet_coords']['galaxy'], 'system' => $highscorePlayer['planet_coords']['system'], 'position' => $highscorePlayer['planet_coords']['planet']])  }}" class="dark_highlight_tablet">
+{{ route('galaxy.index', ['galaxy' => $highscorePlayer['planet_coords']->galaxy, 'system' => $highscorePlayer['planet_coords']->system, 'position' => $highscorePlayer['planet_coords']->position])  }}" class="dark_highlight_tablet">
 
 <span class="
                  playername">
@@ -123,20 +123,20 @@
             <a href="javascript:void(0);" class="scrollToTop">Back to top</a>
             &nbsp;
             @if ($highscoreCurrentPage > 1)
-                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => 1, 'type' => $highscoreCurrentType]) }}#ategory=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site=1', 'stat_list_content'); return false;">«</a>&nbsp;
+                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => 1, 'type' => $highscoreCurrentType]) }}', '#stat_list_content'); return false;">«</a>&nbsp;
             @endif
             @for ($i = 1; $i <= ceil($highscorePlayerAmount / 100); $i++)
                 @if ($highscoreCurrentPage == $i)
                     <span class=" activePager">{{ $i }}</span>
                 @else
-                    <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => $i, 'type' => $highscoreCurrentType]) }}#highscoreContent&amp;category=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site={{ $i }}', 'stat_list_content'); return false;">
+                    <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => $i, 'type' => $highscoreCurrentType]) }}', '#stat_list_content'); return false;">
                         {{ $i }}
                     </a>
                 @endif
                 &nbsp;
             @endfor
             @if ($highscoreCurrentPage < floor($highscorePlayerAmount / 100))
-                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => floor($highscorePlayerAmount / 100) + 1, 'type' => $highscoreCurrentType]) }}#highscoreContent&amp;category=1&amp;type={{ $highscoreCurrentType }}&amp;searchRelId=113970&amp;site=x', 'stat_list_content'); return false;">»</a>
+                <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => floor($highscorePlayerAmount / 100) + 1, 'type' => $highscoreCurrentType]) }}', '#stat_list_content'); return false;">»</a>
             @endif
         </div>
     </div>

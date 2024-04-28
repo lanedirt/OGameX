@@ -102,6 +102,7 @@ class HighscoreService
      *
      * @param PlayerService $player
      * @return int
+     * @throws Exception
      */
     public function getPlayerScoreEconomy(PlayerService $player): int
     {
@@ -126,7 +127,9 @@ class HighscoreService
     public function getHighscorePlayers(int $offset_start = 0, int $return_amount = 100): array
     {
         // Get all players
-        $players = User::all();
+        // TODO: when cached highscore results are available, remove this max 110 players limit.
+        // This limit is added to prevent loading all players in memory at once which causes timeout issues.
+        $players = User::take(110)->get();
         $highscore = [];
         $count = 0;
         foreach ($players as $player) {
@@ -217,6 +220,12 @@ class HighscoreService
      */
     public function getHighscorePlayerAmount() : int
     {
-        return User::count();
+        // TODO: return actual player count again when caching is implemented.
+        $actualUserCount = User::count();
+        if ($actualUserCount > 110) {
+            return 110;
+        }
+
+        return $actualUserCount;
     }
 }

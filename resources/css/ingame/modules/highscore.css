@@ -1,0 +1,578 @@
+
+#highscoreContent {
+    color: #848484;
+    width: 670px
+}
+
+#highscoreContent .leftcol {
+    width: 430px;
+    float: left
+}
+
+#highscoreContent .rightcol {
+    width: 200px;
+    float: left;
+    overflow-x: hidden
+}
+
+#highscoreContent div.header,#highscoreContent div.content,#highscoreContent div.footer {
+    background-image: url("/img/icons/e15f6af4946be6f9dbd999ccb0ec7b.gif")
+}
+
+#highscoreContent div.header {
+    background-color: transparent;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    height: 29px
+}
+
+#highscoreContent div.content {
+    background-position: 0 0;
+    background-repeat: repeat-y;
+    background-image: url("/img/icons/3e31441afc04a23fdea44f7255ad91.gif");
+    margin: 0 0 0 6px;
+    padding: 10px 15px 10px 15px;
+    width: 630px;
+    position: relative
+}
+
+#highscoreContent div.footer {
+    background-color: transparent;
+    background-position: 0 -654px;
+    background-repeat: no-repeat;
+    height: 46px
+}
+
+#highscoreContent h3 {
+    font-weight: 700
+}
+
+#highscoreContent .teaser {
+    margin: 0 0 10px 10px
+}
+
+#highscoreContent div.content table {
+    border-collapse: collapse;
+    color: #848484;
+    font-size: 11px;
+    width: 610px;
+    table-layout: fixed
+}
+
+#highscoreContent #ranks .score {
+    font-size: 13px;
+    font-weight: bold;
+    text-align: right
+}
+
+#highscoreContent #ranks td.score .small {
+    font-size: 11px;
+    font-weight: 100
+}
+
+#highscoreContent a:link,#highscoreContent a:visited {
+    color: #848484;
+    text-decoration: none
+}
+
+.no-touch #highscoreContent a:hover {
+    color: #9b9b9b;
+    text-decoration: underline
+}
+
+#highscoreContent a:active {
+    color: #848484;
+    text-decoration: none
+}
+
+#highscoreContent div.content table#ranks th {
+    padding: 3px;
+    border-bottom: 1px solid #848484;
+    background-color: #23313c;
+    text-align: center;
+    text-transform: uppercase
+}
+
+#highscoreContent div.content table#ranks .place {
+    padding: 2px 5px
+}
+
+#highscoreContent div.content table#ranks tr.alt td {
+    background-color: #13181d
+}
+
+#highscoreContent table.top10 {
+    margin-top: 0
+}
+
+#highscoreContent #ranks td,#highscoreContent table.top10 td {
+    padding: 4px;
+    border: 1px solid #000;
+    line-height: 15px;
+    overflow: hidden
+}
+
+#highscoreContent .ally-name {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin: 0
+}
+
+#highscoreContent div.content table#ranks.allyHighscore td.sendmsg {
+    text-align: center
+}
+
+#highscoreContent #ranks .position {
+    width: 60px
+}
+
+#highscoreContent #ranks .movement {
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+    width: 40px
+}
+
+#highscoreContent #ranks .name {
+    width: 210px
+}
+
+#highscoreContent #ranks .sendmsg {
+    padding: 4px 0;
+    width: 50px
+}
+
+#highscoreContent #ranks .member_count {
+    width: 60px
+}
+
+#highscoreContent #ranks .score {
+    width: 150px
+}
+
+#highscoreContent #ranks .sendmsg_content {
+    width: 50px
+}
+
+#highscoreContent #ranks .sendmsg a {
+    margin: 0 3px
+}
+
+#highscoreContent div.content table#ranks td span.scoreAverage {
+    font-size: 8px
+}
+
+#highscoreContent table.top10 td.alt {
+    background-color: #13181d
+}
+
+#highscoreContent div.content table#ranks tr {
+    overflow: hidden
+}
+
+#highscoreContent div.content table#ranks tr.hover td {
+    background-color: #212a33
+}
+
+#highscoreContent table.top10 td.namecol {
+    width: 170px
+}
+
+#highscoreContent table.top10 td.namecol a {
+    height: 17px;
+    overflow: hidden
+}
+
+#highscoreContent table.top10 td span.allytag {
+    color: #5e699e
+}
+
+#highscoreContent div.content table#ranks td.col1 {
+    width: 50px;
+    text-align: center;
+    color: #fff
+}
+
+#highscoreContent .top10 td.rankcol {
+    width: 25px;
+    text-align: center;
+    font-weight: 700
+}
+
+#highscoreContent div.claimsmall {
+    background: #23313c;
+    border-bottom: 2px solid #848484;
+    height: 44px;
+    color: #848484;
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 700
+}
+
+div.claimsmall p {
+    display: inline;
+    line-height: 40px;
+    margin: 0
+}
+
+#highscoreContent div.content select {
+    background-color: #10181f;
+    border: 1px solid #848484;
+    color: #6f9fc8;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 14px;
+    margin: 7px 7px 0 0;
+    text-transform: capitalize;
+    width: 150px
+}
+
+.showOldDropdowns #highscoreContent div.content select {
+    background-color: #fff;
+    color: #000
+}
+
+.no-touch #highscoreContent div.content select:hover {
+    background-color: #000
+}
+
+.showOldDropdowns.no-touch #highscoreContent div.content select:hover {
+    background-color: #fff
+}
+
+#highscoreContent #row a.send {
+    background: transparent url("/img/icons/e1b499e9d2ef42942416cadb54a770.gif") left top no-repeat;
+    float: left;
+    height: 54px;
+    width: 135px;
+    padding: 0;
+    text-decoration: none;
+    font-size: 11px;
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer
+}
+
+#highscoreContent a.send:link,#highscoreContent a.send:visited,.no-touch #highscoreContent a.send:hover,#highscoreContent a.send:active {
+    text-decoration: none;
+    cursor: pointer
+}
+
+#highscoreContent a.send span {
+    display: block;
+    height: 34px;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0 0
+}
+
+#highscoreContent div.parameter {
+    float: right;
+    margin: 0 10px 0 0;
+    display: inline;
+    height: 20px;
+    font-size: 11px
+}
+
+#highscoreContent div.senddiv {
+    float: left;
+    display: inline;
+    padding: 6px 0 0 0;
+    text-align: center;
+    margin-left: 0
+}
+
+#highscoreContent span.position {
+    font-weight: 700;
+    display: block;
+    padding-bottom: 8px
+}
+
+#highscoreContent div.content div#parameter {
+    text-align: center;
+    font-weight: 700;
+    height: 25px;
+    margin-bottom: 15px
+}
+
+#highscoreContent #row {
+    height: 78px
+}
+
+#highscoreContent .buttons {
+    display: inline;
+    float: left;
+    height: 54px;
+    margin: 6px 0 0 7px;
+    padding: 0;
+    width: 160px
+}
+
+#highscoreContent .buttons.rightCol {
+    width: 455px
+}
+
+#highscoreContent .navButton {
+    background-image: url("/img/icons/1fd57fa51cdb81035382943e635348.gif");
+    background-repeat: no-repeat;
+    float: left;
+    height: 54px;
+    margin-right: 10px;
+    overflow: visible;
+    position: relative;
+    width: 54px
+}
+
+#highscoreContent #player {
+    background-position: 0 0
+}
+
+#highscoreContent #alliance {
+    background-position: -54px 0
+}
+
+#highscoreContent #points {
+    background-position: -108px 0
+}
+
+#highscoreContent #fleet {
+    background-position: -162px 0
+}
+
+#highscoreContent #research {
+    background-position: -216px 0
+}
+
+#highscoreContent #economy {
+    background-position: -270px 0
+}
+
+#highscoreContent #player.active {
+    background-position: 0 -54px
+}
+
+#highscoreContent #alliance.active {
+    background-position: -54px -54px
+}
+
+#highscoreContent #points.active {
+    background-position: -108px -54px
+}
+
+#highscoreContent #fleet.active {
+    background-position: -162px -54px
+}
+
+#highscoreContent #research.active {
+    background-position: -216px -54px
+}
+
+#highscoreContent #economy.active {
+    background-position: -270px -54px
+}
+
+#highscoreContent #subnav_fleet {
+    display: none;
+    height: 54px;
+    margin: 8px 10px 0 5px;
+    width: 180px
+}
+
+#highscoreContent .subnavButton {
+    background: transparent url("/img/icons/6f6b7e29edf86992b7e7162f23789a.png") no-repeat center;
+    float: left;
+    height: 34px;
+    margin: 11px 5px 5px;
+    position: relative;
+    width: 34px
+}
+
+#highscoreContent .subnavButton_lost {
+    background-position: -33px
+}
+
+#highscoreContent .subnavButton_built {
+    background-position: 0 0
+}
+
+#highscoreContent .subnavButton_destroyed {
+    background-position: -66px
+}
+
+#highscoreContent .subnavButton_honor {
+    background-position: -99px
+}
+
+#highscoreContent .subnavButton_lost.active {
+    background-position: -166px
+}
+
+#highscoreContent .subnavButton_built.active {
+    background-position: -133px
+}
+
+#highscoreContent .subnavButton_destroyed.active {
+    background-position: -199px
+}
+
+#highscoreContent .subnavButton_honor.active {
+    background-position: -232px
+}
+
+#highscoreContent #claim {
+    background: #23313c;
+    border-bottom: 1px solid #848484;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    height: 19px;
+    padding: 5px 15px 0 13px;
+    text-transform: uppercase
+}
+
+#highscoreContent #subnav {
+    background: #23313c
+}
+
+#highscoreContent #paging a {
+    color: #fff;
+    text-decoration: none
+}
+
+.no-touch #highscoreContent #paging a:hover {
+    text-decoration: underline
+}
+
+#highscoreContent .marker {
+    background: transparent url("/img/icons/112960c1ace80c7dcb03ca88d4b6fc.png") no-repeat;
+    display: none;
+    height: 79px;
+    left: -7px;
+    position: absolute;
+    top: -7px;
+    width: 68px
+}
+
+#highscoreContent .small-marker {
+    background: transparent url("/img/icons/112960c1ace80c7dcb03ca88d4b6fc.png") -68px -18px no-repeat;
+    display: none;
+    height: 60px;
+    left: -7px;
+    position: absolute;
+    top: -7px;
+    width: 48px
+}
+
+#highscoreContent .active span.marker,#highscoreContent .active span.small-marker {
+    display: block
+}
+
+#highscoreContent .textlabel {
+    top: 0;
+    width: 56px
+}
+
+#highscoreContent .active .textlabel {
+    color: #fff
+}
+
+#highscoreContent .leftbuttons {
+    float: left;
+    display: inline;
+    height: 54px;
+    padding: 6px 0 6px 0;
+    margin: 0 0 0 15px;
+    width: 128px
+}
+
+#highscoreContent .rightbuttons {
+    float: left;
+    display: inline;
+    height: 54px;
+    padding: 6px 0 5px 0;
+    margin: 0 10px 0 10px;
+    width: 192px
+}
+
+#highscoreContent .ally-tag a:link,#highscoreContent .ally-tag a:visited,.no-touch #highscoreContent .ally-tag a:hover,#highscoreContent .ally-tag a:active {
+    color: #6f9fc8
+}
+
+#highscoreContent tr.myrank td {
+    background-color: #1031a0
+}
+
+#highscoreContent tr.allyrank td {
+    background-color: #01270b
+}
+
+#highscoreContent tr.coalitionrank td {
+    background-color: #41523b
+}
+
+#highscoreContent tr.buddyrank td {
+    background-color: #032e5b
+}
+
+#highscoreContent {
+    width: 670px
+}
+
+#highscoreContent .errorcol {
+    height: 50px;
+    line-height: 50px;
+    margin-top: 10px
+}
+
+#highscoreLoading {
+    background: transparent url("/img/icons/6e0f46d7504242302bc8055ad9c8c2.gif") no-repeat center;
+    height: 550px;
+    margin-left: 6px;
+    position: absolute;
+    top: 0;
+    width: 654px;
+    z-index: 111
+}
+
+#highscoreContent #paging {
+    font-size: 11px;
+    padding: 8px 0;
+    text-align: center
+}
+
+#highscoreContent #stat_list_content {
+    width: 610px;
+    min-height: 300px;
+    border: 10px solid #22313b
+}
+
+#highscoreHeadline {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 5px;
+    width: 400px
+}
+
+#highscoreContent .honorScore {
+    display: inline-block
+}
+
+#highscoreContent #scrollToTop {
+    position: fixed;
+    top: 0;
+    left: 40%;
+    visibility: hidden;
+    z-index: 2
+}
+
+#highscoreContent #scrollToTop a {
+    display: block;
+    height: 32px;
+    width: 32px;
+    background: url("/img/icons/220ba93a2077a9f4338e313354ee19.png") -329px 0
+}
+
+.no-touch #highscoreContent #scrollToTop a:hover {
+    background-position: -329px 47px
+}
