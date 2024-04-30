@@ -69,7 +69,7 @@
     <br/>
     Have fun playing!
 </div>
-
+<div id="siteHeader"></div>
 <div id="pageContent">
     <div id="top">
         <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
