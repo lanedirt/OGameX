@@ -120,19 +120,21 @@
                     </li>
                     <li><a href="{{ route('options.index') }}" accesskey="">@lang('Options')</a></li>
                     <li><a href="#">@lang('Support')</a></li>
-                    <li><a href="{{ route('logout') }}" onclick="event.preventDefault();
+                    <li>
+                        <a href="{{ route('logout') }}" onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">@lang('Log out')</a>
 
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                              style="display: none;">
                             {{ csrf_field() }}
                         </form>
                     </li>
-                    <li class="OGameClock">16.12.2017 <span>12:18:12</span></li>
-                </ul>
+                    <li class="OGameClock">{{ \Carbon\Carbon::now()->format('d.m.Y H:i:s') }}</li>
+                    </ul>
+                </div>
             </div>
-        </div>
-        <div id="resourcesbarcomponent" class="">
-            <div id="resources">
+            <div id="resourcesbarcomponent" class="">
+                <div id="resources">
 
                 <div class="resource_tile metal">
                     <div id="metal_box" class="metal tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="Metal|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['metal']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['metal']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['metal']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>" data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1=" data-ipi-hint="ipiResourcemetal">
@@ -514,111 +516,118 @@ Combat simulation save slots +20">
                     location.href = "{{ route('premium.index', ['showDarkMatter' => 1]) }}#TODO_premium&showDarkMatter=1";
                 }
 
-                var playerId = "1";
-                var playerName = "Admin";
-                var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
-                var isMobile = false;
-                var isMobileApp = false;
-                var isMobileOnly = false;
-                var isFacebookUser = false;
-                var overlayWidth = 770;
-                var overlayHeight = 600;
-                var isRTLEnabled = 0;
-                var activateToken = "e018389e3827e1499e41d35e3c811283";
-                var miniFleetToken = "4002a42efaeb2808f6c232594fb09aa4";
-                var currentPage = "overview";
-                var bbcodePreviewUrl = "{{ route('overview.index') }}#TODO_page=bbcodePreview";
-                var popupWindows = [];
-                var fleetDeutSaveFactor = 1;
-                var honorScore = 0;
-                var darkMatter = 0;
-                var serverTime = new Date(2017, 11, 16, 12, 18, 12);
-                var localTime = new Date();
-                var timeDiff = serverTime - localTime;
-                localTS = localTime.getTime();
-                var startServerTime = localTime.getTime() - (0) - localTime.getTimezoneOffset() * 60 * 1000;
-                var LocalizationStrings = {
-                    "timeunits": {
-                        "short": {
-                            "year": "y",
-                            "month": "m",
-                            "week": "w",
-                            "day": "d",
-                            "hour": "h",
-                            "minute": "m",
-                            "second": "s"
+                    var playerId = "1";
+                    var playerName = "Admin";
+                    var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
+                    var isMobile = false;
+                    var isMobileApp = false;
+                    var isMobileOnly = false;
+                    var isFacebookUser = false;
+                    var overlayWidth = 770;
+                    var overlayHeight = 600;
+                    var isRTLEnabled = 0;
+                    var activateToken = "e018389e3827e1499e41d35e3c811283";
+                    var miniFleetToken = "4002a42efaeb2808f6c232594fb09aa4";
+                    var currentPage = "overview";
+                    var bbcodePreviewUrl = "{{ route('overview.index') }}#TODO_page=bbcodePreview";
+                    var popupWindows = [];
+                    var fleetDeutSaveFactor = 1;
+                    var honorScore = 0;
+                    var darkMatter = 0;
+                    var serverTime = new Date('{{ Carbon\Carbon::now() }}');
+                    var localTime = new Date();
+                    var timeDiff = serverTime - localTime;
+                    localTS = localTime.getTime();
+                    var startServerTime = localTime.getTime() - (0) - localTime.getTimezoneOffset() * 60 * 1000;
+                    var LocalizationStrings = {
+                        "timeunits": {
+                            "short": {
+                                "year": "y",
+                                "month": "m",
+                                "week": "w",
+                                "day": "d",
+                                "hour": "h",
+                                "minute": "m",
+                                "second": "s"
+                            }
+                        },
+                        "status": {
+                            "ready": "done"
+                        },
+                        "decimalPoint": ".",
+                        "thousandSeperator": ",",
+                        "unitMega": "M",
+                        "unitKilo": "K",
+                        "unitMilliard": "B",
+                        "question": "Question",
+                        "error": "Error",
+                        "loading": "load...",
+                        "yes": "yes",
+                        "no": "No",
+                        "ok": "Ok",
+                        "attention": "Caution",
+                        "outlawWarning": "You are about to attack a stronger player. If you do this, your attack defenses will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?",
+                        "lastSlotWarningMoon": "This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?",
+                        "lastSlotWarningPlanet": "This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?",
+                        "forcedVacationWarning": "Some game features are unavailable until your account is validated.",
+                        "moreDetails": "More details",
+                        "lessDetails": "Less detail",
+                        "planetOrder": {
+                            "lock": "Lock arrangement",
+                            "unlock": "Unlock arrangement"
+                        },
+                        "darkMatter": "Dark Matter",
+                        "activateItem": {
+                            "upgradeItemQuestion": "Would you like to replace the existing item? The old bonus will be lost in the process.",
+                            "upgradeItemQuestionHeader": "Replace item?"
                         }
-                    },
-                    "status": {"ready": "done"},
-                    "decimalPoint": ".",
-                    "thousandSeperator": ",",
-                    "unitMega": "M",
-                    "unitKilo": "K",
-                    "unitMilliard": "B",
-                    "question": "Question",
-                    "error": "Error",
-                    "loading": "load...",
-                    "yes": "yes",
-                    "no": "No",
-                    "ok": "Ok",
-                    "attention": "Caution",
-                    "outlawWarning": "You are about to attack a stronger player. If you do this, your attack defenses will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?",
-                    "lastSlotWarningMoon": "This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?",
-                    "lastSlotWarningPlanet": "This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?",
-                    "forcedVacationWarning": "Some game features are unavailable until your account is validated.",
-                    "moreDetails": "More details",
-                    "lessDetails": "Less detail",
-                    "planetOrder": {
-                        "lock": "Lock arrangement",
-                        "unlock": "Unlock arrangement"
-                    },
-                    "darkMatter": "Dark Matter",
-                    "activateItem": {
-                        "upgradeItemQuestion": "Would you like to replace the existing item? The old bonus will be lost in the process.",
-                        "upgradeItemQuestionHeader": "Replace item?"
-                    }
-                };
-                var constants = {
-                    "espionage": 6,
-                    "missleattack": 10,
-                    "language": "en",
-                    "name": "144"
-                };
-                var userData = {"id": "108130"};
-                var missleAttackLink = "{{ route('overview.index') }}#TODO_page=missileattacklayer&width=669&height=250";
-                var changeNickLink = "{{ route('changenick.overlay') }}";
-                var showOutlawWarning = true;
-                var miniFleetLink = "{{ route('overview.index') }}#TODO_page=minifleet&ajax=1";
-                var ogameUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
-                var startpageUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
-                var nodePort = 19603;
-                var nodeUrl = "{{ route('overview.index') }}#TODO_19603\/socket.io\/socket.io.js";
-                var nodeParams = {"port": 19603, "secure": "true"};
-                var chatUrl = "/"; //#TODO_page=ajaxChat
-                var chatUrlLoadMoreMessages = "{{ route('overview.index') }}#TODO_page=chatGetAdditionalMessages";
-                var chatLoca = {
-                    "TEXT_EMPTY": "Where is the message?",
-                    "TEXT_TOO_LONG": "The message is too long.",
-                    "SAME_USER": "You cannot write to yourself.",
-                    "IGNORED_USER": "You have ignored this player.",
-                    "NO_DATABASE_CONNECTION": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
-                    "INVALID_PARAMETERS": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
-                    "SEND_FAILED": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
-                    "LOCA_ALL_ERROR_NOTACTIVATED": "This function is only available after your accounts activation.",
-                    "X_NEW_CHATS": "#+# unread conversation(s)",
-                    "MORE_USERS": "show more"
-                };
-                var eventboxLoca = {
-                    "mission": "Mission",
-                    "missions": "Missions",
-                    "next misson": "DUMMY_KEY_N\u00e4chster_fertig",
-                    "type": "DUMMY_KEY_Art",
-                    "friendly": "own",
-                    "neutral": "friendly",
-                    "hostile": "hostile",
-                    "nextEvent": "Next",
-                    "nextEventText": "Type"
-                };
+                    };
+                    var constants = {
+                        "espionage": 6,
+                        "missleattack": 10,
+                        "language": "en",
+                        "name": "144"
+                    };
+                    var userData = {
+                        "id": "108130"
+                    };
+                    var missleAttackLink = "{{ route('overview.index') }}#TODO_page=missileattacklayer&width=669&height=250";
+                    var changeNickLink = "{{ route('changenick.overlay') }}";
+                    var showOutlawWarning = true;
+                    var miniFleetLink = "{{ route('overview.index') }}#TODO_page=minifleet&ajax=1";
+                    var ogameUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
+                    var startpageUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
+                    var nodePort = 19603;
+                    var nodeUrl = "{{ route('overview.index') }}#TODO_19603\/socket.io\/socket.io.js";
+                    var nodeParams = {
+                        "port": 19603,
+                        "secure": "true"
+                    };
+                    var chatUrl = "/"; //#TODO_page=ajaxChat
+                    var chatUrlLoadMoreMessages = "{{ route('overview.index') }}#TODO_page=chatGetAdditionalMessages";
+                    var chatLoca = {
+                        "TEXT_EMPTY": "Where is the message?",
+                        "TEXT_TOO_LONG": "The message is too long.",
+                        "SAME_USER": "You cannot write to yourself.",
+                        "IGNORED_USER": "You have ignored this player.",
+                        "NO_DATABASE_CONNECTION": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
+        "INVALID_PARAMETERS": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
+                        "SEND_FAILED": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
+                        "LOCA_ALL_ERROR_NOTACTIVATED": "This function is only available after your accounts activation.",
+                        "X_NEW_CHATS": "#+# unread conversation(s)",
+                        "MORE_USERS": "show more"
+                    };
+                    var eventboxLoca = {
+                        "mission": "Mission",
+                        "missions": "Missions",
+                        "next misson": "DUMMY_KEY_N\u00e4chster_fertig",
+                        "type": "DUMMY_KEY_Art",
+                        "friendly": "own",
+                        "neutral": "friendly",
+                        "hostile": "hostile",
+                        "nextEvent": "Next",
+                        "nextEventText": "Type"
+                    };
 
                 var ajaxEventboxURI = "{{ route('fleet.eventbox.fetch') }}";
                 var ajaxRecallFleetURI = "{{ route('fleet.dispatch.recallfleet') }}";
