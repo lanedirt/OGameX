@@ -5,13 +5,31 @@ namespace OGame\GameMissions;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\Models\MissionPossibleStatus;
+use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
+use OGame\Services\PlanetService;
 
 class TransportMission extends GameMission
 {
     protected static string $name = 'Transport';
     protected static int $typeId = 3;
     protected static bool $hasReturnMission = true;
+
+    /**
+     * @inheritdoc
+     */
+    public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus
+    {
+        if ($targetPlanet != null) {
+            if ($planet->getPlayer()->equals($targetPlanet->getPlayer())) {
+                // If target player is the same as the current player, this mission is possible.
+                return new MissionPossibleStatus(true);
+            }
+        }
+
+        return new MissionPossibleStatus(false);
+    }
 
     /**
      * @throws BindingResolutionException

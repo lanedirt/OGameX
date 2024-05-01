@@ -2,10 +2,12 @@
 
 namespace OGame\Http\Controllers;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use OGame\Factories\GameMissionFactory;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Planet\Coordinate;
@@ -24,7 +26,7 @@ class FleetController extends OGameController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @return View
-     * @throws \Exception
+     * @throws Exception
      */
     public function index(Request $request, PlayerService $player, ObjectService $objects): View
     {
@@ -80,9 +82,21 @@ class FleetController extends OGameController
     /**
      * @throws BindingResolutionException
      */
-    public function dispatchCheckTarget(PlayerService $currentPlayer, ObjectService $objects): JsonResponse
-    {
-        $enabledMissions = [];
+    public function dispatchCheckTarget(PlayerService $currentPlayer, ObjectService $objects) : JsonResponse {
+        $currentPlanet = $currentPlayer->planets->current();
+
+        // Return ships data for this planet taking into account the current planet's properties and research levels.
+        $shipsData = [];
+        foreach ($objects->getShipObjects() as $shipObject) {
+            $shipsData[$shipObject->id] = [
+                'id' => $shipObject->id,
+                'name' => $shipObject->title,
+                'baseFuelCapacity' => $shipObject->properties->capacity->calculate($currentPlanet)->totalValue,
+                'baseCargoCapacity' => $shipObject->properties->capacity->calculate($currentPlanet)->totalValue,
+                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlanet)->totalValue,
+                'speed' => $shipObject->properties->speed->calculate($currentPlanet)->totalValue
+            ];
+        }
 
         // Get target coordinates
         $galaxy = request()->input('galaxy');
@@ -105,35 +119,29 @@ class FleetController extends OGameController
             $targetPlanetName = '?';
             $targetPlayerName = 'Deep space';
             $targetCoordinates = new Coordinate($galaxy, $system, $position);
-            $enabledMissions[] = 7;
         }
 
-        // If position is 16, only enable expedition mission
-        if ($position == 16) {
-            $enabledMissions = [15];
-        } elseif ($currentPlayer->equals($targetPlayer)) {
-            // If target player is the same as the current player, enable transport/deployment missions.
-            $enabledMissions = [3, 4];
-        }
-
-        $currentPlanet = $currentPlayer->planets->current();
-
-        // Return ships data for this planet taking into account the current planet's properties and research levels.
-        $shipsData = [];
-        foreach ($objects->getShipObjects() as $shipObject) {
-            $shipsData[$shipObject->id] = [
-                'id' => $shipObject->id,
-                'name' => $shipObject->title,
-                'baseFuelCapacity' => $shipObject->properties->capacity->calculate($currentPlanet)->totalValue,
-                'baseCargoCapacity' => $shipObject->properties->capacity->calculate($currentPlanet)->totalValue,
-                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlanet)->totalValue,
-                'speed' => $shipObject->properties->speed->calculate($currentPlanet)->totalValue
-            ];
+        // Determine enabled/available missions based on the current user, planet and target planet's properties.
+        $enabledMissions = [];
+        $errors = [];
+        $units = $this->getUnitsFromRequest($currentPlanet);
+        $allMissions = GameMissionFactory::getAllMissions();
+        foreach ($allMissions as $mission) {
+            $possible = $mission->isMissionPossible($currentPlanet, $targetPlanet, $units);
+            if ($possible->possible) {
+                $enabledMissions[] = $mission::getTypeId();
+            }
+            else if (!empty($possible->error)) {
+                // If the mission is not possible and has an error message, return error message in JSON.
+                $errors[] = [
+                    'message' => $possible->error,
+                    'error' => 140035 // TODO: is this actually required by the frontend?
+                ];
+            }
         }
 
         // Build orders array set key to true if the mission is enabled. Set to false if not.
         $orders = [];
-        // Possible mission types: 1, 2, 3, 4, 5, 6, 7, 8, 9, 15
         $possible_mission_types = [1, 2, 3, 4, 5, 6, 7, 8, 9, 15];
         foreach ($possible_mission_types as $mission) {
             if (in_array($mission, $enabledMissions)) {
@@ -143,9 +151,15 @@ class FleetController extends OGameController
             }
         }
 
+        $status = 'success';
+        if (count($errors) > 0) {
+            $status = 'failure';
+        }
+
         return response()->json([
             'shipsData' => $shipsData,
-            'status' => 'success',
+            'status' => $status,
+            'errors' => $errors,
             'additionalFlightSpeedinfo' => '',
             'targetInhabited' => true,
             'targetIsStrong' => false,
@@ -177,7 +191,7 @@ class FleetController extends OGameController
      * Handles the dispatch of a fleet.
      *
      * @return JsonResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function dispatchSendFleet(PlayerService $player): JsonResponse
     {
@@ -222,15 +236,7 @@ holdingtime: 0
 
         // Extract units from the request and create a unit collection.
         // Loop through all input fields and get all units prefixed with "am".
-        $units = new UnitCollection();
-        foreach (request()->all() as $key => $value) {
-            if (strpos($key, 'am') === 0) {
-                $unit_id = (int)str_replace('am', '', $key);
-                // Create GameObject
-                $unitObject = $player->planets->current()->objects->getUnitObjectById($unit_id);
-                $units->addUnit($unitObject, (int)$value);
-            }
-        }
+        $units = $this->getUnitsFromRequest($planet);
 
         // Extract resources from the request
         $metal = (int)request()->input('metal');
@@ -271,5 +277,26 @@ holdingtime: 0
             'newAjaxToken' => csrf_token(),
             'success' => true,
         ]);
+    }
+
+    /**
+     * Get units from the request and create a UnitCollection.
+     *
+     * @param PlanetService $planet
+     * @return UnitCollection
+     * @throws Exception
+     */
+    private function getUnitsFromRequest(PlanetService $planet): UnitCollection {
+        $units = new UnitCollection();
+        foreach (request()->all() as $key => $value) {
+            if (str_starts_with($key, 'am')) {
+                $unit_id = (int)str_replace('am', '', $key);
+                // Create GameObject
+                $unitObject = $planet->objects->getUnitObjectById($unit_id);
+                $units->addUnit($unitObject, (int)$value);
+            }
+        }
+
+        return $units;
     }
 }

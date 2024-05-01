@@ -20,4 +20,21 @@ class UnitCollection
 
         $this->units[] = $entry;
     }
+
+    /**
+     * Get the amount of a unit in the collection.
+     *
+     * @param string $machine_name
+     * @return int
+     */
+    public function getAmountByMachineName(string $machine_name): int
+    {
+        foreach ($this->units as $entry) {
+            if ($entry->unitObject->machine_name === $machine_name) {
+                return $entry->amount;
+            }
+        }
+
+        return 0;
+    }
 }

@@ -5,6 +5,7 @@ namespace OGame\GameMissions\Abstracts;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Resources;
@@ -48,6 +49,21 @@ abstract class GameMission
     {
         return static::$hasReturnMission;
     }
+
+    public static function getTypeId(): int
+    {
+        return static::$typeId;
+    }
+
+    /**
+     * Checks if the mission is possible under the given circumstances.
+     *
+     * @param PlanetService $planet
+     * @param ?PlanetService $targetPlanet
+     * @param UnitCollection $units
+     * @return MissionPossibleStatus
+     */
+    public abstract function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus;
 
     /**
      * Cancel an already started mission.
