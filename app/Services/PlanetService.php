@@ -11,6 +11,9 @@ use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Planet;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
+use OGame\Services\BuildingQueueService;
+use OGame\Services\UnitQueueService;
+use OGame\Services\FleetMissionService;
 
 /**
  * Class PlanetService.
@@ -58,10 +61,10 @@ class PlanetService
         // Load the planet object if a positive planet ID is given.
         // If no planet ID is given then planet context will not be available
         // but this can be fine for unittests or when creating a new planet.
-        if ($planet_id != 0) {
+        if ($planet_id !== 0) {
             $this->loadByPlanetId($planet_id);
 
-            if (empty($player)) {
+            if ($player === NULL) {
                 // No player has been provided, so we load it ourselves here.
                 $playerServiceFactory = app()->make(PlayerServiceFactory::class);
                 $playerService = $playerServiceFactory->make($this->planet->user_id);
@@ -69,14 +72,11 @@ class PlanetService
             } else {
                 $this->player = $player;
             }
-        } else {
-            // If no planet ID is given, we still attempt to load the player object if it has been passed.
-            if (!empty($player)) {
-                $this->player = $player;
-            }
+        } else if ($player !== NULL) {
+            $this->player = $player;
         }
 
-        $this->objects = resolve('OGame\Services\ObjectService');
+        $this->objects = resolve(ObjectService::class);
     }
 
     /**
@@ -184,7 +184,7 @@ class PlanetService
             15 => ['odd' => 'normal', 'even' => 'gas'],
         ];
 
-        if ($coordinates->system % 2 == 0) {
+        if ($coordinates->system % 2 === 0) {
             $odd_even = 'even';
         } else {
             $odd_even = 'odd';
@@ -226,7 +226,7 @@ class PlanetService
 
         $base_for_system_1 = $map_array[$planet];
         $system_between_1_and_10_modifier = ($system % 10) - 1;
-        if ($system_between_1_and_10_modifier == -1) {
+        if ($system_between_1_and_10_modifier === -1) {
             $system_between_1_and_10_modifier = 9;
         }
 
@@ -441,7 +441,7 @@ class PlanetService
 
         $objects = $this->objects->getShipObjects();
         foreach ($objects as $object) {
-            if ($object->machine_name == 'solar_satellite') {
+            if ($object->machine_name === 'solar_satellite') {
                 // Do not count solar satellite as ship.
                 continue;
             }
@@ -786,7 +786,7 @@ class PlanetService
      */
     public function updateBuildingQueue(bool $save_planet = true): void
     {
-        $queue = resolve('OGame\Services\BuildingQueueService');
+        $queue = resolve(BuildingQueueService::class);
         $build_queue = $queue->retrieveFinished($this->getPlanetId());
 
         // @TODO: add DB transaction wrapper
@@ -802,7 +802,7 @@ class PlanetService
             $queue->start($this, $item->time_end);
         }
 
-        if (count($build_queue) == 0) {
+        if (count($build_queue) === 0) {
             // If there were no finished queue item, we still check if we need to start the next one.
             $queue->start($this);
         }
@@ -848,7 +848,7 @@ class PlanetService
      */
     public function updateUnitQueue(bool $save_planet = true): void
     {
-        $queue = resolve('OGame\Services\UnitQueueService');
+        $queue = resolve(UnitQueueService::class);
         $unit_queue = $queue->retrieveBuilding($this->getPlanetId());
 
         // @TODO: add DB transaction wrapper
@@ -1124,7 +1124,7 @@ class PlanetService
      */
     public function getResourceProductionFactor(): int
     {
-        if ($this->energyProduction()->get() == 0 || $this->energyConsumption()->get() == 0) {
+        if ($this->energyProduction()->get() === 0 || $this->energyConsumption()->get() === 0) {
             return 0;
         }
 
@@ -1185,6 +1185,20 @@ class PlanetService
         }
 
         return $this->planet->{$building->machine_name . '_percent'};
+    }
+
+    /**
+     * Get is the current planet is building something or not
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function isBuilding(): bool
+    {
+        $queue = resolve(BuildingQueueService::class);
+        $build_queue = $queue->retrieveQueue($this)->queue;
+
+        return count($build_queue) > 0;
     }
 
     /**
@@ -1440,7 +1454,7 @@ class PlanetService
 
     public function updateFleetMissions(bool $save_planet = true): void
     {
-        $fleet_missions = resolve('OGame\Services\FleetMissionService');
+        $fleet_missions = resolve(FleetMissionService::class);
         $missions = $fleet_missions->getMissionsByPlanetId($this->getPlanetId());
 
         foreach ($missions as $mission) {
