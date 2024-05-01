@@ -2,12 +2,12 @@
 
 namespace Tests;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
-use OGame\Services\PlayerService;
 
 /**
  * Base class to test that fleet missions work as expected.
