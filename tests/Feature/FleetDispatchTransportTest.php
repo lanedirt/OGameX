@@ -2,16 +2,17 @@
 
 namespace Feature;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Message;
 use OGame\Models\Resources;
-use Tests\FleetDispatchTestCase;
+use Tests\FleetDispatchSelfTestCase;
 
 /**
  * Test that fleet dispatch works as expected.
  */
-class FleetDispatchTransportTest extends FleetDispatchTestCase
+class FleetDispatchTransportTest extends FleetDispatchSelfTestCase
 {
     /**
      * @var int The mission type for the test.
@@ -48,6 +49,9 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         ]);
     }
 
+    /**
+     * @throws BindingResolutionException
+     */
     public function testDispatchFleetToOtherPlayer(): void
     {
         $this->basicSetup();
@@ -59,7 +63,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Send fleet to a planet of another player.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $secondPlayer = $this->sendMissionToOtherPlayer($unitCollection, new Resources(100, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(100, 0, 0, 0));
 
         // Increase time by 10 hours to ensure the mission is done.
         Carbon::setTestNow($startTime->copy()->addHours(10));
@@ -69,7 +73,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Assert that last message sent to second player contains the transport confirm message.
-        $lastMessage = Message::where('user_id', $secondPlayer->getId())
+        $lastMessage = Message::where('user_id', $foreignPlanet->getPlayer()->getId())
             ->orderBy('id', 'desc')
             ->first();
 

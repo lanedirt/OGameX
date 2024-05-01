@@ -5,12 +5,12 @@ namespace Feature;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Resources;
-use Tests\FleetDispatchTestCase;
+use Tests\FleetDispatchSelfTestCase;
 
 /**
  * Test that fleet dispatch works as expected.
  */
-class FleetDispatchDeployTest extends FleetDispatchTestCase
+class FleetDispatchDeployTest extends FleetDispatchSelfTestCase
 {
     /**
      * @var int The mission type for the test.

@@ -5,6 +5,8 @@ namespace Tests;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Testing\TestResponse;
+use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -92,6 +94,74 @@ abstract class AccountTestCase extends TestCase
         return $playerIds[0];
     }
 
+    /**
+     * Gets a nearby foreign planet for the current user. This is useful for testing interactions between two players.
+     *
+     * @return PlanetService
+     * @throws BindingResolutionException
+     */
+    protected function getNearbyForeignPlanet(): PlanetService
+    {
+        // Find a planet of another player that is close to the current player by checking the same galaxy
+        // and up to 10 systems away.
+        $planet_id = \DB::table('planets')
+            ->where('user_id', '!=', $this->currentUserId)
+            ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+            ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 10, $this->planetService->getPlanetCoordinates()->system + 10])
+            ->inRandomOrder()
+            ->limit(1)
+            ->pluck('id');
+
+        if ($planet_id == null) {
+            // No planets found, attempt to create a new user to see if this fixes it.
+            $this->createAndLoginUser();
+            $planet_id = \DB::table('planets')
+                ->where('user_id', '!=', $this->currentUserId)
+                ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+                ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 10, $this->planetService->getPlanetCoordinates()->system + 10])
+                ->inRandomOrder()
+                ->limit(1)
+                ->pluck('id');
+        }
+
+        if ($planet_id == null) {
+            $this->fail('Failed to find a nearby foreign planet for testing.');
+        }
+        else {
+            // Create and return a new PlanetService instance for the found planet.
+            $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+            return $planetServiceFactory->make($planet_id[0]);
+        }
+    }
+
+    /**
+     * Gets a nearby empty coordinate for the current user. This is useful for testing interactions towards empty planets.
+     *
+     * @param int $min_position
+     * @param int $max_position
+     * @return Coordinate
+     */
+    protected function getNearbyEmptyCoordinate(int $min_position = 4, int $max_position = 12): Coordinate
+    {
+        // Find a position that has no planet in the same galaxy and up to 10 systems away between position 4-13.
+        $coordinate = new Coordinate($this->planetService->getPlanetCoordinates()->galaxy, 0, 0);
+        $tryCount = 0;
+        while ($tryCount < 100) {
+            $tryCount++;
+            $coordinate->system = $this->planetService->getPlanetCoordinates()->system + rand(-10, 10);
+            $coordinate->position = rand($min_position, $max_position);
+            $planetCount = \DB::table('planets')
+                ->where('galaxy', $coordinate->galaxy)
+                ->where('system', $coordinate->system)
+                ->where('planet', $coordinate->position)
+                ->count();
+            if ($planetCount == 0) {
+                return $coordinate;
+            }
+        }
+
+        $this->fail('Failed to find an empty coordinate for testing.');
+    }
 
     /**
      * Add resources to current users current planet.
