@@ -69,7 +69,7 @@
     <br/>
     Have fun playing!
 </div>
-
+<div id="siteHeader"></div>
 <div id="pageContent">
     <div id="top">
         <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
@@ -120,15 +120,16 @@
                     </li>
                     <li><a href="{{ route('options.index') }}" accesskey="">@lang('Options')</a></li>
                     <li><a href="#">@lang('Support')</a></li>
-                    <li><a href="{{ route('logout') }}" onclick="event.preventDefault();
+                    <li>
+                        <a href="{{ route('logout') }}" onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">@lang('Log out')</a>
 
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                style="display: none;">
-                                {{ csrf_field() }}
-                            </form>
-                        </li>
-                        <li class="OGameClock"></li>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                              style="display: none;">
+                            {{ csrf_field() }}
+                        </form>
+                    </li>
+                    <li class="OGameClock">{{ \Carbon\Carbon::now()->format('d.m.Y H:i:s') }}</li>
                     </ul>
                 </div>
             </div>
