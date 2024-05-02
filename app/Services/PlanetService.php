@@ -5,15 +5,12 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
-use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Planet;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
-use OGame\Services\BuildingQueueService;
-use OGame\Services\UnitQueueService;
-use OGame\Services\FleetMissionService;
+
 
 /**
  * Class PlanetService.
@@ -56,7 +53,7 @@ class PlanetService
      *  If supplied the constructor will try to load the planet from the database.
      * @throws BindingResolutionException
      */
-    public function __construct(PlayerService $player = null, int $planet_id = 0)
+    public function __construct( PlayerService|null $player = null, int $planet_id = 0)
     {
         // Load the planet object if a positive planet ID is given.
         // If no planet ID is given then planet context will not be available
@@ -353,20 +350,17 @@ class PlanetService
      */
     public function hasResources(Resources $resources): bool
     {
-        if (!empty($resources->metal->get())) {
-            if ($this->metal()->get() < $resources->metal->get()) {
-                return false;
-            }
+        if ( !empty( $resources->metal->get() ) && $this->metal()->get() < $resources->metal->get() )
+        {
+            return false;
         }
-        if (!empty($resources->crystal->get())) {
-            if ($this->crystal()->get() < $resources->crystal->get()) {
-                return false;
-            }
+        if ( !empty( $resources->crystal->get() ) && $this->crystal()->get() < $resources->crystal->get() )
+        {
+            return false;
         }
-        if (!empty($resources->deuterium->get())) {
-            if ($this->deuterium()->get() < $resources->deuterium->get()) {
-                return false;
-            }
+        if ( !empty( $resources->deuterium->get() ) && $this->deuterium()->get() < $resources->deuterium->get() )
+        {
+            return false;
         }
 
         return true;
@@ -435,7 +429,7 @@ class PlanetService
      *
      * @return int
      */
-    function getFlightShipAmount(): int
+    public function getFlightShipAmount(): int
     {
         $totalCount = 0;
 
@@ -473,7 +467,7 @@ class PlanetService
             (
                 ($price->metal->get() + $price->crystal->get())
                 /
-                (2500 * max((4 - ($next_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * pow(2, $nanitefactory_level))
+                (2500 * max((4 - ($next_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * ( 2 ** $nanitefactory_level ) )
             );
 
         $time_seconds = $time_hours * 3600;
@@ -525,7 +519,7 @@ class PlanetService
             (
                 ($object->properties->structural_integrity->rawValue)
                 /
-                (2500 * (1 + $shipyard_level) * $universe_speed * pow(2, $nanitefactory_level))
+                (2500 * (1 + $shipyard_level) * $universe_speed * ( 2 ** $nanitefactory_level ) )
             );
 
         return (int)($time_hours * 3600);
@@ -569,12 +563,8 @@ class PlanetService
         $building = $this->objects->getObjectById($building_id);
 
         // Sanity check: percentage inside allowed values.
-        if (!is_numeric($percentage) || $percentage < 0 || $percentage > 10) {
-            return false;
-        }
-
         // Sanity check: model property exists.
-        if (!isset($this->planet->{$building->machine_name . '_percent'})) {
+        if ( !is_numeric( $percentage ) || $percentage < 0 || $percentage > 10 || !isset( $this->planet->{$building->machine_name . '_percent'} ) ) {
             return false;
         }
 
@@ -1029,8 +1019,8 @@ class PlanetService
      * Update the planets resource production stats inner logic.
      *
      * @param Resources $production_total
-     * @param int $energy_production_total
-     * @param int $energy_consumption_total
+     * @param int|float $energy_production_total
+     * @param int|float $energy_consumption_total
      * @param bool $save_planet
      * @return void
      * @throws Exception
@@ -1124,11 +1114,11 @@ class PlanetService
      */
     public function getResourceProductionFactor(): int
     {
-        if ($this->energyProduction()->get() === 0 || $this->energyConsumption()->get() === 0) {
+        if (empty($this->energyProduction()->get()) || empty($this->energyConsumption()->get())) {
             return 0;
         }
 
-        $production_factor = floor($this->energyProduction()->get() / $this->energyConsumption()->get() * 100);
+        $production_factor = $this->energyConsumption()->get() ? floor($this->energyProduction()->get() / $this->energyConsumption()->get() * 100) : 0;
 
         // Force min 0, max 100.
         if ($production_factor > 100) {
@@ -1153,7 +1143,7 @@ class PlanetService
             $energy_production = 0;
         }
 
-        return new Resource($energy_production);
+        return new Resource((float)$energy_production);
     }
 
     /**
@@ -1165,7 +1155,7 @@ class PlanetService
     {
         $energy_consumption = $this->planet->energy_used;
 
-        return new Resource($energy_consumption);
+        return new Resource((float)$energy_consumption);
     }
 
     /**
@@ -1180,11 +1170,7 @@ class PlanetService
         $building = $this->objects->getObjectByMachineName($machine_name);
 
         // Sanity check: model property exists.
-        if (!isset($this->planet->{$building->machine_name . '_percent'})) {
-            return 0;
-        }
-
-        return $this->planet->{$building->machine_name . '_percent'};
+        return $this->planet->{$building->machine_name . '_percent'} ?? 0;
     }
 
     /**
@@ -1303,7 +1289,7 @@ class PlanetService
     {
         // For every object in the game, calculate the score based on how much resources it costs to build it.
         // For buildings with levels it is the sum of resources needed for all levels up to the current level.
-        // For units it is the sum of resources needed to build the full sum of all units.
+        // For units, it is the sum of resources needed to build the full sum of all units.
         // The score is the sum of all these values.
         $resources_spent = new Resources(0,0,0,0);
 
@@ -1325,9 +1311,7 @@ class PlanetService
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
         $resources_sum = $resources_spent->sum();
-        $score = (int)floor($resources_sum / 1000);
-
-        return $score;
+        return (int)floor( $resources_sum / 1000);
     }
 
     /**
@@ -1339,15 +1323,15 @@ class PlanetService
      * @return int
      * @throws Exception
      */
-    function getObjectAmount(string $machine_name): int
+    public function getObjectAmount( string $machine_name): int
     {
         $object = $this->objects->getUnitObjectByMachineName($machine_name);
 
         if (!empty($this->planet->{$object->machine_name})) {
             return $this->planet->{$object->machine_name};
-        } else {
-            return 0;
         }
+
+        return 0;
     }
 
     /**
@@ -1366,12 +1350,12 @@ class PlanetService
 
         // For every object in the game, calculate the score based on how much resources it costs to build it.
         // For buildings with levels it is the sum of resources needed for all levels up to the current level.
-        // For units it is the sum of resources needed to build the full sum of all units.
+        // For units, it is the sum of resources needed to build the full sum of all units.
         // The score is the sum of all these values.
         $resources_spent = 0;
 
         // Buildings (100%)
-        $building_objects = array_merge($this->objects->getBuildingObjects(), $this->objects->getStationObjects());
+        $building_objects = [ ...$this->objects->getBuildingObjects(), ...$this->objects->getStationObjects() ];
         foreach ($building_objects as $object) {
             for ($i = 1; $i <= $this->getObjectLevel($object->machine_name); $i++) {
                 // Concatenate price which is array of metal, crystal and deuterium.
@@ -1397,9 +1381,7 @@ class PlanetService
         // TODO: add phalanx and jump gate (50%) when moon is implemented.
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
-        $score = (int)floor($resources_spent / 1000);
-
-        return $score;
+        return (int)floor( $resources_spent / 1000);
     }
 
     /**
@@ -1418,7 +1400,7 @@ class PlanetService
 
         // For every object in the game, calculate the score based on how much resources it costs to build it.
         // For buildings with levels it is the sum of resources needed for all levels up to the current level.
-        // For units it is the sum of resources needed to build the full sum of all units.
+        // For units, it is the sum of resources needed to build the full sum of all units.
         // The score is the sum of all these values.
         $resources_spent = 0;
 
@@ -1447,12 +1429,13 @@ class PlanetService
         // TODO: add phalanx and jump gate (50%) when moon is implemented.
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
-        $score = (int)floor($resources_spent / 1000);
-
-        return $score;
+        return (int)floor( $resources_spent / 1000);
     }
 
-    public function updateFleetMissions(bool $save_planet = true): void
+    /**
+     * @throws BindingResolutionException
+     */
+    public function updateFleetMissions( bool $save_planet = true): void
     {
         $fleet_missions = resolve(FleetMissionService::class);
         $missions = $fleet_missions->getMissionsByPlanetId($this->getPlanetId());
