@@ -2,8 +2,6 @@
 
 namespace Feature\FleetDispatch;
 
-use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Resources;

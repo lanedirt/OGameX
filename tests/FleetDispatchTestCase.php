@@ -3,7 +3,6 @@
 namespace Tests;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -73,7 +72,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      * @param int $assertStatus
      * @return void
      */
-    protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200): void {
+    protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    {
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
         $this->dispatchFleet($coordinates, $units, $resources, $assertStatus);
     }
@@ -83,7 +83,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      *
      * @throws BindingResolutionException
      */
-    protected function sendMissionToOtherPlayer(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService {
+    protected function sendMissionToOtherPlayer(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService
+    {
         $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
         $this->dispatchFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, $resources, $assertStatus);
         return $nearbyForeignPlanet;
@@ -97,7 +98,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      * @param int $assertStatus
      * @return void
      */
-    protected function sendMissionToEmptyPosition(UnitCollection $units, Resources $resources, int $assertStatus = 200): void {
+    protected function sendMissionToEmptyPosition(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    {
         $coordinates = $this->getNearbyEmptyCoordinate();
         $this->dispatchFleet($coordinates, $units, $resources, $assertStatus);
     }
@@ -108,7 +110,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      * @param UnitCollection $units
      * @return array<string, int>
      */
-    private function convertUnitsToArray(UnitCollection $units): array {
+    private function convertUnitsToArray(UnitCollection $units): array
+    {
         $unitsArray = [];
         foreach ($units->units as $unit) {
             $unitsArray['am' . $unit->unitObject->id] = $unit->amount;
@@ -124,7 +127,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      * @param bool $assertSuccess
      * @return void
      */
-    protected function checkTargetFleet(Coordinate $coordinates, UnitCollection $units, bool $assertSuccess): void {
+    protected function checkTargetFleet(Coordinate $coordinates, UnitCollection $units, bool $assertSuccess): void
+    {
         $unitsArray = $this->convertUnitsToArray($units);
 
         $post = $this->post('/ajax/fleet/dispatch/check-target', array_merge([
@@ -160,7 +164,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      * @param int $assertStatus
      * @return void
      */
-    protected function dispatchFleet(Coordinate $coordinates, UnitCollection $units, Resources $resources, int $assertStatus = 200): void {
+    protected function dispatchFleet(Coordinate $coordinates, UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    {
         $unitsArray = $this->convertUnitsToArray($units);
 
         $post = $this->post('/ajax/fleet/dispatch/send-fleet', array_merge([

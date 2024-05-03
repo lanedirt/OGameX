@@ -82,8 +82,7 @@ Deuterium: ' . $mission->deuterium, 'fleet_deployment');
 Metal: ' . $mission->metal . '
 Crystal: ' . $mission->crystal . '
 Deuterium: ' . $mission->deuterium, 'return_of_fleet');
-        }
-        else {
+        } else {
             // Send message to player that the return mission has arrived
             $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Return of a fleet', 'Your fleet is returning from planet [planet]' . $mission->planet_id_from . '[/planet] to planet [planet]' . $mission->planet_id_to . '[/planet].
                     

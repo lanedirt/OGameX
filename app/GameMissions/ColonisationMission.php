@@ -3,7 +3,6 @@
 namespace OGame\GameMissions;
 
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\UnitCollection;
