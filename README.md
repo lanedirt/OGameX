@@ -1,4 +1,6 @@
-<h1 align="center">OGameX - An Open-Source OGame Redesign Clone</h1>
+<p align="center">
+    <img src="https://github.com/lanedirt/OGameX/assets/6917405/765b558d-cbab-4dbd-90a1-254fbf32f42f" alt="OGameX logo" />
+</p>
 
 <p align="center">
     <a href="https://github.com/lanedirt/OGameX/releases">
