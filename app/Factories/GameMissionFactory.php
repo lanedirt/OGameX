@@ -14,7 +14,8 @@ class GameMissionFactory
      * @return array<GameMission>
      * @throws BindingResolutionException
      */
-    public static function getAllMissions(): array {
+    public static function getAllMissions(): array
+    {
         /*
         {
           "1": "Attack",

@@ -6,7 +6,6 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
-use OGame\Services\PlayerService;
 
 /**
  * Base class to test that fleet missions work as expected.
@@ -41,7 +40,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      * @return void
      * @throws BindingResolutionException
      */
-    protected abstract function basicSetup(): void;
+    abstract protected function basicSetup(): void;
 
     /**
      * Send a fleet to the second planet of the test user.
@@ -51,7 +50,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      * @param int $assertStatus
      * @return void
      */
-    protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200) : void {
+    protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    {
         // Convert units to array.
         $unitsArray = [];
         foreach ($units->units as $unit) {
@@ -84,7 +84,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      *
      * @throws BindingResolutionException
      */
-    protected function sendMissionToOtherPlayer(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService {
+    protected function sendMissionToOtherPlayer(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService
+    {
         // Convert units to array.
         $unitsArray = [];
         foreach ($units->units as $unit) {
@@ -125,7 +126,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      * @param int $assertStatus
      * @return void
      */
-    protected function sendMissionToEmptyPosition(UnitCollection $units, Resources $resources, int $assertStatus = 200): void {
+    protected function sendMissionToEmptyPosition(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    {
         // Convert units to array.
         $unitsArray = [];
         foreach ($units->units as $unit) {

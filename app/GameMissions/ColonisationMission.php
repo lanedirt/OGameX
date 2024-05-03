@@ -24,8 +24,7 @@ class ColonisationMission extends GameMission
             // Check if a colony ship is present in the fleet
             if ($units->getAmountByMachineName('colony_ship') > 0) {
                 return new MissionPossibleStatus(true);
-            }
-            else {
+            } else {
                 // Return error message
                 return new MissionPossibleStatus(false, __('You need a colony ship to colonize a planet.'));
             }

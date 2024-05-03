@@ -63,7 +63,7 @@ abstract class GameMission
      * @param UnitCollection $units
      * @return MissionPossibleStatus
      */
-    public abstract function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus;
+    abstract public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus;
 
     /**
      * Cancel an already started mission.

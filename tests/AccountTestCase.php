@@ -126,8 +126,7 @@ abstract class AccountTestCase extends TestCase
 
         if ($planet_id == null) {
             $this->fail('Failed to find a nearby foreign planet for testing.');
-        }
-        else {
+        } else {
             // Create and return a new PlanetService instance for the found planet.
             $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
             return $planetServiceFactory->make($planet_id[0]);

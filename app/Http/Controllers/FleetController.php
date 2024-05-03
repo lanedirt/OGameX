@@ -14,6 +14,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\ViewModels\UnitViewModel;
 
@@ -82,7 +83,8 @@ class FleetController extends OGameController
     /**
      * @throws BindingResolutionException
      */
-    public function dispatchCheckTarget(PlayerService $currentPlayer, ObjectService $objects) : JsonResponse {
+    public function dispatchCheckTarget(PlayerService $currentPlayer, ObjectService $objects): JsonResponse
+    {
         $currentPlanet = $currentPlayer->planets->current();
 
         // Return ships data for this planet taking into account the current planet's properties and research levels.
@@ -130,8 +132,7 @@ class FleetController extends OGameController
             $possible = $mission->isMissionPossible($currentPlanet, $targetPlanet, $units);
             if ($possible->possible) {
                 $enabledMissions[] = $mission::getTypeId();
-            }
-            else if (!empty($possible->error)) {
+            } elseif (!empty($possible->error)) {
                 // If the mission is not possible and has an error message, return error message in JSON.
                 $errors[] = [
                     'message' => $possible->error,
@@ -190,8 +191,9 @@ class FleetController extends OGameController
     /**
      * Handles the dispatch of a fleet.
      *
+     * @param PlayerService $player
      * @return JsonResponse
-     * @throws Exception
+     * @throws BindingResolutionException
      */
     public function dispatchSendFleet(PlayerService $player): JsonResponse
     {
@@ -286,7 +288,8 @@ holdingtime: 0
      * @return UnitCollection
      * @throws Exception
      */
-    private function getUnitsFromRequest(PlanetService $planet): UnitCollection {
+    private function getUnitsFromRequest(PlanetService $planet): UnitCollection
+    {
         $units = new UnitCollection();
         foreach (request()->all() as $key => $value) {
             if (str_starts_with($key, 'am')) {
