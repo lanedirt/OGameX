@@ -11,7 +11,6 @@ use OGame\Models\Planet;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
 
-
 /**
  * Class PlanetService.
  *
@@ -45,7 +44,7 @@ class PlanetService
     /**
      * Planet constructor.
      *
-     * @param PlayerService|null $player
+     * @param ?PlayerService $player
      *  Player object that the to be loaded planet belongs to. If none is provided, we will auto
      *  attempt to load the playerService object after loading the planet.
      *
@@ -53,7 +52,7 @@ class PlanetService
      *  If supplied the constructor will try to load the planet from the database.
      * @throws BindingResolutionException
      */
-    public function __construct( PlayerService|null $player = null, int $planet_id = 0)
+    public function __construct(?PlayerService $player = null, int $planet_id = 0)
     {
         // Load the planet object if a positive planet ID is given.
         // If no planet ID is given then planet context will not be available
@@ -61,7 +60,7 @@ class PlanetService
         if ($planet_id !== 0) {
             $this->loadByPlanetId($planet_id);
 
-            if ($player === NULL) {
+            if ($player === null) {
                 // No player has been provided, so we load it ourselves here.
                 $playerServiceFactory = app()->make(PlayerServiceFactory::class);
                 $playerService = $playerServiceFactory->make($this->planet->user_id);
@@ -69,7 +68,7 @@ class PlanetService
             } else {
                 $this->player = $player;
             }
-        } else if ($player !== NULL) {
+        } elseif ($player !== null) {
             $this->player = $player;
         }
 
@@ -350,16 +349,13 @@ class PlanetService
      */
     public function hasResources(Resources $resources): bool
     {
-        if ( !empty( $resources->metal->get() ) && $this->metal()->get() < $resources->metal->get() )
-        {
+        if (!empty($resources->metal->get()) && $this->metal()->get() < $resources->metal->get()) {
             return false;
         }
-        if ( !empty( $resources->crystal->get() ) && $this->crystal()->get() < $resources->crystal->get() )
-        {
+        if (!empty($resources->crystal->get()) && $this->crystal()->get() < $resources->crystal->get()) {
             return false;
         }
-        if ( !empty( $resources->deuterium->get() ) && $this->deuterium()->get() < $resources->deuterium->get() )
-        {
+        if (!empty($resources->deuterium->get()) && $this->deuterium()->get() < $resources->deuterium->get()) {
             return false;
         }
 
@@ -467,7 +463,7 @@ class PlanetService
             (
                 ($price->metal->get() + $price->crystal->get())
                 /
-                (2500 * max((4 - ($next_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * ( 2 ** $nanitefactory_level ) )
+                (2500 * max((4 - ($next_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
             );
 
         $time_seconds = $time_hours * 3600;
@@ -519,7 +515,7 @@ class PlanetService
             (
                 ($object->properties->structural_integrity->rawValue)
                 /
-                (2500 * (1 + $shipyard_level) * $universe_speed * ( 2 ** $nanitefactory_level ) )
+                (2500 * (1 + $shipyard_level) * $universe_speed * (2 ** $nanitefactory_level))
             );
 
         return (int)($time_hours * 3600);
@@ -564,7 +560,7 @@ class PlanetService
 
         // Sanity check: percentage inside allowed values.
         // Sanity check: model property exists.
-        if ( !is_numeric( $percentage ) || $percentage < 0 || $percentage > 10 || !isset( $this->planet->{$building->machine_name . '_percent'} ) ) {
+        if (!is_numeric($percentage) || $percentage < 0 || $percentage > 10 || !isset($this->planet->{$building->machine_name . '_percent'})) {
             return false;
         }
 
@@ -1310,7 +1306,7 @@ class PlanetService
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
         $resources_sum = $resources_spent->sum();
-        return (int)floor( $resources_sum / 1000);
+        return (int)floor($resources_sum / 1000);
     }
 
     /**
@@ -1380,7 +1376,7 @@ class PlanetService
         // TODO: add phalanx and jump gate (50%) when moon is implemented.
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
-        return (int)floor( $resources_spent / 1000);
+        return (int)floor($resources_spent / 1000);
     }
 
     /**
@@ -1428,13 +1424,13 @@ class PlanetService
         // TODO: add phalanx and jump gate (50%) when moon is implemented.
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
-        return (int)floor( $resources_spent / 1000);
+        return (int)floor($resources_spent / 1000);
     }
 
     /**
      * @throws BindingResolutionException
      */
-    public function updateFleetMissions( bool $save_planet = true): void
+    public function updateFleetMissions(bool $save_planet = true): void
     {
         $fleet_missions = resolve(FleetMissionService::class);
         $missions = $fleet_missions->getMissionsByPlanetId($this->getPlanetId());

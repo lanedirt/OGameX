@@ -26,7 +26,7 @@ class ResearchQueueListViewModel extends QueueListViewModel
     /**
      * Returns the item in the queue that is currently building.
      *
-     * @return ResearchQueueViewModel|null
+     * @return ?ResearchQueueViewModel
      */
     public function getCurrentlyBuildingFromQueue(): ?ResearchQueueViewModel
     {

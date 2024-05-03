@@ -26,7 +26,7 @@ class UnitQueueListViewModel extends QueueListViewModel
     /**
      * Returns the item in the queue that is currently building.
      *
-     * @return UnitQueueViewModel|null
+     * @return ?UnitQueueViewModel
      */
     public function getCurrentlyBuildingFromQueue(): ?UnitQueueViewModel
     {

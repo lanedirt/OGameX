@@ -18,8 +18,8 @@ class MessageViewModel
     public string $subject;
     public string $body;
     public int $viewed;
-    public Carbon|null $created_at;
-    public Carbon|null $updated_at;
+    public ?Carbon $created_at;
+    public ?Carbon $updated_at;
 
     /**
      * Constructor
