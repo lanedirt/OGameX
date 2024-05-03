@@ -1040,6 +1040,14 @@ Combat simulation save slots +20">
                                         <span class="planet-name ">{!! $planet->getPlanetName() !!}</span>
                                         <span class="planet-koords ">[{!! $planet->getPlanetCoordinates()->asString() !!}]</span>
                                     </a>
+                                    @if ($planet->isBuilding())
+                                        <a class="constructionIcon tooltip js_hideTipOnMobile tpd-hideOnClickOutside"
+                                           data-link="{{ $urlToCurrentWithUpdatedParam }}"
+                                           href="{{ $urlToCurrentWithUpdatedParam }}" title=""
+                                           >
+                                            <span class="icon12px icon_wrench"></span>
+                                        </a>
+                                    @endif
                                     <!--
                                     <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile" title="<b>Moon [2:3:6]</b><br>8,888km (0/1)<br/><a href=&quot;#TODO_ingame&amp;component=overview&amp;cp=33644212&quot;>Overview</a><br/><a href=&quot;#TODO_page=ingame&amp;component=supplies&amp;cp=33644212&quot;>Resources</a><br/><a href=&quot;#TODO=ingame&amp;component=facilities&amp;cp=33644212&quot;>Facilities</a><br/><a href=&quot;#TODO=ingame&amp;component=defenses&amp;cp=33644212&quot;>Defense</a><br/><a href=&quot;#TODO=ingame&amp;component=fleetdispatch&amp;cp=33644212&quot;>Fleet</a><br/><a href=&quot;#TODO=ingame&amp;component=galaxy&amp;cp=33644212&amp;galaxy=2&amp;system=3&amp;position=6&quot;>Galaxy</a>" href="#TODO=ingame&amp;component=shipyard&amp;cp=33644212" data-link="#TODO=ingame&amp;component=shipyard&amp;cp=33644212" data-jumpgatelevel="0">
                                         <img src="/img/icons/9c9f0a78e85bcf40c2ccfc08db5cb4.gif" width="16" height="16" alt="Moon" class="icon-moon">
