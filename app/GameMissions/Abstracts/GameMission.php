@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions\Abstracts;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
@@ -84,28 +85,28 @@ abstract class GameMission
     }
 
     /**
-     * Generic sanity checks before starting a mission to make sure the planet has enough resources and units.
+     * Generic sanity checks before starting a mission to make sure all requirements are met.
      *
      * @param PlanetService $planet
      * @param UnitCollection $units
      * @param Resources $resources
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function startMissionSanityChecks(PlanetService $planet, UnitCollection $units, Resources $resources): void
     {
         if (!$planet->hasResources($resources)) {
-            throw new \Exception('Not enough resources on the planet to send the fleet.');
+            throw new Exception('Not enough resources on the planet to send the fleet.');
         }
         if (!$planet->hasUnits($units)) {
-            throw new \Exception('Not enough units on the planet to send the fleet.');
+            throw new Exception('Not enough units on the planet to send the fleet.');
         }
     }
 
     /**
      * Deduct mission resources from the planet (when starting mission).
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function deductMissionResources(PlanetService $planet, Resources $resources, UnitCollection $units): void
     {
@@ -122,7 +123,7 @@ abstract class GameMission
      * @param Resources $resources
      * @param int $parent_id
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function start(PlanetService $planet, PlanetService $targetPlanet, UnitCollection $units, Resources $resources, int $parent_id = 0): void
     {
@@ -132,7 +133,7 @@ abstract class GameMission
         $time_start = (int)Carbon::now()->timestamp;
 
         // Time fleet mission will arrive
-        //TODO: refactor calculate to gamemission base class?
+        // TODO: refactor calculate to gamemission base class?
         $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration();
 
         $mission = new FleetMission();
@@ -151,17 +152,15 @@ abstract class GameMission
         $mission->time_arrival = $time_end;
 
         $mission->planet_id_to = $targetPlanet->getPlanetId();
-        // Coordinates
         $coords = $targetPlanet->getPlanetCoordinates();
         $mission->galaxy_to = $coords->galaxy;
         $mission->system_to = $coords->system;
         $mission->position_to = $coords->position;
 
-        // Define units
         foreach ($units->units as $unit) {
             $mission->{$unit->unitObject->machine_name} = $unit->amount;
         }
-        // Define resources
+
         $mission->metal = $resources->metal->getRounded();
         $mission->crystal = $resources->crystal->getRounded();
         $mission->deuterium = $resources->deuterium->getRounded();
@@ -178,7 +177,7 @@ abstract class GameMission
      *
      * @param FleetMission $parentMission
      * @return void
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     protected function startReturn(FleetMission $parentMission): void
     {
@@ -219,9 +218,21 @@ abstract class GameMission
 
         // Fill in the resources. Return missions do not carry resources as they have been
         // offloaded at the target planet.
+        // TODO: this assumption is not true for all mission types. Refactor this to be more flexible.
+        // TODO: attack and expedition missions should be able to carry "new" resources back.
+        // TODO: also if transport mission has been started but is then canceled, the resources should be returned.
+        // Change this current implementation to be more flexible!
+        // Add unittest for this in mission to self cancel test.
         $mission->metal = 0;
         $mission->crystal = 0;
         $mission->deuterium = 0;
+        if ($parentMission->canceled == 1) {
+            // If the parent mission was canceled, return the resources to the source planet via the return mission.
+            // TODO: do we want to clear the resources from the parent mission or leave as-is for bookkeeping purposes?
+            $mission->metal = $parentMission->metal;
+            $mission->crystal = $parentMission->crystal;
+            $mission->deuterium = $parentMission->deuterium;
+        }
 
         // Save the new fleet return mission.
         $mission->save();
@@ -235,14 +246,13 @@ abstract class GameMission
      */
     public function process(FleetMission $mission): void
     {
-        if (!empty($mission->parent_id)) {
-            // This is a return mission as it has a parent mission.
-            $this->processReturn($mission);
-            return;
-        } else {
+        if (empty($mission->parent_id)) {
             // This is an arrival mission as it has no parent mission.
             // Process arrival.
             $this->processArrival($mission);
+        } else {
+            // This is a return mission as it has a parent mission.
+            $this->processReturn($mission);
         }
     }
 

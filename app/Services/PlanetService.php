@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Planet;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
 
@@ -94,9 +95,9 @@ class PlanetService
     /**
      * Get the player object who owns this planet.
      *
-     * @return PlayerService
+     * @return ?PlayerService
      */
-    public function getPlayer(): PlayerService
+    public function getPlayer(): ?PlayerService
     {
         return $this->player;
     }
@@ -134,12 +135,12 @@ class PlanetService
     /**
      * Get planet coordinates in array.
      *
-     * @return Planet\Coordinate
+     * @return Coordinate
      *  Array with coordinates (galaxy, system, planet)
      */
-    public function getPlanetCoordinates(): Planet\Coordinate
+    public function getPlanetCoordinates(): Coordinate
     {
-        return new Planet\Coordinate($this->planet->galaxy, $this->planet->system, $this->planet->planet);
+        return new Coordinate($this->planet->galaxy, $this->planet->system, $this->planet->planet);
     }
 
     /**

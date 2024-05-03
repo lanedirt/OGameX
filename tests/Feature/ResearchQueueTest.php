@@ -20,9 +20,7 @@ class ResearchQueueTest extends AccountTestCase
      */
     public function testResearchQueueEnergyTechnology(): void
     {
-        // Add resources to planet that test requires.
         $this->planetAddResources(new Resources(0, 800, 400, 0));
-        // Set the research lab to level 1.
         $this->planetSetObjectLevel('research_lab', 1);
 
         // Set the current time to a specific moment for testing
@@ -72,9 +70,7 @@ class ResearchQueueTest extends AccountTestCase
      */
     public function testResearchQueueMultiQueue(): void
     {
-        // Add resources to planet that test requires.
         $this->planetAddResources(new Resources(0, 2400, 1200, 0));
-        // Set the research lab to level 1.
         $this->planetSetObjectLevel('research_lab', 1);
 
         // Set the current time to a specific moment for testing
@@ -125,9 +121,7 @@ class ResearchQueueTest extends AccountTestCase
      */
     public function testResearchQueueCancelRefundResources(): void
     {
-        // Add resources to planet that test requires.
         $this->planetAddResources(new Resources(0, 800, 400, 0));
-        // Set the research lab to level 1.
         $this->planetSetObjectLevel('research_lab', 1);
 
         // Set the current time to a specific moment for testing

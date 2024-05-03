@@ -1,36 +1,39 @@
 <?php
 
-namespace Feature;
+namespace Feature\FleetDispatch;
 
+use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
+use OGame\Models\Message;
 use OGame\Models\Resources;
 use Tests\FleetDispatchSelfTestCase;
 
 /**
  * Test that fleet dispatch works as expected.
  */
-class FleetDispatchDeployTest extends FleetDispatchSelfTestCase
+class FleetDispatchTransportTest extends FleetDispatchSelfTestCase
 {
     /**
      * @var int The mission type for the test.
      */
-    protected int $missionType = 4;
+    protected int $missionType = 3;
 
     /**
      * @var string The mission name for the test, displayed in UI.
      */
-    protected string $missionName = 'Deployment';
+    protected string $missionName = 'Transport';
 
-    protected bool $hasReturnMission = false;
+    protected bool $hasReturnMission = true;
 
     protected function messageCheckMissionArrival(): void
     {
         // Assert that message has been sent to player and contains the correct information.
-        $this->assertMessageReceivedAndContains('fleets', 'other', [
-            'One of your fleets from',
-            'has reached',
+        $this->assertMessageReceivedAndContains('fleets', 'transport', [
+            'reaches the planet',
             'Metal: 100',
+            'Crystal: 100',
             $this->planetService->getPlanetName(),
             $this->secondPlanetService->getPlanetName()
         ]);
@@ -47,7 +50,11 @@ class FleetDispatchDeployTest extends FleetDispatchSelfTestCase
         ]);
     }
 
-    public function testDispatchFleetReturnTripWithoutResources(): void
+    /**
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testDispatchFleetToOtherPlayer(): void
     {
         $this->basicSetup();
 
@@ -55,13 +62,10 @@ class FleetDispatchDeployTest extends FleetDispatchSelfTestCase
         $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
         Carbon::setTestNow($startTime);
 
-        // Send fleet to the second planet of the test user WITHOUT resources.
+        // Send fleet to a planet of another player.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(0, 0, 0, 0));
-
-        // Set all messages as read to avoid unread messages count in the overview.
-        $this->playerSetAllMessagesRead();
+        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(100, 0, 0, 0));
 
         // Increase time by 10 hours to ensure the mission is done.
         Carbon::setTestNow($startTime->copy()->addHours(10));
@@ -70,12 +74,12 @@ class FleetDispatchDeployTest extends FleetDispatchSelfTestCase
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
-        // Assert that message has been sent to player and contains the correct information.
-        $this->assertMessageReceivedAndContains('fleets', 'other', [
-            'has reached',
-            'The fleet doesn`t deliver goods.',
-            $this->planetService->getPlanetName(),
-            $this->secondPlanetService->getPlanetName()
-        ]);
+        // Assert that last message sent to second player contains the transport confirm message.
+        $lastMessage = Message::where('user_id', $foreignPlanet->getPlayer()->getId())
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $this->assertStringContainsString('An incoming fleet from planet', $lastMessage->body);
+        $this->assertStringContainsString('has reached your planet', $lastMessage->body);
     }
 }

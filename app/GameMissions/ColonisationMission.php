@@ -2,11 +2,13 @@
 
 namespace OGame\GameMissions;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
+use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 
 class ColonisationMission extends GameMission
@@ -14,6 +16,20 @@ class ColonisationMission extends GameMission
     protected static string $name = 'Colonisation';
     protected static int $typeId = 7;
     protected static bool $hasReturnMission = true;
+
+    public function startMissionSanityChecks(PlanetService $planet, UnitCollection $units, Resources $resources): void
+    {
+        // Call the parent method
+        parent::startMissionSanityChecks($planet, $units, $resources);
+
+        if ($units->getAmountByMachineName('colony_ship') == 0) {
+            throw new Exception(__('You need a colony ship to colonize a planet.'));
+        }
+
+        if ($planet->getPlayer() != null) {
+            throw new Exception(__('You can only colonize empty planets.'));
+        }
+    }
 
     /**
      * @inheritdoc
@@ -34,7 +50,6 @@ class ColonisationMission extends GameMission
     }
 
     /**
-     * @throws BindingResolutionException
      */
     protected function processArrival(FleetMission $mission): void
     {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Feature;
+namespace Feature\FleetDispatch;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Resources;
 use Tests\FleetDispatchTestCase;
@@ -33,56 +33,70 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
      */
     protected function basicSetup(): void
     {
-        // Set the robotics factory to level 2
         $this->planetSetObjectLevel('robot_factory', 2);
-        // Set shipyard to level 1.
         $this->planetSetObjectLevel('shipyard', 1);
-        // Set the research lab to level 1.
         $this->planetSetObjectLevel('research_lab', 1);
-        // Set energy technology to level 1.
         $this->playerSetResearchLevel('energy_technology', 1);
-        // Set combustion drive to level 1.
         $this->playerSetResearchLevel('combustion_drive', 1);
-        // Add light cargo ship to the planet.
         $this->planetAddUnit('small_cargo', 5);
-        // Add colony ship to the planet.
         $this->planetAddUnit('colony_ship', 1);
     }
 
     /**
+     * Assert that check request to dispatch fleet to empty position succeeds with colony ship.
+     *
      * @throws BindingResolutionException
+     * @throws Exception
      */
-    public function testDispatchFleetCheckTargetResponse(): void
+    public function testFleetCheckWithColonyShipSuccess(): void
     {
         $this->basicSetup();
-
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
-        // Assert that check request to dispatch fleet to empty position succeeds with colony ship.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
-
-        // TODO: finish test so it makes a request to "/ajax/fleet/dispatch/check-target" and asserts the response.
-        // TODO: also add this check to the other fleet dispatch tests.
+        $this->fleetCheckToEmptyPosition($unitCollection, true);
     }
 
     /**
+     * Assert that check request to dispatch fleet to empty position fails without colony ship.
+     *
      * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testFleetCheckWithoutColonyShipError(): void
+    {
+        $this->basicSetup();
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $this->fleetCheckToEmptyPosition($unitCollection, false);
+    }
+
+    /**
+     * Send fleet to a planet position that is already colonized.
+     *
+     * @throws BindingResolutionException
+     * @throws Exception
      */
     public function testDispatchFleetToNotEmptyPositionFails(): void
     {
         $this->basicSetup();
-
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
-        // Send fleet to a planet position that is already colonized.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
         // Expecting 500 error.
         $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0), 500);
+    }
+
+    /**
+     * Send fleet to empty planet without colony ship.
+     *
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testDispatchFleetWithoutColonyShipFails(): void
+    {
+        $this->basicSetup();
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        // Expecting 500 error.
+        $this->sendMissionToEmptyPosition($unitCollection, new Resources(0, 0, 0, 0), 500);
     }
 }

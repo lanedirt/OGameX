@@ -44,22 +44,58 @@ abstract class FleetDispatchSelfTestCase extends FleetDispatchTestCase
      */
     protected function basicSetup(): void
     {
-        // Set the robotics factory to level 2
         $this->planetSetObjectLevel('robot_factory', 2);
-        // Set shipyard to level 1.
         $this->planetSetObjectLevel('shipyard', 1);
-        // Set the research lab to level 1.
         $this->planetSetObjectLevel('research_lab', 1);
-        // Set energy technology to level 1.
         $this->playerSetResearchLevel('energy_technology', 1);
-        // Set combustion drive to level 1.
         $this->playerSetResearchLevel('combustion_drive', 1);
-        // Add light cargo ship to the planet.
         $this->planetAddUnit('small_cargo', 5);
     }
 
     abstract protected function messageCheckMissionArrival(): void;
     abstract protected function messageCheckMissionReturn(): void;
+
+    /**
+     * Assert that check request to dispatch fleet to empty position succeeds with colony ship.
+     *
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testFleetCheckToOwnPlanetSuccess(): void
+    {
+        $this->basicSetup();
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $this->fleetCheckToSecondPlanet($unitCollection, true);
+    }
+
+    /**
+     * Assert that check request to dispatch fleet to foreign planet position fails without colony ship.
+     *
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testFleetCheckToForeignPlanetError(): void
+    {
+        $this->basicSetup();
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $this->fleetCheckToOtherPlayer($unitCollection, false);
+    }
+
+    /**
+     * Assert that check request to dispatch fleet to empty position fails without colony ship.
+     *
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testFleetCheckToEmptyPlanetError(): void
+    {
+        $this->basicSetup();
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $this->fleetCheckToEmptyPosition($unitCollection, false);
+    }
 
     /**
      * Verify that dispatching a fleet deducts correct amount of units from planet.
@@ -272,6 +308,9 @@ abstract class FleetDispatchSelfTestCase extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
+        // Add resources for test.
+        $this->planetAddResources(new Resources(5000, 5000, 0, 0));
+
         // Set time to static time 2024-01-01
         $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
         Carbon::setTestNow($startTime);
@@ -282,8 +321,8 @@ abstract class FleetDispatchSelfTestCase extends FleetDispatchTestCase
 
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 5);
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(5000, 5000, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -311,6 +350,27 @@ abstract class FleetDispatchSelfTestCase extends FleetDispatchTestCase
         $response->assertStatus(200);
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
+
+        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+
+        // Advance time by amount of minutes it takes for the return trip to arrive.
+        Carbon::setTestNow(Carbon::createFromTimestamp($fleetMission->time_arrival));
+
+        // Do a request to trigger the update logic.
+        $this->get('/overview');
+
+        // Assert that the return trip is processed.
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Return trip is not processed after fleet has arrived back at origin planet.');
+
+        // Assert that the units have been returned to the origin planet.
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at original 5 units after recalled trip has been processed.');
+        // Assert that the resources have been returned to the origin planet.
+        $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are not returned to origin planet after recalling mission.');
     }
 
     /**

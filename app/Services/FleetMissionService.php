@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use OGame\GameMissions\ColonisationMission;
 use OGame\GameMissions\DeploymentMission;
 use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\UnitCollection;
@@ -103,6 +104,8 @@ class FleetMissionService
      */
     public function calculateFleetMissionDuration(): int
     {
+        // TODO: make the calculation dynamic based on the current planet, target coordinates and fleet
+        // (including research levels for speed).
         return 300;
     }
 
@@ -266,8 +269,13 @@ class FleetMissionService
                 'messageService' => $this->messageService,
             ]);
             $deployMission->start($planet, $targetPlanet, $units, $resources, $parent_id);
+        } elseif ($missionType == 7) {
+            $deployMission = app()->make(ColonisationMission::class, [
+                'fleetMissionService' => $this,
+                'messageService' => $this->messageService,
+            ]);
+            $deployMission->start($planet, $targetPlanet, $units, $resources, $parent_id);
         }
-        return;
     }
 
     /**
