@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  phpstan-code-analysis:
+  laravel-pint-psr12-code-style-checker:
     runs-on: ubuntu-latest
     steps:
       - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
