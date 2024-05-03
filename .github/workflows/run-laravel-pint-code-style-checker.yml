@@ -17,6 +17,6 @@ jobs:
       - name: Laravel Pint PSR-12 Code Style Checker
         uses: aglipanci/laravel-pint-action@2.4
         with:
-          preset: psr-12
+          preset: psr12
           verboseMode: true
           testMode: true
