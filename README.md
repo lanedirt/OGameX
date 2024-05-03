@@ -63,7 +63,7 @@ New features are continuously being added. Upcoming features:
 
 Contributions are warmly welcomed, whether in development, testing, or spreading the word. Feel free to submit pull requests or contact me for any other contributions.
 
-Read the [CONTRIBUTING.md](htts://github.com/lanedirt/OGameX/CONTRIBUTING.md) file for more information.
+Read the [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/CONTRIBUTING.md) file for more information.
 
 ## 6. Disclaimer
 
