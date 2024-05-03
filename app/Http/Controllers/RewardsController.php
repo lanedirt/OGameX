@@ -11,7 +11,7 @@ class RewardsController extends OGameController
      *
      * @return View
      */
-    public function index() : View
+    public function index(): View
     {
         return view('ingame.rewards.index');
     }

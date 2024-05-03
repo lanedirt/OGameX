@@ -4,7 +4,6 @@ namespace OGame\Http\Controllers\Abstracts;
 
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
@@ -66,7 +65,7 @@ abstract class AbstractUnitsController extends OGameController
      * @return View
      * @throws Exception
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects) : View
+    public function index(Request $request, PlayerService $player, ObjectService $objects): View
     {
         $planet = $player->planets->current();
 
@@ -131,7 +130,7 @@ abstract class AbstractUnitsController extends OGameController
      * @return JsonResponse
      * @throws Exception
      */
-    public function addBuildRequest(Request $request, PlayerService $player) : JsonResponse
+    public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
         // Explicitly verify CSRF token because this request supports both POST and GET.
         if (!hash_equals($request->session()->token(), $request->input('_token'))) {

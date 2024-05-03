@@ -16,7 +16,7 @@ class BuildingObjects
      *
      * @return array<BuildingObject>
      */
-    public static function get() : array
+    public static function get(): array
     {
         $buildingObjectsNew = [];
 

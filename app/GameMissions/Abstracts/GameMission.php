@@ -33,7 +33,7 @@ abstract class GameMission
 
     protected MessageService $messageService;
 
-    public function __construct(FleetMissionService $fleetMissionService,  MessageService $messageService)
+    public function __construct(FleetMissionService $fleetMissionService, MessageService $messageService)
     {
         $this->fleetMissionService = $fleetMissionService;
         $this->messageService = $messageService;
@@ -164,7 +164,8 @@ abstract class GameMission
      * @return void
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    protected function startReturn(FleetMission $parentMission): void {
+    protected function startReturn(FleetMission $parentMission): void
+    {
         // No need to check for resources and units, as the return mission takes the units from the original
         // mission and the resources are already delivered. Nothing is deducted from the planet.
         // Time this fleet mission will depart (arrival time of the parent mission)
@@ -216,13 +217,13 @@ abstract class GameMission
      * @param FleetMission $mission
      * @return void
      */
-    public function process(FleetMission $mission): void {
+    public function process(FleetMission $mission): void
+    {
         if (!empty($mission->parent_id)) {
             // This is a return mission as it has a parent mission.
             $this->processReturn($mission);
             return;
-        }
-        else {
+        } else {
             // This is an arrival mission as it has no parent mission.
             // Process arrival.
             $this->processArrival($mission);
@@ -235,7 +236,7 @@ abstract class GameMission
      * @param FleetMission $mission
      * @return void
      */
-    protected abstract function processArrival(FleetMission $mission): void;
+    abstract protected function processArrival(FleetMission $mission): void;
 
     /**
      * Process the mission return (second stage, optional).
@@ -243,5 +244,5 @@ abstract class GameMission
      * @param FleetMission $mission
      * @return void
      */
-    protected abstract function processReturn(FleetMission $mission): void;
+    abstract protected function processReturn(FleetMission $mission): void;
 }

@@ -2,7 +2,6 @@
 
 namespace OGame\Http;
 
-use Closure;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;

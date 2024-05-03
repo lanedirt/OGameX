@@ -6,13 +6,10 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
-use OGame\Factories\PlanetServiceFactory;
-use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\DeploymentMission;
 use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
-use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 
 /**
@@ -139,7 +136,7 @@ class FleetMissionService
      *
      * @return Collection<FleetMission>
      */
-    public function getActiveFleetMissionsForCurrentPlayer() : Collection
+    public function getActiveFleetMissionsForCurrentPlayer(): Collection
     {
         return $this->model->where([
                 ['user_id', $this->player->getId()],
@@ -236,8 +233,7 @@ class FleetMissionService
                 ->where('id', $id)
                 ->where('processed', 0)
                 ->first();
-        }
-        else {
+        } else {
             return $this->model
                 ->where('id', $id)
                 ->first();
@@ -264,8 +260,7 @@ class FleetMissionService
                 'messageService' => $this->messageService,
             ]);
             $transportMission->start($planet, $targetPlanet, $units, $resources, $parent_id);
-        }
-        elseif ($missionType == 4) {
+        } elseif ($missionType == 4) {
             $deployMission = app()->make(DeploymentMission::class, [
                 'fleetMissionService' => $this,
                 'messageService' => $this->messageService,

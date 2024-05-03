@@ -23,7 +23,8 @@ class Resources
      * @param Resources $other
      * @return void
      */
-    public function add(Resources $other): void {
+    public function add(Resources $other): void
+    {
         $this->metal->add($other->metal);
         $this->crystal->add($other->crystal);
         $this->deuterium->add($other->deuterium);
@@ -35,7 +36,8 @@ class Resources
      *
      * @return float
      */
-    public function sum(): float {
+    public function sum(): float
+    {
         return $this->metal->get() + $this->crystal->get() + $this->deuterium->get() + $this->energy->get();
     }
 
@@ -45,7 +47,8 @@ class Resources
      * @param int $factor
      * @return Resources
      */
-    public function multiply(int $factor): Resources {
+    public function multiply(int $factor): Resources
+    {
         $this->metal->multiply($factor);
         $this->crystal->multiply($factor);
         $this->deuterium->multiply($factor);

@@ -16,7 +16,6 @@ use OGame\Models\Planet as Planet;
  */
 class PlanetListService
 {
-
     /**
      * The planet object from the model.
      *
@@ -47,7 +46,7 @@ class PlanetListService
      * @return void
      * @throws BindingResolutionException
      */
-    public function load(int $id) : void
+    public function load(int $id): void
     {
         // Get all planets of user
         $planets = Planet::where('user_id', $id)->get();
@@ -133,7 +132,7 @@ class PlanetListService
     /**
      * Returns current planet of player.
      */
-    public function current() : PlanetService
+    public function current(): PlanetService
     {
         // Get current planet from PlayerService object.
         $currentPlanetId = $this->player->getCurrentPlanetId();
@@ -154,7 +153,7 @@ class PlanetListService
      *
      * @return PlanetService
      */
-    public function first() : PlanetService
+    public function first(): PlanetService
     {
         return $this->planets[0];
     }
@@ -164,7 +163,7 @@ class PlanetListService
      *
      * @return array<PlanetService>
      */
-    public function all() : array
+    public function all(): array
     {
         return $this->planets;
     }
@@ -174,7 +173,7 @@ class PlanetListService
      *
      * @return int
      */
-    public function count() : int
+    public function count(): int
     {
         return count($this->planets);
     }

@@ -17,7 +17,7 @@ class MilitaryShipObjects
      *
      * @return array<ShipObject>
      */
-    public static function get() : array
+    public static function get(): array
     {
         $buildingObjectsNew = [];
 

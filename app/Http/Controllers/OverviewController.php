@@ -4,7 +4,6 @@ namespace OGame\Http\Controllers;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\App;
 use Illuminate\View\View;
 use OGame\Facades\AppUtil;
 use OGame\Services\BuildingQueueService;
@@ -26,7 +25,7 @@ class OverviewController extends OGameController
      * @throws BindingResolutionException
      * @throws \Exception
      */
-    public function index(PlayerService $player, BuildingQueueService $building_queue, ResearchQueueService $research_queue, UnitQueueService $unit_queue) : View
+    public function index(PlayerService $player, BuildingQueueService $building_queue, ResearchQueueService $research_queue, UnitQueueService $unit_queue): View
     {
         $this->setBodyId('overview');
 

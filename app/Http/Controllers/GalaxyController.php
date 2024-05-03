@@ -9,7 +9,6 @@ use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
 use OGame\Services\PlayerService;
-use OGame\ViewModels\GalaxyRowViewModel;
 
 class GalaxyController extends OGameController
 {
@@ -21,7 +20,7 @@ class GalaxyController extends OGameController
      * @return View
      * @throws BindingResolutionException
      */
-    public function index(Request $request, PlayerService $player) : View
+    public function index(Request $request, PlayerService $player): View
     {
         $this->setBodyId('galaxy');
 
@@ -59,7 +58,7 @@ class GalaxyController extends OGameController
      * @return array<int, array<string, array<int|string, array<string, array<string,bool>|bool|int|string>|bool|int|string>|int|string>>
      * @throws BindingResolutionException
      */
-    public function getGalaxyArray(int $galaxy, int $system, PlayerService $player) : array
+    public function getGalaxyArray(int $galaxy, int $system, PlayerService $player): array
     {
         // Retrieve all planets from this galaxy and system.
         $planet_list = Planet::where(['galaxy' => $galaxy, 'system' => $system])->get();
@@ -137,8 +136,7 @@ class GalaxyController extends OGameController
                     'positionFilters' => '',
                     'system' => 158
                 ];
-            }
-            else {
+            } else {
                 // Empty deep space
                 $galaxy_rows[] = [
                     'actions' => [],
@@ -176,7 +174,7 @@ class GalaxyController extends OGameController
      * @return JsonResponse
      * @throws BindingResolutionException
      */
-    public function ajax(Request $request, PlayerService $player) : JsonResponse
+    public function ajax(Request $request, PlayerService $player): JsonResponse
     {
         $galaxy = $request->input('galaxy');
         $system = $request->input('system');

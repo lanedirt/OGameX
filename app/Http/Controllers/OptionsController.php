@@ -16,7 +16,7 @@ class OptionsController extends OGameController
      * @param PlayerService $player
      * @return View
      */
-    public function index(PlayerService $player) : View
+    public function index(PlayerService $player): View
     {
         $this->setBodyId('preferences');
 
@@ -35,7 +35,7 @@ class OptionsController extends OGameController
      * @return array<string,string>
      * @throws Exception
      */
-    public function processChangeUsername(Request $request, PlayerService $player) : array
+    public function processChangeUsername(Request $request, PlayerService $player): array
     {
         $name = $request->input('new_username_username');
         $password = $request->input('new_username_password');

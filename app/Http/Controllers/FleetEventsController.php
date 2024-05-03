@@ -19,7 +19,7 @@ class FleetEventsController extends OGameController
      * @return JsonResponse
      * @throws BindingResolutionException
      */
-    public function fetchEventBox() : JsonResponse
+    public function fetchEventBox(): JsonResponse
     {
         /*
          * {"components":[],"hostile":0,"neutral":0,"friendly":1,"eventType":"friendly","eventTime":3470,"eventText":"Transport","newAjaxToken":"6f0e9c23c750fcfc85de4833c79fec39"}
@@ -34,8 +34,7 @@ class FleetEventsController extends OGameController
                 'type_next_mission' => 'None',
                 'time_next_mission' => 0,
             ];
-        }
-        else {
+        } else {
             // TODO: make it a (view)model return type
             // TODO: refactor data retrieval and processing... duplicate with fetchEventList
             $friendlyMissions = [
@@ -106,7 +105,7 @@ class FleetEventsController extends OGameController
                 $returnTripRow->destination_planet_coords = $planetFromService->getPlanetCoordinates();
                 $returnTripRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
                 $returnTripRow->fleet_units = $eventRowViewModel->fleet_units;
-                $returnTripRow->resources = new Resources(0,0,0,0);
+                $returnTripRow->resources = new Resources(0, 0, 0, 0);
                 $fleet_events[] = $returnTripRow;
             }
         }

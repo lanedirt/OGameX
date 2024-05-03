@@ -21,7 +21,7 @@ class ResearchQueueTest extends AccountTestCase
     public function testResearchQueueEnergyTechnology(): void
     {
         // Add resources to planet that test requires.
-        $this->planetAddResources(new Resources(0,800,400,0));
+        $this->planetAddResources(new Resources(0, 800, 400, 0));
         // Set the research lab to level 1.
         $this->planetSetObjectLevel('research_lab', 1);
 
@@ -73,7 +73,7 @@ class ResearchQueueTest extends AccountTestCase
     public function testResearchQueueMultiQueue(): void
     {
         // Add resources to planet that test requires.
-        $this->planetAddResources(new Resources(0,2400,1200,0));
+        $this->planetAddResources(new Resources(0, 2400, 1200, 0));
         // Set the research lab to level 1.
         $this->planetSetObjectLevel('research_lab', 1);
 
@@ -126,7 +126,7 @@ class ResearchQueueTest extends AccountTestCase
     public function testResearchQueueCancelRefundResources(): void
     {
         // Add resources to planet that test requires.
-        $this->planetAddResources(new Resources(0,800,400,0));
+        $this->planetAddResources(new Resources(0, 800, 400, 0));
         // Set the research lab to level 1.
         $this->planetSetObjectLevel('research_lab', 1);
 
@@ -184,10 +184,10 @@ class ResearchQueueTest extends AccountTestCase
      * Verify that research construction time is calculated correctly (higher than 0)
      * @throws Exception
      */
-    public function testResearchProductionTime() : void
+    public function testResearchProductionTime(): void
     {
         // Add resources to planet to initialize planet.
-        $this->planetAddResources(new Resources(400,120,200,0));
+        $this->planetAddResources(new Resources(400, 120, 200, 0));
 
         $research_time = $this->planetService->getTechnologyResearchTime('energy_technology');
         $this->assertGreaterThan(0, $research_time);

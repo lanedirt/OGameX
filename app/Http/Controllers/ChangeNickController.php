@@ -11,7 +11,7 @@ class ChangeNickController extends OGameController
      *
      * @return View
      */
-    public function overlay() : View
+    public function overlay(): View
     {
         return view('ingame.changenick.overlay');
     }

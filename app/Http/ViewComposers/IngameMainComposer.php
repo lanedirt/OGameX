@@ -5,7 +5,6 @@ namespace OGame\Http\ViewComposers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use OGame\Facades\AppUtil;
-use OGame\Models\Message;
 use OGame\Services\MessageService;
 use OGame\Services\PlayerService;
 

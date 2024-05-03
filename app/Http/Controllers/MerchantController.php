@@ -11,7 +11,7 @@ class MerchantController extends OGameController
      *
      * @return View
      */
-    public function index() : View
+    public function index(): View
     {
         $this->setBodyId('traderOverview');
 

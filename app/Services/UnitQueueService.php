@@ -9,7 +9,6 @@ use OGame\Models\UnitQueue;
 use OGame\ViewModels\Queue\UnitQueueListViewModel;
 use OGame\ViewModels\Queue\UnitQueueViewModel;
 use OGame\ViewModels\QueueListViewModel;
-use OGame\ViewModels\QueueViewModel;
 
 /**
  * Class UnitQueueService.
@@ -52,7 +51,7 @@ class UnitQueueService
      * @return UnitQueueListViewModel
      * @throws Exception
      */
-    public function retrieveQueue(PlanetService $planet) : UnitQueueListViewModel
+    public function retrieveQueue(PlanetService $planet): UnitQueueListViewModel
     {
         // Fetch queue items from model
         $queue_items = $this->model->where([
@@ -106,7 +105,7 @@ class UnitQueueService
      * @param int $planet_id
      * @return Collection<UnitQueue>
      */
-    public function retrieveBuilding(int $planet_id) : Collection
+    public function retrieveBuilding(int $planet_id): Collection
     {
         // Fetch queue items from model
         return $this->model->where([
@@ -196,7 +195,7 @@ class UnitQueueService
             $time_start = $last_time_end;
         }
 
-        $queue = new $this->model;
+        $queue = new $this->model();
         $queue->planet_id = $planet->getPlanetId();
         $queue->object_id = $object_id;
         $queue->object_amount = $requested_build_amount;
@@ -222,7 +221,7 @@ class UnitQueueService
      * @param PlanetService $planet
      * @return int
      */
-    public function retrieveQueueTimeEnd(PlanetService $planet) : int
+    public function retrieveQueueTimeEnd(PlanetService $planet): int
     {
         // Fetch queue items from model
         $queue_item = $this->model->where([

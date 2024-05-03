@@ -28,7 +28,7 @@ class UnitQueueListViewModel extends QueueListViewModel
      *
      * @return UnitQueueViewModel|null
      */
-    public function getCurrentlyBuildingFromQueue() : ?UnitQueueViewModel
+    public function getCurrentlyBuildingFromQueue(): ?UnitQueueViewModel
     {
         // Return the first item in the queue if exists.
         if (count($this->queue) > 0) {
@@ -43,7 +43,7 @@ class UnitQueueListViewModel extends QueueListViewModel
      *
      * @return array<UnitQueueViewModel>
      */
-    public function getQueuedFromQueue() : array
+    public function getQueuedFromQueue(): array
     {
         $queued = [];
         // Everything except the first

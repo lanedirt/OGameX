@@ -214,7 +214,8 @@ abstract class AccountTestCase extends TestCase
      * @param Resources $resources
      * @return void
      */
-    protected function assertResourcesOnPage(TestResponse $response, Resources $resources): void{
+    protected function assertResourcesOnPage(TestResponse $response, Resources $resources): void
+    {
         $content = $response->getContent();
         if (empty($content)) {
             $content = '';
@@ -256,8 +257,7 @@ abstract class AccountTestCase extends TestCase
         // Check if cancel text is present on page.
         try {
             $response->assertSee('Cancel production of ' . $object->title);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             if (!empty($error_message)) {
                 $this->fail($error_message . '. Error: ' . $e->getMessage());
             } else {
@@ -278,8 +278,7 @@ abstract class AccountTestCase extends TestCase
         // Check if cancel text is present on page.
         try {
             $response->assertDontSee('Cancel production of ' . $object->title);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             if (!empty($error_message)) {
                 $this->fail($error_message . '. Error: ' . $e->getMessage());
             } else {
@@ -470,7 +469,8 @@ abstract class AccountTestCase extends TestCase
      * @param array<int,string> $must_contain
      * @return void
      */
-    protected function assertMessageReceivedAndContains(string $tab, string $subtab, array $must_contain) : void {
+    protected function assertMessageReceivedAndContains(string $tab, string $subtab, array $must_contain): void
+    {
         // Assert that message has been sent to player.
         $response = $this->get('/overview');
         // Assert that page contains "1 unread message(s)" text.

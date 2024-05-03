@@ -30,7 +30,7 @@ class GameObjectProperty
      * @param PlanetService $planet
      * @return GameObjectPropertyDetails
      */
-    public function calculate(PlanetService $planet) : GameObjectPropertyDetails
+    public function calculate(PlanetService $planet): GameObjectPropertyDetails
     {
         return $this->calculationService->calculateProperty($planet);
     }

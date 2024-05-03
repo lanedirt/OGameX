@@ -34,8 +34,7 @@ class DeploymentMission extends GameMission
 Metal: ' . $mission->metal . ' 
 Crystal: ' . $mission->crystal . ' 
 Deuterium: ' . $mission->deuterium, 'fleet_deployment');
-        }
-        else {
+        } else {
             $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Fleet deployment', 'One of your fleets from [planet]' . $mission->planet_id_from . '[/planet] has reached [planet]' . $mission->planet_id_to . '[/planet]. The fleet doesn`t deliver goods.', 'fleet_deployment');
         }
 
