@@ -11,7 +11,7 @@ class PlanetMoveController extends OGameController
      *
      * @return View
      */
-    public function overlay() : View
+    public function overlay(): View
     {
         // TODO: add correct template for this page.
         return view('ingame.notes.overlay');

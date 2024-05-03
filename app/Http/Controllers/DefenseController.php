@@ -31,7 +31,7 @@ class DefenseController extends AbstractUnitsController
      * @return View
      * @throws Exception
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects) : View
+    public function index(Request $request, PlayerService $player, ObjectService $objects): View
     {
         $this->setBodyId('defense');
 
@@ -53,7 +53,7 @@ class DefenseController extends AbstractUnitsController
      * @return JsonResponse
      * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : JsonResponse
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects): JsonResponse
     {
         return $this->ajaxHandler($request, $player, $objects);
     }

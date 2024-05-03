@@ -14,7 +14,7 @@ class StationObjects
      *
      * @return array<StationObject>
      */
-    public static function get() : array
+    public static function get(): array
     {
         $buildingObjectsNew = [];
 
@@ -125,7 +125,7 @@ class StationObjects
         $terraformer->machine_name = 'terraformer';
         $terraformer->class_name = 'terraformer';
         $terraformer->description = 'The terraformer increases the usable surface of planets.';
-$terraformer->description_long = 'With the increasing construction on planets, even the living space for the colony is becoming more and more limited. Traditional methods such as high-rise and underground construction are increasingly becoming insufficient. A small group of high-energy physicists and nano engineers eventually came to the solution: terraforming.
+        $terraformer->description_long = 'With the increasing construction on planets, even the living space for the colony is becoming more and more limited. Traditional methods such as high-rise and underground construction are increasingly becoming insufficient. A small group of high-energy physicists and nano engineers eventually came to the solution: terraforming.
 Making use of tremendous amounts of energy, the terraformer can make whole stretches of land or even continents arable. This building houses the production of nanites created specifically for this purpose, which ensure a consistent ground quality throughout.
 
 

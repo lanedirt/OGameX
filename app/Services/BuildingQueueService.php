@@ -59,7 +59,7 @@ class BuildingQueueService
      * @param int $planet_id
      * @return Collection<BuildingQueue>
      */
-    public function retrieveFinished(int $planet_id) : Collection
+    public function retrieveFinished(int $planet_id): Collection
     {
         // Fetch queue items from model
         return $this->model->where([
@@ -80,7 +80,7 @@ class BuildingQueueService
      * @param int $building_id
      * @throws Exception
      */
-    public function add(PlanetService $planet, int $building_id) : void
+    public function add(PlanetService $planet, int $building_id): void
     {
         $build_queue = $this->retrieveQueue($planet);
 
@@ -109,7 +109,7 @@ class BuildingQueueService
         $amount = $this->activeBuildingQueueItemCount($planet, $building->id);
         $next_level = $current_level + $amount + 1;
 
-        $queue = new $this->model;
+        $queue = new $this->model();
         $queue->planet_id = $planet->getPlanetId();
         $queue->object_id = $building->id;
         $queue->object_level_target = $next_level;
@@ -128,7 +128,7 @@ class BuildingQueueService
      * @return BuildingQueueListViewModel
      * @throws Exception
      */
-    public function retrieveQueue(PlanetService $planet) : BuildingQueueListViewModel
+    public function retrieveQueue(PlanetService $planet): BuildingQueueListViewModel
     {
         // Fetch queue items from model
         $queue_items = $this->model->where([

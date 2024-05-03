@@ -92,7 +92,7 @@ class PlanetServiceFactory
      * @return ?PlanetService
      * @throws BindingResolutionException
      */
-    public function makeForCoordinate(Planet\Coordinate $coordinate) : ?PlanetService
+    public function makeForCoordinate(Planet\Coordinate $coordinate): ?PlanetService
     {
         if (!isset($this->instancesByCoordinate[$coordinate->asString()])) {
             // Get the planet ID from the database.
@@ -119,7 +119,8 @@ class PlanetServiceFactory
      * @return Planet\Coordinate
      * @throws \Exception
      */
-    public function determineNewPlanetPosition() : Planet\Coordinate {
+    public function determineNewPlanetPosition(): Planet\Coordinate
+    {
         $lastAssignedGalaxy = (int)$this->settings->get('last_assigned_galaxy', 1);
         $lastAssignedSystem = (int)$this->settings->get('last_assigned_system', 1);
 
@@ -181,7 +182,7 @@ class PlanetServiceFactory
         }
 
         // Position is available
-        $planet = new Planet;
+        $planet = new Planet();
         $planet->user_id = $player->getId();
         $planet->name = $planetName;
         $planet->galaxy = $new_position->galaxy;

@@ -101,7 +101,7 @@ class MessagesController extends OGameController
      * @param string $subtab
      * @return View
      */
-    protected function subTabContent(MessageService $messageService, string $tab, string $subtab = '') : View
+    protected function subTabContent(MessageService $messageService, string $tab, string $subtab = ''): View
     {
         $messages = $messageService->getMessagesForTab($tab, $subtab);
 
@@ -157,7 +157,7 @@ class MessagesController extends OGameController
      * @param MessageService $messageService
      * @return JsonResponse
      */
-    public function post(Request $request, MessageService $messageService) : JsonResponse
+    public function post(Request $request, MessageService $messageService): JsonResponse
     {
         $messageId = $request->get('messageId');
 

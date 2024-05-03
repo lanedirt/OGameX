@@ -20,13 +20,14 @@ class ResearchQueueViewModel extends QueueViewModel
      * @param bool $building
      * @param int $level_target
      */
-    public function __construct(int $id,
-                                GameObject $object,
-                                int $time_countdown,
-                                int $time_total,
-                                bool $building,
-                                int $level_target)
-    {
+    public function __construct(
+        int $id,
+        GameObject $object,
+        int $time_countdown,
+        int $time_total,
+        bool $building,
+        int $level_target
+    ) {
         $this->building = $building;
         $this->level_target = $level_target;
 

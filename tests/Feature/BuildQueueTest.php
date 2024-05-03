@@ -63,7 +63,7 @@ class BuildQueueTest extends AccountTestCase
     public function testBuildQueueFacilitiesRoboticsFactory(): void
     {
         // Add resources to planet that test requires.
-        $this->planetAddResources(new Resources(400,120,200,0));
+        $this->planetAddResources(new Resources(400, 120, 200, 0));
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
@@ -110,7 +110,7 @@ class BuildQueueTest extends AccountTestCase
     public function testBuildQueueFacilitiesRoboticsFactoryMultiQueue(): void
     {
         // Add resources to planet that test requires.
-        $this->planetAddResources(new Resources(5000,5000,5000,0));
+        $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
@@ -185,7 +185,7 @@ class BuildQueueTest extends AccountTestCase
      */
     public function testBuildQueueFailUnfulfilledRequirements(): void
     {
-        $this->planetAddResources(new Resources(1000,1000,1000, 0));
+        $this->planetAddResources(new Resources(1000, 1000, 1000, 0));
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
@@ -214,7 +214,7 @@ class BuildQueueTest extends AccountTestCase
     public function testBuildingProductionTime(): void
     {
         // Add resources to planet to initialize planet.
-        $this->planetAddResources(new Resources(400,120,200,0));
+        $this->planetAddResources(new Resources(400, 120, 200, 0));
 
         $building_construction_time = $this->planetService->getBuildingConstructionTime('metal_mine');
         $this->assertGreaterThan(0, $building_construction_time);

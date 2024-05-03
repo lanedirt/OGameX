@@ -14,7 +14,7 @@ class ResearchObjects
      *
      * @return array<ResearchObject>
      */
-    public static function get() : array
+    public static function get(): array
     {
         $buildingObjectsNew = [];
 

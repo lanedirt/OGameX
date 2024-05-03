@@ -18,7 +18,8 @@ class GitInfoUtil
      *
      * @return string
      */
-    public static function getCurrentBranch() : string {
+    public static function getCurrentBranch(): string
+    {
         $return = exec('git rev-parse --abbrev-ref HEAD');
         if (!$return) {
             return '';
@@ -32,7 +33,8 @@ class GitInfoUtil
      *
      * @return string
      */
-    public static function getCurrentCommitHash() : string {
+    public static function getCurrentCommitHash(): string
+    {
         $return = exec('git log --pretty="%h" -n1 HEAD');
         if (!$return) {
             return '';
@@ -47,7 +49,8 @@ class GitInfoUtil
      * @param string $format
      * @return string
      */
-    public static function getCurrentCommitDate(string $format = 'Y-m-d H:i:s') : string {
+    public static function getCurrentCommitDate(string $format = 'Y-m-d H:i:s'): string
+    {
         // Execute the git command to get the date of the current HEAD commit in the specified format
         $date = exec("git log -1 HEAD --format=%cd");
         if (!$date) {
@@ -57,8 +60,7 @@ class GitInfoUtil
         $time = strtotime($date);
         if (!empty($time)) {
             return date($format, $time);
-        }
-        else {
+        } else {
             return '';
         }
     }
@@ -68,7 +70,8 @@ class GitInfoUtil
      *
      * @return string
      */
-    public static function getCurrentTag() : string {
+    public static function getCurrentTag(): string
+    {
         // Attempt to get the exact tag matching the current commit
         $tag = exec('git describe --tags --exact-match 2>&1', $output, $returnVar);
 
@@ -86,7 +89,8 @@ class GitInfoUtil
      *
      * @return string
      */
-    public static function getAppVersion() : string {
+    public static function getAppVersion(): string
+    {
         return Cache::remember('app_version', 3600, function () {
             // Try to retrieve dynamic version based on local Git repo (if exists).
             $tag = self::getCurrentTag();
@@ -115,7 +119,8 @@ class GitInfoUtil
      *
      * @return string
      */
-    public static function getAppVersionBranchCommit() : string {
+    public static function getAppVersionBranchCommit(): string
+    {
         return Cache::remember('app_version_full', 3600, function () {
             $branch = self::getCurrentBranch();
             $commit = self::getCurrentCommitHash();

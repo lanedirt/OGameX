@@ -81,7 +81,7 @@ class MessageViewModel
                 $playerName = "Unknown Player";
             }
 
-           return $playerName;
+            return $playerName;
         }, $body);
 
         $body = preg_replace_callback('/\[planet\](\d+)\[\/planet\]/', function ($matches) {
@@ -112,7 +112,8 @@ class MessageViewModel
         return $this->viewed === 0;
     }
 
-    public function getDate(): string {
+    public function getDate(): string
+    {
         // Return in this format: 18.03.2024 14:50:38
         return $this->created_at->format('d.m.Y H:i:s');
     }

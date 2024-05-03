@@ -12,7 +12,7 @@ class AllianceController extends OGameController
      *
      * @return View
      */
-    public function index() : View
+    public function index(): View
     {
         return view('ingame.alliance.index');
     }
@@ -22,13 +22,13 @@ class AllianceController extends OGameController
      *
      * @return View
      */
-    public function create() : View
+    public function create(): View
     {
         // TODO: create template.
         return view('ingame.alliance.create');
     }
 
-    public function ajaxCreate() : JsonResponse
+    public function ajaxCreate(): JsonResponse
     {
         return response()->json([
             'content' => [

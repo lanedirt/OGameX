@@ -17,7 +17,7 @@ class HighscoreController extends OGameController
      * @param PlayerService $player
      * @return View
      */
-    public function index(Request $request, PlayerService $player) : View
+    public function index(Request $request, PlayerService $player): View
     {
         $this->setBodyId('highscore');
 
@@ -33,7 +33,7 @@ class HighscoreController extends OGameController
      * @param PlayerService $player
      * @return View
      */
-    public function ajax(Request $request, PlayerService $player) : View
+    public function ajax(Request $request, PlayerService $player): View
     {
         // Check if we received category parameter, if so, use it to determine which highscore category to show.
         // 1 = players
@@ -41,15 +41,13 @@ class HighscoreController extends OGameController
         $category = $request->input('category', '1');
         if (!empty($category)) {
             $category = intval($category);
-        }
-        else {
+        } else {
             $category = 0;
         }
 
         if ($category == 1) {
             return $this->ajaxPlayer($request, $player);
-        }
-        else {
+        } else {
             return $this->ajaxAlliance($request, $player);
         }
     }
@@ -62,7 +60,7 @@ class HighscoreController extends OGameController
      * @return View
      * @throws BindingResolutionException
      */
-    public function ajaxPlayer(Request $request, PlayerService $player) : View
+    public function ajaxPlayer(Request $request, PlayerService $player): View
     {
         // Create highscore service.
         $highscoreService = app()->make(HighscoreService::class);
@@ -75,8 +73,7 @@ class HighscoreController extends OGameController
         $type = $request->input('type', '0');
         if (!empty($type)) {
             $type = intval($type);
-        }
-        else {
+        } else {
             $type = 0;
         }
 
@@ -88,10 +85,9 @@ class HighscoreController extends OGameController
 
         // Check if we received a page number, if so, use it instead of the current player rank.
         $page = $request->input('page', null);
-        if (!empty($page))  {
+        if (!empty($page)) {
             $page = intval($page);
-        }
-        else {
+        } else {
             // Initial page based on current player rank (round to the nearest 100 floored).
             $page = $currentPlayerPage;
         }
@@ -118,7 +114,7 @@ class HighscoreController extends OGameController
      * @return View
      * @throws BindingResolutionException
      */
-    public function ajaxAlliance(Request $request, PlayerService $player) : View
+    public function ajaxAlliance(Request $request, PlayerService $player): View
     {
         // TODO: implement alliance highscore.
         // Create highscore service.
@@ -132,8 +128,7 @@ class HighscoreController extends OGameController
         $type = $request->input('type', '0');
         if (!empty($type)) {
             $type = intval($type);
-        }
-        else {
+        } else {
             $type = 0;
         }
 
@@ -145,10 +140,9 @@ class HighscoreController extends OGameController
 
         // Check if we received a page number, if so, use it instead of the current player rank.
         $page = $request->input('page', null);
-        if (!empty($page))  {
+        if (!empty($page)) {
             $page = intval($page);
-        }
-        else {
+        } else {
             // Initial page based on current player rank (round to the nearest 100 floored).
             $page = $currentPlayerPage;
         }
