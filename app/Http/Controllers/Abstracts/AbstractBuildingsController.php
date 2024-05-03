@@ -4,7 +4,6 @@ namespace OGame\Http\Controllers\Abstracts;
 
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
@@ -153,7 +152,7 @@ abstract class AbstractBuildingsController extends OGameController
      * @return JsonResponse
      * @throws Exception
      */
-    public function addBuildRequest(Request $request, PlayerService $player) : JsonResponse
+    public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
         // Explicitly verify CSRF token because this request supports both POST and GET.
         if (!hash_equals($request->session()->token(), $request->input('_token'))) {
@@ -180,7 +179,7 @@ abstract class AbstractBuildingsController extends OGameController
      * @return JsonResponse
      * @throws Exception
      */
-    public function cancelBuildRequest(Request $request, PlayerService $player) : JsonResponse
+    public function cancelBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
         $building_id = $request->input('technologyId');
         $building_queue_id = $request->input('listId');

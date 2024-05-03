@@ -5,7 +5,6 @@ namespace OGame\Http\Traits;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use OGame\Facades\AppUtil;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
@@ -35,8 +34,7 @@ trait ObjectAjaxTrait
         $current_level = 0;
         if ($object->type == 'research') {
             $current_level = $player->getResearchLevel($object->machine_name);
-        }
-        else {
+        } else {
             $current_level = $planet->getObjectLevel($object->machine_name);
         }
         $next_level = $current_level + 1;

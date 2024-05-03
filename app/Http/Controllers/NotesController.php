@@ -13,7 +13,7 @@ class NotesController extends OGameController
      * @param Request $request
      * @return View
      */
-    public function overlay(Request $request) : View
+    public function overlay(Request $request): View
     {
         return view('ingame.notes.overlay');
     }

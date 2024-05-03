@@ -91,7 +91,7 @@ class PlayerService
             // User has no tech record, so create one.
             // @TODO: move this logic as well as the planet creation
             // to the user register logic action.
-            $tech = new UserTech;
+            $tech = new UserTech();
             $tech->user_id = $this->getId();
             $tech->save();
         }
@@ -116,7 +116,7 @@ class PlayerService
     /**
      * Get current player ID.
      */
-    public function getId() : int
+    public function getId(): int
     {
         return $this->user->id;
     }
@@ -195,7 +195,7 @@ class PlayerService
      *
      * @return string
      */
-    public function getEmail() : string
+    public function getEmail(): string
     {
         return $this->user->email;
     }
@@ -207,7 +207,7 @@ class PlayerService
      * @return int
      * @throws Exception
      */
-    public function getResearchLevel(string $machine_name) : int
+    public function getResearchLevel(string $machine_name): int
     {
         $research = $this->objects->getResearchObjectByMachineName($machine_name);
         $research_level = $this->user_tech->{$research->machine_name};
@@ -243,7 +243,7 @@ class PlayerService
      *
      * @return int
      */
-    public function getCurrentPlanetId() : int
+    public function getCurrentPlanetId(): int
     {
         if (!$this->user->planet_current) {
             // If no current planet is set, return the first planet of the player.
@@ -258,7 +258,7 @@ class PlayerService
      *
      * @param int $planet_id
      */
-    public function setCurrentPlanetId(int $planet_id) : void
+    public function setCurrentPlanetId(int $planet_id): void
     {
         // Check if user owns this planet ID
         if ($this->planets->planetExistsAndOwnedByPlayer($planet_id)) {
@@ -277,7 +277,7 @@ class PlayerService
      * @return void
      * @throws Exception
      */
-    public function update() : void
+    public function update(): void
     {
         // ------
         // 1. Update research queue
@@ -316,7 +316,7 @@ class PlayerService
      *
      * @return int
      */
-    public function getResearchScore() : int
+    public function getResearchScore(): int
     {
         // For every research in the game, calculate the score based on how much resources it costs to build it.
         // For research it is the sum of resources needed for all levels up to the current level.

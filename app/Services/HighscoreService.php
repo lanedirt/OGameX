@@ -218,7 +218,7 @@ class HighscoreService
      *
      * @return int
      */
-    public function getHighscorePlayerAmount() : int
+    public function getHighscorePlayerAmount(): int
     {
         // TODO: return actual player count again when caching is implemented.
         $actualUserCount = User::count();

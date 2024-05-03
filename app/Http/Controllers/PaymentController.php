@@ -21,7 +21,7 @@ class PaymentController extends OGameController
      *
      * @return View
      */
-    public function iframe() : View
+    public function iframe(): View
     {
         // NOTE: this is a placeholder iframe src which is empty for now.
         return view('ingame.payment.iframe');

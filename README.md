@@ -63,6 +63,8 @@ New features are continuously being added. Upcoming features:
 
 Contributions are warmly welcomed, whether in development, testing, or spreading the word. Feel free to submit pull requests or contact me for any other contributions.
 
+Read the [CONTRIBUTING.md](htts://github.com/lanedirt/OGameX/CONTRIBUTING.md) file for more information.
+
 ## 6. Disclaimer
 
 This project is a non-commercial hobby project. All rights and concepts related to OGame are owned by GameForge GmbH. We encourage supporters to try the official OGame at https://ogame.org to support its creators.

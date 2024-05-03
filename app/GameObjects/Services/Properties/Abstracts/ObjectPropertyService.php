@@ -22,7 +22,8 @@ abstract class ObjectPropertyService
     protected int $base_value;
     protected GameObject $parent_object;
 
-    public function __construct(GameObject $parentObject, int $baseValue) {
+    public function __construct(GameObject $parentObject, int $baseValue)
+    {
         $this->parent_object = $parentObject;
         $this->base_value = $baseValue;
     }

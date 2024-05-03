@@ -47,7 +47,7 @@ class SettingsTest extends TestCase
         $settingsService = app()->make(SettingsService::class);
 
         // Set a value.
-        $random_value = 'random_string_' . rand(0,99999);
+        $random_value = 'random_string_' . rand(0, 99999);
         $settingsService->set('test_setting_key', $random_value);
 
         // Initialize a new settingsService again to get a clean state

@@ -99,7 +99,7 @@ class MessageService
      * @param string $subtab
      * @return MessageViewModel[] Array of MessageViewModel objects.
      */
-    public function getMessagesForTab(string $tab, string $subtab) : array
+    public function getMessagesForTab(string $tab, string $subtab): array
     {
         // If subtab is empty, we use the first subtab of the tab.
         if (empty($subtab)) {
@@ -114,7 +114,7 @@ class MessageService
 
         // Convert messages to view models.
         $return = [];
-        foreach( $messages as $message) {
+        foreach($messages as $message) {
             $return[] = new MessageViewModel($message);
         }
 
@@ -127,14 +127,14 @@ class MessageService
         return $return;
     }
 
-    public function getUnreadMessagesCount() : int
+    public function getUnreadMessagesCount(): int
     {
         return Message::where('user_id', $this->player->getId())
             ->where('viewed', 0)
             ->count();
     }
 
-    public function getUnreadMessagesCountForTab(string $tab) : int
+    public function getUnreadMessagesCountForTab(string $tab): int
     {
         // Get all ids of the subtabs in this tab.
         $subtabIds = [];
@@ -150,7 +150,7 @@ class MessageService
             ->count();
     }
 
-    public function getUnreadMessagesCountForSubTab(string $tab, string $subtab) : int
+    public function getUnreadMessagesCountForSubTab(string $tab, string $subtab): int
     {
         return Message::where('user_id', $this->player->getId())
             ->whereIn('type', $this->tabs[$tab][$subtab])
@@ -167,7 +167,7 @@ class MessageService
      * @param string $type
      * @return void
      */
-    public function sendMessageToPlayer(PlayerService $player, string $subject, string $body, string $type) : void
+    public function sendMessageToPlayer(PlayerService $player, string $subject, string $body, string $type): void
     {
         // Convert type string to type int based on tabs array multiple levels.
         $typeId = 0;
@@ -229,7 +229,7 @@ This message will be deleted in 7 days.', 'welcome_message');
      * @param int $messageId
      * @return void
      */
-    public function deleteMessage(int $messageId) : void
+    public function deleteMessage(int $messageId): void
     {
         Message::where('id', $messageId)
             ->where('user_id', $this->player->getId())

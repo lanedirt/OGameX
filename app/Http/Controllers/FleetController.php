@@ -9,11 +9,9 @@ use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Planet\Coordinate;
-use OGame\Models\Resource;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
-use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\ViewModels\UnitViewModel;
 
@@ -28,7 +26,7 @@ class FleetController extends OGameController
      * @return View
      * @throws \Exception
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects) : View
+    public function index(Request $request, PlayerService $player, ObjectService $objects): View
     {
         // Define ship ids to include in the fleet screen.
         // 0 = military ships
@@ -74,7 +72,7 @@ class FleetController extends OGameController
      *
      * @return View
      */
-    public function movement() : View
+    public function movement(): View
     {
         return view('ingame.fleet.movement');
     }
@@ -82,7 +80,8 @@ class FleetController extends OGameController
     /**
      * @throws BindingResolutionException
      */
-    public function dispatchCheckTarget(PlayerService $currentPlayer, ObjectService $objects) : JsonResponse {
+    public function dispatchCheckTarget(PlayerService $currentPlayer, ObjectService $objects): JsonResponse
+    {
         $enabledMissions = [];
 
         // Get target coordinates
@@ -101,8 +100,7 @@ class FleetController extends OGameController
             $targetPlanetName = $targetPlanet->getPlanetName();
             $targetPlayerName = $targetPlayer->getUsername();
             $targetCoordinates = $targetPlanet->getPlanetCoordinates();
-        }
-        else {
+        } else {
             $targetPlayerId = 99999;
             $targetPlanetName = '?';
             $targetPlayerName = 'Deep space';
@@ -113,8 +111,7 @@ class FleetController extends OGameController
         // If position is 16, only enable expedition mission
         if ($position == 16) {
             $enabledMissions = [15];
-        }
-        else if ($currentPlayer->equals($targetPlayer)) {
+        } elseif ($currentPlayer->equals($targetPlayer)) {
             // If target player is the same as the current player, enable transport/deployment missions.
             $enabledMissions = [3, 4];
         }
@@ -141,8 +138,7 @@ class FleetController extends OGameController
         foreach ($possible_mission_types as $mission) {
             if (in_array($mission, $enabledMissions)) {
                 $orders[$mission] = true;
-            }
-            else {
+            } else {
                 $orders[$mission] = false;
             }
         }
@@ -183,7 +179,7 @@ class FleetController extends OGameController
      * @return JsonResponse
      * @throws \Exception
      */
-    public function dispatchSendFleet(PlayerService $player) : JsonResponse
+    public function dispatchSendFleet(PlayerService $player): JsonResponse
     {
         // Get target coordinates
         $galaxy = request()->input('galaxy');
@@ -258,7 +254,8 @@ holdingtime: 0
         ]);
     }
 
-    public function dispatchRecallFleet(): JsonResponse {
+    public function dispatchRecallFleet(): JsonResponse
+    {
         // Get the fleet mission id
         $fleet_mission_id = request()->input('fleet_mission_id');
 

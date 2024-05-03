@@ -655,7 +655,7 @@ class PlanetService
             // production.
             $hours_difference = ($current_time - $time_last_update) / 3600;
 
-            $add_resources = new Resources(0,0,0,0);
+            $add_resources = new Resources(0, 0, 0, 0);
 
             // @TODO: add transactions for updating resources to prevent request collisions.
             // Metal calculation.
@@ -952,7 +952,7 @@ class PlanetService
      * @return void
      * @throws Exception
      */
-    public function removeUnits(UnitCollection $units, bool $save_planet) : void
+    public function removeUnits(UnitCollection $units, bool $save_planet): void
     {
         foreach ($units->units as $unit) {
             $this->removeUnit($unit->unitObject->machine_name, $unit->amount, $save_planet);
@@ -971,7 +971,7 @@ class PlanetService
      */
     public function updateResourceProductionStats(bool $save_planet = true): void
     {
-        $production_total = new Resources(0,0,0,0);
+        $production_total = new Resources(0, 0, 0, 0);
         $energy_production_total = 0;
         $energy_consumption_total = 0;
 
@@ -1033,8 +1033,7 @@ class PlanetService
 
             if ($production->energy->get() > 0) {
                 $energy_production_total += $production->energy->get();
-            }
-            else {
+            } else {
                 // Multiplies the negative number with "-1" so it will become
                 // a positive number, which is what the system expects.
                 $production_total->energy->add(new Resource($production->energy->get() * -1));
@@ -1086,7 +1085,7 @@ class PlanetService
         $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
 
         // TODO: check if this works correctly by looping through object values.. would be better to refactor.
-        $production = new Resources(0,0,0,0);
+        $production = new Resources(0, 0, 0, 0);
         $production->metal->set((eval($building->production->metal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
         $production->crystal->set((eval($building->production->crystal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
         $production->deuterium->set((eval($building->production->deuterium) * $universe_resource_multiplier) * ($resource_production_factor / 100));
@@ -1235,7 +1234,7 @@ class PlanetService
      */
     public function updateResourceStorageStats(bool $save_planet = true): void
     {
-        $storage_sum = new Resources(0,0,0,0);
+        $storage_sum = new Resources(0, 0, 0, 0);
         foreach ($this->objects->getBuildingObjectsWithStorage() as $building) {
             // Retrieve all buildings that have production values.
             $storage = $this->getBuildingMaxStorage($building->machine_name);
@@ -1291,7 +1290,7 @@ class PlanetService
         // For buildings with levels it is the sum of resources needed for all levels up to the current level.
         // For units, it is the sum of resources needed to build the full sum of all units.
         // The score is the sum of all these values.
-        $resources_spent = new Resources(0,0,0,0);
+        $resources_spent = new Resources(0, 0, 0, 0);
 
         // Create object array
         $building_objects = $this->objects->getBuildingObjects() + $this->objects->getStationObjects();
@@ -1323,7 +1322,7 @@ class PlanetService
      * @return int
      * @throws Exception
      */
-    public function getObjectAmount( string $machine_name): int
+    public function getObjectAmount(string $machine_name): int
     {
         $object = $this->objects->getUnitObjectByMachineName($machine_name);
 

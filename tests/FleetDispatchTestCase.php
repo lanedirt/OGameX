@@ -59,10 +59,11 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         $this->planetAddUnit('small_cargo', 5);
     }
 
-    protected abstract function messageCheckMissionArrival(): void;
-    protected abstract function messageCheckMissionReturn(): void;
+    abstract protected function messageCheckMissionArrival(): void;
+    abstract protected function messageCheckMissionReturn(): void;
 
-    protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200) : void {
+    protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    {
         // Convert units to array.
         $unitsArray = [];
         foreach ($units->units as $unit) {
@@ -90,7 +91,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);
     }
 
-    protected function sendMissionToOtherPlayer(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlayerService {
+    protected function sendMissionToOtherPlayer(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlayerService
+    {
         // Convert units to array.
         $unitsArray = [];
         foreach ($units->units as $unit) {
@@ -250,7 +252,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         $response->assertStatus(200);
 
         // Assert that the fleet mission is processed.
-        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId,  false);
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Check that message has been received by calling extended method
@@ -280,8 +282,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
             $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units after return trip.');
 
             $this->messageCheckMissionReturn();
-        }
-        else {
+        } else {
             // Assert that NO return trip has been launched by checking the active missions for the current planet.
             $this->assertCount(0, $activeMissions, 'Return trip launched after fleet with deployment mission has arrived at destination.');
         }
@@ -320,8 +321,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
             // Assert that we see both rows in the event list.
             $response->assertSee('data-return-flight="false"', false);
             $response->assertSee('data-return-flight="true"', false);
-        }
-        else {
+        } else {
             // If the mission does not have a return mission, we should only see the parent mission.
             $response->assertSee($this->missionName);
             $response->assertDontSee($this->missionName .  ' (R)');

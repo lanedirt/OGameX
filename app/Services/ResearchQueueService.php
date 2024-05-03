@@ -52,7 +52,7 @@ class ResearchQueueService
      * @return \Illuminate\Support\Collection
      *  Array when an item exists. False if it does not.
      */
-    public function retrieveQueuedFromQueue(\Illuminate\Support\Collection $queue_items) : \Illuminate\Support\Collection
+    public function retrieveQueuedFromQueue(\Illuminate\Support\Collection $queue_items): \Illuminate\Support\Collection
     {
         foreach ($queue_items as $key => $record) {
             if ($record['building'] == 1) {
@@ -71,7 +71,7 @@ class ResearchQueueService
      *
      * @return Collection
      */
-    public function retrieveFinished(int $planet_id) : Collection
+    public function retrieveFinished(int $planet_id): Collection
     {
         // Fetch queue items from model
         return $this->model->where([
@@ -88,7 +88,7 @@ class ResearchQueueService
     /**
      * Retrieve all build queue items that already should be finished for a given user.
      */
-    public function retrieveFinishedForUser(PlayerService $player) : \Illuminate\Support\Collection
+    public function retrieveFinishedForUser(PlayerService $player): \Illuminate\Support\Collection
     {
         // Fetch queue items from model
         return $this->model
@@ -115,7 +115,7 @@ class ResearchQueueService
      * @return void
      * @throws Exception
      */
-    public function add(PlayerService $player, PlanetService $planet, int $building_id) : void
+    public function add(PlayerService $player, PlanetService $planet, int $building_id): void
     {
         $build_queue = $this->retrieveQueue($planet);
 
@@ -136,7 +136,7 @@ class ResearchQueueService
         $amount = $this->activeBuildingQueueItemCount($player, $building_id);
         $next_level = $current_level + $amount + 1;
 
-        $queue = new $this->model;
+        $queue = new $this->model();
         $queue->planet_id = $planet->getPlanetId();
         $queue->object_id = $building_id;
         $queue->object_level_target = $next_level;
@@ -155,7 +155,7 @@ class ResearchQueueService
      * @return ResearchQueueListViewModel
      * @throws Exception
      */
-    public function retrieveQueue(PlanetService $planet) : ResearchQueueListViewModel
+    public function retrieveQueue(PlanetService $planet): ResearchQueueListViewModel
     {
         // Fetch queue items from model
         $queue_items = $this->model
@@ -203,7 +203,7 @@ class ResearchQueueService
      * @param int $building_id
      * @return int
      */
-    public function activeBuildingQueueItemCount(PlayerService $player, int $building_id) : int
+    public function activeBuildingQueueItemCount(PlayerService $player, int $building_id): int
     {
         // Fetch queue items from model
         return $this->model
@@ -235,7 +235,7 @@ class ResearchQueueService
      * @return void
      * @throws Exception
      */
-    public function start(PlayerService $player, int $time_start = 0) : void
+    public function start(PlayerService $player, int $time_start = 0): void
     {
         $queue_items = $this->model
             ->join('planets', 'research_queues.planet_id', '=', 'planets.id')

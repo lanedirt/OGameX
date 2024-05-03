@@ -1,0 +1,22 @@
+name: Laravel Pint PSR-12 Code Style Checker
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  laravel-pint-psr12-code-style-checker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+        with:
+          php-version: '8.2'
+      - uses: actions/checkout@v3
+      - name: Laravel Pint PSR-12 Code Style Checker
+        uses: aglipanci/laravel-pint-action@2.4
+        with:
+          preset: psr12
+          verboseMode: true
+          testMode: true

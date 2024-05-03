@@ -54,7 +54,7 @@ class FacilitiesController extends AbstractBuildingsController
      * @return JsonResponse
      * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : JsonResponse
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects): JsonResponse
     {
         return $this->ajaxHandler($request, $player, $objects);
     }

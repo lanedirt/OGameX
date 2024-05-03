@@ -33,7 +33,7 @@ class ObjectService
      *
      * @return array<GameObject>
      */
-    public function getObjects() : array
+    public function getObjects(): array
     {
         return array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
     }
@@ -43,7 +43,7 @@ class ObjectService
      *
      * @return array<BuildingObject>
      */
-    public function getBuildingObjects() : array
+    public function getBuildingObjects(): array
     {
         return BuildingObjects::get();
     }
@@ -53,7 +53,7 @@ class ObjectService
      *
      * @return array<StationObject>
      */
-    public function getStationObjects() : array
+    public function getStationObjects(): array
     {
         return StationObjects::get();
     }
@@ -63,7 +63,7 @@ class ObjectService
      *
      * @return array<ResearchObject>
      */
-    public function getResearchObjects() : array
+    public function getResearchObjects(): array
     {
         return ResearchObjects::get();
     }
@@ -73,7 +73,7 @@ class ObjectService
      *
      * @return array<UnitObject>
      */
-    public function getUnitObjects() : array
+    public function getUnitObjects(): array
     {
         return array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
     }
@@ -84,7 +84,7 @@ class ObjectService
      *
      * @return array<ShipObject>
      */
-    public function getShipObjects() : array
+    public function getShipObjects(): array
     {
         return array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
     }
@@ -94,7 +94,7 @@ class ObjectService
      *
      * @return array<DefenseObject>
      */
-    public function getDefenseObjects() : array
+    public function getDefenseObjects(): array
     {
         return DefenseObjects::get();
     }
@@ -104,7 +104,7 @@ class ObjectService
      *
      * @return array<ShipObject>
      */
-    public function getMilitaryShipObjects() : array
+    public function getMilitaryShipObjects(): array
     {
         return MilitaryShipObjects::get();
     }
@@ -114,7 +114,7 @@ class ObjectService
      *
      * @return array<ShipObject>
      */
-    public function getCivilShipObjects() : array
+    public function getCivilShipObjects(): array
     {
         return CivilShipObjects::get();
     }
@@ -126,7 +126,7 @@ class ObjectService
      * @return BuildingObject
      * @throws Exception
      */
-    public function getBuildingObjectByMachineName(string $machine_name) : BuildingObject
+    public function getBuildingObjectByMachineName(string $machine_name): BuildingObject
     {
         // Loop through all buildings and return the one with the matching UID
         foreach (BuildingObjects::get() as $building) {
@@ -145,7 +145,7 @@ class ObjectService
      * @return ShipObject
      * @throws Exception
      */
-    public function getShipObjectByMachineName(string $machine_name) : ShipObject
+    public function getShipObjectByMachineName(string $machine_name): ShipObject
     {
         // Loop through all buildings and return the one with the matching UID
         $shipObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
@@ -165,7 +165,7 @@ class ObjectService
      * @return GameObject
      * @throws Exception
      */
-    public function getObjectById(int $object_id) : GameObject
+    public function getObjectById(int $object_id): GameObject
     {
         // Loop through all buildings and return the one with the matching UID
         $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
@@ -185,7 +185,7 @@ class ObjectService
      * @return GameObject
      * @throws Exception
      */
-    public function getObjectByMachineName(string $machine_name) : GameObject
+    public function getObjectByMachineName(string $machine_name): GameObject
     {
         // Loop through all buildings and return the one with the matching UID
         $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
@@ -205,7 +205,7 @@ class ObjectService
      * @return ResearchObject
      * @throws Exception
      */
-    public function getResearchObjectByMachineName(string $machine_name) : ResearchObject
+    public function getResearchObjectByMachineName(string $machine_name): ResearchObject
     {
         // Loop through all buildings and return the one with the matching UID
         $allObjects = array_merge(ResearchObjects::get());
@@ -225,7 +225,7 @@ class ObjectService
      * @return ResearchObject
      * @throws Exception
      */
-    public function getResearchObjectById(int $object_id) : ResearchObject
+    public function getResearchObjectById(int $object_id): ResearchObject
     {
         // Loop through all buildings and return the one with the matching UID
         $allObjects = array_merge(ResearchObjects::get());
@@ -245,7 +245,7 @@ class ObjectService
      * @return UnitObject
      * @throws Exception
      */
-    public function getUnitObjectById(int $object_id) : UnitObject
+    public function getUnitObjectById(int $object_id): UnitObject
     {
         $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
@@ -264,7 +264,7 @@ class ObjectService
      * @return UnitObject
      * @throws Exception
      */
-    public function getUnitObjectByMachineName(string $machine_name) : UnitObject
+    public function getUnitObjectByMachineName(string $machine_name): UnitObject
     {
         // Loop through all buildings and return the one with the matching UID
         $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
@@ -282,7 +282,7 @@ class ObjectService
      *
      * @return array<BuildingObject>
      */
-    public function getBuildingObjectsWithProduction() : array
+    public function getBuildingObjectsWithProduction(): array
     {
         $return = array();
 
@@ -302,7 +302,7 @@ class ObjectService
      * @return BuildingObject
      * @throws Exception
      */
-    public function getBuildingObjectsWithProductionByMachineName(string $machine_name) : BuildingObject
+    public function getBuildingObjectsWithProductionByMachineName(string $machine_name): BuildingObject
     {
         foreach (BuildingObjects::get() as $object) {
             if ($object->machine_name == $machine_name && !empty(($object->production))) {
@@ -318,7 +318,7 @@ class ObjectService
      *
      * @return array<BuildingObject>
      */
-    public function getBuildingObjectsWithStorage() : array
+    public function getBuildingObjectsWithStorage(): array
     {
         $return = array();
 
@@ -339,7 +339,7 @@ class ObjectService
      * @param PlayerService $player
      * @return bool
      */
-    public function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player) : bool
+    public function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player): bool
     {
         try {
             $object = $this->getObjectByMachineName($machine_name);
@@ -372,7 +372,7 @@ class ObjectService
      * @return int
      * @throws Exception
      */
-    public function getObjectMaxBuildAmount(string $machine_name, PlanetService $planet) : int
+    public function getObjectMaxBuildAmount(string $machine_name, PlanetService $planet): int
     {
         $price = $this->getObjectPrice($machine_name, $planet);
 
@@ -409,7 +409,7 @@ class ObjectService
      * @return Resources
      * @throws Exception
      */
-    public function getObjectPrice(string $machine_name, PlanetService $planet) : Resources
+    public function getObjectPrice(string $machine_name, PlanetService $planet): Resources
     {
         $object = $this->getObjectByMachineName($machine_name);
         $player = $planet->getPlayer();
@@ -439,19 +439,19 @@ class ObjectService
      * @param int $level
      * @return Resources
      */
-    public function getObjectRawPrice(string $machine_name, int $level = 0) : Resources
+    public function getObjectRawPrice(string $machine_name, int $level = 0): Resources
     {
         try {
             $object = $this->getObjectByMachineName($machine_name);
         } catch (Exception $e) {
-            return new Resources(0,0,0,0);
+            return new Resources(0, 0, 0, 0);
         }
 
         // Price calculation for buildings or research (price depends on level)
         if ($object->type == 'building' || $object->type == 'station' || $object->type == 'research') {
             // Level 0 is free.
             if ($level == 0) {
-                return new Resources(0,0,0,0);
+                return new Resources(0, 0, 0, 0);
             }
 
             $base_price = $object->price;

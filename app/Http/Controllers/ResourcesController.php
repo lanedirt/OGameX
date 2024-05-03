@@ -56,7 +56,7 @@ class ResourcesController extends AbstractBuildingsController
      * @return JsonResponse
      * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects) : JsonResponse
+    public function ajax(Request $request, PlayerService $player, ObjectService $objects): JsonResponse
     {
         return $this->ajaxHandler($request, $player, $objects);
     }
@@ -70,14 +70,14 @@ class ResourcesController extends AbstractBuildingsController
      * @return View
      * @throws Exception
      */
-    public function settings(Request $request, PlayerService $player, ObjectService $objects) : View
+    public function settings(Request $request, PlayerService $player, ObjectService $objects): View
     {
         $this->setBodyId('resourceSettings');
         $this->planet = $player->planets->current();
 
         $building_resource_rows = [];
         $building_energy_rows = [];
-        $production_total = new Resources(0,0,0,0);
+        $production_total = new Resources(0, 0, 0, 0);
 
         // Get basic income resource values.
         $production_total->add($this->planet->getPlanetBasicIncome());
@@ -151,7 +151,7 @@ class ResourcesController extends AbstractBuildingsController
      *
      * @return RedirectResponse
      */
-    public function settingsUpdate(Request $request, PlayerService $player, ObjectService $objects) : RedirectResponse
+    public function settingsUpdate(Request $request, PlayerService $player, ObjectService $objects): RedirectResponse
     {
         $this->planet = $player->planets->current();
 

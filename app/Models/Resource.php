@@ -19,7 +19,8 @@ class Resource
      * @param Resource $other
      * @return void
      */
-    public function add(Resource $other): void {
+    public function add(Resource $other): void
+    {
         $this->rawValue += $other->get();
     }
 
@@ -29,7 +30,8 @@ class Resource
      * @param int $factor
      * @return void
      */
-    public function multiply(int $factor): void {
+    public function multiply(int $factor): void
+    {
         $this->rawValue = $this->rawValue * $factor;
     }
 

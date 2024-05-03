@@ -28,7 +28,7 @@ class ResearchQueueListViewModel extends QueueListViewModel
      *
      * @return ResearchQueueViewModel|null
      */
-    public function getCurrentlyBuildingFromQueue() : ?ResearchQueueViewModel
+    public function getCurrentlyBuildingFromQueue(): ?ResearchQueueViewModel
     {
         foreach ($this->queue as $record) {
             if ($record->building == 1) {
@@ -44,7 +44,7 @@ class ResearchQueueListViewModel extends QueueListViewModel
      *
      * @return array<ResearchQueueViewModel>
      */
-    public function getQueuedFromQueue() : array
+    public function getQueuedFromQueue(): array
     {
         $queued = [];
         foreach ($this->queue as $record) {
