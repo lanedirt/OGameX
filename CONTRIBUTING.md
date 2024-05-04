@@ -16,6 +16,8 @@ If you would like to contribute via pull requests, a good way to get started is 
 
 [![good first issues open](https://img.shields.io/github/issues/lanedirt/OGameX/good%20first%20issue.svg?logo=github)](https://github.com/lanedirt/OGameX/issues?q=is%3Aopen+is%3Aissue+label%3A"good+first+issue")
 
+Refer to the [Installation section](https://github.com/lanedirt/OGameX#installation) in the main README.md for how to get your local development environment setup.
+
 When submitting a pull request, please make sure to follow these guidelines:
 
 ### 1. PSR-12 Coding Standard
@@ -35,7 +37,7 @@ Make sure that your code passes the PHPStan static code analysis. You can run PH
 ### 3. Include feature or unittests
 Your PR should include feature or unittests where possible to cover the changes you made. OGameX uses the default Laravel testing framework which covers feature and unittests by default. If you're not sure how to write tests, please ask.
 To run the tests locally, you can use the following command:
-`$ ./vendor/bin/phpunit`
+`$ php artisan test`
 
 ### 4. Keep it simple
 If your PR is too big, it will be hard to review. Try to keep it simple and small. If you want to do more than one thing, send multiple pull requests.
