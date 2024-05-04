@@ -45,6 +45,7 @@ class PlanetListService
      * @param int $id
      * @return void
      * @throws BindingResolutionException
+     * @throws Exception
      */
     public function load(int $id): void
     {
@@ -65,7 +66,7 @@ class PlanetListService
             $planetNames = ['Homeworld', 'Colony'];
             for ($i = 0; $i < 2; $i++) {
                 $planetServiceFactory = app()->make(PlanetServiceFactory::class);
-                $planetService = $planetServiceFactory->createForPlayer($this->player, $planetNames[$i]);
+                $planetService = $planetServiceFactory->createInitialForPlayer($this->player, $planetNames[$i]);
 
                 $this->planets[] = $planetService;
             }

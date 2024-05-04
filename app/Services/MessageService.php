@@ -54,8 +54,9 @@ class MessageService
         ],
         'economy' => [
             'economy' => [
-                61, // Production canceled
-                62, // Repair completed
+                'production_canceled' => 61, // Production canceled
+                'repair_completed' => 62, // Repair completed
+                'colony_established' => 63, // Colony established
             ],
         ],
         'universe' => [

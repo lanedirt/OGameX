@@ -4,8 +4,13 @@ namespace Tests;
 
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Planet;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 
@@ -31,6 +36,92 @@ abstract class AccountTestCase extends TestCase
 
         // We should now automatically be logged in. Retrieve meta fields to verify.
         $this->retrieveMetaFields();
+    }
+
+    protected PlanetService $planetService;
+
+    /**
+     * By default, Laravel does not refresh the application state between requests in a single test.
+     * By invoking this method we ensure that the application state is refreshed to avoid any side effects from
+     * previous requests such as planets not being updated on the initial request.
+     *
+     * @return void
+     */
+    public function reloadApplication(): void
+    {
+        $this->refreshApplication();
+        $this->be(User::find($this->currentUserId));
+    }
+
+    /**
+     * Create a new user and login via the register form on login page.
+     *
+     * @return void
+     */
+    protected function createAndLoginUser(): void
+    {
+        // First go to logout page to ensure we are not logged in.
+        $this->post('/logout');
+
+        $response = $this->get('/login');
+
+        // Check for existence of register form
+        $response->assertSee('subscribeForm');
+
+        // Simulate form data
+        // Generate random email
+        $randomEmail = Str::random(10) . '@example.com';
+
+        $formData = [
+            '_token' => csrf_token(),
+            'email' => $randomEmail,
+            'password' => 'asdasdasd',
+            'v' => '3',
+            'step' => 'validate',
+            'kid' => '',
+            'errorCodeOn' => '1',
+            'is_utf8' => '1',
+            'agb' => 'on',
+        ];
+
+        // Submit the registration form
+        $response = $this->post('/register', $formData);
+        if ($response->status() !== 302) {
+            var_dump($response->getContent());
+            $this->fail('Failed to register account. Response status: ' . $response->status(). '. Check the logs.');
+        }
+
+        // Check if we are authenticated after registration.
+        $this->assertAuthenticated();
+    }
+
+    /**
+     * Helper method to create a planet model and configure it.
+     *
+     * @param array<string, int> $attributes
+     */
+    protected function createAndSetPlanetModel(array $attributes): void
+    {
+        // Create fake planet eloquent model with additional attributes
+        $planetModelFake = Planet::factory()->make($attributes);
+        // Set the fake model to the planet service
+        $this->planetService->setPlanet($planetModelFake);
+    }
+
+    /**
+     * Set up the planet service for testing.
+     *
+     * @return void
+     * @throws BindingResolutionException
+     */
+    protected function setUpPlanetService(): void
+    {
+        // Initialize empty playerService object directly without factory as we do not
+        // actually want to load a player from the database.
+        $playerService = app()->make(PlayerService::class, ['player_id' => 0]);
+        // Initialize the planet service with factory.
+        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+        $this->planetService = $planetServiceFactory->makeForPlayer($playerService, 0);
     }
 
     /**
@@ -92,6 +183,73 @@ abstract class AccountTestCase extends TestCase
         return $playerIds[0];
     }
 
+    /**
+     * Gets a nearby foreign planet for the current user. This is useful for testing interactions between two players.
+     *
+     * @return PlanetService
+     * @throws BindingResolutionException
+     */
+    protected function getNearbyForeignPlanet(): PlanetService
+    {
+        // Find a planet of another player that is close to the current player by checking the same galaxy
+        // and up to 10 systems away.
+        $planet_id = \DB::table('planets')
+            ->where('user_id', '!=', $this->currentUserId)
+            ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+            ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 10, $this->planetService->getPlanetCoordinates()->system + 10])
+            ->inRandomOrder()
+            ->limit(1)
+            ->pluck('id');
+
+        if ($planet_id == null) {
+            // No planets found, attempt to create a new user to see if this fixes it.
+            $this->createAndLoginUser();
+            $planet_id = \DB::table('planets')
+                ->where('user_id', '!=', $this->currentUserId)
+                ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+                ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 10, $this->planetService->getPlanetCoordinates()->system + 10])
+                ->inRandomOrder()
+                ->limit(1)
+                ->pluck('id');
+        }
+
+        if ($planet_id == null) {
+            $this->fail('Failed to find a nearby foreign planet for testing.');
+        } else {
+            // Create and return a new PlanetService instance for the found planet.
+            $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+            return $planetServiceFactory->make($planet_id[0]);
+        }
+    }
+
+    /**
+     * Gets a nearby empty coordinate for the current user. This is useful for testing interactions towards empty planets.
+     *
+     * @param int $min_position
+     * @param int $max_position
+     * @return Coordinate
+     */
+    protected function getNearbyEmptyCoordinate(int $min_position = 4, int $max_position = 12): Coordinate
+    {
+        // Find a position that has no planet in the same galaxy and up to 10 systems away between position 4-13.
+        $coordinate = new Coordinate($this->planetService->getPlanetCoordinates()->galaxy, 0, 0);
+        $tryCount = 0;
+        while ($tryCount < 100) {
+            $tryCount++;
+            $coordinate->system = $this->planetService->getPlanetCoordinates()->system + rand(-10, 10);
+            $coordinate->position = rand($min_position, $max_position);
+            $planetCount = \DB::table('planets')
+                ->where('galaxy', $coordinate->galaxy)
+                ->where('system', $coordinate->system)
+                ->where('planet', $coordinate->position)
+                ->count();
+            if ($planetCount == 0) {
+                return $coordinate;
+            }
+        }
+
+        $this->fail('Failed to find an empty coordinate for testing.');
+    }
 
     /**
      * Add resources to current users current planet.

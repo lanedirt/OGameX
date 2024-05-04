@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
- * @property int $planet_id_from
+ * @property int|null $planet_id_from
  * @property int|null $planet_id_to
  * @property int|null $galaxy_to
  * @property int|null $system_to
@@ -71,6 +71,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereTimeArrival($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereTimeDeparture($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereUpdatedAt($value)
+ * @property int|null $parent_id
+ * @property int $user_id
+ * @property int|null $galaxy_from
+ * @property int|null $system_from
+ * @property int|null $position_from
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereGalaxyFrom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereParentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetMission wherePositionFrom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereSystemFrom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereUserId($value)
  * @mixin \Eloquent
  */
 class FleetMission extends Model

@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Planet;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
 
@@ -92,11 +93,21 @@ class PlanetService
     }
 
     /**
+     * Reloads the planet object from the database.
+     *
+     * @return void
+     */
+    public function reloadPlanet(): void
+    {
+        $this->loadByPlanetId($this->planet->id);
+    }
+
+    /**
      * Get the player object who owns this planet.
      *
-     * @return PlayerService
+     * @return ?PlayerService
      */
-    public function getPlayer(): PlayerService
+    public function getPlayer(): ?PlayerService
     {
         return $this->player;
     }
@@ -110,6 +121,14 @@ class PlanetService
     public function setPlanet(Planet $planet): void
     {
         $this->planet = $planet;
+    }
+
+    /**
+     * Save the planet model to persist changes to the database.
+     */
+    public function save(): void
+    {
+        $this->planet->save();
     }
 
     /**
@@ -134,12 +153,12 @@ class PlanetService
     /**
      * Get planet coordinates in array.
      *
-     * @return Planet\Coordinate
+     * @return Coordinate
      *  Array with coordinates (galaxy, system, planet)
      */
-    public function getPlanetCoordinates(): Planet\Coordinate
+    public function getPlanetCoordinates(): Coordinate
     {
-        return new Planet\Coordinate($this->planet->galaxy, $this->planet->system, $this->planet->planet);
+        return new Coordinate($this->planet->galaxy, $this->planet->system, $this->planet->planet);
     }
 
     /**
@@ -335,7 +354,7 @@ class PlanetService
         }
 
         if ($save_planet) {
-            $this->planet->save();
+            $this->save();
         }
     }
 
@@ -565,7 +584,7 @@ class PlanetService
         }
 
         $this->planet->{$building->machine_name . '_percent'} = $percentage;
-        $this->planet->save();
+        $this->save();
 
         return true;
     }
@@ -610,7 +629,7 @@ class PlanetService
         $this->updateFleetMissions(false);
 
         // Save the planet manually here to prevent it from happening 5+ times in the methods above.
-        $this->planet->save();
+        $this->save();
     }
 
     /**
@@ -691,7 +710,7 @@ class PlanetService
             $this->planet->time_last_update = $current_time;
 
             if ($save_planet) {
-                $this->planet->save();
+                $this->save();
             }
         }
     }
@@ -755,7 +774,7 @@ class PlanetService
         }
 
         if ($save_planet) {
-            $this->planet->save();
+            $this->save();
         }
     }
 
@@ -818,7 +837,7 @@ class PlanetService
         $object = $this->objects->getObjectById($object_id);
         $this->planet->{$object->machine_name} = $level;
         if ($save_planet) {
-            $this->planet->save();
+            $this->save();
         }
     }
 
@@ -899,7 +918,7 @@ class PlanetService
         $this->planet->{$object->machine_name} += $amount;
 
         if ($save_planet) {
-            $this->planet->save();
+            $this->save();
         }
     }
 
@@ -936,7 +955,7 @@ class PlanetService
         $this->planet->{$object->machine_name} -= $amount;
 
         if ($save_planet) {
-            $this->planet->save();
+            $this->save();
         }
     }
 
@@ -989,7 +1008,7 @@ class PlanetService
         $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
 
         if ($save_planet) {
-            $this->planet->save();
+            $this->save();
         }
     }
 
@@ -1244,7 +1263,7 @@ class PlanetService
         $this->planet->crystal_max = (int)$storage_sum->crystal->get();
         $this->planet->deuterium_max = (int)$storage_sum->deuterium->get();
         if ($save_planet) {
-            $this->planet->save();
+            $this->save();
         }
     }
 

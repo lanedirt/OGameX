@@ -6,6 +6,7 @@ use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Message;
+use OGame\Models\Planet\Coordinate;
 
 /**
  * MessageViewModel
@@ -40,6 +41,8 @@ class MessageViewModel
     {
         // From is based on the type of the message and/or the user_id/alliance_id.
         switch ($this->type) {
+            case 63: // colony_established
+                return 'Settlers';
             default:
                 return 'Fleet Command';
         }
@@ -93,10 +96,30 @@ class MessageViewModel
             $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
             $planetService = $planetServiceFactory->make((int)$matches[1]);
 
-            if ($planetService->getPlanetId() > 0) {
+            if ($planetService != null) {
                 $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
                                     <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
                                 ' . $planetService->getPlanetName() . ' [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
+            } else {
+                $planetName = "Unknown Planet";
+            }
+
+            return $planetName;
+        }, $body);
+
+        $body = preg_replace_callback('/\[coordinates\](\d+):(\d+):(\d+)\[\/coordinates\]/', function ($matches) {
+            // Assuming getPlayerNameById is a method to get a player's name by ID
+            if (!is_numeric($matches[1]) || !is_numeric($matches[2]) || !is_numeric($matches[3])) {
+                return "Unknown Planet";
+            }
+
+            $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+            $planetService = $planetServiceFactory->makeForCoordinate(new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]));
+
+            if ($planetService != null) {
+                $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
+                                    <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
+                                [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
             } else {
                 $planetName = "Unknown Planet";
             }

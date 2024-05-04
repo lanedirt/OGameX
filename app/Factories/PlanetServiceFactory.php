@@ -2,6 +2,7 @@
 
 namespace OGame\Factories;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Models\Planet;
@@ -92,7 +93,7 @@ class PlanetServiceFactory
      * @return ?PlanetService
      * @throws BindingResolutionException
      */
-    public function makeForCoordinate(Planet\Coordinate $coordinate): ?PlanetService
+    public function makeForCoordinate(Coordinate $coordinate): ?PlanetService
     {
         if (!isset($this->instancesByCoordinate[$coordinate->asString()])) {
             // Get the planet ID from the database.
@@ -116,10 +117,10 @@ class PlanetServiceFactory
     /**
      * Determine next available new planet position.
      *
-     * @return Planet\Coordinate
-     * @throws \Exception
+     * @return Coordinate
+     * @throws Exception
      */
-    public function determineNewPlanetPosition(): Planet\Coordinate
+    public function determineNewPlanetPosition(): Coordinate
     {
         $lastAssignedGalaxy = (int)$this->settings->get('last_assigned_galaxy', 1);
         $lastAssignedSystem = (int)$this->settings->get('last_assigned_system', 1);
@@ -162,29 +163,56 @@ class PlanetServiceFactory
         }
 
         // If more than 100 tries have been done with no success, give up.
-        throw new \Exception('Unable to determine new planet position.');
+        throw new Exception('Unable to determine new planet position.');
     }
 
     /**
-     * Creates a new random planet and then return the planetService instance for it.
+     * Creates a new random initial planet for a player and then return the planetService instance for it.
      *
      * @param PlayerService $player
      * @param string $planetName
      * @return PlanetService
      * @throws BindingResolutionException
      */
-    public function createForPlayer(PlayerService $player, string $planetName = 'Colony'): PlanetService
+    public function createInitialForPlayer(PlayerService $player, string $planetName): PlanetService
     {
         $new_position = $this->determineNewPlanetPosition();
         if (empty($new_position->galaxy) || empty($new_position->system) || empty($new_position->position)) {
             // Failed to get a new position for the to be created planet. Throw exception.
-            throw new \Exception('Unable to determine new planet position.');
+            throw new Exception('Unable to determine new planet position.');
         }
 
+        $createdPlanet = $this->createPlanet($player, $new_position, $planetName);
+
+        // Update settings with the last assigned galaxy and system if they changed.
+        $this->settings->set('last_assigned_galaxy', $createdPlanet->getPlanetCoordinates()->galaxy);
+        $this->settings->set('last_assigned_system', $createdPlanet->getPlanetCoordinates()->system);
+
+        return $createdPlanet;
+    }
+
+    /**
+     * Creates a new planet for a player at the given coordinate and then return the planetService instance for it.
+     *
+     * @param PlayerService $player
+     * @param Coordinate $coordinate
+     * @return PlanetService
+     * @throws BindingResolutionException
+     */
+    public function createAdditionalForPlayer(PlayerService $player, Coordinate $coordinate): PlanetService
+    {
+        return $this->createPlanet($player, $coordinate, 'Colony');
+    }
+
+    /**
+     * @throws BindingResolutionException
+     */
+    private function createPlanet(PlayerService $player, Coordinate $new_position, string $planet_name): PlanetService
+    {
         // Position is available
         $planet = new Planet();
         $planet->user_id = $player->getId();
-        $planet->name = $planetName;
+        $planet->name = $planet_name;
         $planet->galaxy = $new_position->galaxy;
         $planet->system = $new_position->system;
         $planet->planet = $new_position->position;
@@ -210,10 +238,6 @@ class PlanetServiceFactory
 
         $planet->time_last_update = (int)Carbon::now()->timestamp;
         $planet->save();
-
-        // Update settings with the last assigned galaxy and system if they changed.
-        $this->settings->set('last_assigned_galaxy', $new_position->galaxy);
-        $this->settings->set('last_assigned_system', $new_position->system);
 
         // Now make and return the planetService.
         return $this->makeForPlayer($player, $planet->id);
