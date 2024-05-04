@@ -175,9 +175,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->basicSetup();
         $this->get('/shipyard');
 
-        $this->refreshApplication(); // Reboot the application
-        $this->be(User::find($this->currentUserId));
-
         // Get beginning resources of the planet.
         $beginningMetal = $this->planetService->metal()->get();
         $beginningCrystal = $this->planetService->crystal()->get();
@@ -186,9 +183,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
-
-        $this->refreshApplication(); // Reboot the application
-        $this->be(User::find($this->currentUserId));
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
