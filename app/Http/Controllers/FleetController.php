@@ -233,9 +233,8 @@ holdingtime: 0
         // Get the current player's planet
         $planet = $player->planets->current();
 
-        // Load the target planet
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-        $target_planet = $planetServiceFactory->makeForCoordinate(new Coordinate($galaxy, $system, $position));
+        // Create the target coordinate
+        $target_coordinate = new Coordinate($galaxy, $system, $position);
 
         // Extract units from the request and create a unit collection.
         // Loop through all input fields and get all units prefixed with "am".
@@ -252,7 +251,7 @@ holdingtime: 0
 
         // Create a new fleet mission
         $fleetMissionService = app()->make(FleetMissionService::class);
-        $fleetMissionService->createNewFromPlanet($planet, $target_planet, $mission_type, $units, $resources);
+        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $mission_type, $units, $resources);
 
         return response()->json([
             'components' => [],

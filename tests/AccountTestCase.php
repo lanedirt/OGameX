@@ -10,6 +10,7 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 
@@ -38,6 +39,19 @@ abstract class AccountTestCase extends TestCase
     }
 
     protected PlanetService $planetService;
+
+    /**
+     * By default, Laravel does not refresh the application state between requests in a single test.
+     * By invoking this method we ensure that the application state is refreshed to avoid any side effects from
+     * previous requests such as planets not being updated on the initial request.
+     *
+     * @return void
+     */
+    public function reloadApplication(): void
+    {
+        $this->refreshApplication();
+        $this->be(User::find($this->currentUserId));
+    }
 
     /**
      * Create a new user and login via the register form on login page.

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 
 class GlobalGame
 {
@@ -27,8 +28,8 @@ class GlobalGame
             app()->instance(ObjectService::class, $object);
 
             // Instantiate settings service.
-            $settings = app()->make(\OGame\Services\SettingsService::class);
-            app()->instance(\OGame\Services\SettingsService::class, $settings);
+            $settings = app()->make(SettingsService::class);
+            app()->instance(SettingsService::class, $settings);
 
             // Load player.
             $player = app()->make(PlayerService::class, ['player_id' => $request->user()->id]);

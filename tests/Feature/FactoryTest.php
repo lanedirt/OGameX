@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Planet;
 use Tests\AccountTestCase;
 
 /**
@@ -55,11 +57,11 @@ class FactoryTest extends AccountTestCase
         }
 
         // Get the first planet of each user.
-        $planet1 = \OGame\Models\Planet::where('user_id', $playerIds[0])->first();
-        $planet2 = \OGame\Models\Planet::where('user_id', $playerIds[1])->first();
+        $planet1 = Planet::where('user_id', $playerIds[0])->first();
+        $planet2 = Planet::where('user_id', $playerIds[1])->first();
 
         // Get the planet service factory.
-        $planetServiceFactory =  app()->make(\OGame\Factories\PlanetServiceFactory::class);
+        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
 
         // Load the first planet.
         $planetService1 = $planetServiceFactory->make($planet1->id);

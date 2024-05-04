@@ -56,12 +56,12 @@ Metal: ' . $mission->metal . ' Crystal: ' . $mission->crystal . ' Deuterium: ' .
 Metal: ' . $mission->metal . ' Crystal: ' . $mission->crystal . ' Deuterium: ' . $mission->deuterium, 'transport_received');
         }
 
-        // Create and start the return mission.
-        $this->startReturn($mission);
-
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();
+
+        // Create and start the return mission.
+        $this->startReturn($mission);
     }
 
     protected function processReturn(FleetMission $mission): void

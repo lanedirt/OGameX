@@ -9,6 +9,7 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\MessageService;
@@ -75,6 +76,10 @@ abstract class GameMission
      */
     public function cancel(FleetMission $mission): void
     {
+        // Update the mission arrived time to now instead of original planned arrival time if the mission would finish by itself.
+        // This arrival time is used by the return mission to calculate the return time.
+        $mission->time_arrival = (int)Carbon::now()->timestamp;
+
         // Mark parent mission as canceled.
         $mission->canceled = 1;
         $mission->processed = 1;
@@ -88,12 +93,13 @@ abstract class GameMission
      * Generic sanity checks before starting a mission to make sure all requirements are met.
      *
      * @param PlanetService $planet
+     * @param Coordinate $targetCoordinate
      * @param UnitCollection $units
      * @param Resources $resources
      * @return void
      * @throws Exception
      */
-    public function startMissionSanityChecks(PlanetService $planet, UnitCollection $units, Resources $resources): void
+    public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources): void
     {
         if (!$planet->hasResources($resources)) {
             throw new Exception('Not enough resources on the planet to send the fleet.');
@@ -112,22 +118,25 @@ abstract class GameMission
     {
         $planet->deductResources($resources, false);
         $planet->removeUnits($units, false);
+
+        // Save the planet to commit removed resources/units.
+        $planet->save();
     }
 
     /**
      * Start a new mission.
      *
      * @param PlanetService $planet
-     * @param PlanetService $targetPlanet
+     * @param Coordinate $targetCoordinate
      * @param UnitCollection $units
      * @param Resources $resources
      * @param int $parent_id
      * @return void
      * @throws Exception
      */
-    public function start(PlanetService $planet, PlanetService $targetPlanet, UnitCollection $units, Resources $resources, int $parent_id = 0): void
+    public function start(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources, int $parent_id = 0): void
     {
-        $this->startMissionSanityChecks($planet, $units, $resources);
+        $this->startMissionSanityChecks($planet, $targetCoordinate, $units, $resources);
 
         // Time this fleet mission will depart (now)
         $time_start = (int)Carbon::now()->timestamp;
@@ -146,16 +155,24 @@ abstract class GameMission
         }
 
         $mission->user_id = $planet->getPlayer()->getId();
+
         $mission->planet_id_from = $planet->getPlanetId();
+        $mission->galaxy_from = $planet->getPlanetCoordinates()->galaxy;
+        $mission->system_from = $planet->getPlanetCoordinates()->system;
+        $mission->position_from = $planet->getPlanetCoordinates()->position;
+
         $mission->mission_type = static::$typeId;
         $mission->time_departure = $time_start;
         $mission->time_arrival = $time_end;
 
-        $mission->planet_id_to = $targetPlanet->getPlanetId();
-        $coords = $targetPlanet->getPlanetCoordinates();
-        $mission->galaxy_to = $coords->galaxy;
-        $mission->system_to = $coords->system;
-        $mission->position_to = $coords->position;
+        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+        $target_planet = $planetServiceFactory->makeForCoordinate($targetCoordinate);
+        if ($target_planet !== null) {
+            $mission->planet_id_to = $target_planet->getPlanetId();
+        }
+        $mission->galaxy_to = $targetCoordinate->galaxy;
+        $mission->system_to = $targetCoordinate->system;
+        $mission->position_to = $targetCoordinate->position;
 
         foreach ($units->units as $unit) {
             $mission->{$unit->unitObject->machine_name} = $unit->amount;
@@ -170,6 +187,13 @@ abstract class GameMission
 
         // Save the new fleet mission.
         $mission->save();
+
+        // Check if the created mission arrival time is in the past. This can happen if the planet hasn't been updated
+        // for some time and missions have already played out in the meantime.
+        // If the mission is in the past, process it immediately.
+        if ($mission->time_arrival < Carbon::now()->timestamp) {
+            $this->process($mission);
+        }
     }
 
     /**
@@ -194,7 +218,30 @@ abstract class GameMission
         $mission = new FleetMission();
         $mission->parent_id = $parentMission->id;
         $mission->user_id = $parentMission->user_id;
-        $mission->planet_id_from = $parentMission->planet_id_to;
+
+        // If planet_id_to is not set, it can mean that the target planet was colonized or the mission was canceled.
+        // In this case, we keep planet_id_from as null.
+        if ($parentMission->planet_id_to === null) {
+            // Attempt to load it from the target coordinates.
+            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+            $targetPlanet = $planetServiceFactory->makeForCoordinate(new Coordinate($parentMission->galaxy_to, $parentMission->system_to, $parentMission->position_to));
+            if ($targetPlanet !== null) {
+                $mission->planet_id_from = $targetPlanet->getPlanetId();
+                $mission->galaxy_from = $targetPlanet->getPlanetCoordinates()->galaxy;
+                $mission->system_from = $targetPlanet->getPlanetCoordinates()->system;
+                $mission->position_from = $targetPlanet->getPlanetCoordinates()->position;
+            } else {
+                $mission->planet_id_from = null;
+                $mission->galaxy_from = $parentMission->galaxy_to;
+                $mission->system_from = $parentMission->system_to;
+                $mission->position_from = $parentMission->position_to;
+            }
+        } else {
+            $mission->planet_id_from = $parentMission->planet_id_to;
+            $mission->galaxy_from = $parentMission->galaxy_to;
+            $mission->system_from = $parentMission->system_to;
+            $mission->position_from = $parentMission->position_to;
+        }
         $mission->mission_type = $parentMission->mission_type;
         $mission->time_departure = $time_start;
         $mission->time_arrival = $time_end;
@@ -202,7 +249,6 @@ abstract class GameMission
 
         // Planet from service
         $planetServiceFactory = app()->make(PlanetServiceFactory::class);
-        $planetFromService = $planetServiceFactory->make($mission->planet_id_from);
         $planetToService = $planetServiceFactory->make($mission->planet_id_to);
 
         // Coordinates
@@ -236,6 +282,13 @@ abstract class GameMission
 
         // Save the new fleet return mission.
         $mission->save();
+
+        // Check if the created mission arrival time is in the past. This can happen if the planet hasn't been updated
+        // for some time and missions have already played out in the meantime.
+        // If the mission is in the past, process it immediately.
+        if ($mission->time_arrival < Carbon::now()->timestamp) {
+            $this->process($mission);
+        }
     }
 
     /**

@@ -399,6 +399,10 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
 
+        // Assert that the return trip arrival time is exactly 1 minute after the cancelation time.
+        // Because the return trip should take exactly as long as the original trip has traveled until it was canceled.
+        $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(60)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
+
         // Advance time by amount of minutes it takes for the return trip to arrive.
         Carbon::setTestNow(Carbon::createFromTimestamp($fleetMission->time_arrival));
 
@@ -413,6 +417,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at original 5 units after recalled trip has been processed.');
         // Assert that the resources have been returned to the origin planet.
+        $this->planetService->reloadPlanet();
         $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are not returned to origin planet after recalling mission.');
     }
 

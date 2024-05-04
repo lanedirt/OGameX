@@ -6,6 +6,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\PlanetService;
 
 /**
@@ -96,12 +97,13 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      * @param UnitCollection $units
      * @param Resources $resources
      * @param int $assertStatus
-     * @return void
+     * @return Coordinate
      */
-    protected function sendMissionToEmptyPosition(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    protected function sendMissionToEmptyPosition(UnitCollection $units, Resources $resources, int $assertStatus = 200): Coordinate
     {
         $coordinates = $this->getNearbyEmptyCoordinate();
         $this->dispatchFleet($coordinates, $units, $resources, $assertStatus);
+        return $coordinates;
     }
 
     /**
@@ -138,6 +140,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
                 ]
             ]);
         }
+
+        $this->reloadApplication();
     }
 
     /**
@@ -166,6 +170,9 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         ], $unitsArray));
 
         $post->assertStatus($assertStatus);
+
+        $this->reloadApplication();
+
         $this->get('/ajax/fleet/eventbox/fetch')->assertStatus(200);
         $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);
     }

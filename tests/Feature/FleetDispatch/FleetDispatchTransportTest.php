@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Message;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\FleetMissionService;
 use Tests\FleetDispatchTestCase;
 
@@ -174,6 +175,9 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->basicSetup();
         $this->get('/shipyard');
 
+        $this->refreshApplication(); // Reboot the application
+        $this->be(User::find($this->currentUserId));
+
         // Get beginning resources of the planet.
         $beginningMetal = $this->planetService->metal()->get();
         $beginningCrystal = $this->planetService->crystal()->get();
@@ -182,6 +186,9 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
+
+        $this->refreshApplication(); // Reboot the application
+        $this->be(User::find($this->currentUserId));
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
@@ -401,6 +408,10 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
 
+        // Assert that the return trip arrival time is exactly 1 minute after the cancelation time.
+        // Because the return trip should take exactly as long as the original trip has traveled until it was canceled.
+        $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(60)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
+
         // Advance time by amount of minutes it takes for the return trip to arrive.
         Carbon::setTestNow(Carbon::createFromTimestamp($fleetMission->time_arrival));
 
@@ -415,6 +426,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at original 5 units after recalled trip has been processed.');
         // Assert that the resources have been returned to the origin planet.
+        $this->planetService->reloadPlanet();
         $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are not returned to origin planet after recalling mission.');
     }
 

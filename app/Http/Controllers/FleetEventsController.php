@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\ViewModels\FleetEventRowViewModel;
@@ -72,8 +73,6 @@ class FleetEventsController extends OGameController
         foreach ($friendlyMissionRows as $row) {
             // Planet from service
             $planetServiceFactory = app()->make(PlanetServiceFactory::class);
-            $planetFromService = $planetServiceFactory->make($row->planet_id_from);
-            $planetToService = $planetServiceFactory->make($row->planet_id_to);
 
             $eventRowViewModel = new FleetEventRowViewModel();
             $eventRowViewModel->id = $row->id;
@@ -81,10 +80,27 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->mission_label = $fleetMissionService->missionTypeToLabel($row->mission_type);
             $eventRowViewModel->mission_time_arrival = $row->time_arrival;
             $eventRowViewModel->is_return_trip = !empty($row->parent_id); // If mission has a parent, it is a return trip
-            $eventRowViewModel->origin_planet_name = $planetFromService->getPlanetName(); // TODO: implement null planet from/to checks
-            $eventRowViewModel->origin_planet_coords = $planetFromService->getPlanetCoordinates();
-            $eventRowViewModel->destination_planet_name = $planetToService->getPlanetName(); // TODO: implement null planet from/to checks
-            $eventRowViewModel->destination_planet_coords = $planetToService->getPlanetCoordinates();
+
+            $eventRowViewModel->origin_planet_name = '';
+            $eventRowViewModel->origin_planet_coords = new Coordinate($row->galaxy_from, $row->system_from, $row->position_from);
+            if ($row->planet_id_from != null) {
+                $planetFromService = $planetServiceFactory->make($row->planet_id_from);
+                if ($planetFromService != null) {
+                    $eventRowViewModel->origin_planet_name = $planetFromService->getPlanetName();
+                    $eventRowViewModel->origin_planet_coords = $planetFromService->getPlanetCoordinates();
+                }
+            }
+
+            $eventRowViewModel->destination_planet_name = '';
+            $eventRowViewModel->destination_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
+            if ($row->planet_id_to != null) {
+                $planetToService = $planetServiceFactory->make($row->planet_id_to);
+                if ($planetToService != null) {
+                    $eventRowViewModel->destination_planet_name = $planetToService->getPlanetName();
+                    $eventRowViewModel->destination_planet_coords = $planetToService->getPlanetCoordinates();
+                }
+            }
+
             $eventRowViewModel->fleet_unit_count = $fleetMissionService->getFleetUnitCount($row);
             $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
             $eventRowViewModel->resources = $fleetMissionService->getResources($row);
@@ -99,10 +115,10 @@ class FleetEventsController extends OGameController
                 $returnTripRow->mission_type = $eventRowViewModel->mission_type;
                 $returnTripRow->mission_label = $fleetMissionService->missionTypeToLabel($eventRowViewModel->mission_type);
                 $returnTripRow->mission_time_arrival = $row->time_arrival + ($row->time_arrival - $row->time_departure); // Round trip arrival time is double the time of the first trip
-                $returnTripRow->origin_planet_name = $planetToService->getPlanetName();
-                $returnTripRow->origin_planet_coords = $planetToService->getPlanetCoordinates();
-                $returnTripRow->destination_planet_name = $planetFromService->getPlanetName();
-                $returnTripRow->destination_planet_coords = $planetFromService->getPlanetCoordinates();
+                $returnTripRow->origin_planet_name = $eventRowViewModel->destination_planet_name;
+                $returnTripRow->origin_planet_coords = $eventRowViewModel->destination_planet_coords;
+                $returnTripRow->destination_planet_name = $eventRowViewModel->origin_planet_name;
+                $returnTripRow->destination_planet_coords = $eventRowViewModel->origin_planet_coords;
                 $returnTripRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
                 $returnTripRow->fleet_units = $eventRowViewModel->fleet_units;
                 $returnTripRow->resources = new Resources(0, 0, 0, 0);

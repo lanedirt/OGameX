@@ -6,11 +6,13 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use OGame\Factories\GameMissionFactory;
 use OGame\GameMissions\ColonisationMission;
 use OGame\GameMissions\DeploymentMission;
 use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 
 /**
@@ -47,6 +49,7 @@ class FleetMissionService
     protected array $missionTypeToClass = [
         3 => TransportMission::class,
         4 => DeploymentMission::class,
+        7 => ColonisationMission::class,
     ];
 
     /**
@@ -247,7 +250,7 @@ class FleetMissionService
      * Creates a new fleet mission for the current planet.
      *
      * @param PlanetService $planet
-     * @param PlanetService $targetPlanet
+     * @param Coordinate $targetCoordinate
      * @param int $missionType
      * @param UnitCollection $units
      * @param Resources $resources
@@ -255,27 +258,14 @@ class FleetMissionService
      * @return void
      * @throws Exception
      */
-    public function createNewFromPlanet(PlanetService $planet, PlanetService $targetPlanet, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): void
+    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): void
     {
-        if ($missionType == 3) {
-            $transportMission = app()->make(TransportMission::class, [
-                'fleetMissionService' => $this,
-                'messageService' => $this->messageService,
-            ]);
-            $transportMission->start($planet, $targetPlanet, $units, $resources, $parent_id);
-        } elseif ($missionType == 4) {
-            $deployMission = app()->make(DeploymentMission::class, [
-                'fleetMissionService' => $this,
-                'messageService' => $this->messageService,
-            ]);
-            $deployMission->start($planet, $targetPlanet, $units, $resources, $parent_id);
-        } elseif ($missionType == 7) {
-            $deployMission = app()->make(ColonisationMission::class, [
-                'fleetMissionService' => $this,
-                'messageService' => $this->messageService,
-            ]);
-            $deployMission->start($planet, $targetPlanet, $units, $resources, $parent_id);
-        }
+        $missionFactory = app()->make(GameMissionFactory::class);
+        $missionObject = $missionFactory->getMissionById($missionType, [
+            'fleetMissionService' => $this,
+            'messageService' => $this->messageService,
+        ]);
+        $missionObject->start($planet, $targetCoordinate, $units, $resources, $parent_id);
     }
 
     /**
@@ -293,25 +283,12 @@ class FleetMissionService
             return;
         }
 
-        // TODO: make an abstraction layer where each mission is its own class and process/cancel logic is stored there.
-        switch ($mission->mission_type) {
-            case 3:
-                // Transport
-                $transportMission = app()->make(TransportMission::class, [
-                    'fleetMissionService' => $this,
-                    'messageService' => $this->messageService,
-                ]);
-                $transportMission->process($mission);
-                break;
-            case 4:
-                // Deploy
-                $deployMission = app()->make(DeploymentMission::class, [
-                    'fleetMissionService' => $this,
-                    'messageService' => $this->messageService,
-                ]);
-                $deployMission->process($mission);
-                break;
-        }
+        $missionFactory = app()->make(GameMissionFactory::class);
+        $missionObject = $missionFactory->getMissionById($mission->mission_type, [
+            'fleetMissionService' => $this,
+            'messageService' => $this->messageService,
+        ]);
+        $missionObject->process($mission);
     }
 
     /**
@@ -319,6 +296,7 @@ class FleetMissionService
      *
      * @param FleetMission $mission
      * @return void
+     * @throws BindingResolutionException
      */
     public function cancelMission(FleetMission $mission): void
     {
@@ -327,23 +305,11 @@ class FleetMissionService
             return;
         }
 
-        switch ($mission->mission_type) {
-            case 3:
-                // Transport
-                $transportMission = app()->make(TransportMission::class, [
-                    'fleetMissionService' => $this,
-                    'messageService' => $this->messageService,
-                ]);
-                $transportMission->cancel($mission);
-                break;
-            case 4:
-                // Deploy
-                $deployMission = app()->make(DeploymentMission::class, [
-                    'fleetMissionService' => $this,
-                    'messageService' => $this->messageService,
-                ]);
-                $deployMission->cancel($mission);
-                break;
-        }
+        $missionFactory = app()->make(GameMissionFactory::class);
+        $missionObject = $missionFactory->getMissionById($mission->mission_type, [
+            'fleetMissionService' => $this,
+            'messageService' => $this->messageService,
+        ]);
+        $missionObject->cancel($mission);
     }
 }

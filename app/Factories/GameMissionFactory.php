@@ -31,9 +31,30 @@ class GameMissionFactory
         }
         */
         return [
-            app()->make(DeploymentMission::class),
-            app()->make(TransportMission::class),
-            app()->make(ColonisationMission::class),
+            3 => app()->make(TransportMission::class),
+            4 => app()->make(DeploymentMission::class),
+            7 => app()->make(ColonisationMission::class),
         ];
+    }
+
+    /**
+     * @param int $missionId
+     * @param array<string,mixed> $dependencies
+     *
+     * @return GameMission
+     * @throws BindingResolutionException
+     */
+    public static function getMissionById(int $missionId, array $dependencies): GameMission
+    {
+        switch ($missionId) {
+            case 3:
+                return app()->make(TransportMission::class, $dependencies);
+            case 4:
+                return app()->make(DeploymentMission::class, $dependencies);
+            case 7:
+                return app()->make(ColonisationMission::class, $dependencies);
+        }
+        $missions = self::getAllMissions();
+        return $missions[$missionId];
     }
 }
