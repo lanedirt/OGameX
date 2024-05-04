@@ -2,23 +2,22 @@
     <img src="https://github.com/lanedirt/OGameX/assets/6917405/765b558d-cbab-4dbd-90a1-254fbf32f42f" alt="OGameX logo" />
 </p>
 
-<p align="center">
-    <a href="https://github.com/lanedirt/OGameX/releases">
-        <img src="https://img.shields.io/github/v/release/lanedirt/OGameX?include_prereleases&logo=github" alt="Release">
-    </a>
-    <a href="https://github.com/lanedirt/OGameX/actions/workflows/run-tests-docker-compose.yml">
-        <img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-tests-docker-compose.yml?label=docker-compose%20build" alt="Docker Compose Build">
-    </a>
-    <a href="https://github.com/lanedirt/OGameX/actions/workflows/run-tests-sqlite.yml">
-        <img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-tests-sqlite.yml?label=tests" alt="Tests">
-    </a>
-    <a href="https://github.com/lanedirt/OGameX/actions/workflows/run-phpstan-code-analysis.yml">
-        <img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-phpstan-code-analysis.yml?label=static%20code%20analysis" alt="Static Code Analysis">
-    </a>
-    <a href="https://github.com/lanedirt/OGameX/actions/workflows/run-laravel-pint-code-style-checker.yml">
-        <img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-laravel-pint-code-style-checker.yml?label=psr-12%20code%20style" alt="PSR-12 Code Style">
-    </a>
-</p>
+<div align="center">
+    
+[<img src="https://img.shields.io/github/v/release/lanedirt/OGameX?include_prereleases&logo=github">](https://github.com/lanedirt/OGameX/releases) 
+[<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-tests-docker-compose.yml?label=docker-compose%20build">](https://github.com/lanedirt/OGameX/actions/workflows/run-tests-docker-compose.yml) 
+[<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-tests-sqlite.yml?label=tests">](https://github.com/lanedirt/OGameX/actions/workflows/run-tests-sqlite.yml) 
+[<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-phpstan-code-analysis.yml?label=static code analysis">](https://github.com/lanedirt/OGameX/actions/workflows/run-phpstan-code-analysis.yml)
+[<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-laravel-pint-code-style-checker.yml?label=psr-12%20code%20style">](https://github.com/lanedirt/OGameX/actions/workflows/run-laravel-pint-code-style-checker.yml)
+
+</div>
+
+<div align="center">
+    
+[![good first issues open](https://img.shields.io/github/issues/lanedirt/OGameX/good%20first%20issue.svg?logo=github)](https://github.com/lanedirt/OGameX/issues?q=is%3Aopen+is%3Aissue+label%3A"good+first+issue")
+    
+</div>
+
 
 OGameX is an open-source OGame clone aiming to recreate the official OGame experience, developed originally by GameForge GmbH. This clone is built from scratch using the Laravel 11.x framework and uses modern PHP practices.
 
@@ -81,6 +80,10 @@ New features are continuously being added. Upcoming features:
 ## <a name="contributing"></a> 🚀 Contributing
 
 Contributions are warmly welcomed, whether in development, testing, or spreading the word. Feel free to submit pull requests or contact me for any other contributions.
+
+A good starting point are issues labeled as "good first issue".
+
+[![good first issues open](https://img.shields.io/github/issues/lanedirt/OGameX/good%20first%20issue.svg?logo=github)](https://github.com/lanedirt/OGameX/issues?q=is%3Aopen+is%3Aissue+label%3A"good+first+issue")
 
 Read the [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/blob/main/CONTRIBUTING.md) file for more information.
 
