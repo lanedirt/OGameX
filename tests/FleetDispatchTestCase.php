@@ -43,7 +43,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      */
     abstract protected function basicSetup(): void;
 
-    public function fleetCheckToSecondPlanet(UnitCollection $units, bool $assertSuccess): void
+    protected function fleetCheckToSecondPlanet(UnitCollection $units, bool $assertSuccess): void
     {
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
         $this->checkTargetFleet($coordinates, $units, $assertSuccess);
@@ -52,13 +52,13 @@ abstract class FleetDispatchTestCase extends AccountTestCase
     /**
      * @throws BindingResolutionException
      */
-    public function fleetCheckToOtherPlayer(UnitCollection $units, bool $assertSuccess): void
+    protected function fleetCheckToOtherPlayer(UnitCollection $units, bool $assertSuccess): void
     {
         $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
         $this->checkTargetFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, $assertSuccess);
     }
 
-    public function fleetCheckToEmptyPosition(UnitCollection $units, bool $assertSuccess): void
+    protected function fleetCheckToEmptyPosition(UnitCollection $units, bool $assertSuccess): void
     {
         $coordinates = $this->getNearbyEmptyCoordinate();
         $this->checkTargetFleet($coordinates, $units, $assertSuccess);
@@ -102,21 +102,6 @@ abstract class FleetDispatchTestCase extends AccountTestCase
     {
         $coordinates = $this->getNearbyEmptyCoordinate();
         $this->dispatchFleet($coordinates, $units, $resources, $assertStatus);
-    }
-
-    /**
-     * Convert units to dispatchable array format.
-     *
-     * @param UnitCollection $units
-     * @return array<string, int>
-     */
-    private function convertUnitsToArray(UnitCollection $units): array
-    {
-        $unitsArray = [];
-        foreach ($units->units as $unit) {
-            $unitsArray['am' . $unit->unitObject->id] = $unit->amount;
-        }
-        return $unitsArray;
     }
 
     /**
@@ -183,5 +168,20 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         $post->assertStatus($assertStatus);
         $this->get('/ajax/fleet/eventbox/fetch')->assertStatus(200);
         $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);
+    }
+
+    /**
+     * Convert units to dispatchable array format.
+     *
+     * @param UnitCollection $units
+     * @return array<string, int>
+     */
+    private function convertUnitsToArray(UnitCollection $units): array
+    {
+        $unitsArray = [];
+        foreach ($units->units as $unit) {
+            $unitsArray['am' . $unit->unitObject->id] = $unit->amount;
+        }
+        return $unitsArray;
     }
 }
