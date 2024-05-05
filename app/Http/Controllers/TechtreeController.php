@@ -311,9 +311,8 @@ class TechtreeController extends OGameController
         if ($object->type != 'research') {
             return view('empty');
         }
-        
-        $planet = $player->planets->current();
-        $current_level = $player->planets->current()->getObjectLevel($object->machine_name);
+
+        $current_level = $player->getResearchLevel($object->machine_name);
         $plasma_table = [];
         $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
         for ($i = $min_level; $i < $min_level + 15; $i++) {
@@ -327,7 +326,6 @@ class TechtreeController extends OGameController
         }
         return view('ingame.techtree.info.plasma')->with([
             'object' => $object,
-            'planet' => $planet,
             'plasma_table' => $plasma_table,
             'current_level' => $current_level,
         ]);
