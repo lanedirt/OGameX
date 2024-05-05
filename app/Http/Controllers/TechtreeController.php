@@ -45,6 +45,7 @@ class TechtreeController extends OGameController
                 'storage_table' => $this->getStorageTable($object, $player, $objects),
                 'rapidfire_table' => $this->getRapidfireTable($object, $objects),
                 'properties_table' => $this->getPropertiesTable($object, $player, $objects),
+                'plasma_table' => $this->getPlasmaTable($object, $player),
             ]);
         } elseif ($tab == 3) {
             return view('ingame.techtree.technology')->with([
@@ -295,6 +296,40 @@ class TechtreeController extends OGameController
             'property_name' => $name,
             'property_breakdown' => $breakdown,
             'property_value' => $value,
+        ]);
+    }
+    /**
+     * Returns techtree plasma table.
+     *
+     * @param GameObject $object
+     * @param PlayerService $player
+     * @return View
+     * @throws Exception
+     */
+    public function getPlasmaTable(GameObject $object, PlayerService $player): View
+    {
+        if ($object->type != 'research') {
+            return view('empty');
+        }
+        
+        $planet = $player->planets->current();
+        $current_level = $player->planets->current()->getObjectLevel($object->machine_name);
+        $plasma_table = [];
+        $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
+        for ($i = $min_level; $i < $min_level + 15; $i++) {
+
+            $plasma_table[] = [
+                'level' => $i,
+                'metal_bonus' => $i,
+                'crystal_bonus' => $i * 0.66,
+                'deuterium_bonus' => $i * 0.33
+            ];
+        }
+        return view('ingame.techtree.info.plasma')->with([
+            'object' => $object,
+            'planet' => $planet,
+            'plasma_table' => $plasma_table,
+            'current_level' => $current_level,
         ]);
     }
 }

@@ -32,6 +32,7 @@
             {!! $storage_table !!}
             {!! $rapidfire_table !!}
             {!! $properties_table !!}
+            {!! $plasma_table !!}
         </div>
     </div>
     <script>
