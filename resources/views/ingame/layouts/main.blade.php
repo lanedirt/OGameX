@@ -1,3 +1,4 @@
+@php /** @var OGame\Services\PlayerService $currentPlayer */ @endphp
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <head>
@@ -518,6 +519,8 @@ Combat simulation save slots +20">
 
                     var playerId = "1";
                     var playerName = "Admin";
+                    var player = {"playerId": {{ $currentPlayer->getId() }},"name":"{{ $currentPlayer->getUsername() }}","hasCommander":false,"hasAPassword":true};
+                    var hasAPassword = true;
                     var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
                     var isMobile = false;
                     var isMobileApp = false;
@@ -752,8 +755,8 @@ Combat simulation save slots +20">
                 };
 
                 function openPlanetRenameGiveupBox() {
-                    openOverlay("{{ route('overview.index') }}#TODO_page=planetlayer", {
-                        title: "Abandon\/Rename Homeworld",
+                    openOverlay("{{ route('planetabandon.overlay') }}", {
+                        title: "Abandon\/Rename {{ $currentPlanet->getPlanetName() }}",
                         'class': "planetRenameOverlay"
                     });
                 }
@@ -807,17 +810,16 @@ Combat simulation save slots +20">
                 }
 
                 function planetRenamed(data) {
-                    var data = $.parseJSON(data);
                     if (data["status"]) {
                         $("#planetNameHeader").html(data["newName"]);
-                        reloadRightmenu("{{ route('overview.index') }}#TODO_page=rightmenu&renamed=1&pageToLink=overview");
+                        reloadPage();
                         $(".overlayDiv.planetRenameOverlay").dialog('close');
                     }
                     errorBoxAsArray(data["errorbox"]);
                 }
 
                 function reloadPage() {
-                    location.href = "{{ route('overview.index') }}";
+                    location.href = "{{ url()->current() }}";
                 }
 
                 var demolish_id;

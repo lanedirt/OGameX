@@ -90,7 +90,7 @@
                             <span id="planetNameHeader">
                             {{ $planet_name }}
                         </span>
-                            <img class="hinted tooltip" title="Abandon/Rename Planet"
+                            <img class="hinted tooltip" title="@lang('Abandon/Rename Planet')"
                                  src="/img/icons/1f57d944fff38ee51d49c027f574ef.gif" width="16" height="16"/>
                         </a>
                     </h2>

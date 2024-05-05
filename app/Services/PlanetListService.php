@@ -61,10 +61,10 @@ class PlanetListService
         // If no planets, create at least one.
         if (count($this->planets) < 2) {
             // TODO: move this logic to the user creation logic as well as the tech records.
-            // As a test: give all players two random planets. (this should be just one, uncomment the below after dev)
-
+            // For testing purposes: give all players two random planets at registration.
+            // Normally it should be just the Homeworld.
             $planetNames = ['Homeworld', 'Colony'];
-            for ($i = 0; $i < 2; $i++) {
+            for ($i = 0; $i <= (2 - count($this->planets)); $i++) {
                 $planetServiceFactory = app()->make(PlanetServiceFactory::class);
                 $planetService = $planetServiceFactory->createInitialForPlayer($this->player, $planetNames[$i]);
 
