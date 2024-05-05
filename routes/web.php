@@ -17,6 +17,7 @@ Route::redirect('/', '/overview', 301);
 // Group: all logged in pages:
 Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::namespace('OGame\Http\Controllers')->group(function () {
+        // Overview
         Route::get('/overview', 'OverviewController@index')->name('overview.index');
 
         // Resources
@@ -65,7 +66,6 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
         Route::get('/ajax/fleet/eventbox/fetch', 'FleetEventsController@fetchEventBox')->name('fleet.eventbox.fetch');
         Route::get('/ajax/fleet/eventlist/fetch', 'FleetEventsController@fetchEventList')->name('fleet.eventlist.fetch');
 
-
         // Galaxy
         Route::get('/galaxy', 'GalaxyController@index')->name('galaxy.index');
         Route::post('/ajax/galaxy', 'GalaxyController@ajax')->name('galaxy.ajax');
@@ -80,10 +80,8 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
         // Misc
         Route::get('/merchant', 'MerchantController@index')->name('merchant.index');
 
-
         Route::get('/alliance', 'AllianceController@index')->name('alliance.index');
         Route::get('/ajax/alliance/create', 'AllianceController@ajaxCreate')->name('alliance.ajax.create');
-
 
         Route::get('/premium', 'PremiumController@index')->name('premium.index');
         Route::get('/shop', 'ShopController@index')->name('shop.index');
@@ -100,6 +98,10 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 
         Route::get('/overlay/search', 'SearchController@overlay')->name('search.overlay');
         Route::get('/overlay/notes', 'NotesController@overlay')->name('notes.overlay');
+
+        Route::get('/overlay/planet-abandon', 'PlanetAbandonController@overlay')->name('planetabandon.overlay');
+        Route::post('ajax/planet-abandon/rename', 'PlanetAbandonController@rename')->name('planetabandon.rename');
+
         Route::get('/overlay/changenick', 'ChangeNickController@overlay')->name('changenick.overlay');
         Route::get('/overlay/payment', 'PaymentController@overlay')->name('payment.overlay');
         Route::get('/overlay/payment/iframe', 'PaymentController@iframe')->name('payment.iframesrc');

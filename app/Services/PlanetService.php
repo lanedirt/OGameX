@@ -124,6 +124,57 @@ class PlanetService
     }
 
     /**
+     * Checks if the planet name is valid.
+     *
+     * @param $name
+     * @return bool
+     */
+    public function isValidPlanetName($name): bool {
+        // Check if the length of the name is between 2 and 20 characters
+        if (strlen($name) < 2 || strlen($name) > 20) {
+            return false;
+        }
+
+        // Check if the name uses only allowed characters
+        if (!preg_match('/^[a-zA-Z0-9-_ ]+$/', $name)) {
+            return false;
+        }
+
+        // Check for invalid placement of hyphens, underscores, and spaces
+        if (preg_match('/^[-_ ]|[-_ ]$/', $name)) {
+            return false; // Disallow leading and trailing hyphens, underscores, and spaces
+        }
+
+        if (preg_match('/[-_ ]{2,}/', $name)) {
+            return false; // Disallow consecutive hyphens, underscores, and spaces
+        }
+
+        // Check if there are more than three hyphens, underscores, or spaces in the name
+        if (preg_match_all('/[-_ ]/', $name, $matches) > 3) {
+            return false;
+        }
+
+        // If all checks pass
+        return true;
+    }
+
+    /**
+     * Changes the name of the planet.
+     *
+     * @return bool True if the planet name was changed successfully.
+     */
+    public function setPlanetName(string $name, bool $save_planet = true): bool
+    {
+        $this->planet->name = $name;
+
+        if ($save_planet) {
+            $this->save();
+        }
+
+        return true;
+    }
+
+    /**
      * Save the planet model to persist changes to the database.
      */
     public function save(): void

@@ -752,8 +752,8 @@ Combat simulation save slots +20">
                 };
 
                 function openPlanetRenameGiveupBox() {
-                    openOverlay("{{ route('overview.index') }}#TODO_page=planetlayer", {
-                        title: "Abandon\/Rename Homeworld",
+                    openOverlay("{{ route('planetabandon.overlay') }}", {
+                        title: "Abandon\/Rename {{ $currentPlanet->getPlanetName() }}",
                         'class': "planetRenameOverlay"
                     });
                 }
@@ -807,17 +807,16 @@ Combat simulation save slots +20">
                 }
 
                 function planetRenamed(data) {
-                    var data = $.parseJSON(data);
                     if (data["status"]) {
                         $("#planetNameHeader").html(data["newName"]);
-                        reloadRightmenu("{{ route('overview.index') }}#TODO_page=rightmenu&renamed=1&pageToLink=overview");
+                        reloadPage();
                         $(".overlayDiv.planetRenameOverlay").dialog('close');
                     }
                     errorBoxAsArray(data["errorbox"]);
                 }
 
                 function reloadPage() {
-                    location.href = "{{ route('overview.index') }}";
+                    location.href = "{{ url()->current() }}";
                 }
 
                 var demolish_id;
