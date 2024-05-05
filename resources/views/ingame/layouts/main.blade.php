@@ -1,3 +1,4 @@
+@php /** @var OGame\Services\PlayerService $currentPlayer */ @endphp
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <head>
@@ -518,6 +519,8 @@ Combat simulation save slots +20">
 
                     var playerId = "1";
                     var playerName = "Admin";
+                    var player = {"playerId": {{ $currentPlayer->getId() }},"name":"{{ $currentPlayer->getUsername() }}","hasCommander":false,"hasAPassword":true};
+                    var hasAPassword = true;
                     var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
                     var isMobile = false;
                     var isMobileApp = false;

@@ -1,7 +1,7 @@
 @php /** @var OGame\Services\PlanetService $currentPlanet */ @endphp
 <div id="abandonplanet">
     <img src="/img/planets/medium/dry_8.gif" class="float_left" />
-    <p class="desc_txt">Using this menu you can change planet names and moons or completely abandon them.</p>
+    <p class="desc_txt">@lang('Using this menu you can change planet names and moons or completely abandon them.')</p>
     <table cellpadding="0" cellspacing="0">
         <tbody>
         <tr class="head">
@@ -38,33 +38,45 @@ They may contain hyphens, underscores and spaces - however these may not be plac
             </td>
         </tr>
         <tr class="head">
-            <th colspan="3" class="second" id="giveupHeadline" rel="1">Abandon Home Planet</th>
+            <th colspan="3" class="second" id="giveupHeadline" rel="1">
+                @if ($isCurrentPlanetHomePlanet)
+                    @lang('Abandom home planet')
+                @else
+                    @lang('Abandon Colony')
+                @endif
+            </th>
         </tr>
 
-        <tr>
-            <td colspan="3">
-                If you abandon your home planet, immediately upon your next login you will be directed to the planet that you colonised next.
-            </td>
-        </tr>
+        @if ($isCurrentPlanetHomePlanet)
+            <tr>
+                <td colspan="3">
+                    @lang('If you abandon your home planet, immediately upon your next login you will be directed to the planet that you colonised next.')
+                </td>
+            </tr>
+        @endif
+
         <tr>
             <td id="giveupCoordinates">[{{ $currentPlanet->getPlanetCoordinates()->asString() }}]</td>
             <td id="giveupName">{{ $currentPlanet->getPlanetName() }}</td>
             <td>
                 <a id="block" class="start btn_blue float_right">
-                    Abandon home planet
+                    @if ($isCurrentPlanetHomePlanet)
+                        @lang('Abandon Home Planet')
+                    @else
+                        @lang('Abandon Colony')
+                    @endif
                 </a>
             </td>
         </tr>
         <tr>
             <td colspan="3">
-                <form id="planetMaintenanceDelete" action="#TODO_component=overview&amp;action=confirmPlanetGiveup&amp;ajax=1&amp;asJson=1">
-                    <input type="hidden" name="abandon" value="3d8cc314045fee650294fa422188195a" />
-                    <input type='hidden' name='token' value='3031fec3ed67e782ca79b231f931e949' />
+                <form id="planetMaintenanceDelete" action="{{ route('planetabandon.abandon.confirm') }}">
+                    <input type='hidden' name='_token' value='{{ csrf_token() }}' />
                     <div id="giveUpNotification">
-                        If you have activated items on a planet, they will be lost if you abandon the planet.
+                        @lang('If you have activated items on a planet, they will be lost if you abandon the planet.')
                     </div>
                     <div class="validate" id="validate" style="display:none;">
-                        <p class="margin_10_0">Please confirm deletion of planet [1:237:8] by putting in your password</p>
+                        <p class="margin_10_0">Please confirm deletion of planet [{{ $currentPlanet->getPlanetCoordinates()->asString() }}] by putting in your password</p>
                         <input class="text w200 pw_field" type="password" name="password" maxlength="1024" size="25"/>
                         <input class="btn_blue" type="submit" value="Confirm"/>
                     </div>

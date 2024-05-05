@@ -39781,7 +39781,6 @@ function openBuddyOverlay(url, title) {
 }
 
 function planetGivenup(data) {
-  var data = $.parseJSON(data);
   errorBoxAsArray(data["errorbox"]);
 
   if (typeof data["newAjaxToken"] == 'string') {

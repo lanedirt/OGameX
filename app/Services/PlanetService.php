@@ -7,6 +7,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
+use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resource;
@@ -126,10 +127,11 @@ class PlanetService
     /**
      * Checks if the planet name is valid.
      *
-     * @param $name
+     * @param string $name
      * @return bool
      */
-    public function isValidPlanetName($name): bool {
+    public function isValidPlanetName(string $name): bool
+    {
         // Check if the length of the name is between 2 and 20 characters
         if (strlen($name) < 2 || strlen($name) > 20) {
             return false;
@@ -156,6 +158,37 @@ class PlanetService
 
         // If all checks pass
         return true;
+    }
+
+    /**
+     * Abandon (delete) the current planet. Careful: this action is irreversible!
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function abandonPlanet(): void
+    {
+        // Anonymize the planet in all tables where it is referenced.
+        // This is done to prevent foreign key constraints from failing.
+
+        // Fleet missions
+        FleetMission::where('planet_id_from', $this->planet->id)->update(['planet_id_from' => null]);
+        FleetMission::where('planet_id_to', $this->planet->id)->update(['planet_id_to' => null]);
+
+        if ($this->player->planets->count() < 2) {
+            throw new Exception('Cannot abandon only remaining planet.');
+        }
+
+        // Update the player's current planet if it is the planet being abandoned.
+        if ($this->player->getCurrentPlanetId() === $this->planet->id) {
+            $this->player->setCurrentPlanetId(0);
+        }
+
+        // TODO: add sanity check that a planet can only be abandoned if it has no active fleet missions going to or from it.
+        // TODO: add feature test to check that abandoning a planet works correctly in various scenarios.
+
+        // Delete the planet from the database
+        $this->planet->delete();
     }
 
     /**

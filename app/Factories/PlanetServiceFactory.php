@@ -173,6 +173,7 @@ class PlanetServiceFactory
      * @param string $planetName
      * @return PlanetService
      * @throws BindingResolutionException
+     * @throws Exception
      */
     public function createInitialForPlayer(PlayerService $player, string $planetName): PlanetService
     {

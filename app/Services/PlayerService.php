@@ -103,6 +103,18 @@ class PlayerService
     }
 
     /**
+     * Checks is the supplied password is valid for this user. This method is used as
+     * a security measure for critical operations like abandoning a planet.
+     *
+     * @param string $password
+     * @return bool
+     */
+    public function isPasswordValid(string $password): bool
+    {
+        return Auth::attempt(['email' => $this->getEmail(), 'password' => $password]);
+    }
+
+    /**
      * Set user tech object.
      *
      * @param UserTech $userTech
@@ -260,8 +272,13 @@ class PlayerService
      */
     public function setCurrentPlanetId(int $planet_id): void
     {
-        // Check if user owns this planet ID
-        if ($this->planets->planetExistsAndOwnedByPlayer($planet_id)) {
+        // Check if user owns this planet ID.
+        // Planet ID 0 is always valid as that will be updated to the first planet of the player.
+        if ($planet_id == 0) {
+            $this->user->planet_current = null;
+            $this->user->save();
+            return;
+        } elseif ($this->planets->planetExistsAndOwnedByPlayer($planet_id)) {
             $this->user->planet_current = $planet_id;
             $this->user->save();
         }

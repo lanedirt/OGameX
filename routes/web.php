@@ -101,6 +101,8 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 
         Route::get('/overlay/planet-abandon', 'PlanetAbandonController@overlay')->name('planetabandon.overlay');
         Route::post('ajax/planet-abandon/rename', 'PlanetAbandonController@rename')->name('planetabandon.rename');
+        Route::post('ajax/planet-abandon/abandon-confirm', 'PlanetAbandonController@abandonConfirm')->name('planetabandon.abandon.confirm');
+        Route::post('ajax/planet-abandon/abandon', 'PlanetAbandonController@abandon')->name('planetabandon.abandon');
 
         Route::get('/overlay/changenick', 'ChangeNickController@overlay')->name('changenick.overlay');
         Route::get('/overlay/payment', 'PaymentController@overlay')->name('payment.overlay');
