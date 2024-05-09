@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/lanedirt/OGameX/assets/6917405/765b558d-cbab-4dbd-90a1-254fbf32f42f" alt="OGameX logo" />
+    <img src="https://github.com/lanedirt/OGameX/assets/6917405/c81061d5-0310-4574-a91d-1ea155b567c0" alt="OGameX logo" />
 </p>
 
 <div align="center">
