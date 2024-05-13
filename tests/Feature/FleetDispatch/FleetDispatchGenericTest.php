@@ -22,8 +22,6 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
      */
     protected string $missionName = 'Transport';
 
-    protected bool $hasReturnMission = true;
-
     /**
      * Prepare the planet for the test so it has the required buildings and research.
      *

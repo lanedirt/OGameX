@@ -20,6 +20,10 @@ class ColonisationMission extends GameMission
     protected static int $typeId = 7;
     protected static bool $hasReturnMission = false;
 
+    /**
+     * @inheritdoc
+     * @throws Exception
+     */
     public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources): void
     {
         // Call the parent method
@@ -55,6 +59,7 @@ class ColonisationMission extends GameMission
     }
 
     /**
+     * @inheritdoc
      * @throws BindingResolutionException
      */
     protected function processArrival(FleetMission $mission): void
@@ -108,6 +113,10 @@ class ColonisationMission extends GameMission
         }
     }
 
+    /**
+     * @inheritdoc
+     * @throws BindingResolutionException
+     */
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
@@ -118,25 +127,13 @@ class ColonisationMission extends GameMission
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
         // Add resources to the origin planet (if any).
-        // TODO: make messages translatable by using tokens instead of directly inserting dynamic content.
         $return_resources = $this->fleetMissionService->getResources($mission);
         if ($return_resources->sum() > 0) {
             $target_planet->addResources($return_resources);
-
-            // Send message to player that the return mission has arrived
-            // TODO: replace [planet] with coordinates if planet is not available.
-            // TODO: move this message to a generic place? It is used in multiple mission types for the generic return of fleet message.
-            $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Return of a fleet', 'Your fleet is returning from planet [planet]' . $mission->planet_id_from . '[/planet] to planet [planet]' . $mission->planet_id_to . '[/planet] and delivered its goods:
-            
-Metal: ' . $mission->metal . '
-Crystal: ' . $mission->crystal . '
-Deuterium: ' . $mission->deuterium, 'return_of_fleet');
-        } else {
-            // Send message to player that the return mission has arrived
-            $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Return of a fleet', 'Your fleet is returning from planet [planet]' . $mission->planet_id_from . '[/planet] to planet [planet]' . $mission->planet_id_to . '[/planet].
-                    
-                    The fleet doesn\'t deliver goods.', 'return_of_fleet');
         }
+
+        // Send message to player that the return mission has arrived.
+        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
 
         // Mark the return mission as processed
         $mission->processed = 1;

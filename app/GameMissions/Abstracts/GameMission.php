@@ -14,6 +14,7 @@ use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\MessageService;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 
 abstract class GameMission
 {
@@ -289,6 +290,41 @@ abstract class GameMission
         if ($mission->time_arrival < Carbon::now()->timestamp) {
             $this->process($mission);
         }
+    }
+
+    /**
+     * Send a message to the player that a fleet has returned.
+     *
+     * @param FleetMission $mission
+     * @param PlayerService $targetPlayer
+     * @return void
+     */
+    protected function sendFleetReturnMessage(FleetMission $mission, PlayerService $targetPlayer): void
+    {
+        $return_resources = $this->fleetMissionService->getResources($mission);
+
+        // Define from string based on whether the planet is available or not.
+        $from = '[coordinates]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/coordinates]';
+        if ($mission->planet_id_from !== null) {
+            $from = '[planet]' . $mission->planet_id_from . '[/planet]';
+        }
+
+        if ($return_resources->sum() > 0) {
+            $body = __('t_messages.return_of_fleet', [
+                'from' => $from,
+                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+                'metal' => $mission->metal,
+                'crystal' => $mission->crystal,
+                'deuterium' => $mission->deuterium,
+            ]);
+        } else {
+            $body = __('t_messages.return_of_fleet_no_goods', [
+                'from' => $from,
+                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+            ]);
+        }
+
+        $this->messageService->sendMessageToPlayer($targetPlayer, 'Return of a fleet', $body, 'return_of_fleet');
     }
 
     /**
