@@ -27,8 +27,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
      */
     protected string $missionName = 'Transport';
 
-    protected bool $hasReturnMission = true;
-
     /**
      * Prepare the planet for the test so it has the required buildings and research.
      *
@@ -273,33 +271,29 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->messageCheckMissionArrival();
 
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
-        if ($this->hasReturnMission) {
-            // Assert that a return trip has been launched by checking the active missions for the current planet.
-            $this->assertCount(1, $activeMissions, 'No return trip launched after fleet has arrived at destination.');
 
-            // Advance time to the return trip arrival.
-            $returnTripDuration = $activeMissions->first()->time_arrival - $activeMissions->first()->time_departure;
+        // Assert that a return trip has been launched by checking the active missions for the current planet.
+        $this->assertCount(1, $activeMissions, 'No return trip launched after fleet has arrived at destination.');
 
-            $fleetReturnTime = $fleetParentTime->copy()->addSeconds($returnTripDuration + 1);
-            Carbon::setTestNow($fleetReturnTime);
+        // Advance time to the return trip arrival.
+        $returnTripDuration = $activeMissions->first()->time_arrival - $activeMissions->first()->time_departure;
 
-            // Do a request to trigger the update logic.
-            $response = $this->get('/overview');
-            $response->assertStatus(200);
+        $fleetReturnTime = $fleetParentTime->copy()->addSeconds($returnTripDuration + 1);
+        Carbon::setTestNow($fleetReturnTime);
 
-            // Assert that the return trip has been processed.
-            $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
-            $this->assertCount(0, $activeMissions, 'Return trip is not processed after fleet has arrived back at origin planet.');
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
 
-            // Assert that the units have been returned to the origin planet.
-            $response = $this->get('/shipyard');
-            $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units after return trip.');
+        // Assert that the return trip has been processed.
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(0, $activeMissions, 'Return trip is not processed after fleet has arrived back at origin planet.');
 
-            $this->messageCheckMissionReturn();
-        } else {
-            // Assert that NO return trip has been launched by checking the active missions for the current planet.
-            $this->assertCount(0, $activeMissions, 'Return trip launched after fleet with deployment mission has arrived at destination.');
-        }
+        // Assert that the units have been returned to the origin planet.
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units after return trip.');
+
+        $this->messageCheckMissionReturn();
     }
 
     /**
@@ -328,21 +322,13 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // The event list should show either 1 or 2 missions (the parent and the to-be-created return trip).
         $response = $this->get('/ajax/fleet/eventlist/fetch');
         $response->assertStatus(200);
-        if ($this->hasReturnMission) {
-            // If the mission has a return mission, we should see both in the event list.
-            $response->assertSee($this->missionName);
-            $response->assertSee($this->missionName .  ' (R)');
-            // Assert that we see both rows in the event list.
-            $response->assertSee('data-return-flight="false"', false);
-            $response->assertSee('data-return-flight="true"', false);
-        } else {
-            // If the mission does not have a return mission, we should only see the parent mission.
-            $response->assertSee($this->missionName);
-            $response->assertDontSee($this->missionName .  ' (R)');
-            // Assert that we see only parent row in the event list.
-            $response->assertSee('data-return-flight="false"', false);
-            $response->assertDontSee('data-return-flight="true"', false);
-        }
+
+        // If the mission has a return mission, we should see both in the event list.
+        $response->assertSee($this->missionName);
+        $response->assertSee($this->missionName .  ' (R)');
+        // Assert that we see both rows in the event list.
+        $response->assertSee('data-return-flight="false"', false);
+        $response->assertSee('data-return-flight="true"', false);
     }
 
     /**

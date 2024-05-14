@@ -32,6 +32,7 @@ class DeploymentMission extends GameMission
     }
 
     /**
+     * @inheritdoc
      * @throws BindingResolutionException
      */
     protected function processArrival(FleetMission $mission): void
@@ -61,6 +62,10 @@ Deuterium: ' . $mission->deuterium, 'fleet_deployment');
         $mission->save();
     }
 
+    /**
+     * @inheritdoc
+     * @throws BindingResolutionException
+     */
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
@@ -71,23 +76,13 @@ Deuterium: ' . $mission->deuterium, 'fleet_deployment');
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
         // Add resources to the origin planet (if any).
-        // TODO: make messages translatable by using tokens instead of directly inserting dynamic content.
         $return_resources = $this->fleetMissionService->getResources($mission);
         if ($return_resources->sum() > 0) {
             $target_planet->addResources($return_resources);
-
-            // Send message to player that the return mission has arrived
-            $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Return of a fleet', 'Your fleet is returning from planet [planet]' . $mission->planet_id_from . '[/planet] to planet [planet]' . $mission->planet_id_to . '[/planet] and delivered its goods:
-            
-Metal: ' . $mission->metal . '
-Crystal: ' . $mission->crystal . '
-Deuterium: ' . $mission->deuterium, 'return_of_fleet');
-        } else {
-            // Send message to player that the return mission has arrived
-            $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Return of a fleet', 'Your fleet is returning from planet [planet]' . $mission->planet_id_from . '[/planet] to planet [planet]' . $mission->planet_id_to . '[/planet].
-                    
-                    The fleet doesn\'t deliver goods.', 'return_of_fleet');
         }
+
+        // Send message to player that the return mission has arrived.
+        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
 
         // Mark the return mission as processed
         $mission->processed = 1;

@@ -175,8 +175,8 @@ class ResearchQueueCancelTest extends AccountTestCase
         // The second active build queue has one cancelProduction button which will be the third.
         if (count($matches[0]) >= 3) {
             // Access the numbers from the second occurrence
-            $number1 = $matches[1][2];  // Second occurrence, first number
-            $number2 = $matches[2][2];  // Second occurrence, second number
+            $number1 = (int)$matches[1][2];  // Second occurrence, first number
+            $number2 = (int)$matches[2][2];  // Second occurrence, second number
 
             // Do POST to cancel build queue item:
             $this->cancelResearchBuildRequest($number1, $number2);

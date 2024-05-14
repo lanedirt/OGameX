@@ -314,5 +314,16 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         // Assert that the resources have been returned to the origin planet.
         $this->planetService->reloadPlanet();
         $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are not returned to origin planet after recalling mission.');
+
+        // Assert that the last message sent to the player contains the recall message.
+        $lastMessage = Message::where('user_id', $this->currentUserId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        // Verify that message contains "from" as coordinates instead of [planet] tags because the target position
+        // which was being attempted to colonize is not a planet.
+        $this->assertStringContainsString('Your fleet is returning from planet [coordinates]', $lastMessage->body);
+        // Verify that message contains the resources that were returned.
+        $this->assertStringContainsString('Metal: 5000', $lastMessage->body);
     }
 }
