@@ -5,6 +5,7 @@ namespace OGame\ViewModels;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\GameMessages\MessageTypeRegistry;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
 
@@ -60,7 +61,20 @@ class MessageViewModel
 
     public function getBody(): string
     {
+        // TODO: replace this with dynamic retrieval of message body stored in code instead of database.
         $body = nl2br($this->body);
+
+        $messageType = MessageTypeRegistry::getMessageType($this->type);
+        if ($messageType) {
+            // TODO: retrieve dynamic params from message record from DB and use them here.
+            $body = nl2br($messageType->getBody([
+                'planet_name' => 'Planet Name',
+                'coordinates' => '1:2:3',
+                'metal' => '1000',
+                'crystal' => '2000',
+                'deuterium' => '3000',
+            ]));
+        }
 
         // Find and replace the following placeholders:
         // [player]{playerId}[/player] with the player name.
