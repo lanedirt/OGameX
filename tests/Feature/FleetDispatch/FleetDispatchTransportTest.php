@@ -10,6 +10,7 @@ use OGame\Models\Message;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\FleetMissionService;
+use OGame\ViewModels\MessageViewModel;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -137,8 +138,11 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
             ->orderBy('id', 'desc')
             ->first();
 
-        $this->assertStringContainsString('An incoming fleet from planet', $lastMessage->body);
-        $this->assertStringContainsString('has reached your planet', $lastMessage->body);
+        // Get the message body.
+        $lastMessageViewModel = new MessageViewModel($lastMessage);
+
+        $this->assertStringContainsString('An incoming fleet from planet', $lastMessageViewModel->getBody());
+        $this->assertStringContainsString('has reached your planet', $lastMessageViewModel->getBody());
     }
 
     /**

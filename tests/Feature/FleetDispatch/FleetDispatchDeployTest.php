@@ -376,7 +376,8 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         Carbon::setTestNow(Carbon::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
-        $this->get('/overview');
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
 
         // Assert that the return trip is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);

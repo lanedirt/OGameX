@@ -5,7 +5,8 @@ namespace OGame\ViewModels;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
-use OGame\GameMessages\MessageTypeRegistry;
+use OGame\Factories\GameMessageFactory;
+use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
 
@@ -17,11 +18,16 @@ class MessageViewModel
     public int $id;
     public int $user_id;
     public int $type;
-    public string $subject;
-    public string $body;
+    public ?string $subject;
+    public ?string $body;
+    /**
+     * @var array<string, string> $params
+     */
+    public ?array $params;
     public int $viewed;
     public ?Carbon $created_at;
     public ?Carbon $updated_at;
+    private ?GameMessage $gameMessage = null;
 
     /**
      * Constructor
@@ -30,23 +36,23 @@ class MessageViewModel
     {
         $this->id = $message->id;
         $this->user_id = $message->user_id;
-        $this->type = $message->type;
+        $this->key = $message->key;
         $this->subject = $message->subject;
         $this->body = $message->body;
+        $this->params = $message->params;
         $this->viewed = $message->viewed;
         $this->created_at = $message->created_at;
         $this->updated_at = $message->updated_at;
+
+        $gameMessage = GameMessageFactory::createGameMessage($this->key);
+        if ($gameMessage) {
+            $this->gameMessage = $gameMessage;
+        }
     }
 
     public function getFrom(): string
     {
-        // From is based on the type of the message and/or the user_id/alliance_id.
-        switch ($this->type) {
-            case 63: // colony_established
-                return 'Settlers';
-            default:
-                return 'Fleet Command';
-        }
+        return $this->gameMessage->getFrom();
     }
 
     public function getId(): int
@@ -56,24 +62,25 @@ class MessageViewModel
 
     public function getSubject(): string
     {
+        if ($this->gameMessage !== null) {
+            // TODO: do we need replacements here or is the subject always static?
+            return $this->gameMessage->getSubject();
+        }
+
         return $this->subject;
     }
 
     public function getBody(): string
     {
-        // TODO: replace this with dynamic retrieval of message body stored in code instead of database.
-        $body = nl2br($this->body);
-
-        $messageType = MessageTypeRegistry::getMessageType($this->type);
-        if ($messageType) {
+        if ($this->gameMessage !== null) {
             // TODO: retrieve dynamic params from message record from DB and use them here.
-            $body = nl2br($messageType->getBody([
-                'planet_name' => 'Planet Name',
-                'coordinates' => '1:2:3',
-                'metal' => '1000',
-                'crystal' => '2000',
-                'deuterium' => '3000',
-            ]));
+            // Params are retrieved as keys not the values?
+            $body = nl2br($this->gameMessage->getBody($this->params));
+        }
+        else {
+            // TODO: only use this if the message type has explicitly configured body text.
+            // TODO: add this explicit setting to message model.
+            $body = nl2br($this->body);
         }
 
         // Find and replace the following placeholders:

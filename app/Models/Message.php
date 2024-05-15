@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $user_id
@@ -34,11 +34,24 @@ use Illuminate\Support\Carbon;
  * @method static \Illuminate\Database\Eloquent\Builder|Message whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Message whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Message whereViewed($value)
+ * @property string|null $params
+ * @method static \Illuminate\Database\Eloquent\Builder|Message whereParams($value)
+ * @property string $key
+ * @method static \Illuminate\Database\Eloquent\Builder|Message whereKey($value)
  * @mixin \Eloquent
  */
 class Message extends Model
 {
     use HasFactory;
+
+    /**
+     * Treat the params column as an array so its contents get stored/retrieved as JSON.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'params' => 'array',
+    ];
 
     /**
      * Get the user that owns the research queue record.

@@ -2,6 +2,10 @@
 
 namespace OGame\Services;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
+use OGame\Factories\GameMessageFactory;
+use OGame\GameMessages\Abstracts\GameMessage;
+use OGame\GameMessages\WelcomeMessage;
 use OGame\Models\Message;
 use OGame\ViewModels\MessageViewModel;
 
@@ -99,6 +103,7 @@ class MessageService
      * @param string $tab
      * @param string $subtab
      * @return MessageViewModel[] Array of MessageViewModel objects.
+     * @throws BindingResolutionException
      */
     public function getMessagesForTab(string $tab, string $subtab): array
     {
@@ -108,8 +113,11 @@ class MessageService
         }
 
         // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
+        $messageKeys = GameMessageFactory::getGameMessagesByTab($tab, $subtab);
+
+        // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
         $messages = Message::where('user_id', $this->player->getId())
-            ->whereIn('type', $this->tabs[$tab][$subtab])
+            ->whereIn('key', $messageKeys)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -135,26 +143,30 @@ class MessageService
             ->count();
     }
 
+    /**
+     * @throws BindingResolutionException
+     */
     public function getUnreadMessagesCountForTab(string $tab): int
     {
-        // Get all ids of the subtabs in this tab.
-        $subtabIds = [];
-        foreach ($this->tabs[$tab] as $subtab => $types) {
-            foreach ($types as $type) {
-                $subtabIds[] = $type;
-            }
-        }
+        // Get all keys for the tab.
+        $messageKeys = GameMessageFactory::getGameMessagesByTab($tab);
 
         return Message::where('user_id', $this->player->getId())
-            ->whereIn('type', $subtabIds)
+            ->whereIn('key', $messageKeys)
             ->where('viewed', 0)
             ->count();
     }
 
+    /**
+     * @throws BindingResolutionException
+     */
     public function getUnreadMessagesCountForSubTab(string $tab, string $subtab): int
     {
+        // Get all keys for the subtab.
+        $messageKeys = GameMessageFactory::getGameMessagesByTab($tab, $subtab);
+
         return Message::where('user_id', $this->player->getId())
-            ->whereIn('type', $this->tabs[$tab][$subtab])
+            ->whereIn('key', $messageKeys)
             ->where('viewed', 0)
             ->count();
     }
@@ -194,34 +206,38 @@ class MessageService
     }
 
     /**
+     * Sends a system message to a player by using a template and passing params.
+     *
+     * @param PlayerService $player
+     * @param class-string<GameMessage> $gameMessageClass
+     * @param array<string,string> $params
+     * @return void
+     */
+    public function sendSystemMessageToPlayer(PlayerService $player, string $gameMessageClass, array $params): void
+    {
+        // Ensure the provided class is a subclass of GameMessage
+        if (!is_subclass_of($gameMessageClass, GameMessage::class)) {
+            throw new \InvalidArgumentException('Invalid game message class.');
+        }
+
+        /** @var GameMessage $gameMessage */
+        $gameMessage = new $gameMessageClass();
+
+        $message = new Message();
+        $message->user_id = $player->getId();
+        $message->key = $gameMessage->getKey();
+        $message->params = $params;
+        $message->save();
+    }
+
+    /**
      * Sends a welcome message to the current player.
      *
      * @return void
      */
     public function sendWelcomeMessage(): void
     {
-        $this->sendMessageToPlayer($this->player, 'Welcome to OGameX!', 'Greetings Emperor [player]' . $this->player->getId() . '[/player]!
-
-Congratulations on starting your illustrious career. I will be here to guide you through your first steps.
-
-On the left you can see the menu which allows you to supervise and govern your galactic empire.
-
-You’ve already seen the Overview. Resources and Facilities allow you to construct buildings to help you expand your empire. Start by building a Solar Plant to harvest energy for your mines.
-
-Then expand your Metal Mine and Crystal Mine to produce vital resources. Otherwise, simply take a look around for yourself. You’ll soon feel well at home, I’m sure.
-
-You can find more help, tips and tactics here:
-
-Discord Chat: Discord Server
-Forum: OGameX Forum
-Support: Game Support
-
-You’ll only find current announcements and changes to the game in the forums.
-
-
-Now you’re ready for the future. Good luck!
-
-This message will be deleted in 7 days.', 'welcome_message');
+        $this->sendSystemMessageToPlayer($this->player, WelcomeMessage::class, ['player' => '[player]' . $this->player->getId() . '[/player]']);
     }
 
     /**

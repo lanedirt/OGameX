@@ -6,6 +6,8 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameMessages\ReturnOfFleet;
+use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
@@ -310,21 +312,22 @@ abstract class GameMission
         }
 
         if ($return_resources->sum() > 0) {
-            $body = __('t_messages.return_of_fleet', [
+            $params = [
                 'from' => $from,
                 'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
                 'metal' => $mission->metal,
                 'crystal' => $mission->crystal,
                 'deuterium' => $mission->deuterium,
-            ]);
+            ];
+            $this->messageService->sendSystemMessageToPlayer($targetPlayer, ReturnOfFleetWithResources::class, $params);
         } else {
-            $body = __('t_messages.return_of_fleet_no_goods', [
+            $params = [
                 'from' => $from,
                 'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
-            ]);
-        }
+            ];
+            $this->messageService->sendSystemMessageToPlayer($targetPlayer, ReturnOfFleet::class, $params);
 
-        $this->messageService->sendMessageToPlayer($targetPlayer, 'Return of a fleet', $body, 'return_of_fleet');
+        }
     }
 
     /**
