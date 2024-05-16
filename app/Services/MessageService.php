@@ -19,12 +19,39 @@ use OGame\ViewModels\MessageViewModel;
 class MessageService
 {
     /**
-     * Define tabs and subtabs which message types they contain.
+     * Define tab and subtab structure.
      *
-     * @var array<string, array<string, array<int>>> $tabs
+     * @var array<string, array<string>> $tabs
      */
-    // TODO: refactor this to a typed array/class so sending messages with types is typesafe.
     protected array $tabs = [
+        'fleets' => [
+            'espionage',
+            'combat_reports',
+            'expeditions',
+            'transport',
+            'other',
+        ],
+        'communication' => [
+            'messages',
+            'information',
+        ],
+        'economy' => [
+            'economy',
+        ],
+        'universe' => [
+            'universe',
+        ],
+        'system' => [
+            'system',
+        ],
+        'favorites' => [
+            'favorites',
+        ],
+    ];
+
+    // TODO: tab array defined below is not used anymore but it's kept for reference purposes when implementing
+    // more message types.
+    /*protected array $tabs = [
         'fleets' => [
             'espionage' => [
                 1, // Espionage report for foreign planet
@@ -80,7 +107,8 @@ class MessageService
                 99, // TODO: Implement favorites
             ],
         ],
-    ];
+    ];*/
+
 
     /**
      * The PlayerService object.
@@ -113,7 +141,7 @@ class MessageService
         }
 
         // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
-        $messageKeys = GameMessageFactory::getGameMessagesByTab($tab, $subtab);
+        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, (string)$subtab);
 
         // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
         $messages = Message::where('user_id', $this->player->getId())
@@ -149,7 +177,7 @@ class MessageService
     public function getUnreadMessagesCountForTab(string $tab): int
     {
         // Get all keys for the tab.
-        $messageKeys = GameMessageFactory::getGameMessagesByTab($tab);
+        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab);
 
         return Message::where('user_id', $this->player->getId())
             ->whereIn('key', $messageKeys)
@@ -163,46 +191,12 @@ class MessageService
     public function getUnreadMessagesCountForSubTab(string $tab, string $subtab): int
     {
         // Get all keys for the subtab.
-        $messageKeys = GameMessageFactory::getGameMessagesByTab($tab, $subtab);
+        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, $subtab);
 
         return Message::where('user_id', $this->player->getId())
             ->whereIn('key', $messageKeys)
             ->where('viewed', 0)
             ->count();
-    }
-
-    /**
-     * Sends a message to a player.
-     *
-     * @param PlayerService $player
-     * @param string $subject
-     * @param string $body
-     * @param string $type
-     * @return void
-     */
-    public function sendMessageToPlayer(PlayerService $player, string $subject, string $body, string $type): void
-    {
-        // Convert type string to type int based on tabs array multiple levels.
-        $typeId = 0;
-        if (is_string($type)) {
-            foreach ($this->tabs as $tab => $subtabs) {
-                foreach ($subtabs as $subtab => $types) {
-                    foreach ($types as $arrayTypeKey => $arrayTypeId) {
-                        if ($type === $arrayTypeKey) {
-                            $typeId = $arrayTypeId;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        $message = new Message();
-        $message->user_id = $player->getId();
-        $message->type = $typeId;
-        $message->subject = $subject;
-        $message->body = $body;
-        $message->save();
     }
 
     /**

@@ -136,12 +136,10 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->assertNotNull($newPlanet, 'New planet cannot be loaded while it should have been created.');
 
         // Assert that last message sent to current player contains the new planet colonize confirm message.
-        $lastMessage = Message::where('user_id', $this->currentUserId)
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $this->assertStringContainsString('The fleet has arrived', $lastMessage->body);
-        $this->assertStringContainsString('found a new planet there and are beginning to develop upon it immediately.', $lastMessage->body);
+        $this->assertMessageReceivedAndContainsDatabase($this->planetService->getPlayer(), [
+            'The fleet has arrived',
+            'found a new planet there and are beginning to develop upon it immediately.',
+        ]);
     }
 
     /**
@@ -315,15 +313,10 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->planetService->reloadPlanet();
         $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are not returned to origin planet after recalling mission.');
 
-        // Assert that the last message sent to the player contains the recall message.
-        $lastMessage = Message::where('user_id', $this->currentUserId)
-            ->orderBy('id', 'desc')
-            ->first();
-
-        // Verify that message contains "from" as coordinates instead of [planet] tags because the target position
-        // which was being attempted to colonize is not a planet.
-        $this->assertStringContainsString('Your fleet is returning from planet [coordinates]', $lastMessage->body);
-        // Verify that message contains the resources that were returned.
-        $this->assertStringContainsString('Metal: 5000', $lastMessage->body);
+        // Assert that the last message sent contains the return trip message.
+        $this->assertMessageReceivedAndContainsDatabase($this->planetService->getPlayer(), [
+            'Your fleet is returning from planet',
+            'Metal: 5,000',
+        ]);
     }
 }

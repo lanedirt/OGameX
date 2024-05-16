@@ -50,6 +50,24 @@ The fleet doesn\'t deliver goods.',
         ],
 
     // ------------------------
+    'fleet_deployment_with_resources' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Return of a fleet',
+        'body' => 'One of your fleets from :from has reached :to and delivered its goods:
+            
+Metal: :metal
+Crystal: :crystal
+Deuterium: :deuterium',
+    ],
+
+    // ------------------------
+    'fleet_deployment' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Return of a fleet',
+        'body' => 'One of your fleets from :from has reached :to. The fleet doesn`t deliver goods.',
+        ],
+
+    // ------------------------
     'transport_arrived' => [
         'from' => 'Fleet Command',
         'subject' => 'Reaching a planet',
@@ -63,6 +81,13 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         'subject' => 'Incoming fleet',
         'body' => 'An incoming fleet from planet :from has reached your planet :to and delivered its goods:
 Metal: :metal Crystal: :crystal Deuterium: :deuterium',
+    ],
+
+    // ------------------------
+    'colony_established' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Settlement Report',
+        'body' => 'The fleet has arrived at the assigned coordinates :coordinates, found a new planet there and are beginning to develop upon it immediately.',
     ],
 
     // ------------------------

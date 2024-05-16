@@ -10,7 +10,6 @@ use OGame\Models\Message;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\FleetMissionService;
-use OGame\ViewModels\MessageViewModel;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -134,15 +133,10 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Assert that last message sent to second player contains the transport confirm message.
-        $lastMessage = Message::where('user_id', $foreignPlanet->getPlayer()->getId())
-            ->orderBy('id', 'desc')
-            ->first();
-
-        // Get the message body.
-        $lastMessageViewModel = new MessageViewModel($lastMessage);
-
-        $this->assertStringContainsString('An incoming fleet from planet', $lastMessageViewModel->getBody());
-        $this->assertStringContainsString('has reached your planet', $lastMessageViewModel->getBody());
+        $this->assertMessageReceivedAndContainsDatabase($foreignPlanet->getPlayer(), [
+            'An incoming fleet from planet',
+            'has reached your planet',
+        ]);
     }
 
     /**

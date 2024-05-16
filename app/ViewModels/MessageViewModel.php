@@ -3,6 +3,7 @@
 namespace OGame\ViewModels;
 
 use Illuminate\Support\Carbon;
+use InvalidArgumentException;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Factories\GameMessageFactory;
@@ -17,7 +18,7 @@ class MessageViewModel
 {
     public int $id;
     public int $user_id;
-    public int $type;
+    public string $key;
     public ?string $subject;
     public ?string $body;
     /**
@@ -45,9 +46,7 @@ class MessageViewModel
         $this->updated_at = $message->updated_at;
 
         $gameMessage = GameMessageFactory::createGameMessage($this->key);
-        if ($gameMessage) {
-            $this->gameMessage = $gameMessage;
-        }
+        $this->gameMessage = $gameMessage;
     }
 
     public function getFrom(): string
@@ -76,10 +75,8 @@ class MessageViewModel
             // TODO: retrieve dynamic params from message record from DB and use them here.
             // Params are retrieved as keys not the values?
             $body = nl2br($this->gameMessage->getBody($this->params));
-        }
-        else {
-            // TODO: only use this if the message type has explicitly configured body text.
-            // TODO: add this explicit setting to message model.
+        } else {
+            // TODO: implement dynamic messages without templates (e.g. mass messages from admin to players)
             $body = nl2br($this->body);
         }
 

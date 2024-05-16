@@ -4,6 +4,8 @@ namespace OGame\GameMissions;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameMessages\FleetDeployment;
+use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\UnitCollection;
@@ -48,13 +50,18 @@ class DeploymentMission extends GameMission
         // Send a message to the player that the mission has arrived
         // TODO: make message content translatable by using tokens instead of directly inserting dynamic content.
         if ($resources->sum() > 0) {
-            $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Fleet deployment', 'One of your fleets from [planet]' . $mission->planet_id_from . '[/planet] has reached [planet]' . $mission->planet_id_to . '[/planet] and delivered its goods:
-            
-Metal: ' . $mission->metal . ' 
-Crystal: ' . $mission->crystal . ' 
-Deuterium: ' . $mission->deuterium, 'fleet_deployment');
+            $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), FleetDeploymentWithResources::class, [
+                'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
+                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+                'metal' => (string)$mission->metal,
+                'crystal' => (string)$mission->crystal,
+                'deuterium' => (string)$mission->deuterium
+            ]);
         } else {
-            $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Fleet deployment', 'One of your fleets from [planet]' . $mission->planet_id_from . '[/planet] has reached [planet]' . $mission->planet_id_to . '[/planet]. The fleet doesn`t deliver goods.', 'fleet_deployment');
+            $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), FleetDeployment::class, [
+                'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
+                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+            ]);
         }
 
         // Mark the arrival mission as processed

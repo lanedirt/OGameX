@@ -52,9 +52,9 @@ class TransportMission extends GameMission
         $this->messageService->sendSystemMessageToPlayer($origin_planet->getPlayer(), TransportArrived::class, [
             'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
             'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
-            'metal' => $mission->metal,
-            'crystal' => $mission->crystal,
-            'deuterium' => $mission->deuterium,
+            'metal' => (string)$mission->metal,
+            'crystal' => (string)$mission->crystal,
+            'deuterium' => (string)$mission->deuterium,
         ]);
 
         if ($origin_planet->getPlayer()->getId() !== $target_planet->getPlayer()->getId()) {
@@ -62,9 +62,9 @@ class TransportMission extends GameMission
             $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), TransportReceived::class, [
                 'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
                 'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
-                'metal' => $mission->metal,
-                'crystal' => $mission->crystal,
-                'deuterium' => $mission->deuterium,
+                'metal' => (string)$mission->metal,
+                'crystal' => (string)$mission->crystal,
+                'deuterium' => (string)$mission->deuterium,
             ]);
         }
 

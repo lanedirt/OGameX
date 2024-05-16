@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\UnitCollection;
@@ -92,8 +93,10 @@ class ColonisationMission extends GameMission
         // Create a new planet at the target coordinates.
         $target_planet = $planetServiceFactory->createAdditionalForPlayer($player, new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
 
-        // Success message
-        $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Settlement Report', 'The fleet has arrived at the assigned coordinates [coordinates]' . $target_planet->getPlanetCoordinates()->asString() . '[/coordinates], found a new planet there and are beginning to develop upon it immediately.', 'colony_established');
+        // Send success message
+        $this->messageService->sendSystemMessageToPlayer($player, ColonyEstablished::class, [
+            'coordinates' => $target_planet->getPlanetCoordinates()->asString(),
+        ]);
 
         // Add resources to the target planet if the mission has any.
         $resources = $this->fleetMissionService->getResources($mission);

@@ -315,9 +315,9 @@ abstract class GameMission
             $params = [
                 'from' => $from,
                 'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
-                'metal' => $mission->metal,
-                'crystal' => $mission->crystal,
-                'deuterium' => $mission->deuterium,
+                'metal' => (string)$mission->metal,
+                'crystal' => (string)$mission->crystal,
+                'deuterium' => (string)$mission->deuterium,
             ];
             $this->messageService->sendSystemMessageToPlayer($targetPlayer, ReturnOfFleetWithResources::class, $params);
         } else {

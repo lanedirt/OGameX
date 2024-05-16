@@ -4,6 +4,9 @@ namespace OGame\Factories;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMessages\Abstracts\GameMessage;
+use OGame\GameMessages\ColonyEstablished;
+use OGame\GameMessages\FleetDeployment;
+use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMessages\TransportArrived;
@@ -21,6 +24,9 @@ class GameMessageFactory
         'return_of_fleet' => ReturnOfFleet::class,
         'transport_arrived' => TransportArrived::class,
         'transport_received' => TransportReceived::class,
+        'colony_established' => ColonyEstablished::class,
+        'fleet_deployment' => FleetDeployment::class,
+        'fleet_deployment_with_resources' => FleetDeploymentWithResources::class,
     ];
 
     /**
@@ -57,10 +63,10 @@ class GameMessageFactory
      *
      * @param string $tab
      * @param string|null $subtab
-     * @return array<int>
+     * @return array<int, string>
      * @throws BindingResolutionException
      */
-    public static function getGameMessagesByTab(string $tab, ?string $subtab = null): array
+    public static function GetGameMessageKeysByTab(string $tab, ?string $subtab = null): array
     {
         $matchingKeys = [];
 
