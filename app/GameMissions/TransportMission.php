@@ -4,6 +4,8 @@ namespace OGame\GameMissions;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameMessages\TransportArrived;
+use OGame\GameMessages\TransportReceived;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\UnitCollection;
@@ -47,13 +49,23 @@ class TransportMission extends GameMission
 
         // Send a message to the origin player that the mission has arrived
         // TODO: make message content translatable by using tokens instead of directly inserting dynamic content.
-        $this->messageService->sendMessageToPlayer($origin_planet->getPlayer(), 'Reaching a planet', 'Your fleet from planet [planet]' . $mission->planet_id_from . '[/planet] reaches the planet [planet]' . $mission->planet_id_to . '[/planet] and delivers its goods:
-Metal: ' . $mission->metal . ' Crystal: ' . $mission->crystal . ' Deuterium: ' . $mission->deuterium, 'transport_arrived');
+        $this->messageService->sendSystemMessageToPlayer($origin_planet->getPlayer(), TransportArrived::class, [
+            'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
+            'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+            'metal' => (string)$mission->metal,
+            'crystal' => (string)$mission->crystal,
+            'deuterium' => (string)$mission->deuterium,
+        ]);
 
         if ($origin_planet->getPlayer()->getId() !== $target_planet->getPlayer()->getId()) {
             // Send a message to the target player that the mission has arrived
-            $this->messageService->sendMessageToPlayer($target_planet->getPlayer(), 'Incoming fleet', 'An incoming fleet from planet [planet]' . $mission->planet_id_from . '[/planet] has reached your planet [planet]' . $mission->planet_id_to . '[/planet] and delivered its goods:
-Metal: ' . $mission->metal . ' Crystal: ' . $mission->crystal . ' Deuterium: ' . $mission->deuterium, 'transport_received');
+            $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), TransportReceived::class, [
+                'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
+                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+                'metal' => (string)$mission->metal,
+                'crystal' => (string)$mission->crystal,
+                'deuterium' => (string)$mission->deuterium,
+            ]);
         }
 
         // Mark the arrival mission as processed

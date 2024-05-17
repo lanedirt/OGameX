@@ -7,12 +7,14 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\ViewModels\MessageViewModel;
 
 /**
  * Base class for tests that require account context. Common setup includes signup of new account and login.
@@ -620,7 +622,8 @@ abstract class AccountTestCase extends TestCase
     }
 
     /**
-     * Asserts that a message has been received in the specified tab/subtab and that it contains the specified text.
+     * Asserts that a message has been received in the frontend on the specified tab/subtab
+     * and that it contains the specified text.
      *
      * @param string $tab
      * @param string $subtab
@@ -638,6 +641,27 @@ abstract class AccountTestCase extends TestCase
         $response->assertStatus(200);
         foreach ($must_contain as $needle) {
             $response->assertSee($needle, false);
+        }
+    }
+
+    /**
+     * Asserts that a message has been received in the database for a specific player and that it contains the specified text.
+     *
+     * @param PlayerService $player
+     * @param array<int,string> $must_contain
+     * @return void
+     */
+    protected function assertMessageReceivedAndContainsDatabase(PlayerService $player, array $must_contain): void
+    {
+        $lastMessage = Message::where('user_id', $player->getId())
+            ->orderBy('id', 'desc')
+            ->first();
+
+        // Get the message body.
+        $lastMessageViewModel = new MessageViewModel($lastMessage);
+
+        foreach ($must_contain as $needle) {
+            $this->assertStringContainsString($needle, $lastMessageViewModel->getBody());
         }
     }
 }

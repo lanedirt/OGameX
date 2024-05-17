@@ -15,44 +15,7 @@ return new class () extends Migration {
             // Foreign key to the user that this message belongs to.
             $table->integer('user_id', false, true);
             $table->foreign('user_id')->references('id')->on('users');
-            // Message type
-            // =================
-            // Fleets
-            // =================
-            // - Espionage
-            //   > Espionage report = 1
-            //   > Espionage action on own planet = 2
-            // - Combat reports
-            //   > Combat report = 11
-            // - Expeditions
-            //   > Expedition report = 21
-            // - Transport
-            //   > Transport report (TODO: find example) = 31
-            // - Other
-            //   > Return of fleet = 41
-            //   > Outlaw notification = 42
-            //   > Wreckage created on own planet after battle = 43
-            // =================
-            // Communication
-            // =================
-            // - Messages
-            //   > Buddy request/confirm/delete = 51
-            //   > Alliance message = 52
-            // =================
-            // Economy
-            // =================
-            //   > Production canceled = 61
-            //   > Repair completed = 62
-            // =================
-            // Universe
-            // =================
-            //   > Welcome message = 71
-            //   > Starter bonus = 72
-            //   > Promotions/sales = 73
-            // =================
-            // OGame
-            // =================
-            //   > Officer runs out = 81
+            // Message type.
             $table->tinyInteger('type');
             // Subject can contain inline planet ID or a user ID which will be expanded to planet name or username by the game engine.
             $table->text('subject');

@@ -2,6 +2,10 @@
 
 namespace OGame\Services;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
+use OGame\Factories\GameMessageFactory;
+use OGame\GameMessages\Abstracts\GameMessage;
+use OGame\GameMessages\WelcomeMessage;
 use OGame\Models\Message;
 use OGame\ViewModels\MessageViewModel;
 
@@ -15,12 +19,39 @@ use OGame\ViewModels\MessageViewModel;
 class MessageService
 {
     /**
-     * Define tabs and subtabs which message types they contain.
+     * Define tab and subtab structure.
      *
-     * @var array<string, array<string, array<int>>> $tabs
+     * @var array<string, array<string>> $tabs
      */
-    // TODO: refactor this to a typed array/class so sending messages with types is typesafe.
     protected array $tabs = [
+        'fleets' => [
+            'espionage',
+            'combat_reports',
+            'expeditions',
+            'transport',
+            'other',
+        ],
+        'communication' => [
+            'messages',
+            'information',
+        ],
+        'economy' => [
+            'economy',
+        ],
+        'universe' => [
+            'universe',
+        ],
+        'system' => [
+            'system',
+        ],
+        'favorites' => [
+            'favorites',
+        ],
+    ];
+
+    // TODO: tab array defined below is not used anymore but it's kept for reference purposes when implementing
+    // more message types.
+    /*protected array $tabs = [
         'fleets' => [
             'espionage' => [
                 1, // Espionage report for foreign planet
@@ -76,7 +107,8 @@ class MessageService
                 99, // TODO: Implement favorites
             ],
         ],
-    ];
+    ];*/
+
 
     /**
      * The PlayerService object.
@@ -104,12 +136,15 @@ class MessageService
     {
         // If subtab is empty, we use the first subtab of the tab.
         if (empty($subtab)) {
-            $subtab = array_key_first($this->tabs[$tab]);
+            $subtab = $this->tabs[$tab][0];
         }
 
         // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
+        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, (string)$subtab);
+
+        // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
         $messages = Message::where('user_id', $this->player->getId())
-            ->whereIn('type', $this->tabs[$tab][$subtab])
+            ->whereIn('key', $messageKeys)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -135,61 +170,56 @@ class MessageService
             ->count();
     }
 
+    /**
+     * @throws BindingResolutionException
+     */
     public function getUnreadMessagesCountForTab(string $tab): int
     {
-        // Get all ids of the subtabs in this tab.
-        $subtabIds = [];
-        foreach ($this->tabs[$tab] as $subtab => $types) {
-            foreach ($types as $type) {
-                $subtabIds[] = $type;
-            }
-        }
+        // Get all keys for the tab.
+        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab);
 
         return Message::where('user_id', $this->player->getId())
-            ->whereIn('type', $subtabIds)
-            ->where('viewed', 0)
-            ->count();
-    }
-
-    public function getUnreadMessagesCountForSubTab(string $tab, string $subtab): int
-    {
-        return Message::where('user_id', $this->player->getId())
-            ->whereIn('type', $this->tabs[$tab][$subtab])
+            ->whereIn('key', $messageKeys)
             ->where('viewed', 0)
             ->count();
     }
 
     /**
-     * Sends a message to a player.
+     * @throws BindingResolutionException
+     */
+    public function getUnreadMessagesCountForSubTab(string $tab, string $subtab): int
+    {
+        // Get all keys for the subtab.
+        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, $subtab);
+
+        return Message::where('user_id', $this->player->getId())
+            ->whereIn('key', $messageKeys)
+            ->where('viewed', 0)
+            ->count();
+    }
+
+    /**
+     * Sends a system message to a player by using a template and passing params.
      *
      * @param PlayerService $player
-     * @param string $subject
-     * @param string $body
-     * @param string $type
+     * @param class-string<GameMessage> $gameMessageClass
+     * @param array<string,string> $params
      * @return void
      */
-    public function sendMessageToPlayer(PlayerService $player, string $subject, string $body, string $type): void
+    public function sendSystemMessageToPlayer(PlayerService $player, string $gameMessageClass, array $params): void
     {
-        // Convert type string to type int based on tabs array multiple levels.
-        $typeId = 0;
-        if (is_string($type)) {
-            foreach ($this->tabs as $tab => $subtabs) {
-                foreach ($subtabs as $subtab => $types) {
-                    foreach ($types as $arrayTypeKey => $arrayTypeId) {
-                        if ($type === $arrayTypeKey) {
-                            $typeId = $arrayTypeId;
-                            break;
-                        }
-                    }
-                }
-            }
+        // Ensure the provided class is a subclass of GameMessage
+        if (!is_subclass_of($gameMessageClass, GameMessage::class)) {
+            throw new \InvalidArgumentException('Invalid game message class.');
         }
+
+        /** @var GameMessage $gameMessage */
+        $gameMessage = new $gameMessageClass();
 
         $message = new Message();
         $message->user_id = $player->getId();
-        $message->type = $typeId;
-        $message->subject = $subject;
-        $message->body = $body;
+        $message->key = $gameMessage->getKey();
+        $message->params = $params;
         $message->save();
     }
 
@@ -200,28 +230,7 @@ class MessageService
      */
     public function sendWelcomeMessage(): void
     {
-        $this->sendMessageToPlayer($this->player, 'Welcome to OGameX!', 'Greetings Emperor [player]' . $this->player->getId() . '[/player]!
-
-Congratulations on starting your illustrious career. I will be here to guide you through your first steps.
-
-On the left you can see the menu which allows you to supervise and govern your galactic empire.
-
-You’ve already seen the Overview. Resources and Facilities allow you to construct buildings to help you expand your empire. Start by building a Solar Plant to harvest energy for your mines.
-
-Then expand your Metal Mine and Crystal Mine to produce vital resources. Otherwise, simply take a look around for yourself. You’ll soon feel well at home, I’m sure.
-
-You can find more help, tips and tactics here:
-
-Discord Chat: Discord Server
-Forum: OGameX Forum
-Support: Game Support
-
-You’ll only find current announcements and changes to the game in the forums.
-
-
-Now you’re ready for the future. Good luck!
-
-This message will be deleted in 7 days.', 'welcome_message');
+        $this->sendSystemMessageToPlayer($this->player, WelcomeMessage::class, ['player' => '[player]' . $this->player->getId() . '[/player]']);
     }
 
     /**

@@ -133,12 +133,10 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Assert that last message sent to second player contains the transport confirm message.
-        $lastMessage = Message::where('user_id', $foreignPlanet->getPlayer()->getId())
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $this->assertStringContainsString('An incoming fleet from planet', $lastMessage->body);
-        $this->assertStringContainsString('has reached your planet', $lastMessage->body);
+        $this->assertMessageReceivedAndContainsDatabase($foreignPlanet->getPlayer(), [
+            'An incoming fleet from planet',
+            'has reached your planet',
+        ]);
     }
 
     /**
