@@ -73,6 +73,10 @@ class GalaxyController extends OGameController
                 // Planet with player
                 $planet = $planets[$i];
                 $player = $planet->getPlayer();
+                $nameAbbreviations = [];
+                if ($player->isAdmin()) {
+                    $nameAbbreviations[] = 'admin';
+                }
                 $galaxy_rows[] = [
                     'actions' => [
                         'canBeIgnored' => false,
@@ -126,6 +130,8 @@ class GalaxyController extends OGameController
                         ],
                         'playerId' => $player->getId(),
                         'playerName' => $player->getUsername(),
+                        'nameAbbreviations' => $nameAbbreviations,
+                        'isAdmin' => $player->isAdmin(),
                         //'allianceId' => 1,
                         //'allianceName' => 'Test',
                     ],

@@ -145,6 +145,16 @@ class PlayerService
     }
 
     /**
+     * Checks if the player is an admin.
+     *
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->user->hasRole('admin');
+    }
+
+    /**
      * Set username property.
      *
      * @param string $username
@@ -177,6 +187,9 @@ class PlayerService
      */
     public function getUsername(): string
     {
+        if ($this->isAdmin()) {
+            return '<span class="status_abbr_admin">' . $this->user->username . '</span>';
+        }
         return $this->user->username;
     }
 
