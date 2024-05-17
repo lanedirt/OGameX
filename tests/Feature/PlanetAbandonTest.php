@@ -17,7 +17,7 @@ class PlanetAbandonTest extends AccountTestCase
 
         // Attempt to abandon the second planet.
         $response = $this->post('/ajax/planet-abandon/abandon', [
-            'planet_id' => $this->secondPlanetService->getPlanetId(),
+            '_token' => csrf_token(),
             'password' => 'password',
         ]);
         $response->assertStatus(200);
@@ -41,7 +41,7 @@ class PlanetAbandonTest extends AccountTestCase
             foreach ($this->planetService->getPlayer()->planets->all() as $planet) {
                 if ($planet->getPlanetId() !== $this->planetService->getPlanetId()) {
                     $response = $this->post('/ajax/planet-abandon/abandon', [
-                        'planet_id' => $planet->getPlanetId(),
+                        '_token' => csrf_token(),
                         'password' => 'password',
                     ]);
                     $response->assertStatus(200);
