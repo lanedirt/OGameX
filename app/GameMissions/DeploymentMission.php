@@ -2,8 +2,6 @@
 
 namespace OGame\GameMissions;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
-use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMessages\FleetDeployment;
 use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMissions\Abstracts\GameMission;
@@ -35,13 +33,11 @@ class DeploymentMission extends GameMission
 
     /**
      * @inheritdoc
-     * @throws BindingResolutionException
      */
     protected function processArrival(FleetMission $mission): void
     {
         // Load the target planet
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-        $target_planet = $planetServiceFactory->make($mission->planet_id_to);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
 
         // Add resources to the target planet
         $resources = $this->fleetMissionService->getResources($mission);
@@ -71,13 +67,11 @@ class DeploymentMission extends GameMission
 
     /**
      * @inheritdoc
-     * @throws BindingResolutionException
      */
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-        $target_planet = $planetServiceFactory->make($mission->planet_id_to);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
 
         // Transport return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));

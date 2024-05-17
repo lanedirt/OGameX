@@ -2,7 +2,6 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,7 +17,6 @@ class GalaxyController extends OGameController
      * @param Request $request
      * @param PlayerService $player
      * @return View
-     * @throws BindingResolutionException
      */
     public function index(Request $request, PlayerService $player): View
     {
@@ -55,16 +53,15 @@ class GalaxyController extends OGameController
      * @param int $galaxy
      * @param int $system
      * @param PlayerService $player
+     * @param PlanetServiceFactory $planetServiceFactory
      * @return array<int, array<string, array<int|string, array<string, array<string,bool>|bool|int|string>|bool|int|string>|int|string>>
-     * @throws BindingResolutionException
      */
-    public function getGalaxyArray(int $galaxy, int $system, PlayerService $player): array
+    public function getGalaxyArray(int $galaxy, int $system, PlayerService $player, PlanetServiceFactory $planetServiceFactory): array
     {
         // Retrieve all planets from this galaxy and system.
         $planet_list = Planet::where(['galaxy' => $galaxy, 'system' => $system])->get();
         $planets = [];
         foreach ($planet_list as $record) {
-            $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
             $planetService = $planetServiceFactory->make($record->id);
             $planets[$record->planet] = $planetService;
         }
@@ -172,9 +169,8 @@ class GalaxyController extends OGameController
      * @param Request $request
      * @param PlayerService $player
      * @return JsonResponse
-     * @throws BindingResolutionException
      */
-    public function ajax(Request $request, PlayerService $player): JsonResponse
+    public function ajax(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): JsonResponse
     {
         $galaxy = $request->input('galaxy');
         $system = $request->input('system');
@@ -202,7 +198,7 @@ class GalaxyController extends OGameController
                 'deuteriumInDebris' => true,
                 'galaxy' => $galaxy,
                 'system' => $system,
-                'galaxyContent' => $this->getGalaxyArray($galaxy, $system, $player),
+                'galaxyContent' => $this->getGalaxyArray($galaxy, $system, $player, $planetServiceFactory),
                 'hasAdmiral' => false,
                 'hasBirthdayPlanet' => false,
                 'isOutlaw' => false,

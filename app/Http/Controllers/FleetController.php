@@ -81,9 +81,15 @@ class FleetController extends OGameController
     }
 
     /**
-     * @throws BindingResolutionException
+     * Checks the target planet for possible missions.
+     *
+     * @param PlayerService $currentPlayer
+     * @param ObjectService $objects
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @return JsonResponse
+     * @throws Exception
      */
-    public function dispatchCheckTarget(PlayerService $currentPlayer, ObjectService $objects): JsonResponse
+    public function dispatchCheckTarget(PlayerService $currentPlayer, ObjectService $objects, PlanetServiceFactory $planetServiceFactory): JsonResponse
     {
         $currentPlanet = $currentPlayer->planets->current();
 
@@ -106,7 +112,6 @@ class FleetController extends OGameController
         $position = request()->input('position');
         $type = request()->input('type');
         // Load the target planet
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
         $targetPlanet = $planetServiceFactory->makeForCoordinate(new Coordinate($galaxy, $system, $position));
         $targetPlayer = null;
         if ($targetPlanet != null) {
@@ -192,11 +197,10 @@ class FleetController extends OGameController
      * Handles the dispatch of a fleet.
      *
      * @param PlayerService $player
+     * @param FleetMissionService $fleetMissionService
      * @return JsonResponse
-     * @throws BindingResolutionException
-     * @throws Exception
      */
-    public function dispatchSendFleet(PlayerService $player): JsonResponse
+    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
     {
         // Get target coordinates
         $galaxy = request()->input('galaxy');
@@ -250,7 +254,6 @@ holdingtime: 0
         $mission_type = (int)request()->input('mission');
 
         // Create a new fleet mission
-        $fleetMissionService = app()->make(FleetMissionService::class);
         $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $mission_type, $units, $resources);
 
         return response()->json([
@@ -262,13 +265,12 @@ holdingtime: 0
         ]);
     }
 
-    public function dispatchRecallFleet(): JsonResponse
+    public function dispatchRecallFleet(FleetMissionService $fleetMissionService): JsonResponse
     {
         // Get the fleet mission id
         $fleet_mission_id = request()->input('fleet_mission_id');
 
         // Get the fleet mission service
-        $fleetMissionService = app()->make(FleetMissionService::class);
         $fleetMission = $fleetMissionService->getFleetMissionById($fleet_mission_id);
 
         // Recall the fleet mission

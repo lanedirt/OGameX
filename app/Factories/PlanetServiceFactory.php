@@ -2,7 +2,6 @@
 
 namespace OGame\Factories;
 
-use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Models\Planet;
@@ -48,16 +47,19 @@ class PlanetServiceFactory
      *
      * @param int $planetId
      * @return PlanetService
-     * @throws BindingResolutionException
      */
     public function make(int $planetId): PlanetService
     {
         if (!isset($this->instancesById[$planetId])) {
-            $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
-            $this->instancesById[$planetId] = $planetService;
+            try {
+                $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
+                $this->instancesById[$planetId] = $planetService;
 
-            if ($planetService->planetInitialized()) {
-                $this->instancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
+                if ($planetService->planetInitialized()) {
+                    $this->instancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
+                }
+            } catch (BindingResolutionException $e) {
+                throw new \RuntimeException('Class not found: ' . PlayerService::class);
             }
         }
 
@@ -71,13 +73,17 @@ class PlanetServiceFactory
      * @param PlayerService $player
      * @param int $planetId
      * @return PlanetService
-     * @throws BindingResolutionException
      */
     public function makeForPlayer(PlayerService $player, int $planetId): PlanetService
     {
         if (!isset($this->instancesById[$planetId])) {
-            $planetService = app()->make(PlanetService::class, ['player' => $player, 'planet_id' => $planetId]);
-            $this->instancesById[$planetId] = $planetService;
+            try {
+                $planetService = app()->make(PlanetService::class, ['player' => $player, 'planet_id' => $planetId]);
+                $this->instancesById[$planetId] = $planetService;
+            } catch (BindingResolutionException $e) {
+                throw new \RuntimeException('Class not found: ' . PlayerService::class);
+            }
+
             if ($planetService->planetInitialized()) {
                 $this->instancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
             }
@@ -91,7 +97,6 @@ class PlanetServiceFactory
      *
      * @param Coordinate $coordinate
      * @return ?PlanetService
-     * @throws BindingResolutionException
      */
     public function makeForCoordinate(Coordinate $coordinate): ?PlanetService
     {
@@ -105,10 +110,14 @@ class PlanetServiceFactory
                 return null;
             }
 
-            $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planet->id]);
-            $this->instancesByCoordinate[$coordinate->asString()] = $planetService;
-            $this->instancesById[$planetService->getPlanetId()] = $planetService;
-            return $this->instancesByCoordinate[$coordinate->asString()];
+            try {
+                $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planet->id]);
+                $this->instancesByCoordinate[$coordinate->asString()] = $planetService;
+                $this->instancesById[$planetService->getPlanetId()] = $planetService;
+                return $this->instancesByCoordinate[$coordinate->asString()];
+            } catch (BindingResolutionException $e) {
+                throw new \RuntimeException('Class not found: ' . PlayerService::class);
+            }
         }
 
         return $this->instancesByCoordinate[$coordinate->asString()];
@@ -118,7 +127,6 @@ class PlanetServiceFactory
      * Determine next available new planet position.
      *
      * @return Coordinate
-     * @throws Exception
      */
     public function determineNewPlanetPosition(): Coordinate
     {
@@ -163,7 +171,7 @@ class PlanetServiceFactory
         }
 
         // If more than 100 tries have been done with no success, give up.
-        throw new Exception('Unable to determine new planet position.');
+        throw new \RuntimeException('Unable to determine new planet position.');
     }
 
     /**
@@ -172,15 +180,13 @@ class PlanetServiceFactory
      * @param PlayerService $player
      * @param string $planetName
      * @return PlanetService
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function createInitialForPlayer(PlayerService $player, string $planetName): PlanetService
     {
         $new_position = $this->determineNewPlanetPosition();
         if (empty($new_position->galaxy) || empty($new_position->system) || empty($new_position->position)) {
             // Failed to get a new position for the to be created planet. Throw exception.
-            throw new Exception('Unable to determine new planet position.');
+            throw new \RuntimeException('Unable to determine new planet position.');
         }
 
         $createdPlanet = $this->createPlanet($player, $new_position, $planetName);
@@ -198,16 +204,12 @@ class PlanetServiceFactory
      * @param PlayerService $player
      * @param Coordinate $coordinate
      * @return PlanetService
-     * @throws BindingResolutionException
      */
     public function createAdditionalForPlayer(PlayerService $player, Coordinate $coordinate): PlanetService
     {
         return $this->createPlanet($player, $coordinate, 'Colony');
     }
 
-    /**
-     * @throws BindingResolutionException
-     */
     private function createPlanet(PlayerService $player, Coordinate $new_position, string $planet_name): PlanetService
     {
         // Position is available

@@ -2,7 +2,6 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Services\HighscoreService;
@@ -58,13 +57,9 @@ class HighscoreController extends OGameController
      * @param Request $request
      * @param PlayerService $player
      * @return View
-     * @throws BindingResolutionException
      */
-    public function ajaxPlayer(Request $request, PlayerService $player): View
+    public function ajaxPlayer(Request $request, PlayerService $player, HighscoreService $highscoreService): View
     {
-        // Create highscore service.
-        $highscoreService = app()->make(HighscoreService::class);
-
         // Check if we received type parameter, if so, use it to determine which highscore type to show.
         // 0 = points
         // 1 = economy
@@ -111,14 +106,12 @@ class HighscoreController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
+     * @param HighscoreService $highscoreService
      * @return View
-     * @throws BindingResolutionException
      */
-    public function ajaxAlliance(Request $request, PlayerService $player): View
+    public function ajaxAlliance(Request $request, PlayerService $player, HighscoreService $highscoreService): View
     {
         // TODO: implement alliance highscore.
-        // Create highscore service.
-        $highscoreService = app()->make(HighscoreService::class);
 
         // Check if we received type parameter, if so, use it to determine which highscore type to show.
         // 0 = points

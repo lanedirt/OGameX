@@ -3,7 +3,7 @@
 namespace OGame\Http\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Container\BindingResolutionException;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use OGame\Services\ObjectService;
@@ -18,7 +18,7 @@ class GlobalGame
      * @param Request $request
      * @param Closure $next
      * @return mixed
-     * @throws BindingResolutionException
+     * @throws Exception
      */
     public function handle(Request $request, Closure $next): mixed
     {
