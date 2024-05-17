@@ -109,6 +109,13 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
         Route::get('/overlay/payment/iframe', 'PaymentController@iframe')->name('payment.iframesrc');
 
         Route::get('/lang/{lang}', 'LanguageController@switchLang')->name('language.switch');
+    });
+});
 
+// Group: all logged in pages:
+Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () {
+    Route::namespace('OGame\Http\Controllers\Admin')->group(function () {
+        // Overview
+        Route::get('/admin/server-settings', 'ServerSettingsController@index')->name('admin.serversettings.index');
     });
 });

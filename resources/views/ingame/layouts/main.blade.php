@@ -70,6 +70,9 @@
     <br/>
     Have fun playing!
 </div>
+@if ($currentPlayer->isAdmin())
+    @include ('ingame.layouts.admin-menu', ['currentPlayer' => $currentPlayer])
+@endif
 <div id="siteHeader"></div>
 <div id="pageContent">
     <div id="top">
@@ -297,14 +300,14 @@ Combat simulation save slots +20">
                 <ul id="menuTable" class="leftmenu">
 
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('rewards.index') }}"
-                                               class="tooltipRight js_hideTipOnMobile "
-                                               target="_self"
-                                               title="Rewards">
-                            <div class="menuImage overview {{(Request::is('rewards') || Request::is('overview') ? 'highlighted' : '') }}"></div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('rewards.index') }}"
+                               class="tooltipRight js_hideTipOnMobile "
+                               target="_self"
+                               title="Rewards">
+                                <div class="menuImage overview {{(Request::is('rewards') || Request::is('overview') ? 'highlighted' : '') }}"></div>
+                            </a>
+                        </span>
                         <a class="menubutton {{(Request::is('overview') ? 'selected' : '') }}"
                            href="{{ route('overview.index') }}"
                            accesskey=""
@@ -315,16 +318,14 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('resources.settings') }}"
-                                               class="tooltipRight js_hideTipOnMobile "
-                                               target="_self"
-                                               title="Resource settings">
-                            <div class="menuImage resources {{(Request::is('resources*') ? 'highlighted' : '') }}
-                                ">
-                            </div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('resources.settings') }}"
+                               class="tooltipRight js_hideTipOnMobile "
+                               target="_self"
+                               title="Resource settings">
+                                <div class="menuImage resources {{(Request::is('resources*') ? 'highlighted' : '') }}"></div>
+                            </a>
+                        </span>
                         <a class="menubutton {{(Request::is('resources*') ? 'selected' : '') }}"
                            href="{{ route('resources.index') }}"
                            accesskey=""
@@ -335,9 +336,9 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage station {{(Request::is('facilities') ? 'highlighted' : '') }}"></div>
-                                    </span>
+                        <span class="menu_icon">
+                            <div class="menuImage station {{(Request::is('facilities') ? 'highlighted' : '') }}"></div>
+                        </span>
                         <a class="menubutton {{(Request::is('facilities') ? 'selected' : '') }}"
                            href="{{ route('facilities.index') }}"
                            accesskey=""
@@ -348,15 +349,15 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('merchant.index') }}#page=traderResources&amp;animation=false"
-                                               class="trader tooltipRight js_hideTipOnMobile "
-                                               target="_self"
-                                               title="Resource Market">
-                            <div class="menuImage traderOverview {{(Request::is('merchant') ? 'highlighted' : '') }}">
-                            </div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('merchant.index') }}#page=traderResources&amp;animation=false"
+                               class="trader tooltipRight js_hideTipOnMobile "
+                               target="_self"
+                               title="Resource Market">
+                                <div class="menuImage traderOverview {{(Request::is('merchant') ? 'highlighted' : '') }}">
+                                </div>
+                            </a>
+                        </span>
                         <a class="menubutton premiumHighligt {{(Request::is('merchant') ? 'selected' : '') }}"
                            href="{{ route('merchant.index') }}"
                            accesskey=""
@@ -367,15 +368,15 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => 1, 'open' => 'all']) }}"
-                                               class="overlay tooltipRight js_hideTipOnMobile "
-                                               target="_blank"
-                                               title="Technology">
-                            <div class="menuImage research {{(Request::is('research') ? 'highlighted' : '') }}">
-                            </div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => 1, 'open' => 'all']) }}"
+                               class="overlay tooltipRight js_hideTipOnMobile "
+                               target="_blank"
+                               title="Technology">
+                                <div class="menuImage research {{(Request::is('research') ? 'highlighted' : '') }}">
+                                </div>
+                            </a>
+                        </span>
                         <a class="menubutton {{(Request::is('research') ? 'selected' : '') }}"
                            href="{{ route('research.index') }}"
                            accesskey=""
@@ -386,9 +387,9 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage shipyard {{(Request::is('shipyard') ? 'highlighted' : '') }}"></div>
-                                    </span>
+                        <span class="menu_icon">
+                            <div class="menuImage shipyard {{(Request::is('shipyard') ? 'highlighted' : '') }}"></div>
+                        </span>
                         <a class="menubutton {{(Request::is('shipyard') ? 'selected' : '') }}"
                            href="{{ route('shipyard.index') }}"
                            accesskey=""
@@ -399,9 +400,9 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage defense {{(Request::is('defense') ? 'highlighted' : '') }}"></div>
-                                    </span>
+                        <span class="menu_icon">
+                            <div class="menuImage defense {{(Request::is('defense') ? 'highlighted' : '') }}"></div>
+                        </span>
                         <a class="menubutton {{(Request::is('defense') ? 'selected' : '') }}"
                            href="{{ route('defense.index') }}"
                            accesskey=""
@@ -412,15 +413,15 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('fleet.movement') }}"
-                                               class="tooltipRight js_hideTipOnMobile "
-                                               target="_self"
-                                               title="Fleet movement">
-                            <div class="menuImage fleet1 {{(Request::is('fleet*') ? 'highlighted' : '') }}">
-                            </div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('fleet.movement') }}"
+                               class="tooltipRight js_hideTipOnMobile "
+                               target="_self"
+                               title="Fleet movement">
+                                <div class="menuImage fleet1 {{(Request::is('fleet*') ? 'highlighted' : '') }}">
+                                </div>
+                            </a>
+                        </span>
                         <a class="menubutton {{(Request::is('fleet*') ? 'selected' : '') }}"
                            href="{{ route('fleet.index') }}"
                            accesskey=""
@@ -431,9 +432,9 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage galaxy {{(Request::is('galaxy') ? 'highlighted' : '') }}"></div>
-                                    </span>
+                        <span class="menu_icon">
+                            <div class="menuImage galaxy {{(Request::is('galaxy') ? 'highlighted' : '') }}"></div>
+                        </span>
                         <a class="menubutton {{(Request::is('galaxy') ? 'selected' : '') }}"
                            href="{{ route('galaxy.index') }}"
                            accesskey=""
@@ -444,9 +445,9 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage alliance {{(Request::is('alliance') ? 'highlighted' : '') }}"></div>
-                                    </span>
+                        <span class="menu_icon">
+                            <div class="menuImage alliance {{(Request::is('alliance') ? 'highlighted' : '') }}"></div>
+                        </span>
                         <a class="menubutton {{(Request::is('alliance') ? 'selected' : '') }}"
                            href="{{ route('alliance.index') }}"
                            accesskey=""
@@ -457,28 +458,27 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage premium {{(Request::is('premium') ? 'highlighted' : '') }}"></div>
-                                    </span>
-                        <a class="menubutton premiumHighligt officers {{(Request::is('premium') ? 'selected' : '') }}"
-                           href="{{ route('premium.index') }}"
-                           accesskey=""
-                           target="_self"
-                        >
-                            <span class="textlabel">@lang('Recruit Officers')</span>
-                        </a>
+                        <span class="menu_icon">
+                            <div class="menuImage premium {{(Request::is('premium') ? 'highlighted' : '') }}"></div>
+                        </span>
+                            <a class="menubutton premiumHighligt officers {{(Request::is('premium') ? 'selected' : '') }}"
+                               href="{{ route('premium.index') }}"
+                               accesskey=""
+                               target="_self"
+                            >
+                                <span class="textlabel">@lang('Recruit Officers')</span>
+                            </a>
                     </li>
-
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('shop.index') }}#page=inventory"
-                                               class="tooltipRight js_hideTipOnMobile "
-                                               target="_self"
-                                               title="Inventory">
-                            <div class="menuImage shop {{(Request::is('shop') ? 'highlighted' : '') }}">
-                            </div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('shop.index') }}#page=inventory"
+                               class="tooltipRight js_hideTipOnMobile "
+                               target="_self"
+                               title="Inventory">
+                                <div class="menuImage shop {{(Request::is('shop') ? 'highlighted' : '') }}">
+                                </div>
+                            </a>
+                        </span>
                         <a class="menubutton premiumHighligt {{(Request::is('shop') ? 'selected' : '') }}"
                            href="{{ route('shop.index') }}"
                            accesskey=""
@@ -493,7 +493,8 @@ Combat simulation save slots +20">
                     <ul id="menuTableTools" class="leftmenu"></ul>
                 </div>
                 <br class="clearfloat">
-            </div>    </div>
+            </div>
+        </div>
         <div id="advicebarcomponent" class="">
             <div class="adviceWrapper">
 
@@ -1122,47 +1123,6 @@ Combat simulation save slots +20">
 
 <!-- #MMO:NETBAR# -->
 <div id="pagefoldtarget"></div>
-<noscript>
-    <style type="text/css">
-
-        body {
-            margin: 0;
-            padding: 0;
-        }
-
-        #mmonetbar {
-            background: transparent url('/img/bg/ab65c4951f415dff50d74738c953b5.jpg') repeat-x;
-            font: normal 11px Tahoma, Arial, Helvetica, sans-serif;
-            height: 32px;
-            left: 0;
-            padding: 0;
-            position: absolute;
-            text-align: center;
-            top: 0;
-            width: 100%;
-            z-index: 3000;
-        }
-
-        #mmonetbar #mmoContent {
-            height: 32px;
-            margin: 0 auto;
-            width: 1024px;
-            position: relative;
-        }
-
-        #mmonetbar #mmoLogo {
-            float: left;
-            display: block;
-            height: 32px;
-            width: 108px;
-            text-indent: -9999px;
-        }
-
-        #mmonetbar #mmoNews, #mmonetbar #mmoGame, #mmonetbar #mmoFocus, #pagefoldtarget {
-            display: none !important;
-        }
-    </style>
-</noscript>
 
 <!-- ogame/en ingame 16.12.2017 12:46 -->
 <script type="text/javascript">

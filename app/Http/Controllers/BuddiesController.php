@@ -13,7 +13,6 @@ class BuddiesController extends OGameController
      */
     public function index(): View
     {
-        $this->setBodyId('buddies');
         return view('ingame.buddies.index');
     }
 }

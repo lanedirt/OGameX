@@ -15,8 +15,7 @@
     <div id="inhalt" class="officers">
         <div id="planet">
             <div id="header_text">
-                <h2>
-                    Recruit Officers     		</h2>
+                <h2>Recruit Officers</h2>
             </div>
 
             <div id="detail" class="detail_screen small">
