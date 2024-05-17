@@ -77,7 +77,7 @@ abstract class AccountTestCase extends TestCase
         $formData = [
             '_token' => csrf_token(),
             'email' => $randomEmail,
-            'password' => 'asdasdasd',
+            'password' => 'password',
             'v' => '3',
             'step' => 'validate',
             'kid' => '',

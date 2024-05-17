@@ -60,7 +60,7 @@ class PlanetListService
         }
 
         // If no planets, create at least one.
-        if (count($this->planets) < 2) {
+        if (count($this->planets) < 1) {
             // TODO: move this logic to the user creation logic as well as the tech records.
             // For testing purposes: give all players two random planets at registration.
             // Normally it should be just the Homeworld.
