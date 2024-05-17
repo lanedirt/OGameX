@@ -3,7 +3,6 @@
 namespace OGame\ViewModels;
 
 use Illuminate\Support\Carbon;
-use InvalidArgumentException;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Factories\GameMessageFactory;
