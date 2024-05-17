@@ -10,6 +10,9 @@ return new class () extends Migration {
      */
     public function up(): void
     {
+        // Delete all existing messages in the table.
+        DB::table('messages')->truncate();
+
         Schema::table('messages', function (Blueprint $table) {
             $table->dropColumn('type');
             $table->string('key')->after('user_id');

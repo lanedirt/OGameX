@@ -131,13 +131,12 @@ class MessageService
      * @param string $tab
      * @param string $subtab
      * @return MessageViewModel[] Array of MessageViewModel objects.
-     * @throws BindingResolutionException
      */
     public function getMessagesForTab(string $tab, string $subtab): array
     {
         // If subtab is empty, we use the first subtab of the tab.
         if (empty($subtab)) {
-            $subtab = array_key_first($this->tabs[$tab]);
+            $subtab = $this->tabs[$tab][0];
         }
 
         // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
