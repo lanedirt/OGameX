@@ -2,7 +2,6 @@
 
 namespace OGame\Services;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\GameMessageFactory;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMessages\WelcomeMessage;
@@ -170,9 +169,6 @@ class MessageService
             ->count();
     }
 
-    /**
-     * @throws BindingResolutionException
-     */
     public function getUnreadMessagesCountForTab(string $tab): int
     {
         // Get all keys for the tab.
@@ -184,9 +180,6 @@ class MessageService
             ->count();
     }
 
-    /**
-     * @throws BindingResolutionException
-     */
     public function getUnreadMessagesCountForSubTab(string $tab, string $subtab): int
     {
         // Get all keys for the subtab.

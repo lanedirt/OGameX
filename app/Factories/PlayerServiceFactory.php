@@ -19,13 +19,16 @@ class PlayerServiceFactory
      *
      * @param int $playerId
      * @return PlayerService
-     * @throws BindingResolutionException
      */
     public function make(int $playerId): PlayerService
     {
         if (!isset($this->instances[$playerId])) {
-            $playerService = app()->make(PlayerService::class, ['player_id' => $playerId]);
-            $this->instances[$playerId] = $playerService;
+            try {
+                $playerService = app()->make(PlayerService::class, ['player_id' => $playerId]);
+                $this->instances[$playerId] = $playerService;
+            } catch (BindingResolutionException $e) {
+                throw new \RuntimeException('Class not found: ' . PlayerService::class);
+            }
         }
 
         return $this->instances[$playerId];

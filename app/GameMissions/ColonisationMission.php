@@ -3,9 +3,7 @@
 namespace OGame\GameMissions;
 
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\PlanetServiceFactory;
-use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
@@ -61,17 +59,14 @@ class ColonisationMission extends GameMission
 
     /**
      * @inheritdoc
-     * @throws BindingResolutionException
      */
     protected function processArrival(FleetMission $mission): void
     {
         // Sanity check: make sure the target coordinates are valid and the planet is (still) empty.
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-        $target_planet = $planetServiceFactory->makeForCoordinate(new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
+        $target_planet = $this->planetServiceFactory->makeForCoordinate(new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
 
         // Load the mission owner user
-        $playerServiceFactory = app()->make(PlayerServiceFactory::class);
-        $player = $playerServiceFactory->make($mission->user_id);
+        $player = $this->playerServiceFactory->make($mission->user_id);
 
         if ($target_planet != null) {
             // TODO: add unittest for this behavior.
@@ -91,7 +86,7 @@ class ColonisationMission extends GameMission
         }
 
         // Create a new planet at the target coordinates.
-        $target_planet = $planetServiceFactory->createAdditionalForPlayer($player, new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
+        $target_planet = $this->planetServiceFactory->createAdditionalForPlayer($player, new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
 
         // Send success message
         $this->messageService->sendSystemMessageToPlayer($player, ColonyEstablished::class, [
@@ -118,13 +113,11 @@ class ColonisationMission extends GameMission
 
     /**
      * @inheritdoc
-     * @throws BindingResolutionException
      */
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-        $target_planet = $planetServiceFactory->make($mission->planet_id_to);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
 
         // Transport return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));

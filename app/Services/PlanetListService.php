@@ -3,7 +3,6 @@
 namespace OGame\Services;
 
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet as Planet;
 
@@ -31,10 +30,16 @@ class PlanetListService
     protected PlayerService $player;
 
     /**
+     * @var PlanetServiceFactory $planetServiceFactory
+     */
+    protected PlanetServiceFactory $planetServiceFactory;
+
+    /**
      * Planets constructor.
      */
-    public function __construct(PlayerService $player)
+    public function __construct(PlayerService $player, PlanetServiceFactory $planetServiceFactory)
     {
+        $this->planetServiceFactory = $planetServiceFactory;
         $this->player = $player;
         $this->load($player->getId());
     }
@@ -44,17 +49,13 @@ class PlanetListService
      *
      * @param int $id
      * @return void
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function load(int $id): void
     {
         // Get all planets of user
         $planets = Planet::where('user_id', $id)->get();
         foreach ($planets as $record) {
-            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
-            $planetService = $planetServiceFactory->makeForPlayer($this->player, $record->id);
-
+            $planetService = $this->planetServiceFactory->makeForPlayer($this->player, $record->id);
             $this->planets[] = $planetService;
         }
 
@@ -65,9 +66,7 @@ class PlanetListService
             // Normally it should be just the Homeworld.
             $planetNames = ['Homeworld', 'Colony'];
             for ($i = 0; $i <= (2 - count($this->planets)); $i++) {
-                $planetServiceFactory = app()->make(PlanetServiceFactory::class);
-                $planetService = $planetServiceFactory->createInitialForPlayer($this->player, $planetNames[$i]);
-
+                $planetService = $this->planetServiceFactory->createInitialForPlayer($this->player, $planetNames[$i]);
                 $this->planets[] = $planetService;
             }
 
@@ -76,12 +75,6 @@ class PlanetListService
             $message = new MessageService($this->player);
             $message->sendWelcomeMessage();
         }
-        /*if (empty($this->planets)) {
-            $planet = resolve('OGame\Services\PlanetService');
-            $planet->create($id);
-
-            $this->planets[] = $planet;
-        }*/
     }
 
     /**

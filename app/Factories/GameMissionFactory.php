@@ -7,12 +7,12 @@ use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\ColonisationMission;
 use OGame\GameMissions\DeploymentMission;
 use OGame\GameMissions\TransportMission;
+use OGame\Services\PlayerService;
 
 class GameMissionFactory
 {
     /**
      * @return array<GameMission>
-     * @throws BindingResolutionException
      */
     public static function getAllMissions(): array
     {
@@ -30,11 +30,15 @@ class GameMissionFactory
           "15": "Expedition"
         }
         */
-        return [
-            3 => app()->make(TransportMission::class),
-            4 => app()->make(DeploymentMission::class),
-            7 => app()->make(ColonisationMission::class),
-        ];
+        try {
+            return [
+                3 => app()->make(TransportMission::class),
+                4 => app()->make(DeploymentMission::class),
+                7 => app()->make(ColonisationMission::class),
+            ];
+        } catch (BindingResolutionException $e) {
+            throw new \RuntimeException('Class not found: ' . PlayerService::class);
+        }
     }
 
     /**
@@ -42,19 +46,22 @@ class GameMissionFactory
      * @param array<string,mixed> $dependencies
      *
      * @return GameMission
-     * @throws BindingResolutionException
      */
     public static function getMissionById(int $missionId, array $dependencies): GameMission
     {
-        switch ($missionId) {
-            case 3:
-                return app()->make(TransportMission::class, $dependencies);
-            case 4:
-                return app()->make(DeploymentMission::class, $dependencies);
-            case 7:
-                return app()->make(ColonisationMission::class, $dependencies);
+        try {
+            switch ($missionId) {
+                case 3:
+                    return app()->make(TransportMission::class, $dependencies);
+                case 4:
+                    return app()->make(DeploymentMission::class, $dependencies);
+                case 7:
+                    return app()->make(ColonisationMission::class, $dependencies);
+            }
+            $missions = self::getAllMissions();
+            return $missions[$missionId];
+        } catch (BindingResolutionException $e) {
+            throw new \RuntimeException('Class not found: ' . PlayerService::class);
         }
-        $missions = self::getAllMissions();
-        return $missions[$missionId];
     }
 }

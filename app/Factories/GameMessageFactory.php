@@ -31,13 +31,16 @@ class GameMessageFactory
 
     /**
      * @return array<GameMessage>
-     * @throws BindingResolutionException
      */
     public static function getAllGameMessages(): array
     {
         $gameMessages = [];
         foreach (self::$gameMessageClasses as $id => $class) {
-            $gameMessages[$id] = app()->make($class);
+            try {
+                $gameMessages[$id] = app()->make($class);
+            } catch (BindingResolutionException $e) {
+                throw new \RuntimeException('Game message not found: ' . $class);
+            }
         }
         return $gameMessages;
     }
@@ -46,15 +49,14 @@ class GameMessageFactory
      * @param string $key
      *
      * @return GameMessage
-     * @throws BindingResolutionException
      */
     public static function createGameMessage(string $key): GameMessage
     {
-        if (!isset(self::$gameMessageClasses[$key])) {
-            throw new BindingResolutionException("GameMessage with key $key not found.");
+        try {
+            return app()->make(self::$gameMessageClasses[$key]);
+        } catch (BindingResolutionException $e) {
+            throw new \RuntimeException('Game message not found: ' . $key);
         }
-
-        return app()->make(self::$gameMessageClasses[$key]);
     }
 
     /**
@@ -64,17 +66,21 @@ class GameMessageFactory
      * @param string $tab
      * @param string|null $subtab
      * @return array<int, string>
-     * @throws BindingResolutionException
      */
     public static function GetGameMessageKeysByTab(string $tab, ?string $subtab = null): array
     {
         $matchingKeys = [];
 
-        foreach (self::$gameMessageClasses as $id => $class) {
-            $gameMessage = app()->make($class);
-            if ($gameMessage->getTab() === $tab && ($subtab === null || $gameMessage->getSubtab() === $subtab)) {
-                $matchingKeys[] = $id;
+        foreach (self::$gameMessageClasses as $id => $className) {
+            try {
+                $gameMessage = app()->make($className);
+                if ($gameMessage->getTab() === $tab && ($subtab === null || $gameMessage->getSubtab() === $subtab)) {
+                    $matchingKeys[] = $id;
+                }
+            } catch (BindingResolutionException $e) {
+                throw new \RuntimeException('Game message not found: ' . $className);
             }
+
         }
 
         return $matchingKeys;

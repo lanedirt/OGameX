@@ -3,8 +3,8 @@
 namespace OGame\Services;
 
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Facades\AppUtil;
+use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
 
 /**
@@ -22,11 +22,14 @@ class HighscoreService
      */
     protected int $highscoreType;
 
+    protected PlayerServiceFactory $playerServiceFactory;
+
     /**
      * Highscore constructor.
      */
-    public function __construct()
+    public function __construct(PlayerServiceFactory $playerServiceFactory)
     {
+        $this->playerServiceFactory = $playerServiceFactory;
     }
 
     /**
@@ -122,7 +125,6 @@ class HighscoreService
      * @param int $offset_start
      * @param int $return_amount
      * @return array<int, array<string,mixed>>
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function getHighscorePlayers(int $offset_start = 0, int $return_amount = 100): array
     {
@@ -138,7 +140,7 @@ class HighscoreService
             // TODO: we get the player score per player now, but we should get it from a cached highscore table
             // to improve performance. Currently it works but is slow for large amounts of players.
             // Load player object with all planets.
-            $playerService = app()->make(PlayerService::class, ['player_id' => $player->id]);
+            $playerService = $this->playerServiceFactory->make($player->id);
             $score = 0;
             switch ($this->highscoreType) {
                 case 1:
@@ -193,7 +195,6 @@ class HighscoreService
      *
      * @param PlayerService $player
      * @return int
-     * @throws BindingResolutionException
      */
     public function getHighscorePlayerRank(PlayerService $player): int
     {
