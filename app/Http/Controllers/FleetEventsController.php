@@ -2,11 +2,11 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
@@ -17,16 +17,12 @@ class FleetEventsController extends OGameController
     /**
      * Returns fleet mission eventbox JSON.
      *
+     * @param FleetMissionService $fleetMissionService
      * @return JsonResponse
-     * @throws BindingResolutionException
      */
-    public function fetchEventBox(): JsonResponse
+    public function fetchEventBox(FleetMissionService $fleetMissionService): JsonResponse
     {
-        /*
-         * {"components":[],"hostile":0,"neutral":0,"friendly":1,"eventType":"friendly","eventTime":3470,"eventText":"Transport","newAjaxToken":"6f0e9c23c750fcfc85de4833c79fec39"}
-         */
         // Get all the fleet movements for the current user.
-        $fleetMissionService = app()->make(FleetMissionService::class);
         $friendlyMissionRows = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 
         if ($friendlyMissionRows->isEmpty()) {
@@ -36,12 +32,19 @@ class FleetEventsController extends OGameController
                 'time_next_mission' => 0,
             ];
         } else {
+            $firstMission = $friendlyMissionRows->first();
+
+            // Make sure $firstMission is an instance of FleetMission
+            if (!$firstMission instanceof FleetMission) {
+                throw new \UnexpectedValueException('Expected instance of FleetMission.');
+            }
+
             // TODO: make it a (view)model return type
             // TODO: refactor data retrieval and processing... duplicate with fetchEventList
             $friendlyMissions = [
                 'mission_count' => $friendlyMissionRows->count(),
-                'type_next_mission' => $fleetMissionService->missionTypeToLabel($friendlyMissionRows->first()->mission_type) . ($friendlyMissionRows->first()->parent_id ? ' (R)' : ''),
-                'time_next_mission' => $friendlyMissionRows->first()->time_arrival - (int)Carbon::now()->timestamp,
+                'type_next_mission' => $fleetMissionService->missionTypeToLabel($firstMission->mission_type) . ($firstMission->parent_id ? ' (R)' : ''),
+                'time_next_mission' => $firstMission->time_arrival - (int)Carbon::now()->timestamp,
             ];
         }
 
@@ -60,20 +63,18 @@ class FleetEventsController extends OGameController
     /**
      * Fetch the fleet event list HTML which contains all the fleet mission details.
      *
+     * @param FleetMissionService $fleetMissionService
+     * @param PlanetServiceFactory $planetServiceFactory
      * @return View
-     * @throws BindingResolutionException
      */
-    public function fetchEventList(): View
+    public function fetchEventList(FleetMissionService $fleetMissionService, PlanetServiceFactory $planetServiceFactory): View
     {
         // Get all the fleet movements for the current user.
-        $fleetMissionService = app()->make(FleetMissionService::class);
         $friendlyMissionRows = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 
         $fleet_events = [];
         foreach ($friendlyMissionRows as $row) {
             // Planet from service
-            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
-
             $eventRowViewModel = new FleetEventRowViewModel();
             $eventRowViewModel->id = $row->id;
             $eventRowViewModel->mission_type = $row->mission_type;

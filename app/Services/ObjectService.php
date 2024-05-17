@@ -124,7 +124,6 @@ class ObjectService
      *
      * @param string $machine_name
      * @return BuildingObject
-     * @throws Exception
      */
     public function getBuildingObjectByMachineName(string $machine_name): BuildingObject
     {
@@ -135,7 +134,7 @@ class ObjectService
             }
         }
 
-        throw new Exception('Building not found');
+        throw new \RuntimeException('Building not found');
     }
 
     /**
@@ -143,7 +142,6 @@ class ObjectService
      *
      * @param string $machine_name
      * @return ShipObject
-     * @throws Exception
      */
     public function getShipObjectByMachineName(string $machine_name): ShipObject
     {
@@ -155,7 +153,7 @@ class ObjectService
             }
         }
 
-        throw new Exception('Ship not found');
+        throw new \RuntimeException('Ship not found');
     }
 
     /**
@@ -163,7 +161,6 @@ class ObjectService
      *
      * @param int $object_id
      * @return GameObject
-     * @throws Exception
      */
     public function getObjectById(int $object_id): GameObject
     {
@@ -175,7 +172,7 @@ class ObjectService
             }
         }
 
-        throw new Exception('Game object not found with ID: ' . $object_id);
+        throw new \RuntimeException('Game object not found with ID: ' . $object_id);
     }
 
     /**
@@ -183,7 +180,6 @@ class ObjectService
      *
      * @param string $machine_name
      * @return GameObject
-     * @throws Exception
      */
     public function getObjectByMachineName(string $machine_name): GameObject
     {
@@ -195,7 +191,7 @@ class ObjectService
             }
         }
 
-        throw new Exception('Game object not found with machine name: ' . $machine_name);
+        throw new \RuntimeException('Game object not found with machine name: ' . $machine_name);
     }
 
     /**
@@ -203,7 +199,6 @@ class ObjectService
      *
      * @param string $machine_name
      * @return ResearchObject
-     * @throws Exception
      */
     public function getResearchObjectByMachineName(string $machine_name): ResearchObject
     {
@@ -215,7 +210,7 @@ class ObjectService
             }
         }
 
-        throw new Exception('Unit object not found with machine name: ' . $machine_name);
+        throw new \RuntimeException('Unit object not found with machine name: ' . $machine_name);
     }
 
     /**
@@ -223,7 +218,6 @@ class ObjectService
      *
      * @param int $object_id
      * @return ResearchObject
-     * @throws Exception
      */
     public function getResearchObjectById(int $object_id): ResearchObject
     {
@@ -235,7 +229,7 @@ class ObjectService
             }
         }
 
-        throw new Exception('Unit object not found with object ID: ' . $object_id);
+        throw new \RuntimeException('Unit object not found with object ID: ' . $object_id);
     }
 
     /**
@@ -243,7 +237,6 @@ class ObjectService
      *
      * @param int $object_id
      * @return UnitObject
-     * @throws Exception
      */
     public function getUnitObjectById(int $object_id): UnitObject
     {
@@ -254,7 +247,7 @@ class ObjectService
             }
         }
 
-        throw new Exception('Unit object not found with object ID: ' . $object_id);
+        throw new \RuntimeException('Unit object not found with object ID: ' . $object_id);
     }
 
     /**
@@ -262,7 +255,6 @@ class ObjectService
      *
      * @param string $machine_name
      * @return UnitObject
-     * @throws Exception
      */
     public function getUnitObjectByMachineName(string $machine_name): UnitObject
     {
@@ -274,7 +266,7 @@ class ObjectService
             }
         }
 
-        throw new Exception('Unit object not found with machine name: ' . $machine_name);
+        throw new \RuntimeException('Unit object not found with machine name: ' . $machine_name);
     }
 
     /**
@@ -300,7 +292,6 @@ class ObjectService
      *
      * @param string $machine_name
      * @return BuildingObject
-     * @throws Exception
      */
     public function getBuildingObjectsWithProductionByMachineName(string $machine_name): BuildingObject
     {
@@ -310,7 +301,7 @@ class ObjectService
             }
         }
 
-        throw new Exception('Building not found with production value for machine name: ' . $machine_name);
+        throw new \RuntimeException('Building not found with production value for machine name: ' . $machine_name);
     }
 
     /**

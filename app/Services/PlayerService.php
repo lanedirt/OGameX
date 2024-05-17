@@ -49,9 +49,9 @@ class PlayerService
      * Player constructor.
      *
      * @param int $player_id
-     * @throws BindingResolutionException
+     * @param ObjectService $objectService
      */
-    public function __construct(int $player_id)
+    public function __construct(int $player_id, ObjectService $objectService)
     {
         // Load the player object if a positive player ID is given.
         // If no player ID is given then player context will not be available, but this can be fine for unittests.
@@ -59,7 +59,7 @@ class PlayerService
             $this->load($player_id);
         }
 
-        $this->objects = resolve('OGame\Services\ObjectService');
+        $this->objects = $objectService;
     }
 
     /**
@@ -77,7 +77,6 @@ class PlayerService
      * Load player object by user ID.
      *
      * @param int $id
-     * @throws BindingResolutionException
      */
     public function load(int $id): void
     {
@@ -98,8 +97,12 @@ class PlayerService
         $this->setUserTech($tech);
 
         // Fetch all planets of user
-        $planet_list_service = app()->make(PlanetListService::class, ['player' => $this]);
-        $this->planets = $planet_list_service;
+        try {
+            $planet_list_service = app()->make(PlanetListService::class, ['player' => $this]);
+            $this->planets = $planet_list_service;
+        } catch (BindingResolutionException $e) {
+            throw new \RuntimeException('Class not found: ' . PlanetListService::class);
+        }
     }
 
     /**
@@ -217,7 +220,6 @@ class PlayerService
      *
      * @param string $machine_name
      * @return int
-     * @throws Exception
      */
     public function getResearchLevel(string $machine_name): int
     {

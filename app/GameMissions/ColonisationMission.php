@@ -4,7 +4,6 @@ namespace OGame\GameMissions;
 
 use Exception;
 use OGame\Factories\PlanetServiceFactory;
-use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;

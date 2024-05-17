@@ -3,7 +3,6 @@
 namespace OGame\Services;
 
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
@@ -52,9 +51,8 @@ class PlanetService
      *
      * @param int $planet_id
      *  If supplied the constructor will try to load the planet from the database.
-     * @throws BindingResolutionException
      */
-    public function __construct(?PlayerService $player = null, int $planet_id = 0)
+    public function __construct(ObjectService $objectService, PlayerServiceFactory $playerServiceFactory, ?PlayerService $player = null, int $planet_id = 0)
     {
         // Load the planet object if a positive planet ID is given.
         // If no planet ID is given then planet context will not be available
@@ -64,7 +62,6 @@ class PlanetService
 
             if ($player === null) {
                 // No player has been provided, so we load it ourselves here.
-                $playerServiceFactory = app()->make(PlayerServiceFactory::class);
                 $playerService = $playerServiceFactory->make($this->planet->user_id);
                 $this->player = $playerService;
             } else {
@@ -74,7 +71,7 @@ class PlanetService
             $this->player = $player;
         }
 
-        $this->objects = resolve(ObjectService::class);
+        $this->objects = $objectService;
     }
 
     /**
@@ -424,7 +421,7 @@ class PlanetService
         // Sanity check that this planet has enough resources, if not throw
         // exception.
         if (!$this->hasResources($resources)) {
-            throw new Exception('Planet does not have enough resources.');
+            throw new \RuntimeException('Planet does not have enough resources.');
         }
 
         if (!empty($resources->metal->get())) {
@@ -470,7 +467,6 @@ class PlanetService
      *
      * @param UnitCollection $units
      * @return bool
-     * @throws Exception
      */
     public function hasUnits(UnitCollection $units): bool
     {
@@ -1530,16 +1526,17 @@ class PlanetService
         return (int)floor($resources_spent / 1000);
     }
 
-    /**
-     * @throws BindingResolutionException
-     */
     public function updateFleetMissions(bool $save_planet = true): void
     {
-        $fleet_missions = resolve(FleetMissionService::class);
-        $missions = $fleet_missions->getMissionsByPlanetId($this->getPlanetId());
+        try {
+            $fleetMissionService = app()->make(FleetMissionService::class);
+            $missions = $fleetMissionService->getMissionsByPlanetId($this->getPlanetId());
 
-        foreach ($missions as $mission) {
-            $fleet_missions->updateMission($mission);
+            foreach ($missions as $mission) {
+                $fleetMissionService->updateMission($mission);
+            }
+        } catch (Exception $e) {
+            throw new \RuntimeException('Fleet mission service not found.');
         }
     }
 }

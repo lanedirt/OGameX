@@ -14,14 +14,15 @@ class HighscoreController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
+     * @param HighscoreService $highscoreService
      * @return View
      */
-    public function index(Request $request, PlayerService $player): View
+    public function index(Request $request, PlayerService $player, HighscoreService $highscoreService): View
     {
         $this->setBodyId('highscore');
 
         return view('ingame.highscore.index')->with([
-            'initialContent' => $this->ajax($request, $player),
+            'initialContent' => $this->ajax($request, $player, $highscoreService),
         ]);
     }
 
@@ -30,9 +31,10 @@ class HighscoreController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
+     * @param HighscoreService $highscoreService
      * @return View
      */
-    public function ajax(Request $request, PlayerService $player): View
+    public function ajax(Request $request, PlayerService $player, HighscoreService $highscoreService): View
     {
         // Check if we received category parameter, if so, use it to determine which highscore category to show.
         // 1 = players
@@ -45,9 +47,9 @@ class HighscoreController extends OGameController
         }
 
         if ($category == 1) {
-            return $this->ajaxPlayer($request, $player);
+            return $this->ajaxPlayer($request, $player, $highscoreService);
         } else {
-            return $this->ajaxAlliance($request, $player);
+            return $this->ajaxAlliance($request, $player, $highscoreService);
         }
     }
 

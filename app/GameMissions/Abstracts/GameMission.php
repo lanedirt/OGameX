@@ -119,8 +119,6 @@ abstract class GameMission
 
     /**
      * Deduct mission resources from the planet (when starting mission).
-     *
-     * @throws Exception
      */
     public function deductMissionResources(PlanetService $planet, Resources $resources, UnitCollection $units): void
     {
@@ -140,7 +138,6 @@ abstract class GameMission
      * @param Resources $resources
      * @param int $parent_id
      * @return void
-     * @throws Exception
      */
     public function start(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources, int $parent_id = 0): void
     {
