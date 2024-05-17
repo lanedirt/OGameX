@@ -57,7 +57,7 @@ class PlanetAbandonTest extends AccountTestCase
 
         // Attempt to abandon the only remaining planet.
         $response = $this->post('/ajax/planet-abandon/abandon', [
-            'planet_id' => $this->planetService->getPlanetId(),
+            '_token' => csrf_token(),
             'password' => 'password',
         ]);
         $response->assertStatus(500);
