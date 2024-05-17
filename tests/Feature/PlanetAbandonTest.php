@@ -21,7 +21,7 @@ class PlanetAbandonTest extends AccountTestCase
             'password' => 'password',
         ]);
         $response->assertStatus(200);
-        $this->assertStringContainsString('Planet has been abandoned succesfully!', $response->getContent());
+        $this->assertStringContainsString('Planet has been abandoned succesfully!', (string)$response->getContent());
 
         // Reload player to get updated planet count.
         $this->planetService->getPlayer()->load($this->planetService->getPlayer()->getId());
@@ -45,7 +45,7 @@ class PlanetAbandonTest extends AccountTestCase
                         'password' => 'password',
                     ]);
                     $response->assertStatus(200);
-                    $this->assertStringContainsString('Planet has been abandoned succesfully!', $response->getContent());
+                    $this->assertStringContainsString('Planet has been abandoned succesfully!', (string)$response->getContent());
                 }
             }
         }
