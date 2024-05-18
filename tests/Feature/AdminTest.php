@@ -43,7 +43,6 @@ class AdminTest extends AccountTestCase
     public function testAdminUserAdminAccessGranted(): void
     {
         // Create a new user and assign the admin role
-        $this->createAndLoginUser();
         $this->artisan('ogamex:assign-admin-role', ['username' => auth()->user()->username]);
 
         // Verify that on overview page the admin bar shows up.
