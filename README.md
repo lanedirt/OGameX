@@ -36,6 +36,7 @@ OGameX is an open-source OGame clone aiming to recreate the official OGame exper
 - [7. Installation](#installation)
   - [a) Development: Install OGameX using Docker](#development)
   - [b) Production: Install OGameX using Docker](#production)
+  - [c) Tips for initial setup](#tips-for-initial-setup)
 - [8. Support](#support)
 - [9. License](#license)
 
@@ -158,6 +159,15 @@ You should review all settings before deploying this project to a publicly acces
 
 After completing the setup, visit http://localhost to access OGameX. You first need to create an account (no email validation), afterwards you can login using that account.
 
+### <a name="tips-for-initial-setup"></a> c) Tips for initial setup
+- **Admin account**: By default, the first registered user is assigned the admin role which can see the admin bar and is able to change server settings. You can also assign the admin role manually via the command line:
+  ```
+  $ php artisan ogamex:assign-admin-role {username}
+  ```
+  To remove the admin role from a user, use the following command:
+  ```
+    $ php artisan ogamex:remove-admin-role {username}
+  ```
 
 ## <a name="support"></a> 📞 Support
 

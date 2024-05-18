@@ -115,7 +115,12 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 // Group: all logged in pages:
 Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () {
     Route::namespace('OGame\Http\Controllers\Admin')->group(function () {
-        // Overview
+        // Server settings
         Route::get('/admin/server-settings', 'ServerSettingsController@index')->name('admin.serversettings.index');
+        Route::post('/admin/server-settings', 'ServerSettingsController@update')->name('admin.serversettings.update');
+
+        // Developer shortcuts
+        Route::get('/admin/developer-shortcuts', 'DeveloperShortcutsController@index')->name('admin.developershortcuts.index');
+        Route::post('/admin/developer-shortcuts', 'DeveloperShortcutsController@update')->name('admin.developershortcuts.update');
     });
 });

@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Models\Resources;
+use OGame\Services\SettingsService;
 use Tests\UnitTestCase;
 
 class ResourceProductionTest extends UnitTestCase
@@ -15,8 +16,11 @@ class ResourceProductionTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->setUpPlanetService();
+
+        // Set the universe speed to 1x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('economy_speed', 1);
     }
 
     /**

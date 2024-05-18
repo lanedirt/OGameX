@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use OGame\Utils\AppUtil;
+use OGame\Facades\AppUtil;
 use PHPUnit\Framework\TestCase;
 
 class NumberFormatTest extends TestCase

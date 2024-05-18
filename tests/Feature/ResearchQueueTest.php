@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Models\Resources;
+use OGame\Services\SettingsService;
 use Tests\AccountTestCase;
 
 /**
@@ -20,6 +21,11 @@ class ResearchQueueTest extends AccountTestCase
      */
     public function testResearchQueueEnergyTechnology(): void
     {
+        // Set the universe speed to 8x and research speed to 2x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+        $settingsService->set('research_speed', 2);
+
         $this->planetAddResources(new Resources(0, 800, 400, 0));
         $this->planetSetObjectLevel('research_lab', 1);
 
@@ -70,6 +76,11 @@ class ResearchQueueTest extends AccountTestCase
      */
     public function testResearchQueueMultiQueue(): void
     {
+        // Set the universe speed to 8x and research speed to 2x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+        $settingsService->set('research_speed', 2);
+
         $this->planetAddResources(new Resources(0, 2400, 1200, 0));
         $this->planetSetObjectLevel('research_lab', 1);
 

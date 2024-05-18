@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Models\Resources;
+use OGame\Services\SettingsService;
 use Tests\AccountTestCase;
 
 /**
@@ -21,6 +22,10 @@ class UnitQueueTest extends AccountTestCase
      */
     private function basicSetup(): void
     {
+        // Set the universe speed to 8x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
         $this->planetSetObjectLevel('robot_factory', 2);
         $this->planetSetObjectLevel('shipyard', 1);
         $this->planetSetObjectLevel('research_lab', 1);

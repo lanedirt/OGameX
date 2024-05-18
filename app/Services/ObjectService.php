@@ -210,7 +210,7 @@ class ObjectService
             }
         }
 
-        throw new \RuntimeException('Unit object not found with machine name: ' . $machine_name);
+        throw new \RuntimeException('Research object not found with machine name: ' . $machine_name);
     }
 
     /**

@@ -382,24 +382,25 @@ abstract class AccountTestCase extends TestCase
         }
 
         if ($resources->metal->get() > 0) {
-            $pattern = '/<span id="resources_metal" class="[^"]*" data-raw="[^"]*">\s*' . $resources->metal->getFormattedLong() . '\s*<\/span>/';
+            $pattern = '/<span\s+id="resources_metal"\s+class="[^"]*"\s+data-raw="[^"]*">\s*' . preg_quote($resources->metal->getFormattedLong(), '/') . '\s*<\/span>/';
             $result = preg_match($pattern, $content);
             $this->assertTrue($result === 1, 'Resource metal is not at ' . $resources->metal->getFormattedLong() . '.');
         }
+
         if ($resources->crystal->get() > 0) {
-            $pattern = '/<span\s+id="resources_crystal" class="[^"]*" data-raw="[^"]*">\s*' . $resources->crystal->getFormattedLong() . '\s*<\/span>/';
+            $pattern = '/<span\s+id="resources_crystal"\s+class="[^"]*"\s+data-raw="[^"]*">\s*' . preg_quote($resources->crystal->getFormattedLong(), '/') . '\s*<\/span>/';
             $result = preg_match($pattern, $content);
             $this->assertTrue($result === 1, 'Resource crystal is not at ' . $resources->crystal->getFormattedLong() . '.');
         }
 
         if ($resources->deuterium->get() > 0) {
-            $pattern = '/<span\s+id="resources_deuterium" class="[^"]*" data-raw="[^"]*">\s*' . $resources->deuterium->getFormattedLong() . '\s*<\/span>/';
+            $pattern = '/<span\s+id="resources_deuterium"\s+class="[^"]*"\s+data-raw="[^"]*">\s*' . preg_quote($resources->deuterium->getFormattedLong(), '/') . '\s*<\/span>/';
             $result = preg_match($pattern, $content);
             $this->assertTrue($result === 1, 'Resource deuterium is not at ' . $resources->deuterium->getFormattedLong() . '.');
         }
 
         if ($resources->energy->get() > 0) {
-            $pattern = '/<span\s+id="resources_energy" class="[^"]*" data-raw="[^"]*">\s*' . $resources->energy->getFormattedLong() . '\s*<\/span>/';
+            $pattern = '/<span\s+id="resources_energy"\s+class="[^"]*"\s+data-raw="[^"]*">\s*' . preg_quote($resources->energy->getFormattedLong(), '/') . '\s*<\/span>/';
             $result = preg_match($pattern, $content);
             $this->assertTrue($result === 1, 'Resource energy is not at ' . $resources->energy->getFormattedLong() . '.');
         }
