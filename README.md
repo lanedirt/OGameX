@@ -67,6 +67,7 @@ OGameX is under active development with several core features already implemente
   - Transport
   - Deployment
   - Colonisation
+- Basic admin panel
 
 ### <a name="upcoming-features"></a> a) Upcoming Features
 
