@@ -54,7 +54,7 @@ class GalaxyController extends OGameController
      * @param int $system
      * @param PlayerService $player
      * @param PlanetServiceFactory $planetServiceFactory
-     * @return array<int, array<string, array<int|string, array<string, array<string,bool>|bool|int|string>|bool|int|string>|int|string>>
+     * @return array<int, array<string, array<int|string, array<int|string, array<string, bool>|bool|int|string>|bool|int|string>|int|string>>
      */
     public function getGalaxyArray(int $galaxy, int $system, PlayerService $player, PlanetServiceFactory $planetServiceFactory): array
     {
@@ -73,6 +73,10 @@ class GalaxyController extends OGameController
                 // Planet with player
                 $planet = $planets[$i];
                 $player = $planet->getPlayer();
+                $nameAbbreviations = [];
+                if ($player->isAdmin()) {
+                    $nameAbbreviations[] = 'admin';
+                }
                 $galaxy_rows[] = [
                     'actions' => [
                         'canBeIgnored' => false,
@@ -126,6 +130,8 @@ class GalaxyController extends OGameController
                         ],
                         'playerId' => $player->getId(),
                         'playerName' => $player->getUsername(),
+                        'nameAbbreviations' => $nameAbbreviations,
+                        'isAdmin' => $player->isAdmin(),
                         //'allianceId' => 1,
                         //'allianceName' => 'Test',
                     ],

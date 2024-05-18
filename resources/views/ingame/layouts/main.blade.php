@@ -1,5 +1,5 @@
 @php /** @var OGame\Services\PlayerService $currentPlayer */ @endphp
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <head>
     <!--
@@ -14,7 +14,7 @@
 
      Powered by OGameX - Explore the universe! Conquer your enemies!
      GitHub: https://github.com/lanedirt/OGameX
-     Version: {{ \OGame\Utils\GitInfoUtil::getAppVersionBranchCommit() }}
+     Version: {{ \OGame\Facades\GitInfoUtil::getAppVersionBranchCommit() }}
 
     This application is released under the MIT License. For more details, visit the GitHub repository.
     -->
@@ -24,7 +24,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta http-equiv="Language" content="en"/>
     <meta name="ogame-session" content="3c442273a6de4c8f79549e78f4c3ca50e7ea7580"/>
-    <meta name="ogame-version" content="{{ \OGame\Utils\GitInfoUtil::getAppVersion() }}"/>
+    <meta name="ogame-version" content="{{ \OGame\Facades\GitInfoUtil::getAppVersion() }}"/>
     <meta name="ogame-timestamp" content="1513426692"/>
     <meta name="ogame-universe" content="s1"/>
     <meta name="ogame-universe-name" content="Home"/>
@@ -70,6 +70,9 @@
     <br/>
     Have fun playing!
 </div>
+@if ($currentPlayer->isAdmin())
+    @include ('ingame.layouts.admin-menu', ['currentPlayer' => $currentPlayer])
+@endif
 <div id="siteHeader"></div>
 <div id="pageContent">
     <div id="top">
@@ -79,7 +82,8 @@
                 <ul>
                     <li id="playerName">
                         @lang('Player'):
-                        <selected-language-icon style="background-image: url('/img/flags/a176fcd6f3e3de2bed6a73a8b1d5e7.png');"></selected-language-icon>
+                        <selected-language-icon
+                                style="background-image: url('/img/flags/a176fcd6f3e3de2bed6a73a8b1d5e7.png');"></selected-language-icon>
 
                         <span class="textBeefy">
                                 <a href="{{ route('changenick.overlay') }}"
@@ -131,14 +135,17 @@
                         </form>
                     </li>
                     <li class="OGameClock">{{ \Carbon\Carbon::now()->format('d.m.Y H:i:s') }}</li>
-                    </ul>
-                </div>
+                </ul>
             </div>
-            <div id="resourcesbarcomponent" class="">
-                <div id="resources">
+        </div>
+        <div id="resourcesbarcomponent" class="">
+            <div id="resources">
 
                 <div class="resource_tile metal">
-                    <div id="metal_box" class="metal tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="Metal|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['metal']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['metal']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['metal']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>" data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1=" data-ipi-hint="ipiResourcemetal">
+                    <div id="metal_box" class="metal tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
+                         title="Metal|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['metal']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['metal']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['metal']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>"
+                         data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1="
+                         data-ipi-hint="ipiResourcemetal">
                         <div class="resourceIcon metal"></div>
                         <span class="value">
                         <span id="resources_metal" class="{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['metal']['amount'] !!}">{!! $resources['metal']['amount_formatted'] !!}</span>
@@ -146,7 +153,10 @@
                     </div>
                 </div>
                 <div class="resource_tile crystal">
-                    <div id="crystal_box" class="crystal tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="@lang('Crystal')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['crystal']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['crystal']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['crystal']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>" data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1=" data-ipi-hint="ipiResourcecrystal">
+                    <div id="crystal_box" class="crystal tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
+                         title="@lang('Crystal')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['crystal']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['crystal']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['crystal']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>"
+                         data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1="
+                         data-ipi-hint="ipiResourcecrystal">
                         <div class="resourceIcon crystal"></div>
                         <span class="value">
                         <span id="resources_crystal" class="{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['crystal']['amount'] !!}">{!! $resources['crystal']['amount_formatted'] !!}</span>
@@ -154,7 +164,10 @@
                     </div>
                 </div>
                 <div class="resource_tile deuterium">
-                    <div id="deuterium_box" class="deuterium tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="@lang('Deuterium')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['deuterium']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['deuterium']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['deuterium']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>" data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1=" data-ipi-hint="ipiResourcedeuterium">
+                    <div id="deuterium_box" class="deuterium tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
+                         title="@lang('Deuterium')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['deuterium']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['deuterium']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['deuterium']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>"
+                         data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1="
+                         data-ipi-hint="ipiResourcedeuterium">
                         <div class="resourceIcon deuterium"></div>
                         <span class="value">
                         <span id="resources_deuterium" class="{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['deuterium']['amount'] !!}">{!! $resources['deuterium']['amount_formatted'] !!}</span>
@@ -162,15 +175,19 @@
                     </div>
                 </div>
                 <div class="resource_tile energy">
-                    <div id="energy_box" class="energy tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="@lang('Energy')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['energy']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Current production:')</th><td><span class=&quot;undermark&quot;>+{!! $resources['energy']['production_formatted'] !!}</span></td></tr><tr><th>@lang('Consumption')</th><td><span class=&quot;overmark&quot;>-{!! $resources['energy']['consumption_formatted'] !!}</span></td></tr></table>" data-ipi-hint="ipiResourceenergy">
+                    <div id="energy_box" class="energy tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
+                         title="@lang('Energy')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['energy']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Current production:')</th><td><span class=&quot;undermark&quot;>+{!! $resources['energy']['production_formatted'] !!}</span></td></tr><tr><th>@lang('Consumption')</th><td><span class=&quot;overmark&quot;>-{!! $resources['energy']['consumption_formatted'] !!}</span></td></tr></table>"
+                         data-ipi-hint="ipiResourceenergy">
                         <div class="resourceIcon energy"></div>
                         <span class="value">
-                        <span id="resources_energy" class="{{ $resources['energy']['amount'] < 0 ? 'overmark' : '' }}" data-raw="{!! $resources['energy']['amount'] !!}">{!! $resources['energy']['amount_formatted'] !!}</span>
+                        <span id="resources_energy" class="{{ $resources['energy']['amount'] < 0 ? 'overmark' : '' }}"
+                              data-raw="{!! $resources['energy']['amount'] !!}">{!! $resources['energy']['amount_formatted'] !!}</span>
                     </span>
                     </div>
                 </div>
                 <div class="resource_tile population">
-                    <div id="population_box" class="population tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="Population|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>100</span></td></tr><tr><th>Living Space
+                    <div id="population_box" class="population tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
+                         title="Population|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>100</span></td></tr><tr><th>Living Space
 </th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Satisfied</th><td><span class=&quot;undermark&quot;>0</span></td></tr><tr><th>Hungry</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Growth rate</th><td><span class=&quot;&quot;>±0</span></td></tr><tr><th>Bunker Space
 </th><td><span class=&quot;middlemark&quot;>100</span></td></tr></table>" data-ipi-hint="ipiResourcepopulation">
                         <div class="resourceIcon population"></div>
@@ -180,7 +197,9 @@
                     </div>
                 </div>
                 <div class="resource_tile food">
-                    <div id="food_box" class="food tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="Food|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Storage capacity</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Overproduction</th><td><span class=&quot;undermark&quot;>0</span></td></tr><tr><th>Consumption</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Consumed in</th><td><span class=&quot;overmark timeTillFoodRunsOut&quot;>~</span></td></tr></table>" data-ipi-hint="ipiResourcefood">
+                    <div id="food_box" class="food tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
+                         title="Food|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Storage capacity</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Overproduction</th><td><span class=&quot;undermark&quot;>0</span></td></tr><tr><th>Consumption</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Consumed in</th><td><span class=&quot;overmark timeTillFoodRunsOut&quot;>~</span></td></tr></table>"
+                         data-ipi-hint="ipiResourcefood">
                         <div class="resourceIcon food"></div>
                         <span class="value">
                         <span id="resources_food" data-raw="0" class="overmark">0</span>
@@ -188,7 +207,9 @@
                     </div>
                 </div>
                 <div class="resource_tile darkmatter">
-                    <div id="darkmatter_box" class="darkmatter tooltipHTML resource ipiHintable tpd-hideOnClickOutside" title="@lang('Dark Matter')|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;&quot;>19,890</span></td></tr><tr><th>Purchased</th><td><span class=&quot;&quot;>225</span></td></tr><tr><th>Found</th><td><span class=&quot;&quot;>19,665</span></td></tr></table>" data-tooltip-button="Purchase Dark Matter" data-ipi-hint="ipiResourcedarkmatter">
+                    <div id="darkmatter_box" class="darkmatter tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
+                         title="@lang('Dark Matter')|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;&quot;>19,890</span></td></tr><tr><th>Purchased</th><td><span class=&quot;&quot;>225</span></td></tr><tr><th>Found</th><td><span class=&quot;&quot;>19,665</span></td></tr></table>"
+                         data-tooltip-button="Purchase Dark Matter" data-ipi-hint="ipiResourcedarkmatter">
                         <a href="#TODO_page=payment" class="overlay">
                             <img src="/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif">
                             <div class="resourceIcon darkmatter"></div>
@@ -202,18 +223,23 @@
         </div>
         <div id="commandercomponent" class="">
             <div id="lifeform" class="fleft">
-                <a href="#TODO_page=ingame&amp;component=lfsettings" class="tooltipHTML js_hideTipOnMobile ipiHintable" title="Lifeform|No lifeforms
+                <a href="#TODO_page=ingame&amp;component=lfsettings" class="tooltipHTML js_hideTipOnMobile ipiHintable"
+                   title="Lifeform|No lifeforms
 " data-ipi-hint="ipiLifeformSettings">
                     <div class="resourceIcon population"></div>
                 </a>
             </div>
             <div id="characterclass" class="fleft">
-                <a href="#TODO_=ingame&amp;component=characterclassselection" class="tooltipHTML js_hideTipOnMobile ipiHintable" title="Your class: Collector|+25% mine production<br>+10% energy production<br>+100% speed for Transporters<br>+25% cargo bay for Transporters<br>+50% Crawler bonus<br>+10% more usable Crawlers with Geologist<br>Overload the Crawlers up to 150%<br>+10% discount on acceleration (building)" data-ipi-hint="ipiCharacterclassSettings">
+                <a href="#TODO_=ingame&amp;component=characterclassselection"
+                   class="tooltipHTML js_hideTipOnMobile ipiHintable"
+                   title="Your class: Collector|+25% mine production<br>+10% energy production<br>+100% speed for Transporters<br>+25% cargo bay for Transporters<br>+50% Crawler bonus<br>+10% more usable Crawlers with Geologist<br>Overload the Crawlers up to 150%<br>+10% discount on acceleration (building)"
+                   data-ipi-hint="ipiCharacterclassSettings">
                     <div class="sprite characterclass medium miner"></div>
                 </a>
             </div>
             <div id="officers" class="  fright">
-                <a href="#TODO_=premium&amp;openDetail=2" class="tooltipHTML   commander js_hideTipOnMobile " title="Hire commander|&amp;#43;40 favorites, building queue, shortcuts, transport scanner, advertisement-free* <span style=&quot;font-size: 10px; line-height: 10px&quot;>(*excludes: game related references)</span>">
+                <a href="#TODO_=premium&amp;openDetail=2" class="tooltipHTML   commander js_hideTipOnMobile "
+                   title="Hire commander|&amp;#43;40 favorites, building queue, shortcuts, transport scanner, advertisement-free* <span style=&quot;font-size: 10px; line-height: 10px&quot;>(*excludes: game related references)</span>">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
                 <a href="#TODO_page=premium&amp;openDetail=3" class="tooltipHTML    admiral js_hideTipOnMobile " title="Hire admiral|Max. fleet slots +2,
@@ -222,13 +248,16 @@ Improved fleet escape rate,
 Combat simulation save slots +20">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
-                <a href="#TODO_page=premium&amp;openDetail=4" class="tooltipHTML    engineer js_hideTipOnMobile " title="Hire engineer|Halves losses to defenses, +10% energy production">
+                <a href="#TODO_page=premium&amp;openDetail=4" class="tooltipHTML    engineer js_hideTipOnMobile "
+                   title="Hire engineer|Halves losses to defenses, +10% energy production">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
-                <a href="#TODO_page=premium&amp;openDetail=5" class="tooltipHTML    geologist js_hideTipOnMobile " title="Hire geologist|+10% mine production">
+                <a href="#TODO_page=premium&amp;openDetail=5" class="tooltipHTML    geologist js_hideTipOnMobile "
+                   title="Hire geologist|+10% mine production">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
-                <a href="#TODO_page=premium&amp;openDetail=6" class="tooltipHTML    technocrat js_hideTipOnMobile " title="Hire technocrat|+2 espionage levels, 25% less research time">
+                <a href="#TODO_page=premium&amp;openDetail=6" class="tooltipHTML    technocrat js_hideTipOnMobile "
+                   title="Hire technocrat|+2 espionage levels, 25% less research time">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
             </div>
@@ -265,7 +294,8 @@ Combat simulation save slots +20">
 
                     </div>
                     <div id="eventboxLoading" class="textCenter textBeefy" style="display: block;">
-                        <img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif"/>@lang('load...')
+                        <img height="16" width="16"
+                             src="/img/icons/3f9884806436537bdec305aa26fc60.gif"/>@lang('load...')
                     </div>
                     <div id="eventboxBlank" class="textCenter" style="display: none;">
                         @lang('No fleet movement')
@@ -280,7 +310,10 @@ Combat simulation save slots +20">
     </div>
     <div id="left">
         <div id="ipimenucomponent" class="">
-            <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable " title="" data-ipi-hint="ipiMenu"><div id="ipimenucontent"><a href="#TODO_page=ajax&amp;component=ipioverview&amp;action=overviewLayer&amp;ajax=1" class="overlay textBeefy" data-overlay-title="" id="ipiInnerMenuContentHolder">
+            <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable " title="" data-ipi-hint="ipiMenu">
+                <div id="ipimenucontent"><a
+                            href="#TODO_page=ajax&amp;component=ipioverview&amp;action=overviewLayer&amp;ajax=1"
+                            class="overlay textBeefy" data-overlay-title="" id="ipiInnerMenuContentHolder">
                         <div class="ipiMenuHead">
                             Directives
                         </div>
@@ -290,21 +323,22 @@ Combat simulation save slots +20">
                     </a>
 
 
-                </div></div>
+                </div>
+            </div>
         </div>
         <div id="toolbarcomponent" class="">
             <div id="links">
                 <ul id="menuTable" class="leftmenu">
 
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('rewards.index') }}"
-                                               class="tooltipRight js_hideTipOnMobile "
-                                               target="_self"
-                                               title="Rewards">
-                            <div class="menuImage overview {{(Request::is('rewards') || Request::is('overview') ? 'highlighted' : '') }}"></div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('rewards.index') }}"
+                               class="tooltipRight js_hideTipOnMobile "
+                               target="_self"
+                               title="Rewards">
+                                <div class="menuImage overview {{(Request::is('rewards') || Request::is('overview') ? 'highlighted' : '') }}"></div>
+                            </a>
+                        </span>
                         <a class="menubutton {{(Request::is('overview') ? 'selected' : '') }}"
                            href="{{ route('overview.index') }}"
                            accesskey=""
@@ -315,16 +349,14 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('resources.settings') }}"
-                                               class="tooltipRight js_hideTipOnMobile "
-                                               target="_self"
-                                               title="Resource settings">
-                            <div class="menuImage resources {{(Request::is('resources*') ? 'highlighted' : '') }}
-                                ">
-                            </div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('resources.settings') }}"
+                               class="tooltipRight js_hideTipOnMobile "
+                               target="_self"
+                               title="Resource settings">
+                                <div class="menuImage resources {{(Request::is('resources*') ? 'highlighted' : '') }}"></div>
+                            </a>
+                        </span>
                         <a class="menubutton {{(Request::is('resources*') ? 'selected' : '') }}"
                            href="{{ route('resources.index') }}"
                            accesskey=""
@@ -335,9 +367,9 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage station {{(Request::is('facilities') ? 'highlighted' : '') }}"></div>
-                                    </span>
+                        <span class="menu_icon">
+                            <div class="menuImage station {{(Request::is('facilities') ? 'highlighted' : '') }}"></div>
+                        </span>
                         <a class="menubutton {{(Request::is('facilities') ? 'selected' : '') }}"
                            href="{{ route('facilities.index') }}"
                            accesskey=""
@@ -348,15 +380,15 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('merchant.index') }}#page=traderResources&amp;animation=false"
-                                               class="trader tooltipRight js_hideTipOnMobile "
-                                               target="_self"
-                                               title="Resource Market">
-                            <div class="menuImage traderOverview {{(Request::is('merchant') ? 'highlighted' : '') }}">
-                            </div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('merchant.index') }}#page=traderResources&amp;animation=false"
+                               class="trader tooltipRight js_hideTipOnMobile "
+                               target="_self"
+                               title="Resource Market">
+                                <div class="menuImage traderOverview {{(Request::is('merchant') ? 'highlighted' : '') }}">
+                                </div>
+                            </a>
+                        </span>
                         <a class="menubutton premiumHighligt {{(Request::is('merchant') ? 'selected' : '') }}"
                            href="{{ route('merchant.index') }}"
                            accesskey=""
@@ -367,15 +399,15 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => 1, 'open' => 'all']) }}"
-                                               class="overlay tooltipRight js_hideTipOnMobile "
-                                               target="_blank"
-                                               title="Technology">
-                            <div class="menuImage research {{(Request::is('research') ? 'highlighted' : '') }}">
-                            </div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => 1, 'open' => 'all']) }}"
+                               class="overlay tooltipRight js_hideTipOnMobile "
+                               target="_blank"
+                               title="Technology">
+                                <div class="menuImage research {{(Request::is('research') ? 'highlighted' : '') }}">
+                                </div>
+                            </a>
+                        </span>
                         <a class="menubutton {{(Request::is('research') ? 'selected' : '') }}"
                            href="{{ route('research.index') }}"
                            accesskey=""
@@ -386,9 +418,9 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage shipyard {{(Request::is('shipyard') ? 'highlighted' : '') }}"></div>
-                                    </span>
+                        <span class="menu_icon">
+                            <div class="menuImage shipyard {{(Request::is('shipyard') ? 'highlighted' : '') }}"></div>
+                        </span>
                         <a class="menubutton {{(Request::is('shipyard') ? 'selected' : '') }}"
                            href="{{ route('shipyard.index') }}"
                            accesskey=""
@@ -399,9 +431,9 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage defense {{(Request::is('defense') ? 'highlighted' : '') }}"></div>
-                                    </span>
+                        <span class="menu_icon">
+                            <div class="menuImage defense {{(Request::is('defense') ? 'highlighted' : '') }}"></div>
+                        </span>
                         <a class="menubutton {{(Request::is('defense') ? 'selected' : '') }}"
                            href="{{ route('defense.index') }}"
                            accesskey=""
@@ -412,15 +444,15 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('fleet.movement') }}"
-                                               class="tooltipRight js_hideTipOnMobile "
-                                               target="_self"
-                                               title="Fleet movement">
-                            <div class="menuImage fleet1 {{(Request::is('fleet*') ? 'highlighted' : '') }}">
-                            </div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('fleet.movement') }}"
+                               class="tooltipRight js_hideTipOnMobile "
+                               target="_self"
+                               title="Fleet movement">
+                                <div class="menuImage fleet1 {{(Request::is('fleet*') ? 'highlighted' : '') }}">
+                                </div>
+                            </a>
+                        </span>
                         <a class="menubutton {{(Request::is('fleet*') ? 'selected' : '') }}"
                            href="{{ route('fleet.index') }}"
                            accesskey=""
@@ -431,9 +463,9 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage galaxy {{(Request::is('galaxy') ? 'highlighted' : '') }}"></div>
-                                    </span>
+                        <span class="menu_icon">
+                            <div class="menuImage galaxy {{(Request::is('galaxy') ? 'highlighted' : '') }}"></div>
+                        </span>
                         <a class="menubutton {{(Request::is('galaxy') ? 'selected' : '') }}"
                            href="{{ route('galaxy.index') }}"
                            accesskey=""
@@ -444,9 +476,9 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage alliance {{(Request::is('alliance') ? 'highlighted' : '') }}"></div>
-                                    </span>
+                        <span class="menu_icon">
+                            <div class="menuImage alliance {{(Request::is('alliance') ? 'highlighted' : '') }}"></div>
+                        </span>
                         <a class="menubutton {{(Request::is('alliance') ? 'selected' : '') }}"
                            href="{{ route('alliance.index') }}"
                            accesskey=""
@@ -457,9 +489,9 @@ Combat simulation save slots +20">
                     </li>
 
                     <li>
-                <span class="menu_icon">
-                                            <div class="menuImage premium {{(Request::is('premium') ? 'highlighted' : '') }}"></div>
-                                    </span>
+                        <span class="menu_icon">
+                            <div class="menuImage premium {{(Request::is('premium') ? 'highlighted' : '') }}"></div>
+                        </span>
                         <a class="menubutton premiumHighligt officers {{(Request::is('premium') ? 'selected' : '') }}"
                            href="{{ route('premium.index') }}"
                            accesskey=""
@@ -468,17 +500,16 @@ Combat simulation save slots +20">
                             <span class="textlabel">@lang('Recruit Officers')</span>
                         </a>
                     </li>
-
                     <li>
-                <span class="menu_icon">
-                                            <a href="{{ route('shop.index') }}#page=inventory"
-                                               class="tooltipRight js_hideTipOnMobile "
-                                               target="_self"
-                                               title="Inventory">
-                            <div class="menuImage shop {{(Request::is('shop') ? 'highlighted' : '') }}">
-                            </div>
-                        </a>
-                                    </span>
+                        <span class="menu_icon">
+                            <a href="{{ route('shop.index') }}#page=inventory"
+                               class="tooltipRight js_hideTipOnMobile "
+                               target="_self"
+                               title="Inventory">
+                                <div class="menuImage shop {{(Request::is('shop') ? 'highlighted' : '') }}">
+                                </div>
+                            </a>
+                        </span>
                         <a class="menubutton premiumHighligt {{(Request::is('shop') ? 'selected' : '') }}"
                            href="{{ route('shop.index') }}"
                            accesskey=""
@@ -493,7 +524,8 @@ Combat simulation save slots +20">
                     <ul id="menuTableTools" class="leftmenu"></ul>
                 </div>
                 <br class="clearfloat">
-            </div>    </div>
+            </div>
+        </div>
         <div id="advicebarcomponent" class="">
             <div class="adviceWrapper">
 
@@ -506,7 +538,7 @@ Combat simulation save slots +20">
     <div id="middle">
         <div id="eventlistcomponent" class="">
             <div id="eventboxContent" style="display: none;">
-        </div>
+            </div>
 
             <script type="text/javascript">
                 var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
@@ -517,120 +549,125 @@ Combat simulation save slots +20">
                     location.href = "{{ route('premium.index', ['showDarkMatter' => 1]) }}#TODO_premium&showDarkMatter=1";
                 }
 
-                    var playerId = "1";
-                    var playerName = "Admin";
-                    var player = {"playerId": {{ $currentPlayer->getId() }},"name":"{{ $currentPlayer->getUsername() }}","hasCommander":false,"hasAPassword":true};
-                    var hasAPassword = true;
-                    var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
-                    var isMobile = false;
-                    var isMobileApp = false;
-                    var isMobileOnly = false;
-                    var isFacebookUser = false;
-                    var overlayWidth = 770;
-                    var overlayHeight = 600;
-                    var isRTLEnabled = 0;
-                    var activateToken = "e018389e3827e1499e41d35e3c811283";
-                    var miniFleetToken = "4002a42efaeb2808f6c232594fb09aa4";
-                    var currentPage = "overview";
-                    var bbcodePreviewUrl = "{{ route('overview.index') }}#TODO_page=bbcodePreview";
-                    var popupWindows = [];
-                    var fleetDeutSaveFactor = 1;
-                    var honorScore = 0;
-                    var darkMatter = 0;
-                    var serverTime = new Date('{{ Carbon\Carbon::now() }}');
-                    var localTime = new Date();
-                    var timeDiff = serverTime - localTime;
-                    localTS = localTime.getTime();
-                    var startServerTime = localTime.getTime() - (0) - localTime.getTimezoneOffset() * 60 * 1000;
-                    var LocalizationStrings = {
-                        "timeunits": {
-                            "short": {
-                                "year": "y",
-                                "month": "m",
-                                "week": "w",
-                                "day": "d",
-                                "hour": "h",
-                                "minute": "m",
-                                "second": "s"
-                            }
-                        },
-                        "status": {
-                            "ready": "done"
-                        },
-                        "decimalPoint": ".",
-                        "thousandSeperator": ",",
-                        "unitMega": "M",
-                        "unitKilo": "K",
-                        "unitMilliard": "B",
-                        "question": "Question",
-                        "error": "Error",
-                        "loading": "load...",
-                        "yes": "yes",
-                        "no": "No",
-                        "ok": "Ok",
-                        "attention": "Caution",
-                        "outlawWarning": "You are about to attack a stronger player. If you do this, your attack defenses will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?",
-                        "lastSlotWarningMoon": "This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?",
-                        "lastSlotWarningPlanet": "This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?",
-                        "forcedVacationWarning": "Some game features are unavailable until your account is validated.",
-                        "moreDetails": "More details",
-                        "lessDetails": "Less detail",
-                        "planetOrder": {
-                            "lock": "Lock arrangement",
-                            "unlock": "Unlock arrangement"
-                        },
-                        "darkMatter": "Dark Matter",
-                        "activateItem": {
-                            "upgradeItemQuestion": "Would you like to replace the existing item? The old bonus will be lost in the process.",
-                            "upgradeItemQuestionHeader": "Replace item?"
+                var playerId = "1";
+                var playerName = "Admin";
+                var player = {
+                    "playerId": {{ $currentPlayer->getId() }},
+                    "name": "{{ $currentPlayer->getUsername() }}",
+                    "hasCommander": false,
+                    "hasAPassword": true
+                };
+                var hasAPassword = true;
+                var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
+                var isMobile = false;
+                var isMobileApp = false;
+                var isMobileOnly = false;
+                var isFacebookUser = false;
+                var overlayWidth = 770;
+                var overlayHeight = 600;
+                var isRTLEnabled = 0;
+                var activateToken = "e018389e3827e1499e41d35e3c811283";
+                var miniFleetToken = "4002a42efaeb2808f6c232594fb09aa4";
+                var currentPage = "overview";
+                var bbcodePreviewUrl = "{{ route('overview.index') }}#TODO_page=bbcodePreview";
+                var popupWindows = [];
+                var fleetDeutSaveFactor = 1;
+                var honorScore = 0;
+                var darkMatter = 0;
+                var serverTime = new Date('{{ Carbon\Carbon::now() }}');
+                var localTime = new Date();
+                var timeDiff = serverTime - localTime;
+                localTS = localTime.getTime();
+                var startServerTime = localTime.getTime() - (0) - localTime.getTimezoneOffset() * 60 * 1000;
+                var LocalizationStrings = {
+                    "timeunits": {
+                        "short": {
+                            "year": "y",
+                            "month": "m",
+                            "week": "w",
+                            "day": "d",
+                            "hour": "h",
+                            "minute": "m",
+                            "second": "s"
                         }
-                    };
-                    var constants = {
-                        "espionage": 6,
-                        "missleattack": 10,
-                        "language": "en",
-                        "name": "144"
-                    };
-                    var userData = {
-                        "id": "108130"
-                    };
-                    var missleAttackLink = "{{ route('overview.index') }}#TODO_page=missileattacklayer&width=669&height=250";
-                    var changeNickLink = "{{ route('changenick.overlay') }}";
-                    var showOutlawWarning = true;
-                    var miniFleetLink = "{{ route('overview.index') }}#TODO_page=minifleet&ajax=1";
-                    var ogameUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
-                    var startpageUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
-                    var nodePort = 19603;
-                    var nodeUrl = "{{ route('overview.index') }}#TODO_19603\/socket.io\/socket.io.js";
-                    var nodeParams = {
-                        "port": 19603,
-                        "secure": "true"
-                    };
-                    var chatUrl = "/"; //#TODO_page=ajaxChat
-                    var chatUrlLoadMoreMessages = "{{ route('overview.index') }}#TODO_page=chatGetAdditionalMessages";
-                    var chatLoca = {
-                        "TEXT_EMPTY": "Where is the message?",
-                        "TEXT_TOO_LONG": "The message is too long.",
-                        "SAME_USER": "You cannot write to yourself.",
-                        "IGNORED_USER": "You have ignored this player.",
-                        "NO_DATABASE_CONNECTION": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
-        "INVALID_PARAMETERS": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
-                        "SEND_FAILED": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
-                        "LOCA_ALL_ERROR_NOTACTIVATED": "This function is only available after your accounts activation.",
-                        "X_NEW_CHATS": "#+# unread conversation(s)",
-                        "MORE_USERS": "show more"
-                    };
-                    var eventboxLoca = {
-                        "mission": "Mission",
-                        "missions": "Missions",
-                        "next misson": "DUMMY_KEY_N\u00e4chster_fertig",
-                        "type": "DUMMY_KEY_Art",
-                        "friendly": "own",
-                        "neutral": "friendly",
-                        "hostile": "hostile",
-                        "nextEvent": "Next",
-                        "nextEventText": "Type"
-                    };
+                    },
+                    "status": {
+                        "ready": "done"
+                    },
+                    "decimalPoint": ".",
+                    "thousandSeperator": ",",
+                    "unitMega": "M",
+                    "unitKilo": "K",
+                    "unitMilliard": "B",
+                    "question": "Question",
+                    "error": "Error",
+                    "loading": "load...",
+                    "yes": "yes",
+                    "no": "No",
+                    "ok": "Ok",
+                    "attention": "Caution",
+                    "outlawWarning": "You are about to attack a stronger player. If you do this, your attack defenses will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?",
+                    "lastSlotWarningMoon": "This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?",
+                    "lastSlotWarningPlanet": "This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?",
+                    "forcedVacationWarning": "Some game features are unavailable until your account is validated.",
+                    "moreDetails": "More details",
+                    "lessDetails": "Less detail",
+                    "planetOrder": {
+                        "lock": "Lock arrangement",
+                        "unlock": "Unlock arrangement"
+                    },
+                    "darkMatter": "Dark Matter",
+                    "activateItem": {
+                        "upgradeItemQuestion": "Would you like to replace the existing item? The old bonus will be lost in the process.",
+                        "upgradeItemQuestionHeader": "Replace item?"
+                    }
+                };
+                var constants = {
+                    "espionage": 6,
+                    "missleattack": 10,
+                    "language": "en",
+                    "name": "144"
+                };
+                var userData = {
+                    "id": "108130"
+                };
+                var missleAttackLink = "{{ route('overview.index') }}#TODO_page=missileattacklayer&width=669&height=250";
+                var changeNickLink = "{{ route('changenick.overlay') }}";
+                var showOutlawWarning = true;
+                var miniFleetLink = "{{ route('overview.index') }}#TODO_page=minifleet&ajax=1";
+                var ogameUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
+                var startpageUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
+                var nodePort = 19603;
+                var nodeUrl = "{{ route('overview.index') }}#TODO_19603\/socket.io\/socket.io.js";
+                var nodeParams = {
+                    "port": 19603,
+                    "secure": "true"
+                };
+                var chatUrl = "/"; //#TODO_page=ajaxChat
+                var chatUrlLoadMoreMessages = "{{ route('overview.index') }}#TODO_page=chatGetAdditionalMessages";
+                var chatLoca = {
+                    "TEXT_EMPTY": "Where is the message?",
+                    "TEXT_TOO_LONG": "The message is too long.",
+                    "SAME_USER": "You cannot write to yourself.",
+                    "IGNORED_USER": "You have ignored this player.",
+                    "NO_DATABASE_CONNECTION": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
+                    "INVALID_PARAMETERS": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
+                    "SEND_FAILED": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
+                    "LOCA_ALL_ERROR_NOTACTIVATED": "This function is only available after your accounts activation.",
+                    "X_NEW_CHATS": "#+# unread conversation(s)",
+                    "MORE_USERS": "show more"
+                };
+                var eventboxLoca = {
+                    "mission": "Mission",
+                    "missions": "Missions",
+                    "next misson": "DUMMY_KEY_N\u00e4chster_fertig",
+                    "type": "DUMMY_KEY_Art",
+                    "friendly": "own",
+                    "neutral": "friendly",
+                    "hostile": "hostile",
+                    "nextEvent": "Next",
+                    "nextEventText": "Type"
+                };
 
                 var ajaxEventboxURI = "{{ route('fleet.eventbox.fetch') }}";
                 var ajaxRecallFleetURI = "{{ route('fleet.dispatch.recallfleet') }}";
@@ -1035,10 +1072,15 @@ Combat simulation save slots +20">
                                    $urlToCurrentWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
                                 @endphp
 
-                                <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }}" data-planet-id="{{ $planet->getPlanetId() }}" id="planet-{{ $key + 1 }}">
-                                    <a href="{{ $urlToCurrentWithUpdatedParam }}" data-link="{{ $urlToCurrentWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>@lang('Lifeform'): Humans
-<br/>12,800km (152/193)<br>20°C to 60°C<br/><a href=&quot;#TODO=ingame&amp;component=overview&amp;cp=33624092&quot;>@lang('Overview')</a><br/><a href=&quot;#TODO=ingame&amp;component=supplies&amp;cp=33624092&quot;>@lang('Resources')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=lfbuildings&amp;cp=33624092&quot;>@lang('Lifeform')</a><br/><a href=&quot;#TODOpage=ingame&amp;component=research&amp;cp=33624092&quot;>@lang('Research')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=facilities&amp;cp=33624092&quot;>@lang('Facilities')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=shipyard&amp;cp=33624092&quot;>@lang('Shipyard')</a><br/><a href=&quot;#TODO_component=defenses&amp;cp=33624092&quot;>@lang('Defense')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=fleetdispatch&amp;cp=33624092&quot;>@lang('Fleet')</a><br/><a href=&quot;#TODO_component=galaxy&amp;cp=33624092&amp;galaxy=2&amp;system=3&amp;position=6&quot;>@lang('Galaxy')</a>" class="planetlink {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiPlanetHomeplanet">
-                                        <img class="planetPic js_replace2x" alt="{{ $planet->getPlanetName() }}" src="/img/icons/a8821a3ef84e0acd053aef2e98972a.png" width="48" height="48">
+                                <div class="smallplanet {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }}"
+                                     data-planet-id="{{ $planet->getPlanetId() }}" id="planet-{{ $key + 1 }}">
+                                    <a href="{{ $urlToCurrentWithUpdatedParam }}"
+                                       data-link="{{ $urlToCurrentWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>@lang('Lifeform'): Humans
+<br/>12,800km (152/193)<br>20°C to 60°C<br/><a href=&quot;#TODO=ingame&amp;component=overview&amp;cp=33624092&quot;>@lang('Overview')</a><br/><a href=&quot;#TODO=ingame&amp;component=supplies&amp;cp=33624092&quot;>@lang('Resources')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=lfbuildings&amp;cp=33624092&quot;>@lang('Lifeform')</a><br/><a href=&quot;#TODOpage=ingame&amp;component=research&amp;cp=33624092&quot;>@lang('Research')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=facilities&amp;cp=33624092&quot;>@lang('Facilities')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=shipyard&amp;cp=33624092&quot;>@lang('Shipyard')</a><br/><a href=&quot;#TODO_component=defenses&amp;cp=33624092&quot;>@lang('Defense')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=fleetdispatch&amp;cp=33624092&quot;>@lang('Fleet')</a><br/><a href=&quot;#TODO_component=galaxy&amp;cp=33624092&amp;galaxy=2&amp;system=3&amp;position=6&quot;>@lang('Galaxy')</a>"
+                                       class="planetlink {{ $planet->getPlanetId() == $currentPlanet->getPlanetId() ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable"
+                                       data-ipi-hint="ipiPlanetHomeplanet">
+                                        <img class="planetPic js_replace2x" alt="{{ $planet->getPlanetName() }}"
+                                             src="/img/icons/a8821a3ef84e0acd053aef2e98972a.png" width="48" height="48">
                                         <span class="planet-name ">{!! $planet->getPlanetName() !!}</span>
                                         <span class="planet-koords ">[{!! $planet->getPlanetCoordinates()->asString() !!}]</span>
                                     </a>
@@ -1046,7 +1088,7 @@ Combat simulation save slots +20">
                                         <a class="constructionIcon tooltip js_hideTipOnMobile tpd-hideOnClickOutside"
                                            data-link="{{ $urlToCurrentWithUpdatedParam }}"
                                            href="{{ $urlToCurrentWithUpdatedParam }}" title=""
-                                           >
+                                        >
                                             <span class="icon12px icon_wrench"></span>
                                         </a>
                                     @endif
@@ -1060,7 +1102,8 @@ Combat simulation save slots +20">
                         </div>
                     </div>
                 </div>
-            </div>    </div>
+            </div>
+        </div>
         <div id="bannerSkyscrapercomponent" class="">
             <div id="banner_skyscraper" class="desktop" name="banner_skyscraper">
                 <div style="position: relative;">
@@ -1068,7 +1111,8 @@ Combat simulation save slots +20">
                         <img src="/img/banners/de0dadddb0285ba78b026ce18fc898.jpg" alt="">
                     </a>
                 </div>
-            </div>    </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -1094,8 +1138,9 @@ Combat simulation save slots +20">
         <div class="fleft textLeft">
             <a href="#TODO_changelog&ajax=1" class="tooltip js_hideTipOnMobile overlay" data-class="noXScrollbar"
                data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="Patch notes">
-                {{ \OGame\Utils\GitInfoUtil::getAppVersion() }}</a>
-            <a class="homeLink" href="https://github.com/lanedirt/ogamex" target="_blank">© OGameX. @lang('All rights reserved.')</a>
+                {{ \OGame\Facades\GitInfoUtil::getAppVersion() }}</a>
+            <a class="homeLink" href="https://github.com/lanedirt/ogamex" target="_blank">©
+                OGameX. @lang('All rights reserved.')</a>
         </div>
         <div class="fright textRight">
             <a href="http://wiki.ogame.org/" target="_blank">Help</a>|
@@ -1122,47 +1167,6 @@ Combat simulation save slots +20">
 
 <!-- #MMO:NETBAR# -->
 <div id="pagefoldtarget"></div>
-<noscript>
-    <style type="text/css">
-
-        body {
-            margin: 0;
-            padding: 0;
-        }
-
-        #mmonetbar {
-            background: transparent url('/img/bg/ab65c4951f415dff50d74738c953b5.jpg') repeat-x;
-            font: normal 11px Tahoma, Arial, Helvetica, sans-serif;
-            height: 32px;
-            left: 0;
-            padding: 0;
-            position: absolute;
-            text-align: center;
-            top: 0;
-            width: 100%;
-            z-index: 3000;
-        }
-
-        #mmonetbar #mmoContent {
-            height: 32px;
-            margin: 0 auto;
-            width: 1024px;
-            position: relative;
-        }
-
-        #mmonetbar #mmoLogo {
-            float: left;
-            display: block;
-            height: 32px;
-            width: 108px;
-            text-indent: -9999px;
-        }
-
-        #mmonetbar #mmoNews, #mmonetbar #mmoGame, #mmonetbar #mmoFocus, #pagefoldtarget {
-            display: none !important;
-        }
-    </style>
-</noscript>
 
 <!-- ogame/en ingame 16.12.2017 12:46 -->
 <script type="text/javascript">
@@ -1266,7 +1270,11 @@ Combat simulation save slots +20">
         "coordinatePlaceHolder": "@lang('Galaxy:system:position')",
         "charsLeft": "@lang('Characters remaining')",
         "colorPicker": {"ok": "@lang('Ok')", "cancel": "@lang('Cancel')", "rgbR": "R", "rgbG": "G", "rgbB": "B"},
-        "backgroundImagePicker": {"ok": "Ok", "repeatX": "@lang('Repeat horizontally')", "repeatY": "@lang('Repeat vertically')"}
+        "backgroundImagePicker": {
+            "ok": "Ok",
+            "repeatX": "@lang('Repeat horizontally')",
+            "repeatY": "@lang('Repeat vertically')"
+        }
     };</script>
 </body>
 </html>

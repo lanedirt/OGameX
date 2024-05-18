@@ -138,11 +138,20 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'lang' => 'en',
             'username' => $this->generateUniqueName(),
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+
+        // Check if the user is the first registered user
+        if (User::count() === 1) {
+            $user->assignRole('admin');
+            $user->username = 'Admin';
+            $user->save();
+        }
+
+        return $user;
     }
 }

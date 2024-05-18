@@ -1,8 +1,9 @@
 <?php
 
-namespace OGame\Utils;
+namespace OGame\Facades;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * Class GitInfoUtil.
@@ -11,8 +12,13 @@ use Illuminate\Support\Facades\Cache;
  *
  * @package OGame\Utils
  */
-class GitInfoUtil
+class GitInfoUtil extends Facade
 {
+    protected static function getFacadeAccessor(): string
+    {
+        return 'gitInfoUtil';
+    }
+
     /**
      * Get the current branch.
      *

@@ -18,6 +18,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use OGame\Http\Middleware\Admin;
 use OGame\Http\Middleware\GlobalGame;
 use OGame\Http\Middleware\Locale;
 use OGame\Http\Middleware\RedirectIfAuthenticated;
@@ -75,5 +76,6 @@ class Kernel extends HttpKernel
         'throttle' => ThrottleRequests::class,
         'globalgame' => GlobalGame::class,
         'locale' => Locale::class,
+        'admin' => Admin::class,
     ];
 }

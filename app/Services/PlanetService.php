@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use Hamcrest\Core\Set;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
@@ -43,6 +44,11 @@ class PlanetService
     protected PlayerService $player;
 
     /**
+     * @var SettingsService $settingsService
+     */
+    protected SettingsService $settingsService;
+
+    /**
      * Planet constructor.
      *
      * @param ?PlayerService $player
@@ -52,7 +58,7 @@ class PlanetService
      * @param int $planet_id
      *  If supplied the constructor will try to load the planet from the database.
      */
-    public function __construct(ObjectService $objectService, PlayerServiceFactory $playerServiceFactory, ?PlayerService $player = null, int $planet_id = 0)
+    public function __construct(ObjectService $objectService, PlayerServiceFactory $playerServiceFactory, SettingsService $settingsService, ?PlayerService $player = null, int $planet_id = 0)
     {
         // Load the planet object if a positive planet ID is given.
         // If no planet ID is given then planet context will not be available
@@ -72,6 +78,7 @@ class PlanetService
         }
 
         $this->objects = $objectService;
+        $this->settingsService = $settingsService;
     }
 
     /**
@@ -555,7 +562,7 @@ class PlanetService
 
         $robotfactory_level = $this->getObjectLevel('robot_factory');
         $nanitefactory_level = $this->getObjectLevel('nano_factory');
-        $universe_speed = 8; // @TODO: implement universe speed.
+        $universe_speed = $this->settingsService->economySpeed();
 
         // The actual formula which return time in seconds
         $time_hours =
@@ -567,8 +574,6 @@ class PlanetService
 
         $time_seconds = $time_hours * 3600;
 
-        // @TODO: round this value up or down so it will be valid for
-        // int storage in database.
         return (int)floor($time_seconds);
     }
 
@@ -579,7 +584,6 @@ class PlanetService
      * The machine name of the object.
      *
      * @return int
-     * @throws Exception
      */
     public function getObjectLevel(string $machine_name): int
     {
@@ -607,7 +611,7 @@ class PlanetService
 
         $shipyard_level = $this->getObjectLevel('shipyard');
         $nanitefactory_level = $this->getObjectLevel('nano_factory');
-        $universe_speed = 8; // @TODO: implement actual universe speed (development speed).
+        $universe_speed = $this->settingsService->economySpeed();
 
         // The actual formula which return time in seconds
         $time_hours =
@@ -632,7 +636,8 @@ class PlanetService
         $price = $this->objects->getObjectPrice($machine_name, $this);
 
         $research_lab_level = $this->getObjectLevel('research_lab');
-        $universe_speed = 16; // @TODO: implement actual universe speed (research speed).
+        // Research speed is = (economy x research speed).
+        $universe_speed = $this->settingsService->economySpeed() * $this->settingsService->researchSpeed();
 
         // The actual formula which return time in seconds
         $time_hours =
@@ -874,7 +879,6 @@ class PlanetService
         $queue = resolve(BuildingQueueService::class);
         $build_queue = $queue->retrieveFinished($this->getPlanetId());
 
-        // @TODO: add DB transaction wrapper
         foreach ($build_queue as $item) {
             // Update build queue record
             $item->processed = 1;
@@ -1026,7 +1030,7 @@ class PlanetService
      * @return void
      * @throws Exception
      */
-    public function removeUnit(string $machine_name, int $amount, bool $save_planet): void
+    public function removeUnit(string $machine_name, int $amount, bool $save_planet = true): void
     {
         $object = $this->objects->getUnitObjectByMachineName($machine_name);
         if ($this->planet->{$object->machine_name} < $amount) {
@@ -1099,14 +1103,13 @@ class PlanetService
      */
     public function getPlanetBasicIncome(): Resources
     {
-        $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
+        $universe_resource_multiplier = $this->settingsService->economySpeed();
 
-        // @TODO: make these settings configurable in backend.
         return new Resources(
-            30 * $universe_resource_multiplier,
-            15 * $universe_resource_multiplier,
-            0,
-            0
+            $this->settingsService->basicIncomeMetal() * $universe_resource_multiplier,
+            $this->settingsService->basicIncomeCrystal() * $universe_resource_multiplier,
+            $this->settingsService->basicIncomeDeuterium() * $universe_resource_multiplier,
+            $this->settingsService->basicIncomeEnergy() * $universe_resource_multiplier
         );
     }
 
@@ -1177,14 +1180,13 @@ class PlanetService
         $building_percentage = $this->getBuildingPercent($machine_name); // Implement building percentage.
         $planet_temperature = $this->getPlanetTempAvg();
         $energy_technology_level = 0; // Implement energy technology level getter.
-        $universe_resource_multiplier = 1; // @TODO: implement universe resource multiplier.
+        $universe_resource_multiplier = $this->settingsService->economySpeed();
 
-        // TODO: check if this works correctly by looping through object values.. would be better to refactor.
         $production = new Resources(0, 0, 0, 0);
         $production->metal->set((eval($building->production->metal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
         $production->crystal->set((eval($building->production->crystal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
         $production->deuterium->set((eval($building->production->deuterium) * $universe_resource_multiplier) * ($resource_production_factor / 100));
-        $production->energy->set((eval($building->production->energy) * $universe_resource_multiplier)); // Energy is not affected by production factor.
+        $production->energy->set((eval($building->production->energy))); // Energy is not affected by production factor or universe economy speed.
 
         // Round down for energy.
         // Round up for positive resources, round down for negative resources.

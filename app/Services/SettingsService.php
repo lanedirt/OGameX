@@ -93,4 +93,74 @@ class SettingsService
         $updated_setting = Setting::updateOrCreate(['key' => $key], ['value' => $value]);
         $this->settings[$key] = $updated_setting;
     }
+
+    /**
+     * Returns the fleet speed setting.
+     *
+     * @return int
+     */
+    public function fleetSpeed(): int
+    {
+        return (int)$this->get('fleet_speed', 1);
+    }
+
+    /**
+     * Returns the fleet speed setting.
+     *
+     * @return int
+     */
+    public function economySpeed(): int
+    {
+        return (int)$this->get('economy_speed', 1);
+    }
+
+    /**
+     * Returns the fleet speed setting.
+     *
+     * @return int
+     */
+    public function researchSpeed(): int
+    {
+        return (int)$this->get('research_speed', 1);
+    }
+
+    /**
+     * Returns the basic income metal setting.
+     *
+     * @return int
+     */
+    public function basicIncomeMetal(): int
+    {
+        return (int)$this->get('basic_income_metal', 30);
+    }
+
+    /**
+     * Returns the basic income crystal setting.
+     *
+     * @return int
+     */
+    public function basicIncomeCrystal(): int
+    {
+        return (int)$this->get('basic_income_crystal', 15);
+    }
+
+    /**
+     * Returns the basic income deuterium setting.
+     *
+     * @return int
+     */
+    public function basicIncomeDeuterium(): int
+    {
+        return (int)$this->get('basic_income_deuterium', 0);
+    }
+
+    /**
+     * Returns the basic income energy setting.
+     *
+     * @return int
+     */
+    public function basicIncomeEnergy(): int
+    {
+        return (int)$this->get('basic_income_energy', 0);
+    }
 }

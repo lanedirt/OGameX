@@ -6,7 +6,6 @@ use Illuminate\Support\ServiceProvider;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Services\SettingsService;
-use OGame\Utils\AppUtil;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,10 +31,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('appUtil', function ($app) {
-            return new AppUtil();
-        });
-
         $this->app->singleton(PlayerServiceFactory::class, function ($app) {
             return new PlayerServiceFactory();
         });

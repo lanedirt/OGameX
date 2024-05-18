@@ -8,7 +8,7 @@
         </div>
     @endif
 
-    <div id="buddiescomponent buddies" class="maincontent">
+    <div id="buddiescomponent" class="maincontent">
         <div id="planet" class="shortHeader">
             <h2>Buddies</h2>
         </div>
