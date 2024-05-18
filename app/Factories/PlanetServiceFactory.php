@@ -6,7 +6,6 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
-use OGame\Models\User;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;

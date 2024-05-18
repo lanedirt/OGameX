@@ -8,7 +8,6 @@ use OGame\Http\Controllers\OGameController;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use Request;
 
 class DeveloperShortcutsController extends OGameController
 {

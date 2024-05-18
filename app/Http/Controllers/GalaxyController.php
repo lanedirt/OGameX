@@ -54,7 +54,7 @@ class GalaxyController extends OGameController
      * @param int $system
      * @param PlayerService $player
      * @param PlanetServiceFactory $planetServiceFactory
-     * @return array<int, array<string, array<int|string, array<string, array<string,bool>|bool|int|string>|bool|int|string>|int|string>>
+     * @return array<int, array<string, array<int|string, array<int|string, array<string, bool>|bool|int|string>|bool|int|string>|int|string>>
      */
     public function getGalaxyArray(int $galaxy, int $system, PlayerService $player, PlanetServiceFactory $planetServiceFactory): array
     {

@@ -2,9 +2,7 @@
 
 namespace Feature;
 
-use Illuminate\Support\Str;
 use Tests\AccountTestCase;
-use Tests\TestCase;
 
 /**
  * Verify that the admin panel works as expected.

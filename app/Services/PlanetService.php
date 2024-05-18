@@ -4,7 +4,6 @@ namespace OGame\Services;
 
 use Exception;
 use Hamcrest\Core\Set;
-use http\Exception\RuntimeException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
