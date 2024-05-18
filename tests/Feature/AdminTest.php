@@ -22,11 +22,8 @@ class AdminTest extends AccountTestCase
      */
     public function testNormalUserAdminAccessDenied(): void
     {
-        // Sanity check: if current user is admin (which could be if it's the first user created)
-        // then we need to create a new user to test this.
-        if (auth()->user()->hasRole('admin')) {
-            $this->createAndLoginUser();
-        }
+        // Remove the admin role from the current user if it has it.
+        $this->artisan('ogamex:remove-admin-role', ['username' => auth()->user()->username]);
 
         // Verify that on overview page the admin bar doesn't show up.
         $response = $this->get('/overview');
