@@ -58,6 +58,6 @@ class Message extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo('OGame\Models\User');
+        return $this->belongsTo(User::class);
     }
 }

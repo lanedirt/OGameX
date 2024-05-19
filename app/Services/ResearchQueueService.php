@@ -24,14 +24,14 @@ class ResearchQueueService
      *
      * @var ObjectService
      */
-    protected ObjectService $objects;
+    private ObjectService $objects;
 
     /**
      * The queue model where this class should get its data from.
      *
      * @var ResearchQueue
      */
-    protected ResearchQueue $model;
+    private ResearchQueue $model;
 
     /**
      * BuildingQueue constructor.
@@ -42,8 +42,7 @@ class ResearchQueueService
     {
         $this->objects = $objects;
 
-        $model_name = 'OGame\Models\ResearchQueue';
-        $this->model = new $model_name();
+        $this->model = new ResearchQueue();
     }
 
     /**
@@ -55,7 +54,7 @@ class ResearchQueueService
     public function retrieveQueuedFromQueue(\Illuminate\Support\Collection $queue_items): \Illuminate\Support\Collection
     {
         foreach ($queue_items as $key => $record) {
-            if ($record['building'] == 1) {
+            if ($record['building'] === 1) {
                 unset($queue_items[$key]);
             }
         }
@@ -263,7 +262,7 @@ class ResearchQueueService
             $build_queue = $this->retrieveQueue($planet);
             $currently_building = $build_queue->getCurrentlyBuildingFromQueue();
 
-            if (!empty($currently_building)) {
+            if ($currently_building !== null) {
                 // There already is something else building, don't start a new one.
                 break;
             }
@@ -272,7 +271,7 @@ class ResearchQueueService
             // is 1 higher than the current level. If not, then it means something
             // is wrong.
             $current_level = $player->getResearchLevel($object->machine_name);
-            if ($queue_item->object_level_target != ($current_level + 1)) {
+            if ($queue_item->object_level_target !== ($current_level + 1)) {
                 // Error, cancel build queue item.
                 $this->cancel($player, $planet, $queue_item->id, $queue_item->object_id);
 
@@ -358,7 +357,7 @@ class ResearchQueueService
             }
 
             // Give back resources if the current entry was already building.
-            if ($queue_item->building == 1) {
+            if ($queue_item->building === 1) {
                 $planet->addResources(new Resources($queue_item->metal, $queue_item->crystal, $queue_item->deuterium, 0));
             }
 

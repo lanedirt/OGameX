@@ -87,6 +87,6 @@ class User extends Authenticatable
      */
     public function tech(): HasOne
     {
-        return $this->hasOne('OGame\Models\UserTech');
+        return $this->hasOne(UserTech::class);
     }
 }

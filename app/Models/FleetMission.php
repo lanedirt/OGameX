@@ -90,7 +90,7 @@ class FleetMission extends Model
      */
     public function planetFrom(): BelongsTo
     {
-        return $this->belongsTo('OGame\Models\Planet');
+        return $this->belongsTo(Planet::class);
     }
 
     /**
@@ -98,6 +98,6 @@ class FleetMission extends Model
      */
     public function planetTo(): BelongsTo
     {
-        return $this->belongsTo('OGame\Models\Planet');
+        return $this->belongsTo(Planet::class);
     }
 }

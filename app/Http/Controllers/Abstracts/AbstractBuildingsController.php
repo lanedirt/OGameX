@@ -103,7 +103,7 @@ abstract class AbstractBuildingsController extends OGameController
 
                 // If building level is 1 or higher, add to header filename parts to
                 // render the header of this planet.
-                if (in_array($object->id, $this->header_filename_objects) && $current_level >= 1) {
+                if ($current_level >= 1 && in_array($object->id, $this->header_filename_objects, true)) {
                     $header_filename_parts[$object->id] = $object->id;
                 }
 
@@ -113,7 +113,7 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->current_level = $current_level;
                 $view_model->requirements_met = $requirements_met;
                 $view_model->enough_resources = $enough_resources;
-                $view_model->currently_building = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name);
+                $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
 
                 $buildings[$key_row][$object->id] = $view_model;
             }

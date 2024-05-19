@@ -16,6 +16,7 @@ class DeveloperShortcutsController extends OGameController
      *
      * @param PlayerService $player
      * @param SettingsService $settingsService
+     * @param ObjectService $objectService
      * @return View
      */
     public function index(PlayerService $player, SettingsService $settingsService, ObjectService $objectService): View

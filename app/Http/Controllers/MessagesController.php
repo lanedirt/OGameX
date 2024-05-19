@@ -162,7 +162,7 @@ class MessagesController extends OGameController
         $messageId = $request->get('messageId');
 
         // If action is 103, we delete the message.
-        if ($request->get('action') == 103) {
+        if ($request->get('action') === 103) {
             $messageService->deleteMessage($messageId);
         }
 

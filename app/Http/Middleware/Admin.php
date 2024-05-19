@@ -16,12 +16,10 @@ class Admin
      * @param ?string $guard
      * @return mixed
      */
-    public function handle($request, Closure $next, ?string $guard = null)
+    public function handle(Request $request, Closure $next, string|null $guard = null)
     {
-        if (Auth::check()) {
-            if (!Auth::user()->hasRole('admin')) {
-                return redirect('/overview');
-            }
+        if (Auth::check() && !Auth::user()->hasRole('admin')) {
+            return redirect('/overview');
         }
 
         return $next($request);

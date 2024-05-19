@@ -75,7 +75,7 @@ class TechtreeController extends OGameController
      */
     public function getProductionTable(GameObject $object, PlayerService $player, ObjectService $objects): View
     {
-        if ($object->type != 'building') {
+        if ($object->type !== 'building') {
             return view('empty');
         }
 
@@ -100,7 +100,7 @@ class TechtreeController extends OGameController
                     'level' => $i,
                     'production' => $production_amount,
                     'production_difference' => $production_amount - $production_amount_current_level,
-                    'production_difference_per_level' => ($i == $current_level) ? 0 : (($i - 1 < $current_level) ? ($production_amount - $production_amount_previous_level) * -1 : $production_amount - $production_amount_previous_level),
+                    'production_difference_per_level' => ($i === $current_level) ? 0 : (($i - 1 < $current_level) ? ($production_amount - $production_amount_previous_level) * -1 : $production_amount - $production_amount_previous_level),
                     'energy_balance' => $planet->getBuildingProduction($object->machine_name, $i)->energy->get(),
                     'energy_difference' => ($i == $current_level) ? 0 : ($planet->getBuildingProduction($object->machine_name, $i)->energy->get() - $planet->getBuildingProduction($object->machine_name, $current_level)->energy->get()),
                     'deuterium_consumption' => $planet->getBuildingProduction($object->machine_name, $i)->deuterium->get(),
@@ -129,7 +129,7 @@ class TechtreeController extends OGameController
      */
     public function getStorageTable(GameObject $object, PlayerService $player, ObjectService $objects): View
     {
-        if ($object->type != 'building') {
+        if ($object->type !== 'building') {
             return view('empty');
         }
 
@@ -154,7 +154,7 @@ class TechtreeController extends OGameController
                     'level' => $i,
                     'storage' => $storage_amount,
                     'storage_difference' => $storage_amount - $storage_amount_current_level,
-                    'storage_difference_per_level' => ($i == $current_level) ? 0 : (($i - 1 < $current_level) ? ($storage_amount - $storage_amount_previous_level) * -1 : $storage_amount - $storage_amount_previous_level),
+                    'storage_difference_per_level' => ($i === $current_level) ? 0 : (($i - 1 < $current_level) ? ($storage_amount - $storage_amount_previous_level) * -1 : $storage_amount - $storage_amount_previous_level),
                     'protected' => 0,
                 ];
             }
@@ -177,7 +177,7 @@ class TechtreeController extends OGameController
      */
     public function getRapidfireTable(GameObject $object, ObjectService $objects): View
     {
-        if ($object->type != 'ship' && $object->type != 'defense') {
+        if ($object->type !== 'ship' && $object->type !== 'defense') {
             return view('empty');
         }
 
@@ -197,7 +197,7 @@ class TechtreeController extends OGameController
             }
 
             foreach ($from_object->rapidfire as $rapidfire) {
-                if ($rapidfire->object_machine_name == $object->machine_name) {
+                if ($rapidfire->object_machine_name === $object->machine_name) {
                     $rapidfire_from[$from_object->id] = [
                         'rapidfire' => $rapidfire,
                         'object' => $from_object,
@@ -237,7 +237,7 @@ class TechtreeController extends OGameController
      */
     public function getPropertiesTable(GameObject $object, PlayerService $player, ObjectService $objects): View
     {
-        if ($object->type != 'ship' && $object->type != 'defense') {
+        if ($object->type !== 'ship' && $object->type !== 'defense') {
             return view('empty');
         }
 
@@ -308,7 +308,7 @@ class TechtreeController extends OGameController
      */
     public function getPlasmaTable(GameObject $object, PlayerService $player): View
     {
-        if ($object->type != 'research') {
+        if ($object->type !== 'research') {
             return view('empty');
         }
 

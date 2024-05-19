@@ -38,7 +38,7 @@ class FacilitiesController extends AbstractBuildingsController
         // Prepare custom properties
         $this->header_filename_objects = [14, 21, 31, 34]; // Building ID's that make up the header filename.
         $this->objects = [
-            0 => ['robot_factory', 'shipyard', 'research_lab', 'alliance_depot', 'missile_silo', 'nano_factory', 'terraformer', 'space_dock'],
+            ['robot_factory', 'shipyard', 'research_lab', 'alliance_depot', 'missile_silo', 'nano_factory', 'terraformer', 'space_dock'],
         ];
         $this->view_name = 'ingame.facilities.index';
 

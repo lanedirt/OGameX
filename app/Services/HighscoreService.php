@@ -20,9 +20,9 @@ class HighscoreService
      * Highscore type to calculate.
      * @var int
      */
-    protected int $highscoreType;
+    private int $highscoreType;
 
-    protected PlayerServiceFactory $playerServiceFactory;
+    private PlayerServiceFactory $playerServiceFactory;
 
     /**
      * Highscore constructor.
@@ -125,6 +125,7 @@ class HighscoreService
      * @param int $offset_start
      * @param int $return_amount
      * @return array<int, array<string,mixed>>
+     * @throws Exception
      */
     public function getHighscorePlayers(int $offset_start = 0, int $return_amount = 100): array
     {
@@ -195,6 +196,7 @@ class HighscoreService
      *
      * @param PlayerService $player
      * @return int
+     * @throws Exception
      */
     public function getHighscorePlayerRank(PlayerService $player): int
     {
@@ -206,7 +208,7 @@ class HighscoreService
         $rank = 0;
         foreach ($highscorePlayers as $highscorePlayer) {
             $rank++;
-            if ($highscorePlayer['id'] == $player->getId()) {
+            if ($highscorePlayer['id'] === $player->getId()) {
                 return $rank;
             }
         }

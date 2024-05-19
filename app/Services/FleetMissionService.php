@@ -27,7 +27,7 @@ class FleetMissionService
      *
      * @var string[]
      */
-    protected array $type_to_label = [
+    private array $type_to_label = [
         1 => 'Attack',
         2 => 'ACS Defend',
         3 => 'Transport',
@@ -44,7 +44,7 @@ class FleetMissionService
      * Mission type to class mapping.
      * @var array<int, class-string> $missionTypeToClass
      */
-    protected array $missionTypeToClass = [
+    private array $missionTypeToClass = [
         3 => TransportMission::class,
         4 => DeploymentMission::class,
         7 => ColonisationMission::class,
@@ -55,29 +55,29 @@ class FleetMissionService
      *
      * @var PlayerService
      */
-    protected PlayerService $player;
+    private PlayerService $player;
 
     /**
      * @var ObjectService $objects
      */
-    protected ObjectService $objects;
+    private ObjectService $objects;
 
     /**
      * @var MessageService $messageService
      */
-    protected MessageService $messageService;
+    private MessageService $messageService;
 
     /**
      * @var GameMissionFactory $gameMissionFactory
      */
-    protected GameMissionFactory $gameMissionFactory;
+    private GameMissionFactory $gameMissionFactory;
 
     /**
      * The queue model where this class should get its data from.
      *
      * @var FleetMission
      */
-    protected FleetMission $model;
+    private FleetMission $model;
 
     /**
      * FleetMissionService constructor.
@@ -89,8 +89,7 @@ class FleetMissionService
         $this->messageService = $messageService;
         $this->gameMissionFactory = $gameMissionFactory;
 
-        $model_name = 'OGame\Models\FleetMission';
-        $this->model = new $model_name();
+        $this->model = new FleetMission();
     }
 
 

@@ -34,8 +34,8 @@ class FleetController extends OGameController
         // 0 = military ships
         // 1 = civil ships
         $screen_objects = [
-            0 => ['light_fighter', 'heavy_fighter', 'cruiser', 'battle_ship', 'battlecruiser', 'bomber', 'destroyer', 'deathstar'],
-            1 => ['small_cargo', 'large_cargo', 'colony_ship', 'recycler', 'espionage_probe'],
+            ['light_fighter', 'heavy_fighter', 'cruiser', 'battle_ship', 'battlecruiser', 'bomber', 'destroyer', 'deathstar'],
+            ['small_cargo', 'large_cargo', 'colony_ship', 'recycler', 'espionage_probe'],
         ];
 
         $planet = $player->planets->current();
@@ -113,7 +113,7 @@ class FleetController extends OGameController
         // Load the target planet
         $targetPlanet = $planetServiceFactory->makeForCoordinate(new Coordinate($galaxy, $system, $position));
         $targetPlayer = null;
-        if ($targetPlanet != null) {
+        if ($targetPlanet !== null) {
             $targetPlayer = $targetPlanet->getPlayer();
 
             $targetPlayerId = $targetPlayer->getId();
@@ -149,7 +149,7 @@ class FleetController extends OGameController
         $orders = [];
         $possible_mission_types = [1, 2, 3, 4, 5, 6, 7, 8, 9, 15];
         foreach ($possible_mission_types as $mission) {
-            if (in_array($mission, $enabledMissions)) {
+            if (in_array($mission, $enabledMissions, true)) {
                 $orders[$mission] = true;
             } else {
                 $orders[$mission] = false;
@@ -212,25 +212,25 @@ class FleetController extends OGameController
         // Expected form data
         /*
          token: 91cf2833548771ba423894d1f3dddb3c
-am202: 1
-galaxy: 1
-system: 1
-position: 12
-type: 1
-metal: 0
-crystal: 0
-deuterium: 0
-food: 0
-prioMetal: 2
-prioCrystal: 3
-prioDeuterium: 4
-prioFood: 1
-mission: 3
-speed: 10
-retreatAfterDefenderRetreat: 0
-lootFoodOnAttack: 0
-union: 0
-holdingtime: 0
+         am202: 1
+         galaxy: 1
+         system: 1
+         position: 12
+         type: 1
+         metal: 0
+         crystal: 0
+         deuterium: 0
+         food: 0
+         prioMetal: 2
+         prioCrystal: 3
+         prioDeuterium: 4
+         prioFood: 1
+         mission: 3
+         speed: 10
+         retreatAfterDefenderRetreat: 0
+         lootFoodOnAttack: 0
+         union: 0
+         holdingtime: 0
          */
 
         // Get the current player's planet

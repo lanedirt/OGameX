@@ -129,7 +129,7 @@ class ObjectService
     {
         // Loop through all buildings and return the one with the matching UID
         foreach (BuildingObjects::get() as $building) {
-            if ($building->machine_name == $machine_name) {
+            if ($building->machine_name === $machine_name) {
                 return $building;
             }
         }
@@ -148,7 +148,7 @@ class ObjectService
         // Loop through all buildings and return the one with the matching UID
         $shipObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
         foreach ($shipObjects as $ship) {
-            if ($ship->machine_name == $machine_name) {
+            if ($ship->machine_name === $machine_name) {
                 return $ship;
             }
         }
@@ -203,9 +203,9 @@ class ObjectService
     public function getResearchObjectByMachineName(string $machine_name): ResearchObject
     {
         // Loop through all buildings and return the one with the matching UID
-        $allObjects = array_merge(ResearchObjects::get());
+        $allObjects = ResearchObjects::get();
         foreach ($allObjects as $object) {
-            if ($object->machine_name == $machine_name) {
+            if ($object->machine_name === $machine_name) {
                 return $object;
             }
         }
@@ -222,9 +222,9 @@ class ObjectService
     public function getResearchObjectById(int $object_id): ResearchObject
     {
         // Loop through all buildings and return the one with the matching UID
-        $allObjects = array_merge(ResearchObjects::get());
+        $allObjects = ResearchObjects::get();
         foreach ($allObjects as $object) {
-            if ($object->id == $object_id) {
+            if ($object->id === $object_id) {
                 return $object;
             }
         }
@@ -242,7 +242,7 @@ class ObjectService
     {
         $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
-            if ($object->id == $object_id) {
+            if ($object->id === $object_id) {
                 return $object;
             }
         }
@@ -261,7 +261,7 @@ class ObjectService
         // Loop through all buildings and return the one with the matching UID
         $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
-            if ($object->machine_name == $machine_name) {
+            if ($object->machine_name === $machine_name) {
                 return $object;
             }
         }
@@ -296,7 +296,7 @@ class ObjectService
     public function getBuildingObjectsWithProductionByMachineName(string $machine_name): BuildingObject
     {
         foreach (BuildingObjects::get() as $object) {
-            if ($object->machine_name == $machine_name && !empty(($object->production))) {
+            if ($object->machine_name === $machine_name && !empty(($object->production))) {
                 return $object;
             }
         }
@@ -337,7 +337,7 @@ class ObjectService
             foreach ($object->requirements as $requirement) {
                 // Load required object and check if requirements are met.
                 $object_required = $this->getObjectByMachineName($requirement->object_machine_name);
-                if ($object_required->type == 'research') {
+                if ($object_required->type === 'research') {
                     if ($player->getResearchLevel($object_required->machine_name) < $requirement->level) {
                         return false;
                     }
@@ -387,9 +387,7 @@ class ObjectService
 
         // Get the lowest divided value which is the maximum amount of times this ship
         // can be built right now.
-        $max_build_amount = min($max_build_amount);
-
-        return $max_build_amount;
+        return min($max_build_amount);
     }
 
     /**
@@ -406,11 +404,11 @@ class ObjectService
         $player = $planet->getPlayer();
 
         // Price calculation for buildings or research (price depends on level)
-        if ($object->type == 'building' || $object->type == 'station' || $object->type == 'research') {
-            if ($object->type == 'building' || $object->type == 'station') {
+        if ($object->type === 'building' || $object->type === 'station' || $object->type === 'research') {
+            if ($object->type === 'building' || $object->type === 'station') {
                 $current_level = $planet->getObjectLevel($object->machine_name);
             } else {
-                $current_level = $player->getResearchLevel($object->machine_name);
+                $current_level = $player?->getResearchLevel($object->machine_name);
             }
 
             $price = $this->getObjectRawPrice($machine_name, $current_level + 1);
@@ -439,19 +437,19 @@ class ObjectService
         }
 
         // Price calculation for buildings or research (price depends on level)
-        if ($object->type == 'building' || $object->type == 'station' || $object->type == 'research') {
+        if ($object->type === 'building' || $object->type === 'station' || $object->type === 'research') {
             // Level 0 is free.
-            if ($level == 0) {
+            if ($level === 0) {
                 return new Resources(0, 0, 0, 0);
             }
 
             $base_price = $object->price;
 
             // Calculate price.
-            $metal = $base_price->resources->metal->get() * pow($base_price->factor, $level - 1);
-            $crystal = $base_price->resources->crystal->get() * pow($base_price->factor, $level - 1);
-            $deuterium = $base_price->resources->deuterium->get() * pow($base_price->factor, $level - 1);
-            $energy = $base_price->resources->energy->get() * pow($base_price->factor, $level - 1);
+            $metal = $base_price->resources->metal->get() * ($base_price->factor ** ($level - 1));
+            $crystal = $base_price->resources->crystal->get() * ($base_price->factor ** ($level - 1));
+            $deuterium = $base_price->resources->deuterium->get() * ($base_price->factor ** ($level - 1));
+            $energy = $base_price->resources->energy->get() * ($base_price->factor ** ($level - 1));
 
             // Round price
             $metal = round($metal);

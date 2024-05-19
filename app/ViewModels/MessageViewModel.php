@@ -113,7 +113,7 @@ class MessageViewModel
             $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
             $planetService = $planetServiceFactory->make((int)$matches[1]);
 
-            if ($planetService != null) {
+            if ($planetService !== null) {
                 $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
                                     <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
                                 ' . $planetService->getPlanetName() . ' [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
@@ -133,7 +133,7 @@ class MessageViewModel
             $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
             $planetService = $planetServiceFactory->makeForCoordinate(new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]));
 
-            if ($planetService != null) {
+            if ($planetService !== null) {
                 $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
                                     <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
                                 [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
