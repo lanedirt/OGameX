@@ -20,13 +20,6 @@ use OGame\ViewModels\Queue\BuildingQueueViewModel;
 class BuildingQueueService
 {
     /**
-     * The planet object from the model.
-     *
-     * @var BuildingQueue
-     */
-     // private BuildingQueue $queue_item;
-
-    /**
      * Information about objects.
      *
      * @var ObjectService
