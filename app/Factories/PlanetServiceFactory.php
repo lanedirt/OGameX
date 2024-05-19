@@ -46,9 +46,9 @@ class PlanetServiceFactory
      * it is advised to use makeForPlayer() method if playerService is already available.
      *
      * @param int $planetId
-     * @return PlanetService
+     * @return PlanetService|null
      */
-    public function make(int $planetId): PlanetService
+    public function make(int $planetId): PlanetService|null
     {
         if (!isset($this->instancesById[$planetId])) {
             try {
@@ -59,7 +59,8 @@ class PlanetServiceFactory
                     $this->instancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
                 }
             } catch (BindingResolutionException $e) {
-                throw new \RuntimeException('Class not found: ' . PlayerService::class);
+                return null;
+                /*throw new \RuntimeException('Class not found: ' . PlayerService::class);*/
             }
         }
 

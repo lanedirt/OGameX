@@ -24,7 +24,7 @@ class BuildingQueueService
      *
      * @var BuildingQueue
      */
-    private BuildingQueue $queue_item;
+     // private BuildingQueue $queue_item;
 
     /**
      * Information about objects.
