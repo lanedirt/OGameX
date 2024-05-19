@@ -88,7 +88,7 @@ To maximize the resources that can be stored in the holds, this ship has little 
 This ship is used to prepare a newly discovered planet for colonization. Once it arrives at the destination, the ship is instantly transformed into habitual living space to assist in populating and mining the new world. The maximum number of planets is thereby determined by the progress in astrophysics research.Two new levels of Astrotechnology allow for the colonization of one additional planet.';
         $colonyShip->requirements = [
             new GameObjectRequirement('shipyard', 4),
-            new GameObjectRequirement('combustion_drive', 3),
+            new GameObjectRequirement('impulse_drive', 3),
         ];
         $colonyShip->price = new GameObjectPrice(10000, 20000, 10000, 0);
         $colonyShip->rapidfire = [
