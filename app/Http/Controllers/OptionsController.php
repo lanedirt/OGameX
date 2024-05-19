@@ -81,9 +81,13 @@ class OptionsController extends OGameController
             if ($change_handler) {
                 if (!empty($change_handler['success_logout'])) {
                     return redirect()->route('options.index')->with('success_logout', $change_handler['success_logout']);
-                } elseif (!empty($change_handler['success'])) {
+                }
+
+                if (!empty($change_handler[ 'success'])) {
                     return redirect()->route('options.index')->with('success', $change_handler['success']);
-                } elseif (!empty($change_handler['error'])) {
+                }
+
+                if (!empty($change_handler[ 'error'])) {
                     return redirect()->route('options.index')->with('error', $change_handler['error']);
                 }
             }

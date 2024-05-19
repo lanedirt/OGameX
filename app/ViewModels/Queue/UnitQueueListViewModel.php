@@ -47,7 +47,7 @@ class UnitQueueListViewModel extends QueueListViewModel
     {
         $queued = [];
         // Everything except the first
-        for ($i = 1; $i < count($this->queue); $i++) {
+        for ($i = 1, $iMax = count($this->queue); $i < $iMax; $i++) {
             $queued[] = $this->queue[$i];
         }
 

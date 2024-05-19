@@ -2,9 +2,10 @@
 
 namespace OGame\Models;
 
+use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -50,8 +51,9 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUsername($value)
  * @mixin \Eloquent
  */
-class User extends Authenticatable
+class User extends Model
 {
+    use Authenticatable;
     use Notifiable;
     use HasFactory;
     use HasRoles;
@@ -87,6 +89,6 @@ class User extends Authenticatable
      */
     public function tech(): HasOne
     {
-        return $this->hasOne('OGame\Models\UserTech');
+        return $this->hasOne(UserTech::class);
     }
 }

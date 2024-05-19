@@ -84,9 +84,9 @@ class FleetEventsController extends OGameController
 
             $eventRowViewModel->origin_planet_name = '';
             $eventRowViewModel->origin_planet_coords = new Coordinate($row->galaxy_from, $row->system_from, $row->position_from);
-            if ($row->planet_id_from != null) {
+            if ($row->planet_id_from !== null) {
                 $planetFromService = $planetServiceFactory->make($row->planet_id_from);
-                if ($planetFromService != null) {
+                if ($planetFromService !== null) {
                     $eventRowViewModel->origin_planet_name = $planetFromService->getPlanetName();
                     $eventRowViewModel->origin_planet_coords = $planetFromService->getPlanetCoordinates();
                 }
@@ -94,9 +94,9 @@ class FleetEventsController extends OGameController
 
             $eventRowViewModel->destination_planet_name = '';
             $eventRowViewModel->destination_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
-            if ($row->planet_id_to != null) {
+            if ($row->planet_id_to !== null) {
                 $planetToService = $planetServiceFactory->make($row->planet_id_to);
-                if ($planetToService != null) {
+                if ($planetToService !== null) {
                     $eventRowViewModel->destination_planet_name = $planetToService->getPlanetName();
                     $eventRowViewModel->destination_planet_coords = $planetToService->getPlanetCoordinates();
                 }

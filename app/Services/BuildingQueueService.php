@@ -24,21 +24,21 @@ class BuildingQueueService
      *
      * @var BuildingQueue
      */
-    protected BuildingQueue $queue_item;
+    private BuildingQueue $queue_item;
 
     /**
      * Information about objects.
      *
      * @var ObjectService
      */
-    protected ObjectService $objects;
+    private ObjectService $objects;
 
     /**
      * The queue model where this class should get its data from.
      *
      * @var BuildingQueue $model
      */
-    protected BuildingQueue $model;
+    private BuildingQueue $model;
 
     /**
      * BuildingQueue constructor.
@@ -49,8 +49,7 @@ class BuildingQueueService
     {
         $this->objects = $objects;
 
-        $model_name = 'OGame\Models\BuildingQueue';
-        $this->model = new $model_name();
+        $this->model = new BuildingQueue();
     }
 
     /**
@@ -315,7 +314,7 @@ class BuildingQueueService
             }
 
             // Give back resources if the current entry was already building.
-            if ($queue_item->building == 1) {
+            if ($queue_item->building === 1) {
                 $planet->addResources(new Resources($queue_item->metal, $queue_item->crystal, $queue_item->deuterium, 0));
             }
 

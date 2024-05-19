@@ -51,6 +51,6 @@ class UnitQueue extends Model
      */
     public function planet(): BelongsTo
     {
-        return $this->belongsTo('OGame\Models\Planet');
+        return $this->belongsTo(Planet::class);
     }
 }

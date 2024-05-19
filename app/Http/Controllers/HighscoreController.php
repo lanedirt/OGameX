@@ -41,7 +41,7 @@ class HighscoreController extends OGameController
         // 2 = alliances
         $category = $request->input('category', '1');
         if (!empty($category)) {
-            $category = intval($category);
+            $category = (int)$category;
         } else {
             $category = 0;
         }
@@ -69,7 +69,7 @@ class HighscoreController extends OGameController
         // 3 = military
         $type = $request->input('type', '0');
         if (!empty($type)) {
-            $type = intval($type);
+            $type = (int)$type;
         } else {
             $type = 0;
         }
@@ -83,7 +83,7 @@ class HighscoreController extends OGameController
         // Check if we received a page number, if so, use it instead of the current player rank.
         $page = $request->input('page', null);
         if (!empty($page)) {
-            $page = intval($page);
+            $page = (int)$page;
         } else {
             // Initial page based on current player rank (round to the nearest 100 floored).
             $page = $currentPlayerPage;
@@ -122,7 +122,7 @@ class HighscoreController extends OGameController
         // 3 = military
         $type = $request->input('type', '0');
         if (!empty($type)) {
-            $type = intval($type);
+            $type = (int)$type;
         } else {
             $type = 0;
         }
@@ -136,7 +136,7 @@ class HighscoreController extends OGameController
         // Check if we received a page number, if so, use it instead of the current player rank.
         $page = $request->input('page', null);
         if (!empty($page)) {
-            $page = intval($page);
+            $page = (int)$page;
         } else {
             // Initial page based on current player rank (round to the nearest 100 floored).
             $page = $currentPlayerPage;

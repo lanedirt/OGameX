@@ -22,7 +22,7 @@ class MessageService
      *
      * @var array<string, array<string>> $tabs
      */
-    protected array $tabs = [
+    private array $tabs = [
         'fleets' => [
             'espionage',
             'combat_reports',
@@ -114,7 +114,7 @@ class MessageService
      *
      * @var PlayerService
      */
-    protected PlayerService $player;
+    private PlayerService $player;
 
     /**
      * MessageService constructor.

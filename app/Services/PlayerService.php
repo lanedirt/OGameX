@@ -31,19 +31,19 @@ class PlayerService
      *
      * @var User
      */
-    protected User $user;
+    private User $user;
 
     /**
      * The user tech object from the model of this player.
      *
      * @var UserTech
      */
-    protected UserTech $user_tech;
+    private UserTech $user_tech;
 
     /**
      * @var ObjectService
      */
-    protected ObjectService $objects;
+    private ObjectService $objects;
 
     /**
      * Player constructor.
@@ -55,7 +55,7 @@ class PlayerService
     {
         // Load the player object if a positive player ID is given.
         // If no player ID is given then player context will not be available, but this can be fine for unittests.
-        if ($player_id != 0) {
+        if ($player_id !== 0) {
             $this->load($player_id);
         }
 
@@ -65,12 +65,12 @@ class PlayerService
     /**
      * Checks if this object is equal to another object.
      *
-     * @param ?PlayerService $other
+     * @param PlayerService|null $other
      * @return bool
      */
-    public function equals(?PlayerService $other): bool
+    public function equals(PlayerService|null $other): bool
     {
-        return $other != null && $this->getId() == $other->getId();
+        return $other !== null && $this->getId() === $other->getId();
     }
 
     /**
@@ -367,8 +367,6 @@ class PlayerService
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
         $resources_sum = $resources_spent->metal->get() + $resources_spent->crystal->get() + $resources_spent->deuterium->get();
-        $score = (int)floor($resources_sum / 1000);
-
-        return $score;
+        return (int)floor($resources_sum / 1000);
     }
 }

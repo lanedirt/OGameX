@@ -4,6 +4,7 @@ namespace OGame\Http\ViewComposers;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use OGame\Facades\AppUtil;
 use OGame\Services\MessageService;
 use OGame\Services\PlayerService;
@@ -17,9 +18,9 @@ use OGame\Services\PlayerService;
  */
 class IngameMainComposer
 {
-    protected Request $request;
-    protected PlayerService $player;
-    protected MessageService $messageService;
+    private Request $request;
+    private PlayerService $player;
+    private MessageService $messageService;
 
     /**
      * IngameMainComposer constructor.
@@ -29,6 +30,7 @@ class IngameMainComposer
      *
      * @param Request $request
      * @param PlayerService $player
+     * @param MessageService $messageService
      */
     public function __construct(Request $request, PlayerService $player, MessageService $messageService)
     {
@@ -87,10 +89,10 @@ class IngameMainComposer
         ];
 
         // Include body_id, which might have been set in the controller.
-        $body_id = request()->attributes->get('body_id');
+        $body_id = $this->request->attributes->get('body_id');
 
         // Get current locale
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
 
         $view->with([
             'unreadMessagesCount' => $this->messageService->getUnreadMessagesCount(),

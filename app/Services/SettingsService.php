@@ -18,7 +18,7 @@ class SettingsService
      *
      * @var array<string, Setting>
      */
-    protected array $settings = [];
+    private array $settings = [];
 
     /**
      * SettingsService constructor.
@@ -85,7 +85,7 @@ class SettingsService
 
         // Check if to be saved value is actually different from current one.
         $currentValue = $this->get($key, '');
-        if (!empty($currentValue) && $currentValue == $value) {
+        if (!empty($currentValue) && $currentValue === $value) {
             // To be saved value is same as current value, skip update to prevent unnecessary db call.
             return;
         }

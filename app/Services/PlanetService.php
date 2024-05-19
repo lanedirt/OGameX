@@ -34,19 +34,19 @@ class PlanetService
      *
      * @var Planet
      */
-    protected Planet $planet;
+    private Planet $planet;
 
     /**
      * The player object who owns this planet.
      *
      * @var PlayerService
      */
-    protected PlayerService $player;
+    private PlayerService $player;
 
     /**
      * @var SettingsService $settingsService
      */
-    protected SettingsService $settingsService;
+    private SettingsService $settingsService;
 
     /**
      * Planet constructor.
@@ -58,7 +58,7 @@ class PlanetService
      * @param int $planet_id
      *  If supplied the constructor will try to load the planet from the database.
      */
-    public function __construct(ObjectService $objectService, PlayerServiceFactory $playerServiceFactory, SettingsService $settingsService, ?PlayerService $player = null, int $planet_id = 0)
+    public function __construct(ObjectService $objectService, PlayerServiceFactory $playerServiceFactory, SettingsService $settingsService, PlayerService|null $player = null, int $planet_id = 0)
     {
         // Load the planet object if a positive planet ID is given.
         // If no planet ID is given then planet context will not be available

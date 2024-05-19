@@ -20,19 +20,19 @@ class PlanetListService
      *
      * @var array<PlanetService>
      */
-    protected array $planets = [];
+    private array $planets = [];
 
     /**
      * PlayerService
      *
      * @var PlayerService
      */
-    protected PlayerService $player;
+    private PlayerService $player;
 
     /**
      * @var PlanetServiceFactory $planetServiceFactory
      */
-    protected PlanetServiceFactory $planetServiceFactory;
+    private PlanetServiceFactory $planetServiceFactory;
 
     /**
      * Planets constructor.
@@ -98,7 +98,7 @@ class PlanetListService
     public function childPlanetById(int $id): PlanetService
     {
         foreach ($this->planets as $planet) {
-            if ($planet->getPlanetId() == $id) {
+            if ($planet->getPlanetId() === $id) {
                 return $planet;
             }
         }
@@ -115,7 +115,7 @@ class PlanetListService
     public function planetExistsAndOwnedByPlayer(int $id): bool
     {
         foreach ($this->planets as $planet) {
-            if ($planet->getPlanetId() == $id) {
+            if ($planet->getPlanetId() === $id) {
                 return true;
             }
         }
@@ -133,7 +133,7 @@ class PlanetListService
 
         // Check if this planet actually exists before returning it.
         foreach ($this->planets as $planet) {
-            if ($planet->getPlanetId() == $currentPlanetId) {
+            if ($planet->getPlanetId() === $currentPlanetId) {
                 return $planet;
             }
         }

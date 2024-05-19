@@ -32,8 +32,8 @@ class GalaxyController extends OGameController
         $galaxy_qs = $request->input('galaxy', '0');
         $system_qs = $request->input('system', '0');
         if (!empty($galaxy_qs) && !empty($system_qs)) {
-            $galaxy = intval($galaxy_qs);
-            $system = intval($system_qs);
+            $galaxy = (int)$galaxy_qs;
+            $system = (int)$system_qs;
         }
 
         return view('ingame.galaxy.index')->with([
@@ -94,20 +94,20 @@ class GalaxyController extends OGameController
                     ],
                     'galaxy' => 7,
                     'planets' => [
-                        0 => [
-                            'activity' => [
+                        [
+                            'activity'          => [
                                 //'idleTime' => 31,
                                 //'showActivity' => 60,
                                 //'showMinutes' => false,
                             ],
                             'availableMissions' => [],
-                            'fleet' => [],
-                            'imageInformation' => $planet->getPlanetType() . '_' . $planet->getPlanetCoordinates()->position,
-                            'isDestroyed' => false,
-                            'planetId' => $planet->getPlanetId(),
-                            'planetName' => $planet->getPlanetName(),
-                            'playerId' => $player->getId(),
-                            'planetType' => 1,
+                            'fleet'             => [],
+                            'imageInformation'  => $planet->getPlanetType() . '_' . $planet->getPlanetCoordinates()->position,
+                            'isDestroyed'       => false,
+                            'planetId'          => $planet->getPlanetId(),
+                            'planetName'        => $planet->getPlanetName(),
+                            'playerId'          => $player->getId(),
+                            'planetType'        => 1,
                         ]
                     ],
                     'player' => [

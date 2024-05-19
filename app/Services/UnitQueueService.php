@@ -24,14 +24,14 @@ class UnitQueueService
      *
      * @var ObjectService
      */
-    protected ObjectService $objects;
+    private ObjectService $objects;
 
     /**
      * The queue model where this class should get its data from.
      *
      * @var UnitQueue
      */
-    protected UnitQueue $model;
+    private UnitQueue $model;
 
     /**
      * BuildingQueue constructor.
@@ -40,8 +40,7 @@ class UnitQueueService
     {
         $this->objects = $objects;
 
-        $model_name = 'OGame\Models\UnitQueue';
-        $this->model = new $model_name();
+        $this->model = new UnitQueue();
     }
 
     /**
@@ -233,8 +232,8 @@ class UnitQueueService
 
         if ($queue_item) {
             return $queue_item->time_end;
-        } else {
-            return 0;
         }
+
+        return 0;
     }
 }
