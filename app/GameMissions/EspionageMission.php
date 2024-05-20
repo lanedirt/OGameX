@@ -48,49 +48,35 @@ class EspionageMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        // Sanity check: make sure the target coordinates are valid and the planet is (still) empty.
-        $target_planet = $this->planetServiceFactory->makeForCoordinate(new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
+        // Load the target planet
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
 
-        // Load the mission owner user
-        $player = $this->playerServiceFactory->make($mission->user_id);
+        // TODO: implement espionage mechanics, generate a report and send it to the player.
+        // Create message with:
+        // - type = espionage report where basic message format will be retrieved from..
+        // - link to espionage report record itself
+        // - params can be empty? because all the data is in the report record.
 
-        if ($target_planet != null) {
-            // TODO: add unittest for this behavior.
-            // Cancel the current mission.
-            $this->cancel($mission);
-            // Send fleet back.
-            $this->startReturn($mission);
-            return;
-        }
-
-        // Sanity check: colonisation mission without a colony ship is not possible.
-        if ($mission->colony_ship < 1) {
-            // Cancel the current mission.
-            $this->cancel($mission);
-            // Send fleet back.
-            $this->startReturn($mission);
-        }
-
-        // Create a new planet at the target coordinates.
-        $target_planet = $this->planetServiceFactory->createAdditionalForPlayer($player, new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
-
-        // Send success message
-        $this->messageService->sendSystemMessageToPlayer($player, ColonyEstablished::class, [
-            'coordinates' => $target_planet->getPlanetCoordinates()->asString(),
-        ]);
-
-        // Add resources to the target planet if the mission has any.
-        $resources = $this->fleetMissionService->getResources($mission);
-        $target_planet->addResources($resources);
-
-        // Remove the colony ship from the fleet as it is consumed in the colonization process.
-        $mission->colony_ship -= 1;
+        // espionage report:
+        // - create table with
+        //   - planet target ID
+        //   - player target ID
+        //   - timestamp
+        // JSON columns for dynamic report data loaded by message(basic)/report(advanced) parser
+        //   - resources
+        //   - buildings
+        //   - research
+        //   - ships
+        //   - defense
+        //   - player info
 
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();
 
         // Check if the mission has any ships left. If yes, start a return mission to send them back.
+        // TODO: a battle can happen if counter-espionage has taken place. Check for this when implementing battle system.
+        // Check for correct amount of ships after battle has occurred (if it should have occurred).
         if ($this->fleetMissionService->getFleetUnitCount($mission) > 0) {
             // Create and start the return mission.
             $this->startReturn($mission);
@@ -105,7 +91,7 @@ class EspionageMission extends GameMission
         // Load the target planet
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
 
-        // Transport return trip: add back the units to the source planet. Then we're done.
+        // Espionage return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
         // Add resources to the origin planet (if any).
@@ -114,8 +100,7 @@ class EspionageMission extends GameMission
             $target_planet->addResources($return_resources);
         }
 
-        // Send message to player that the return mission has arrived.
-        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
+        // Espionage return mission does not send a return confirmation message to the user.
 
         // Mark the return mission as processed
         $mission->processed = 1;

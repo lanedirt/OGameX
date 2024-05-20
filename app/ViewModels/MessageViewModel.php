@@ -2,6 +2,7 @@
 
 namespace OGame\ViewModels;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
@@ -48,16 +49,31 @@ class MessageViewModel
         $this->gameMessage = $gameMessage;
     }
 
+    /**
+     * Get the message sender.
+     *
+     * @return string
+     */
     public function getFrom(): string
     {
         return $this->gameMessage->getFrom();
     }
 
+    /**
+     * Get the message ID.
+     *
+     * @return int
+     */
     public function getId(): int
     {
         return $this->id;
     }
 
+    /**
+     * Get the message subject.
+     *
+     * @return string
+     */
     public function getSubject(): string
     {
         if ($this->gameMessage !== null) {
@@ -68,6 +84,11 @@ class MessageViewModel
         return $this->subject;
     }
 
+    /**
+     * Get the dynamic message body with placeholders replaced with actual values.
+     *
+     * @throws BindingResolutionException
+     */
     public function getBody(): string
     {
         if ($this->gameMessage !== null) {
@@ -79,6 +100,39 @@ class MessageViewModel
             $body = nl2br($this->body);
         }
 
+        return $this->replacePlaceholders($body);
+    }
+
+    /**
+     * Check if the message has not been viewed yet.
+     *
+     * @return bool
+     */
+    public function isNew(): bool
+    {
+        return $this->viewed === 0;
+    }
+
+    /**
+     * Get the message creation date.
+     *
+     * @return string
+     */
+    public function getDate(): string
+    {
+        // Return in this format: 18.03.2024 14:50:38
+        return $this->created_at->format('d.m.Y H:i:s');
+    }
+
+    /**
+     * Replace placeholders in the message body with actual values.
+     *
+     * @param string $body
+     * @return string
+     * @throws BindingResolutionException
+     */
+    private function replacePlaceholders(string $body): string
+    {
         // Find and replace the following placeholders:
         // [player]{playerId}[/player] with the player name.
         // [alliance]{allianceId}[/alliance] with the alliance name.
@@ -145,16 +199,5 @@ class MessageViewModel
         }, $body);
 
         return $body;
-    }
-
-    public function isNew(): bool
-    {
-        return $this->viewed === 0;
-    }
-
-    public function getDate(): string
-    {
-        // Return in this format: 18.03.2024 14:50:38
-        return $this->created_at->format('d.m.Y H:i:s');
     }
 }

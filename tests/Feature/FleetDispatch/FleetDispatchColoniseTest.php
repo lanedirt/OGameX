@@ -7,7 +7,6 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\UnitCollection;
-use OGame\Models\Message;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use Tests\FleetDispatchTestCase;

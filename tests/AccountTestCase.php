@@ -189,7 +189,6 @@ abstract class AccountTestCase extends TestCase
      * Gets a nearby foreign planet for the current user. This is useful for testing interactions between two players.
      *
      * @return PlanetService
-     * @throws BindingResolutionException
      */
     protected function getNearbyForeignPlanet(): PlanetService
     {
@@ -219,8 +218,12 @@ abstract class AccountTestCase extends TestCase
             $this->fail('Failed to find a nearby foreign planet for testing.');
         } else {
             // Create and return a new PlanetService instance for the found planet.
-            $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-            return $planetServiceFactory->make($planet_id[0]);
+            try {
+                $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+                return $planetServiceFactory->make($planet_id[0]);
+            } catch (Exception $e) {
+                $this->fail('Failed to create planet service for planet id: ' . $planet_id[0] . '. Error: ' . $e->getMessage());
+            }
         }
     }
 
@@ -285,7 +288,6 @@ abstract class AccountTestCase extends TestCase
      * @param string $machine_name
      * @param int $object_level
      * @return void
-     * @throws BindingResolutionException
      * @throws Exception
      */
     protected function planetSetObjectLevel(string $machine_name, int $object_level): void
@@ -301,8 +303,6 @@ abstract class AccountTestCase extends TestCase
      * @param string $machine_name
      * @param int $amount
      * @return void
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     protected function planetAddUnit(string $machine_name, int $amount): void
     {
@@ -316,7 +316,6 @@ abstract class AccountTestCase extends TestCase
      * @param string $machine_name
      * @param int $object_level
      * @return void
-     * @throws BindingResolutionException
      */
     protected function playerSetResearchLevel(string $machine_name, int $object_level): void
     {
@@ -643,6 +642,20 @@ abstract class AccountTestCase extends TestCase
         foreach ($must_contain as $needle) {
             $response->assertSee($needle, false);
         }
+    }
+
+    /**
+     * Asserts that no message has been received in the frontend.
+     *
+     * @return void
+     */
+    protected function assertMessageNotReceived(): void
+    {
+        // Assert that message has been sent to player.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+        // Assert that page contains "0 unread message(s)" text.
+        $response->assertSee('0 unread message(s)');
     }
 
     /**

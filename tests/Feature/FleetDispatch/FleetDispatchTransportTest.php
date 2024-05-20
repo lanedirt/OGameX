@@ -6,9 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
-use OGame\Models\Message;
 use OGame\Models\Resources;
-use OGame\Models\User;
 use OGame\Services\FleetMissionService;
 use Tests\FleetDispatchTestCase;
 

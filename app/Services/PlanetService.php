@@ -994,7 +994,6 @@ class PlanetService
      * @param int $amount
      * @param bool $save_planet
      * @return void
-     * @throws Exception
      */
     public function addUnit(string $machine_name, int $amount, bool $save_planet = true): void
     {
@@ -1012,7 +1011,6 @@ class PlanetService
      * @param UnitCollection $units
      * @param bool $save_planet
      * @return void
-     * @throws Exception
      */
     public function addUnits(UnitCollection $units, bool $save_planet = true): void
     {
@@ -1028,13 +1026,12 @@ class PlanetService
      * @param int $amount
      * @param bool $save_planet
      * @return void
-     * @throws Exception
      */
     public function removeUnit(string $machine_name, int $amount, bool $save_planet = true): void
     {
         $object = $this->objects->getUnitObjectByMachineName($machine_name);
         if ($this->planet->{$object->machine_name} < $amount) {
-            throw new Exception('Planet does not have enough units.');
+            throw new \RuntimeException('Planet does not have enough units.');
         }
         $this->planet->{$object->machine_name} -= $amount;
 
@@ -1049,7 +1046,6 @@ class PlanetService
      * @param UnitCollection $units
      * @param bool $save_planet
      * @return void
-     * @throws Exception
      */
     public function removeUnits(UnitCollection $units, bool $save_planet): void
     {

@@ -7,6 +7,7 @@ use Illuminate\Support\Carbon;
 use OGame\Factories\GameMissionFactory;
 use OGame\GameMissions\ColonisationMission;
 use OGame\GameMissions\DeploymentMission;
+use OGame\GameMissions\EspionageMission;
 use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\FleetMission;
@@ -23,30 +24,13 @@ use OGame\Models\Resources;
 class FleetMissionService
 {
     /**
-     * Mission type to label mapping.
-     *
-     * @var string[]
-     */
-    private array $type_to_label = [
-        1 => 'Attack',
-        2 => 'ACS Defend',
-        3 => 'Transport',
-        4 => 'Deploy',
-        5 => 'ACS Attack',
-        6 => 'Espionage',
-        7 => 'Colonize',
-        8 => 'Recycle',
-        9 => 'Destroy',
-        15 => 'Expedition',
-    ];
-
-    /**
      * Mission type to class mapping.
      * @var array<int, class-string> $missionTypeToClass
      */
     private array $missionTypeToClass = [
         3 => TransportMission::class,
         4 => DeploymentMission::class,
+        6 => EspionageMission::class,
         7 => ColonisationMission::class,
     ];
 

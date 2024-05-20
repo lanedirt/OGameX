@@ -53,8 +53,6 @@ class ColonisationMission extends GameMission
             // TODO: add unittest for this behavior.
             // Cancel the current mission.
             $this->cancel($mission);
-            // Send fleet back.
-            $this->startReturn($mission);
             return;
         }
 
@@ -62,8 +60,7 @@ class ColonisationMission extends GameMission
         if ($mission->colony_ship < 1) {
             // Cancel the current mission.
             $this->cancel($mission);
-            // Send fleet back.
-            $this->startReturn($mission);
+            return;
         }
 
         // Create a new planet at the target coordinates.
