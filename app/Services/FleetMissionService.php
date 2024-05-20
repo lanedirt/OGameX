@@ -33,7 +33,7 @@ class FleetMissionService
         3 => 'Transport',
         4 => 'Deploy',
         5 => 'ACS Attack',
-        6 => 'Spy',
+        6 => 'Espionage',
         7 => 'Colonize',
         8 => 'Recycle',
         9 => 'Destroy',
