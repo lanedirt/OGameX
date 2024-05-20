@@ -10,7 +10,7 @@
         "production": "mix --production"
     },
     "devDependencies": {
-        "axios": "^1.6.4",
+        "axios": "^1.7.0",
         "laravel-mix": "^6.0.49"
     }
 }
