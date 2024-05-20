@@ -65,7 +65,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     }
 
     /**
-     * Assert that check request to dispatch fleet to empty position succeeds with colony ship.
+     * Assert that check request to dispatch fleet to second planet succeeds with small cargo ship.
      *
      * @throws BindingResolutionException
      * @throws Exception
@@ -79,7 +79,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     }
 
     /**
-     * Assert that check request to dispatch fleet to foreign planet position fails without colony ship.
+     * Assert that check request to dispatch fleet to planet of other player fails.
      *
      * @throws BindingResolutionException
      * @throws Exception
@@ -93,7 +93,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     }
 
     /**
-     * Assert that check request to dispatch fleet to empty position fails without colony ship.
+     * Assert that check request to dispatch fleet to empty position fails.
      *
      * @throws BindingResolutionException
      * @throws Exception

@@ -19,16 +19,20 @@ class DeploymentMission extends GameMission
     /**
      * @inheritdoc
      */
-    public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus
+    public function isMissionPossible(PlanetService $planet, PlanetService|null $targetPlanet, UnitCollection $units): MissionPossibleStatus
     {
-        if ($targetPlanet != null) {
-            if ($planet->getPlayer()->equals($targetPlanet->getPlayer())) {
-                // If target player is the same as the current player, this mission is possible.
-                return new MissionPossibleStatus(true);
-            }
+        // If target planet does not exist, the mission is not possible.
+        if ($targetPlanet === null) {
+            return new MissionPossibleStatus(false);
         }
 
-        return new MissionPossibleStatus(false);
+        // If target player is not the same as current player, this mission is not possible.
+        if (!$planet->getPlayer()->equals($targetPlanet->getPlayer())) {
+            return new MissionPossibleStatus(false);
+        }
+
+        // If all checks pass, the mission is possible.
+        return new MissionPossibleStatus(true);
     }
 
     /**

@@ -21,14 +21,13 @@ class TransportMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus
     {
-        if ($targetPlanet != null) {
-            if ($planet->getPlayer()->equals($targetPlanet->getPlayer())) {
-                // If target player is the same as the current player, this mission is possible.
-                return new MissionPossibleStatus(true);
-            }
+        // If target planet does not exist, the mission is not possible.
+        if ($targetPlanet === null) {
+            return new MissionPossibleStatus(false);
         }
 
-        return new MissionPossibleStatus(false);
+        // If all checks pass, the mission is possible.
+        return new MissionPossibleStatus(true);
     }
 
     protected function processArrival(FleetMission $mission): void
