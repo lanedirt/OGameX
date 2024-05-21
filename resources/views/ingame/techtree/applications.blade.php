@@ -1,41 +1,49 @@
 
-<ul class="subsection_tabs">
-    <li>
-        <a class="overlay reiter"
-           data-overlay-same="true"
-           href="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->object->id]) }}">
-            <span>
-                Techtree            </span>
-        </a>
-    </li>
-    <li>
-        <a class="overlay reiter active"
-           data-overlay-same="true"
-           href="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $object->object->id]) }}">
-            <span>
-                Applications            </span>
-        </a>
-    </li>
-    <li>
-        <a class="overlay reiter"
-           data-overlay-same="true"
-           href="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->object->id]) }}">
-            <span>
-                Techinfo            </span>
-        </a>
-    </li>
-    <li>
-        <a class="overlay reiter"
-           data-overlay-same="true"
-           href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => $object->object->id]) }}">
-            <span>
-                Technology            </span>
-        </a>
-    </li>
-</ul>
+<div id="technologytree" data-title="@lang('Technology') - {{ $object->title }}">
+    <nav data-current-action="applications">
+        <ul>
+            <li>
+                <a class="overlay" data-action="technologytree" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->id]) }}">
+                    @lang('Techtree')
+                </a>
+            </li>
+            <li>
+                <a class="overlay" data-action="applications" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $object->id]) }}">
+                    @lang('Applications')
+                </a>
+            </li>
+            <li>
+                <a class="overlay" data-action="technologyinformation" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->id]) }}">
+                    @lang('Techinfo')
+                </a>
+            </li>
+            <li>
+                <a class="overlay" data-action="technologies" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => $object->id]) }}">
+                    @lang('Technology')
+                </a>
+            </li>
+        </ul>
+    </nav>
 
-<div class="techtree" data-id="5752c611e29741257f3cf67e060afb27" data-title="Applications - {{ $object->object->title }}">
-    <div class="advice">{{ $object->object->title }} is a prerequisite of:</div>
-    There are no such technologies.        </div>
+    <div class="content applications">
+        <p class="hint">{{$object->title}} is a requirement for:</p>
+        <ul class="applications">
+            @foreach ($required_by as $required)
+                <li class="tooltipHTML" title="{{ $required['title'] }}|{{ $required['description'] }}" aria-label="{{ $required['title'] }}" data-prerequisites-met="{{ $required['met_requirements'] }}">
+                    <a href="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->id]) }}" class="sprite sprite_small {{ $required['class_name'] }} overlay" data-overlay-same="true">
+                    </a>
+                </li>
+            @endforeach
+        </ul>
+    </div>
+    <script>
+    </script>
+</div>
+
 <script type="text/javascript">
-    $(document).ready(function(){initOverlayName();});</script>
+    $(
+        function(){
+            initOverlayName();
+        }
+    );
+</script>

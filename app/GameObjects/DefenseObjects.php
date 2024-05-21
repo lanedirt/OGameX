@@ -99,7 +99,7 @@ class DefenseObjects
         $gaussCannon->requirements = [
             new GameObjectRequirement('shipyard', 6),
             new GameObjectRequirement('weapon_technology', 3),
-            new GameObjectRequirement('shield_technology', 1),
+            new GameObjectRequirement('shielding_technology', 1),
             new GameObjectRequirement('energy_technology', 6),
         ];
         $gaussCannon->price = new GameObjectPrice(20000, 15000, 2000, 0);
@@ -165,7 +165,7 @@ class DefenseObjects
 After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
         $smallShieldDome->requirements = [
             new GameObjectRequirement('shipyard', 1),
-            new GameObjectRequirement('shield_technology', 2),
+            new GameObjectRequirement('shielding_technology', 2),
         ];
         $smallShieldDome->price = new GameObjectPrice(10000, 10000, 0, 0);
         $smallShieldDome->properties = new GameObjectProperties($smallShieldDome, 20000, 2000, 1, 0, 0, 0);
@@ -187,7 +187,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
         $largeShieldDome->requirements = [
             new GameObjectRequirement('shipyard', 6),
-            new GameObjectRequirement('shield_technology', 6),
+            new GameObjectRequirement('shielding_technology', 6),
         ];
         $largeShieldDome->price = new GameObjectPrice(50000, 50000, 0, 0);
         $largeShieldDome->properties = new GameObjectProperties($largeShieldDome, 100000, 10000, 1, 0, 0, 0);

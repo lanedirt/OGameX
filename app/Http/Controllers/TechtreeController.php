@@ -5,8 +5,12 @@ namespace OGame\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use OGame\GameObjects\Models\Fields\GameObjectAssets;
+use OGame\GameObjects\Models\Fields\GameObjectPrice;
+use OGame\GameObjects\Models\Fields\GameObjectRequirement;
 use OGame\GameObjects\Models\GameObject;
 use OGame\Services\ObjectService;
+use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 
 class TechtreeController extends OGameController
@@ -58,6 +62,7 @@ class TechtreeController extends OGameController
                 'object' => $object,
                 'object_id' => $object_id,
                 'planet' => $planet,
+                'required_by' => $this->getRequiredBy($object, $player, $objects, $planet)
             ]);
         }
 
@@ -329,5 +334,45 @@ class TechtreeController extends OGameController
             'plasma_table' => $plasma_table,
             'current_level' => $current_level,
         ]);
+    }
+
+    /**
+     * @param GameObject $object
+     * @param PlayerService $player
+     * @param ObjectService $objects
+     * @param PlanetService $planet
+     * @return array<int<0, max>, array<string, array<GameObjectRequirement>|int|GameObjectAssets|GameObjectPrice|string>>
+     */
+    private function getRequiredBy(GameObject $object, PlayerService $player, ObjectService $objects, PlanetService $planet): array
+    {
+        $all_objects = $objects->getObjects();
+        $required_by = [];
+
+        foreach ($all_objects as $a_object) {
+            $met_all_requirement = 'true';
+
+            foreach ($a_object->requirements as $requirement) {
+                $n_requirement = $objects->getObjectByMachineName($requirement->object_machine_name);
+                if($n_requirement->machine_name !== $object->machine_name) {
+                    continue;
+                }
+
+                $user_object_level = 999;
+
+                if($n_requirement->type === 'research') {
+                    $user_object_level = $player->getResearchLevel($n_requirement->machine_name);
+                } else {
+                    $user_object_level = $planet->getObjectLevel($n_requirement->machine_name);
+                }
+
+                if ($requirement->level > $user_object_level) {
+                    $met_all_requirement = 'false';
+                }
+
+                $required_by[] = [...(array)$a_object, 'met_requirements' => $met_all_requirement];
+            }
+        }
+
+        return $required_by;
     }
 }
