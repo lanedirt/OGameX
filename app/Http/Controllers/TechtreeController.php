@@ -87,7 +87,7 @@ class TechtreeController extends OGameController
 
         $production_table = [];
         if (!empty($object->production)) {
-            $production_amount_current_level = $planet->getBuildingProduction($object->machine_name, $current_level,true)->sum();
+            $production_amount_current_level = $planet->getBuildingProduction($object->machine_name, $current_level, true)->sum();
 
             // Create production table array value
             // TODO: add unittest to verify that production calculation is correctly for various buildings.
@@ -102,9 +102,9 @@ class TechtreeController extends OGameController
                     'production_difference' => $production_amount - $production_amount_current_level,
                     'production_difference_per_level' => ($i === $current_level) ? 0 : (($i - 1 < $current_level) ? ($production_amount - $production_amount_previous_level) * -1 : $production_amount - $production_amount_previous_level),
                     'energy_balance' => $planet->getBuildingProduction($object->machine_name, $i, true)->energy->get(),
-                    'energy_difference' => ($i == $current_level) ? 0 : ($planet->getBuildingProduction($object->machine_name, $i, true)->energy->get() - $planet->getBuildingProduction($object->machine_name, $current_level,true)->energy->get()),
+                    'energy_difference' => ($i === $current_level) ? 0 : ($planet->getBuildingProduction($object->machine_name, $i, true)->energy->get() - $planet->getBuildingProduction($object->machine_name, $current_level, true)->energy->get()),
                     'deuterium_consumption' => $planet->getBuildingProduction($object->machine_name, $i, true)->deuterium->get(),
-                    'deuterium_consumption_per_level' => ($i == $current_level) ? 0 : ($planet->getBuildingProduction($object->machine_name, $i, true)->deuterium->get() - $planet->getBuildingProduction($object->machine_name, $current_level, true)->deuterium->get()),
+                    'deuterium_consumption_per_level' => ($i === $current_level) ? 0 : ($planet->getBuildingProduction($object->machine_name, $i, true)->deuterium->get() - $planet->getBuildingProduction($object->machine_name, $current_level, true)->deuterium->get()),
                     'protected' => 0,
                 ];
             }
