@@ -36,7 +36,7 @@ class TechtreeController extends OGameController
                 'object_id' => $object_id,
                 'planet' => $planet,
             ]);
-        } else if ($tab === 2) {
+        } elseif ($tab === 2) {
             return view('ingame.techtree.techinfo')->with([
                 'object' => $object,
                 'object_id' => $object_id,
