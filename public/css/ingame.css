@@ -44912,18 +44912,6 @@ ul.chat_bar_list .newMsgMarker {
     width: 20px;
     height: 20px;
 }
-.alliance_class.small.none:before {
-    background: url("/img/icons/alliance/class_none.png") no-repeat;
-}
-.alliance_class.small.explorer:before {
-    background: url("/img/icons/alliance/class_explorer.png") no-repeat;
-}
-.alliance_class.small.trader:before {
-    background: url("/img/icons/alliance/class_trader.png") no-repeat;
-}
-.alliance_class.small.warrior:before {
-    background: url("/img/icons/alliance/class_warrior.png") no-repeat;
-}
 
 #alliance .alliance_class.small:before {
     top: 1px;

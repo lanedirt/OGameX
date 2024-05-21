@@ -43,7 +43,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class EspionageReport extends Model
 {
     protected $casts = [
+        'player_info' => 'array',
         'resources' => 'array',
+        'buildings' => 'array',
+        'research' => 'array',
+        'ships' => 'array',
+        'defense' => 'array',
     ];
 
     /**

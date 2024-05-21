@@ -143,6 +143,7 @@ abstract class GameMission
      * @param Resources $resources
      * @param int $parent_id
      * @return void
+     * @throws Exception
      */
     public function start(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources, int $parent_id = 0): void
     {
@@ -153,7 +154,7 @@ abstract class GameMission
 
         // Time fleet mission will arrive
         // TODO: refactor calculate to gamemission base class?
-        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration();
+        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration(static::$typeId);
 
         $mission = new FleetMission();
 

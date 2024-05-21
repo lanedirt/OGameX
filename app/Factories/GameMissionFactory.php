@@ -62,8 +62,6 @@ class GameMissionFactory
                 case 7:
                     return app()->make(ColonisationMission::class, $dependencies);
             }
-            $missions = self::getAllMissions();
-            return $missions[$missionId];
         } catch (BindingResolutionException $e) {
             throw new \RuntimeException('Class not found: ' . PlayerService::class);
         }

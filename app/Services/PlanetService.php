@@ -1534,7 +1534,7 @@ class PlanetService
                 $fleetMissionService->updateMission($mission);
             }
         } catch (Exception $e) {
-            throw new \RuntimeException('Fleet mission service not found.');
+            throw new \RuntimeException('Fleet mission service could not be loaded: ' . $e->getMessage());
         }
     }
 }

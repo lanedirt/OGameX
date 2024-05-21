@@ -140,7 +140,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($fleetMission);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($fleetMission->mission_type);
 
         // Set time to fleet mission duration + 1 second.
         $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 1);

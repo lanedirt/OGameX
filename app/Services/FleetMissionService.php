@@ -90,12 +90,17 @@ class FleetMissionService
     /**
      * Calculate the duration of a fleet mission based on the current planet, target coordinates and fleet.
      *
+     * @param int|null $missionType
      * @return int
      */
-    public function calculateFleetMissionDuration(): int
+    public function calculateFleetMissionDuration(int|null $missionType = null): int
     {
         // TODO: make the calculation dynamic based on the current planet, target coordinates and fleet
         // (including research levels for speed).
+        if ($missionType === 6) {
+            return 10; // 10 seconds for espionage mission as test TODO: remove this
+        }
+
         return 300;
     }
 

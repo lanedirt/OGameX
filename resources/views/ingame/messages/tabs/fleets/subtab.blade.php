@@ -24,7 +24,7 @@
             <li class="msg @if ($message->isNew()) msg_new @endif" data-msg-id="{{ $message->id }}">
                 <div class="msg_status"></div>
                 <div class="msg_head">
-                    <span class="msg_title blue_txt">{{ $message->getSubject() }}</span>
+                    <span class="msg_title blue_txt">{!! $message->getSubject() !!}</span>
                     <span class="fright">
                         <a href="javascript: void(0);" class="fright">
                             <span class="icon_nf icon_refuse js_actionKill tooltip js_hideTipOnMobile tpd-hideOnClickOutside" title=""></span>

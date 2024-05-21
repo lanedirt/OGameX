@@ -4,6 +4,7 @@ namespace OGame\Services;
 
 use OGame\Factories\GameMessageFactory;
 use OGame\GameMessages\Abstracts\GameMessage;
+use OGame\GameMessages\EspionageReport;
 use OGame\GameMessages\WelcomeMessage;
 use OGame\Models\Message;
 use OGame\ViewModels\MessageViewModel;
@@ -213,6 +214,29 @@ class MessageService
         $message->user_id = $player->getId();
         $message->key = $gameMessage->getKey();
         $message->params = $params;
+        $message->save();
+    }
+
+    /**
+     * Sends an espionage report message to a player with a specific espionage report.
+     *
+     * @param PlayerService $player
+     * @param int $espionageReportId
+     * @return void
+     */
+    public function sendEspionageReportMessageToPlayer(PlayerService $player, int $espionageReportId): void
+    {
+        try {
+            $gameMessage = app()->make(EspionageReport::class);
+        }
+        catch (\Exception $e) {
+            throw new \RuntimeException('Could not create espionage report message.');
+        }
+
+        $message = new Message();
+        $message->user_id = $player->getId();
+        $message->key = $gameMessage->getKey();
+        $message->espionage_report_id = $espionageReportId;
         $message->save();
     }
 

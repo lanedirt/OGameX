@@ -7,7 +7,6 @@ use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
-use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 
 class EspionageMission extends GameMission
@@ -48,26 +47,21 @@ class EspionageMission extends GameMission
         // Load the target planet
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
 
+        // Load origin planet
+        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
+
         // TODO: implement espionage mechanics, generate a report and send it to the player.
         // Create message with:
         // - type = espionage report where basic message format will be retrieved from..
         // - link to espionage report record itself
         // - params can be empty? because all the data is in the report record.
-
         $reportId = $this->createEspionageReport($target_planet);
 
-        // espionage report:
-        // - create table with
-        //   - planet target ID
-        //   - player target ID
-        //   - timestamp
-        // JSON columns for dynamic report data loaded by message(basic)/report(advanced) parser
-        //   - resources
-        //   - buildings
-        //   - research
-        //   - ships
-        //   - defense
-        //   - player info
+        // Send a message to the player with a reference to the espionage report.
+        $this->messageService->sendEspionageReportMessageToPlayer(
+            $origin_planet->getPlayer(),
+            $reportId,
+        );
 
         // Mark the arrival mission as processed
         $mission->processed = 1;
@@ -121,6 +115,12 @@ class EspionageMission extends GameMission
         $report->planet_position = $planet->getPlanetCoordinates()->position;
 
         $report->planet_user_id = $planet->getPlayer()->getId();
+
+        $report->player_info = [
+            'player_id' => $planet->getPlayer()->getId(),
+            'player_name' => $planet->getPlayer()->getUsername(),
+        ];
+
         $report->resources = [
             'metal' => $planet->metal()->get(),
             'crystal' => $planet->crystal()->get(),

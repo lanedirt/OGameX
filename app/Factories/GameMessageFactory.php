@@ -5,6 +5,7 @@ namespace OGame\Factories;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMessages\ColonyEstablished;
+use OGame\GameMessages\EspionageReport;
 use OGame\GameMessages\FleetDeployment;
 use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMessages\ReturnOfFleet;
@@ -27,6 +28,7 @@ class GameMessageFactory
         'colony_established' => ColonyEstablished::class,
         'fleet_deployment' => FleetDeployment::class,
         'fleet_deployment_with_resources' => FleetDeploymentWithResources::class,
+        'espionage_report' => EspionageReport::class,
     ];
 
     /**
