@@ -339,7 +339,7 @@ class TechtreeController extends OGameController
             'current_level' => $current_level,
         ]);
     }
-  
+
     /**
      * Returns techtree astrophysics.
      *
@@ -373,7 +373,7 @@ class TechtreeController extends OGameController
             'current_level' => $current_level,
         ]);
     }
-  
+
     /**
      * @param GameObject $object
      * @param PlayerService $player
@@ -386,16 +386,22 @@ class TechtreeController extends OGameController
         $all_objects = $objects->getObjects();
         $required_by = [];
 
-        foreach ($all_objects as $a_object) {
+        $require_objects = array_filter($all_objects, function($a_object) use($object) {
+            $has_object_required = false;
+            foreach ($a_object->requirements as $requirement) {
+                if($requirement->object_machine_name === $object->machine_name) {
+                    $has_object_required = true;
+                }
+            }
+
+            return $has_object_required;
+        });
+
+        foreach ($require_objects as $r_object) {
             $met_all_requirement = 'true';
 
-            foreach ($a_object->requirements as $requirement) {
+            foreach ($r_object->requirements as $requirement) {
                 $n_requirement = $objects->getObjectByMachineName($requirement->object_machine_name);
-                if($n_requirement->machine_name !== $object->machine_name) {
-                    continue;
-                }
-
-                $user_object_level = 999;
 
                 if($n_requirement->type === 'research') {
                     $user_object_level = $player->getResearchLevel($n_requirement->machine_name);
@@ -406,9 +412,9 @@ class TechtreeController extends OGameController
                 if ($requirement->level > $user_object_level) {
                     $met_all_requirement = 'false';
                 }
-
-                $required_by[] = [...(array)$a_object, 'met_requirements' => $met_all_requirement];
             }
+
+            $required_by[] = [...(array)$r_object, 'met_requirements' => $met_all_requirement];
         }
 
         return $required_by;
