@@ -2,14 +2,11 @@
 
 namespace OGame\GameMissions;
 
-use Exception;
-use OGame\Factories\PlanetServiceFactory;
-use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\UnitCollection;
+use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
-use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 
@@ -56,6 +53,8 @@ class EspionageMission extends GameMission
         // - type = espionage report where basic message format will be retrieved from..
         // - link to espionage report record itself
         // - params can be empty? because all the data is in the report record.
+
+        $reportId = $this->createEspionageReport($target_planet);
 
         // espionage report:
         // - create table with
@@ -105,5 +104,32 @@ class EspionageMission extends GameMission
         // Mark the return mission as processed
         $mission->processed = 1;
         $mission->save();
+    }
+
+    /**
+     * Creates an espionage report for the target planet.
+     *
+     * @param PlanetService $planet
+     * @return int
+     */
+    private function createEspionageReport(PlanetService $planet): int
+    {
+        // Create new espionage report record.
+        $report = new EspionageReport();
+        $report->planet_galaxy = $planet->getPlanetCoordinates()->galaxy;
+        $report->planet_system = $planet->getPlanetCoordinates()->system;
+        $report->planet_position = $planet->getPlanetCoordinates()->position;
+
+        $report->planet_user_id = $planet->getPlayer()->getId();
+        $report->resources = [
+            'metal' => $planet->metal()->get(),
+            'crystal' => $planet->crystal()->get(),
+            'deuterium' => $planet->deuterium()->get(),
+            'energy' => $planet->energy()->get()
+            ];
+
+        $report->save();
+
+        return $report->id;
     }
 }
