@@ -1163,7 +1163,7 @@ class PlanetService
      * @return Resources
      * @throws Exception
      */
-    public function getBuildingProduction(string $machine_name, int $building_level = 0): Resources
+    public function getBuildingProduction(string $machine_name, int|null $building_level = null, bool $force_factor = false): Resources
     {
         $building = $this->objects->getBuildingObjectsWithProductionByMachineName($machine_name);
 
@@ -1177,7 +1177,7 @@ class PlanetService
             $resource_production_factor = $this->getResourceProductionFactor();
         }
 
-        $building_percentage = $this->getBuildingPercent($machine_name); // Implement building percentage.
+        $building_percentage = !$force_factor ? $this->getBuildingPercent($machine_name) : 100; // Implement building percentage.
         $planet_temperature = $this->getPlanetTempAvg();
         $energy_technology_level = 0; // Implement energy technology level getter.
         $universe_resource_multiplier = $this->settingsService->economySpeed();
