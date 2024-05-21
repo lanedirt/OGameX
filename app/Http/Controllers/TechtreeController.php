@@ -22,21 +22,21 @@ class TechtreeController extends OGameController
      */
     public function ajax(Request $request, ObjectService $objects, PlayerService $player): View
     {
-        $object_id = $request->input('object_id');
-        $tab = $request->input('tab');
+        $object_id = (int)$request->input('object_id');
+        $tab = (int)$request->input('tab');
         // TODO: is this planet still needed?
         $planet = $player->planets->current();
 
         // Load object
         $object = $objects->getObjectById($object_id);
 
-        if ($tab == 1) {
+        if ($tab === 1) {
             return view('ingame.techtree.techtree')->with([
                 'object' => $object,
                 'object_id' => $object_id,
                 'planet' => $planet,
             ]);
-        } elseif ($tab == 2) {
+        } else if ($tab === 2) {
             return view('ingame.techtree.techinfo')->with([
                 'object' => $object,
                 'object_id' => $object_id,
@@ -46,14 +46,15 @@ class TechtreeController extends OGameController
                 'rapidfire_table' => $this->getRapidfireTable($object, $objects),
                 'properties_table' => $this->getPropertiesTable($object, $player, $objects),
                 'plasma_table' => $this->getPlasmaTable($object, $player),
+                'astrophysics_table' => $this->getAstrophysicsTable($object, $player),
             ]);
-        } elseif ($tab == 3) {
+        } elseif ($tab === 3) {
             return view('ingame.techtree.technology')->with([
                 'object' => $object,
                 'object_id' => $object_id,
                 'planet' => $planet,
             ]);
-        } elseif ($tab == 4) {
+        } elseif ($tab === 4) {
             return view('ingame.techtree.applications')->with([
                 'object' => $object,
                 'object_id' => $object_id,
@@ -298,6 +299,7 @@ class TechtreeController extends OGameController
             'property_value' => $value,
         ]);
     }
+
     /**
      * Returns techtree plasma table.
      *
@@ -308,13 +310,14 @@ class TechtreeController extends OGameController
      */
     public function getPlasmaTable(GameObject $object, PlayerService $player): View
     {
-        if ($object->type !== 'research') {
+        if ($object->type !== 'research' || $object->machine_name !== 'plasma_technology') {
             return view('empty');
         }
 
         $current_level = $player->getResearchLevel($object->machine_name);
         $plasma_table = [];
         $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
+
         for ($i = $min_level; $i < $min_level + 15; $i++) {
 
             $plasma_table[] = [
@@ -324,9 +327,44 @@ class TechtreeController extends OGameController
                 'deuterium_bonus' => $i * 0.33
             ];
         }
+
         return view('ingame.techtree.info.plasma')->with([
             'object' => $object,
             'plasma_table' => $plasma_table,
+            'current_level' => $current_level,
+        ]);
+    }
+
+    /**
+     * Returns techtree astrophysics.
+     *
+     * @param GameObject $object
+     * @param PlayerService $player
+     * @return View
+     * @throws Exception
+     */
+    public function getAstrophysicsTable(GameObject $object, PlayerService $player): View
+    {
+        if ($object->type !== 'research' || $object->machine_name !== 'astrophysics') {
+            return view('empty');
+        }
+
+        $current_level = $player->getResearchLevel($object->machine_name);
+        $astrophysics_table = [];
+        $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
+
+        for ($i = $min_level; $i < $min_level + 15; $i++) {
+
+            $astrophysics_table[] = [
+                'level' => $i,
+                'max_colonies' => round($i /2),
+                'max_expedition' => floor(sqrt($i)),
+            ];
+        }
+
+        return view('ingame.techtree.info.astrophysics')->with([
+            'object' => $object,
+            'astrophysics_table' => $astrophysics_table,
             'current_level' => $current_level,
         ]);
     }
