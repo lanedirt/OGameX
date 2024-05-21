@@ -10,13 +10,13 @@
                         $chance = $rapidfire_data['rapidfire']->chance;
 
                         // Determine the correct number of decimal places
-                        if (floor($chance) == $chance) {
+                        if (floor($chance) === $chance) {
                             // It's a whole number, no need for decimals
                             $formattedChance = number_format($chance, 0);
                         } else {
                             // It's a decimal number, check for how many significant digits are needed
                             $roundedChance = round($chance, 2);
-                            if (round($roundedChance, 1) == $roundedChance) {
+                            if (round($roundedChance, 1) === $roundedChance) {
                                 // If rounding to 1 decimal gives the same result, we need only 1 decimal
                                 $formattedChance = number_format($roundedChance, 1);
                             } else {
@@ -43,13 +43,13 @@
                         $chance = $rapidfire_data['rapidfire']->chance;
 
                         // Determine the correct number of decimal places
-                        if (floor($chance) == $chance) {
+                        if (floor($chance) === $chance) {
                             // It's a whole number, no need for decimals
                             $formattedChance = number_format($chance, 0);
                         } else {
                             // It's a decimal number, check for how many significant digits are needed
                             $roundedChance = round($chance, 2);
-                            if (round($roundedChance, 1) == $roundedChance) {
+                            if (round($roundedChance, 1) === $roundedChance) {
                                 // If rounding to 1 decimal gives the same result, we need only 1 decimal
                                 $formattedChance = number_format($roundedChance, 1);
                             } else {

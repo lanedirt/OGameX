@@ -228,10 +228,7 @@ With each level of the Combustion Drive developed, the speed of small and large 
         $astrophysics->machine_name = 'astrophysics';
         $astrophysics->class_name = 'astrophysicsTechnology';
         $astrophysics->description = 'With an astrophysics research module, ships can undertake long expeditions. Every second level of this technology will allow you to colonise an extra planet.';
-        $astrophysics->description_long = 'Further findings in the field of astrophysics allow for the construction of laboratories that can be fitted on more and more ships. This makes long expeditions far into unexplored areas of space possible. In addition these advancements can be used to further colonise the universe. For every two levels of this technology an additional planet can be made usable.
-        Positions 3 and 13 can be populated from level 4 onwards.
-        Positions 2 and 14 can be populated from level 6 onwards.
-        Positions 1 and 15 can be populated from level 8 onwards.';
+        $astrophysics->description_long = 'Further findings in the field of astrophysics allow for the construction of laboratories that can be fitted on more and more ships. This makes long expeditions far into unexplored areas of space possible. In addition these advancements can be used to further colonise the universe. For every two levels of this technology an additional planet can be made usable.';
         $astrophysics->requirements = [
             new GameObjectRequirement('impulse_drive', 3),
             new GameObjectRequirement('research_lab', 4),
