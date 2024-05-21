@@ -357,7 +357,7 @@ class TechtreeController extends OGameController
 
             $astrophysics_table[] = [
                 'level' => $i,
-                'max_colonies' => round($i /2),
+                'max_colonies' => round($i / 2),
                 'max_expedition' => floor(sqrt($i)),
             ];
         }
