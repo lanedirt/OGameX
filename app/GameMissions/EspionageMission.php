@@ -108,6 +108,10 @@ class EspionageMission extends GameMission
      */
     private function createEspionageReport(PlanetService $planet): int
     {
+        // TODO: make sure the target planet is updated with the latest resources before creating the report
+        // to ensure the report is accurate at the current point in time.
+        // TODO: add planet update call here and add a test to cover this.
+
         // Create new espionage report record.
         $report = new EspionageReport();
         $report->planet_galaxy = $planet->getPlanetCoordinates()->galaxy;
