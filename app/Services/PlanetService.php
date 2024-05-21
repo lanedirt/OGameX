@@ -1156,14 +1156,17 @@ class PlanetService
      * @param string $machine_name
      *  The machine name of the building to calculate the production for.
      *
-     * @param int $building_level
+     * @param int|null $building_level
      *  Optional parameter to calculate the production for a specific level
      *  of a building. Defaults to the current level.
+     *
+     * @param bool $force_factor
+     * Optional parameter use to force/simulate the production at 100%
      *
      * @return Resources
      * @throws Exception
      */
-    public function getBuildingProduction(string $machine_name, int $building_level = 0): Resources
+    public function getBuildingProduction(string $machine_name, int|null $building_level = null, bool $force_factor = false): Resources
     {
         $building = $this->objects->getBuildingObjectsWithProductionByMachineName($machine_name);
 
@@ -1177,7 +1180,7 @@ class PlanetService
             $resource_production_factor = $this->getResourceProductionFactor();
         }
 
-        $building_percentage = $this->getBuildingPercent($machine_name); // Implement building percentage.
+        $building_percentage = !$force_factor ? $this->getBuildingPercent($machine_name) : 100; // Implement building percentage.
         $planet_temperature = $this->getPlanetTempAvg();
         $energy_technology_level = 0; // Implement energy technology level getter.
         $universe_resource_multiplier = $this->settingsService->economySpeed();
