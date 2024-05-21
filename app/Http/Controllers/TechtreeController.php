@@ -386,7 +386,7 @@ class TechtreeController extends OGameController
         $all_objects = $objects->getObjects();
         $required_by = [];
 
-        $require_objects = array_filter($all_objects, function($a_object) use($object) {
+        $require_objects = array_filter($all_objects, function ($a_object) use ($object) {
             $has_object_required = false;
             foreach ($a_object->requirements as $requirement) {
                 if($requirement->object_machine_name === $object->machine_name) {
