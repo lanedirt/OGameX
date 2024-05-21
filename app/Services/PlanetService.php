@@ -1156,9 +1156,12 @@ class PlanetService
      * @param string $machine_name
      *  The machine name of the building to calculate the production for.
      *
-     * @param int $building_level
+     * @param int|null $building_level
      *  Optional parameter to calculate the production for a specific level
      *  of a building. Defaults to the current level.
+     *
+     * @param bool $force_factor
+     * Optional parameter use to force/simulate the production at 100%
      *
      * @return Resources
      * @throws Exception
