@@ -157,7 +157,7 @@ Repairs must begin within 3 days of the creation of the wreckage. The repaired s
 Wreckage only appears if more than 150,000 units have been destroyed including one’s own ships which took part in the combat with a value of at least 5% of the ship points.
 
 Since the Space Dock floats in orbit, it does not require a planet field.';
-        $terraformer->requirements = [
+        $spaceDock->requirements = [
             new GameObjectRequirement('shipyard', 2),
         ];
         $spaceDock->price = new GameObjectPrice(200, 0, 50, 50, 2);

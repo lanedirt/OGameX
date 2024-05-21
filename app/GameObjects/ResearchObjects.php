@@ -64,9 +64,9 @@ class ResearchObjects
         $ionTechnology->description = 'The concentration of ions allows for the construction of cannons, which can inflict enormous damage and reduce the deconstruction costs per level by 4%.';
         $ionTechnology->description_long = 'Ions can be concentrated and accelerated into a deadly beam. These beams can then inflict enormous damage. Our scientists have also developed a technique that will clearly reduce the deconstruction costs for buildings and systems. For each research level, the deconstruction costs will sink by 4%.';
         $ionTechnology->requirements = [
+            new GameObjectRequirement('research_lab', 4),
             new GameObjectRequirement('energy_technology', 4),
-            new GameObjectRequirement('laser_technology', 4),
-            new GameObjectRequirement('energy_technology', 5),
+            new GameObjectRequirement('laser_technology', 5),
         ];
         $ionTechnology->price = new GameObjectPrice(1000, 300, 100, 0, 2);
         $ionTechnology->assets = new GameObjectAssets();
@@ -302,10 +302,10 @@ With each level of the Combustion Drive developed, the speed of small and large 
         // --- Shielding Technology ---
         $shieldingTechnology = new ResearchObject();
         $shieldingTechnology->id = 110;
-        $shieldingTechnology->title = 'Shielding Technology';
+        $shieldingTechnology->title = 'Shield Technology';
         $shieldingTechnology->machine_name = 'shielding_technology';
         $shieldingTechnology->class_name = 'shieldingTechnology';
-        $shieldingTechnology->description = 'Shielding technology makes the shields on ships and defensive facilities more efficient. Each level of shield technology increases the strength of the shields by 10 % of the base value.';
+        $shieldingTechnology->description = 'Shield technology makes the shields on ships and defensive facilities more efficient. Each level of shield technology increases the strength of the shields by 10 % of the base value.';
         $shieldingTechnology->description_long = 'With the invention of the magnetosphere generator, scientists learned that an artificial shield could be produced to protect the crew in space ships not only from the harsh solar radiation environment in deep space, but also provide protection from enemy fire during an attack. Once scientists finally perfected the technology, a magnetosphere generator was installed on all ships and defense systems.
         
         As the technology is advanced to each level, the magnetosphere generator is upgraded which provides an additional 10% strength to the shields base value.';

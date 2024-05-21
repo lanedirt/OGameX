@@ -116,7 +116,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $recycler->requirements = [
             new GameObjectRequirement('shipyard', 4),
             new GameObjectRequirement('combustion_drive', 6),
-            new GameObjectRequirement('shield_technology', 2),
+            new GameObjectRequirement('shielding_technology', 2),
         ];
         $recycler->price = new GameObjectPrice(10000, 6000, 2000, 0);
         $recycler->rapidfire = [

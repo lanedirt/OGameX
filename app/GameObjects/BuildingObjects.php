@@ -120,7 +120,7 @@ class BuildingObjects
         $fusionReactor->price = new GameObjectPrice(900, 360, 180, 0, 1.8);
         $fusionReactor->requirements = [
             new GameObjectRequirement('deuterium_synthesizer', 5),
-            new GameObjectRequirement('research_lab', 5),
+            new GameObjectRequirement('energy_technology', 3),
         ];
         $fusionReactor->production = new GameObjectProduction();
         $fusionReactor->production->deuterium = 'return - (10 * $building_level * pow(1.1, $building_level));';

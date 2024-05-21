@@ -99,7 +99,7 @@ class DefenseObjects
         $gaussCannon->requirements = [
             new GameObjectRequirement('shipyard', 6),
             new GameObjectRequirement('weapon_technology', 3),
-            new GameObjectRequirement('shield_technology', 1),
+            new GameObjectRequirement('shielding_technology', 1),
             new GameObjectRequirement('energy_technology', 6),
         ];
         $gaussCannon->price = new GameObjectPrice(20000, 15000, 2000, 0);
@@ -165,7 +165,7 @@ class DefenseObjects
 After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
         $smallShieldDome->requirements = [
             new GameObjectRequirement('shipyard', 1),
-            new GameObjectRequirement('shield_technology', 2),
+            new GameObjectRequirement('shielding_technology', 2),
         ];
         $smallShieldDome->price = new GameObjectPrice(10000, 10000, 0, 0);
         $smallShieldDome->properties = new GameObjectProperties($smallShieldDome, 20000, 2000, 1, 0, 0, 0);
@@ -187,7 +187,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
         $largeShieldDome->requirements = [
             new GameObjectRequirement('shipyard', 6),
-            new GameObjectRequirement('shield_technology', 6),
+            new GameObjectRequirement('shielding_technology', 6),
         ];
         $largeShieldDome->price = new GameObjectPrice(50000, 50000, 0, 0);
         $largeShieldDome->properties = new GameObjectProperties($largeShieldDome, 100000, 10000, 1, 0, 0, 0);
@@ -208,6 +208,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         $antiBallisticMissile->description_long = 'Anti Ballistic Missiles (ABM) are your only line of defense when attacked by Interplanetary Missiles (IPM) on your planet or moon. When a launch of IPMs is detected, these missiles automatically arm, process a launch code in their flight computers, target the inbound IPM, and launch to intercept. During the flight, the target IPM is constantly tracked and course corrections are applied until the ABM reaches the target and destroys the attacking IPM. Each ABM destroys one incoming IPM.';
         $antiBallisticMissile->requirements = [
             new GameObjectRequirement('missile_silo', 2),
+            new GameObjectRequirement('shipyard', 1),
         ];
         $antiBallisticMissile->price = new GameObjectPrice(8000, 2000, 0, 0);
         $antiBallisticMissile->properties = new GameObjectProperties($antiBallisticMissile, 8000, 1, 1, 0, 0, 0);
@@ -227,6 +228,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
 
         $interplanetaryMissile->description_long = 'Interplanetary Missiles (IPM) are your offensive weapon to destroy the defenses of your target. Using state of the art tracking technology, each missile targets a certain number of defenses for destruction. Tipped with an anti-matter bomb, they deliver a destructive force so severe that destroyed shields and defenses cannot be repaired. The only way to counter these missiles is with ABMs.';
         $interplanetaryMissile->requirements = [
+            new GameObjectRequirement('shipyard', 1),
             new GameObjectRequirement('missile_silo', 4),
             new GameObjectRequirement('impulse_drive', 1),
         ];

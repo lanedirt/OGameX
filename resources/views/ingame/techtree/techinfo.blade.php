@@ -8,17 +8,17 @@
                 </a>
             </li>
             <li>
-                <a class="overlay" data-action="applications" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->id]) }}">
+                <a class="overlay" data-action="applications" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $object->id]) }}">
                     @lang('Applications')
                 </a>
             </li>
             <li>
-                <a class="overlay" data-action="technologyinformation" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => $object->id]) }}">
+                <a class="overlay" data-action="technologyinformation" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->id]) }}">
                     @lang('Techinfo')
                 </a>
             </li>
             <li>
-                <a class="overlay" data-action="technologies" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $object->id]) }}">
+                <a class="overlay" data-action="technologies" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => $object->id]) }}">
                     @lang('Technology')
                 </a>
             </li>
