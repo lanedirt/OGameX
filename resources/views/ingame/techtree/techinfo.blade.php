@@ -33,6 +33,7 @@
             {!! $rapidfire_table !!}
             {!! $properties_table !!}
             {!! $plasma_table !!}
+            {!! $astrophysics_table !!}
         </div>
     </div>
     <script>

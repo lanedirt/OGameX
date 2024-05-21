@@ -12,7 +12,7 @@
         </thead>
         <tbody>
         @foreach ($storage_table as $record)
-            <tr class="@if ($record['level'] == $current_level)
+            <tr class="@if ($record['level'] === $current_level)
                                     current
                                     @endif">
                 <td class="level" data-value="{{ $record['level'] }}">{{ $record['level'] }}</td>

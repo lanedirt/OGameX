@@ -20,7 +20,7 @@
             </thead>
             <tbody>
             @foreach ($production_table as $record)
-                <tr class="@if ($record['level'] == $current_level)
+                <tr class="@if ($record['level'] === $current_level)
                                         current
                                         @endif">
                     <td>
@@ -53,7 +53,7 @@
             @endforeach
             </tbody>
         </table>
-    @elseif ($object->id == 12)
+    @elseif ($object->id === 12)
         <!--  Resource production -->
         <table class="general_details">
             <thead>
@@ -80,7 +80,7 @@
             </thead>
             <tbody>
             @foreach ($production_table as $record)
-                <tr class="@if ($record['level'] == $current_level)
+                <tr class="@if ($record['level'] === $current_level)
                                             current
                                             @endif">
                     <td>
@@ -156,7 +156,7 @@
             </thead>
             <tbody>
             @foreach ($production_table as $record)
-                <tr class="@if ($record['level'] == $current_level)
+                <tr class="@if ($record['level'] === $current_level)
                                         current
                                         @endif">
                     <td>
