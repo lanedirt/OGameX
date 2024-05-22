@@ -2,12 +2,12 @@
 
 namespace OGame\GameMessages\Abstracts;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
+use View;
 
 abstract class GameMessage
 {
@@ -89,7 +89,6 @@ abstract class GameMessage
      *
      * @param Message $message
      * @return string
-     * @throws BindingResolutionException
      */
     public function getBody(Message $message): string
     {
@@ -104,6 +103,30 @@ abstract class GameMessage
 
         // Replace placeholders in translated body with actual values.
         return $this->replacePlaceholders($translatedBody);
+    }
+
+    /**
+     * Get the body of the message for the full message view (overlay).
+     *
+     * @param Message $message
+     * @return string
+     */
+    public function getBodyFull(Message $message): string
+    {
+        // Default to the same body as the regular message.
+        return $this->getBody($message);
+    }
+
+    /**
+     * Returns the footer details of the message.
+     *
+     * @param Message $message
+     * @return string
+     */
+    public function getFooterDetails(Message $message): string
+    {
+        // TODO: abstract footer detail action button if used for more than just espionage reports?
+        return '';
     }
 
     /**
@@ -199,8 +222,7 @@ abstract class GameMessage
             try {
                 $playerServiceFactory =  app()->make(PlayerServiceFactory::class);
                 $playerService = $playerServiceFactory->make((int)$matches[1]);
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 // Do nothing
             }
 
@@ -223,8 +245,7 @@ abstract class GameMessage
             try {
                 $planetServiceFactory = app()->make(PlanetServiceFactory::class);
                 $planetService = $planetServiceFactory->make((int)$matches[1]);
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 // Do nothing
             }
 
@@ -249,8 +270,7 @@ abstract class GameMessage
             try {
                 $planetServiceFactory = app()->make(PlanetServiceFactory::class);
                 $planetService = $planetServiceFactory->makeForCoordinate(new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]));
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 // Do nothing
             }
 

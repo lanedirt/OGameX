@@ -1,0 +1,352 @@
+.building_image img,.defense_image img,.research_image img,.techtree .item img {
+    background-image: url("/img/icons/0adc600b59f15369f1c82ac6a35db7.png");
+    background-repeat: no-repeat
+}
+
+.building_image .building1,.techtree .item a.tech1 img {
+    background-position: 0 0
+}
+
+.building_image .building2,.techtree .item a.tech2 img {
+    background-position: -28px 0
+}
+
+.building_image .building3,.techtree .item a.tech3 img {
+    background-position: -56px 0
+}
+
+.building_image .building4,.techtree .item a.tech4 img {
+    background-position: -84px 0
+}
+
+.building_image .building12,.techtree .item a.tech12 img {
+    background-position: -112px 0
+}
+
+.building_image .building14,.techtree .item a.tech14 img {
+    background-position: -140px 0
+}
+
+.building_image .building15,.techtree .item a.tech15 img {
+    background-position: -168px 0
+}
+
+.building_image .building21,.techtree .item a.tech21 img {
+    background-position: -196px 0
+}
+
+.building_image .building22,.techtree .item a.tech22 img {
+    background-position: -224px 0
+}
+
+.building_image .building23,.techtree .item a.tech23 img {
+    background-position: -0px -28px
+}
+
+.building_image .building24,.techtree .item a.tech24 img {
+    background-position: -28px -28px
+}
+
+.building_image .building25,.techtree .item a.tech25 img {
+    background-position: -56px -28px
+}
+
+.building_image .building26,.techtree .item a.tech26 img {
+    background-position: -84px -28px
+}
+
+.building_image .building27,.techtree .item a.tech27 img {
+    background-position: -112px -28px
+}
+
+.building_image .building31,.techtree .item a.tech31 img {
+    background-position: -140px -28px
+}
+
+.building_image .building33,.techtree .item a.tech33 img {
+    background-position: -168px -28px
+}
+
+.building_image .building34,.techtree .item a.tech34 img {
+    background-position: -196px -28px
+}
+
+.building_image .building36,.techtree .item a.tech36 img {
+    background-position: -196px -168px
+}
+
+.building_image .building41,.techtree .item a.tech41 img {
+    background-position: -225px -28px
+}
+
+.building_image .building42,.techtree .item a.tech42 img {
+    background-position: -0px -56px
+}
+
+.building_image .building43,.techtree .item a.tech43 img {
+    background-position: -29px -56px
+}
+
+.building_image .building44,.techtree .item a.tech44 img {
+    background-position: -56px -56px
+}
+
+.research_image .research106,.techtree .item a.tech106 img {
+    background-position: -84px -56px
+}
+
+.research_image .research108,.techtree .item a.tech108 img {
+    background-position: -112px -56px
+}
+
+.research_image .research109,.techtree .item a.tech109 img {
+    background-position: -140px -56px
+}
+
+.research_image .research110,.techtree .item a.tech110 img {
+    background-position: -168px -56px
+}
+
+.research_image .research111,.techtree .item a.tech111 img {
+    background-position: -196px -56px
+}
+
+.research_image .research113,.techtree .item a.tech113 img {
+    background-position: -224px -56px
+}
+
+.research_image .research114,.techtree .item a.tech114 img {
+    background-position: -0px -84px
+}
+
+.research_image .research115,.techtree .item a.tech115 img {
+    background-position: -28px -84px
+}
+
+.research_image .research117,.techtree .item a.tech117 img {
+    background-position: -56px -84px
+}
+
+.research_image .research118,.techtree .item a.tech118 img {
+    background-position: -84px -84px
+}
+
+.research_image .research120,.techtree .item a.tech120 img {
+    background-position: -112px -84px
+}
+
+.research_image .research121,.techtree .item a.tech121 img {
+    background-position: -140px -84px
+}
+
+.research_image .research122,.techtree .item a.tech122 img {
+    background-position: -168px -84px
+}
+
+.research_image .research123,.techtree .item a.tech123 img {
+    background-position: -196px -84px
+}
+
+.research_image .research124,.techtree .item a.tech124 img {
+    background-position: -224px -84px
+}
+
+.research_image .research199,.techtree .item a.tech199 img {
+    background-position: -0px -112px
+}
+
+.techtree .item a.tech202 img {
+    background-position: -28px -112px
+}
+
+.techtree .item a.tech203 img {
+    background-position: -56px -112px
+}
+
+.techtree .item a.tech204 img {
+    background-position: -84px -112px
+}
+
+.techtree .item a.tech205 img {
+    background-position: -112px -112px
+}
+
+.techtree .item a.tech206 img {
+    background-position: -140px -112px
+}
+
+.techtree .item a.tech207 img {
+    background-position: -168px -112px
+}
+
+.techtree .item a.tech208 img {
+    background-position: -196px -112px
+}
+
+.techtree .item a.tech209 img {
+    background-position: -224px -112px
+}
+
+.techtree .item a.tech210 img {
+    background-position: -0px -140px
+}
+
+.techtree .item a.tech211 img {
+    background-position: -28px -140px
+}
+
+.techtree .item a.tech212 img {
+    background-position: -56px -140px
+}
+
+.techtree .item a.tech213 img {
+    background-position: -84px -140px
+}
+
+.techtree .item a.tech214 img {
+    background-position: -112px -140px
+}
+
+.techtree .item a.tech215 img {
+    background-position: -140px -140px
+}
+
+.defense_image .defense401,.techtree .item a.tech401 img {
+    background-position: -168px -140px
+}
+
+.defense_image .defense402,.techtree .item a.tech402 img {
+    background-position: -196px -140px
+}
+
+.defense_image .defense403,.techtree .item a.tech403 img {
+    background-position: -224px -140px
+}
+
+.defense_image .defense404,.techtree .item a.tech404 img {
+    background-position: -0px -168px
+}
+
+.defense_image .defense405,.techtree .item a.tech405 img {
+    background-position: -28px -168px
+}
+
+.defense_image .defense406,.techtree .item a.tech406 img {
+    background-position: -56px -168px
+}
+
+.defense_image .defense407,.techtree .item a.tech407 img {
+    background-position: -84px -168px
+}
+
+.defense_image .defense408,.techtree .item a.tech408 img {
+    background-position: -112px -168px
+}
+
+.defense_image .defense502,.techtree .item a.tech502 img {
+    background-position: -140px -168px
+}
+
+.defense_image .defense503,.techtree .item a.tech503 img {
+    background-position: -168px -168px
+}
+
+div.techImage.building a {
+    background: transparent url("/img/icons/af398a7ab555df52d0963f95de8115.png") 0 0 no-repeat
+}
+
+div.techImage.building.tech1.built a {
+    background-position: -82px -2px
+}
+
+div.techImage.building.tech1.notBuilt a {
+    background-position: -82px -162px
+}
+
+div.techImage.building.tech2.built a {
+    background-position: -322px -2px
+}
+
+div.techImage.building.tech2.notBuilt a {
+    background-position: -322px -162px
+}
+
+div.techImage.building.tech3.built a {
+    background-position: -242px -2px
+}
+
+div.techImage.building.tech3.notBuilt a {
+    background-position: -242px -162px
+}
+
+div.techImage.building.tech4.built a {
+    background-position: -162px -2px
+}
+
+div.techImage.building.tech4.notBuilt a {
+    background-position: -162px -162px
+}
+
+div.techImage.building.tech12.built a {
+    background-position: -2px -2px
+}
+
+div.techImage.building.tech12.notBuilt a {
+    background-position: -2px -162px
+}
+
+div.techImage.building.tech212.built a {
+    background-position: -402px -2px
+}
+
+div.techImage.building.tech212.notBuilt a {
+    background-position: -402px -162px
+}
+
+div.techImage.building.tech22.built a {
+    background-position: -482px -2px
+}
+
+div.techImage.building.tech22.notBuilt a {
+    background-position: -482px -162px
+}
+
+div.techImage.building.tech23.built a {
+    background-position: -562px -2px
+}
+
+div.techImage.building.tech23.notBuilt a {
+    background-position: -562px -162px
+}
+
+div.techImage.building.tech24.built a {
+    background-position: -642px -2px
+}
+
+div.techImage.building.tech24.notBuilt a {
+    background-position: -642px -162px
+}
+
+div.techImage.building.tech25.built a {
+    background-position: -722px -2px
+}
+
+div.techImage.building.tech25.notBuilt a {
+    background-position: -722px -162px
+}
+
+div.techImage.building.tech26.built a {
+    background-position: -802px -2px
+}
+
+div.techImage.building.tech26.notBuilt a {
+    background-position: -802px -162px
+}
+
+div.techImage.building.tech27.built a {
+    background-position: -882px -2px
+}
+
+div.techImage.building.tech27.notBuilt a {
+    background-position: -882px -162px
+}

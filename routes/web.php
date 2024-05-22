@@ -76,6 +76,8 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
         Route::post('/messages', 'MessagesController@post')->name('messages.post');
         // For handling tab change AJAX requests
         Route::get('/ajax/messages', 'MessagesController@ajax')->name('messages.ajax');
+        // For handling individual message AJAX requests by ID
+        Route::get('/ajax/messages/{messageId}', 'MessagesController@showMessage')->name('messages.showMessage');
 
         // Misc
         Route::get('/merchant', 'MerchantController@index')->name('merchant.index');

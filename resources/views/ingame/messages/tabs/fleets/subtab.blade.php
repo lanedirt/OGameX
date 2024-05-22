@@ -39,70 +39,14 @@
                 <span class="msg_content">
                   {!! $message->getBody() !!}
                 </span>
-                <!--
                 <message-footer class="msg_actions">
                     <message-footer-actions>
-
-                        <gradient-button sq30="">
-                            <button class="custom_btn icon_not_favorited tooltip msgFavouriteBtn"
-                                    title="mark as favourite"
-                                    data-message-id="81049"><img
-                                        src="/img/icons/not_favorited.png"
-                                        style="width:20px;height:20px;"></button>
-                        </gradient-button>
-
-                        <gradient-button sq30="">
-                            <button class="custom_btn icon_apikey tooltip msgApiKeyBtn"
-                                    title="This data can be entered into a compatible combat simulator:<br/><input value='sr-en-255-f6796891d781ce5b9c10a401795b3e5acf4bcc50' readonly onclick='select()' style='width:360px'></input>"
-                                    data-message-id="81049"><img
-                                        src="/img/icons/apikey.png"
-                                        style="width:20px;height:20px;"></button>
-                        </gradient-button>
-                        <gradient-button sq30="">
-                            <button class="custom_btn tooltip msgCombatSimBtn"
-                                    title="Open in Combat Simulator"
-                                    onclick="window.open('#combatsim&amp;reportHash=sr-en-255-f6796891d781ce5b9c10a401795b3e5acf4bcc50');"
-                                    data-message-id="81049"><img
-                                        src="/img/icons/speed.png"
-                                        style="width:20px;height:20px;"></button>
-                        </gradient-button>
-                        <gradient-button sq30="">
-                            <button class="custom_btn overlay tooltip msgShareBtn"
-                                    title="share message" data-message-id="81049"
-                                    data-overlay-title="share message"
-                                    data-target="#shareReportOverlay&amp;messageId=81049">
-                                <img src="/img/icons/share.png"
-                                     style="width:20px;height:20px;"></button>
-                        </gradient-button>
-                        <gradient-button sq30="">
-                            <button class="custom_btn tooltip msgAttackBtn"
-                                    title="Attack"
-                                    onclick="window.location.href='#fleetdispatch&amp;galaxy=2&amp;system=8&amp;position=12&amp;type=1&amp;mission=1';"
-                                    data-message-id="81049">
-                                <div class="msgAttackIconContainer"><img
-                                            src="/img/icons/attack.png"
-                                            style="width:20px;height:20px;"></div>
-                            </button>
-                        </gradient-button>
-
-
-                        <gradient-button sq30="">
-                            <button class="custom_btn tooltip msgEspionageBtn"
-                                    title="Espionage"
-                                    onclick="sendShipsWithPopup(6,2,8,12,1,2); return false;"
-                                    data-message-id="81049"><img
-                                        src="/img/icons/espionage.png"
-                                        style="width:20px;height:20px;"></button>
-                        </gradient-button>
+                        {!! $message->getFooterActions() !!}
                     </message-footer-actions>
                     <message-footer-details>
-                        <a class="fright txt_link msg_action_link overlay"
-                           href="#messages&amp;messageId=81049&amp;tabid=20&amp;ajax=1"
-                           data-overlay-title="More details">
-                            More details
-                        </a>
+                        {!! $message->getFooterDetails() !!}
                     </message-footer-details>
-                </message-footer>-->
+                </message-footer>
                 <script type="text/javascript">
                     initOverlays();
                 </script>

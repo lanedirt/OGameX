@@ -208,13 +208,17 @@ class MessageService
         }
 
         /** @var GameMessage $gameMessage */
-        $gameMessage = new $gameMessageClass();
+        try {
+            $gameMessage = app()->make($gameMessageClass);
 
-        $message = new Message();
-        $message->user_id = $player->getId();
-        $message->key = $gameMessage->getKey();
-        $message->params = $params;
-        $message->save();
+            $message = new Message();
+            $message->user_id = $player->getId();
+            $message->key = $gameMessage->getKey();
+            $message->params = $params;
+            $message->save();
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Could not create espionage report message.');
+        }
     }
 
     /**
@@ -228,8 +232,7 @@ class MessageService
     {
         try {
             $gameMessage = app()->make(EspionageReport::class);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             throw new \RuntimeException('Could not create espionage report message.');
         }
 

@@ -2,14 +2,10 @@
 
 namespace OGame\ViewModels;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
-use OGame\Factories\PlanetServiceFactory;
-use OGame\Factories\PlayerServiceFactory;
 use OGame\Factories\GameMessageFactory;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\Models\Message;
-use OGame\Models\Planet\Coordinate;
 
 /**
  * MessageViewModel
@@ -96,6 +92,91 @@ class MessageViewModel
     {
         if ($this->gameMessage !== null) {
             return $this->gameMessage->getBody($this->message);
+        } else {
+            // TODO: implement dynamic messages without templates (e.g. mass messages from admin to players)
+            return '';
+        }
+    }
+
+    /**
+     * Get the body of the message used for the overlay view of the message.
+     */
+    public function getBodyFull(): string
+    {
+        // TODO: refactor this full message "body" retrieval? Do we want body and subject separate or together?
+        if ($this->gameMessage !== null) {
+            return $this->gameMessage->getBodyFull($this->message);
+        } else {
+            // TODO: implement dynamic messages without templates (e.g. mass messages from admin to players)
+            return '';
+        }
+    }
+
+    /**
+     * Get footer actions for the message.
+     *
+     * @return string
+     */
+    public function getFooterActions(): string
+    {
+        return '';
+
+        /*
+         <gradient-button sq30="">
+                            <button class="custom_btn icon_not_favorited tooltip msgFavouriteBtn"
+                                    title="mark as favourite"
+                                    data-message-id="81049"><img
+                                        src="/img/icons/not_favorited.png"
+                                        style="width:20px;height:20px;"></button>
+                        </gradient-button>
+                        <gradient-button sq30="">
+                            <button class="custom_btn icon_apikey tooltip msgApiKeyBtn"
+                                    title="This data can be entered into a compatible combat simulator:<br/><input value='sr-en-255-f6796891d781ce5b9c10a401795b3e5acf4bcc50' readonly onclick='select()' style='width:360px'></input>"
+                                    data-message-id="81049"><img
+                                        src="/img/icons/apikey.png"
+                                        style="width:20px;height:20px;"></button>
+                        </gradient-button>
+                        <gradient-button sq30="">
+                            <button class="custom_btn tooltip msgCombatSimBtn"
+                                    title="Open in Combat Simulator"
+                                    onclick="window.open('#combatsim&amp;reportHash=sr-en-255-f6796891d781ce5b9c10a401795b3e5acf4bcc50');"
+                                    data-message-id="81049"><img
+                                        src="/img/icons/speed.png"
+                                        style="width:20px;height:20px;"></button>
+                        </gradient-button>
+                        <gradient-button sq30="">
+                            <button class="custom_btn overlay tooltip msgShareBtn"
+                                    title="share message" data-message-id="81049"
+                                    data-overlay-title="share message"
+                                    data-target="#shareReportOverlay&amp;messageId=81049">
+                                <img src="/img/icons/share.png"
+                                     style="width:20px;height:20px;"></button>
+                        </gradient-button>
+                        <gradient-button sq30="">
+                            <button class="custom_btn tooltip msgAttackBtn"
+                                    title="Attack"
+                                    onclick="window.location.href='#fleetdispatch&amp;galaxy=2&amp;system=8&amp;position=12&amp;type=1&amp;mission=1';"
+                                    data-message-id="81049">
+                                <div class="msgAttackIconContainer"><img
+                                            src="/img/icons/attack.png"
+                                            style="width:20px;height:20px;"></div>
+                            </button>
+                        </gradient-button>
+                        <gradient-button sq30="">
+                            <button class="custom_btn tooltip msgEspionageBtn"
+                                    title="Espionage"
+                                    onclick="sendShipsWithPopup(6,2,8,12,1,2); return false;"
+                                    data-message-id="81049"><img
+                                        src="/img/icons/espionage.png"
+                                        style="width:20px;height:20px;"></button>
+                        </gradient-button>
+         */
+    }
+
+    public function getFooterDetails(): string
+    {
+        if ($this->gameMessage !== null) {
+            return $this->gameMessage->getFooterDetails($this->message);
         } else {
             // TODO: implement dynamic messages without templates (e.g. mass messages from admin to players)
             return '';

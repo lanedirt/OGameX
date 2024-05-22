@@ -2,12 +2,12 @@
 
 namespace OGame\GameMessages;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Facades\AppUtil;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\ViewModels\UnitViewModel;
 
 class EspionageReport extends GameMessage
 {
@@ -41,8 +41,7 @@ class EspionageReport extends GameMessage
         $subject = '';
         if ($planet) {
             $subject = __('Espionage report from :planet', ['planet' => '[planet]' . $planet->getPlanetId() . '[/planet]']);
-        }
-        else {
+        } else {
             $subject = __('Espionage report from :planet', ['planet' => '[coordinates]' . $coordinate->asString() . '[/coordinates]']);
         }
 
@@ -56,6 +55,43 @@ class EspionageReport extends GameMessage
      * @return string
      */
     public function getBody(Message $message): string
+    {
+        $params = $this->getEspionageReportParams($message);
+        return view('ingame.messages.templates.espionage_report', $params)->render();
+    }
+
+    /**
+     * Get the body of the message filled with provided params.
+     *
+     * @param Message $message
+     * @return string
+     */
+    public function getBodyFull(Message $message): string
+    {
+        $params = $this->getEspionageReportParams($message);
+        return view('ingame.messages.templates.espionage_report_full', $params)->render();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFooterDetails(Message $message): string
+    {
+        // Show more details link in the footer of the espionage report.
+        return ' <a class="fright txt_link msg_action_link overlay"
+                   href="' . route('messages.showMessage', ['messageId' => $message->id])  .'"
+                   data-overlay-title="More details">
+                    More details
+                </a>';
+    }
+
+    /**
+     * Get the espionage report params.
+     *
+     * @param Message $message
+     * @return array
+     */
+    private function getEspionageReportParams(Message $message): array
     {
         // Dynamically define all params that are required for this message by loading them from the
         // references espionage_report record.
@@ -77,16 +113,82 @@ class EspionageReport extends GameMessage
         // Extract resources
         $resources = new Resources($espionageReport->resources['metal'], $espionageReport->resources['crystal'], $espionageReport->resources['deuterium'], $espionageReport->resources['energy']);
 
+        // Extract ships
+        $ships = [];
+        if ($espionageReport->ships !== null) {
+            foreach ($espionageReport->ships as $machine_name => $amount) {
+                // Get object
+                $unit = $planet->objects->getUnitObjectByMachineName($machine_name);
+
+                $unitViewModel = new UnitViewModel();
+                $unitViewModel->amount = $amount;
+                $unitViewModel->object = $unit;
+
+                $ships[$unit->machine_name] = $unitViewModel;
+            }
+        }
+
+        // Extract defense
+        $defense = [];
+        if ($espionageReport->defense !== null) {
+            foreach ($espionageReport->defense as $machine_name => $amount) {
+                // Get object
+                $unit = $planet->objects->getUnitObjectByMachineName($machine_name);
+
+                $unitViewModel = new UnitViewModel();
+                $unitViewModel->amount = $amount;
+                $unitViewModel->object = $unit;
+
+                $defense[$unit->machine_name] = $unitViewModel;
+            }
+        }
+
+        // Extract buildings
+        $buildings = [];
+        if ($espionageReport->buildings !== null) {
+            foreach ($espionageReport->buildings as $machine_name => $amount) {
+                // Get object
+                $unit = $planet->objects->getObjectByMachineName($machine_name);
+
+                $unitViewModel = new UnitViewModel();
+                $unitViewModel->amount = $amount;
+                $unitViewModel->object = $unit;
+
+                $buildings[$unit->machine_name] = $unitViewModel;
+            }
+        }
+
+        // Extract research
+        $research = [];
+        if ($espionageReport->research !== null) {
+            foreach ($espionageReport->research as $machine_name => $amount) {
+                // Get object
+                $unit = $planet->objects->getObjectByMachineName($machine_name);
+
+                $unitViewModel = new UnitViewModel();
+                $unitViewModel->amount = $amount;
+                $unitViewModel->object = $unit;
+
+                $research[$unit->machine_name] = $unitViewModel;
+            }
+        }
+
         // TODO: for espionage_report we do not want to rely on simple language files as what we show is too complex.
         // We want to show a table with all the information in a nice way and therefore override the default behavior
         // and use a blade template for this.
-
-        return view('ingame.messages.templates.espionage_report', [
+        return [
+            'subject' => $this->getSubject($message),
+            'from' => $this->getFrom(),
             'playername' => $player->getUsername(),
             'metal' => $resources->metal->getFormatted(),
             'crystal' => $resources->crystal->getFormatted(),
             'deuterium' => $resources->deuterium->getFormatted(),
+            'energy' => $resources->energy->getFormatted(),
             'resources_sum' => AppUtil::formatNumber($resources->sum()),
-        ])->render();
+            'ships' => $ships,
+            'defense' => $defense,
+            'buildings' => $buildings,
+            'research' => $research,
+        ];
     }
 }

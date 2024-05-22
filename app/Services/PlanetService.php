@@ -548,6 +548,63 @@ class PlanetService
     }
 
     /**
+     * Get array with all ship objects on this planet.
+     *
+     * @return array<string, int>
+     */
+    public function getShipsArray(): array
+    {
+        // TODO: can this logic be moved to the EspionageReport class if its not used elsewehere?
+        $array = [];
+        $objects = $this->objects->getShipObjects();
+        foreach ($objects as $object) {
+            if ($this->planet->{$object->machine_name} > 0) {
+                $array[$object->machine_name] = $this->planet->{$object->machine_name};
+            }
+        }
+
+        return $array;
+    }
+
+    /**
+     * Get array with all defense objects on this planet.
+     *
+     * @return array<string, int>
+     */
+    public function getDefenseArray(): array
+    {
+        // TODO: can this logic be moved to the EspionageReport class if its not used elsewehere?
+        $array = [];
+        $objects = $this->objects->getDefenseObjects();
+        foreach ($objects as $object) {
+            if ($this->planet->{$object->machine_name} > 0) {
+                $array[$object->machine_name] = $this->planet->{$object->machine_name};
+            }
+        }
+
+        return $array;
+    }
+
+    /**
+     * Get array with all building objects on this planet.
+     *
+     * @return array<string, int>
+     */
+    public function getBuildingArray(): array
+    {
+        // TODO: can this logic be moved to the EspionageReport class if its not used elsewehere?
+        $array = [];
+        $objects = [...$this->objects->getBuildingObjects(), ...$this->objects->getStationObjects()];
+        foreach ($objects as $object) {
+            if ($this->planet->{$object->machine_name} > 0) {
+                $array[$object->machine_name] = $this->planet->{$object->machine_name};
+            }
+        }
+
+        return $array;
+    }
+
+    /**
      * Gets the time of upgrading a building on this planet to the next level.
      *
      * @param string $machine_name

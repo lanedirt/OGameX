@@ -369,4 +369,22 @@ class PlayerService
         $resources_sum = $resources_spent->metal->get() + $resources_spent->crystal->get() + $resources_spent->deuterium->get();
         return (int)floor($resources_sum / 1000);
     }
+
+    /**
+     * Get array with all research objects that this player has.
+     *
+     * @return array<string, int>
+     */
+    public function getResearchArray(): array
+    {
+        $array = [];
+        $objects = $this->objects->getResearchObjects();
+        foreach ($objects as $object) {
+            if ($this->user_tech->{$object->machine_name} > 0) {
+                $array[$object->machine_name] = $this->user_tech->{$object->machine_name};
+            }
+        }
+
+        return $array;
+    }
 }

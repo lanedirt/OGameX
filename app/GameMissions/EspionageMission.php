@@ -125,12 +125,29 @@ class EspionageMission extends GameMission
             'player_name' => $planet->getPlayer()->getUsername(),
         ];
 
+        // Resources
         $report->resources = [
             'metal' => $planet->metal()->get(),
             'crystal' => $planet->crystal()->get(),
             'deuterium' => $planet->deuterium()->get(),
             'energy' => $planet->energy()->get()
-            ];
+        ];
+
+        // TODO: implement logic which determines what to include in the espionage report based on
+        // the player's espionage technology level. For example, the player can see more details about the
+        // target planet if the espionage technology level is higher.
+
+        // Fleets
+        $report->ships = $planet->getShipsArray();
+
+        // Defense
+        $report->defense = $planet->getDefenseArray();
+
+        // Buildings
+        $report->buildings = $planet->getBuildingArray();
+
+        // Research
+        $report->research = $planet->getPlayer()->getResearchArray();
 
         $report->save();
 

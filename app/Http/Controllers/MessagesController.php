@@ -5,7 +5,10 @@ namespace OGame\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use OGame\Models\Message;
 use OGame\Services\MessageService;
+use OGame\Services\PlayerService;
+use OGame\ViewModels\MessageViewModel;
 
 class MessagesController extends OGameController
 {
@@ -169,6 +172,33 @@ class MessagesController extends OGameController
         // Return JSON response with message ID as key and success as value.
         return response()->json([
             $messageId => true,
+        ]);
+    }
+
+    /**
+     * Shows the messages index page.
+     *
+     * @param string $messageId
+     * @param PlayerService $player
+     * @return View
+     */
+    public function showMessage(string $messageId, PlayerService $player): View
+    {
+        // TODO: add feature test for this method to the espionage report mission test or create a new test for this
+        // that also sends a espionage probe.
+
+        // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
+        $message = Message::where('user_id', $player->getId())
+            ->where('id', $messageId)
+            ->get()
+            ->first();
+
+        // Convert messages to view models.
+        $messageViewModel = new MessageViewModel($message);
+
+        return view('ingame.messages.message')->with([
+            'messageId' => $messageId,
+            'messageBody' => $messageViewModel->getBodyFull(),
         ]);
     }
 }
