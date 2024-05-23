@@ -89,7 +89,7 @@ class EspionageReport extends GameMessage
      * Get the espionage report params.
      *
      * @param Message $message
-     * @return array
+     * @return array<string, mixed>
      */
     private function getEspionageReportParams(Message $message): array
     {
@@ -97,7 +97,7 @@ class EspionageReport extends GameMessage
         // references espionage_report record.
         $espionageReport = \OGame\Models\EspionageReport::where('id', $message->espionage_report_id)->first();
         if (!$espionageReport) {
-            return __('Espionage report not found');
+            return [];
         }
 
         // TODO: add feature test for code below and check edgecases, such as when the planet has been deleted and

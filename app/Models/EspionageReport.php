@@ -13,12 +13,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $planet_system
  * @property int $planet_position
  * @property int $planet_user_id
- * @property string $resources
- * @property string $buildings
- * @property string $research
- * @property string $ships
- * @property string $defense
- * @property string $player_info
+ * @property array<string, int> $resources
+ * @property array<string, int> $buildings
+ * @property array<string, int> $research
+ * @property array<string, int> $ships
+ * @property array<string, int> $defense
+ * @property array<string, string> $player_info
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \OGame\Models\User|null $planetUserId

@@ -29,12 +29,15 @@ abstract class UnitTestCase extends TestCase
      * Helper method to create a planet model and configure it.
      *
      * @param array<string, int> $attributes
-     * @throws \Exception
      */
     protected function createAndSetPlanetModel(array $attributes): void
     {
         // Create fake planet eloquent model with additional attributes
-        $planetModelFake = Planet::factory()->make($attributes);
+        try {
+            $planetModelFake = Planet::factory()->make($attributes);
+        } catch (\Exception $e) {
+            $this->fail('Failed to create fake planet model: ' . $e->getMessage());
+        }
         // Set the fake model to the planet service
         $this->planetService->setPlanet($planetModelFake);
         // Update resource production stats

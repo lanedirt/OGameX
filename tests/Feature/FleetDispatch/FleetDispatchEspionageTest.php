@@ -113,7 +113,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     }
 
     /**
-     * Verify that dispatching a fleet launches a return trip and brings back units to origin planet.
+     * Verify that dispatching a fleet launches a return trip.
      * @throws BindingResolutionException
      * @throws Exception
      */
@@ -230,8 +230,8 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
-        // Advance time by 10 seconds.
-        $fleetParentTime = $startTime->copy()->addSeconds(10);
+        // Advance time by 5 seconds.
+        $fleetParentTime = $startTime->copy()->addSeconds(5);
         Carbon::setTestNow($fleetParentTime);
 
         // Cancel the mission
@@ -259,7 +259,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Assert that the return trip arrival time is exactly 10 seconds  after the cancelation time.
         // Because the return trip should take exactly as long as the original trip has traveled until it was canceled.
-        $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(10)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
+        $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(5)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
 
         // Set all messages as read in order to check if we receive the correct messages during return trip process.
         $this->playerSetAllMessagesRead();
@@ -310,7 +310,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 10 seconds
-        $fleetParentTime = $startTime->copy()->addSeconds(10);
+        $fleetParentTime = $startTime->copy()->addSeconds(5);
         Carbon::setTestNow($fleetParentTime);
 
         // Cancel the mission

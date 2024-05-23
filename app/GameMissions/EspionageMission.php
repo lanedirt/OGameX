@@ -13,7 +13,7 @@ class EspionageMission extends GameMission
 {
     protected static string $name = 'Espionage';
     protected static int $typeId = 6;
-    protected static bool $hasReturnMission = false;
+    protected static bool $hasReturnMission = true;
 
     /**
      * @inheritdoc
