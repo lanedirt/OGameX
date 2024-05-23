@@ -398,21 +398,7 @@ class TechtreeController extends OGameController
         });
 
         foreach ($require_objects as $r_object) {
-            $met_all_requirement = 'true';
-
-            foreach ($r_object->requirements as $requirement) {
-                $n_requirement = $objects->getObjectByMachineName($requirement->object_machine_name);
-
-                if($n_requirement->type === 'research') {
-                    $user_object_level = $player->getResearchLevel($n_requirement->machine_name);
-                } else {
-                    $user_object_level = $planet->getObjectLevel($n_requirement->machine_name);
-                }
-
-                if ($requirement->level > $user_object_level) {
-                    $met_all_requirement = 'false';
-                }
-            }
+            $met_all_requirement = $objects->objectRequirementsMet($r_object->machine_name, $planet, $player) ? 'true' : 'false';
 
             $required_by[] = [...(array)$r_object, 'met_requirements' => $met_all_requirement];
         }
