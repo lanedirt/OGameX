@@ -92,7 +92,7 @@ class GalaxyController extends OGameController
                     ],
                     'availableMissions' => [
                     ],
-                    'galaxy' => 7,
+                    'galaxy' => $galaxy,
                     'planets' => [
                         [
                             'activity'          => [
@@ -102,7 +102,7 @@ class GalaxyController extends OGameController
                             ],
                             'availableMissions' => [],
                             'fleet'             => [],
-                            'imageInformation'  => $planet->getPlanetType() . '_' . $planet->getPlanetCoordinates()->position,
+                            'imageInformation'  => $planet->getPlanetType() . '_' . $planet->getPlanetImageType(),
                             'isDestroyed'       => false,
                             'planetId'          => $planet->getPlanetId(),
                             'planetName'        => $planet->getPlanetName(),
@@ -137,7 +137,7 @@ class GalaxyController extends OGameController
                     ],
                     'position' => $i,
                     'positionFilters' => '',
-                    'system' => 158
+                    'system' => $system
                 ];
             } else {
                 // Empty deep space
@@ -151,7 +151,7 @@ class GalaxyController extends OGameController
                             'title' => 'Relocate'
                         ]
                     ],
-                    'galaxy' => 7,
+                    'galaxy' => $galaxy,
                     'planets' => [],
                     'player' => [
                         'playerId' => 99999,
@@ -161,7 +161,7 @@ class GalaxyController extends OGameController
                     'playerName' => 'Deep space',
                     'position' => $i,
                     'positionFilters' => 'empty_filter',
-                    'system' => 158
+                    'system' => $system
                 ];
             }
         }
@@ -209,7 +209,7 @@ class GalaxyController extends OGameController
                 'hasBirthdayPlanet' => false,
                 'isOutlaw' => false,
                 'maximumFleetSlots' => 13,
-                'playerId' => 113970,
+                'playerId' => $player->getId(),
                 'settingsProbeCount' => 3,
                 'showOutlawWarning' => true,
                 'slotsColonized' => 3,

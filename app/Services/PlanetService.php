@@ -334,7 +334,7 @@ class PlanetService
         }
 
         // Return a string
-        return $base_for_system_1 + $system_between_1_and_10_modifier . "";
+        return (string)($base_for_system_1 + $system_between_1_and_10_modifier);
     }
 
     /**
