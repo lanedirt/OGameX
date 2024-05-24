@@ -1,6 +1,6 @@
 @php /** @var OGame\Services\PlanetService $currentPlanet */ @endphp
 <div id="abandonplanet">
-    <img src="/img/planets/medium/dry_8.gif" class="float_left" />
+    <img src="{!! asset('img/planets/big/' . $currentPlanet->getPlanetType() . '_' . $currentPlanet->getPlanetImageType() . '.png') !!}" class="float_left" />
     <p class="desc_txt">@lang('Using this menu you can change planet names and moons or completely abandon them.')</p>
     <table cellpadding="0" cellspacing="0">
         <tbody>
