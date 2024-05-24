@@ -34,6 +34,11 @@ class MessagesTest extends AccountTestCase
     {
         $gameMessages = GameMessageFactory::getAllGameMessages();
         foreach ($gameMessages as $gameMessage) {
+            // Skip espionage report as it requires special handling and is tested separately by testEspionageReport().
+            if ($gameMessage->getKey() === 'espionage_report') {
+                continue;
+            }
+
             // Get required params and fill in random values.
             $params = $gameMessage->getParams();
             $filledParams = [];
@@ -50,13 +55,6 @@ class MessagesTest extends AccountTestCase
             $message = new Message();
             $message->params = $filledParams;
 
-            // For espionage report, we need to set espionage_report_id to a valid value.
-            if ($gameMessage->getKey() === 'espionage_report') {
-                // Create a new espionage report record in the db and set the espionage_report_id to its ID.
-                $espionageReportId = $this->createEspionageReport();
-                $message->espionage_report_id = $espionageReportId;
-            }
-
             // Check that the message has a valid subject and body defined.
             $this->assertNotEmpty($gameMessage->getSubject($message), 'Subject is empty for ' . get_class($gameMessage));
             $this->assertNotEmpty($gameMessage->getBody($message), 'Body is empty for ' . get_class($gameMessage));
@@ -72,28 +70,26 @@ class MessagesTest extends AccountTestCase
      */
     public function testEspionageReport(): void
     {
-        $espionageMessage = GameMessageFactory::createGameMessage(\OGame\GameMessages\EspionageReport::class);
-
-        // Create a new espionage report record in the db and set the espionage_report_id to its ID.
-        $message = new Message();
-        $espionageReportId = $this->createEspionageReport();
-
         try {
             $messageService = app()->make(MessageService::class);
         }
         catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve MessageService in testEspionageReport.');
         }
+        // Create a new espionage report record in the db and set the espionage_report_id to its ID.
+        $espionageReportId = $this->createEspionageReport();
+        $messageModel = $messageService->sendEspionageReportMessageToPlayer($this->planetService->getPlayer(), $espionageReportId);
+        $espionageMessage = GameMessageFactory::createGameMessage($messageModel);
 
-        $messageService->sendEspionageReportMessageToPlayer($this->planetService->getPlayer(), $espionageReportId);
+        // Try to open the espionage report message via full screen AJAX request.
+        $response = $this->get('/ajax/messages/' . $espionageMessage->getId());
 
-
-        $message->key
-        $message->espionage_report_id = $espionageReportId;
-
-        // Insert message into the database.
-        $message->user_id = $this->currentUserId;
-
+        // Check that the response is successful and it contains the espionage report message.
+        $response->assertStatus(200);
+        $response->assertSee('Espionage report');
+        $response->assertSee('Chance of counter-espionage');
+        $response->assertSee('1,000'); // 1000 metal
+        $response->assertSee('500'); // 500 crystal
     }
 
     /**

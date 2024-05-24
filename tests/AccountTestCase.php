@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use OGame\Factories\GameMessageFactory;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Message;
 use OGame\Models\Planet;
@@ -14,7 +15,6 @@ use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
-use OGame\ViewModels\MessageViewModel;
 
 /**
  * Base class for tests that require account context. Common setup includes signup of new account and login.
@@ -676,7 +676,7 @@ abstract class AccountTestCase extends TestCase
             ->first();
 
         // Get the message body.
-        $lastMessageViewModel = new MessageViewModel($lastMessage);
+        $lastMessageViewModel = GameMessageFactory::createGameMessage($lastMessage);
 
         foreach ($must_contain as $needle) {
             $this->assertStringContainsString($needle, $lastMessageViewModel->getBody());

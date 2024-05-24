@@ -7,7 +7,7 @@
                     class="list_item first ui-tabs-tab ui-corner-top ui-state-default ui-tab ui-tabs-active ui-state-active"
                     data-subtabname="Messages" data-tabid="10" role="tab" tabindex="0" aria-controls="ui-id-32"
                     aria-labelledby="ui-id-31" aria-selected="true" aria-expanded="true">
-                    <a href="{{ route('messages.ajax', ['tab' => 'communication', 'subtab' => 'messages']) }}"
+                    <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'communication', 'subtab' => 'messages']) }}"
                        class="txt_link ui-tabs-anchor"
                        role="presentation" tabindex="-1" id="ui-id-31">
                         Messages
@@ -17,7 +17,7 @@
                 <li id="subtabs-nfCommunication14" class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab"
                     data-subtabname="Information" data-tabid="14" role="tab" tabindex="-1" aria-controls="ui-id-34"
                     aria-labelledby="ui-id-33" aria-selected="false" aria-expanded="false">
-                    <a href="{{ route('messages.ajax', ['tab' => 'communication', 'subtab' => 'information']) }}"
+                    <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'communication', 'subtab' => 'information']) }}"
                        class="txt_link ui-tabs-anchor"
                        role="presentation" tabindex="-1" id="ui-id-33">
                         Information

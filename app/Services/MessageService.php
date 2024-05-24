@@ -2,12 +2,13 @@
 
 namespace OGame\Services;
 
+use Exception;
 use OGame\Factories\GameMessageFactory;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMessages\EspionageReport;
 use OGame\GameMessages\WelcomeMessage;
 use OGame\Models\Message;
-use OGame\ViewModels\MessageViewModel;
+use RuntimeException;
 
 /**
  * Class MessageService.
@@ -109,7 +110,6 @@ class MessageService
         ],
     ];*/
 
-
     /**
      * The PlayerService object.
      *
@@ -123,73 +123,6 @@ class MessageService
     public function __construct(PlayerService $player)
     {
         $this->player = $player;
-    }
-
-    /**
-     * Load all planets of specific user.
-     *
-     * @param string $tab
-     * @param string $subtab
-     * @return MessageViewModel[] Array of MessageViewModel objects.
-     */
-    public function getMessagesForTab(string $tab, string $subtab): array
-    {
-        // If subtab is empty, we use the first subtab of the tab.
-        if (empty($subtab)) {
-            $subtab = $this->tabs[$tab][0];
-        }
-
-        // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
-        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, (string)$subtab);
-
-        // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
-        $messages = Message::where('user_id', $this->player->getId())
-            ->whereIn('key', $messageKeys)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        // Convert messages to view models.
-        $return = [];
-        foreach($messages as $message) {
-            $return[] = new MessageViewModel($message);
-        }
-
-        // When the messages are loaded, mark them as viewed.
-        foreach ($messages as $message) {
-            $message->viewed = 1;
-            $message->save();
-        }
-
-        return $return;
-    }
-
-    public function getUnreadMessagesCount(): int
-    {
-        return Message::where('user_id', $this->player->getId())
-            ->where('viewed', 0)
-            ->count();
-    }
-
-    public function getUnreadMessagesCountForTab(string $tab): int
-    {
-        // Get all keys for the tab.
-        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab);
-
-        return Message::where('user_id', $this->player->getId())
-            ->whereIn('key', $messageKeys)
-            ->where('viewed', 0)
-            ->count();
-    }
-
-    public function getUnreadMessagesCountForSubTab(string $tab, string $subtab): int
-    {
-        // Get all keys for the subtab.
-        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, $subtab);
-
-        return Message::where('user_id', $this->player->getId())
-            ->whereIn('key', $messageKeys)
-            ->where('viewed', 0)
-            ->count();
     }
 
     /**
@@ -216,8 +149,8 @@ class MessageService
             $message->key = $gameMessage->getKey();
             $message->params = $params;
             $message->save();
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Could not create espionage report message.');
+        } catch (Exception) {
+            throw new RuntimeException('Could not create espionage report message.');
         }
     }
 
@@ -226,14 +159,14 @@ class MessageService
      *
      * @param PlayerService $player
      * @param int $espionageReportId
-     * @return void
+     * @return Message The created message.
      */
-    public function sendEspionageReportMessageToPlayer(PlayerService $player, int $espionageReportId): void
+    public function sendEspionageReportMessageToPlayer(PlayerService $player, int $espionageReportId): Message
     {
         try {
             $gameMessage = app()->make(EspionageReport::class);
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Could not create espionage report message.');
+        } catch (Exception) {
+            throw new RuntimeException('Could not create espionage report message.');
         }
 
         $message = new Message();
@@ -241,6 +174,8 @@ class MessageService
         $message->key = $gameMessage->getKey();
         $message->espionage_report_id = $espionageReportId;
         $message->save();
+
+        return $message;
     }
 
     /**
@@ -251,6 +186,108 @@ class MessageService
     public function sendWelcomeMessage(): void
     {
         $this->sendSystemMessageToPlayer($this->player, WelcomeMessage::class, ['player' => '[player]' . $this->player->getId() . '[/player]']);
+    }
+
+    /**
+     * Load all messages for a specific tab/subtab.
+     *
+     * @param string $tab
+     * @param string $subtab
+     * @return GameMessage[] Array of GameMessage objects.
+     */
+    public function getMessagesForTab(string $tab, string $subtab): array
+    {
+        // If subtab is empty, we use the first subtab of the tab.
+        if (empty($subtab)) {
+            $subtab = $this->tabs[$tab][0];
+        }
+
+        // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
+        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, $subtab);
+        $messages = Message::where('user_id', $this->player->getId())
+            ->whereIn('key', $messageKeys)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Convert messages to GameMessage objects.
+        $return = [];
+        foreach($messages as $message) {
+            $return[] = GameMessageFactory::createGameMessage($message);
+        }
+
+        // When the messages are loaded, mark them as viewed.
+        foreach ($messages as $message) {
+            $message->viewed = 1;
+            $message->save();
+        }
+
+        return $return;
+    }
+
+    /**
+     * Get an individual message for the current player to be shown in a full screen overlay view.
+     *
+     * @param int $messageId
+     * @return GameMessage
+     */
+    public function getFullMessage(int $messageId): GameMessage
+    {
+        $message = Message::where('id', $messageId)
+            ->where('user_id', $this->player->getId())
+            ->first();
+
+        if ($message === null) {
+            throw new RuntimeException('Message not found.');
+        }
+
+        return GameMessageFactory::createGameMessage($message);
+    }
+
+    /**
+     * Get total unread message count for current player.
+     *
+     * @return int
+     */
+    public function getUnreadMessagesCount(): int
+    {
+        return Message::where('user_id', $this->player->getId())
+            ->where('viewed', 0)
+            ->count();
+    }
+
+    /**
+     * Get total unread message count for a specific tab.
+     *
+     * @param string $tab
+     * @return int
+     */
+    public function getUnreadMessagesCountForTab(string $tab): int
+    {
+        // Get all keys for the tab.
+        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab);
+
+        return Message::where('user_id', $this->player->getId())
+            ->whereIn('key', $messageKeys)
+            ->where('viewed', 0)
+            ->count();
+    }
+
+    /**
+     * Get total unread message count for a specific tab/subtab.
+     *
+     * @param string $tab
+     * @param string $subtab
+     * @return int
+     */
+    public function getUnreadMessagesCountForSubTab(string $tab, string $subtab): int
+    {
+        // Get all keys for the subtab.
+        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, $subtab);
+
+        return Message::where('user_id', $this->player->getId())
+            ->whereIn('key', $messageKeys)
+            ->where('viewed', 0)
+            ->count();
     }
 
     /**

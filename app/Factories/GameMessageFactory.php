@@ -13,6 +13,7 @@ use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMessages\TransportArrived;
 use OGame\GameMessages\TransportReceived;
 use OGame\GameMessages\WelcomeMessage;
+use OGame\Models\Message;
 
 class GameMessageFactory
 {
@@ -39,7 +40,8 @@ class GameMessageFactory
         $gameMessages = [];
         foreach (self::$gameMessageClasses as $id => $class) {
             try {
-                $gameMessages[$id] = app()->make($class);
+                // Create a new instance of the game message class and pass a new (empty) Message object to it.
+                $gameMessages[$id] = app()->make($class, ['message' => new Message()]);
             } catch (BindingResolutionException $e) {
                 throw new \RuntimeException('Game message not found: ' . $class);
             }
@@ -48,16 +50,17 @@ class GameMessageFactory
     }
 
     /**
-     * @param string $key
+     * Create a game message instance based on a message model.
      *
+     * @param Message $message
      * @return GameMessage
      */
-    public static function createGameMessage(string $key): GameMessage
+    public static function createGameMessage(Message $message): GameMessage
     {
         try {
-            return app()->make(self::$gameMessageClasses[$key]);
+            return app()->make(self::$gameMessageClasses[$message->key], ['message' => $message]);
         } catch (BindingResolutionException $e) {
-            throw new \RuntimeException('Game message not found: ' . $key);
+            throw new \RuntimeException('Game message not found: ' . $message->key);
         }
     }
 

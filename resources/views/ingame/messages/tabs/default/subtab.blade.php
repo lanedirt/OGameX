@@ -10,7 +10,7 @@
             </ul>
             <input type="hidden" name="token" value="b5e7750a20009bf4c875f592bcc7a432">
             @php
-                /** @var OGame\ViewModels\QueueMessageViewModel[] $messages */
+                /** @var OGame\GameMessages\Abstracts\GameMessage[] $messages */
             @endphp
             @if (count($messages) === 0)
                 <li class="no_msg">
@@ -19,7 +19,7 @@
                 <br>
             @endif
             @foreach ($messages as $message)
-                <li class="msg @if ($message->isNew()) msg_new @endif" data-msg-id="{{ $message->getId() }}">
+                <li class="msg @if ($message->isUnread()) msg_new @endif" data-msg-id="{{ $message->getId() }}">
                     <div class="msg_status"></div>
                     <div class="msg_head">
                         <span class="msg_title blue_txt">{{ $message->getSubject() }}</span>
@@ -27,7 +27,7 @@
                             <a href="javascript: void(0);" class="fright">
                                 <span class="icon_nf icon_refuse js_actionKill tooltip js_hideTipOnMobile" title="delete"></span>
                             </a>
-                            <span class="msg_date fright">{{ $message->getDate() }}</span>
+                            <span class="msg_date fright">{{ $message->getDateFormatted() }}</span>
                         </span>
                         <br>
                         <span class="msg_sender_label">From:</span>
@@ -36,12 +36,14 @@
                     <span class="msg_content">
                         {!! $message->getBody() !!}
                     </span>
-                    <!--<message-footer class="msg_actions">
+                    <message-footer class="msg_actions">
                         <message-footer-actions>
+                            {!! $message->getFooterActions() !!}
                         </message-footer-actions>
                         <message-footer-details>
+                            {!! $message->getFooterDetails() !!}
                         </message-footer-details>
-                    </message-footer>-->
+                    </message-footer>
                     <script type="text/javascript">
                         initOverlays();
                     </script>

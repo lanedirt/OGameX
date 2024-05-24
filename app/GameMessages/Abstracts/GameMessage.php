@@ -7,8 +7,10 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
-use View;
 
+/**
+ * GameMessage class which contains unique parsing logic for a specific message type.
+ */
 abstract class GameMessage
 {
     /**
@@ -31,16 +33,25 @@ abstract class GameMessage
      */
     protected string $subtab;
 
-    protected $planetServiceFactory;
-    protected $playerServiceFactory;
+    /**
+     * @var Message The message model from the database.
+     */
+    protected Message $message;
+
+    protected PlanetServiceFactory $planetServiceFactory;
+
+    protected PlayerServiceFactory $playerServiceFactory;
 
     /**
      * GameMessage constructor.
+     *
      * @param PlanetServiceFactory $planetServiceFactory
      * @param PlayerServiceFactory $playerServiceFactory
+     * @param Message $message
      */
-    public function __construct(PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory)
+    public function __construct(Message $message, PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory)
     {
+        $this->message = $message;
         $this->planetServiceFactory = $planetServiceFactory;
         $this->playerServiceFactory = $playerServiceFactory;
         $this->initialize();
@@ -54,6 +65,26 @@ abstract class GameMessage
     abstract protected function initialize(): void;
 
     /**
+     * Returns whether the message is unread.
+     *
+     * @return bool
+     */
+    public function isUnread(): bool
+    {
+        return !$this->message->viewed;
+    }
+
+    /**
+     * Get the key of the message.
+     *
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->message->id;
+    }
+
+    /**
      * Get the key of the message.
      *
      * @return string
@@ -61,6 +92,17 @@ abstract class GameMessage
     public function getKey(): string
     {
         return $this->key;
+    }
+
+    /**
+     * Return the message creation date as a formatted string.
+     *
+     * @return string
+     */
+    public function getDateFormatted(): string
+    {
+        // Return in this format: 18.03.2024 14:50:38
+        return $this->message->created_at->format('d.m.Y H:i:s');
     }
 
     /**
@@ -76,10 +118,9 @@ abstract class GameMessage
     /**
      * Returns the subject of the message.
      *
-     * @param Message $message
      * @return string
      */
-    public function getSubject(Message $message): string
+    public function getSubject(): string
     {
         return __('t_messages.' . $this->key. '.subject');
     }
@@ -87,13 +128,15 @@ abstract class GameMessage
     /**
      * Get the body of the message filled with provided params.
      *
-     * @param Message $message
      * @return string
      */
-    public function getBody(Message $message): string
+    public function getBody(): string
     {
         // Check if all the params are provided by checking all individual param names.
-        $params = $this->checkParams($message->params);
+        if ($this->message->params === null) {
+            $this->message->params = [];
+        }
+        $params = $this->checkParams($this->message->params);
 
         // Certain reserved params such as resources should be formatted with number_format.
         $params = $this->formatReservedParams($params);
@@ -108,24 +151,34 @@ abstract class GameMessage
     /**
      * Get the body of the message for the full message view (overlay).
      *
-     * @param Message $message
      * @return string
      */
-    public function getBodyFull(Message $message): string
+    public function getBodyFull(): string
     {
         // Default to the same body as the regular message.
-        return $this->getBody($message);
+        return $this->getBody();
+    }
+
+    /**
+     * Returns the footer actions of the message.
+     *
+     * @return string
+     */
+    public function getFooterActions(): string
+    {
+        // TODO: implement footer actions for messages (e.g. attack planet, favorite message, etc).
+        return '';
     }
 
     /**
      * Returns the footer details of the message.
      *
-     * @param Message $message
      * @return string
      */
-    public function getFooterDetails(Message $message): string
+    public function getFooterDetails(): string
     {
-        // TODO: abstract footer detail action button if used for more than just espionage reports?
+        // TODO: currently only implemented for espionage reports. If used for more message types
+        // move logic to here from the espionage report class and abstract.
         return '';
     }
 
@@ -165,7 +218,6 @@ abstract class GameMessage
 
         return $params;
     }
-
 
     /**
      * Get the params that the message requires to be filled.
