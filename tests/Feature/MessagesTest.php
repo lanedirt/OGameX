@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\GameMessageFactory;
 use OGame\Models\EspionageReport;
 use OGame\Models\Message;
+use OGame\Services\MessageService;
 use OGame\Services\PlanetService;
 use Tests\AccountTestCase;
 
@@ -63,6 +65,35 @@ class MessagesTest extends AccountTestCase
             $this->assertStringNotContainsString('t_messages', $gameMessage->getSubject($message), 'Subject contains t_messages for ' . get_class($gameMessage));
             $this->assertStringNotContainsString('t_messages', $gameMessage->getBody($message), 'Body contains t_messages for ' . get_class($gameMessage));
         }
+    }
+
+    /**
+     * Test all GameMessage classes to make sure they can be instantiated and the subject and body return a non-empty string.
+     */
+    public function testEspionageReport(): void
+    {
+        $espionageMessage = GameMessageFactory::createGameMessage(\OGame\GameMessages\EspionageReport::class);
+
+        // Create a new espionage report record in the db and set the espionage_report_id to its ID.
+        $message = new Message();
+        $espionageReportId = $this->createEspionageReport();
+
+        try {
+            $messageService = app()->make(MessageService::class);
+        }
+        catch (BindingResolutionException $e) {
+            $this->fail('Failed to resolve MessageService in testEspionageReport.');
+        }
+
+        $messageService->sendEspionageReportMessageToPlayer($this->planetService->getPlayer(), $espionageReportId);
+
+
+        $message->key
+        $message->espionage_report_id = $espionageReportId;
+
+        // Insert message into the database.
+        $message->user_id = $this->currentUserId;
+
     }
 
     /**

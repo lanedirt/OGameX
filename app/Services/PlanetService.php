@@ -420,8 +420,6 @@ class PlanetService
      * @param Resources $resources
      * Array with resources to deduct.
      * @param bool $save_planet
-     *
-     * @throws Exception
      */
     public function deductResources(Resources $resources, bool $save_planet = true): void
     {
@@ -971,7 +969,6 @@ class PlanetService
      * @param int $level
      * @param bool $save_planet
      * @return void
-     * @throws Exception
      */
     public function setObjectLevel(int $object_id, int $level, bool $save_planet = true): void
     {

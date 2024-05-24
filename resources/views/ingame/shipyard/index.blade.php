@@ -57,8 +57,6 @@
                         var scheduleBuildListEntryUrl = '{{ route('shipyard.addbuildrequest') }}';
                         var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
                         redirectPremiumLink = '#TODO_index.php?page=premium&showDarkMatter=1'
-
-                        window.token = '{{ csrf_token() }}';
                     </script>
                 </div>
             </div>

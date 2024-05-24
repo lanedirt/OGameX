@@ -2,7 +2,6 @@
 
 namespace Feature\FleetDispatch;
 
-use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
@@ -29,7 +28,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
      * Prepare the planet for the test so it has the required buildings and research.
      *
      * @return void
-     * @throws BindingResolutionException
      */
     protected function basicSetup(): void
     {
@@ -66,9 +64,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
     /**
      * Assert that check request to dispatch fleet to empty position succeeds with colony ship.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testFleetCheckToOwnPlanetSuccess(): void
     {
@@ -80,9 +75,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
     /**
      * Assert that check request to dispatch fleet to foreign planet position fails without colony ship.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testFleetCheckToForeignPlanetError(): void
     {
@@ -94,9 +86,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
     /**
      * Assert that check request to dispatch fleet to empty position fails without colony ship.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testFleetCheckToEmptyPlanetError(): void
     {
@@ -106,10 +95,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->fleetCheckToEmptyPosition($unitCollection, false);
     }
 
-    /**
-     * @throws BindingResolutionException
-     * @throws Exception
-     */
     public function testDispatchFleetToOtherPlayer(): void
     {
         $this->basicSetup();
@@ -139,8 +124,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
     /**
      * Verify that dispatching a fleet deducts correct amount of units from planet.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetDeductUnits(): void
     {
@@ -161,8 +144,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
     /**
      * Verify that dispatching a fleet deducts correct amount of resources from planet.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetDeductResources(): void
     {
@@ -187,8 +168,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
     /**
      * Verify that dispatching a fleet with more resources than is on planet fails.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetDeductTooMuchResources(): void
     {
@@ -203,8 +182,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
     /**
      * Verify that dispatching a fleet with more units than is on planet fails.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetDeductTooMuchUnits(): void
     {
@@ -219,8 +196,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
     /**
      * Verify that dispatching a fleet launches a return trip and brings back units to origin planet.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetReturnTrip(): void
     {
@@ -294,8 +269,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
     /**
      * Verify that an active mission also shows the (not yet existing) return trip in the fleet event list.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetReturnShown(): void
     {
@@ -329,8 +302,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
     /**
      * Verify that canceling/recalling an active mission works.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetRecallMission(): void
     {
@@ -353,7 +324,12 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(5000, 5000, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        try {
+            $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        }
+        catch (BindingResolutionException $e) {
+            $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
+        }
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -379,7 +355,12 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
 
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        try {
+            $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        }
+        catch (BindingResolutionException $e) {
+            $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
+        }
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
@@ -408,8 +389,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
     /**
      * Verify that canceling/recalling an active mission twice results in an error.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetRecallMissionTwiceError(): void
     {
@@ -429,7 +408,12 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        try {
+            $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        }
+        catch (BindingResolutionException $e) {
+            $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
+        }
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 

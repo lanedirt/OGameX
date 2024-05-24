@@ -50,6 +50,7 @@
     <script src="{{ mix('js/ingame.min.js') }}"></script>
 
     <script type="text/javascript">
+        window.token = "{{ csrf_token() }}";
         var inventoryObj;
         $.holdReady(true);
 

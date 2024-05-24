@@ -2,8 +2,6 @@
 
 namespace Feature\FleetDispatch;
 
-use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Resources;
@@ -29,7 +27,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
      * Prepare the planet for the test so it has the required buildings and research.
      *
      * @return void
-     * @throws BindingResolutionException
      */
     protected function basicSetup(): void
     {
@@ -66,9 +63,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
     /**
      * Assert that check request to dispatch fleet to second planet succeeds with small cargo ship.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testFleetCheckToOwnPlanetSuccess(): void
     {
@@ -80,9 +74,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
     /**
      * Assert that check request to dispatch fleet to planet of other player fails.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testFleetCheckToForeignPlanetError(): void
     {
@@ -94,9 +85,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
     /**
      * Assert that check request to dispatch fleet to empty position fails.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testFleetCheckToEmptyPlanetError(): void
     {
@@ -140,8 +128,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
     /**
      * Verify that dispatching a fleet deducts correct amount of units from planet.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetDeductUnits(): void
     {
@@ -162,8 +148,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
     /**
      * Verify that dispatching a fleet deducts correct amount of resources from planet.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetDeductResources(): void
     {
@@ -188,8 +172,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
     /**
      * Verify that dispatching a fleet with more resources than is on planet fails.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetDeductTooMuchResources(): void
     {
@@ -204,8 +186,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
     /**
      * Verify that dispatching a fleet with more units than is on planet fails.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetDeductTooMuchUnits(): void
     {
@@ -220,8 +200,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
     /**
      * Verify that dispatching a fleet launches a return trip and brings back units to origin planet.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetReturnTrip(): void
     {
@@ -275,8 +253,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
     /**
      * Verify that an active mission also shows the (not yet existing) return trip in the fleet event list.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetReturnShown(): void
     {
@@ -310,8 +286,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
     /**
      * Verify that canceling/recalling an active mission works.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetRecallMission(): void
     {
@@ -395,8 +369,6 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
     /**
      * Verify that canceling/recalling an active mission twice results in an error.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetRecallMissionTwiceError(): void
     {

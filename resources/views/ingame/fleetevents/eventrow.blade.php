@@ -45,24 +45,29 @@
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_unit->amount }}&lt;/td&gt;
                 &lt;/tr&gt;
             @endforeach
+
+                &lt;tr&gt;
+                    &lt;th colspan=&quot;3&quot;&gt;&nbsp;&lt;/th&gt;
+                &lt;/tr&gt;
+
                 &lt;tr&gt;
                     &lt;th colspan=&quot;3&quot;&gt;@lang('Shipment'):&lt;/th&gt;
                 &lt;/tr&gt;
 
-                    &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Metal'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->metal->getFormattedLong() }}&lt;/td&gt;
-                    &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;@lang('Metal'):&lt;/td&gt;
+                    &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->metal->getFormattedLong() }}&lt;/td&gt;
+                &lt;/tr&gt;
 
-                                    &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Crystal'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->crystal->getFormattedLong() }}&lt;/td&gt;
-                    &lt;/tr&gt;
-                                    &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
-                    &lt;/tr&gt;
-                                    &lt;/table&gt;
+                                &lt;tr&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;@lang('Crystal'):&lt;/td&gt;
+                    &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->crystal->getFormattedLong() }}&lt;/td&gt;
+                &lt;/tr&gt;
+                                &lt;tr&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
+                    &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/table&gt;
     &lt;/div&gt;
 ">
                 &nbsp;
@@ -137,24 +142,29 @@
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_unit->amount }}&lt;/td&gt;
                 &lt;/tr&gt;
             @endforeach
+
+                &lt;tr&gt;
+                    &lt;th colspan=&quot;3&quot;&gt;&nbsp;&lt;/th&gt;
+                &lt;/tr&gt;
+
                 &lt;tr&gt;
                     &lt;th colspan=&quot;3&quot;&gt;@lang('Shipment'):&lt;/th&gt;
                 &lt;/tr&gt;
 
-                    &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Metal'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->metal->getFormattedLong() }}&lt;/td&gt;
-                    &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;@lang('Metal'):&lt;/td&gt;
+                    &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->metal->getFormattedLong() }}&lt;/td&gt;
+                &lt;/tr&gt;
 
-                                    &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Crystal'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->crystal->getFormattedLong() }}&lt;/td&gt;
-                    &lt;/tr&gt;
-                                    &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
-                    &lt;/tr&gt;
-                                    &lt;/table&gt;
+                                &lt;tr&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;@lang('Crystal'):&lt;/td&gt;
+                    &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->crystal->getFormattedLong() }}&lt;/td&gt;
+                &lt;/tr&gt;
+                                &lt;tr&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
+                    &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/table&gt;
     &lt;/div&gt;
 ">
                 &nbsp;

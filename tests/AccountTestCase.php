@@ -288,7 +288,6 @@ abstract class AccountTestCase extends TestCase
      * @param string $machine_name
      * @param int $object_level
      * @return void
-     * @throws Exception
      */
     protected function planetSetObjectLevel(string $machine_name, int $object_level): void
     {
@@ -320,9 +319,14 @@ abstract class AccountTestCase extends TestCase
     protected function playerSetResearchLevel(string $machine_name, int $object_level): void
     {
         // Update current users planet buildings to allow for research by mutating database.
-        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
-        // Update the technology level for the player.
-        $playerService->setResearchLevel($machine_name, $object_level, true);
+        try {
+            $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
+            // Update the technology level for the player.
+            $playerService->setResearchLevel($machine_name, $object_level, true);
+        }
+        catch (Exception $e) {
+            $this->fail('Failed to set research level for player. Error: ' . $e->getMessage());
+        }
     }
 
     /**

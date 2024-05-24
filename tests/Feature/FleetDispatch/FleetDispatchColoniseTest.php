@@ -2,7 +2,6 @@
 
 namespace Feature\FleetDispatch;
 
-use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
@@ -32,7 +31,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
      * Prepare the planet for the test so it has the required buildings and research.
      *
      * @return void
-     * @throws BindingResolutionException
      */
     protected function basicSetup(): void
     {
@@ -47,9 +45,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
     /**
      * Assert that check request to dispatch fleet to empty position succeeds with colony ship.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testFleetCheckWithColonyShipSuccess(): void
     {
@@ -61,9 +56,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
     /**
      * Assert that check request to dispatch fleet to empty position fails without colony ship.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testFleetCheckWithoutColonyShipError(): void
     {
@@ -75,9 +67,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
     /**
      * Send fleet to a planet position that is already colonized.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetToNotEmptyPositionFails(): void
     {
@@ -90,9 +79,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
     /**
      * Send fleet to empty planet without colony ship.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetWithoutColonyShipFails(): void
     {
@@ -105,9 +91,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
     /**
      * Main test for colonizing an empty planet (happy path).
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetColonizeEmptyPlanet(): void
     {
@@ -130,7 +113,12 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Assert that the new planet has been created.
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+        try {
+            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+        }
+        catch (BindingResolutionException $e) {
+            $this->fail('PlanetServiceFactory cannot be resolved from the container.');
+        }
         $newPlanet = $planetServiceFactory->makeForCoordinate($newPlanetCoordinates);
         $this->assertNotNull($newPlanet, 'New planet cannot be loaded while it should have been created.');
 
@@ -144,9 +132,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     /**
      * Test that when sending cargos along with the colony ship, the resources are added to the new planet
      * and the cargo ships return without the colony ship.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetColonizeReturnTripCargo(): void
     {
@@ -195,9 +180,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     /**
      * Test that when a mission has been sent and update happens long time later, both the arrival
      * and return missions are processed in the same request.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetColonizeReturnTripProcessSingleRequest(): void
     {
@@ -234,8 +216,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
     /**
      * Verify that canceling/recalling an active mission works.
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDispatchFleetRecallMission(): void
     {

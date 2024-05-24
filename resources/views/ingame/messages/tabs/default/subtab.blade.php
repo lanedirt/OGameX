@@ -1,6 +1,6 @@
 <div id="defaultmessagespage">
     <div class="tab_ctn">
-        <ul class="tab_inner ctn_with_new_msg clearfix">
+        <ul class="tab_inner clearfix">
             <ul class="pagination">
                 <li class="paginator" data-tab="3" data-page="1">|&lt;&lt;</li>
                 <li class="paginator" data-tab="3" data-page="1">&lt;</li>
