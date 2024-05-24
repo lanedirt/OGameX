@@ -329,12 +329,19 @@ class PlanetService
 
         $base_for_system_1 = $map_array[$planet];
         $system_between_1_and_10_modifier = ($system % 10) - 1;
+
         if ($system_between_1_and_10_modifier === -1) {
             $system_between_1_and_10_modifier = 9;
         }
 
+        $type = $base_for_system_1 + $system_between_1_and_10_modifier;
+
+        if ($type > 10) {
+            $type -= 10;
+        }
+
         // Return a string
-        return (string)($base_for_system_1 + $system_between_1_and_10_modifier);
+        return (string)$type;
     }
 
     /**
