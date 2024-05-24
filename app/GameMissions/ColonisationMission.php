@@ -2,8 +2,6 @@
 
 namespace OGame\GameMissions;
 
-use Exception;
-use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
@@ -21,40 +19,21 @@ class ColonisationMission extends GameMission
 
     /**
      * @inheritdoc
-     * @throws Exception
-     */
-    public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources): void
-    {
-        // Call the parent method
-        parent::startMissionSanityChecks($planet, $targetCoordinate, $units, $resources);
-
-        if ($units->getAmountByMachineName('colony_ship') == 0) {
-            throw new Exception(__('You need a colony ship to colonize a planet.'));
-        }
-
-        // Try to load planet. If it succeeds it means the planet is not empty.
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-        if ($planetServiceFactory->makeForCoordinate($targetCoordinate) != null) {
-            throw new Exception(__('You can only colonize empty planets.'));
-        }
-    }
-
-    /**
-     * @inheritdoc
      */
     public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus
     {
-        if ($targetPlanet == null) {
-            // Check if a colony ship is present in the fleet
-            if ($units->getAmountByMachineName('colony_ship') > 0) {
-                return new MissionPossibleStatus(true);
-            } else {
-                // Return error message
-                return new MissionPossibleStatus(false, __('You need a colony ship to colonize a planet.'));
-            }
+        // If planet already exists, the mission is not possible.
+        if ($targetPlanet !== null) {
+            return new MissionPossibleStatus(false);
         }
 
-        return new MissionPossibleStatus(false);
+        // If no colony ships are present in the fleet, the mission is not possible.
+        if ($units->getAmountByMachineName('colony_ship') === 0) {
+            return new MissionPossibleStatus(false, __('You need a colony ship to colonize a planet.'));
+        }
+
+        // If all checks pass, the mission is possible.
+        return new MissionPossibleStatus(true);
     }
 
     /**
@@ -72,8 +51,6 @@ class ColonisationMission extends GameMission
             // TODO: add unittest for this behavior.
             // Cancel the current mission.
             $this->cancel($mission);
-            // Send fleet back.
-            $this->startReturn($mission);
             return;
         }
 
@@ -81,8 +58,7 @@ class ColonisationMission extends GameMission
         if ($mission->colony_ship < 1) {
             // Cancel the current mission.
             $this->cancel($mission);
-            // Send fleet back.
-            $this->startReturn($mission);
+            return;
         }
 
         // Create a new planet at the target coordinates.

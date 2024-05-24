@@ -2,8 +2,6 @@
 
 namespace Feature\FleetDispatch;
 
-use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Models\Resources;
 use Tests\FleetDispatchTestCase;
 
@@ -26,7 +24,6 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
      * Prepare the planet for the test so it has the required buildings and research.
      *
      * @return void
-     * @throws BindingResolutionException
      */
     protected function basicSetup(): void
     {
@@ -43,9 +40,6 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
      * Test that deducting resources without saving the planet does not still save it
      * in another request. This is to make sure the test logic works correctly and
      * objects are not cached between requests in the same test.
-     *
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     public function testDeductResourcesWithoutSavingPlanetIgnored(): void
     {

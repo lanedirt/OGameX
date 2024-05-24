@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use OGame\Factories\GameMessageFactory;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Message;
 use OGame\Models\Planet;
@@ -14,7 +15,6 @@ use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
-use OGame\ViewModels\MessageViewModel;
 
 /**
  * Base class for tests that require account context. Common setup includes signup of new account and login.
@@ -189,7 +189,6 @@ abstract class AccountTestCase extends TestCase
      * Gets a nearby foreign planet for the current user. This is useful for testing interactions between two players.
      *
      * @return PlanetService
-     * @throws BindingResolutionException
      */
     protected function getNearbyForeignPlanet(): PlanetService
     {
@@ -219,8 +218,12 @@ abstract class AccountTestCase extends TestCase
             $this->fail('Failed to find a nearby foreign planet for testing.');
         } else {
             // Create and return a new PlanetService instance for the found planet.
-            $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-            return $planetServiceFactory->make($planet_id[0]);
+            try {
+                $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+                return $planetServiceFactory->make($planet_id[0]);
+            } catch (Exception $e) {
+                $this->fail('Failed to create planet service for planet id: ' . $planet_id[0] . '. Error: ' . $e->getMessage());
+            }
         }
     }
 
@@ -285,8 +288,6 @@ abstract class AccountTestCase extends TestCase
      * @param string $machine_name
      * @param int $object_level
      * @return void
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     protected function planetSetObjectLevel(string $machine_name, int $object_level): void
     {
@@ -301,8 +302,6 @@ abstract class AccountTestCase extends TestCase
      * @param string $machine_name
      * @param int $amount
      * @return void
-     * @throws BindingResolutionException
-     * @throws Exception
      */
     protected function planetAddUnit(string $machine_name, int $amount): void
     {
@@ -316,14 +315,17 @@ abstract class AccountTestCase extends TestCase
      * @param string $machine_name
      * @param int $object_level
      * @return void
-     * @throws BindingResolutionException
      */
     protected function playerSetResearchLevel(string $machine_name, int $object_level): void
     {
         // Update current users planet buildings to allow for research by mutating database.
-        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
-        // Update the technology level for the player.
-        $playerService->setResearchLevel($machine_name, $object_level, true);
+        try {
+            $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
+            // Update the technology level for the player.
+            $playerService->setResearchLevel($machine_name, $object_level, true);
+        } catch (Exception $e) {
+            $this->fail('Failed to set research level for player. Error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -646,6 +648,20 @@ abstract class AccountTestCase extends TestCase
     }
 
     /**
+     * Asserts that no message has been received in the frontend.
+     *
+     * @return void
+     */
+    protected function assertMessageNotReceived(): void
+    {
+        // Assert that message has been sent to player.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+        // Assert that page contains "0 unread message(s)" text.
+        $response->assertSee('0 unread message(s)');
+    }
+
+    /**
      * Asserts that a message has been received in the database for a specific player and that it contains the specified text.
      *
      * @param PlayerService $player
@@ -659,7 +675,7 @@ abstract class AccountTestCase extends TestCase
             ->first();
 
         // Get the message body.
-        $lastMessageViewModel = new MessageViewModel($lastMessage);
+        $lastMessageViewModel = GameMessageFactory::createGameMessage($lastMessage);
 
         foreach ($must_contain as $needle) {
             $this->assertStringContainsString($needle, $lastMessageViewModel->getBody());

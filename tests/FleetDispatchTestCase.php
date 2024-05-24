@@ -50,9 +50,6 @@ abstract class FleetDispatchTestCase extends AccountTestCase
         $this->checkTargetFleet($coordinates, $units, $assertSuccess);
     }
 
-    /**
-     * @throws BindingResolutionException
-     */
     protected function fleetCheckToOtherPlayer(UnitCollection $units, bool $assertSuccess): void
     {
         $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
@@ -81,8 +78,6 @@ abstract class FleetDispatchTestCase extends AccountTestCase
 
     /**
      * Send a fleet to a planet of another player.
-     *
-     * @throws BindingResolutionException
      */
     protected function sendMissionToOtherPlayer(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService
     {

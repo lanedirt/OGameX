@@ -20,12 +20,6 @@ class MessagesController extends OGameController
     {
         $this->setBodyId('messages');
 
-        // By default open the "Fleets" --> "Espionage" tab.
-        $tab = $request->get('tab', 'fleets');
-        $subtab = $request->get('subtab', 'espionage');
-
-        $tab = $this->tabContent($messageService, $tab, $subtab);
-
         // Get unread message count for each tab.
         // TODO: optimize this to get all unread messages count for all tabs in one query.
         $unread_messages_count = [
@@ -37,9 +31,15 @@ class MessagesController extends OGameController
             'favorites' => $messageService->getUnreadMessagesCountForTab('favorites'),
         ];
 
+        // By default open the "Fleets/Espionage" tab.
+        $tabKey = $request->get('tab', 'fleets');
+        $subtabKey = $request->get('subtab', 'espionage');
+
+        $tabContent = $this->tabContent($messageService, $tabKey, $subtabKey);
+
         return view('ingame.messages.index')->with([
             'unread_messages_count' => $unread_messages_count,
-            'tab_content' => $tab,
+            'tab_content' => $tabContent,
         ]);
     }
 
@@ -57,7 +57,7 @@ class MessagesController extends OGameController
 
         switch ($tab) {
             case 'fleets':
-                // Load unread messages count for each subtab based on tab.
+                // TODO: optimize this to get all unread messages count for all tabs in one query.
                 $unread_messages_count = [
                     'espionage' => $messageService->getUnreadMessagesCountForSubTab('fleets', 'espionage'),
                     'combat_reports' => $messageService->getUnreadMessagesCountForSubTab('fleets', 'combat_reports'),
@@ -70,7 +70,6 @@ class MessagesController extends OGameController
                     'unread_messages_count' => $unread_messages_count,
                 ]);
             case 'communication':
-                // Load unread messages count for each subtab based on tab.
                 $unread_messages_count = [
                     'messages' => $messageService->getUnreadMessagesCountForSubTab('communication', 'messages'),
                     'information' => $messageService->getUnreadMessagesCountForSubTab('communication', 'information'),
@@ -111,19 +110,8 @@ class MessagesController extends OGameController
                 return view('ingame.messages.tabs.fleets.subtab')->with([
                     'messages' => $messages,
                 ]);
-            case 'communication':
-                return view('ingame.messages.tabs.default.subtab')->with([
-                    'messages' => $messages,
-                ]);
-            case 'economy':
-            case 'universe':
-            case 'system':
-            case 'favorites':
-                return view('ingame.messages.tabs.default.subtab')->with([
-                    'messages' => $messages,
-                ]);
             default:
-                return view('ingame.messages.tabs.fleets.subtab')->with([
+                return view('ingame.messages.tabs.default.subtab')->with([
                     'messages' => $messages,
                 ]);
         }
@@ -136,18 +124,36 @@ class MessagesController extends OGameController
      * @param MessageService $messageService
      * @return View
      */
-    public function ajax(Request $request, MessageService $messageService): View
+    public function ajaxGetTabContents(Request $request, MessageService $messageService): View
     {
-        $tab = $request->get('tab', 'fleets');
-        $subtab = $request->get('subtab', '');
+        $tabKey = $request->get('tab', 'fleets');
+        $subtabKey = $request->get('subtab', '');
 
         // If no subtab is provided, we load the tab template.
-        if (empty($subtab)) {
-            return $this->tabContent($messageService, $tab);
+        if (empty($subtabKey)) {
+            return $this->tabContent($messageService, $tabKey);
         }
 
         // Otherwise we load the subtab template.
-        return $this->subTabContent($messageService, $tab, $subtab);
+        return $this->subTabContent($messageService, $tabKey, $subtabKey);
+    }
+
+    /**
+     * Returns an individual message for a full screen view.
+     *
+     * @param int $messageId
+     * @param MessageService $messageService
+     * @return View
+     */
+    public function ajaxGetMessage(int $messageId, MessageService $messageService): View
+    {
+        // Get full message view model.
+        $messageObject = $messageService->getFullMessage($messageId);
+
+        return view('ingame.messages.message')->with([
+            'messageId' => $messageId,
+            'messageBody' => $messageObject->getBodyFull(),
+        ]);
     }
 
     /**
@@ -162,7 +168,7 @@ class MessagesController extends OGameController
         $messageId = $request->get('messageId');
 
         // If action is 103, we delete the message.
-        if ($request->get('action') === 103) {
+        if ((int)$request->get('action') === 103) {
             $messageService->deleteMessage($messageId);
         }
 

@@ -30,7 +30,6 @@
             var mobile = false;
             var inProgress = false;
             var expeditionFleetTemplates = [];
-            window.token = '{{ csrf_token() }}'
 
             function initGalaxy()
             {

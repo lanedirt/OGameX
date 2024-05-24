@@ -427,8 +427,6 @@ class PlanetService
      * @param Resources $resources
      * Array with resources to deduct.
      * @param bool $save_planet
-     *
-     * @throws Exception
      */
     public function deductResources(Resources $resources, bool $save_planet = true): void
     {
@@ -552,6 +550,63 @@ class PlanetService
         }
 
         return $totalCount;
+    }
+
+    /**
+     * Get array with all ship objects on this planet.
+     *
+     * @return array<string, int>
+     */
+    public function getShipsArray(): array
+    {
+        // TODO: can this logic be moved to the EspionageReport class if its not used elsewehere?
+        $array = [];
+        $objects = $this->objects->getShipObjects();
+        foreach ($objects as $object) {
+            if ($this->planet->{$object->machine_name} > 0) {
+                $array[$object->machine_name] = $this->planet->{$object->machine_name};
+            }
+        }
+
+        return $array;
+    }
+
+    /**
+     * Get array with all defense objects on this planet.
+     *
+     * @return array<string, int>
+     */
+    public function getDefenseArray(): array
+    {
+        // TODO: can this logic be moved to the EspionageReport class if its not used elsewehere?
+        $array = [];
+        $objects = $this->objects->getDefenseObjects();
+        foreach ($objects as $object) {
+            if ($this->planet->{$object->machine_name} > 0) {
+                $array[$object->machine_name] = $this->planet->{$object->machine_name};
+            }
+        }
+
+        return $array;
+    }
+
+    /**
+     * Get array with all building objects on this planet.
+     *
+     * @return array<string, int>
+     */
+    public function getBuildingArray(): array
+    {
+        // TODO: can this logic be moved to the EspionageReport class if its not used elsewehere?
+        $array = [];
+        $objects = [...$this->objects->getBuildingObjects(), ...$this->objects->getStationObjects()];
+        foreach ($objects as $object) {
+            if ($this->planet->{$object->machine_name} > 0) {
+                $array[$object->machine_name] = $this->planet->{$object->machine_name};
+            }
+        }
+
+        return $array;
     }
 
     /**
@@ -921,7 +976,6 @@ class PlanetService
      * @param int $level
      * @param bool $save_planet
      * @return void
-     * @throws Exception
      */
     public function setObjectLevel(int $object_id, int $level, bool $save_planet = true): void
     {
@@ -1001,7 +1055,6 @@ class PlanetService
      * @param int $amount
      * @param bool $save_planet
      * @return void
-     * @throws Exception
      */
     public function addUnit(string $machine_name, int $amount, bool $save_planet = true): void
     {
@@ -1019,7 +1072,6 @@ class PlanetService
      * @param UnitCollection $units
      * @param bool $save_planet
      * @return void
-     * @throws Exception
      */
     public function addUnits(UnitCollection $units, bool $save_planet = true): void
     {
@@ -1035,13 +1087,12 @@ class PlanetService
      * @param int $amount
      * @param bool $save_planet
      * @return void
-     * @throws Exception
      */
     public function removeUnit(string $machine_name, int $amount, bool $save_planet = true): void
     {
         $object = $this->objects->getUnitObjectByMachineName($machine_name);
         if ($this->planet->{$object->machine_name} < $amount) {
-            throw new Exception('Planet does not have enough units.');
+            throw new \RuntimeException('Planet does not have enough units.');
         }
         $this->planet->{$object->machine_name} -= $amount;
 
@@ -1056,7 +1107,6 @@ class PlanetService
      * @param UnitCollection $units
      * @param bool $save_planet
      * @return void
-     * @throws Exception
      */
     public function removeUnits(UnitCollection $units, bool $save_planet): void
     {
@@ -1548,7 +1598,7 @@ class PlanetService
                 $fleetMissionService->updateMission($mission);
             }
         } catch (Exception $e) {
-            throw new \RuntimeException('Fleet mission service not found.');
+            throw new \RuntimeException('Fleet mission service could not be loaded: ' . $e->getMessage());
         }
     }
 }

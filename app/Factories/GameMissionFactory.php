@@ -6,6 +6,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\ColonisationMission;
 use OGame\GameMissions\DeploymentMission;
+use OGame\GameMissions\EspionageMission;
 use OGame\GameMissions\TransportMission;
 use OGame\Services\PlayerService;
 
@@ -34,6 +35,7 @@ class GameMissionFactory
             return [
                 3 => app()->make(TransportMission::class),
                 4 => app()->make(DeploymentMission::class),
+                6 => app()->make(EspionageMission::class),
                 7 => app()->make(ColonisationMission::class),
             ];
         } catch (BindingResolutionException $e) {
@@ -55,11 +57,13 @@ class GameMissionFactory
                     return app()->make(TransportMission::class, $dependencies);
                 case 4:
                     return app()->make(DeploymentMission::class, $dependencies);
+                case 6:
+                    return app()->make(EspionageMission::class, $dependencies);
                 case 7:
                     return app()->make(ColonisationMission::class, $dependencies);
+                default:
+                    throw new \RuntimeException('Mission not found: ' . $missionId);
             }
-            $missions = self::getAllMissions();
-            return $missions[$missionId];
         } catch (BindingResolutionException $e) {
             throw new \RuntimeException('Class not found: ' . PlayerService::class);
         }

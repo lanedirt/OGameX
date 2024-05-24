@@ -8,7 +8,7 @@
                     data-subtabname="Espionage" data-tabid="20" role="tab" tabindex="0"
                     aria-controls="ui-id-14" aria-labelledby="ui-id-13" aria-selected="true"
                     aria-expanded="true">
-                    <a href="{{ route('messages.ajax', ['tab' => 'fleets', 'subtab' => 'espionage']) }}"
+                    <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets', 'subtab' => 'espionage']) }}"
                        class="txt_link ui-tabs-anchor" role="presentation" tabindex="-1"
                        id="ui-id-13">
                         Espionage
@@ -22,7 +22,7 @@
                     data-subtabname="Combat Reports" data-tabid="21" role="tab" tabindex="-1"
                     aria-controls="ui-id-16" aria-labelledby="ui-id-15" aria-selected="false"
                     aria-expanded="false">
-                    <a href="{{ route('messages.ajax', ['tab' => 'fleets', 'subtab' => 'combat_reports' ]) }}"
+                    <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets', 'subtab' => 'combat_reports' ]) }}"
                        class="txt_link ui-tabs-anchor" role="presentation" tabindex="-1"
                        id="ui-id-15">
                         Combat Reports
@@ -36,7 +36,7 @@
                     data-subtabname="Expeditions" data-tabid="22" role="tab" tabindex="-1"
                     aria-controls="ui-id-18" aria-labelledby="ui-id-17" aria-selected="false"
                     aria-expanded="false">
-                    <a href="{{ route('messages.ajax', ['tab' => 'fleets', 'subtab' => 'expeditions' ]) }}"
+                    <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets', 'subtab' => 'expeditions' ]) }}"
                        class="txt_link ui-tabs-anchor" role="presentation" tabindex="-1"
                        id="ui-id-17">
                         Expeditions
@@ -50,7 +50,7 @@
                     data-subtabname="Unions/Transport" data-tabid="23" role="tab" tabindex="-1"
                     aria-controls="ui-id-20" aria-labelledby="ui-id-19" aria-selected="false"
                     aria-expanded="false">
-                    <a href="{{ route('messages.ajax', ['tab' => 'fleets', 'subtab' => 'transport' ]) }}"
+                    <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets', 'subtab' => 'transport' ]) }}"
                        class="txt_link ui-tabs-anchor" role="presentation" tabindex="-1"
                        id="ui-id-19">
                         Unions/Transport
@@ -64,7 +64,7 @@
                     data-subtabname="Other" data-tabid="24" role="tab" tabindex="-1"
                     aria-controls="ui-id-22" aria-labelledby="ui-id-21" aria-selected="false"
                     aria-expanded="false">
-                    <a href="{{ route('messages.ajax', ['tab' => 'fleets', 'subtab' => 'other' ]) }}"
+                    <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets', 'subtab' => 'other' ]) }}"
                        class="txt_link ui-tabs-anchor" role="presentation" tabindex="-1"
                        id="ui-id-21">
                         Other

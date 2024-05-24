@@ -21,9 +21,9 @@
                             class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab ui-tabs-active ui-state-active"
                             data-tabid="2" role="tab" tabindex="0" aria-controls="ui-id-2" aria-labelledby="ui-id-1"
                             aria-selected="true" aria-expanded="true">
-                            <a href="{{ route('messages.ajax', ['tab' => 'fleets']) }}"
+                            <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets']) }}"
                                class="tabs_btn_img tb_fleets ui-tabs-anchor"
-                               rel="{{ route('messages.ajax', ['tab' => 'fleets']) }}" role="presentation" tabindex="-1"
+                               rel="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets']) }}" role="presentation" tabindex="-1"
                                id="ui-id-1">
                                 @if ($unread_messages_count['fleets'] > 0)
                                     <span class="new_msg_count">{{ $unread_messages_count['fleets'] }}</span>
@@ -37,9 +37,9 @@
                             class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab" data-tabid="1"
                             role="tab" tabindex="-1" aria-controls="ui-id-4" aria-labelledby="ui-id-3"
                             aria-selected="false" aria-expanded="false">
-                            <a href="{{ route('messages.ajax', ['tab' => 'communication']) }}"
+                            <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'communication']) }}"
                                class="tabs_btn_img tb_communication ui-tabs-anchor"
-                               rel="{{ route('messages.ajax', ['tab' => 'communication']) }}" role="presentation" tabindex="-1"
+                               rel="{{ route('messages.ajax.gettabcontents', ['tab' => 'communication']) }}" role="presentation" tabindex="-1"
                                id="ui-id-3">
                                 @if ($unread_messages_count['communication'] > 0)
                                     <span class="new_msg_count">{{ $unread_messages_count['communication'] }}</span>
@@ -52,9 +52,9 @@
                         <li id="tabs-nfEconomy" class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab"
                             data-tabid="3" role="tab" tabindex="-1" aria-controls="ui-id-6" aria-labelledby="ui-id-5"
                             aria-selected="false" aria-expanded="false">
-                            <a href="{{ route('messages.ajax', ['tab' => 'economy']) }}"
+                            <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'economy']) }}"
                                class="tabs_btn_img tb_economy ui-tabs-anchor"
-                               rel="{{ route('messages.ajax', ['tab' => 'economy']) }}" role="presentation" tabindex="-1"
+                               rel="{{ route('messages.ajax.gettabcontents', ['tab' => 'economy']) }}" role="presentation" tabindex="-1"
                                id="ui-id-5">
                                 @if ($unread_messages_count['economy'] > 0)
                                     <span class="new_msg_count">{{ $unread_messages_count['economy'] }}</span>
@@ -67,9 +67,9 @@
                         <li id="tabs-nfUniverse" class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab"
                             data-tabid="5" role="tab" tabindex="-1" aria-controls="ui-id-8" aria-labelledby="ui-id-7"
                             aria-selected="false" aria-expanded="false">
-                            <a href="{{ route('messages.ajax', ['tab' => 'universe']) }}"
+                            <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'universe']) }}"
                                class="tabs_btn_img tb_universe ui-tabs-anchor"
-                               rel="{{ route('messages.ajax', ['tab' => 'universe']) }}" role="presentation" tabindex="-1"
+                               rel="{{ route('messages.ajax.gettabcontents', ['tab' => 'universe']) }}" role="presentation" tabindex="-1"
                                id="ui-id-7">
                                 @if ($unread_messages_count['universe'] > 0)
                                     <span class="new_msg_count">{{ $unread_messages_count['universe'] }}</span>
@@ -82,9 +82,9 @@
                         <li id="tabs-nfSystem" class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab"
                             data-tabid="4" role="tab" tabindex="-1" aria-controls="ui-id-10" aria-labelledby="ui-id-9"
                             aria-selected="false" aria-expanded="false">
-                            <a href="{{ route('messages.ajax', ['tab' => 'system']) }}"
+                            <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'system']) }}"
                                class="tabs_btn_img tb_system ui-tabs-anchor"
-                               rel="{{ route('messages.ajax', ['tab' => 'system']) }}" role="presentation" tabindex="-1"
+                               rel="{{ route('messages.ajax.gettabcontents', ['tab' => 'system']) }}" role="presentation" tabindex="-1"
                                id="ui-id-9">
                                 @if ($unread_messages_count['system'] > 0)
                                     <span class="new_msg_count">{{ $unread_messages_count['system'] }}</span>
@@ -97,9 +97,9 @@
                         <li id="tabs-nfFavorites" class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab"
                             data-tabid="6" role="tab" tabindex="-1" aria-controls="ui-id-12" aria-labelledby="ui-id-11"
                             aria-selected="false" aria-expanded="false">
-                            <a href="{{ route('messages.ajax', ['tab' => 'favorites']) }}"
+                            <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'favorites']) }}"
                                class="tabs_btn_img tb_favorites premiumHighligt ui-tabs-anchor"
-                               rel="{{ route('messages.ajax', ['tab' => 'favorites']) }}" role="presentation" tabindex="-1"
+                               rel="{{ route('messages.ajax.gettabcontents', ['tab' => 'favorites']) }}" role="presentation" tabindex="-1"
                                id="ui-id-11">
                                 @if ($unread_messages_count['favorites'] > 0)
                                     <span class="new_msg_count">{{ $unread_messages_count['favorites'] }}</span>

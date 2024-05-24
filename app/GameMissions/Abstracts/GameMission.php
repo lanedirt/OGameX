@@ -115,6 +115,11 @@ abstract class GameMission
         if (!$planet->hasUnits($units)) {
             throw new Exception('Not enough units on the planet to send the fleet.');
         }
+
+        $missionPossibleStatus = $this->isMissionPossible($planet, $this->planetServiceFactory->makeForCoordinate($targetCoordinate), $units);
+        if (!$missionPossibleStatus->possible) {
+            throw new Exception($missionPossibleStatus->reason ?? __('This mission is not possible.'));
+        }
     }
 
     /**
@@ -138,6 +143,7 @@ abstract class GameMission
      * @param Resources $resources
      * @param int $parent_id
      * @return void
+     * @throws Exception
      */
     public function start(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources, int $parent_id = 0): void
     {
@@ -148,7 +154,7 @@ abstract class GameMission
 
         // Time fleet mission will arrive
         // TODO: refactor calculate to gamemission base class?
-        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration();
+        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration(static::$typeId);
 
         $mission = new FleetMission();
 
@@ -273,7 +279,7 @@ abstract class GameMission
         $mission->metal = 0;
         $mission->crystal = 0;
         $mission->deuterium = 0;
-        if ($parentMission->canceled == 1) {
+        if ($parentMission->canceled === 1) {
             // If the parent mission was canceled, return the resources to the source planet via the return mission.
             // TODO: do we want to clear the resources from the parent mission or leave as-is for bookkeeping purposes?
             $mission->metal = $parentMission->metal;

@@ -233,8 +233,6 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                         var scheduleBuildListEntryUrl = '#TODOpage=componentOnly&component=buildlistactions&action=scheduleEntry&asJson=1';
                         var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
                         redirectPremiumLink = '#TODOpage=premium&showDarkMatter=1'
-
-                        window.token = '69834f4d6fbeae853fa4fd22814d592c'
                     </script>
                 </div>
             </div>-->
@@ -280,8 +278,6 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                     var scheduleBuildListEntryUrl = '#TODOpage=componentOnly&component=buildlistactions&action=scheduleEntry&asJson=1';
                     var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
                     redirectPremiumLink = '#TODOpage=premium&showDarkMatter=1'
-
-                    window.token = '69834f4d6fbeae853fa4fd22814d592c'
                 </script>
             </div>
 

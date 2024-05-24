@@ -15,8 +15,6 @@
     </div>
     <div id="fleetdispatchcomponent" class="maincontent">
         <script type="text/javascript">
-            var token = "85cb33c35cf4c438287916336573a3b3";
-
             var checkTargetUrl = "{{ route('fleet.dispatch.checktarget') }}"
             var sendFleetUrl = "{{ route('fleet.dispatch.sendfleet') }}"
             var saveSettingsUrl = ""

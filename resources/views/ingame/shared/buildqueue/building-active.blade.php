@@ -70,8 +70,6 @@
                 buildListActionCancel(id, listId)
             });
         }
-
-        window.token = '{{ csrf_token() }}'
     </script>
     {{-- No buildings are being built. --}}
 @else

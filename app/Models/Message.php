@@ -38,6 +38,8 @@ use Illuminate\Support\Carbon;
  * @method static \Illuminate\Database\Eloquent\Builder|Message whereParams($value)
  * @property string $key
  * @method static \Illuminate\Database\Eloquent\Builder|Message whereKey($value)
+ * @property int|null $espionage_report_id
+ * @method static \Illuminate\Database\Eloquent\Builder|Message whereEspionageReportId($value)
  * @mixin \Eloquent
  */
 class Message extends Model
