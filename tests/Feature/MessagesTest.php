@@ -7,7 +7,6 @@ use OGame\Factories\GameMessageFactory;
 use OGame\Models\EspionageReport;
 use OGame\Models\Message;
 use OGame\Services\MessageService;
-use OGame\Services\PlanetService;
 use Tests\AccountTestCase;
 
 /**
@@ -56,12 +55,12 @@ class MessagesTest extends AccountTestCase
             $message->params = $filledParams;
 
             // Check that the message has a valid subject and body defined.
-            $this->assertNotEmpty($gameMessage->getSubject($message), 'Subject is empty for ' . get_class($gameMessage));
-            $this->assertNotEmpty($gameMessage->getBody($message), 'Body is empty for ' . get_class($gameMessage));
+            $this->assertNotEmpty($gameMessage->getSubject(), 'Subject is empty for ' . get_class($gameMessage));
+            $this->assertNotEmpty($gameMessage->getBody(), 'Body is empty for ' . get_class($gameMessage));
 
             // Also assert that it does not contains "t_messages" string as this indicates the translation is missing.
-            $this->assertStringNotContainsString('t_messages', $gameMessage->getSubject($message), 'Subject contains t_messages for ' . get_class($gameMessage));
-            $this->assertStringNotContainsString('t_messages', $gameMessage->getBody($message), 'Body contains t_messages for ' . get_class($gameMessage));
+            $this->assertStringNotContainsString('t_messages', $gameMessage->getSubject(), 'Subject contains t_messages for ' . get_class($gameMessage));
+            $this->assertStringNotContainsString('t_messages', $gameMessage->getBody(), 'Body contains t_messages for ' . get_class($gameMessage));
         }
     }
 
@@ -72,8 +71,7 @@ class MessagesTest extends AccountTestCase
     {
         try {
             $messageService = app()->make(MessageService::class);
-        }
-        catch (BindingResolutionException $e) {
+        } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve MessageService in testEspionageReport.');
         }
         // Create a new espionage report record in the db and set the espionage_report_id to its ID.

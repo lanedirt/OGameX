@@ -326,8 +326,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         try {
             $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
-        }
-        catch (BindingResolutionException $e) {
+        } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
@@ -357,8 +356,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
         try {
             $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
-        }
-        catch (BindingResolutionException $e) {
+        } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
@@ -410,8 +408,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         try {
             $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
-        }
-        catch (BindingResolutionException $e) {
+        } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();

@@ -115,8 +115,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         // Assert that the new planet has been created.
         try {
             $planetServiceFactory = app()->make(PlanetServiceFactory::class);
-        }
-        catch (BindingResolutionException $e) {
+        } catch (BindingResolutionException $e) {
             $this->fail('PlanetServiceFactory cannot be resolved from the container.');
         }
         $newPlanet = $planetServiceFactory->makeForCoordinate($newPlanetCoordinates);

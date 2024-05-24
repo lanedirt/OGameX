@@ -40,8 +40,7 @@ class EspionageReport extends GameMessage
         if ($espionageReport === null) {
             // If espionage report is not found, we use an empty model. This is for testing purposes.
             $this->espionageReportModel = new \OGame\Models\EspionageReport();
-        }
-        else {
+        } else {
             $this->espionageReportModel = $espionageReport;
         }
     }

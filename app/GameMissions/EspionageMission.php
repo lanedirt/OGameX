@@ -121,16 +121,16 @@ class EspionageMission extends GameMission
         $report->planet_user_id = $planet->getPlayer()->getId();
 
         $report->player_info = [
-            'player_id' => $planet->getPlayer()->getId(),
+            'player_id' => (string)$planet->getPlayer()->getId(),
             'player_name' => $planet->getPlayer()->getUsername(),
         ];
 
         // Resources
         $report->resources = [
-            'metal' => $planet->metal()->get(),
-            'crystal' => $planet->crystal()->get(),
-            'deuterium' => $planet->deuterium()->get(),
-            'energy' => $planet->energy()->get()
+            'metal' => (int)$planet->metal()->get(),
+            'crystal' => (int)$planet->crystal()->get(),
+            'deuterium' => (int)$planet->deuterium()->get(),
+            'energy' => (int)$planet->energy()->get()
         ];
 
         // TODO: implement logic which determines what to include in the espionage report based on

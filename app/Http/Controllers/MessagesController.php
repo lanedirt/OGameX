@@ -141,11 +141,11 @@ class MessagesController extends OGameController
     /**
      * Returns an individual message for a full screen view.
      *
-     * @param string $messageId
+     * @param int $messageId
      * @param MessageService $messageService
      * @return View
      */
-    public function ajaxGetMessage(string $messageId, MessageService $messageService): View
+    public function ajaxGetMessage(int $messageId, MessageService $messageService): View
     {
         // Get full message view model.
         $messageObject = $messageService->getFullMessage($messageId);

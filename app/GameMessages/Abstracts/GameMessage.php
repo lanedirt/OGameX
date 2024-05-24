@@ -75,11 +75,11 @@ abstract class GameMessage
     }
 
     /**
-     * Get the key of the message.
+     * Get the ID of the message.
      *
-     * @return string
+     * @return int
      */
-    public function getId(): string
+    public function getId(): int
     {
         return $this->message->id;
     }
@@ -185,8 +185,8 @@ abstract class GameMessage
     /**
      * Check the provided params and fill in missing ones with "?undefined?".
      *
-     * @param array $params
-     * @return array<int, string>
+     * @param array<string, string> $params
+     * @return array<string, string>
      */
     private function checkParams(array $params): array
     {
@@ -204,8 +204,8 @@ abstract class GameMessage
     /**
      * Format reserved params such as resources.
      *
-     * @param array $params
-     * @return array
+     * @param array<string, string> $params
+     * @return array<string, string>
      */
     private function formatReservedParams(array $params): array
     {

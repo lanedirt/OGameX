@@ -140,8 +140,8 @@ class MessageService
             throw new \InvalidArgumentException('Invalid game message class.');
         }
 
-        /** @var GameMessage $gameMessage */
         try {
+            /** @var GameMessage $gameMessage */
             $gameMessage = app()->make($gameMessageClass);
 
             $message = new Message();
