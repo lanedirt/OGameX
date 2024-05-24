@@ -153,12 +153,13 @@ You should review all settings before deploying this project to a publicly acces
 5. Run Laravel setup commands to download composer dependencies, generate an encryption key, cache configuration and prepare the database:
   ```
   $ composer install --no-dev
-  $ php artisan key:generate
+  $ php artisan key:generate --force
   $ php artisan migrate --force
   $ php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
   ```
 
-After completing the setup, visit http://localhost to access OGameX. You first need to create an account (no email validation), afterwards you can login using that account.
+After completing the setup, visit https://localhost to access OGameX. You first need to create an account (no email validation), afterwards you can login using that account.
+> Note: The production version runs in forced-HTTPS (redirect) mode by default using a self-signed SSL certificate. If you want to access the application via HTTP, open `.env` and change `APP_ENV` from `production` to `local`.
 
 ### <a name="tips-for-initial-setup"></a> c) Tips for initial setup
 - **Admin account**: By default, the first registered user is assigned the admin role which can see the admin bar and is able to change server settings. You can also assign the admin role manually via the command line:
