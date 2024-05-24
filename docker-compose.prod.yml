@@ -30,6 +30,7 @@ services:
     volumes:
       - ./:/var/www:cached
       - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./nginx/ssl/:/etc/nginx/ssl/
     ports:
       - "80:80"
       - "443:443"
