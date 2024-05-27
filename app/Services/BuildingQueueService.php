@@ -209,7 +209,7 @@ class BuildingQueueService
 
             // See if the planet has enough resources for this build attempt.
             $price = $this->objects->getObjectPrice($object->machine_name, $planet);
-            $build_time = (int)$planet->getBuildingConstructionTime($object->machine_name);
+            $build_time = $planet->getBuildingConstructionTime($object->machine_name);
 
             // Only start the queue item if there are no other queue items building
             // for this planet.
