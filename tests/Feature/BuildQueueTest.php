@@ -20,6 +20,10 @@ class BuildQueueTest extends AccountTestCase
      */
     public function testBuildQueueResourcesMetalMine(): void
     {
+        // Set the universe speed to 8x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('economy_speed', 1);
+
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
         Carbon::setTestNow($testTime);
@@ -109,11 +113,14 @@ class BuildQueueTest extends AccountTestCase
 
     /**
      * Verify that building a robotics factory on the facilities page works as expected.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testBuildQueueFacilitiesRoboticsFactoryMultiQueue(): void
     {
+        // Set the universe speed to 8x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
         // Add resources to planet that test requires.
         $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
 
@@ -157,7 +164,6 @@ class BuildQueueTest extends AccountTestCase
 
     /**
      * Verify that building ships without resources fails.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testBuildQueueFailInsufficientResources(): void
@@ -186,10 +192,14 @@ class BuildQueueTest extends AccountTestCase
 
     /**
      * Verify that building a fusion reactor without required technology fails.
-     * @throws BindingResolutionException|Exception
+     * @throws Exception
      */
     public function testBuildQueueFailUnfulfilledRequirements(): void
     {
+        // Set the universe speed to 8x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
         $this->planetAddResources(new Resources(1000, 1000, 1000, 0));
 
         // Set the current time to a specific moment for testing
@@ -218,10 +228,32 @@ class BuildQueueTest extends AccountTestCase
      */
     public function testBuildingProductionTime(): void
     {
+        // Set the universe speed to 8x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
         // Add resources to planet to initialize planet.
         $this->planetAddResources(new Resources(400, 120, 200, 0));
 
         $building_construction_time = $this->planetService->getBuildingConstructionTime('metal_mine');
         $this->assertGreaterThan(0, $building_construction_time);
+    }
+
+    /**
+     * Verify that with a very high economy speed, the building construction time is at least 1 second which is
+     * the minimum for all objects in the game.
+     * @throws Exception
+     */
+    public function testBuildingProductionTimeHighSpeed(): void
+    {
+        // Set the universe speed to 8x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
+        // Add resources to planet to initialize planet.
+        $this->planetSetObjectLevel('robot_factory', 99);
+
+        $building_construction_time = $this->planetService->getBuildingConstructionTime('metal_mine');
+        $this->assertEquals(1, $building_construction_time);
     }
 }

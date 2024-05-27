@@ -46,6 +46,7 @@ class DeveloperShortcutsController extends OGameController
             $playerService->planets->current()->setObjectLevel($objectService->getObjectByMachineName('metal_mine')->id, 30);
             $playerService->planets->current()->setObjectLevel($objectService->getObjectByMachineName('crystal_mine')->id, 30);
             $playerService->planets->current()->setObjectLevel($objectService->getObjectByMachineName('deuterium_synthesizer')->id, 30);
+            $playerService->planets->current()->setObjectLevel($objectService->getObjectByMachineName('solar_plant')->id, 30);
         } elseif ($request->has('set_storages')) {
             // Handle "Set all storages to level 30"
             $playerService->planets->current()->setObjectLevel($objectService->getObjectByMachineName('metal_store')->id, 15);

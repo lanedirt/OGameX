@@ -634,9 +634,14 @@ class PlanetService
                 (2500 * max((4 - ($next_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
             );
 
-        $time_seconds = $time_hours * 3600;
+        $time_seconds = (int)($time_hours * 3600);
 
-        return (int)floor($time_seconds);
+        // Minimum time is always 1 second for all objects/units.
+        if ($time_seconds < 1) {
+            $time_seconds = 1;
+        }
+
+        return $time_seconds;
     }
 
     /**
@@ -683,7 +688,14 @@ class PlanetService
                 (2500 * (1 + $shipyard_level) * $universe_speed * (2 ** $nanitefactory_level))
             );
 
-        return (int)($time_hours * 3600);
+        $time_seconds = (int)($time_hours * 3600);
+
+        // Minimum time is always 1 second for all objects/units.
+        if ($time_seconds < 1) {
+            $time_seconds = 1;
+        }
+
+        return $time_seconds;
     }
 
     /**
@@ -709,7 +721,14 @@ class PlanetService
                 (1000 * (1 + $research_lab_level) * $universe_speed)
             );
 
-        return (int)($time_hours * 3600);
+        $time_seconds = (int)($time_hours * 3600);
+
+        // Minimum time is always 1 second for all objects/units.
+        if ($time_seconds < 1) {
+            $time_seconds = 1;
+        }
+
+        return $time_seconds;
     }
 
     /**
