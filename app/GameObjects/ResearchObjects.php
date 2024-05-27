@@ -257,8 +257,8 @@ With each level of the Combustion Drive developed, the speed of small and large 
         ];
         $intergalacticResearchNetwork->price = new GameObjectPrice(240000, 400000, 160000, 0, 2);
         $intergalacticResearchNetwork->assets = new GameObjectAssets();
-        $intergalacticResearchNetwork->assets->imgMicro = 'robot_factory_micro.jpg';
-        $intergalacticResearchNetwork->assets->imgSmall = 'robot_factory_small.jpg';
+        $intergalacticResearchNetwork->assets->imgMicro = 'intergalactic_research_network_micro.jpg';
+        $intergalacticResearchNetwork->assets->imgSmall = 'intergalactic_research_network_small.jpg';
 
         $buildingObjectsNew[] = $intergalacticResearchNetwork;
 
@@ -276,8 +276,8 @@ With each level of the Combustion Drive developed, the speed of small and large 
         ];
         $gravitonTechnology->price = new GameObjectPrice(0, 0, 0, 300000, 2);
         $gravitonTechnology->assets = new GameObjectAssets();
-        $gravitonTechnology->assets->imgMicro = 'robot_factory_micro.jpg';
-        $gravitonTechnology->assets->imgSmall = 'robot_factory_small.jpg';
+        $gravitonTechnology->assets->imgMicro = 'graviton_technology_micro.jpg';
+        $gravitonTechnology->assets->imgSmall = 'graviton_technology_small.jpg';
 
         $buildingObjectsNew[] = $gravitonTechnology;
 

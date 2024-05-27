@@ -187,7 +187,7 @@ class MilitaryShipObjects
         ];
         $bomber->assets = new GameObjectAssets();
         $bomber->assets->imgSmall = 'bomber_small.jpg';
-        $bomber->assets->imgMicro = 'robot_factory_micro.jpg';
+        $bomber->assets->imgMicro = 'bomber_small.jpg';
         $buildingObjectsNew[] = $bomber;
 
         // --- Destroyer ---
@@ -216,7 +216,7 @@ class MilitaryShipObjects
         $destroyer->properties = new GameObjectProperties($destroyer, 110000, 500, 200, 5000, 2000, 1000);
         $destroyer->assets = new GameObjectAssets();
         $destroyer->assets->imgSmall = 'destroyer_small.jpg';
-        $destroyer->assets->imgMicro = 'robot_factory_micro.jpg';
+        $destroyer->assets->imgMicro = 'destroyer_small.jpg';
         $buildingObjectsNew[] = $destroyer;
 
         // --- Deathstar ---
@@ -260,7 +260,7 @@ class MilitaryShipObjects
         $deathstar->properties = new GameObjectProperties($deathstar, 9000000, 50000, 200000, 100, 1000000, 1);
         $deathstar->assets = new GameObjectAssets();
         $deathstar->assets->imgSmall = 'deathstar_small.jpg';
-        $deathstar->assets->imgMicro = 'robot_factory_micro.jpg';
+        $deathstar->assets->imgMicro = 'deathstar_small.jpg';
         $buildingObjectsNew[] = $deathstar;
 
         return $buildingObjectsNew;
