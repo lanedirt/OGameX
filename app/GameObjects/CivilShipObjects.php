@@ -46,7 +46,7 @@ class CivilShipObjects
         ];
         $smallCargo->assets = new GameObjectAssets();
         $smallCargo->assets->imgSmall = 'small_cargo_small.jpg';
-        $smallCargo->assets->imgMicro = 'robot_factory_micro.jpg';
+        $smallCargo->assets->imgMicro = 'small_cargo_micro.jpg';
         $buildingObjectsNew[] = $smallCargo;
 
         // --- Large Cargo ---
@@ -73,7 +73,7 @@ To maximize the resources that can be stored in the holds, this ship has little 
 
         $largeCargo->assets = new GameObjectAssets();
         $largeCargo->assets->imgSmall = 'large_cargo_small.jpg';
-        $largeCargo->assets->imgMicro = 'robot_factory_micro.jpg';
+        $largeCargo->assets->imgMicro = 'large_cargo_micro.jpg';
         $buildingObjectsNew[] = $largeCargo;
 
         // --- Colony Ship ---
@@ -99,7 +99,7 @@ This ship is used to prepare a newly discovered planet for colonization. Once it
 
         $colonyShip->assets = new GameObjectAssets();
         $colonyShip->assets->imgSmall = 'colony_ship_small.jpg';
-        $colonyShip->assets->imgMicro = 'robot_factory_micro.jpg';
+        $colonyShip->assets->imgMicro = 'colony_ship_micro.jpg';
         $buildingObjectsNew[] = $colonyShip;
 
         // --- Recycler ---
@@ -130,7 +130,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         ];
         $recycler->assets = new GameObjectAssets();
         $recycler->assets->imgSmall = 'recycler_small.jpg';
-        $recycler->assets->imgMicro = 'robot_factory_micro.jpg';
+        $recycler->assets->imgMicro = 'recycler_micro.jpg';
         $buildingObjectsNew[] = $recycler;
 
         // --- Espionage Probe ---
@@ -151,7 +151,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
 
         $espionageProbe->assets = new GameObjectAssets();
         $espionageProbe->assets->imgSmall = 'espionage_probe_small.jpg';
-        $espionageProbe->assets->imgMicro = 'robot_factory_micro.jpg';
+        $espionageProbe->assets->imgMicro = 'espionage_probe_micro.jpg';
         $buildingObjectsNew[] = $espionageProbe;
 
         // --- Solar Satellite ---
@@ -172,7 +172,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
 
         $solarSatellite->assets = new GameObjectAssets();
         $solarSatellite->assets->imgSmall = 'solar_satellite_small.jpg';
-        $solarSatellite->assets->imgMicro = 'robot_factory_micro.jpg';
+        $solarSatellite->assets->imgMicro = 'solar_satellite_micro.jpg';
         $buildingObjectsNew[] = $solarSatellite;
 
         return $buildingObjectsNew;
