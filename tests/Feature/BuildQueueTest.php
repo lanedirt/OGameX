@@ -3,7 +3,6 @@
 namespace Feature;
 
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Models\Resources;
 use OGame\Services\SettingsService;
