@@ -301,7 +301,7 @@ class UnitQueueTest extends AccountTestCase
         Carbon::setTestNow($testTime);
 
         // ---
-        // Step 1: Issue a request to build 10 light fighters
+        // Step 1: Issue a request to build 100 rocket launchers.
         // ---
         $this->addDefenseBuildRequest('rocket_launcher', 100);
 
@@ -309,7 +309,6 @@ class UnitQueueTest extends AccountTestCase
         // Step 2: Verify the defense units are in the build queue
         // ---
         $response = $this->get('/defense');
-        //var_dump($response->getContent());
 
         $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'rocket_launcher', 0, 'Rocket Launcher is not at 0 units directly after build request issued.');

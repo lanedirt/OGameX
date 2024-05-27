@@ -249,9 +249,10 @@ class BuildQueueTest extends AccountTestCase
         $settingsService = app()->make(SettingsService::class);
         $settingsService->set('economy_speed', 8);
 
-        // Add resources to planet to initialize planet.
+        // Set robot factory to level 99 to get very fast building construction times.
         $this->planetSetObjectLevel('robot_factory', 99);
 
+        // Check that the building construction time is at least 1 second even with such a high robot factory.
         $building_construction_time = $this->planetService->getBuildingConstructionTime('metal_mine');
         $this->assertEquals(1, $building_construction_time);
     }
