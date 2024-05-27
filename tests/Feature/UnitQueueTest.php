@@ -281,4 +281,47 @@ class UnitQueueTest extends AccountTestCase
         $unit_construction_time = $this->planetService->getUnitConstructionTime('light_fighter');
         $this->assertGreaterThan(0, $unit_construction_time);
     }
+
+    /**
+     * Verify that unit construction time is calculated correctly (higher than 0)
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testUnitProductionTimeHighShipyardLevel(): void
+    {
+        $this->basicSetup();
+
+        $this->planetAddResources(new Resources(200000, 0, 0, 0));
+        $this->planetSetObjectLevel('robot_factory', 2);
+        $this->planetSetObjectLevel('shipyard', 10);
+        $this->planetSetObjectLevel('nano_factory', 10);
+
+        // Set the current time to a specific moment for testing
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
+        Carbon::setTestNow($testTime);
+
+        // ---
+        // Step 1: Issue a request to build 10 light fighters
+        // ---
+        $this->addDefenseBuildRequest('rocket_launcher', 100);
+
+        // ---
+        // Step 2: Verify the defense units are in the build queue
+        // ---
+        $response = $this->get('/defense');
+        //var_dump($response->getContent());
+
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'rocket_launcher', 0, 'Rocket Launcher is not at 0 units directly after build request issued.');
+
+        // ---
+        // Step 3: Verify that after 50 seconds, exactly 50 units are built. (Minimum time per unit is always 1 second)
+        // ---
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 50);
+        Carbon::setTestNow($testTime);
+
+        $response = $this->get('/defense');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'rocket_launcher', 50, 'Rocket Launcher is not at 50 units 50 seconds after build request issued.');
+    }
 }
