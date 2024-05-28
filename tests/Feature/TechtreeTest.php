@@ -73,6 +73,9 @@ class TechtreeTest extends AccountTestCase
 
         $response = $this->get('ajax/techtree?tab=4&object_id=' . $object->id);
         $content = $response->getContent();
+        if ($content === false) {
+            $this->fail('AJAX techtree applications page for "' . $object->title . '" does not return any content.');
+        }
         $metCount = substr_count($content, 'data-prerequisites-met="true"');
         $notMetCount = substr_count($content, 'data-prerequisites-met="false"');
 
