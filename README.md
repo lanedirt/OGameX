@@ -23,7 +23,7 @@ OGameX is an open-source OGame clone aiming to recreate the official OGame exper
 
 ## 🖥️ Live demo
 - Main branch (nightly builds): [https://main.ogamex.dev](https://main.ogamex.dev)
-- Latest stable release **(0.5.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
+- Latest stable release **(0.6.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
 
 ## 📝 Table of Contents
 - [1. Example screenshots](#screenshots)
