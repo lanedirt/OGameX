@@ -116,17 +116,15 @@ class ResearchQueueCancelTest extends AccountTestCase
         $response = $this->get('/research');
         $response->assertStatus(200);
 
-        // Extract first and second number on page which looks like this where num1/num2 are ints:
-        // "cancelProduction(num1,num2,"
         $this->assertObjectInQueue($response, 'computer_technology', 'Computer Technology is not in build queue.');
 
         // Extract the content from the response
         $pageContent = $response->getContent();
-        if (empty($pageContent)) {
+        if (!$pageContent) {
             $pageContent = '';
         }
         // Use a regular expression to find all matches of 'onclick="cancelbuilding(num1,num2,'
-        preg_match_all('/onclick="cancelbuilding\((\d+),(\d+),/', $pageContent, $matches);
+        preg_match_all('/onclick="cancelbuilding\(\s*(\d+)\s*,\s*(\d+)\s*,/', $pageContent, $matches);
 
         // Check if there are at least three matches
         // First active build queue has two cancelProduction buttons.
