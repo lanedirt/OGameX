@@ -1,6 +1,6 @@
 /**
  * Timer handler
- * 
+ *
  * @param integer interval  Default is 1000
  * @param boolean autostart Default is true
  */
@@ -22,9 +22,9 @@ var TimerHandler = function (interval, autostart) {
 };
 /**
  * Append a callback to the timer
- * 
+ *
  * Returns the index required to remove the callback again
- * 
+ *
  * @param  object method
  * @return integer
  */
@@ -41,7 +41,7 @@ TimerHandler.prototype.removeCallback = function (index) {
 };
 /**
  * Start the timer
- * 
+ *
  * @return void
  */
 
@@ -54,7 +54,7 @@ TimerHandler.prototype.startTimer = function () {
 };
 /**
  * Stop the timer
- * 
+ *
  * @return void
  */
 
@@ -64,9 +64,9 @@ TimerHandler.prototype.stopTimer = function () {
 };
 /**
  * Timer which is called every N seconds
- * 
+ *
  * Executes every assigned callback
- * 
+ *
  * @return void
  */
 
@@ -9144,7 +9144,7 @@ muh
 /*!
  * jQuery BBQ: Back Button & Query Library - v1.4pre - 1/15/2013
  * http://benalman.com/projects/jquery-bbq-plugin/
- * 
+ *
  * Copyright (c) 2010-2013 "Cowboy" Ben Alman
  * Dual licensed under the MIT and GPL licenses.
  * http://benalman.com/about/license/
@@ -9152,41 +9152,41 @@ muh
 // Script: jQuery BBQ: Back Button & Query Library
 //
 // *Version: 1.4pre, Last updated: 1/15/2013*
-// 
+//
 // Project Home - http://benalman.com/projects/jquery-bbq-plugin/
 // GitHub       - http://github.com/cowboy/jquery-bbq/
 // Source       - http://github.com/cowboy/jquery-bbq/raw/master/jquery.ba-bbq.js
 // (Minified)   - http://github.com/cowboy/jquery-bbq/raw/master/jquery.ba-bbq.min.js (2.2kb gzipped)
-// 
+//
 // About: License
-// 
+//
 // Copyright (c) 2010-2013 "Cowboy" Ben Alman,
 // Dual licensed under the MIT and GPL licenses.
 // http://benalman.com/about/license/
-// 
+//
 // About: Examples
-// 
+//
 // These working examples, complete with fully commented code, illustrate a few
 // ways in which this plugin can be used.
-// 
+//
 // Basic AJAX     - http://benalman.com/code/projects/jquery-bbq/examples/fragment-basic/
 // Advanced AJAX  - http://benalman.com/code/projects/jquery-bbq/examples/fragment-advanced/
 // jQuery UI Tabs - http://benalman.com/code/projects/jquery-bbq/examples/fragment-jquery-ui-tabs/
 // Deparam        - http://benalman.com/code/projects/jquery-bbq/examples/deparam/
-// 
+//
 // About: Support and Testing
-// 
+//
 // Information about what version or versions of jQuery this plugin has been
 // tested with, what browsers it has been tested in, and where the unit tests
 // reside (so you can test it yourself).
-// 
+//
 // jQuery Versions - 1.2.6, 1.3.2, 1.4.1, 1.4.2
 // Browsers Tested - Internet Explorer 6-8, Firefox 2-4, Chrome 5-6, Safari 3.2-5,
 //                   Opera 9.6-10.60, iPhone 3.1, Android 1.6-2.2, BlackBerry 4.6-5.
 // Unit Tests      - http://benalman.com/code/projects/jquery-bbq/unit/
-// 
+//
 // About: Release History
-// 
+//
 // 1.4pre - (1/15/2013) Removed $.browser reference to work with jQuery 1.9
 // 1.3pre - (8/26/2010) Integrated <jQuery hashchange event> v1.3, which adds
 //         document.title and document.domain support in IE6/7, BlackBerry
@@ -10059,7 +10059,7 @@ muh
 /*!
  * jQuery hashchange event - v1.3 - 7/21/2010
  * http://benalman.com/projects/jquery-hashchange-plugin/
- * 
+ *
  * Copyright (c) 2010 "Cowboy" Ben Alman
  * Dual licensed under the MIT and GPL licenses.
  * http://benalman.com/about/license/
@@ -10067,59 +10067,59 @@ muh
 // Script: jQuery hashchange event
 //
 // *Version: 1.3, Last updated: 7/21/2010*
-// 
+//
 // Project Home - http://benalman.com/projects/jquery-hashchange-plugin/
 // GitHub       - http://github.com/cowboy/jquery-hashchange/
 // Source       - http://github.com/cowboy/jquery-hashchange/raw/master/jquery.ba-hashchange.js
 // (Minified)   - http://github.com/cowboy/jquery-hashchange/raw/master/jquery.ba-hashchange.min.js (0.8kb gzipped)
-// 
+//
 // About: License
-// 
+//
 // Copyright (c) 2010 "Cowboy" Ben Alman,
 // Dual licensed under the MIT and GPL licenses.
 // http://benalman.com/about/license/
-// 
+//
 // About: Examples
-// 
+//
 // These working examples, complete with fully commented code, illustrate a few
 // ways in which this plugin can be used.
-// 
+//
 // hashchange event - http://benalman.com/code/projects/jquery-hashchange/examples/hashchange/
 // document.domain - http://benalman.com/code/projects/jquery-hashchange/examples/document_domain/
-// 
+//
 // About: Support and Testing
-// 
+//
 // Information about what version or versions of jQuery this plugin has been
 // tested with, what browsers it has been tested in, and where the unit tests
 // reside (so you can test it yourself).
-// 
+//
 // jQuery Versions - 1.2.6, 1.3.2, 1.4.1, 1.4.2
 // Browsers Tested - Internet Explorer 6-8, Firefox 2-4, Chrome 5-6, Safari 3.2-5,
 //                   Opera 9.6-10.60, iPhone 3.1, Android 1.6-2.2, BlackBerry 4.6-5.
 // Unit Tests      - http://benalman.com/code/projects/jquery-hashchange/unit/
-// 
+//
 // About: Known issues
-// 
+//
 // While this jQuery hashchange event implementation is quite stable and
 // robust, there are a few unfortunate browser bugs surrounding expected
 // hashchange event-based behaviors, independent of any JavaScript
 // window.onhashchange abstraction. See the following examples for more
 // information:
-// 
+//
 // Chrome: Back Button - http://benalman.com/code/projects/jquery-hashchange/examples/bug-chrome-back-button/
 // Firefox: Remote XMLHttpRequest - http://benalman.com/code/projects/jquery-hashchange/examples/bug-firefox-remote-xhr/
 // WebKit: Back Button in an Iframe - http://benalman.com/code/projects/jquery-hashchange/examples/bug-webkit-hash-iframe/
 // Safari: Back Button from a different domain - http://benalman.com/code/projects/jquery-hashchange/examples/bug-safari-back-from-diff-domain/
-// 
-// Also note that should a browser natively support the window.onhashchange 
+//
+// Also note that should a browser natively support the window.onhashchange
 // event, but not report that it does, the fallback polling loop will be used.
-// 
+//
 // About: Release History
-// 
+//
 // 1.3   - (7/21/2010) Reorganized IE6/7 Iframe code to make it more
 //         "removable" for mobile-only development. Added IE6/7 document.title
 //         support. Attempted to make Iframe as hidden as possible by using
-//         techniques from http://www.paciellogroup.com/blog/?p=604. Added 
+//         techniques from http://www.paciellogroup.com/blog/?p=604. Added
 //         support for the "shortcut" format $(window).hashchange( fn ) and
 //         $(window).hashchange() like jQuery provides for built-in events.
 //         Renamed jQuery.hashchangeDelay to <jQuery.fn.hashchange.delay> and
@@ -13773,10 +13773,10 @@ muh
  * jquery.dump.js
  * @author Torkild Dyvik Olsen
  * @version 1.0
- * 
+ *
  * A simple debug function to gather information about an object.
  * Returns a nested tree with information.
- * 
+ *
  */
 (function ($) {
   $.fn.dump = function () {
@@ -14077,17 +14077,17 @@ muh
 * instead of firing the onMouseOver event immediately, hoverIntent checks
 * to see if the user's mouse has slowed down (beneath the sensitivity
 * threshold) before firing the onMouseOver event.
-* 
+*
 * hoverIntent r6 // 2011.02.26 // jQuery 1.5.1+
 * <http://cherne.net/brian/resources/jquery.hoverIntent.html>
-* 
-* hoverIntent is currently available for use in all personal or commercial 
-* projects under both MIT and GPL licenses. This means that you can choose 
+*
+* hoverIntent is currently available for use in all personal or commercial
+* projects under both MIT and GPL licenses. This means that you can choose
 * the license that best suits your project, and use it accordingly.
-* 
+*
 * // basic usage (just like .hover) receives onMouseOver and onMouseOut functions
 * $("ul li").hoverIntent( showNav , hideNav );
-* 
+*
 * // advanced usage receives configuration object only
 * $("ul li").hoverIntent({
 *	sensitivity: 7, // number = sensitivity threshold (must be 1 or higher)
@@ -14096,7 +14096,7 @@ muh
 *	timeout: 0,   // number = milliseconds delay before onMouseOut function call
 *	out: hideNav    // function = onMouseOut callback (required)
 * });
-* 
+*
 * @param  f  onMouseOver function || An object with configuration options
 * @param  g  onMouseOut function  || Nothing (use configuration options object)
 * @author    Brian Cherne brian(at)cherne(dot)net
@@ -14441,10 +14441,10 @@ muh
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20001,10 +20001,10 @@ muh
     });
   });
 });
-/** 
- * This is only currently needed in a separate file in libraries because 
- * the javascript files are loaded alphabetically from files and we need to 
- * ensure that our namespace object is loaded before all other ogame specific 
+/**
+ * This is only currently needed in a separate file in libraries because
+ * the javascript files are loaded alphabetically from files and we need to
+ * ensure that our namespace object is loaded before all other ogame specific
  * javascript code
  */
 
@@ -29062,7 +29062,7 @@ ogame.chat = {
 
   /**
    * gets the total new chat counter.
-   * 
+   *
    * @returns {Number}
    */
   getTotalNewChatCounter: function () {
@@ -29071,7 +29071,7 @@ ogame.chat = {
 
   /**
    * calc total new chat counter and updates it.
-   * 
+   *
    * @returns {Number} total new chat counter
    */
   updateTotalNewChatCounter: function () {
@@ -29110,11 +29110,11 @@ ogame.chat = {
 
   /**
    * sending the message
-   * 
+   *
    * @param {number} playerId >> id of the chat partner
    * @param {number} associationId >> id of the association (ally or coalition)
    * @param {string} messageText >> text to send
-   * 
+   *
    */
   sendMessage: function (playerId, associationId, messageText, refData) {
     var $this = ogame.chat;
@@ -29210,9 +29210,9 @@ ogame.chat = {
 
   /**
    * get new message in chat
-   * 
+   *
    * @param {object} data >> message data
-   * 
+   *
    */
   messageReceived: function (data) {
     var $this = ogame.chat;
@@ -29224,7 +29224,7 @@ ogame.chat = {
       };
     } else {
       $refData = 0;
-    } // for the association chats we need to get the player names from the backend. 
+    } // for the association chats we need to get the player names from the backend.
 
 
     if (data.senderName !== undefined && data.senderId !== undefined) {
@@ -29311,7 +29311,7 @@ ogame.chat = {
     var paramIndex = currentUrl.indexOf('?');
     var firstPartOfUrl = currentUrl.substring(0, paramIndex);
     var newUrl = firstPartOfUrl+'?page=chat';
-    	
+
     	window.history.pushState({}, "", newUrl);
     }
     */
@@ -29360,10 +29360,10 @@ ogame.chat = {
 
   /**
    * Load chatlog of player and playerinfo
-   * 
+   *
    * @param {mixed} element >> playerid of the other player
    * @param function callback
-   * 
+   *
    */
   loadChatLogWithPlayer: function (element, msg2reply, callback, updateUnread) {
     var $this = ogame.chat;
@@ -29499,7 +29499,7 @@ ogame.chat = {
 
   /**
    * get data of a specific message in dom
-   * 
+   *
    * @return {object} itemData
    */
   getLastChatItemData: function () {
@@ -29609,7 +29609,7 @@ ogame.chat = {
     }
   },
 
-  /** 
+  /**
    * Add items to moreBox
    *
    * @param {Object} chatbarListItems - Array of chatbar list items
@@ -29703,7 +29703,7 @@ ogame.chat = {
 
   /**
    * Get ONLY the chats that should be shown
-   * 
+   *
    * @returns {Array} visibleChats
    */
   getVisibleChats: function () {
@@ -29717,7 +29717,7 @@ ogame.chat = {
 
   /**
    * get playerids from visible chats
-   * 
+   *
    * @returns {Array} playerIDs
    */
   getVisibleChatPlayerIds: function () {
@@ -29977,8 +29977,8 @@ ogame.chat = {
 
   /**
    * Create a a chatbar item of the type moreBox that will be a container for
-   * all items that don't fit into the chatbar directly 
-   * 
+   * all items that don't fit into the chatbar directly
+   *
    * @param {String} itemClass
    * @returns {DOM Object} $moreBox
    */
@@ -30020,7 +30020,7 @@ ogame.chat = {
       listElement = $(this); // for every filter
 
       $.each(filters, function (i, filter) {
-        // check if the element matches filter criteria 
+        // check if the element matches filter criteria
         // and should be filtered by that criteria
         if (listElement.data(filter) === 'off' && $('#' + filter).prop('checked')) {
           doFilter = true;
@@ -30054,11 +30054,11 @@ ogame.chat = {
     // 	ogame.messagemarker.initMarker(playeridsInList);
     // }
     //        var chatsum = 0;
-    //        
+    //
     //        $('#chatBarPlayerList li.playerlist_item .newMsgMarker').each(function() {
     //        	chatsum = chatsum + 1;
     //        });
-    //        
+    //
     //        ogame.messagecounter.initChatCounter(chatsum);
     // $(".new_msg_count").each(function() {
     //     $this.saveMessageCounter($(this).data('new-messages'), $(this).data('playerid'));
@@ -30220,7 +30220,7 @@ ogame.chat = {
   },
 
   /**
-   * Shows the (complete) chat history in the detail chat page 
+   * Shows the (complete) chat history in the detail chat page
    *
    * @param data {Object} - the chat data to show
    * @returns {undefined}
@@ -30243,10 +30243,10 @@ ogame.chat = {
   /**
    * Handles the display of a sent message in a chat on the chat bar
    * @TODO: Actually send the message as well.
-   * @param clickedElement {Object} - 
-   * @param pressedKey {Object} - 
+   * @param clickedElement {Object} -
+   * @param pressedKey {Object} -
    * @param shiftKey {Object} - if shiftkey was pressed simultaneously
-   * @param msgScrollHeight {Object} - 
+   * @param msgScrollHeight {Object} -
    * @returns {undefined}
    */
   submitChatBarMsg: function (clickedElement, pressedKey, shiftKey, msgScrollHeight) {
@@ -30337,7 +30337,7 @@ ogame.chat = {
 
   /**
    * move item to the morelist
-   * 
+   *
    * @see important for ogame.chat.updateChatBar
    * @param chatOpenLength, chatClosedLength, widthOpen, widthClosed, widthMoreItems, widthWindow @see ogame.chat.updateChatBar
    */
@@ -30376,7 +30376,7 @@ ogame.chat = {
 
   /**
    * move item back to the chatbar
-   * 
+   *
    * @see important for ogame.chat.updateChatBar
    */
   getItemFromMorelist2Chatbar: function () {
@@ -30432,7 +30432,7 @@ ogame.chat = {
 
   /**
    * update the custom scrollbar or add it if the element has none
-   * 
+   *
    * @param element {DOM Object} - the element that gets the scrollbar
    * @param skipScrolling bool Skip scrolling to the bottom
    */
@@ -33276,12 +33276,12 @@ function errorBoxNotify(head, content, ok, okHandler, useHashCharacter) {
     dialogClass: 'errorBox'
   });
 }
-/* 
+/*
     Document   : eventBirthday
     Created on : 31.08.2012, 12:16:13
     Author     : stefanie.knoth
     Description:
-        This file contains the javascript that is neccessary for the Birthday 
+        This file contains the javascript that is neccessary for the Birthday
         Event
 */
 function eventBDayInitGalaxy() {
@@ -36818,7 +36818,7 @@ ogame.messagemarker = {
 
     ogame.messagemarker.effect = 'highlight'; //        $('.new_msg_count.news').each(function() {
     //            var $this = ogame.messagemarker;
-    //            
+    //
     //            if (!$this.newsInitialized) {
     //                var $this = ogame.messagemarker;
     //                $this.newsInitialized = true;
@@ -49091,6 +49091,8 @@ function getEmptySlotActions(galaxyContentObject, systemData) {
   let emptyLink = `<div class="emptyAction"></div>`;
   let coloniseMission = galaxyContentObject.availableMissions.find(availMission => availMission.missionType === 7);
   let colonisationLink = "";
+
+  console.log(systemData.canColonize, coloniseMission, coloniseMission.link);
 
   if (!systemData.canColonize || !coloniseMission || coloniseMission.link === "#") {
     colonisationLink = `<div class="tooltip planetMoveIcons colonize-inactive icon tpd-hideOnClickOutside"

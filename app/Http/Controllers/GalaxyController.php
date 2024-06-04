@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameMissions\ColonisationMission;
 use OGame\Models\Planet;
 use OGame\Services\PlayerService;
 
@@ -39,7 +40,7 @@ class GalaxyController extends OGameController
         return view('ingame.galaxy.index')->with([
             'current_galaxy' => $galaxy,
             'current_system' => $system,
-            'espionage_probe_count' => 0,
+            'espionage_probe_count' => $planet->getObjectAmount('espionage_probe'),
             'recycler_count' => 0,
             'interplanetary_missiles_count' => 0,
             'used_slots' => 0,
@@ -58,6 +59,8 @@ class GalaxyController extends OGameController
      */
     public function getGalaxyArray(int $galaxy, int $system, PlayerService $player, PlanetServiceFactory $planetServiceFactory): array
     {
+        $user_planet = $player->planets->current();
+
         // Retrieve all planets from this galaxy and system.
         $planet_list = Planet::where(['galaxy' => $galaxy, 'system' => $system])->get();
         $planets = [];
@@ -72,24 +75,26 @@ class GalaxyController extends OGameController
             if (!empty($planets[$i])) {
                 // Planet with player
                 $planet = $planets[$i];
-                $player = $planet->getPlayer();
+                $row_player = $planet->getPlayer();
                 $nameAbbreviations = [];
                 if ($player->isAdmin()) {
                     $nameAbbreviations[] = 'admin';
                 }
+
                 $galaxy_rows[] = [
                     'actions' => [
                         'canBeIgnored' => false,
                         'canBuddyRequests' => false,
-                        'canEspionage' => false,
+                        'canEspionage' => $user_planet->getObjectAmount('espionage_probe') > 0 && $player->getResearchLevel('espionage_technology') > 0,
                         'canMissileAttack' => false,
                         'canPhalanx' => false,
-                        'canSendProbes' => false,
+                        'canSendProbes' => $user_planet->getObjectAmount('espionage_probe') > 0 && $player->getResearchLevel('espionage_technology') > 0,
                         'canWrite' => false,
                         'discoveryUnlocked' => 'You haven’t unlocked the research to discover new lifeforms yet.\n',
                         // TODO: Implement this functionality
                         'missileAttackLink' => route('galaxy.index'),
                     ],
+                    //
                     'availableMissions' => [
                     ],
                     'galaxy' => $galaxy,
@@ -106,7 +111,7 @@ class GalaxyController extends OGameController
                             'isDestroyed'       => false,
                             'planetId'          => $planet->getPlanetId(),
                             'planetName'        => $planet->getPlanetName(),
-                            'playerId'          => $player->getId(),
+                            'playerId'          => $row_player?->getId(),
                             'planetType'        => 1,
                         ]
                     ],
@@ -128,10 +133,10 @@ class GalaxyController extends OGameController
                                 'available' => false,
                             ],
                         ],
-                        'playerId' => $player->getId(),
-                        'playerName' => $player->getUsername(),
+                        'playerId' => $row_player?->getId(),
+                        'playerName' => $row_player?->getUsername(),
                         'nameAbbreviations' => $nameAbbreviations,
-                        'isAdmin' => $player->isAdmin(),
+                        'isAdmin' => $row_player?->isAdmin(),
                         //'allianceId' => 1,
                         //'allianceName' => 'Test',
                     ],
@@ -149,7 +154,12 @@ class GalaxyController extends OGameController
                             'planetMovePossible' => true,
                             'moveAction' => 'prepareMove',
                             'title' => 'Relocate'
-                        ]
+                        ],
+                        $user_planet->getObjectAmount('colony_ship') > 0 ? [
+                            'missionType' => 7,
+                            'link' => "/fleet?galaxy={$galaxy}&system={$system}&position={$i}&type=1&mission=7",
+                            'description' => "Coloniser<br>Cette position est normalement occupée par des planètes équilibrées, avec assez de deutérium et suffisamment d`énergie solaire, qui offrent assez de place pour le développement.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>Sans vaisseau de colonisation, aucune colonisation de planète n`est possible!</div>"
+                        ] : null,
                     ],
                     'galaxy' => $galaxy,
                     'planets' => [],
@@ -178,6 +188,7 @@ class GalaxyController extends OGameController
      */
     public function ajax(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): JsonResponse
     {
+        $planet = $player->planets->current();
         $galaxy = $request->input('galaxy');
         $system = $request->input('system');
 
@@ -191,8 +202,8 @@ class GalaxyController extends OGameController
             'system' => [
                 'availableMissiles' => 0,
                 'availablePathfinders' => 0,
-                'availableProbes' => 149,
-                'availableRecyclers' => 1,
+                'availableProbes' => $planet->getObjectAmount('espionage_probe'),
+                'availableRecyclers' => $planet->getObjectAmount('recycler'),
                 'canColonize' => true,
                 'canExpedition' => true,
                 'canFly' => true,
@@ -200,7 +211,7 @@ class GalaxyController extends OGameController
                 'canSwitchGalaxy' => true,
                 'canSystemEspionage' => false,
                 'canSystemPhalanx' => false,
-                'currentPlanetId' => $player->planets->current()->getPlanetId(),
+                'currentPlanetId' => $planet->getPlanetId(),
                 'deuteriumInDebris' => true,
                 'galaxy' => $galaxy,
                 'system' => $system,
