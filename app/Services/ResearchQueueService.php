@@ -173,6 +173,7 @@ class ResearchQueueService
         $list = array();
         foreach ($queue_items as $item) {
             $object = $this->objects->getResearchObjectById($item->object_id);
+            $planetService = $planet->getPlayer()->planets->childPlanetById($item['planet_id']);
             $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
@@ -183,6 +184,7 @@ class ResearchQueueService
                 $object,
                 $time_countdown,
                 $item['time_end'] - $item['time_start'],
+                $planetService,
                 $item['building'],
                 $item['object_level_target'],
             );
@@ -273,7 +275,7 @@ class ResearchQueueService
             $current_level = $player->getResearchLevel($object->machine_name);
             if ($queue_item->object_level_target !== ($current_level + 1)) {
                 // Error, cancel build queue item.
-                $this->cancel($player, $planet, $queue_item->id, $queue_item->object_id);
+                $this->cancel($player, $queue_item->id, $queue_item->object_id);
 
                 continue;
             }
@@ -282,7 +284,7 @@ class ResearchQueueService
             // then cancel build request.
             if (!$planet->hasResources($price)) {
                 // Error, cancel build queue item.
-                $this->cancel($player, $planet, $queue_item->id, $queue_item->object_id);
+                $this->cancel($player, $queue_item->id, $queue_item->object_id);
 
                 continue;
             }
@@ -319,34 +321,45 @@ class ResearchQueueService
      * Cancels an active building queue record.
      *
      * @param PlayerService $player
-     * @param PlanetService $planet
      * @param int $building_queue_id
      * @param int $building_id
      * @throws Exception
      */
-    public function cancel(PlayerService $player, PlanetService $planet, int $building_queue_id, int $building_id): void
+    public function cancel(PlayerService $player, int $building_queue_id, int $building_id): void
     {
-        $queue_item = $this->model->where([
-            ['id', $building_queue_id],
-            ['planet_id', $planet->getPlanetId()],
-            ['object_id', $building_id],
-            ['processed', 0],
-            ['canceled', 0],
-        ])->first();
+        $queue_item = $this->model
+            ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
+            ->join('users', 'planets.user_id', '=', 'users.id')
+            ->where([
+                ['users.id', $player->getId()],
+                ['research_queues.id', $building_queue_id],
+                ['object_id', $building_id],
+                ['processed', 0],
+                ['canceled', 0],
+            ])
+            ->select('research_queues.*')
+            ->first();
 
         // If object is found: add canceled flag.
         if ($queue_item) {
+            $planetService = $player->planets->childPlanetById($queue_item->planet_id);
+
             // Gets all building queue records of this target level and all that
             // come after it. So e.g. if user cancels build order for metal mine
             // level 5 then any other already queued build orders for lvl 6,7,8 etc.
             // will also be canceled.
-            $queue_items_higher_level = $this->model->where([
-                ['planet_id', $planet->getPlanetId()],
-                ['object_id', $building_id],
-                ['object_level_target', '>', $queue_item->object_level_target],
-                ['processed', 0],
-                ['canceled', 0],
-            ])->get();
+            $queue_items_higher_level = $this->model
+                ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
+                ->join('users', 'planets.user_id', '=', 'users.id')
+                ->where([
+                    ['users.id', $player->getId()],
+                    ['object_id', $building_id],
+                    ['object_level_target', '>', $queue_item->object_level_target],
+                    ['processed', 0],
+                    ['canceled', 0],
+                ])
+                ->select('research_queues.*')
+                ->get();
 
             // Add canceled flag to all entries with a higher level (if any).
             foreach ($queue_items_higher_level as $queue_item_higher_level) {
@@ -358,7 +371,7 @@ class ResearchQueueService
 
             // Give back resources if the current entry was already building.
             if ($queue_item->building === 1) {
-                $planet->addResources(new Resources($queue_item->metal, $queue_item->crystal, $queue_item->deuterium, 0));
+                $planetService->addResources(new Resources($queue_item->metal, $queue_item->crystal, $queue_item->deuterium, 0));
             }
 
             // Add canceled flag to the main entry.

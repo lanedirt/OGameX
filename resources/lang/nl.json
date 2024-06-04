@@ -23,5 +23,7 @@
 
   "No fleet movement": "Geen vlootbeweging",
 
-  "end_of_file": "end_of_file"
+  "end_of_file": "end_of_file",
+
+  "Research: do you really want to cancel :object_title level :level_target on planet :planet_name [:planet_coordinates]?": "Onderzoek: wil je echt :object_title niveau :level_target annuleren op planeet :planet_name :planet_coordinates?"
 }
