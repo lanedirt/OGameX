@@ -6,7 +6,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
-use OGame\GameMissions\ColonisationMission;
 use OGame\Models\Planet;
 use OGame\Services\PlayerService;
 
@@ -55,7 +54,9 @@ class GalaxyController extends OGameController
      * @param int $system
      * @param PlayerService $player
      * @param PlanetServiceFactory $planetServiceFactory
-     * @return array<int, array<string, array<int|string, array<int|string, array<string, bool>|bool|int|string>|bool|int|string>|int|string>>
+     *
+     * @return array<int, array<string, array<int|string, array<int|string, array<string, bool>|bool|int|string|null>|bool|int|string|null>|int|string>>
+     * @throws \Exception
      */
     public function getGalaxyArray(int $galaxy, int $system, PlayerService $player, PlanetServiceFactory $planetServiceFactory): array
     {
