@@ -3,10 +3,18 @@
 namespace OGame\ViewModels\Queue;
 
 use OGame\GameObjects\Models\GameObject;
+use OGame\Services\PlanetService;
 use OGame\ViewModels\Queue\Abstracts\QueueViewModel;
 
 class ResearchQueueViewModel extends QueueViewModel
 {
+    /**
+     * Planet service of the planet where this research queue item was started.
+     *
+     * @var PlanetService
+     */
+    public PlanetService $planet;
+
     public bool $building;
     public int $level_target;
 
@@ -17,6 +25,7 @@ class ResearchQueueViewModel extends QueueViewModel
      * @param GameObject $object
      * @param int $time_countdown
      * @param int $time_total
+     * @param PlanetService $planet
      * @param bool $building
      * @param int $level_target
      */
@@ -25,9 +34,11 @@ class ResearchQueueViewModel extends QueueViewModel
         GameObject $object,
         int $time_countdown,
         int $time_total,
+        PlanetService $planet,
         bool $building,
         int $level_target
     ) {
+        $this->planet = $planet;
         $this->building = $building;
         $this->level_target = $level_target;
 

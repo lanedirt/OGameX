@@ -14,16 +14,6 @@ class UnitQueueListViewModel extends QueueListViewModel
     public array $queue;
 
     /**
-     * Constructor.
-     *
-     * @param array<UnitQueueViewModel> $queue
-     */
-    public function __construct(array $queue)
-    {
-        $this->queue = $queue;
-    }
-
-    /**
      * Returns the item in the queue that is currently building.
      *
      * @return ?UnitQueueViewModel
