@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\FleetDispatch;
+namespace Tests\Feature\FleetDispatch;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;

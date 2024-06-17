@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\App;
 use OGame\Facades\AppUtil;
 use OGame\Services\MessageService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 
 /**
  * Class IngameMainComposer
@@ -21,6 +22,7 @@ class IngameMainComposer
     private Request $request;
     private PlayerService $player;
     private MessageService $messageService;
+    private SettingsService $settingsService;
 
     /**
      * IngameMainComposer constructor.
@@ -31,12 +33,14 @@ class IngameMainComposer
      * @param Request $request
      * @param PlayerService $player
      * @param MessageService $messageService
+     * @param SettingsService $settingsService
      */
-    public function __construct(Request $request, PlayerService $player, MessageService $messageService)
+    public function __construct(Request $request, PlayerService $player, MessageService $messageService, SettingsService $settingsService)
     {
         $this->request = $request;
         $this->player = $player;
         $this->messageService = $messageService;
+        $this->settingsService = $settingsService;
     }
 
     /**
@@ -100,6 +104,7 @@ class IngameMainComposer
             'currentPlayer' => $this->player,
             'currentPlanet' => $this->player->planets->current(),
             'planets' => $this->player->planets,
+            'settings' => $this->settingsService,
             'body_id' => $body_id,
             'locale' => $locale,
         ]);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\FleetDispatch;
+namespace Tests\Feature\FleetDispatch;
 
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;

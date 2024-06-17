@@ -320,9 +320,7 @@ abstract class AccountTestCase extends TestCase
     {
         // Update current users planet buildings to allow for research by mutating database.
         try {
-            $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
-            // Update the technology level for the player.
-            $playerService->setResearchLevel($machine_name, $object_level, true);
+            $this->planetService->getPlayer()->setResearchLevel($machine_name, $object_level, true);
         } catch (Exception $e) {
             $this->fail('Failed to set research level for player. Error: ' . $e->getMessage());
         }

@@ -15,6 +15,7 @@ use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 use OGame\ViewModels\UnitViewModel;
 
 class FleetController extends OGameController
@@ -25,10 +26,11 @@ class FleetController extends OGameController
      * @param Request $request
      * @param PlayerService $player
      * @param ObjectService $objects
+     * @param SettingsService $settings
      * @return View
      * @throws Exception
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects): View
+    public function index(Request $request, PlayerService $player, ObjectService $objects, SettingsService $settings): View
     {
         // Define ship ids to include in the fleet screen.
         // 0 = military ships
@@ -65,7 +67,8 @@ class FleetController extends OGameController
             'planet' => $planet,
             'units' => $units,
             'objects' => $objects->getShipObjects(),
-            'shipAmount' => $planet->getFlightShipAmount()
+            'shipAmount' => $planet->getFlightShipAmount(),
+            'settings' => $settings,
         ]);
     }
 
