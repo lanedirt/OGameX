@@ -6,6 +6,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
+use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -83,6 +84,10 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
     public function testFleetDurationCalculation(): void
     {
         $this->basicSetup();
+
+        // Set the fleet speed to 1x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('fleet_speed', 1);
 
         $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
 

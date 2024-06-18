@@ -36,6 +36,7 @@ class UnitCollectionTest extends UnitTestCase
         ]);
         $this->createAndSetUserTechModel([
             'hyperspace_drive' => 1,
+            'combustion_drive' => 20, // This will make small cargo faster than destroyer.
         ]);
 
         $unitCollection = new UnitCollection();
