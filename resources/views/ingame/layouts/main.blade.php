@@ -1,4 +1,5 @@
 @php /** @var OGame\Services\PlayerService $currentPlayer */ @endphp
+@php /** @var OGame\Services\SettingsService $settings */ @endphp
         <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <head>
@@ -28,8 +29,8 @@
     <meta name="ogame-timestamp" content="1513426692"/>
     <meta name="ogame-universe" content="s1"/>
     <meta name="ogame-universe-name" content="Home"/>
-    <meta name="ogame-universe-speed" content="5"/>
-    <meta name="ogame-universe-speed-fleet" content="5"/>
+    <meta name="ogame-universe-speed" content="{{ $settings->economySpeed() }}"/>
+    <meta name="ogame-universe-speed-fleet" content="{{ $settings->fleetSpeed() }}"/>
     <meta name="ogame-language" content="en"/>
     <meta name="ogame-donut-galaxy" content="1"/>
     <meta name="ogame-donut-system" content="1"/>

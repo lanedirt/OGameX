@@ -1,8 +1,12 @@
 <?php
 
-namespace Feature\FleetDispatch;
+namespace Tests\Feature\FleetDispatch;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
+use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Resources;
+use OGame\Services\FleetMissionService;
+use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -31,7 +35,7 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $this->planetSetObjectLevel('shipyard', 1);
         $this->planetSetObjectLevel('research_lab', 1);
         $this->playerSetResearchLevel('energy_technology', 1);
-        $this->playerSetResearchLevel('combustion_drive', 1);
+        $this->playerSetResearchLevel('combustion_drive', 0);
         $this->planetAddUnit('small_cargo', 5);
         $this->planetAddUnit('colony_ship', 1);
     }
@@ -73,4 +77,30 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are deducted from planet without saving it. State seems to be cached between requests. Check the AccountTestCase::reloadApplication() test logic.');
     }
 
+    /**
+     * Test that the fleet travel duration is calculated correctly.
+     * @throws BindingResolutionException
+     */
+    public function testFleetDurationCalculation(): void
+    {
+        $this->basicSetup();
+
+        // Set the fleet speed to 1x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('fleet_speed', 1);
+
+        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+
+        $currentPlanetCoords = $this->planetService->getPlanetCoordinates();
+        // Copy the current planet coordinates and set system +1 to simulate a target planet.
+        $targetPlanetCoords = clone $currentPlanetCoords;
+        $targetPlanetCoords->system += 1;
+
+        // Create a unit collection with 5 small cargos.
+        $units = new UnitCollection();
+        $units->addUnit($this->planetService->objects->getShipObjectByMachineName('small_cargo'), 5);
+
+        // Should take 2h:18m:05s to travel to the target planet 1 system away with base speed of 5000.
+        $this->assertEquals(8285, $fleetMissionService->calculateFleetMissionDuration($this->planetService, $targetPlanetCoords, $units));
+    }
 }
