@@ -92,7 +92,6 @@ class ColonisationMission extends GameMission
      */
     protected function processReturn(FleetMission $mission): void
     {
-        // Load the target planet
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
 
         // Transport return trip: add back the units to the source planet. Then we're done.
