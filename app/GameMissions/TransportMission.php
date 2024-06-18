@@ -32,16 +32,13 @@ class TransportMission extends GameMission
 
     protected function processArrival(FleetMission $mission): void
     {
-        // Load origin planet
         $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
-        // Load the target planet
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
 
         // Add resources to the target planet
         $target_planet->addResources($this->fleetMissionService->getResources($mission));
 
         // Send a message to the origin player that the mission has arrived
-        // TODO: make message content translatable by using tokens instead of directly inserting dynamic content.
         $this->messageService->sendSystemMessageToPlayer($origin_planet->getPlayer(), TransportArrived::class, [
             'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
             'to' => '[planet]' . $mission->planet_id_to . '[/planet]',

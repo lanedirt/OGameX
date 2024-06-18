@@ -27,19 +27,19 @@
                             <div class="fieldwrapper">
                                 <label class="styled textBeefy">Economy speed:</label>
                                 <div class="thefield">
-                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $economy_speed }}" size="2" maxlength="2" name="economy_speed">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $economy_speed }}" size="2" maxlength="9" name="economy_speed">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled textBeefy">Research speed:</label>
                                 <div class="thefield">
-                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $research_speed }}" size="2" maxlength="2" name="research_speed">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $research_speed }}" size="2" maxlength="9" name="research_speed">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled textBeefy">Fleet speed:</label>
                                 <div class="thefield">
-                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $fleet_speed }}" size="2" maxlength="2" name="fleet_speed">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $fleet_speed }}" size="2" maxlength="9" name="fleet_speed">
                                 </div>
                             </div>
                         </div>
