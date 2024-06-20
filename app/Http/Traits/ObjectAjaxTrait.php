@@ -45,7 +45,7 @@ trait ObjectAjaxTrait
         $price = $objects->getObjectPrice($object->machine_name, $planet);
 
         // Get max build amount of this object (unit).
-        $max_build_amount = $objects->getObjectMaxBuildAmount($object->machine_name, $planet);
+        $max_build_amount = $objects->getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met);
 
         // Switch
         $production_time = '';

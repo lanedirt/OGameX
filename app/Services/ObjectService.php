@@ -360,11 +360,17 @@ class ObjectService
      *
      * @param string $machine_name
      * @param PlanetService $planet
+     * @param bool $requirements_met
      * @return int
      * @throws Exception
      */
-    public function getObjectMaxBuildAmount(string $machine_name, PlanetService $planet): int
+    public function getObjectMaxBuildAmount(string $machine_name, PlanetService $planet, bool $requirements_met): int
     {
+        // If requirements are false, the max build amount is 0
+        if (!$requirements_met) {
+            return 0;
+        }
+
         $price = $this->getObjectPrice($machine_name, $planet);
 
         // Calculate max build amount based on price
