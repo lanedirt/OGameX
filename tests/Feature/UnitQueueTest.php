@@ -8,7 +8,6 @@ use Illuminate\Support\Carbon;
 use OGame\Models\Resources;
 use OGame\Services\SettingsService;
 use Tests\AccountTestCase;
-use OGame\Services\PlayerService;
 
 /**
  * Test that the unit queue works as expected.
@@ -32,10 +31,6 @@ class UnitQueueTest extends AccountTestCase
         $this->planetSetObjectLevel('research_lab', 1);
         $this->playerSetResearchLevel('energy_technology', 1);
         $this->playerSetResearchLevel('combustion_drive', 1);
-
-        //refresh player
-        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
-        $playerService->load($this->currentUserId);
     }
 
     /**
