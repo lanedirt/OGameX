@@ -157,11 +157,14 @@ class UnitQueueService
 
         $object = $this->objects->getUnitObjectById($object_id);
 
+        // Check if user satisifes requirements to build this object.
+        $requirements_met = $this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer());
+
         // Sanity check: check if the planet has enough resources to build
         // the amount requested. If not, then adjust the ordered amount.
         // E.g. if a player orders 100 units but can only afford 60 units,
         // 60 units will be added to the queue and resources will be deducted.
-        $max_build_amount = $this->objects->getObjectMaxBuildAmount($object->machine_name, $planet);
+        $max_build_amount = $this->objects->getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met);
         if ($requested_build_amount > $max_build_amount) {
             $requested_build_amount = $max_build_amount;
         }
