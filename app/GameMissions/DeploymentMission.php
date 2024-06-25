@@ -40,15 +40,16 @@ class DeploymentMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        // Load the target planet
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
 
         // Add resources to the target planet
         $resources = $this->fleetMissionService->getResources($mission);
         $target_planet->addResources($resources);
 
+        // Add units to the target planet
+        $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
+
         // Send a message to the player that the mission has arrived
-        // TODO: make message content translatable by using tokens instead of directly inserting dynamic content.
         if ($resources->sum() > 0) {
             $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), FleetDeploymentWithResources::class, [
                 'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
@@ -74,7 +75,6 @@ class DeploymentMission extends GameMission
      */
     protected function processReturn(FleetMission $mission): void
     {
-        // Load the target planet
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
 
         // Transport return trip: add back the units to the source planet. Then we're done.

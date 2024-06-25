@@ -51,7 +51,10 @@ abstract class GameMessage
      */
     public function __construct(Message $message, PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory)
     {
-        $this->message = $message;
+        // Clone the message to prevent any changes to the original message affecting this object.
+        // This is important because otherwise mutations such as setting the viewed flag after loading this object
+        // would affect this object's state as well.
+        $this->message = clone $message;
         $this->planetServiceFactory = $planetServiceFactory;
         $this->playerServiceFactory = $playerServiceFactory;
         $this->initialize();

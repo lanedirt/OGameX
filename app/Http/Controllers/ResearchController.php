@@ -167,7 +167,7 @@ class ResearchController extends OGameController
         $building_id = $request->input('technologyId');
         $building_queue_id = $request->input('listId');
 
-        $this->queue->cancel($player, $player->planets->current(), $building_queue_id, $building_id);
+        $this->queue->cancel($player, $building_queue_id, $building_id);
 
         return response()->json([
             'status' => 'success',

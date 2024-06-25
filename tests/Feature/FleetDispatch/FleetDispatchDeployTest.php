@@ -1,11 +1,12 @@
 <?php
 
-namespace Feature\FleetDispatch;
+namespace Tests\Feature\FleetDispatch;
 
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
+use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -36,6 +37,10 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->playerSetResearchLevel('energy_technology', 1);
         $this->playerSetResearchLevel('combustion_drive', 1);
         $this->planetAddUnit('small_cargo', 5);
+
+        // Set the fleet speed to 5x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('fleet_speed', 5);
     }
 
     protected function messageCheckMissionArrival(): void
@@ -94,7 +99,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->fleetCheckToEmptyPosition($unitCollection, false);
     }
 
-    public function testDispatchFleetReturnTripWithoutResources(): void
+    public function testDispatchFleetWithoutResources(): void
     {
         $this->basicSetup();
 
@@ -124,6 +129,11 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
             $this->planetService->getPlanetName(),
             $this->secondPlanetService->getPlanetName()
         ]);
+
+        // Assert that the units have been added to the second planet.
+        $this->switchToSecondPlanet();
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'small_cargo', 1, 'Small Cargo ship has not been added to second planet after deploy mission.');
     }
 
     /**
@@ -199,9 +209,9 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     }
 
     /**
-     * Verify that dispatching a fleet launches a return trip and brings back units to origin planet.
+     * Verify that dispatching a fleet does NOT launch a return trip as deploy is only one way.
      */
-    public function testDispatchFleetReturnTrip(): void
+    public function testDispatchFleetNoReturnTrip(): void
     {
         $this->basicSetup();
 
@@ -224,7 +234,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($fleetMission->mission_type);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanetService->getPlanetCoordinates(), $unitCollection);
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).
@@ -252,9 +262,9 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     }
 
     /**
-     * Verify that an active mission also shows the (not yet existing) return trip in the fleet event list.
+     * Verify that an active mission also does NOT show a return trip in the fleet event list.
      */
-    public function testDispatchFleetReturnShown(): void
+    public function testDispatchFleetReturnNotShown(): void
     {
         $this->basicSetup();
 

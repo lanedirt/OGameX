@@ -1,4 +1,5 @@
 @php /** @var OGame\Services\PlanetService $planet */ @endphp
+@php /** @var OGame\Services\SettingsService $settings */ @endphp
 
 @extends('ingame.layouts.main')
 
@@ -34,9 +35,9 @@
             var MAX_GALAXY = 9;
             var MAX_SYSTEM = 499;
             var MAX_POSITION = 16;
-            var SPEEDFAKTOR_FLEET_PEACEFUL = 1;
-            var SPEEDFAKTOR_FLEET_WAR = 1;
-            var SPEEDFAKTOR_FLEET_HOLDING = 1;
+            var SPEEDFAKTOR_FLEET_PEACEFUL = {{ $settings->fleetSpeed() }};
+            var SPEEDFAKTOR_FLEET_WAR = {{ $settings->fleetSpeed() }};
+            var SPEEDFAKTOR_FLEET_HOLDING = {{ $settings->fleetSpeed() }};
             var PLANETTYPE_PLANET = 1;
             var PLANETTYPE_DEBRIS = 2;
             var PLANETTYPE_MOON = 3;

@@ -63,45 +63,66 @@ class FleetMissionService
      */
     private FleetMission $model;
 
+    private SettingsService $settingsService;
+
     /**
      * FleetMissionService constructor.
      */
-    public function __construct(PlayerService $player, ObjectService $objects, MessageService $messageService, GameMissionFactory $gameMissionFactory)
+    public function __construct(PlayerService $player, ObjectService $objects, MessageService $messageService, GameMissionFactory $gameMissionFactory, SettingsService $settingsService)
     {
         $this->player = $player;
         $this->objects = $objects;
         $this->messageService = $messageService;
         $this->gameMissionFactory = $gameMissionFactory;
+        $this->settingsService = $settingsService;
 
         $this->model = new FleetMission();
-    }
-
-
-    /**
-     * Calculate the max speed of a fleet based on the current planet and fleet content.
-     *
-     * @return int
-     */
-    public function calculateMaxSpeed(): int
-    {
-        return 100;
     }
 
     /**
      * Calculate the duration of a fleet mission based on the current planet, target coordinates and fleet.
      *
-     * @param int|null $missionType
+     * @param PlanetService $fromPlanet
+     * @param Coordinate $to
+     * @param UnitCollection $units
      * @return int
      */
-    public function calculateFleetMissionDuration(int|null $missionType = null): int
+    public function calculateFleetMissionDuration(PlanetService $fromPlanet, Coordinate $to, UnitCollection $units): int
     {
-        // TODO: make the calculation dynamic based on the current planet, target coordinates and fleet
-        // (including research levels for speed).
-        if ($missionType === 6) {
-            return 10; // 10 seconds for espionage mission as test TODO: remove this
+        // Get slowest unit speed.
+        $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet);
+
+        // Calculate distance between current planet and target planet.
+        // ----------------------------------------
+        // Between galaxies:
+        // 20.000 x (galaxy2 - galaxy1)
+        // Between systems:
+        // 2.700 + (95 x (system2 - system1))
+        // Between planets:
+        // 1.000 + (5 x (position2 - position1))
+        // Between moon or debris field and planet:
+        // 5
+        // ----------------------------------------
+        $fromCoordinate = $fromPlanet->getPlanetCoordinates();
+        $distance = 0;
+        if ($fromCoordinate->galaxy !== $to->galaxy) {
+            $distance = 20000 * abs($to->galaxy - $fromCoordinate->galaxy);
+        }
+        if ($fromCoordinate->system !== $to->system) {
+            $distance = 2700 + (95 * abs($to->system - $fromCoordinate->system));
+        }
+        if ($fromCoordinate->position !== $to->position) {
+            $distance = 1000 + (5 * abs($to->position - $fromCoordinate->position));
         }
 
-        return 300;
+        // If the target is a moon or debris field on the same coordinate, the distance is always 5.
+        if ($distance === 0) {
+            $distance = 5;
+        }
+
+        // The duration is calculated as follows:
+        // duration = (10 + (3500 / speed modifier as decimal) * ((distance * 10) / lowest fleet speed) ^ 0.5) / universe fleet speed
+        return (int)((10 + (3500 / 1) * (($distance * 10) / $slowest_speed) ** 0.5) / $this->settingsService->fleetSpeed());
     }
 
     /**

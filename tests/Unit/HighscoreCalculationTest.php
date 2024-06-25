@@ -2,13 +2,14 @@
 
 namespace Tests\Unit;
 
-use OGame\Models\Planet;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Tests\UnitTestCase;
 
 class HighscoreCalculationTest extends UnitTestCase
 {
     /**
      * Set up common test components.
+     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {

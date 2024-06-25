@@ -154,7 +154,7 @@ abstract class GameMission
 
         // Time fleet mission will arrive
         // TODO: refactor calculate to gamemission base class?
-        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration(static::$typeId);
+        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units);
 
         $mission = new FleetMission();
 

@@ -19,7 +19,7 @@ class BuildQueueTest extends AccountTestCase
      */
     public function testBuildQueueResourcesMetalMine(): void
     {
-        // Set the universe speed to 8x for this test.
+        // Set the universe speed to 1x for this test.
         $settingsService = app()->make(SettingsService::class);
         $settingsService->set('economy_speed', 1);
 

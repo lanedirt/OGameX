@@ -14,16 +14,6 @@ class ResearchQueueListViewModel extends QueueListViewModel
     public array $queue;
 
     /**
-     * Constructor.
-     *
-     * @param array<ResearchQueueViewModel> $queue
-     */
-    public function __construct(array $queue)
-    {
-        $this->queue = $queue;
-    }
-
-    /**
      * Returns the item in the queue that is currently building.
      *
      * @return ?ResearchQueueViewModel

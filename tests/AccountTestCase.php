@@ -320,9 +320,7 @@ abstract class AccountTestCase extends TestCase
     {
         // Update current users planet buildings to allow for research by mutating database.
         try {
-            $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
-            // Update the technology level for the player.
-            $playerService->setResearchLevel($machine_name, $object_level, true);
+            $this->planetService->getPlayer()->setResearchLevel($machine_name, $object_level, true);
         } catch (Exception $e) {
             $this->fail('Failed to set research level for player. Error: ' . $e->getMessage());
         }
@@ -419,7 +417,13 @@ abstract class AccountTestCase extends TestCase
 
         // Check if cancel text is present on page.
         try {
-            $response->assertSee('Cancel production of ' . $object->title);
+            $responseContent = $response->getContent();
+            if (!$responseContent) {
+                $responseContent = '';
+            }
+            $condition1 = str_contains($responseContent, 'Cancel production of ' . $object->title);
+            $condition2 = str_contains($responseContent, 'do you really want to cancel ' . $object->title);
+            $this->assertTrue($condition1 || $condition2, 'Neither of the expected texts were found in the response.');
         } catch (Exception $e) {
             if (!empty($error_message)) {
                 $this->fail($error_message . '. Error: ' . $e->getMessage());
@@ -680,5 +684,17 @@ abstract class AccountTestCase extends TestCase
         foreach ($must_contain as $needle) {
             $this->assertStringContainsString($needle, $lastMessageViewModel->getBody());
         }
+    }
+
+    /**
+     * Switch the active planet context to the second planet of the current user which affects
+     * interactive requests done such as building queue items or canceling build queue items.
+     *
+     * @return void
+     */
+    protected function switchToSecondPlanet(): void
+    {
+        $response = $this->get('/overview?cp=' . $this->secondPlanetService->getPlanetId());
+        $response->assertStatus(200);
     }
 }
