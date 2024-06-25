@@ -125,6 +125,34 @@ class PlanetServiceFactory
     }
 
     /**
+     * Description of planet not already colonized
+     *
+     * @return string
+     */
+    public function getPlanetDescription(Coordinate $coordinates): string
+    {
+        // Nearest planet from the sun
+        if($coordinates->position >= 1 && $coordinates->position <= 3) {
+            return __('galaxy.planet.description.nearest');
+        }
+
+        // Normal planet
+        if(($coordinates->position >= 4 && $coordinates->position <= 6) || ($coordinates->position >= 10 && $coordinates->position <= 12)) {
+            return __('galaxy.planet.description.normal');
+        }
+
+        // Biggest planet
+        if($coordinates->position >= 7 && $coordinates->position <= 9) {
+            return __('galaxy.planet.description.biggest');
+        }
+
+        // Farthest planet from the sun
+        if($coordinates->position >= 13 && $coordinates->position <= 15) {
+            return __('galaxy.planet.description.farthest');
+        }
+    }
+
+    /**
      * Determine next available new planet position.
      *
      * @return Coordinate

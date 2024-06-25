@@ -73,6 +73,7 @@ class GalaxyController extends OGameController
         // Render galaxy rows
         $galaxy_rows = [];
         for ($i = 1; $i <= 15; $i++) {
+
             if (!empty($planets[$i])) {
                 // Planet with player
                 $planet = $planets[$i];
@@ -146,22 +147,30 @@ class GalaxyController extends OGameController
                     'system' => $system
                 ];
             } else {
+
+                $planet_description = $planetServiceFactory->getPlanetDescription(new Planet\Coordinate($galaxy, $system, $i));
+                $has_colonize_ship = $user_planet->getObjectAmount('colony_ship') > 0 ? "<img src='/img/galaxy/activity.gif' />" . __('galaxy.mission.colonize.no_ship') : '';
+
+                $missions_available = [
+                    [
+                       'missionType' => 0,
+                       'planetMovePossible' => true,
+                       'moveAction' => 'prepareMove',
+                       'title' => 'Relocate'
+                   ]
+                ];
+
+                $missions_available[] = [
+                    'missionType' => 7,
+                    'link'        => $user_planet->getObjectAmount('colony_ship') > 0 ? "/fleet?galaxy={$galaxy}&system={$system}&position={$i}&type=1&mission=7" : '#',
+                    'description' => __('galaxy.mission.colonize.name')."<br>{$planet_description}<br><div>{$has_colonize_ship}</div>"
+                ];
+
+
                 // Empty deep space
                 $galaxy_rows[] = [
                     'actions' => [],
-                    'availableMissions' => [
-                        [
-                            'missionType' => 0,
-                            'planetMovePossible' => true,
-                            'moveAction' => 'prepareMove',
-                            'title' => 'Relocate'
-                        ],
-                        $user_planet->getObjectAmount('colony_ship') > 0 ? [
-                            'missionType' => 7,
-                            'link' => "/fleet?galaxy={$galaxy}&system={$system}&position={$i}&type=1&mission=7",
-                            'description' => "Coloniser<br>Cette position est normalement occupée par des planètes équilibrées, avec assez de deutérium et suffisamment d`énergie solaire, qui offrent assez de place pour le développement.<br><div style='display: flex;align-items: center;'><img src='/cdn/img/galaxy/activity.gif' style=''/>Sans vaisseau de colonisation, aucune colonisation de planète n`est possible!</div>"
-                        ] : null,
-                    ],
+                    'availableMissions' => $missions_available,
                     'galaxy' => $galaxy,
                     'planets' => [],
                     'player' => [

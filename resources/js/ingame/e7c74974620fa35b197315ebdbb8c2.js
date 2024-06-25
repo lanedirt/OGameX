@@ -49092,8 +49092,6 @@ function getEmptySlotActions(galaxyContentObject, systemData) {
   let coloniseMission = galaxyContentObject.availableMissions.find(availMission => availMission.missionType === 7);
   let colonisationLink = "";
 
-  console.log(systemData.canColonize, coloniseMission, coloniseMission.link);
-
   if (!systemData.canColonize || !coloniseMission || coloniseMission.link === "#") {
     colonisationLink = `<div class="tooltip planetMoveIcons colonize-inactive icon tpd-hideOnClickOutside"
                       title="${coloniseMission ? coloniseMission.description : loca.LOCA_GALAXY_ERROR_COLONIZATION}"></div>`;

@@ -73,8 +73,8 @@ class FleetController extends OGameController
             'system' => $request->get('system'),
             'position' => $request->get('position'),
             'type' => $request->get('type'),
-            'mission' => $request->get('mission')
-            'settings' => $settings,
+            'mission' => $request->get('mission'),
+            'settings' => $settings
         ]);
     }
 
