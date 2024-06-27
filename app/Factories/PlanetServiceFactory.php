@@ -139,7 +139,7 @@ class PlanetServiceFactory
             return __('galaxy.planet.description.normal');
         } elseif($coordinates->position >= 7 && $coordinates->position <= 9) { // Biggest planet
             return __('galaxy.planet.description.biggest');
-        } else /*($coordinates->position >= 13 && $coordinates->position <= 15)*/ { // Farthest planet from the sun
+        } else { /*($coordinates->position >= 13 && $coordinates->position <= 15)*/ // Farthest planet from the sun
             return __('galaxy.planet.description.farthest');
         }
     }
