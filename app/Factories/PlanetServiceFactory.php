@@ -127,27 +127,19 @@ class PlanetServiceFactory
     /**
      * Description of planet not already colonized
      *
+     * @param Coordinate $coordinates
+     *
      * @return string
      */
     public function getPlanetDescription(Coordinate $coordinates): string
     {
-        // Nearest planet from the sun
-        if($coordinates->position >= 1 && $coordinates->position <= 3) {
+        if($coordinates->position >= 1 && $coordinates->position <= 3) { // Nearest planet from the sun
             return __('galaxy.planet.description.nearest');
-        }
-
-        // Normal planet
-        if(($coordinates->position >= 4 && $coordinates->position <= 6) || ($coordinates->position >= 10 && $coordinates->position <= 12)) {
+        } else if(($coordinates->position >= 4 && $coordinates->position <= 6) || ($coordinates->position >= 10 && $coordinates->position <= 12)) { // Normal planet
             return __('galaxy.planet.description.normal');
-        }
-
-        // Biggest planet
-        if($coordinates->position >= 7 && $coordinates->position <= 9) {
+        } else if($coordinates->position >= 7 && $coordinates->position <= 9) { // Biggest planet
             return __('galaxy.planet.description.biggest');
-        }
-
-        // Farthest planet from the sun
-        if($coordinates->position >= 13 && $coordinates->position <= 15) {
+        } else /*($coordinates->position >= 13 && $coordinates->position <= 15)*/ { // Farthest planet from the sun
             return __('galaxy.planet.description.farthest');
         }
     }
