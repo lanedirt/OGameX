@@ -149,7 +149,8 @@ class GalaxyController extends OGameController
             } else {
 
                 $planet_description = $planetServiceFactory->getPlanetDescription(new Planet\Coordinate($galaxy, $system, $i));
-                $has_colonize_ship = $user_planet->getObjectAmount('colony_ship') > 0 ? "<img src='/img/galaxy/activity.gif' />" . __('galaxy.mission.colonize.no_ship') : '';
+                $has_colonize_ship = $user_planet->getObjectAmount('colony_ship') > 0;
+                $colonize_ship_message = "<br><div><img src='/img/galaxy/activity.gif' />" . __('t_galaxy.mission.colonize.no_ship') . "</div>";
 
                 $missions_available = [
                     [
@@ -163,7 +164,7 @@ class GalaxyController extends OGameController
                 $missions_available[] = [
                     'missionType' => 7,
                     'link'        => $user_planet->getObjectAmount('colony_ship') > 0 ? "/fleet?galaxy={$galaxy}&system={$system}&position={$i}&type=1&mission=7" : '#',
-                    'description' => __('galaxy.mission.colonize.name')."<br>{$planet_description}<br><div>{$has_colonize_ship}</div>"
+                    'description' => __('t_galaxy.mission.colonize.name')."<br>{$planet_description}" . (!$has_colonize_ship ? $colonize_ship_message : '')
                 ];
 
 
