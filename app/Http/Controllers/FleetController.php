@@ -64,11 +64,17 @@ class FleetController extends OGameController
         }
 
         return view('ingame.fleet.index')->with([
+            'player' => $player,
             'planet' => $planet,
             'units' => $units,
             'objects' => $objects->getShipObjects(),
             'shipAmount' => $planet->getFlightShipAmount(),
-            'settings' => $settings,
+            'galaxy' => $request->get('galaxy'),
+            'system' => $request->get('system'),
+            'position' => $request->get('position'),
+            'type' => $request->get('type'),
+            'mission' => $request->get('mission'),
+            'settings' => $settings
         ]);
     }
 
