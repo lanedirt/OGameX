@@ -61,6 +61,15 @@ class ColonisationMission extends GameMission
             return;
         }
 
+        // Check if the astrophysics research level is high enough to colonize a new planet.
+        $max_planets = $player->getMaxPlanetAmount();
+
+        if ($player->planets->count() + 1 > $max_planets) {
+            // Player has reached the maximum amount of colonies, abort mission and stop processing.
+            $this->cancel($mission);
+            return;
+        }
+
         // Create a new planet at the target coordinates.
         $target_planet = $this->planetServiceFactory->createAdditionalForPlayer($player, new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
 

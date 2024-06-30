@@ -35,11 +35,17 @@ class PlanetListService
     private PlanetServiceFactory $planetServiceFactory;
 
     /**
+     * @var SettingsService $settings
+     */
+    private SettingsService $settings;
+
+    /**
      * Planets constructor.
      */
-    public function __construct(PlayerService $player, PlanetServiceFactory $planetServiceFactory)
+    public function __construct(PlayerService $player, PlanetServiceFactory $planetServiceFactory, SettingsService $settings)
     {
         $this->planetServiceFactory = $planetServiceFactory;
+        $this->settings = $settings;
         $this->player = $player;
         $this->load($player->getId());
     }
@@ -57,23 +63,6 @@ class PlanetListService
         foreach ($planets as $record) {
             $planetService = $this->planetServiceFactory->makeForPlayer($this->player, $record->id);
             $this->planets[] = $planetService;
-        }
-
-        // If no planets, create at least one.
-        if (count($this->planets) < 1) {
-            // TODO: move this logic to the user creation logic as well as the tech records.
-            // For testing purposes: give all players two random planets at registration.
-            // Normally it should be just the Homeworld.
-            $planetNames = ['Homeworld', 'Colony'];
-            for ($i = 0; $i <= (2 - count($this->planets)); $i++) {
-                $planetService = $this->planetServiceFactory->createInitialForPlayer($this->player, $planetNames[$i]);
-                $this->planets[] = $planetService;
-            }
-
-            // Send welcome message to player
-            // TODO: move this to the user creation logic.
-            $message = new MessageService($this->player);
-            $message->sendWelcomeMessage();
         }
     }
 

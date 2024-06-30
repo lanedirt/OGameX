@@ -39,6 +39,8 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->planetSetObjectLevel('research_lab', 1);
         $this->playerSetResearchLevel('energy_technology', 1);
         $this->playerSetResearchLevel('combustion_drive', 1);
+        // Astrophysics level 3 gives option for two colonies.
+        $this->playerSetResearchLevel('astrophysics', 3);
         $this->planetAddUnit('small_cargo', 5);
         $this->planetAddUnit('colony_ship', 1);
     }
@@ -115,7 +117,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         // Assert that the new planet has been created.
         try {
             $planetServiceFactory = app()->make(PlanetServiceFactory::class);
-        } catch (BindingResolutionException $e) {
+        } catch (BindingResolutionException) {
             $this->fail('PlanetServiceFactory cannot be resolved from the container.');
         }
         $newPlanet = $planetServiceFactory->makeForCoordinate($newPlanetCoordinates);
@@ -126,6 +128,55 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
             'The fleet has arrived',
             'found a new planet there and are beginning to develop upon it immediately.',
         ]);
+    }
+
+    /**
+     * Test that colonisation mission takes into account astrophysics technology to determine max amount
+     * of colonies that can be established.
+     */
+    public function testDispatchFleetColonizeAstrophysics(): void
+    {
+        $this->basicSetup();
+
+        // Astrophysics level 5 should support three colonies.
+        // During tests a new account gets 1 colony already by default. So with astrophysics level 5, 2 more planet
+        // should be able to be created.
+        $this->playerSetResearchLevel('astrophysics', 5);
+        $this->planetAddUnit('colony_ship', 5);
+
+        // Set time to static time 2024-01-01
+        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
+        Carbon::setTestNow($startTime);
+
+        $created_planets = [];
+        // Send 5 colony ships to empty planets with colonization mission. Only 2 should be created.
+        for ($i = 0; $i < 5; $i++) {
+            // Send fleet to an empty planet.
+            $unitCollection = new UnitCollection();
+            $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
+            $newPlanetCoordinates = $this->sendMissionToEmptyPosition($unitCollection, new Resources(10, 0, 0, 0));
+
+            // Increase time by 10 hours to ensure the mission is done.
+            Carbon::setTestNow($startTime->addHours(10));
+
+            // Do a request to trigger the update logic.
+            $response = $this->get('/overview');
+            $response->assertStatus(200);
+
+            // Assert that the new planet has been created.
+            try {
+                $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+            } catch (BindingResolutionException) {
+                $this->fail('PlanetServiceFactory cannot be resolved from the container.');
+            }
+            $newPlanet = $planetServiceFactory->makeForCoordinate($newPlanetCoordinates);
+            if ($newPlanet !== null) {
+                $created_planets[] = $newPlanet;
+            }
+        }
+
+        // Assert that only two planets have been successfully created.
+        $this->assertEquals(2, count($created_planets), 'Exactly two planets should have been created with astrophysics level 5. Check astrophysics logic.');
     }
 
     /**
@@ -166,7 +217,11 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Assert that the new planet has been created.
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+        try {
+            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+        } catch (BindingResolutionException) {
+            $this->fail('PlanetServiceFactory cannot be resolved from the container.');
+        }
         $newPlanet = $planetServiceFactory->makeForCoordinate($newPlanetCoordinates);
         $this->assertNotNull($newPlanet, 'New planet cannot be loaded while it should have been created.');
 

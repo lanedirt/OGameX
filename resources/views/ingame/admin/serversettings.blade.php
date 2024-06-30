@@ -65,10 +65,21 @@
                                     <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $basic_income_deuterium }}" size="6" name="basic_income_deuterium"> (= {{ \OGame\Facades\AppUtil::formatNumber($basic_income_deuterium * $economy_speed) }})
                                 </div>
                             </div>
-                            <div class="fieldwrapper" style="margin-bottom: 50px;">
+                            <div class="fieldwrapper">
                                 <label class="styled textBeefy">Basic energy income per hour:</label>
                                 <div class="thefield">
                                     <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $basic_income_energy }}" size="6" name="basic_income_energy"> (= {{ \OGame\Facades\AppUtil::formatNumber($basic_income_energy * $economy_speed) }})
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="box_highlight textCenter no_buddies">@lang('New player settings.')</p>
+
+                        <div class="group bborder" style="display: block;">
+                            <div class="fieldwrapper" style="margin-bottom: 50px;">
+                                <label class="styled textBeefy">Amount of planets to give to player upon registration</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $registration_planet_amount }}" size="6" name="registration_planet_amount">
                                 </div>
                             </div>
                         </div>

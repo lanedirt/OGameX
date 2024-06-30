@@ -2,6 +2,7 @@
 
 namespace OGame\GameObjects;
 
+use OGame\GameObjects\Models\CalculationType;
 use OGame\GameObjects\Models\Fields\GameObjectAssets;
 use OGame\GameObjects\Models\Fields\GameObjectPrice;
 use OGame\GameObjects\Models\Fields\GameObjectRequirement;
@@ -238,6 +239,14 @@ With each level of the Combustion Drive developed, the speed of small and large 
         $astrophysics->assets = new GameObjectAssets();
         $astrophysics->assets->imgMicro = 'astrophysics_technology_micro.jpg';
         $astrophysics->assets->imgSmall = 'astrophysics_technology_small.jpg';
+
+        // Add custom calculation formulas for max colonies and max expeditions.
+        $astrophysics->addCalculation(CalculationType::MAX_COLONIES, function (int $level) {
+            return round($level / 2);
+        });
+        $astrophysics->addCalculation(CalculationType::MAX_EXPEDITIONS, function (int $level) {
+            return floor(sqrt($level));
+        });
 
         $buildingObjectsNew[] = $astrophysics;
 

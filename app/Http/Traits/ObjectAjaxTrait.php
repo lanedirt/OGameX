@@ -76,7 +76,6 @@ trait ObjectAjaxTrait
             $current_amount = $planet->getObjectAmount($object->machine_name);
         }
 
-        $production_current = [];
         $production_next = [];
         $energy_difference = 0;
         if (!empty($object->production)) {

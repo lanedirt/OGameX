@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use OGame\GameObjects\Models\CalculationType;
 use OGame\GameObjects\Models\Fields\GameObjectAssets;
 use OGame\GameObjects\Models\Fields\GameObjectPrice;
 use OGame\GameObjects\Models\Fields\GameObjectRequirement;
@@ -359,11 +360,10 @@ class TechtreeController extends OGameController
         $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
 
         for ($i = $min_level; $i < $min_level + 15; $i++) {
-
             $astrophysics_table[] = [
                 'level' => $i,
-                'max_colonies' => round($i / 2),
-                'max_expedition' => floor(sqrt($i)),
+                'max_colonies' => $object->performCalculation(CalculationType::MAX_COLONIES, $i),
+                'max_expedition' => $object->performCalculation(CalculationType::MAX_EXPEDITIONS, $i),
             ];
         }
 

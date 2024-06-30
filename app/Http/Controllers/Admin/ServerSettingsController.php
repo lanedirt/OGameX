@@ -27,6 +27,7 @@ class ServerSettingsController extends OGameController
             'basic_income_crystal' => $settingsService->basicIncomeCrystal(),
             'basic_income_deuterium' => $settingsService->basicIncomeDeuterium(),
             'basic_income_energy' => $settingsService->basicIncomeEnergy(),
+            'registration_planet_amount' => $settingsService->registrationPlanetAmount(),
         ]);
     }
 
@@ -46,6 +47,8 @@ class ServerSettingsController extends OGameController
         $settingsService->set('basic_income_crystal', request('basic_income_crystal'));
         $settingsService->set('basic_income_deuterium', request('basic_income_deuterium'));
         $settingsService->set('basic_income_energy', request('basic_income_energy'));
+
+        $settingsService->set('registration_planet_amount', request('registration_planet_amount'));
 
         return redirect()->route('admin.serversettings.index')->with('success', __('Changes saved!'));
     }

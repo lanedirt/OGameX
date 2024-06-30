@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use OGame\GameObjects\Models\CalculationType;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Models\UserTech;
@@ -386,5 +387,19 @@ class PlayerService
         }
 
         return $array;
+    }
+
+    /**
+     * Get the maximum amount of planets that this player can have based on research levels.
+     *
+     * @return int
+     */
+    public function getMaxPlanetAmount(): int
+    {
+        $astrophyicsLevel = $this->getResearchLevel('astrophysics');
+        $astrophysicsObject = $this->planets->current()->objects->getResearchObjectByMachineName('astrophysics');
+
+        // +1 to max_colonies to get max_planets because the main planet is not included in the calculation above.
+        return 1 + $astrophysicsObject->performCalculation(CalculationType::MAX_COLONIES, $astrophyicsLevel);
     }
 }

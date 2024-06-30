@@ -5,7 +5,7 @@ namespace OGame\GameObjects\Models;
 class UnitEntry
 {
     /**
-     * Objects that this object requires on with required level.
+     * The unit object.
      *
      * @var UnitObject
      */

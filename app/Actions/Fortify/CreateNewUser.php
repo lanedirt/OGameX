@@ -7,11 +7,44 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
+use OGame\Factories\PlanetServiceFactory;
+use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
+use OGame\Services\MessageService;
+use OGame\Services\SettingsService;
 
 class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules;
+
+    /**
+     * @var PlayerServiceFactory
+     */
+    private PlayerServiceFactory $playerServiceFactory;
+
+    /**
+     * @var PlanetServiceFactory
+     */
+    private PlanetServiceFactory $planetServiceFactory;
+
+    /**
+     * @var SettingsService
+     */
+    private SettingsService $settings;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param PlayerServiceFactory $playerServiceFactory
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @param SettingsService $settings
+     */
+    public function __construct(PlayerServiceFactory $playerServiceFactory, PlanetServiceFactory $planetServiceFactory, SettingsService $settings)
+    {
+        $this->playerServiceFactory = $playerServiceFactory;
+        $this->planetServiceFactory = $planetServiceFactory;
+        $this->settings = $settings;
+    }
 
     /**
      * The first names to use when generating a unique username.
@@ -152,6 +185,28 @@ class CreateNewUser implements CreatesNewUsers
             $user->save();
         }
 
+        $this->createInitialGameDataForUser($user);
+
         return $user;
+    }
+
+    /**
+     * Create initial data for the player such as planets and tech records.
+     *
+     * @param User $user
+     */
+    private function createInitialGameDataForUser($user): void
+    {
+        // Create initial planet(s) for the player.
+        $playerService = $this->playerServiceFactory->make($user->id);
+        $planetNames = ['Homeworld', 'Colony'];
+        // The amount of planets to create is defined in the settings and defaults to 1.
+        for ($i = 0; $i < $this->settings->registrationPlanetAmount(); $i++) {
+            $this->planetServiceFactory->createInitialForPlayer($playerService, $planetNames[$i === 0 ? 0 : 1]);
+        }
+
+        // Send welcome message to player
+        $message = new MessageService($playerService);
+        $message->sendWelcomeMessage();
     }
 }

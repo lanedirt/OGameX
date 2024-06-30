@@ -15,6 +15,7 @@ use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 
 /**
  * Base class for tests that require account context. Common setup includes signup of new account and login.
@@ -32,6 +33,11 @@ abstract class AccountTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Set amount of planets to be created for the user to 2 because planet switching
+        // is a part of the test suite.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('registration_planet_amount', 2);
 
         // Create a new user and login so we can access ingame features.
         $this->createAndLoginUser();
