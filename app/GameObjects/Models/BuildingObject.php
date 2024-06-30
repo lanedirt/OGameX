@@ -2,6 +2,7 @@
 
 namespace OGame\GameObjects\Models;
 
+use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Models\Fields\GameObjectProduction;
 use OGame\GameObjects\Models\Fields\GameObjectStorage;
 

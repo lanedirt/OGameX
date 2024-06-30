@@ -1,8 +1,9 @@
 <?php
 
-namespace OGame\GameObjects\Models;
+namespace OGame\GameObjects\Models\Abstracts;
 
 use InvalidArgumentException;
+use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\GameObjects\Models\Fields\GameObjectAssets;
 use OGame\GameObjects\Models\Fields\GameObjectPrice;
 use OGame\GameObjects\Models\Fields\GameObjectRequirement;

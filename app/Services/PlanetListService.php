@@ -35,17 +35,11 @@ class PlanetListService
     private PlanetServiceFactory $planetServiceFactory;
 
     /**
-     * @var SettingsService $settings
-     */
-    private SettingsService $settings;
-
-    /**
      * Planets constructor.
      */
-    public function __construct(PlayerService $player, PlanetServiceFactory $planetServiceFactory, SettingsService $settings)
+    public function __construct(PlayerService $player, PlanetServiceFactory $planetServiceFactory)
     {
         $this->planetServiceFactory = $planetServiceFactory;
-        $this->settings = $settings;
         $this->player = $player;
         $this->load($player->getId());
     }

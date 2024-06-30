@@ -6,7 +6,7 @@ use OGame\GameMessages\FleetDeployment;
 use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
-use OGame\GameObjects\Models\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Services\PlanetService;
 

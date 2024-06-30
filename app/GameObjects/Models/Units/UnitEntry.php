@@ -1,6 +1,8 @@
 <?php
 
-namespace OGame\GameObjects\Models;
+namespace OGame\GameObjects\Models\Units;
+
+use OGame\GameObjects\Models\UnitObject;
 
 class UnitEntry
 {

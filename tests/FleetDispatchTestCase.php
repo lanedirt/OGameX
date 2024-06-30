@@ -3,10 +3,9 @@
 namespace Tests;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
-use OGame\GameObjects\Models\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
-use OGame\Models\User;
 use OGame\Services\PlanetService;
 
 /**

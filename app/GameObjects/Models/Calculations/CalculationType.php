@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\GameObjects\Models;
+namespace OGame\GameObjects\Models\Calculations;
 
 /**
  * Enum CalculationType

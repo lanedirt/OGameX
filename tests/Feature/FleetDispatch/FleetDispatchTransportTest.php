@@ -4,7 +4,7 @@ namespace Tests\Feature\FleetDispatch;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
-use OGame\GameObjects\Models\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use Tests\FleetDispatchTestCase;

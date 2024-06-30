@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use OGame\GameObjects\Models\CalculationType;
+use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Models\UserTech;

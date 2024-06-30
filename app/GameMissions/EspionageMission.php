@@ -4,7 +4,7 @@ namespace OGame\GameMissions;
 
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
-use OGame\GameObjects\Models\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
 use OGame\Services\PlanetService;

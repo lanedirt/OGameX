@@ -2,7 +2,7 @@
 
 namespace OGame\GameObjects;
 
-use OGame\GameObjects\Models\CalculationType;
+use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\GameObjects\Models\Fields\GameObjectAssets;
 use OGame\GameObjects\Models\Fields\GameObjectPrice;
 use OGame\GameObjects\Models\Fields\GameObjectRequirement;

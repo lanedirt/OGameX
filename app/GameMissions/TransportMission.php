@@ -6,7 +6,7 @@ use OGame\GameMessages\TransportArrived;
 use OGame\GameMessages\TransportReceived;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
-use OGame\GameObjects\Models\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Services\PlanetService;
 

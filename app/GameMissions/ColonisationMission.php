@@ -5,10 +5,9 @@ namespace OGame\GameMissions;
 use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
-use OGame\GameObjects\Models\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
-use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 
 class ColonisationMission extends GameMission

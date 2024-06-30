@@ -9,7 +9,7 @@ use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMissions\Models\MissionPossibleStatus;
-use OGame\GameObjects\Models\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
