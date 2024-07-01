@@ -232,7 +232,7 @@ With each level of the Combustion Drive developed, the speed of small and large 
         $astrophysics->description_long = 'Further findings in the field of astrophysics allow for the construction of laboratories that can be fitted on more and more ships. This makes long expeditions far into unexplored areas of space possible. In addition these advancements can be used to further colonise the universe. For every two levels of this technology an additional planet can be made usable.';
         $astrophysics->requirements = [
             new GameObjectRequirement('impulse_drive', 3),
-            new GameObjectRequirement('research_lab', 4),
+            new GameObjectRequirement('research_lab', 3),
             new GameObjectRequirement('espionage_technology', 4),
         ];
         $astrophysics->price = new GameObjectPrice(4000, 8000, 4000, 0, 1.75, true);

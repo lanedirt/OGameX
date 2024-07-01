@@ -1495,7 +1495,6 @@ class PlanetService
      * The machine name of the unit object.
      *
      * @return int
-     * @throws Exception
      */
     public function getObjectAmount(string $machine_name): int
     {

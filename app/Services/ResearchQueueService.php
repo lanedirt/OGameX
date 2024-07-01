@@ -106,25 +106,25 @@ class ResearchQueueService
     }
 
     /**
-     * Add a building to the building queue for the current planet.
+     * Add a research object to the research queue for the current planet.
      *
      * @param PlayerService $player
      * @param PlanetService $planet
-     * @param int $building_id
+     * @param int $research_object_id
      * @return void
      * @throws Exception
      */
-    public function add(PlayerService $player, PlanetService $planet, int $building_id): void
+    public function add(PlayerService $player, PlanetService $planet, int $research_object_id): void
     {
         $build_queue = $this->retrieveQueue($planet);
 
-        // Max amount of buildings that can be in the queue in a given time.
+        // Max amount of buildings that can be in the queue at a given time.
         if ($build_queue->isQueueFull()) {
             // Max amount of build queue items already exist, throw exception.
             throw new Exception('Maximum number of items already in queue.');
         }
 
-        $object = $this->objects->getResearchObjectById($building_id);
+        $object = $this->objects->getResearchObjectById($research_object_id);
 
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the building queue.
@@ -132,12 +132,12 @@ class ResearchQueueService
 
         // Check to see how many other items of this building there are already
         // in the queue, because if so then the level needs to be higher than that.
-        $amount = $this->activeBuildingQueueItemCount($player, $building_id);
+        $amount = $this->activeBuildingQueueItemCount($player, $research_object_id);
         $next_level = $current_level + $amount + 1;
 
         $queue = new $this->model();
         $queue->planet_id = $planet->getPlanetId();
-        $queue->object_id = $building_id;
+        $queue->object_id = $research_object_id;
         $queue->object_level_target = $next_level;
 
         // Save the new queue item
@@ -251,7 +251,6 @@ class ResearchQueueService
 
         foreach ($queue_items as $queue_item) {
             $planet = $player->planets->childPlanetById($queue_item->planet_id);
-
             $object = $this->objects->getResearchObjectById($queue_item->object_id);
 
             // See if the planet has enough resources for this build attempt.
@@ -308,10 +307,7 @@ class ResearchQueueService
             // we force that the planet is updated again which will grant
             // the building immediately without having to wait for a refresh.
             if ($queue_item->time_end < Carbon::now()->timestamp) {
-                // @TODO: refactor the planet update logic so this method
-                // can call only the part it needs directly without causing
-                // a major overhead.
-                $planet->update();
+                $player->updateResearchQueue();
             }
         }
     }

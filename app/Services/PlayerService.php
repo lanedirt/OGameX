@@ -254,9 +254,8 @@ class PlayerService
     public function setResearchLevel(string $machine_name, int $level, bool $save_to_db = true): void
     {
         $research = $this->objects->getResearchObjectByMachineName($machine_name);
-
-        // Sanity check: if building does not exist yet then return 0.
         $this->user_tech->{$research->machine_name} = $level;
+
         if ($save_to_db) {
             $this->user_tech->save();
         }
@@ -311,14 +310,35 @@ class PlayerService
         // ------
         // 1. Update research queue
         // ------
+        $this->updateResearchQueue(false);
+
+        // ------
+        // 2. Update last_ip and time properties.
+        // ------
+        $this->user->time = (string)Carbon::now()->timestamp;
+        $this->user->last_ip = request()->ip();
+        $this->user->save();
+    }
+
+    /**
+     * Update the research queue for this player.
+     *
+     * @param bool $save_user
+     *   Optional flag whether to save the user in this method. This defaults to TRUE
+     *   but can be set to FALSE when update happens in bulk and the caller method calls
+     *   the save user itself to prevent on unnecessary multiple updates.
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function updateResearchQueue(bool $save_user = true): void
+    {
         $queue = resolve('OGame\Services\ResearchQueueService');
         $research_queue = $queue->retrieveFinishedForUser($this);
 
         // @TODO: add DB transaction wrapper
         foreach ($research_queue as $item) {
-            $planet = $this->planets->childPlanetById($item->planet_id);
-
-            // Get object information of building.
+            // Get object information of research object.
             $object = $this->objects->getResearchObjectById($item->object_id);
 
             // Update planet and update level of the building that has been processed.
@@ -332,12 +352,9 @@ class PlayerService
             $queue->start($this, $item->time_end);
         }
 
-        // ------
-        // 2. Update last_ip and time properties.
-        // ------
-        $this->user->time = (string)Carbon::now()->timestamp;
-        $this->user->last_ip = request()->ip();
-        $this->user->save();
+        if ($save_user) {
+            $this->user->save();
+        }
     }
 
     /**

@@ -28,17 +28,16 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     protected bool $hasReturnMission = false;
 
     /**
-     * Prepare the planet for the test so it has the required buildings and research.
+     * Prepare the planet for the test, so it has the required buildings and research.
      *
      * @return void
      */
     protected function basicSetup(): void
     {
-        $this->planetSetObjectLevel('robot_factory', 2);
-        $this->planetSetObjectLevel('shipyard', 1);
-        $this->planetSetObjectLevel('research_lab', 1);
+        $this->planetSetObjectLevel('research_lab', 3);
         $this->playerSetResearchLevel('energy_technology', 1);
-        $this->playerSetResearchLevel('combustion_drive', 1);
+        $this->playerSetResearchLevel('impulse_drive', 3);
+        $this->playerSetResearchLevel('espionage_technology', 4);
         // Astrophysics level 3 gives option for two colonies.
         $this->playerSetResearchLevel('astrophysics', 3);
         $this->planetAddUnit('small_cargo', 5);
@@ -183,6 +182,53 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
             'The fleet has arrived',
             'knowledge of astrophysics is not sufficient',
         ], 3);
+    }
+
+    /**
+     * Test that combination of sending a colonization mission with insufficient astrophysics research still succeeds
+     * if research is in progress and will be completed before the mission arrives.
+     */
+    public function testDispatchFleetColonizeAstroResearchInProgress(): void
+    {
+        $this->basicSetup();
+        $this->planetAddResources(new Resources(12300, 24500, 12300, 0));
+
+        // Astrophysics level 2 should support only one colony. Test user has 1 colony already.
+        // So with these presets it should not be possible to create a new planet.
+        $this->playerSetResearchLevel('astrophysics', 2);
+        $this->planetAddUnit('colony_ship', 5);
+
+        // Set time to static time 2024-01-01
+        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
+        Carbon::setTestNow($startTime);
+
+        // Send fleet to an empty planet.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
+        $newPlanetCoordinates = $this->sendMissionToEmptyPosition($unitCollection, new Resources(10, 0, 0, 0));
+
+        // Upgrade astrophysics research to level 3 via research page.
+        $this->addResearchBuildRequest('astrophysics');
+
+        // Increase time by 10 hours to ensure the mission and research should both be done.
+        Carbon::setTestNow($startTime->addHours(10));
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+
+        // Assert that astro research is now level 3.
+        $this->assertObjectLevelOnPage($response, 'astrophysics', 3, 'Astrophysics research is not at level 3 after 10 hours of research.');
+
+        // Assert that the new planet has been created.
+        try {
+            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+        } catch (BindingResolutionException) {
+            $this->fail('PlanetServiceFactory cannot be resolved from the container.');
+        }
+        $newPlanet = $planetServiceFactory->makeForCoordinate($newPlanetCoordinates);
+
+        $this->assertNotNull($newPlanet, 'New planet cannot be loaded while it should have been created.');
     }
 
     /**

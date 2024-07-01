@@ -8,8 +8,8 @@ use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use OGame\Factories\GameMessageFactory;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Message;
-use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\User;
@@ -105,35 +105,6 @@ abstract class AccountTestCase extends TestCase
     }
 
     /**
-     * Helper method to create a planet model and configure it.
-     *
-     * @param array<string, int> $attributes
-     */
-    protected function createAndSetPlanetModel(array $attributes): void
-    {
-        // Create fake planet eloquent model with additional attributes
-        $planetModelFake = Planet::factory()->make($attributes);
-        // Set the fake model to the planet service
-        $this->planetService->setPlanet($planetModelFake);
-    }
-
-    /**
-     * Set up the planet service for testing.
-     *
-     * @return void
-     * @throws BindingResolutionException
-     */
-    protected function setUpPlanetService(): void
-    {
-        // Initialize empty playerService object directly without factory as we do not
-        // actually want to load a player from the database.
-        $playerService = app()->make(PlayerService::class, ['player_id' => 0]);
-        // Initialize the planet service with factory.
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-        $this->planetService = $planetServiceFactory->makeForPlayer($playerService, 0);
-    }
-
-    /**
      * Retrieve meta fields from page response to extract player id and planet id.
      *
      * @return void
@@ -170,7 +141,9 @@ abstract class AccountTestCase extends TestCase
         $this->currentUsername = $playerName;
         $this->currentPlanetId = (int)$planetId;
 
-        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
+        // Initialize the player service with factory.
+        $playerServiceFactory = app()->make(PlayerServiceFactory::class);
+        $playerService = $playerServiceFactory->make($this->currentUserId);
         $this->planetService = $playerService->planets->current();
         $this->secondPlanetService = $playerService->planets->all()[1];
     }
@@ -272,7 +245,7 @@ abstract class AccountTestCase extends TestCase
     protected function planetAddResources(Resources $resources): void
     {
         // Update resources.
-        $this->planetService->addResources($resources, true);
+        $this->planetService->addResources($resources);
     }
 
     /**
@@ -280,7 +253,6 @@ abstract class AccountTestCase extends TestCase
      *
      * @param Resources $resources
      * @return void
-     * @throws BindingResolutionException
      * @throws Exception
      */
     protected function planetDeductResources(Resources $resources): void
@@ -327,7 +299,7 @@ abstract class AccountTestCase extends TestCase
     {
         // Update current users planet buildings to allow for research by mutating database.
         try {
-            $this->planetService->getPlayer()->setResearchLevel($machine_name, $object_level, true);
+            $this->planetService->getPlayer()->setResearchLevel($machine_name, $object_level);
         } catch (Exception $e) {
             $this->fail('Failed to set research level for player. Error: ' . $e->getMessage());
         }
@@ -545,7 +517,6 @@ abstract class AccountTestCase extends TestCase
      * Add a research build request to the current users current planet.
      * @param string $machine_name
      * @return void
-     * @throws Exception
      */
     protected function addResearchBuildRequest(string $machine_name): void
     {
@@ -555,6 +526,7 @@ abstract class AccountTestCase extends TestCase
             '_token' => csrf_token(),
             'technologyId' => $object->id,
         ]);
+
         // Assert the response status is successful
         $response->assertStatus(200);
     }
