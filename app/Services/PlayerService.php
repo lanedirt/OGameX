@@ -10,6 +10,7 @@ use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Models\UserTech;
+use RuntimeException;
 
 /**
  * Class PlayerService.
@@ -88,12 +89,7 @@ class PlayerService
         // Fetch user tech from model
         $tech = $this->user->tech()->first();
         if (!$tech) {
-            // User has no tech record, so create one.
-            // @TODO: move this logic as well as the planet creation
-            // to the user register logic action.
-            $tech = new UserTech();
-            $tech->user_id = $this->getId();
-            $tech->save();
+            throw new RuntimeException('User tech record not found.');
         }
         $this->setUserTech($tech);
 
@@ -102,7 +98,7 @@ class PlayerService
             $planet_list_service = app()->make(PlanetListService::class, ['player' => $this]);
             $this->planets = $planet_list_service;
         } catch (BindingResolutionException $e) {
-            throw new \RuntimeException('Class not found: ' . PlanetListService::class);
+            throw new RuntimeException('Class not found: ' . PlanetListService::class);
         }
     }
 

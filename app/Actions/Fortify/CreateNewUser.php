@@ -10,6 +10,7 @@ use Laravel\Fortify\Contracts\CreatesNewUsers;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
+use OGame\Models\UserTech;
 use OGame\Services\MessageService;
 use OGame\Services\SettingsService;
 
@@ -194,9 +195,15 @@ class CreateNewUser implements CreatesNewUsers
      * Create initial data for the player such as planets and tech records.
      *
      * @param User $user
+     * @throws \Exception
      */
     private function createInitialGameDataForUser($user): void
     {
+        // Create initial player tech record.
+        $tech = new UserTech();
+        $tech->user_id = $user->id;
+        $tech->save();
+
         // Create initial planet(s) for the player.
         $playerService = $this->playerServiceFactory->make($user->id);
         $planetNames = ['Homeworld', 'Colony'];

@@ -170,7 +170,7 @@ class ResearchQueueService
             ->get();
 
         // Convert to ViewModel array
-        $list = array();
+        $list = [];
         foreach ($queue_items as $item) {
             $object = $this->objects->getResearchObjectById($item->object_id);
             $planetService = $planet->getPlayer()->planets->childPlanetById($item['planet_id']);
@@ -192,7 +192,6 @@ class ResearchQueueService
             $list[] = $viewModel;
         }
 
-        // Create ResearchQueueListViewModel
         return new ResearchQueueListViewModel($list);
     }
 

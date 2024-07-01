@@ -29,6 +29,7 @@ abstract class AccountTestCase extends TestCase
 
     /**
      * Set up common test components.
+     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {

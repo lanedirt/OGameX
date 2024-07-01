@@ -4,6 +4,7 @@ namespace OGame\Factories;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Services\PlayerService;
+use RuntimeException;
 
 class PlayerServiceFactory
 {
@@ -27,7 +28,7 @@ class PlayerServiceFactory
                 $playerService = app()->make(PlayerService::class, ['player_id' => $playerId]);
                 $this->instances[$playerId] = $playerService;
             } catch (BindingResolutionException $e) {
-                throw new \RuntimeException('Class not found: ' . PlayerService::class);
+                throw new RuntimeException('Class not found: ' . PlayerService::class);
             }
         }
 
