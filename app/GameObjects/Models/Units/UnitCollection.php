@@ -1,13 +1,14 @@
 <?php
 
-namespace OGame\GameObjects\Models;
+namespace OGame\GameObjects\Models\Units;
 
+use OGame\GameObjects\Models\UnitObject;
 use OGame\Services\PlanetService;
 
 class UnitCollection
 {
     /**
-     * Objects that this object requires on with required level.
+     * Units in the collection.
      *
      * @var array<UnitEntry>
      */

@@ -2,7 +2,7 @@
 
 namespace OGame\GameObjects\Models\Fields;
 
-use OGame\GameObjects\Models\GameObject;
+use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Services\Properties\AttackPropertyService;
 use OGame\GameObjects\Services\Properties\CapacityPropertyService;
 use OGame\GameObjects\Services\Properties\FuelPropertyService;

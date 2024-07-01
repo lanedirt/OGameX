@@ -13,7 +13,8 @@
         </td>
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
-            <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"  title="Own fleet | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
+            <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
+                 title="Own fleet | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
         </td>
 
         <td class="originFleet">
@@ -21,7 +22,8 @@
             {{ $fleet_event_row->destination_planet_name }}
         </td>
         <td class="coordsOrigin">
-            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->destination_planet_coords->galaxy, 'system' => $fleet_event_row->destination_planet_coords->system]) }}" target="_top">
+            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->destination_planet_coords->galaxy, 'system' => $fleet_event_row->destination_planet_coords->system]) }}"
+               target="_top">
                 [{{ $fleet_event_row->destination_planet_coords->asString() }}]
             </a>
         </td>
@@ -38,7 +40,7 @@
             &lt;tr&gt;
                 &lt;th colspan=&quot;3&quot;&gt;@lang('Ships'):&lt;/th&gt;
             &lt;/tr&gt;
-            @php /** @var \OGame\GameObjects\Models\UnitCollection $fleet_unit */ @endphp
+            @php /** @var \OGame\GameObjects\Models\Units\UnitCollection $fleet_unit */ @endphp
             @foreach ($fleet_event_row->fleet_units->units as $fleet_unit)
                 &lt;tr&gt;
                     &lt;td colspan=&quot;2&quot;&gt;{{ $fleet_unit->unitObject->title }}:&lt;/td&gt;
@@ -86,13 +88,15 @@
             {{ $fleet_event_row->origin_planet_name }}
         </td>
         <td class="destCoords">
-            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->origin_planet_coords->galaxy, 'system' => $fleet_event_row->origin_planet_coords->system]) }}" target="_top">
+            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->origin_planet_coords->galaxy, 'system' => $fleet_event_row->origin_planet_coords->system]) }}"
+               target="_top">
                 [{{ $fleet_event_row->origin_planet_coords->asString() }}]
             </a>
         </td>
 
         <td class="sendMail">
-        </td>    <td class="sendProbe">
+        </td>
+        <td class="sendProbe">
         </td>
         <td class="sendMail">
         </td>
@@ -110,7 +114,8 @@
         </td>
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
-            <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"  title="Own fleet | {{ $fleet_event_row->mission_label }}" alt=""/>
+            <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
+                 title="Own fleet | {{ $fleet_event_row->mission_label }}" alt=""/>
         </td>
 
         <td class="originFleet">
@@ -118,7 +123,8 @@
             {{ $fleet_event_row->origin_planet_name }}
         </td>
         <td class="coordsOrigin">
-            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->origin_planet_coords->galaxy, 'system' => $fleet_event_row->origin_planet_coords->system]) }}" target="_top">
+            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->origin_planet_coords->galaxy, 'system' => $fleet_event_row->origin_planet_coords->system]) }}"
+               target="_top">
                 [{{ $fleet_event_row->origin_planet_coords->asString() }}]
             </a>
         </td>
@@ -135,7 +141,7 @@
             &lt;tr&gt;
                 &lt;th colspan=&quot;3&quot;&gt;@lang('Ships'):&lt;/th&gt;
             &lt;/tr&gt;
-            @php /** @var \OGame\GameObjects\Models\UnitCollection $fleet_unit */ @endphp
+            @php /** @var \OGame\GameObjects\Models\Units\UnitCollection $fleet_unit */ @endphp
             @foreach ($fleet_event_row->fleet_units->units as $fleet_unit)
                 &lt;tr&gt;
                     &lt;td colspan=&quot;2&quot;&gt;{{ $fleet_unit->unitObject->title }}:&lt;/td&gt;
@@ -176,18 +182,21 @@
             {{ $fleet_event_row->destination_planet_name }}
         </td>
         <td class="destCoords">
-            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->destination_planet_coords->galaxy, 'system' => $fleet_event_row->destination_planet_coords->system]) }}" target="_top">
+            <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->destination_planet_coords->galaxy, 'system' => $fleet_event_row->destination_planet_coords->system]) }}"
+               target="_top">
                 [{{ $fleet_event_row->destination_planet_coords->asString() }}]
             </a>
         </td>
 
         <td class="sendMail">
             <span class="reversal reversal_time" ref="{{ $fleet_event_row->id }}">
-            <a class="icon_link tooltipHTML recallFleet" data-fleet-id="{{ $fleet_event_row->id }}" title="Recall:| 22.04.2024<br>15:28:45">
-                <img src="https://gf2.geo.gfsrv.net/cdna2/89624964d4b06356842188dba05b1b.gif" height="16" width="16" />
+            <a class="icon_link tooltipHTML recallFleet" data-fleet-id="{{ $fleet_event_row->id }}"
+               title="Recall:| 22.04.2024<br>15:28:45">
+                <img src="https://gf2.geo.gfsrv.net/cdna2/89624964d4b06356842188dba05b1b.gif" height="16" width="16"/>
             </a>
         </span>
-        </td>    <td class="sendProbe">
+        </td>
+        <td class="sendProbe">
         </td>
         <td class="sendMail">
         </td>
@@ -195,13 +204,13 @@
 @endif
 
 <script type="text/javascript">
-    (function($) {
+    (function ($) {
         new eventboxCountdown(
             $("#counter-eventlist-{{ $fleet_event_row->id }}"),
-            {{ $fleet_event_row->mission_time_arrival }} - {{ time() }},
+                {{ $fleet_event_row->mission_time_arrival }} - {{ time() }},
             $("#eventListWrap"),
             "#TODO_page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
-            [0,1]
+            [0, 1]
         );
     })(jQuery);
 </script>

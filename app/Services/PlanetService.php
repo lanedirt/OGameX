@@ -3,10 +3,9 @@
 namespace OGame\Services;
 
 use Exception;
-use Hamcrest\Core\Set;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlayerServiceFactory;
-use OGame\GameObjects\Models\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
@@ -1496,7 +1495,6 @@ class PlanetService
      * The machine name of the unit object.
      *
      * @return int
-     * @throws Exception
      */
     public function getObjectAmount(string $machine_name): int
     {

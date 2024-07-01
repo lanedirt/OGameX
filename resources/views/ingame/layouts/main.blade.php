@@ -1056,7 +1056,7 @@ Combat simulation save slots +20">
                     <div id="myWorlds">
                         <div id="countColonies">
                             <p class="textCenter">
-                                <span>2/2</span> Planets
+                                <span>{{ $currentPlayer->planets->count() }}/{{ $currentPlayer->getMaxPlanetAmount() }}</span> @lang('Planets')
                             </p>
                         </div>
                         <div id="planetList">
@@ -1074,12 +1074,12 @@ Combat simulation save slots +20">
                                    $urlToCurrentWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
                                 @endphp
 
-                                <div class="smallplanet {{ $planet->getPlanetId() === $currentPlanet->getPlanetId() ? 'hightlightPlanet' : '' }}"
+                                <div class="smallplanet {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->count() > 1) ? 'hightlightPlanet' : '' }}"
                                      data-planet-id="{{ $planet->getPlanetId() }}" id="planet-{{ $key + 1 }}">
                                     <a href="{{ $urlToCurrentWithUpdatedParam }}"
                                        data-link="{{ $urlToCurrentWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>@lang('Lifeform'): Humans
 <br/>12,800km (152/193)<br>20°C to 60°C<br/><a href=&quot;#TODO=ingame&amp;component=overview&amp;cp=33624092&quot;>@lang('Overview')</a><br/><a href=&quot;#TODO=ingame&amp;component=supplies&amp;cp=33624092&quot;>@lang('Resources')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=lfbuildings&amp;cp=33624092&quot;>@lang('Lifeform')</a><br/><a href=&quot;#TODOpage=ingame&amp;component=research&amp;cp=33624092&quot;>@lang('Research')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=facilities&amp;cp=33624092&quot;>@lang('Facilities')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=shipyard&amp;cp=33624092&quot;>@lang('Shipyard')</a><br/><a href=&quot;#TODO_component=defenses&amp;cp=33624092&quot;>@lang('Defense')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=fleetdispatch&amp;cp=33624092&quot;>@lang('Fleet')</a><br/><a href=&quot;#TODO_component=galaxy&amp;cp=33624092&amp;galaxy=2&amp;system=3&amp;position=6&quot;>@lang('Galaxy')</a>"
-                                       class="planetlink {{ $planet->getPlanetId() === $currentPlanet->getPlanetId() ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable"
+                                       class="planetlink {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->count() > 1) ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable"
                                        data-ipi-hint="ipiPlanetHomeplanet">
                                         <img class="planetPic js_replace2x" alt="{{ $planet->getPlanetName() }}"
                                              src="{!! asset('img/planets/medium/' . $planet->getPlanetType() . '_' . $planet->getPlanetImageType() . '.png') !!}" width="48" height="48">

@@ -216,6 +216,9 @@ class PlanetServiceFactory
         $this->settings->set('last_assigned_galaxy', $createdPlanet->getPlanetCoordinates()->galaxy);
         $this->settings->set('last_assigned_system', $createdPlanet->getPlanetCoordinates()->system);
 
+        // Reload player object so the new planet is added to the planetList.
+        $player->load($player->getId());
+
         return $createdPlanet;
     }
 

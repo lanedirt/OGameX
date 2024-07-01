@@ -2,7 +2,7 @@
 
 namespace OGame\ViewModels;
 
-use OGame\GameObjects\Models\GameObject;
+use OGame\GameObjects\Models\Abstracts\GameObject;
 
 class BuildingViewModel
 {

@@ -1,3 +1,4 @@
+@php /** @var OGame\Services\PlayerService $player */ @endphp
 @php /** @var OGame\Services\PlanetService $planet */ @endphp
 @php /** @var OGame\Services\SettingsService $settings */ @endphp
 
@@ -42,7 +43,7 @@
             var PLANETTYPE_DEBRIS = 2;
             var PLANETTYPE_MOON = 3;
             var EXPEDITION_POSITION = 16;
-            var MAX_NUMBER_OF_PLANETS = 2;
+            var MAX_NUMBER_OF_PLANETS = {{ $player->getMaxPlanetAmount() }};
             var COLONIZATION_ENABLED = true;
 
             var LOOT_PRIO_METAL = 2;

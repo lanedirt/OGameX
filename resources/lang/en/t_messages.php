@@ -91,11 +91,17 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // ------------------------
+    'colony_establish_fail_astrophysics' => [
+        'from' => 'Settlers',
+        'subject' => 'Settlement Report',
+        'body' => 'The fleet has arrived at assigned coordinates :coordinates and ascertains that the planet is viable for colonisation. Shortly after starting to develop the planet, the colonists realise that their knowledge of astrophysics is not sufficient to complete the colonisation of a new planet.',
+    ],
+
+    // ------------------------
     'espionage_report' => [
         'from' => 'Fleet Command',
         'subject' => 'Espionage report from :planet',
     ],
-
 
     // ------------------------
 

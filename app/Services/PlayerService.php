@@ -6,9 +6,11 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Models\UserTech;
+use RuntimeException;
 
 /**
  * Class PlayerService.
@@ -87,12 +89,7 @@ class PlayerService
         // Fetch user tech from model
         $tech = $this->user->tech()->first();
         if (!$tech) {
-            // User has no tech record, so create one.
-            // @TODO: move this logic as well as the planet creation
-            // to the user register logic action.
-            $tech = new UserTech();
-            $tech->user_id = $this->getId();
-            $tech->save();
+            throw new RuntimeException('User tech record not found.');
         }
         $this->setUserTech($tech);
 
@@ -101,7 +98,7 @@ class PlayerService
             $planet_list_service = app()->make(PlanetListService::class, ['player' => $this]);
             $this->planets = $planet_list_service;
         } catch (BindingResolutionException $e) {
-            throw new \RuntimeException('Class not found: ' . PlanetListService::class);
+            throw new RuntimeException('Class not found: ' . PlanetListService::class);
         }
     }
 
@@ -257,9 +254,8 @@ class PlayerService
     public function setResearchLevel(string $machine_name, int $level, bool $save_to_db = true): void
     {
         $research = $this->objects->getResearchObjectByMachineName($machine_name);
-
-        // Sanity check: if building does not exist yet then return 0.
         $this->user_tech->{$research->machine_name} = $level;
+
         if ($save_to_db) {
             $this->user_tech->save();
         }
@@ -314,14 +310,35 @@ class PlayerService
         // ------
         // 1. Update research queue
         // ------
+        $this->updateResearchQueue(false);
+
+        // ------
+        // 2. Update last_ip and time properties.
+        // ------
+        $this->user->time = (string)Carbon::now()->timestamp;
+        $this->user->last_ip = request()->ip();
+        $this->user->save();
+    }
+
+    /**
+     * Update the research queue for this player.
+     *
+     * @param bool $save_user
+     *   Optional flag whether to save the user in this method. This defaults to TRUE
+     *   but can be set to FALSE when update happens in bulk and the caller method calls
+     *   the save user itself to prevent on unnecessary multiple updates.
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function updateResearchQueue(bool $save_user = true): void
+    {
         $queue = resolve('OGame\Services\ResearchQueueService');
         $research_queue = $queue->retrieveFinishedForUser($this);
 
         // @TODO: add DB transaction wrapper
         foreach ($research_queue as $item) {
-            $planet = $this->planets->childPlanetById($item->planet_id);
-
-            // Get object information of building.
+            // Get object information of research object.
             $object = $this->objects->getResearchObjectById($item->object_id);
 
             // Update planet and update level of the building that has been processed.
@@ -335,12 +352,9 @@ class PlayerService
             $queue->start($this, $item->time_end);
         }
 
-        // ------
-        // 2. Update last_ip and time properties.
-        // ------
-        $this->user->time = (string)Carbon::now()->timestamp;
-        $this->user->last_ip = request()->ip();
-        $this->user->save();
+        if ($save_user) {
+            $this->user->save();
+        }
     }
 
     /**
@@ -386,5 +400,19 @@ class PlayerService
         }
 
         return $array;
+    }
+
+    /**
+     * Get the maximum amount of planets that this player can have based on research levels.
+     *
+     * @return int
+     */
+    public function getMaxPlanetAmount(): int
+    {
+        $astrophyicsLevel = $this->getResearchLevel('astrophysics');
+        $astrophysicsObject = $this->planets->current()->objects->getResearchObjectByMachineName('astrophysics');
+
+        // +1 to max_colonies to get max_planets because the main planet is not included in the calculation above.
+        return 1 + $astrophysicsObject->performCalculation(CalculationType::MAX_COLONIES, $astrophyicsLevel);
     }
 }

@@ -5,6 +5,7 @@ namespace OGame\Factories;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMessages\ColonyEstablished;
+use OGame\GameMessages\ColonyEstablishFailAstrophysics;
 use OGame\GameMessages\EspionageReport;
 use OGame\GameMessages\FleetDeployment;
 use OGame\GameMessages\FleetDeploymentWithResources;
@@ -18,6 +19,11 @@ use OGame\Models\Message;
 class GameMessageFactory
 {
     /**
+     * Array of all game message classes. The key is the message key, the value is the class name.
+     * This is used to create a new instance of a game message based on a message model.
+     *
+     * When adding a new game message class, make sure to add it here.
+     *
      * @var array<string ,string>
      */
     private static array $gameMessageClasses = [
@@ -27,6 +33,7 @@ class GameMessageFactory
         'transport_arrived' => TransportArrived::class,
         'transport_received' => TransportReceived::class,
         'colony_established' => ColonyEstablished::class,
+        'colony_establish_fail_astrophysics' => ColonyEstablishFailAstrophysics::class,
         'fleet_deployment' => FleetDeployment::class,
         'fleet_deployment_with_resources' => FleetDeploymentWithResources::class,
         'espionage_report' => EspionageReport::class,

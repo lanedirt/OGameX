@@ -2,7 +2,7 @@
 
 namespace OGame\ViewModels;
 
-use OGame\GameObjects\Models\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 

@@ -9,7 +9,7 @@ use OGame\GameMissions\ColonisationMission;
 use OGame\GameMissions\DeploymentMission;
 use OGame\GameMissions\EspionageMission;
 use OGame\GameMissions\TransportMission;
-use OGame\GameObjects\Models\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;

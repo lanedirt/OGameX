@@ -103,18 +103,18 @@ class ResearchQueueTest extends AccountTestCase
         $this->assertObjectLevelOnPage($response, 'energy_technology', 0, 'Energy technology is not still at level 0 two seconds after build request issued.');
 
         // ---
-        // Step 3: Verify that 1 research queue item is finished 15 minutes later.
+        // Step 3: Verify that 1 research queue item is finished 2 minutes later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 15, 0);
+        $testTime = Carbon::create(2024, 1, 1, 12, 2, 0);
         Carbon::setTestNow($testTime);
 
-        // Check if the research is finished and is now level 1.
+        // Check if one of the research items is finished and is now level 1.
         $response = $this->get('/research');
         $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'energy_technology', 1, 'Energy technology is not at level one 15 minutes after build request issued.');
 
         // ---
-        // Step 3: Verify that 1 research queue item is finished 330 minutes later.
+        // Step 3: Verify that both research queue items are finished 30 minutes later.
         // ---
         $testTime = Carbon::create(2024, 1, 1, 12, 30, 0);
         Carbon::setTestNow($testTime);

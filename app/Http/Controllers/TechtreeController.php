@@ -5,10 +5,9 @@ namespace OGame\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use OGame\GameObjects\Models\Fields\GameObjectAssets;
-use OGame\GameObjects\Models\Fields\GameObjectPrice;
-use OGame\GameObjects\Models\Fields\GameObjectRequirement;
-use OGame\GameObjects\Models\GameObject;
+use OGame\GameObjects\Models\Abstracts\GameObject;
+use OGame\GameObjects\Models\Calculations\CalculationType;
+use OGame\GameObjects\Models\Techtree\TechtreeRequiredBy;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -359,11 +358,10 @@ class TechtreeController extends OGameController
         $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
 
         for ($i = $min_level; $i < $min_level + 15; $i++) {
-
             $astrophysics_table[] = [
                 'level' => $i,
-                'max_colonies' => round($i / 2),
-                'max_expedition' => floor(sqrt($i)),
+                'max_colonies' => $object->performCalculation(CalculationType::MAX_COLONIES, $i),
+                'max_expedition' => $object->performCalculation(CalculationType::MAX_EXPEDITIONS, $i),
             ];
         }
 
@@ -379,7 +377,7 @@ class TechtreeController extends OGameController
      * @param PlayerService $player
      * @param ObjectService $objects
      * @param PlanetService $planet
-     * @return array<int<0, max>, array<string, array<GameObjectRequirement>|int|GameObjectAssets|GameObjectPrice|string>>
+     * @return array<TechtreeRequiredBy>
      */
     private function getRequiredBy(GameObject $object, PlayerService $player, ObjectService $objects, PlanetService $planet): array
     {
@@ -398,9 +396,7 @@ class TechtreeController extends OGameController
         });
 
         foreach ($require_objects as $r_object) {
-            $met_all_requirement = $objects->objectRequirementsMet($r_object->machine_name, $planet, $player) ? 'true' : 'false';
-
-            $required_by[] = [...(array)$r_object, 'met_requirements' => $met_all_requirement];
+            $required_by[] = new TechtreeRequiredBy($r_object, $objects->objectRequirementsMet($r_object->machine_name, $planet, $player));
         }
 
         return $required_by;

@@ -2,8 +2,8 @@
 
 namespace OGame\GameObjects\Services\Properties\Abstracts;
 
+use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Models\Fields\GameObjectPropertyDetails;
-use OGame\GameObjects\Models\GameObject;
 use OGame\Services\PlanetService;
 
 /**

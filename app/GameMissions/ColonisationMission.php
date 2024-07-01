@@ -3,12 +3,12 @@
 namespace OGame\GameMissions;
 
 use OGame\GameMessages\ColonyEstablished;
+use OGame\GameMessages\ColonyEstablishFailAstrophysics;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
-use OGame\GameObjects\Models\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
-use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 
 class ColonisationMission extends GameMission
@@ -42,7 +42,8 @@ class ColonisationMission extends GameMission
     protected function processArrival(FleetMission $mission): void
     {
         // Sanity check: make sure the target coordinates are valid and the planet is (still) empty.
-        $target_planet = $this->planetServiceFactory->makeForCoordinate(new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
+        $target_coordinates = new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to);
+        $target_planet = $this->planetServiceFactory->makeForCoordinate($target_coordinates);
 
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id);
@@ -57,6 +58,18 @@ class ColonisationMission extends GameMission
         // Sanity check: colonisation mission without a colony ship is not possible.
         if ($mission->colony_ship < 1) {
             // Cancel the current mission.
+            $this->cancel($mission);
+            return;
+        }
+
+        // Check if the astrophysics research level is high enough to colonize a new planet.
+        $max_planets = $player->getMaxPlanetAmount();
+        if ($player->planets->count() + 1 > $max_planets) {
+            // Astrophysics level is not high enough, send failed message and cancel the mission.
+            $this->messageService->sendSystemMessageToPlayer($player, ColonyEstablishFailAstrophysics::class, [
+                'coordinates' => $target_coordinates->asString(),
+            ]);
+
             $this->cancel($mission);
             return;
         }

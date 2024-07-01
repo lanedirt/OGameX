@@ -150,7 +150,7 @@ class MessageService
             $message->params = $params;
             $message->save();
         } catch (Exception) {
-            throw new RuntimeException('Could not create espionage report message.');
+            throw new RuntimeException('Could not create GameMessage instance while trying to send message.');
         }
     }
 

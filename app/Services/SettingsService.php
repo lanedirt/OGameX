@@ -163,4 +163,15 @@ class SettingsService
     {
         return (int)$this->get('basic_income_energy', 0);
     }
+
+    /**
+     * Returns the amount of planets that should be created for a new player
+     * upon registration. Defaults to 1.
+     *
+     * @return int
+     */
+    public function registrationPlanetAmount(): int
+    {
+        return (int)$this->get('registration_planet_amount', 1);
+    }
 }

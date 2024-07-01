@@ -1,11 +1,13 @@
 <?php
 
-namespace OGame\GameObjects\Models;
+namespace OGame\GameObjects\Models\Units;
+
+use OGame\GameObjects\Models\UnitObject;
 
 class UnitEntry
 {
     /**
-     * Objects that this object requires on with required level.
+     * The unit object.
      *
      * @var UnitObject
      */

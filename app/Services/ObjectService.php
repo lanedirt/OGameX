@@ -7,9 +7,9 @@ use OGame\GameObjects\BuildingObjects;
 use OGame\GameObjects\CivilShipObjects;
 use OGame\GameObjects\DefenseObjects;
 use OGame\GameObjects\MilitaryShipObjects;
+use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Models\BuildingObject;
 use OGame\GameObjects\Models\DefenseObject;
-use OGame\GameObjects\Models\GameObject;
 use OGame\GameObjects\Models\ResearchObject;
 use OGame\GameObjects\Models\ShipObject;
 use OGame\GameObjects\Models\StationObject;
@@ -17,6 +17,7 @@ use OGame\GameObjects\Models\UnitObject;
 use OGame\GameObjects\ResearchObjects;
 use OGame\GameObjects\StationObjects;
 use OGame\Models\Resources;
+use RuntimeException;
 
 /**
  * Class ObjectService.
@@ -134,7 +135,7 @@ class ObjectService
             }
         }
 
-        throw new \RuntimeException('Building not found');
+        throw new RuntimeException('Building not found');
     }
 
     /**
@@ -153,7 +154,7 @@ class ObjectService
             }
         }
 
-        throw new \RuntimeException('Ship not found');
+        throw new RuntimeException('Ship not found');
     }
 
     /**
@@ -172,7 +173,7 @@ class ObjectService
             }
         }
 
-        throw new \RuntimeException('Game object not found with ID: ' . $object_id);
+        throw new RuntimeException('Game object not found with ID: ' . $object_id);
     }
 
     /**
@@ -191,7 +192,7 @@ class ObjectService
             }
         }
 
-        throw new \RuntimeException('Game object not found with machine name: ' . $machine_name);
+        throw new RuntimeException('Game object not found with machine name: ' . $machine_name);
     }
 
     /**
@@ -210,7 +211,7 @@ class ObjectService
             }
         }
 
-        throw new \RuntimeException('Research object not found with machine name: ' . $machine_name);
+        throw new RuntimeException('Research object not found with machine name: ' . $machine_name);
     }
 
     /**
@@ -229,7 +230,7 @@ class ObjectService
             }
         }
 
-        throw new \RuntimeException('Unit object not found with object ID: ' . $object_id);
+        throw new RuntimeException('Unit object not found with object ID: ' . $object_id);
     }
 
     /**
@@ -247,7 +248,7 @@ class ObjectService
             }
         }
 
-        throw new \RuntimeException('Unit object not found with object ID: ' . $object_id);
+        throw new RuntimeException('Unit object not found with object ID: ' . $object_id);
     }
 
     /**
@@ -266,7 +267,7 @@ class ObjectService
             }
         }
 
-        throw new \RuntimeException('Unit object not found with machine name: ' . $machine_name);
+        throw new RuntimeException('Unit object not found with machine name: ' . $machine_name);
     }
 
     /**
@@ -301,7 +302,7 @@ class ObjectService
             }
         }
 
-        throw new \RuntimeException('Building not found with production value for machine name: ' . $machine_name);
+        throw new RuntimeException('Building not found with production value for machine name: ' . $machine_name);
     }
 
     /**

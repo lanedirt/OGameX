@@ -8,13 +8,14 @@ use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use OGame\Factories\GameMessageFactory;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Message;
-use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 
 /**
  * Base class for tests that require account context. Common setup includes signup of new account and login.
@@ -28,10 +29,16 @@ abstract class AccountTestCase extends TestCase
 
     /**
      * Set up common test components.
+     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Set amount of planets to be created for the user to 2 because planet switching
+        // is a part of the test suite.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('registration_planet_amount', 2);
 
         // Create a new user and login so we can access ingame features.
         $this->createAndLoginUser();
@@ -98,35 +105,6 @@ abstract class AccountTestCase extends TestCase
     }
 
     /**
-     * Helper method to create a planet model and configure it.
-     *
-     * @param array<string, int> $attributes
-     */
-    protected function createAndSetPlanetModel(array $attributes): void
-    {
-        // Create fake planet eloquent model with additional attributes
-        $planetModelFake = Planet::factory()->make($attributes);
-        // Set the fake model to the planet service
-        $this->planetService->setPlanet($planetModelFake);
-    }
-
-    /**
-     * Set up the planet service for testing.
-     *
-     * @return void
-     * @throws BindingResolutionException
-     */
-    protected function setUpPlanetService(): void
-    {
-        // Initialize empty playerService object directly without factory as we do not
-        // actually want to load a player from the database.
-        $playerService = app()->make(PlayerService::class, ['player_id' => 0]);
-        // Initialize the planet service with factory.
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
-        $this->planetService = $planetServiceFactory->makeForPlayer($playerService, 0);
-    }
-
-    /**
      * Retrieve meta fields from page response to extract player id and planet id.
      *
      * @return void
@@ -163,7 +141,9 @@ abstract class AccountTestCase extends TestCase
         $this->currentUsername = $playerName;
         $this->currentPlanetId = (int)$planetId;
 
-        $playerService = app()->make(PlayerService::class, ['player_id' => $this->currentUserId]);
+        // Initialize the player service with factory.
+        $playerServiceFactory = app()->make(PlayerServiceFactory::class);
+        $playerService = $playerServiceFactory->make($this->currentUserId);
         $this->planetService = $playerService->planets->current();
         $this->secondPlanetService = $playerService->planets->all()[1];
     }
@@ -265,7 +245,7 @@ abstract class AccountTestCase extends TestCase
     protected function planetAddResources(Resources $resources): void
     {
         // Update resources.
-        $this->planetService->addResources($resources, true);
+        $this->planetService->addResources($resources);
     }
 
     /**
@@ -273,7 +253,6 @@ abstract class AccountTestCase extends TestCase
      *
      * @param Resources $resources
      * @return void
-     * @throws BindingResolutionException
      * @throws Exception
      */
     protected function planetDeductResources(Resources $resources): void
@@ -320,7 +299,7 @@ abstract class AccountTestCase extends TestCase
     {
         // Update current users planet buildings to allow for research by mutating database.
         try {
-            $this->planetService->getPlayer()->setResearchLevel($machine_name, $object_level, true);
+            $this->planetService->getPlayer()->setResearchLevel($machine_name, $object_level);
         } catch (Exception $e) {
             $this->fail('Failed to set research level for player. Error: ' . $e->getMessage());
         }
@@ -538,7 +517,6 @@ abstract class AccountTestCase extends TestCase
      * Add a research build request to the current users current planet.
      * @param string $machine_name
      * @return void
-     * @throws Exception
      */
     protected function addResearchBuildRequest(string $machine_name): void
     {
@@ -548,6 +526,7 @@ abstract class AccountTestCase extends TestCase
             '_token' => csrf_token(),
             'technologyId' => $object->id,
         ]);
+
         // Assert the response status is successful
         $response->assertStatus(200);
     }
@@ -668,22 +647,39 @@ abstract class AccountTestCase extends TestCase
     /**
      * Asserts that a message has been received in the database for a specific player and that it contains the specified text.
      *
-     * @param PlayerService $player
-     * @param array<int,string> $must_contain
+     * @param PlayerService $player The player to check for messages.
+     * @param array<int,string> $must_contain The text that must be contained in the message.
+     * @param int $expected_count The amount of messages that must contain the specified text. Defaults to 1.
      * @return void
      */
-    protected function assertMessageReceivedAndContainsDatabase(PlayerService $player, array $must_contain): void
+    protected function assertMessageReceivedAndContainsDatabase(PlayerService $player, array $must_contain, int $expected_count = 1): void
     {
-        $lastMessage = Message::where('user_id', $player->getId())
+        // Get last 50 messages for the player.
+        $messages = Message::where('user_id', $player->getId())
             ->orderBy('id', 'desc')
-            ->first();
+            ->limit(50)
+            ->get();
 
-        // Get the message body.
-        $lastMessageViewModel = GameMessageFactory::createGameMessage($lastMessage);
+        // Loop through all messages and keep count of how many contain the specified text.
+        $messages_found = 0;
+        foreach ($messages as $message) {
+            $messageViewModel = GameMessageFactory::createGameMessage($message);
 
-        foreach ($must_contain as $needle) {
-            $this->assertStringContainsString($needle, $lastMessageViewModel->getBody());
+            // Check if the message contains all the specified texts.
+            $strings_found = 0;
+            foreach ($must_contain as $needle) {
+                if (str_contains($messageViewModel->getBody(), $needle)) {
+                    $strings_found++;
+                }
+            }
+
+            // Only count the message if all specified texts were found.
+            if ($strings_found === count($must_contain)) {
+                $messages_found++;
+            }
         }
+
+        $this->assertEquals($expected_count, $messages_found, 'Expected ' . $expected_count . ' messages to contain the specified text:' . implode(', ', $must_contain) . '. Found ' . $messages_found . ' messages.');
     }
 
     /**
