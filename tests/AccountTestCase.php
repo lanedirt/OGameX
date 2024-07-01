@@ -675,22 +675,39 @@ abstract class AccountTestCase extends TestCase
     /**
      * Asserts that a message has been received in the database for a specific player and that it contains the specified text.
      *
-     * @param PlayerService $player
-     * @param array<int,string> $must_contain
+     * @param PlayerService $player The player to check for messages.
+     * @param array<int,string> $must_contain The text that must be contained in the message.
+     * @param int $expected_count The amount of messages that must contain the specified text. Defaults to 1.
      * @return void
      */
-    protected function assertMessageReceivedAndContainsDatabase(PlayerService $player, array $must_contain): void
+    protected function assertMessageReceivedAndContainsDatabase(PlayerService $player, array $must_contain, int $expected_count = 1): void
     {
-        $lastMessage = Message::where('user_id', $player->getId())
+        // Get last 50 messages for the player.
+        $messages = Message::where('user_id', $player->getId())
             ->orderBy('id', 'desc')
-            ->first();
+            ->limit(50)
+            ->get();
 
-        // Get the message body.
-        $lastMessageViewModel = GameMessageFactory::createGameMessage($lastMessage);
+        // Loop through all messages and keep count of how many contain the specified text.
+        $messages_found = 0;
+        foreach ($messages as $message) {
+            $messageViewModel = GameMessageFactory::createGameMessage($message);
 
-        foreach ($must_contain as $needle) {
-            $this->assertStringContainsString($needle, $lastMessageViewModel->getBody());
+            // Check if the message contains all the specified texts.
+            $strings_found = 0;
+            foreach ($must_contain as $needle) {
+                if (str_contains($messageViewModel->getBody(), $needle)) {
+                    $strings_found++;
+                }
+            }
+
+            // Only count the message if all specified texts were found.
+            if ($strings_found === count($must_contain)) {
+                $messages_found++;
+            }
         }
+
+        $this->assertEquals($expected_count, $messages_found, 'Expected ' . $expected_count . ' messages to contain the specified text:' . implode(', ', $must_contain) . '. Found ' . $messages_found . ' messages.');
     }
 
     /**

@@ -176,7 +176,13 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         }
 
         // Assert that only two planets have been successfully created.
-        $this->assertEquals(2, count($created_planets), 'Exactly two planets should have been created with astrophysics level 5. Check astrophysics logic.');
+        $this->assertCount(2, $created_planets, 'Exactly two planets should have been created with astrophysics level 5. Check astrophysics logic.');
+
+        // Check that 3 messages have been sent to the player about failed colonization attempts.
+        $this->assertMessageReceivedAndContainsDatabase($this->planetService->getPlayer(), [
+            'The fleet has arrived',
+            'knowledge of astrophysics is not sufficient',
+        ], 3);
     }
 
     /**
