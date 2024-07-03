@@ -2,7 +2,9 @@
 
 namespace OGame\Services;
 
+use Cache;
 use Exception;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -763,38 +765,50 @@ class PlanetService
      */
     public function update(): void
     {
-        // ------
-        // 1. Update resources amount in planet based on hourly production values.
-        // ------
-        $this->updateResources(false);
+        $lockKey = "planet_update_lock_{$this->getPlanetId()}";
+        $lock = Cache::lock($lockKey, 10); // Lock for 10 seconds max
 
-        // ------
-        // 2. Update building queue
-        // ------
-        $this->updateBuildingQueue(false);
+        try {
+            $lock->block(1); // Wait for up to 1 second to acquire the lock
 
-        // ------
-        // 3. Update unit queue
-        // ------
-        $this->updateUnitQueue(false);
+            // ------
+            // 1. Update resources amount in planet based on hourly production values.
+            // ------
+            $this->updateResources(false);
 
-        // ------
-        // 4. Update resource production / consumption
-        // ------
-        $this->updateResourceProductionStats(false);
+            // ------
+            // 2. Update building queue
+            // ------
+            $this->updateBuildingQueue(false);
 
-        // ------
-        // 5. Update resource storage
-        // ------
-        $this->updateResourceStorageStats(false);
+            // ------
+            // 3. Update unit queue
+            // ------
+            $this->updateUnitQueue(false);
 
-        // -----
-        // 6. Update fleet missions that affect this planet
-        // -----
-        $this->updateFleetMissions(false);
+            // ------
+            // 4. Update resource production / consumption
+            // ------
+            $this->updateResourceProductionStats(false);
 
-        // Save the planet manually here to prevent it from happening 5+ times in the methods above.
-        $this->save();
+            // ------
+            // 5. Update resource storage
+            // ------
+            $this->updateResourceStorageStats(false);
+
+            // -----
+            // 6. Update fleet missions that affect this planet
+            // -----
+            $this->updateFleetMissions(false);
+
+            // Save the planet manually here to prevent it from happening 5+ times in the methods above.
+            $this->save();
+        } catch (LockTimeoutException $e) {
+            // Skip planet update. Lock could not be acquired.
+            // Do not throw exception here because this is not a critical error.
+        } finally {
+            optional($lock)->release();
+        }
     }
 
     /**

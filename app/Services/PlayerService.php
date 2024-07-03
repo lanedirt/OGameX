@@ -2,7 +2,9 @@
 
 namespace OGame\Services;
 
+use Cache;
 use Exception;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -307,17 +309,29 @@ class PlayerService
      */
     public function update(): void
     {
-        // ------
-        // 1. Update research queue
-        // ------
-        $this->updateResearchQueue(false);
+        $lockKey = "user_update_lock_{$this->getId()}";
+        $lock = Cache::lock($lockKey, 10); // Lock for 10 seconds max
 
-        // ------
-        // 2. Update last_ip and time properties.
-        // ------
-        $this->user->time = (string)Carbon::now()->timestamp;
-        $this->user->last_ip = request()->ip();
-        $this->user->save();
+        try {
+            $lock->block(1); // Wait for up to 1 second to acquire the lock
+
+            // ------
+            // 1. Update research queue
+            // ------
+            $this->updateResearchQueue(false);
+
+            // ------
+            // 2. Update last_ip and time properties.
+            // ------
+            $this->user->time = (string)Carbon::now()->timestamp;
+            $this->user->last_ip = request()->ip();
+            $this->user->save();
+        } catch (LockTimeoutException $e) {
+            // Skip planet update. Lock could not be acquired.
+            // Do not throw exception here because this is not a critical error.
+        } finally {
+            optional($lock)->release();
+        }
     }
 
     /**
