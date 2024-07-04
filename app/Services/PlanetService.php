@@ -4,7 +4,6 @@ namespace OGame\Services;
 
 use Cache;
 use Exception;
-use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;

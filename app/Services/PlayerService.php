@@ -4,7 +4,6 @@ namespace OGame\Services;
 
 use Cache;
 use Exception;
-use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
