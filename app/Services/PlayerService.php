@@ -310,28 +310,29 @@ class PlayerService
     public function update(): void
     {
         $lockKey = "user_update_lock_{$this->getId()}";
-        $lock = Cache::lock($lockKey, 10); // Lock for 10 seconds max
+        $lock = Cache::lock($lockKey, 10);
 
-        try {
-            $lock->block(1); // Wait for up to 1 second to acquire the lock
+        // Try to acquire the lock immediately.
+        if ($lock->get()) {
+            try {
+                // ------
+                // 1. Update research queue
+                // ------
+                $this->updateResearchQueue(false);
 
-            // ------
-            // 1. Update research queue
-            // ------
-            $this->updateResearchQueue(false);
-
-            // ------
-            // 2. Update last_ip and time properties.
-            // ------
-            $this->user->time = (string)Carbon::now()->timestamp;
-            $this->user->last_ip = request()->ip();
-            $this->user->save();
-        } catch (LockTimeoutException $e) {
-            // Skip planet update. Lock could not be acquired.
-            // Do not throw exception here because this is not a critical error.
-        } finally {
-            optional($lock)->release();
+                // ------
+                // 2. Update last_ip and time properties.
+                // ------
+                $this->user->time = (string)Carbon::now()->timestamp;
+                $this->user->last_ip = request()->ip();
+                $this->user->save();
+            } finally {
+                $lock->release();
+            }
         }
+
+        // Note: player update is skipped if lock could not be acquired.
+        // Do not throw exception here because this is not a critical error.
     }
 
     /**
