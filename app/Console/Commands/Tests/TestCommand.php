@@ -77,7 +77,7 @@ abstract class TestCommand extends Command
     /**
      * @throws BindingResolutionException
      * @throws ValidationException
-     * @throws ConnectionException
+     * @throws ConnectionException|GuzzleException
      */
     protected function setup(): void
     {
@@ -157,10 +157,12 @@ abstract class TestCommand extends Command
         $this->info("Login as test user...");
 
         $this->httpClient = new Client(array(
-            'cookies' => true
+            'base_uri' => $this->appUrl,
+            'cookies' => true,
+            'verify' => false,
         ));
 
-        $response = $this->httpClient->request('GET',"$this->appUrl/");
+        $response = $this->httpClient->request('GET','/');
         // Parse the response body to find the CSRF token
         $csrfToken = null;
 
@@ -175,7 +177,7 @@ abstract class TestCommand extends Command
         }
 
         // Login and get the session cookie
-        $loginResponse = $this->httpClient->request('POST',"$this->appUrl/login", [
+        $loginResponse = $this->httpClient->request('POST','/login', [
             'timeout' => 30,
             'form_params' => [
                 '_token' => $csrfToken,
@@ -189,7 +191,7 @@ abstract class TestCommand extends Command
         }
 
         // Check if the login was successful by calling the overview page and checking if the player ID is present.
-        $response = $this->httpClient->request('GET', "$this->appUrl/overview");
+        $response = $this->httpClient->request('GET', '/overview');
         if ($response->getStatusCode() != 200 || strpos($response->getBody()->getContents(), 'ogame-player-id') === false) {
             $this->error("Login failed, no 'ogame-player-id' metatag found while accessing /overview. Status: " . $response->getStatusCode());
         }
@@ -206,7 +208,7 @@ abstract class TestCommand extends Command
      */
     protected function getLoggedInCsrfToken(): string
     {
-        $response = $this->httpClient->request('GET', "$this->appUrl/overview");
+        $response = $this->httpClient->request('GET', '/overview');
         $csrfToken = null;
 
         if ($response->getStatusCode() === 200) {
@@ -228,10 +230,7 @@ abstract class TestCommand extends Command
         $timeLogs = [];
 
         // Use the session in parallel requests
-        $appUrl = $this->appUrl;
         $numberOfRequests = $this->numberOfRequests;
-        $absoluteEndpoint = "$appUrl/$endpoint";
-
 
         // Array to hold the promises
         $promises = [];
@@ -239,7 +238,7 @@ abstract class TestCommand extends Command
         // Perform the requests in parallel
         for ($i = 0; $i < $numberOfRequests; $i++) {
             $timeLogs[$i]['start'] = new DateTime(); // Capture the start time before making the request
-            $promises[$i] = $this->httpClient->getAsync($absoluteEndpoint)->then(
+            $promises[$i] = $this->httpClient->getAsync($endpoint)->then(
                 function ($response) use (&$timeLogs, $i) {
                     $timeLogs[$i]['end'] = new DateTime(); // Capture the end time after the request finishes
                     return $response;

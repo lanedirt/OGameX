@@ -30,9 +30,9 @@ class TestRaceConditionUnitQueue extends TestCommand
      * Main entry point for the command.
      *
      * @throws ValidationException
-     * @throws Exception
+     * @throws Exception|\GuzzleHttp\Exception\GuzzleException
      */
-    public function handle(): void
+    public function handle(): int
     {
         for ($i = 0; $i < $this->numberOfIterations; $i++) {
             // Set up the test environment.
@@ -47,9 +47,11 @@ class TestRaceConditionUnitQueue extends TestCommand
             // Assert the database state after the test.
             if (!$this->testAssert()) {
                 $this->error('Test failed. Exiting...');
-                break;
+                return 1;
             }
         }
+
+        return 0;
     }
 
     /**

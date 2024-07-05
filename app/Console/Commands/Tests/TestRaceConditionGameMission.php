@@ -34,7 +34,7 @@ class TestRaceConditionGameMission extends TestCommand
      * @throws Exception
      * @throws GuzzleException
      */
-    public function handle(): void
+    public function handle(): int
     {
         for ($i = 0; $i < $this->numberOfIterations; $i++) {
             $this->info("Running test iteration... $i");
@@ -60,9 +60,11 @@ class TestRaceConditionGameMission extends TestCommand
             // Assert the database state after the test.
             if (!$this->testAssert()) {
                 $this->error('Test failed. Exiting...');
-                break;
+                return 1;
             }
         }
+
+        return 0;
     }
 
     /**
@@ -104,7 +106,7 @@ class TestRaceConditionGameMission extends TestCommand
         $secondPlanetCoordinates = $secondPlanet->getPlanetCoordinates();
 
         $csrfToken = $this->getLoggedInCsrfToken();
-        $response = $this->httpClient->request('POST', $this->appUrl . '/ajax/fleet/dispatch/send-fleet', [
+        $response = $this->httpClient->request('POST', '/ajax/fleet/dispatch/send-fleet', [
             'timeout' => 30,
             'form_params' => [
                 '_token' => $csrfToken,
@@ -119,7 +121,6 @@ class TestRaceConditionGameMission extends TestCommand
                 'am' . $this->objectService->getUnitObjectByMachineName('small_cargo')->id  => '10',
             ]
         ]);
-
 
         $this->info("Dispatched 10 small cargos to users second planet: {$secondPlanetCoordinates->asString()}");
     }
