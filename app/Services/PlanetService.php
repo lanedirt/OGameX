@@ -2,9 +2,9 @@
 
 namespace OGame\Services;
 
-use Cache;
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
@@ -13,6 +13,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
 use RuntimeException;
+use Throwable;
 
 /**
  * Class PlanetService.
@@ -762,15 +763,19 @@ class PlanetService
      *
      * @return void
      * @throws Exception
+     * @throws Throwable
      */
     public function update(): void
     {
-        $lockKey = "planet_update_lock_{$this->getPlanetId()}";
-        $lock = Cache::lock($lockKey, 10); // Lock for 10 seconds max
+        DB::transaction(function () {
+            // Attempt to acquire a lock on the row for this planet. This is to prevent
+            // race conditions when multiple requests are updating the same planet and
+            // potentially doing double insertions or overwriting each other's changes.
+            $planet = Planet::where('id', $this->getPlanetId())
+                ->lockForUpdate()
+                ->first();
 
-        // Try to acquire the lock immediately.
-        if ($lock->get()) {
-            try {
+            if ($planet) {
                 // ------
                 // 1. Update resources amount in planet based on hourly production values.
                 // ------
@@ -803,13 +808,10 @@ class PlanetService
 
                 // Save the planet manually here to prevent it from happening 5+ times in the methods above.
                 $this->save();
-            } finally {
-                $lock->release();
+            } else {
+                throw new \Exception('Could not acquire planet update lock.');
             }
-        }
-
-        // Note: planet update is skipped if lock could not be acquired.
-        // Do not throw exception here because this is not a critical error.
+        });
     }
 
     /**
@@ -1619,6 +1621,9 @@ class PlanetService
         return (int)floor($resources_spent / 1000);
     }
 
+    /**
+     * @throws Throwable
+     */
     public function updateFleetMissions(): void
     {
         try {
@@ -1626,7 +1631,20 @@ class PlanetService
             $missions = $fleetMissionService->getMissionsByPlanetId($this->getPlanetId());
 
             foreach ($missions as $mission) {
-                $fleetMissionService->updateMission($mission);
+                DB::transaction(function () use ($mission, $fleetMissionService) {
+                    // Attempt to acquire a lock on the row for this fleet mission. This is to prevent
+                    // race conditions when multiple requests are updating the same fleet mission and
+                    // potentially doing double insertions or overwriting each other's changes.
+                    $fleetMissionLock = FleetMission::where('id', $mission->id)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($fleetMissionLock) {
+                        $fleetMissionService->updateMission($mission);
+                    } else {
+                        throw new \Exception('Could not acquire fleet mission update lock.');
+                    }
+                });
             }
         } catch (Exception $e) {
             throw new RuntimeException('Fleet mission service could not be loaded: ' . $e->getMessage());

@@ -2,17 +2,18 @@
 
 namespace OGame\Services;
 
-use Cache;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\Models\FleetMission;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Models\UserTech;
 use RuntimeException;
+use Throwable;
 
 /**
  * Class PlayerService.
@@ -305,16 +306,19 @@ class PlayerService
      * It also updates the research queue.
      *
      * @return void
-     * @throws Exception
+     * @throws Throwable
      */
     public function update(): void
     {
-        $lockKey = "user_update_lock_{$this->getId()}";
-        $lock = Cache::lock($lockKey, 10);
+        DB::transaction(function () {
+            // Attempt to acquire a lock on the row for this fleet mission. This is to prevent
+            // race conditions when multiple requests are updating the same fleet mission and
+            // potentially doing double insertions or overwriting each other's changes.
+            $playerLock = User::where('id', $this->getId())
+                ->lockForUpdate()
+                ->first();
 
-        // Try to acquire the lock immediately.
-        if ($lock->get()) {
-            try {
+            if ($playerLock) {
                 // ------
                 // 1. Update research queue
                 // ------
@@ -325,14 +329,12 @@ class PlayerService
                 // ------
                 $this->user->time = (string)Carbon::now()->timestamp;
                 $this->user->last_ip = request()->ip();
-                $this->user->save();
-            } finally {
-                $lock->release();
-            }
-        }
 
-        // Note: player update is skipped if lock could not be acquired.
-        // Do not throw exception here because this is not a critical error.
+                $this->user->save();
+            } else {
+                throw new \Exception('Could not acquire player update lock.');
+            }
+        });
     }
 
     /**
