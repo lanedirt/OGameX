@@ -197,8 +197,7 @@ class CreateNewUser implements CreatesNewUsers
                 $this->createInitialGameDataForUser($user);
 
                 return $user;
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 if ($e->getCode() === 23000) {
                     // If the username is already taken, retry creating the user.
                     continue;

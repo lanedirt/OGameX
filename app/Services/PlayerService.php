@@ -461,9 +461,7 @@ class PlayerService
         }
 
         // Delete tech record.
-        if ($this->user_tech) {
-            $this->user_tech->delete();
-        }
+        $this->user_tech->delete();
 
         // Delete all planets.
         \OGame\Models\Planet::where('user_id', $this->getId())->delete();

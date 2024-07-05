@@ -3,6 +3,7 @@
 namespace OGame\Console\Commands\Tests;
 
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
@@ -30,7 +31,7 @@ class TestRaceConditionUnitQueue extends TestCommand
      * Main entry point for the command.
      *
      * @throws ValidationException
-     * @throws Exception|\GuzzleHttp\Exception\GuzzleException
+     * @throws Exception|GuzzleException
      */
     public function handle(): int
     {
@@ -92,7 +93,7 @@ class TestRaceConditionUnitQueue extends TestCommand
             $this->info('[OK] User has built 10 light fighters as expected.');
             return true;
         } else {
-            $this->error('[ERROR] User does not have the expected 10 light fighter units. Amount of light fighters on planet: ' . $light_fighter_count);
+            $this->error('[ERROR] User does not have the expected 10 light fighter units. Amount of light fighters on planet: ' . $light_fighter_count . '. Check for race conditions!');
             return false;
         }
     }

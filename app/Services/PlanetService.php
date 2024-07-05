@@ -771,41 +771,41 @@ class PlanetService
         // Try to acquire the lock immediately.
         if ($lock->get()) {
             try {*/
-                // ------
-                // 1. Update resources amount in planet based on hourly production values.
-                // ------
-                $this->updateResources(false);
+        // ------
+        // 1. Update resources amount in planet based on hourly production values.
+        // ------
+        $this->updateResources(false);
 
-                // ------
-                // 2. Update building queue
-                // ------
-                $this->updateBuildingQueue(false);
+        // ------
+        // 2. Update building queue
+        // ------
+        $this->updateBuildingQueue(false);
 
-                // ------
-                // 3. Update unit queue
-                // ------
-                $this->updateUnitQueue(false);
+        // ------
+        // 3. Update unit queue
+        // ------
+        $this->updateUnitQueue(false);
 
-                // ------
-                // 4. Update resource production / consumption
-                // ------
-                $this->updateResourceProductionStats(false);
+        // ------
+        // 4. Update resource production / consumption
+        // ------
+        $this->updateResourceProductionStats(false);
 
-                // ------
-                // 5. Update resource storage
-                // ------
-                $this->updateResourceStorageStats(false);
+        // ------
+        // 5. Update resource storage
+        // ------
+        $this->updateResourceStorageStats(false);
 
-                // -----
-                // 6. Update fleet missions that affect this planet
-                // -----
-                $this->updateFleetMissions(false);
+        // -----
+        // 6. Update fleet missions that affect this planet
+        // -----
+        $this->updateFleetMissions(false);
 
-                // Save the planet manually here to prevent it from happening 5+ times in the methods above.
-                $this->save();
-            /*} finally {
-                $lock->release();
-            }
+        // Save the planet manually here to prevent it from happening 5+ times in the methods above.
+        $this->save();
+        /*} finally {
+            $lock->release();
+        }
         }*/
 
         // Note: planet update is skipped if lock could not be acquired.

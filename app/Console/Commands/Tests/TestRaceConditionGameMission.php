@@ -51,8 +51,8 @@ class TestRaceConditionGameMission extends TestCommand
             // Mutate the database and set the time_arrival to 1 second in the past so the next
             // request will be able to process the mission and start the return mission.
             FleetMission::where('planet_id_from', $this->currentPlanetService->getPlanetId())
-                ->update(['time_departure' => time()-901,
-                    'time_arrival' => time()-1]);
+                ->update(['time_departure' => time() - 901,
+                    'time_arrival' => time() - 1]);
 
             // Run the parallel requests against the overview page which should start the return mission.
             $this->runParallelRequests('overview');
@@ -92,7 +92,7 @@ class TestRaceConditionGameMission extends TestCommand
             $this->info('[OK] Exactly 1 returning mission created for 1 transport mission.');
             return true;
         } else {
-            $this->error('[ERROR] There are ' . $returningMissions->count() . ' returning missions in the database while only 1 should be created.');
+            $this->error('[ERROR] There are ' . $returningMissions->count() . ' returning missions in the database while only 1 should be created. Check for race conditions!');
             return false;
         }
     }
@@ -100,13 +100,14 @@ class TestRaceConditionGameMission extends TestCommand
     /**
      * @throws GuzzleException
      */
-    private function dispatchFleetMissionTransport(): void {
+    private function dispatchFleetMissionTransport(): void
+    {
         $missionTypeTransport = 3;
         $secondPlanet = $this->playerService->planets->all()[1];
         $secondPlanetCoordinates = $secondPlanet->getPlanetCoordinates();
 
-        $csrfToken = $this->getLoggedInCsrfToken();
-        $response = $this->httpClient->request('POST', '/ajax/fleet/dispatch/send-fleet', [
+        $csrfToken = $this->getCsrfToken();
+        $this->httpClient->request('POST', '/ajax/fleet/dispatch/send-fleet', [
             'timeout' => 30,
             'form_params' => [
                 '_token' => $csrfToken,

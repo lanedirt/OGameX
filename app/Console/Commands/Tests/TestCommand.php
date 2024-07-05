@@ -10,7 +10,6 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Validation\ValidationException;
 use OGame\Actions\Fortify\CreateNewUser;
 use OGame\Factories\PlanetServiceFactory;
@@ -77,7 +76,7 @@ abstract class TestCommand extends Command
     /**
      * @throws BindingResolutionException
      * @throws ValidationException
-     * @throws ConnectionException|GuzzleException
+     * @throws GuzzleException
      */
     protected function setup(): void
     {
@@ -93,7 +92,6 @@ abstract class TestCommand extends Command
         // Create a test user
         $creator = app()->make(CreateNewUser::class);
         $user = $creator->create([
-            'name' => 'Test User race condition',
             'email' => $this->email,
             'password' => $this->password,
         ]);
@@ -146,10 +144,9 @@ abstract class TestCommand extends Command
     }
 
     /**
-     * Login the test user and return the session cookie which can be used for further requests.
+     * Login the test user.
      *
      * @return void
-     * @throws ConnectionException
      * @throws GuzzleException
      */
     protected function loginUser(): void
@@ -162,22 +159,10 @@ abstract class TestCommand extends Command
             'verify' => false,
         ));
 
-        $response = $this->httpClient->request('GET','/');
-        // Parse the response body to find the CSRF token
-        $csrfToken = null;
-
-        if ($response->getStatusCode() == 200) {
-            $html = $response->getBody();
-            preg_match('/<meta name="csrf-token" content="([^"]+)"/', $html, $matches);
-            if (isset($matches[1])) {
-                $csrfToken = $matches[1];
-                // Extract cookies from the response
-                //$cookies = collect($response->cookies());
-            }
-        }
+        $csrfToken = $this->getCsrfToken();
 
         // Login and get the session cookie
-        $loginResponse = $this->httpClient->request('POST','/login', [
+        $loginResponse = $this->httpClient->request('POST', '/login', [
             'timeout' => 30,
             'form_params' => [
                 '_token' => $csrfToken,
@@ -192,10 +177,9 @@ abstract class TestCommand extends Command
 
         // Check if the login was successful by calling the overview page and checking if the player ID is present.
         $response = $this->httpClient->request('GET', '/overview');
-        if ($response->getStatusCode() != 200 || strpos($response->getBody()->getContents(), 'ogame-player-id') === false) {
+        if ($response->getStatusCode() != 200 || !str_contains($response->getBody()->getContents(), 'ogame-player-id')) {
             $this->error("Login failed, no 'ogame-player-id' metatag found while accessing /overview. Status: " . $response->getStatusCode());
-        }
-        else {
+        } else {
             $this->info("Login successful.");
         }
     }
@@ -206,9 +190,9 @@ abstract class TestCommand extends Command
      * @return string
      * @throws GuzzleException
      */
-    protected function getLoggedInCsrfToken(): string
+    protected function getCsrfToken(): string
     {
-        $response = $this->httpClient->request('GET', '/overview');
+        $response = $this->httpClient->request('GET', '/');
         $csrfToken = null;
 
         if ($response->getStatusCode() === 200) {
@@ -222,7 +206,7 @@ abstract class TestCommand extends Command
         return $csrfToken;
     }
 
-    protected function runParallelRequests($endpoint): void
+    protected function runParallelRequests(string $endpoint): void
     {
         $this->info("Running parallel requests...");
 
@@ -260,8 +244,7 @@ abstract class TestCommand extends Command
                     $statusCode = $response->getStatusCode();
                     if ($response->getStatusCode() != 200 || strpos($response->getBody()->getContents(), 'ogame-player-id') === false) {
                         $this->error("Request failed, no 'ogame-player-id' metatag found while accessing URL in parallel loop. Status: " . $response->getStatusCode());
-                    }
-                    else {
+                    } else {
                         $startTime = $timeLogs[$i]['start']->format('Y-m-d H:i:s.u');
                         $endTime = $timeLogs[$i]['end']->format('Y-m-d H:i:s.u');
                         $this->info("Request $i succeeded with status code $statusCode. (Started at: $startTime, Ended at: $endTime)");
