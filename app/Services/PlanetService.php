@@ -12,6 +12,7 @@ use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
+use RuntimeException;
 
 /**
  * Class PlanetService.
@@ -433,7 +434,7 @@ class PlanetService
         // Sanity check that this planet has enough resources, if not throw
         // exception.
         if (!$this->hasResources($resources)) {
-            throw new \RuntimeException('Planet does not have enough resources.');
+            throw new RuntimeException('Planet does not have enough resources.');
         }
 
         if (!empty($resources->metal->get())) {
@@ -764,49 +765,48 @@ class PlanetService
      */
     public function update(): void
     {
-        // TODO: disabled locking temporary to test race condition detection tests.
-        /*$lockKey = "planet_update_lock_{$this->getPlanetId()}";
+        $lockKey = "planet_update_lock_{$this->getPlanetId()}";
         $lock = Cache::lock($lockKey, 10); // Lock for 10 seconds max
 
         // Try to acquire the lock immediately.
         if ($lock->get()) {
-            try {*/
-        // ------
-        // 1. Update resources amount in planet based on hourly production values.
-        // ------
-        $this->updateResources(false);
+            try {
+                // ------
+                // 1. Update resources amount in planet based on hourly production values.
+                // ------
+                $this->updateResources(false);
 
-        // ------
-        // 2. Update building queue
-        // ------
-        $this->updateBuildingQueue(false);
+                // ------
+                // 2. Update building queue
+                // ------
+                $this->updateBuildingQueue(false);
 
-        // ------
-        // 3. Update unit queue
-        // ------
-        $this->updateUnitQueue(false);
+                // ------
+                // 3. Update unit queue
+                // ------
+                $this->updateUnitQueue(false);
 
-        // ------
-        // 4. Update resource production / consumption
-        // ------
-        $this->updateResourceProductionStats(false);
+                // ------
+                // 4. Update resource production / consumption
+                // ------
+                $this->updateResourceProductionStats(false);
 
-        // ------
-        // 5. Update resource storage
-        // ------
-        $this->updateResourceStorageStats(false);
+                // ------
+                // 5. Update resource storage
+                // ------
+                $this->updateResourceStorageStats(false);
 
-        // -----
-        // 6. Update fleet missions that affect this planet
-        // -----
-        $this->updateFleetMissions(false);
+                // -----
+                // 6. Update fleet missions that affect this planet
+                // -----
+                $this->updateFleetMissions();
 
-        // Save the planet manually here to prevent it from happening 5+ times in the methods above.
-        $this->save();
-        /*} finally {
-            $lock->release();
+                // Save the planet manually here to prevent it from happening 5+ times in the methods above.
+                $this->save();
+            } finally {
+                $lock->release();
+            }
         }
-        }*/
 
         // Note: planet update is skipped if lock could not be acquired.
         // Do not throw exception here because this is not a critical error.
@@ -825,7 +825,6 @@ class PlanetService
     {
         $time_last_update = $this->planet->time_last_update;
         $current_time = (int)Carbon::now()->timestamp;
-        $resources_add = [];
 
         // TODO: add unittest to check that updating fractional resources
         // e.g. if planet has production of 30/hour.. that when it updates
@@ -1125,7 +1124,7 @@ class PlanetService
     {
         $object = $this->objects->getUnitObjectByMachineName($machine_name);
         if ($this->planet->{$object->machine_name} < $amount) {
-            throw new \RuntimeException('Planet does not have enough units.');
+            throw new RuntimeException('Planet does not have enough units.');
         }
         $this->planet->{$object->machine_name} -= $amount;
 
@@ -1620,7 +1619,7 @@ class PlanetService
         return (int)floor($resources_spent / 1000);
     }
 
-    public function updateFleetMissions(bool $save_planet = true): void
+    public function updateFleetMissions(): void
     {
         try {
             $fleetMissionService = app()->make(FleetMissionService::class);
@@ -1630,7 +1629,7 @@ class PlanetService
                 $fleetMissionService->updateMission($mission);
             }
         } catch (Exception $e) {
-            throw new \RuntimeException('Fleet mission service could not be loaded: ' . $e->getMessage());
+            throw new RuntimeException('Fleet mission service could not be loaded: ' . $e->getMessage());
         }
     }
 }
