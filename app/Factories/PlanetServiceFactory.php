@@ -2,6 +2,7 @@
 
 namespace OGame\Factories;
 
+use Cache;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Models\Planet;
@@ -9,6 +10,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use RuntimeException;
 
 class PlanetServiceFactory
 {
@@ -82,7 +84,7 @@ class PlanetServiceFactory
                 $planetService = app()->make(PlanetService::class, ['player' => $player, 'planet_id' => $planetId]);
                 $this->instancesById[$planetId] = $planetService;
             } catch (BindingResolutionException $e) {
-                throw new \RuntimeException('Class not found: ' . PlayerService::class);
+                throw new RuntimeException('Class not found: ' . PlayerService::class);
             }
 
             if ($planetService->planetInitialized()) {
@@ -117,7 +119,7 @@ class PlanetServiceFactory
                 $this->instancesById[$planetService->getPlanetId()] = $planetService;
                 return $this->instancesByCoordinate[$coordinate->asString()];
             } catch (BindingResolutionException $e) {
-                throw new \RuntimeException('Class not found: ' . PlayerService::class);
+                throw new RuntimeException('Class not found: ' . PlayerService::class);
             }
         }
 
@@ -192,7 +194,7 @@ class PlanetServiceFactory
         }
 
         // If more than 100 tries have been done with no success, give up.
-        throw new \RuntimeException('Unable to determine new planet position.');
+        throw new RuntimeException('Unable to determine new planet position.');
     }
 
     /**
@@ -204,22 +206,36 @@ class PlanetServiceFactory
      */
     public function createInitialForPlayer(PlayerService $player, string $planetName): PlanetService
     {
-        $new_position = $this->determineNewPlanetPosition();
-        if (empty($new_position->galaxy) || empty($new_position->system) || empty($new_position->position)) {
-            // Failed to get a new position for the to be created planet. Throw exception.
-            throw new \RuntimeException('Unable to determine new planet position.');
+        // Use lock when using the determineNewPlanetPosition so that no other process can get the same position
+        // which would result in an error.
+        $lockKey = "planet_create_lock";
+        $lock = Cache::lock($lockKey, 10);
+
+        // Try to acquire the lock, waiting for up to 10 seconds.
+        if ($lock->block(10)) {
+            try {
+                $new_position = $this->determineNewPlanetPosition();
+                if (empty($new_position->galaxy) || empty($new_position->system) || empty($new_position->position)) {
+                    // Failed to get a new position for the to be created planet. Throw exception.
+                    throw new RuntimeException('Unable to determine new planet position.');
+                }
+
+                $createdPlanet = $this->createPlanet($player, $new_position, $planetName);
+
+                // Update settings with the last assigned galaxy and system if they changed.
+                $this->settings->set('last_assigned_galaxy', $createdPlanet->getPlanetCoordinates()->galaxy);
+                $this->settings->set('last_assigned_system', $createdPlanet->getPlanetCoordinates()->system);
+
+                // Reload player object so the new planet is added to the planetList.
+                $player->load($player->getId());
+
+                return $createdPlanet;
+            } finally {
+                $lock->release();
+            }
+        } else {
+            throw new RuntimeException('Unable to acquire lock for planet creation.');
         }
-
-        $createdPlanet = $this->createPlanet($player, $new_position, $planetName);
-
-        // Update settings with the last assigned galaxy and system if they changed.
-        $this->settings->set('last_assigned_galaxy', $createdPlanet->getPlanetCoordinates()->galaxy);
-        $this->settings->set('last_assigned_system', $createdPlanet->getPlanetCoordinates()->system);
-
-        // Reload player object so the new planet is added to the planetList.
-        $player->load($player->getId());
-
-        return $createdPlanet;
     }
 
     /**

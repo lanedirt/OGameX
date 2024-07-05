@@ -2,6 +2,7 @@
 
 namespace OGame\Actions\Fortify;
 
+use Exception;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -13,6 +14,7 @@ use OGame\Models\User;
 use OGame\Models\UserTech;
 use OGame\Services\MessageService;
 use OGame\Services\SettingsService;
+use RuntimeException;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -158,6 +160,7 @@ class CreateNewUser implements CreatesNewUsers
      *
      * @param array<string, string> $input
      * @throws ValidationException
+     * @throws Exception
      */
     public function create(array $input): User
     {
@@ -172,30 +175,46 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        $user = User::create([
-            'lang' => 'en',
-            'username' => $this->generateUniqueName(),
-            'email' => $input['email'],
-            'password' => Hash::make($input['password']),
-        ]);
 
-        // Check if the user is the first registered user
-        if (User::count() === 1) {
-            $user->assignRole('admin');
-            $user->username = 'Admin';
-            $user->save();
+        // Add try/catch to retry creating user 5 times because exception could be triggered
+        // if the username is already taken.
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            try {
+                $user = User::create([
+                    'lang' => 'en',
+                    'username' => $this->generateUniqueName(),
+                    'email' => $input['email'],
+                    'password' => Hash::make($input['password']),
+                ]);
+
+                // Check if the user is the first registered user
+                if (User::count() === 1) {
+                    $user->assignRole('admin');
+                    $user->username = 'Admin';
+                    $user->save();
+                }
+
+                $this->createInitialGameDataForUser($user);
+
+                return $user;
+            }
+            catch (Exception $e) {
+                if ($e->getCode() === 23000) {
+                    // If the username is already taken, retry creating the user.
+                    continue;
+                }
+                throw $e;
+            }
         }
 
-        $this->createInitialGameDataForUser($user);
-
-        return $user;
+        throw new RuntimeException('Failed to create a unique username after 5 attempts.');
     }
 
     /**
      * Create initial data for the player such as planets and tech records.
      *
      * @param User $user
-     * @throws \Exception
+     * @throws Exception
      */
     private function createInitialGameDataForUser($user): void
     {

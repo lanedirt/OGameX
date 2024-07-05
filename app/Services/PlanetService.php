@@ -764,12 +764,13 @@ class PlanetService
      */
     public function update(): void
     {
-        $lockKey = "planet_update_lock_{$this->getPlanetId()}";
+        // TODO: disabled locking temporary to test race condition detection tests.
+        /*$lockKey = "planet_update_lock_{$this->getPlanetId()}";
         $lock = Cache::lock($lockKey, 10); // Lock for 10 seconds max
 
         // Try to acquire the lock immediately.
         if ($lock->get()) {
-            try {
+            try {*/
                 // ------
                 // 1. Update resources amount in planet based on hourly production values.
                 // ------
@@ -802,10 +803,10 @@ class PlanetService
 
                 // Save the planet manually here to prevent it from happening 5+ times in the methods above.
                 $this->save();
-            } finally {
+            /*} finally {
                 $lock->release();
             }
-        }
+        }*/
 
         // Note: planet update is skipped if lock could not be acquired.
         // Do not throw exception here because this is not a critical error.

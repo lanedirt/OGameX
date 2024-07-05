@@ -8,6 +8,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use OGame\GameObjects\Models\Calculations\CalculationType;
+use OGame\Models\FleetMission;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Models\UserTech;
@@ -356,7 +357,7 @@ class PlayerService
             $object = $this->objects->getResearchObjectById($item->object_id);
 
             // Update planet and update level of the building that has been processed.
-            $this->setResearchLevel($object->machine_name, $item->object_level_target, true);
+            $this->setResearchLevel($object->machine_name, $item->object_level_target);
 
             // Update build queue record
             $item->processed = 1;
@@ -428,5 +429,46 @@ class PlayerService
 
         // +1 to max_colonies to get max_planets because the main planet is not included in the calculation above.
         return 1 + $astrophysicsObject->performCalculation(CalculationType::MAX_COLONIES, $astrophyicsLevel);
+    }
+
+    /**
+     * Delete the player and all associated records from the database.
+     *
+     * @return void
+     */
+    public function delete(): void
+    {
+        // Delete all messages.
+        \OGame\Models\Message::where('user_id', $this->getId())->delete();
+
+        // Loop through all planets and delete all records associated with them.
+        foreach ($this->planets->all() as $planet) {
+            // Delete all queue items.
+            \OGame\Models\ResearchQueue::where('planet_id', $planet->getPlanetId())->delete();
+            \OGame\Models\BuildingQueue::where('planet_id', $planet->getPlanetId())->delete();
+            \OGame\Models\UnitQueue::where('planet_id', $planet->getPlanetId())->delete();
+            // Delete all fleet missions.
+            // Get all fleet missions for this planet then loop through them and delete them.
+            // TODO: this might be a performance bottleneck if there are many missions. Consider using a bulk delete compatible
+            // with the foreign key constraints instead.
+            $missions = FleetMission::where('planet_id_from', $planet->getPlanetId())->orWhere('planet_id_to', $planet->getPlanetId())->get();
+            foreach ($missions as $mission) {
+                // Delete any that have this mission as their parent.
+                \OGame\Models\FleetMission::where('parent_id', $mission->id)->delete();
+                // Delete mission itself.
+                $mission->delete();
+            }
+        }
+
+        // Delete tech record.
+        if ($this->user_tech) {
+            $this->user_tech->delete();
+        }
+
+        // Delete all planets.
+        \OGame\Models\Planet::where('user_id', $this->getId())->delete();
+
+        // Delete the actual user.
+        $this->user->delete();
     }
 }

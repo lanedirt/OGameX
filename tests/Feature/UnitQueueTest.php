@@ -15,7 +15,7 @@ use Tests\AccountTestCase;
 class UnitQueueTest extends AccountTestCase
 {
     /**
-     * Prepare the planet for the test so it has the required buildings and research.
+     * Prepare the planet for the test, so it has the required buildings and research.
      *
      * @return void
      * @throws BindingResolutionException

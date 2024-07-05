@@ -207,6 +207,7 @@ class FleetController extends OGameController
      * @param PlayerService $player
      * @param FleetMissionService $fleetMissionService
      * @return JsonResponse
+     * @throws Exception
      */
     public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
     {

@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Factories\GameMissionFactory;
@@ -269,6 +270,7 @@ class FleetMissionService
      * @param Resources $resources
      * @param int $parent_id
      * @return void
+     * @throws Exception
      */
     public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): void
     {
