@@ -23,26 +23,45 @@ When submitting a pull request, please make sure to follow these guidelines:
 ### 1. PSR-12 Coding Standard
 The easiest way to check if your contributed code adheres to the conventions is to run the Laravel Pint script which is auto installed via Composer:
 
-`$ ./vendor/bin/pint --test --preset psr12`
+```
+$ ./vendor/bin/pint --test --preset psr12
+```
 
 Tip: it's possible to let Laravel Pint attempt to fix the code for you by running it without the --test flag:
 
-`$ ./vendor/bin/pint --preset psr12`
+```
+$ ./vendor/bin/pint --preset psr12
+```
 
 ### 2. PHPStan static code analysis
 Make sure that your code passes the PHPStan static code analysis. You can run PHPStan locally using the following command:
 
-`$ ./vendor/bin/phpstan analyse --memory-limit=256M`
+```
+$ ./vendor/bin/phpstan analyse --memory-limit=256M
+```
 
-### 3. Include feature or unittests
-Your PR should include feature or unittests where possible to cover the changes you made. OGameX uses the default Laravel testing framework which covers feature and unittests by default. If you're not sure how to write tests, please ask.
+### 3. Laravel unit and feature tests
+Your PR should include feature or unittests where possible to cover the changes you made. OGameX uses the default Laravel testing framework which covers feature and unittests by default.
 To run the tests locally, you can use the following command:
-`$ php artisan test`
 
-### 4. Keep it simple
+```
+$ php artisan test
+```
+
+### 4. Custom race condition tests
+If you are working on a feature that might introduce race conditions, please include tests that cover these scenarios. OGameX already contains some custom tests that can be run via php artisan commands. These tests support running multiple requests in parallel and in multiple iterations in order to simulate conditions that could cause race conditions.
+
+These tests are located in the `console/Commands/Tests` directory and can be run using the following command:
+
+```bash
+$ php artisan test:race-condition-unitqueue
+$ php artisan test:race-condition-game-mission
+```
+
+### 5. Keep it simple
 If your PR is too big, it will be hard to review. Try to keep it simple and small. If you want to do more than one thing, send multiple pull requests.
 
-### 5. Keep it clean
+### 6. Keep it clean
 Please remove any unrelated changes from your PR. If you have changes in your branch that are not related to the PR, please create a new branch for them.
 
 If you have any questions, feel free to reach out to the maintainer(s). Thank you in advance for your contributions! 🎉

@@ -19,7 +19,11 @@
 </div>
 
 
-OGameX is an open-source OGame clone aiming to recreate the official OGame experience, developed originally by GameForge GmbH. This clone is built from scratch using the Laravel 11.x framework and uses modern PHP practices.
+OGameX is an open-source OGame redesign clone. This clone is built fully from scratch using the Laravel 11.x framework and uses modern PHP practices. All major functionality is covered by unit and feature tests which automatically run on every build. 
+
+We welcome any and all contributions to this project! If you want to help out, please read the [contributing](#contributing) section.
+
+Disclaimer: this project is purely fan-based and does not contain any commercial features. All backend code is written from scratch. The rights and concepts for the artwork and frontend belong to the original creators: GameForge GmbH. Support them by checking out the official version: https://ogame.org.
 
 ## 🖥️ Live demo
 - Main branch (nightly builds): [https://main.ogamex.dev](https://main.ogamex.dev)
@@ -169,12 +173,12 @@ After completing the setup, visit https://localhost to access OGameX. You first 
   ```
   To remove the admin role from a user, use the following command:
   ```
-    $ php artisan ogamex:remove-admin-role {username}
+  $ php artisan ogamex:remove-admin-role {username}
   ```
 
 ## <a name="support"></a> 📞 Support
 
-Encountered issues? Open a ticket on GitHub.
+Did you encounter issues in this project? Please open a ticket on GitHub and we'll try to help you out as soon as possible.
 
 ## <a name="license"></a> 📰 License
 
