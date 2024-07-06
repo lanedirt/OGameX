@@ -6,11 +6,14 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use OGame\GameObjects\Models\Calculations\CalculationType;
+use OGame\Models\FleetMission;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Models\UserTech;
 use RuntimeException;
+use Throwable;
 
 /**
  * Class PlayerService.
@@ -303,21 +306,35 @@ class PlayerService
      * It also updates the research queue.
      *
      * @return void
-     * @throws Exception
+     * @throws Throwable
      */
     public function update(): void
     {
-        // ------
-        // 1. Update research queue
-        // ------
-        $this->updateResearchQueue(false);
+        DB::transaction(function () {
+            // Attempt to acquire a lock on the row for this fleet mission. This is to prevent
+            // race conditions when multiple requests are updating the same fleet mission and
+            // potentially doing double insertions or overwriting each other's changes.
+            $playerLock = User::where('id', $this->getId())
+                ->lockForUpdate()
+                ->first();
 
-        // ------
-        // 2. Update last_ip and time properties.
-        // ------
-        $this->user->time = (string)Carbon::now()->timestamp;
-        $this->user->last_ip = request()->ip();
-        $this->user->save();
+            if ($playerLock) {
+                // ------
+                // 1. Update research queue
+                // ------
+                $this->updateResearchQueue(false);
+
+                // ------
+                // 2. Update last_ip and time properties.
+                // ------
+                $this->user->time = (string)Carbon::now()->timestamp;
+                $this->user->last_ip = request()->ip();
+
+                $this->user->save();
+            } else {
+                throw new \Exception('Could not acquire player update lock.');
+            }
+        });
     }
 
     /**
@@ -342,7 +359,7 @@ class PlayerService
             $object = $this->objects->getResearchObjectById($item->object_id);
 
             // Update planet and update level of the building that has been processed.
-            $this->setResearchLevel($object->machine_name, $item->object_level_target, true);
+            $this->setResearchLevel($object->machine_name, $item->object_level_target);
 
             // Update build queue record
             $item->processed = 1;
@@ -414,5 +431,44 @@ class PlayerService
 
         // +1 to max_colonies to get max_planets because the main planet is not included in the calculation above.
         return 1 + $astrophysicsObject->performCalculation(CalculationType::MAX_COLONIES, $astrophyicsLevel);
+    }
+
+    /**
+     * Delete the player and all associated records from the database.
+     *
+     * @return void
+     */
+    public function delete(): void
+    {
+        // Delete all messages.
+        \OGame\Models\Message::where('user_id', $this->getId())->delete();
+
+        // Loop through all planets and delete all records associated with them.
+        foreach ($this->planets->all() as $planet) {
+            // Delete all queue items.
+            \OGame\Models\ResearchQueue::where('planet_id', $planet->getPlanetId())->delete();
+            \OGame\Models\BuildingQueue::where('planet_id', $planet->getPlanetId())->delete();
+            \OGame\Models\UnitQueue::where('planet_id', $planet->getPlanetId())->delete();
+            // Delete all fleet missions.
+            // Get all fleet missions for this planet then loop through them and delete them.
+            // TODO: this might be a performance bottleneck if there are many missions. Consider using a bulk delete compatible
+            // with the foreign key constraints instead.
+            $missions = FleetMission::where('planet_id_from', $planet->getPlanetId())->orWhere('planet_id_to', $planet->getPlanetId())->get();
+            foreach ($missions as $mission) {
+                // Delete any that have this mission as their parent.
+                \OGame\Models\FleetMission::where('parent_id', $mission->id)->delete();
+                // Delete mission itself.
+                $mission->delete();
+            }
+        }
+
+        // Delete tech record.
+        $this->user_tech->delete();
+
+        // Delete all planets.
+        \OGame\Models\Planet::where('user_id', $this->getId())->delete();
+
+        // Delete the actual user.
+        $this->user->delete();
     }
 }

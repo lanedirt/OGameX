@@ -38,3 +38,7 @@ jobs:
         run: docker compose exec -T ogame-app php artisan cache:clear && docker compose exec -T ogame-app php artisan config:cache && docker compose exec -T ogame-app php artisan route:cache && docker compose exec -T ogame-app php artisan view:cache
       - name: Run Tests
         run: docker compose exec -T ogame-app php artisan test
+      - name: Run custom Race Condition Tests
+        run: |
+          docker compose exec -T ogame-app php artisan test:race-condition-unitqueue
+          docker compose exec -T ogame-app php artisan test:race-condition-game-mission

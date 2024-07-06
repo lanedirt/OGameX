@@ -1,4 +1,4 @@
-# Run PHPStan code analysis with `clear && ./vendor/bin/phpstan analyse --memory-limit=2G` command
+# Run PHPStan code analysis with `clear && ./vendor/bin/phpstan analyse --memory-limit=256M` command
 
 includes:
     - vendor/larastan/larastan/extension.neon

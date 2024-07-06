@@ -4,6 +4,7 @@ namespace OGame\Services;
 
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
@@ -11,6 +12,8 @@ use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
+use RuntimeException;
+use Throwable;
 
 /**
  * Class PlanetService.
@@ -432,7 +435,7 @@ class PlanetService
         // Sanity check that this planet has enough resources, if not throw
         // exception.
         if (!$this->hasResources($resources)) {
-            throw new \RuntimeException('Planet does not have enough resources.');
+            throw new RuntimeException('Planet does not have enough resources.');
         }
 
         if (!empty($resources->metal->get())) {
@@ -760,41 +763,55 @@ class PlanetService
      *
      * @return void
      * @throws Exception
+     * @throws Throwable
      */
     public function update(): void
     {
-        // ------
-        // 1. Update resources amount in planet based on hourly production values.
-        // ------
-        $this->updateResources(false);
+        DB::transaction(function () {
+            // Attempt to acquire a lock on the row for this planet. This is to prevent
+            // race conditions when multiple requests are updating the same planet and
+            // potentially doing double insertions or overwriting each other's changes.
+            $planet = Planet::where('id', $this->getPlanetId())
+                ->lockForUpdate()
+                ->first();
 
-        // ------
-        // 2. Update building queue
-        // ------
-        $this->updateBuildingQueue(false);
+            if ($planet) {
+                // ------
+                // 1. Update resources amount in planet based on hourly production values.
+                // ------
+                $this->updateResources(false);
 
-        // ------
-        // 3. Update unit queue
-        // ------
-        $this->updateUnitQueue(false);
+                // ------
+                // 2. Update building queue
+                // ------
+                $this->updateBuildingQueue(false);
 
-        // ------
-        // 4. Update resource production / consumption
-        // ------
-        $this->updateResourceProductionStats(false);
+                // ------
+                // 3. Update unit queue
+                // ------
+                $this->updateUnitQueue(false);
 
-        // ------
-        // 5. Update resource storage
-        // ------
-        $this->updateResourceStorageStats(false);
+                // ------
+                // 4. Update resource production / consumption
+                // ------
+                $this->updateResourceProductionStats(false);
 
-        // -----
-        // 6. Update fleet missions that affect this planet
-        // -----
-        $this->updateFleetMissions(false);
+                // ------
+                // 5. Update resource storage
+                // ------
+                $this->updateResourceStorageStats(false);
 
-        // Save the planet manually here to prevent it from happening 5+ times in the methods above.
-        $this->save();
+                // -----
+                // 6. Update fleet missions that affect this planet
+                // -----
+                $this->updateFleetMissions();
+
+                // Save the planet manually here to prevent it from happening 5+ times in the methods above.
+                $this->save();
+            } else {
+                throw new \Exception('Could not acquire planet update lock.');
+            }
+        });
     }
 
     /**
@@ -810,7 +827,6 @@ class PlanetService
     {
         $time_last_update = $this->planet->time_last_update;
         $current_time = (int)Carbon::now()->timestamp;
-        $resources_add = [];
 
         // TODO: add unittest to check that updating fractional resources
         // e.g. if planet has production of 30/hour.. that when it updates
@@ -1110,7 +1126,7 @@ class PlanetService
     {
         $object = $this->objects->getUnitObjectByMachineName($machine_name);
         if ($this->planet->{$object->machine_name} < $amount) {
-            throw new \RuntimeException('Planet does not have enough units.');
+            throw new RuntimeException('Planet does not have enough units.');
         }
         $this->planet->{$object->machine_name} -= $amount;
 
@@ -1605,17 +1621,33 @@ class PlanetService
         return (int)floor($resources_spent / 1000);
     }
 
-    public function updateFleetMissions(bool $save_planet = true): void
+    /**
+     * @throws Throwable
+     */
+    public function updateFleetMissions(): void
     {
         try {
             $fleetMissionService = app()->make(FleetMissionService::class);
             $missions = $fleetMissionService->getMissionsByPlanetId($this->getPlanetId());
 
             foreach ($missions as $mission) {
-                $fleetMissionService->updateMission($mission);
+                DB::transaction(function () use ($mission, $fleetMissionService) {
+                    // Attempt to acquire a lock on the row for this fleet mission. This is to prevent
+                    // race conditions when multiple requests are updating the same fleet mission and
+                    // potentially doing double insertions or overwriting each other's changes.
+                    $fleetMissionLock = FleetMission::where('id', $mission->id)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($fleetMissionLock) {
+                        $fleetMissionService->updateMission($mission);
+                    } else {
+                        throw new \Exception('Could not acquire fleet mission update lock.');
+                    }
+                });
             }
         } catch (Exception $e) {
-            throw new \RuntimeException('Fleet mission service could not be loaded: ' . $e->getMessage());
+            throw new RuntimeException('Fleet mission service could not be loaded: ' . $e->getMessage());
         }
     }
 }

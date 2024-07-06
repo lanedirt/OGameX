@@ -20,7 +20,7 @@ class ResourceProductionTest extends UnitTestCase
 
         // Set the universe speed to 1x for this test.
         $settingsService = app()->make(SettingsService::class);
-        $settingsService->set('economy_speed', 1);
+        $settingsService->set('economy_speed', 8);
     }
 
     /**
@@ -62,8 +62,8 @@ class ResourceProductionTest extends UnitTestCase
         ]);
 
         // Assertions for production values with zero energy
-        $this->assertEquals(30, $this->planetService->getMetalProductionPerHour());
-        $this->assertEquals(15, $this->planetService->getCrystalProductionPerHour());
+        $this->assertEquals(240, $this->planetService->getMetalProductionPerHour());
+        $this->assertEquals(120, $this->planetService->getCrystalProductionPerHour());
         $this->assertEquals(0, $this->planetService->getDeuteriumProductionPerHour());
     }
 

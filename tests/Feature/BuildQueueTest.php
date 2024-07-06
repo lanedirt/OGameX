@@ -21,7 +21,7 @@ class BuildQueueTest extends AccountTestCase
     {
         // Set the universe speed to 1x for this test.
         $settingsService = app()->make(SettingsService::class);
-        $settingsService->set('economy_speed', 1);
+        $settingsService->set('economy_speed', 8);
 
         // Set the current time to a specific moment for testing
         $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
