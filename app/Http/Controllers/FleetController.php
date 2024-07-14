@@ -211,7 +211,6 @@ class FleetController extends OGameController
      */
     public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
     {
-        // Get target coordinates
         $galaxy = request()->input('galaxy');
         $system = request()->input('system');
         $position = request()->input('position');
@@ -271,6 +270,69 @@ class FleetController extends OGameController
             'newAjaxToken' => csrf_token(),
             'redirectUrl' => route('fleet.index'),
             'success' => true,
+        ]);
+    }
+
+    /**
+     * Handles the dispatch of a fleet via shortcut buttons on galaxy page.
+     *
+     * @param PlayerService $player
+     * @param FleetMissionService $fleetMissionService
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function dispatchSendMiniFleet(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
+    {
+        $galaxy = request()->input('galaxy');
+        $system = request()->input('system');
+        $position = request()->input('position');
+        $type = request()->input('type');
+        $shipCount = request()->input('shipCount');
+        $mission_type = (int)request()->input('mission');
+
+        // Get the current player's planet.
+        $planet = $player->planets->current();
+
+        // Units to be sent are static dependent on mission type.
+        $units = new UnitCollection();
+        switch ($mission_type) {
+            case 6: // Espionage
+                // TODO: make espionage probe amount configurable in user settings and use that value here.
+                $units->addUnit($planet->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+                break;
+        }
+
+        // Create the target coordinate.
+        $target_coordinate = new Coordinate($galaxy, $system, $position);
+        $resources = new Resources(0, 0, 0, 0);
+
+        // Create a new fleet mission
+        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $mission_type, $units, $resources);
+
+        /*
+         * Expected output:
+         {"response":{"message":"Send espionage probe to:","type":1,"slots":1,"probes":11,"recyclers":0,"explorers":9,"missiles":0,"shipsSent":1,"coordinates":{"galaxy":7,"system":249,"position":7},"planetType":1,"success":true},"components":[],"newAjaxToken":"466e064353ddd8a79db87c26777ab32b"}
+         */
+        return response()->json([
+            'response' => [
+                'message' => 'Send espionage probe to:',
+                'type' => 1,
+                'slots' => 1,
+                'probes' => 11,
+                'recyclers' => 0,
+                'explorers' => 9,
+                'missiles' => 0,
+                'shipsSent' => 1,
+                'coordinates' => [
+                    'galaxy' => $galaxy,
+                    'system' => $system,
+                    'position' => $position,
+                ],
+                'planetType' => 1,
+                'success' => true,
+            ],
+            'newAjaxToken' => csrf_token(),
+            'components' => [],
         ]);
     }
 

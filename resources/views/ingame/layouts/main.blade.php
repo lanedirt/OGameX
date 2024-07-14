@@ -560,6 +560,7 @@ Combat simulation save slots +20">
                     "hasAPassword": true
                 };
                 var hasAPassword = true;
+                var jsloca = {"INTERNAL_ERROR":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No","LOCA_NOTIFY_ERROR":"Error","LOCA_NOTIFY_INFO":"Info","LOCA_NOTIFY_SUCCESS":"Success","LOCA_NOTIFY_WARNING":"Warning","COMBATSIM_PLANNING":"Planning","COMBATSIM_PENDING":"Simulation running...","COMBATSIM_DONE":"Complete","MSG_RESTORE":"restore","MSG_DELETE":"delete","COPIED_TO_CLIPBOARD":"Copied to clipboard","LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_NETWORK_MSG_GAMEOPERATOR":"Report this message to a game operator?"};
                 var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
                 var isMobile = false;
                 var isMobileApp = false;
@@ -636,7 +637,7 @@ Combat simulation save slots +20">
                 var missleAttackLink = "{{ route('overview.index') }}#TODO_page=missileattacklayer&width=669&height=250";
                 var changeNickLink = "{{ route('changenick.overlay') }}";
                 var showOutlawWarning = true;
-                var miniFleetLink = "{{ route('overview.index') }}#TODO_page=minifleet&ajax=1";
+                var miniFleetLink = "{{ route('fleet.dispatch.sendminifleet') }}";
                 var ogameUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
                 var startpageUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
                 var nodePort = 19603;

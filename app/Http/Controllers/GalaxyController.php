@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,8 +21,6 @@ class GalaxyController extends OGameController
      */
     public function index(Request $request, PlayerService $player): View
     {
-        $this->setBodyId('galaxy');
-
         // Get current galaxy and system from current planet.
         $planet = $player->planets->current();
         $coordinates = $planet->getPlanetCoordinates();
@@ -55,8 +54,9 @@ class GalaxyController extends OGameController
      * @param PlayerService $player
      * @param PlanetServiceFactory $planetServiceFactory
      *
-     * @return array<int, array<string, array<int|string, array<int|string, array<string, bool>|bool|int|string|null>|bool|int|string|null>|int|string>>
-     * @throws \Exception
+     * @phpstan-ignore-next-line
+     * @return mixed
+     * @throws Exception
      */
     public function getGalaxyArray(int $galaxy, int $system, PlayerService $player, PlanetServiceFactory $planetServiceFactory): array
     {
@@ -83,6 +83,40 @@ class GalaxyController extends OGameController
                     $nameAbbreviations[] = 'admin';
                 }
 
+                $availableMissions = [];
+
+                // Transport
+                $availableMissions[] = [
+                    'missionType' => 3,
+                    'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $i, 'type' => 1, 'mission' => 3]),
+                    'name' => __('Transport'),
+                ];
+                if ($planet->getPlayer()->getId() !== $player->getId()) {
+                    // Espionage (only if foreign planet)
+                    $availableMissions[] = [
+                        'missionType' => 6,
+                        'canSpy' => true,
+                        'reportId' => '',
+                        'reportLink' => '',
+                        'link' => route('fleet.dispatch.sendfleet', ['galaxy' => $galaxy, 'system' => $system, 'position' => $i, 'type' => 1, 'mission' => 6, 'am210' => 1]),
+                        'name' => __('Espionage'),
+                    ];
+
+                    // Attack (only if foreign planet)
+                    $availableMissions[] = [
+                        'missionType' => 1,
+                        'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $i, 'type' => 1, 'mission' => 1]),
+                        'name' => __('Attack'),
+                    ];
+                } else {
+                    // Deployment (only if own planet)
+                    $availableMissions[] = [
+                        'missionType' => 4,
+                        'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $i, 'type' => 1, 'mission' => 4]),
+                        'name' => __('Deployment'),
+                    ];
+                }
+
                 $galaxy_rows[] = [
                     'actions' => [
                         'canBeIgnored' => false,
@@ -96,9 +130,7 @@ class GalaxyController extends OGameController
                         // TODO: Implement this functionality
                         'missileAttackLink' => route('galaxy.index'),
                     ],
-                    //
-                    'availableMissions' => [
-                    ],
+                    'availableMissions' => [],
                     'galaxy' => $galaxy,
                     'planets' => [
                         [
@@ -107,7 +139,7 @@ class GalaxyController extends OGameController
                                 //'showActivity' => 60,
                                 //'showMinutes' => false,
                             ],
-                            'availableMissions' => [],
+                            'availableMissions' => $availableMissions,
                             'fleet'             => [],
                             'imageInformation'  => $planet->getPlanetType() . '_' . $planet->getPlanetImageType(),
                             'isDestroyed'       => false,
@@ -147,7 +179,6 @@ class GalaxyController extends OGameController
                     'system' => $system
                 ];
             } else {
-
                 $planet_description = $planetServiceFactory->getPlanetDescription(new Planet\Coordinate($galaxy, $system, $i));
                 $has_colonize_ship = $user_planet->getObjectAmount('colony_ship') > 0;
                 $colonize_ship_message = "<br><div><img src='/img/galaxy/activity.gif' />" . __('t_galaxy.mission.colonize.no_ship') . "</div>";

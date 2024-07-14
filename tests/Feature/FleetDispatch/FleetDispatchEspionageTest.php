@@ -334,4 +334,37 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
     }
+
+    /**
+     * Test that the minifleet dispatch method works correctly which is used for shortcut mission
+     * buttons such as in the galaxy planet tooltip hover.
+     */
+    public function testMiniFleetDispatchMethod(): void
+    {
+        $this->basicSetup();
+
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanetCoordinates = $foreignPlanet->getPlanetCoordinates();
+
+        // Send a espionage mission through the minifleet endpoint to a nearby foreign planet.
+        $post = $this->post('/ajax/fleet/dispatch/send-mini-fleet', [
+            'galaxy' => $foreignPlanetCoordinates->galaxy,
+            'system' => $foreignPlanetCoordinates->system,
+            'position' => $foreignPlanetCoordinates->position,
+            'type' => 1,
+            'mission' => $this->missionType,
+            '_token' => csrf_token(),
+        ]);
+
+        $post->assertStatus(200);
+
+        $this->reloadApplication();
+
+        // The eventbox should show the espionage mission.
+        $response = $this->get('/ajax/fleet/eventbox/fetch');
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['friendly' => 1]);
+
+        $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);
+    }
 }
