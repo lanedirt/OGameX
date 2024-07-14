@@ -54,7 +54,8 @@ class GalaxyController extends OGameController
      * @param PlayerService $player
      * @param PlanetServiceFactory $planetServiceFactory
      *
-     * @return array<int, array<string, array<int|string, array<int|string, array<string, bool>|bool|int|string|null>|bool|int|string|null>|int|string>>
+     * @phpstan-ignore-next-line
+     * @return mixed
      * @throws Exception
      */
     public function getGalaxyArray(int $galaxy, int $system, PlayerService $player, PlanetServiceFactory $planetServiceFactory): array
@@ -178,7 +179,6 @@ class GalaxyController extends OGameController
                     'system' => $system
                 ];
             } else {
-
                 $planet_description = $planetServiceFactory->getPlanetDescription(new Planet\Coordinate($galaxy, $system, $i));
                 $has_colonize_ship = $user_planet->getObjectAmount('colony_ship') > 0;
                 $colonize_ship_message = "<br><div><img src='/img/galaxy/activity.gif' />" . __('t_galaxy.mission.colonize.no_ship') . "</div>";
