@@ -534,6 +534,16 @@ class PlanetService
     }
 
     /**
+     * Get the amount of resources on this planet.
+     *
+     * @return Resources
+     */
+    public function getResources(): Resources
+    {
+        return new Resources($this->metal()->get(), $this->crystal()->get(), $this->deuterium()->get(), $this->energy()->get());
+    }
+
+    /**
      * Get the total amount of ship unit objects on this planet that can fly.
      *
      * @return int
@@ -801,17 +811,22 @@ class PlanetService
                 // ------
                 $this->updateResourceStorageStats(false);
 
-                // -----
-                // 6. Update fleet missions that affect this planet
-                // -----
-                $this->updateFleetMissions();
-
                 // Save the planet manually here to prevent it from happening 5+ times in the methods above.
                 $this->save();
             } else {
                 throw new \Exception('Could not acquire planet update lock.');
             }
         });
+    }
+
+    /**
+     * Get the time the planet was last updated.
+     *
+     * @return Carbon
+     */
+    public function getUpdatedAt() : Carbon
+    {
+        return new Carbon($this->planet->time_last_update);
     }
 
     /**

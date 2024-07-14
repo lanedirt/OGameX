@@ -1,8 +1,7 @@
 <?php
 
-namespace Tests\Feature\FleetDispatch;
+namespace Feature\FleetDispatch;
 
-use DateTime;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
@@ -14,17 +13,17 @@ use Tests\FleetDispatchTestCase;
 /**
  * Test that fleet dispatch works as expected.
  */
-class FleetDispatchEspionageTest extends FleetDispatchTestCase
+class FleetDispatchAttackTest extends FleetDispatchTestCase
 {
     /**
      * @var int The mission type for the test.
      */
-    protected int $missionType = 6;
+    protected int $missionType = 1;
 
     /**
      * @var string The mission name for the test, displayed in UI.
      */
-    protected string $missionName = 'Espionage';
+    protected string $missionName = 'Attack';
 
     /**
      * Prepare the planet for the test, so it has the required buildings and research.
@@ -33,7 +32,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
      */
     protected function basicSetup(): void
     {
-        $this->planetAddUnit('espionage_probe', 5);
+        $this->planetAddUnit('light_fighter', 5);
     }
 
     protected function messageCheckMissionArrival(): void
@@ -57,7 +56,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
         $this->fleetCheckToSecondPlanet($unitCollection, false);
     }
 
@@ -68,7 +67,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
         $this->fleetCheckToOtherPlayer($unitCollection, true);
     }
 
@@ -79,11 +78,11 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
         $this->fleetCheckToEmptyPosition($unitCollection, false);
     }
 
-    public function testDispatchFleetEspionageReport(): void
+    public function testDispatchFleetCombatReport(): void
     {
         $this->basicSetup();
 
@@ -93,7 +92,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Set all messages as read to avoid unread messages count in the overview.
@@ -108,42 +107,9 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Assert that espionage report has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'espionage', [
-            'Espionage report from',
+            'Combat report',
             $foreignPlanet->getPlanetName()
         ]);
-    }
-
-    /**
-     * Test that when espionage reaches destination planet, the planet is updated and the updates
-     * resources are visible in the espionage report.
-     */
-    public function testDispatchFleetUpdatePlanet(): void
-    {
-        $this->basicSetup();
-
-        // Send fleet to a nearby foreign planet.
-        $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
-
-        // Get current updated timestamp of the target planet.
-        $foreignPlanetUpdatedAt = $foreignPlanet->getUpdatedAt();
-
-        // Increase time by 10 hours to ensure the mission is done.
-        $currentTime = Carbon::now();
-        $currentTime->addHours(10);
-        Carbon::setTestNow($currentTime);
-
-        // Do a request to trigger the update logic.
-        $response = $this->get('/overview');
-        $response->assertStatus(200);
-
-        // Reload the target planet to get the updated timestamp because
-        // the target planet should be updated by the request above which processes the game mission.
-        $foreignPlanet->reloadPlanet();
-
-        // Assert that target planet has been updated.
-        $this->assertLessThan($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAt->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
     }
 
     /**
@@ -159,13 +125,13 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
         Carbon::setTestNow($startTime);
 
-        // Assert that we begin with 5 small cargo ships on planet.
+        // Assert that we begin with 5 light fighter ships on planet.
         $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'espionage_probe', 5, 'Espionage probe are not at 5 units at beginning of test.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light fighter are not at 5 units at beginning of test.');
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -214,8 +180,8 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
-        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // The eventbox should only show 1 mission (the parent).
         $response = $this->get('/ajax/fleet/eventbox/fetch');
@@ -252,11 +218,11 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'espionage_probe', 5, 'Espionage probes are not at 5 units at beginning of test.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light fighter not at 5 units at beginning of test.');
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -311,7 +277,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Assert that the units have been returned to the origin planet.
         $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'espionage_probe', 5, 'Small Cargo ships are not at original 5 units after recalled trip has been processed.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Small Cargo ships are not at original 5 units after recalled trip has been processed.');
 
         $this->messageCheckMissionReturn();
     }
@@ -331,11 +297,11 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'espionage_probe', 5, 'Espionage probe ships are not at 5 units at beginning of test.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light fighter not at 5 units at beginning of test.');
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -367,38 +333,5 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $response->assertStatus(200);
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
-    }
-
-    /**
-     * Test that the minifleet dispatch method works correctly which is used for shortcut mission
-     * buttons such as in the galaxy planet tooltip hover.
-     */
-    public function testMiniFleetDispatchMethod(): void
-    {
-        $this->basicSetup();
-
-        $foreignPlanet = $this->getNearbyForeignPlanet();
-        $foreignPlanetCoordinates = $foreignPlanet->getPlanetCoordinates();
-
-        // Send a espionage mission through the minifleet endpoint to a nearby foreign planet.
-        $post = $this->post('/ajax/fleet/dispatch/send-mini-fleet', [
-            'galaxy' => $foreignPlanetCoordinates->galaxy,
-            'system' => $foreignPlanetCoordinates->system,
-            'position' => $foreignPlanetCoordinates->position,
-            'type' => 1,
-            'mission' => $this->missionType,
-            '_token' => csrf_token(),
-        ]);
-
-        $post->assertStatus(200);
-
-        $this->reloadApplication();
-
-        // The eventbox should show the espionage mission.
-        $response = $this->get('/ajax/fleet/eventbox/fetch');
-        $response->assertStatus(200);
-        $response->assertJsonFragment(['friendly' => 1]);
-
-        $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);
     }
 }

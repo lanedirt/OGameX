@@ -5,6 +5,7 @@ namespace OGame\Services;
 use Exception;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet as Planet;
+use Throwable;
 
 /**
  * Class PlanetList.
@@ -64,12 +65,19 @@ class PlanetListService
      * Updates all planets in this planet list.
      *
      * @return void
-     * @throws Exception
+     * @throws Throwable
      */
     public function update(): void
     {
         foreach ($this->planets as $planet) {
+            // This updates the planet itself.
             $planet->update();
+
+            // This updates the fleet missions that are associated with this planet.
+            // Note: we call this here instead of including it in the planet update
+            // because the planet update method itself is also called from fleet missions
+            // and we don't want to update the fleet missions twice causing deadlocks.
+            $planet->updateFleetMissions();
         }
     }
 
