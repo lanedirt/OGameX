@@ -8,6 +8,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
 use OGame\Services\PlanetService;
+use Throwable;
 
 class AttackMission extends GameMission
 {
@@ -36,13 +37,11 @@ class AttackMission extends GameMission
 
     /**
      * @inheritdoc
+     * @throws Throwable
      */
     protected function processArrival(FleetMission $mission): void
     {
-        // Load the target planet
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
-
-        // Load origin planet
         $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
 
         // Trigger target planet update to make sure the espionage report is accurate.
