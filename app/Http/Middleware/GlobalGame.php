@@ -3,7 +3,6 @@
 namespace OGame\Http\Middleware;
 
 use Closure;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use OGame\Services\ObjectService;

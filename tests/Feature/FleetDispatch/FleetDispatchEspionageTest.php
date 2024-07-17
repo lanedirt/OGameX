@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\FleetDispatch;
 
-use DateTime;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;

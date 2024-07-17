@@ -38,8 +38,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     protected function messageCheckMissionArrival(): void
     {
         // Assert that message has been sent to player and contains the correct information.
-        $this->assertMessageReceivedAndContains('fleets', 'espionage', [
-            'Espionage report from',
+        $this->assertMessageReceivedAndContains('fleets', 'combat_reports', [
+            'Combat report',
         ]);
     }
 
@@ -50,7 +50,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     }
 
     /**
-     * Assert that check request to dispatch fleet to own planet fails with espionage mission.
+     * Assert that check request to dispatch fleet to own planet fails with attack mission.
      */
     public function testFleetCheckToOwnPlanetError(): void
     {
@@ -105,8 +105,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
-        // Assert that espionage report has been sent to player and contains the correct information.
-        $this->assertMessageReceivedAndContains('fleets', 'espionage', [
+        // Assert that battle report has been sent to player and contains the correct information.
+        $this->assertMessageReceivedAndContains('fleets', 'combat_reports', [
             'Combat report',
             $foreignPlanet->getPlanetName()
         ]);

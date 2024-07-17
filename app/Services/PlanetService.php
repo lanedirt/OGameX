@@ -824,7 +824,7 @@ class PlanetService
      *
      * @return Carbon
      */
-    public function getUpdatedAt() : Carbon
+    public function getUpdatedAt(): Carbon
     {
         return new Carbon($this->planet->time_last_update);
     }
@@ -1662,7 +1662,7 @@ class PlanetService
                 });
             }
         } catch (Exception $e) {
-            throw new RuntimeException('Fleet mission service could not be loaded: ' . $e->getMessage());
+            throw new RuntimeException('Fleet mission service process error: ' . $e->getMessage());
         }
     }
 }

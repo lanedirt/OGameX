@@ -5,6 +5,7 @@ namespace OGame\GameMissions;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\BattleReport;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
 use OGame\Services\PlanetService;
@@ -48,13 +49,13 @@ class AttackMission extends GameMission
         $target_planet->update();
 
         // TODO: add battle logic here. For now, we just mark the mission as processed.
-        /*$reportId = $this->createEspionageReport($target_planet);
+        $reportId = $this->createBattleReport($target_planet);
 
         // Send a message to the player with a reference to the espionage report.
-        $this->messageService->sendEspionageReportMessageToPlayer(
+        $this->messageService->sendBattleReportMessageToPlayer(
             $origin_planet->getPlayer(),
             $reportId,
-        );*/
+        );
 
         // Mark the arrival mission as processed
         $mission->processed = 1;
@@ -97,21 +98,22 @@ class AttackMission extends GameMission
      * @param PlanetService $planet
      * @return int
      */
-    private function createEspionageReport(PlanetService $planet): int
+    private function createBattleReport(PlanetService $planet): int
     {
         // TODO: make sure the target planet is updated with the latest resources before creating the report
         // to ensure the report is accurate at the current point in time.
         // TODO: add planet update call here and add a test to cover this.
 
         // Create new espionage report record.
-        $report = new EspionageReport();
+        $report = new BattleReport();
         $report->planet_galaxy = $planet->getPlanetCoordinates()->galaxy;
         $report->planet_system = $planet->getPlanetCoordinates()->system;
         $report->planet_position = $planet->getPlanetCoordinates()->position;
 
         $report->planet_user_id = $planet->getPlayer()->getId();
 
-        $report->player_info = [
+        // TODO: add actual battle report contens here.
+        /*$report->player_info = [
             'player_id' => (string)$planet->getPlayer()->getId(),
             'player_name' => $planet->getPlayer()->getUsername(),
         ];
@@ -139,7 +141,7 @@ class AttackMission extends GameMission
 
         // Research
         $report->research = $planet->getPlayer()->getResearchArray();
-
+*/
         $report->save();
 
         return $report->id;
