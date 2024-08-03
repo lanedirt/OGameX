@@ -9,6 +9,7 @@ use OGame\Models\BattleReport;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 use Throwable;
 
 class AttackMission extends GameMission
@@ -49,7 +50,8 @@ class AttackMission extends GameMission
         $target_planet->update();
 
         // TODO: add battle logic here. For now, we just mark the mission as processed.
-        $reportId = $this->createBattleReport($target_planet);
+        $attacker = $origin_planet->getPlayer();
+        $reportId = $this->createBattleReport($attacker, $target_planet);
 
         // Send a message to the player with a reference to the espionage report.
         $this->messageService->sendBattleReportMessageToPlayer(
@@ -95,10 +97,11 @@ class AttackMission extends GameMission
     /**
      * Creates an espionage report for the target planet.
      *
-     * @param PlanetService $planet
+     * @param PlayerService $attackPlayer
+     * @param PlanetService $defenderPlanet
      * @return int
      */
-    private function createBattleReport(PlanetService $planet): int
+    private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet): int
     {
         // TODO: make sure the target planet is updated with the latest resources before creating the report
         // to ensure the report is accurate at the current point in time.
@@ -106,13 +109,21 @@ class AttackMission extends GameMission
 
         // Create new espionage report record.
         $report = new BattleReport();
-        $report->planet_galaxy = $planet->getPlanetCoordinates()->galaxy;
-        $report->planet_system = $planet->getPlanetCoordinates()->system;
-        $report->planet_position = $planet->getPlanetCoordinates()->position;
+        $report->planet_galaxy = $defenderPlanet->getPlanetCoordinates()->galaxy;
+        $report->planet_system = $defenderPlanet->getPlanetCoordinates()->system;
+        $report->planet_position = $defenderPlanet->getPlanetCoordinates()->position;
 
-        $report->planet_user_id = $planet->getPlayer()->getId();
+        $report->planet_user_id = $defenderPlanet->getPlayer()->getId();
 
-        // TODO: add actual battle report contens here.
+        $report->attacker = [
+          'player_id' => $attackPlayer->getId(),
+        ];
+
+        $report->defender = [
+          'player_id' => $defenderPlanet->getPlayer()->getId(),
+        ];
+
+        // TODO: add actual battle report contents here.
         /*$report->player_info = [
             'player_id' => (string)$planet->getPlayer()->getId(),
             'player_name' => $planet->getPlayer()->getUsername(),

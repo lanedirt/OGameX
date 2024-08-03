@@ -183,11 +183,12 @@ class PlayerService
     /**
      * Get the user's username.
      *
+     * @param bool $formatted
      * @return string
      */
-    public function getUsername(): string
+    public function getUsername(bool $formatted = true): string
     {
-        if ($this->isAdmin()) {
+        if ($formatted && $this->isAdmin()) {
             return '<span class="status_abbr_admin">' . $this->user->username . '</span>';
         }
         return $this->user->username;

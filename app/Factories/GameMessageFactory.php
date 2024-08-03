@@ -4,6 +4,7 @@ namespace OGame\Factories;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMessages\Abstracts\GameMessage;
+use OGame\GameMessages\BattleReport;
 use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMessages\ColonyEstablishFailAstrophysics;
 use OGame\GameMessages\EspionageReport;
@@ -37,6 +38,7 @@ class GameMessageFactory
         'fleet_deployment' => FleetDeployment::class,
         'fleet_deployment_with_resources' => FleetDeploymentWithResources::class,
         'espionage_report' => EspionageReport::class,
+        'battle_report' => BattleReport::class,
     ];
 
     /**

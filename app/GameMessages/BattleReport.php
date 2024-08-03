@@ -25,7 +25,7 @@ class BattleReport extends GameMessage
      *
      * @return void
      */
-    private function loadBattletReportModel(): void
+    private function loadBattleReportModel(): void
     {
         if ($this->battleReportModel !== null) {
             // Already loaded.
@@ -47,7 +47,7 @@ class BattleReport extends GameMessage
      */
     public function getSubject(): string
     {
-        $this->loadBattletReportModel();
+        $this->loadBattleReportModel();
 
         // Load the planet name from the references table and return the subject filled with the planet name.
         $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
@@ -99,7 +99,7 @@ class BattleReport extends GameMessage
      */
     private function getBattleReportParams(): array
     {
-        $this->loadBattletReportModel();
+        $this->loadBattleReportModel();
 
         // TODO: add feature test for code below and check edgecases, such as when the planet has been deleted and
         // does not exist anymore. What should we show in that case?
@@ -110,13 +110,20 @@ class BattleReport extends GameMessage
 
         // If planet owner is the same as the player, we load the player by planet owner which is already loaded.
         if ($this->battleReportModel->planet_user_id === $planet->getPlayer()->getId()) {
-            $player = $this->playerServiceFactory->make($planet->getPlayer()->getId());
+            $defender = $this->playerServiceFactory->make($planet->getPlayer()->getId());
         } else {
             // It is theoretically possible that the original player has deleted their planet and another user has
             // colonized the same position of the original planet. In that case, we should load the player by user_id
             // from the espionage report.
-            $player = $this->playerServiceFactory->make($this->battleReportModel->planet_user_id);
+            $defender = $this->playerServiceFactory->make($this->battleReportModel->planet_user_id);
         }
+
+        // Params
+        $attackerPlayerId = $this->battleReportModel->attacker['player_id'];
+
+        // Load attacker player
+        $attacker = $this->playerServiceFactory->make($attackerPlayerId);
+
 
         // Extract resources
         //$resources = new Resources($this->battleReportModel->resources['metal'], $this->battleReportModel->resources['crystal'], $this->battleReportModel->resources['deuterium'], $this->battleReportModel->resources['energy']);
@@ -184,7 +191,8 @@ class BattleReport extends GameMessage
         return [
             'subject' => $this->getSubject(),
             'from' => $this->getFrom(),
-            'playername' => $player->getUsername(),
+            'attacker_name' => $attacker->getUsername(false),
+            'defender_name' => $defender->getUsername(false),
             //'metal' => $resources->metal->getFormatted(),
             //'crystal' => $resources->crystal->getFormatted(),
             //'deuterium' => $resources->deuterium->getFormatted(),

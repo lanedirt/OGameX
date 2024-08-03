@@ -1,0 +1,785 @@
+
+#messagecontainercomponent {
+
+}
+
+#messagecontainercomponent .content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    width: 100%;
+    border: 2px solid #000;
+    margin: 0 auto 7px;
+    padding: 0 5px 5px;
+    background: linear-gradient(to bottom, #1f2630 0%,#111921 100%);
+    min-height:50px;
+}
+
+#messagecontainercomponent .content::before {
+    position: absolute;
+    left: -9px;
+    top: -2px;
+    width: calc(100% + 18px);
+    height: 28px;
+    background: url(/img/icons/f333e15eb738b8ec692340f507e1ae.png) bottom left no-repeat, url(/img/icons/66551209db14e23b3001901b996cc6.png) bottom right no-repeat;
+    content: "";
+}
+
+#messagecontainercomponent .content::after {
+    position: absolute;
+    left: -9px;
+    bottom: -5px;
+    width: calc(100% + 18px);
+    height: 50px;
+    background: url(/img/icons/0330abcdca0d125d35a0ebace4b584.png) bottom left no-repeat, url(/img/icons/8003a40825bc96919c5fec01b018b8.png) bottom right no-repeat;
+    content: "";
+}
+
+#messagecontainercomponent .content h3 {
+    position: relative;
+    width: 100%;
+    margin: -2px 0 5px;
+    background: url("/img/icons/a4e7913209228ebaf2297429aeb87b.png");
+    color: #6f9fc8;
+    font: bold 12px/27px Verdana,Arial,Helvetica,sans-serif;
+    text-align: center;
+}
+
+#messagecontainercomponent .content h3::before,
+#messagecontainercomponent .content h3::after {
+    position: absolute;
+    top: 0;
+    width: 26px;
+    height: 27px;
+    content: "";
+}
+
+#messagecontainercomponent .content h3::before {
+    left: -5px;
+    background: url("/img/icons/127bd495b9325216af08a588ecc540.png");
+}
+
+#messagecontainercomponent .content h3::after {
+    right: -5px;
+    background: url("/img/icons/80db96934a5b82ce002f839cd85a44.png");
+}
+
+#messagecontainercomponent .content .mainTabs {
+    display: flex;
+    min-height: 79px;
+    gap: 5px;
+    width: 96%;
+}
+
+#messagecontainercomponent .content .singleTab {
+    display: flex;
+    height: 79px;
+    width: 68px;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    row-gap: 5px;
+    position: relative;
+}
+
+#messagecontainercomponent .content .singleTab.marker {
+    background: url("/img/icons/112960c1ace80c7dcb03ca88d4b6fc.png") no-repeat;
+}
+
+#messagecontainercomponent .content .tabLabel {
+    font-size: 9px;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #848484;
+}
+
+#messagecontainercomponent .content .singleTab.marker .tabLabel {
+    color: #ffffff;
+}
+
+#messagecontainercomponent .content .singleTab.marker .tabLabel.fav,
+#messagecontainercomponent .content .singleTab .tabLabel.fav {
+    color: #ffd700;
+}
+
+#messagecontainercomponent .tabImage {
+    background: transparent url("/img/icons/e24339046dd3609291920e46cf85f6.png") 0 0 no-repeat;
+    height: 54px;
+    width: 54px;
+    display: block;
+    margin-top: 7px;
+    cursor: pointer;
+}
+
+/* ***** Messages Tab Image Buttons ***** */
+#messagecontainercomponent .tabImage.tb_fleets { background-position: 0 0;}
+#messagecontainercomponent .tabImage.tb_communication { background-position: -54px 0;}
+#messagecontainercomponent .tabImage.tb_economy { background-position: -108px 0;}
+#messagecontainercomponent .tabImage.tb_universe { background-position: -162px 0;}
+#messagecontainercomponent .tabImage.tb_system { background-position: -216px 0;}
+#messagecontainercomponent .tabImage.tb_favorites { background-position: -270px 0;}
+#messagecontainercomponent .tabImage.tb_market { background-position: -324px 0;}
+
+#messagecontainercomponent .singleTab .tabImage.tb_fleets:hover,
+#messagecontainercomponent .singleTab.marker .tabImage.tb_fleets { background-position: 0 -54px;}
+
+#messagecontainercomponent .singleTab .tabImage.tb_communication:hover,
+#messagecontainercomponent .singleTab.marker .tabImage.tb_communication { background-position: -54px -54px;}
+
+#messagecontainercomponent .singleTab .tabImage.tb_economy:hover,
+#messagecontainercomponent .singleTab.marker .tabImage.tb_economy { background-position: -108px -54px;}
+
+#messagecontainercomponent .singleTab .tabImage.tb_universe:hover,
+#messagecontainercomponent .singleTab.marker .tabImage.tb_universe { background-position: -162px -54px;}
+
+#messagecontainercomponent .singleTab .tabImage.tb_system:hover,
+#messagecontainercomponent .singleTab.marker .tabImage.tb_system { background-position: -216px -54px;}
+
+#messagecontainercomponent .singleTab .tabImage.tb_favorites:hover,
+#messagecontainercomponent .singleTab.marker .tabImage.tb_favorites { background-position: -270px -54px;}
+
+#messagecontainercomponent .singleTab .tabImage.tb_market:hover,
+#messagecontainercomponent .singleTab.marker .tabImage.tb_market { background-position: -324px -54px;}
+
+#messagecontainercomponent .content .singleTab .newMessagesCount {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    height: 16px;
+    border-radius: 8px;
+    background-color: #242d37;
+    border: 1px solid #40c4c1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+    color: #ffffff;
+    line-height: 16px;
+    font-size: 9px;
+    padding: 0 2px;
+    min-width: 16px;
+    text-align: center;
+}
+#messagecontainercomponent .messageContent {
+    min-height: 120px;
+    background: #22313b;
+    width: 100%;
+    border-radius: 5px;
+}
+
+#messagecontainercomponent .messagesHolder {
+    background: #000;
+    padding: 5px;
+    min-height: 100px;
+    position: relative;
+    font-size: 11px;
+    color: #848484;
+    margin-top: 5px;
+}
+
+#messagecontainercomponent .messagesHolder:before {
+    background-image: url(/img/icons/d03835718066a5a592a6426736e019.png);
+    background-repeat: repeat-x;
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 10px;
+    height: 9px;
+    background-position: 0 -660px;
+}
+
+#messagecontainercomponent .msg {
+    background: #111A21;
+    -webkit-box-shadow: inset 0 1px 1px rgba(33, 49, 64, 0.75);
+    box-shadow: inset 0 1px 1px rgba(33, 49, 64, 0.75);
+    list-style: none;
+    margin: 0 0 7px 0;
+    position: relative;
+}
+#messagecontainercomponent .msg_new {
+    background: #22313b;
+    color: #dddddd;
+    -webkit-box-shadow: inset 0 1px 1px rgba(74, 129, 120, 0.75);
+    box-shadow: inset 0 1px 1px rgba(74, 129, 120, 0.75);
+
+}
+#messagecontainercomponent .msgStatus {
+    background-color: #16222c;
+    /*background-position: -16px -634px;*/
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 7px;
+}
+
+#messagecontainercomponent .msgStatus:before {
+    background-image: url("/img/icons/d03835718066a5a592a6426736e019.png");
+    background-position: -16px -634px;
+    display: block;
+    content: "";
+    height: 100%;
+    max-height: 103px;
+    width: 7px;
+}
+
+.msg_new .msg_status {
+    background-color: #23d2b7;
+    /*background-position: -24px -634px;*/
+}
+
+.msg_new .msg_status:before {
+    background-position: -24px -634px;
+}
+
+#messagecontainercomponent .msgStatus {
+    background-color: #16222c;
+    /* background-position: -16px -634px; */
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 7px;
+}
+
+#messagecontainercomponent .msg_new .msgStatus {
+    background-color: #23d2b7;
+}
+
+#messagecontainercomponent .msg_new .msgStatus:before {
+    background-position: -24px -634px;
+}
+
+
+#messagecontainercomponent .msgHead {
+    display: flex;
+    padding: 5px 5px 0 12px;
+    margin-bottom: 0;
+    gap: 2px;
+    min-height: 35px;
+}
+
+#messagecontainercomponent .msgHead .msgHeadItem:first-of-type {
+    flex-grow: 1;
+}
+
+#messagecontainercomponent .msgHead .underTitle {
+    display: flex;
+}
+
+#messagecontainercomponent .msgHead .msgTitle {
+    color: #6f9fc8;
+    margin-bottom: 2px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+#messagecontainercomponent .msgHead .msgDate {
+    font-size: 9px;
+    margin-right: 5px;
+}
+#messagecontainercomponent .messagesHolder .msgContent {
+    padding: 0 5px 5px 12px;
+    word-wrap: break-word;
+    box-sizing: border-box;
+    line-height: 13px;
+}
+#messagecontainercomponent .msgHeadItem.delActions {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 3px;
+}
+#messagecontainercomponent .tabsWrapperSubMenu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 30px;
+}
+#messagecontainercomponent .tabsWrapperSubMenu .deleteAll {
+    color: #848484;
+    flex-grow: 1;
+}
+#messagecontainercomponent .tabsWrapperSubMenu .deleteAll .removeAction,
+#messagecontainercomponent .tabsWrapperSubMenu .deleteAll .action {
+    cursor: pointer;
+    color: #FFFFFF;
+}
+
+#messagecontainercomponent .messagesTrashcanBtns,
+#messagecontainercomponent .messagesExtraBtns {
+    padding: 5px 0;
+}
+
+#messagecontainercomponent #messagesTrashcanBtns,
+#messagecontainercomponent #messagesFilterBtn {
+    width: 80px;
+    height: 20px;
+}
+
+#messagedetails .footerHolder {
+    display: flex;
+}
+
+#messagedetails .messageDetails {
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+#messagedetails .commentBlock {
+    padding: 0 10px 4px 10px;
+}
+
+#sharereport .miniHeading {
+    margin-bottom: 10px;
+}
+
+#sharereport .messageDetails {
+    padding: 5px 5px 5px 13px;
+    margin-bottom: 10px;
+}
+
+#sharereport textarea {
+    margin-bottom: 2px;
+}
+
+.shareMessageContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.shareMessageContainer .selectHolder {
+    flex-grow: 1;
+}
+
+#messagedetails .commentsHolder .messageContent {
+    padding: 0 0 4px 12px;
+}
+.messagesHolder .msgContent .espionageInfo {
+    display: flex;
+    flex-direction: column;
+}
+.messagesHolder .msgContent .espionageInfo .miscInfo,
+.messagesHolder .msgContent .espionageInfo .basicInfo {
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+}
+.messagesHolder .msgContent .espionageInfo .miscInfo .lootInfo div,
+.messagesHolder .msgContent .espionageInfo .basicInfo .playerInfo div {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 3px;
+    height: 20px;
+}
+.messagesHolder .msgContent .espionageInfo .miscInfo .counterInfo,
+.messagesHolder .msgContent .espionageInfo .basicInfo .activityInfo {
+    flex-grow: 1;
+    text-align: end;
+}
+.messagesHolder .msgContent .espionageInfo .miscInfo .lootInfo .resourcesTotal {
+    cursor: pointer;
+}
+
+#messagedetails .messageDetails {
+    padding: 5px;
+    margin-bottom: 25px;
+}
+
+#messagedetails .sectionTitle {
+    padding: 0 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#messagedetails .commentsHolder .messageContent {
+    padding: 0 0 4px 12px;
+}
+#messagedetails .commentsHolder .reportMessage {
+    float: right;
+}
+#messagedetails .messageDetails .espionageInfo,
+.messagesHolder .msgContent .espionageInfo {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+#messagedetails .messageDetails .espionageInfo .miscInfo,
+#messagedetails .messageDetails .espionageInfo .basicInfo,
+.messagesHolder .msgContent .espionageInfo .miscInfo,
+.messagesHolder .msgContent .espionageInfo .basicInfo {
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+}
+#messagedetails .messageDetails .espionageInfo .miscInfo .fleetInfo div,
+#messagedetails .messageDetails .espionageInfo .miscInfo .lootInfo div,
+#messagedetails .messageDetails .espionageInfo .basicInfo .playerInfo div,
+.messagesHolder .msgContent .espionageInfo .miscInfo .fleetInfo div,
+.messagesHolder .msgContent .espionageInfo .miscInfo .lootInfo div,
+.messagesHolder .msgContent .espionageInfo .basicInfo .playerInfo div {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 3px;
+    height: 20px;
+}
+#messagedetails .messageDetails .espionageInfo .miscInfo .defenseInfo,
+#messagedetails .messageDetails .espionageInfo .miscInfo .counterInfo,
+#messagedetails .messageDetails .espionageInfo .basicInfo .activityInfo,
+.messagesHolder .msgContent .espionageInfo .miscInfo .defenseInfo,
+.messagesHolder .msgContent .espionageInfo .miscInfo .counterInfo,
+.messagesHolder .msgContent .espionageInfo .basicInfo .activityInfo {
+    flex-grow: 1;
+    text-align: end;
+}
+#messagedetails .messageDetails .espionageInfo .miscInfo .lootInfo .resourcesTotal,
+.messagesHolder .msgContent .espionageInfo .miscInfo .lootInfo .resourcesTotal {
+    cursor: pointer;
+}
+
+#messagecontainercomponent .combatInfo,
+#sharereport .messageDetails .combatInfo {
+    display: flex;
+}
+
+#messagecontainercomponent .miscInfo,
+#sharereport .messageDetails .miscInfo {
+    text-align: right;
+}
+#messagedetails .messageDetails .resourceLootInfo {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+#messagedetails .messageDetails .loot-item-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 160px;
+    height: 36px;
+}
+#messagedetails .messageDetails .loot-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+    width: 160px;
+    box-sizing: border-box;
+}
+#messagedetails .messageDetails .loot-item:hover {
+    background: #090d12 url(/img/icons/5fbbb1876fcff20a8a265c06862495.png) 0 -590px repeat-x;
+    background: -moz-linear-gradient(top, rgba(40,57,73,0.8) 0%, rgba(22,32,45,0.8) 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(40,57,73,0.8)), color-stop(100%, rgba(22,32,45,0.8)));
+    background: -webkit-linear-gradient(top, rgba(40,57,73,0.8) 0%, rgba(22,32,45,0.8) 100%);
+    background: -o-linear-gradient(top, rgba(40,57,73,0.8) 0%, rgba(22,32,45,0.8) 100%);
+    background: -ms-linear-gradient(top, rgba(40,57,73,0.8) 0%, rgba(22,32,45,0.8) 100%);
+    background: linear-gradient(to top, rgba(40,57,73,0.8) 0%, rgba(22,32,45,0.8) 100%);
+    /*border: 1px solid #23303A;*/
+    border-color: #24323D #131A20 #131A20 #131A20;
+    border-radius: 3px;
+    box-shadow: 0 0 2px 1px black, inset 0 1px 2px 1px hsl(205, 33%, 11%);
+}
+#messagedetails .messageDetails .resourceLootInfoResources .loot-item {
+    width: 48% !important;
+}
+#messagedetails .messageDetails .resourceLootInfoDebris .loot-item {
+    width: 98% !important;
+}
+#messagedetails .messageDetails .loot-name {
+    max-width: 120px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+#messagedetails .messageDetails .loot-name.tooltip {
+    color: #c7c7c7 !important;
+}
+#messagedetails .messageDetails .loot-item technology-icon[bordered] {
+    border: 1px outset #696666 !important;
+}
+
+/* MESSGAGES FILTERS start */
+#messagecontainercomponent #messagesFilterBtn {
+    display: none;
+}
+
+#messagecontainercomponent #messagesfilterscomponent {
+    display: none;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper {
+    display: none;
+    position: relative;
+    border: 2px solid #000;
+    background: #0d1014;
+    font-size: 10px;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersTitle,
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersFooter {
+    padding: 5px 0;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersOptions {
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    width: 100%;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersOptions .messageFilterOptionWrapper {
+    display: flex;
+    height: 15px;
+    align-items: center;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersOptions .messageFilterOptionWrapper .messageFilterCheckboxWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersOptions .messageFilterOptionWrapper square-checkbox {
+    width: 10px;
+    height: 10px;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersOptions .messageFilterOptionWrapper square-checkbox[disabled] {
+    cursor: not-allowed;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersOptions .messageFilterOptionWrapper square-checkbox > label {
+    width: 8px;
+    height: 8px;
+    top: 1px;
+    left: 1px;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersOptions .messageFilterOptionWrapper square-checkbox[disabled] > label {
+    cursor: not-allowed;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersOptions .messageFilterOptionWrapper square-checkbox > label::after {
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersOptions .messageFilterOptionWrapper label {
+    word-break: break-word;
+    width: calc(100% - 20px);
+    cursor: pointer;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .messagesFiltersOptions .messageFilterOptionWrapper label[disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+#messagecontainercomponent .messagesFiltersWrapper .toggleMessageFilters {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 5px;
+    cursor: pointer;
+    font-weight: bolder;
+    opacity: 0.7;
+    color: #fff;
+}
+
+#messagecontainercomponent #filteredHeadersRow {
+    display: none;
+    height: 30px;
+    flex-direction: row;
+    justify-content: center;
+    box-shadow: 0 0 2px 1px black, inset 0 1px 2px 1px hsl(205, 33%, 11%);
+    margin-top: 5px;
+    padding-right: 5px;
+    color: #848484;
+}
+
+#messagecontainercomponent #filteredHeadersRow #messagesFiltersSortOrder {
+    width: 38px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+#messagecontainercomponent #filteredHeadersRow #messagesFiltersSortOrder.ascending:after {
+    content: "\2191";
+}
+
+#messagecontainercomponent #filteredHeadersRow #messagesFiltersSortOrder.descending:after {
+    content: "\2193";
+}
+
+
+#messagecontainercomponent #filteredHeadersRow #filteredHeadersContainer {
+    display: flex;
+    height: 100%;
+    flex-direction: row;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+#messagecontainercomponent #filteredHeadersRow .filteredHeaderCell,
+#messagecontainercomponent #filteredHeadersRow .ui-sortable-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1 1 0px;
+    text-align: center;
+    cursor: pointer;
+}
+
+#messagecontainercomponent #filteredHeadersRow .filteredHeaderCell.sortBy {
+    background: rgb(97,124,141);
+    background: linear-gradient(180deg, rgba(97,124,141,1) 0%, rgba(46,67,86,1) 100%);
+    color: white;
+}
+
+.messagesHolder button.acceptBuddyRequest img,
+.messagesHolder button.rejectBuddyRequest img {
+    width: 16px;
+    height: 16px;
+}
+
+.messagesHolder .acceptRefuse {
+    display: flex;
+    gap: 8px;
+}
+
+.messagesHolder .rawMessageData {
+    display: none;
+}
+
+.messagesHolder .msgWithFilter .msgFilteredHeaderRow {
+    height: 30px;
+    box-shadow: 0 0 2px 1px black, inset 0 1px 2px 1px hsl(205, 33%, 11%);
+    padding-left: 9px;
+    display: none;
+    flex-direction: row;
+    align-items: center;
+}
+
+.messagesHolder .msgWithFilter.collapsible .msgFilteredHeaderRow {
+    display: flex;
+}
+
+.messagesHolder .msgWithFilter.collapsible .msgFilteredHeaderRow .msgFilteredHeaderContainer {
+    display: flex;
+    height: 100%;
+    flex-grow: 1;
+}
+
+.messagesHolder .msgWithFilter.collapsible .msgFilteredHeaderRow .msgFilteredHeaderContainer .msgFilteredHeaderCell {
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    flex: 1 1 0px;
+    text-align: center;
+}
+
+.messagesHolder .msgWithFilter.collapsible .msgFilteredHeaderRow .msgFilteredHeaderContainer .msgFilteredHeaderCell_actions {
+    gap: 1px;
+    flex-wrap: wrap;
+}
+
+.messagesHolder .msgWithFilter.collapsible .msgFilteredHeaderRow .msgFilteredHeaderContainer .msgFilteredHeaderCell > gradient-button button img {
+    width: 8px !important;
+    height: 8px !important;
+}
+
+.messagesHolder .msgWithFilter.collapsible .messageContentWrapper {
+    display: none;
+}
+
+/* MESSGAGES FILTERS end */
+
+#allianceCommunicationWrapper {
+    margin-top: 4px;
+    border-top: 1px solid black;
+    padding-top: 4px;
+}
+
+#allianceCommunicationWrapper .miuFooter {
+    margin-top: 4px;
+}
+
+#newmessagesindicatorcomponent {
+    position: absolute;
+    width: 120px;
+    height: 45px;
+    left: 190px;
+    right: 0;
+    top: 97px;
+    display: flex;
+    justify-content: center;
+}
+
+#newmessagesindicatorcomponent .messagesIndicator {
+    background-image: url(/img/icons/9d2a040a90c8eae17d3cd2ee3b54df.png);
+    background-repeat: no-repeat;
+    background-position: 0 1px;
+    height: 100%;
+    width: 55px;
+    cursor: pointer;
+    position: relative;
+}
+#newmessagesindicatorcomponent .chatIndicator {
+    background-image: url(/img/icons/9d2a040a90c8eae17d3cd2ee3b54df.png);
+    background-repeat: no-repeat;
+    background-position: 0 -117px;
+    height: 100%;
+    width: 55px;
+    cursor: pointer;
+}
+#newmessagesindicatorcomponent .messagesIndicator.selected,
+#newmessagesindicatorcomponent .messagesIndicator:hover {
+    background-position: 0 -39px !important;
+}
+#newmessagesindicatorcomponent .chatIndicator.selected,
+#newmessagesindicatorcomponent .chatIndicator:hover {
+    background-position: 0 -161px !important;
+}
+#newmessagesindicatorcomponent .messagesIndicator.new {
+    background-position: 0 -78px;
+}
+#newmessagesindicatorcomponent .chatIndicator.new {
+    background-position: 0 -204px;
+}
+#newmessagesindicatorcomponent .chatIndicator .newCount,
+#newmessagesindicatorcomponent .messagesIndicator .newCount {
+    min-width: 10px;
+    height: 14px;
+    border-radius: 8px;
+    background-color: #242D37;
+    border: 1px solid #40C4C1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+    color: #FFF;
+    padding: 0 2px;
+    z-index: 3;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    right: 6px;
+    top: 4px;
+    font-size: 10px;
+}
