@@ -13,7 +13,7 @@
 <div class="combatInfo">
         <div class="basicInfo">
             <span class="msg_ctn msg_ctn2 undermark tooltipLeft" data-tooltip-title="12,000">Attacker: ({{ $attacker_name }}): {{ $attacker_losses }}</span>
-            <span class="msg_ctn msg_ctn3">Resources: {{ $loot }}, Loot: 75%</span>
+            <span class="msg_ctn msg_ctn3">Resources: {{ $loot }}, Loot: {{ $loot_percentage }}%</span>
             <span class="msg_ctn msg_ctn3 tooltipLeft" data-tooltip-title="2,128,000">Debris field (newly created): {{ $debris }}</span>
         </div>
         <div class="miscInfo">

@@ -44,11 +44,11 @@ class BattleEngine
         // Determine loot: 50% of the resources are stolen.
         // TODO: make loot percentage configurable? For inactive players
         // loot percentage could be up to 75% for example.
-        $loot_percentage = 0.5;
+        $result->lootPercentage = 50;
         $result->loot = new Resources(
-            $defenderPlanet->getResources()->metal->get() * $loot_percentage,
-            $defenderPlanet->getResources()->crystal->get() * $loot_percentage,
-            $defenderPlanet->getResources()->deuterium->get() * $loot_percentage,
+            $defenderPlanet->getResources()->metal->get() * ($result->lootPercentage / 100),
+            $defenderPlanet->getResources()->crystal->get() * ($result->lootPercentage / 100),
+            $defenderPlanet->getResources()->deuterium->get() * ($result->lootPercentage / 100),
             0);
 
         return $result;

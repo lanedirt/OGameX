@@ -125,6 +125,7 @@ class BattleReport extends GameMessage
         $attackerLosses = $this->battleReportModel->attacker['resource_loss'];
         $defenderLosses = $this->battleReportModel->defender['resource_loss'];
 
+        $lootPercentage = $this->battleReportModel->loot['percentage'];
         $lootMetal = $this->battleReportModel->loot['metal'];
         $lootCrystal = $this->battleReportModel->loot['crystal'];
         $lootDeuterium = $this->battleReportModel->loot['deuterium'];
@@ -153,6 +154,7 @@ class BattleReport extends GameMessage
             'attacker_losses' => AppUtil::formatNumberShort($attackerLosses),
             'defender_losses' => AppUtil::formatNumberShort($defenderLosses),
             'loot' => AppUtil::formatNumberShort($lootResources->sum()),
+            'loot_percentage' => $lootPercentage,
             'debris' => AppUtil::formatNumberShort($debrisResources->sum()),
             'repaired_defenses_count' => $repairedDefensesCount,
             //'metal' => $resources->metal->getFormatted(),

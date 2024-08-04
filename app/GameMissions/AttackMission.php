@@ -144,6 +144,7 @@ class AttackMission extends GameMission
         ];
 
         $report->loot = [
+            'percentage' => $battleResult->lootPercentage,
             'metal' => (int)$battleResult->loot->metal->get(),
             'crystal' => (int)$battleResult->loot->metal->get(),
             'deuterium' => (int)$battleResult->loot->metal->get(),

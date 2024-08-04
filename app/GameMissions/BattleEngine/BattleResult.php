@@ -18,6 +18,11 @@ class BattleResult
     public Resources $loot;
 
     /**
+     * @var int The max. percentage of resources that the attacker player could steal from the defender player's planet.
+     */
+    public int $lootPercentage;
+
+    /**
      * @var UnitCollection The units that survived the battle from the attacker player.
      */
     public UnitCollection $attackerUnits;
