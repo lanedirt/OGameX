@@ -12,12 +12,12 @@
 
 <div class="combatInfo">
         <div class="basicInfo">
-            <span class="msg_ctn msg_ctn2 undermark tooltipLeft" data-tooltip-title="12,000">Attacker: ({{ $attacker_name }}): 12,000</span>
-            <span class="msg_ctn msg_ctn3">Resources: 14.385Mn, Loot: 75%</span>
-            <span class="msg_ctn msg_ctn3 tooltipLeft" data-tooltip-title="2,128,000">Debris field (newly created): 2.128Mn</span>
+            <span class="msg_ctn msg_ctn2 undermark tooltipLeft" data-tooltip-title="12,000">Attacker: ({{ $attacker_name }}): {{ $attacker_losses }}</span>
+            <span class="msg_ctn msg_ctn3">Resources: {{ $loot }}, Loot: 75%</span>
+            <span class="msg_ctn msg_ctn3 tooltipLeft" data-tooltip-title="2,128,000">Debris field (newly created): {{ $debris }}</span>
         </div>
         <div class="miscInfo">
-            <span class="msg_ctn msg_ctn2 overmark tooltipRight" data-tooltip-title="10,210,000">Defender: ({{ $defender_name }}): 10.21Mn</span>
-            <span class="msg_ctn msg_ctn3 tooltipRight" data-tooltip-title="1,539">Actually repaired: 1,539</span>
+            <span class="msg_ctn msg_ctn2 overmark tooltipRight" data-tooltip-title="10,210,000">Defender: ({{ $defender_name }}): {{ $defender_losses }}</span>
+            <span class="msg_ctn msg_ctn3 tooltipRight" data-tooltip-title="1,539">Actually repaired: {{ $repaired_defenses_count }}</span>
         </div>
     </div>

@@ -115,13 +115,33 @@ class AttackMission extends GameMission
 
         $report->planet_user_id = $defenderPlanet->getPlayer()->getId();
 
+        $report->general = [
+            'moon_chance' => 0,
+        ];
+
         $report->attacker = [
-          'player_id' => $attackPlayer->getId(),
+            'player_id' => $attackPlayer->getId(),
+            'resource_loss' => 0,
         ];
 
         $report->defender = [
-          'player_id' => $defenderPlanet->getPlayer()->getId(),
+            'player_id' => $defenderPlanet->getPlayer()->getId(),
+            'resource_loss' => 0,
         ];
+
+        $report->loot = [
+            'metal' => 0,
+            'crystal' => 0,
+            'deuterium' => 0,
+        ];
+
+        $report->debris = [
+            'metal' => 0,
+            'crystal' => 0,
+            'deuterium' => 0,
+        ];
+
+        $report->repaired_defenses = [];
 
         // TODO: add actual battle report contents here.
         /*$report->player_info = [

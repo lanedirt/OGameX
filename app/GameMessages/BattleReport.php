@@ -2,8 +2,10 @@
 
 namespace OGame\GameMessages;
 
+use OGame\Facades\AppUtil;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\Resources;
 
 class BattleReport extends GameMessage
 {
@@ -118,81 +120,41 @@ class BattleReport extends GameMessage
             $defender = $this->playerServiceFactory->make($this->battleReportModel->planet_user_id);
         }
 
-        // Params
+        // Extract params from the battle report model.
         $attackerPlayerId = $this->battleReportModel->attacker['player_id'];
+        $attackerLosses = $this->battleReportModel->attacker['resource_loss'];
+        $defenderLosses = $this->battleReportModel->defender['resource_loss'];
+
+        $lootMetal = $this->battleReportModel->loot['metal'];
+        $lootCrystal = $this->battleReportModel->loot['crystal'];
+        $lootDeuterium = $this->battleReportModel->loot['deuterium'];
+        $lootResources= new Resources($lootMetal, $lootCrystal, $lootDeuterium, 0);
+
+        $debrisMetal = $this->battleReportModel->debris['metal'];
+        $debrisCrystal = $this->battleReportModel->debris['crystal'];
+        $debrisDeuterium = $this->battleReportModel->debris['deuterium'];
+        $debrisResources = new Resources($debrisMetal, $debrisCrystal, $debrisDeuterium, 0);
+
+        $repairedDefensesCount = 0;
+        if (!empty($this->battleReportModel->repaired_defenses)) {
+            foreach ($this->battleReportModel->repaired_defenses as $defense_key => $defense_count) {
+                $repairedDefensesCount += $defense_count;
+            }
+        }
 
         // Load attacker player
         $attacker = $this->playerServiceFactory->make($attackerPlayerId);
-
-
-        // Extract resources
-        //$resources = new Resources($this->battleReportModel->resources['metal'], $this->battleReportModel->resources['crystal'], $this->battleReportModel->resources['deuterium'], $this->battleReportModel->resources['energy']);
-
-        // Extract ships
-        /*$ships = [];
-        if ($this->espionageReportModel->ships !== null) {
-            foreach ($this->espionageReportModel->ships as $machine_name => $amount) {
-                // Get object
-                $unit = $planet->objects->getUnitObjectByMachineName($machine_name);
-
-                $unitViewModel = new UnitViewModel();
-                $unitViewModel->amount = $amount;
-                $unitViewModel->object = $unit;
-
-                $ships[$unit->machine_name] = $unitViewModel;
-            }
-        }
-
-        // Extract defense
-        $defense = [];
-        if ($this->espionageReportModel->defense !== null) {
-            foreach ($this->espionageReportModel->defense as $machine_name => $amount) {
-                // Get object
-                $unit = $planet->objects->getUnitObjectByMachineName($machine_name);
-
-                $unitViewModel = new UnitViewModel();
-                $unitViewModel->amount = $amount;
-                $unitViewModel->object = $unit;
-
-                $defense[$unit->machine_name] = $unitViewModel;
-            }
-        }
-
-        // Extract buildings
-        $buildings = [];
-        if ($this->espionageReportModel->buildings !== null) {
-            foreach ($this->espionageReportModel->buildings as $machine_name => $amount) {
-                // Get object
-                $unit = $planet->objects->getObjectByMachineName($machine_name);
-
-                $unitViewModel = new UnitViewModel();
-                $unitViewModel->amount = $amount;
-                $unitViewModel->object = $unit;
-
-                $buildings[$unit->machine_name] = $unitViewModel;
-            }
-        }
-
-        // Extract research
-        $research = [];
-        if ($this->espionageReportModel->research !== null) {
-            foreach ($this->espionageReportModel->research as $machine_name => $amount) {
-                // Get object
-                $unit = $planet->objects->getObjectByMachineName($machine_name);
-
-                $unitViewModel = new UnitViewModel();
-                $unitViewModel->amount = $amount;
-                $unitViewModel->object = $unit;
-
-                $research[$unit->machine_name] = $unitViewModel;
-            }
-        }*/
 
         return [
             'subject' => $this->getSubject(),
             'from' => $this->getFrom(),
             'attacker_name' => $attacker->getUsername(false),
             'defender_name' => $defender->getUsername(false),
+            'attacker_losses' => AppUtil::formatNumberShort($attackerLosses),
+            'defender_losses' => AppUtil::formatNumberShort($defenderLosses),
+            'loot' => AppUtil::formatNumberShort($lootResources->sum()),
+            'debris' => AppUtil::formatNumberShort($debrisResources->sum()),
+            'repaired_defenses_count' => $repairedDefensesCount,
             //'metal' => $resources->metal->getFormatted(),
             //'crystal' => $resources->crystal->getFormatted(),
             //'deuterium' => $resources->deuterium->getFormatted(),
