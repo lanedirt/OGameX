@@ -75,7 +75,7 @@ class PlanetListService
 
             // This updates the fleet missions that are associated with this planet.
             // Note: we call this here instead of including it in the planet update
-            // because the planet update method itself is also called from fleet missions
+            // because the planet update method itself is also called from fleet missions,
             // and we don't want to update the fleet missions twice causing deadlocks.
             $planet->updateFleetMissions();
         }

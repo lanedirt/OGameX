@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
+use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -33,6 +34,10 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     protected function basicSetup(): void
     {
         $this->planetAddUnit('light_fighter', 5);
+
+        // Set the fleet speed to 5x for this test.
+        $settingsService = app()->make(SettingsService::class);
+        $settingsService->set('fleet_speed', 1);
     }
 
     protected function messageCheckMissionArrival(): void
@@ -45,8 +50,11 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
     protected function messageCheckMissionReturn(): void
     {
-        // Assert that no message has been sent to player.
-        $this->assertMessageNotReceived();
+        // Assert that message has been sent to player and contains the correct information.
+        $this->assertMessageReceivedAndContains('fleets', 'other', [
+            'Your fleet is returning from',
+            $this->planetService->getPlanetName(),
+        ]);
     }
 
     /**
@@ -277,7 +285,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the units have been returned to the origin planet.
         $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Small Cargo ships are not at original 5 units after recalled trip has been processed.');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light Fighter ships are not at original 5 units after recalled trip has been processed.');
 
         $this->messageCheckMissionReturn();
     }

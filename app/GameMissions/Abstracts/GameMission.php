@@ -93,8 +93,8 @@ abstract class GameMission
         $mission->processed = 1;
         $mission->save();
 
-        // Start the return mission.
-        $this->startReturn($mission);
+        // Start the return mission with the resources and units of the original mission.
+        $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission));
     }
 
     /**
@@ -209,10 +209,12 @@ abstract class GameMission
     /**
      * Start the return mission.
      *
-     * @param FleetMission $parentMission
+     * @param FleetMission $parentMission The parent mission that the return mission is linked to.
+     * @param Resources $resources The resources that are to be returned.
+     * @param UnitCollection $units The units that are to be returned.
      * @return void
      */
-    protected function startReturn(FleetMission $parentMission): void
+    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units): void
     {
         // No need to check for resources and units, as the return mission takes the units from the original
         // mission and the resources are already delivered. Nothing is deducted from the planet.
@@ -255,7 +257,7 @@ abstract class GameMission
         $mission->time_arrival = $time_end;
         $mission->planet_id_to = $parentMission->planet_id_from;
 
-        // Planet from service
+        // Planet to service
         $planetToService = $this->planetServiceFactory->make($mission->planet_id_to);
 
         // Coordinates
@@ -265,27 +267,16 @@ abstract class GameMission
         $mission->position_to = $coords->position;
 
         // Fill in the units
-        foreach ($this->fleetMissionService->getFleetUnits($parentMission)->units as $unit) {
+        foreach ($units->units as $unit) {
             $mission->{$unit->unitObject->machine_name} = $unit->amount;
         }
 
-        // Fill in the resources. Return missions do not carry resources as they have been
-        // offloaded at the target planet.
-        // TODO: this assumption is not true for all mission types. Refactor this to be more flexible.
-        // TODO: attack and expedition missions should be able to carry "new" resources back.
-        // TODO: also if transport mission has been started but is then canceled, the resources should be returned.
-        // Change this current implementation to be more flexible!
-        // Add unittest for this in mission to self cancel test.
-        $mission->metal = 0;
-        $mission->crystal = 0;
-        $mission->deuterium = 0;
-        if ($parentMission->canceled === 1) {
-            // If the parent mission was canceled, return the resources to the source planet via the return mission.
-            // TODO: do we want to clear the resources from the parent mission or leave as-is for bookkeeping purposes?
-            $mission->metal = $parentMission->metal;
-            $mission->crystal = $parentMission->crystal;
-            $mission->deuterium = $parentMission->deuterium;
-        }
+        // Set amount of resources to return based on provided resources in parameter.
+        // This is the amount of resources that were gained and/or not used during the mission.
+        // The logic is different for each mission type.
+        $mission->metal = (int)$resources->metal->get();
+        $mission->crystal = (int)$resources->crystal->get();
+        $mission->deuterium = (int)$resources->deuterium->get();
 
         // Save the new fleet return mission.
         $mission->save();

@@ -7,6 +7,7 @@ use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
+use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 use Throwable;
 
@@ -64,12 +65,14 @@ class EspionageMission extends GameMission
         $mission->processed = 1;
         $mission->save();
 
-        // Check if the mission has any ships left. If yes, start a return mission to send them back.
+        // Assembly new unit collection.
+        $units = $this->fleetMissionService->getFleetUnits($mission);
         // TODO: a battle can happen if counter-espionage has taken place. Check for this when implementing battle system.
-        // Check for correct amount of ships after battle has occurred (if it should have occurred).
-        if ($this->fleetMissionService->getFleetUnitCount($mission) > 0) {
+
+        // Check if the mission has any ships left. If yes, start a return mission to send them back.
+        if ($units->getAmount() > 0) {
             // Create and start the return mission.
-            $this->startReturn($mission);
+            $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $units);
         }
     }
 

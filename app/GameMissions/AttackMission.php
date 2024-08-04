@@ -3,10 +3,11 @@
 namespace OGame\GameMissions;
 
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\BattleEngine;
+use OGame\GameMissions\BattleEngine\BattleResult;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
-use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -43,15 +44,26 @@ class AttackMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to);
         $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
 
-        // Trigger target planet update to make sure the espionage report is accurate.
-        $target_planet->update();
+        // Trigger defender planet update to make sure the battle uses up-to-date info.
+        $defenderPlanet->update();
 
-        // TODO: add battle logic here. For now, we just mark the mission as processed.
-        $attacker = $origin_planet->getPlayer();
-        $reportId = $this->createBattleReport($attacker, $target_planet);
+        $attackerPlayer = $origin_planet->getPlayer();
+        $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
+
+        // Execute the battle logic.
+        $battleEngine = new BattleEngine();
+        $battleResult = $battleEngine->simulateBattle($attackerUnits, $attackerPlayer, $defenderPlanet);
+
+        // Deduct loot from the target planet.
+        $defenderPlanet->deductResources($battleResult->loot);
+
+        // Save defenders planet
+        $defenderPlanet->save();
+
+        $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
 
         // Send a message to the player with a reference to the espionage report.
         $this->messageService->sendBattleReportMessageToPlayer(
@@ -66,7 +78,7 @@ class AttackMission extends GameMission
         // Check if the mission has any ships left. If yes, start a return mission to send them back.
         if ($this->fleetMissionService->getFleetUnitCount($mission) > 0) {
             // Create and start the return mission.
-            $this->startReturn($mission);
+            $this->startReturn($mission, $battleResult->loot, $battleResult->attackerUnits);
         }
     }
 
@@ -87,7 +99,8 @@ class AttackMission extends GameMission
             $target_planet->addResources($return_resources);
         }
 
-        // TODO: send return message to player that fleet has returned.
+        // Send message to player that the return mission has arrived.
+        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
 
         // Mark the return mission as processed
         $mission->processed = 1;
@@ -97,17 +110,18 @@ class AttackMission extends GameMission
     /**
      * Creates an espionage report for the target planet.
      *
-     * @param PlayerService $attackPlayer
-     * @param PlanetService $defenderPlanet
+     * @param PlayerService $attackPlayer The player who initiated the attack.
+     * @param PlanetService $defenderPlanet The planet that was attacked.
+     * @param BattleResult $battleResult The result of the battle.
      * @return int
      */
-    private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet): int
+    private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet, BattleResult $battleResult): int
     {
         // TODO: make sure the target planet is updated with the latest resources before creating the report
         // to ensure the report is accurate at the current point in time.
         // TODO: add planet update call here and add a test to cover this.
 
-        // Create new espionage report record.
+        // Create new battle report record.
         $report = new BattleReport();
         $report->planet_galaxy = $defenderPlanet->getPlanetCoordinates()->galaxy;
         $report->planet_system = $defenderPlanet->getPlanetCoordinates()->system;
@@ -130,9 +144,9 @@ class AttackMission extends GameMission
         ];
 
         $report->loot = [
-            'metal' => 0,
-            'crystal' => 0,
-            'deuterium' => 0,
+            'metal' => (int)$battleResult->loot->metal->get(),
+            'crystal' => (int)$battleResult->loot->metal->get(),
+            'deuterium' => (int)$battleResult->loot->metal->get(),
         ];
 
         $report->debris = [

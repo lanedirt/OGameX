@@ -84,4 +84,19 @@ class UnitCollection
         return $slowest;
     }
 
+    /**
+     * Get the total amount of units in the collection.
+     *
+     * @return int
+     */
+    public function getAmount(): int
+    {
+        $amount = 0;
+        foreach ($this->units as $entry) {
+            $amount += $entry->amount;
+        }
+
+        return $amount;
+    }
+
 }
