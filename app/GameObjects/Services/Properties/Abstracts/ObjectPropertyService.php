@@ -4,7 +4,7 @@ namespace OGame\GameObjects\Services\Properties\Abstracts;
 
 use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Models\Fields\GameObjectPropertyDetails;
-use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 
 /**
  * Class ObjectPropertyService.
@@ -34,17 +34,17 @@ abstract class ObjectPropertyService
      * @return int
      *  Bonus percentage as integer (e.g. 10 for 10% bonus, 110 for 110% bonus, etc.)
      */
-    abstract protected function getBonusPercentage(PlanetService $planet): int;
+    abstract protected function getBonusPercentage(PlayerService $player): int;
 
     /**
      * Calculate the total value of a property.
      *
-     * @param PlanetService $planet
+     * @param PlayerService $player
      * @return GameObjectPropertyDetails
      */
-    public function calculateProperty(PlanetService $planet): GameObjectPropertyDetails
+    public function calculateProperty(PlayerService $player): GameObjectPropertyDetails
     {
-        $bonusPercentage = $this->getBonusPercentage($planet);
+        $bonusPercentage = $this->getBonusPercentage($player);
         $bonusValue = (($this->base_value / 100) * $bonusPercentage);
 
         $totalValue = $this->base_value + $bonusValue;

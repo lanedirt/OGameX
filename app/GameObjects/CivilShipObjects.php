@@ -40,7 +40,7 @@ class CivilShipObjects
             new GameObjectRapidfire('espionage_probe', 80, 5),
             new GameObjectRapidfire('solar_satellite', 80, 5),
         ];
-        $smallCargo->properties = new GameObjectProperties($smallCargo, 4000, 10, 5, 5000, 6250, 10);
+        $smallCargo->properties = new GameObjectProperties($smallCargo, 4000, 10, 5, 5000, 5000, 10);
         $smallCargo->properties->speed_upgrade = [
             new GameObjectSpeedUpgrade('impulse_drive', 5),
         ];

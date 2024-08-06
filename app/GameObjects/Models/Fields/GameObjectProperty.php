@@ -3,7 +3,7 @@
 namespace OGame\GameObjects\Models\Fields;
 
 use OGame\GameObjects\Services\Properties\Abstracts\ObjectPropertyService;
-use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 
 class GameObjectProperty
 {
@@ -27,11 +27,11 @@ class GameObjectProperty
     /**
      * Calculate the actual value of the property based on user and planet levels.
      *
-     * @param PlanetService $planet
+     * @param PlayerService $player
      * @return GameObjectPropertyDetails
      */
-    public function calculate(PlanetService $planet): GameObjectPropertyDetails
+    public function calculate(PlayerService $player): GameObjectPropertyDetails
     {
-        return $this->calculationService->calculateProperty($planet);
+        return $this->calculationService->calculateProperty($player);
     }
 }

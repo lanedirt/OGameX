@@ -76,7 +76,7 @@ class FleetMissionService
     public function calculateFleetMissionDuration(PlanetService $fromPlanet, Coordinate $to, UnitCollection $units): int
     {
         // Get slowest unit speed.
-        $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet);
+        $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet->getPlayer());
 
         // Calculate distance between current planet and target planet.
         // ----------------------------------------

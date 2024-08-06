@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\BattleReport;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\SettingsService;
@@ -172,6 +173,25 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that a return trip has been launched by checking the active missions for the current planet.
         $this->assertCount(1, $activeMissions, 'No return trip launched after fleet with deployment mission has arrived at destination.');
+
+        // Advance time by amount of minutes it takes for the return trip to arrive.
+        Carbon::setTestNow(Carbon::createFromTimestamp($activeMissions->first()->time_arrival));
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the return trip is processed and that the resources mentioned in battle report
+        // match the resources of the return trip.
+        $fleetMission = $fleetMissionService->getFleetMissionById($activeMissions->first()->id, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Return trip is not processed after fleet has arrived back at origin planet.');
+
+        // Get most recent battle report ID from the database.
+        $battleReport = BattleReport::orderBy('id', 'desc')->first();
+        $battleReportResources = new Resources($battleReport->loot['metal'], $battleReport->loot['crystal'], $battleReport->loot['deuterium'], 0);
+
+        // Assert that the resources of the return trip match the resources of the battle report.
+        $this->assertEquals($battleReportResources, new Resources($fleetMission->metal, $fleetMission->crystal, $fleetMission->deuterium, 0), 'Resources of return trip do not match resources of battle report.');
     }
 
     /**

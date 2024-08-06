@@ -5,6 +5,7 @@ namespace OGame\GameObjects\Services\Properties;
 use Exception;
 use OGame\GameObjects\Services\Properties\Abstracts\ObjectPropertyService;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 
 /**
  * Class StructuralIntegrityPropertyService.
@@ -19,9 +20,9 @@ class StructuralIntegrityPropertyService extends ObjectPropertyService
      * @inheritdoc
      * @throws Exception
      */
-    protected function getBonusPercentage(PlanetService $planet): int
+    protected function getBonusPercentage(PlayerService $player): int
     {
-        $armor_technology_level = $planet->getPlayer()->getResearchLevel('armor_technology');
+        $armor_technology_level = $player->getResearchLevel('armor_technology');
         // Every level of armor technology gives 10% bonus.
         return $armor_technology_level * 10;
     }

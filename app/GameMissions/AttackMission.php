@@ -54,8 +54,8 @@ class AttackMission extends GameMission
         $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
 
         // Execute the battle logic.
-        $battleEngine = new BattleEngine();
-        $battleResult = $battleEngine->simulateBattle($attackerUnits, $attackerPlayer, $defenderPlanet);
+        $battleEngine = new BattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet);
+        $battleResult = $battleEngine->simulateBattle();
 
         // Deduct loot from the target planet.
         $defenderPlanet->deductResources($battleResult->loot);

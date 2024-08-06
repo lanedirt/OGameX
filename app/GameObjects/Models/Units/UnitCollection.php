@@ -4,6 +4,7 @@ namespace OGame\GameObjects\Models\Units;
 
 use OGame\GameObjects\Models\UnitObject;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 
 class UnitCollection
 {
@@ -68,14 +69,14 @@ class UnitCollection
     /**
      * Get the slowest unit in the collection.
      *
-     * @param PlanetService $planet
+     * @param PlayerService $player
      * @return int
      */
-    public function getSlowestUnitSpeed(PlanetService $planet): int
+    public function getSlowestUnitSpeed(PlayerService $player): int
     {
         $slowest = 0;
         foreach ($this->units as $entry) {
-            $speed = $entry->unitObject->properties->speed->calculate($planet)->totalValue;
+            $speed = $entry->unitObject->properties->speed->calculate($player)->totalValue;
             if ($slowest === 0 || $speed < $slowest) {
                 $slowest = $speed;
             }

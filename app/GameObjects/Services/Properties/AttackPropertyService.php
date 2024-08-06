@@ -3,7 +3,7 @@
 namespace OGame\GameObjects\Services\Properties;
 
 use OGame\GameObjects\Services\Properties\Abstracts\ObjectPropertyService;
-use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 
 /**
  * Class AttackPropertyService.
@@ -17,9 +17,9 @@ class AttackPropertyService extends ObjectPropertyService
     /**
      * @inheritdoc
      */
-    protected function getBonusPercentage(PlanetService $planet): int
+    protected function getBonusPercentage(PlayerService $player): int
     {
-        $weapons_technology_level = $planet->getPlayer()->getResearchLevel('weapon_technology');
+        $weapons_technology_level = $player->getResearchLevel('weapon_technology');
         // Every level technology gives 10% bonus.
         return $weapons_technology_level * 10;
     }

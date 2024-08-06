@@ -257,12 +257,12 @@ class TechtreeController extends OGameController
         // Get UnitObject properties...
         $properties = $object->properties;
 
-        $structural_integrity = $properties->structural_integrity->calculate($player->planets->current());
-        $shield = $properties->shield->calculate($player->planets->current());
-        $attack = $properties->attack->calculate($player->planets->current());
-        $speed = $properties->speed->calculate($player->planets->current());
-        $capacity = $properties->capacity->calculate($player->planets->current());
-        $fuel = $properties->fuel->calculate($player->planets->current());
+        $structural_integrity = $properties->structural_integrity->calculate($player);
+        $shield = $properties->shield->calculate($player);
+        $attack = $properties->attack->calculate($player);
+        $speed = $properties->speed->calculate($player);
+        $capacity = $properties->capacity->calculate($player);
+        $fuel = $properties->fuel->calculate($player);
 
         $properties_array = [];
         $properties_array['structural_integrity'] = $structural_integrity->totalValue;
