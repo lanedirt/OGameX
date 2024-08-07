@@ -107,10 +107,10 @@ class FleetController extends OGameController
             $shipsData[$shipObject->id] = [
                 'id' => $shipObject->id,
                 'name' => $shipObject->title,
-                'baseFuelCapacity' => $shipObject->properties->capacity->calculate($currentPlanet)->totalValue,
-                'baseCargoCapacity' => $shipObject->properties->capacity->calculate($currentPlanet)->totalValue,
-                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlanet)->totalValue,
-                'speed' => $shipObject->properties->speed->calculate($currentPlanet)->totalValue
+                'baseFuelCapacity' => $shipObject->properties->capacity->calculate($currentPlayer)->totalValue,
+                'baseCargoCapacity' => $shipObject->properties->capacity->calculate($currentPlayer)->totalValue,
+                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlayer)->totalValue,
+                'speed' => $shipObject->properties->speed->calculate($currentPlayer)->totalValue
             ];
         }
 

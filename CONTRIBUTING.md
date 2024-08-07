@@ -58,10 +58,10 @@ $ php artisan test:race-condition-unitqueue
 $ php artisan test:race-condition-game-mission
 ```
 
-### 5. Keep it simple
-If your PR is too big, it will be hard to review. Try to keep it simple and small. If you want to do more than one thing, send multiple pull requests.
+### 5. Run CSS and JS build
+OGameX uses Laravel Mix to compile the CSS and JS assets. Before submitting a PR, make sure to run the following command to compile the assets.
+This command can be run in watch mode to automatically recompile the assets when changes are made which is useful during development.
 
-### 6. Keep it clean
-Please remove any unrelated changes from your PR. If you have changes in your branch that are not related to the PR, please create a new branch for them.
-
-If you have any questions, feel free to reach out to the maintainer(s). Thank you in advance for your contributions! 🎉
+```
+$ npm run dev watch
+```

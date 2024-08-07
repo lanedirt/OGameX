@@ -6,35 +6,20 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Factories\GameMissionFactory;
-use OGame\GameMissions\ColonisationMission;
-use OGame\GameMissions\DeploymentMission;
-use OGame\GameMissions\EspionageMission;
-use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 
 /**
- * Class UnitQueueService.
+ * Class FleetMissionService.
  *
- * UnitQueueService object.
+ * FleetMissionService object.
  *
  * @package OGame\Services
  */
 class FleetMissionService
 {
-    /**
-     * Mission type to class mapping.
-     * @var array<int, class-string> $missionTypeToClass
-     */
-    private array $missionTypeToClass = [
-        3 => TransportMission::class,
-        4 => DeploymentMission::class,
-        6 => EspionageMission::class,
-        7 => ColonisationMission::class,
-    ];
-
     /**
      * Player service
      *
@@ -91,7 +76,7 @@ class FleetMissionService
     public function calculateFleetMissionDuration(PlanetService $fromPlanet, Coordinate $to, UnitCollection $units): int
     {
         // Get slowest unit speed.
-        $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet);
+        $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet->getPlayer());
 
         // Calculate distance between current planet and target planet.
         // ----------------------------------------
@@ -134,9 +119,7 @@ class FleetMissionService
      */
     public function missionTypeToLabel(int $missionType): string
     {
-        // Call static method on mission class.
-        $className = $this->missionTypeToClass[$missionType];
-        return $className::getName();
+        return GameMissionFactory::getMissionById($missionType, [])->getName();
     }
 
     /**
@@ -147,8 +130,7 @@ class FleetMissionService
      */
     public function missionHasReturnMission(int $missionType): bool
     {
-        $className = $this->missionTypeToClass[$missionType];
-        return $className::hasReturnMission();
+        return GameMissionFactory::getMissionById($missionType, [])->hasReturnMission();
     }
 
     /**

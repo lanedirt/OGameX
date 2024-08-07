@@ -4,6 +4,7 @@ namespace OGame\Factories;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\AttackMission;
 use OGame\GameMissions\ColonisationMission;
 use OGame\GameMissions\DeploymentMission;
 use OGame\GameMissions\EspionageMission;
@@ -33,6 +34,7 @@ class GameMissionFactory
         */
         try {
             return [
+                1 => app()->make(AttackMission::class),
                 3 => app()->make(TransportMission::class),
                 4 => app()->make(DeploymentMission::class),
                 6 => app()->make(EspionageMission::class),
@@ -53,6 +55,8 @@ class GameMissionFactory
     {
         try {
             switch ($missionId) {
+                case 1:
+                    return app()->make(AttackMission::class, $dependencies);
                 case 3:
                     return app()->make(TransportMission::class, $dependencies);
                 case 4:

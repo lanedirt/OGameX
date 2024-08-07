@@ -28,7 +28,7 @@ class ObjectPropertiesTest extends UnitTestCase
 
         $lightFighter = $this->planetService->objects->getShipObjectByMachineName('light_fighter');
         $this->assertEquals(4000, $lightFighter->properties->structural_integrity->rawValue);
-        $this->assertEquals(4400, $lightFighter->properties->structural_integrity->calculate($this->planetService)->totalValue);
+        $this->assertEquals(4400, $lightFighter->properties->structural_integrity->calculate($this->playerService)->totalValue);
     }
 
     /**
@@ -44,7 +44,7 @@ class ObjectPropertiesTest extends UnitTestCase
 
         $lightFighter = $this->planetService->objects->getShipObjectByMachineName('light_fighter');
         $this->assertEquals(10, $lightFighter->properties->shield->rawValue);
-        $this->assertEquals(13, $lightFighter->properties->shield->calculate($this->planetService)->totalValue);
+        $this->assertEquals(13, $lightFighter->properties->shield->calculate($this->playerService)->totalValue);
     }
 
     /**
@@ -60,7 +60,7 @@ class ObjectPropertiesTest extends UnitTestCase
 
         $lightFighter = $this->planetService->objects->getShipObjectByMachineName('light_fighter');
         $this->assertEquals(50, $lightFighter->properties->attack->rawValue);
-        $this->assertEquals(60, $lightFighter->properties->attack->calculate($this->planetService)->totalValue);
+        $this->assertEquals(60, $lightFighter->properties->attack->calculate($this->playerService)->totalValue);
     }
 
     /**
@@ -80,31 +80,31 @@ class ObjectPropertiesTest extends UnitTestCase
         // Base 12.500 + 5*10% = 18.750
         $lightFighter = $this->planetService->objects->getShipObjectByMachineName('light_fighter');
         $this->assertEquals(12500, $lightFighter->properties->speed->rawValue);
-        $this->assertEquals(18750, $lightFighter->properties->speed->calculate($this->planetService)->totalValue);
+        $this->assertEquals(18750, $lightFighter->properties->speed->calculate($this->playerService)->totalValue);
 
         // Small cargo with combustion drive 5
         // Base 5.000 + 5*10% = 7.500
         $smallCargo = $this->planetService->objects->getShipObjectByMachineName('small_cargo');
         $this->assertEquals(5000, $smallCargo->properties->speed->rawValue);
-        $this->assertEquals(7500, $smallCargo->properties->speed->calculate($this->planetService)->totalValue);
+        $this->assertEquals(7500, $smallCargo->properties->speed->calculate($this->playerService)->totalValue);
 
         // Recycler with combustion drive 5
         // Base 2.000 + 5*10% = 3.000
         $recycler = $this->planetService->objects->getShipObjectByMachineName('recycler');
         $this->assertEquals(2000, $recycler->properties->speed->rawValue);
-        $this->assertEquals(3000, $recycler->properties->speed->calculate($this->planetService)->totalValue);
+        $this->assertEquals(3000, $recycler->properties->speed->calculate($this->playerService)->totalValue);
 
         // Cruiser with impulse drive level 3
         // Base 15.000 + 3*20% = 24.000
         $cruiser = $this->planetService->objects->getShipObjectByMachineName('cruiser');
         $this->assertEquals(15000, $cruiser->properties->speed->rawValue);
-        $this->assertEquals(24000, $cruiser->properties->speed->calculate($this->planetService)->totalValue);
+        $this->assertEquals(24000, $cruiser->properties->speed->calculate($this->playerService)->totalValue);
 
         // Battleship with hyperspace drive level 4
         // Base 10.000 + 4*30% = 22.000
         $battleship = $this->planetService->objects->getShipObjectByMachineName('battle_ship');
         $this->assertEquals(10000, $battleship->properties->speed->rawValue);
-        $this->assertEquals(22000, $battleship->properties->speed->calculate($this->planetService)->totalValue);
+        $this->assertEquals(22000, $battleship->properties->speed->calculate($this->playerService)->totalValue);
     }
 
     /**
@@ -123,17 +123,17 @@ class ObjectPropertiesTest extends UnitTestCase
         // Base 5.000 + 5*20% = 10.000
         // TODO: with upgraded drive the base speed of small cargo should be 10.000 instead of default 5.000.
         $smallCargo = $this->planetService->objects->getShipObjectByMachineName('small_cargo');
-        $this->assertEquals(10000, $smallCargo->properties->speed->calculate($this->planetService)->totalValue);
+        $this->assertEquals(10000, $smallCargo->properties->speed->calculate($this->playerService)->totalValue);
 
         // Recycler with hyperspace drive level 15
         // Base 2.000 + 15*30% = 11.000
         $recycler = $this->planetService->objects->getShipObjectByMachineName('recycler');
-        $this->assertEquals(11000, $recycler->properties->speed->calculate($this->planetService)->totalValue);
+        $this->assertEquals(11000, $recycler->properties->speed->calculate($this->playerService)->totalValue);
 
         // Bomber with hyperspace drive level 15
         // Base 4.000 + 15*30% = 22.000
         $recycler = $this->planetService->objects->getShipObjectByMachineName('bomber');
-        $this->assertEquals(22000, $recycler->properties->speed->calculate($this->planetService)->totalValue);
+        $this->assertEquals(22000, $recycler->properties->speed->calculate($this->playerService)->totalValue);
     }
 
     /**
@@ -151,7 +151,7 @@ class ObjectPropertiesTest extends UnitTestCase
 
         // TODO: Implement capacity property calculation per object id if it exists?
         $lightFighter = $this->planetService->objects->getShipObjectByMachineName('light_fighter');
-        $this->assertEquals(50, $lightFighter->properties->capacity->calculate($this->planetService)->totalValue);
+        $this->assertEquals(50, $lightFighter->properties->capacity->calculate($this->playerService)->totalValue);
     }
 
     /**
@@ -169,7 +169,7 @@ class ObjectPropertiesTest extends UnitTestCase
 
         // TODO: Implement fuel property calculation per object id if it exists?
         $lightFighter = $this->planetService->objects->getShipObjectByMachineName('light_fighter');
-        $this->assertEquals(20, $lightFighter->properties->fuel->calculate($this->planetService)->totalValue);
+        $this->assertEquals(20, $lightFighter->properties->fuel->calculate($this->playerService)->totalValue);
     }
 
     /**
@@ -205,7 +205,7 @@ class ObjectPropertiesTest extends UnitTestCase
 
         // Light fighter check
         $lightFighter = $this->planetService->objects->getShipObjectByMachineName('light_fighter');
-        $calculated = $lightFighter->properties->structural_integrity->calculate($this->planetService);
+        $calculated = $lightFighter->properties->structural_integrity->calculate($this->playerService);
 
         $this->assertEquals(4000, $calculated->rawValue);
         $this->assertEquals(400, $calculated->bonusValue);

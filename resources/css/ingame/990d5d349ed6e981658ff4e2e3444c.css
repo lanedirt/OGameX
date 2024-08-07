@@ -17439,7 +17439,7 @@ td#fleetstatusrow div {
 
 #galaxyContent .expeditionDebrisSlotBox,
 #galaxyContent .bdaySlotBox {
-    background: #090d12 url("//gf3.geo.gfsrv.net/cdn89/5fbbb1876fcff20a8a265c06862495.png") 0 -590px repeat-x; /* Old browsers */
+    background: #090d12 url("/img/icons/5fbbb1876fcff20a8a265c06862495.png") 0 -590px repeat-x; /* Old browsers */
     background: -moz-linear-gradient(top,  rgba(20,29,37,0.8) 0%, rgba(9,13,18,0.8) 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(20,29,37,0.8)), color-stop(100%,rgba(9,13,18,0.8))); /* Chrome,Safari4+ */
     background: -webkit-linear-gradient(top,  rgba(20,29,37,0.8) 0%,rgba(9,13,18,0.8) 100%); /* Chrome10+,Safari5.1+ */
@@ -19202,7 +19202,7 @@ body.no-commander #pageContent {
 }
 
 /* *****************************************************************************
-   Combat reports (from /html//gf2.geo.gfsrv.net/cdn1b/4682719f196c06ed06a038ceb27020.css)
+   Combat reports
 ***************************************************************************** */
 .ship_list_28 {
     position:relative;

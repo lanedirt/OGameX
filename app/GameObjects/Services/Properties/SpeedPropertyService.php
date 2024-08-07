@@ -4,7 +4,7 @@ namespace OGame\GameObjects\Services\Properties;
 
 use OGame\GameObjects\Models\Fields\GameObjectSpeedUpgrade;
 use OGame\GameObjects\Services\Properties\Abstracts\ObjectPropertyService;
-use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 
 /**
  * Class ObjectPropertyService.
@@ -19,7 +19,7 @@ class SpeedPropertyService extends ObjectPropertyService
      * @inheritdoc
      * @throws \Exception
      */
-    protected function getBonusPercentage(PlanetService $planet): int
+    protected function getBonusPercentage(PlayerService $player): int
     {
         // Speed bonus is calculated based on main required drive technology.
         // Following technology gives amount of % per level:
@@ -36,9 +36,9 @@ class SpeedPropertyService extends ObjectPropertyService
         $object = $this->parent_object;
 
         // Get player's drive technology levels.
-        $combustion_drive_level = $planet->getPlayer()->getResearchLevel('combustion_drive');
-        $impulse_drive_level = $planet->getPlayer()->getResearchLevel('impulse_drive');
-        $hyperspace_drive_level = $planet->getPlayer()->getResearchLevel('hyperspace_drive');
+        $combustion_drive_level = $player->getResearchLevel('combustion_drive');
+        $impulse_drive_level = $player->getResearchLevel('impulse_drive');
+        $hyperspace_drive_level = $player->getResearchLevel('hyperspace_drive');
 
         // Check if object has speed upgrade defined, if so, check if its eligible.
         $bonus_percentage_per_level = 0;

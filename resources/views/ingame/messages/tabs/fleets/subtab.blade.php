@@ -1,4 +1,5 @@
 <div id="fleetsgenericpage">
+    <div id="messagecontainercomponent">
     <!-- TODO: implement trash -->
     <!--<ul class="tab_inner ctn_with_trash clearfix"> -->
     <ul class="tab_inner clearfix">
@@ -24,7 +25,11 @@
             <li class="msg @if ($message->isUnread()) msg_new @endif" data-msg-id="{{ $message->getId() }}">
                 <div class="msg_status"></div>
                 <div class="msg_head">
-                    <span class="msg_title blue_txt">{!! $message->getSubject() !!}</span>
+                    @if ($message->getSubtab() === 'combat_reports')
+                        <span class="msg_title middlemark">{!! $message->getSubject() !!}</span>
+                    @else
+                        <span class="msg_title blue_txt">{!! $message->getSubject() !!}</span>
+                    @endif
                     <span class="fright">
                         <a href="javascript: void(0);" class="fright">
                             <span class="icon_nf icon_refuse js_actionKill tooltip js_hideTipOnMobile tpd-hideOnClickOutside" title=""></span>
@@ -62,4 +67,5 @@
         </ul>
     </ul>
     @include('ingame.messages.tabs.subtab-init-js')
+</div>
 </div>

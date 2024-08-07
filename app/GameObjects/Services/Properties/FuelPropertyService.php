@@ -3,7 +3,7 @@
 namespace OGame\GameObjects\Services\Properties;
 
 use OGame\GameObjects\Services\Properties\Abstracts\ObjectPropertyService;
-use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 
 /**
  * Class FuelPropertyService.
@@ -17,7 +17,7 @@ class FuelPropertyService extends ObjectPropertyService
     /**
      * @inheritdoc
      */
-    protected function getBonusPercentage(PlanetService $planet): int
+    protected function getBonusPercentage(PlayerService $player): int
     {
         // TODO: implement fuel bonus/extra calculation per object id.
         return 0;

@@ -47,6 +47,6 @@ class UnitCollectionTest extends UnitTestCase
         // - 5.000 = destroyer base speed
         // - 1.500 = 30% speed bonus from hyperspace drive level 1
         // =  6.500 total expected speed.
-        $this->assertEquals(6500, $unitCollection->getSlowestUnitSpeed($this->planetService));
+        $this->assertEquals(6500, $unitCollection->getSlowestUnitSpeed($this->playerService));
     }
 }

@@ -9,6 +9,7 @@ use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 
 class ColonisationMission extends GameMission
@@ -38,6 +39,7 @@ class ColonisationMission extends GameMission
 
     /**
      * @inheritdoc
+     * @throws \Exception
      */
     protected function processArrival(FleetMission $mission): void
     {
@@ -86,17 +88,20 @@ class ColonisationMission extends GameMission
         $resources = $this->fleetMissionService->getResources($mission);
         $target_planet->addResources($resources);
 
-        // Remove the colony ship from the fleet as it is consumed in the colonization process.
-        $mission->colony_ship -= 1;
-
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();
 
+        // Assembly new unit collection.
+        $units = $this->fleetMissionService->getFleetUnits($mission);
+        // Remove one colony ship from the fleet as it was used to colonize the planet.
+        $colony_ship = $target_planet->objects->getUnitObjectByMachineName('colony_ship');
+        $units->removeUnit($colony_ship, 1);
+
         // Check if the mission has any ships left. If yes, start a return mission to send them back.
-        if ($this->fleetMissionService->getFleetUnitCount($mission) > 0) {
+        if ($units->getAmount() > 0) {
             // Create and start the return mission.
-            $this->startReturn($mission);
+            $this->startReturn($mission, new Resources(0, 0, 0, 0), $units);
         }
     }
 

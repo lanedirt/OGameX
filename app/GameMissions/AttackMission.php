@@ -3,18 +3,20 @@
 namespace OGame\GameMissions;
 
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\BattleEngine;
+use OGame\GameMissions\BattleEngine\BattleResult;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
-use OGame\Models\EspionageReport;
+use OGame\Models\BattleReport;
 use OGame\Models\FleetMission;
-use OGame\Models\Resources;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 use Throwable;
 
-class EspionageMission extends GameMission
+class AttackMission extends GameMission
 {
-    protected static string $name = 'Espionage';
-    protected static int $typeId = 6;
+    protected static string $name = 'Attack';
+    protected static int $typeId = 1;
     protected static bool $hasReturnMission = true;
 
     /**
@@ -32,11 +34,6 @@ class EspionageMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        // If no espionage probes are present in the fleet, the mission is not possible.
-        if ($units->getAmountByMachineName('espionage_probe') === 0) {
-            return new MissionPossibleStatus(false);
-        }
-
         // If all checks pass, the mission is possible.
         return new MissionPossibleStatus(true);
     }
@@ -47,16 +44,29 @@ class EspionageMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to);
         $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
 
-        // Trigger target planet update to make sure the espionage report is accurate.
-        $target_planet->update();
+        // Trigger defender planet update to make sure the battle uses up-to-date info.
+        $defenderPlanet->update();
 
-        $reportId = $this->createEspionageReport($target_planet);
+        $attackerPlayer = $origin_planet->getPlayer();
+        $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
+
+        // Execute the battle logic.
+        $battleEngine = new BattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet);
+        $battleResult = $battleEngine->simulateBattle();
+
+        // Deduct loot from the target planet.
+        $defenderPlanet->deductResources($battleResult->loot);
+
+        // Save defenders planet
+        $defenderPlanet->save();
+
+        $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
 
         // Send a message to the player with a reference to the espionage report.
-        $this->messageService->sendEspionageReportMessageToPlayer(
+        $this->messageService->sendBattleReportMessageToPlayer(
             $origin_planet->getPlayer(),
             $reportId,
         );
@@ -65,14 +75,10 @@ class EspionageMission extends GameMission
         $mission->processed = 1;
         $mission->save();
 
-        // Assembly new unit collection.
-        $units = $this->fleetMissionService->getFleetUnits($mission);
-        // TODO: a battle can happen if counter-espionage has taken place. Check for this when implementing battle system.
-
         // Check if the mission has any ships left. If yes, start a return mission to send them back.
-        if ($units->getAmount() > 0) {
+        if ($this->fleetMissionService->getFleetUnitCount($mission) > 0) {
             // Create and start the return mission.
-            $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $units);
+            $this->startReturn($mission, $battleResult->loot, $battleResult->attackerUnits);
         }
     }
 
@@ -84,7 +90,7 @@ class EspionageMission extends GameMission
         // Load the target planet
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
 
-        // Espionage return trip: add back the units to the source planet. Then we're done.
+        // Attack return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
         // Add resources to the origin planet (if any).
@@ -93,7 +99,8 @@ class EspionageMission extends GameMission
             $target_planet->addResources($return_resources);
         }
 
-        // Espionage return mission does not send a return confirmation message to the user.
+        // Send message to player that the return mission has arrived.
+        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
 
         // Mark the return mission as processed
         $mission->processed = 1;
@@ -103,24 +110,56 @@ class EspionageMission extends GameMission
     /**
      * Creates an espionage report for the target planet.
      *
-     * @param PlanetService $planet
+     * @param PlayerService $attackPlayer The player who initiated the attack.
+     * @param PlanetService $defenderPlanet The planet that was attacked.
+     * @param BattleResult $battleResult The result of the battle.
      * @return int
      */
-    private function createEspionageReport(PlanetService $planet): int
+    private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet, BattleResult $battleResult): int
     {
         // TODO: make sure the target planet is updated with the latest resources before creating the report
         // to ensure the report is accurate at the current point in time.
         // TODO: add planet update call here and add a test to cover this.
 
-        // Create new espionage report record.
-        $report = new EspionageReport();
-        $report->planet_galaxy = $planet->getPlanetCoordinates()->galaxy;
-        $report->planet_system = $planet->getPlanetCoordinates()->system;
-        $report->planet_position = $planet->getPlanetCoordinates()->position;
+        // Create new battle report record.
+        $report = new BattleReport();
+        $report->planet_galaxy = $defenderPlanet->getPlanetCoordinates()->galaxy;
+        $report->planet_system = $defenderPlanet->getPlanetCoordinates()->system;
+        $report->planet_position = $defenderPlanet->getPlanetCoordinates()->position;
 
-        $report->planet_user_id = $planet->getPlayer()->getId();
+        $report->planet_user_id = $defenderPlanet->getPlayer()->getId();
 
-        $report->player_info = [
+        $report->general = [
+            'moon_chance' => 0,
+        ];
+
+        $report->attacker = [
+            'player_id' => $attackPlayer->getId(),
+            'resource_loss' => 0,
+        ];
+
+        $report->defender = [
+            'player_id' => $defenderPlanet->getPlayer()->getId(),
+            'resource_loss' => 0,
+        ];
+
+        $report->loot = [
+            'percentage' => $battleResult->lootPercentage,
+            'metal' => (int)$battleResult->loot->metal->get(),
+            'crystal' => (int)$battleResult->loot->metal->get(),
+            'deuterium' => (int)$battleResult->loot->metal->get(),
+        ];
+
+        $report->debris = [
+            'metal' => 0,
+            'crystal' => 0,
+            'deuterium' => 0,
+        ];
+
+        $report->repaired_defenses = [];
+
+        // TODO: add actual battle report contents here.
+        /*$report->player_info = [
             'player_id' => (string)$planet->getPlayer()->getId(),
             'player_name' => $planet->getPlayer()->getUsername(),
         ];
@@ -148,7 +187,7 @@ class EspionageMission extends GameMission
 
         // Research
         $report->research = $planet->getPlayer()->getResearchArray();
-
+*/
         $report->save();
 
         return $report->id;
