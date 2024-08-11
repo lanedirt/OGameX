@@ -6345,16 +6345,16 @@
         },
         {
             "name": "brianium/paratest",
-            "version": "v7.5.1",
+            "version": "v7.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paratestphp/paratest.git",
-                "reference": "6f990d0334974c72b784b65bda7ad04ff65ec756"
+                "reference": "f8feb0432a52c1c749467943566d086388a23e68"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/6f990d0334974c72b784b65bda7ad04ff65ec756",
-                "reference": "6f990d0334974c72b784b65bda7ad04ff65ec756",
+                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/f8feb0432a52c1c749467943566d086388a23e68",
+                "reference": "f8feb0432a52c1c749467943566d086388a23e68",
                 "shasum": ""
             },
             "require": {
@@ -6377,7 +6377,7 @@
                 "doctrine/coding-standard": "^12.0.0",
                 "ext-pcov": "*",
                 "ext-posix": "*",
-                "phpstan/phpstan": "^1.11.9",
+                "phpstan/phpstan": "^1.11.10",
                 "phpstan/phpstan-deprecation-rules": "^1.2.0",
                 "phpstan/phpstan-phpunit": "^1.4.0",
                 "phpstan/phpstan-strict-rules": "^1.6.0",
@@ -6422,7 +6422,7 @@
             ],
             "support": {
                 "issues": "https://github.com/paratestphp/paratest/issues",
-                "source": "https://github.com/paratestphp/paratest/tree/v7.5.1"
+                "source": "https://github.com/paratestphp/paratest/tree/v7.5.2"
             },
             "funding": [
                 {
@@ -6434,7 +6434,7 @@
                     "type": "paypal"
                 }
             ],
-            "time": "2024-08-06T12:34:02+00:00"
+            "time": "2024-08-08T12:43:34+00:00"
         },
         {
             "name": "composer/class-map-generator",
