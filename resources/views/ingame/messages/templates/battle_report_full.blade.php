@@ -1,6 +1,8 @@
 @php /** @var array<OGame\GameObjects\Models\ShipObject> $military_objects */ @endphp
 @php /** @var array<OGame\GameObjects\Models\ShipObject> $civil_objects */ @endphp
 @php /** @var array<OGame\GameObjects\Models\DefenseObject> $defense_objects */ @endphp
+@php /** @var array<OGame\GameObjects\Models\Units\UnitCollection> $attacker_units_start */ @endphp
+@php /** @var array<OGame\GameObjects\Models\Units\UnitCollection> $defender_units_start */ @endphp
 
 <div class="detail_msg_head">
     <span class="msg_title new blue_txt"><span class="middlemark">@lang('Combat Report') {{ $defender_planet_name }} <figure
@@ -197,13 +199,15 @@
 
             <ul class="ship_list_28 military_ships fleft">
                 @foreach ($military_objects as $object)
-                    <li class="{{ $loop->odd ? 'odd' : '' }}">
-                        <div class="buildingimg military{{ $object->id }} on">
-                            <span class="detail_shipname">{{ $object->title }}</span>
-                            <span class="detail_shipsleft ecke">0</span>
-                            <span class="detail_shipslost lost_ships">0</span>
-                        </div>
-                    </li>
+                    @if ($attacker_units_start->getAmountByMachineName($object->machine_name) > 0)
+                        <li class="{{ $loop->even ? 'odd' : '' }}">
+                            <div class="buildingimg military{{ $object->id }} on">
+                                <span class="detail_shipname">{{ $object->title }}</span>
+                                <span class="detail_shipsleft ecke">{{ $attacker_units_start->getAmountByMachineName($object->machine_name) }}</span>
+                                <span class="detail_shipslost lost_ships">0</span>
+                            </div>
+                        </li>
+                    @endif
                 @endforeach
             </ul>
 
@@ -218,13 +222,15 @@
 
             <ul class="ship_list_28 military_ships fleft">
                 @foreach ($civil_objects as $object)
-                    <li class="{{ $loop->odd ? 'odd' : '' }}">
-                        <div class="buildingimg civil{{ $object->id }} on">
-                            <span class="detail_shipname">{{ $object->title }}</span>
-                            <span class="detail_shipsleft ecke">0</span>
-                            <span class="detail_shipslost lost_ships">0</span>
-                        </div>
-                    </li>
+                    @if ($attacker_units_start->getAmountByMachineName($object->machine_name) > 0)
+                        <li class="{{ $loop->even ? 'odd' : '' }}">
+                            <div class="buildingimg civil{{ $object->id }} on">
+                                <span class="detail_shipname">{{ $object->title }}</span>
+                                <span class="detail_shipsleft ecke">0</span>
+                                <span class="detail_shipslost lost_ships">0</span>
+                            </div>
+                        </li>
+                    @endif
                 @endforeach
             </ul>
             <br class="clearfloat">
@@ -269,13 +275,15 @@
 
             <ul class="ship_list_28 military_ships fleft">
                 @foreach ($military_objects as $object)
-                    <li class="{{ $loop->odd ? 'odd' : '' }}">
-                        <div class="buildingimg military{{ $object->id }} on">
-                            <span class="detail_shipname">{{ $object->title }}</span>
-                            <span class="detail_shipsleft ecke">0</span>
-                            <span class="detail_shipslost lost_ships">0</span>
-                        </div>
-                    </li>
+                    @if ($defender_units_start->getAmountByMachineName($object->machine_name) > 0)
+                        <li class="{{ $loop->even ? 'odd' : '' }}">
+                            <div class="buildingimg military{{ $object->id }} on">
+                                <span class="detail_shipname">{{ $object->title }}</span>
+                                <span class="detail_shipsleft ecke">0</span>
+                                <span class="detail_shipslost lost_ships">0</span>
+                            </div>
+                        </li>
+                    @endif
                 @endforeach
             </ul>
 
@@ -291,13 +299,15 @@
 
             <ul class="ship_list_28 military_ships fleft">
                 @foreach ($civil_objects as $object)
-                    <li class="{{ $loop->odd ? 'odd' : '' }}">
-                        <div class="buildingimg civil{{ $object->id }} on">
-                            <span class="detail_shipname">{{ $object->title }}</span>
-                            <span class="detail_shipsleft ecke">0</span>
-                            <span class="detail_shipslost lost_ships">0</span>
-                        </div>
-                    </li>
+                    @if ($defender_units_start->getAmountByMachineName($object->machine_name) > 0)
+                        <li class="{{ $loop->even ? 'odd' : '' }}">
+                            <div class="buildingimg civil{{ $object->id }} on">
+                                <span class="detail_shipname">{{ $object->title }}</span>
+                                <span class="detail_shipsleft ecke">0</span>
+                                <span class="detail_shipslost lost_ships">0</span>
+                            </div>
+                        </li>
+                    @endif
                 @endforeach
             </ul>
             <br class="clearfloat">
@@ -312,13 +322,15 @@
 
             <ul class="ship_list_28 military_ships fleft">
                 @foreach ($defense_objects as $object)
-                    <li class="{{ $loop->odd ? 'odd' : '' }}">
-                        <div class="defenseimg defense{{ $object->id }} on">
-                            <span class="detail_shipname">{{ $object->title }}</span>
-                            <span class="detail_shipsleft ecke">0</span>
-                            <span class="detail_shipslost lost_ships">0</span>
-                        </div>
-                    </li>
+                    @if ($defender_units_start->getAmountByMachineName($object->machine_name) > 0)
+                        <li class="{{ $loop->even ? 'odd' : '' }}">
+                            <div class="defenseimg defense{{ $object->id }} on">
+                                <span class="detail_shipname">{{ $object->title }}</span>
+                                <span class="detail_shipsleft ecke">0</span>
+                                <span class="detail_shipslost lost_ships">0</span>
+                            </div>
+                        </li>
+                    @endif
                 @endforeach
             </ul>
         </div>
@@ -371,381 +383,187 @@
     </div>
 
     <script type="application/javascript">
-        /*
-        "combatId":8196210,
-            "combatRounds":[
+        var combatData = {
+            "combatId": 8196210,
+            "combatRounds": [
             {
-                "statistics":null,
-                "attackerLosses":null,
-                "defenderLosses":null,
-                "attackerShips":{
-                    "4492924":{
-                        "203":100,
-                        "204":26,
-                        "205":29,
-                        "207":9,
-                        "211":6,
-                        "215":4
-                    }
+                "statistics": null,
+                "attackerLosses": null,
+                "defenderLosses": null,
+                "attackerShips": {
+                    "4492924":
+                        {
+                            @foreach ($attacker_units_start->units as $unit)
+                                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+                            @endforeach
+                        }
                 },
-                "defender":{
-                },
-                "defenderShips":[
+                "defender": [],
+                "defenderShips": [
                     {
-                        "401":15,
-                        "402":50,
-                        "404":1
+                        @foreach ($defender_units_start->units as $unit)
+                        "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+                        @endforeach
                     }
                 ]
             },
             {
-                "attackerLosses":{
-                    "4492924":{
-                        "203":"1"
-                    }
-                },
-                "attackerLossesInThisRound":{
-                    "4492924":{
-                        "203":"1"
-                    }
-                },
-                "defenderLosses":[
-                    {
-                        "401":"15",
-                        "402":"45",
-                        "404":"1"
-                    }
-                ],
-                "defenderLossesInThisRound":[
-                    {
-                        "401":"15",
-                        "402":"45",
-                        "404":"1"
-                    }
-                ],
-                "statistic":{
-                    "hitsAttacker":"361",
-                    "hitsDefender":"66",
-                    "absorbedDamageAttacker":"4448",
-                    "absorbedDamageDefender":"3772",
-                    "fullStrengthAttacker":"590656",
-                    "fullStrengthDefender":"16740"
-                },
-                "attackerShips":{
-                    "4492924":{
-                        "203":99,
-                        "204":26,
-                        "205":29,
-                        "207":9,
-                        "211":6,
-                        "215":4
-                    }
-                },
-                "defenderShips":[
-                    {
-                        "401":0,
-                        "402":5,
-                        "404":0
-                    }
-                ]
+            "attackerLosses": {"4492924": {"203": "1"}},
+            "attackerLossesInThisRound": {"4492924": {"203": "1"}},
+            "defenderLosses": [{"401": "15", "402": "45", "404": "1"}],
+            "defenderLossesInThisRound": [{"401": "15", "402": "45", "404": "1"}],
+            "statistic": {
+                "hitsAttacker": "361",
+                "hitsDefender": "66",
+                "absorbedDamageAttacker": "4448",
+                "absorbedDamageDefender": "3772",
+                "fullStrengthAttacker": "590656",
+                "fullStrengthDefender": "16740"
             },
-            {
-                "attackerLosses":{
-                    "4492924":{
-                        "203":"1"
-                    }
+                "attackerShips": {
+                    "4492924":
+                        {
+                            @foreach ($attacker_units_start->units as $unit)
+                            "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+                            @endforeach
+                        }
                 },
-                "attackerLossesInThisRound":{
-                    "4492924":{
-                    }
-                },
-                "defenderLosses":[
-                    {
-                        "401":"15",
-                        "402":"50",
-                        "404":"1"
-                    }
-                ],
-                "defenderLossesInThisRound":[
-                    {
-                        "402":5
-                    }
-                ],
-                "statistic":{
-                    "hitsAttacker":"173",
-                    "hitsDefender":"5",
-                    "absorbedDamageAttacker":"308",
-                    "absorbedDamageDefender":"275",
-                    "fullStrengthAttacker":"67042",
-                    "fullStrengthDefender":"1145"
-                },
-                "attackerShips":{
-                    "4492924":{
-                        "203":99,
-                        "204":26,
-                        "205":29,
-                        "207":9,
-                        "211":6,
-                        "215":4
-                    }
-                },
-                "defenderShips":[
-                    {
-                        "401":0,
-                        "402":0,
-                        "404":0
-                    }
-                ]
-            }
-        ],
-            "lifeformEnabled":true,
-            "isExpedition":false,
-            "attackerJSON":{
-            "member":{
-                "4492924":{
-                    "ownerName":"Commodore Taurus",
-                        "ownerCharacterClassId":1,
-                        "ownerCharacterClassName":"Collector",
-                        "ownerID":115473,
-                        "ownerCoordinates":"2:488:1",
-                        "ownerPlanetType":3,
-                        "ownerHomePlanet":"Moon",
-                        "planetId":33699068,
-                        "fleetID":4492924,
-                        "ownerAlliance":"PTL",
-                        "ownerAllianceClassId":0,
-                        "ownerAllianceTag":"PTL",
-                        "armorPercentage":190,
-                        "weaponPercentage":180,
-                        "shieldPercentage":180,
-                        "shipDetails":{
-                        "203":{
-                            "armor":3480,
-                                "weapon":14,
-                                "shield":70,
-                                "count":100
-                        },
-                        "204":{
-                            "armor":1160,
-                                "weapon":140,
-                                "shield":28,
-                                "count":26
-                        },
-                        "205":{
-                            "armor":2900,
-                                "weapon":420,
-                                "shield":70,
-                                "count":29
-                        },
-                        "207":{
-                            "armor":17400,
-                                "weapon":2800,
-                                "shield":560,
-                                "count":9
-                        },
-                        "211":{
-                            "armor":21750,
-                                "weapon":2800,
-                                "shield":1400,
-                                "count":6
-                        },
-                        "215":{
-                            "armor":20300,
-                                "weapon":1959,
-                                "shield":1120,
-                                "count":4
-                        }
-                    }
-                }
-            },
-            "combatRounds":[
-                {
-                    "lossesInThisRound":null,
-                    "statistic":{
-                        "hits":0,
-                        "absorbedDamage":0,
-                        "fullStrength":0
-                    },
-                    "losses":null,
-                    "ships":{
-                        "4492924":{
-                            "203":100,
-                            "204":26,
-                            "205":29,
-                            "207":9,
-                            "211":6,
-                            "215":4
-                        }
-                    }
-                },
-                {
-                    "lossesInThisRound":{
-                        "4492924":{
-                            "203":"1"
-                        }
-                    },
-                    "statistic":{
-                        "hits":"361",
-                        "absorbedDamage":"4448",
-                        "fullStrength":"590656"
-                    },
-                    "losses":{
-                        "4492924":{
-                            "203":"1"
-                        }
-                    },
-                    "ships":{
-                        "4492924":{
-                            "203":99,
-                            "204":26,
-                            "205":29,
-                            "207":9,
-                            "211":6,
-                            "215":4
-                        }
-                    }
-                },
-                {
-                    "lossesInThisRound":{
-                        "4492924":{
-                        }
-                    },
-                    "statistic":{
-                        "hits":"173",
-                        "absorbedDamage":"308",
-                        "fullStrength":"67042"
-                    },
-                    "losses":{
-                        "4492924":{
-                            "203":"1"
-                        }
-                    },
-                    "ships":{
-                        "4492924":{
-                            "203":99,
-                            "204":26,
-                            "205":29,
-                            "207":9,
-                            "211":6,
-                            "215":4
-                        }
-                    }
-                }
-            ]
+            "defenderShips": [{
+                @foreach ($defender_units_start->units as $unit)
+                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+                @endforeach
+            }]
         },
-        "defenderJSON":{
-            "member":[
-                {
-                    "ownerName":"Lieutenant Cupid",
-                    "ownerCharacterClassId":1,
-                    "ownerCharacterClassName":"Collector",
-                    "ownerID":102489,
-                    "ownerCoordinates":"2:3:11",
-                    "ownerPlanetType":1,
-                    "ownerHomePlanet":"Destroyed Planet",
-                    "planetId":33643427,
-                    "fleetID":0,
-                    "armorPercentage":140,
-                    "weaponPercentage":130,
-                    "shieldPercentage":120,
-                    "shipDetails":{
-                        "401":{
-                            "armor":480,
-                            "weapon":184,
-                            "shield":44,
-                            "count":15
-                        },
-                        "402":{
-                            "armor":480,
-                            "weapon":229,
-                            "shield":55,
-                            "count":50
-                        },
-                        "404":{
-                            "armor":8400,
-                            "weapon":2530,
-                            "shield":440,
-                            "count":1
+        {
+            "attackerLosses": {"4492924": {"203": "1"}},
+            "attackerLossesInThisRound": {"4492924": []},
+            "defenderLosses": [{"401": "15", "402": "50", "404": "1"}],
+            "defenderLossesInThisRound": [{"402": 5}],
+            "statistic": {
+                "hitsAttacker": "173",
+                "hitsDefender": "5",
+                "absorbedDamageAttacker": "308",
+                "absorbedDamageDefender": "275",
+                "fullStrengthAttacker": "67042",
+                "fullStrengthDefender": "1145"
+            },
+            "attackerShips": {
+                "4492924":
+                    {
+                        @foreach ($attacker_units_start->units as $unit)
+                        "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+                        @endforeach
+                    }
+            },
+            "defenderShips": [{
+                @foreach ($defender_units_start->units as $unit)
+                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+                @endforeach
+            }]
+        }],
+            "lifeformEnabled": true,
+            "isExpedition": false,
+            "attackerJSON": {
+                "member": {
+                    "4492924": {
+                        "ownerName": "Commodore Taurus",
+                        "ownerCharacterClassId": 1,
+                        "ownerCharacterClassName": "Collector",
+                        "ownerID": 115473,
+                        "ownerCoordinates": "2:488:1",
+                        "ownerPlanetType": 3,
+                        "ownerHomePlanet": "Moon",
+                        "planetId": 33699068,
+                        "fleetID": 4492924,
+                        "ownerAlliance": "PTL",
+                        "ownerAllianceClassId": 0,
+                        "ownerAllianceTag": "PTL",
+                        "armorPercentage": {{ $attacker_armor }},
+                        "weaponPercentage": {{ $attacker_weapons }},
+                        "shieldPercentage": {{ $attacker_shields }},
+                        "shipDetails": {
+                            @foreach ($attacker_units_start->units as $unit)
+                            "{{ $unit->unitObject->id }}": {"armor": 1160, "weapon": 140, "shield": 28, "count": {{ $unit->amount }}},
+                            @endforeach
                         }
                     }
-                }
-            ],
-                "combatRounds":[
-                {
-                    "lossesInThisRound":null,
-                    "statistic":{
-                        "hits":0,
-                        "absorbedDamage":0,
-                        "fullStrength":0
-                    },
-                    "losses":null,
-                    "ships":[
-                        {
-                            "401":15,
-                            "402":50,
-                            "404":1
-                        }
-                    ]
                 },
-                {
-                    "lossesInThisRound":[
+                "combatRounds": [{
+                    "lossesInThisRound": null,
+                    "statistic": {"hits": 0, "absorbedDamage": 0, "fullStrength": 0},
+                    "losses": null,
+                    "ships":
                         {
-                            "401":"15",
-                            "402":"45",
-                            "404":"1"
+                            "4492924":
+                                {
+                                    @foreach ($attacker_units_start->units as $unit)
+                                    "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+                                    @endforeach
+                                }
                         }
-                    ],
-                    "statistic":{
-                        "hits":"66",
-                        "absorbedDamage":"3772",
-                        "fullStrength":"16740"
-                    },
-                    "losses":[
-                        {
-                            "401":"15",
-                            "402":"45",
-                            "404":"1"
-                        }
-                    ],
-                    "ships":[
-                        {
-                            "401":0,
-                            "402":5,
-                            "404":0
-                        }
-                    ]
-                },
-                {
-                    "lossesInThisRound":[
-                        {
-                            "402":5
-                        }
-                    ],
-                    "statistic":{
-                        "hits":"5",
-                        "absorbedDamage":"275",
-                        "fullStrength":"1145"
-                    },
-                    "losses":[
-                        {
-                            "401":"15",
-                            "402":"50",
-                            "404":"1"
-                        }
-                    ],
-                    "ships":[
-                        {
-                            "401":0,
-                            "402":0,
-                            "404":0
-                        }
-                    ]
-                }
-            ]
-        }
-        }
-        */
-        var combatData = jQuery.parseJSON('{"combatId":8196210,"combatRounds":[{"statistics":null,"attackerLosses":null,"defenderLosses":null,"attackerShips":{"4492924":{"204":26,"205":29,"207":9,"215":4,"211":6,"203":100}},"defender":[],"defenderShips":[{"401":15,"402":50,"404":1}]},{"attackerLosses":{"4492924":{"203":"1"}},"attackerLossesInThisRound":{"4492924":{"203":"1"}},"defenderLosses":[{"401":"15","402":"45","404":"1"}],"defenderLossesInThisRound":[{"401":"15","402":"45","404":"1"}],"statistic":{"hitsAttacker":"361","hitsDefender":"66","absorbedDamageAttacker":"4448","absorbedDamageDefender":"3772","fullStrengthAttacker":"590656","fullStrengthDefender":"16740"},"attackerShips":{"4492924":{"204":26,"205":29,"207":9,"215":4,"211":6,"203":99}},"defenderShips":[{"401":0,"402":5,"404":0}]},{"attackerLosses":{"4492924":{"203":"1"}},"attackerLossesInThisRound":{"4492924":[]},"defenderLosses":[{"401":"15","402":"50","404":"1"}],"defenderLossesInThisRound":[{"402":5}],"statistic":{"hitsAttacker":"173","hitsDefender":"5","absorbedDamageAttacker":"308","absorbedDamageDefender":"275","fullStrengthAttacker":"67042","fullStrengthDefender":"1145"},"attackerShips":{"4492924":{"204":26,"205":29,"207":9,"215":4,"211":6,"203":99}},"defenderShips":[{"401":0,"402":0,"404":0}]}],"lifeformEnabled":true,"isExpedition":false,"attackerJSON":{"member":{"4492924":{"ownerName":"Commodore Taurus","ownerCharacterClassId":1,"ownerCharacterClassName":"Collector","ownerID":115473,"ownerCoordinates":"2:488:1","ownerPlanetType":3,"ownerHomePlanet":"Moon","planetId":33699068,"fleetID":4492924,"ownerAlliance":"PTL","ownerAllianceClassId":0,"ownerAllianceTag":"PTL","armorPercentage":190,"weaponPercentage":180,"shieldPercentage":180,"shipDetails":{"204":{"armor":1160,"weapon":140,"shield":28,"count":26},"205":{"armor":2900,"weapon":420,"shield":70,"count":29},"207":{"armor":17400,"weapon":2800,"shield":560,"count":9},"215":{"armor":20300,"weapon":1959,"shield":1120,"count":4},"211":{"armor":21750,"weapon":2800,"shield":1400,"count":6},"203":{"armor":3480,"weapon":14,"shield":70,"count":100}}}},"combatRounds":[{"lossesInThisRound":null,"statistic":{"hits":0,"absorbedDamage":0,"fullStrength":0},"losses":null,"ships":{"4492924":{"204":26,"205":29,"207":9,"215":4,"211":6,"203":100}}},{"lossesInThisRound":{"4492924":{"203":"1"}},"statistic":{"hits":"361","absorbedDamage":"4448","fullStrength":"590656"},"losses":{"4492924":{"203":"1"}},"ships":{"4492924":{"204":26,"205":29,"207":9,"215":4,"211":6,"203":99}}},{"lossesInThisRound":{"4492924":[]},"statistic":{"hits":"173","absorbedDamage":"308","fullStrength":"67042"},"losses":{"4492924":{"203":"1"}},"ships":{"4492924":{"204":26,"205":29,"207":9,"215":4,"211":6,"203":99}}}]},"defenderJSON":{"member":[{"ownerName":"Lieutenant Cupid","ownerCharacterClassId":1,"ownerCharacterClassName":"Collector","ownerID":102489,"ownerCoordinates":"2:3:11","ownerPlanetType":1,"ownerHomePlanet":"Destroyed Planet","planetId":33643427,"fleetID":0,"armorPercentage":140,"weaponPercentage":130,"shieldPercentage":120,"shipDetails":{"401":{"armor":480,"weapon":184,"shield":44,"count":15},"402":{"armor":480,"weapon":229,"shield":55,"count":50},"404":{"armor":8400,"weapon":2530,"shield":440,"count":1}}}],"combatRounds":[{"lossesInThisRound":null,"statistic":{"hits":0,"absorbedDamage":0,"fullStrength":0},"losses":null,"ships":[{"401":15,"402":50,"404":1}]},{"lossesInThisRound":[{"401":"15","402":"45","404":"1"}],"statistic":{"hits":"66","absorbedDamage":"3772","fullStrength":"16740"},"losses":[{"401":"15","402":"45","404":"1"}],"ships":[{"401":0,"402":5,"404":0}]},{"lossesInThisRound":[{"402":5}],"statistic":{"hits":"5","absorbedDamage":"275","fullStrength":"1145"},"losses":[{"401":"15","402":"50","404":"1"}],"ships":[{"401":0,"402":0,"404":0}]}]}}');
+                }, {
+                    "lossesInThisRound": {"4492924": {"203": "1"}},
+                    "statistic": {"hits": "361", "absorbedDamage": "4448", "fullStrength": "590656"},
+                    "losses": {"4492924": {"203": "1"}},
+                    "ships": {"4492924":
+                            {
+                                @foreach ($attacker_units_start->units as $unit)
+                                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+                                @endforeach
+                            }
+                    }
+                }, {
+                    "lossesInThisRound": {"4492924": []},
+                    "statistic": {"hits": "173", "absorbedDamage": "308", "fullStrength": "67042"},
+                    "losses": {"4492924": {"203": "1"}},
+                    "ships": {"4492924":
+                            {
+                                @foreach ($attacker_units_start->units as $unit)
+                                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+                                @endforeach
+                            }
+                    }
+                }]
+            },
+            "defenderJSON": {
+                "member": [{
+                    "ownerName": "Lieutenant Cupid",
+                    "ownerCharacterClassId": 1,
+                    "ownerCharacterClassName": "Collector",
+                    "ownerID": 102489,
+                    "ownerCoordinates": "2:3:11",
+                    "ownerPlanetType": 1,
+                    "ownerHomePlanet": "Destroyed Planet",
+                    "planetId": 33643427,
+                    "fleetID": 0,
+                    "armorPercentage": {{ $attacker_armor }},
+                    "weaponPercentage": {{ $defender_weapons }},
+                    "shieldPercentage": {{ $defender_shields }},
+                    "shipDetails": {
+                        "401": {"armor": 480, "weapon": 184, "shield": 44, "count": 15},
+                        "402": {"armor": 480, "weapon": 229, "shield": 55, "count": 50},
+                        "404": {"armor": 8400, "weapon": 2530, "shield": 440, "count": 1}
+                    }
+                }],
+                "combatRounds": [{
+                    "lossesInThisRound": null,
+                    "statistic": {"hits": 0, "absorbedDamage": 0, "fullStrength": 0},
+                    "losses": null,
+                    "ships": [{"401": 15, "402": 50, "404": 1}]
+                }, {
+                    "lossesInThisRound": [{"401": "15", "402": "45", "404": "1"}],
+                    "statistic": {"hits": "66", "absorbedDamage": "3772", "fullStrength": "16740"},
+                    "losses": [{"401": "15", "402": "45", "404": "1"}],
+                    "ships": [{"401": 0, "402": 5, "404": 0}]
+                }, {
+                    "lossesInThisRound": [{"402": 5}],
+                    "statistic": {"hits": "5", "absorbedDamage": "275", "fullStrength": "1145"},
+                    "losses": [{"401": "15", "402": "50", "404": "1"}],
+                    "ships": [{"401": 0, "402": 0, "404": 0}]
+                }]
+            }
+        };
+
         var attackerJson = combatData.attackerJSON;
         var defenderJson = combatData.defenderJSON;
 

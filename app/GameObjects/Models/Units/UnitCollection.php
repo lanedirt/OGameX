@@ -12,7 +12,7 @@ class UnitCollection
      *
      * @var array<UnitEntry>
      */
-    public array $units;
+    public array $units = [];
 
     /**
      * Add a unit to the collection.
@@ -97,6 +97,34 @@ class UnitCollection
         }
 
         return $amount;
+    }
+
+    /**
+     * Converts the unit collection to an associative array where key is machine name and value is amount.
+     *
+     * @return array<string, int>
+     */
+    public function toArray(): array
+    {
+        $units = [];
+        foreach ($this->units as $entry) {
+            $units[$entry->unitObject->machine_name] = $entry->amount;
+        }
+
+        return $units;
+    }
+
+    /**
+     * Adds all units from another collection to this collection.
+     *
+     * @param UnitCollection $collection
+     * @return void
+     */
+    public function addCollection(UnitCollection $collection): void
+    {
+        foreach ($collection->units as $entry) {
+            $this->units[] = $entry;
+        }
     }
 
 }

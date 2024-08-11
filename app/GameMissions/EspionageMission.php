@@ -138,10 +138,10 @@ class EspionageMission extends GameMission
         // target planet if the espionage technology level is higher.
 
         // Fleets
-        $report->ships = $planet->getShipsArray();
+        $report->ships = $planet->getShipUnits()->toArray();
 
         // Defense
-        $report->defense = $planet->getDefenseArray();
+        $report->defense = $planet->getDefenseUnits()->toArray();
 
         // Buildings
         $report->buildings = $planet->getBuildingArray();

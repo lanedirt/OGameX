@@ -113,7 +113,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
         $response->assertStatus(200);
-
+        
         // Assert that battle report has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'combat_reports', [
             'Combat report',

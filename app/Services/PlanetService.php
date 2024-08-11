@@ -565,41 +565,39 @@ class PlanetService
     }
 
     /**
-     * Get array with all ship objects on this planet.
+     * Get all ship objects currently placed on this planet.
      *
-     * @return array<string, int>
+     * @return UnitCollection
      */
-    public function getShipsArray(): array
+    public function getShipUnits(): UnitCollection
     {
-        // TODO: can this logic be moved to the EspionageReport class if its not used elsewehere?
-        $array = [];
+        $units = new UnitCollection();
         $objects = $this->objects->getShipObjects();
         foreach ($objects as $object) {
             if ($this->planet->{$object->machine_name} > 0) {
-                $array[$object->machine_name] = $this->planet->{$object->machine_name};
+                $units->addUnit($object, $this->planet->{$object->machine_name});
             }
         }
 
-        return $array;
+        return $units;
     }
 
     /**
-     * Get array with all defense objects on this planet.
+     * Get all defense units currently placed on this planet.
      *
-     * @return array<string, int>
+     * @return UnitCollection
      */
-    public function getDefenseArray(): array
+    public function getDefenseUnits(): UnitCollection
     {
-        // TODO: can this logic be moved to the EspionageReport class if its not used elsewehere?
-        $array = [];
+        $units = new UnitCollection();
         $objects = $this->objects->getDefenseObjects();
         foreach ($objects as $object) {
             if ($this->planet->{$object->machine_name} > 0) {
-                $array[$object->machine_name] = $this->planet->{$object->machine_name};
+                $units->addUnit($object, $this->planet->{$object->machine_name});
             }
         }
 
-        return $array;
+        return $units;
     }
 
     /**

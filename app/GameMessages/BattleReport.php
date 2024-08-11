@@ -4,6 +4,8 @@ namespace OGame\GameMessages;
 
 use OGame\Facades\AppUtil;
 use OGame\GameMessages\Abstracts\GameMessage;
+use OGame\GameObjects\Models\UnitObject;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 
@@ -146,6 +148,16 @@ class BattleReport extends GameMessage
         // Load attacker player
         $attacker = $this->playerServiceFactory->make($attackerPlayerId);
 
+        $attacker_units = new UnitCollection();
+        foreach ($this->battleReportModel->attacker['units'] as $machine_name => $amount) {
+            $attacker_units->addUnit($this->objects->getUnitObjectByMachineName($machine_name), $amount);
+        }
+
+        $defender_units = new UnitCollection();
+        foreach ($this->battleReportModel->defender['units'] as $machine_name => $amount) {
+            $defender_units->addUnit($this->objects->getUnitObjectByMachineName($machine_name), $amount);
+        }
+
         return [
             'subject' => $this->getSubject(),
             'from' => $this->getFrom(),
@@ -170,6 +182,8 @@ class BattleReport extends GameMessage
             'military_objects' => $this->objects->getMilitaryShipObjects(),
             'civil_objects' => $this->objects->getCivilShipObjects(),
             'defense_objects' => $this->objects->getDefenseObjects(),
+            'attacker_units_start' => $attacker_units,
+            'defender_units_start' => $defender_units,
             //'metal' => $resources->metal->getFormatted(),
             //'crystal' => $resources->crystal->getFormatted(),
             //'deuterium' => $resources->deuterium->getFormatted(),

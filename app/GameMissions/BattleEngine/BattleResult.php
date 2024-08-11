@@ -23,8 +23,23 @@ class BattleResult
     public int $lootPercentage;
 
     /**
+     * @var UnitCollection The units of attacker player at the start of the battle.
+     */
+    public UnitCollection $attackerUnitsStart;
+
+    /**
      * @var UnitCollection The units that survived the battle from the attacker player.
      */
-    public UnitCollection $attackerUnits;
+    public UnitCollection $attackerUnitsResult;
+
+    /**
+     * @var UnitCollection The units of defender player at the start of the battle.
+     */
+    public UnitCollection $defenderUnitsStart;
+
+    /**
+     * @var UnitCollection The units survived the battle from the defender player.
+     */
+    public UnitCollection $defenderUnitsResult;
 
 }

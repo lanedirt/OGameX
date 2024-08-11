@@ -58,8 +58,14 @@ class BattleEngine
 
         // Add all remaining attacker units to the result.
         // TODO: implement actual battle logic so only surviving attacker units are set here.
-        $result->attackerUnits = $this->attackerFleet;
         $result->lootPercentage = $this->lootPercentage;
+
+        $result->attackerUnitsStart = $this->attackerFleet;
+        $result->attackerUnitsResult = $this->attackerFleet;
+        $result->defenderUnitsStart = new UnitCollection();
+        $result->defenderUnitsStart->addCollection($this->defenderPlanet->getShipUnits());
+        $result->defenderUnitsStart->addCollection($this->defenderPlanet->getDefenseUnits());
+        $result->defenderUnitsResult = $result->defenderUnitsStart;
 
         // Check if the attacker has enough cargo capacity to carry the loot.
         // If not, reduce the loot to the cargo capacity.

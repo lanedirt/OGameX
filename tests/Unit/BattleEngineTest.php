@@ -104,4 +104,34 @@ class BattleEngineTest extends UnitTestCase
         $this->assertEquals(10000, $battleResult->loot->crystal->get());
         $this->assertEquals(5000, $battleResult->loot->deuterium->get());
     }
+
+    /**
+     * Test that the fleet of the attacker and defender is saved correctly in the battle report.
+     */
+    public function testAttackerDefenderFleet(): void
+    {
+        // Create a planet with resources.
+        $this->createAndSetPlanetModel([
+            'metal' => 100000,
+            'crystal' => 100000,
+            'deuterium' => 10000,
+            'rocket_launcher' => 20,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
+        $attackerFleet->addUnit($smallCargo, 5);
+        $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $attackerFleet->addUnit($lightFighter, 10);
+
+        // Simulate battle.
+        $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
+        $battleResult = $battleEngine->simulateBattle();
+
+        $this->assertEquals(5, $battleResult->attackerUnitsStart->getAmountByMachineName($smallCargo->machine_name));
+        $this->assertEquals(10, $battleResult->attackerUnitsStart->getAmountByMachineName($lightFighter->machine_name));
+
+        $this->assertEquals(20, $battleResult->defenderUnitsStart->getAmountByMachineName('rocket_launcher'));
+    }
 }

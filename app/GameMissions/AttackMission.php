@@ -78,7 +78,7 @@ class AttackMission extends GameMission
         // Check if the mission has any ships left. If yes, start a return mission to send them back.
         if ($this->fleetMissionService->getFleetUnitCount($mission) > 0) {
             // Create and start the return mission.
-            $this->startReturn($mission, $battleResult->loot, $battleResult->attackerUnits);
+            $this->startReturn($mission, $battleResult->loot, $battleResult->attackerUnitsResult);
         }
     }
 
@@ -136,11 +136,13 @@ class AttackMission extends GameMission
         $report->attacker = [
             'player_id' => $attackPlayer->getId(),
             'resource_loss' => 0,
+            'units' => $battleResult->attackerUnitsStart->toArray(),
         ];
 
         $report->defender = [
             'player_id' => $defenderPlanet->getPlayer()->getId(),
             'resource_loss' => 0,
+            'units' => $battleResult->defenderUnitsStart->toArray(),
         ];
 
         $report->loot = [
