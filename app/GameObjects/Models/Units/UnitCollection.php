@@ -3,7 +3,6 @@
 namespace OGame\GameObjects\Models\Units;
 
 use OGame\GameObjects\Models\UnitObject;
-use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 
 class UnitCollection
