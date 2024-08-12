@@ -137,12 +137,18 @@ class AttackMission extends GameMission
             'player_id' => $attackPlayer->getId(),
             'resource_loss' => 0,
             'units' => $battleResult->attackerUnitsStart->toArray(),
+            'weapon_technology' => $battleResult->attackerWeaponLevel,
+            'shielding_technology' => $battleResult->attackerShieldLevel,
+            'armor_technology' => $battleResult->attackerArmorLevel,
         ];
 
         $report->defender = [
             'player_id' => $defenderPlanet->getPlayer()->getId(),
             'resource_loss' => 0,
             'units' => $battleResult->defenderUnitsStart->toArray(),
+            'weapon_technology' => $battleResult->defenderWeaponLevel,
+            'shielding_technology' => $battleResult->defenderShieldLevel,
+            'armor_technology' => $battleResult->defenderArmorLevel,
         ];
 
         $report->loot = [

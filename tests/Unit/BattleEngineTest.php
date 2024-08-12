@@ -18,10 +18,15 @@ class BattleEngineTest extends UnitTestCase
         parent::setUp();
 
         $this->setUpPlanetService();
+
+        // Initialize the planet and user tech models with empty data to avoid errors.
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([]);
     }
 
     /**
-     * Test that the loot gained from a battle is calculated correctly.
+     * Test that the loot gained from a battle is calculated correctly when the attacker ships
+     * have enough cargo space.
      */
     public function testLootGained(): void
     {
@@ -48,7 +53,8 @@ class BattleEngineTest extends UnitTestCase
     }
 
     /**
-     * Test that the loot gained from a battle is calculated correctly.
+     * Test that the loot gained from a battle is calculated correctly when attacker fleet
+     * does not have enough cargo space to take all resources. Test with only metal and crystal.
      */
     public function testLootGainedCapacityConstraintMetalCrystal(): void
     {
@@ -77,7 +83,8 @@ class BattleEngineTest extends UnitTestCase
     }
 
     /**
-     * Test that the loot gained from a battle is calculated correctly.
+     * Test that the loot gained from a battle is calculated correctly when attacker fleet
+     *  does not have enough cargo space to take all resources. Test with all resources.
      */
     public function testLootGainedCapacityConstraintMetalCrystalDeuterium(): void
     {
@@ -106,7 +113,7 @@ class BattleEngineTest extends UnitTestCase
     }
 
     /**
-     * Test that the fleet of the attacker and defender is saved correctly in the battle report.
+     * Test that the starting fleet of the attacker and defender is saved correctly in the battle report.
      */
     public function testAttackerDefenderFleet(): void
     {
@@ -133,5 +140,37 @@ class BattleEngineTest extends UnitTestCase
         $this->assertEquals(10, $battleResult->attackerUnitsStart->getAmountByMachineName($lightFighter->machine_name));
 
         $this->assertEquals(20, $battleResult->defenderUnitsStart->getAmountByMachineName('rocket_launcher'));
+    }
+
+    /**
+     * Test that the research levels of the attacker and defender are saved correctly in the battle report.
+     */
+    public function testAttackerDefenderResearchLevels(): void
+    {
+        // Create a planet with resources.
+        $this->createAndSetPlanetModel([
+            'metal' => 100000,
+            'crystal' => 100000,
+            'deuterium' => 10000,
+            'rocket_launcher' => 20,
+        ]);
+        $this->createAndSetUserTechModel([
+            'weapon_technology' => 5,
+            'shielding_technology' => 3,
+            'armor_technology' => 18,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
+        $attackerFleet->addUnit($smallCargo, 5);
+
+        // Simulate battle.
+        $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
+        $battleResult = $battleEngine->simulateBattle();
+
+        $this->assertEquals(5, $battleResult->attackerWeaponLevel);
+        $this->assertEquals(3, $battleResult->attackerShieldLevel);
+        $this->assertEquals(18, $battleResult->attackerArmorLevel);
     }
 }

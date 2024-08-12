@@ -42,4 +42,39 @@ class BattleResult
      */
     public UnitCollection $defenderUnitsResult;
 
+    /**
+     * @var int The attacker player's weapon technology level.
+     */
+    public int $attackerWeaponLevel;
+
+    /**
+     * @var int The attacker player's shield technology level.
+     */
+    public int $attackerShieldLevel;
+
+    /**
+     * @var int The attacker player's armor technology level.
+     */
+    public int $attackerArmorLevel;
+
+    /**
+     * @var int The defender player's weapon technology level.
+     */
+    public int $defenderWeaponLevel;
+
+    /**
+     * @var int The defender player's shield technology level.
+     */
+    public int $defenderShieldLevel;
+
+    /**
+     * @var int The defender player's armor technology level.
+     */
+    public int $defenderArmorLevel;
+
+    /**
+     * @var array<BattleResultRound> The rounds of the battle.
+     */
+    public array $rounds;
+
 }

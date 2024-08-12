@@ -121,6 +121,9 @@ class BattleReport extends GameMessage
             // from the espionage report.
             $defender = $this->playerServiceFactory->make($this->battleReportModel->planet_user_id);
         }
+        $defender_weapons = $this->battleReportModel->defender['weapon_technology'] * 10;
+        $defender_shields = $this->battleReportModel->defender['shielding_technology'] * 10;
+        $defender_armor = $this->battleReportModel->defender['armor_technology'] * 10;
 
         // Extract params from the battle report model.
         $attackerPlayerId = $this->battleReportModel->attacker['player_id'];
@@ -146,7 +149,11 @@ class BattleReport extends GameMessage
         }
 
         // Load attacker player
+        // TODO: add unit test for attacker/defender research levels.
         $attacker = $this->playerServiceFactory->make($attackerPlayerId);
+        $attacker_weapons = $this->battleReportModel->attacker['weapon_technology'] * 10;
+        $attacker_shields = $this->battleReportModel->attacker['shielding_technology'] * 10;
+        $attacker_armor = $this->battleReportModel->attacker['armor_technology'] * 10;
 
         $attacker_units = new UnitCollection();
         foreach ($this->battleReportModel->attacker['units'] as $machine_name => $amount) {
@@ -157,6 +164,7 @@ class BattleReport extends GameMessage
         foreach ($this->battleReportModel->defender['units'] as $machine_name => $amount) {
             $defender_units->addUnit($this->objects->getUnitObjectByMachineName($machine_name), $amount);
         }
+
 
         return [
             'subject' => $this->getSubject(),
@@ -173,12 +181,12 @@ class BattleReport extends GameMessage
             'loot_percentage' => $lootPercentage,
             'debris' => AppUtil::formatNumberShort($debrisResources->sum()),
             'repaired_defenses_count' => $repairedDefensesCount,
-            'attacker_weapons' => $attacker->getResearchLevel('weapon_technology') * 10,
-            'attacker_shields' => $attacker->getResearchLevel('shielding_technology') * 10,
-            'attacker_armor' => $attacker->getResearchLevel('armor_technology') * 10,
-            'defender_weapons' => $defender->getResearchLevel('weapon_technology') * 10,
-            'defender_shields' => $defender->getResearchLevel('shielding_technology') * 10,
-            'defender_armor' => $defender->getResearchLevel('armor_technology') * 10,
+            'attacker_weapons' => $attacker_weapons,
+            'attacker_shields' => $attacker_shields,
+            'attacker_armor' => $attacker_armor,
+            'defender_weapons' => $defender_weapons,
+            'defender_shields' => $defender_shields,
+            'defender_armor' => $defender_armor,
             'military_objects' => $this->objects->getMilitaryShipObjects(),
             'civil_objects' => $this->objects->getCivilShipObjects(),
             'defense_objects' => $this->objects->getDefenseObjects(),
