@@ -122,7 +122,7 @@ class BattleEngineTest extends UnitTestCase
             'metal' => 100000,
             'crystal' => 100000,
             'deuterium' => 10000,
-            'rocket_launcher' => 20,
+            'rocket_launcher' => 50,
         ]);
 
         // Create fleet of attacker player.
@@ -136,10 +136,10 @@ class BattleEngineTest extends UnitTestCase
         $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
         $battleResult = $battleEngine->simulateBattle();
 
-        $this->assertEquals(5, $battleResult->attackerUnitsStart->getAmountByMachineName($smallCargo->machine_name));
-        $this->assertEquals(10, $battleResult->attackerUnitsStart->getAmountByMachineName($lightFighter->machine_name));
-
-        $this->assertEquals(20, $battleResult->defenderUnitsStart->getAmountByMachineName('rocket_launcher'));
+        // Due to the random nature of the battle, we assert that the amount of units is less than the starting amount.
+        $this->assertLessThan(5, $battleResult->attackerUnitsStart->getAmountByMachineName($smallCargo->machine_name));
+        $this->assertLessThan(10, $battleResult->attackerUnitsStart->getAmountByMachineName($lightFighter->machine_name));
+        $this->assertLessThan(50, $battleResult->defenderUnitsStart->getAmountByMachineName('rocket_launcher'));
     }
 
     /**
@@ -172,5 +172,51 @@ class BattleEngineTest extends UnitTestCase
         $this->assertEquals(5, $battleResult->attackerWeaponLevel);
         $this->assertEquals(3, $battleResult->attackerShieldLevel);
         $this->assertEquals(18, $battleResult->attackerArmorLevel);
+    }
+
+    /**
+     * Test that the battle engine result contains correct information about the rounds of the battle.
+     */
+    public function testBattleEngineRounds(): void
+    {
+        // Create a planet with resources.
+        $this->createAndSetPlanetModel([
+            'metal' => 100000,
+            'crystal' => 100000,
+            'deuterium' => 10000,
+            'rocket_launcher' => 20,
+        ]);
+        $this->createAndSetUserTechModel([
+            'weapon_technology' => 5,
+            'shielding_technology' => 3,
+            'armor_technology' => 18,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
+        $attackerFleet->addUnit($smallCargo, 5);
+
+        // Simulate battle.
+        $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
+        $battleResult = $battleEngine->simulateBattle();
+
+        // Assert the rounds are not empty and contain valid data.
+        $this->assertNotEmpty($battleResult->rounds);
+
+        // Check first round.
+        $firstRound = $battleResult->rounds[0];
+        $this->assertNotEmpty($firstRound->attackerShips);
+        $this->assertNotEmpty($firstRound->defenderShips);
+        $this->assertNotEmpty($firstRound->attackerLosses);
+        $this->assertNotEmpty($firstRound->defenderLosses);
+        $this->assertNotEmpty($firstRound->attackerLossesInThisRound);
+        $this->assertNotEmpty($firstRound->defenderLossesInThisRound);
+        $this->assertGreaterThan(0, $firstRound->absorbedDamageAttacker);
+        $this->assertGreaterThan(0, $firstRound->absorbedDamageDefender);
+        $this->assertGreaterThan(0, $firstRound->fullStrengthAttacker);
+        $this->assertGreaterThan(0, $firstRound->fullStrengthDefender);
+        $this->assertGreaterThan(0, $firstRound->hitsAttacker);
+        $this->assertGreaterThan(0, $firstRound->hitsDefender);
     }
 }

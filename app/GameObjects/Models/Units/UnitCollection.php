@@ -2,6 +2,9 @@
 
 namespace OGame\GameObjects\Models\Units;
 
+use Exception;
+use http\Exception\RuntimeException;
+use InvalidArgumentException;
 use OGame\GameObjects\Models\UnitObject;
 use OGame\Services\PlayerService;
 
@@ -19,8 +22,16 @@ class UnitCollection
      */
     public function addUnit(UnitObject $unitObject, int $amount): void
     {
-        $entry = new UnitEntry($unitObject, $amount);
+        // Check if the unit is already in the collection.
+        foreach ($this->units as $entry) {
+            if ($entry->unitObject->machine_name === $unitObject->machine_name) {
+                $entry->amount += $amount;
+                return;
+            }
+        }
 
+        // If the unit is not in the collection, add it.
+        $entry = new UnitEntry($unitObject, $amount);
         $this->units[] = $entry;
     }
 
@@ -44,7 +55,7 @@ class UnitCollection
 
         // Throw an exception if the to be removed unit was not found in the collection.
         if (!$found) {
-            throw new \Exception('Unit not found in collection');
+            throw new InvalidArgumentException('Unit ' . $unitObject->machine_name . ' not found in collection');
         }
     }
 
@@ -124,6 +135,20 @@ class UnitCollection
     {
         foreach ($collection->units as $entry) {
             $this->units[] = $entry;
+        }
+    }
+
+    /**
+     * Subtracts all units from another collection from this collection.
+     *
+     * @param UnitCollection $collection
+     * @return void
+     * @throws Exception
+     */
+    public function subtractCollection(UnitCollection $collection): void
+    {
+        foreach ($collection->units as $entry) {
+            $this->removeUnit($entry->unitObject, $entry->amount);
         }
     }
 

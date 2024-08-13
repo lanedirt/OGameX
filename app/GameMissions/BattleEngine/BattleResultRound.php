@@ -64,43 +64,41 @@ class BattleResultRound
     /**
      * @var int Total amount of hits the attacker made this round.
      */
-    public int $hitsAttacker;
+    public int $hitsAttacker = 0;
 
     /**
      * @var int Total amount of hits the defender made this round.
      */
-    public int $hitsDefender;
+    public int $hitsDefender = 0;
 
     /**
      * @var int Total amount of damage absorbed by the attacker this round.
      */
-    public int $absorbedDamageAttacker;
+    public int $absorbedDamageAttacker = 0;
 
     /**
      * @var int Total amount of damage absorbed by the defender this round.
      */
-    public int $absorbedDamageDefender;
+    public int $absorbedDamageDefender = 0;
 
     /**
      * @var int Total amount of full strength of the attacker at the start of the round.
      */
-    public int $fullStrengthAttacker;
+    public int $fullStrengthAttacker = 0;
 
     /**
      * @var int Total amount of full strength of the defender at the start of the round.
      */
-    public int $fullStrengthDefender;
+    public int $fullStrengthDefender = 0;
 
     /**
-     * @var UnitCollection The units of attacker player at the start of the round.
+     * @var UnitCollection The units of attacker player remaining at the end of the round.
      */
-    // TODO: what should be here, attacker units at the start of the round or at the end of the round?
     public UnitCollection $attackerShips;
 
     /**
-     * @var UnitCollection The units of defender player at the start of the round.
+     * @var UnitCollection The units of defender player remaining at the end of the round.
      */
-    // TODO: what should be here, defender units at the start of the round or at the end of the round?
     public UnitCollection $defenderShips;
 
 }

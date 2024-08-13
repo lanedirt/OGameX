@@ -166,6 +166,27 @@ class AttackMission extends GameMission
 
         $report->repaired_defenses = [];
 
+
+        $rounds = [];
+        foreach ($battleResult->rounds as $round) {
+            $rounds[] = [
+                'attacker_ships' => $round->attackerShips->toArray(),
+                'defender_ships' => $round->defenderShips->toArray(),
+                'attacker_losses' => $round->attackerLosses->toArray(),
+                'defender_losses' => $round->defenderLosses->toArray(),
+                'attacker_losses_in_this_round' => $round->attackerLossesInThisRound->toArray(),
+                'defender_losses_in_this_round' => $round->defenderLossesInThisRound->toArray(),
+                'absorbed_damage_attacker' => $round->absorbedDamageAttacker,
+                'absorbed_damage_defender' => $round->absorbedDamageDefender,
+                'full_strength_attacker' => $round->fullStrengthAttacker,
+                'full_strength_defender' => $round->fullStrengthDefender,
+                'hits_attacker' => $round->hitsAttacker,
+                'hits_defender' => $round->hitsDefender,
+            ];
+        }
+        
+        $report->rounds = $rounds;
+
         // TODO: add actual battle report contents here.
         /*$report->player_info = [
             'player_id' => (string)$planet->getPlayer()->getId(),
