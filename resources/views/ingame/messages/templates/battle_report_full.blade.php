@@ -3,6 +3,7 @@
 @php /** @var array<OGame\GameObjects\Models\DefenseObject> $defense_objects */ @endphp
 @php /** @var array<OGame\GameObjects\Models\Units\UnitCollection> $attacker_units_start */ @endphp
 @php /** @var array<OGame\GameObjects\Models\Units\UnitCollection> $defender_units_start */ @endphp
+@php /** @var array<OGame\GameMissions\BattleEngine\BattleResultRound> $rounds */ @endphp
 
 <div class="detail_msg_head">
     <span class="msg_title new blue_txt"><span class="middlemark">@lang('Combat Report') {{ $defender_planet_name }} <figure
@@ -375,82 +376,66 @@
     <script type="application/javascript">
         var combatData = {
             "combatId": 8196210,
+            // Start combat rounds ----------------------------------------------------------------------
             "combatRounds": [
+    @foreach ($rounds as $round)
             {
-                "statistics": null,
-                "attackerLosses": null,
-                "defenderLosses": null,
-                "attackerShips": {
-                    "4492924":
+                    "attackerLosses": {
+                        "4492924": [
+@foreach ($round->attackerLosses->units as $unit)
                         {
-                            @foreach ($attacker_units_start->units as $unit)
-                                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                            @endforeach
-                        }
-                },
-                "defender": [],
-                "defenderShips": [
-                    {
-                        @foreach ($defender_units_start->units as $unit)
-                        "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                        @endforeach
-                    }
-                ]
-            },
-            {
-            "attackerLosses": {"4492924": {"203": "1"}},
-            "attackerLossesInThisRound": {"4492924": {"203": "1"}},
-            "defenderLosses": [{"401": "15", "402": "45", "404": "1"}],
-            "defenderLossesInThisRound": [{"401": "15", "402": "45", "404": "1"}],
-            "statistic": {
-                "hitsAttacker": "361",
-                "hitsDefender": "66",
-                "absorbedDamageAttacker": "4448",
-                "absorbedDamageDefender": "3772",
-                "fullStrengthAttacker": "590656",
-                "fullStrengthDefender": "16740"
-            },
-                "attackerShips": {
-                    "4492924":
+                            "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
+                        },
+@endforeach
+                        ]
+                    },
+                    "attackerLossesInThisRound": {
+                        "4492924": [
+@foreach ($round->attackerLossesInThisRound->units as $unit)
                         {
-                            @foreach ($attacker_units_start->units as $unit)
-                            "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                            @endforeach
+                            "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
+                        },
+@endforeach
+                        ]
+                    },
+                    "defenderLosses": [
+@foreach ($round->defenderLosses->units as $unit)
+                        {
+                            "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
+                        },
+@endforeach
+                    ],
+                    "defenderLossesInThisRound": [
+@foreach ($round->defenderLossesInThisRound->units as $unit)
+                        {
+                            "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
+                        },
+@endforeach
+                    ],
+                    "statistic": {
+                        "hitsAttacker": "{{ $round->hitsAttacker }}",
+                        "hitsDefender": "{{ $round->hitsDefender }}",
+                        "absorbedDamageAttacker": "{{ $round->absorbedDamageAttacker }}",
+                        "absorbedDamageDefender": "{{ $round->absorbedDamageDefender }}",
+                        "fullStrengthAttacker": "{{ $round->fullStrengthAttacker }}",
+                        "fullStrengthDefender": "{{ $round->fullStrengthDefender }}"
+                    },
+                    "attackerShips": {
+                        "4492924": {
+@foreach ($round->attackerShips->units as $unit)
+                         "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+@endforeach
                         }
+                    },
+                    "defenderShips": [{
+@foreach ($round->defenderShips->units as $unit)
+                    "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+@endforeach
+                    }],
                 },
-            "defenderShips": [{
-                @foreach ($defender_units_start->units as $unit)
-                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                @endforeach
-            }]
-        },
-        {
-            "attackerLosses": {"4492924": {"203": "1"}},
-            "attackerLossesInThisRound": {"4492924": []},
-            "defenderLosses": [{"401": "15", "402": "50", "404": "1"}],
-            "defenderLossesInThisRound": [{"402": 5}],
-            "statistic": {
-                "hitsAttacker": "173",
-                "hitsDefender": "5",
-                "absorbedDamageAttacker": "308",
-                "absorbedDamageDefender": "275",
-                "fullStrengthAttacker": "67042",
-                "fullStrengthDefender": "1145"
-            },
-            "attackerShips": {
-                "4492924":
-                    {
-                        @foreach ($attacker_units_start->units as $unit)
-                        "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                        @endforeach
-                    }
-            },
-            "defenderShips": [{
-                @foreach ($defender_units_start->units as $unit)
-                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                @endforeach
-            }]
-        }],
+@endforeach
+            ],
+            // End combat rounds --------------------------------------------------------------------
             "lifeformEnabled": true,
             "isExpedition": false,
             "attackerJSON": {
@@ -472,48 +457,65 @@
                         "weaponPercentage": {{ $attacker_weapons }},
                         "shieldPercentage": {{ $attacker_shields }},
                         "shipDetails": {
-                            @foreach ($attacker_units_start->units as $unit)
+@foreach ($attacker_units_start->units as $unit)
                             "{{ $unit->unitObject->id }}": {"armor": 1160, "weapon": 140, "shield": 28, "count": {{ $unit->amount }}},
-                            @endforeach
+@endforeach
                         }
                     }
                 },
-                "combatRounds": [{
-                    "lossesInThisRound": null,
-                    "statistic": {"hits": 0, "absorbedDamage": 0, "fullStrength": 0},
-                    "losses": null,
-                    "ships":
+                "combatRounds": [
+                    // Start round (static)
+                    {
+                        "lossesInThisRound": null,
+                        "statistic": {"hits": 0, "absorbedDamage": 0, "fullStrength": 0},
+                        "losses": null,
+                        "ships":
                         {
-                            "4492924":
-                                {
-                                    @foreach ($attacker_units_start->units as $unit)
-                                    "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                                    @endforeach
-                                }
+                            "4492924": {
+@foreach ($attacker_units_start->units as $unit)
+                                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+@endforeach
+                            }
                         }
-                }, {
-                    "lossesInThisRound": {"4492924": {"203": "1"}},
-                    "statistic": {"hits": "361", "absorbedDamage": "4448", "fullStrength": "590656"},
-                    "losses": {"4492924": {"203": "1"}},
-                    "ships": {"4492924":
+                    },
+                    // Actual rounds starting from round 1.
+@foreach ($rounds as $round)
+                    {
+                        "lossesInThisRound": {
+                            "4492924": [
+@foreach ($round->attackerLossesInThisRound->units as $unit)
                             {
-                                @foreach ($attacker_units_start->units as $unit)
-                                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                                @endforeach
-                            }
-                    }
-                }, {
-                    "lossesInThisRound": {"4492924": []},
-                    "statistic": {"hits": "173", "absorbedDamage": "308", "fullStrength": "67042"},
-                    "losses": {"4492924": {"203": "1"}},
-                    "ships": {"4492924":
+                                "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
+                            },
+@endforeach
+                            ]
+                        },
+                        "statistic": {
+                            "hits": "{{ $round->hitsAttacker }}",
+                            "absorbedDamage": "{{ $round->absorbedDamageAttacker }}",
+                            "fullStrength": "{{ $round->fullStrengthAttacker }}"
+                        },
+                        "losses": {
+                            "4492924": [
+@foreach ($round->attackerLosses->units as $unit)
                             {
-                                @foreach ($attacker_units_start->units as $unit)
-                                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                                @endforeach
-                            }
-                    }
-                }]
+                                "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
+                            },
+@endforeach
+                            ]
+                        },
+                        "ships": {
+                            "4492924": [
+@foreach ($round->attackerShips->units as $unit)
+                                {
+                                    "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
+                                },
+@endforeach
+                            ]
+                        }
+                    },
+@endforeach
+                ]
             },
             "defenderJSON": {
                 "member": [{
@@ -526,7 +528,7 @@
                     "ownerHomePlanet": "Destroyed Planet",
                     "planetId": 33643427,
                     "fleetID": 0,
-                    "armorPercentage": {{ $attacker_armor }},
+                    "armorPercentage": {{ $defender_armor }},
                     "weaponPercentage": {{ $defender_weapons }},
                     "shieldPercentage": {{ $defender_shields }},
                     "shipDetails": {
@@ -535,22 +537,49 @@
                         "404": {"armor": 8400, "weapon": 2530, "shield": 440, "count": 1}
                     }
                 }],
-                "combatRounds": [{
-                    "lossesInThisRound": null,
-                    "statistic": {"hits": 0, "absorbedDamage": 0, "fullStrength": 0},
-                    "losses": null,
-                    "ships": [{"401": 15, "402": 50, "404": 1}]
-                }, {
-                    "lossesInThisRound": [{"401": "15", "402": "45", "404": "1"}],
-                    "statistic": {"hits": "66", "absorbedDamage": "3772", "fullStrength": "16740"},
-                    "losses": [{"401": "15", "402": "45", "404": "1"}],
-                    "ships": [{"401": 0, "402": 5, "404": 0}]
-                }, {
-                    "lossesInThisRound": [{"402": 5}],
-                    "statistic": {"hits": "5", "absorbedDamage": "275", "fullStrength": "1145"},
-                    "losses": [{"401": "15", "402": "50", "404": "1"}],
-                    "ships": [{"401": 0, "402": 0, "404": 0}]
-                }]
+                "combatRounds": [
+                    // Start round (static)
+                    {
+                        "lossesInThisRound": null,
+                        "statistic": {"hits": 0, "absorbedDamage": 0, "fullStrength": 0},
+                        "losses": null,
+                        "ships": {
+@foreach ($defender_units_start->units as $unit)
+                                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+@endforeach
+                        }
+                    },
+                    // Actual rounds starting from round 1.
+                    @foreach ($rounds as $round){
+                        "lossesInThisRound": [
+@foreach ($round->defenderLossesInThisRound->units as $unit)
+                                    {
+                                        "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
+                                    },
+@endforeach
+                        ],
+                        "statistic": {
+                            "hits": "{{ $round->hitsDefender }}",
+                            "absorbedDamage": "{{ $round->absorbedDamageDefender }}",
+                            "fullStrength": "{{ $round->fullStrengthDefender }}"
+                        },
+                        "losses": [
+@foreach ($round->defenderLosses->units as $unit)
+                                {
+                                    "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
+                                },
+@endforeach
+                        ],
+                        "ships": [
+@foreach ($round->defenderShips->units as $unit)
+                                    {
+                                        "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
+                                    },
+@endforeach
+                        ]
+                    },
+@endforeach
+                ]
             }
         };
 
@@ -600,7 +629,6 @@
 </div>
 
 <div class="commentBlock">
-    <link rel="stylesheet" href="/cdn/css/select2.css" type="text/css">
     <div>
         <div class="editor_wrap">
             <div><div id="markItUpMessageContent-8196210" class="markItUp"><div class="markItUpContainer"><div class="markItUpHeader"><ul class="miu_basic"><li class="markItUpButton markItUpButton1 bold"><a href="" accesskey="B" data-tooltip-title="Bold [Ctrl+B]">Bold</a></li><li class="markItUpButton markItUpButton2 italic"><a href="" accesskey="I" data-tooltip-title="Italic [Ctrl+I]">Italic</a></li><li class="markItUpButton markItUpButton3 fontColor"><a href="" data-tooltip-title="Font colour">Font colour</a></li><li class="markItUpButton markItUpButton4 fontSize markItUpDropMenu"><a href="" data-tooltip-title="Font size">Font size</a><ul class=""><li class="markItUpButton markItUpButton4-1 fontSize6"><a href="" title="">6</a></li><li class="markItUpButton markItUpButton4-2 fontSize8"><a href="" title="">8</a></li><li class="markItUpButton markItUpButton4-3 fontSize10"><a href="" title="">10</a></li><li class="markItUpButton markItUpButton4-4 fontSize12"><a href="" title="">12</a></li><li class="markItUpButton markItUpButton4-5 fontSize14"><a href="" title="">14</a></li><li class="markItUpButton markItUpButton4-6 fontSize16"><a href="" title="">16</a></li><li class="markItUpButton markItUpButton4-7 fontSize18"><a href="" title="">18</a></li><li class="markItUpButton markItUpButton4-8 fontSize20"><a href="" title="">20</a></li><li class="markItUpButton markItUpButton4-9 fontSize22"><a href="" title="">22</a></li><li class="markItUpButton markItUpButton4-10 fontSize24"><a href="" title="">24</a></li><li class="markItUpButton markItUpButton4-11 fontSize26"><a href="" title="">26</a></li><li class="markItUpButton markItUpButton4-12 fontSize28"><a href="" title="">28</a></li><li class="markItUpButton markItUpButton4-13 fontSize30"><a href="" title="">30</a></li></ul><span class="dropdown_arr"></span></li><li class="markItUpButton markItUpButton5 list"><a href="" data-tooltip-title="List">List</a></li><li class="markItUpButton markItUpButton6 coordinates"><a href="" data-tooltip-title="Coordinates">Coordinates</a></li><li class="txt_link fright li_miu_advanced"><span class="toggle_miu_advanced show_miu_advanced awesome-button" role="button">More Options</span></li></ul><ul class="miu_advanced" style="display: none;"><li class="markItUpButton markItUpButton1 underline"><a href="" accesskey="U" data-tooltip-title="Underline [Ctrl+U]">Underline</a></li><li class="markItUpButton markItUpButton2 strikeThrough"><a href="" accesskey="S" data-tooltip-title="Strikethrough [Ctrl+S]">Strikethrough</a></li><li class="markItUpButton markItUpButton3 sub"><a href="" data-tooltip-title="Subscript">Subscript</a></li><li class="markItUpButton markItUpButton4 sup"><a href="" data-tooltip-title="Superscript">Superscript</a></li><li class="markItUpSeparator">-</li><li class="markItUpButton markItUpButton5 item markItUpDropMenu"><a href="" data-tooltip-title="Item">Item</a><ul class=""><li class="markItUpButton markItUpButton5-1 "><a href="" title="">Researchers</a></li><li class="markItUpButton markItUpButton5-2 "><a href="" title="">Traders</a></li><li class="markItUpButton markItUpButton5-3 "><a href="" title="">Warriors</a></li><li class="markItUpButton markItUpButton5-4 "><a href="" title="">Bronze Crystal Booster</a></li><li class="markItUpButton markItUpButton5-5 "><a href="" title="">Bronze Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-6 "><a href="" title="">Bronze Metal Booster</a></li><li class="markItUpButton markItUpButton5-7 "><a href="" title="">Discoverer</a></li><li class="markItUpButton markItUpButton5-8 "><a href="" title="">Collector</a></li><li class="markItUpButton markItUpButton5-9 "><a href="" title="">General</a></li><li class="markItUpButton markItUpButton5-10 "><a href="" title="">Bronze Crystal Booster</a></li><li class="markItUpButton markItUpButton5-11 "><a href="" title="">Bronze Crystal Booster</a></li><li class="markItUpButton markItUpButton5-12 "><a href="" title="">Bronze Crystal Booster</a></li><li class="markItUpButton markItUpButton5-13 "><a href="" title="">Silver Crystal Booster</a></li><li class="markItUpButton markItUpButton5-14 "><a href="" title="">Silver Crystal Booster</a></li><li class="markItUpButton markItUpButton5-15 "><a href="" title="">Silver Crystal Booster</a></li><li class="markItUpButton markItUpButton5-16 "><a href="" title="">Gold Crystal Booster</a></li><li class="markItUpButton markItUpButton5-17 "><a href="" title="">Gold Crystal Booster</a></li><li class="markItUpButton markItUpButton5-18 "><a href="" title="">Gold Crystal Booster</a></li><li class="markItUpButton markItUpButton5-19 "><a href="" title="">Platinum Crystal Booster</a></li><li class="markItUpButton markItUpButton5-20 "><a href="" title="">Platinum Crystal Booster</a></li><li class="markItUpButton markItUpButton5-21 "><a href="" title="">Platinum Crystal Booster</a></li><li class="markItUpButton markItUpButton5-22 "><a href="" title="">DETROID Bronze</a></li><li class="markItUpButton markItUpButton5-23 "><a href="" title="">DETROID Gold</a></li><li class="markItUpButton markItUpButton5-24 "><a href="" title="">DETROID Platinum</a></li><li class="markItUpButton markItUpButton5-25 "><a href="" title="">DETROID Silver</a></li><li class="markItUpButton markItUpButton5-26 "><a href="" title="">Bronze Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-27 "><a href="" title="">Bronze Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-28 "><a href="" title="">Bronze Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-29 "><a href="" title="">Silver Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-30 "><a href="" title="">Silver Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-31 "><a href="" title="">Silver Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-32 "><a href="" title="">Gold Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-33 "><a href="" title="">Gold Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-34 "><a href="" title="">Gold Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-35 "><a href="" title="">Platinum Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-36 "><a href="" title="">Platinum Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-37 "><a href="" title="">Platinum Deuterium Booster</a></li><li class="markItUpButton markItUpButton5-38 "><a href="" title="">Energy Booster Bronze</a></li><li class="markItUpButton markItUpButton5-39 "><a href="" title="">Energy Booster Bronze</a></li><li class="markItUpButton markItUpButton5-40 "><a href="" title="">Energy Booster Bronze</a></li><li class="markItUpButton markItUpButton5-41 "><a href="" title="">Energy Booster Silver</a></li><li class="markItUpButton markItUpButton5-42 "><a href="" title="">Energy Booster Silver</a></li><li class="markItUpButton markItUpButton5-43 "><a href="" title="">Energy Booster Silver</a></li><li class="markItUpButton markItUpButton5-44 "><a href="" title="">Energy Booster Gold</a></li><li class="markItUpButton markItUpButton5-45 "><a href="" title="">Energy Booster Gold</a></li><li class="markItUpButton markItUpButton5-46 "><a href="" title="">Energy Booster Gold</a></li><li class="markItUpButton markItUpButton5-47 "><a href="" title="">Energy Booster Platinum</a></li><li class="markItUpButton markItUpButton5-48 "><a href="" title="">Energy Booster Platinum</a></li><li class="markItUpButton markItUpButton5-49 "><a href="" title="">Energy Booster Platinum</a></li><li class="markItUpButton markItUpButton5-50 "><a href="" title="">Bronze Expedition Slots</a></li><li class="markItUpButton markItUpButton5-51 "><a href="" title="">Bronze Expedition Slots</a></li><li class="markItUpButton markItUpButton5-52 "><a href="" title="">Bronze Expedition Slots</a></li><li class="markItUpButton markItUpButton5-53 "><a href="" title="">Silver Expedition Slots</a></li><li class="markItUpButton markItUpButton5-54 "><a href="" title="">Silver Expedition Slots</a></li><li class="markItUpButton markItUpButton5-55 "><a href="" title="">Silver Expedition Slots</a></li><li class="markItUpButton markItUpButton5-56 "><a href="" title="">Gold Expedition Slots</a></li><li class="markItUpButton markItUpButton5-57 "><a href="" title="">Gold Expedition Slots</a></li><li class="markItUpButton markItUpButton5-58 "><a href="" title="">Gold Expedition Slots</a></li><li class="markItUpButton markItUpButton5-59 "><a href="" title="">Bronze Fleet Slots</a></li><li class="markItUpButton markItUpButton5-60 "><a href="" title="">Bronze Fleet Slots</a></li><li class="markItUpButton markItUpButton5-61 "><a href="" title="">Bronze Fleet Slots</a></li><li class="markItUpButton markItUpButton5-62 "><a href="" title="">Silver Fleet Slots</a></li><li class="markItUpButton markItUpButton5-63 "><a href="" title="">Silver Fleet Slots</a></li><li class="markItUpButton markItUpButton5-64 "><a href="" title="">Silver Fleet Slots</a></li><li class="markItUpButton markItUpButton5-65 "><a href="" title="">Gold Fleet Slots</a></li><li class="markItUpButton markItUpButton5-66 "><a href="" title="">Gold Fleet Slots</a></li><li class="markItUpButton markItUpButton5-67 "><a href="" title="">Gold Fleet Slots</a></li><li class="markItUpButton markItUpButton5-68 "><a href="" title="">KRAKEN Bronze</a></li><li class="markItUpButton markItUpButton5-69 "><a href="" title="">KRAKEN Gold</a></li><li class="markItUpButton markItUpButton5-70 "><a href="" title="">KRAKEN Platinum (Lifeforms)</a></li><li class="markItUpButton markItUpButton5-71 "><a href="" title="">KRAKEN Bronze (Lifeforms)</a></li><li class="markItUpButton markItUpButton5-72 "><a href="" title="">KRAKEN Gold (Lifeforms)</a></li><li class="markItUpButton markItUpButton5-73 "><a href="" title="">KRAKEN Silver (Lifeforms)</a></li><li class="markItUpButton markItUpButton5-74 "><a href="" title="">KRAKEN Platinum</a></li><li class="markItUpButton markItUpButton5-75 "><a href="" title="">KRAKEN Silver</a></li><li class="markItUpButton markItUpButton5-76 "><a href="" title="">Bronze Metal Booster</a></li><li class="markItUpButton markItUpButton5-77 "><a href="" title="">Bronze Metal Booster</a></li><li class="markItUpButton markItUpButton5-78 "><a href="" title="">Bronze Metal Booster</a></li><li class="markItUpButton markItUpButton5-79 "><a href="" title="">Silver Metal Booster</a></li><li class="markItUpButton markItUpButton5-80 "><a href="" title="">Silver Metal Booster</a></li><li class="markItUpButton markItUpButton5-81 "><a href="" title="">Silver Metal Booster</a></li><li class="markItUpButton markItUpButton5-82 "><a href="" title="">Gold Metal Booster</a></li><li class="markItUpButton markItUpButton5-83 "><a href="" title="">Gold Metal Booster</a></li><li class="markItUpButton markItUpButton5-84 "><a href="" title="">Gold Metal Booster</a></li><li class="markItUpButton markItUpButton5-85 "><a href="" title="">Platinum Metal Booster</a></li><li class="markItUpButton markItUpButton5-86 "><a href="" title="">Platinum Metal Booster</a></li><li class="markItUpButton markItUpButton5-87 "><a href="" title="">Platinum Metal Booster</a></li><li class="markItUpButton markItUpButton5-88 "><a href="" title="">Bronze Moon Fields</a></li><li class="markItUpButton markItUpButton5-89 "><a href="" title="">Gold Moon Fields</a></li><li class="markItUpButton markItUpButton5-90 "><a href="" title="">Platinum Moon Fields</a></li><li class="markItUpButton markItUpButton5-91 "><a href="" title="">Silver Moon Fields</a></li><li class="markItUpButton markItUpButton5-92 "><a href="" title="">Bronze M.O.O.N.S.</a></li><li class="markItUpButton markItUpButton5-93 "><a href="" title="">Bronze M.O.O.N.S.</a></li><li class="markItUpButton markItUpButton5-94 "><a href="" title="">Gold M.O.O.N.S.</a></li><li class="markItUpButton markItUpButton5-95 "><a href="" title="">Gold M.O.O.N.S.</a></li><li class="markItUpButton markItUpButton5-96 "><a href="" title="">Silver M.O.O.N.S.</a></li><li class="markItUpButton markItUpButton5-97 "><a href="" title="">Silver M.O.O.N.S.</a></li><li class="markItUpButton markItUpButton5-98 "><a href="" title="">NEWTRON Bronze</a></li><li class="markItUpButton markItUpButton5-99 "><a href="" title="">NEWTRON Gold</a></li><li class="markItUpButton markItUpButton5-100 "><a href="" title="">NEWTRON Bronze (Lifeforms)</a></li><li class="markItUpButton markItUpButton5-101 "><a href="" title="">NEWTRON Gold (Lifeforms)</a></li><li class="markItUpButton markItUpButton5-102 "><a href="" title="">NEWTRON Platinum (Lifeforms)</a></li><li class="markItUpButton markItUpButton5-103 "><a href="" title="">NEWTRON Silver (Lifeforms)</a></li><li class="markItUpButton markItUpButton5-104 "><a href="" title="">NEWTRON Platinum</a></li><li class="markItUpButton markItUpButton5-105 "><a href="" title="">NEWTRON Silver</a></li><li class="markItUpButton markItUpButton5-106 "><a href="" title="">Bronze Planet Fields</a></li><li class="markItUpButton markItUpButton5-107 "><a href="" title="">Gold Planet Fields</a></li><li class="markItUpButton markItUpButton5-108 "><a href="" title="">Platinum Planet Fields</a></li><li class="markItUpButton markItUpButton5-109 "><a href="" title="">Silver Planet Fields</a></li><li class="markItUpButton markItUpButton5-110 "><a href="" title="">Complete Resource Package</a></li><li class="markItUpButton markItUpButton5-111 "><a href="" title="">Crystal Package</a></li><li class="markItUpButton markItUpButton5-112 "><a href="" title="">Deuterium Package</a></li><li class="markItUpButton markItUpButton5-113 "><a href="" title="">Metal Package</a></li></ul><span class="dropdown_arr"></span></li><li class="markItUpButton markItUpButton6 player"><a href="" data-tooltip-title="Player">Player</a></li><li class="markItUpSeparator">-</li><li class="markItUpButton markItUpButton7 leftAlign"><a href="" data-tooltip-title="Left align">Left align</a></li><li class="markItUpButton markItUpButton8 centerAlign"><a href="" data-tooltip-title="Centre align">Centre align</a></li><li class="markItUpButton markItUpButton9 rightAlign"><a href="" data-tooltip-title="Right align">Right align</a></li><li class="markItUpButton markItUpButton10 justifyAlign"><a href="" data-tooltip-title="Justify">Justify</a></li><li class="markItUpSeparator">-</li><li class="markItUpButton markItUpButton11 code"><a href="" data-tooltip-title="Code">Code</a></li><li class="markItUpSeparator">-</li><li class="markItUpButton markItUpButton12 email"><a href="" accesskey="E" data-tooltip-title="Email [Ctrl+E]">Email</a></li><li class="markItUpButton markItUpButton13 preview" style="display: none;"><a href="" data-tooltip-title="Preview">Preview</a></li></ul></div><textarea name="text" class="new_msg_textarea markItUpEditor" id="messageContent-8196210"></textarea><div class="miuFooter"><div><span class="cnt_chars">2000</span> Characters remaining</div><gradient-button class="sendComment" w70="" h28=""><button class="custom_btn preview_link" onclick="return false" data-target="" aria-label="Preview">Preview</button></gradient-button></div><div class="miu_preview_container" style="display: none;">

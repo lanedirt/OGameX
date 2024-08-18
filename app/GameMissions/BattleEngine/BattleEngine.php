@@ -87,6 +87,8 @@ class BattleEngine
         $round->attackerLosses = new UnitCollection();
         $round->attackerShips = clone $result->attackerUnitsStart;
         $round->defenderShips = clone $result->defenderUnitsStart;
+        $round->absorbedDamageAttacker = 0;
+        $round->absorbedDamageDefender = 0;
 
         // Convert attacker fleet to individual unit array.
         // Key = unit id (int), value = structural integrity (int).
@@ -114,11 +116,16 @@ class BattleEngine
                 }
 
                 // Every single unit attacks a random unit from the defender's units.
-                // For now we assume the attacker always kills the target.
+                // For now, we assume the attacker always kills the target.
                 // Random target
                 $targetUnitKey = array_rand($defenderUnits);
                 $targetUnitId = $defenderUnits[$targetUnitKey];
                 $targetUnitObject = $this->defenderPlanet->objects->getUnitObjectById($targetUnitId);
+
+                // TODO: implement shield damage absorption for defender units.
+                $round->absorbedDamageDefender += 1;
+                // TODO: implement full strength attacker.
+                $round->fullStrengthAttacker += 1;
 
                 // Add target defender unit to defender losses array.
                 $round->defenderLosses->addUnit($targetUnitObject, 1);
@@ -140,7 +147,7 @@ class BattleEngine
                 }
 
                 // Every single unit attacks a random unit from the attacker's units.
-                // For now we assume the defender always kills the target.
+                // For now, we assume the defender always kills the target.
                 // Random target
                 $targetUnitKey = array_rand($attackerUnits);
                 $targetUnitId = $attackerUnits[$targetUnitKey];
@@ -148,6 +155,11 @@ class BattleEngine
                 // Add target attacker unit to attacker losses array.
                 $round->attackerLosses->addUnit($targetUnitObject, 1);
                 $round->attackerLossesInThisRound->addUnit($targetUnitObject, 1);
+
+                // TODO: implement shield damage absorption for attacker units.
+                $round->absorbedDamageAttacker += 1;
+                // TODO: implement full strength defender.
+                $round->fullStrengthDefender += 1;
 
                 $round->hitsDefender += 1;
 

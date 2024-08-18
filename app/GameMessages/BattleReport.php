@@ -4,6 +4,7 @@ namespace OGame\GameMessages;
 
 use OGame\Facades\AppUtil;
 use OGame\GameMessages\Abstracts\GameMessage;
+use OGame\GameMissions\BattleEngine\BattleResultRound;
 use OGame\GameObjects\Models\UnitObject;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet\Coordinate;
@@ -165,6 +166,50 @@ class BattleReport extends GameMessage
             $defender_units->addUnit($this->objects->getUnitObjectByMachineName($machine_name), $amount);
         }
 
+        // Load rounds and cast to battle result round object.
+        $rounds = [];
+        if ($this->battleReportModel->rounds !== null) {
+            foreach ($this->battleReportModel->rounds as $round) {
+                $obj = new BattleResultRound();
+                $obj->fullStrengthAttacker = $round['full_strength_attacker'];
+                $obj->fullStrengthDefender = $round['full_strength_defender'];
+                $obj->absorbedDamageAttacker = $round['absorbed_damage_attacker'];
+                $obj->absorbedDamageDefender = $round['absorbed_damage_defender'];
+                $obj->hitsAttacker = $round['hits_attacker'];
+                $obj->hitsDefender = $round['hits_defender'];
+                $obj->defenderShips = new UnitCollection();
+                foreach ($round['defender_ships'] as $machine_name => $amount) {
+                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $obj->defenderShips->addUnit($unit, $amount);
+                }
+                $obj->attackerShips = new UnitCollection();
+                foreach ($round['attacker_ships'] as $machine_name => $amount) {
+                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $obj->attackerShips->addUnit($unit, $amount);
+                }
+                $obj->defenderLosses = new UnitCollection();
+                foreach ($round['defender_losses'] as $machine_name => $amount) {
+                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $obj->defenderLosses->addUnit($unit, $amount);
+                }
+                $obj->attackerLosses = new UnitCollection();
+                foreach ($round['attacker_losses'] as $machine_name => $amount) {
+                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $obj->attackerLosses->addUnit($unit, $amount);
+                }
+                $obj->defenderLossesInThisRound = new UnitCollection();
+                foreach ($round['defender_losses_in_this_round'] as $machine_name => $amount) {
+                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $obj->defenderLossesInThisRound->addUnit($unit, $amount);
+                }
+                $obj->attackerLossesInThisRound = new UnitCollection();
+                foreach ($round['attacker_losses_in_this_round'] as $machine_name => $amount) {
+                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $obj->attackerLossesInThisRound->addUnit($unit, $amount);
+                }
+                $rounds[] = $obj;
+            }
+        }
 
         return [
             'subject' => $this->getSubject(),
@@ -192,6 +237,7 @@ class BattleReport extends GameMessage
             'defense_objects' => $this->objects->getDefenseObjects(),
             'attacker_units_start' => $attacker_units,
             'defender_units_start' => $defender_units,
+            'rounds' => $rounds,
             //'metal' => $resources->metal->getFormatted(),
             //'crystal' => $resources->crystal->getFormatted(),
             //'deuterium' => $resources->deuterium->getFormatted(),
