@@ -211,11 +211,35 @@ class BattleReport extends GameMessage
             }
         }
 
+        // Determine if attacker or defender won the battle or if it was a draw.
+        // We do this based on last round result.
+        if (count($rounds) === 0) {
+            // No rounds, attacker wins.
+            $winner = 'attacker';
+        }
+        else {
+            $lastRound = $rounds[count($rounds) - 1];
+            if ($lastRound->attackerShips->getAmount() > 0 && $lastRound->defenderShips->getAmount() > 0) {
+                // Both players have ships left, draw.
+                $winner = 'draw';
+            }
+            elseif ($lastRound->attackerShips->getAmount() > 0) {
+                // Attacker has ships left, attacker wins.
+                $winner = 'attacker';
+            }
+            else {
+                // Defender has ships left, defender wins.
+                $winner = 'defender';
+            }
+        }
+
         return [
             'subject' => $this->getSubject(),
             'from' => $this->getFrom(),
             'attacker_name' => $attacker->getUsername(false),
             'defender_name' => $defender->getUsername(false),
+            'attacker_class' => ($winner === 'attacker') ? 'undermark' : (($winner === 'draw') ? 'middlemark' : 'overmark'),
+            'defender_class' => ($winner === 'defender') ? 'undermark' : (($winner === 'draw') ? 'middlemark' : 'overmark'),
             'defender_planet_name' => $planet->getPlanetName(),
             'defender_planet_coords' => $planet->getPlanetCoordinates()->asString(),
             'defender_planet_link' => route('galaxy.index', ['galaxy' => $planet->getPlanetCoordinates()->galaxy, 'system' => $planet->getPlanetCoordinates()->system, 'position' => $planet->getPlanetCoordinates()->position]),

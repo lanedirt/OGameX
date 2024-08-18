@@ -172,7 +172,7 @@
                 <span id="attacker_select_combatreport" data-member-name="{{ $attacker_name }}">
                                               <span>{{ $attacker_name }} from Moon 2:488:1</span>
                                      </span>
-                <span class="participant_label undermark">@lang('Attacker'):</span>
+                <span class="participant_label {{ $attacker_class }}">@lang('Attacker'):</span>
             </div>
             <br class="clearfloat">
 
@@ -239,7 +239,7 @@
                             <span id="defender_select_combatreport" data-member-name="{{ $defender_name }}">
                                             <span class="tooltip js_hideTipOnMobile" data-tooltip-title="{{ $defender_name }} from Destroyed Planet 2:3:11">{{ $defender_name }}</span>
                                     </span>
-                <span class="participant_label overmark">@lang('Defender'):</span>
+                <span class="participant_label {{ $defender_class }}">@lang('Defender'):</span>
             </div>
             <br class="clearfloat">
 
@@ -360,12 +360,12 @@
         <!-- WF information -->
         <!-- attacker WF information -->
         <p class="detail_txt">
-            The <span class="undermark">Attacker</span> fires a total of <span class="statistic_attacker hits">173</span> shots at the <span class="overmark">Defender</span> with a total strength of <span class="statistic_attacker strength">67.042</span>.
-            The <span class="overmark">defender</span>`s shields absorb <span class="statistic_defender absorbed">275</span> points of damage.
+            The <span class="{{ $attacker_class }}">Attacker</span> fires a total of <span class="statistic_attacker hits">173</span> shots at the <span class="{{ $defender_class }}">Defender</span> with a total strength of <span class="statistic_attacker strength">67.042</span>.
+            The <span class="{{ $defender_class }}">defender</span>`s shields absorb <span class="statistic_defender absorbed">275</span> points of damage.
         </p>
         <p class="detail_txt">
-            The <span class="overmark">Defender</span> fires a total of <span class="statistic_defender hits">5</span> shots at the <span class="undermark">Attacker</span> with a total strength of <span class="statistic_defender strength">1.145</span>.
-            The <span class="undermark">attacker</span>`s shields absorb <span class="statistic_attacker absorbed">308</span> points of damage.
+            The <span class="{{ $defender_class }}">Defender</span> fires a total of <span class="statistic_defender hits">5</span> shots at the <span class="{{ $attacker_class }}">Attacker</span> with a total strength of <span class="statistic_defender strength">1.145</span>.
+            The <span class="{{ $attacker_class }}">attacker</span>`s shields absorb <span class="statistic_attacker absorbed">308</span> points of damage.
         </p>
         <!-- WF information END -->
 

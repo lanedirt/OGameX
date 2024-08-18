@@ -189,9 +189,9 @@ class BattleEngineTest extends UnitTestCase
     }
 
     /**
-     * Test that the battle engine result contains correct information about the rounds of the battle.
+     * Test that the battle engine result contains correct basic information about the rounds of the battle.
      */
-    public function testBattleEngineRounds(): void
+    public function testBattleEngineBasicRounds(): void
     {
         // Create a planet with resources.
         $this->createAndSetPlanetModel([
