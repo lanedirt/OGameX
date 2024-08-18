@@ -77,19 +77,6 @@ class BattleEngine
         $result->defenderUnitsResult = clone $result->defenderUnitsStart;
         // ---
 
-        // ---- BEGIN ROUND
-        // Run battle round here until 6 rounds or until one of the players has no units left.
-        $result->rounds = [];
-        $round = new BattleResultRound();
-        $round->defenderLossesInThisRound = new UnitCollection();
-        $round->defenderLosses = new UnitCollection();
-        $round->attackerLossesInThisRound = new UnitCollection();
-        $round->attackerLosses = new UnitCollection();
-        $round->attackerShips = clone $result->attackerUnitsStart;
-        $round->defenderShips = clone $result->defenderUnitsStart;
-        $round->absorbedDamageAttacker = 0;
-        $round->absorbedDamageDefender = 0;
-
         // Convert attacker fleet to individual unit array.
         // Key = unit id (int), value = structural integrity (int).
         // TODO: should actually include structural integrity, shield, and weapon damage.
@@ -107,8 +94,19 @@ class BattleEngine
             }
         }
 
-        // Let the attacker attack the defender.
-        if (count($defenderUnits) > 0) {
+        $result->rounds = [];
+        while (count($attackerUnits) && count($defenderUnits) > 0) {
+            $round = new BattleResultRound();
+            $round->defenderLossesInThisRound = new UnitCollection();
+            $round->defenderLosses = new UnitCollection();
+            $round->attackerLossesInThisRound = new UnitCollection();
+            $round->attackerLosses = new UnitCollection();
+            $round->attackerShips = clone $result->attackerUnitsStart;
+            $round->defenderShips = clone $result->defenderUnitsStart;
+            $round->absorbedDamageAttacker = 0;
+            $round->absorbedDamageDefender = 0;
+
+            // Let the attacker attack the defender.
             foreach ($attackerUnits as $key => $unitId) {
                 // If all defender units are destroyed, break the loop.
                 if (count($defenderUnits) === 0) {
@@ -136,10 +134,8 @@ class BattleEngine
                 // Unset the defender unit from the array.
                 unset($defenderUnits[$targetUnitKey]);
             }
-        }
 
-        // Let the defender attack the attacker.
-        if (count($attackerUnits) > 0) {
+            // Let the defender attack the attacker.
             foreach ($defenderUnits as $key => $unitId) {
                 // If all attacker units are destroyed, break the loop.
                 if (count($attackerUnits) === 0) {
@@ -166,13 +162,13 @@ class BattleEngine
                 // Unset the attacker unit from the array.
                 unset($attackerUnits[$targetUnitKey]);
             }
-        }
 
-        // Subtract losses from the attacker and defender units.
-        $round->attackerShips->subtractCollection($round->attackerLossesInThisRound);
-        $round->defenderShips->subtractCollection($round->defenderLossesInThisRound);
-        $result->rounds[] = $round;
-        // ---- END ROUND
+            // Subtract losses from the attacker and defender units.
+            $round->attackerShips->subtractCollection($round->attackerLossesInThisRound);
+            $round->defenderShips->subtractCollection($round->defenderLossesInThisRound);
+            $result->rounds[] = $round;
+            // ---- END ROUND
+        }
 
         // Subtract losses from the attacker and defender units.
         // TODO: do this properly by taking results of last round.

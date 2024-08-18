@@ -219,4 +219,29 @@ class BattleEngineTest extends UnitTestCase
         $this->assertGreaterThan(0, $firstRound->hitsAttacker);
         $this->assertGreaterThan(0, $firstRound->hitsDefender);
     }
+
+    /**
+     * Test that if the defender does not have any defense units there are no rounds as battle is won immediately.
+     */
+    public function testBattleEngineNoRoundsWithZeroDefense(): void
+    {
+        // Create a planet with resources.
+        $this->createAndSetPlanetModel([
+            'metal' => 100000,
+            'crystal' => 100000,
+            'deuterium' => 10000,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
+        $attackerFleet->addUnit($smallCargo, 5);
+
+        // Simulate battle.
+        $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
+        $battleResult = $battleEngine->simulateBattle();
+
+        // Assert the rounds are empty and contain valid data.
+        $this->assertEmpty($battleResult->rounds);
+    }
 }

@@ -5,6 +5,7 @@
 @php /** @var array<OGame\GameObjects\Models\Units\UnitCollection> $defender_units_start */ @endphp
 @php /** @var array<OGame\GameMissions\BattleEngine\BattleResultRound> $rounds */ @endphp
 
+<div id="messagedetails">
 <div class="detail_msg_head">
     <span class="msg_title new blue_txt"><span class="middlemark">@lang('Combat Report') {{ $defender_planet_name }} <figure
                     class="planetIcon planet tooltip js_hideTipOnMobile" data-tooltip-title="Planet"></figure> <a
@@ -94,16 +95,13 @@
                 <a href="#">Start</a>
                 <span class="list_placeholder"></span>
             </li>
-            <li class="round_id" data-round="1">
+@foreach ($rounds as $round)
+            <li class="round_id" data-round="{{ $loop->iteration }}">
                 <span class="list_placeholder"></span>
-                <a href="#">1</a>
-                <span class="list_placeholder"></span>
-            </li>
-            <li class="round_id" data-round="2">
-                <span class="list_placeholder"></span>
-                <a href="#" class="active">2</a>
+                <a href="#">{{ $loop->iteration }}</a>
                 <span class="list_placeholder"></span>
             </li>
+@endforeach
         </ul>
         <br class="clearfloat">
         <!-- Loot -->
@@ -378,8 +376,31 @@
             "combatId": 8196210,
             // Start combat rounds ----------------------------------------------------------------------
             "combatRounds": [
-    @foreach ($rounds as $round)
-            {
+                // Start round (static)
+                {
+                    "statistics":null,
+                    "attackerLosses":null,
+                    "defenderLosses":null,
+                    "attackerShips":{
+                        "4492924": {
+@foreach ($attacker_units_start->units as $unit)
+                            "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+@endforeach
+                        }
+                    },
+                    "defender":{
+                    },
+                    "defenderShips":[
+                        {
+                            @foreach ($defender_units_start->units as $unit)
+                            "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+                            @endforeach
+                        }
+                    ]
+                },
+                // Actual rounds starting from round 1.
+@foreach ($rounds as $round)
+                {
                     "attackerLosses": {
                         "4492924": [
 @foreach ($round->attackerLosses->units as $unit)
@@ -532,9 +553,9 @@
                     "weaponPercentage": {{ $defender_weapons }},
                     "shieldPercentage": {{ $defender_shields }},
                     "shipDetails": {
-                        "401": {"armor": 480, "weapon": 184, "shield": 44, "count": 15},
-                        "402": {"armor": 480, "weapon": 229, "shield": 55, "count": 50},
-                        "404": {"armor": 8400, "weapon": 2530, "shield": 440, "count": 1}
+@foreach ($defender_units_start->units as $unit)
+                        "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+@endforeach
                     }
                 }],
                 "combatRounds": [
@@ -550,7 +571,8 @@
                         }
                     },
                     // Actual rounds starting from round 1.
-                    @foreach ($rounds as $round){
+@foreach ($rounds as $round)
+                    {
                         "lossesInThisRound": [
 @foreach ($round->defenderLossesInThisRound->units as $unit)
                                     {
@@ -644,4 +666,5 @@
 </div>
 
 <div class="commentsHolder">
+</div>
 </div>
