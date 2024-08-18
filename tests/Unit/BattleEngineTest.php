@@ -260,4 +260,73 @@ class BattleEngineTest extends UnitTestCase
         // Assert the rounds are empty and contain valid data.
         $this->assertEmpty($battleResult->rounds);
     }
+
+    /**
+     * Test that the battle engine result matches the expected output of prepared simulation.
+     */
+    public function testBattleEngineSimulationCorrect1(): void
+    {
+        // Simulation 1: attacker with 150 light fighters vs defender with 200 rocket launchers (not taking into account any tech levels).
+        // Expected result: attacker loses, defender rocket launchers remaining >= 160.
+        $this->createAndSetPlanetModel([
+            'rocket_launcher' => 200,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $attackerFleet->addUnit($lightFighter, 150);
+
+        // Simulate battle.
+        $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
+        $battleResult = $battleEngine->simulateBattle();
+
+        // Assert the rounds are not empty and contain valid data.
+        $this->assertNotEmpty($battleResult->rounds);
+
+        // Get last round with result.
+        $lastRound = end($battleResult->rounds);
+        $this->assertNotEmpty($lastRound->attackerShips);
+        $this->assertNotEmpty($lastRound->defenderShips);
+        $this->assertEquals(0, $lastRound->attackerShips->getAmountByMachineName($lightFighter->machine_name));
+        $this->assertGreaterThanOrEqual(160, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
+    }
+
+    /**
+     * Test that the battle engine result matches the expected output of prepared simulation.
+     */
+    public function testBattleEngineSimulationCorrect2(): void
+    {
+        // Simulation 1: attacker with 1 death star and 1k light fighters vs defender with 200 plasma turrets, 100 rocket launchers and 50 light lasers (not taking into account any tech levels).
+        // Expected result: draw. attacker keeps death star and < 100 light fighters. Defender keeps > 180 plasma turrets, < 20 rocket launchers and < 20 light lasers.
+        $this->createAndSetPlanetModel([
+            'rocket_launcher' => 100,
+            'light_laser' => 50,
+            'plasma_turret' => 200,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $deathStar = $this->planetService->objects->getUnitObjectByMachineName('deathstar');
+        $attackerFleet->addUnit($deathStar, 1);
+        $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $attackerFleet->addUnit($lightFighter, 1000);
+
+        // Simulate battle.
+        $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
+        $battleResult = $battleEngine->simulateBattle();
+
+        // Assert the rounds are not empty and contain valid data.
+        $this->assertNotEmpty($battleResult->rounds);
+
+        // Get last round with result.
+        $lastRound = end($battleResult->rounds);
+        $this->assertNotEmpty($lastRound->attackerShips);
+        $this->assertNotEmpty($lastRound->defenderShips);
+        $this->assertEquals(1, $lastRound->attackerShips->getAmountByMachineName($deathStar->machine_name));
+        $this->assertLessThanOrEqual(100, $lastRound->attackerShips->getAmountByMachineName($lightFighter->machine_name));
+        $this->assertGreaterThanOrEqual(180, $lastRound->defenderShips->getAmountByMachineName('plasma_turret'));
+        $this->assertLessThanOrEqual(20, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
+        $this->assertLessThanOrEqual(20, $lastRound->defenderShips->getAmountByMachineName('light_laser'));
+    }
 }
