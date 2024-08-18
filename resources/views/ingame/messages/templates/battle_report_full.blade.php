@@ -392,9 +392,9 @@
                     },
                     "defenderShips":[
                         {
-                            @foreach ($defender_units_start->units as $unit)
+@foreach ($defender_units_start->units as $unit)
                             "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                            @endforeach
+@endforeach
                         }
                     ]
                 },
@@ -503,13 +503,11 @@
 @foreach ($rounds as $round)
                     {
                         "lossesInThisRound": {
-                            "4492924": [
+                            "4492924": {
 @foreach ($round->attackerLossesInThisRound->units as $unit)
-                            {
-                                "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
-                            },
+                                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
 @endforeach
-                            ]
+                            }
                         },
                         "statistic": {
                             "hits": "{{ $round->hitsAttacker }}",
@@ -517,22 +515,18 @@
                             "fullStrength": "{{ $round->fullStrengthAttacker }}"
                         },
                         "losses": {
-                            "4492924": [
+                            "4492924": {
 @foreach ($round->attackerLosses->units as $unit)
-                            {
-                                "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
-                            },
+                                "{{ $unit->unitObject->id }}": "{{ $unit->amount }}",
 @endforeach
-                            ]
+                            }
                         },
                         "ships": {
-                            "4492924": [
+                            "4492924": {
 @foreach ($round->attackerShips->units as $unit)
-                                {
-                                    "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
-                                },
+                                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
 @endforeach
-                            ]
+                            }
                         }
                     },
 @endforeach
@@ -566,39 +560,33 @@
                         "losses": null,
                         "ships": {
 @foreach ($defender_units_start->units as $unit)
-                                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
+                            "{{ $unit->unitObject->id }}": {{ $unit->amount }},
 @endforeach
                         }
                     },
                     // Actual rounds starting from round 1.
 @foreach ($rounds as $round)
                     {
-                        "lossesInThisRound": [
+                        "lossesInThisRound": [{
 @foreach ($round->defenderLossesInThisRound->units as $unit)
-                                    {
-                                        "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
-                                    },
+                                "{{ $unit->unitObject->id }}": "{{ $unit->amount }}",
 @endforeach
-                        ],
+                        }],
                         "statistic": {
                             "hits": "{{ $round->hitsDefender }}",
                             "absorbedDamage": "{{ $round->absorbedDamageDefender }}",
                             "fullStrength": "{{ $round->fullStrengthDefender }}"
                         },
-                        "losses": [
+                        "losses": [{
 @foreach ($round->defenderLosses->units as $unit)
-                                {
-                                    "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
-                                },
+                                "{{ $unit->unitObject->id }}": "{{ $unit->amount }}",
 @endforeach
-                        ],
-                        "ships": [
+                        }],
+                        "ships": [{
 @foreach ($round->defenderShips->units as $unit)
-                                    {
-                                        "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
-                                    },
+                            "{{ $unit->unitObject->id }}": {{ $unit->amount }},
 @endforeach
-                        ]
+                        }]
                     },
 @endforeach
                 ]

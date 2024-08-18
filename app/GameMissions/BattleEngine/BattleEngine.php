@@ -164,16 +164,23 @@ class BattleEngine
             }
 
             // Subtract losses from the attacker and defender units.
-            $round->attackerShips->subtractCollection($round->attackerLossesInThisRound);
-            $round->defenderShips->subtractCollection($round->defenderLossesInThisRound);
+            $round->attackerShips->subtractCollection($round->attackerLossesInThisRound, false);
+            $round->defenderShips->subtractCollection($round->defenderLossesInThisRound, false);
             $result->rounds[] = $round;
             // ---- END ROUND
         }
 
-        // Subtract losses from the attacker and defender units.
-        // TODO: do this properly by taking results of last round.
-        // $result->attackerUnitsResult->subtractCollection($round->attackerLossesInThisRound);
-        // $result->defenderUnitsResult->subtractCollection($round->defenderLossesInThisRound);
+        if (count($result->rounds) > 0) {
+            // Take the remaining ships in the last round as the result.
+            $round = end($result->rounds);
+            $result->attackerUnitsResult = $round->attackerShips;
+            $result->defenderUnitsResult = $round->defenderShips;
+        }
+        else {
+            // If no rounds were fought, the result is the same as the start.
+            $result->attackerUnitsResult = $result->attackerUnitsStart;
+            $result->defenderUnitsResult = $result->defenderUnitsStart;
+        }
 
         // Check if defender still has units left. If not, attacker wins.
         if ($result->defenderUnitsResult->getAmount() === 0) {

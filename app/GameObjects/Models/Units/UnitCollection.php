@@ -3,7 +3,6 @@
 namespace OGame\GameObjects\Models\Units;
 
 use Exception;
-use http\Exception\RuntimeException;
 use InvalidArgumentException;
 use OGame\GameObjects\Models\UnitObject;
 use OGame\Services\PlayerService;
@@ -16,6 +15,17 @@ class UnitCollection
      * @var array<UnitEntry>
      */
     public array $units = [];
+
+    /**
+     * Implement the clone magic method so that during clone of this object
+     * the inner objects are also properly cloned.
+     */
+    public function __clone() {
+        // Clone all units in the collection.
+        $this->units = array_map(function($entry) {
+            return clone $entry;
+        }, $this->units);
+    }
 
     /**
      * Add a unit to the collection.
@@ -37,15 +47,20 @@ class UnitCollection
 
     /**
      * Remove a unit from the collection.
+     *
+     * @param UnitObject $unitObject
+     * @param int $amount
+     * @param bool $remove_empty_units If true, the unit will be removed from the collection if the
+     * amount reaches 0. Defaults to TRUE.
      */
-    public function removeUnit(UnitObject $unitObject, int $amount): void
+    public function removeUnit(UnitObject $unitObject, int $amount, bool $remove_empty_units = false): void
     {
         $found = false;
         foreach ($this->units as $key => $entry) {
             if ($entry->unitObject->machine_name === $unitObject->machine_name) {
                 $this->units[$key]->amount -= $amount;
 
-                if ($this->units[$key]->amount <= 0) {
+                if ($remove_empty_units && $this->units[$key]->amount <= 0) {
                     unset($this->units[$key]);
                 }
 
@@ -142,13 +157,15 @@ class UnitCollection
      * Subtracts all units from another collection from this collection.
      *
      * @param UnitCollection $collection
+     * @param bool $remove_empty_units If true, the unit will be removed from the collection if the
+     *  amount reaches 0. Defaults to TRUE.
      * @return void
      * @throws Exception
      */
-    public function subtractCollection(UnitCollection $collection): void
+    public function subtractCollection(UnitCollection $collection, bool $remove_empty_units = true): void
     {
         foreach ($collection->units as $entry) {
-            $this->removeUnit($entry->unitObject, $entry->amount);
+            $this->removeUnit($entry->unitObject, $entry->amount, $remove_empty_units);
         }
     }
 
