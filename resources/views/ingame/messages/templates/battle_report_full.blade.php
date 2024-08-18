@@ -199,15 +199,13 @@
 
             <ul class="ship_list_28 military_ships fleft">
                 @foreach ($military_objects as $object)
-                    @if ($attacker_units_start->getAmountByMachineName($object->machine_name) > 0)
-                        <li class="{{ $loop->even ? 'odd' : '' }}">
-                            <div class="buildingimg military{{ $object->id }} on">
-                                <span class="detail_shipname">{{ $object->title }}</span>
-                                <span class="detail_shipsleft ecke">{{ $attacker_units_start->getAmountByMachineName($object->machine_name) }}</span>
-                                <span class="detail_shipslost lost_ships">0</span>
-                            </div>
-                        </li>
-                    @endif
+                    <li class="{{ $loop->even ? 'odd' : '' }}">
+                        <div class="buildingimg military{{ $object->id }} on">
+                            <span class="detail_shipname">{{ $object->title }}</span>
+                            <span class="detail_shipsleft ecke">{{ $attacker_units_start->getAmountByMachineName($object->machine_name) }}</span>
+                            <span class="detail_shipslost lost_ships">0</span>
+                        </div>
+                    </li>
                 @endforeach
             </ul>
 
@@ -222,15 +220,13 @@
 
             <ul class="ship_list_28 military_ships fleft">
                 @foreach ($civil_objects as $object)
-                    @if ($attacker_units_start->getAmountByMachineName($object->machine_name) > 0)
-                        <li class="{{ $loop->even ? 'odd' : '' }}">
-                            <div class="buildingimg civil{{ $object->id }} on">
-                                <span class="detail_shipname">{{ $object->title }}</span>
-                                <span class="detail_shipsleft ecke">0</span>
-                                <span class="detail_shipslost lost_ships">0</span>
-                            </div>
-                        </li>
-                    @endif
+                    <li class="{{ $loop->even ? 'odd' : '' }}">
+                        <div class="buildingimg civil{{ $object->id }} on">
+                            <span class="detail_shipname">{{ $object->title }}</span>
+                            <span class="detail_shipsleft ecke">0</span>
+                            <span class="detail_shipslost lost_ships">0</span>
+                        </div>
+                    </li>
                 @endforeach
             </ul>
             <br class="clearfloat">
@@ -275,15 +271,13 @@
 
             <ul class="ship_list_28 military_ships fleft">
                 @foreach ($military_objects as $object)
-                    @if ($defender_units_start->getAmountByMachineName($object->machine_name) > 0)
-                        <li class="{{ $loop->even ? 'odd' : '' }}">
-                            <div class="buildingimg military{{ $object->id }} on">
-                                <span class="detail_shipname">{{ $object->title }}</span>
-                                <span class="detail_shipsleft ecke">0</span>
-                                <span class="detail_shipslost lost_ships">0</span>
-                            </div>
-                        </li>
-                    @endif
+                    <li class="{{ $loop->even ? 'odd' : '' }}">
+                        <div class="buildingimg military{{ $object->id }} on">
+                            <span class="detail_shipname">{{ $object->title }}</span>
+                            <span class="detail_shipsleft ecke">0</span>
+                            <span class="detail_shipslost lost_ships">0</span>
+                        </div>
+                    </li>
                 @endforeach
             </ul>
 
@@ -299,15 +293,13 @@
 
             <ul class="ship_list_28 military_ships fleft">
                 @foreach ($civil_objects as $object)
-                    @if ($defender_units_start->getAmountByMachineName($object->machine_name) > 0)
-                        <li class="{{ $loop->even ? 'odd' : '' }}">
-                            <div class="buildingimg civil{{ $object->id }} on">
-                                <span class="detail_shipname">{{ $object->title }}</span>
-                                <span class="detail_shipsleft ecke">0</span>
-                                <span class="detail_shipslost lost_ships">0</span>
-                            </div>
-                        </li>
-                    @endif
+                    <li class="{{ $loop->even ? 'odd' : '' }}">
+                        <div class="buildingimg civil{{ $object->id }} on">
+                            <span class="detail_shipname">{{ $object->title }}</span>
+                            <span class="detail_shipsleft ecke">0</span>
+                            <span class="detail_shipslost lost_ships">0</span>
+                        </div>
+                    </li>
                 @endforeach
             </ul>
             <br class="clearfloat">
@@ -322,15 +314,13 @@
 
             <ul class="ship_list_28 military_ships fleft">
                 @foreach ($defense_objects as $object)
-                    @if ($defender_units_start->getAmountByMachineName($object->machine_name) > 0)
-                        <li class="{{ $loop->even ? 'odd' : '' }}">
-                            <div class="defenseimg defense{{ $object->id }} on">
-                                <span class="detail_shipname">{{ $object->title }}</span>
-                                <span class="detail_shipsleft ecke">0</span>
-                                <span class="detail_shipslost lost_ships">0</span>
-                            </div>
-                        </li>
-                    @endif
+                    <li class="{{ $loop->even ? 'odd' : '' }}">
+                        <div class="defenseimg defense{{ $object->id }} on">
+                            <span class="detail_shipname">{{ $object->title }}</span>
+                            <span class="detail_shipsleft ecke">0</span>
+                            <span class="detail_shipslost lost_ships">0</span>
+                        </div>
+                    </li>
                 @endforeach
             </ul>
         </div>
@@ -466,7 +456,7 @@
             "attackerJSON": {
                 "member": {
                     "4492924": {
-                        "ownerName": "Commodore Taurus",
+                        "ownerName": "{{ $attacker_name }}",
                         "ownerCharacterClassId": 1,
                         "ownerCharacterClassName": "Collector",
                         "ownerID": 115473,
@@ -527,7 +517,7 @@
             },
             "defenderJSON": {
                 "member": [{
-                    "ownerName": "Lieutenant Cupid",
+                    "ownerName": "{{ $defender_name }}",
                     "ownerCharacterClassId": 1,
                     "ownerCharacterClassName": "Collector",
                     "ownerID": 102489,

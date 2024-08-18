@@ -184,7 +184,7 @@ class AttackMission extends GameMission
                 'hits_defender' => $round->hitsDefender,
             ];
         }
-        
+
         $report->rounds = $rounds;
 
         // TODO: add actual battle report contents here.
