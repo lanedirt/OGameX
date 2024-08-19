@@ -301,6 +301,17 @@ class BattleEngineTest extends UnitTestCase
         // The attackerLosses property should be a sum of all losses in the previous rounds. Because we expect the attacker
         // to lose all units this should be equal to the total amount of units in the attacker fleet.
         $this->assertEquals(150, $lastRound->attackerLosses->getAmountByMachineName($lightFighter->machine_name));
+
+        // Calculate that the resource loss of attacker matches the expected loss.
+        $this->assertEquals(150 * $lightFighter->price->resources->metal->get(), $battleResult->attackerResourceLoss->metal->get());
+        $this->assertEquals(150 * $lightFighter->price->resources->crystal->get(), $battleResult->attackerResourceLoss->crystal->get());
+        $this->assertEquals(0, $battleResult->attackerResourceLoss->deuterium->get());
+
+        // Calculate that the metal resource loss of defender is higher than 0. Others are 0 as rocket launcher
+        // only costs metal to build.
+        $this->assertGreaterThan(0, $battleResult->defenderResourceLoss->metal->get());
+        $this->assertEquals(0, $battleResult->defenderResourceLoss->crystal->get());
+        $this->assertEquals(0, $battleResult->defenderResourceLoss->deuterium->get());
     }
 
     /**

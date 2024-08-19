@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
+use Carbon\Unit;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 
@@ -33,6 +34,16 @@ class BattleResult
     public UnitCollection $attackerUnitsResult;
 
     /**
+     * @var UnitCollection The units that were lost by the attacker player during the battle.
+     */
+    public UnitCollection $attackerUnitsLost;
+
+    /**
+     * @var Resources The resources in terms of ships that the attacker player lost during the battle.
+     */
+    public Resources $attackerResourceLoss;
+
+    /**
      * @var UnitCollection The units of defender player at the start of the battle.
      */
     public UnitCollection $defenderUnitsStart;
@@ -41,6 +52,16 @@ class BattleResult
      * @var UnitCollection The units survived the battle from the defender player.
      */
     public UnitCollection $defenderUnitsResult;
+
+    /**
+     * @var UnitCollection The units that were lost by the defender player during the battle.
+     */
+    public UnitCollection $defenderUnitsLost;
+
+    /**
+     * @var Resources The resources in terms of ships/defense that the defender player lost during the battle.
+     */
+    public Resources $defenderResourceLoss;
 
     /**
      * @var int The attacker player's weapon technology level.
@@ -76,5 +97,4 @@ class BattleResult
      * @var array<BattleResultRound> The rounds of the battle.
      */
     public array $rounds;
-
 }

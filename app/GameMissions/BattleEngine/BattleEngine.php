@@ -77,7 +77,7 @@ class BattleEngine
         $result->defenderUnitsResult = clone $result->defenderUnitsStart;
 
         // Execute the battle rounds, this will handle the actual combat logic.
-        $result->rounds = $this->fightBattle($result);
+        $result->rounds = $this->fightBattleRounds($result);
 
         // Get the result of the battle.
         if (count($result->rounds) > 0) {
@@ -91,6 +91,16 @@ class BattleEngine
             $result->attackerUnitsResult = $result->attackerUnitsStart;
             $result->defenderUnitsResult = $result->defenderUnitsStart;
         }
+
+        // Calculate the resources lost by the attacker and defender.
+        // Deduct defender's lost units from the defenders planet.
+        $result->attackerUnitsLost = clone $result->attackerUnitsStart;
+        $result->attackerUnitsLost->subtractCollection($result->attackerUnitsResult);
+        $result->attackerResourceLoss = $result->attackerUnitsLost->toResources();
+
+        $result->defenderUnitsLost = clone $result->defenderUnitsStart;
+        $result->defenderUnitsLost->subtractCollection($result->defenderUnitsResult);
+        $result->defenderResourceLoss = $result->defenderUnitsLost->toResources();
 
         // Determine winner of battle.
         if ($result->defenderUnitsResult->getAmount() === 0) {
@@ -113,7 +123,7 @@ class BattleEngine
      * @param BattleResult $result
      * @return array<BattleResultRound>
      */
-    private function fightBattle(BattleResult $result): array {
+    private function fightBattleRounds(BattleResult $result): array {
         $rounds = [];
 
         // Convert attacker and defender units to BattleUnit objects to keep track of hull plating and shields.

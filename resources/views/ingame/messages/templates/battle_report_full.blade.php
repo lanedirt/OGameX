@@ -327,13 +327,13 @@
         <br class="clearfloat">
 
         <br class="clearfloat">
-        <div class="section_title">
+        <!--<div class="section_title">
             <div class="c-left"></div>
             <div class="c-right"></div>
             <span class="title_txt">@lang('Repaired defences'):</span>
         </div>
         <ul class="detail_list clearfix">
-            <!--<li class="detail_list_el">
+            <li class="detail_list_el">
                 <div class="defense_image float_left ">
                     <img class="defense401" width="28" height="28" alt="Rocket Launcher" src="/img/icons/4c4fbd313bc449e16f5212f23d6311.jpg">
                 </div>
@@ -354,8 +354,8 @@
                 <span class="detail_list_txt">Gauss Cannon</span>
                 <span class="fright" style="margin-right: 10px">1</span>
             </li>
-            -->
-        </ul>
+
+        </ul>-->
 
         <!-- WF information -->
         <!-- attacker WF information -->

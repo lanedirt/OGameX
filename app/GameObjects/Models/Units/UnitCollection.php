@@ -5,6 +5,7 @@ namespace OGame\GameObjects\Models\Units;
 use Exception;
 use InvalidArgumentException;
 use OGame\GameObjects\Models\UnitObject;
+use OGame\Models\Resources;
 use OGame\Services\PlayerService;
 
 class UnitCollection
@@ -181,4 +182,22 @@ class UnitCollection
         }
     }
 
+    /**
+     * Get the total resource cost (build cost) of the units in the collection.
+     *
+     * @return Resources
+     */
+    public function toResources(): Resources
+    {
+        $resources = new Resources(0, 0, 0, 0);
+        foreach ($this->units as $entry) {
+            $metal = $entry->unitObject->price->resources->metal->get() * $entry->amount;
+            $crystal = $entry->unitObject->price->resources->crystal->get() * $entry->amount;
+            $deuterium = $entry->unitObject->price->resources->deuterium->get() * $entry->amount;
+
+            $resources->add(new Resources($metal, $crystal, $deuterium, 0));
+        }
+
+        return $resources;
+    }
 }
