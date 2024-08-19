@@ -60,12 +60,16 @@ class AttackMission extends GameMission
         // Deduct loot from the target planet.
         $defenderPlanet->deductResources($battleResult->loot);
 
+        // Deduct defender's lost units from the defenders planet.
+        $defenderUnitsLost = clone $battleResult->defenderUnitsStart;
+        $defenderUnitsLost->subtractCollection($battleResult->defenderUnitsResult);
+        $defenderPlanet->removeUnits($defenderUnitsLost, false);
+
         // Save defenders planet
         $defenderPlanet->save();
 
-        $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
-
         // Send a message to the player with a reference to the espionage report.
+        $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
         $this->messageService->sendBattleReportMessageToPlayer(
             $origin_planet->getPlayer(),
             $reportId,

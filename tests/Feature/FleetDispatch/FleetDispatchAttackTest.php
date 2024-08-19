@@ -91,6 +91,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->fleetCheckToEmptyPosition($unitCollection, false);
     }
 
+    /**
+     * Assert that attacking a foreign planet works and results in a battle report.
+     */
     public function testDispatchFleetCombatReport(): void
     {
         $this->basicSetup();
@@ -362,4 +365,45 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
     }
+
+    /**
+     * Assert that units lost during battle are correctly removed in the database for both attacker and defender.
+     */
+    public function testDispatchFleetCombatUnitsLostRemoved(): void
+    {
+        // Set time to static time 2024-01-01
+        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
+        Carbon::setTestNow($startTime);
+
+        // Send fleet to a nearby foreign planet.
+        // Attack with 150 light fighters, defend with 100 rocket launchers.
+        // We expect attacker to win in +/- 4 rounds, while losing 10-50 light fighters.
+        $this->planetAddUnit('light_fighter', 150);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 150);
+        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Give the foreign planet some units to defend itself.
+        $foreignPlanet->addUnit('rocket_launcher', 100);
+
+        // Reload application to make sure the planet is not cached.
+        $this->reloadApplication();
+
+        // Increase time by 10 hours to ensure the mission is done.
+        Carbon::setTestNow($startTime->copy()->addHours(10));
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that attacker has less than 150 light fighters after battle.
+        $this->planetService->reloadPlanet();
+        $this->assertLessThan(150, $this->planetService->getObjectAmount('light_fighter'), 'Attacker still has 150 light fighters after battle while it was expected they lost some.');
+
+        // Assert that the defender has lost all units.
+        $foreignPlanet->reloadPlanet();
+        $this->assertEquals(0, $foreignPlanet->getObjectAmount('rocket_launcher'), 'Defender still has rocket launcher after battle while it was expected they lost all.');
+    }
+
 }
