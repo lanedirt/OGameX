@@ -421,7 +421,7 @@ class BattleEngineTest extends UnitTestCase
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
         $cruiser = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
-        $attackerFleet->addUnit($cruiser, 10000);
+        $attackerFleet->addUnit($cruiser, 5000);
 
         // Simulate battle.
         $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
@@ -434,8 +434,49 @@ class BattleEngineTest extends UnitTestCase
         $lastRound = end($battleResult->rounds);
 
         // Assert that attacker has all light fighters remaining.
-        $this->assertEquals(10000, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
+        $this->assertEquals(5000, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
         // Assert that defender has the large shield dome remaining.
         $this->assertEquals(1, $lastRound->defenderShips->getAmountByMachineName('large_shield_dome'));
+    }
+
+    /**
+     * Test that the battle engine shield bounce logic works correctly with high tech levels.
+     */
+    public function testBattleEngineNoBounceHighTechLevel(): void
+    {
+        // If attacker has a very high weapon tech level the light fighters attack power is upgraded and will
+        // be able to destroy a large shield dome. Attacker needs to have weapon tech level 10 higher than
+        // twice the defender's shield tech level to destroy the shield.
+        // In this case we test with weapon tech level 31 and shield tech level 10.
+        $this->createAndSetPlanetModel([
+            'large_shield_dome' => 1,
+        ]);
+        // TODO: currently the attacker player and defender player are the same so the tech level used in the
+        // battle engine are the same. Refactor this unit test logic later so that the attacker and defender tech
+        // levels can be set separately.
+        $this->createAndSetUserTechModel([
+            'weapon_technology' => 31,
+            'shielding_technology' => 10,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $cruiser = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $attackerFleet->addUnit($cruiser, 5000);
+
+        // Simulate battle.
+        $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
+        $battleResult = $battleEngine->simulateBattle();
+
+        // Assert that there is only 1 round in the battle.
+        $this->assertCount(1, $battleResult->rounds);
+
+        // Get last round.
+        $lastRound = end($battleResult->rounds);
+
+        // Assert that attacker has all light fighters remaining.
+        $this->assertEquals(5000, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
+        // Assert that the large shield dome is destroyed.
+        $this->assertEquals(0, $lastRound->defenderShips->getAmountByMachineName('large_shield_dome'));
     }
 }
