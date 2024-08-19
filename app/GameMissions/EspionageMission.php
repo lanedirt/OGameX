@@ -67,13 +67,10 @@ class EspionageMission extends GameMission
 
         // Assembly new unit collection.
         $units = $this->fleetMissionService->getFleetUnits($mission);
-        // TODO: a battle can happen if counter-espionage has taken place. Check for this when implementing battle system.
+        // TODO: a battle can happen if counter-espionage has taken place. Add logic for this using the battle system.
 
-        // Check if the mission has any ships left. If yes, start a return mission to send them back.
-        if ($units->getAmount() > 0) {
-            // Create and start the return mission.
-            $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $units);
-        }
+        // Create and start the return mission.
+        $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $units);
     }
 
     /**

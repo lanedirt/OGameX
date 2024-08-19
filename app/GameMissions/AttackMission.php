@@ -79,11 +79,8 @@ class AttackMission extends GameMission
         $mission->processed = 1;
         $mission->save();
 
-        // Check if the mission has any ships left. If yes, start a return mission to send them back.
-        if ($this->fleetMissionService->getFleetUnitCount($mission) > 0) {
-            // Create and start the return mission.
-            $this->startReturn($mission, $battleResult->loot, $battleResult->attackerUnitsResult);
-        }
+        // Create and start the return mission (if attacker has remaining units).
+        $this->startReturn($mission, $battleResult->loot, $battleResult->attackerUnitsResult);
     }
 
     /**

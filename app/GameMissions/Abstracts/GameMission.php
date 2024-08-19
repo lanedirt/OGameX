@@ -216,6 +216,13 @@ abstract class GameMission
      */
     protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units): void
     {
+        if ($units->getAmount() === 0) {
+            // No units to return, no need to create a return mission.
+            // This can happen after a battle where all units were destroyed or after colonisation mission
+            // which consumed the colony ship and had no other units.
+            return;
+        }
+
         // No need to check for resources and units, as the return mission takes the units from the original
         // mission and the resources are already delivered. Nothing is deducted from the planet.
         // Time this fleet mission will depart (arrival time of the parent mission)

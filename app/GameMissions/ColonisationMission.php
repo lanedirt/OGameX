@@ -98,11 +98,9 @@ class ColonisationMission extends GameMission
         $colony_ship = $target_planet->objects->getUnitObjectByMachineName('colony_ship');
         $units->removeUnit($colony_ship, 1);
 
-        // Check if the mission has any ships left. If yes, start a return mission to send them back.
-        if ($units->getAmount() > 0) {
-            // Create and start the return mission.
-            $this->startReturn($mission, new Resources(0, 0, 0, 0), $units);
-        }
+        // Create and start the return mission (if the colonisation mission had ships other than the colony ship itself).
+        $this->startReturn($mission, new Resources(0, 0, 0, 0), $units);
+
     }
 
     /**

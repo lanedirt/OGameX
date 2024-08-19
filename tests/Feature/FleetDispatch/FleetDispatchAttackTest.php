@@ -143,8 +143,12 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 5);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Clear any units from foreign planet to ensure we win the battle.
+        $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
+        $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -157,6 +161,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second.
         $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 1);
         Carbon::setTestNow($fleetParentTime);
+
+        // Reload application to make sure the defender planet is not cached as we modified it above during test.
+        $this->reloadApplication();
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
@@ -378,12 +385,15 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         // Attack with 150 light fighters, defend with 100 rocket launchers.
         // We expect attacker to win in +/- 4 rounds, while losing 10-50 light fighters.
-        $this->planetAddUnit('light_fighter', 150);
+        $this->planetAddUnit('light_fighter', 200);
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 150);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
+        // Clear existing units from foreign planet.
+        $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
+        $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
         // Give the foreign planet some units to defend itself.
         $foreignPlanet->addUnit('rocket_launcher', 100);
 
@@ -397,13 +407,65 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
-        // Assert that attacker has less than 150 light fighters after battle.
+        // Assert that attacker has less than 200 light fighters after battle.
         $this->planetService->reloadPlanet();
-        $this->assertLessThan(150, $this->planetService->getObjectAmount('light_fighter'), 'Attacker still has 150 light fighters after battle while it was expected they lost some.');
+        $this->assertLessThan(200, $this->planetService->getObjectAmount('light_fighter'), 'Attacker still has 150 light fighters after battle while it was expected they lost some.');
 
         // Assert that the defender has lost all units.
         $foreignPlanet->reloadPlanet();
         $this->assertEquals(0, $foreignPlanet->getObjectAmount('rocket_launcher'), 'Defender still has rocket launcher after battle while it was expected they lost all.');
+    }
+
+    /**
+     * Assert that if attacker loses the battle, no return trip is launched.
+     */
+    public function testDispatchFleetAttackerLossNoReturnMission(): void
+    {
+        // Set time to static time 2024-01-01
+        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
+        Carbon::setTestNow($startTime);
+
+        // Send fleet to a nearby foreign planet.
+        // Attack with 50 light fighters, defend with 100 rocket launchers.
+        // We expect defender to win in +/- 3 rounds. Attacker will lose all units.
+        $this->planetAddUnit('light_fighter', 50);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 50);
+        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Give the foreign planet some units to defend itself.
+        $foreignPlanet->addUnit('rocket_launcher', 100);
+
+        // Get just dispatched fleet mission ID from database.
+        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+
+        // Get time it takes for the fleet to travel to the second planet.
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+
+        // Set time to fleet mission duration + 1 second.
+        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 1);
+        Carbon::setTestNow($fleetParentTime);
+
+        // Reload application to make sure the planet is not cached.
+        $this->reloadApplication();
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the fleet mission is processed.
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
+
+        // Check that combat message has been received to ensure battle has taken place.
+        $this->messageCheckMissionArrival();
+
+        // Assert that NO return trip has been launched by checking the active missions for the current planet.
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(0, $activeMissions, 'A return trip is launched while attacker has lost the battle and should not have any units left.');
     }
 
 }
