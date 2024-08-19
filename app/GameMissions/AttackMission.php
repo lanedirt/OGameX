@@ -68,12 +68,12 @@ class AttackMission extends GameMission
         // Save defenders planet
         $defenderPlanet->save();
 
-        // Send a message to the player with a reference to the espionage report.
+        // Send a message to both attacker and defender with a reference to the same battle report.
         $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
-        $this->messageService->sendBattleReportMessageToPlayer(
-            $origin_planet->getPlayer(),
-            $reportId,
-        );
+        // Send to attacker.
+        $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
+        // Send to defender.
+        $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
 
         // Mark the arrival mission as processed
         $mission->processed = 1;

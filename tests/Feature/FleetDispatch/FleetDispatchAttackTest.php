@@ -7,6 +7,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
+use OGame\Models\Message;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\SettingsService;
@@ -92,7 +93,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     }
 
     /**
-     * Assert that attacking a foreign planet works and results in a battle report.
+     * Assert that attacking a foreign planet works and results in a battle report for both the attacker and defender
+     * players.
      */
     public function testDispatchFleetCombatReport(): void
     {
@@ -117,11 +119,19 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $response = $this->get('/overview');
         $response->assertStatus(200);
         
-        // Assert that battle report has been sent to player and contains the correct information.
+        // Assert that battle report has been sent to attacker and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'combat_reports', [
             'Combat report',
             $foreignPlanet->getPlanetName()
         ]);
+
+        // Get battle report message of attacker from database.
+        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())->where('key', 'battle_report')->orderByDesc('id')->first();
+        $this->assertNotNull($messageAttacker, 'Attacker has not received a battle report after combat.');
+
+        // Assert that defender also received a message with the same battle report ID.
+        $messageDefender = Message::where('user_id', $foreignPlanet->getPlayer()->getId())->orderByDesc('id')->first();
+        $this->assertEquals($messageAttacker->battle_report_id, $messageDefender->battle_report_id, 'Defender has not received the same battle report as attacker.');
     }
 
     /**
@@ -374,9 +384,10 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     }
 
     /**
-     * Assert that units lost during battle are correctly removed in the database for both attacker and defender.
+     * Assert that units lost during battle are correctly removed in the database for both attacker and defender and
+     * that resources are correctly deducted from the defender planet and added to the attacker planet.
      */
-    public function testDispatchFleetCombatUnitsLostRemoved(): void
+    public function testDispatchFleetCombatUnitsLostAndResourceGained(): void
     {
         // Set time to static time 2024-01-01
         $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
@@ -388,7 +399,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->planetAddUnit('light_fighter', 200);
 
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 150);
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 200);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Clear existing units from foreign planet.
@@ -403,6 +414,10 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Increase time by 10 hours to ensure the mission is done.
         Carbon::setTestNow($startTime->copy()->addHours(10));
 
+        // Get amount of resources of the foreign planet before the battle.
+        $attackerResourcesBefore = $this->planetService->getResources();
+        $foreignPlanetResourcesBefore = $foreignPlanet->getResources();
+
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -414,6 +429,17 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Assert that the defender has lost all units.
         $foreignPlanet->reloadPlanet();
         $this->assertEquals(0, $foreignPlanet->getObjectAmount('rocket_launcher'), 'Defender still has rocket launcher after battle while it was expected they lost all.');
+
+        // Assert that the resources of the foreign planet have decreased after the battle, and resources of attacker
+        // planet have increased.
+        $this->reloadApplication();
+        $this->planetService->reloadPlanet();
+        $foreignPlanet->reloadPlanet();
+        $this->assertLessThan($foreignPlanetResourcesBefore->metal, $foreignPlanet->getResources()->metal, 'Defender still has same amount of metal after battle while it was expected they lost some.');
+        $this->assertLessThan($foreignPlanetResourcesBefore->crystal, $foreignPlanet->getResources()->crystal, 'Defender still has same amount of crystal after battle while it was expected they lost some.');
+
+        $this->assertGreaterThan($attackerResourcesBefore->metal, $this->planetService->getResources()->metal, 'Attacker still has same amount of metal after battle while it was expected they gained some.');
+        $this->assertGreaterThan($attackerResourcesBefore->crystal, $this->planetService->getResources()->crystal, 'Attacker still has same amount of crystal after battle while it was expected they gained some.');
     }
 
     /**
