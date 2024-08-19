@@ -10,6 +10,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
+use OGame\Services\PlayerService;
 use OGame\ViewModels\FleetEventRowViewModel;
 
 class FleetEventsController extends OGameController
@@ -17,45 +18,59 @@ class FleetEventsController extends OGameController
     /**
      * Returns fleet mission eventbox JSON.
      *
+     * @param PlayerService $player
      * @param FleetMissionService $fleetMissionService
      * @return JsonResponse
      */
-    public function fetchEventBox(FleetMissionService $fleetMissionService): JsonResponse
+    public function fetchEventBox(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
     {
         // Get all the fleet movements for the current user.
-        $friendlyMissionRows = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $activeMissionRows = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 
-        if ($friendlyMissionRows->isEmpty()) {
-            $friendlyMissions = [
-                'mission_count' => 0,
-                'type_next_mission' => 'None',
-                'time_next_mission' => 0,
-            ];
-        } else {
-            $firstMission = $friendlyMissionRows->first();
+        $friendlyMissionCount = 0;
+        $neutralMissionCount = 0;
+        $hostileMissionCount = 0;
+        $typeNextMission = '';
+        $timeNextMission = 0;
+        $eventType = '';
+
+        if ($activeMissionRows->isNotEmpty()) {
+            $firstMission = $activeMissionRows->first();
 
             // Make sure $firstMission is an instance of FleetMission
             if (!$firstMission instanceof FleetMission) {
                 throw new \UnexpectedValueException('Expected instance of FleetMission.');
             }
 
-            // TODO: make it a (view)model return type
-            // TODO: refactor data retrieval and processing... duplicate with fetchEventList
-            $friendlyMissions = [
-                'mission_count' => $friendlyMissionRows->count(),
-                'type_next_mission' => $fleetMissionService->missionTypeToLabel($firstMission->mission_type) . ($firstMission->parent_id ? ' (R)' : ''),
-                'time_next_mission' => $firstMission->time_arrival - (int)Carbon::now()->timestamp,
-            ];
+            $missionCount = $activeMissionRows->count();
+            $typeNextMission = $fleetMissionService->missionTypeToLabel($firstMission->mission_type) . ($firstMission->parent_id ? ' (R)' : '');
+            $timeNextMission = $firstMission->time_arrival - (int)Carbon::now()->timestamp;
+            $eventType = $this->determineFriendly($firstMission, $player);
+
+            // Loop through all missions to calculate all mission counts.
+            foreach ($activeMissionRows as $row) {
+                switch ($this->determineFriendly($row, $player)) {
+                    case 'friendly':
+                        $friendlyMissionCount++;
+                        break;
+                    case 'neutral':
+                        $neutralMissionCount++;
+                        break;
+                    case 'hostile':
+                        $hostileMissionCount++;
+                        break;
+                }
+            }
         }
 
         return new JsonResponse([
             'components' => [],
-            'hostile' => 0,
-            'neutral' => 0,
-            'friendly' => $friendlyMissions['mission_count'],
-            'eventType' => 'friendly',
-            'eventTime' => $friendlyMissions['time_next_mission'],
-            'eventText' => $friendlyMissions['type_next_mission'],
+            'hostile' => $hostileMissionCount,
+            'neutral' => $neutralMissionCount,
+            'friendly' => $friendlyMissionCount,
+            'eventType' => $eventType,
+            'eventTime' => $timeNextMission,
+            'eventText' => $typeNextMission,
             'newAjaxToken' => csrf_token(),
         ]);
     }
@@ -63,11 +78,12 @@ class FleetEventsController extends OGameController
     /**
      * Fetch the fleet event list HTML which contains all the fleet mission details.
      *
+     * @param PlayerService $player
      * @param FleetMissionService $fleetMissionService
      * @param PlanetServiceFactory $planetServiceFactory
      * @return View
      */
-    public function fetchEventList(FleetMissionService $fleetMissionService, PlanetServiceFactory $planetServiceFactory): View
+    public function fetchEventList(PlayerService $player, FleetMissionService $fleetMissionService, PlanetServiceFactory $planetServiceFactory): View
     {
         // Get all the fleet movements for the current user.
         $friendlyMissionRows = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
@@ -105,11 +121,19 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->fleet_unit_count = $fleetMissionService->getFleetUnitCount($row);
             $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
             $eventRowViewModel->resources = $fleetMissionService->getResources($row);
+
+            $friendlyStatus = $this->determineFriendly($row, $player);
+
+            $eventRowViewModel->is_recallable = false;
+            if ($friendlyStatus === 'friendly') {
+                $eventRowViewModel->is_recallable = true;
+            }
+
             $fleet_events[] = $eventRowViewModel;
 
             // Check if this is a transport mission parent, if so, add the return trip to the list.
             // TODO: refactor this logic to abstracted classes per mission type where these eventList rendering are done.
-            if ($fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
+            if ($friendlyStatus === 'friendly' && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
                 $returnTripRow = new FleetEventRowViewModel();
                 $returnTripRow->is_return_trip = true;
                 $returnTripRow->id = $row->parent_id + 999999; // Add a large number to avoid id conflicts
@@ -132,5 +156,34 @@ class FleetEventsController extends OGameController
                 'fleet_events' => $fleet_events,
             ]
         );
+    }
+
+    /**
+     * Returns whether the fleet mission is friendly, neutral or hostile.
+     *
+     * @param FleetMission $mission
+     * @param PlayerService $player
+     *
+     * @return string ('friendly', 'neutral' or 'hostile')
+     */
+    private function determineFriendly(FleetMission $mission, PlayerService $player): string {
+        // Determine if the next mission is a friendly, hostile or neutral mission
+        if ($mission->user_id != $player->getId()) {
+            // Not from the current player, check mission type.
+            switch ($mission->mission_type) {
+                case 1:
+                case 2:
+                case 6:
+                case 9:
+                    // Hostile
+                    return 'hostile';
+                case 3:
+                    // Neutral;
+                    return 'neutral';
+            }
+        }
+
+        // From current player, it is a friendly mission.
+        return 'friendly';
     }
 }

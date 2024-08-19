@@ -336,13 +336,29 @@ class FleetController extends OGameController
         ]);
     }
 
-    public function dispatchRecallFleet(FleetMissionService $fleetMissionService): JsonResponse
+    /**
+     * Recall an active fleet that has not yet been processed.
+     *
+     * @param PlayerService $player
+     * @param FleetMissionService $fleetMissionService
+     * @return JsonResponse
+     */
+    public function dispatchRecallFleet(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
     {
         // Get the fleet mission id
         $fleet_mission_id = request()->input('fleet_mission_id');
 
         // Get the fleet mission service
         $fleetMission = $fleetMissionService->getFleetMissionById($fleet_mission_id);
+
+        // Sanity check: only owner of the fleet mission can recall it.
+        if ($fleetMission->user_id !== $player->getId()) {
+            return response()->json([
+                'components' => [],
+                'newAjaxToken' => csrf_token(),
+                'success' => false,
+            ]);
+        }
 
         // Recall the fleet mission
         $fleetMissionService->cancelMission($fleetMission);

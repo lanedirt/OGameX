@@ -140,12 +140,48 @@ class FleetMissionService
      */
     public function getActiveFleetMissionsForCurrentPlayer(): Collection
     {
-        return $this->model->where([
-                ['user_id', $this->player->getId()],
-                ['processed', 0],
-            ])
-            ->orderBy('time_arrival', 'asc')
-            ->get();
+        $query = $this->model;
+
+        // Add where clauses:
+        // 1. All from current user.
+        // - AND -
+        // 2. All against any of current users planets.
+        $planetIds = [];
+        foreach ( $this->player->planets->all() as $planet) {
+            $planetIds[] = $planet->getPlanetId();
+        }
+
+        $query = $query->where(function ($query) use ($planetIds) {
+            $query->where('user_id', $this->player->getId())
+                ->orWhereIn('planet_id_to', $planetIds);
+        })
+        ->where('processed', 0);
+
+        return $query->orderBy('time_arrival')->get();
+    }
+
+    /**
+     * Returns whether the current user is under attack.
+     *
+     * @return bool
+     */
+    public function currentPlayerUnderAttack(): bool
+    {
+        $planetIds = [];
+        foreach ( $this->player->planets->all() as $planet) {
+            $planetIds[] = $planet->getPlanetId();
+        }
+
+        // Mission types that are considered hostile:
+        // 1: Attack
+        // 2: ACS Attack
+        // 6: Espionage
+        // 9: Moon Destruction
+        return $this->model->whereIn('planet_id_to', $planetIds)
+            ->where('user_id', '!=', $this->player->getId())
+            ->whereIn('mission_type', [1, 2, 6, 9])
+            ->where('processed', 0)
+            ->exists();
     }
 
     /**

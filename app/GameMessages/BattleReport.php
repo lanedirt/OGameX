@@ -5,7 +5,6 @@ namespace OGame\GameMessages;
 use OGame\Facades\AppUtil;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMissions\BattleEngine\BattleResultRound;
-use OGame\GameObjects\Models\UnitObject;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -262,15 +261,6 @@ class BattleReport extends GameMessage
             'attacker_units_start' => $attacker_units,
             'defender_units_start' => $defender_units,
             'rounds' => $rounds,
-            //'metal' => $resources->metal->getFormatted(),
-            //'crystal' => $resources->crystal->getFormatted(),
-            //'deuterium' => $resources->deuterium->getFormatted(),
-            //'energy' => $resources->energy->getFormatted(),
-            //'resources_sum' => AppUtil::formatNumber($resources->sum()),
-            //'ships' => $ships,
-            //'defense' => $defense,
-            //'buildings' => $buildings,
-            //'research' => $research,
         ];
     }
 }
