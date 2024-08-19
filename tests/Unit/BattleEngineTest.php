@@ -4,7 +4,6 @@ namespace Tests\Unit;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMissions\BattleEngine\BattleEngine;
-use OGame\GameMissions\BattleEngine\BattleResultRound;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use Tests\UnitTestCase;
 
@@ -443,7 +442,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Get last round.
         $lastRound = end($battleResult->rounds);
-
+        $this->assertNotEmpty($lastRound);
         // Assert that attacker has all light fighters remaining.
         $this->assertEquals(5000, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
         // Assert that defender has the large shield dome remaining.
@@ -484,7 +483,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Get last round.
         $lastRound = end($battleResult->rounds);
-
+        $this->assertNotEmpty($lastRound);
         // Assert that attacker has all light fighters remaining.
         $this->assertEquals(5000, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
         // Assert that the large shield dome is destroyed.

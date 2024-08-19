@@ -2,7 +2,6 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
-use Exception;
 use OGame\GameMissions\BattleEngine\Services\LootService;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
@@ -85,8 +84,7 @@ class BattleEngine
             $round = end($result->rounds);
             $result->attackerUnitsResult = $round->attackerShips;
             $result->defenderUnitsResult = $round->defenderShips;
-        }
-        else {
+        } else {
             // If no rounds were fought, the result is the same as the start.
             $result->attackerUnitsResult = $result->attackerUnitsStart;
             $result->defenderUnitsResult = $result->defenderUnitsStart;
@@ -123,7 +121,8 @@ class BattleEngine
      * @param BattleResult $result
      * @return array<BattleResultRound>
      */
-    private function fightBattleRounds(BattleResult $result): array {
+    private function fightBattleRounds(BattleResult $result): array
+    {
         $rounds = [];
 
         // Convert attacker and defender units to BattleUnit objects to keep track of hull plating and shields.
@@ -178,8 +177,7 @@ class BattleEngine
                     $targetUnit = $defenderUnits[$targetUnitKey];
 
                     $rapidfire = $this->attackUnit(true, $round, $unit, $targetUnit);
-                }
-                while ($rapidfire);
+                } while ($rapidfire);
             }
 
             // Let the defender attack the attacker.
@@ -191,8 +189,7 @@ class BattleEngine
                     $targetUnit = $attackerUnits[$targetUnitKey];
 
                     $rapidfire = $this->attackUnit(false, $round, $unit, $targetUnit);
-                }
-                while ($rapidfire);
+                } while ($rapidfire);
             }
 
             // After all units have attacked each other, clean up the round. This removes destroyed units
@@ -248,14 +245,12 @@ class BattleEngine
             // If the defender has a shield, first apply damage to the shield.
             $shieldAbsorption = $damage;
             $defender->currentShieldPoints -= $damage;
-        }
-        else if ($defender->currentShieldPoints > 0 && $damage > $defender->currentShieldPoints) {
+        } elseif ($defender->currentShieldPoints > 0 && $damage > $defender->currentShieldPoints) {
             // If the shield is destroyed, apply the remaining damage to the hull plating.
             $shieldAbsorption = $defender->currentShieldPoints;
             $defender->currentHullPlating -= $damage - $defender->currentShieldPoints;
             $defender->currentShieldPoints = 0;
-        }
-        else {
+        } else {
             // No shield, apply damage directly to the hull plating.
             $defender->currentHullPlating -= $damage;
         }
@@ -264,8 +259,7 @@ class BattleEngine
             $round->hitsAttacker += 1;
             $round->fullStrengthAttacker += $damage;
             $round->absorbedDamageDefender += $shieldAbsorption;
-        }
-        else {
+        } else {
             $round->hitsDefender += 1;
             $round->fullStrengthDefender += $damage;
             $round->absorbedDamageAttacker += $shieldAbsorption;
@@ -303,13 +297,11 @@ class BattleEngine
                 // Remove destroyed units from the array.
                 $round->attackerLossesInThisRound->addUnit($unit->unitObject, 1);
                 unset($attackerUnits[$key]);
-            }
-            else if ($unit->damagedHullExplosion()) {
+            } elseif ($unit->damagedHullExplosion()) {
                 // Hull was damaged and dice roll was successful, destroy the unit.
                 $round->attackerLossesInThisRound->addUnit($unit->unitObject, 1);
                 unset($attackerUnits[$key]);
-            }
-            else {
+            } else {
                 // Apply shield regeneration.
                 $unit->currentShieldPoints = $unit->originalShieldPoints;
             }
@@ -321,13 +313,11 @@ class BattleEngine
                 // Remove destroyed units from the array.
                 $round->defenderLossesInThisRound->addUnit($unit->unitObject, 1);
                 unset($defenderUnits[$key]);
-            }
-            else if ($unit->damagedHullExplosion()) {
+            } elseif ($unit->damagedHullExplosion()) {
                 // Hull was damaged and dice roll was successful, destroy the unit.
                 $round->defenderLossesInThisRound->addUnit($unit->unitObject, 1);
                 unset($defenderUnits[$key]);
-            }
-            else {
+            } else {
                 // Apply shield regeneration.
                 $unit->currentShieldPoints = $unit->originalShieldPoints;
             }

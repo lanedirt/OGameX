@@ -4,7 +4,6 @@ namespace OGame\GameObjects\Services\Properties;
 
 use Exception;
 use OGame\GameObjects\Services\Properties\Abstracts\ObjectPropertyService;
-use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 
 /**

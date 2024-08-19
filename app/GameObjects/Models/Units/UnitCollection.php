@@ -21,9 +21,10 @@ class UnitCollection
      * Implement the clone magic method so that during clone of this object
      * the inner objects are also properly cloned.
      */
-    public function __clone() {
+    public function __clone()
+    {
         // Clone all units in the collection.
-        $this->units = array_map(function($entry) {
+        $this->units = array_map(function ($entry) {
             return clone $entry;
         }, $this->units);
     }

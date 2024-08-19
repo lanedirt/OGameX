@@ -134,12 +134,11 @@ class BattleReport extends GameMessage
         $lootMetal = $this->battleReportModel->loot['metal'];
         $lootCrystal = $this->battleReportModel->loot['crystal'];
         $lootDeuterium = $this->battleReportModel->loot['deuterium'];
-        $lootResources= new Resources($lootMetal, $lootCrystal, $lootDeuterium, 0);
+        $lootResources = new Resources($lootMetal, $lootCrystal, $lootDeuterium, 0);
 
         $debrisMetal = $this->battleReportModel->debris['metal'];
         $debrisCrystal = $this->battleReportModel->debris['crystal'];
-        $debrisDeuterium = $this->battleReportModel->debris['deuterium'];
-        $debrisResources = new Resources($debrisMetal, $debrisCrystal, $debrisDeuterium, 0);
+        $debrisResources = new Resources($debrisMetal, $debrisCrystal, 0, 0);
 
         $repairedDefensesCount = 0;
         if (!empty($this->battleReportModel->repaired_defenses)) {
@@ -215,18 +214,15 @@ class BattleReport extends GameMessage
         if (count($rounds) === 0) {
             // No rounds, attacker wins.
             $winner = 'attacker';
-        }
-        else {
+        } else {
             $lastRound = $rounds[count($rounds) - 1];
             if ($lastRound->attackerShips->getAmount() > 0 && $lastRound->defenderShips->getAmount() > 0) {
                 // Both players have ships left, draw.
                 $winner = 'draw';
-            }
-            elseif ($lastRound->attackerShips->getAmount() > 0) {
+            } elseif ($lastRound->attackerShips->getAmount() > 0) {
                 // Attacker has ships left, attacker wins.
                 $winner = 'attacker';
-            }
-            else {
+            } else {
                 // Defender has ships left, defender wins.
                 $winner = 'defender';
             }

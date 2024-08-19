@@ -147,7 +147,7 @@ class FleetMissionService
         // - AND -
         // 2. All against any of current users planets.
         $planetIds = [];
-        foreach ( $this->player->planets->all() as $planet) {
+        foreach ($this->player->planets->all() as $planet) {
             $planetIds[] = $planet->getPlanetId();
         }
 
@@ -168,7 +168,7 @@ class FleetMissionService
     public function currentPlayerUnderAttack(): bool
     {
         $planetIds = [];
-        foreach ( $this->player->planets->all() as $planet) {
+        foreach ($this->player->planets->all() as $planet) {
             $planetIds[] = $planet->getPlanetId();
         }
 

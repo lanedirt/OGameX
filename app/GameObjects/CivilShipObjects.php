@@ -37,8 +37,8 @@ class CivilShipObjects
         ];
         $smallCargo->price = new GameObjectPrice(2000, 2000, 0, 0);
         $smallCargo->rapidfire = [
-            new GameObjectRapidfire('espionage_probe', 80, 5),
-            new GameObjectRapidfire('solar_satellite', 80, 5),
+            new GameObjectRapidfire('espionage_probe', 5),
+            new GameObjectRapidfire('solar_satellite', 5),
         ];
         $smallCargo->properties = new GameObjectProperties($smallCargo, 4000, 10, 5, 5000, 5000, 10);
         $smallCargo->properties->speed_upgrade = [
@@ -66,8 +66,8 @@ To maximize the resources that can be stored in the holds, this ship has little 
         ];
         $largeCargo->price = new GameObjectPrice(6000, 6000, 0, 0);
         $largeCargo->rapidfire = [
-            new GameObjectRapidfire('espionage_probe', 80, 5),
-            new GameObjectRapidfire('solar_satellite', 80, 5),
+            new GameObjectRapidfire('espionage_probe', 5),
+            new GameObjectRapidfire('solar_satellite', 5),
         ];
         $largeCargo->properties = new GameObjectProperties($largeCargo, 12000, 25, 5, 15000, 25000, 50);
 
@@ -92,8 +92,8 @@ This ship is used to prepare a newly discovered planet for colonization. Once it
         ];
         $colonyShip->price = new GameObjectPrice(10000, 20000, 10000, 0);
         $colonyShip->rapidfire = [
-            new GameObjectRapidfire('espionage_probe', 80, 5),
-            new GameObjectRapidfire('solar_satellite', 80, 5),
+            new GameObjectRapidfire('espionage_probe', 5),
+            new GameObjectRapidfire('solar_satellite', 5),
         ];
         $colonyShip->properties = new GameObjectProperties($colonyShip, 30000, 100, 50, 2500, 7500, 100);
 
@@ -120,8 +120,8 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         ];
         $recycler->price = new GameObjectPrice(10000, 6000, 2000, 0);
         $recycler->rapidfire = [
-            new GameObjectRapidfire('espionage_probe', 80, 5),
-            new GameObjectRapidfire('solar_satellite', 80, 5),
+            new GameObjectRapidfire('espionage_probe', 5),
+            new GameObjectRapidfire('solar_satellite', 5),
         ];
         $recycler->properties = new GameObjectProperties($recycler, 16000, 10, 1, 2000, 20000, 300);
         $recycler->properties->speed_upgrade = [

@@ -109,7 +109,7 @@ class AttackMission extends GameMission
     }
 
     /**
-     * Creates an espionage report for the target planet.
+     * Creates a battle report for the given battle result.
      *
      * @param PlayerService $attackPlayer The player who initiated the attack.
      * @param PlanetService $defenderPlanet The planet that was attacked.
@@ -118,10 +118,6 @@ class AttackMission extends GameMission
      */
     private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet, BattleResult $battleResult): int
     {
-        // TODO: make sure the target planet is updated with the latest resources before creating the report
-        // to ensure the report is accurate at the current point in time.
-        // TODO: add planet update call here and add a test to cover this.
-
         // Create new battle report record.
         $report = new BattleReport();
         $report->planet_galaxy = $defenderPlanet->getPlanetCoordinates()->galaxy;
@@ -162,11 +158,9 @@ class AttackMission extends GameMission
         $report->debris = [
             'metal' => 0,
             'crystal' => 0,
-            'deuterium' => 0,
         ];
 
         $report->repaired_defenses = [];
-
 
         $rounds = [];
         foreach ($battleResult->rounds as $round) {
@@ -187,37 +181,6 @@ class AttackMission extends GameMission
         }
 
         $report->rounds = $rounds;
-
-        // TODO: add actual battle report contents here.
-        /*$report->player_info = [
-            'player_id' => (string)$planet->getPlayer()->getId(),
-            'player_name' => $planet->getPlayer()->getUsername(),
-        ];
-
-        // Resources
-        $report->resources = [
-            'metal' => (int)$planet->metal()->get(),
-            'crystal' => (int)$planet->crystal()->get(),
-            'deuterium' => (int)$planet->deuterium()->get(),
-            'energy' => (int)$planet->energy()->get()
-        ];
-
-        // TODO: implement logic which determines what to include in the espionage report based on
-        // the player's espionage technology level. For example, the player can see more details about the
-        // target planet if the espionage technology level is higher.
-
-        // Fleets
-        $report->ships = $planet->getShipsArray();
-
-        // Defense
-        $report->defense = $planet->getDefenseArray();
-
-        // Buildings
-        $report->buildings = $planet->getBuildingArray();
-
-        // Research
-        $report->research = $planet->getPlayer()->getResearchArray();
-*/
         $report->save();
 
         return $report->id;

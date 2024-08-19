@@ -54,7 +54,7 @@ class BattleUnit
      * @param int $shieldPoints
      * @param int $attackPower
      */
-    function __construct(UnitObject $unitObject, int $structuralIntegrity, int $shieldPoints, int $attackPower)
+    public function __construct(UnitObject $unitObject, int $structuralIntegrity, int $shieldPoints, int $attackPower)
     {
         $this->unitObject = $unitObject;
 
@@ -77,7 +77,7 @@ class BattleUnit
      *
      * @return bool
      */
-    function damagedHullExplosion(): bool
+    public function damagedHullExplosion(): bool
     {
         $hullPercentage = $this->currentHullPlating / $this->originalHullPlating;
         if ($hullPercentage >= 0.7) {

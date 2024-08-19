@@ -36,7 +36,7 @@ class MilitaryShipObjects
         $lightFighter->price = new GameObjectPrice(3000, 1000, 0, 0);
         $lightFighter->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
-            new GameObjectRapidfire('solar_satellite',  5),
+            new GameObjectRapidfire('solar_satellite', 5),
         ];
         $lightFighter->properties = new GameObjectProperties($lightFighter, 4000, 10, 50, 12500, 50, 20);
         $lightFighter->assets = new GameObjectAssets();
@@ -62,8 +62,8 @@ class MilitaryShipObjects
         $heavyFighter->price = new GameObjectPrice(6000, 4000, 0, 0);
         $heavyFighter->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
-            new GameObjectRapidfire('solar_satellite',  5),
-            new GameObjectRapidfire('small_cargo',  3),
+            new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('small_cargo', 3),
         ];
         $heavyFighter->properties = new GameObjectProperties($heavyFighter, 10000, 25, 150, 10000, 100, 75);
         $heavyFighter->assets = new GameObjectAssets();
@@ -91,8 +91,8 @@ class MilitaryShipObjects
 
         $cruiser->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
-            new GameObjectRapidfire('solar_satellite',  5),
-            new GameObjectRapidfire('light_fighter',  6),
+            new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('light_fighter', 6),
             new GameObjectRapidfire('rocket_launcher', 10),
         ];
         $cruiser->properties = new GameObjectProperties($cruiser, 27000, 50, 400, 15000, 800, 300);

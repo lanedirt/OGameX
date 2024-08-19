@@ -55,7 +55,8 @@ class LootService
             $resources->metal->get() * ($this->lootPercentage / 100),
             $resources->crystal->get() * ($this->lootPercentage / 100),
             $resources->deuterium->get() * ($this->lootPercentage / 100),
-            0);
+            0
+        );
 
         $total_cargo_capacity = 0;
         foreach ($this->attackerFleet->units as $unit) {
@@ -124,7 +125,7 @@ class LootService
 
             $remaining_capacity = $total_cargo_capacity - $distributed_loot->sum();
             if ($remaining_capacity <= 0) {
-               break;
+                break;
             }
         }
 

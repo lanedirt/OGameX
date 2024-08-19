@@ -166,7 +166,8 @@ class FleetEventsController extends OGameController
      *
      * @return string ('friendly', 'neutral' or 'hostile')
      */
-    private function determineFriendly(FleetMission $mission, PlayerService $player): string {
+    private function determineFriendly(FleetMission $mission, PlayerService $player): string
+    {
         // Determine if the next mission is a friendly, hostile or neutral mission
         if ($mission->user_id != $player->getId()) {
             // Not from the current player, check mission type.

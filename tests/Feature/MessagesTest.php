@@ -101,7 +101,7 @@ class MessagesTest extends AccountTestCase
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve MessageService in testBattleReport.');
         }
-        // Create a new espionage report record in the db and set the espionage_report_id to its ID.
+        // Create a new espionage report record in the db and set the battle_report_id to its ID.
         $battleReportId = $this->createBattleReport();
         $messageModel = $messageService->sendBattleReportMessageToPlayer($this->planetService->getPlayer(), $battleReportId);
         $battleReport = GameMessageFactory::createGameMessage($messageModel);
@@ -111,7 +111,7 @@ class MessagesTest extends AccountTestCase
 
         // Check that the response is successful and it contains the espionage report message.
         $response->assertStatus(200);
-        $response->assertSee('Combat report');
+        $response->assertSee('Combat Report');
 
         // TODO: add more assertions here to check the content of the battle report.
     }
@@ -123,7 +123,7 @@ class MessagesTest extends AccountTestCase
      */
     private function createBattleReport(): int
     {
-        // Get a random planet to create the espionage report for.
+        // Get a random planet to create the battle report for.
         $foreignPlanet = $this->getNearbyForeignPlanet();
 
         $battleReport = new BattleReport();
@@ -131,8 +131,26 @@ class MessagesTest extends AccountTestCase
         $battleReport->planet_system = $foreignPlanet->getPlanetCoordinates()->system;
         $battleReport->planet_position = $foreignPlanet->getPlanetCoordinates()->position;
         $battleReport->planet_user_id = $foreignPlanet->getPlayer()->getId();
-        $battleReport->attacker = ['player_id' => $this->currentUserId];
-        $battleReport->defender = ['player_id' => $foreignPlanet->getPlayer()->getId()];
+        $battleReport->attacker = [
+            'player_id' => $this->currentUserId,
+            'resource_loss' => 20000,
+            'units' => [],
+            'weapon_technology' => 0,
+            'shielding_technology' => 0,
+            'armor_technology' => 0,
+        ];
+        $battleReport->defender = [
+            'player_id' => $foreignPlanet->getPlayer()->getId(),
+            'resource_loss' => 10000,
+            'units' => [],
+            'weapon_technology' => 0,
+            'shielding_technology' => 0,
+            'armor_technology' => 0,
+        ];
+        $battleReport->rounds = [];
+        $battleReport->loot = ['percentage' => 50, 'metal' => 1000, 'crystal' => 500, 'deuterium' => 100];
+        $battleReport->debris = ['metal' => 1000, 'crystal' => 500];
+        $battleReport->repaired_defenses = [];
 
         $battleReport->save();
 
