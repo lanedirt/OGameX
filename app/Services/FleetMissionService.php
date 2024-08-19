@@ -307,8 +307,16 @@ class FleetMissionService
      */
     public function updateMission(FleetMission $mission): void
     {
+        // Load the mission object again from database to ensure we have the latest data.
+        $mission = $this->getFleetMissionById($mission->id, false);
+
         // Sanity check: only process missions that have arrived.
         if ($mission->time_arrival > Carbon::now()->timestamp) {
+            return;
+        }
+
+        // Sanity check: only process missions that have not been processed yet.
+        if ($mission->processed) {
             return;
         }
 

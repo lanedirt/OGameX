@@ -86,7 +86,13 @@ abstract class TestCommand extends Command
         // Delete user if it already exists.
         $user = User::where('email', '=', $this->email)->first();
         if ($user) {
-            $playerServiceFactory->make($user->id)->delete();
+            try {
+                $playerServiceFactory->make($user->id)->delete();
+            } catch (Exception $e) {
+                $this->error("Failed to delete existing user: " . $e->getMessage());
+                // Try to delete the user directly from the database.
+                $user->delete();
+            }
         }
 
         // Create a test user

@@ -1639,28 +1639,39 @@ class PlanetService
      */
     public function updateFleetMissions(): void
     {
-        try {
-            $fleetMissionService = app()->make(FleetMissionService::class);
-            $missions = $fleetMissionService->getMissionsByPlanetId($this->getPlanetId());
+        DB::transaction(function () {
+            // Attempt to acquire a lock on the row for this planet. This is to prevent
+            // race conditions when multiple requests are updating the fleet missions for the
+            // same planet and potentially doing double insertions or overwriting each other's changes.
+            $planetMissionUpdateLock = Planet::where('id', $this->getPlanetId())
+                ->lockForUpdate()
+                ->first();
 
-            foreach ($missions as $mission) {
-                DB::transaction(function () use ($mission, $fleetMissionService) {
-                    // Attempt to acquire a lock on the row for this fleet mission. This is to prevent
-                    // race conditions when multiple requests are updating the same fleet mission and
-                    // potentially doing double insertions or overwriting each other's changes.
-                    $fleetMissionLock = FleetMission::where('id', $mission->id)
-                        ->lockForUpdate()
-                        ->first();
+            if ($planetMissionUpdateLock) {
+                try {
+                    $fleetMissionService = app()->make(FleetMissionService::class);
+                    $missions = $fleetMissionService->getMissionsByPlanetId($this->getPlanetId());
 
-                    if ($fleetMissionLock) {
-                        $fleetMissionService->updateMission($mission);
-                    } else {
-                        throw new \Exception('Could not acquire fleet mission update lock.');
+                    foreach ($missions as $mission) {
+                        // Attempt to acquire a lock on the row for this fleet mission. This is to prevent
+                        // race conditions when multiple requests are updating the same fleet mission and
+                        // potentially doing double insertions or overwriting each other's changes.
+                        $fleetMissionLock = FleetMission::where('id', $mission->id)
+                            ->lockForUpdate()
+                            ->first();
+
+                        if ($fleetMissionLock) {
+                            $fleetMissionService->updateMission($mission);
+                        } else {
+                            throw new \Exception('Could not acquire update fleet mission update lock.');
+                        }
                     }
-                });
+                } catch (Exception $e) {
+                    throw new RuntimeException('Fleet mission service process error: ' . $e->getMessage());
+                }
+            } else {
+                throw new \Exception('Could not acquire update fleet mission planet lock.');
             }
-        } catch (Exception $e) {
-            throw new RuntimeException('Fleet mission service process error: ' . $e->getMessage());
-        }
+        });
     }
 }
