@@ -494,4 +494,36 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertCount(0, $activeMissions, 'A return trip is launched while attacker has lost the battle and should not have any units left.');
     }
 
+    /**
+     * Assert that when someone is attacking us a warning is shown.
+     */
+    public function testDispatchFleetUnderAttackWarning(): void
+    {
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Check that the class "noAttack" is present in the response which indicates we're not under attack.
+        $this->assertStringContainsString('noAttack', (string)$response->getContent(), 'We are under attack while we should not be.');
+        // Check that no title warning is shown.
+        $this->assertStringNotContainsString('You are under attack!', (string)$response->getContent(), 'You are under attack warning title is shown while we should not be under attack.');
+
+        // Get foreign planet.
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+
+        // Add units to foreign planet.
+        $foreignPlanet->addUnit('light_fighter', 1);
+        $unitsToSend = new UnitCollection();
+        $unitsToSend->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+
+        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
+        $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
+
+        // Check that now we're under attack.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        $this->assertStringNotContainsString('noAttack', (string)$response->getContent(), 'We are not under attack while we should be. Check if the under attack warning works correctly.');
+        $this->assertStringContainsString('soon', (string)$response->getContent(), 'We are under attack but no warning is shown. Check if the under attack warning works correctly.');
+        $this->assertStringContainsString('You are under attack!', (string)$response->getContent(), 'You are under attack warning title is not shown while we should be under attack. Check if the under attack warning works correctly.');
+    }
 }

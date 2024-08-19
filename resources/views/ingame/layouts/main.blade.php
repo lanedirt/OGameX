@@ -303,7 +303,7 @@ Combat simulation save slots +20">
                         @lang('No fleet movement')
                     </div>
                 </div>
-                <div id="attack_alert" class="tooltip @if ($underAttack) soon @else noAttack @endif" title="">
+                <div id="attack_alert" class="tooltip @if ($underAttack) soon @else noAttack @endif" title="@if ($underAttack) @lang('You are under attack!') @endif">
                     <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
                 </div>
             </div>
