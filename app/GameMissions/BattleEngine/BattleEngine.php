@@ -116,115 +116,86 @@ class BattleEngine
     private function executeRounds(BattleResult $result): array {
         $rounds = [];
 
-        // Convert attacker fleet to individual unit array.
-        // Key = unit id (int), value = structural integrity (int).
-        // TODO: should actually include structural integrity, shield, and weapon damage.
+        // Convert attacker and defender units to BattleUnit objects to keep track of hitpoints/shields etc.
         $attackerUnits = [];
         foreach ($result->attackerUnitsStart->units as $unit) {
-            // Create new object for each unit in the fleet.
-            $hullPlating = $unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue;
+            // Create new object for each unique unit in the fleet.
+            $structuralIntegrity = $unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue;
             $shieldPoints = $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue;
             $attackPower = $unit->unitObject->properties->attack->calculate($this->attackerPlayer)->totalValue;
-            $unitObject = new BattleUnit($unit->unitObject, $hullPlating, $shieldPoints, $attackPower);
+            $unitObject = new BattleUnit($unit->unitObject, $structuralIntegrity, $shieldPoints, $attackPower);
 
             for ($i = 0; $i < $unit->amount; $i++) {
-                // Clone the unit object for each unit in the fleet and add it to the array.
+                // Clone the unit object for each individual entry of this ship add it to the array.
                 $attackerUnits[] = clone $unitObject;
             }
         }
 
         $defenderUnits = [];
         foreach ($result->defenderUnitsStart->units as $unit) {
-            // Create new object for each unit in the fleet.
-            $hullPlating = $unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue;
+            // Create new object for each unique unit in the fleet.
+            $structuralIntegrity = $unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue;
             $shieldPoints = $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue;
             $attackPower = $unit->unitObject->properties->attack->calculate($this->defenderPlanet->getPlayer())->totalValue;
-            $unitObject = new BattleUnit($unit->unitObject, $hullPlating, $shieldPoints, $attackPower);
+            $unitObject = new BattleUnit($unit->unitObject, $structuralIntegrity, $shieldPoints, $attackPower);
 
             for ($i = 0; $i < $unit->amount; $i++) {
+                // Clone the unit object for each individual entry of this ship add it to the array.
                 $defenderUnits[] = clone $unitObject;
             }
         }
 
         $roundNumber = 0;
+        $attackerRemainingShips = clone $result->attackerUnitsStart;
+        $defenderRemainingShips = clone $result->defenderUnitsStart;
         while ($roundNumber < 6  && count($attackerUnits) > 0 && count($defenderUnits) > 0) {
             $roundNumber++;
-
             $round = new BattleResultRound();
             $round->defenderLossesInThisRound = new UnitCollection();
             $round->defenderLosses = new UnitCollection();
             $round->attackerLossesInThisRound = new UnitCollection();
             $round->attackerLosses = new UnitCollection();
-            $round->attackerShips = clone $result->attackerUnitsStart;
-            $round->defenderShips = clone $result->defenderUnitsStart;
             $round->absorbedDamageAttacker = 0;
             $round->absorbedDamageDefender = 0;
 
             // Let the attacker attack the defender.
             foreach ($attackerUnits as $unit) {
-                // If all defender units are destroyed, break the loop.
-                if (count($defenderUnits) === 0) {
-                    break;
-                }
-
                 // Every single unit attacks a random unit from the defender's units.
-                // For now, we assume the attacker always kills the target.
-                // Random target
-                $targetUnitKey = array_rand($defenderUnits);
-                $targetUnit = $defenderUnits[$targetUnitKey];
+                // If the attacker has rapidfire against the defender and succesfully rolled a dice,
+                // the attacker can attack a random unit again.
+                do {
+                    $targetUnitKey = array_rand($defenderUnits);
+                    $targetUnit = $defenderUnits[$targetUnitKey];
 
-                $this->attackUnit($round, $unit, $targetUnit);
-
-                $round->hitsAttacker += 1;
-
-                // Add target defender unit to defender losses array.
-                /*$round->defenderLosses->addUnit($targetUnitObject, 1);
-                $round->defenderLossesInThisRound->addUnit($targetUnitObject, 1);
-
-                // Unset the defender unit from the array.
-                unset($defenderUnits[$targetUnitKey]);*/
+                    $rapidfire = $this->attackUnit(true, $round, $unit, $targetUnit);
+                }
+                while ($rapidfire);
             }
 
             // Let the defender attack the attacker.
             foreach ($defenderUnits as $unit) {
-                // If all attacker units are destroyed, break the loop.
-                if (count($attackerUnits) === 0) {
-                    break;
+                // If the attacker has rapidfire against the defender and succesfully rolled a dice,
+                // the attacker can attack a random unit again.
+                do {
+                    $targetUnitKey = array_rand($attackerUnits);
+                    $targetUnit = $attackerUnits[$targetUnitKey];
+
+                    $rapidfire = $this->attackUnit(false, $round, $unit, $targetUnit);
                 }
-
-                // Every single unit attacks a random unit from the attacker's units.
-                // For now, we assume the defender always kills the target.
-                // Random target
-                $targetUnitKey = array_rand($attackerUnits);
-                $targetUnit = $attackerUnits[$targetUnitKey];
-
-                $this->attackUnit($round, $unit, $targetUnit);
-
-                $round->hitsDefender += 1;
-
-                // Add target attacker unit to attacker losses array.
-                /*$round->attackerLosses->addUnit($targetUnitObject, 1);
-                $round->attackerLossesInThisRound->addUnit($targetUnitObject, 1);
-
-                // TODO: implement shield damage absorption for attacker units.
-                $round->absorbedDamageAttacker += 1;
-                // TODO: implement full strength defender.
-                $round->fullStrengthDefender += 1;
-
-                $round->hitsDefender += 1;
-
-                // Unset the attacker unit from the array.
-                unset($attackerUnits[$targetUnitKey]);*/
+                while ($rapidfire);
             }
 
             // TODO: add logic here to loop through the units and:
             // - remove destroyed units
             // - roll a dice for hull integrity < 70% of original if the unit is also destroyed
             // - apply shield regeneration
+            $this->cleanupRound($round, $attackerUnits, $defenderUnits);
 
             // Subtract losses from the attacker and defender units.
-            $round->attackerShips->subtractCollection($round->attackerLossesInThisRound, false);
-            $round->defenderShips->subtractCollection($round->defenderLossesInThisRound, false);
+            $attackerRemainingShips->subtractCollection($round->attackerLossesInThisRound, false);
+            $defenderRemainingShips->subtractCollection($round->defenderLossesInThisRound, false);
+            $round->attackerShips = clone $attackerRemainingShips;
+            $round->defenderShips = clone $defenderRemainingShips;
             $rounds[] = $round;
             // ---- END ROUND
         }
@@ -235,32 +206,111 @@ class BattleEngine
     /**
      * Let one unit attack another unit and apply the damage to the defender.
      *
+     * @param bool $isAttacker True if the attacker is attacking, false if the defender is attacking. This is used
+     * to determine which statistics to update.
      * @param BattleResultRound $round
      * @param BattleUnit $attacker
      * @param BattleUnit $defender
-     * @return void
+     * @return bool True if the attacker has rapidfire against the defender and can attack again, false otherwise.
      */
-    private function attackUnit(BattleResultRound $round, BattleUnit $attacker, BattleUnit $defender): void
+    private function attackUnit(bool $isAttacker, BattleResultRound $round, BattleUnit $attacker, BattleUnit $defender): bool
     {
         // Calculate the damage dealt by the attacker to the defender.
         $damage = $attacker->currentAttackPower;
+        $shieldAbsorption = 0;
 
-        // If the defender has a shield, first apply damage to the shield.
-        if ($defender->currentShieldPoints > 0) {
+        if ($damage < (0.01 * $defender->currentShieldPoints)) {
+            // If the damage is less than 1% of the shield points, the attack is bounced and no damage is dealt.
+            return false;
+        }
+
+        if ($defender->currentShieldPoints > 0 && $damage <= $defender->currentShieldPoints) {
+            // If the defender has a shield, first apply damage to the shield.
+            $shieldAbsorption = $damage;
             $defender->currentShieldPoints -= $damage;
-
+        }
+        else if ($defender->currentShieldPoints > 0 && $damage > $defender->currentShieldPoints) {
             // If the shield is destroyed, apply the remaining damage to the hull plating.
-            if ($defender->currentShieldPoints < 0) {
-                $defender->currentHullPlating += $defender->currentShieldPoints;
-                $defender->currentShieldPoints = 0;
-            }
-        } else {
+            $shieldAbsorption = $defender->currentShieldPoints;
+            $defender->currentHullPlating -= $damage - $defender->currentShieldPoints;
+            $defender->currentShieldPoints = 0;
+        }
+        else {
+            // No shield, apply damage directly to the hull plating.
             $defender->currentHullPlating -= $damage;
         }
 
-        // TODO: implement shield damage absorption for defender units.
-        $round->absorbedDamageDefender += 1;
-        // TODO: implement full strength attacker.
-        $round->fullStrengthAttacker += 1;
+        if ($isAttacker) {
+            $round->hitsAttacker += 1;
+            $round->fullStrengthAttacker += $damage;
+            $round->absorbedDamageDefender += $shieldAbsorption;
+        }
+        else {
+            $round->hitsDefender += 1;
+            $round->fullStrengthDefender += $damage;
+            $round->absorbedDamageAttacker += $shieldAbsorption;
+        }
+
+        // Rapidfire: if the attacker has a rapidfire bonus against the defender, roll a dice to see if the
+        // attacker can attack again.
+        if ($attacker->unitObject->didSuccessfulRapidfire($defender->unitObject)) {
+            // Rapidfire was successful, return true to indicate that the attacker can attack again.
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Clean up the round after all units have attacked each other.
+     *
+     * This method handles:
+     * - Removing destroyed units from the attacker and defender unit arrays.
+     * - Rolling a dice for hull integrity < 70% of original if the unit is also destroyed.
+     * - Applying shield regeneration.
+     * - Calculate the total damage dealt by the attacker and defender and calculate shield absorption stats.
+     *
+     * @param BattleResultRound $round.
+     * @param array<BattleUnit> $attackerUnits
+     * @param array<BattleUnit> $defenderUnits
+     * @return void
+     */
+    private function cleanupRound(BattleResultRound $round, array &$attackerUnits, array &$defenderUnits): void
+    {
+        // Cleanup attacker units.
+        foreach ($attackerUnits as $key => $unit) {
+            if ($unit->currentHullPlating <= 0) {
+                // Remove destroyed units from the array.
+                $round->attackerLossesInThisRound->addUnit($unit->unitObject, 1);
+                unset($attackerUnits[$key]);
+            }
+            else if ($unit->damagedHullExplosion()) {
+                // Hull was damaged and dice roll was successful, destroy the unit.
+                $round->attackerLossesInThisRound->addUnit($unit->unitObject, 1);
+                unset($attackerUnits[$key]);
+            }
+            else {
+                // Apply shield regeneration.
+                $unit->currentShieldPoints = $unit->originalShieldPoints;
+            }
+        }
+
+        // Cleanup defender units.
+        foreach ($defenderUnits as $key => $unit) {
+            if ($unit->currentHullPlating <= 0) {
+                // Remove destroyed units from the array.
+                $round->defenderLossesInThisRound->addUnit($unit->unitObject, 1);
+                unset($defenderUnits[$key]);
+            }
+            else if ($unit->damagedHullExplosion()) {
+                // Hull was damaged and dice roll was successful, destroy the unit.
+                $round->defenderLossesInThisRound->addUnit($unit->unitObject, 1);
+                unset($defenderUnits[$key]);
+            }
+            else {
+                // Apply shield regeneration.
+                $unit->currentShieldPoints = $unit->originalShieldPoints;
+            }
+        }
     }
 }

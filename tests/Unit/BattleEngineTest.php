@@ -130,7 +130,7 @@ class BattleEngineTest extends UnitTestCase
         $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
         $attackerFleet->addUnit($smallCargo, 5);
         $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
-        $attackerFleet->addUnit($lightFighter, 10);
+        $attackerFleet->addUnit($lightFighter, 75);
 
         // Simulate battle.
         $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
@@ -140,7 +140,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Attacker.
         $this->assertEquals(5, $battleResult->attackerUnitsStart->getAmountByMachineName($smallCargo->machine_name));
-        $this->assertEquals(10, $battleResult->attackerUnitsStart->getAmountByMachineName($lightFighter->machine_name));
+        $this->assertEquals(75, $battleResult->attackerUnitsStart->getAmountByMachineName($lightFighter->machine_name));
         // Defender.
         $this->assertEquals(100, $battleResult->defenderUnitsStart->getAmountByMachineName('rocket_launcher'));
 
@@ -289,7 +289,7 @@ class BattleEngineTest extends UnitTestCase
         $this->assertNotEmpty($lastRound->attackerShips);
         $this->assertNotEmpty($lastRound->defenderShips);
         $this->assertEquals(0, $lastRound->attackerShips->getAmountByMachineName($lightFighter->machine_name));
-        $this->assertGreaterThanOrEqual(160, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
+        $this->assertGreaterThanOrEqual(100, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
     }
 
     /**
@@ -328,5 +328,70 @@ class BattleEngineTest extends UnitTestCase
         $this->assertGreaterThanOrEqual(180, $lastRound->defenderShips->getAmountByMachineName('plasma_turret'));
         $this->assertLessThanOrEqual(20, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
         $this->assertLessThanOrEqual(20, $lastRound->defenderShips->getAmountByMachineName('light_laser'));
+    }
+
+    /**
+     * Test that the battle engine total attack power and shield absorption stats calculations are correct.
+     */
+    public function testBattleEngineStatistics(): void
+    {
+        $this->createAndSetPlanetModel([
+            'rocket_launcher' => 100,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $attackerFleet->addUnit($lightFighter, 30);
+
+        // Simulate battle.
+        $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
+        $battleResult = $battleEngine->simulateBattle();
+
+        // Assert the rounds are not empty and contain valid data.
+        $this->assertNotEmpty($battleResult->rounds);
+
+        // Loop through all rounds and assert that all stats are greater than 0.
+        foreach ($battleResult->rounds as $round) {
+            $this->assertGreaterThan(40, $round->fullStrengthAttacker);
+            $this->assertGreaterThan(40, $round->fullStrengthDefender);
+            $this->assertGreaterThan(10, $round->absorbedDamageAttacker);
+            $this->assertGreaterThan(10, $round->absorbedDamageDefender);
+        }
+    }
+
+    /**
+     * Test that the battle engine rapidfire works correctly.
+     */
+    public function testBattleEngineRapidfire(): void
+    {
+        $this->createAndSetPlanetModel([
+            'rocket_launcher' => 500,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $cruiser = $this->planetService->objects->getUnitObjectByMachineName('cruiser');
+        $attackerFleet->addUnit($cruiser, 30);
+
+        // Simulate battle.
+        $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
+        $battleResult = $battleEngine->simulateBattle();
+
+        // Assert the rounds are not empty and contain valid data.
+        $this->assertNotEmpty($battleResult->rounds);
+
+        // Get first round
+        $firstRound = $battleResult->rounds[0];
+
+        // Assert that rapidfire works by checking total hits on defender. It should be greater than the amount of
+        // cruisers as each cruiser has a chance of rapidfire against a rocket launcher.
+        $this->assertGreaterThan(30, $firstRound->hitsAttacker);
+
+        // Get last round with result.
+        $lastRound = end($battleResult->rounds);
+        // Expected result: attacker loses, defender rocket launchers remaining < 400. Without rapidfire the estimated
+        // remaining rocket launchers would be between 450-500.
+        $this->assertLessThan(400, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
     }
 }

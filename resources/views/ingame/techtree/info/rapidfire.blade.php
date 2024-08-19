@@ -6,8 +6,7 @@
                 <a href="#TODO_page=ajax&amp;component=technologytree&amp;ajax=1&amp;technologyId={{ $from }}&amp;tab=2" class="overlay" data-overlay-same="true">{{ $rapidfire_data['object']->title }}</a>:
                 <span class="value" data-value="{{ $rapidfire_data['rapidfire']->amount }}">
                     @php
-                        // Assuming $value['chance'] is your float number
-                        $chance = $rapidfire_data['rapidfire']->chance;
+                        $chance = $rapidfire_data['rapidfire']->getChance();
 
                         // Determine the correct number of decimal places
                         if (floor($chance) === $chance) {
@@ -39,8 +38,7 @@
                 <a href="#TODO_page=ajax&amp;component=technologytree&amp;ajax=1&amp;technologyId={{ $target }}&amp;tab=2" class="overlay" data-overlay-same="true">{{ $rapidfire_data['object']->title }}</a>:
                 <span class="value" data-value="{{ $rapidfire_data['rapidfire']->amount }}">
                     @php
-                        // Assuming $value['chance'] is your float number
-                        $chance = $rapidfire_data['rapidfire']->chance;
+                        $chance = $rapidfire_data['rapidfire']->getChance();
 
                         // Determine the correct number of decimal places
                         if (floor($chance) === $chance) {
