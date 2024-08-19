@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\GameMessageFactory;
+use OGame\Models\BattleReport;
 use OGame\Models\EspionageReport;
 use OGame\Models\Message;
 use OGame\Services\MessageService;
@@ -34,7 +35,7 @@ class MessagesTest extends AccountTestCase
         $gameMessages = GameMessageFactory::getAllGameMessages();
         foreach ($gameMessages as $gameMessage) {
             // Skip espionage report as it requires special handling and is tested separately by testEspionageReport().
-            if ($gameMessage->getKey() === 'espionage_report') {
+            if ($gameMessage->getKey() === 'espionage_report' || $gameMessage->getKey() === 'battle_report') {
                 continue;
             }
 
@@ -65,7 +66,7 @@ class MessagesTest extends AccountTestCase
     }
 
     /**
-     * Test all GameMessage classes to make sure they can be instantiated and the subject and body return a non-empty string.
+     * Test EspionageReport to make sure they can be instantiated and the subject and body return a non-empty string.
      */
     public function testEspionageReport(): void
     {
@@ -91,6 +92,72 @@ class MessagesTest extends AccountTestCase
     }
 
     /**
+     * Test BattleReport to make sure they can be instantiated and the subject and body return a non-empty string.
+     */
+    public function testBattleReport(): void
+    {
+        try {
+            $messageService = app()->make(MessageService::class);
+        } catch (BindingResolutionException $e) {
+            $this->fail('Failed to resolve MessageService in testBattleReport.');
+        }
+        // Create a new espionage report record in the db and set the battle_report_id to its ID.
+        $battleReportId = $this->createBattleReport();
+        $messageModel = $messageService->sendBattleReportMessageToPlayer($this->planetService->getPlayer(), $battleReportId);
+        $battleReport = GameMessageFactory::createGameMessage($messageModel);
+
+        // Try to open the espionage report message via full screen AJAX request.
+        $response = $this->get('/ajax/messages/' . $battleReport->getId());
+
+        // Check that the response is successful and it contains the espionage report message.
+        $response->assertStatus(200);
+        $response->assertSee('Combat Report');
+
+        // TODO: add more assertions here to check the content of the battle report.
+    }
+
+    /**
+     * Create a new battle report record in the database.
+     *
+     * @return int The ID of the newly created battle report.
+     */
+    private function createBattleReport(): int
+    {
+        // Get a random planet to create the battle report for.
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+
+        $battleReport = new BattleReport();
+        $battleReport->planet_galaxy = $foreignPlanet->getPlanetCoordinates()->galaxy;
+        $battleReport->planet_system = $foreignPlanet->getPlanetCoordinates()->system;
+        $battleReport->planet_position = $foreignPlanet->getPlanetCoordinates()->position;
+        $battleReport->planet_user_id = $foreignPlanet->getPlayer()->getId();
+        $battleReport->attacker = [
+            'player_id' => $this->currentUserId,
+            'resource_loss' => 20000,
+            'units' => [],
+            'weapon_technology' => 0,
+            'shielding_technology' => 0,
+            'armor_technology' => 0,
+        ];
+        $battleReport->defender = [
+            'player_id' => $foreignPlanet->getPlayer()->getId(),
+            'resource_loss' => 10000,
+            'units' => [],
+            'weapon_technology' => 0,
+            'shielding_technology' => 0,
+            'armor_technology' => 0,
+        ];
+        $battleReport->rounds = [];
+        $battleReport->loot = ['percentage' => 50, 'metal' => 1000, 'crystal' => 500, 'deuterium' => 100];
+        $battleReport->debris = ['metal' => 1000, 'crystal' => 500];
+        $battleReport->repaired_defenses = [];
+
+        $battleReport->save();
+
+        return $battleReport->id;
+    }
+
+    /**
      * Create a new espionage report record in the database.
      *
      * @return int The ID of the newly created espionage report.
@@ -104,7 +171,7 @@ class MessagesTest extends AccountTestCase
         $espionageReport->planet_galaxy = $foreignPlanet->getPlanetCoordinates()->galaxy;
         $espionageReport->planet_system = $foreignPlanet->getPlanetCoordinates()->system;
         $espionageReport->planet_position = $foreignPlanet->getPlanetCoordinates()->position;
-        $espionageReport->planet_user_id = $this->currentUserId;
+        $espionageReport->planet_user_id = $foreignPlanet->getPlayer()->getId();
         $espionageReport->resources = ['metal' => 1000, 'crystal' => 500, 'deuterium' => 100, 'energy' => 1000];
         $espionageReport->buildings = ['metal_mine' => 10, 'crystal_mine' => 10, 'deuterium_synthesizer' => 10];
         $espionageReport->research = ['energy_technology' => 10, 'laser_technology' => 10, 'ion_technology' => 10];

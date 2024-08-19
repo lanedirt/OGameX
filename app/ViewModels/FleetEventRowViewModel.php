@@ -13,6 +13,11 @@ class FleetEventRowViewModel
     public string $mission_label;
     public int $mission_time_arrival;
     public bool $is_return_trip;
+
+    /**
+     * @var bool Whether the fleet can be recalled or not. E.g. enemy missions show up in the event box but can't be recalled.
+     */
+    public bool $is_recallable;
     public string $origin_planet_name;
     public Coordinate $origin_planet_coords;
     public string $destination_planet_name;

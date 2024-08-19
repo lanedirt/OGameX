@@ -6,35 +6,20 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Factories\GameMissionFactory;
-use OGame\GameMissions\ColonisationMission;
-use OGame\GameMissions\DeploymentMission;
-use OGame\GameMissions\EspionageMission;
-use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 
 /**
- * Class UnitQueueService.
+ * Class FleetMissionService.
  *
- * UnitQueueService object.
+ * FleetMissionService object.
  *
  * @package OGame\Services
  */
 class FleetMissionService
 {
-    /**
-     * Mission type to class mapping.
-     * @var array<int, class-string> $missionTypeToClass
-     */
-    private array $missionTypeToClass = [
-        3 => TransportMission::class,
-        4 => DeploymentMission::class,
-        6 => EspionageMission::class,
-        7 => ColonisationMission::class,
-    ];
-
     /**
      * Player service
      *
@@ -91,7 +76,7 @@ class FleetMissionService
     public function calculateFleetMissionDuration(PlanetService $fromPlanet, Coordinate $to, UnitCollection $units): int
     {
         // Get slowest unit speed.
-        $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet);
+        $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet->getPlayer());
 
         // Calculate distance between current planet and target planet.
         // ----------------------------------------
@@ -134,9 +119,7 @@ class FleetMissionService
      */
     public function missionTypeToLabel(int $missionType): string
     {
-        // Call static method on mission class.
-        $className = $this->missionTypeToClass[$missionType];
-        return $className::getName();
+        return GameMissionFactory::getMissionById($missionType, [])->getName();
     }
 
     /**
@@ -147,8 +130,7 @@ class FleetMissionService
      */
     public function missionHasReturnMission(int $missionType): bool
     {
-        $className = $this->missionTypeToClass[$missionType];
-        return $className::hasReturnMission();
+        return GameMissionFactory::getMissionById($missionType, [])->hasReturnMission();
     }
 
     /**
@@ -158,12 +140,48 @@ class FleetMissionService
      */
     public function getActiveFleetMissionsForCurrentPlayer(): Collection
     {
-        return $this->model->where([
-                ['user_id', $this->player->getId()],
-                ['processed', 0],
-            ])
-            ->orderBy('time_arrival', 'asc')
-            ->get();
+        $query = $this->model;
+
+        // Add where clauses:
+        // 1. All from current user.
+        // - AND -
+        // 2. All against any of current users planets.
+        $planetIds = [];
+        foreach ($this->player->planets->all() as $planet) {
+            $planetIds[] = $planet->getPlanetId();
+        }
+
+        $query = $query->where(function ($query) use ($planetIds) {
+            $query->where('user_id', $this->player->getId())
+                ->orWhereIn('planet_id_to', $planetIds);
+        })
+        ->where('processed', 0);
+
+        return $query->orderBy('time_arrival')->get();
+    }
+
+    /**
+     * Returns whether the current user is under attack.
+     *
+     * @return bool
+     */
+    public function currentPlayerUnderAttack(): bool
+    {
+        $planetIds = [];
+        foreach ($this->player->planets->all() as $planet) {
+            $planetIds[] = $planet->getPlanetId();
+        }
+
+        // Mission types that are considered hostile:
+        // 1: Attack
+        // 2: ACS Attack
+        // 6: Espionage
+        // 9: Moon Destruction
+        return $this->model->whereIn('planet_id_to', $planetIds)
+            ->where('user_id', '!=', $this->player->getId())
+            ->whereIn('mission_type', [1, 2, 6, 9])
+            ->where('processed', 0)
+            ->exists();
     }
 
     /**
@@ -289,8 +307,16 @@ class FleetMissionService
      */
     public function updateMission(FleetMission $mission): void
     {
+        // Load the mission object again from database to ensure we have the latest data.
+        $mission = $this->getFleetMissionById($mission->id, false);
+
         // Sanity check: only process missions that have arrived.
         if ($mission->time_arrival > Carbon::now()->timestamp) {
+            return;
+        }
+
+        // Sanity check: only process missions that have not been processed yet.
+        if ($mission->processed) {
             return;
         }
 

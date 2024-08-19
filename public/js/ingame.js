@@ -68718,7 +68718,6 @@ ogame.messages.combatreport = {
     var defense = $('.' + $this.data.combatside + ' .defenseimg');
     ships = $.merge(ships, defense);
     var activeShips = $this.getShipsByMembersAndCoords($this.data.activeMember, coords, planetType); //set isActive-Flag to shippictures
-
     $this.setActiveFlag4Fleet(ships, activeShips);
     $this.displayShipData($this.data.activeMember, $this.data.combatside, combatArray['combatRounds'][combatArray['combatRounds'].length - 1], combatArray['member'], coords, planetType);
     $this.setCombatValue();

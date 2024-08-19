@@ -7,7 +7,9 @@ use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
+use OGame\Models\Resources;
 use OGame\Services\PlanetService;
+use Throwable;
 
 class EspionageMission extends GameMission
 {
@@ -41,20 +43,16 @@ class EspionageMission extends GameMission
 
     /**
      * @inheritdoc
+     * @throws Throwable
      */
     protected function processArrival(FleetMission $mission): void
     {
-        // Load the target planet
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
-
-        // Load origin planet
         $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
 
-        // TODO: implement espionage mechanics, generate a report and send it to the player.
-        // Create message with:
-        // - type = espionage report where basic message format will be retrieved from..
-        // - link to espionage report record itself
-        // - params can be empty? because all the data is in the report record.
+        // Trigger target planet update to make sure the espionage report is accurate.
+        $target_planet->update();
+
         $reportId = $this->createEspionageReport($target_planet);
 
         // Send a message to the player with a reference to the espionage report.
@@ -67,13 +65,12 @@ class EspionageMission extends GameMission
         $mission->processed = 1;
         $mission->save();
 
-        // Check if the mission has any ships left. If yes, start a return mission to send them back.
-        // TODO: a battle can happen if counter-espionage has taken place. Check for this when implementing battle system.
-        // Check for correct amount of ships after battle has occurred (if it should have occurred).
-        if ($this->fleetMissionService->getFleetUnitCount($mission) > 0) {
-            // Create and start the return mission.
-            $this->startReturn($mission);
-        }
+        // Assembly new unit collection.
+        $units = $this->fleetMissionService->getFleetUnits($mission);
+        // TODO: a battle can happen if counter-espionage has taken place. Add logic for this using the battle system.
+
+        // Create and start the return mission.
+        $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $units);
     }
 
     /**
@@ -138,10 +135,10 @@ class EspionageMission extends GameMission
         // target planet if the espionage technology level is higher.
 
         // Fleets
-        $report->ships = $planet->getShipsArray();
+        $report->ships = $planet->getShipUnits()->toArray();
 
         // Defense
-        $report->defense = $planet->getDefenseArray();
+        $report->defense = $planet->getDefenseUnits()->toArray();
 
         // Buildings
         $report->buildings = $planet->getBuildingArray();

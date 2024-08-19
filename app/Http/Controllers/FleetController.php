@@ -107,10 +107,10 @@ class FleetController extends OGameController
             $shipsData[$shipObject->id] = [
                 'id' => $shipObject->id,
                 'name' => $shipObject->title,
-                'baseFuelCapacity' => $shipObject->properties->capacity->calculate($currentPlanet)->totalValue,
-                'baseCargoCapacity' => $shipObject->properties->capacity->calculate($currentPlanet)->totalValue,
-                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlanet)->totalValue,
-                'speed' => $shipObject->properties->speed->calculate($currentPlanet)->totalValue
+                'baseFuelCapacity' => $shipObject->properties->capacity->calculate($currentPlayer)->totalValue,
+                'baseCargoCapacity' => $shipObject->properties->capacity->calculate($currentPlayer)->totalValue,
+                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlayer)->totalValue,
+                'speed' => $shipObject->properties->speed->calculate($currentPlayer)->totalValue
             ];
         }
 
@@ -336,13 +336,29 @@ class FleetController extends OGameController
         ]);
     }
 
-    public function dispatchRecallFleet(FleetMissionService $fleetMissionService): JsonResponse
+    /**
+     * Recall an active fleet that has not yet been processed.
+     *
+     * @param PlayerService $player
+     * @param FleetMissionService $fleetMissionService
+     * @return JsonResponse
+     */
+    public function dispatchRecallFleet(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
     {
         // Get the fleet mission id
         $fleet_mission_id = request()->input('fleet_mission_id');
 
         // Get the fleet mission service
         $fleetMission = $fleetMissionService->getFleetMissionById($fleet_mission_id);
+
+        // Sanity check: only owner of the fleet mission can recall it.
+        if ($fleetMission->user_id !== $player->getId()) {
+            return response()->json([
+                'components' => [],
+                'newAjaxToken' => csrf_token(),
+                'success' => false,
+            ]);
+        }
 
         // Recall the fleet mission
         $fleetMissionService->cancelMission($fleetMission);

@@ -7,6 +7,7 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
+use OGame\Services\ObjectService;
 
 /**
  * GameMessage class which contains unique parsing logic for a specific message type.
@@ -42,14 +43,17 @@ abstract class GameMessage
 
     protected PlayerServiceFactory $playerServiceFactory;
 
+    protected ObjectService $objects;
+
     /**
      * GameMessage constructor.
      *
+     * @param Message $message
      * @param PlanetServiceFactory $planetServiceFactory
      * @param PlayerServiceFactory $playerServiceFactory
-     * @param Message $message
+     * @param ObjectService $objectService
      */
-    public function __construct(Message $message, PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory)
+    public function __construct(Message $message, PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory, ObjectService $objectService)
     {
         // Clone the message to prevent any changes to the original message affecting this object.
         // This is important because otherwise mutations such as setting the viewed flag after loading this object
@@ -57,6 +61,7 @@ abstract class GameMessage
         $this->message = clone $message;
         $this->planetServiceFactory = $planetServiceFactory;
         $this->playerServiceFactory = $playerServiceFactory;
+        $this->objects = $objectService;
         $this->initialize();
     }
 

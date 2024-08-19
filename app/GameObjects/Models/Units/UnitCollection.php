@@ -2,8 +2,11 @@
 
 namespace OGame\GameObjects\Models\Units;
 
+use Exception;
+use InvalidArgumentException;
 use OGame\GameObjects\Models\UnitObject;
-use OGame\Services\PlanetService;
+use OGame\Models\Resources;
+use OGame\Services\PlayerService;
 
 class UnitCollection
 {
@@ -12,29 +15,54 @@ class UnitCollection
      *
      * @var array<UnitEntry>
      */
-    public array $units;
+    public array $units = [];
+
+    /**
+     * Implement the clone magic method so that during clone of this object
+     * the inner objects are also properly cloned.
+     */
+    public function __clone()
+    {
+        // Clone all units in the collection.
+        $this->units = array_map(function ($entry) {
+            return clone $entry;
+        }, $this->units);
+    }
 
     /**
      * Add a unit to the collection.
      */
     public function addUnit(UnitObject $unitObject, int $amount): void
     {
-        $entry = new UnitEntry($unitObject, $amount);
+        // Check if the unit is already in the collection.
+        foreach ($this->units as $entry) {
+            if ($entry->unitObject->machine_name === $unitObject->machine_name) {
+                $entry->amount += $amount;
+                return;
+            }
+        }
 
+        // If the unit is not in the collection, add it.
+        $entry = new UnitEntry($unitObject, $amount);
         $this->units[] = $entry;
     }
 
     /**
      * Remove a unit from the collection.
+     *
+     * @param UnitObject $unitObject
+     * @param int $amount
+     * @param bool $remove_empty_units If true, the unit will be removed from the collection if the
+     * amount reaches 0. Defaults to TRUE.
      */
-    public function removeUnit(UnitObject $unitObject, int $amount): void
+    public function removeUnit(UnitObject $unitObject, int $amount, bool $remove_empty_units = false): void
     {
         $found = false;
         foreach ($this->units as $key => $entry) {
             if ($entry->unitObject->machine_name === $unitObject->machine_name) {
                 $this->units[$key]->amount -= $amount;
 
-                if ($this->units[$key]->amount <= 0) {
+                if ($remove_empty_units && $this->units[$key]->amount <= 0) {
                     unset($this->units[$key]);
                 }
 
@@ -44,7 +72,7 @@ class UnitCollection
 
         // Throw an exception if the to be removed unit was not found in the collection.
         if (!$found) {
-            throw new \Exception('Unit not found in collection');
+            throw new InvalidArgumentException('Unit ' . $unitObject->machine_name . ' not found in collection');
         }
     }
 
@@ -68,14 +96,14 @@ class UnitCollection
     /**
      * Get the slowest unit in the collection.
      *
-     * @param PlanetService $planet
+     * @param PlayerService $player
      * @return int
      */
-    public function getSlowestUnitSpeed(PlanetService $planet): int
+    public function getSlowestUnitSpeed(PlayerService $player): int
     {
         $slowest = 0;
         foreach ($this->units as $entry) {
-            $speed = $entry->unitObject->properties->speed->calculate($planet)->totalValue;
+            $speed = $entry->unitObject->properties->speed->calculate($player)->totalValue;
             if ($slowest === 0 || $speed < $slowest) {
                 $slowest = $speed;
             }
@@ -84,4 +112,93 @@ class UnitCollection
         return $slowest;
     }
 
+    /**
+     * Get the total amount of units in the collection.
+     *
+     * @return int
+     */
+    public function getAmount(): int
+    {
+        $amount = 0;
+        foreach ($this->units as $entry) {
+            $amount += $entry->amount;
+        }
+
+        return $amount;
+    }
+
+    /**
+     * Converts the unit collection to an associative array where key is machine name and value is amount.
+     *
+     * @return array<string, int>
+     */
+    public function toArray(): array
+    {
+        $units = [];
+        foreach ($this->units as $entry) {
+            $units[$entry->unitObject->machine_name] = $entry->amount;
+        }
+
+        return $units;
+    }
+
+    /**
+     * Adds all units from another collection to this collection.
+     *
+     * @param UnitCollection $collection
+     * @return void
+     */
+    public function addCollection(UnitCollection $collection): void
+    {
+        foreach ($collection->units as $entry) {
+            // Check if the unit is already in the collection. If so, add the amount instead of adding a new entry.
+            $found = false;
+            foreach ($this->units as $key => $unit) {
+                if ($unit->unitObject->machine_name === $entry->unitObject->machine_name) {
+                    $this->units[$key]->amount += $entry->amount;
+                    $found = true;
+                }
+            }
+
+            // If the unit is not in the collection, add it.
+            if (!$found) {
+                $this->units[] = $entry;
+            }
+        }
+    }
+
+    /**
+     * Subtracts all units from another collection from this collection.
+     *
+     * @param UnitCollection $collection
+     * @param bool $remove_empty_units If true, the unit will be removed from the collection if the
+     *  amount reaches 0. Defaults to TRUE.
+     * @return void
+     * @throws Exception
+     */
+    public function subtractCollection(UnitCollection $collection, bool $remove_empty_units = true): void
+    {
+        foreach ($collection->units as $entry) {
+            $this->removeUnit($entry->unitObject, $entry->amount, $remove_empty_units);
+        }
+    }
+
+    /**
+     * Get the total resource cost (build cost) of the units in the collection.
+     *
+     * @return Resources
+     */
+    public function toResources(): Resources
+    {
+        $resources = new Resources(0, 0, 0, 0);
+        foreach ($this->units as $entry) {
+            $metal = $entry->unitObject->price->resources->metal->get() * $entry->amount;
+            $crystal = $entry->unitObject->price->resources->crystal->get() * $entry->amount;
+            $deuterium = $entry->unitObject->price->resources->deuterium->get() * $entry->amount;
+
+            $resources->add(new Resources($metal, $crystal, $deuterium, 0));
+        }
+
+        return $resources;
+    }
 }

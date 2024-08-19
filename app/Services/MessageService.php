@@ -5,6 +5,7 @@ namespace OGame\Services;
 use Exception;
 use OGame\Factories\GameMessageFactory;
 use OGame\GameMessages\Abstracts\GameMessage;
+use OGame\GameMessages\BattleReport;
 use OGame\GameMessages\EspionageReport;
 use OGame\GameMessages\WelcomeMessage;
 use OGame\Models\Message;
@@ -173,6 +174,30 @@ class MessageService
         $message->user_id = $player->getId();
         $message->key = $gameMessage->getKey();
         $message->espionage_report_id = $espionageReportId;
+        $message->save();
+
+        return $message;
+    }
+
+    /**
+     * Sends a battle report message to a player with a specific battle report.
+     *
+     * @param PlayerService $player
+     * @param int $battleReportId
+     * @return Message The created message.
+     */
+    public function sendBattleReportMessageToPlayer(PlayerService $player, int $battleReportId): Message
+    {
+        try {
+            $gameMessage = app()->make(BattleReport::class);
+        } catch (Exception) {
+            throw new RuntimeException('Could not create battle report message.');
+        }
+
+        $message = new Message();
+        $message->user_id = $player->getId();
+        $message->key = $gameMessage->getKey();
+        $message->battle_report_id = $battleReportId;
         $message->save();
 
         return $message;

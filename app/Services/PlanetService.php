@@ -534,6 +534,16 @@ class PlanetService
     }
 
     /**
+     * Get the amount of resources on this planet.
+     *
+     * @return Resources
+     */
+    public function getResources(): Resources
+    {
+        return new Resources($this->metal()->get(), $this->crystal()->get(), $this->deuterium()->get(), $this->energy()->get());
+    }
+
+    /**
      * Get the total amount of ship unit objects on this planet that can fly.
      *
      * @return int
@@ -555,41 +565,39 @@ class PlanetService
     }
 
     /**
-     * Get array with all ship objects on this planet.
+     * Get all ship objects currently placed on this planet.
      *
-     * @return array<string, int>
+     * @return UnitCollection
      */
-    public function getShipsArray(): array
+    public function getShipUnits(): UnitCollection
     {
-        // TODO: can this logic be moved to the EspionageReport class if its not used elsewehere?
-        $array = [];
+        $units = new UnitCollection();
         $objects = $this->objects->getShipObjects();
         foreach ($objects as $object) {
             if ($this->planet->{$object->machine_name} > 0) {
-                $array[$object->machine_name] = $this->planet->{$object->machine_name};
+                $units->addUnit($object, $this->planet->{$object->machine_name});
             }
         }
 
-        return $array;
+        return $units;
     }
 
     /**
-     * Get array with all defense objects on this planet.
+     * Get all defense units currently placed on this planet.
      *
-     * @return array<string, int>
+     * @return UnitCollection
      */
-    public function getDefenseArray(): array
+    public function getDefenseUnits(): UnitCollection
     {
-        // TODO: can this logic be moved to the EspionageReport class if its not used elsewehere?
-        $array = [];
+        $units = new UnitCollection();
         $objects = $this->objects->getDefenseObjects();
         foreach ($objects as $object) {
             if ($this->planet->{$object->machine_name} > 0) {
-                $array[$object->machine_name] = $this->planet->{$object->machine_name};
+                $units->addUnit($object, $this->planet->{$object->machine_name});
             }
         }
 
-        return $array;
+        return $units;
     }
 
     /**
@@ -801,17 +809,22 @@ class PlanetService
                 // ------
                 $this->updateResourceStorageStats(false);
 
-                // -----
-                // 6. Update fleet missions that affect this planet
-                // -----
-                $this->updateFleetMissions();
-
                 // Save the planet manually here to prevent it from happening 5+ times in the methods above.
                 $this->save();
             } else {
                 throw new \Exception('Could not acquire planet update lock.');
             }
         });
+    }
+
+    /**
+     * Get the time the planet was last updated.
+     *
+     * @return Carbon
+     */
+    public function getUpdatedAt(): Carbon
+    {
+        return new Carbon($this->planet->time_last_update);
     }
 
     /**
@@ -1626,28 +1639,39 @@ class PlanetService
      */
     public function updateFleetMissions(): void
     {
-        try {
-            $fleetMissionService = app()->make(FleetMissionService::class);
-            $missions = $fleetMissionService->getMissionsByPlanetId($this->getPlanetId());
+        DB::transaction(function () {
+            // Attempt to acquire a lock on the row for this planet. This is to prevent
+            // race conditions when multiple requests are updating the fleet missions for the
+            // same planet and potentially doing double insertions or overwriting each other's changes.
+            $planetMissionUpdateLock = Planet::where('id', $this->getPlanetId())
+                ->lockForUpdate()
+                ->first();
 
-            foreach ($missions as $mission) {
-                DB::transaction(function () use ($mission, $fleetMissionService) {
-                    // Attempt to acquire a lock on the row for this fleet mission. This is to prevent
-                    // race conditions when multiple requests are updating the same fleet mission and
-                    // potentially doing double insertions or overwriting each other's changes.
-                    $fleetMissionLock = FleetMission::where('id', $mission->id)
-                        ->lockForUpdate()
-                        ->first();
+            if ($planetMissionUpdateLock) {
+                try {
+                    $fleetMissionService = app()->make(FleetMissionService::class);
+                    $missions = $fleetMissionService->getMissionsByPlanetId($this->getPlanetId());
 
-                    if ($fleetMissionLock) {
-                        $fleetMissionService->updateMission($mission);
-                    } else {
-                        throw new \Exception('Could not acquire fleet mission update lock.');
+                    foreach ($missions as $mission) {
+                        // Attempt to acquire a lock on the row for this fleet mission. This is to prevent
+                        // race conditions when multiple requests are updating the same fleet mission and
+                        // potentially doing double insertions or overwriting each other's changes.
+                        $fleetMissionLock = FleetMission::where('id', $mission->id)
+                            ->lockForUpdate()
+                            ->first();
+
+                        if ($fleetMissionLock) {
+                            $fleetMissionService->updateMission($mission);
+                        } else {
+                            throw new \Exception('Could not acquire update fleet mission update lock.');
+                        }
                     }
-                });
+                } catch (Exception $e) {
+                    throw new RuntimeException('Fleet mission service process error: ' . $e->getMessage());
+                }
+            } else {
+                throw new \Exception('Could not acquire update fleet mission planet lock.');
             }
-        } catch (Exception $e) {
-            throw new RuntimeException('Fleet mission service could not be loaded: ' . $e->getMessage());
-        }
+        });
     }
 }

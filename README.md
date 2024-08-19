@@ -68,20 +68,25 @@ OGameX is under active development with several core features already implemente
 - Planet switching
 - Highscore system
 - Basic messages system
+- Battle system
 - Fleet dispatch missions
   - Transport
   - Deployment
   - Colonisation
   - Espionage
+  - Attack
 - Basic admin panel
 
 ### <a name="upcoming-features"></a> a) Upcoming Features
 
-New features are continuously being added. Upcoming features:
-- Remaining fleet dispatch missions (recycling, attack, ACS)
-- Battlesystem
-- Support for Moons
-    - Moon destruction fleet dispatch mission
+New features are continuously being added. Upcoming major features:
+- Recycle fleet dispatch mission
+- Support for Moons 
+  - Moon creation through debris field after battle
+  - Moon buildings
+  - Phalanx
+  - Moon destruction fleet dispatch mission
+- ACS fleet dispatch missions
 - Alliance system
 - Improve galaxy overview
 - Improve message system

@@ -8,6 +8,7 @@ use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
+use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 
 class TransportMission extends GameMission
@@ -63,7 +64,8 @@ class TransportMission extends GameMission
         $mission->save();
 
         // Create and start the return mission.
-        $this->startReturn($mission);
+        $units = $this->fleetMissionService->getFleetUnits($mission);
+        $this->startReturn($mission, new Resources(0, 0, 0, 0), $units);
     }
 
     /**

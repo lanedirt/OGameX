@@ -113,6 +113,39 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     }
 
     /**
+     * Test that when espionage reaches destination planet, the planet is updated and the updates
+     * resources are visible in the espionage report.
+     */
+    public function testDispatchFleetUpdatePlanet(): void
+    {
+        $this->basicSetup();
+
+        // Send fleet to a nearby foreign planet.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Get current updated timestamp of the target planet.
+        $foreignPlanetUpdatedAt = $foreignPlanet->getUpdatedAt();
+
+        // Increase time by 10 hours to ensure the mission is done.
+        $currentTime = Carbon::now();
+        $currentTime->addHours(10);
+        Carbon::setTestNow($currentTime);
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Reload the target planet to get the updated timestamp because
+        // the target planet should be updated by the request above which processes the game mission.
+        $foreignPlanet->reloadPlanet();
+
+        // Assert that target planet has been updated.
+        $this->assertLessThan($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAt->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
+    }
+
+    /**
      * Verify that dispatching a fleet launches a return trip.
      * @throws BindingResolutionException
      * @throws Exception
@@ -181,7 +214,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // The eventbox should only show 1 mission (the parent).
         $response = $this->get('/ajax/fleet/eventbox/fetch');

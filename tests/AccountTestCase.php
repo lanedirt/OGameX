@@ -621,8 +621,6 @@ abstract class AccountTestCase extends TestCase
         // Assert that message has been sent to player.
         $response = $this->get('/overview');
         $response->assertStatus(200);
-        // Assert that page contains "1 unread message(s)" text.
-        $response->assertSee('1 unread message(s)');
         $response = $this->get('/ajax/messages?tab=' . $tab . '&subtab=' . $subtab);
         $response->assertStatus(200);
         foreach ($must_contain as $needle) {

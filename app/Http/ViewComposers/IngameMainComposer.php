@@ -6,6 +6,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use OGame\Facades\AppUtil;
+use OGame\Services\FleetMissionService;
 use OGame\Services\MessageService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
@@ -23,6 +24,7 @@ class IngameMainComposer
     private PlayerService $player;
     private MessageService $messageService;
     private SettingsService $settingsService;
+    private FleetMissionService $fleetMissionService;
 
     /**
      * IngameMainComposer constructor.
@@ -34,13 +36,15 @@ class IngameMainComposer
      * @param PlayerService $player
      * @param MessageService $messageService
      * @param SettingsService $settingsService
+     * @param FleetMissionService $fleetMissionService
      */
-    public function __construct(Request $request, PlayerService $player, MessageService $messageService, SettingsService $settingsService)
+    public function __construct(Request $request, PlayerService $player, MessageService $messageService, SettingsService $settingsService, FleetMissionService $fleetMissionService)
     {
         $this->request = $request;
         $this->player = $player;
         $this->messageService = $messageService;
         $this->settingsService = $settingsService;
+        $this->fleetMissionService = $fleetMissionService;
     }
 
     /**
@@ -99,6 +103,7 @@ class IngameMainComposer
         $locale = App::getLocale();
 
         $view->with([
+            'underAttack' => $this->fleetMissionService->currentPlayerUnderAttack(),
             'unreadMessagesCount' => $this->messageService->getUnreadMessagesCount(),
             'resources' => $resources,
             'currentPlayer' => $this->player,

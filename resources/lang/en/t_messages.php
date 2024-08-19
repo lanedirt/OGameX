@@ -104,5 +104,11 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // ------------------------
+    'battle_report' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Combat report :planet',
+    ],
+
+    // ------------------------
 
 ];

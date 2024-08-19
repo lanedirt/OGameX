@@ -183,11 +183,12 @@ class PlayerService
     /**
      * Get the user's username.
      *
+     * @param bool $formatted
      * @return string
      */
-    public function getUsername(): string
+    public function getUsername(bool $formatted = true): string
     {
-        if ($this->isAdmin()) {
+        if ($formatted && $this->isAdmin()) {
             return '<span class="status_abbr_admin">' . $this->user->username . '</span>';
         }
         return $this->user->username;
@@ -440,15 +441,13 @@ class PlayerService
      */
     public function delete(): void
     {
-        // Delete all messages.
-        \OGame\Models\Message::where('user_id', $this->getId())->delete();
-
         // Loop through all planets and delete all records associated with them.
         foreach ($this->planets->all() as $planet) {
             // Delete all queue items.
             \OGame\Models\ResearchQueue::where('planet_id', $planet->getPlanetId())->delete();
             \OGame\Models\BuildingQueue::where('planet_id', $planet->getPlanetId())->delete();
             \OGame\Models\UnitQueue::where('planet_id', $planet->getPlanetId())->delete();
+            \OGame\Models\BattleReport::where('planet_user_id', $planet->getPlanetId())->delete();
             // Delete all fleet missions.
             // Get all fleet missions for this planet then loop through them and delete them.
             // TODO: this might be a performance bottleneck if there are many missions. Consider using a bulk delete compatible
@@ -461,6 +460,9 @@ class PlayerService
                 $mission->delete();
             }
         }
+
+        // Delete all messages.
+        \OGame\Models\Message::where('user_id', $this->getId())->delete();
 
         // Delete tech record.
         $this->user_tech->delete();

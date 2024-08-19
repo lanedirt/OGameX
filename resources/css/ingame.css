@@ -8,6 +8,7 @@
 @import "ingame/02base.css";
 @import "ingame/modules/sprites.css";
 @import "ingame/modules/highscore.css";
+@import "ingame/modules/messages.css";
 
 
 /* New style overrides that conflict with some existing styles, implement later */

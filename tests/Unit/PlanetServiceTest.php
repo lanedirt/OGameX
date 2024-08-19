@@ -57,11 +57,11 @@ class PlanetServiceTest extends UnitTestCase
             'small_cargo' => 10,
             'destroyer' => 3,
             'espionage_probe' => 2,
-        ], $this->planetService->getShipsArray());
+        ], $this->planetService->getShipUnits()->toArray());
 
         // Verify that getDefenseArray() returns the correct array.
         $this->assertEquals([
             'rocket_launcher' => 1,
-        ], $this->planetService->getDefenseArray());
+        ], $this->planetService->getDefenseUnits()->toArray());
     }
 }
