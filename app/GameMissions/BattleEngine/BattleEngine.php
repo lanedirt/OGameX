@@ -59,7 +59,7 @@ class BattleEngine
     {
         $result = new BattleResult();
 
-        // Set battle properties that are already known.
+        // Initialize the battle result object with the attacker and defender information.
         $result->lootPercentage = $this->lootPercentage;
         $result->attackerWeaponLevel = $this->attackerPlayer->getResearchLevel('weapon_technology');
         $result->attackerShieldLevel = $this->attackerPlayer->getResearchLevel('shielding_technology');
@@ -75,10 +75,11 @@ class BattleEngine
         $result->defenderUnitsStart->addCollection($this->defenderPlanet->getShipUnits());
         $result->defenderUnitsStart->addCollection($this->defenderPlanet->getDefenseUnits());
         $result->defenderUnitsResult = clone $result->defenderUnitsStart;
-        // ---
 
-        $result->rounds = $this->executeRounds($result);
+        // Execute the battle rounds, this will handle the actual combat logic.
+        $result->rounds = $this->fightBattle($result);
 
+        // Get the result of the battle.
         if (count($result->rounds) > 0) {
             // Take the remaining ships in the last round as the result.
             $round = end($result->rounds);
@@ -91,7 +92,7 @@ class BattleEngine
             $result->defenderUnitsResult = $result->defenderUnitsStart;
         }
 
-        // Check if defender still has units left. If not, attacker wins.
+        // Determine winner of battle.
         if ($result->defenderUnitsResult->getAmount() === 0) {
             // ---
             // [WIN] - If attacker wins:
@@ -107,16 +108,15 @@ class BattleEngine
     }
 
     /**
-     * Execute the battle rounds.
+     * Fight the battle in max 6 rounds.
      *
      * @param BattleResult $result
      * @return array<BattleResultRound>
-     * @throws Exception
      */
-    private function executeRounds(BattleResult $result): array {
+    private function fightBattle(BattleResult $result): array {
         $rounds = [];
 
-        // Convert attacker and defender units to BattleUnit objects to keep track of hitpoints/shields etc.
+        // Convert attacker and defender units to BattleUnit objects to keep track of hull plating and shields.
         $attackerUnits = [];
         foreach ($result->attackerUnitsStart->units as $unit) {
             // Create new object for each unique unit in the fleet.
@@ -148,13 +148,13 @@ class BattleEngine
         $roundNumber = 0;
         $attackerRemainingShips = clone $result->attackerUnitsStart;
         $defenderRemainingShips = clone $result->defenderUnitsStart;
+        $attackerLosses = new UnitCollection();
+        $defenderLosses = new UnitCollection();
         while ($roundNumber < 6  && count($attackerUnits) > 0 && count($defenderUnits) > 0) {
             $roundNumber++;
             $round = new BattleResultRound();
             $round->defenderLossesInThisRound = new UnitCollection();
-            $round->defenderLosses = new UnitCollection();
             $round->attackerLossesInThisRound = new UnitCollection();
-            $round->attackerLosses = new UnitCollection();
             $round->absorbedDamageAttacker = 0;
             $round->absorbedDamageDefender = 0;
 
@@ -185,32 +185,42 @@ class BattleEngine
                 while ($rapidfire);
             }
 
-            // TODO: add logic here to loop through the units and:
-            // - remove destroyed units
-            // - roll a dice for hull integrity < 70% of original if the unit is also destroyed
-            // - apply shield regeneration
+            // After all units have attacked each other, clean up the round. This removes destroyed units
+            // and applies shield regeneration.
             $this->cleanupRound($round, $attackerUnits, $defenderUnits);
 
             // Subtract losses from the attacker and defender units.
             $attackerRemainingShips->subtractCollection($round->attackerLossesInThisRound, false);
             $defenderRemainingShips->subtractCollection($round->defenderLossesInThisRound, false);
+
+            // Update the total losses for the attacker and defender.
+            $attackerLosses->addCollection($round->attackerLossesInThisRound);
+            $defenderLosses->addCollection($round->defenderLossesInThisRound);
+
+            // Clone the losses to the round object to keep track of the total losses at round point-in-time.
+            $round->attackerLosses = clone $attackerLosses;
+            $round->defenderLosses = clone $defenderLosses;
+
+            // Update the remaining ships for the next round.
             $round->attackerShips = clone $attackerRemainingShips;
             $round->defenderShips = clone $defenderRemainingShips;
+
+            // Add the round to the list of rounds.
             $rounds[] = $round;
-            // ---- END ROUND
         }
 
         return $rounds;
     }
 
     /**
-     * Let one unit attack another unit and apply the damage to the defender.
+     * Let one unit attack another unit and apply the damage to the defending unit.
      *
      * @param bool $isAttacker True if the attacker is attacking, false if the defender is attacking. This is used
      * to determine which statistics to update.
      * @param BattleResultRound $round
      * @param BattleUnit $attacker
      * @param BattleUnit $defender
+     *
      * @return bool True if the attacker has rapidfire against the defender and can attack again, false otherwise.
      */
     private function attackUnit(bool $isAttacker, BattleResultRound $round, BattleUnit $attacker, BattleUnit $defender): bool

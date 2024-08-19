@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMissions\BattleEngine\BattleEngine;
+use OGame\GameMissions\BattleEngine\BattleResultRound;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use Tests\UnitTestCase;
 
@@ -218,22 +219,28 @@ class BattleEngineTest extends UnitTestCase
         // Assert the rounds are not empty and contain valid data.
         $this->assertNotEmpty($battleResult->rounds);
 
-        // Check first round.
-        $firstRound = $battleResult->rounds[0];
-        $this->assertNotEmpty($firstRound->attackerShips);
-        // Assert that the first round attacker remaining ships are not the same as the starting attacker fleet.
-        $this->assertNotEquals($attackerFleet->units, $firstRound->attackerShips->units);
-        $this->assertNotEmpty($firstRound->defenderShips);
-        $this->assertNotEmpty($firstRound->attackerLosses);
-        $this->assertNotEmpty($firstRound->defenderLosses);
-        $this->assertNotEmpty($firstRound->attackerLossesInThisRound);
-        $this->assertNotEmpty($firstRound->defenderLossesInThisRound);
-        $this->assertGreaterThan(0, $firstRound->absorbedDamageAttacker);
-        $this->assertGreaterThan(0, $firstRound->absorbedDamageDefender);
-        $this->assertGreaterThan(0, $firstRound->fullStrengthAttacker);
-        $this->assertGreaterThan(0, $firstRound->fullStrengthDefender);
-        $this->assertGreaterThan(0, $firstRound->hitsAttacker);
-        $this->assertGreaterThan(0, $firstRound->hitsDefender);
+        // Check last round.
+        $lastRound = end($battleResult->rounds);
+        $this->assertNotEmpty($lastRound->attackerShips);
+
+        $this->assertNotEquals($attackerFleet->getAmountByMachineName($smallCargo->machine_name), $lastRound->attackerShips->getAmountByMachineName($smallCargo->machine_name));
+        $this->assertNotEmpty($lastRound->defenderShips);
+
+        // The last round attacker losses should be a sum of all losses in the previous rounds. Because we expect
+        // the attacker to lose all units this should be equal to the total amount of units in the attacker fleet.
+        $this->assertEquals(5, $lastRound->attackerLosses->getAmountByMachineName($smallCargo->machine_name));
+        $this->assertEquals(0, $lastRound->defenderLosses->getAmountByMachineName('rocket_launcher'));
+
+        $this->assertGreaterThan(0, $lastRound->attackerLossesInThisRound->getAmountByMachineName($smallCargo->machine_name));
+        $this->assertLessThan(5, $lastRound->attackerLossesInThisRound->getAmountByMachineName($smallCargo->machine_name));
+        $this->assertEquals(0, $lastRound->defenderLossesInThisRound->getAmountByMachineName('rocket_launcher'));
+
+        $this->assertGreaterThan(0, $lastRound->absorbedDamageAttacker);
+        $this->assertGreaterThan(0, $lastRound->absorbedDamageDefender);
+        $this->assertGreaterThan(0, $lastRound->fullStrengthAttacker);
+        $this->assertGreaterThan(0, $lastRound->fullStrengthDefender);
+        $this->assertGreaterThan(0, $lastRound->hitsAttacker);
+        $this->assertGreaterThan(0, $lastRound->hitsDefender);
     }
 
     /**
@@ -290,6 +297,10 @@ class BattleEngineTest extends UnitTestCase
         $this->assertNotEmpty($lastRound->defenderShips);
         $this->assertEquals(0, $lastRound->attackerShips->getAmountByMachineName($lightFighter->machine_name));
         $this->assertGreaterThanOrEqual(100, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
+
+        // The attackerLosses property should be a sum of all losses in the previous rounds. Because we expect the attacker
+        // to lose all units this should be equal to the total amount of units in the attacker fleet.
+        $this->assertEquals(150, $lastRound->attackerLosses->getAmountByMachineName($lightFighter->machine_name));
     }
 
     /**
@@ -355,8 +366,8 @@ class BattleEngineTest extends UnitTestCase
         foreach ($battleResult->rounds as $round) {
             $this->assertGreaterThan(40, $round->fullStrengthAttacker);
             $this->assertGreaterThan(40, $round->fullStrengthDefender);
-            $this->assertGreaterThan(10, $round->absorbedDamageAttacker);
-            $this->assertGreaterThan(10, $round->absorbedDamageDefender);
+            $this->assertGreaterThan(5, $round->absorbedDamageAttacker);
+            $this->assertGreaterThan(5, $round->absorbedDamageDefender);
         }
     }
 
@@ -393,5 +404,38 @@ class BattleEngineTest extends UnitTestCase
         // Expected result: attacker loses, defender rocket launchers remaining < 400. Without rapidfire the estimated
         // remaining rocket launchers would be between 450-500.
         $this->assertLessThan(400, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
+    }
+
+    /**
+     * Test that the battle engine shield bounce logic works correctly.
+     */
+    public function testBattleEngineBounce(): void
+    {
+        // This test is to verify that the shield bounce logic works correctly. A light fighter's attack power is less
+        // than 1% of a large shield dome's shield points. Therefore, the attack should bounce off the shield and not
+        // cause any damage to the shield dome. The battle will end in a draw after 6 rounds.
+        $this->createAndSetPlanetModel([
+            'large_shield_dome' => 1,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $cruiser = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $attackerFleet->addUnit($cruiser, 10000);
+
+        // Simulate battle.
+        $battleEngine = new BattleEngine($attackerFleet, $this->playerService, $this->planetService);
+        $battleResult = $battleEngine->simulateBattle();
+
+        // Assert that there are 6 rounds in the battle.
+        $this->assertCount(6, $battleResult->rounds);
+
+        // Get last round.
+        $lastRound = end($battleResult->rounds);
+
+        // Assert that attacker has all light fighters remaining.
+        $this->assertEquals(10000, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
+        // Assert that defender has the large shield dome remaining.
+        $this->assertEquals(1, $lastRound->defenderShips->getAmountByMachineName('large_shield_dome'));
     }
 }

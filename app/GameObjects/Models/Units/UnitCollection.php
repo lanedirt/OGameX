@@ -149,7 +149,19 @@ class UnitCollection
     public function addCollection(UnitCollection $collection): void
     {
         foreach ($collection->units as $entry) {
-            $this->units[] = $entry;
+            // Check if the unit is already in the collection. If so, add the amount instead of adding a new entry.
+            $found = false;
+            foreach ($this->units as $key => $unit) {
+                if ($unit->unitObject->machine_name === $entry->unitObject->machine_name) {
+                    $this->units[$key]->amount += $entry->amount;
+                    $found = true;
+                }
+            }
+
+            // If the unit is not in the collection, add it.
+            if (!$found) {
+                $this->units[] = $entry;
+            }
         }
     }
 
