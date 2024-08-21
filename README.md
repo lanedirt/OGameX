@@ -27,7 +27,7 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 
 ## 🖥️ Live demo
 - Main branch (nightly builds): [https://main.ogamex.dev](https://main.ogamex.dev)
-- Latest stable release **(0.6.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
+- Latest stable release **(0.7.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
 
 ## 📝 Table of Contents
 - [1. Example screenshots](#screenshots)
