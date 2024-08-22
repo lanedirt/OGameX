@@ -195,7 +195,7 @@ class PlayerService
      * Validates a username.
      *
      * @param string $username
-     * @return bool
+     * @return array<string, mixed>
      */
     public function isUsernameValid(string $username): array
     {
