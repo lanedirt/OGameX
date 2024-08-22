@@ -158,15 +158,11 @@ class PlayerService
      * Set username property.
      *
      * @param string $username
-     * @throws Exception
      */
     public function setUsername(string $username): void
     {
-        if ($this->validateUsername($username)) {
-            $this->user->username = $username;
-        } else {
-            throw new Exception('Illegal characters in username.');
-        }
+        $this->user->username = $username;
+        $this->user->username_updated_at = now();
     }
 
     /**
@@ -177,7 +173,50 @@ class PlayerService
      */
     public function validateUsername(string $username): false|int
     {
+        if (strlen($username) < 3) {
+            return false;
+        }
+
         return preg_match('/^[A-Za-z][A-Za-z0-9\s]*(?:_[A-Za-z0-9\s]+)*$/', $username);
+    }
+
+    /**
+     * Validates if a username is already taken.
+     *
+     * @param string $username
+     * @return bool
+     */
+    public function isUsernameAlreadyTaken(string $username): bool
+    {
+        return User::where('username', $username)->exists();
+    }
+
+    /**
+     * Validates a username.
+     *
+     * @param string $username
+     * @return bool
+     */
+    public function isUsernameValid(string $username): array
+    {
+        if (!$this->validateUsername($username)) {
+            return [
+                'valid' => false,
+                'error' => __('Nickname :username contains invalid characters or your nickname has an invalid length!', ['username' => $username])
+            ];
+        }
+
+        if ($this->isUsernameAlreadyTaken($username)) {
+            return [
+                'valid' => false,
+                'error' => __('Player name already in use or invalid.')
+            ];
+        }
+
+        return [
+            'valid' => true,
+            'error' => null
+        ];
     }
 
     /**
@@ -192,6 +231,16 @@ class PlayerService
             return '<span class="status_abbr_admin">' . $this->user->username . '</span>';
         }
         return $this->user->username;
+    }
+
+    /**
+     * Get the timestamp of the latest username change.
+     *
+     * @return Carbon|null
+     */
+    public function getLastUsernameChange(): Carbon|null
+    {
+        return $this->user->username_updated_at ? Carbon::parse($this->user->username_updated_at) : null;
     }
 
     /**
