@@ -62,31 +62,21 @@
                                         </div>
                                         <div class="group bborder" style="display: block;">
                                             <div class="fieldwrapper">
-                                                <label class="styled textBeefy">Your player name
-                                                    :</label>
+                                                <label class="styled textBeefy">@lang('Your player name:')</label>
                                                 <div class="thefield">{!! $username !!}</div>
                                             </div>
-
+                                            @if ($canUpdateUsername)
                                             <div class="fieldwrapper">
-                                                <label class="styled textBeefy">New player name
-                                                    :</label>
+                                                <label class="styled textBeefy">@lang('New player name:')</label>
                                                 <div class="thefield">
 
                                                     <input class="textInput w200 validate[optional,custom[noSpecialCharacters],custom[noBeginOrEndUnderscore],custom[noBeginOrEndWhitespace],custom[noBeginOrEndHyphen],custom[notMoreThanThreeUnderscores],custom[notMoreThanThreeWhitespaces],custom[notMoreThanThreeHyphen],custom[noCollocateUnderscores],custom[noCollocateWhitespaces],custom[noCollocateHyphen],minSize[3]]" type="text" maxlength="20" value="" size="30" id="db_character" name="new_username_username">
                                                 </div>
                                             </div>
-
+                                            @endif
                                             <div class="fieldwrapper">
-                                                <label class="styled textBeefy">Enter password <em>(as confirmation)</em>
-                                                    :</label>
-                                                <div class="thefield">
-                                                    <input class="textInput w200" type="password" value="" size="30" name="new_username_password">
-                                                </div>
-                                            </div>
-
-                                            <div class="fieldwrapper">
-                                                <p>You can change your username once per week.
-                                                    To do so, click on your name or the settings at the top of the screen.</p>
+                                                <p>@lang('You can change your username once per week.')
+                                                @lang('To do so, click on your name or the settings at the top of the screen.')</p>
                                             </div>
                                         </div>
 

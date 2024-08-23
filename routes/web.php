@@ -108,6 +108,8 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
         Route::post('ajax/planet-abandon/abandon', 'PlanetAbandonController@abandon')->name('planetabandon.abandon');
 
         Route::get('/overlay/changenick', 'ChangeNickController@overlay')->name('changenick.overlay');
+        Route::post('ajax/changenick/rename', 'ChangeNickController@rename')->name('changenick.rename');
+
         Route::get('/overlay/payment', 'PaymentController@overlay')->name('payment.overlay');
         Route::get('/overlay/payment/iframe', 'PaymentController@iframe')->name('payment.iframesrc');
 

@@ -20,9 +20,15 @@ class OptionsController extends OGameController
     {
         $this->setBodyId('preferences');
 
+        $canUpdateUsername = true;
+        if ($lastChange = $player->getLastUsernameChange()) {
+            $canUpdateUsername = $lastChange->addWeek()->isPast();
+        }
+
         return view('ingame.options.index')->with([
             'username' => $player->getUsername(),
             'current_email' => $player->getEmail(),
+            'canUpdateUsername' => $canUpdateUsername,
         ]);
     }
 
@@ -38,26 +44,19 @@ class OptionsController extends OGameController
     public function processChangeUsername(Request $request, PlayerService $player): array
     {
         $name = $request->input('new_username_username');
-        $password = $request->input('new_username_password');
         if (!empty($name)) {
-            // Check if password matches.
-            if (!$player->validatePassword($password)) {
-                return array('error' => 'Wrong password!');
-            }
-
             // Check if username validates.
-            if (!$player->validateUsername($name)) {
-                return array('error' => 'Illegal characters in username!');
+            $validationResult = $player->isUsernameValid($name);
+            if (!$validationResult['valid']) {
+                return array('error' => $validationResult['error']);
             }
 
             // Update username
             $player->setUsername($name);
             $player->save();
-
-            return array('success_logout' => 'Settings saved');
         }
 
-        return [];
+        return array('success' => __('Settings saved'));
     }
 
     /**
@@ -96,6 +95,4 @@ class OptionsController extends OGameController
         // No actual change has been detected, return to index page.
         return redirect()->route('options.index');
     }
-
-
 }
