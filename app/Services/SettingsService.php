@@ -174,4 +174,104 @@ class SettingsService
     {
         return (int)$this->get('registration_planet_amount', 1);
     }
+
+    /**
+     * Returns the amount of planet fields bonus given upon planet creation.
+     *
+     * @return int
+     */
+    public function planetFieldsBonus(): int
+    {
+        return (int)$this->get('planet_fields_bonus', 0);
+    }
+
+    /**
+     * Returns the amount of dark matter given for a new player.
+     *
+     * @return int
+     */
+    public function darkMatterBonus(): int
+    {
+        return (int)$this->get('dark_matter_bonus', 8000);
+    }
+
+    /**
+     * Returns the status of the Alliance Combat System.
+     *
+     * @return int
+     */
+    public function allianceCombatSystemOn(): int
+    {
+        return (int)$this->get('alliance_combat_system_on', 1);
+    }
+
+    /**
+     * Returns the percentage of debris field generated from destroyed ships.
+     *
+     * @return int
+     */
+    public function debrisFieldFromShips(): int
+    {
+        return (int)$this->get('debris_field_from_ships', 30);
+    }
+
+    /**
+     * Returns the percentage of debris field generated from destroyed defensive structures.
+     *
+     * @return int
+     */
+    public function debrisFieldFromDefense(): int
+    {
+        return (int)$this->get('debris_field_from_defense', 0);
+    }
+
+    /**
+     * Returns the status of Deuterium in debris fields.
+     *
+     * @return int
+     */
+    public function debrisFieldDeuteriumOn(): int
+    {
+        return (int)$this->get('debris_field_deuterium_on', 1);
+    }
+
+    /**
+     * Returns the status of ignoring empty systems.
+     *
+     * @return int
+     */
+    public function ignoreEmptySystemsOn(): int
+    {
+        return (int)$this->get('ignore_empty_systems_on', 0);
+    }
+
+    /**
+     * Returns the status of ignoring inactive systems.
+     *
+     * @return int
+     */
+    public function ignoreInactiveSystemsOn(): int
+    {
+        return (int)$this->get('ignore_inactive_systems_on', 0);
+    }
+
+    /**
+     * Returns the number of galaxies in the universe.
+     *
+     * @return int
+     */
+    public function numberOfGalaxies(): int
+    {
+        return (int)$this->get('number_of_galaxies', 9);
+    }
+
+    /**
+     * Returns the name of the universe.
+     *
+     * @return string
+     */
+    public function universeName(): string
+    {
+        return $this->get('universe_name', "Universe");
+    }
 }

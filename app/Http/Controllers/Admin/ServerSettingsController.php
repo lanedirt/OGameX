@@ -28,6 +28,16 @@ class ServerSettingsController extends OGameController
             'basic_income_deuterium' => $settingsService->basicIncomeDeuterium(),
             'basic_income_energy' => $settingsService->basicIncomeEnergy(),
             'registration_planet_amount' => $settingsService->registrationPlanetAmount(),
+            'universe_name' => $settingsService->universeName(),
+            'planet_fields_bonus' => $settingsService->planetFieldsBonus(),
+            'dark_matter_bonus' => $settingsService->darkMatterBonus(),
+            'alliance_combat_system_on' => $settingsService->allianceCombatSystemOn(),
+            'debris_field_from_ships' => $settingsService->debrisFieldFromShips(),
+            'debris_field_from_defense' => $settingsService->debrisFieldFromDefense(),
+            'debris_field_deuterium_on' => $settingsService->debrisFieldDeuteriumOn(),
+            'ignore_empty_systems_on' => $settingsService->ignoreEmptySystemsOn(),
+            'ignore_inactive_systems_on' => $settingsService->ignoreInactiveSystemsOn(),
+            'number_of_galaxies' => $settingsService->numberOfGalaxies(),
         ]);
     }
 
@@ -49,6 +59,16 @@ class ServerSettingsController extends OGameController
         $settingsService->set('basic_income_energy', request('basic_income_energy'));
 
         $settingsService->set('registration_planet_amount', request('registration_planet_amount'));
+
+        $settingsService->set('planet_fields_bonus', request('planet_fields_bonus'));
+        $settingsService->set('dark_matter_bonus', request('dark_matter_bonus'));
+        $settingsService->set('alliance_combat_system_on', request('alliance_combat_system_on', 0));
+        $settingsService->set('debris_field_from_ships', request('debris_field_from_ships'));
+        $settingsService->set('debris_field_from_defense', request('debris_field_from_defense'));
+        $settingsService->set('debris_field_deuterium_on', request('debris_field_deuterium_on', 0));
+        $settingsService->set('ignore_empty_systems_on', request('ignore_empty_systems_on', 0));
+        $settingsService->set('ignore_inactive_systems_on', request('ignore_inactive_systems_on', 0));
+        $settingsService->set('number_of_galaxies', request('number_of_galaxies'));
 
         return redirect()->route('admin.serversettings.index')->with('success', __('Changes saved!'));
     }
