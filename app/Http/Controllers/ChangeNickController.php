@@ -61,7 +61,7 @@ class ChangeNickController extends OGameController
         $player->save();
 
         // Return success response
-        return redirect()->route('overview.index')->with('success', __('Player name changed! Please log in again!'));
+        return redirect()->route('overview.index')->with('success', __('Player name changed!'));
     }
 
     /**
