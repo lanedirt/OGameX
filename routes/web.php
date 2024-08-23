@@ -113,6 +113,7 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
         Route::get('/overlay/payment', 'PaymentController@overlay')->name('payment.overlay');
         Route::get('/overlay/payment/iframe', 'PaymentController@iframe')->name('payment.iframesrc');
 
+        Route::get('/overlay/server-settings', 'ServerSettingsController@overlay')->name('serversettings.overlay');
         Route::get('/lang/{lang}', 'LanguageController@switchLang')->name('language.switch');
     });
 });

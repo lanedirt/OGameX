@@ -1144,6 +1144,7 @@ Combat simulation save slots +20">
                 OGameX. @lang('All rights reserved.')</a>
         </div>
         <div class="fright textRight">
+            <a href="{{ route('serversettings.overlay') }}" class="overlay" data-overlay-title="@lang('Server Settings')" data-overlay-class="serversettingsoverlay" data-overlay-popup-width="400" data-overlay-popup-height="510">@lang('Server Settings')</a>|
             <a href="http://wiki.ogame.org/" target="_blank">Help</a>|
             @switch ($locale)
                 @case('en')
