@@ -9,6 +9,8 @@ use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
 use OGame\Services\PlayerService;
+use OGame\Services\PlanetService;
+use OGame\Services\SettingsService;
 
 class GalaxyController extends OGameController
 {
@@ -17,9 +19,10 @@ class GalaxyController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
+     * @param SettingsService $settingsService
      * @return View
      */
-    public function index(Request $request, PlayerService $player): View
+    public function index(Request $request, PlayerService $player, SettingsService $settingsService): View
     {
         // Get current galaxy and system from current planet.
         $planet = $player->planets->current();
@@ -43,6 +46,7 @@ class GalaxyController extends OGameController
             'interplanetary_missiles_count' => 0,
             'used_slots' => 0,
             'max_slots' => 1,
+            'max_galaxies' => $settingsService->numberOfGalaxies(),
         ]);
     }
 
@@ -134,11 +138,7 @@ class GalaxyController extends OGameController
                     'galaxy' => $galaxy,
                     'planets' => [
                         [
-                            'activity'          => [
-                                //'idleTime' => 31,
-                                //'showActivity' => 60,
-                                //'showMinutes' => false,
-                            ],
+                            'activity'          => $this->getPlanetActivityStatus($planet),
                             'availableMissions' => $availableMissions,
                             'fleet'             => [],
                             'imageInformation'  => $planet->getPlanetType() . '_' . $planet->getPlanetImageType(),
@@ -271,5 +271,39 @@ class GalaxyController extends OGameController
                 'usedFleetSlots' => 1
             ],
         ]);
+    }
+
+    /**
+     * Get the activity status of the planet based on the last update time.
+     *
+     * @param PlanetService $planet
+     * @return array{
+     *     idleTime: int|null,
+     *     showActivity: int|bool,
+     *     showMinutes: bool
+     * }
+     */
+    private function getPlanetActivityStatus(PlanetService $planet)
+    {
+        $lastActivity = $planet->getMinutesSinceLastUpdate();
+
+        $result = [
+            'idleTime' => null,
+            'showActivity' => false,
+            'showMinutes' => true,
+        ];
+
+        if ($lastActivity > 60) {
+            $result['idleTime'] = null;
+            $result['showActivity'] = false;
+        } elseif ($lastActivity >= 15) {
+            $result['idleTime'] = $lastActivity;
+            $result['showActivity'] = 60;
+        } else {
+            $result['idleTime'] = null;
+            $result['showActivity'] = 15;
+        }
+
+        return $result;
     }
 }

@@ -828,6 +828,17 @@ class PlanetService
     }
 
     /**
+     * Get the number of minutes since the planet was last updated.
+     *
+     * @return int
+     */
+    public function getMinutesSinceLastUpdate(): int
+    {
+        $lastUpdate = $this->getUpdatedAt();
+        return (int) $lastUpdate->diffInMinutes(Carbon::now());
+    }
+
+    /**
      * Update this planet's resources according to production.
      * This should happen on every users page load and every time the planet is touched.
      *
