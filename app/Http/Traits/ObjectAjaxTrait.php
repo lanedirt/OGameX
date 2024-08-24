@@ -35,7 +35,7 @@ trait ObjectAjaxTrait
         $current_level = 0;
         if ($object->type == GameObjectType::Research) {
             $current_level = $player->getResearchLevel($object->machine_name);
-        } else if ($object->type == GameObjectType::Ship || $object->type == GameObjectType::Defense) {
+        } elseif ($object->type == GameObjectType::Ship || $object->type == GameObjectType::Defense) {
             $current_level = $planet->getObjectAmount($object->machine_name);
         } else {
             $current_level = $planet->getObjectLevel($object->machine_name);

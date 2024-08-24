@@ -1284,8 +1284,7 @@ class PlanetService
         if (!$object_level) {
             if ($gameObject->type === GameObjectType::Ship || $gameObject->type == GameObjectType::Defense) {
                 $object_level = $this->getObjectAmount($machine_name);
-            }
-            else {
+            } else {
                 $object_level = $this->getObjectLevel($machine_name);
             }
             $resource_production_factor = $this->getResourceProductionFactor();
