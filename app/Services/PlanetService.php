@@ -1291,7 +1291,7 @@ class PlanetService
             $resource_production_factor = $this->getResourceProductionFactor();
         }
 
-        $building_percentage = !$force_factor ? $this->getBuildingPercent($machine_name) : 100; // Implement building percentage.
+        $building_percentage = !$force_factor ? $this->getBuildingPercent($machine_name) : 100;
         $planet_temperature = $this->getPlanetTempAvg();
         $energy_technology_level = 0; // Implement energy technology level getter.
         $universe_resource_multiplier = $this->settingsService->economySpeed();
