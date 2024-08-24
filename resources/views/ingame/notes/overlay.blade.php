@@ -14,8 +14,8 @@
             </thead>
             <tbody>
                 @if(count($notes) > 0)
-                    @foreach($notes as $note)
-                        <tr class="alt">
+                    @foreach($notes as $index => $note)
+                        <tr class="{{ $index % 2 == 0 ? 'alt' : '' }}">
                             <td width="30">
                                 <input type="checkbox" value="{{ $note->id }}" name="delIds[]">
                             </td>

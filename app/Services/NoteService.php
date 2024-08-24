@@ -53,7 +53,10 @@ class NoteService
      */
     public function getAllNotesForUser(): array
     {
-        return Note::where('user_id', $this->player->getId())->get()->all();
+        return Note::where('user_id', $this->player->getId())
+               ->orderBy('created_at', 'desc')
+               ->get()
+               ->all();
     }
 
     /**

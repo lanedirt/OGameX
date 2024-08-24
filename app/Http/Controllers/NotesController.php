@@ -25,13 +25,13 @@ class NotesController extends OGameController
         if ($request->isMethod('post')) {
             $deleteMethod = $request->input('noticeDeleteMethode');
 
-            if ($deleteMethod == 1) {
+            if ($deleteMethod === "1") {
                 $noteIds = $request->input('delIds', []);
                 if (!empty($noteIds)) {
                     $noteService->deleteMarkedNotes($noteIds);
                     $notesDeleted = true;
                 }
-            } elseif ($deleteMethod == 2) {
+            } elseif ($deleteMethod === "2") {
                 $noteService->deleteAllNotesForUser();
                 $notesDeleted = true;
             }
@@ -83,7 +83,7 @@ class NotesController extends OGameController
                 'nullable',
                 'integer',
                 function ($attribute, $value, $fail) use ($noteService) {
-                    if ($value !== '0' && $value !== null && !$noteService->noteExistsAndBelongsToUser($value)) {
+                    if (!empty($value) && !$noteService->noteExistsAndBelongsToUser($value)) {
                         $fail('The selected note ID does not exist.');
                     }
                 },
@@ -100,7 +100,7 @@ class NotesController extends OGameController
         ];
 
         try {
-            if (isset($validated['id']) && $validated['id'] != 0) {
+            if (!empty($validated['id'])) {
                 // Update existing note
                 $note = $noteService->updateNoteForUser($validated['id'], $data);
                 $message = __('Note edited');
