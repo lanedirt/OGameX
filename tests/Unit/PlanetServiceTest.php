@@ -71,6 +71,10 @@ class PlanetServiceTest extends UnitTestCase
      */
     public function testDeductTooManyResources(): void
     {
+        $this->createAndSetPlanetModel([
+            'metal_mine' => 1,
+        ]);
+
         // Specify the type of exception you expect to be thrown
         $this->expectException(\Exception::class);
 
