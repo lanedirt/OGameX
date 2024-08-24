@@ -4,8 +4,10 @@ namespace OGame\GameObjects\Models\Abstracts;
 
 use InvalidArgumentException;
 use OGame\GameObjects\Models\Calculations\CalculationType;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Fields\GameObjectAssets;
 use OGame\GameObjects\Models\Fields\GameObjectPrice;
+use OGame\GameObjects\Models\Fields\GameObjectProduction;
 use OGame\GameObjects\Models\Fields\GameObjectRequirement;
 
 /**
@@ -19,7 +21,7 @@ abstract class GameObject
 {
     public int $id;
     public string $title;
-    public string $type;
+    public GameObjectType $type;
     public string $machine_name;
 
     /**
@@ -38,6 +40,11 @@ abstract class GameObject
      * @var array<GameObjectRequirement>
      */
     public array $requirements = [];
+
+    /**
+     * Production gained by object (in case of mines, solar satellites, plasma technology, etc).
+     */
+    public GameObjectProduction $production;
 
     /**
      * Price of the object.

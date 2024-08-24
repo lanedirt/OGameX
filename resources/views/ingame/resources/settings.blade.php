@@ -11,7 +11,7 @@
     <div id="resourcesettingscomponent">
     <div id="inhalt">
         <div id="planet" class="shortHeader">
-            <h2>Resource settings - {{ $planet_name }}</h2>
+            <h2>@lang('Resource settings') - {{ $planet_name }}</h2>
         </div>
         <div class="contentRS">
             <div class="headerRS"><a href="{{ route('resources.index') }}" class="close_details close_ressources"></a>
@@ -28,7 +28,7 @@
                             <td colspan="7" id="factor">
                                 <div class="secondcol">
                                     <div style="width:376px; margin: 0px auto;">
-                                        <span class="factorkey">Production factor: {{ $production_factor }}%</span>
+                                        <span class="factorkey">@lang('Production factor'): {{ $production_factor }}%</span>
                                         <span class="factorbutton">
                                         <input class="btn_blue" type="submit" value="Recalculate">
                                     </span>
@@ -39,59 +39,59 @@
                         </tr>
                         <tr>
                             <th colspan="2"></th>
-                            <th>Metal</th>
-                            <th>Crystal</th>
-                            <th>Deuterium</th>
-                            <th>Energy</th>
+                            <th>@lang('Metal')</th>
+                            <th>@lang('Crystal')</th>
+                            <th>@lang('Deuterium')</th>
+                            <th>@lang('Energy')</th>
                             <th></th>
                         </tr>
                         <tr class="alt">
-                            <td colspan="2" class="label">Basic Income</td>
+                            <td colspan="2" class="label">@lang('Basic Income')</td>
                             <td class="undermark textRight">
                                 <span class="tooltipCustom"
-                                      title="{{ $basic_income->metal->get() }}">{{ $basic_income->metal->getFormatted() }}</span>
+                                      title="{{ $basic_income->metal->get() }}">{{ $basic_income->metal->getFormattedLong() }}</span>
                             </td>
                             <td class="undermark textRight">
                                 <span class="tooltipCustom"
-                                      title="{{ $basic_income->crystal->get() }}">{{ $basic_income->crystal->getFormatted() }}</span>
+                                      title="{{ $basic_income->crystal->get() }}">{{ $basic_income->crystal->getFormattedLong() }}</span>
                             </td>
                             <td class="normalmark textRight">
                                 <span class="tooltipCustom"
-                                      title="{{ $basic_income->deuterium->get() }}">{{ $basic_income->deuterium->getFormatted() }}</span>
+                                      title="{{ $basic_income->deuterium->get() }}">{{ $basic_income->deuterium->getFormattedLong() }}</span>
                             </td>
                             <td class="normalmark textRight">
                                 <span class="tooltipCustom"
-                                      title="{{ $basic_income->energy->get() }}">{{ $basic_income->energy->getFormatted() }}</span>
+                                      title="{{ $basic_income->energy->get() }}">{{ $basic_income->energy->getFormattedLong() }}</span>
                             </td>
                             <td></td>
                         </tr>
                         @foreach ($building_resource_rows as $count => $row)
                             <tr class="{{ $loop->iteration % 2 == 0 ? 'alt' : '' }}">
                                 <td class="label">
-                                    {{ $row['title'] }} (Level {{ $row['level'] }})
+                                    {{ $row['title'] }} (@lang('Level') {{ $row['level'] }})
                                 </td>
                                 <td>
                                 </td>
                                 <td class="{{ $row['production']->metal->get() > 0 ? 'overmark' : ($row['production']->metal->get() < 0 ? 'undermark' : 'normalmark') }}">
-                                <span class="tooltipCustom " title="{{ $row['production']->metal->getFormatted() }}">
+                                <span class="tooltipCustom " title="{{ $row['production']->metal->getFormattedLong() }}">
                                     {{ $row['production']->metal->getFormatted() }}
                                 </span>
                                 </td>
                                 <td class="{{ $row['production']->crystal->get() > 0 ? 'overmark' : ($row['production']->crystal->get() < 0 ? 'undermark' : 'normalmark') }}">
-                                <span class="tooltipCustom " title="{{ $row['production']->crystal->getFormatted() }}">
+                                <span class="tooltipCustom " title="{{ $row['production']->crystal->getFormattedLong() }}">
                                     {{ $row['production']->crystal->getFormatted() }}
                                 </span>
                                 </td>
                                 <td class="{{ $row['production']->deuterium->get() > 0 ? 'overmark' : ($row['production']->deuterium->get() < 0 ? 'undermark' : 'normalmark') }}">
                                 <span class="tooltipCustom "
-                                      title="{{ $row['production']->deuterium->getFormatted() }}">
+                                      title="{{ $row['production']->deuterium->getFormattedLong() }}">
                                     {{ $row['production']->deuterium->getFormatted() }}
                                 </span>
                                 </td>
                                 <td class="{{ ($row['production']->energy->get() * -1) > 0 ? 'undermark' : (($row['production']->energy->get() * -1) < 0 ? 'overmark' : 'normalmark') }}">
                                 <span class="tooltipCustom "
-                                      title="{{ number_format($row['actual_energy_use'] * -1, 0, ',', '.') }}/{{ number_format($row['production']->energy->get() * -1, 0, ',', '.') }}">
-                                    {{ number_format($row['actual_energy_use'] * -1, 0, ',', '.') }}/{{ number_format($row['production']->energy->get() * -1, 0, ',', '.') }}
+                                      title="{{ \OGame\Facades\AppUtil::formatNumberLong($row['actual_energy_use'] * -1) }}/{{ \OGame\Facades\AppUtil::formatNumberLong($row['production']->energy->get() * -1) }}">
+                                    {{ \OGame\Facades\AppUtil::formatNumberLong($row['actual_energy_use'] * -1) }}/{{ \OGame\Facades\AppUtil::formatNumberLong($row['production']->energy->get() * -1) }}
                                 </span>
                                 </td>
                                 <td>
@@ -135,7 +135,8 @@
                         @foreach ($building_energy_rows as $count => $row)
                             <tr class="{{ $loop->iteration % 2 == 0 ? '' : 'alt' }}">
                                 <td class="label">
-                                    {{ $row['title'] }} (Level {{ $row['level'] }})
+                                    {{ $row['title'] }}
+                                    ({{ ($row['type'] === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $row['type'] === \OGame\GameObjects\Models\Enums\GameObjectType::Defense) ? __('Number:') : __('Level')}} {{ $row['level'] }})
                                 </td>
                                 <td>
                                 </td>
@@ -156,8 +157,8 @@
                                 </span>
                                 </td>
                                 <td class="{{ ($row['production']->energy->get()) > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom " title=" {{ $row['production']->energy->getFormatted() }}">
-                                    {{ $row['production']->energy->getFormatted() }}
+                                <span class="tooltipCustom " title=" {{ $row['production']->energy->getFormattedLong() }}">
+                                    {{ $row['production']->energy->getFormattedLong() }}
                                 </span>
                                 </td>
                                 <td>
@@ -198,54 +199,9 @@
                                 </td>
                             </tr>
                         @endforeach
-                        <tr class="alt">
-                            <td class="label">
-                                Solar Satellite (Number: 0)
-                            </td>
-                            <td>
-                            </td>
-                            <td class="normalmark">
-                                <span class="tooltipCustom " title="0">
-                                    0
-                                </span>
-                            </td>
-                            <td class="normalmark">
-                                <span class="tooltipCustom " title="0">
-                                    0
-                                </span>
-                            </td>
-                            <td class="normalmark">
-                                <span class="tooltipCustom " title="0">
-                                    0
-                                </span>
-                            </td>
-                            <td class="normalmark">
-                                <span class="tooltipCustom " title="0">
-                                    0
-                                </span>
-                            </td>
-                            <td>
-                                <select name="last212" size="1" class="overmark dropdownInitialized"
-                                        style="display: none;">
-                                    <option class="undermark" value="100">100%</option>
-                                    <option class="undermark" value="90">90%</option>
-                                    <option class="undermark" value="80">80%</option>
-                                    <option class="undermark" value="70">70%</option>
-                                    <option class="middlemark" value="60">60%</option>
-                                    <option class="middlemark" value="50">50%</option>
-                                    <option class="middlemark" value="40">40%</option>
-                                    <option class="overmark" value="30">30%</option>
-                                    <option class="overmark" value="20">20%</option>
-                                    <option class="overmark" value="10">10%</option>
-                                    <option class="overmark" value="0" selected="">0%</option>
-                                </select><span class="dropdown currentlySelected overmark" rel="dropdown172"
-                                               style="width: 67px;"><a class="overmark" data-value="0" rel="dropdown172"
-                                                                       href="javascript:void(0);">0%</a></span>
-                            </td>
-                        </tr>
                         <tr class="">
                             <td class="label">
-                                Plasma Technology (Level 0)
+                                @lang('Plasma Technology') (@lang('Level') 0)
                             </td>
                             <td>
                             </td>
@@ -274,7 +230,7 @@
                         </tr>
                         <tr class="alt">
                             <td class="label">
-                                Items
+                                @lang('Items')
                             </td>
                             <td>
                             </td>
@@ -303,10 +259,10 @@
                         </tr>
                         <tr class="">
                             <td class="label">
-                                Geologist
+                                @lang('Geologist')
                             </td>
                             <td>
-                                <div class="tooltipCustom smallOfficer geologe grayscale" title="+10% mine production">
+                                <div class="tooltipCustom smallOfficer geologe grayscale" title="+10% @lang('mine production')">
                                     <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="25" height="25">
                                 </div>
                             </td>
@@ -335,11 +291,11 @@
                         </tr>
                         <tr class="alt">
                             <td class="label">
-                                Engineer
+                                @lang('Engineer')
                             </td>
                             <td>
                                 <div class="tooltipCustom smallOfficer engineer grayscale"
-                                     title="+10% energy production">
+                                     title="+10% @lang('energy production')">
                                     <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="25" height="25">
                                 </div>
                             </td>
@@ -368,7 +324,7 @@
                         </tr>
                         <tr class="">
                             <td class="label">
-                                Commanding Staff
+                                @lang('Commanding Staff')
                             </td>
                             <td>
                                 <div class="tooltipCustom smallOfficer stab grayscale"
@@ -400,7 +356,7 @@
                             </td>
                         </tr>
                         <tr class="">
-                            <td colspan="2" class="label">Storage capacity</td>
+                            <td colspan="2" class="label">@lang('Storage capacity')</td>
                             <td class="{{ $metal >= $metal_storage ? 'overmark' : 'normalmark' }} left2">
                             <span class="tooltipCustom" title="{{ $metal_storage_formatted }}">
                                 {{ $metal_storage_formatted }}
@@ -420,7 +376,7 @@
                             <td></td>
                         </tr>
                         <tr class="summary alt">
-                            <td colspan="2" class="label"><em>Total per hour:</em></td>
+                            <td colspan="2" class="label"><em>@lang('Total per hour:')</em></td>
                             <td class="undermark">
                             <span class="tooltipCustom" title="{{ $production_total->metal->getFormatted() }}">
                                 {{ $production_total->metal->getFormatted() }}
@@ -437,14 +393,14 @@
                             </span>
                             </td>
                             <td class="{{ ($production_total->energy->getFormatted() > 0) ? 'undermark' : 'overmark' }}">
-                            <span class="tooltipCustom" title="{{ $production_total->energy->getFormatted() }}">
-                                {{ $production_total->energy->getFormatted() }}
+                            <span class="tooltipCustom" title="{{ $production_total->energy->getFormattedLong() }}">
+                                {{ $production_total->energy->getFormattedLong() }}
                             </span>
                             </td>
                             <td></td>
                         </tr>
                         <tr class="">
-                            <td colspan="2" class="label"><em>Total per day:</em></td>
+                            <td colspan="2" class="label"><em>@lang('Total per day'):</em></td>
                             <td class="undermark">
                                 <span class="tooltipCustom" title="{{ $production_total->metal->getFormatted(24) }}">
                                     {{ $production_total->metal->getFormatted(24) }}
@@ -461,14 +417,14 @@
                                 </span>
                             </td>
                             <td class="{{ ($production_total->energy->getFormatted(24) > 0) ? 'undermark' : 'overmark' }}">
-                                <span class="tooltipCustom" title="{{ $production_total->energy->getFormatted(24) }}">
-                                    {{ $production_total->energy->getFormatted(24) }}
+                                <span class="tooltipCustom" title="{{ $production_total->energy->getFormattedLong(24) }}">
+                                    {{ $production_total->energy->getFormattedLong(24) }}
                                 </span>
                             </td>
                             <td></td>
                         </tr>
                         <tr class="alt">
-                            <td colspan="2" class="label"><em>Total per week:</em></td>
+                            <td colspan="2" class="label"><em>@lang('Total per week'):</em></td>
                             <td class="undermark">
                                 <span class="tooltipCustom" title="{{ $production_total->metal->getFormatted(168) }}">
                                     {{ $production_total->metal->getFormatted(168) }}
@@ -485,8 +441,8 @@
                                 </span>
                             </td>
                             <td class="{{ ($production_total->energy->getFormatted(168) > 0) ? 'undermark' : 'overmark' }}">
-                                <span class="tooltipCustom" title="{{ $production_total->energy->getFormatted(168) }}">
-                                    {{ $production_total->energy->getFormatted(168) }}
+                                <span class="tooltipCustom" title="{{ $production_total->energy->getFormattedLong(168) }}">
+                                    {{ $production_total->energy->getFormattedLong(168) }}
                                 </span>
                             </td>
                             <td></td>

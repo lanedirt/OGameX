@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Models\Resources;
 use OGame\Services\BuildingQueueService;
@@ -84,10 +85,18 @@ class ResourcesController extends AbstractBuildingsController
 
         // Buildings that provide resource income
         // Get all buildings that have production values.
-        foreach ($objects->getBuildingObjectsWithProduction() as $building) {
+        foreach ($objects->getGameObjectsWithProduction() as $building) {
             // Retrieve all buildings that have production values.
-            $production = $this->planet->getBuildingProduction($building->machine_name);
+            $production = $this->planet->getObjectProduction($building->machine_name);
             $production_total->add($production);
+
+            // TODO: configuring production percentage is only supported for buildings right now.
+            // We also need to add this for other objects that produce resources/energy such as
+            // solar satellites and plasma technology.
+            $percentage = 10;
+            if ($building->type === GameObjectType::Building) {
+                $percentage = $this->planet->getBuildingPercent($building->machine_name);
+            }
 
             if ($production->energy->get() < 0) {
                 // Building consumes energy (resource building)
@@ -103,6 +112,7 @@ class ResourcesController extends AbstractBuildingsController
                 // Building produces energy (energy building)
                 $building_energy_rows[] = [
                     'id' => $building->id,
+                    'type' => $building->type,
                     'title' => $building->title,
                     'level' => $this->planet->getObjectLevel($building->machine_name),
                     'production' => $production,
@@ -111,11 +121,8 @@ class ResourcesController extends AbstractBuildingsController
             }
         }
 
-        // Ships that provide resource income
-        // @TODO: add solar satellites as resource income (energy)
-
         // Research that provide resource income
-        // @TODO: add plasms research as resource income (bonus to all)
+        // @TODO: add plasma research as resource income (bonus to all)
 
         // @TODO: add item bonuses.
 

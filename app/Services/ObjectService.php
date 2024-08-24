@@ -10,6 +10,7 @@ use OGame\GameObjects\MilitaryShipObjects;
 use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Models\BuildingObject;
 use OGame\GameObjects\Models\DefenseObject;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\ResearchObject;
 use OGame\GameObjects\Models\ShipObject;
 use OGame\GameObjects\Models\StationObject;
@@ -271,15 +272,15 @@ class ObjectService
     }
 
     /**
-     * Get all buildings that have production values.
+     * Get all game objects that have production values.
      *
-     * @return array<BuildingObject>
+     * @return array<GameObject>
      */
-    public function getBuildingObjectsWithProduction(): array
+    public function getGameObjectsWithProduction(): array
     {
         $return = array();
 
-        foreach (BuildingObjects::get() as $value) {
+        foreach ($this->getObjects() as $value) {
             if (!empty(($value->production))) {
                 $return[] = $value;
             }
@@ -289,20 +290,20 @@ class ObjectService
     }
 
     /**
-     * Get all buildings that have production values.
+     * Get all game objects that have production values.
      *
      * @param string $machine_name
-     * @return BuildingObject
+     * @return GameObject
      */
-    public function getBuildingObjectsWithProductionByMachineName(string $machine_name): BuildingObject
+    public function getGameObjectsWithProductionByMachineName(string $machine_name): GameObject
     {
-        foreach (BuildingObjects::get() as $object) {
+        foreach ($this->getObjects() as $object) {
             if ($object->machine_name === $machine_name && !empty(($object->production))) {
                 return $object;
             }
         }
 
-        throw new RuntimeException('Building not found with production value for machine name: ' . $machine_name);
+        throw new RuntimeException('Game object not found with production value for machine name: ' . $machine_name);
     }
 
     /**
@@ -338,7 +339,7 @@ class ObjectService
             foreach ($object->requirements as $requirement) {
                 // Load required object and check if requirements are met.
                 $object_required = $this->getObjectByMachineName($requirement->object_machine_name);
-                if ($object_required->type === 'research') {
+                if ($object_required->type === GameObjectType::Research) {
                     if ($player->getResearchLevel($object_required->machine_name) < $requirement->level) {
                         return false;
                     }
@@ -411,8 +412,8 @@ class ObjectService
         $player = $planet->getPlayer();
 
         // Price calculation for buildings or research (price depends on level)
-        if ($object->type === 'building' || $object->type === 'station' || $object->type === 'research') {
-            if ($object->type === 'building' || $object->type === 'station') {
+        if ($object->type === GameObjectType::Building || $object->type === GameObjectType::Station || $object->type === GameObjectType::Research) {
+            if ($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) {
                 $current_level = $planet->getObjectLevel($object->machine_name);
             } else {
                 $current_level = $player?->getResearchLevel($object->machine_name);
@@ -444,7 +445,7 @@ class ObjectService
         }
 
         // Price calculation for buildings or research (price depends on level)
-        if ($object->type === 'building' || $object->type === 'station' || $object->type === 'research') {
+        if ($object->type === GameObjectType::Building || $object->type === GameObjectType::Station || $object->type === GameObjectType::Research) {
             // Level 0 is free.
             if ($level === 0) {
                 return new Resources(0, 0, 0, 0);

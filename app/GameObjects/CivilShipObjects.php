@@ -4,6 +4,7 @@ namespace OGame\GameObjects;
 
 use OGame\GameObjects\Models\Fields\GameObjectAssets;
 use OGame\GameObjects\Models\Fields\GameObjectPrice;
+use OGame\GameObjects\Models\Fields\GameObjectProduction;
 use OGame\GameObjects\Models\Fields\GameObjectProperties;
 use OGame\GameObjects\Models\Fields\GameObjectRapidfire;
 use OGame\GameObjects\Models\Fields\GameObjectRequirement;
@@ -168,6 +169,11 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
             new GameObjectRequirement('shipyard', 1),
         ];
         $solarSatellite->price = new GameObjectPrice(0, 2000, 500, 0);
+
+        $solarSatellite->production = new GameObjectProduction();
+        // TODO: solar satellite production formula should be dependent on the planet position: proximity to sun.
+        $solarSatellite->production->energy = 'return (20 * $object_level);';
+
         $solarSatellite->properties = new GameObjectProperties($solarSatellite, 2000, 1, 0, 0, 0, 1);
 
         $solarSatellite->assets = new GameObjectAssets();

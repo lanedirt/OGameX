@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
@@ -1229,9 +1230,9 @@ class PlanetService
      */
     private function updateResourceProductionStatsInner(Resources $production_total, int|float $energy_production_total, int|float $energy_consumption_total, bool $save_planet = true): void
     {
-        foreach ($this->objects->getBuildingObjectsWithProduction() as $building) {
-            // Retrieve all buildings that have production values.
-            $production = $this->getBuildingProduction($building->machine_name);
+        foreach ($this->objects->getGameObjectsWithProduction() as $object) {
+            // Retrieve all game objects that have production values.
+            $production = $this->getObjectProduction($object->machine_name);
 
             if ($production->energy->get() > 0) {
                 $energy_production_total += $production->energy->get();
@@ -1260,9 +1261,9 @@ class PlanetService
      * @param string $machine_name
      *  The machine name of the building to calculate the production for.
      *
-     * @param int|null $building_level
-     *  Optional parameter to calculate the production for a specific level
-     *  of a building. Defaults to the current level.
+     * @param int|null $object_level
+     *  Optional parameter to calculate the production for a specific level/amount
+     *  of a game object. Defaults to the current level/amount.
      *
      * @param bool $force_factor
      * Optional parameter use to force/simulate the production at 100%
@@ -1270,17 +1271,23 @@ class PlanetService
      * @return Resources
      * @throws Exception
      */
-    public function getBuildingProduction(string $machine_name, int|null $building_level = null, bool $force_factor = false): Resources
+    public function getObjectProduction(string $machine_name, int|null $object_level = null, bool $force_factor = false): Resources
     {
-        $building = $this->objects->getBuildingObjectsWithProductionByMachineName($machine_name);
+        $gameObject = $this->objects->getGameObjectsWithProductionByMachineName($machine_name);
 
         $resource_production_factor = 100; // Set default to 100, only override
         // when the building level is not set (which means current output is
         // asked for).
 
-        // NOTE: building_level is used by eval() function in the formula.
-        if (!$building_level) {
-            $building_level = $this->getObjectLevel($machine_name);
+        // NOTE: object_level is used by eval() function in the formula.
+        $object_level = $object_level ?? 0;
+        if (!$object_level) {
+            if ($gameObject->type === GameObjectType::Ship || $gameObject->type == GameObjectType::Defense) {
+                $object_level = $this->getObjectAmount($machine_name);
+            }
+            else {
+                $object_level = $this->getObjectLevel($machine_name);
+            }
             $resource_production_factor = $this->getResourceProductionFactor();
         }
 
@@ -1290,10 +1297,10 @@ class PlanetService
         $universe_resource_multiplier = $this->settingsService->economySpeed();
 
         $production = new Resources(0, 0, 0, 0);
-        $production->metal->set((eval($building->production->metal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
-        $production->crystal->set((eval($building->production->crystal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
-        $production->deuterium->set((eval($building->production->deuterium) * $universe_resource_multiplier) * ($resource_production_factor / 100));
-        $production->energy->set((eval($building->production->energy))); // Energy is not affected by production factor or universe economy speed.
+        $production->metal->set((eval($gameObject->production->metal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
+        $production->crystal->set((eval($gameObject->production->crystal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
+        $production->deuterium->set((eval($gameObject->production->deuterium) * $universe_resource_multiplier) * ($resource_production_factor / 100));
+        $production->energy->set((eval($gameObject->production->energy))); // Energy is not affected by production factor or universe economy speed.
 
         // Round down for energy.
         // Round up for positive resources, round down for negative resources.
@@ -1460,19 +1467,19 @@ class PlanetService
      * Gets the max storage value for resources of a building on this planet.
      *
      * @param string $machine_name
-     * @param int|bool $building_level
+     * @param int|bool $object_level
      * Optional parameter to calculate the storage for a specific level
      *
      * @return Resources
      * @throws Exception
      */
-    public function getBuildingMaxStorage(string $machine_name, int|bool $building_level = false): Resources
+    public function getBuildingMaxStorage(string $machine_name, int|bool $object_level = false): Resources
     {
         $building = $this->objects->getBuildingObjectByMachineName($machine_name);
 
-        // NOTE: $building_level is used by eval() function in the formula.
-        if (!$building_level) {
-            $building_level = $this->getObjectLevel($machine_name);
+        // NOTE: $object_level is used by eval() function in the formula.
+        if (!$object_level) {
+            $object_level = $this->getObjectLevel($machine_name);
         }
 
         $storage_metal = eval($building->storage->metal);

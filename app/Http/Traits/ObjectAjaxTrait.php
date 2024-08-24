@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OGame\Facades\AppUtil;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
@@ -32,8 +33,10 @@ trait ObjectAjaxTrait
         $object = $objects->getObjectById($object_id);
 
         $current_level = 0;
-        if ($object->type == 'research') {
+        if ($object->type == GameObjectType::Research) {
             $current_level = $player->getResearchLevel($object->machine_name);
+        } else if ($object->type == GameObjectType::Ship || $object->type == GameObjectType::Defense) {
+            $current_level = $planet->getObjectAmount($object->machine_name);
         } else {
             $current_level = $planet->getObjectLevel($object->machine_name);
         }
@@ -51,36 +54,36 @@ trait ObjectAjaxTrait
         $production_time = '';
         $production_datetime = '';
         switch ($object->type) {
-            case 'building':
-            case 'station':
+            case GameObjectType::Building:
+            case GameObjectType::Station:
                 $production_time = AppUtil::formatTimeDuration($planet->getBuildingConstructionTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getBuildingConstructionTime($object->machine_name));
                 break;
-            case 'ship':
-            case 'defense':
+            case GameObjectType::Ship:
+            case GameObjectType::Defense:
                 $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 break;
-            case 'research':
+            case GameObjectType::Research:
                 $production_time = AppUtil::formatTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
                 break;
             default:
                 // Unknown object type, throw error.
-                throw new Exception('Unknown object type: ' . $object->type);
+                throw new Exception('Unknown object type: ' . $object->type->name);
         }
 
         // Get current amount of this object (unit) on the current planet.
         $current_amount = 0;
-        if ($object->type == 'ship' || $object->type == 'defense') {
+        if ($object->type == GameObjectType::Ship || $object->type == GameObjectType::Defense) {
             $current_amount = $planet->getObjectAmount($object->machine_name);
         }
 
         $production_next = [];
         $energy_difference = 0;
         if (!empty($object->production)) {
-            $production_current = $planet->getBuildingProduction($object->machine_name);
-            $production_next = $planet->getBuildingProduction($object->machine_name, $next_level);
+            $production_current = $planet->getObjectProduction($object->machine_name);
+            $production_next = $planet->getObjectProduction($object->machine_name, $next_level);
 
             if (!empty($production_current->energy->get())) {
                 $energy_difference = ($production_next->energy->get() - $production_current->energy->get()) * -1;
