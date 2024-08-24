@@ -60,7 +60,7 @@
                             @elseif (!$building->requirements_met)
                             @elseif (!$building->enough_resources)
                             @elseif ($build_queue_max)
-                            @else
+                            @elseif ($building->object->type != \OGame\GameObjects\Models\Enums\GameObjectType::Ship)
                                 <button
                                         class="upgrade tooltip hideOthers js_hideTipOnMobile"
                                         aria-label="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}" title="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}"

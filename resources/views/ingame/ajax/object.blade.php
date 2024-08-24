@@ -7,7 +7,7 @@
                 data-target="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $id]) }}"
                 data-ipi-hint="ipiTechnologyTreedeuteriumSynthesizer"> techtree
         </button>
-        @if ($object_type == 'building' || $object_type == 'station' || $object_type == 'research')
+        @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Research)
             @if (!empty($build_active_current) && $build_active_current->object->id == $object->id)
                 <a role="button" href="javascript:void(0);" class="tooltip abort_link js_hideTipOnMobile" title="" onclick="cancelbuilding({{ $object->id }},{{ $build_active_current->id }},'Cancel expansion of {{ $object->title }} to level {{ $build_active_current->level_target }}?'); return false;"></a>
             @endif
@@ -163,13 +163,13 @@
 
             </div>
 
-            @if ($object_type == 'ship' || $object_type == 'defense')
+            @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                 <div class="build_amount">
                     <label for="build_amount">Number:</label>
                     <input type="text" name="build_amount" id="build_amount" min="0" max="{{ $max_build_amount }}" onfocus="clearInput(this);" onkeyup="checkIntInput(this, 1, {{ $max_build_amount }});event.stopPropagation();">
                     <button class="maximum">[max. {{ $max_build_amount }}]</button>
                 </div>
-            @elseif ($object_type == 'building' || $object_type == 'station')
+            @elseif ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station)
                 <!-- TODO: implement downgrade feature -->
                 <!--<button class="downgrade" data-technology="3" data-name="{{ $title }}">
                     <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
@@ -187,7 +187,7 @@
                             @endif
                             data-technology="{{ $object->id }}">
                         <span class="tooltip" title="">
-                            @if ($object_type == 'ship' || $object_type == 'defense')
+                            @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                                 Build
                             @elseif (!empty($build_active->id))
                                 In queue
