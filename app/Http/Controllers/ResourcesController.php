@@ -90,9 +90,6 @@ class ResourcesController extends AbstractBuildingsController
             $production = $this->planet->getObjectProduction($building->machine_name);
             $production_total->add($production);
 
-            // TODO: configuring production percentage is only supported for buildings right now.
-            // We also need to add this for other objects that produce resources/energy such as
-            // solar satellites and plasma technology.
             $percentage = 10;
             if ($building->type === GameObjectType::Building) {
                 $percentage = $this->planet->getBuildingPercent($building->machine_name);

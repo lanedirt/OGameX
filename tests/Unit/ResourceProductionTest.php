@@ -73,6 +73,7 @@ class ResourceProductionTest extends UnitTestCase
     {
         $this->createAndSetPlanetModel([
             'solar_satellite' => 100,
+            'solar_satellite_percent' => 10,
         ]);
 
         // Currently solar satellites produce fixed 20 energy each.
