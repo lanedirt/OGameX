@@ -288,7 +288,7 @@ class GalaxyController extends OGameController
         $lastActivity = $planet->getMinutesSinceLastUpdate();
 
         $result = [
-            'showMinutes' => true,
+            'showMinutes' => true, // TODO need to use the player option (Detailed activity display)
         ];
 
         if ($lastActivity > 60) {
