@@ -100,7 +100,10 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
         Route::get('/planet-move', 'PlanetMoveController@index')->name('planetMove.index');
 
         Route::get('/overlay/search', 'SearchController@overlay')->name('search.overlay');
-        Route::get('/overlay/notes', 'NotesController@overlay')->name('notes.overlay');
+
+        Route::match(['get', 'post'], '/overlay/notes', 'NotesController@overlay')->name('notes.overlay');
+        Route::get('/overlay/notes/view', 'NotesController@view')->name('notes.view');
+        Route::post('/ajax/notes/create', 'NotesController@ajaxCreate')->name('notes.ajax.create');
 
         Route::get('/overlay/planet-abandon', 'PlanetAbandonController@overlay')->name('planetabandon.overlay');
         Route::post('ajax/planet-abandon/rename', 'PlanetAbandonController@rename')->name('planetabandon.rename');
