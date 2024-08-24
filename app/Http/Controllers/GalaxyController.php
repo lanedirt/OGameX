@@ -288,8 +288,6 @@ class GalaxyController extends OGameController
         $lastActivity = $planet->getMinutesSinceLastUpdate();
 
         $result = [
-            'idleTime' => null,
-            'showActivity' => false,
             'showMinutes' => true,
         ];
 
