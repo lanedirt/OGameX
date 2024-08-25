@@ -142,10 +142,10 @@ abstract class GameMission
      * @param UnitCollection $units
      * @param Resources $resources
      * @param int $parent_id
-     * @return void
+     * @return FleetMission
      * @throws Exception
      */
-    public function start(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources, int $parent_id = 0): void
+    public function start(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
     {
         $this->startMissionSanityChecks($planet, $targetCoordinate, $units, $resources);
 
@@ -204,6 +204,8 @@ abstract class GameMission
         if ($mission->time_arrival < Carbon::now()->timestamp) {
             $this->process($mission);
         }
+
+        return $mission;
     }
 
     /**

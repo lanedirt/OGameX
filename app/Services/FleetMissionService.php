@@ -287,16 +287,16 @@ class FleetMissionService
      * @param UnitCollection $units
      * @param Resources $resources
      * @param int $parent_id
-     * @return void
+     * @return FleetMission
      * @throws Exception
      */
-    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): void
+    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
     {
         $missionObject = $this->gameMissionFactory->getMissionById($missionType, [
             'fleetMissionService' => $this,
             'messageService' => $this->messageService,
         ]);
-        $missionObject->start($planet, $targetCoordinate, $units, $resources, $parent_id);
+        return $missionObject->start($planet, $targetCoordinate, $units, $resources, $parent_id);
     }
 
     /**

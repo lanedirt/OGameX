@@ -549,8 +549,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Launch attack from foreign planet to the current players second planet.
         $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
-        $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->secondPlanetService->getPlanetCoordinates(), $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
-        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMission = $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->secondPlanetService->getPlanetCoordinates(), $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
 
         // Advance time by 24 hours to ensure the mission is done.
         Carbon::setTestNow(Carbon::now()->addHours(24));
