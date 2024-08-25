@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
-use OGame\Models\Resources;
 use OGame\Services\SettingsService;
 use Tests\UnitTestCase;
 
@@ -24,7 +23,7 @@ class ResourceProductionTest extends UnitTestCase
     }
 
     /**
-     * Mock test for metal mine production with positive energy production.
+     * Test metal mine production with positive energy production.
      */
     public function testMineProduction(): void
     {
@@ -46,7 +45,7 @@ class ResourceProductionTest extends UnitTestCase
     }
 
     /**
-     * Mock test for metal mine production with zero energy production.
+     * Test metal mine production with zero energy production.
      */
     public function testMineProductionNoEnergy(): void
     {
@@ -68,25 +67,19 @@ class ResourceProductionTest extends UnitTestCase
     }
 
     /**
-     * Mock test for metal mine production with zero energy production.
+     * Test solar satellite energy production.
      */
-    public function testDeductTooManyResources(): void
+    public function testSolarSatelliteEnergyProduction(): void
     {
         $this->createAndSetPlanetModel([
-            'metal_mine_percent' => 10,
-            'metal_mine' => 20,
-            'crystal_mine_percent' => 10,
-            'crystal_mine' => 20,
-            'deuterium_synthesizer_percent' => 10,
-            'deuterium_synthesizer' => 20,
-            'solar_plant' => 0,
-            'solar_plant_percent' => 10,
+            'solar_satellite' => 100,
+            'solar_satellite_percent' => 10,
         ]);
 
-        // Specify the type of exception you expect to be thrown
-        $this->expectException(\Exception::class);
-
-        // Call the method that should throw the exception
-        $this->planetService->deductResources(new Resources(9999, 9999, 9999, 0));
+        // Currently solar satellites produce fixed 20 energy each.
+        // So 100 satellites should produce 2000 energy.
+        // @TODO: this will need to be updated once the planet temperature
+        // is added and the energy production formula is updated.
+        $this->assertEquals(2000, $this->planetService->energyProduction()->get());
     }
 }

@@ -1,15 +1,13 @@
 @php /** @var OGame\Models\Resources $price */ @endphp
 
-
 <div id="technologydetails" data-technology-id="3">
-
     <div class="sprite sprite_large building {{ $object->class_name }}">
         <button class="technology_tree no_prerequisites tooltip js_hideTipOnMobile overlay ipiHintable"
                 aria-label="open techtree" title="No requirements available"
                 data-target="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $id]) }}"
                 data-ipi-hint="ipiTechnologyTreedeuteriumSynthesizer"> techtree
         </button>
-        @if ($object_type == 'building' || $object_type == 'station' || $object_type == 'research')
+        @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Research)
             @if (!empty($build_active_current) && $build_active_current->object->id == $object->id)
                 <a role="button" href="javascript:void(0);" class="tooltip abort_link js_hideTipOnMobile" title="" onclick="cancelbuilding({{ $object->id }},{{ $build_active_current->id }},'Cancel expansion of {{ $object->title }} to level {{ $build_active_current->level_target }}?'); return false;"></a>
             @endif
@@ -47,18 +45,15 @@
                     </li>
                 @elseif ($energy_difference < 0)
                     <li class="energy_production">
-                        <strong>Production:</strong>
-                        <span class="value tooltip" data-value="{{ $production_next->energy->get() }}" title="">{{ $production_next->energy->get() }}
+                        <strong>@lang('Production'):</strong>
+                        <span class="value tooltip" data-value="{{ $production_next->energy->get() }}" title="">{{ $production_next->energy->getFormattedLong() }}
                             <span class="bonus" data-value="{{ ($energy_difference * -1) }}">
-                                (+{{ ($energy_difference * -1) }})
+                                (+{{ \OGame\Facades\AppUtil::formatNumberLong($energy_difference * -1) }})
                             </span>
                         </span>
 
                     </li>
                 @endif
-
-
-
             </ul>
 
             <div class="costs">
@@ -168,13 +163,13 @@
 
             </div>
 
-            @if ($object_type == 'ship' || $object_type == 'defense')
+            @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                 <div class="build_amount">
                     <label for="build_amount">Number:</label>
                     <input type="text" name="build_amount" id="build_amount" min="0" max="{{ $max_build_amount }}" onfocus="clearInput(this);" onkeyup="checkIntInput(this, 1, {{ $max_build_amount }});event.stopPropagation();">
                     <button class="maximum">[max. {{ $max_build_amount }}]</button>
                 </div>
-            @elseif ($object_type == 'building' || $object_type == 'station')
+            @elseif ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station)
                 <!-- TODO: implement downgrade feature -->
                 <!--<button class="downgrade" data-technology="3" data-name="{{ $title }}">
                     <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
@@ -192,7 +187,7 @@
                             @endif
                             data-technology="{{ $object->id }}">
                         <span class="tooltip" title="">
-                            @if ($object_type == 'ship' || $object_type == 'defense')
+                            @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                                 Build
                             @elseif (!empty($build_active->id))
                                 In queue
@@ -208,9 +203,7 @@
                 </a>
                 -->
             </div>
-
         </div>
-
     </div>
 
     <div class="description">
@@ -284,31 +277,18 @@
     );
 
     var buttonClass = "build-it";
-
     var overlayTitle = 'Start with DM';
-
     var showSlotWarning = 1;
-
     var buttonState = 1;
-
     var techID = 1;
-
     var isRocketAndStorageNotFree = 0;
-
     var couldBeBuild = 1;
-
     var isShip = 0;
-
     var isRocket = 0;
-
     var hasCommander = 0;
-
     var buildableAt = null;
-
     var error = 2000;
-
     var premiumerror = 0;
-
     var showErrorOnPremiumbutton = 0;
 
     var errorlist = {
@@ -320,15 +300,10 @@
         '1000': 'Not enough Dark Matter available! Do you want to buy some now?'
     };
 
-
     var isBuildlistNeeded = 0;
-
     //var showCommanderHint = (!buttonState && !hasCommander && isBuildlistNeeded && couldBeBuild && (isShip || isRocket));
-
     var showNoPremiumError = 0;
-
     var pageToReload = "{{ route('resources.index') }}";
-
     var isBusy = 0;
 
 </script>

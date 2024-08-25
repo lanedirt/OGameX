@@ -278,6 +278,7 @@ class PlanetServiceFactory
         $planet->deuterium_synthesizer_percent = 10;
         $planet->solar_plant_percent = 10;
         $planet->fusion_plant_percent = 10;
+        $planet->solar_satellite_percent = 10;
 
         $planet->time_last_update = (int)Carbon::now()->timestamp;
         $planet->save();

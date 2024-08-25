@@ -2,7 +2,9 @@
 
 namespace OGame\GameObjects\Models;
 
+use OGame\GameObjects\Models\Enums\GameObjectType;
+
 class DefenseObject extends UnitObject
 {
-    public string $type = 'defense';
+    public GameObjectType $type = GameObjectType::Defense;
 }
