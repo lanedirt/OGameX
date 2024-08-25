@@ -283,7 +283,7 @@ class GalaxyController extends OGameController
      *     showMinutes: bool
      * }
      */
-    private function getPlanetActivityStatus(PlanetService $planet)
+    private function getPlanetActivityStatus(PlanetService $planet): array
     {
         $lastActivity = $planet->getMinutesSinceLastUpdate();
 
