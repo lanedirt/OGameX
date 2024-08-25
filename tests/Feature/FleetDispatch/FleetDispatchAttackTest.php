@@ -552,8 +552,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->secondPlanetService->getPlanetCoordinates(), $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
 
-        // Advance time by 10 hours to ensure the mission is done.
-        Carbon::setTestNow(Carbon::now()->addHours(10));
+        // Advance time by 24 hours to ensure the mission is done.
+        Carbon::setTestNow(Carbon::now()->addHours(24));
 
         // Load overview page to trigger the update logic which should process all fleet missions associated with user,
         // not just the current planet.
@@ -562,6 +562,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMission->id, false);
-        $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed associated with players second (not-selected) planet.');
+        $this->assertTrue($fleetMission->processed === 1, 'Fleet mission is not processed associated with players second (not-selected) planet.');
     }
 }
