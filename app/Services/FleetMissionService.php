@@ -239,18 +239,18 @@ class FleetMissionService
     }
 
     /**
-     * Get missions that are either from or to the given planet that have reached the arrival time
+     * Get missions that are either from or to the given planets that have reached the arrival time
      * but are not processed yet.
      *
-     * @param int $planetId
+     * @param int[] $planetIds
      * @return Collection
      */
-    public function getMissionsByPlanetId(int $planetId): Collection
+    public function getMissionsByPlanetIds(array $planetIds): Collection
     {
         return $this->model
-            ->where(function ($query) use ($planetId) {
-                $query->where('planet_id_from', $planetId)
-                    ->orWhere('planet_id_to', $planetId);
+            ->where(function ($query) use ($planetIds) {
+                $query->whereIn('planet_id_from', $planetIds)
+                    ->orWhereIn('planet_id_to', $planetIds);
             })
             ->where('time_arrival', '<=', Carbon::now()->timestamp)
             ->where('processed', 0)

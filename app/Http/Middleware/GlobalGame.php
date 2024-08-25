@@ -43,8 +43,11 @@ class GlobalGame
             // Update player.
             $player->update();
 
-            // Update all planets.
-            $player->planets->update();
+            // Update current planet of player.
+            $player->planets->current()->update();
+
+            // Update all fleet missions of player that are associated with any of the player's planets.
+            $player->updateFleetMissions();
         }
 
         return $next($request);
