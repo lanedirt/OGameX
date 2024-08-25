@@ -88,7 +88,8 @@ class UnitQueueService
                 $item['time_end'] - $item['time_start'],
                 $item['object_amount'],
                 $item['object_amount'] - $item['object_amount_progress'],
-                $time_countdown_next_single
+                $time_countdown_next_single,
+                $time_per_unit
             );
 
             $list[] = $viewModel;
