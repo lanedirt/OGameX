@@ -46,11 +46,8 @@ class GlobalGame
             // Update current planet of player.
             $player->planets->current()->update();
 
-            // This updates the fleet missions that are associated with this planet.
-            // Note: we call this here instead of including it in the planet update
-            // because the planet update method itself is also called from fleet missions,
-            // and we don't want to update the fleet missions twice causing deadlocks.
-            $player->planets->current()->updateFleetMissions();
+            // Update all fleet missions of player that are associated with any of the player's planets.
+            $player->updateFleetMissions();
         }
 
         return $next($request);

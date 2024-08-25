@@ -5,7 +5,6 @@ namespace OGame\Services;
 use Exception;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet as Planet;
-use Throwable;
 
 /**
  * Class PlanetList.
@@ -131,6 +130,21 @@ class PlanetListService
     public function all(): array
     {
         return $this->planets;
+    }
+
+    /**
+     * Return array of planet ids.
+     *
+     * @return int[];
+     */
+    public function allIds(): array
+    {
+        $planetIds = [];
+        foreach ($this->planets as $planet) {
+            $planetIds[] = $planet->getPlanetId();
+        }
+
+        return $planetIds;
     }
 
     /**
