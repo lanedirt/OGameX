@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\FleetDispatch;
+namespace Tests\Feature\FleetDispatch;
 
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -32,6 +32,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
      * Prepare the planet for the test, so it has the required buildings and research.
      *
      * @return void
+     * @throws BindingResolutionException
      */
     protected function basicSetup(): void
     {
@@ -229,7 +230,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // The eventbox should only show 1 mission (the parent).
         $response = $this->get('/ajax/fleet/eventbox/fetch');
@@ -271,7 +272,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -350,7 +351,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -373,6 +374,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
             'fleet_mission_id' => $fleetMissionId,
             '_token' => csrf_token(),
         ]);
+
         // Expecting a 500 error because the mission is already canceled.
         $response->assertStatus(500);
 
@@ -405,6 +407,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Clear existing units from foreign planet.
         $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
         $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
+
         // Give the foreign planet some units to defend itself.
         $foreignPlanet->addUnit('rocket_launcher', 100);
 
@@ -504,6 +507,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Check that the class "noAttack" is present in the response which indicates we're not under attack.
         $this->assertStringContainsString('noAttack', (string)$response->getContent(), 'We are under attack while we should not be.');
+
         // Check that no title warning is shown.
         $this->assertStringNotContainsString('You are under attack!', (string)$response->getContent(), 'You are under attack warning title is shown while we should not be under attack.');
 
@@ -525,5 +529,39 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertStringNotContainsString('noAttack', (string)$response->getContent(), 'We are not under attack while we should be. Check if the under attack warning works correctly.');
         $this->assertStringContainsString('soon', (string)$response->getContent(), 'We are under attack but no warning is shown. Check if the under attack warning works correctly.');
         $this->assertStringContainsString('You are under attack!', (string)$response->getContent(), 'You are under attack warning title is not shown while we should be under attack. Check if the under attack warning works correctly.');
+    }
+
+    /**
+     * Assert that a fleet attack mission targeted not towards current planet still gets processed on page load.
+     */
+    public function testDispatchFleetMissionProcessedNotActivePlanet(): void
+    {
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Get foreign planet.
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+
+        // Add units to foreign planet.
+        $foreignPlanet->addUnit('light_fighter', 1);
+        $unitsToSend = new UnitCollection();
+        $unitsToSend->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+
+        // Launch attack from foreign planet to the current players second planet.
+        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
+        $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->secondPlanetService->getPlanetCoordinates(), $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Advance time by 10 hours to ensure the mission is done.
+        Carbon::setTestNow(Carbon::now()->addHours(10));
+
+        // Load overview page to trigger the update logic which should process all fleet missions associated with user,
+        // not just the current planet.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the fleet mission is processed.
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMission->id, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed associated with players second (not-selected) planet.');
     }
 }

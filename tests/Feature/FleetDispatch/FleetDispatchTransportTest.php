@@ -329,6 +329,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }
+
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -341,6 +342,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
             'fleet_mission_id' => $fleetMissionId,
             '_token' => csrf_token(),
         ]);
+
         $response->assertStatus(200);
 
         // Assert that the original mission is now canceled.
@@ -359,6 +361,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }
+
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
@@ -411,6 +414,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }
+
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -423,6 +427,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
             'fleet_mission_id' => $fleetMissionId,
             '_token' => csrf_token(),
         ]);
+
         $response->assertStatus(200);
 
         // Cancel it again
@@ -430,6 +435,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
             'fleet_mission_id' => $fleetMissionId,
             '_token' => csrf_token(),
         ]);
+
         // Expecting a 500 error because the mission is already canceled.
         $response->assertStatus(500);
 
