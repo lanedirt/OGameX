@@ -62,26 +62,6 @@ class PlanetListService
     }
 
     /**
-     * Updates all planets in this planet list.
-     *
-     * @return void
-     * @throws Throwable
-     */
-    public function update(): void
-    {
-        foreach ($this->planets as $planet) {
-            // This updates the planet itself.
-            $planet->update();
-
-            // This updates the fleet missions that are associated with this planet.
-            // Note: we call this here instead of including it in the planet update
-            // because the planet update method itself is also called from fleet missions,
-            // and we don't want to update the fleet missions twice causing deadlocks.
-            $planet->updateFleetMissions();
-        }
-    }
-
-    /**
      * Get already loaded child planet by ID. Invokes an exception if the
      * planet is not found.
      * @throws Exception
