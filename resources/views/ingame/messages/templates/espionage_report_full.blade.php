@@ -116,7 +116,7 @@
     </div>
     <ul class="detail_list clearfix" data-type="ships">
         @php /** @var OGame\ViewModels\UnitViewModel $unit */ @endphp
-        @foreach ($ships as $unit)
+        @forelse ($ships as $unit)
             <li class="detail_list_el">
                 <div class="shipImage float_left">
                     <img class="tech{{ $unit->object->id }}" width="28" height="28" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
@@ -124,7 +124,9 @@
                 <span class="detail_list_txt">{{ $unit->object->title }}</span>
                 <span class="fright" style="margin-right: 10px;">{{ $unit->amount }}</span>
             </li>
-        @endforeach
+        @empty
+            @lang('We were unable to retrieve any reliable information of this type from the scan.')
+        @endforelse
     </ul>
 
     <div class="section_title">
@@ -134,7 +136,7 @@
     </div>
     <ul class="detail_list clearfix" data-type="defense">
         @php /** @var OGame\ViewModels\UnitViewModel $unit */ @endphp
-        @foreach ($defense as $unit)
+        @forelse ($defense as $unit)
             <li class="detail_list_el">
                 <div class="defense_image float_left">
                     <img class="defense{{ $unit->object->id }}" width="28" height="28" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
@@ -142,7 +144,9 @@
                 <span class="detail_list_txt">{{ $unit->object->title }}</span>
                 <span class="fright" style="margin-right: 10px;">{{ $unit->amount }}</span>
             </li>
-        @endforeach
+        @empty
+            @lang('We were unable to retrieve any reliable information of this type from the scan.')
+        @endforelse
     </ul>
 
 
@@ -154,7 +158,7 @@
 
     <ul class="detail_list clearfix" data-type="buildings">
         @php /** @var OGame\ViewModels\UnitViewModel $unit */ @endphp
-        @foreach ($buildings as $unit)
+        @forelse ($buildings as $unit)
             <li class="detail_list_el">
                 <div class="building_image float_left">
                     <img class="building{{ $unit->object->id }}" width="28" height="28" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
@@ -162,7 +166,9 @@
                 <span class="detail_list_txt">{{ $unit->object->title }}</span>
                 <span class="fright" style="margin-right: 10px;">{{ $unit->amount }}</span>
             </li>
-        @endforeach
+        @empty
+            @lang('We were unable to retrieve any reliable information of this type from the scan.')
+        @endforelse
     </ul>
 
     <!--
@@ -246,7 +252,7 @@
     </div>
 
     <ul class="detail_list clearfix" data-type="research">
-        @foreach ($research as $unit)
+        @forelse ($research as $unit)
             <li class="detail_list_el">
                 <div class="research_image float_left">
                     <img class="research{{ $unit->object->id }}" width="28" height="28" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
@@ -254,7 +260,9 @@
                 <span class="detail_list_txt">{{ $unit->object->title }}</span>
                 <span class="fright" style="margin-right: 10px;">{{ $unit->amount }}</span>
             </li>
-        @endforeach
+        @empty
+            @lang('We were unable to retrieve any reliable information of this type from the scan.')
+        @endforelse
     </ul>
 
     <!--
