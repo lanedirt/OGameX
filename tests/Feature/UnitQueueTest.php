@@ -92,6 +92,111 @@ class UnitQueueTest extends AccountTestCase
     }
 
     /**
+     * Verify that building large amount of ships with default shipyard level works as expected.
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testUnitQueueLargeAmountLowShipyardLevel(): void
+    {
+        $this->basicSetup();
+
+        // Add resources to planet that test requires.
+        $this->planetAddResources(new Resources(30000000, 10000000, 0, 0));
+
+        // Set the current time to a specific moment for testing
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
+        Carbon::setTestNow($testTime);
+
+        // ---
+        // Step 1: Issue a request to build 1k light fighters
+        // ---
+        $this->addShipyardBuildRequest('light_fighter', 1000);
+
+        // ---
+        // Step 2: Verify the ships are in the build queue
+        // ---
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 0, 'Light Fighter is not at 0 units directly after build request issued.');
+
+        // Increase time by random 1-15 minute intervals 20 times in total to simulate partial updates.
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
+        for ($i = 0; $i < 50; $i++) {
+            $testTime = $testTime->addMinutes(rand(1, 15));
+            Carbon::setTestNow($testTime);
+
+            $response = $this->get('/shipyard');
+            $response->assertStatus(200);
+        }
+
+        // ---
+        // Step 4: Verify that all ships are finished 2 weeks later.
+        // ---
+        $testTime = Carbon::create(2024, 1, 14, 0, 0, 0);
+        Carbon::setTestNow($testTime);
+
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 1000, 'Light Fighter build job is not finished yet 2h after build request issued.');
+    }
+
+    /**
+     * Verify that building large amount of ships with high shipyard level works as expected.
+     * @throws BindingResolutionException
+     * @throws Exception
+     */
+    public function testUnitQueueLargeAmountHighShipyardLevel(): void
+    {
+        $this->basicSetup();
+
+        // Set shipyard and nano factory to level 10 to speed up the build time, expecting 1 second per unit.
+        $this->planetSetObjectLevel('shipyard', 12);
+        $this->planetSetObjectLevel('nano_factory', 10);
+
+        // Add resources to planet that test requires.
+        $this->planetAddResources(new Resources(30000000, 10000000, 0, 0));
+
+        // Set the current time to a specific moment for testing
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
+        Carbon::setTestNow($testTime);
+
+        // ---
+        // Step 1: Issue a request to build 10k light fighters
+        // ---
+        $this->addShipyardBuildRequest('light_fighter', 10000);
+
+        // ---
+        // Step 2: Verify the ships are in the build queue
+        // ---
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 0, 'Light Fighter is not at 0 units directly after build request issued.');
+
+        // Increase time by random 1-15 second intervals 20 times in total to simulate partial updates.
+        for ($i = 0; $i < 20; $i++) {
+            Carbon::setTestNow($testTime->addSeconds(rand(1, 15)));
+
+            $response = $this->get('/shipyard');
+            $response->assertStatus(200);
+        }
+
+        // Do it again but now with just microsecond differences.
+        for ($i = 0; $i < 20; $i++) {
+            Carbon::setTestNow($testTime->addMicroSeconds(rand(400000, 999999)));
+
+            $response = $this->get('/shipyard');
+            $response->assertStatus(200);
+        }
+
+        // Increase time by 10 hours to simulate the final update.
+        Carbon::setTestNow($testTime->addHours(10));
+
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 10000, 'Light Fighter build job is not finished yet 2h after build request issued.');
+    }
+
+    /**
      * Verify that adding three different build jobs and waiting for them all to complete works as expected.
      * @throws BindingResolutionException
      * @throws Exception
