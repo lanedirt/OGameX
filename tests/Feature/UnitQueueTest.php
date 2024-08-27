@@ -180,9 +180,9 @@ class UnitQueueTest extends AccountTestCase
             $response->assertStatus(200);
         }
 
-        // Do it again but now with just microsecond differences.
+        // Do it again but now with just millisecond differences.
         for ($i = 0; $i < 20; $i++) {
-            Carbon::setTestNow($testTime->addMicroSeconds(rand(400000, 999999)));
+            Carbon::setTestNow($testTime->addMilliseconds(rand(400, 999)));
 
             $response = $this->get('/shipyard');
             $response->assertStatus(200);

@@ -47,8 +47,8 @@ class EspionageMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, false);
+        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, false);
 
         // Trigger target planet update to make sure the espionage report is accurate.
         $target_planet->update();

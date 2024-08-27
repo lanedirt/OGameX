@@ -33,8 +33,8 @@ class TransportMission extends GameMission
 
     protected function processArrival(FleetMission $mission): void
     {
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, false);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, false);
 
         // Add resources to the target planet
         $target_planet->addResources($this->fleetMissionService->getResources($mission));

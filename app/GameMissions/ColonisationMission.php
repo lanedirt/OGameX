@@ -45,10 +45,10 @@ class ColonisationMission extends GameMission
     {
         // Sanity check: make sure the target coordinates are valid and the planet is (still) empty.
         $target_coordinates = new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to);
-        $target_planet = $this->planetServiceFactory->makeForCoordinate($target_coordinates);
+        $target_planet = $this->planetServiceFactory->makeForCoordinate($target_coordinates, false);
 
         // Load the mission owner user
-        $player = $this->playerServiceFactory->make($mission->user_id);
+        $player = $this->playerServiceFactory->make($mission->user_id, false);
 
         if ($target_planet != null) {
             // TODO: add unittest for this behavior.

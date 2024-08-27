@@ -40,7 +40,7 @@ class DeploymentMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, false);
 
         // Add resources to the target planet
         $resources = $this->fleetMissionService->getResources($mission);

@@ -44,8 +44,8 @@ class AttackMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to);
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
+        $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to, false);
+        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, false);
 
         // Trigger defender planet update to make sure the battle uses up-to-date info.
         $defenderPlanet->update();
