@@ -273,7 +273,6 @@ abstract class GameMessage
         // TODO: add unittests to cover the placeholder replacements.
         // Pattern to match [player]{playerId}[/player] placeholders
         $body = preg_replace_callback('/\[player\](\d+)\[\/player\]/', function ($matches) {
-            // Assuming getPlayerNameById is a method to get a player's name by ID
             if (!is_numeric($matches[1])) {
                 return "Unknown Player";
             }
@@ -296,7 +295,6 @@ abstract class GameMessage
         }, $body);
 
         $body = preg_replace_callback('/\[planet\](\d+)\[\/planet\]/', function ($matches) {
-            // Assuming getPlayerNameById is a method to get a player's name by ID
             if (!is_numeric($matches[1])) {
                 return "Unknown Planet";
             }
@@ -321,7 +319,6 @@ abstract class GameMessage
         }, $body);
 
         $body = preg_replace_callback('/\[coordinates\](\d+):(\d+):(\d+)\[\/coordinates\]/', function ($matches) {
-            // Assuming getPlayerNameById is a method to get a player's name by ID
             if (!is_numeric($matches[1]) || !is_numeric($matches[2]) || !is_numeric($matches[3])) {
                 return "Unknown Planet";
             }

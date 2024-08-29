@@ -47,8 +47,8 @@ class EspionageMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
 
         // Trigger target planet update to make sure the espionage report is accurate.
         $target_planet->update();
@@ -79,7 +79,7 @@ class EspionageMission extends GameMission
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
         // Espionage return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -107,10 +107,6 @@ class EspionageMission extends GameMission
      */
     private function createEspionageReport(FleetMission $mission, PlanetService $originPlanet, PlanetService $targetPlanet): int
     {
-        // TODO: make sure the target planet is updated with the latest resources before creating the report
-        // to ensure the report is accurate at the current point in time.
-        // TODO: add planet update call here and add a test to cover this.
-
         // Create new espionage report record.
         $report = new EspionageReport();
         $report->planet_galaxy = $targetPlanet->getPlanetCoordinates()->galaxy;

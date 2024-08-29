@@ -785,6 +785,9 @@ class PlanetService
                 ->first();
 
             if ($planet) {
+                // Refresh the planet object to ensure we have the latest data after retrieving the lock above.
+                $this->reloadPlanet();
+
                 // ------
                 // 1. Update resources amount in planet based on hourly production values.
                 // ------
@@ -1124,7 +1127,12 @@ class PlanetService
     public function addUnits(UnitCollection $units, bool $save_planet = true): void
     {
         foreach ($units->units as $unit) {
-            $this->addUnit($unit->unitObject->machine_name, $unit->amount, $save_planet);
+            // Do not save the planet in this loop, but save it in the end if requested.
+            $this->addUnit($unit->unitObject->machine_name, $unit->amount, false);
+        }
+
+        if ($save_planet) {
+            $this->save();
         }
     }
 
@@ -1142,6 +1150,7 @@ class PlanetService
         if ($this->planet->{$object->machine_name} < $amount) {
             throw new RuntimeException('Planet does not have enough units.');
         }
+
         $this->planet->{$object->machine_name} -= $amount;
 
         if ($save_planet) {

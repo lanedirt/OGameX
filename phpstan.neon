@@ -16,6 +16,11 @@ parameters:
     ignoreErrors:
         - identifier: missingType.generics
 
+    # Required because of bug where PHPStan triggers regex in app/GameMessages/Abstracts/GameMessage.php
+    # as error: Negated boolean expression is always false. Check later if this is fixed by removing
+    # this line and running PHPStan again. If it does not throw any errors anymore, you can safely remove this.
+    treatPhpDocTypesAsCertain: false
+
 #    ignoreErrors:
 #        - '#PHPDoc tag @var#'
 #

@@ -48,11 +48,15 @@ class PlanetServiceFactory
      * it is advised to use makeForPlayer() method if playerService is already available.
      *
      * @param int $planetId
+     * @param bool $reloadCache Whether to force retrieve the object and reload the cache. Defaults to false.
+     * Note: for certain usecases such as updating planets/missions after gaining a lock, its essential to set this to
+     * true in order to get the latest data from the database and update the cache accordingly to avoid stale data.
+     *
      * @return PlanetService|null
      */
-    public function make(int $planetId): PlanetService|null
+    public function make(int $planetId, bool $reloadCache = false): PlanetService|null
     {
-        if (!isset($this->instancesById[$planetId])) {
+        if ($reloadCache || !isset($this->instancesById[$planetId])) {
             try {
                 $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
                 $this->instancesById[$planetId] = $planetService;
@@ -62,7 +66,6 @@ class PlanetServiceFactory
                 }
             } catch (BindingResolutionException $e) {
                 return null;
-                /*throw new \RuntimeException('Class not found: ' . PlayerService::class);*/
             }
         }
 
@@ -75,11 +78,15 @@ class PlanetServiceFactory
      *
      * @param PlayerService $player
      * @param int $planetId
+     * @param bool $useCache Whether to use the cache or not. Defaults to true. Note: for certain usecases
+     *  such as updating planets/missions after gaining a lock, its essential to set this to false in order
+     *  to get the latest data from the database.
+     *
      * @return PlanetService
      */
-    public function makeForPlayer(PlayerService $player, int $planetId): PlanetService
+    public function makeForPlayer(PlayerService $player, int $planetId, bool $useCache = true): PlanetService
     {
-        if (!isset($this->instancesById[$planetId])) {
+        if (!$useCache || !isset($this->instancesById[$planetId])) {
             try {
                 $planetService = app()->make(PlanetService::class, ['player' => $player, 'planet_id' => $planetId]);
                 $this->instancesById[$planetId] = $planetService;
@@ -99,22 +106,26 @@ class PlanetServiceFactory
      * Returns a planetService for a given coordinate.
      *
      * @param Coordinate $coordinate
+     * @param bool $useCache Whether to use the cache or not. Defaults to true. Note: for certain usecases
+     *   such as updating planets/missions after gaining a lock, its essential to set this to false in order
+     *   to get the latest data from the database.
+     *
      * @return ?PlanetService
      */
-    public function makeForCoordinate(Coordinate $coordinate): ?PlanetService
+    public function makeForCoordinate(Coordinate $coordinate, bool $useCache = true): ?PlanetService
     {
-        if (!isset($this->instancesByCoordinate[$coordinate->asString()])) {
-            // Get the planet ID from the database.
-            $planet = Planet::where('galaxy', $coordinate->galaxy)
+        if (!$useCache || !isset($this->instancesByCoordinate[$coordinate->asString()])) {
+            $planetId = Planet::where('galaxy', $coordinate->galaxy)
                 ->where('system', $coordinate->system)
                 ->where('planet', $coordinate->position)
-                ->first();
-            if (!$planet) {
+                ->value('id');
+
+            if (!$planetId) {
                 return null;
             }
 
             try {
-                $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planet->id]);
+                $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
                 $this->instancesByCoordinate[$coordinate->asString()] = $planetService;
                 $this->instancesById[$planetService->getPlanetId()] = $planetService;
                 return $this->instancesByCoordinate[$coordinate->asString()];
@@ -135,13 +146,21 @@ class PlanetServiceFactory
      */
     public function getPlanetDescription(Coordinate $coordinates): string
     {
-        if($coordinates->position >= 1 && $coordinates->position <= 3) { // Nearest planet from the sun
+        if ($coordinates->position >= 1 && $coordinates->position <= 3) {
+            // Nearest planet from the sun.
             return __('t_galaxy.planet.description.nearest');
-        } elseif(($coordinates->position >= 4 && $coordinates->position <= 6) || ($coordinates->position >= 10 && $coordinates->position <= 12)) { // Normal planet
+        } elseif ($coordinates->position >= 4 && $coordinates->position <= 6) {
+            // Normal planet.
             return __('t_galaxy.planet.description.normal');
-        } elseif($coordinates->position >= 7 && $coordinates->position <= 9) { // Biggest planet
+        } elseif ($coordinates->position >= 7 && $coordinates->position <= 9) {
+            // Biggest planet.
             return __('t_galaxy.planet.description.biggest');
-        } else { /*($coordinates->position >= 13 && $coordinates->position <= 15)*/ // Farthest planet from the sun
+        } elseif ($coordinates->position >= 10 && $coordinates->position <= 12) {
+            // Normal planet.
+            return __('t_galaxy.planet.description.normal');
+        } else {
+            // ($coordinates->position >= 13 && $coordinates->position <= 15)
+            // Farthest planet from the sun.
             return __('t_galaxy.planet.description.farthest');
         }
     }
