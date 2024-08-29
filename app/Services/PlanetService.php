@@ -1150,6 +1150,7 @@ class PlanetService
         if ($this->planet->{$object->machine_name} < $amount) {
             throw new RuntimeException('Planet does not have enough units.');
         }
+
         $this->planet->{$object->machine_name} -= $amount;
 
         if ($save_planet) {

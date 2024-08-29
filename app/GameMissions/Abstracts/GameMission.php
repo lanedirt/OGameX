@@ -267,7 +267,7 @@ abstract class GameMission
         $mission->planet_id_to = $parentMission->planet_id_from;
 
         // Planet to service
-        $planetToService = $this->planetServiceFactory->make($mission->planet_id_to);
+        $planetToService = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
         // Coordinates
         $coords = $planetToService->getPlanetCoordinates();

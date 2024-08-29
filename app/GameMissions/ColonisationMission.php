@@ -45,10 +45,10 @@ class ColonisationMission extends GameMission
     {
         // Sanity check: make sure the target coordinates are valid and the planet is (still) empty.
         $target_coordinates = new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to);
-        $target_planet = $this->planetServiceFactory->makeForCoordinate($target_coordinates, false);
+        $target_planet = $this->planetServiceFactory->makeForCoordinate($target_coordinates);
 
         // Load the mission owner user
-        $player = $this->playerServiceFactory->make($mission->user_id, false);
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
 
         if ($target_planet != null) {
             // TODO: add unittest for this behavior.
@@ -100,7 +100,6 @@ class ColonisationMission extends GameMission
 
         // Create and start the return mission (if the colonisation mission had ships other than the colony ship itself).
         $this->startReturn($mission, new Resources(0, 0, 0, 0), $units);
-
     }
 
     /**
@@ -108,7 +107,7 @@ class ColonisationMission extends GameMission
      */
     protected function processReturn(FleetMission $mission): void
     {
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
         // Transport return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));

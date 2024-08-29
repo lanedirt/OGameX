@@ -149,7 +149,7 @@ class BattleReport extends GameMessage
 
         // Load attacker player
         // TODO: add unit test for attacker/defender research levels.
-        $attacker = $this->playerServiceFactory->make($attackerPlayerId);
+        $attacker = $this->playerServiceFactory->make($attackerPlayerId, true);
         $attacker_weapons = $this->battleReportModel->attacker['weapon_technology'] * 10;
         $attacker_shields = $this->battleReportModel->attacker['shielding_technology'] * 10;
         $attacker_armor = $this->battleReportModel->attacker['armor_technology'] * 10;

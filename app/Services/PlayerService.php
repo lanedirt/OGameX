@@ -458,6 +458,13 @@ class PlayerService
                             throw new \Exception('Could not acquire update fleet mission update lock.');
                         }
                     }
+
+                    if ($missions->count() > 0) {
+                        // Update the current player object and all child planets to make sure any changes
+                        // to the fleet missions are reflected in the player/planet objects.
+                        $this->load($this->getId());
+                    }
+
                 } catch (Exception $e) {
                     throw new RuntimeException('Fleet mission service process error: ' . $e->getMessage());
                 }

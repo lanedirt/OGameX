@@ -48,15 +48,15 @@ class PlanetServiceFactory
      * it is advised to use makeForPlayer() method if playerService is already available.
      *
      * @param int $planetId
-     * @param bool $useCache Whether to use the cache or not. Defaults to true. Note: for certain usecases
-     * such as updating planets/missions after gaining a lock, its essential to set this to false in order
-     * to get the latest data from the database.
+     * @param bool $reloadCache Whether to force retrieve the object and reload the cache. Defaults to false.
+     * Note: for certain usecases such as updating planets/missions after gaining a lock, its essential to set this to
+     * true in order to get the latest data from the database and update the cache accordingly to avoid stale data.
      *
      * @return PlanetService|null
      */
-    public function make(int $planetId, bool $useCache = true): PlanetService|null
+    public function make(int $planetId, bool $reloadCache = false): PlanetService|null
     {
-        if (!$useCache || !isset($this->instancesById[$planetId])) {
+        if ($reloadCache || !isset($this->instancesById[$planetId])) {
             try {
                 $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
                 $this->instancesById[$planetId] = $planetService;

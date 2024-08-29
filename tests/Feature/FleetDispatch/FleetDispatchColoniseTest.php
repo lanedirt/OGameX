@@ -309,15 +309,20 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         // Increase time by 10 hours to ensure the arrival and return missions are done.
         Carbon::setTestNow($startTime->copy()->addHours(10));
 
+        // Reload the application to ensure all caches are cleared and changed units are reflected.
+        $this->reloadApplication();
+        $this->planetService->reloadPlanet();
+
         // Do a request to trigger the update logic.
         // Note: we only make one request here, as the arrival and return missions should be processed in the same request
         // since enough time has passed.
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
 
+
         // Assert that the cargo ships have returned without the colony ship.
-        $this->assertObjectLevelOnPage($response, 'small_cargo', 5);
         $this->assertObjectLevelOnPage($response, 'colony_ship', 0);
+        $this->assertObjectLevelOnPage($response, 'small_cargo', 5);
     }
 
     /**

@@ -44,8 +44,8 @@ class AttackMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to, false);
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, false);
+        $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
 
         // Trigger defender planet update to make sure the battle uses up-to-date info.
         $defenderPlanet->update();
@@ -89,7 +89,7 @@ class AttackMission extends GameMission
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
         // Attack return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
