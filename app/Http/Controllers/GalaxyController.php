@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\PlayerService;
 
 class GalaxyController extends OGameController
@@ -117,6 +118,66 @@ class GalaxyController extends OGameController
                     ];
                 }
 
+                // TODO: refactor this to a separate method.
+                // The planets array (can) consist of:
+                // - The actual planet (if any)
+                // - The moon (?)
+                // - The debris field (if any)
+                $planets_array = [];
+
+                // Add the actual planet
+                $planets_array[] = [
+                    'activity'          => [
+                        //'idleTime' => 31,
+                        //'showActivity' => 60,
+                        //'showMinutes' => false,
+                    ],
+                    'availableMissions' => $availableMissions,
+                    'fleet'             => [],
+                    'imageInformation'  => $planet->getPlanetType() . '_' . $planet->getPlanetImageType(),
+                    'isDestroyed'       => false,
+                    'planetId'          => $planet->getPlanetId(),
+                    'planetName'        => $planet->getPlanetName(),
+                    'playerId'          => $row_player?->getId(),
+                    'planetType'        => 1,
+                ];
+
+                // If debris field exists, add it.
+                $debrisFieldService = resolve(DebrisFieldService::class);
+                $debrisFieldService->loadByCoordinates($planet->getPlanetCoordinates());
+
+                $debrisResources = $debrisFieldService->getResources();
+                if ($debrisResources->any()) {
+                    $planets_array[] = [
+                        'planetId' => 0,
+                        'planetName' => 'debris_field',
+                        'imageInformation' => 'debris_1',
+                        'availableMissions' => [
+                            [
+                                'missionType' => 8,
+                                'name' => 'Harvest',
+                            ],
+                        ],
+                        'requiredShips' => 99,
+                        'planetType' => 2,
+                        'resources' => [
+                            'metal' => [
+                                'name' => 'Metal',
+                                'amount' => $debrisResources->metal->get(),
+                            ],
+                            'crystal' => [
+                                'name' => 'Crystal',
+                                'amount' => $debrisResources->crystal->get(),
+                            ],
+                            'deuterium' => [
+                                'name' => 'Deuterium',
+                                'amount' => $debrisResources->deuterium->get(),
+                            ],
+                        ],
+                        'recyclePossible' => true,
+                    ];
+                }
+
                 $galaxy_rows[] = [
                     'actions' => [
                         'canBeIgnored' => false,
@@ -132,23 +193,7 @@ class GalaxyController extends OGameController
                     ],
                     'availableMissions' => [],
                     'galaxy' => $galaxy,
-                    'planets' => [
-                        [
-                            'activity'          => [
-                                //'idleTime' => 31,
-                                //'showActivity' => 60,
-                                //'showMinutes' => false,
-                            ],
-                            'availableMissions' => $availableMissions,
-                            'fleet'             => [],
-                            'imageInformation'  => $planet->getPlanetType() . '_' . $planet->getPlanetImageType(),
-                            'isDestroyed'       => false,
-                            'planetId'          => $planet->getPlanetId(),
-                            'planetName'        => $planet->getPlanetName(),
-                            'playerId'          => $row_player?->getId(),
-                            'planetType'        => 1,
-                        ]
-                    ],
+                    'planets' => $planets_array,
                     'player' => [
                         'actions' => [
                             'alliance' => [
@@ -176,7 +221,7 @@ class GalaxyController extends OGameController
                     ],
                     'position' => $i,
                     'positionFilters' => '',
-                    'system' => $system
+                    'system' => $system,
                 ];
             } else {
                 $planet_description = $planetServiceFactory->getPlanetDescription(new Planet\Coordinate($galaxy, $system, $i));
