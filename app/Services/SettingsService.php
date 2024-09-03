@@ -232,7 +232,7 @@ class SettingsService
      */
     public function debrisFieldDeuteriumOn(): int
     {
-        return (int)$this->get('debris_field_deuterium_on', 1);
+        return (int)$this->get('debris_field_deuterium_on', 0);
     }
 
     /**

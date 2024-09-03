@@ -8,11 +8,13 @@ use OGame\Models\Planet;
 use OGame\Models\UserTech;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 
 abstract class UnitTestCase extends TestCase
 {
     protected PlayerService $playerService;
     protected PlanetService $planetService;
+    protected SettingsService $settingsService;
 
     /**
      * Set up common test components.
@@ -23,6 +25,7 @@ abstract class UnitTestCase extends TestCase
         parent::setUp();
         $this->setUpPlayerService();
         $this->setUpPlanetService();
+        $this->setUpSettingsService();
     }
 
     /**
@@ -81,5 +84,18 @@ abstract class UnitTestCase extends TestCase
         // Initialize empty playerService object for testing.
         // We do not use the factory as that would require a database connection.
         $this->playerService = app()->make(PlayerService::class, ['player_id' => 0]);
+    }
+
+    /**
+     * Set up the settings service for testing.
+     *
+     * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    protected function setUpSettingsService(): void
+    {
+        // Initialize the planet service with factory.
+        $settingsService =  app()->make(SettingsService::class);
+        $this->settingsService = $settingsService;
     }
 }

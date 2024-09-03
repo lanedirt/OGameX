@@ -19,7 +19,7 @@ class SettingsTest extends TestCase
     {
         parent::setUp();
 
-        // Initialize empty playerService object
+        // Initialize empty settings service object
         $settingsService = app()->make(SettingsService::class);
         $this->settingsService = $settingsService;
     }
