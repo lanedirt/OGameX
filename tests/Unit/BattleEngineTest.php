@@ -16,7 +16,7 @@ class BattleEngineTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Initialize the planet and user tech models with empty data to avoid errors.
         $this->createAndSetPlanetModel([]);
         $this->createAndSetUserTechModel([]);
@@ -535,20 +535,20 @@ class BattleEngineTest extends UnitTestCase
             $this->createAndSetPlanetModel([
                 'heavy_laser' => 1000,
             ]);
-    
+
             // Create fleet of attacker player.
             // Expected total losses of attacker player: 150k metal and 50k crystal.
             $attackerFleet = new UnitCollection();
             $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
             $attackerFleet->addUnit($lightFighter, 50);
-            
+
             // Simulate battle
             $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
-            
+
             // Calculate expected debris
             $expectedMetal = (150000 * $percentage) / 100;
             $expectedCrystal = (50000 * $percentage) / 100;
-            
+
             // Assert debris matches expectations
             $this->assertEquals($expectedMetal, $battleResult->debris->metal->get(), "Metal debris doesn't match for {$percentage}% setting");
             $this->assertEquals($expectedCrystal, $battleResult->debris->crystal->get(), "Crystal debris doesn't match for {$percentage}% setting");
@@ -570,14 +570,14 @@ class BattleEngineTest extends UnitTestCase
             $attackerFleet = new UnitCollection();
             $bomber = $this->planetService->objects->getUnitObjectByMachineName('bomber');
             $attackerFleet->addUnit($bomber, 500);
-            
+
             // Simulate battle.
             $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
-            
+
             // Calculate expected debris.
             $expectedMetal = (300000 * $percentage) / 100;
             $expectedCrystal = (100000 * $percentage) / 100;
-            
+
             // Assert debris matches expectations.
             $this->assertEquals($expectedMetal, $battleResult->debris->metal->get(), "Metal debris doesn't match for {$percentage}% defense debris setting");
             $this->assertEquals($expectedCrystal, $battleResult->debris->crystal->get(), "Crystal debris doesn't match for {$percentage}% defense debris setting");
@@ -590,7 +590,7 @@ class BattleEngineTest extends UnitTestCase
             $this->settingsService->set('debris_field_deuterium_on', $setting);
             $this->settingsService->set('debris_field_from_ships', 30);
             $this->settingsService->set('debris_field_from_defense', 0);
-            
+
             $this->createAndSetPlanetModel([
                 'plasma_turret' => 1000,
             ]);
@@ -600,15 +600,15 @@ class BattleEngineTest extends UnitTestCase
             $attackerFleet = new UnitCollection();
             $cruiser = $this->planetService->objects->getUnitObjectByMachineName('cruiser');
             $attackerFleet->addUnit($cruiser, 50);
-            
+
             // Simulate battle
             $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
-            
+
             // Calculate expected debris
             $expectedMetal = 300000;
             $expectedCrystal = 105000;
             $expectedDeuterium = $setting == 1 ? 30000 : 0;
-            
+
             // Assert debris matches expectations
             $this->assertEquals($expectedMetal, $battleResult->debris->metal->get(), "Metal debris doesn't match for deuterium_on={$setting}");
             $this->assertEquals($expectedCrystal, $battleResult->debris->crystal->get(), "Crystal debris doesn't match for deuterium_on={$setting}");

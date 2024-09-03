@@ -369,8 +369,7 @@ class BattleEngine
                         $deuterium += floor(($unit->unitObject->price->resources->deuterium->get() * $unit->amount) * ($shipsToDebrisPercentage / 100));
                     }
                 }
-            }
-            else if ($unit->unitObject->type === GameObjectType::Defense) {
+            } elseif ($unit->unitObject->type === GameObjectType::Defense) {
                 if ($defenseToDebrisPercentage > 0) {
                     $metal += floor(($unit->unitObject->price->resources->metal->get() * $unit->amount) * ($defenseToDebrisPercentage / 100));
                     $crystal += floor(($unit->unitObject->price->resources->crystal->get() * $unit->amount) * ($defenseToDebrisPercentage / 100));

@@ -70,11 +70,11 @@ class AttackMission extends GameMission
         $defenderPlanet->save();
 
         // Create or append debris field.
-        // TODO: we could change this debris field append logic to do everything in a single query to 
+        // TODO: we could change this debris field append logic to do everything in a single query to
         // prevent race conditions. Check this later when looking into reducing chance of race conditions occurring.
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->loadOrCreateForCoordinates($defenderPlanet->getPlanetCoordinates());
-      
+
         // Add debris to the field
         $debrisFieldService->appendResources($battleResult->debris);
 

@@ -2,20 +2,9 @@
 
 namespace OGame\Services;
 
-use Exception;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use OGame\GameObjects\Models\Enums\GameObjectType;
-use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\DebrisField;
-use OGame\Models\FleetMission;
-use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
-use OGame\Models\Resource;
 use OGame\Models\Resources;
-use RuntimeException;
-use Throwable;
-use OGame\Models\PlanetCoordinates;
 
 /**
  * Class DebrisFieldService.
@@ -32,14 +21,6 @@ class DebrisFieldService
      * @var DebrisField
      */
     private DebrisField $debrisField;
-
-    /**
-     * The planet object that the debris field belongs to. This can be null if the debris field is not
-     * associated with a planet.
-     *
-     * @var PlanetService
-     */
-    private PlanetService $planet;
 
     /**
      * Load debris field by coordinate.
@@ -129,9 +110,9 @@ class DebrisFieldService
      */
     public function appendResources(Resources $resources): void
     {
-        $this->debrisField->metal += $resources->metal->get();
-        $this->debrisField->crystal += $resources->crystal->get();
-        $this->debrisField->deuterium += $resources->deuterium->get();
+        $this->debrisField->metal += (int)$resources->metal->get();
+        $this->debrisField->crystal += (int)$resources->crystal->get();
+        $this->debrisField->deuterium += (int)$resources->deuterium->get();
     }
 
     /**
