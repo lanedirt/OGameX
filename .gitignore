@@ -12,3 +12,5 @@ yarn-error.log
 .env
 .phpunit.result.cache
 .phpunit.cache
+.vscode
+.sql
