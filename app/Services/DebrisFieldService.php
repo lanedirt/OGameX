@@ -15,6 +15,7 @@ use OGame\Models\Resource;
 use OGame\Models\Resources;
 use RuntimeException;
 use Throwable;
+use OGame\Models\PlanetCoordinates;
 
 /**
  * Class DebrisFieldService.
@@ -73,21 +74,13 @@ class DebrisFieldService
     }
 
     /**
-     * Reloads the planet object from the database.
+     * Reloads the debris field object from the database.
      *
      * @return void
      */
     public function reload(): void
     {
         $this->loadByCoordinates($this->getCoordinates());
-    }
-
-    /**
-     * Save the debris field model to persist changes to the database.
-     */
-    public function save(): void
-    {
-        $this->debrisField->save();
     }
 
     /**
@@ -102,5 +95,52 @@ class DebrisFieldService
         }
 
         return new Resources($this->debrisField->metal, $this->debrisField->crystal, $this->debrisField->deuterium, 0);
+    }
+
+    /**
+     * Load an existing debris field or create a new one in memory for the given coordinates.
+     *
+     * @param Coordinate $coordinates
+     */
+    public function loadOrCreateForCoordinates(Coordinate $coordinates): void
+    {
+        $debrisField = DebrisField::where('galaxy', $coordinates->galaxy)
+            ->where('system', $coordinates->system)
+            ->where('planet', $coordinates->position)
+            ->first();
+
+        if (!$debrisField) {
+            $debrisField = new DebrisField();
+            $debrisField->galaxy = $coordinates->galaxy;
+            $debrisField->system = $coordinates->system;
+            $debrisField->planet = $coordinates->position;
+            $debrisField->metal = 0;
+            $debrisField->crystal = 0;
+        }
+
+        $this->debrisField = $debrisField;
+    }
+
+    /**
+     * Append resources to an existing debris field.
+     *
+     * @param Resources $resources
+     * @return void
+     */
+    public function appendResources(Resources $resources): void
+    {
+        $this->debrisField->metal += $resources->metal->get();
+        $this->debrisField->crystal += $resources->crystal->get();
+        $this->debrisField->deuterium += $resources->deuterium->get();
+    }
+
+    /**
+     * Save the debris field to the database.
+     *
+     * @return void
+     */
+    public function save(): void
+    {
+        $this->debrisField->save();
     }
 }
