@@ -20,6 +20,9 @@ return new class () extends Migration {
             $table->integer('crystal')->default(0);
             $table->integer('deuterium')->default(0);
             $table->timestamps();
+
+            // Add unique constraint
+            $table->unique(['galaxy', 'system', 'planet']);
         });
     }
 
