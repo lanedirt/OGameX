@@ -132,7 +132,12 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that defender also received a message with the same battle report ID.
         $messageDefender = Message::where('user_id', $foreignPlanet->getPlayer()->getId())->orderByDesc('id')->first();
-        $this->assertEquals($messageAttacker->battle_report_id, $messageDefender->battle_report_id, 'Defender has not received the same battle report as attacker.');
+        if ($messageDefender) {
+            $messageDefender = $messageDefender instanceof Message ? $messageDefender : new Message($messageDefender->getAttributes());
+            $this->assertEquals($messageAttacker->battle_report_id, $messageDefender->battle_report_id, 'Defender has not received the same battle report as attacker.');
+        } else {
+            $this->fail('Defender has not received a battle report after combat.');
+        }
     }
 
     /**

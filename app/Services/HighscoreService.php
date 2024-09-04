@@ -178,7 +178,7 @@ class HighscoreService
             return $b['points'] <=> $a['points'];
         });
         $count = 0;
-        foreach($highscore as $key => &$value) {
+        foreach ($highscore as $key => &$value) {
             $count++;
             $value['rank'] = $count;
         }

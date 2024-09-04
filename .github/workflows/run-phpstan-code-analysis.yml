@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
       with:
-        php-version: '8.2'
+        php-version: '8.3'
     - uses: actions/checkout@v3
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
@@ -25,6 +25,4 @@ jobs:
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
     - name: PHPStan
-      uses: php-actions/phpstan@v3
-      with:
-        memory_limit: 256M
+      run: ./vendor/bin/phpstan analyse --memory-limit=384M
