@@ -23,6 +23,31 @@ class DebrisFieldService
     private DebrisField $debrisField;
 
     /**
+     * Load an existing debris field or create a new one in memory for the given coordinates.
+     *
+     * @param Coordinate $coordinates
+     */
+    public function loadOrCreateForCoordinates(Coordinate $coordinates): void
+    {
+        $debrisField = DebrisField::where('galaxy', $coordinates->galaxy)
+            ->where('system', $coordinates->system)
+            ->where('planet', $coordinates->position)
+            ->first();
+
+        if (!$debrisField) {
+            $debrisField = new DebrisField();
+            $debrisField->galaxy = $coordinates->galaxy;
+            $debrisField->system = $coordinates->system;
+            $debrisField->planet = $coordinates->position;
+            $debrisField->metal = 0;
+            $debrisField->crystal = 0;
+        }
+
+        $this->debrisField = $debrisField;
+    }
+
+
+    /**
      * Load debris field by coordinate.
      *
      * @param Coordinate $coordinate
@@ -30,7 +55,7 @@ class DebrisFieldService
      *
      * @return void
      */
-    public function loadByCoordinates(Coordinate $coordinate): void
+    public function loadForCoordinates(Coordinate $coordinate): void
     {
         // Fetch planet model
         $debrisField = DebrisField::where('galaxy', $coordinate->galaxy)
@@ -61,7 +86,7 @@ class DebrisFieldService
      */
     public function reload(): void
     {
-        $this->loadByCoordinates($this->getCoordinates());
+        $this->loadForCoordinates($this->getCoordinates());
     }
 
     /**
@@ -76,30 +101,6 @@ class DebrisFieldService
         }
 
         return new Resources($this->debrisField->metal, $this->debrisField->crystal, $this->debrisField->deuterium, 0);
-    }
-
-    /**
-     * Load an existing debris field or create a new one in memory for the given coordinates.
-     *
-     * @param Coordinate $coordinates
-     */
-    public function loadOrCreateForCoordinates(Coordinate $coordinates): void
-    {
-        $debrisField = DebrisField::where('galaxy', $coordinates->galaxy)
-            ->where('system', $coordinates->system)
-            ->where('planet', $coordinates->position)
-            ->first();
-
-        if (!$debrisField) {
-            $debrisField = new DebrisField();
-            $debrisField->galaxy = $coordinates->galaxy;
-            $debrisField->system = $coordinates->system;
-            $debrisField->planet = $coordinates->position;
-            $debrisField->metal = 0;
-            $debrisField->crystal = 0;
-        }
-
-        $this->debrisField = $debrisField;
     }
 
     /**

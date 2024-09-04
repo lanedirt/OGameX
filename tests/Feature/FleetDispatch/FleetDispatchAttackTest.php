@@ -619,7 +619,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that a debris field was actually created in the database
         $debrisFieldService = app()->make(DebrisFieldService::class);
-        $debrisFieldService->loadByCoordinates($foreignPlanet->getPlanetCoordinates());
+        $debrisFieldService->loadForCoordinates($foreignPlanet->getPlanetCoordinates());
         $debrisResources = $debrisFieldService->getResources();
 
         $this->assertNotNull($debrisResources, 'Debris field was not created in the database.');
