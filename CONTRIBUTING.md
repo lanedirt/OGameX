@@ -37,7 +37,7 @@ $ ./vendor/bin/pint --preset psr12
 Make sure that your code passes the PHPStan static code analysis. You can run PHPStan locally using the following command:
 
 ```
-$ ./vendor/bin/phpstan analyse --memory-limit=256M
+$ ./vendor/bin/phpstan analyse --memory-limit=384M
 ```
 
 ### 3. Laravel unit and feature tests

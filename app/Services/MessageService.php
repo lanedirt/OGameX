@@ -236,7 +236,7 @@ class MessageService
 
         // Convert messages to GameMessage objects.
         $return = [];
-        foreach($messages as $message) {
+        foreach ($messages as $message) {
             $return[] = GameMessageFactory::createGameMessage($message);
         }
 

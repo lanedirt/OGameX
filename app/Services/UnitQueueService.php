@@ -103,7 +103,7 @@ class UnitQueueService
      * Retrieve current building build queue for a planet.
      *
      * @param int $planet_id
-     * @return Collection<UnitQueue>
+     * @return Collection<int, UnitQueue>
      */
     public function retrieveBuilding(int $planet_id): Collection
     {

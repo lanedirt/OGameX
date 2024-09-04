@@ -136,7 +136,7 @@ class FleetMissionService
     /**
      * Get all active fleet missions for the current user.
      *
-     * @return Collection<FleetMission>
+     * @return Collection<int, FleetMission>
      */
     public function getActiveFleetMissionsForCurrentPlayer(): Collection
     {
