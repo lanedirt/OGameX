@@ -257,8 +257,10 @@ class SettingsService
 
     /**
      * Returns the number of galaxies in the universe.
+     *
+     * @return int
      */
-    public function numberOfGalaxies()
+    public function numberOfGalaxies(): int
     {
         return (int)$this->get('number_of_galaxies', 9);
     }
