@@ -23,6 +23,28 @@ class DebrisFieldService
     private DebrisField $debrisField;
 
     /**
+     * @var ObjectService
+     */
+    private ObjectService $objectService;
+
+    /**
+     * @var PlayerService
+     */
+    private PlayerService $playerService;
+
+    /**
+     * DebrisFieldService constructor.
+     *
+     * @param ObjectService $objectService
+     * @param PlayerService $playerService
+     */
+    public function __construct(ObjectService $objectService, PlayerService $playerService)
+    {
+        $this->objectService = $objectService;
+        $this->playerService = $playerService;
+    }
+
+    /**
      * Load an existing debris field or create a new one in memory for the given coordinates.
      *
      * @param Coordinate $coordinates
@@ -45,7 +67,6 @@ class DebrisFieldService
 
         $this->debrisField = $debrisField;
     }
-
 
     /**
      * Load debris field by coordinate.
@@ -111,6 +132,10 @@ class DebrisFieldService
      */
     public function appendResources(Resources $resources): void
     {
+        if (!isset($this->debrisField)) {
+            $this->debrisField = new DebrisField();
+        }
+
         $this->debrisField->metal += (int)$resources->metal->get();
         $this->debrisField->crystal += (int)$resources->crystal->get();
         $this->debrisField->deuterium += (int)$resources->deuterium->get();
@@ -124,5 +149,19 @@ class DebrisFieldService
     public function save(): void
     {
         $this->debrisField->save();
+    }
+
+    /**
+     * Calculate the number of recyclers needed to recycle the entire debris field.
+     *
+     * @return int The number of recyclers needed.
+     */
+    public function calculateRequiredRecyclers(): int
+    {
+        $recycler = $this->objectService->getUnitObjectByMachineName('recycler');
+        $recyclerCapacity = $recycler->properties->capacity->calculate($this->playerService)->totalValue;
+
+        $totalDebris = $this->debrisField->metal + $this->debrisField->crystal + $this->debrisField->deuterium;
+        return ceil($totalDebris / $recyclerCapacity);
     }
 }

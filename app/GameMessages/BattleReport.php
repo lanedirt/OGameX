@@ -8,6 +8,7 @@ use OGame\GameMissions\BattleEngine\BattleResultRound;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
 
 class BattleReport extends GameMessage
 {
@@ -136,9 +137,15 @@ class BattleReport extends GameMessage
         $lootDeuterium = $this->battleReportModel->loot['deuterium'];
         $lootResources = new Resources($lootMetal, $lootCrystal, $lootDeuterium, 0);
 
-        $debrisMetal = $this->battleReportModel->debris['metal'];
-        $debrisCrystal = $this->battleReportModel->debris['crystal'];
-        $debrisResources = new Resources($debrisMetal, $debrisCrystal, 0, 0);
+        $debrisMetal = $this->battleReportModel->debris['metal'] ?? 0;
+        $debrisCrystal = $this->battleReportModel->debris['crystal'] ?? 0;
+        $debrisDeuterium = $this->battleReportModel->debris['deuterium'] ?? 0;
+        $debrisResources = new Resources($debrisMetal, $debrisCrystal, $debrisDeuterium, 0);
+
+        // Calculate the amount of recyclers needed using DebrisFieldService
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->appendResources($debrisResources);
+        $debrisRecyclersNeeded = $debrisFieldService->calculateRequiredRecyclers();
 
         $repairedDefensesCount = 0;
         if (!empty($this->battleReportModel->repaired_defenses)) {
@@ -245,6 +252,7 @@ class BattleReport extends GameMessage
             'loot_percentage' => $lootPercentage,
             'debris_sum_formatted' => AppUtil::formatNumberLong($debrisResources->sum()),
             'debris_resources' => $debrisResources,
+            'debris_recyclers_needed' => $debrisRecyclersNeeded,
             'repaired_defenses_count' => $repairedDefensesCount,
             'attacker_weapons' => $attacker_weapons,
             'attacker_shields' => $attacker_shields,

@@ -142,7 +142,7 @@
                 <div class="c-right"></div>
                 <span class="title_txt">@lang('Debris (new)'):</span>
                 <span class="title_txt tooltipCustom" data-tooltip-title="{{ $debris_sum_formatted }}">{{ $debris_sum_formatted }}</span>
-                <span class="title_txt">=&gt; 0 Recycler</span>
+                <span class="title_txt">=&gt; {{ $debris_recyclers_needed }} @lang('Recycler')</span>
             </div>
             <ul class="detail_list clearfix">
                 <li class="resource_list_el_small">

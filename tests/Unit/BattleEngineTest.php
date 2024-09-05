@@ -191,7 +191,7 @@ class BattleEngineTest extends UnitTestCase
             'metal' => 100000,
             'crystal' => 100000,
             'deuterium' => 10000,
-            'rocket_launcher' => 20,
+            'rocket_launcher' => 15,
         ]);
         $this->createAndSetUserTechModel([
             'weapon_technology' => 5,
