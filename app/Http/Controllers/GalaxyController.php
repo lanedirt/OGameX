@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
-use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -162,7 +161,7 @@ class GalaxyController extends OGameController
     /**
      * Creates an array for a debris field in the galaxy view.
      *
-     * @param Resources $debrisResources
+     * @param DebrisFieldService $debrisField
      * @return array<string, mixed>
      */
     private function createDebrisFieldArray(DebrisFieldService $debrisField): array
