@@ -150,12 +150,10 @@ class GalaxyController extends OGameController
             ]
         ];
 
-        $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadForCoordinates($planet->getPlanetCoordinates());
-        $debrisResources = $debrisFieldService->getResources();
-
-        if ($debrisResources->any()) {
-            $planets_array[] = $this->createDebrisFieldArray($debrisResources);
+        $debrisField = app(DebrisFieldService::class);
+        $debrisField->loadForCoordinates($planet->getPlanetCoordinates());
+        if ($debrisField->getResources()->any()) {
+            $planets_array[] = $this->createDebrisFieldArray($debrisField);
         }
 
         return $planets_array;
@@ -167,8 +165,10 @@ class GalaxyController extends OGameController
      * @param Resources $debrisResources
      * @return array<string, mixed>
      */
-    private function createDebrisFieldArray(Resources $debrisResources): array
+    private function createDebrisFieldArray(DebrisFieldService $debrisField): array
     {
+        $debrisResources = $debrisField->getResources();
+
         return [
             'planetId' => 0,
             'planetName' => 'debris_field',
@@ -179,7 +179,7 @@ class GalaxyController extends OGameController
                     'name' => 'Harvest',
                 ],
             ],
-            'requiredShips' => 99,
+            'requiredShips' => $debrisField->calculateRequiredRecyclers(),
             'planetType' => 2,
             'resources' => [
                 'metal' => [
