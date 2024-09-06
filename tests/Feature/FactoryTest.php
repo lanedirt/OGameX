@@ -31,7 +31,7 @@ class FactoryTest extends AccountTestCase
         }
 
         // Get the player service factory.
-        $playerServiceFactory =  app()->make(\OGame\Factories\PlayerServiceFactory::class);
+        $playerServiceFactory =  resolve(\OGame\Factories\PlayerServiceFactory::class);
 
         // Load the first user.
         $playerService1 = $playerServiceFactory->make($playerIds[0]);
@@ -61,7 +61,7 @@ class FactoryTest extends AccountTestCase
         $planet2 = Planet::where('user_id', $playerIds[1])->first();
 
         // Get the planet service factory.
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+        $planetServiceFactory =  resolve(PlanetServiceFactory::class);
 
         // Load the first planet.
         $planetService1 = $planetServiceFactory->make($planet1->id);

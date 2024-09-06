@@ -11,6 +11,7 @@ use OGame\Models\BattleReport;
 use OGame\Models\FleetMission;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\DebrisFieldService;
 use Throwable;
 
 class AttackMission extends GameMission
@@ -54,7 +55,7 @@ class AttackMission extends GameMission
         $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
 
         // Execute the battle logic.
-        $battleEngine = new BattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet);
+        $battleEngine = new BattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
         $battleResult = $battleEngine->simulateBattle();
 
         // Deduct loot from the target planet.
@@ -67,6 +68,18 @@ class AttackMission extends GameMission
 
         // Save defenders planet
         $defenderPlanet->save();
+
+        // Create or append debris field.
+        // TODO: we could change this debris field append logic to do everything in a single query to
+        // prevent race conditions. Check this later when looking into reducing chance of race conditions occurring.
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($defenderPlanet->getPlanetCoordinates());
+
+        // Add debris to the field
+        $debrisFieldService->appendResources($battleResult->debris);
+
+        // Save the debris field
+        $debrisFieldService->save();
 
         // Send a message to both attacker and defender with a reference to the same battle report.
         $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
@@ -156,8 +169,9 @@ class AttackMission extends GameMission
         ];
 
         $report->debris = [
-            'metal' => 0,
-            'crystal' => 0,
+            'metal' => $battleResult->debris->metal->get(),
+            'crystal' => $battleResult->debris->crystal->get(),
+            'deuterium' => $battleResult->debris->deuterium->get(),
         ];
 
         $report->repaired_defenses = [];

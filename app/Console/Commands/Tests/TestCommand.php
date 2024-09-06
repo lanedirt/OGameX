@@ -80,8 +80,8 @@ abstract class TestCommand extends Command
      */
     protected function setup(): void
     {
-        $playerServiceFactory = app()->make(PlayerServiceFactory::class);
-        $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+        $playerServiceFactory = resolve(PlayerServiceFactory::class);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
 
         // Delete user if it already exists.
         $user = User::where('email', '=', $this->email)->first();
@@ -96,7 +96,7 @@ abstract class TestCommand extends Command
         }
 
         // Create a test user
-        $creator = app()->make(CreateNewUser::class);
+        $creator = resolve(CreateNewUser::class);
         $user = $creator->create([
             'email' => $this->email,
             'password' => $this->password,

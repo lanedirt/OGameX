@@ -279,7 +279,7 @@ abstract class GameMessage
 
             $playerService = null;
             try {
-                $playerServiceFactory =  app()->make(PlayerServiceFactory::class);
+                $playerServiceFactory =  resolve(PlayerServiceFactory::class);
                 $playerService = $playerServiceFactory->make((int)$matches[1]);
             } catch (\Exception $e) {
                 // Do nothing
@@ -301,7 +301,7 @@ abstract class GameMessage
 
             $planetService = null;
             try {
-                $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+                $planetServiceFactory = resolve(PlanetServiceFactory::class);
                 $planetService = $planetServiceFactory->make((int)$matches[1]);
             } catch (\Exception $e) {
                 // Do nothing
@@ -325,7 +325,7 @@ abstract class GameMessage
 
             $planetService = null;
             try {
-                $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+                $planetServiceFactory = resolve(PlanetServiceFactory::class);
                 $planetService = $planetServiceFactory->makeForCoordinate(new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]));
             } catch (\Exception $e) {
                 // Do nothing

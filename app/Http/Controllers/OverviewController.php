@@ -52,7 +52,7 @@ class OverviewController extends OGameController
             $ship_queue_time_countdown = $ship_queue_time_end - (int)Carbon::now()->timestamp;
         }
 
-        $highscoreService = app()->make(HighscoreService::class);
+        $highscoreService = resolve(HighscoreService::class);
 
         return view('ingame.overview.index')->with([
             'header_filename' => $player->planets->current()->getPlanetType(),

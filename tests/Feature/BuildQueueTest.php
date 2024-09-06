@@ -20,7 +20,7 @@ class BuildQueueTest extends AccountTestCase
     public function testBuildQueueResourcesMetalMine(): void
     {
         // Set the universe speed to 1x for this test.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
 
         // Set the current time to a specific moment for testing
@@ -67,7 +67,7 @@ class BuildQueueTest extends AccountTestCase
     public function testBuildQueueFacilitiesRoboticsFactory(): void
     {
         // Set the universe speed to 8x for this test.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
 
         // Add resources to planet that test requires.
@@ -117,7 +117,7 @@ class BuildQueueTest extends AccountTestCase
     public function testBuildQueueFacilitiesRoboticsFactoryMultiQueue(): void
     {
         // Set the universe speed to 8x for this test.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
 
         // Add resources to planet that test requires.
@@ -196,7 +196,7 @@ class BuildQueueTest extends AccountTestCase
     public function testBuildQueueFailUnfulfilledRequirements(): void
     {
         // Set the universe speed to 8x for this test.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
 
         $this->planetAddResources(new Resources(1000, 1000, 1000, 0));
@@ -228,7 +228,7 @@ class BuildQueueTest extends AccountTestCase
     public function testBuildingProductionTime(): void
     {
         // Set the universe speed to 8x for this test.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
 
         // Add resources to planet to initialize planet.
@@ -246,7 +246,7 @@ class BuildQueueTest extends AccountTestCase
     public function testBuildingProductionTimeHighSpeed(): void
     {
         // Set the universe speed to 8x for this test.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
 
         // Set robot factory to level 99 to get very fast building construction times.

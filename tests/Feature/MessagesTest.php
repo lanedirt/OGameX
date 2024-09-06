@@ -71,7 +71,7 @@ class MessagesTest extends AccountTestCase
     public function testEspionageReport(): void
     {
         try {
-            $messageService = app()->make(MessageService::class);
+            $messageService = resolve(MessageService::class);
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve MessageService in testEspionageReport.');
         }
@@ -97,7 +97,7 @@ class MessagesTest extends AccountTestCase
     public function testBattleReport(): void
     {
         try {
-            $messageService = app()->make(MessageService::class);
+            $messageService = resolve(MessageService::class);
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve MessageService in testBattleReport.');
         }

@@ -28,11 +28,11 @@ class GlobalGame
             app()->instance(ObjectService::class, $object);
 
             // Instantiate settings service.
-            $settings = app()->make(SettingsService::class);
+            $settings = resolve(SettingsService::class);
             app()->instance(SettingsService::class, $settings);
 
             // Load player.
-            $player = app()->make(PlayerService::class, ['player_id' => $request->user()->id]);
+            $player = resolve(PlayerService::class, ['player_id' => $request->user()->id]);
             app()->instance(PlayerService::class, $player);
 
             // Check if current planet change querystring parameter exists, if so, change current planet.

@@ -17,6 +17,7 @@ use OGame\Services\FleetMissionService;
 use OGame\Services\MessageService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 
 abstract class GameMission
 {
@@ -43,12 +44,22 @@ abstract class GameMission
 
     protected PlayerServiceFactory $playerServiceFactory;
 
-    public function __construct(FleetMissionService $fleetMissionService, MessageService $messageService, PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory)
+    protected SettingsService $settings;
+
+    /**
+     * @param FleetMissionService $fleetMissionService
+     * @param MessageService $messageService
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @param PlayerServiceFactory $playerServiceFactory
+     * @param SettingsService $settings
+     */
+    public function __construct(FleetMissionService $fleetMissionService, MessageService $messageService, PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory, SettingsService $settings)
     {
         $this->fleetMissionService = $fleetMissionService;
         $this->messageService = $messageService;
         $this->planetServiceFactory = $planetServiceFactory;
         $this->playerServiceFactory = $playerServiceFactory;
+        $this->settings = $settings;
     }
 
     public static function getName(): string

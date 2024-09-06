@@ -141,21 +141,21 @@
                 <div class="c-left"></div>
                 <div class="c-right"></div>
                 <span class="title_txt">@lang('Debris (new)'):</span>
-                <span class="title_txt tooltipCustom" data-tooltip-title="0">0</span>
-                <span class="title_txt">=&gt; 0 Recycler</span>
+                <span class="title_txt tooltipCustom" data-tooltip-title="{{ $debris_sum_formatted }}">{{ $debris_sum_formatted }}</span>
+                <span class="title_txt">=&gt; {{ $debris_recyclers_needed }} @lang('Recycler')</span>
             </div>
             <ul class="detail_list clearfix">
                 <li class="resource_list_el_small">
                     <div class="resourceIconSmall metal"></div>
-                    <span class="res_value tooltipCustom" data-tooltip-title="0">0</span>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $debris_resources->metal->getFormattedLong() }}">{{ $debris_resources->metal->getFormattedLong() }}</span>
                 </li>
                 <li class="resource_list_el_small">
                     <div class="resourceIconSmall crystal"></div>
-                    <span class="res_value tooltipCustom" data-tooltip-title="0">0</span>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $debris_resources->crystal->getFormattedLong() }}">{{ $debris_resources->crystal->getFormattedLong() }}</span>
                 </li>
                 <li class="resource_list_el_small">
                     <div class="resourceIconSmall deuterium"></div>
-                    <span class="res_value tooltipCustom" data-tooltip-title="0">0</span>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $debris_resources->deuterium->getFormattedLong() }}">{{ $debris_resources->deuterium->getFormattedLong() }}</span>
                 </li>
             </ul>
         </div>

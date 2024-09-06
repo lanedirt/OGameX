@@ -215,7 +215,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -325,7 +325,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
         // Get just dispatched fleet mission ID from database.
         try {
-            $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+            $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }
@@ -357,7 +357,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
 
         try {
-            $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+            $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }
@@ -410,7 +410,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
         // Get just dispatched fleet mission ID from database.
         try {
-            $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+            $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }

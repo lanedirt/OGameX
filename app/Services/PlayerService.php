@@ -99,7 +99,7 @@ class PlayerService
 
         // Fetch all planets of user
         try {
-            $planet_list_service = app()->make(PlanetListService::class, ['player' => $this]);
+            $planet_list_service = resolve(PlanetListService::class, ['player' => $this]);
             $this->planets = $planet_list_service;
         } catch (BindingResolutionException $e) {
             throw new RuntimeException('Class not found: ' . PlanetListService::class);
@@ -441,7 +441,7 @@ class PlayerService
 
             if ($planetMissionUpdateLock->count() === count($planetIds)) {
                 try {
-                    $fleetMissionService = app()->make(FleetMissionService::class);
+                    $fleetMissionService = resolve(FleetMissionService::class);
                     $missions = $fleetMissionService->getMissionsByPlanetIds($planetIds);
 
                     foreach ($missions as $mission) {

@@ -29,7 +29,7 @@ class PlayerServiceFactory
     {
         if ($reloadCache || !isset($this->instances[$playerId])) {
             try {
-                $playerService = app()->make(PlayerService::class, ['player_id' => $playerId]);
+                $playerService = resolve(PlayerService::class, ['player_id' => $playerId]);
                 $this->instances[$playerId] = $playerService;
             } catch (BindingResolutionException $e) {
                 throw new RuntimeException('Class not found: ' . PlayerService::class);

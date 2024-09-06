@@ -3,10 +3,12 @@
 namespace OGame\GameMissions\BattleEngine;
 
 use OGame\GameMissions\BattleEngine\Services\LootService;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 
 /**
  * Class BattleEngine.
@@ -34,19 +36,27 @@ class BattleEngine
     private int $lootPercentage = 50;
 
     /**
+     * @var SettingsService The settings service.
+     */
+    private SettingsService $settings;
+
+    /**
      * BattleEngine constructor.
      *
      * @param UnitCollection $attackerFleet The fleet of the attacker player.
      * @param PlayerService $attackerPlayer The attacker player.
      * @param PlanetService $defenderPlanet The planet of the defender player.
-    */
-    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet)
+     * @param SettingsService $settings The settings service.
+     */
+    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, SettingsService $settings)
     {
         $this->attackerFleet = $attackerFleet;
         $this->attackerPlayer = $attackerPlayer;
         $this->defenderPlanet = $defenderPlanet;
 
         $this->lootService = new LootService($this->attackerFleet, $this->attackerPlayer, $this->defenderPlanet, $this->lootPercentage);
+
+        $this->settings = $settings;
     }
 
     /**
@@ -111,6 +121,9 @@ class BattleEngine
         } else {
             $result->loot = new Resources(0, 0, 0, 0);
         }
+
+        // Calculate debris.
+        $result->debris = $this->calculateDebris($result->attackerUnitsLost, $result->defenderUnitsLost);
 
         return $result;
     }
@@ -322,5 +335,51 @@ class BattleEngine
                 $unit->currentShieldPoints = $unit->originalShieldPoints;
             }
         }
+    }
+
+    /**
+     * Calculate the debris field based on the units lost in the battle.
+     *
+     * @param UnitCollection $attackerUnitsLost
+     * @param UnitCollection $defenderUnitsLost
+     * @return Resources
+     */
+    private function calculateDebris(UnitCollection $attackerUnitsLost, UnitCollection $defenderUnitsLost): Resources
+    {
+        $metal = 0;
+        $crystal = 0;
+        $deuterium = 0;
+
+        $shipsToDebrisPercentage = $this->settings->debrisFieldFromShips();
+        $defenseToDebrisPercentage = $this->settings->debrisFieldFromDefense();
+        $deuteriumOn = $this->settings->debrisFieldDeuteriumOn();
+
+        // Combine the attacker and defender losses to calculate the debris.
+        $allUnitsLost = new UnitCollection();
+        $allUnitsLost->addCollection($attackerUnitsLost);
+        $allUnitsLost->addCollection($defenderUnitsLost);
+
+        // Handle attacker losses.
+        foreach ($allUnitsLost->units as $unit) {
+            if ($unit->unitObject->type === GameObjectType::Ship) {
+                if ($shipsToDebrisPercentage > 0) {
+                    $metal += floor(($unit->unitObject->price->resources->metal->get() * $unit->amount) * ($shipsToDebrisPercentage / 100));
+                    $crystal += floor(($unit->unitObject->price->resources->crystal->get() * $unit->amount) * ($shipsToDebrisPercentage / 100));
+                    if ($deuteriumOn) {
+                        $deuterium += floor(($unit->unitObject->price->resources->deuterium->get() * $unit->amount) * ($shipsToDebrisPercentage / 100));
+                    }
+                }
+            } elseif ($unit->unitObject->type === GameObjectType::Defense) {
+                if ($defenseToDebrisPercentage > 0) {
+                    $metal += floor(($unit->unitObject->price->resources->metal->get() * $unit->amount) * ($defenseToDebrisPercentage / 100));
+                    $crystal += floor(($unit->unitObject->price->resources->crystal->get() * $unit->amount) * ($defenseToDebrisPercentage / 100));
+                    if ($deuteriumOn) {
+                        $deuterium += floor(($unit->unitObject->price->resources->deuterium->get() * $unit->amount) * ($defenseToDebrisPercentage / 100));
+                    }
+                }
+            }
+        }
+
+        return new Resources($metal, $crystal, $deuterium, 0);
     }
 }

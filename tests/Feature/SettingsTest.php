@@ -19,8 +19,8 @@ class SettingsTest extends TestCase
     {
         parent::setUp();
 
-        // Initialize empty playerService object
-        $settingsService = app()->make(SettingsService::class);
+        // Initialize empty settings service object
+        $settingsService = resolve(SettingsService::class);
         $this->settingsService = $settingsService;
     }
 
@@ -44,7 +44,7 @@ class SettingsTest extends TestCase
         // We do not use the generic $this->settingService in this
         // test method because we want to recreate it mid-test.
         // Initialize a new settingsService object
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
 
         // Set a value.
         $random_value = 'random_string_' . rand(0, 99999);
@@ -52,7 +52,7 @@ class SettingsTest extends TestCase
 
         // Initialize a new settingsService again to get a clean state
         // with a new database connection attempt to load settings again.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
 
         // Get the value we just set again.
         $get_value = $settingsService->get('test_setting_key', '');

@@ -18,6 +18,11 @@ class BattleResult
     public Resources $loot;
 
     /**
+     * @var Resources The debris generated as a result from the destroyed ships and/or defense after battle.
+     */
+    public Resources $debris;
+
+    /**
      * @var int The max. percentage of resources that the attacker player could steal from the defender player's planet.
      */
     public int $lootPercentage;
