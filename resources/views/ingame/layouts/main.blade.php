@@ -1059,12 +1059,12 @@ Combat simulation save slots +20">
                             </p>
                         </div>
                         <div id="planetList">
-                            <!-- @var PlanetService $planet -->
                             @php
                                 // Get all current query parameters
                                 $currentQueryParams = request()->query();
                             @endphp
 
+                            @php /** @var OGame\Services\PlanetService $planet */ @endphp
                             @foreach ($planets->all() as $key => $planet)
                                 @php
                                     // Set or replace the 'cp' parameter
