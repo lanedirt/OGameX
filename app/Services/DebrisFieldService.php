@@ -152,6 +152,19 @@ class DebrisFieldService
     }
 
     /**
+     * Delete the debris field from the database.
+     *
+     * @return void
+     */
+    public function delete(): void
+    {
+        if (isset($this->debrisField) && $this->debrisField->exists) {
+            $this->debrisField->delete();
+            $this->debrisField = new DebrisField();
+        }
+    }
+
+    /**
      * Calculate the number of recyclers needed to recycle the entire debris field.
      *
      * @return int The number of recyclers needed.
@@ -162,6 +175,6 @@ class DebrisFieldService
         $recyclerCapacity = $recycler->properties->capacity->calculate($this->playerService)->totalValue;
 
         $totalDebris = $this->debrisField->metal + $this->debrisField->crystal + $this->debrisField->deuterium;
-        return ceil($totalDebris / $recyclerCapacity);
+        return (int) ceil($totalDebris / $recyclerCapacity);
     }
 }
