@@ -76,7 +76,7 @@ class TestRaceConditionUnitQueue extends TestCommand
         Carbon::setTestNow($startTime);
 
         // Add light fighter build job.
-        $unitQueueService = app()->make(UnitQueueService::class);
+        $unitQueueService = resolve(UnitQueueService::class);
         $unitQueueService->add($this->playerService->planets->current(), $this->objectService->getUnitObjectByMachineName('light_fighter')->id, 10);
     }
 

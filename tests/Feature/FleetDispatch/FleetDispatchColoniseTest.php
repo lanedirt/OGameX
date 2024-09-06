@@ -115,7 +115,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Assert that the new planet has been created.
         try {
-            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+            $planetServiceFactory = resolve(PlanetServiceFactory::class);
         } catch (BindingResolutionException) {
             $this->fail('PlanetServiceFactory cannot be resolved from the container.');
         }
@@ -164,7 +164,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
             // Assert that the new planet has been created.
             try {
-                $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+                $planetServiceFactory = resolve(PlanetServiceFactory::class);
             } catch (BindingResolutionException) {
                 $this->fail('PlanetServiceFactory cannot be resolved from the container.');
             }
@@ -222,7 +222,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Assert that the new planet has been created.
         try {
-            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+            $planetServiceFactory = resolve(PlanetServiceFactory::class);
         } catch (BindingResolutionException) {
             $this->fail('PlanetServiceFactory cannot be resolved from the container.');
         }
@@ -270,7 +270,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Assert that the new planet has been created.
         try {
-            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+            $planetServiceFactory = resolve(PlanetServiceFactory::class);
         } catch (BindingResolutionException) {
             $this->fail('PlanetServiceFactory cannot be resolved from the container.');
         }
@@ -350,7 +350,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->sendMissionToEmptyPosition($unitCollection, new Resources(5000, 5000, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -376,7 +376,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
 
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);

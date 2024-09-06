@@ -58,7 +58,7 @@ class PlanetServiceFactory
     {
         if ($reloadCache || !isset($this->instancesById[$planetId])) {
             try {
-                $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
+                $planetService = resolve(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
                 $this->instancesById[$planetId] = $planetService;
 
                 if ($planetService->planetInitialized()) {
@@ -88,7 +88,7 @@ class PlanetServiceFactory
     {
         if (!$useCache || !isset($this->instancesById[$planetId])) {
             try {
-                $planetService = app()->make(PlanetService::class, ['player' => $player, 'planet_id' => $planetId]);
+                $planetService = resolve(PlanetService::class, ['player' => $player, 'planet_id' => $planetId]);
                 $this->instancesById[$planetId] = $planetService;
             } catch (BindingResolutionException $e) {
                 throw new RuntimeException('Class not found: ' . PlayerService::class);
@@ -125,7 +125,7 @@ class PlanetServiceFactory
             }
 
             try {
-                $planetService = app()->make(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
+                $planetService = resolve(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
                 $this->instancesByCoordinate[$coordinate->asString()] = $planetService;
                 $this->instancesById[$planetService->getPlanetId()] = $planetService;
                 return $this->instancesByCoordinate[$coordinate->asString()];

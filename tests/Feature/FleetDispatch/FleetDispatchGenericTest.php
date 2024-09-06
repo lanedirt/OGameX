@@ -86,10 +86,10 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Set the fleet speed to 1x for this test.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('fleet_speed', 1);
 
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
 
         $currentPlanetCoords = $this->planetService->getPlanetCoordinates();
         // Copy the current planet coordinates and set system +1 to simulate a target planet.

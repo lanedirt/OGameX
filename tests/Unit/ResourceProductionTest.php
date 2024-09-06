@@ -18,7 +18,7 @@ class ResourceProductionTest extends UnitTestCase
         $this->setUpPlanetService();
 
         // Set the universe speed to 1x for this test.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
     }
 

@@ -168,7 +168,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -259,7 +259,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -285,7 +285,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
 
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
@@ -338,7 +338,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 

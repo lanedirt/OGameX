@@ -50,7 +50,7 @@ class GameMessageFactory
         foreach (self::$gameMessageClasses as $id => $class) {
             try {
                 // Create a new instance of the game message class and pass a new (empty) Message object to it.
-                $gameMessages[$id] = app()->make($class, ['message' => new Message()]);
+                $gameMessages[$id] = resolve($class, ['message' => new Message()]);
             } catch (BindingResolutionException $e) {
                 throw new \RuntimeException('Game message not found: ' . $class);
             }
@@ -67,7 +67,7 @@ class GameMessageFactory
     public static function createGameMessage(Message $message): GameMessage
     {
         try {
-            return app()->make(self::$gameMessageClasses[$message->key], ['message' => $message]);
+            return resolve(self::$gameMessageClasses[$message->key], ['message' => $message]);
         } catch (BindingResolutionException $e) {
             throw new \RuntimeException('Game message not found: ' . $message->key);
         }
@@ -87,7 +87,7 @@ class GameMessageFactory
 
         foreach (self::$gameMessageClasses as $id => $className) {
             try {
-                $gameMessage = app()->make($className);
+                $gameMessage = resolve($className);
                 if ($gameMessage->getTab() === $tab && ($subtab === null || $gameMessage->getSubtab() === $subtab)) {
                     $matchingKeys[] = $id;
                 }

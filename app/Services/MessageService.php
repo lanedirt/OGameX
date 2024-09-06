@@ -143,7 +143,7 @@ class MessageService
 
         try {
             /** @var GameMessage $gameMessage */
-            $gameMessage = app()->make($gameMessageClass);
+            $gameMessage = resolve($gameMessageClass);
 
             $message = new Message();
             $message->user_id = $player->getId();
@@ -165,7 +165,7 @@ class MessageService
     public function sendEspionageReportMessageToPlayer(PlayerService $player, int $espionageReportId): Message
     {
         try {
-            $gameMessage = app()->make(EspionageReport::class);
+            $gameMessage = resolve(EspionageReport::class);
         } catch (Exception) {
             throw new RuntimeException('Could not create espionage report message.');
         }
@@ -189,7 +189,7 @@ class MessageService
     public function sendBattleReportMessageToPlayer(PlayerService $player, int $battleReportId): Message
     {
         try {
-            $gameMessage = app()->make(BattleReport::class);
+            $gameMessage = resolve(BattleReport::class);
         } catch (Exception) {
             throw new RuntimeException('Could not create battle report message.');
         }

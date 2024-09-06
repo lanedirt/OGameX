@@ -34,11 +34,11 @@ class GameMissionFactory
         */
         try {
             return [
-                1 => app()->make(AttackMission::class),
-                3 => app()->make(TransportMission::class),
-                4 => app()->make(DeploymentMission::class),
-                6 => app()->make(EspionageMission::class),
-                7 => app()->make(ColonisationMission::class),
+                1 => resolve(AttackMission::class),
+                3 => resolve(TransportMission::class),
+                4 => resolve(DeploymentMission::class),
+                6 => resolve(EspionageMission::class),
+                7 => resolve(ColonisationMission::class),
             ];
         } catch (BindingResolutionException $e) {
             throw new \RuntimeException('Class not found: ' . PlayerService::class);
@@ -56,15 +56,15 @@ class GameMissionFactory
         try {
             switch ($missionId) {
                 case 1:
-                    return app()->make(AttackMission::class, $dependencies);
+                    return resolve(AttackMission::class, $dependencies);
                 case 3:
-                    return app()->make(TransportMission::class, $dependencies);
+                    return resolve(TransportMission::class, $dependencies);
                 case 4:
-                    return app()->make(DeploymentMission::class, $dependencies);
+                    return resolve(DeploymentMission::class, $dependencies);
                 case 6:
-                    return app()->make(EspionageMission::class, $dependencies);
+                    return resolve(EspionageMission::class, $dependencies);
                 case 7:
-                    return app()->make(ColonisationMission::class, $dependencies);
+                    return resolve(ColonisationMission::class, $dependencies);
                 default:
                     throw new \RuntimeException('Mission not found: ' . $missionId);
             }

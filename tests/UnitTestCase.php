@@ -69,7 +69,7 @@ abstract class UnitTestCase extends TestCase
     protected function setUpPlanetService(): void
     {
         // Initialize the planet service with factory.
-        $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+        $planetServiceFactory =  resolve(PlanetServiceFactory::class);
         $this->planetService = $planetServiceFactory->makeForPlayer($this->playerService, 0);
     }
 
@@ -83,7 +83,7 @@ abstract class UnitTestCase extends TestCase
     {
         // Initialize empty playerService object for testing.
         // We do not use the factory as that would require a database connection.
-        $this->playerService = app()->make(PlayerService::class, ['player_id' => 0]);
+        $this->playerService = resolve(PlayerService::class, ['player_id' => 0]);
     }
 
     /**
@@ -95,7 +95,7 @@ abstract class UnitTestCase extends TestCase
     protected function setUpSettingsService(): void
     {
         // Initialize the planet service with factory.
-        $settingsService =  app()->make(SettingsService::class);
+        $settingsService =  resolve(SettingsService::class);
         $this->settingsService = $settingsService;
     }
 }
