@@ -9,6 +9,7 @@ use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\FleetMission;
+use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\DebrisFieldService;
@@ -23,8 +24,15 @@ class AttackMission extends GameMission
     /**
      * @inheritdoc
      */
-    public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        // Attack mission is only possible for planets and moons.
+        if (!in_array($targetType, [1, 3])) {
+            return new MissionPossibleStatus(false);
+        }
+
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
+
         // If planet does not exist, the mission is not possible.
         if ($targetPlanet === null) {
             return new MissionPossibleStatus(false);

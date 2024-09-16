@@ -526,7 +526,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $unitsToSend->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
-        $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
+        $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), 1, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
 
         // Check that now we're under attack.
         $response = $this->get('/overview');
@@ -555,7 +555,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Launch attack from foreign planet to the current players second planet.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
-        $fleetMission = $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->secondPlanetService->getPlanetCoordinates(), $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
+        $fleetMission = $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->secondPlanetService->getPlanetCoordinates(), 1, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
 
         // Advance time by 24 hours to ensure the mission is done.
         Carbon::setTestNow(Carbon::now()->addHours(24));

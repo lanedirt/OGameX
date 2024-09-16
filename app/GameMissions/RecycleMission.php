@@ -2,20 +2,20 @@
 
 namespace OGame\GameMissions;
 
-use OGame\GameMessages\TransportArrived;
-use OGame\GameMessages\TransportReceived;
+use OGame\GameMessages\FleetDeployment;
+use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
-use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 
-class TransportMission extends GameMission
+class RecycleMission extends GameMission
 {
-    protected static string $name = 'Transport';
-    protected static int $typeId = 3;
+    protected static string $name = 'Harvest';
+    protected static int $typeId = 8;
     protected static bool $hasReturnMission = true;
 
     /**
@@ -23,15 +23,15 @@ class TransportMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units): MissionPossibleStatus
     {
-        // Transport mission is only possible for planets and moons.
-        if (!in_array($targetType, [1, 3])) {
+        // Recycle mission is only possible for debris fields.
+        if ($targetType !== 2) {
             return new MissionPossibleStatus(false);
         }
 
-        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
-
-        // If target planet does not exist, the mission is not possible.
-        if ($targetPlanet === null) {
+        // Check if debris field exists on the target coordinate.
+        $debrisField = app(DebrisFieldService::class);
+        $debrisField->loadForCoordinates($targetCoordinate);
+        if (!$debrisField->getResources()->any()) {
             return new MissionPossibleStatus(false);
         }
 
@@ -39,41 +39,39 @@ class TransportMission extends GameMission
         return new MissionPossibleStatus(true);
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function processArrival(FleetMission $mission): void
     {
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
         // Add resources to the target planet
-        $target_planet->addResources($this->fleetMissionService->getResources($mission));
+        $resources = $this->fleetMissionService->getResources($mission);
+        $target_planet->addResources($resources);
 
-        // Send a message to the origin player that the mission has arrived
-        $this->messageService->sendSystemMessageToPlayer($origin_planet->getPlayer(), TransportArrived::class, [
-            'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
-            'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
-            'metal' => (string)$mission->metal,
-            'crystal' => (string)$mission->crystal,
-            'deuterium' => (string)$mission->deuterium,
-        ]);
+        // Add units to the target planet
+        $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
-        if ($origin_planet->getPlayer()->getId() !== $target_planet->getPlayer()->getId()) {
-            // Send a message to the target player that the mission has arrived
-            $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), TransportReceived::class, [
+        // Send a message to the player that the mission has arrived
+        if ($resources->sum() > 0) {
+            $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), FleetDeploymentWithResources::class, [
                 'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
                 'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
                 'metal' => (string)$mission->metal,
                 'crystal' => (string)$mission->crystal,
-                'deuterium' => (string)$mission->deuterium,
+                'deuterium' => (string)$mission->deuterium
+            ]);
+        } else {
+            $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), FleetDeployment::class, [
+                'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
+                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
             ]);
         }
 
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();
-
-        // Create and start the return mission.
-        $units = $this->fleetMissionService->getFleetUnits($mission);
-        $this->startReturn($mission, new Resources(0, 0, 0, 0), $units);
     }
 
     /**
@@ -81,10 +79,9 @@ class TransportMission extends GameMission
      */
     protected function processReturn(FleetMission $mission): void
     {
-        // Load the target planet
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
-        // Transport return trip: add back the units to the source planet.
+        // Transport return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
         // Add resources to the origin planet (if any).

@@ -118,10 +118,11 @@ class FleetController extends OGameController
         $galaxy = request()->input('galaxy');
         $system = request()->input('system');
         $position = request()->input('position');
-        $type = request()->input('type');
+        $targetType = (int)request()->input('type');
+
         // Load the target planet
-        $targetPlanet = $planetServiceFactory->makeForCoordinate(new Coordinate($galaxy, $system, $position));
-        $targetPlayer = null;
+        $targetCoordinates = new Coordinate($galaxy, $system, $position);
+        $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinates);
         if ($targetPlanet !== null) {
             $targetPlayer = $targetPlanet->getPlayer();
 
@@ -142,7 +143,7 @@ class FleetController extends OGameController
         $units = $this->getUnitsFromRequest($currentPlanet);
         $allMissions = GameMissionFactory::getAllMissions();
         foreach ($allMissions as $mission) {
-            $possible = $mission->isMissionPossible($currentPlanet, $targetPlanet, $units);
+            $possible = $mission->isMissionPossible($currentPlanet, $targetCoordinates, $targetType, $units);
             if ($possible->possible) {
                 $enabledMissions[] = $mission::getTypeId();
             } elseif (!empty($possible->error)) {
@@ -188,7 +189,7 @@ class FleetController extends OGameController
                 'galaxy' => $targetCoordinates->galaxy,
                 'system' => $targetCoordinates->system,
                 'position' => $targetCoordinates->position,
-                'type' => 1,
+                'type' => $targetType,
                 'name' => $targetPlanetName,
             ],
             'emptySystems' => 0,
@@ -214,7 +215,7 @@ class FleetController extends OGameController
         $galaxy = request()->input('galaxy');
         $system = request()->input('system');
         $position = request()->input('position');
-        $type = request()->input('type');
+        $target_type = (int)request()->input('type');
 
         // TODO: add sanity check if all required fields are present in the request.
 
@@ -262,7 +263,7 @@ class FleetController extends OGameController
         $mission_type = (int)request()->input('mission');
 
         // Create a new fleet mission
-        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $mission_type, $units, $resources);
+        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $target_type, $mission_type, $units, $resources);
 
         return response()->json([
             'components' => [],
@@ -286,7 +287,7 @@ class FleetController extends OGameController
         $galaxy = request()->input('galaxy');
         $system = request()->input('system');
         $position = request()->input('position');
-        $type = request()->input('type');
+        $targetType = (int)request()->input('type');
         $shipCount = request()->input('shipCount');
         $mission_type = (int)request()->input('mission');
 
@@ -303,11 +304,11 @@ class FleetController extends OGameController
         }
 
         // Create the target coordinate.
-        $target_coordinate = new Coordinate($galaxy, $system, $position);
+        $targetCoordinate = new Coordinate($galaxy, $system, $position);
         $resources = new Resources(0, 0, 0, 0);
 
         // Create a new fleet mission
-        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $mission_type, $units, $resources);
+        $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $targetType, $mission_type, $units, $resources);
 
         /*
          * Expected output:

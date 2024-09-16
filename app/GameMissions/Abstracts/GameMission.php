@@ -80,12 +80,13 @@ abstract class GameMission
     /**
      * Checks if the mission is possible under the given circumstances.
      *
-     * @param PlanetService $planet
-     * @param ?PlanetService $targetPlanet
-     * @param UnitCollection $units
+     * @param PlanetService $planet The planet from which the mission is sent.
+     * @param Coordinate $targetCoordinate The target coordinate of the mission.
+     * @param int $targetType The type of the target (1 = planet, 2 = debris field, 3 = moon.)
+     * @param UnitCollection $units The units that are sent on the mission.
      * @return MissionPossibleStatus
      */
-    abstract public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus;
+    abstract public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units): MissionPossibleStatus;
 
     /**
      * Cancel an already started mission.
@@ -113,12 +114,13 @@ abstract class GameMission
      *
      * @param PlanetService $planet
      * @param Coordinate $targetCoordinate
+     * @param int $targetType
      * @param UnitCollection $units
      * @param Resources $resources
      * @return void
      * @throws Exception
      */
-    public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources): void
+    public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units, Resources $resources): void
     {
         if (!$planet->hasResources($resources)) {
             throw new Exception('Not enough resources on the planet to send the fleet.');
@@ -127,7 +129,7 @@ abstract class GameMission
             throw new Exception('Not enough units on the planet to send the fleet.');
         }
 
-        $missionPossibleStatus = $this->isMissionPossible($planet, $this->planetServiceFactory->makeForCoordinate($targetCoordinate), $units);
+        $missionPossibleStatus = $this->isMissionPossible($planet, $targetCoordinate, $targetType, $units);
         if (!$missionPossibleStatus->possible) {
             throw new Exception($missionPossibleStatus->reason ?? __('This mission is not possible.'));
         }
@@ -150,20 +152,21 @@ abstract class GameMission
      *
      * @param PlanetService $planet
      * @param Coordinate $targetCoordinate
+     * @param int $targetType
      * @param UnitCollection $units
      * @param Resources $resources
      * @param int $parent_id
      * @return FleetMission
      * @throws Exception
      */
-    public function start(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
+    public function start(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
     {
-        $this->startMissionSanityChecks($planet, $targetCoordinate, $units, $resources);
+        $this->startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $resources);
 
-        // Time this fleet mission will depart (now)
+        // Time this fleet mission will depart (now).
         $time_start = (int)Carbon::now()->timestamp;
 
-        // Time fleet mission will arrive
+        // Time fleet mission will arrive.
         // TODO: refactor calculate to gamemission base class?
         $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units);
 

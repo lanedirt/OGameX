@@ -281,22 +281,23 @@ class FleetMissionService
     /**
      * Creates a new fleet mission for the current planet.
      *
-     * @param PlanetService $planet
-     * @param Coordinate $targetCoordinate
-     * @param int $missionType
-     * @param UnitCollection $units
-     * @param Resources $resources
-     * @param int $parent_id
+     * @param PlanetService $planet The planet where the fleet is sent from.
+     * @param Coordinate $targetCoordinate The target coordinate.
+     * @param int $targetType The type of the target (1 = planet, 2 = debris field, 3 = moon).
+     * @param int $missionType The type of the mission.
+     * @param UnitCollection $units The units that are sent.
+     * @param Resources $resources The resources that are sent.
+     * @param int $parent_id Optionally the parent mission ID if this is a follow-up mission.
      * @return FleetMission
      * @throws Exception
      */
-    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
+    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
     {
         $missionObject = $this->gameMissionFactory->getMissionById($missionType, [
             'fleetMissionService' => $this,
             'messageService' => $this->messageService,
         ]);
-        return $missionObject->start($planet, $targetCoordinate, $units, $resources, $parent_id);
+        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $parent_id);
     }
 
     /**

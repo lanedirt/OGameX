@@ -21,8 +21,15 @@ class ColonisationMission extends GameMission
     /**
      * @inheritdoc
      */
-    public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        // Colonisation mission is only possible for planets and moons.
+        if ($targetType !== 1) {
+            return new MissionPossibleStatus(false);
+        }
+
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
+
         // If planet already exists, the mission is not possible.
         if ($targetPlanet !== null) {
             return new MissionPossibleStatus(false);

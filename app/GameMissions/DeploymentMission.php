@@ -8,6 +8,7 @@ use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
+use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
 
 class DeploymentMission extends GameMission
@@ -19,8 +20,15 @@ class DeploymentMission extends GameMission
     /**
      * @inheritdoc
      */
-    public function isMissionPossible(PlanetService $planet, PlanetService|null $targetPlanet, UnitCollection $units): MissionPossibleStatus
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        // Deployment mission is only possible for planets and moons.
+        if (!in_array($targetType, [1, 3])) {
+            return new MissionPossibleStatus(false);
+        }
+
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
+
         // If target planet does not exist, the mission is not possible.
         if ($targetPlanet === null) {
             return new MissionPossibleStatus(false);

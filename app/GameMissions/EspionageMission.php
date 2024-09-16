@@ -7,6 +7,7 @@ use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 use Throwable;
@@ -20,8 +21,15 @@ class EspionageMission extends GameMission
     /**
      * @inheritdoc
      */
-    public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        // Espionage mission is only possible for planets and moons.
+        if (!in_array($targetType, [1, 3])) {
+            return new MissionPossibleStatus(false);
+        }
+
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
+
         // If planet does not exist, the mission is not possible.
         if ($targetPlanet === null) {
             return new MissionPossibleStatus(false);
