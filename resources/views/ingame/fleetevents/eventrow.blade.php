@@ -84,8 +84,13 @@
         -->
 
         <td class="destFleet">
-            <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
-            {{ $fleet_event_row->origin_planet_name }}
+            @php // 8 = harvest/recycle mission. @endphp
+            @if ($fleet_event_row->mission_type == 8)
+                <figure class="planetIcon tf tooltip js_hideTipOnMobile" title="debris field"></figure>debris field
+            @else
+                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
+                {{ $fleet_event_row->destination_planet_name }}
+            @endif
         </td>
         <td class="destCoords">
             <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->origin_planet_coords->galaxy, 'system' => $fleet_event_row->origin_planet_coords->system]) }}"
@@ -178,8 +183,13 @@
         </td>
 
         <td class="destFleet">
-            <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
-            {{ $fleet_event_row->destination_planet_name }}
+            @php // 8 = harvest/recycle mission. @endphp
+            @if ($fleet_event_row->mission_type == 8)
+                <figure class="planetIcon tf tooltip js_hideTipOnMobile" title="debris field"></figure>debris field
+            @else
+                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
+                {{ $fleet_event_row->destination_planet_name }}
+            @endif
         </td>
         <td class="destCoords">
             <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->destination_planet_coords->galaxy, 'system' => $fleet_event_row->destination_planet_coords->system]) }}"
