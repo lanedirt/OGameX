@@ -7,6 +7,7 @@ use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
@@ -20,10 +21,10 @@ class DeploymentMission extends GameMission
     /**
      * @inheritdoc
      */
-    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units): MissionPossibleStatus
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
         // Deployment mission is only possible for planets and moons.
-        if (!in_array($targetType, [1, 3])) {
+        if (!in_array($targetType, [PlanetType::Planet, PlanetType::Moon])) {
             return new MissionPossibleStatus(false);
         }
 
@@ -58,7 +59,7 @@ class DeploymentMission extends GameMission
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
         // Send a message to the player that the mission has arrived
-        if ($resources->sum() > 0) {
+        if ($resources->any()) {
             $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), FleetDeploymentWithResources::class, [
                 'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
                 'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
@@ -90,7 +91,7 @@ class DeploymentMission extends GameMission
 
         // Add resources to the origin planet (if any).
         $return_resources = $this->fleetMissionService->getResources($mission);
-        if ($return_resources->sum() > 0) {
+        if ($return_resources->any()) {
             $target_planet->addResources($return_resources);
         }
 

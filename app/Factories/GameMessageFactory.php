@@ -7,6 +7,7 @@ use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMessages\BattleReport;
 use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMessages\ColonyEstablishFailAstrophysics;
+use OGame\GameMessages\DebrisFieldHarvest;
 use OGame\GameMessages\EspionageReport;
 use OGame\GameMessages\FleetDeployment;
 use OGame\GameMessages\FleetDeploymentWithResources;
@@ -39,6 +40,7 @@ class GameMessageFactory
         'fleet_deployment_with_resources' => FleetDeploymentWithResources::class,
         'espionage_report' => EspionageReport::class,
         'battle_report' => BattleReport::class,
+        'debris_field_harvest' => DebrisFieldHarvest::class,
     ];
 
     /**

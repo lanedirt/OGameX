@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Factories\GameMissionFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -283,7 +284,7 @@ class FleetMissionService
      *
      * @param PlanetService $planet The planet where the fleet is sent from.
      * @param Coordinate $targetCoordinate The target coordinate.
-     * @param int $targetType The type of the target (1 = planet, 2 = debris field, 3 = moon).
+     * @param PlanetType $targetType The type of the target.
      * @param int $missionType The type of the mission.
      * @param UnitCollection $units The units that are sent.
      * @param Resources $resources The resources that are sent.
@@ -291,7 +292,7 @@ class FleetMissionService
      * @return FleetMission
      * @throws Exception
      */
-    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
+    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
     {
         $missionObject = $this->gameMissionFactory->getMissionById($missionType, [
             'fleetMissionService' => $this,

@@ -7,6 +7,7 @@ use OGame\GameMessages\ColonyEstablishFailAstrophysics;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -21,10 +22,10 @@ class ColonisationMission extends GameMission
     /**
      * @inheritdoc
      */
-    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units): MissionPossibleStatus
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
-        // Colonisation mission is only possible for planets and moons.
-        if ($targetType !== 1) {
+        // Colonisation mission is only possible for planets.
+        if ($targetType !== PlanetType::Planet) {
             return new MissionPossibleStatus(false);
         }
 
@@ -121,7 +122,7 @@ class ColonisationMission extends GameMission
 
         // Add resources to the origin planet (if any).
         $return_resources = $this->fleetMissionService->getResources($mission);
-        if ($return_resources->sum() > 0) {
+        if ($return_resources->any()) {
             $target_planet->addResources($return_resources);
         }
 

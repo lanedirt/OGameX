@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use OGame\Factories\GameMissionFactory;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
@@ -119,6 +120,7 @@ class FleetController extends OGameController
         $system = request()->input('system');
         $position = request()->input('position');
         $targetType = (int)request()->input('type');
+        $planetType = PlanetType::from($targetType);
 
         // Load the target planet
         $targetCoordinates = new Coordinate($galaxy, $system, $position);
@@ -143,7 +145,7 @@ class FleetController extends OGameController
         $units = $this->getUnitsFromRequest($currentPlanet);
         $allMissions = GameMissionFactory::getAllMissions();
         foreach ($allMissions as $mission) {
-            $possible = $mission->isMissionPossible($currentPlanet, $targetCoordinates, $targetType, $units);
+            $possible = $mission->isMissionPossible($currentPlanet, $targetCoordinates, $planetType, $units);
             if ($possible->possible) {
                 $enabledMissions[] = $mission::getTypeId();
             } elseif (!empty($possible->error)) {
@@ -263,7 +265,8 @@ class FleetController extends OGameController
         $mission_type = (int)request()->input('mission');
 
         // Create a new fleet mission
-        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $target_type, $mission_type, $units, $resources);
+        $planetType = PlanetType::from($target_type);
+        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources);
 
         return response()->json([
             'components' => [],
@@ -331,11 +334,12 @@ class FleetController extends OGameController
         }
 
         // Create a new fleet mission
-        $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $targetType, $mission_type, $units, $resources);
+        $planetType = PlanetType::from($targetType);
+        $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $planetType, $mission_type, $units, $resources);
 
         // Calculate the actual amount of units sent.
         $fleetUnitCount = $fleetMissionService->getFleetUnitCount($fleetMission);
-        
+
         return response()->json([
             'response' => [
                 'message' => $responseMessage,

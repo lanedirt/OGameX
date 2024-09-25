@@ -10,6 +10,7 @@ use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -82,11 +83,11 @@ abstract class GameMission
      *
      * @param PlanetService $planet The planet from which the mission is sent.
      * @param Coordinate $targetCoordinate The target coordinate of the mission.
-     * @param int $targetType The type of the target (1 = planet, 2 = debris field, 3 = moon.)
+     * @param PlanetType $targetType The type of the target.
      * @param UnitCollection $units The units that are sent on the mission.
      * @return MissionPossibleStatus
      */
-    abstract public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units): MissionPossibleStatus;
+    abstract public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus;
 
     /**
      * Cancel an already started mission.
@@ -114,19 +115,25 @@ abstract class GameMission
      *
      * @param PlanetService $planet
      * @param Coordinate $targetCoordinate
-     * @param int $targetType
+     * @param PlanetType $targetType
      * @param UnitCollection $units
      * @param Resources $resources
      * @return void
      * @throws Exception
      */
-    public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units, Resources $resources): void
+    public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources): void
     {
         if (!$planet->hasResources($resources)) {
             throw new Exception('Not enough resources on the planet to send the fleet.');
         }
         if (!$planet->hasUnits($units)) {
-            throw new Exception('Not enough units on the planet to send the fleet.');
+            $unitNames = [];
+            foreach ($units->units as $unit) {
+                $unitNames[] = $unit->unitObject->machine_name;
+            }
+
+            $unitNames = implode(', ', $unitNames);
+            throw new Exception('Not enough units on the planet to send the fleet. Units required: ' . $unitNames);
         }
 
         $missionPossibleStatus = $this->isMissionPossible($planet, $targetCoordinate, $targetType, $units);
@@ -152,14 +159,14 @@ abstract class GameMission
      *
      * @param PlanetService $planet
      * @param Coordinate $targetCoordinate
-     * @param int $targetType
+     * @param PlanetType $targetType
      * @param UnitCollection $units
      * @param Resources $resources
      * @param int $parent_id
      * @return FleetMission
      * @throws Exception
      */
-    public function start(PlanetService $planet, Coordinate $targetCoordinate, int $targetType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
+    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
     {
         $this->startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $resources);
 
@@ -329,7 +336,7 @@ abstract class GameMission
             $from = '[planet]' . $mission->planet_id_from . '[/planet]';
         }
 
-        if ($return_resources->sum() > 0) {
+        if ($return_resources->any()) {
             $params = [
                 'from' => $from,
                 'to' => '[planet]' . $mission->planet_id_to . '[/planet]',

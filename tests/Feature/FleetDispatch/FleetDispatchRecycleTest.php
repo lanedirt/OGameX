@@ -5,53 +5,48 @@ namespace Tests\Feature\FleetDispatch;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
-use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
 /**
- * Test that fleet dispatch works as expected for deployment missions.
+ * Test that fleet dispatch works as expected for recycle (harvest) missions.
  */
-class FleetDispatchDeployTest extends FleetDispatchTestCase
+class FleetDispatchRecycleTest extends FleetDispatchTestCase
 {
     /**
      * @var int The mission type for the test.
      */
-    protected int $missionType = 4;
+    protected int $missionType = 8;
 
     /**
      * @var string The mission name for the test, displayed in UI.
      */
-    protected string $missionName = 'Deployment';
+    protected string $missionName = 'Harvest';
 
     /**
-     * Prepare the planet for the test so it has the required buildings and research.
+     * Prepare the planet for the test, so it has the required buildings and research.
      *
      * @return void
      */
     protected function basicSetup(): void
     {
-        $this->planetSetObjectLevel('robot_factory', 2);
-        $this->planetSetObjectLevel('shipyard', 1);
-        $this->planetSetObjectLevel('research_lab', 1);
-        $this->playerSetResearchLevel('energy_technology', 1);
-        $this->playerSetResearchLevel('combustion_drive', 1);
-        $this->planetAddUnit('small_cargo', 5);
+        $this->planetAddUnit('recycler', 5);
 
-        // Set the fleet speed to 5x for this test.
-        $settingsService = resolve(SettingsService::class);
-        $settingsService->set('fleet_speed', 5);
+        // Add debris field to the second planet of the test user.
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
+        $debrisFieldService->save();
     }
 
     protected function messageCheckMissionArrival(): void
     {
         // Assert that message has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'other', [
-            'One of your fleets from',
-            'has reached',
-            'Metal: 100',
-            $this->planetService->getPlanetName(),
-            $this->secondPlanetService->getPlanetName()
+            'have a total storage capacity of 15.000',
+            'are floating in space',
+            'You have harvested',
         ]);
     }
 
@@ -60,80 +55,43 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         // Assert that message has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'other', [
             'Your fleet is returning from',
-            'Metal:',
+            'The fleet doesn\'t deliver goods',
             $this->planetService->getPlanetName(),
             $this->secondPlanetService->getPlanetName()
         ]);
     }
 
     /**
-     * Assert that check request to dispatch fleet to second planet succeeds with small cargo ship.
+     * Assert that check request to dispatch fleet to second planet with recycler.
      */
-    public function testFleetCheckToOwnPlanetSuccess(): void
+    public function testFleetCheckToSecondPlanetSuccess(): void
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->fleetCheckToSecondPlanet($unitCollection, true);
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $this->fleetCheckToSecondPlanetDebrisField($unitCollection, true);
     }
 
     /**
-     * Assert that check request to dispatch fleet to planet of other player fails.
+     * Assert that check request to dispatch fleet to second planet fails without recycler.
      */
-    public function testFleetCheckToForeignPlanetError(): void
+    public function testFleetCheckToSecondPlanetWithoutRecyclerError(): void
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->fleetCheckToOtherPlayer($unitCollection, false);
+        $this->fleetCheckToSecondPlanetDebrisField($unitCollection, false);
     }
 
     /**
-     * Assert that check request to dispatch fleet to empty position fails.
+     * Assert that check request to dispatch fleet to first planet position fails with recycler as it has no debris field.
      */
-    public function testFleetCheckToEmptyPlanetError(): void
+    public function testFleetCheckToFirstPlanetError(): void
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->fleetCheckToEmptyPosition($unitCollection, false);
-    }
-
-    public function testDispatchFleetWithoutResources(): void
-    {
-        $this->basicSetup();
-
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
-        // Send fleet to the second planet of the test user WITHOUT resources.
-        $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(0, 0, 0, 0));
-
-        // Set all messages as read to avoid unread messages count in the overview.
-        $this->playerSetAllMessagesRead();
-
-        // Increase time by 10 hours to ensure the mission is done.
-        Carbon::setTestNow($startTime->copy()->addHours(10));
-
-        // Do a request to trigger the update logic.
-        $response = $this->get('/overview');
-        $response->assertStatus(200);
-
-        // Assert that message has been sent to player and contains the correct information.
-        $this->assertMessageReceivedAndContains('fleets', 'other', [
-            'has reached',
-            'The fleet doesn`t deliver goods.',
-            $this->planetService->getPlanetName(),
-            $this->secondPlanetService->getPlanetName()
-        ]);
-
-        // Assert that the units have been added to the second planet.
-        $this->switchToSecondPlanet();
-        $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'small_cargo', 1, 'Small Cargo ship has not been added to second planet after deploy mission.');
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $this->fleetCheckToFirstPlanetDebrisField($unitCollection, false);
     }
 
     /**
@@ -143,75 +101,23 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Assert that we begin with 5 small cargo ships on planet.
+        // Assert that we begin with 5 recyclers on the planet.
         $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');
+        $this->assertObjectLevelOnPage($response, 'recycler', 5, 'Recycler ships are not at 5 units at beginning of test.');
 
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
-
-        $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'small_cargo', 4, 'Small Cargo ship not deducted from planet after fleet dispatch.');
-    }
-
-    /**
-     * Verify that dispatching a fleet deducts correct amount of resources from planet.
-     */
-    public function testDispatchFleetDeductResources(): void
-    {
-        $this->basicSetup();
-        $this->get('/shipyard');
-
-        // Get beginning resources of the planet.
-        $beginningMetal = $this->planetService->metal()->get();
-        $beginningCrystal = $this->planetService->crystal()->get();
-
-        // Send fleet to the second planet of the test user.
-        $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
 
         $response = $this->get('/shipyard');
-        $response->assertStatus(200);
-
-        // Assert that the resources were deducted from the planet.
-        $this->assertResourcesOnPage($response, new Resources($beginningMetal - 100, $beginningCrystal - 100, 0, 0));
+        $this->assertObjectLevelOnPage($response, 'recycler', 4, 'Recycler ship not deducted from planet after fleet dispatch.');
     }
 
     /**
-     * Verify that dispatching a fleet with more resources than is on planet fails.
+     * Verify that dispatching a recycle mission launches a return trip and brings back units to origin planet.
      */
-    public function testDispatchFleetDeductTooMuchResources(): void
-    {
-        $this->basicSetup();
-        $this->get('/shipyard');
-
-        // Send fleet to the second planet of the test user.
-        $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(4500, 100, 0, 0), 500);
-    }
-
-    /**
-     * Verify that dispatching a fleet with more units than is on planet fails.
-     */
-    public function testDispatchFleetDeductTooMuchUnits(): void
-    {
-        $this->basicSetup();
-        $this->get('/shipyard');
-
-        // Send fleet to the second planet of the test user.
-        $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 10);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0), 500);
-    }
-
-    /**
-     * Verify that dispatching a fleet does NOT launch a return trip as deploy is only one way.
-     */
-    public function testDispatchFleetNoReturnTrip(): void
+    public function testDispatchFleetReturnTrip(): void
     {
         $this->basicSetup();
 
@@ -221,12 +127,12 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');
+        $this->assertObjectLevelOnPage($response, 'recycler', 5, 'Recycler ships are not at 5 units at beginning of test.');
 
-        // Send fleet to the second planet of the test user.
+        // Send fleet to the debris field located at second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -257,14 +163,34 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 
-        // Assert that NO return trip has been launched by checking the active missions for the current planet.
-        $this->assertCount(0, $activeMissions, 'Return trip launched after fleet with deployment mission has arrived at destination.');
+        // Assert that a return trip has been launched by checking the active missions for the current planet.
+        $this->assertCount(1, $activeMissions, 'No return trip launched after fleet has arrived at destination.');
+
+        // Advance time to the return trip arrival.
+        $returnTripDuration = $activeMissions->first()->time_arrival - $activeMissions->first()->time_departure;
+
+        $fleetReturnTime = $fleetParentTime->copy()->addSeconds($returnTripDuration + 1);
+        Carbon::setTestNow($fleetReturnTime);
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the return trip has been processed.
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(0, $activeMissions, 'Return trip is not processed after fleet has arrived back at origin planet.');
+
+        // Assert that the units have been returned to the origin planet.
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'recycler', 5, 'Recycler ships are not at 5 units after return trip.');
+
+        $this->messageCheckMissionReturn();
     }
 
     /**
-     * Verify that an active mission also does NOT show a return trip in the fleet event list.
+     * Verify that an active mission also shows the (not yet existing) return trip in the fleet event list.
      */
-    public function testDispatchFleetReturnNotShown(): void
+    public function testDispatchFleetReturnShown(): void
     {
         $this->basicSetup();
 
@@ -274,8 +200,8 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(100, 100, 0, 0));
 
         // The eventbox should only show 1 mission (the parent).
         $response = $this->get('/ajax/fleet/eventbox/fetch');
@@ -286,12 +212,12 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $response = $this->get('/ajax/fleet/eventlist/fetch');
         $response->assertStatus(200);
 
-        // If the mission does not have a return mission, we should only see the parent mission.
+        // If the mission has a return mission, we should see both in the event list.
         $response->assertSee($this->missionName);
-        $response->assertDontSee($this->missionName .  ' (R)');
-        // Assert that we see only parent row in the event list.
+        $response->assertSee($this->missionName .  ' (R)');
+        // Assert that we see both rows in the event list.
         $response->assertSee('data-return-flight="false"', false);
-        $response->assertDontSee('data-return-flight="true"', false);
+        $response->assertSee('data-return-flight="true"', false);
     }
 
     /**
@@ -308,17 +234,14 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
         Carbon::setTestNow($startTime);
 
-        // Assert that we begin with 5 small cargo ships on planet.
-        $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');
-
-        // Send fleet to the second planet of the test user.
+        // Send fleet to the second planet debris field of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 5);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(5000, 5000, 0, 0));
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 5);
+        $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -331,6 +254,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
             'fleet_mission_id' => $fleetMissionId,
             '_token' => csrf_token(),
         ]);
+
         $response->assertStatus(200);
 
         // Assert that the original mission is now canceled.
@@ -345,6 +269,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
@@ -353,15 +278,11 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         // Because the return trip should take exactly as long as the original trip has traveled until it was canceled.
         $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(60)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
 
-        // Set all messages as read in order to check if we receive the correct messages during return trip process.
-        $this->playerSetAllMessagesRead();
-
         // Advance time by amount of minutes it takes for the return trip to arrive.
         Carbon::setTestNow(Carbon::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
-        $response = $this->get('/overview');
-        $response->assertStatus(200);
+        $this->get('/overview');
 
         // Assert that the return trip is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
@@ -369,12 +290,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
         // Assert that the units have been returned to the origin planet.
         $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at original 5 units after recalled trip has been processed.');
-        // Assert that the resources have been returned to the origin planet.
-        $this->planetService->reloadPlanet();
-        $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are not returned to origin planet after recalling mission.');
-
-        $this->messageCheckMissionReturn();
+        $this->assertObjectLevelOnPage($response, 'recycler', 5, 'Recycler ships are not at original 5 units after recalled trip has been processed.');
     }
 
     /**
@@ -388,17 +304,14 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
         Carbon::setTestNow($startTime);
 
-        // Assert that we begin with 5 small cargo ships on planet.
-        $response = $this->get('/shipyard');
-        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');
-
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(100, 100, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -411,6 +324,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
             'fleet_mission_id' => $fleetMissionId,
             '_token' => csrf_token(),
         ]);
+
         $response->assertStatus(200);
 
         // Cancel it again
@@ -418,6 +332,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
             'fleet_mission_id' => $fleetMissionId,
             '_token' => csrf_token(),
         ]);
+
         // Expecting a 500 error because the mission is already canceled.
         $response->assertStatus(500);
 
