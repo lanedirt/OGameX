@@ -296,10 +296,16 @@ class FleetController extends OGameController
 
         // Units to be sent are static dependent on mission type.
         $units = new UnitCollection();
+        $responseMessage = '';
         switch ($mission_type) {
             case 6: // Espionage
                 // TODO: make espionage probe amount configurable in user settings and use that value here.
+                $responseMessage = __('Send espionage probe to:');
                 $units->addUnit($planet->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+                break;
+            case 8: // Recycle
+                $responseMessage = __('Send recycler to:');
+                $units->addUnit($planet->objects->getUnitObjectByMachineName('recycler'), $shipCount);
                 break;
         }
 
@@ -307,23 +313,39 @@ class FleetController extends OGameController
         $targetCoordinate = new Coordinate($galaxy, $system, $position);
         $resources = new Resources(0, 0, 0, 0);
 
-        // Create a new fleet mission
-        $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $targetType, $mission_type, $units, $resources);
+        // Check if current planet has enough units to send.
+        if (!$planet->hasUnits($units)) {
+            return response()->json([
+                'response' => [
+                    'message' => __('Error, no ships available'),
+                    'coordinates' => [
+                        'galaxy' => $galaxy,
+                        'system' => $system,
+                        'position' => $position,
+                    ],
+                    'success' => false,
+                ],
+                'newAjaxToken' => csrf_token(),
+                'components' => [],
+            ]);
+        }
 
-        /*
-         * Expected output:
-         {"response":{"message":"Send espionage probe to:","type":1,"slots":1,"probes":11,"recyclers":0,"explorers":9,"missiles":0,"shipsSent":1,"coordinates":{"galaxy":7,"system":249,"position":7},"planetType":1,"success":true},"components":[],"newAjaxToken":"466e064353ddd8a79db87c26777ab32b"}
-         */
+        // Create a new fleet mission
+        $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $targetType, $mission_type, $units, $resources);
+
+        // Calculate the actual amount of units sent.
+        $fleetUnitCount = $fleetMissionService->getFleetUnitCount($fleetMission);
+        
         return response()->json([
             'response' => [
-                'message' => 'Send espionage probe to:',
+                'message' => $responseMessage,
                 'type' => 1,
                 'slots' => 1,
                 'probes' => 11,
                 'recyclers' => 0,
                 'explorers' => 9,
                 'missiles' => 0,
-                'shipsSent' => 1,
+                'shipsSent' => $fleetUnitCount,
                 'coordinates' => [
                     'galaxy' => $galaxy,
                     'system' => $system,
