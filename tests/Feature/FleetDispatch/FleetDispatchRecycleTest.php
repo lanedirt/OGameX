@@ -7,6 +7,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
+use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -44,9 +45,12 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     {
         // Assert that message has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'other', [
-            'have a total storage capacity of 15.000',
+            'have a total storage capacity of 20,000',
             'are floating in space',
             'You have harvested',
+            '5,000 Metal',
+            '4,000 Crystal',
+            '3,000 Deuterium'
         ]);
     }
 
@@ -55,7 +59,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Assert that message has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'other', [
             'Your fleet is returning from',
-            'The fleet doesn\'t deliver goods',
+            'Metal:',
             $this->planetService->getPlanetName(),
             $this->secondPlanetService->getPlanetName()
         ]);
@@ -144,7 +148,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).
-        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 30);
+        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration);
         Carbon::setTestNow($fleetParentTime);
 
         // Set all messages as read to avoid unread messages count in the overview.
@@ -161,14 +165,24 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Check that message has been received by calling extended method
         $this->messageCheckMissionArrival();
 
+        // Assert that the debris field is now empty after harvesting.
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $this->assertFalse($debrisFieldService->getResources()->any(), 'Debris field still has resources after recyclers have harvested it.');
+
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 
         // Assert that a return trip has been launched by checking the active missions for the current planet.
         $this->assertCount(1, $activeMissions, 'No return trip launched after fleet has arrived at destination.');
+        $returnMission = $activeMissions->first();
+
+        // Assert that the return mission contains the correct resources.
+        $this->assertTrue($returnMission->resources->metal === 5000, 'Metal resources are not correct in return trip.');
+        $this->assertTrue($returnMission->resources->crystal === 4000, 'Crystal resources are not correct in return trip.');
+        $this->assertTrue($returnMission->resources->deuterium === 3000, 'Deuterium resources are not correct in return trip.');
 
         // Advance time to the return trip arrival.
-        $returnTripDuration = $activeMissions->first()->time_arrival - $activeMissions->first()->time_departure;
-
+        $returnTripDuration = $returnMission->time_arrival - $returnMission->time_departure;
         $fleetReturnTime = $fleetParentTime->copy()->addSeconds($returnTripDuration + 1);
         Carbon::setTestNow($fleetReturnTime);
 
