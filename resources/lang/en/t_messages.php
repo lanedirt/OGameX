@@ -113,7 +113,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     'debris_field_harvest' => [
         'from' => 'Fleet',
         'subject' => 'Harvesting report from DF on :coordinates',
-        'body' => 'Your :ship_name (:ship_amount ships) have a total storage capacity of :storage_capacity. At the target :coordinates, :metal Metal, :crystal Crystal and :deuterium Deuterium are floating in space. You have harvested :harvest_metal Metal, :harvest_crystal Crystal and :harvest_deuterium Deuterium.',
+        'body' => 'Your :ship_name (:ship_amount ships) have a total storage capacity of :storage_capacity. At the target :to, :metal Metal, :crystal Crystal and :deuterium Deuterium are floating in space. You have harvested :harvested_metal Metal, :harvested_crystal Crystal and :harvested_deuterium Deuterium.',
     ],
 
     // ------------------------
