@@ -365,7 +365,7 @@ abstract class GameMessage
 
             $coordinates = new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]);
             return '<a href="' . route('galaxy.index', ['galaxy' => $coordinates->galaxy, 'system' => $coordinates->system, 'position' => $coordinates->position]) . '" class="txt_link">
-                                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
+                                <figure class="planetIcon tf tooltip js_hideTipOnMobile" title="Planet"></figure>
                             debris field [' . $coordinates->asString() . ']</a>';
         }, $body);
 

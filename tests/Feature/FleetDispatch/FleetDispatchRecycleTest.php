@@ -129,7 +129,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
         Carbon::setTestNow($startTime);
 
-        // Assert that we begin with 5 small cargo ships on planet.
+        // Assert that we begin with 5 recyclers.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'recycler', 5, 'Recycler ships are not at 5 units at beginning of test.');
 
@@ -232,6 +232,71 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Assert that we see both rows in the event list.
         $response->assertSee('data-return-flight="false"', false);
         $response->assertSee('data-return-flight="true"', false);
+    }
+
+    /**
+     * Verify that dispatching a recycle mission towards a debris field with large resources works as expected
+     * and only takes the amount of resources the recyclers can carry.
+     */
+    public function testDispatchFleetLargeDebrisField(): void
+    {
+        $this->basicSetup();
+
+        // Set time to static time 2024-01-01
+        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
+        Carbon::setTestNow($startTime);
+
+        // Make sure the debris field has a lot of resources.
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->appendResources(new Resources(500000, 500000, 500000, 0));
+        $debrisFieldService->save();
+
+        $beforeDebrisFieldResources = $debrisFieldService->getResources();
+
+        // Send fleet to the debris field located at second planet of the test user.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 5);
+        $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Get just dispatched fleet mission ID from database.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+
+        // Get time it takes for the fleet to travel to the second planet.
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanetService->getPlanetCoordinates(), $unitCollection);
+
+        // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
+        // and are calculated based on the arrival time instead of the time the job got processed).
+        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration);
+        Carbon::setTestNow($fleetParentTime);
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the fleet mission is processed.
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
+
+        // Assert that the debris field contents have been reduced by the amount the recyclers can carry.
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+
+        $this->assertEquals($beforeDebrisFieldResources->metal->get() - 33333, $debrisFieldService->getResources()->metal->get(), 'Metal resources are not correct in debris field after recyclers have harvested it.');
+        $this->assertEquals($beforeDebrisFieldResources->crystal->get() - 33333, $debrisFieldService->getResources()->crystal->get(), 'Crystal resources are not correct in debris field after recyclers have harvested it.');
+        $this->assertEquals($beforeDebrisFieldResources->deuterium->get() - 33333, $debrisFieldService->getResources()->deuterium->get(), 'Deuterium resources are not correct in debris field after recyclers have harvested it.');
+
+        // Expecting a return trip that will contain the extracted resources.
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $returnMission = $activeMissions->first();
+
+        // Assert that the return mission contains the correct resources
+        // which should be the same as the total capacity of the recyclers.
+        $this->assertEquals(33333, $returnMission->metal, 'Metal resources are not correct in return trip.');
+        $this->assertEquals(33333, $returnMission->crystal, 'Crystal resources are not correct in return trip.');
+        $this->assertEquals(33333, $returnMission->deuterium, 'Deuterium resources are not correct in return trip.');
     }
 
     /**

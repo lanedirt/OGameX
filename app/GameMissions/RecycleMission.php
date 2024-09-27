@@ -103,7 +103,7 @@ class RecycleMission extends GameMission
     {
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
-        // Transport return trip: add back the units to the source planet. Then we're done.
+        // Recycle return trip: add back the units to the source planet.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
         // Add resources to the origin planet (if any).
