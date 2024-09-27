@@ -177,9 +177,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $returnMission = $activeMissions->first();
 
         // Assert that the return mission contains the correct resources.
-        $this->assertTrue($returnMission->resources->metal === 5000, 'Metal resources are not correct in return trip.');
-        $this->assertTrue($returnMission->resources->crystal === 4000, 'Crystal resources are not correct in return trip.');
-        $this->assertTrue($returnMission->resources->deuterium === 3000, 'Deuterium resources are not correct in return trip.');
+        $this->assertTrue($returnMission->metal === 5000, 'Metal resources are not correct in return trip.');
+        $this->assertTrue($returnMission->crystal === 4000, 'Crystal resources are not correct in return trip.');
+        $this->assertTrue($returnMission->deuterium === 3000, 'Deuterium resources are not correct in return trip.');
 
         // Advance time to the return trip arrival.
         $returnTripDuration = $returnMission->time_arrival - $returnMission->time_departure;

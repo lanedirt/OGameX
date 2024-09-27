@@ -75,7 +75,7 @@ class LootService
      * @param int $total_cargo_capacity
      * @return Resources
      */
-    public function distributeLoot(Resources $loot, int $total_cargo_capacity): Resources
+    public static function distributeLoot(Resources $loot, int $total_cargo_capacity): Resources
     {
         $total_loot = $loot->sum();
 

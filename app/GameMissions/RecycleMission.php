@@ -2,8 +2,10 @@
 
 namespace OGame\GameMissions;
 
+use Exception;
 use OGame\GameMessages\DebrisFieldHarvest;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Services\LootService;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
@@ -42,6 +44,8 @@ class RecycleMission extends GameMission
 
     /**
      * @inheritdoc
+     *
+     * @throws Exception
      */
     protected function processArrival(FleetMission $mission): void
     {
@@ -57,20 +61,15 @@ class RecycleMission extends GameMission
         $recyclerCount = $this->fleetMissionService->getFleetUnits($mission)->getAmountByMachineName($recycler->machine_name);
 
         // Calculate total recycler capacity.
-        $total_capacity = $recycler->properties->capacity->calculate($originPlanet->getPlayer())->totalValue * $recyclerCount;
+        $total_cargo_capacity = $recycler->properties->capacity->calculate($originPlanet->getPlayer())->totalValue * $recyclerCount;
 
-        // Recycle the debris field resources.
-        $resources = $debrisField->getResources();
+        // Get resources from the debris field and take as much as the recyclers can carry.
+        $resourcesToHarvest = $debrisField->getResources();
+        $resourcesHarvested = LootService::distributeLoot($resourcesToHarvest, $total_cargo_capacity);
 
-        // TODO: Take the maximum amount of resources that the fleet can carry.
-        $metal_to_harvest = $resources->metal;
-        $crystal_to_harvest = $resources->crystal;
-        $deuterium_to_harvest = $resources->deuterium;
-
-        // If the fleet can't carry all the resources, take as much as possible.
-        $metal_harvested = $metal_to_harvest;
-        $crystal_harvested = $crystal_to_harvest;
-        $deuterium_harvested = $deuterium_to_harvest;
+        // Remove the harvested resources from the debris field.
+        $debrisField->deductResources($resourcesHarvested);
+        $debrisField->save();
 
         // Send a message to the player that the mission has arrived and the resources (if any) have been collected.
         $this->messageService->sendSystemMessageToPlayer($originPlanet->getPlayer(), DebrisFieldHarvest::class, [
@@ -79,13 +78,13 @@ class RecycleMission extends GameMission
             'coordinates' => '[coordinates]' . $targetCoordinate->asString() . '[/coordinates]',
             'ship_name' => $recycler->title,
             'ship_amount' => $recyclerCount,
-            'storage_capacity' => $total_capacity,
-            'metal' => $metal_to_harvest->get(),
-            'crystal' => $crystal_to_harvest->get(),
-            'deuterium' => $deuterium_to_harvest->get(),
-            'harvested_metal' => $metal_harvested->get(),
-            'harvested_crystal' => $crystal_harvested->get(),
-            'harvested_deuterium' => $deuterium_harvested->get(),
+            'storage_capacity' => $total_cargo_capacity,
+            'metal' => $resourcesToHarvest->metal->get(),
+            'crystal' => $resourcesToHarvest->crystal->get(),
+            'deuterium' => $resourcesToHarvest->deuterium->get(),
+            'harvested_metal' => $resourcesHarvested->metal->get(),
+            'harvested_crystal' => $resourcesHarvested->crystal->get(),
+            'harvested_deuterium' => $resourcesHarvested->deuterium->get(),
         ]);
 
         // Mark the arrival mission as processed
@@ -94,7 +93,7 @@ class RecycleMission extends GameMission
 
         // Create and start the return mission.
         $units = $this->fleetMissionService->getFleetUnits($mission);
-        $this->startReturn($mission, new Resources($metal_harvested->get(), $crystal_harvested->get(), $deuterium_harvested->get(), 0), $units);
+        $this->startReturn($mission, $resourcesHarvested, $units);
     }
 
     /**
