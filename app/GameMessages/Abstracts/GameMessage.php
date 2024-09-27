@@ -344,23 +344,10 @@ abstract class GameMessage
                 return 'Unknown Planet';
             }
 
-            $planetService = null;
-            try {
-                $planetServiceFactory = resolve(PlanetServiceFactory::class);
-                $planetService = $planetServiceFactory->makeForCoordinate(new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]));
-            } catch (\Exception $e) {
-                // Do nothing
-            }
-
-            if ($planetService !== null) {
-                $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
-                                    <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
-                                [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
-            } else {
-                $planetName = 'Unknown Planet';
-            }
-
-            return $planetName;
+            $coordinates = new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]);
+            return '<a href="' . route('galaxy.index', ['galaxy' => $coordinates->galaxy, 'system' => $coordinates->system, 'position' => $coordinates->position]) . '" class="txt_link">
+                                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
+                            [' . $coordinates->asString() . ']</a>';
         }, $body);
 
         $body = preg_replace_callback('/\[debrisfield\](\d+):(\d+):(\d+)\[\/debrisfield\]/', function ($matches) {

@@ -337,26 +337,41 @@ abstract class GameMission
 
         // Define from string based on whether the planet is available or not.
         $from = '[coordinates]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/coordinates]';
-        if ($mission->planet_id_from !== null) {
-            $from = '[planet]' . $mission->planet_id_from . '[/planet]';
+        switch ($mission->type_from) {
+            case PlanetType::Planet->value:
+                if ($mission->planet_id_from !== null) {
+                    $from = __('planet') . ' [planet]' . $mission->planet_id_from . '[/planet]';
+                }
+                break;
+            case PlanetType::DebrisField->value:
+                $from = '[debrisfield]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/debrisfield]';
+                break;
+            case PlanetType::Moon->value:
+                // TODO: add check if moon exists based on moon_id_from when added later?
+                $from = __('moon') . ' [moon]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/moon]';
+                break;
         }
+
+        $to = __('planet') . ' [planet]' . $mission->planet_id_to . '[/planet]';
+        // TODO: add check if moon exists based on moon_id_to when added later and add moon tag if it exists.
 
         if ($return_resources->any()) {
             $params = [
                 'from' => $from,
-                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+                'to' => $to,
                 'metal' => (string)$mission->metal,
                 'crystal' => (string)$mission->crystal,
                 'deuterium' => (string)$mission->deuterium,
             ];
+
             $this->messageService->sendSystemMessageToPlayer($targetPlayer, ReturnOfFleetWithResources::class, $params);
         } else {
             $params = [
                 'from' => $from,
-                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+                'to' => $to,
             ];
-            $this->messageService->sendSystemMessageToPlayer($targetPlayer, ReturnOfFleet::class, $params);
 
+            $this->messageService->sendSystemMessageToPlayer($targetPlayer, ReturnOfFleet::class, $params);
         }
     }
 

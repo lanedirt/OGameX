@@ -60,7 +60,6 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
             'Your fleet is returning from',
             'Metal:',
             $this->planetService->getPlanetName(),
-            $this->secondPlanetService->getPlanetName()
         ]);
     }
 

@@ -33,7 +33,7 @@ This message will be deleted in 7 days.',
     'return_of_fleet_with_resources' => [
         'from' => 'Fleet Command',
         'subject' => 'Return of a fleet',
-        'body' => 'Your fleet is returning from planet :from to planet :to and delivered its goods:
+        'body' => 'Your fleet is returning from :from to :to and delivered its goods:
             
 Metal: :metal
 Crystal: :crystal
