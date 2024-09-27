@@ -7,7 +7,6 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
-use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
 /**

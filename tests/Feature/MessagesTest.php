@@ -46,9 +46,9 @@ class MessagesTest extends AccountTestCase
                 $filledParams[$param] = 'test';
             }
 
-            // Check if message raw translation contains all the required params.
+            // Check if message raw translation for subject AND body combined contains all the required params.
             foreach ($params as $param) {
-                $this->assertStringContainsString(':' . $param, __('t_messages.' . $gameMessage->getKey() . '.body'), 'Lang body does not contain :' . $param . ' for ' . get_class($gameMessage));
+                $this->assertStringContainsString(':' . $param, __('t_messages.' . $gameMessage->getKey() . '.subject') . '--' . __('t_messages.' . $gameMessage->getKey() . '.body'), 'Lang body does not contain :' . $param . ' for ' . get_class($gameMessage));
             }
 
             // Create empty Message object to pass to getSubject and getBody methods.

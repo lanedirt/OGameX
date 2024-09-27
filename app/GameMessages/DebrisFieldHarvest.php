@@ -10,7 +10,6 @@ class DebrisFieldHarvest extends GameMessage
     {
         $this->key = 'debris_field_harvest';
         $this->params = [
-            'from',
             'to',
             'coordinates',
             'ship_name',

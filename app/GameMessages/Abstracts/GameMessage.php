@@ -130,6 +130,11 @@ abstract class GameMessage
      */
     public function getSubject(): string
     {
+        // Check if all the params are provided by checking all individual param names.
+        if ($this->message->params === null) {
+            $this->message->params = [];
+        }
+
         $params = $this->checkParams($this->message->params);
 
         // Get the message subject from the language files.
