@@ -188,6 +188,7 @@ abstract class GameMission
 
         $mission->user_id = $planet->getPlayer()->getId();
 
+        $mission->type_from = PlanetType::Planet->value;
         $mission->planet_id_from = $planet->getPlanetId();
         $mission->galaxy_from = $planet->getPlanetCoordinates()->galaxy;
         $mission->system_from = $planet->getPlanetCoordinates()->system;
@@ -197,10 +198,16 @@ abstract class GameMission
         $mission->time_departure = $time_start;
         $mission->time_arrival = $time_end;
 
-        $target_planet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
-        if ($target_planet !== null) {
-            $mission->planet_id_to = $target_planet->getPlanetId();
+        $mission->type_to = $targetType->value;
+
+        // Only set the target planet ID if the target is a planet.
+        if ($targetType === PlanetType::Planet) {
+            $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
+            if ($targetPlanet !== null) {
+                $mission->planet_id_to = $targetPlanet->getPlanetId();
+            }
         }
+
         $mission->galaxy_to = $targetCoordinate->galaxy;
         $mission->system_to = $targetCoordinate->system;
         $mission->position_to = $targetCoordinate->position;
@@ -260,41 +267,39 @@ abstract class GameMission
         $mission->parent_id = $parentMission->id;
         $mission->user_id = $parentMission->user_id;
 
+        // Set the type_from and type_to to the opposite of the parent mission.
+        $mission->type_from = $parentMission->type_to;
+        $mission->type_to = $parentMission->type_from;
+
         // If planet_id_to is not set, it can mean that the target planet was colonized or the mission was canceled.
         // In this case, we keep planet_id_from as null.
-        if ($parentMission->planet_id_to === null) {
-            // Attempt to load it from the target coordinates.
-            $targetPlanet = $this->planetServiceFactory->makeForCoordinate(new Coordinate($parentMission->galaxy_to, $parentMission->system_to, $parentMission->position_to));
-            if ($targetPlanet !== null) {
-                $mission->planet_id_from = $targetPlanet->getPlanetId();
-                $mission->galaxy_from = $targetPlanet->getPlanetCoordinates()->galaxy;
-                $mission->system_from = $targetPlanet->getPlanetCoordinates()->system;
-                $mission->position_from = $targetPlanet->getPlanetCoordinates()->position;
+        if ($mission->type_to === PlanetType::Planet->value) {
+            if ($parentMission->planet_id_to === null) {
+                // Attempt to load it from the target coordinates.
+                $targetPlanet = $this->planetServiceFactory->makeForCoordinate(new Coordinate($parentMission->galaxy_to, $parentMission->system_to, $parentMission->position_to));
+                if ($targetPlanet !== null) {
+                    $mission->planet_id_from = $targetPlanet->getPlanetId();
+                } else {
+                    $mission->planet_id_from = null;
+                }
             } else {
-                $mission->planet_id_from = null;
-                $mission->galaxy_from = $parentMission->galaxy_to;
-                $mission->system_from = $parentMission->system_to;
-                $mission->position_from = $parentMission->position_to;
+                $mission->planet_id_from = $parentMission->planet_id_to;
             }
-        } else {
-            $mission->planet_id_from = $parentMission->planet_id_to;
-            $mission->galaxy_from = $parentMission->galaxy_to;
-            $mission->system_from = $parentMission->system_to;
-            $mission->position_from = $parentMission->position_to;
         }
+
         $mission->mission_type = $parentMission->mission_type;
         $mission->time_departure = $time_start;
         $mission->time_arrival = $time_end;
         $mission->planet_id_to = $parentMission->planet_id_from;
 
-        // Planet to service
-        $planetToService = $this->planetServiceFactory->make($mission->planet_id_to, true);
-
         // Coordinates
-        $coords = $planetToService->getPlanetCoordinates();
-        $mission->galaxy_to = $coords->galaxy;
-        $mission->system_to = $coords->system;
-        $mission->position_to = $coords->position;
+        $mission->galaxy_from = $parentMission->galaxy_to;
+        $mission->system_from = $parentMission->system_to;
+        $mission->position_from = $parentMission->position_to;
+
+        $mission->galaxy_to = $parentMission->galaxy_from;
+        $mission->system_to = $parentMission->system_from;
+        $mission->position_to = $parentMission->position_from;
 
         // Fill in the units
         foreach ($units->units as $unit) {
