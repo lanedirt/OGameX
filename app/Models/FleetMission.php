@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property int|null $planet_id_from
@@ -81,6 +81,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission wherePositionFrom($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereSystemFrom($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereUserId($value)
+ * @property int $type_from
+ * @property int $type_to
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereTypeFrom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereTypeTo($value)
  * @mixin \Eloquent
  */
 class FleetMission extends Model
