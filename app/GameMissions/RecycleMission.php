@@ -68,8 +68,10 @@ class RecycleMission extends GameMission
         $resourcesHarvested = LootService::distributeLoot($resourcesToHarvest, $total_cargo_capacity);
 
         // Remove the harvested resources from the debris field.
-        $debrisField->deductResources($resourcesHarvested);
-        $debrisField->save();
+        if ($resourcesHarvested->any()) {
+            $debrisField->deductResources($resourcesHarvested);
+            $debrisField->save();
+        }
 
         // Send a message to the player that the mission has arrived and the resources (if any) have been collected.
         $this->messageService->sendSystemMessageToPlayer($originPlanet->getPlayer(), DebrisFieldHarvest::class, [

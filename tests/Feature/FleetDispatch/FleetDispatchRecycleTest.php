@@ -298,6 +298,65 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     }
 
     /**
+     * Verify that dispatching a recycle mission towards a debris field that existed at
+     * time of sending fleet but has been emptied by another mission before arriving.
+     * This should still work as expected but return 0 resources.
+     */
+    public function testDispatchFleetEmptiedDebrisField(): void
+    {
+        $this->basicSetup();
+
+        // Set time to static time 2024-01-01
+        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
+        Carbon::setTestNow($startTime);
+
+        // Make sure the debris field contains resources when sending the fleet.
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
+        $debrisFieldService->save();
+
+        // Send fleet to the debris field located at second planet of the test user.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 5);
+        $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Now delete the resources from the debris field to simulate another mission that has harvested it.
+        $debrisFieldService->delete();
+
+        // Get just dispatched fleet mission ID from database.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+
+        // Get time it takes for the fleet to travel to the second planet.
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanetService->getPlanetCoordinates(), $unitCollection);
+
+        // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
+        // and are calculated based on the arrival time instead of the time the job got processed).
+        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration);
+        Carbon::setTestNow($fleetParentTime);
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the fleet mission is processed.
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
+
+        // Expecting a return trip that will contain 0 resources.
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $returnMission = $activeMissions->first();
+
+        // Assert that the return mission contains the correct resources
+        // which should be the same as the total capacity of the recyclers.
+        $this->assertEquals(0, $returnMission->metal, 'Metal resources are not correct in return trip.');
+        $this->assertEquals(0, $returnMission->crystal, 'Crystal resources are not correct in return trip.');
+        $this->assertEquals(0, $returnMission->deuterium, 'Deuterium resources are not correct in return trip.');
+    }
+
+    /**
      * Verify that canceling/recalling an active mission works.
      */
     public function testDispatchFleetRecallMission(): void
