@@ -270,7 +270,7 @@ class TechtreeController extends OGameController
         $properties_array['shield'] = $shield->totalValue;
         $properties_array['attack'] = $attack->totalValue;
 
-        if($object->type !== GameObjectType::Defense){
+        if ($object->type !== GameObjectType::Defense) {
             $properties_array['speed'] = $speed->totalValue;
             $properties_array['capacity'] = $capacity->totalValue;
             $properties_array['fuel'] = $fuel->totalValue;

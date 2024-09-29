@@ -104,15 +104,15 @@ class TechtreeTest extends AccountTestCase
         $defenseObjects = $objectService->getDefenseObjects();
 
         foreach ($defenseObjects as $defenseObject) {
-                $response = $this->get('ajax/techtree?tab=2&object_id=' . $defenseObject->id);
+            $response = $this->get('ajax/techtree?tab=2&object_id=' . $defenseObject->id);
 
-                try {
-                    $response->assertStatus(200);
-                    $response->assertDontSee(['Speed','Cargo Capacity','Fuel usage (Deuterium)']);
+            try {
+                $response->assertStatus(200);
+                $response->assertDontSee(['Speed','Cargo Capacity','Fuel usage (Deuterium)']);
 
-                } catch (\PHPUnit\Framework\AssertionFailedError $e) {
-                    $this->fail('AJAX techinfo applications page for "' . $defenseObject->title . '"');
-                }
+            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+                $this->fail('AJAX techinfo applications page for "' . $defenseObject->title . '"');
+            }
         }
     }
 
