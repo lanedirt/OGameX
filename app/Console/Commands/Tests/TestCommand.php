@@ -2,6 +2,7 @@
 
 namespace OGame\Console\Commands\Tests;
 
+use App;
 use DateTime;
 use Exception;
 use GuzzleHttp\Client;
@@ -24,9 +25,14 @@ use OGame\Services\PlayerService;
 abstract class TestCommand extends Command
 {
     /**
-     * @var string The application URL that the tests will run against.
+     * @var string The default application URL that the tests will run against in the development environment.
      */
-    protected string $appUrl = 'http://ogame-webserver:80';
+    protected string $baseUrlDevelopment = 'http://ogame-webserver:80';
+
+    /**
+     * @var string The default application URL that the tests will run against in the production environment.
+     */
+    private string $baseUrlProduction = 'https://ogame-webserver:443';
 
     /**
      * @var string The email of the test user.
@@ -165,9 +171,16 @@ abstract class TestCommand extends Command
     {
         $this->info("Login as test user...");
 
+        // Set the base URL for the HTTP client.
+        // Note: the base URL is different in production and development environments
+        // because the production requirement requires all requests to be made over HTTPS.
+        $baseUrl = App::environment('production')
+            ? $this->baseUrlProduction
+            : $this->baseUrlDevelopment;
+
         $this->cookieJar = new CookieJar();
         $this->httpClient = new Client(array(
-            'base_uri' => $this->appUrl,
+            'base_uri' => $baseUrl,
             'cookies' => $this->cookieJar,
             'verify' => false,
         ));
