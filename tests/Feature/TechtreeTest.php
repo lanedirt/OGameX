@@ -91,4 +91,51 @@ class TechtreeTest extends AccountTestCase
         $response->assertDontSee('data-prerequisites-met="false"', false);
         $response->assertSee('data-prerequisites-met="true"', false);
     }
+
+    /**
+     * Verify that defense types do not show speed, cargo, or fuel in techinfo.
+     */
+    public function testTechinfoPropertiesDefenseHiddenProperties(): void
+    {
+
+        // Get defense specific objects to test.
+        $objectService = new ObjectService();
+
+        $defenseObjects = $objectService->getDefenseObjects();
+
+        foreach ($defenseObjects as $defenseObject) {
+                $response = $this->get('ajax/techtree?tab=2&object_id=' . $defenseObject->id);
+
+                try {
+                    $response->assertStatus(200);
+                    $response->assertDontSee(['Speed','Cargo Capacity','Fuel usage (Deuterium)']);
+
+                } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+                    $this->fail('AJAX techinfo applications page for "' . $defenseObject->title . '"');
+                }
+        }
+    }
+
+    /**
+     * Verify that non defence types do  show speed, cargo, or fuel in techinfo.
+     */
+    public function testTechinfoPropertiesNoneDefenceShowsHiddenDefenceProperties(): void
+    {
+        // Get non defence specific objects to test.
+        $objectService = new ObjectService();
+
+        $civilShipObjects = $objectService->getCivilShipObjects();
+
+        foreach ($civilShipObjects as $nonDefenceObject) {
+            $response = $this->get('ajax/techtree?tab=2&object_id=' . $nonDefenceObject->id);
+
+            try {
+                $response->assertStatus(200);
+                $response->assertSee(['Speed','Cargo Capacity','Fuel usage (Deuterium)']);
+
+            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+                $this->fail('AJAX techinfo applications page for "' . $nonDefenceObject->title . '"');
+            }
+        }
+    }
 }

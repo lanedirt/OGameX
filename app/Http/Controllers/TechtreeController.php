@@ -269,9 +269,12 @@ class TechtreeController extends OGameController
         $properties_array['structural_integrity'] = $structural_integrity->totalValue;
         $properties_array['shield'] = $shield->totalValue;
         $properties_array['attack'] = $attack->totalValue;
-        $properties_array['speed'] = $speed->totalValue;
-        $properties_array['capacity'] = $capacity->totalValue;
-        $properties_array['fuel'] = $fuel->totalValue;
+
+        if($object->type !== GameObjectType::Defense){
+            $properties_array['speed'] = $speed->totalValue;
+            $properties_array['capacity'] = $capacity->totalValue;
+            $properties_array['fuel'] = $fuel->totalValue;
+        }
 
         $tooltips_array = [];
         $tooltips_array['structural_integrity'] = $this->getPropertyTooltip($properties->structural_integrity->name, $structural_integrity->breakdown, $structural_integrity->totalValue);
