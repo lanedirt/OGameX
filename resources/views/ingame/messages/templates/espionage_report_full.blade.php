@@ -3,7 +3,7 @@
     <span class="msg_title new blue_txt">{!! $subject !!}</span>
     <span class="msg_date fright">21.05.2024 19:00:28</span>
     <br/>
-    <span class="msg_sender_label">From: </span>
+    <span class="msg_sender_label">@lang('From'): </span>
     <span class="msg_sender">{{ $from }}</span>
 
     <!-- only if comments are allowed (Only shared reports and broadcasts have comments): -->
@@ -39,39 +39,41 @@
 <div class="detail_msg_ctn">
 
     <div class="detail_txt">
-        <span>Player&nbsp;&nbsp;<span class="status_abbr_active">{!! $playername !!}</span></span>
+        <span>@lang('Player')&nbsp;&nbsp;<span class="status_abbr_active">{!! $playername !!}</span></span>
     </div>
     <div class="detail_txt">
-        <span>Class:<span class="status_abbr_inactive">&nbsp;Unknown</span></span>
+        <span>@lang('Class'):<span class="status_abbr_inactive">&nbsp;@lang('Unknown')</span></span>
     </div>
     <div class="detail_txt">
-        <span>Alliance Class:&nbsp;<span class="alliance_class small none">No alliance class selected</span></span>
+        <span>@lang('Alliance Class'):&nbsp;<span class="alliance_class small none">@lang('No alliance class selected')</span></span>
     </div>
     <div class="detail_txt">
-        Chance of counter-espionage: 0%    <div class="">
-            Your espionage does not show abnormalities in the atmosphere of the planet. There appears to have been no activity on the planet within the last hour.    </div>
+        @lang('Chance of counter-espionage'): 0%
+        <div class="">
+            @lang('Your espionage does not show abnormalities in the atmosphere of the planet. There appears to have been no activity on the planet within the last hour.')
+        </div>
     </div>
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">Resources</span>
+        <span class="title_txt">@lang('Resources')</span>
     </div>
     <ul class="detail_list clearfix" data-type="resources">
-        <li class="resource_list_el tooltipCustom" title="{{ $metal }}">
+        <li class="resource_list_el tooltipCustom" title="{{ $resources->metal->getFormattedFull() }}">
             <div class="resourceIcon metal"></div>
-            <span class="res_value">{{ $metal }}</span>
+            <span class="res_value">{{ $resources->metal->getFormattedLong() }}</span>
         </li>
-        <li class="resource_list_el tooltipCustom" title="{{ $crystal }}">
+        <li class="resource_list_el tooltipCustom" title="{{ $resources->crystal->getFormattedFull() }}">
             <div class="resourceIcon crystal"></div>
-            <span class="res_value">{{ $crystal }}</span>
+            <span class="res_value">{{ $resources->crystal->getFormattedLong() }}</span>
         </li>
-        <li class="resource_list_el tooltipCustom" title="{{ $deuterium }}">
+        <li class="resource_list_el tooltipCustom" title="{{ $resources->deuterium->getFormattedFull() }}">
             <div class="resourceIcon deuterium"></div>
-            <span class="res_value">{{ $deuterium }}</span>
+            <span class="res_value">{{ $resources->deuterium->getFormattedLong() }}</span>
         </li>
-        <li class="resource_list_el tooltipCustom" title="{{ $energy }}">
+        <li class="resource_list_el tooltipCustom" title="{{ $resources->energy->getFormattedFull() }}">
             <div class="resourceIcon energy"></div>
-            <span class="res_value">{{ $energy }}</span>
+            <span class="res_value">{{ $resources->energy->getFormattedLong() }}</span>
         </li>
     </ul>
     <!--
@@ -86,33 +88,31 @@
         </li>
     </ul>
     -->
-
-    <!--
-    TODO: add when implementing debris field logic.
+    @if ($debris->any())
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">debris field</span>
+        <span class="title_txt">@lang('debris field')</span>
     </div>
     <ul class="detail_list clearfix" data-type="resources">
-        <li class="resource_list_el tooltipCustom" title="87,000">
+        <li class="resource_list_el tooltipCustom" title="{{ $debris->metal->getFormattedFull() }}">
             <div class="resourceIcon metal"></div>
-            <span class="res_value">87,000</span>
+            <span class="res_value">{{ $debris->metal->getFormattedLong() }}</span>
         </li>
-        <li class="resource_list_el tooltipCustom" title="87,000">
+        <li class="resource_list_el tooltipCustom" title="{{ $debris->crystal->getFormattedFull() }}">
             <div class="resourceIcon crystal"></div>
-            <span class="res_value">87,000</span>
+            <span class="res_value">{{ $debris->crystal->getFormattedLong() }}</span>
         </li>
-        <li class="resource_list_el tooltipCustom" title="0">
+        <li class="resource_list_el tooltipCustom" title="{{ $debris->deuterium->getFormattedFull() }}">
             <div class="resourceIcon deuterium"></div>
-            <span class="res_value">0</span>
+            <span class="res_value">{{ $debris->deuterium->getFormattedLong() }}</span>
         </li>
     </ul>
-    -->
+    @endif
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">Fleets</span>
+        <span class="title_txt">@lang('Fleets')</span>
     </div>
     <ul class="detail_list clearfix" data-type="ships">
         @php /** @var OGame\ViewModels\UnitViewModel $unit */ @endphp
@@ -132,7 +132,7 @@
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">Defense</span>
+        <span class="title_txt">@lang('Defense')</span>
     </div>
     <ul class="detail_list clearfix" data-type="defense">
         @php /** @var OGame\ViewModels\UnitViewModel $unit */ @endphp
@@ -149,11 +149,10 @@
         @endforelse
     </ul>
 
-
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">Building</span>
+        <span class="title_txt">@lang('Building')</span>
     </div>
 
     <ul class="detail_list clearfix" data-type="buildings">
@@ -248,7 +247,7 @@
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">Research</span>
+        <span class="title_txt">@lang('Research')</span>
     </div>
 
     <ul class="detail_list clearfix" data-type="research">

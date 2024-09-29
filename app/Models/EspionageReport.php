@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $planet_position
  * @property int $planet_user_id
  * @property array<string, int> $resources
+ * @property array<string, int> $debris
  * @property array<string, int> $buildings
  * @property array<string, int> $research
  * @property array<string, int> $ships
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereResources($value)
  * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereShips($value)
  * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereDebris($value)
  * @mixin \Eloquent
  */
 class EspionageReport extends Model
@@ -45,6 +47,7 @@ class EspionageReport extends Model
     protected $casts = [
         'player_info' => 'array',
         'resources' => 'array',
+        'debris' => 'array',
         'buildings' => 'array',
         'research' => 'array',
         'ships' => 'array',

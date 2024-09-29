@@ -9,7 +9,7 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
-use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use Throwable;
 
@@ -137,31 +137,43 @@ class EspionageMission extends GameMission
             'energy' => (int)$targetPlanet->energy()->get()
         ];
 
-        //TODO: Validate this does not cause issues when probing slot 16
-        $attackerEspionnageLevel = $originPlanet->getPlayer()->getResearchLevel('espionage_technology');
-        $defenderEspionnageLevel = $targetPlanet->getPlayer()->getResearchLevel('espionage_technology');
-        $techDifference = $defenderEspionnageLevel - $attackerEspionnageLevel;
+        // Debris field (if any).
+        $debrisField = resolve(DebrisFieldService::class);
+        $debrisField->loadOrCreateForCoordinates($targetPlanet->getPlanetCoordinates());
+        $debrisFieldResources = $debrisField->getResources();
+        if ($debrisFieldResources->any()) {
+            $report->debris = [
+                'metal' => (int)$debrisFieldResources->metal->get(),
+                'crystal' => (int)$debrisFieldResources->crystal->get(),
+                'deuterium' => (int)$debrisFieldResources->deuterium->get(),
+            ];
+        }
+
+        // TODO: Validate this does not cause issues when probing slot 16
+        $attackerEspionageLevel = $originPlanet->getPlayer()->getResearchLevel('espionage_technology');
+        $defenderEspionageLevel = $targetPlanet->getPlayer()->getResearchLevel('espionage_technology');
+        $techDifference = $defenderEspionageLevel - $attackerEspionageLevel;
         $levelDifference = max(0, $techDifference);
         $extraProbesRequired = pow($levelDifference, 2);
         $remainingProbes = max(0, $mission->espionage_probe - $extraProbesRequired);
 
         // Fleets
-        if ($this->canRevealData($remainingProbes, $attackerEspionnageLevel, $defenderEspionnageLevel, 2, 1)) {
+        if ($this->canRevealData($remainingProbes, $attackerEspionageLevel, $defenderEspionageLevel, 2, 1)) {
             $report->ships = $targetPlanet->getShipUnits()->toArray();
         }
 
         // Defense
-        if ($this->canRevealData($remainingProbes, $attackerEspionnageLevel, $defenderEspionnageLevel, 3, 2)) {
+        if ($this->canRevealData($remainingProbes, $attackerEspionageLevel, $defenderEspionageLevel, 3, 2)) {
             $report->defense = $targetPlanet->getDefenseUnits()->toArray();
         }
 
         // Buildings
-        if ($this->canRevealData($remainingProbes, $attackerEspionnageLevel, $defenderEspionnageLevel, 5, 3)) {
+        if ($this->canRevealData($remainingProbes, $attackerEspionageLevel, $defenderEspionageLevel, 5, 3)) {
             $report->buildings = $targetPlanet->getBuildingArray();
         }
 
         // Research
-        if ($this->canRevealData($remainingProbes, $attackerEspionnageLevel, $defenderEspionnageLevel, 7, 4)) {
+        if ($this->canRevealData($remainingProbes, $attackerEspionageLevel, $defenderEspionageLevel, 7, 4)) {
             $report->research = $targetPlanet->getPlayer()->getResearchArray();
         }
 

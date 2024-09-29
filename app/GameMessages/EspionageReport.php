@@ -124,6 +124,12 @@ class EspionageReport extends GameMessage
         // Extract resources
         $resources = new Resources($this->espionageReportModel->resources['metal'], $this->espionageReportModel->resources['crystal'], $this->espionageReportModel->resources['deuterium'], $this->espionageReportModel->resources['energy']);
 
+        // Extract debris if available.
+        $debris = new Resources(0, 0, 0, 0);
+        if ($this->espionageReportModel->debris !== null) {
+            $debris = new Resources($this->espionageReportModel->debris['metal'], $this->espionageReportModel->debris['crystal'], $this->espionageReportModel->debris['deuterium'], 0);
+        }
+
         // Extract ships
         $ships = [];
         if ($this->espionageReportModel->ships !== null) {
@@ -188,11 +194,8 @@ class EspionageReport extends GameMessage
             'subject' => $this->getSubject(),
             'from' => $this->getFrom(),
             'playername' => $player->getUsername(),
-            'metal' => $resources->metal->getFormatted(),
-            'crystal' => $resources->crystal->getFormatted(),
-            'deuterium' => $resources->deuterium->getFormatted(),
-            'energy' => $resources->energy->getFormatted(),
-            'resources_sum' => AppUtil::formatNumber($resources->sum()),
+            'resources' => $resources,
+            'debris' => $debris,
             'ships' => $ships,
             'defense' => $defense,
             'buildings' => $buildings,
