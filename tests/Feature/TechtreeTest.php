@@ -117,24 +117,24 @@ class TechtreeTest extends AccountTestCase
     }
 
     /**
-     * Verify that non defence types do  show speed, cargo, or fuel in techinfo.
+     * Verify that non defense types do  show speed, cargo, or fuel in techinfo.
      */
-    public function testTechinfoPropertiesNoneDefenceShowsHiddenDefenceProperties(): void
+    public function testTechinfoPropertiesNoneDefenseShowsHiddenDefenseProperties(): void
     {
         // Get non defence specific objects to test.
         $objectService = new ObjectService();
 
         $civilShipObjects = $objectService->getCivilShipObjects();
 
-        foreach ($civilShipObjects as $nonDefenceObject) {
-            $response = $this->get('ajax/techtree?tab=2&object_id=' . $nonDefenceObject->id);
+        foreach ($civilShipObjects as $nonDefenseObject) {
+            $response = $this->get('ajax/techtree?tab=2&object_id=' . $nonDefenseObject->id);
 
             try {
                 $response->assertStatus(200);
                 $response->assertSee(['Speed','Cargo Capacity','Fuel usage (Deuterium)']);
 
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
-                $this->fail('AJAX techinfo applications page for "' . $nonDefenceObject->title . '"');
+                $this->fail('AJAX techinfo applications page for "' . $nonDefenseObject->title . '"');
             }
         }
     }
