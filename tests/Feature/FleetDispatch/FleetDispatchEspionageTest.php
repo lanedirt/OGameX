@@ -11,7 +11,7 @@ use OGame\Services\FleetMissionService;
 use Tests\FleetDispatchTestCase;
 
 /**
- * Test that fleet dispatch works as expected.
+ * Test that fleet dispatch works as expected for espionage missions.
  */
 class FleetDispatchEspionageTest extends FleetDispatchTestCase
 {

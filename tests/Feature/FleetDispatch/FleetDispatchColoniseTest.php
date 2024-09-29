@@ -11,7 +11,7 @@ use OGame\Services\FleetMissionService;
 use Tests\FleetDispatchTestCase;
 
 /**
- * Test that fleet dispatch works as expected.
+ * Test that fleet dispatch works as expected for colonisation missions.
  */
 class FleetDispatchColoniseTest extends FleetDispatchTestCase
 {
@@ -347,7 +347,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 5);
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
-        $this->sendMissionToEmptyPosition($unitCollection, new Resources(5000, 5000, 0, 0));
+        $emptyPositionCoordinate = $this->sendMissionToEmptyPosition($unitCollection, new Resources(5000, 5000, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -405,7 +405,8 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Assert that the last message sent contains the return trip message.
         $this->assertMessageReceivedAndContainsDatabase($this->planetService->getPlayer(), [
-            'Your fleet is returning from planet',
+            'Your fleet is returning from',
+            '[' . $emptyPositionCoordinate->asString() . ']',
             'Metal: 5,000',
         ]);
     }

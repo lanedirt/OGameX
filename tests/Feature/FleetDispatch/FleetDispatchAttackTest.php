@@ -7,6 +7,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
@@ -15,7 +16,7 @@ use Tests\FleetDispatchTestCase;
 use OGame\Services\DebrisFieldService;
 
 /**
- * Test that fleet dispatch works as expected.
+ * Test that fleet dispatch works as expected for attack missions.
  */
 class FleetDispatchAttackTest extends FleetDispatchTestCase
 {
@@ -526,7 +527,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $unitsToSend->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
-        $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
+        $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
 
         // Check that now we're under attack.
         $response = $this->get('/overview');
@@ -555,7 +556,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Launch attack from foreign planet to the current players second planet.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
-        $fleetMission = $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->secondPlanetService->getPlanetCoordinates(), $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
+        $fleetMission = $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->secondPlanetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
 
         // Advance time by 24 hours to ensure the mission is done.
         Carbon::setTestNow(Carbon::now()->addHours(24));

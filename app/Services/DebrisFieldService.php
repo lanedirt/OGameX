@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Exception;
 use OGame\Models\DebrisField;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -139,6 +140,34 @@ class DebrisFieldService
         $this->debrisField->metal += (int)$resources->metal->get();
         $this->debrisField->crystal += (int)$resources->crystal->get();
         $this->debrisField->deuterium += (int)$resources->deuterium->get();
+    }
+
+    /**
+     * Deduct resources from an existing debris field.
+     *
+     * @param Resources $resources
+     * @return void
+     * @throws Exception
+     */
+    public function deductResources(Resources $resources): void
+    {
+        if (!isset($this->debrisField)) {
+            $this->debrisField = new DebrisField();
+        }
+
+        $metalToDeduct = (int)$resources->metal->get();
+        $crystalToDeduct = (int)$resources->crystal->get();
+        $deuteriumToDeduct = (int)$resources->deuterium->get();
+
+        if ($this->debrisField->metal < $metalToDeduct ||
+            $this->debrisField->crystal < $crystalToDeduct ||
+            $this->debrisField->deuterium < $deuteriumToDeduct) {
+            throw new Exception('Not enough resources in the debris field');
+        }
+
+        $this->debrisField->metal -= $metalToDeduct;
+        $this->debrisField->crystal -= $crystalToDeduct;
+        $this->debrisField->deuterium -= $deuteriumToDeduct;
     }
 
     /**

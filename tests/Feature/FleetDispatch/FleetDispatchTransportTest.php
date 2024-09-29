@@ -10,7 +10,7 @@ use OGame\Services\FleetMissionService;
 use Tests\FleetDispatchTestCase;
 
 /**
- * Test that fleet dispatch works as expected.
+ * Test that fleet dispatch works as expected for transport missions.
  */
 class FleetDispatchTransportTest extends FleetDispatchTestCase
 {
