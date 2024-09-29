@@ -5,6 +5,7 @@ namespace OGame\Console\Commands\Tests;
 use DateTime;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise;
@@ -52,6 +53,11 @@ abstract class TestCommand extends Command
      * @var Client The GuzzleHttp client which contains the cookie that represents logged-in user context to use for requests.
      */
     protected Client $httpClient;
+
+    /**
+     * @var CookieJar The GuzzleHttp CookieJar that persists cookies during tests.
+     */
+    protected CookieJar $cookieJar;
 
     /**
      * @var PlayerService The player service of the test user.
@@ -159,9 +165,10 @@ abstract class TestCommand extends Command
     {
         $this->info("Login as test user...");
 
+        $this->cookieJar = new CookieJar();
         $this->httpClient = new Client(array(
             'base_uri' => $this->appUrl,
-            'cookies' => true,
+            'cookies' => $this->cookieJar,
             'verify' => false,
         ));
 
