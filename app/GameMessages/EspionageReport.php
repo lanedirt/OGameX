@@ -2,7 +2,6 @@
 
 namespace OGame\GameMessages;
 
-use OGame\Facades\AppUtil;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
