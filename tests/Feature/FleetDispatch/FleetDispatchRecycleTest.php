@@ -165,7 +165,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Assert that the debris field is now empty after harvesting.
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
         $this->assertFalse($debrisFieldService->getResources()->any(), 'Debris field still has resources after recyclers have harvested it.');
 
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();

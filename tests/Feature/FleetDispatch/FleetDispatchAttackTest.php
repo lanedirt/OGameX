@@ -591,8 +591,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Ensure that there is no debris field on the foreign planet.
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadForCoordinates($foreignPlanet->getPlanetCoordinates());
-        $debrisFieldService->delete();
+        if ($debrisFieldService->loadForCoordinates($foreignPlanet->getPlanetCoordinates())) {
+            $debrisFieldService->delete();
+        }
 
         // Give the foreign planet some units to defend itself.
         $foreignPlanet->addUnit('rocket_launcher', 200);
@@ -630,10 +631,10 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that a debris field was actually created in the database
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadForCoordinates($foreignPlanet->getPlanetCoordinates());
-        $debrisResources = $debrisFieldService->getResources();
+        $debrisFieldExists = $debrisFieldService->loadForCoordinates($foreignPlanet->getPlanetCoordinates());
+        $this->assertTrue($debrisFieldExists, 'Debris field was not created in the database.');
 
-        $this->assertNotNull($debrisResources, 'Debris field was not created in the database.');
+        $debrisResources = $debrisFieldService->getResources();
         $this->assertEquals($battleReport->debris['metal'], $debrisResources->metal->get(), 'Debris field metal in database does not match battle report.');
         $this->assertEquals($battleReport->debris['crystal'], $debrisResources->crystal->get(), 'Debris field crystal in database does not match battle report.');
         $this->assertEquals($battleReport->debris['deuterium'], $debrisResources->deuterium->get(), 'Debris field deuterium in database does not match battle report.');
