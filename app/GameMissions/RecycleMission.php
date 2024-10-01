@@ -33,8 +33,8 @@ class RecycleMission extends GameMission
 
         // Check if debris field exists on the target coordinate.
         $debrisField = app(DebrisFieldService::class);
-        $debrisField->loadForCoordinates($targetCoordinate);
-        if (!$debrisField->getResources()->any()) {
+        $debrisFieldExists = $debrisField->loadForCoordinates($targetCoordinate);
+        if (!$debrisFieldExists || !$debrisField->getResources()->any()) {
             return new MissionPossibleStatus(false);
         }
 
@@ -54,7 +54,7 @@ class RecycleMission extends GameMission
 
         // Load the debris field for the target coordinate.
         $debrisField = app(DebrisFieldService::class);
-        $debrisField->loadForCoordinates($targetCoordinate);
+        $debrisField->loadOrCreateForCoordinates($targetCoordinate);
 
         // Get recycler unit count
         $recycler = $originPlanet->objects->getShipObjectByMachineName('recycler');

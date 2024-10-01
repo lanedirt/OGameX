@@ -46,7 +46,7 @@ class DebrisFieldService
     }
 
     /**
-     * Load an existing debris field or create a new one in memory for the given coordinates.
+     * Load an existing debris field or create a new empty one in memory for the given coordinates.
      *
      * @param Coordinate $coordinates
      */
@@ -64,20 +64,21 @@ class DebrisFieldService
             $debrisField->planet = $coordinates->position;
             $debrisField->metal = 0;
             $debrisField->crystal = 0;
+            $debrisField->deuterium = 0;
         }
 
         $this->debrisField = $debrisField;
     }
 
     /**
-     * Load debris field by coordinate.
+     * Load debris field by coordinate only if it exists.
      *
      * @param Coordinate $coordinate
      * The coordinate of the debris field.
      *
-     * @return void
+     * @return bool True if the debris field exists and was loaded successfully, false otherwise.
      */
-    public function loadForCoordinates(Coordinate $coordinate): void
+    public function loadForCoordinates(Coordinate $coordinate): bool
     {
         // Fetch planet model
         $debrisField = DebrisField::where('galaxy', $coordinate->galaxy)
@@ -85,12 +86,12 @@ class DebrisFieldService
             ->where('planet', $coordinate->position)
             ->first();
 
-        // TODO: improve null check as debris field model can be non-existent.
         if ($debrisField !== null) {
             $this->debrisField = $debrisField;
-        } else {
-            $this->debrisField = new DebrisField();
+            return true;
         }
+
+        return false;
     }
 
     /**

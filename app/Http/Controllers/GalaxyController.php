@@ -150,8 +150,8 @@ class GalaxyController extends OGameController
         ];
 
         $debrisField = app(DebrisFieldService::class);
-        $debrisField->loadForCoordinates($planet->getPlanetCoordinates());
-        if ($debrisField->getResources()->any()) {
+        $debrisFieldExists = $debrisField->loadForCoordinates($planet->getPlanetCoordinates());
+        if ($debrisFieldExists && $debrisField->getResources()->any()) {
             $planets_array[] = $this->createDebrisFieldArray($debrisField);
         }
 

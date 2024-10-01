@@ -56,7 +56,7 @@ class Resource
     }
 
     /**
-     * Get the formatted value of the resource as string (short, default).
+     * Get the formatted value of the resource as string (short, e.g. 5M).
      *
      * @return string
      */
@@ -66,13 +66,23 @@ class Resource
     }
 
     /**
-     * Get the formatted value of the resource as string (long).
+     * Get the formatted value of the resource as string (longer, e.g. 5.33M).
      *
      * @return string
      */
     public function getFormattedLong(): string
     {
         return AppUtil::formatNumberLong($this->rawValue);
+    }
+
+    /**
+     * Get the formatted value of the resource as string (all digits, no shortening e.g. 5,000,000).
+     *
+     * @return string
+     */
+    public function getFormattedFull(): string
+    {
+        return AppUtil::formatNumber($this->rawValue);
     }
 
     /**
