@@ -473,6 +473,9 @@ class PlanetService
         if (!empty($resources->deuterium->get()) && $this->deuterium()->get() < $resources->deuterium->get()) {
             return false;
         }
+        if (!empty($resources->energy->get()) && $this->energyProduction()->getFormattedLong() < $resources->energy->get()) {
+            return false;
+        }
 
         return true;
     }
