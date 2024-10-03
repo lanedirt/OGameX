@@ -62157,11 +62157,13 @@ class CountdownTimer {
         this.countdownDoneFunction();
       }
 
+      if (timeLeftInSeconds <= -1 && timeLeftInSeconds > -12 && Math.abs(timeLeftInSeconds % 3) === 0 || timeLeftInSeconds <= -12 && timeLeftInSeconds > -180 && Math.abs(timeLeftInSeconds % 10) === 0) {
         if (this.reloadPage != null && !isOverlayOpen() && (!this.primaryReloadViaWS || this.primaryReloadViaWS === true && ogame.frontendActions.connected !== true)) {
           reload_page(this.reloadPage);
         }
 
         timerHandler.removeCallback(this.timer);
+      }
     }
   }
 
@@ -72007,17 +72009,12 @@ function showGalaxy(galaxy, system, planet) {
 
 function openParentLocation(url) {
   try {
-    document.location.href = url;
+    window.opener.document.location.href = url;
   } catch (error) {
-      console.error('error switching location, see below for more')
-      console.error(error)
     try {
       window.parent.document.location.href = url;
     } catch (error) {
-        console.error('error switching location, see below for more')
-        console.error(error)
-        window.opener.document.location.href = url;
-
+      document.location.href = url;
     }
   }
 }
