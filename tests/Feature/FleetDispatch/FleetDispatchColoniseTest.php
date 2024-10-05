@@ -11,7 +11,7 @@ use OGame\Services\FleetMissionService;
 use Tests\FleetDispatchTestCase;
 
 /**
- * Test that fleet dispatch works as expected.
+ * Test that fleet dispatch works as expected for colonisation missions.
  */
 class FleetDispatchColoniseTest extends FleetDispatchTestCase
 {
@@ -115,7 +115,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Assert that the new planet has been created.
         try {
-            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+            $planetServiceFactory = resolve(PlanetServiceFactory::class);
         } catch (BindingResolutionException) {
             $this->fail('PlanetServiceFactory cannot be resolved from the container.');
         }
@@ -164,7 +164,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
             // Assert that the new planet has been created.
             try {
-                $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+                $planetServiceFactory = resolve(PlanetServiceFactory::class);
             } catch (BindingResolutionException) {
                 $this->fail('PlanetServiceFactory cannot be resolved from the container.');
             }
@@ -222,7 +222,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Assert that the new planet has been created.
         try {
-            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+            $planetServiceFactory = resolve(PlanetServiceFactory::class);
         } catch (BindingResolutionException) {
             $this->fail('PlanetServiceFactory cannot be resolved from the container.');
         }
@@ -270,7 +270,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Assert that the new planet has been created.
         try {
-            $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+            $planetServiceFactory = resolve(PlanetServiceFactory::class);
         } catch (BindingResolutionException) {
             $this->fail('PlanetServiceFactory cannot be resolved from the container.');
         }
@@ -309,15 +309,20 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         // Increase time by 10 hours to ensure the arrival and return missions are done.
         Carbon::setTestNow($startTime->copy()->addHours(10));
 
+        // Reload the application to ensure all caches are cleared and changed units are reflected.
+        $this->reloadApplication();
+        $this->planetService->reloadPlanet();
+
         // Do a request to trigger the update logic.
         // Note: we only make one request here, as the arrival and return missions should be processed in the same request
         // since enough time has passed.
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
 
+
         // Assert that the cargo ships have returned without the colony ship.
-        $this->assertObjectLevelOnPage($response, 'small_cargo', 5);
         $this->assertObjectLevelOnPage($response, 'colony_ship', 0);
+        $this->assertObjectLevelOnPage($response, 'small_cargo', 5);
     }
 
     /**
@@ -342,10 +347,10 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 5);
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
-        $this->sendMissionToEmptyPosition($unitCollection, new Resources(5000, 5000, 0, 0));
+        $emptyPositionCoordinate = $this->sendMissionToEmptyPosition($unitCollection, new Resources(5000, 5000, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -371,7 +376,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
 
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
@@ -400,7 +405,8 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Assert that the last message sent contains the return trip message.
         $this->assertMessageReceivedAndContainsDatabase($this->planetService->getPlayer(), [
-            'Your fleet is returning from planet',
+            'Your fleet is returning from',
+            '[' . $emptyPositionCoordinate->asString() . ']',
             'Metal: 5,000',
         ]);
     }

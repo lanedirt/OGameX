@@ -32,8 +32,8 @@ class BuildingObjects
         $metalMine->price = new GameObjectPrice(60, 15, 0, 0, 1.5);
 
         $metalMine->production = new GameObjectProduction();
-        $metalMine->production->metal = 'return (30 * $building_level * pow((1.1), $building_level)) * (0.1 * $building_percentage);';
-        $metalMine->production->energy = 'return - (10 * $building_level * pow((1.1), $building_level)) * (0.1 * $building_percentage);';
+        $metalMine->production->metal = 'return (30 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
+        $metalMine->production->energy = 'return - (10 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
 
         $metalMine->assets = new GameObjectAssets();
         $metalMine->assets->imgMicro = 'metal_mine_micro.jpg';
@@ -53,8 +53,8 @@ class BuildingObjects
         $crystalMine->price = new GameObjectPrice(48, 24, 0, 0, 1.6);
 
         $crystalMine->production = new GameObjectProduction();
-        $crystalMine->production->crystal = 'return (20 * $building_level * pow((1.1), $building_level)) * (0.1 * $building_percentage);';
-        $crystalMine->production->energy = 'return - (10 * $building_level * pow((1.1), $building_level)) * (0.1 * $building_percentage);';
+        $crystalMine->production->crystal = 'return (20 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
+        $crystalMine->production->energy = 'return - (10 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
 
         $crystalMine->assets = new GameObjectAssets();
         $crystalMine->assets->imgMicro = 'crystal_mine_micro.jpg';
@@ -74,8 +74,8 @@ class BuildingObjects
         $deuteriumSynthesizer->price = new GameObjectPrice(225, 75, 0, 0, 1.5);
 
         $deuteriumSynthesizer->production = new GameObjectProduction();
-        $deuteriumSynthesizer->production->deuterium = 'return ((10 * $building_level * pow((1.1), $building_level)) * (-0.002 * $planet_temperature + 1.28))  * (0.1 * $building_percentage);';
-        $deuteriumSynthesizer->production->energy = 'return - (20 * $building_level * pow((1.1), $building_level)) * (0.1 * $building_percentage);';
+        $deuteriumSynthesizer->production->deuterium = 'return ((10 * $object_level * pow((1.1), $object_level)) * (-0.002 * $planet_temperature + 1.28))  * (0.1 * $building_percentage);';
+        $deuteriumSynthesizer->production->energy = 'return - (20 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
 
         $deuteriumSynthesizer->assets = new GameObjectAssets();
         $deuteriumSynthesizer->assets->imgMicro = 'deuterium_synthesizer_micro.jpg';
@@ -95,7 +95,7 @@ class BuildingObjects
         $solarPlant->price = new GameObjectPrice(75, 30, 0, 0, 1.5);
 
         $solarPlant->production = new GameObjectProduction();
-        $solarPlant->production->energy = 'return (20 * $building_level * pow((1.1), $building_level)) * (0.1 * $building_percentage);';
+        $solarPlant->production->energy = 'return (20 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
 
         $solarPlant->assets = new GameObjectAssets();
         $solarPlant->assets->imgMicro = 'solar_plant_micro.jpg';
@@ -123,8 +123,8 @@ class BuildingObjects
             new GameObjectRequirement('energy_technology', 3),
         ];
         $fusionReactor->production = new GameObjectProduction();
-        $fusionReactor->production->deuterium = 'return - (10 * $building_level * pow(1.1, $building_level));';
-        $fusionReactor->production->energy = 'return (30 * $building_level * pow((1.05 + $energy_technology_level * 0.01), $building_level)) * (0.1 * $building_percentage);';
+        $fusionReactor->production->deuterium = 'return - (10 * $object_level * pow(1.1, $object_level));';
+        $fusionReactor->production->energy = 'return (30 * $object_level * pow((1.05 + $energy_technology_level * 0.01), $object_level)) * (0.1 * $building_percentage);';
 
         $fusionReactor->assets = new GameObjectAssets();
         $fusionReactor->assets->imgMicro = 'fusion_plant_micro.jpg';
@@ -145,7 +145,7 @@ class BuildingObjects
 
         $metalStorage->price = new GameObjectPrice(1000, 0, 0, 0, 2);
         $metalStorage->storage = new GameObjectStorage();
-        $metalStorage->storage->metal = 'return  5000 * floor(2.5 * exp(20 * $building_level / 33));';
+        $metalStorage->storage->metal = 'return  5000 * floor(2.5 * exp(20 * $object_level / 33));';
 
         $metalStorage->assets = new GameObjectAssets();
         $metalStorage->assets->imgMicro = 'metal_store_micro.jpg';
@@ -166,7 +166,7 @@ class BuildingObjects
         The Crystal Storage protects a certain percentage of the mine`s daily production (max. 10 percent).';
         $crystalStorage->price = new GameObjectPrice(1000, 500, 0, 0, 2);
         $crystalStorage->storage = new GameObjectStorage();
-        $crystalStorage->storage->crystal = 'return  5000 * floor(2.5 * exp(20 * $building_level / 33));';
+        $crystalStorage->storage->crystal = 'return  5000 * floor(2.5 * exp(20 * $object_level / 33));';
 
         $crystalStorage->assets = new GameObjectAssets();
         $crystalStorage->assets->imgMicro = 'crystal_store_micro.jpg';
@@ -187,7 +187,7 @@ class BuildingObjects
 
         $deuteriumTank->price = new GameObjectPrice(1000, 1000, 0, 0, 2);
         $deuteriumTank->storage = new GameObjectStorage();
-        $deuteriumTank->storage->deuterium = 'return  5000 * floor(2.5 * exp(20 * $building_level / 33));';
+        $deuteriumTank->storage->deuterium = 'return  5000 * floor(2.5 * exp(20 * $object_level / 33));';
 
         $deuteriumTank->assets = new GameObjectAssets();
         $deuteriumTank->assets->imgMicro = 'deuterium_store_micro.jpg';

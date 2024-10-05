@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\Models\FleetMission;
+use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Models\UserTech;
@@ -98,7 +99,7 @@ class PlayerService
 
         // Fetch all planets of user
         try {
-            $planet_list_service = app()->make(PlanetListService::class, ['player' => $this]);
+            $planet_list_service = resolve(PlanetListService::class, ['player' => $this]);
             $this->planets = $planet_list_service;
         } catch (BindingResolutionException $e) {
             throw new RuntimeException('Class not found: ' . PlanetListService::class);
@@ -361,8 +362,8 @@ class PlayerService
     public function update(): void
     {
         DB::transaction(function () {
-            // Attempt to acquire a lock on the row for this fleet mission. This is to prevent
-            // race conditions when multiple requests are updating the same fleet mission and
+            // Attempt to acquire a lock on the row for this user. This is to prevent
+            // race conditions when multiple requests are updating the same user and
             // potentially doing double insertions or overwriting each other's changes.
             $playerLock = User::where('id', $this->getId())
                 ->lockForUpdate()
@@ -422,6 +423,55 @@ class PlayerService
         if ($save_user) {
             $this->user->save();
         }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function updateFleetMissions(): void
+    {
+        DB::transaction(function () {
+            // Attempt to acquire a lock on the row for this planet. This is to prevent
+            // race conditions when multiple requests are updating the fleet missions for the
+            // same planet and potentially doing double insertions or overwriting each other's changes.
+            $planetIds = $this->planets->allIds();
+            $planetMissionUpdateLock = Planet::whereIn('id', $planetIds)
+                ->lockForUpdate()
+                ->get();
+
+            if ($planetMissionUpdateLock->count() === count($planetIds)) {
+                try {
+                    $fleetMissionService = resolve(FleetMissionService::class);
+                    $missions = $fleetMissionService->getMissionsByPlanetIds($planetIds);
+
+                    foreach ($missions as $mission) {
+                        // Attempt to acquire a lock on the row for this fleet mission. This is to prevent
+                        // race conditions when multiple requests are updating the same fleet mission and
+                        // potentially doing double insertions or overwriting each other's changes.
+                        $fleetMissionLock = FleetMission::where('id', $mission->id)
+                            ->lockForUpdate()
+                            ->first();
+
+                        if ($fleetMissionLock) {
+                            $fleetMissionService->updateMission($mission);
+                        } else {
+                            throw new \Exception('Could not acquire update fleet mission update lock.');
+                        }
+                    }
+
+                    if ($missions->count() > 0) {
+                        // Update the current player object and all child planets to make sure any changes
+                        // to the fleet missions are reflected in the player/planet objects.
+                        $this->load($this->getId());
+                    }
+
+                } catch (Exception $e) {
+                    throw new RuntimeException('Fleet mission service process error: ' . $e->getMessage());
+                }
+            } else {
+                throw new \Exception('Could not acquire update fleet mission planet lock.');
+            }
+        });
     }
 
     /**

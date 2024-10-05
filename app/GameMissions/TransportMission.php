@@ -7,7 +7,9 @@ use OGame\GameMessages\TransportReceived;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 
@@ -20,8 +22,15 @@ class TransportMission extends GameMission
     /**
      * @inheritdoc
      */
-    public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        // Transport mission is only possible for planets and moons.
+        if (!in_array($targetType, [PlanetType::Planet, PlanetType::Moon])) {
+            return new MissionPossibleStatus(false);
+        }
+
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
+
         // If target planet does not exist, the mission is not possible.
         if ($targetPlanet === null) {
             return new MissionPossibleStatus(false);
@@ -33,8 +42,8 @@ class TransportMission extends GameMission
 
     protected function processArrival(FleetMission $mission): void
     {
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
         // Add resources to the target planet
         $target_planet->addResources($this->fleetMissionService->getResources($mission));
@@ -74,14 +83,14 @@ class TransportMission extends GameMission
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
         // Transport return trip: add back the units to the source planet.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
         // Add resources to the origin planet (if any).
         $return_resources = $this->fleetMissionService->getResources($mission);
-        if ($return_resources->sum() > 0) {
+        if ($return_resources->any()) {
             $target_planet->addResources($return_resources);
         }
 

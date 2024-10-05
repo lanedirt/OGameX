@@ -37,7 +37,7 @@ abstract class AccountTestCase extends TestCase
 
         // Set amount of planets to be created for the user to 2 because planet switching
         // is a part of the test suite.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('registration_planet_amount', 2);
 
         // Create a new user and login so we can access ingame features.
@@ -142,7 +142,7 @@ abstract class AccountTestCase extends TestCase
         $this->currentPlanetId = (int)$planetId;
 
         // Initialize the player service with factory.
-        $playerServiceFactory = app()->make(PlayerServiceFactory::class);
+        $playerServiceFactory = resolve(PlayerServiceFactory::class);
         $playerService = $playerServiceFactory->make($this->currentUserId);
         $this->planetService = $playerService->planets->current();
         $this->secondPlanetService = $playerService->planets->all()[1];
@@ -199,7 +199,7 @@ abstract class AccountTestCase extends TestCase
         } else {
             // Create and return a new PlanetService instance for the found planet.
             try {
-                $planetServiceFactory =  app()->make(PlanetServiceFactory::class);
+                $planetServiceFactory =  resolve(PlanetServiceFactory::class);
                 return $planetServiceFactory->make($planet_id[0]);
             } catch (Exception $e) {
                 $this->fail('Failed to create planet service for planet id: ' . $planet_id[0] . '. Error: ' . $e->getMessage());
@@ -221,7 +221,7 @@ abstract class AccountTestCase extends TestCase
         $tryCount = 0;
         while ($tryCount < 100) {
             $tryCount++;
-            $coordinate->system = $this->planetService->getPlanetCoordinates()->system + rand(-10, 10);
+            $coordinate->system = max(1, min(250, $this->planetService->getPlanetCoordinates()->system + rand(-10, 10)));
             $coordinate->position = rand($min_position, $max_position);
             $planetCount = \DB::table('planets')
                 ->where('galaxy', $coordinate->galaxy)

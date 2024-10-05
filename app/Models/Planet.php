@@ -157,6 +157,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|Planet whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Planet whereUserId($value)
  * @method static \Database\Factories\PlanetFactory factory($count = null, $state = [])
+ * @property int $solar_satellite_percent
+ * @method static \Illuminate\Database\Eloquent\Builder|Planet whereSolarSatellitePercent($value)
  * @mixin \Eloquent
  */
 class Planet extends Model

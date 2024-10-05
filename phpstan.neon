@@ -1,4 +1,4 @@
-# Run PHPStan code analysis with `clear && ./vendor/bin/phpstan analyse --memory-limit=256M` command
+# Run PHPStan code analysis with `clear && ./vendor/bin/phpstan analyse --memory-limit=384M` command
 
 includes:
     - vendor/larastan/larastan/extension.neon
@@ -15,6 +15,11 @@ parameters:
     level: 7
     ignoreErrors:
         - identifier: missingType.generics
+
+    # Required because of bug where PHPStan triggers regex in app/GameMessages/Abstracts/GameMessage.php
+    # as error: Negated boolean expression is always false. Check later if this is fixed by removing
+    # this line and running PHPStan again. If it does not throw any errors anymore, you can safely remove this.
+    treatPhpDocTypesAsCertain: false
 
 #    ignoreErrors:
 #        - '#PHPDoc tag @var#'

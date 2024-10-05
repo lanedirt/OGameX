@@ -8,9 +8,12 @@ use OGame\GameMissions\BattleEngine\BattleResult;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
+use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\DebrisFieldService;
 use Throwable;
 
 class AttackMission extends GameMission
@@ -22,8 +25,15 @@ class AttackMission extends GameMission
     /**
      * @inheritdoc
      */
-    public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        // Attack mission is only possible for planets and moons.
+        if (!in_array($targetType, [PlanetType::Planet, PlanetType::Moon])) {
+            return new MissionPossibleStatus(false);
+        }
+
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
+
         // If planet does not exist, the mission is not possible.
         if ($targetPlanet === null) {
             return new MissionPossibleStatus(false);
@@ -44,8 +54,8 @@ class AttackMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to);
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
+        $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
 
         // Trigger defender planet update to make sure the battle uses up-to-date info.
         $defenderPlanet->update();
@@ -54,7 +64,7 @@ class AttackMission extends GameMission
         $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
 
         // Execute the battle logic.
-        $battleEngine = new BattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet);
+        $battleEngine = new BattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
         $battleResult = $battleEngine->simulateBattle();
 
         // Deduct loot from the target planet.
@@ -67,6 +77,18 @@ class AttackMission extends GameMission
 
         // Save defenders planet
         $defenderPlanet->save();
+
+        // Create or append debris field.
+        // TODO: we could change this debris field append logic to do everything in a single query to
+        // prevent race conditions. Check this later when looking into reducing chance of race conditions occurring.
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($defenderPlanet->getPlanetCoordinates());
+
+        // Add debris to the field
+        $debrisFieldService->appendResources($battleResult->debris);
+
+        // Save the debris field
+        $debrisFieldService->save();
 
         // Send a message to both attacker and defender with a reference to the same battle report.
         $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
@@ -89,14 +111,14 @@ class AttackMission extends GameMission
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
         // Attack return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
         // Add resources to the origin planet (if any).
         $return_resources = $this->fleetMissionService->getResources($mission);
-        if ($return_resources->sum() > 0) {
+        if ($return_resources->any()) {
             $target_planet->addResources($return_resources);
         }
 
@@ -156,8 +178,9 @@ class AttackMission extends GameMission
         ];
 
         $report->debris = [
-            'metal' => 0,
-            'crystal' => 0,
+            'metal' => $battleResult->debris->metal->get(),
+            'crystal' => $battleResult->debris->crystal->get(),
+            'deuterium' => $battleResult->debris->deuterium->get(),
         ];
 
         $report->repaired_defenses = [];

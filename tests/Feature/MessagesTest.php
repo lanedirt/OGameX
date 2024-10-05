@@ -46,9 +46,9 @@ class MessagesTest extends AccountTestCase
                 $filledParams[$param] = 'test';
             }
 
-            // Check if message raw translation contains all the required params.
+            // Check if message raw translation for subject AND body combined contains all the required params.
             foreach ($params as $param) {
-                $this->assertStringContainsString(':' . $param, __('t_messages.' . $gameMessage->getKey() . '.body'), 'Lang body does not contain :' . $param . ' for ' . get_class($gameMessage));
+                $this->assertStringContainsString(':' . $param, __('t_messages.' . $gameMessage->getKey() . '.subject') . '--' . __('t_messages.' . $gameMessage->getKey() . '.body'), 'Lang body does not contain :' . $param . ' for ' . get_class($gameMessage));
             }
 
             // Create empty Message object to pass to getSubject and getBody methods.
@@ -71,10 +71,11 @@ class MessagesTest extends AccountTestCase
     public function testEspionageReport(): void
     {
         try {
-            $messageService = app()->make(MessageService::class);
+            $messageService = resolve(MessageService::class);
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve MessageService in testEspionageReport.');
         }
+
         // Create a new espionage report record in the db and set the espionage_report_id to its ID.
         $espionageReportId = $this->createEspionageReport();
         $messageModel = $messageService->sendEspionageReportMessageToPlayer($this->planetService->getPlayer(), $espionageReportId);
@@ -89,6 +90,8 @@ class MessagesTest extends AccountTestCase
         $response->assertSee('Chance of counter-espionage');
         $response->assertSee('1,000'); // 1000 metal
         $response->assertSee('500'); // 500 crystal
+        $response->assertSee('debris field'); // debris field
+        $response->assertSee('5,000'); // debris field 5,000 metal
     }
 
     /**
@@ -97,7 +100,7 @@ class MessagesTest extends AccountTestCase
     public function testBattleReport(): void
     {
         try {
-            $messageService = app()->make(MessageService::class);
+            $messageService = resolve(MessageService::class);
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve MessageService in testBattleReport.');
         }
@@ -173,6 +176,7 @@ class MessagesTest extends AccountTestCase
         $espionageReport->planet_position = $foreignPlanet->getPlanetCoordinates()->position;
         $espionageReport->planet_user_id = $foreignPlanet->getPlayer()->getId();
         $espionageReport->resources = ['metal' => 1000, 'crystal' => 500, 'deuterium' => 100, 'energy' => 1000];
+        $espionageReport->debris = ['metal' => 5000, 'crystal' => 2000, 'deuterium' => 0, 'energy' => 0];
         $espionageReport->buildings = ['metal_mine' => 10, 'crystal_mine' => 10, 'deuterium_synthesizer' => 10];
         $espionageReport->research = ['energy_technology' => 10, 'laser_technology' => 10, 'ion_technology' => 10];
         $espionageReport->ships = ['light_fighter' => 10, 'heavy_fighter' => 10, 'cruiser' => 10];

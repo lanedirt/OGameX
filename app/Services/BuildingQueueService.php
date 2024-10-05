@@ -27,13 +27,6 @@ class BuildingQueueService
     private ObjectService $objects;
 
     /**
-     * The queue model where this class should get its data from.
-     *
-     * @var BuildingQueue $model
-     */
-    private BuildingQueue $model;
-
-    /**
      * BuildingQueue constructor.
      *
      * @param ObjectService $objects
@@ -41,20 +34,18 @@ class BuildingQueueService
     public function __construct(ObjectService $objects)
     {
         $this->objects = $objects;
-
-        $this->model = new BuildingQueue();
     }
 
     /**
      * Retrieve all build queue items that already should be finished for a planet.
      *
      * @param int $planet_id
-     * @return Collection<BuildingQueue>
+     * @return Collection<int, BuildingQueue>
      */
     public function retrieveFinished(int $planet_id): Collection
     {
         // Fetch queue items from model
-        return $this->model->where([
+        return BuildingQueue::where([
             ['planet_id', $planet_id],
             ['time_end', '<=', Carbon::now()->timestamp],
             ['building', 1],
@@ -101,7 +92,7 @@ class BuildingQueueService
         $amount = $this->activeBuildingQueueItemCount($planet, $building->id);
         $next_level = $current_level + $amount + 1;
 
-        $queue = new $this->model();
+        $queue = new BuildingQueue();
         $queue->planet_id = $planet->getPlanetId();
         $queue->object_id = $building->id;
         $queue->object_level_target = $next_level;
@@ -123,7 +114,7 @@ class BuildingQueueService
     public function retrieveQueue(PlanetService $planet): BuildingQueueListViewModel
     {
         // Fetch queue items from model
-        $queue_items = $this->model->where([
+        $queue_items = BuildingQueue::where([
             ['planet_id', $planet->getPlanetId()],
             ['processed', 0],
             ['canceled', 0],
@@ -168,7 +159,7 @@ class BuildingQueueService
     public function activeBuildingQueueItemCount(PlanetService $planet, int $building_id): int
     {
         // Fetch queue items from model
-        return $this->model->where([
+        return BuildingQueue::where([
             ['planet_id', $planet->getPlanetId()],
             ['object_id', $building_id],
             ['processed', 0],
@@ -195,7 +186,7 @@ class BuildingQueueService
     public function start(PlanetService $planet, int $time_start = 0): void
     {
         // TODO: add unittest for case described above with $time_start.
-        $queue_items = $this->model->where([
+        $queue_items = BuildingQueue::where([
             ['planet_id', $planet->getPlanetId()],
             ['canceled', 0],
             ['processed', 0],
@@ -276,7 +267,7 @@ class BuildingQueueService
      */
     public function cancel(PlanetService $planet, int $building_queue_id, int $building_id): void
     {
-        $queue_item = $this->model->where([
+        $queue_item = BuildingQueue::where([
             ['id', $building_queue_id],
             ['planet_id', $planet->getPlanetId()],
             ['object_id', $building_id],
@@ -290,7 +281,7 @@ class BuildingQueueService
             // come after it. So e.g. if user cancels build order for metal mine
             // level 5 then any other already queued build orders for lvl 6,7,8 etc.
             // will also be canceled.
-            $queue_items_higher_level = $this->model->where([
+            $queue_items_higher_level = BuildingQueue::where([
                 ['planet_id', $planet->getPlanetId()],
                 ['object_id', $building_id],
                 ['object_level_target', '>', $queue_item->object_level_target],

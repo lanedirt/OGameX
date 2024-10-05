@@ -28,11 +28,11 @@ class GlobalGame
             app()->instance(ObjectService::class, $object);
 
             // Instantiate settings service.
-            $settings = app()->make(SettingsService::class);
+            $settings = resolve(SettingsService::class);
             app()->instance(SettingsService::class, $settings);
 
             // Load player.
-            $player = app()->make(PlayerService::class, ['player_id' => $request->user()->id]);
+            $player = resolve(PlayerService::class, ['player_id' => $request->user()->id]);
             app()->instance(PlayerService::class, $player);
 
             // Check if current planet change querystring parameter exists, if so, change current planet.
@@ -43,8 +43,17 @@ class GlobalGame
             // Update player.
             $player->update();
 
-            // Update all planets.
-            $player->planets->update();
+            // Update current planet of player.
+            // TODO: due to how planet update locking works, in the "load player" call above
+            // the player object and all of its planets are loaded for the first time. Then here
+            // in the update call we retrieve the current planet again to ensure we have the latest data.
+            // This update mechanism could be improved by calling it directly in the place when the player and
+            // planet objects are loaded for the first time. This would save one select call to the database.
+            // So it's not a big deal, but it's a small performance improvement that could be done.
+            $player->planets->current()->update();
+
+            // Update all fleet missions of player that are associated with any of the player's planets.
+            $player->updateFleetMissions();
         }
 
         return $next($request);

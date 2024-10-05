@@ -10,7 +10,7 @@ use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
 /**
- * Test that fleet dispatch works as expected.
+ * Test that fleet dispatch works as expected for deployment missions.
  */
 class FleetDispatchDeployTest extends FleetDispatchTestCase
 {
@@ -39,7 +39,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->planetAddUnit('small_cargo', 5);
 
         // Set the fleet speed to 5x for this test.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('fleet_speed', 5);
     }
 
@@ -229,7 +229,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -318,7 +318,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(5000, 5000, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -344,7 +344,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
 
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
@@ -398,7 +398,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 

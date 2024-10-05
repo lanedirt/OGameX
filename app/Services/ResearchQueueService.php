@@ -68,7 +68,7 @@ class ResearchQueueService
      * @param int $planet_id
      * The planet ID for which to retrieve the finished items.
      *
-     * @return Collection
+     * @return Collection<int, ResearchQueue>
      */
     public function retrieveFinished(int $planet_id): Collection
     {
@@ -337,6 +337,8 @@ class ResearchQueueService
 
         // If object is found: add canceled flag.
         if ($queue_item) {
+            // Typecast to a new object to avoid issues with the model.
+            $queue_item = $queue_item instanceof ResearchQueue ? $queue_item : new ResearchQueue($queue_item->getAttributes());
             $planetService = $player->planets->childPlanetById($queue_item->planet_id);
 
             // Gets all building queue records of this target level and all that

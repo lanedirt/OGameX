@@ -130,7 +130,18 @@ abstract class GameMessage
      */
     public function getSubject(): string
     {
-        return __('t_messages.' . $this->key. '.subject');
+        // Check if all the params are provided by checking all individual param names.
+        if ($this->message->params === null) {
+            $this->message->params = [];
+        }
+
+        $params = $this->checkParams($this->message->params);
+
+        // Get the message subject from the language files.
+        $translatedSubject = __('t_messages.' . $this->key . '.subject', $params);
+
+        // Replace placeholders in translated body with actual values.
+        return $this->replacePlaceholders($translatedSubject);
     }
 
     /**
@@ -144,6 +155,7 @@ abstract class GameMessage
         if ($this->message->params === null) {
             $this->message->params = [];
         }
+
         $params = $this->checkParams($this->message->params);
 
         // Certain reserved params such as resources should be formatted with number_format.
@@ -219,7 +231,16 @@ abstract class GameMessage
     {
         // Certain reserved params such as resources should be formatted with number_format.
         foreach ($params as $key => $value) {
-            if (in_array($key, ['metal', 'crystal', 'deuterium'])) {
+            if (in_array($key, [
+                'metal',
+                'crystal',
+                'deuterium',
+                'harvested_metal',
+                'harvested_crystal',
+                'harvested_deuterium',
+                'storage_capacity',
+                'ship_amount',
+            ])) {
                 $params[$key] = AppUtil::formatNumber((int)$value);
             }
         }
@@ -273,14 +294,13 @@ abstract class GameMessage
         // TODO: add unittests to cover the placeholder replacements.
         // Pattern to match [player]{playerId}[/player] placeholders
         $body = preg_replace_callback('/\[player\](\d+)\[\/player\]/', function ($matches) {
-            // Assuming getPlayerNameById is a method to get a player's name by ID
             if (!is_numeric($matches[1])) {
-                return "Unknown Player";
+                return 'Unknown Player';
             }
 
             $playerService = null;
             try {
-                $playerServiceFactory =  app()->make(PlayerServiceFactory::class);
+                $playerServiceFactory =  resolve(PlayerServiceFactory::class);
                 $playerService = $playerServiceFactory->make((int)$matches[1]);
             } catch (\Exception $e) {
                 // Do nothing
@@ -289,21 +309,20 @@ abstract class GameMessage
             if ($playerService->getId() > 0) {
                 $playerName = $playerService->getUsername();
             } else {
-                $playerName = "Unknown Player";
+                $playerName = 'Unknown Player';
             }
 
             return $playerName;
         }, $body);
 
         $body = preg_replace_callback('/\[planet\](\d+)\[\/planet\]/', function ($matches) {
-            // Assuming getPlayerNameById is a method to get a player's name by ID
             if (!is_numeric($matches[1])) {
-                return "Unknown Planet";
+                return 'Unknown Planet';
             }
 
             $planetService = null;
             try {
-                $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+                $planetServiceFactory = resolve(PlanetServiceFactory::class);
                 $planetService = $planetServiceFactory->make((int)$matches[1]);
             } catch (\Exception $e) {
                 // Do nothing
@@ -314,35 +333,32 @@ abstract class GameMessage
                                     <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
                                 ' . $planetService->getPlanetName() . ' [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
             } else {
-                $planetName = "Unknown Planet";
+                $planetName = 'Unknown Planet';
             }
 
             return $planetName;
         }, $body);
 
         $body = preg_replace_callback('/\[coordinates\](\d+):(\d+):(\d+)\[\/coordinates\]/', function ($matches) {
-            // Assuming getPlayerNameById is a method to get a player's name by ID
             if (!is_numeric($matches[1]) || !is_numeric($matches[2]) || !is_numeric($matches[3])) {
-                return "Unknown Planet";
+                return 'Unknown Planet';
             }
 
-            $planetService = null;
-            try {
-                $planetServiceFactory = app()->make(PlanetServiceFactory::class);
-                $planetService = $planetServiceFactory->makeForCoordinate(new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]));
-            } catch (\Exception $e) {
-                // Do nothing
+            $coordinates = new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]);
+            return '<a href="' . route('galaxy.index', ['galaxy' => $coordinates->galaxy, 'system' => $coordinates->system, 'position' => $coordinates->position]) . '" class="txt_link">
+                                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
+                            [' . $coordinates->asString() . ']</a>';
+        }, $body);
+
+        $body = preg_replace_callback('/\[debrisfield\](\d+):(\d+):(\d+)\[\/debrisfield\]/', function ($matches) {
+            if (!is_numeric($matches[1]) || !is_numeric($matches[2]) || !is_numeric($matches[3])) {
+                return 'Unknown Debris Field';
             }
 
-            if ($planetService !== null) {
-                $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
-                                    <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
-                                [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
-            } else {
-                $planetName = "Unknown Planet";
-            }
-
-            return $planetName;
+            $coordinates = new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]);
+            return '<a href="' . route('galaxy.index', ['galaxy' => $coordinates->galaxy, 'system' => $coordinates->system, 'position' => $coordinates->position]) . '" class="txt_link">
+                                <figure class="planetIcon tf tooltip js_hideTipOnMobile" title="Planet"></figure>
+                            debris field [' . $coordinates->asString() . ']</a>';
         }, $body);
 
         return $body;

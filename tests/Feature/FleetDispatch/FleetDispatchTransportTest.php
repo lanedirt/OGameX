@@ -10,7 +10,7 @@ use OGame\Services\FleetMissionService;
 use Tests\FleetDispatchTestCase;
 
 /**
- * Test that fleet dispatch works as expected.
+ * Test that fleet dispatch works as expected for transport missions.
  */
 class FleetDispatchTransportTest extends FleetDispatchTestCase
 {
@@ -215,7 +215,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -325,10 +325,11 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
         // Get just dispatched fleet mission ID from database.
         try {
-            $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+            $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }
+
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -341,6 +342,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
             'fleet_mission_id' => $fleetMissionId,
             '_token' => csrf_token(),
         ]);
+
         $response->assertStatus(200);
 
         // Assert that the original mission is now canceled.
@@ -355,10 +357,11 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
 
         try {
-            $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+            $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }
+
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
@@ -407,10 +410,11 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
         // Get just dispatched fleet mission ID from database.
         try {
-            $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+            $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         } catch (BindingResolutionException $e) {
             $this->fail('Failed to resolve FleetMissionService in testDispatchFleetRecallMission.');
         }
+
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -423,6 +427,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
             'fleet_mission_id' => $fleetMissionId,
             '_token' => csrf_token(),
         ]);
+
         $response->assertStatus(200);
 
         // Cancel it again
@@ -430,6 +435,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
             'fleet_mission_id' => $fleetMissionId,
             '_token' => csrf_token(),
         ]);
+
         // Expecting a 500 error because the mission is already canceled.
         $response->assertStatus(500);
 

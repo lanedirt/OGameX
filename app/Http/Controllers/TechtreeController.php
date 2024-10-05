@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Models\Calculations\CalculationType;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Techtree\TechtreeRequiredBy;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
@@ -80,7 +81,7 @@ class TechtreeController extends OGameController
      */
     public function getProductionTable(GameObject $object, PlayerService $player, ObjectService $objects): View
     {
-        if ($object->type !== 'building') {
+        if ($object->type !== GameObjectType::Building) {
             return view('empty');
         }
 
@@ -92,24 +93,24 @@ class TechtreeController extends OGameController
 
         $production_table = [];
         if (!empty($object->production)) {
-            $production_amount_current_level = $planet->getBuildingProduction($object->machine_name, $current_level, true)->sum();
+            $production_amount_current_level = $planet->getObjectProduction($object->machine_name, $current_level, true)->sum();
 
             // Create production table array value
             // TODO: add unittest to verify that production calculation is correctly for various buildings.
             $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
             for ($i = $min_level; $i < $min_level + 15; $i++) {
-                $production_amount_previous_level = $planet->getBuildingProduction($object->machine_name, $i - 1, true)->sum();
-                $production_amount = $planet->getBuildingProduction($object->machine_name, $i, true)->sum();
+                $production_amount_previous_level = $planet->getObjectProduction($object->machine_name, $i - 1, true)->sum();
+                $production_amount = $planet->getObjectProduction($object->machine_name, $i, true)->sum();
 
                 $production_table[] = [
                     'level' => $i,
                     'production' => $production_amount,
                     'production_difference' => $production_amount - $production_amount_current_level,
                     'production_difference_per_level' => ($i === $current_level) ? 0 : (($i - 1 < $current_level) ? ($production_amount - $production_amount_previous_level) * -1 : $production_amount - $production_amount_previous_level),
-                    'energy_balance' => $planet->getBuildingProduction($object->machine_name, $i, true)->energy->get(),
-                    'energy_difference' => ($i === $current_level) ? 0 : ($planet->getBuildingProduction($object->machine_name, $i, true)->energy->get() - $planet->getBuildingProduction($object->machine_name, $current_level, true)->energy->get()),
-                    'deuterium_consumption' => $planet->getBuildingProduction($object->machine_name, $i, true)->deuterium->get(),
-                    'deuterium_consumption_per_level' => ($i === $current_level) ? 0 : ($planet->getBuildingProduction($object->machine_name, $i, true)->deuterium->get() - $planet->getBuildingProduction($object->machine_name, $current_level, true)->deuterium->get()),
+                    'energy_balance' => $planet->getObjectProduction($object->machine_name, $i, true)->energy->get(),
+                    'energy_difference' => ($i === $current_level) ? 0 : ($planet->getObjectProduction($object->machine_name, $i, true)->energy->get() - $planet->getObjectProduction($object->machine_name, $current_level, true)->energy->get()),
+                    'deuterium_consumption' => $planet->getObjectProduction($object->machine_name, $i, true)->deuterium->get(),
+                    'deuterium_consumption_per_level' => ($i === $current_level) ? 0 : ($planet->getObjectProduction($object->machine_name, $i, true)->deuterium->get() - $planet->getObjectProduction($object->machine_name, $current_level, true)->deuterium->get()),
                     'protected' => 0,
                 ];
             }
@@ -134,7 +135,7 @@ class TechtreeController extends OGameController
      */
     public function getStorageTable(GameObject $object, PlayerService $player, ObjectService $objects): View
     {
-        if ($object->type !== 'building') {
+        if ($object->type !== GameObjectType::Building) {
             return view('empty');
         }
 
@@ -182,7 +183,7 @@ class TechtreeController extends OGameController
      */
     public function getRapidfireTable(GameObject $object, ObjectService $objects): View
     {
-        if ($object->type !== 'ship' && $object->type !== 'defense') {
+        if ($object->type !== GameObjectType::Ship && $object->type !== GameObjectType::Defense) {
             return view('empty');
         }
 
@@ -242,7 +243,7 @@ class TechtreeController extends OGameController
      */
     public function getPropertiesTable(GameObject $object, PlayerService $player, ObjectService $objects): View
     {
-        if ($object->type !== 'ship' && $object->type !== 'defense') {
+        if ($object->type !== GameObjectType::Ship && $object->type !== GameObjectType::Defense) {
             return view('empty');
         }
 
@@ -268,17 +269,23 @@ class TechtreeController extends OGameController
         $properties_array['structural_integrity'] = $structural_integrity->totalValue;
         $properties_array['shield'] = $shield->totalValue;
         $properties_array['attack'] = $attack->totalValue;
-        $properties_array['speed'] = $speed->totalValue;
-        $properties_array['capacity'] = $capacity->totalValue;
-        $properties_array['fuel'] = $fuel->totalValue;
+
+        if ($object->type !== GameObjectType::Defense) {
+            $properties_array['speed'] = $speed->totalValue;
+            $properties_array['capacity'] = $capacity->totalValue;
+            $properties_array['fuel'] = $fuel->totalValue;
+        }
 
         $tooltips_array = [];
         $tooltips_array['structural_integrity'] = $this->getPropertyTooltip($properties->structural_integrity->name, $structural_integrity->breakdown, $structural_integrity->totalValue);
         $tooltips_array['shield'] = $this->getPropertyTooltip($properties->shield->name, $shield->breakdown, $structural_integrity->totalValue);
         $tooltips_array['attack'] = $this->getPropertyTooltip($properties->attack->name, $attack->breakdown, $structural_integrity->totalValue);
-        $tooltips_array['speed'] = $this->getPropertyTooltip($properties->speed->name, $speed->breakdown, $structural_integrity->totalValue);
-        $tooltips_array['capacity'] = $this->getPropertyTooltip($properties->capacity->name, $capacity->breakdown, $structural_integrity->totalValue);
-        $tooltips_array['fuel'] = $this->getPropertyTooltip($properties->fuel->name, $fuel->breakdown, $structural_integrity->totalValue);
+
+        if ($object->type !== GameObjectType::Defense) {
+            $tooltips_array['speed'] = $this->getPropertyTooltip($properties->speed->name, $speed->breakdown, $structural_integrity->totalValue);
+            $tooltips_array['capacity'] = $this->getPropertyTooltip($properties->capacity->name, $capacity->breakdown, $structural_integrity->totalValue);
+            $tooltips_array['fuel'] = $this->getPropertyTooltip($properties->fuel->name, $fuel->breakdown, $structural_integrity->totalValue);
+        }
 
         return view('ingame.techtree.info.properties')->with([
             'object' => $object,
@@ -314,7 +321,7 @@ class TechtreeController extends OGameController
      */
     public function getPlasmaTable(GameObject $object, PlayerService $player): View
     {
-        if ($object->type !== 'research' || $object->machine_name !== 'plasma_technology') {
+        if ($object->type !== GameObjectType::Research || $object->machine_name !== 'plasma_technology') {
             return view('empty');
         }
 
@@ -349,7 +356,7 @@ class TechtreeController extends OGameController
      */
     public function getAstrophysicsTable(GameObject $object, PlayerService $player): View
     {
-        if ($object->type !== 'research' || $object->machine_name !== 'astrophysics') {
+        if ($object->type !== GameObjectType::Research || $object->machine_name !== 'astrophysics') {
             return view('empty');
         }
 
@@ -387,7 +394,7 @@ class TechtreeController extends OGameController
         $require_objects = array_filter($all_objects, function ($a_object) use ($object) {
             $has_object_required = false;
             foreach ($a_object->requirements as $requirement) {
-                if($requirement->object_machine_name === $object->machine_name) {
+                if ($requirement->object_machine_name === $object->machine_name) {
                     $has_object_required = true;
                 }
             }

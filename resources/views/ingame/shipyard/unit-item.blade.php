@@ -26,7 +26,7 @@
         @endif
 >
 
-                        <span class="icon sprite @if ($building->object->type == 'defense')
+                        <span class="icon sprite @if ($building->object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                             sprite_medium medium
                          @else
                             sprite_small small

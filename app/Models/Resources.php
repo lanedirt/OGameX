@@ -42,6 +42,16 @@ class Resources
     }
 
     /**
+     * Returns true if any resource is greater than 0.
+     *
+     * @return bool
+     */
+    public function any(): bool
+    {
+        return $this->metal->get() > 0 || $this->crystal->get() > 0 || $this->deuterium->get() > 0 || $this->energy->get() > 0;
+    }
+
+    /**
      * Multiply all resources by a factor.
      *
      * @param int $factor

@@ -4,6 +4,7 @@ namespace Tests;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
@@ -36,7 +37,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
     protected bool $isCancelable = true;
 
     /**
-     * Prepare the planet for the test so it has the required buildings and research.
+     * Prepare the planet for the test, so it has the required buildings and research.
      *
      * @return void
      * @throws BindingResolutionException
@@ -46,19 +47,31 @@ abstract class FleetDispatchTestCase extends AccountTestCase
     protected function fleetCheckToSecondPlanet(UnitCollection $units, bool $assertSuccess): void
     {
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
-        $this->checkTargetFleet($coordinates, $units, $assertSuccess);
+        $this->checkTargetFleet($coordinates, $units, PlanetType::Planet, $assertSuccess);
+    }
+
+    protected function fleetCheckToFirstPlanetDebrisField(UnitCollection $units, bool $assertSuccess): void
+    {
+        $coordinates = $this->planetService->getPlanetCoordinates();
+        $this->checkTargetFleet($coordinates, $units, PlanetType::DebrisField, $assertSuccess);
+    }
+
+    protected function fleetCheckToSecondPlanetDebrisField(UnitCollection $units, bool $assertSuccess): void
+    {
+        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $this->checkTargetFleet($coordinates, $units, PlanetType::DebrisField, $assertSuccess);
     }
 
     protected function fleetCheckToOtherPlayer(UnitCollection $units, bool $assertSuccess): void
     {
         $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
-        $this->checkTargetFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, $assertSuccess);
+        $this->checkTargetFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, PlanetType::Planet, $assertSuccess);
     }
 
     protected function fleetCheckToEmptyPosition(UnitCollection $units, bool $assertSuccess): void
     {
         $coordinates = $this->getNearbyEmptyCoordinate();
-        $this->checkTargetFleet($coordinates, $units, $assertSuccess);
+        $this->checkTargetFleet($coordinates, $units, PlanetType::Planet, $assertSuccess);
     }
 
     /**
@@ -72,7 +85,21 @@ abstract class FleetDispatchTestCase extends AccountTestCase
     protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
     {
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
-        $this->dispatchFleet($coordinates, $units, $resources, $assertStatus);
+        $this->dispatchFleet($coordinates, $units, $resources, PlanetType::Planet, $assertStatus);
+    }
+
+    /**
+     * Send a fleet to the second planet debris field of the test user.
+     *
+     * @param UnitCollection $units
+     * @param Resources $resources
+     * @param int $assertStatus
+     * @return void
+     */
+    protected function sendMissionToSecondPlanetDebrisField(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    {
+        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $this->dispatchFleet($coordinates, $units, $resources, PlanetType::DebrisField, $assertStatus);
     }
 
     /**
@@ -81,7 +108,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
     protected function sendMissionToOtherPlayer(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService
     {
         $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
-        $this->dispatchFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, $resources, $assertStatus);
+        $this->dispatchFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, $assertStatus);
         return $nearbyForeignPlanet;
     }
 
@@ -96,7 +123,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
     protected function sendMissionToEmptyPosition(UnitCollection $units, Resources $resources, int $assertStatus = 200): Coordinate
     {
         $coordinates = $this->getNearbyEmptyCoordinate();
-        $this->dispatchFleet($coordinates, $units, $resources, $assertStatus);
+        $this->dispatchFleet($coordinates, $units, $resources, PlanetType::Planet, $assertStatus);
         return $coordinates;
     }
 
@@ -105,10 +132,11 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      *
      * @param Coordinate $coordinates
      * @param UnitCollection $units
+     * @param PlanetType $planetType The type of the target planet.
      * @param bool $assertSuccess
      * @return void
      */
-    protected function checkTargetFleet(Coordinate $coordinates, UnitCollection $units, bool $assertSuccess): void
+    protected function checkTargetFleet(Coordinate $coordinates, UnitCollection $units, PlanetType $planetType, bool $assertSuccess): void
     {
         $unitsArray = $this->convertUnitsToArray($units);
 
@@ -116,7 +144,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
             'galaxy' => $coordinates->galaxy,
             'system' => $coordinates->system,
             'position' => $coordinates->position,
-            'type' => 1,
+            'type' => $planetType->value,
             'mission' => $this->missionType,
             '_token' => csrf_token(),
         ], $unitsArray));
@@ -144,10 +172,11 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      * @param Coordinate $coordinates
      * @param UnitCollection $units
      * @param Resources $resources
+     * @param PlanetType $planetType The type of the target planet.
      * @param int $assertStatus
      * @return void
      */
-    protected function dispatchFleet(Coordinate $coordinates, UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    protected function dispatchFleet(Coordinate $coordinates, UnitCollection $units, Resources $resources, PlanetType $planetType, int $assertStatus = 200): void
     {
         $unitsArray = $this->convertUnitsToArray($units);
 
@@ -155,7 +184,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
             'galaxy' => $coordinates->galaxy,
             'system' => $coordinates->system,
             'position' => $coordinates->position,
-            'type' => 1,
+            'type' => $planetType->value,
             'mission' => $this->missionType,
             'metal' => $resources->metal->get(),
             'crystal' => $resources->crystal->get(),

@@ -33,7 +33,7 @@ This message will be deleted in 7 days.',
     'return_of_fleet_with_resources' => [
         'from' => 'Fleet Command',
         'subject' => 'Return of a fleet',
-        'body' => 'Your fleet is returning from planet :from to planet :to and delivered its goods:
+        'body' => 'Your fleet is returning from :from to :to and delivered its goods:
             
 Metal: :metal
 Crystal: :crystal
@@ -107,6 +107,13 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     'battle_report' => [
         'from' => 'Fleet Command',
         'subject' => 'Combat report :planet',
+    ],
+
+    // ------------------------
+    'debris_field_harvest' => [
+        'from' => 'Fleet',
+        'subject' => 'Harvesting report from DF on :coordinates',
+        'body' => 'Your :ship_name (:ship_amount ships) have a total storage capacity of :storage_capacity. At the target :to, :metal Metal, :crystal Crystal and :deuterium Deuterium are floating in space. You have harvested :harvested_metal Metal, :harvested_crystal Crystal and :harvested_deuterium Deuterium.',
     ],
 
     // ------------------------

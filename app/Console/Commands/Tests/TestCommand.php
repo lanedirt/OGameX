@@ -2,9 +2,11 @@
 
 namespace OGame\Console\Commands\Tests;
 
+use App;
 use DateTime;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise;
@@ -23,9 +25,14 @@ use OGame\Services\PlayerService;
 abstract class TestCommand extends Command
 {
     /**
-     * @var string The application URL that the tests will run against.
+     * @var string The default application URL that the tests will run against in the development environment.
      */
-    protected string $appUrl = 'http://ogame-webserver:80';
+    protected string $baseUrlDevelopment = 'http://ogame-webserver:80';
+
+    /**
+     * @var string The default application URL that the tests will run against in the production environment.
+     */
+    private string $baseUrlProduction = 'https://ogame-webserver:443';
 
     /**
      * @var string The email of the test user.
@@ -54,6 +61,11 @@ abstract class TestCommand extends Command
     protected Client $httpClient;
 
     /**
+     * @var CookieJar The GuzzleHttp CookieJar that persists cookies during tests.
+     */
+    protected CookieJar $cookieJar;
+
+    /**
      * @var PlayerService The player service of the test user.
      */
     protected PlayerService $playerService;
@@ -80,8 +92,8 @@ abstract class TestCommand extends Command
      */
     protected function setup(): void
     {
-        $playerServiceFactory = app()->make(PlayerServiceFactory::class);
-        $planetServiceFactory = app()->make(PlanetServiceFactory::class);
+        $playerServiceFactory = resolve(PlayerServiceFactory::class);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
 
         // Delete user if it already exists.
         $user = User::where('email', '=', $this->email)->first();
@@ -96,7 +108,7 @@ abstract class TestCommand extends Command
         }
 
         // Create a test user
-        $creator = app()->make(CreateNewUser::class);
+        $creator = resolve(CreateNewUser::class);
         $user = $creator->create([
             'email' => $this->email,
             'password' => $this->password,
@@ -159,9 +171,17 @@ abstract class TestCommand extends Command
     {
         $this->info("Login as test user...");
 
+        // Set the base URL for the HTTP client.
+        // Note: the base URL is different in production and development environments
+        // because the production requirement requires all requests to be made over HTTPS.
+        $baseUrl = App::environment('production')
+            ? $this->baseUrlProduction
+            : $this->baseUrlDevelopment;
+
+        $this->cookieJar = new CookieJar();
         $this->httpClient = new Client(array(
-            'base_uri' => $this->appUrl,
-            'cookies' => true,
+            'base_uri' => $baseUrl,
+            'cookies' => $this->cookieJar,
             'verify' => false,
         ));
 

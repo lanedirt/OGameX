@@ -8,6 +8,7 @@ use OGame\GameMissions\BattleEngine\BattleResultRound;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
 
 class BattleReport extends GameMessage
 {
@@ -136,9 +137,15 @@ class BattleReport extends GameMessage
         $lootDeuterium = $this->battleReportModel->loot['deuterium'];
         $lootResources = new Resources($lootMetal, $lootCrystal, $lootDeuterium, 0);
 
-        $debrisMetal = $this->battleReportModel->debris['metal'];
-        $debrisCrystal = $this->battleReportModel->debris['crystal'];
-        $debrisResources = new Resources($debrisMetal, $debrisCrystal, 0, 0);
+        $debrisMetal = $this->battleReportModel->debris['metal'] ?? 0;
+        $debrisCrystal = $this->battleReportModel->debris['crystal'] ?? 0;
+        $debrisDeuterium = $this->battleReportModel->debris['deuterium'] ?? 0;
+        $debrisResources = new Resources($debrisMetal, $debrisCrystal, $debrisDeuterium, 0);
+
+        // Calculate the amount of recyclers needed using DebrisFieldService
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->appendResources($debrisResources);
+        $debrisRecyclersNeeded = $debrisFieldService->calculateRequiredRecyclers();
 
         $repairedDefensesCount = 0;
         if (!empty($this->battleReportModel->repaired_defenses)) {
@@ -149,7 +156,7 @@ class BattleReport extends GameMessage
 
         // Load attacker player
         // TODO: add unit test for attacker/defender research levels.
-        $attacker = $this->playerServiceFactory->make($attackerPlayerId);
+        $attacker = $this->playerServiceFactory->make($attackerPlayerId, true);
         $attacker_weapons = $this->battleReportModel->attacker['weapon_technology'] * 10;
         $attacker_shields = $this->battleReportModel->attacker['shielding_technology'] * 10;
         $attacker_armor = $this->battleReportModel->attacker['armor_technology'] * 10;
@@ -243,7 +250,9 @@ class BattleReport extends GameMessage
             'loot' => AppUtil::formatNumberShort($lootResources->sum()),
             'loot_resources' => $lootResources,
             'loot_percentage' => $lootPercentage,
-            'debris' => AppUtil::formatNumberShort($debrisResources->sum()),
+            'debris_sum_formatted' => AppUtil::formatNumberLong($debrisResources->sum()),
+            'debris_resources' => $debrisResources,
+            'debris_recyclers_needed' => $debrisRecyclersNeeded,
             'repaired_defenses_count' => $repairedDefensesCount,
             'attacker_weapons' => $attacker_weapons,
             'attacker_shields' => $attacker_shields,

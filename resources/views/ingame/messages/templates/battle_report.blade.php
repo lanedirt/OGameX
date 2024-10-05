@@ -14,7 +14,7 @@
         <div class="basicInfo">
             <span class="msg_ctn msg_ctn2 {{ $attacker_class }} tooltipLeft" data-tooltip-title="12,000">Attacker: ({{ $attacker_name }}): {{ $attacker_losses }}</span>
             <span class="msg_ctn msg_ctn3">@lang('Resources'): {{ $loot }}, @lang('Loot'): {{ $loot_percentage }}%</span>
-            <span class="msg_ctn msg_ctn3 tooltipLeft" data-tooltip-title="2,128,000">@lang('Debris field (newly created)'): {{ $debris }}</span>
+            <span class="msg_ctn msg_ctn3 tooltipLeft" data-tooltip-title="{{ $debris_sum_formatted }}">@lang('Debris field (newly created)'): {{ $debris_sum_formatted }}</span>
         </div>
         <div class="miscInfo">
             <span class="msg_ctn msg_ctn2 {{ $defender_class }} tooltipRight" data-tooltip-title="10,210,000">Defender: ({{ $defender_name }}): {{ $defender_losses }}</span>

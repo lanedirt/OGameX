@@ -22,7 +22,7 @@ class ResearchQueueTest extends AccountTestCase
     public function testResearchQueueEnergyTechnology(): void
     {
         // Set the universe speed to 8x and research speed to 2x for this test.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
         $settingsService->set('research_speed', 2);
 
@@ -77,7 +77,7 @@ class ResearchQueueTest extends AccountTestCase
     public function testResearchQueueMultiQueue(): void
     {
         // Set the universe speed to 8x and research speed to 2x for this test.
-        $settingsService = app()->make(SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
         $settingsService->set('research_speed', 2);
 

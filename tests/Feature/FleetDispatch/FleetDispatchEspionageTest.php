@@ -6,12 +6,15 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\EspionageReport;
+use OGame\Models\Message;
 use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
 use Tests\FleetDispatchTestCase;
 
 /**
- * Test that fleet dispatch works as expected.
+ * Test that fleet dispatch works as expected for espionage missions.
  */
 class FleetDispatchEspionageTest extends FleetDispatchTestCase
 {
@@ -113,7 +116,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     }
 
     /**
-     * Test that when espionage reaches destination planet, the planet is updated and the updates
+     * Test that when espionage reaches destination planet, the planet is updated and the updated
      * resources are visible in the espionage report.
      */
     public function testDispatchFleetUpdatePlanet(): void
@@ -143,6 +146,58 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Assert that target planet has been updated.
         $this->assertLessThan($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAt->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
+
+        // Assert that the updated resources are visible in the espionage report.
+        // Get the latest espionage report message from the database.
+        $espionageReport = EspionageReport::orderByDesc('id')->first();
+        $this->assertNotNull($espionageReport, 'No espionage report found in database after espionage mission has arrived.');
+    }
+
+    /**
+     * Test that the espionage report correctly includes the debris field resources.
+     */
+    public function testDispatchFleetDebrisEspionageReport(): void
+    {
+        $this->basicSetup();
+
+        // Send fleet to a nearby foreign planet.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Add debris field to the foreign planet.
+        $debrisField = resolve(DebrisFieldService::class);
+        $debrisField->loadOrCreateForCoordinates($foreignPlanet->getPlanetCoordinates());
+        $debrisField->appendResources(new Resources(1337, 443, 259, 0));
+        $debrisField->save();
+
+        // Get current updated timestamp of the target planet.
+        $foreignPlanetUpdatedAt = $foreignPlanet->getUpdatedAt();
+
+        // Increase time by 10 hours to ensure the mission is done.
+        $currentTime = Carbon::now();
+        $currentTime->addHours(10);
+        Carbon::setTestNow($currentTime);
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Reload the target planet to get the updated timestamp because
+        // the target planet should be updated by the request above which processes the game mission.
+        $foreignPlanet->reloadPlanet();
+
+        // Assert that target planet has been updated.
+        $this->assertLessThan($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAt->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
+
+        // Assert that the updated resources are visible in the espionage report.
+        // Get the latest espionage report message from the database.
+        $espionageReport = EspionageReport::orderByDesc('id')->first();
+        $this->assertNotNull($espionageReport, 'No espionage report found in database after espionage mission has arrived.');
+        $this->assertNotNull($espionageReport->debris, 'Debris field not found in espionage report.');
+        $this->assertEquals(1337, $espionageReport->debris['metal'], 'Debris field metal resources are not visible in espionage report.');
+        $this->assertEquals(443, $espionageReport->debris['crystal'], 'Debris field crystal resources are not visible in espionage report.');
+        $this->assertEquals(259, $espionageReport->debris['deuterium'], 'Debris field deuterium resources are not visible in espionage report.');
     }
 
     /**
@@ -168,7 +223,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -259,7 +314,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
@@ -285,7 +340,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
 
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
@@ -338,7 +393,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
-        $fleetMissionService = app()->make(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 

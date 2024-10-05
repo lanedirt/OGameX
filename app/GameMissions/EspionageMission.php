@@ -5,9 +5,11 @@ namespace OGame\GameMissions;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
-use OGame\Models\Resources;
+use OGame\Models\Planet\Coordinate;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use Throwable;
 
@@ -20,8 +22,15 @@ class EspionageMission extends GameMission
     /**
      * @inheritdoc
      */
-    public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        // Espionage mission is only possible for planets and moons.
+        if (!in_array($targetType, [PlanetType::Planet, PlanetType::Moon])) {
+            return new MissionPossibleStatus(false);
+        }
+
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
+
         // If planet does not exist, the mission is not possible.
         if ($targetPlanet === null) {
             return new MissionPossibleStatus(false);
@@ -47,13 +56,13 @@ class EspionageMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
 
         // Trigger target planet update to make sure the espionage report is accurate.
         $target_planet->update();
 
-        $reportId = $this->createEspionageReport($target_planet);
+        $reportId = $this->createEspionageReport($mission, $origin_planet, $target_planet);
 
         // Send a message to the player with a reference to the espionage report.
         $this->messageService->sendEspionageReportMessageToPlayer(
@@ -79,14 +88,14 @@ class EspionageMission extends GameMission
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
         // Espionage return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
         // Add resources to the origin planet (if any).
         $return_resources = $this->fleetMissionService->getResources($mission);
-        if ($return_resources->sum() > 0) {
+        if ($return_resources->any()) {
             $target_planet->addResources($return_resources);
         }
 
@@ -100,54 +109,91 @@ class EspionageMission extends GameMission
     /**
      * Creates an espionage report for the target planet.
      *
-     * @param PlanetService $planet
+     * @param FleetMission $mission
+     * @param PlanetService $originPlanet
+     * @param PlanetService $targetPlanet
      * @return int
      */
-    private function createEspionageReport(PlanetService $planet): int
+    private function createEspionageReport(FleetMission $mission, PlanetService $originPlanet, PlanetService $targetPlanet): int
     {
-        // TODO: make sure the target planet is updated with the latest resources before creating the report
-        // to ensure the report is accurate at the current point in time.
-        // TODO: add planet update call here and add a test to cover this.
-
         // Create new espionage report record.
         $report = new EspionageReport();
-        $report->planet_galaxy = $planet->getPlanetCoordinates()->galaxy;
-        $report->planet_system = $planet->getPlanetCoordinates()->system;
-        $report->planet_position = $planet->getPlanetCoordinates()->position;
+        $report->planet_galaxy = $targetPlanet->getPlanetCoordinates()->galaxy;
+        $report->planet_system = $targetPlanet->getPlanetCoordinates()->system;
+        $report->planet_position = $targetPlanet->getPlanetCoordinates()->position;
 
-        $report->planet_user_id = $planet->getPlayer()->getId();
+        $report->planet_user_id = $targetPlanet->getPlayer()->getId();
 
         $report->player_info = [
-            'player_id' => (string)$planet->getPlayer()->getId(),
-            'player_name' => $planet->getPlayer()->getUsername(),
+            'player_id' => (string)$targetPlanet->getPlayer()->getId(),
+            'player_name' => $targetPlanet->getPlayer()->getUsername(),
         ];
 
         // Resources
         $report->resources = [
-            'metal' => (int)$planet->metal()->get(),
-            'crystal' => (int)$planet->crystal()->get(),
-            'deuterium' => (int)$planet->deuterium()->get(),
-            'energy' => (int)$planet->energy()->get()
+            'metal' => (int)$targetPlanet->metal()->get(),
+            'crystal' => (int)$targetPlanet->crystal()->get(),
+            'deuterium' => (int)$targetPlanet->deuterium()->get(),
+            'energy' => (int)$targetPlanet->energy()->get()
         ];
 
-        // TODO: implement logic which determines what to include in the espionage report based on
-        // the player's espionage technology level. For example, the player can see more details about the
-        // target planet if the espionage technology level is higher.
+        // Debris field (if any).
+        $debrisField = resolve(DebrisFieldService::class);
+        $debrisField->loadOrCreateForCoordinates($targetPlanet->getPlanetCoordinates());
+        $debrisFieldResources = $debrisField->getResources();
+        if ($debrisFieldResources->any()) {
+            $report->debris = [
+                'metal' => (int)$debrisFieldResources->metal->get(),
+                'crystal' => (int)$debrisFieldResources->crystal->get(),
+                'deuterium' => (int)$debrisFieldResources->deuterium->get(),
+            ];
+        }
+
+        // TODO: Validate this does not cause issues when probing slot 16
+        $attackerEspionageLevel = $originPlanet->getPlayer()->getResearchLevel('espionage_technology');
+        $defenderEspionageLevel = $targetPlanet->getPlayer()->getResearchLevel('espionage_technology');
+        $techDifference = $defenderEspionageLevel - $attackerEspionageLevel;
+        $levelDifference = max(0, $techDifference);
+        $extraProbesRequired = pow($levelDifference, 2);
+        $remainingProbes = max(0, $mission->espionage_probe - $extraProbesRequired);
 
         // Fleets
-        $report->ships = $planet->getShipUnits()->toArray();
+        if ($this->canRevealData($remainingProbes, $attackerEspionageLevel, $defenderEspionageLevel, 2, 1)) {
+            $report->ships = $targetPlanet->getShipUnits()->toArray();
+        }
 
         // Defense
-        $report->defense = $planet->getDefenseUnits()->toArray();
+        if ($this->canRevealData($remainingProbes, $attackerEspionageLevel, $defenderEspionageLevel, 3, 2)) {
+            $report->defense = $targetPlanet->getDefenseUnits()->toArray();
+        }
 
         // Buildings
-        $report->buildings = $planet->getBuildingArray();
+        if ($this->canRevealData($remainingProbes, $attackerEspionageLevel, $defenderEspionageLevel, 5, 3)) {
+            $report->buildings = $targetPlanet->getBuildingArray();
+        }
 
         // Research
-        $report->research = $planet->getPlayer()->getResearchArray();
+        if ($this->canRevealData($remainingProbes, $attackerEspionageLevel, $defenderEspionageLevel, 7, 4)) {
+            $report->research = $targetPlanet->getPlayer()->getResearchArray();
+        }
 
         $report->save();
 
         return $report->id;
+    }
+
+    /**
+     * Determine if specific data can be revealed in the report based on remaining probes and espionage levels.
+     *
+     * @param int $remainingProbes
+     * @param int $attackerLevel
+     * @param int $defenderLevel
+     * @param int $probeThreshold
+     * @param int $levelThreshold
+     * @return bool
+     */
+    private function canRevealData(int $remainingProbes, int $attackerLevel, int $defenderLevel, int $probeThreshold, int $levelThreshold): bool
+    {
+        return $remainingProbes >= $probeThreshold || $attackerLevel - $levelThreshold >= $defenderLevel;
     }
 }

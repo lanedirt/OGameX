@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Factories\GameMissionFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -136,7 +137,7 @@ class FleetMissionService
     /**
      * Get all active fleet missions for the current user.
      *
-     * @return Collection<FleetMission>
+     * @return Collection<int, FleetMission>
      */
     public function getActiveFleetMissionsForCurrentPlayer(): Collection
     {
@@ -239,18 +240,18 @@ class FleetMissionService
     }
 
     /**
-     * Get missions that are either from or to the given planet that have reached the arrival time
+     * Get missions that are either from or to the given planets that have reached the arrival time
      * but are not processed yet.
      *
-     * @param int $planetId
+     * @param int[] $planetIds
      * @return Collection
      */
-    public function getMissionsByPlanetId(int $planetId): Collection
+    public function getMissionsByPlanetIds(array $planetIds): Collection
     {
         return $this->model
-            ->where(function ($query) use ($planetId) {
-                $query->where('planet_id_from', $planetId)
-                    ->orWhere('planet_id_to', $planetId);
+            ->where(function ($query) use ($planetIds) {
+                $query->whereIn('planet_id_from', $planetIds)
+                    ->orWhereIn('planet_id_to', $planetIds);
             })
             ->where('time_arrival', '<=', Carbon::now()->timestamp)
             ->where('processed', 0)
@@ -281,22 +282,23 @@ class FleetMissionService
     /**
      * Creates a new fleet mission for the current planet.
      *
-     * @param PlanetService $planet
-     * @param Coordinate $targetCoordinate
-     * @param int $missionType
-     * @param UnitCollection $units
-     * @param Resources $resources
-     * @param int $parent_id
-     * @return void
+     * @param PlanetService $planet The planet where the fleet is sent from.
+     * @param Coordinate $targetCoordinate The target coordinate.
+     * @param PlanetType $targetType The type of the target.
+     * @param int $missionType The type of the mission.
+     * @param UnitCollection $units The units that are sent.
+     * @param Resources $resources The resources that are sent.
+     * @param int $parent_id Optionally the parent mission ID if this is a follow-up mission.
+     * @return FleetMission
      * @throws Exception
      */
-    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): void
+    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
     {
         $missionObject = $this->gameMissionFactory->getMissionById($missionType, [
             'fleetMissionService' => $this,
             'messageService' => $this->messageService,
         ]);
-        $missionObject->start($planet, $targetCoordinate, $units, $resources, $parent_id);
+        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $parent_id);
     }
 
     /**

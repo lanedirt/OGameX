@@ -504,17 +504,14 @@
                 <a class="overlay" data-type="ajax" href="/ajax/main/rules">Rules</a>
                 <br/>
                 <div class="align_center">
-                    <a href="https://plus.google.com/118150651196691403580" target="_blank">
+                    <a href="#" target="_blank">
                         <div class="socialMediaLogo gPlusLogo">Google+</div>
                     </a>
-                    <a href="https://www.facebook.com/ogame" target="_blank">
+                    <a href="#" target="_blank">
                         <div class="socialMediaLogo fbLogo">Facebook</div>
                     </a>
                 </div>
                 <p id="copyright">© OGameX. All rights reserved. {{ \OGame\Facades\GitInfoUtil::getAppVersion() }} </p>
-            </div>
-            <div class="logos">
-                <a id="safeplay" href="#" target="_blank"></a>
             </div>
         </div>
     </div>

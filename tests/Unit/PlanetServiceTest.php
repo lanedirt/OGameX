@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
+use OGame\Models\Resources;
 use Tests\UnitTestCase;
 
 class PlanetServiceTest extends UnitTestCase
@@ -63,5 +64,21 @@ class PlanetServiceTest extends UnitTestCase
         $this->assertEquals([
             'rocket_launcher' => 1,
         ], $this->planetService->getDefenseUnits()->toArray());
+    }
+
+    /**
+     * Test that deducting too many resources from planet throws an exception.
+     */
+    public function testDeductTooManyResources(): void
+    {
+        $this->createAndSetPlanetModel([
+            'metal_mine' => 1,
+        ]);
+
+        // Specify the type of exception you expect to be thrown
+        $this->expectException(\Exception::class);
+
+        // Call the method that should throw the exception
+        $this->planetService->deductResources(new Resources(9999, 9999, 9999, 0));
     }
 }

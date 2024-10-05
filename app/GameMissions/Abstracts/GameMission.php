@@ -10,6 +10,7 @@ use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -17,6 +18,7 @@ use OGame\Services\FleetMissionService;
 use OGame\Services\MessageService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 
 abstract class GameMission
 {
@@ -43,12 +45,22 @@ abstract class GameMission
 
     protected PlayerServiceFactory $playerServiceFactory;
 
-    public function __construct(FleetMissionService $fleetMissionService, MessageService $messageService, PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory)
+    protected SettingsService $settings;
+
+    /**
+     * @param FleetMissionService $fleetMissionService
+     * @param MessageService $messageService
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @param PlayerServiceFactory $playerServiceFactory
+     * @param SettingsService $settings
+     */
+    public function __construct(FleetMissionService $fleetMissionService, MessageService $messageService, PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory, SettingsService $settings)
     {
         $this->fleetMissionService = $fleetMissionService;
         $this->messageService = $messageService;
         $this->planetServiceFactory = $planetServiceFactory;
         $this->playerServiceFactory = $playerServiceFactory;
+        $this->settings = $settings;
     }
 
     public static function getName(): string
@@ -69,12 +81,13 @@ abstract class GameMission
     /**
      * Checks if the mission is possible under the given circumstances.
      *
-     * @param PlanetService $planet
-     * @param ?PlanetService $targetPlanet
-     * @param UnitCollection $units
+     * @param PlanetService $planet The planet from which the mission is sent.
+     * @param Coordinate $targetCoordinate The target coordinate of the mission.
+     * @param PlanetType $targetType The type of the target.
+     * @param UnitCollection $units The units that are sent on the mission.
      * @return MissionPossibleStatus
      */
-    abstract public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus;
+    abstract public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus;
 
     /**
      * Cancel an already started mission.
@@ -102,21 +115,28 @@ abstract class GameMission
      *
      * @param PlanetService $planet
      * @param Coordinate $targetCoordinate
+     * @param PlanetType $targetType
      * @param UnitCollection $units
      * @param Resources $resources
      * @return void
      * @throws Exception
      */
-    public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources): void
+    public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources): void
     {
         if (!$planet->hasResources($resources)) {
             throw new Exception('Not enough resources on the planet to send the fleet.');
         }
         if (!$planet->hasUnits($units)) {
-            throw new Exception('Not enough units on the planet to send the fleet.');
+            $unitNames = [];
+            foreach ($units->units as $unit) {
+                $unitNames[] = $unit->unitObject->machine_name;
+            }
+
+            $unitNames = implode(', ', $unitNames);
+            throw new Exception('Not enough units on the planet to send the fleet. Units required: ' . $unitNames);
         }
 
-        $missionPossibleStatus = $this->isMissionPossible($planet, $this->planetServiceFactory->makeForCoordinate($targetCoordinate), $units);
+        $missionPossibleStatus = $this->isMissionPossible($planet, $targetCoordinate, $targetType, $units);
         if (!$missionPossibleStatus->possible) {
             throw new Exception($missionPossibleStatus->reason ?? __('This mission is not possible.'));
         }
@@ -139,20 +159,21 @@ abstract class GameMission
      *
      * @param PlanetService $planet
      * @param Coordinate $targetCoordinate
+     * @param PlanetType $targetType
      * @param UnitCollection $units
      * @param Resources $resources
      * @param int $parent_id
-     * @return void
+     * @return FleetMission
      * @throws Exception
      */
-    public function start(PlanetService $planet, Coordinate $targetCoordinate, UnitCollection $units, Resources $resources, int $parent_id = 0): void
+    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
     {
-        $this->startMissionSanityChecks($planet, $targetCoordinate, $units, $resources);
+        $this->startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $resources);
 
-        // Time this fleet mission will depart (now)
+        // Time this fleet mission will depart (now).
         $time_start = (int)Carbon::now()->timestamp;
 
-        // Time fleet mission will arrive
+        // Time fleet mission will arrive.
         // TODO: refactor calculate to gamemission base class?
         $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units);
 
@@ -167,6 +188,7 @@ abstract class GameMission
 
         $mission->user_id = $planet->getPlayer()->getId();
 
+        $mission->type_from = PlanetType::Planet->value;
         $mission->planet_id_from = $planet->getPlanetId();
         $mission->galaxy_from = $planet->getPlanetCoordinates()->galaxy;
         $mission->system_from = $planet->getPlanetCoordinates()->system;
@@ -176,10 +198,16 @@ abstract class GameMission
         $mission->time_departure = $time_start;
         $mission->time_arrival = $time_end;
 
-        $target_planet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
-        if ($target_planet !== null) {
-            $mission->planet_id_to = $target_planet->getPlanetId();
+        $mission->type_to = $targetType->value;
+
+        // Only set the target planet ID if the target is a planet.
+        if ($targetType === PlanetType::Planet) {
+            $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
+            if ($targetPlanet !== null) {
+                $mission->planet_id_to = $targetPlanet->getPlanetId();
+            }
         }
+
         $mission->galaxy_to = $targetCoordinate->galaxy;
         $mission->system_to = $targetCoordinate->system;
         $mission->position_to = $targetCoordinate->position;
@@ -204,6 +232,8 @@ abstract class GameMission
         if ($mission->time_arrival < Carbon::now()->timestamp) {
             $this->process($mission);
         }
+
+        return $mission;
     }
 
     /**
@@ -237,41 +267,39 @@ abstract class GameMission
         $mission->parent_id = $parentMission->id;
         $mission->user_id = $parentMission->user_id;
 
+        // Set the type_from and type_to to the opposite of the parent mission.
+        $mission->type_from = $parentMission->type_to;
+        $mission->type_to = $parentMission->type_from;
+
         // If planet_id_to is not set, it can mean that the target planet was colonized or the mission was canceled.
         // In this case, we keep planet_id_from as null.
-        if ($parentMission->planet_id_to === null) {
-            // Attempt to load it from the target coordinates.
-            $targetPlanet = $this->planetServiceFactory->makeForCoordinate(new Coordinate($parentMission->galaxy_to, $parentMission->system_to, $parentMission->position_to));
-            if ($targetPlanet !== null) {
-                $mission->planet_id_from = $targetPlanet->getPlanetId();
-                $mission->galaxy_from = $targetPlanet->getPlanetCoordinates()->galaxy;
-                $mission->system_from = $targetPlanet->getPlanetCoordinates()->system;
-                $mission->position_from = $targetPlanet->getPlanetCoordinates()->position;
+        if ($mission->type_to === PlanetType::Planet->value) {
+            if ($parentMission->planet_id_to === null) {
+                // Attempt to load it from the target coordinates.
+                $targetPlanet = $this->planetServiceFactory->makeForCoordinate(new Coordinate($parentMission->galaxy_to, $parentMission->system_to, $parentMission->position_to));
+                if ($targetPlanet !== null) {
+                    $mission->planet_id_from = $targetPlanet->getPlanetId();
+                } else {
+                    $mission->planet_id_from = null;
+                }
             } else {
-                $mission->planet_id_from = null;
-                $mission->galaxy_from = $parentMission->galaxy_to;
-                $mission->system_from = $parentMission->system_to;
-                $mission->position_from = $parentMission->position_to;
+                $mission->planet_id_from = $parentMission->planet_id_to;
             }
-        } else {
-            $mission->planet_id_from = $parentMission->planet_id_to;
-            $mission->galaxy_from = $parentMission->galaxy_to;
-            $mission->system_from = $parentMission->system_to;
-            $mission->position_from = $parentMission->position_to;
         }
+
         $mission->mission_type = $parentMission->mission_type;
         $mission->time_departure = $time_start;
         $mission->time_arrival = $time_end;
         $mission->planet_id_to = $parentMission->planet_id_from;
 
-        // Planet to service
-        $planetToService = $this->planetServiceFactory->make($mission->planet_id_to);
-
         // Coordinates
-        $coords = $planetToService->getPlanetCoordinates();
-        $mission->galaxy_to = $coords->galaxy;
-        $mission->system_to = $coords->system;
-        $mission->position_to = $coords->position;
+        $mission->galaxy_from = $parentMission->galaxy_to;
+        $mission->system_from = $parentMission->system_to;
+        $mission->position_from = $parentMission->position_to;
+
+        $mission->galaxy_to = $parentMission->galaxy_from;
+        $mission->system_to = $parentMission->system_from;
+        $mission->position_to = $parentMission->position_from;
 
         // Fill in the units
         foreach ($units->units as $unit) {
@@ -309,26 +337,41 @@ abstract class GameMission
 
         // Define from string based on whether the planet is available or not.
         $from = '[coordinates]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/coordinates]';
-        if ($mission->planet_id_from !== null) {
-            $from = '[planet]' . $mission->planet_id_from . '[/planet]';
+        switch ($mission->type_from) {
+            case PlanetType::Planet->value:
+                if ($mission->planet_id_from !== null) {
+                    $from = __('planet') . ' [planet]' . $mission->planet_id_from . '[/planet]';
+                }
+                break;
+            case PlanetType::DebrisField->value:
+                $from = '[debrisfield]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/debrisfield]';
+                break;
+            case PlanetType::Moon->value:
+                // TODO: add check if moon exists based on moon_id_from when added later?
+                $from = __('moon') . ' [moon]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/moon]';
+                break;
         }
 
-        if ($return_resources->sum() > 0) {
+        $to = __('planet') . ' [planet]' . $mission->planet_id_to . '[/planet]';
+        // TODO: add check if moon exists based on moon_id_to when added later and add moon tag if it exists.
+
+        if ($return_resources->any()) {
             $params = [
                 'from' => $from,
-                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+                'to' => $to,
                 'metal' => (string)$mission->metal,
                 'crystal' => (string)$mission->crystal,
                 'deuterium' => (string)$mission->deuterium,
             ];
+
             $this->messageService->sendSystemMessageToPlayer($targetPlayer, ReturnOfFleetWithResources::class, $params);
         } else {
             $params = [
                 'from' => $from,
-                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+                'to' => $to,
             ];
-            $this->messageService->sendSystemMessageToPlayer($targetPlayer, ReturnOfFleet::class, $params);
 
+            $this->messageService->sendSystemMessageToPlayer($targetPlayer, ReturnOfFleet::class, $params);
         }
     }
 

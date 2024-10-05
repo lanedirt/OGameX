@@ -7,6 +7,7 @@ use OGame\GameMessages\ColonyEstablishFailAstrophysics;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -21,8 +22,15 @@ class ColonisationMission extends GameMission
     /**
      * @inheritdoc
      */
-    public function isMissionPossible(PlanetService $planet, ?PlanetService $targetPlanet, UnitCollection $units): MissionPossibleStatus
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        // Colonisation mission is only possible for planets.
+        if ($targetType !== PlanetType::Planet) {
+            return new MissionPossibleStatus(false);
+        }
+
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
+
         // If planet already exists, the mission is not possible.
         if ($targetPlanet !== null) {
             return new MissionPossibleStatus(false);
@@ -48,7 +56,7 @@ class ColonisationMission extends GameMission
         $target_planet = $this->planetServiceFactory->makeForCoordinate($target_coordinates);
 
         // Load the mission owner user
-        $player = $this->playerServiceFactory->make($mission->user_id);
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
 
         if ($target_planet != null) {
             // TODO: add unittest for this behavior.
@@ -100,7 +108,6 @@ class ColonisationMission extends GameMission
 
         // Create and start the return mission (if the colonisation mission had ships other than the colony ship itself).
         $this->startReturn($mission, new Resources(0, 0, 0, 0), $units);
-
     }
 
     /**
@@ -108,14 +115,14 @@ class ColonisationMission extends GameMission
      */
     protected function processReturn(FleetMission $mission): void
     {
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to);
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
         // Transport return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
 
         // Add resources to the origin planet (if any).
         $return_resources = $this->fleetMissionService->getResources($mission);
-        if ($return_resources->sum() > 0) {
+        if ($return_resources->any()) {
             $target_planet->addResources($return_resources);
         }
 

@@ -88,7 +88,8 @@ class UnitQueueService
                 $item['time_end'] - $item['time_start'],
                 $item['object_amount'],
                 $item['object_amount'] - $item['object_amount_progress'],
-                $time_countdown_next_single
+                $time_countdown_next_single,
+                $time_per_unit
             );
 
             $list[] = $viewModel;
@@ -102,7 +103,7 @@ class UnitQueueService
      * Retrieve current building build queue for a planet.
      *
      * @param int $planet_id
-     * @return Collection<UnitQueue>
+     * @return Collection<int, UnitQueue>
      */
     public function retrieveBuilding(int $planet_id): Collection
     {

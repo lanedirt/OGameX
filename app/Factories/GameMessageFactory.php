@@ -7,6 +7,7 @@ use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMessages\BattleReport;
 use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMessages\ColonyEstablishFailAstrophysics;
+use OGame\GameMessages\DebrisFieldHarvest;
 use OGame\GameMessages\EspionageReport;
 use OGame\GameMessages\FleetDeployment;
 use OGame\GameMessages\FleetDeploymentWithResources;
@@ -39,6 +40,7 @@ class GameMessageFactory
         'fleet_deployment_with_resources' => FleetDeploymentWithResources::class,
         'espionage_report' => EspionageReport::class,
         'battle_report' => BattleReport::class,
+        'debris_field_harvest' => DebrisFieldHarvest::class,
     ];
 
     /**
@@ -50,7 +52,7 @@ class GameMessageFactory
         foreach (self::$gameMessageClasses as $id => $class) {
             try {
                 // Create a new instance of the game message class and pass a new (empty) Message object to it.
-                $gameMessages[$id] = app()->make($class, ['message' => new Message()]);
+                $gameMessages[$id] = resolve($class, ['message' => new Message()]);
             } catch (BindingResolutionException $e) {
                 throw new \RuntimeException('Game message not found: ' . $class);
             }
@@ -67,7 +69,7 @@ class GameMessageFactory
     public static function createGameMessage(Message $message): GameMessage
     {
         try {
-            return app()->make(self::$gameMessageClasses[$message->key], ['message' => $message]);
+            return resolve(self::$gameMessageClasses[$message->key], ['message' => $message]);
         } catch (BindingResolutionException $e) {
             throw new \RuntimeException('Game message not found: ' . $message->key);
         }
@@ -87,7 +89,7 @@ class GameMessageFactory
 
         foreach (self::$gameMessageClasses as $id => $className) {
             try {
-                $gameMessage = app()->make($className);
+                $gameMessage = resolve($className);
                 if ($gameMessage->getTab() === $tab && ($subtab === null || $gameMessage->getSubtab() === $subtab)) {
                     $matchingKeys[] = $id;
                 }
