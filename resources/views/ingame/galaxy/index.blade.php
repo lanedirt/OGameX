@@ -12,7 +12,7 @@
         <script type="text/javascript">
             var galaxy = {{ $current_galaxy }};
             var system = {{ $current_system }};
-            var maxGalaxies = 6;
+            var maxGalaxies = {{ $max_galaxies }};
             var maxSystems = 499;
             var spionageAmount = 3;
             var contentLink = "{{ route('galaxy.ajax') }}";

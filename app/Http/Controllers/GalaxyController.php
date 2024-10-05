@@ -11,6 +11,7 @@ use OGame\Models\Planet;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 
 class GalaxyController extends OGameController
 {
@@ -29,10 +30,11 @@ class GalaxyController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
+     * @param SettingsService $settingsService
      * @param PlanetServiceFactory $planetServiceFactory
      * @return View
      */
-    public function index(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): View
+    public function index(Request $request, PlayerService $player, SettingsService $settingsService, PlanetServiceFactory $planetServiceFactory): View
     {
         $this->playerService = $player;
         $this->planetServiceFactory = $planetServiceFactory;
@@ -59,6 +61,7 @@ class GalaxyController extends OGameController
             'interplanetary_missiles_count' => 0,
             'used_slots' => 0,
             'max_slots' => 1,
+            'max_galaxies' => $settingsService->numberOfGalaxies(),
         ]);
     }
 
@@ -137,7 +140,7 @@ class GalaxyController extends OGameController
     {
         $planets_array = [
             [
-                'activity' => [],
+                'activity' => $this->getPlanetActivityStatus($planet),
                 'availableMissions' => $availableMissions,
                 'fleet' => [],
                 'imageInformation' => $planet->getPlanetType() . '_' . $planet->getPlanetImageType(),
@@ -402,5 +405,37 @@ class GalaxyController extends OGameController
                 'usedFleetSlots' => 1
             ],
         ]);
+    }
+
+    /**
+     * Get the activity status of the planet based on the last update time.
+     *
+     * @param PlanetService $planet
+     * @return array{
+     *     idleTime: int|null,
+     *     showActivity: int|bool,
+     *     showMinutes: bool
+     * }
+     */
+    private function getPlanetActivityStatus(PlanetService $planet): array
+    {
+        $lastActivity = $planet->getMinutesSinceLastUpdate();
+
+        $result = [
+            'showMinutes' => true, // TODO need to use the player option (Detailed activity display)
+        ];
+
+        if ($lastActivity > 60) {
+            $result['idleTime'] = null;
+            $result['showActivity'] = false;
+        } elseif ($lastActivity >= 15) {
+            $result['idleTime'] = $lastActivity;
+            $result['showActivity'] = 60;
+        } else {
+            $result['idleTime'] = null;
+            $result['showActivity'] = 15;
+        }
+
+        return $result;
     }
 }
