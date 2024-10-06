@@ -84,7 +84,7 @@ class PlanetServiceTest extends UnitTestCase
         $this->planetService->deductResources(new Resources(9999, 9999, 9999, 0));
     }
 
-    public function testFailAddInvalidResource()
+    public function testFailAddInvalidResource(): void
     {
 
         $this->expectException(\Exception::class);
@@ -93,7 +93,7 @@ class PlanetServiceTest extends UnitTestCase
 
     }
 
-    public function testAddValidResourceIndividually()
+    public function testAddValidResourceIndividually(): void
     {
         $this->createAndSetPlanetModel([
             'metal' => 1000,

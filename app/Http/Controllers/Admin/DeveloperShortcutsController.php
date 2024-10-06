@@ -101,7 +101,7 @@ class DeveloperShortcutsController extends OGameController
     {
         // Handle resource addition / subtraction
         foreach (ResourceType::cases() as $resourceType) {
-            if ($request->has('resource_' . $resourceType->value)) {
+            if ($request->has('resource_' . $resourceType->value) && is_array($request->post())) {
                 foreach ($request->post() as $req_key => $request_item) {
                     if (str_contains($req_key, 'resource_')) {
                         $resourceName = str_replace("resource_", "", $req_key);
