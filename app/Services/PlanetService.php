@@ -992,7 +992,7 @@ class PlanetService
     }
 
     /**
-     * @param string $resourceName
+     * @param ResourceType $resource
      * @param int|float $amount
      * @param bool $save_planet
      * @return void
