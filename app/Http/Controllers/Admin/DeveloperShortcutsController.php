@@ -102,10 +102,8 @@ class DeveloperShortcutsController extends OGameController
         // Handle resource addition / subtraction
         foreach (ResourceType::cases() as $resourceType) {
             if ($request->has('resource_' . $resourceType->value)) {
-                $type = $request->get('resource_' . $resourceType->value);
-                $resourceName = str_replace("resource_", "", $type);
                 if (isset($request->amount_of_resources)) {
-                    $playerService->planets->current()->addResource($resourceName, $request->amount_of_resources);
+                    $playerService->planets->current()->addResource($resourceType, $request->amount_of_resources);
                 }
             }
         }

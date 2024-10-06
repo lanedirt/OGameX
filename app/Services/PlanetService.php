@@ -998,11 +998,11 @@ class PlanetService
      * @return void
      * @throws Exception
      */
-    public function addResource(string $resourceName, int|float $amount, bool $save_planet = true): void
+    public function addResource(ResourceType $resource, int|float $amount, bool $save_planet = true): void
     {
 
-        if (in_array($resourceName, array_column(ResourceType::cases(), "value")) && isset($this->planet->{$resourceName})) {
-            $this->planet->{$resourceName} += $amount;
+        if (isset($this->planet->{$resource->value})) {
+            $this->planet->{$resource->value} += $amount;
             if ($save_planet) {
                 $this->save();
             }

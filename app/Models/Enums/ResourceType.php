@@ -7,7 +7,7 @@ namespace OGame\Models\Enums;
  */
 enum ResourceType: string
 {
-    case Energy = 'metal';
+    case Metal = 'metal';
 
     case Crystal = 'crystal';
 

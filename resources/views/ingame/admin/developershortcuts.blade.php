@@ -73,7 +73,7 @@
                                     </div>
                                     <div class="fieldwrapper" style="margin-bottom: 50px;">
                                         @foreach (\OGame\Models\Enums\ResourceType::cases() as $resource)
-                                            <input type="submit" name="resource_{{ $resource->value }}" class="btn_blue" value="{{$resource->value}}">
+                                            <input type="submit" name="resource_{{ $resource->value }}" class="btn_blue" value="{{$resource->name}}">
                                         @endforeach
                                     </div>
                                 </div>

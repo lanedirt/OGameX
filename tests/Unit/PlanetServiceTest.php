@@ -84,10 +84,10 @@ class PlanetServiceTest extends UnitTestCase
         $this->planetService->deductResources(new Resources(9999, 9999, 9999, 0));
     }
 
-    public function testFailAddInvalidResource(): void
+    public function testTestErrorFailAddInvalidResource(): void
     {
 
-        $this->expectException(\Exception::class);
+        $this->expectException(\TypeError::class);
 
         $this->planetService->addResource('invalidResourceName', 100);
 
@@ -101,7 +101,7 @@ class PlanetServiceTest extends UnitTestCase
             'deuterium' => 3000,
         ]);
         foreach (ResourceType::cases() as $validResource) {
-            $this->planetService->addResource($validResource->value, 100, false);
+            $this->planetService->addResource($validResource, 100, false);
         }
         $this->assertEquals([
             'metal' => 1100,
