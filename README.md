@@ -28,7 +28,7 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 
 ## 🖥️ Live demo
 - Main branch (nightly builds): [https://main.ogamex.dev](https://main.ogamex.dev)
-- Latest stable release **(0.7.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
+- Latest stable release **(0.8.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
 
 ## 📝 Table of Contents
 - [1. Example screenshots](#screenshots)
@@ -43,7 +43,8 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
   - [b) Production: Install OGameX using Docker](#production)
   - [c) Tips for initial setup](#tips-for-initial-setup)
 - [8. Support](#support)
-- [9. License](#license)
+- [9. Sponsorship](#sponsorship)
+- [10. License](#license)
 
 ## <a name="screenshots"></a> 🖥️ Example screenshots
 <img width="1130" alt="Screenshot 2024-04-28 at 16 57 38" src="https://github.com/lanedirt/OGameX/assets/6917405/ae1a4852-5c88-42ad-9242-27c8e088577c">
@@ -62,35 +63,34 @@ The primary goal of this fan-based project is to engineer a faithful rendition o
 
 OGameX is under active development with several core features already implemented:
 
-- Basic registration and login
-- Planet creation and resource management (metal, crystal, deuterium, energy)
+- Registration and login
+- Planets and resource management (metal, crystal, deuterium, energy)
 - Building and updating resources, facilities, shipyards, and defenses
-- Basic galaxy overview
+- Galaxy overview
 - Planet switching
 - Highscore system
-- Basic messages system
+- Messages system
 - Battle system
+- Basic admin panel
 - Fleet dispatch missions
   - Transport
   - Deployment
   - Colonisation
   - Espionage
   - Attack
-- Basic admin panel
+  - Recycle
 
 ### <a name="upcoming-features"></a> a) Upcoming Features
 
 New features are continuously being added. Upcoming major features:
-- Recycle fleet dispatch mission
 - Support for Moons 
   - Moon creation through debris field after battle
   - Moon buildings
   - Phalanx
   - Moon destruction fleet dispatch mission
-- ACS fleet dispatch missions
 - Alliance system
-- Improve galaxy overview
-- Improve message system
+- ACS fleet dispatch missions
+
 
 ## <a name="contributing"></a> 🚀 Contributing
 
@@ -120,7 +120,16 @@ See the full list of requirements for Laravel 11.x and how to deploy to a server
 For local development you can run the default docker-compose file that is included in this repository. This configuration is optimized for development and includes several tools that are useful for debugging and testing.
 
 1. Clone the repository.
+  ```
+  $ git clone https://github.com/lanedirt/OGameX.git
+  $ cd OGameX
+  ```
+
 2. Copy `.env.example` to `.env`.
+  ```
+  $ cp .env.example .env
+  ```
+
 3. Launch the project using Docker Compose:
   ```
   $ docker compose up -d
@@ -149,7 +158,16 @@ several performance optimizations and security settings that are not present in 
 You should review all settings before deploying this project to a publicly accessible server.
 
 1. Clone the repository.
+  ```
+  $ git clone https://github.com/lanedirt/OGameX.git
+  $ cd OGameX
+  ```
+
 2. Copy `.env.example-prod` to `.env`.
+  ```
+  $ cp .env.example-prod .env
+  ```
+
 3. Launch the project using Docker Compose:
   ```
   $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
@@ -185,6 +203,31 @@ After completing the setup, visit https://localhost to access OGameX. You first 
 ## <a name="support"></a> 📞 Support
 
 Did you encounter issues in this project? Please open a ticket on GitHub and we'll try to help you out as soon as possible.
+
+## <a name="sponsorship"></a> 💰 Sponsorship
+We thank the following parties for sponsoring this project:
+
+<table>
+  <tr>
+    <td align="center" width="200px">
+      <a href="https://www.jetbrains.com/">
+        <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" width="100" alt="JetBrains Logo">
+      </a>
+      <br>
+      <strong>JetBrains</strong>
+      <br>
+      Providing free open-source licenses for PhpStorm, WebStorm, and DataGrip.
+    </td>
+    <td align="center" width="200px">
+      <!-- Placeholder for future sponsor -->
+    </td>
+    <td align="center" width="200px">
+      <!-- Placeholder for future sponsor -->
+    </td>
+  </tr>
+</table>
+
+Interested in supporting OGameX? We welcome sponsorships of all sizes! Your support helps us maintain and improve this open-source project. Please get in touch with us via GitHub or Discord to discuss sponsorship opportunities.
 
 ## <a name="license"></a> 📰 License
 
