@@ -47,9 +47,13 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 - [10. License](#license)
 
 ## <a name="screenshots"></a> 🖥️ Example screenshots
-<img width="1130" alt="Screenshot 2024-04-28 at 16 57 38" src="https://github.com/lanedirt/OGameX/assets/6917405/ae1a4852-5c88-42ad-9242-27c8e088577c">
-<img width="1174" alt="Screenshot 2024-04-28 at 16 57 09" src="https://github.com/lanedirt/OGameX/assets/6917405/f586c9f0-c335-45ae-bdb6-8793dda83103">
-<img width="1142" alt="Screenshot 2024-04-28 at 16 58 08" src="https://github.com/lanedirt/OGameX/assets/6917405/37a419e0-5ace-457d-b1b7-382dc317782c">
+
+
+<img width="1142" alt="Screenshot 2024-10-06 at 15 41 14" src="https://github.com/user-attachments/assets/7f9041ad-82cd-42b0-acd1-0036c0f49da2">
+<img width="1129" alt="Screenshot 2024-10-06 at 15 41 45" src="https://github.com/user-attachments/assets/d8a9e612-1433-4750-9f5f-05246f642740">
+<img width="1142" alt="Screenshot 2024-10-06 at 15 42 05" src="https://github.com/user-attachments/assets/aaf9ede8-0aab-4985-87f5-3016eef4fa5f">
+<img width="1132" alt="Screenshot 2024-10-06 at 15 42 44" src="https://github.com/user-attachments/assets/cb112ca3-73d5-42ba-98f1-be844533be41">
+<img width="1147" alt="Screenshot 2024-10-06 at 15 43 18" src="https://github.com/user-attachments/assets/d90a0651-c841-4f3a-a119-8abde4c45b90">
 
 ## <a name="author"></a> ✨ About the author
 
