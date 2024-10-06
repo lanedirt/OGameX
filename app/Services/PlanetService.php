@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\ResourceType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
@@ -988,6 +989,27 @@ class PlanetService
         if ($save_planet) {
             $this->save();
         }
+    }
+
+    /**
+     * @param ResourceType $resource
+     * @param int|float $amount
+     * @param bool $save_planet
+     * @return void
+     * @throws Exception
+     */
+    public function addResource(ResourceType $resource, int|float $amount, bool $save_planet = true): void
+    {
+
+        if (isset($this->planet->{$resource->value})) {
+            $this->planet->{$resource->value} += $amount;
+            if ($save_planet) {
+                $this->save();
+            }
+        } else {
+            throw new Exception('Invalid Resource');
+        }
+
     }
 
     /**

@@ -131,5 +131,6 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
         // Developer shortcuts
         Route::get('/admin/developer-shortcuts', 'DeveloperShortcutsController@index')->name('admin.developershortcuts.index');
         Route::post('/admin/developer-shortcuts', 'DeveloperShortcutsController@update')->name('admin.developershortcuts.update');
+        Route::post('/admin/developer-shortcuts/resources', 'DeveloperShortcutsController@updateResources')->name('admin.developershortcuts.update-resources');
     });
 });
