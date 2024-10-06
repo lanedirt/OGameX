@@ -86,6 +86,7 @@ class ResearchObjects
         $hyperspaceTechnology->description_long = 'In theory, the idea of hyperspace travel relies on the existence of a separate and adjacent dimension. When activated, a hyperspace drive shunts the starship into this other dimension, where it can cover vast distances in an amount of time greatly reduced from the time it would take in "normal" space. Once it reaches the point in hyperspace that corresponds to its destination in real space, it re-emerges.
 Once a sufficient level of Hyperspace Technology is researched, the Hyperspace Drive is no longer just a theory. Each improvement to this drive increases the load capacity of your ships by 5% of the base value.';
         $hyperspaceTechnology->requirements = [
+            new GameObjectRequirement('research_lab', 7),
             new GameObjectRequirement('energy_technology', 5),
             new GameObjectRequirement('laser_technology', 7),
             new GameObjectRequirement('ion_technology', 5),
@@ -172,6 +173,7 @@ With each level of the Combustion Drive developed, the speed of small and large 
         $hyperspaceDrive->description = 'Hyperspace drive warps space around a ship. The development of this drive makes some ships faster, although each level increases speed by only 30 % of the base value.';
         $hyperspaceDrive->description_long = 'In the immediate vicinity of the ship, the space is warped so that long distances can be covered very quickly. The more the Hyperspace Drive is developed, the stronger the warped nature of the space, whereby the speed of the ships equipped with it (Battlecruisers, Battleships, Destroyers, Deathstars, Pathfinders and Reapers) increase by 30% per level. Additionally, the bomber is built with a Hyperspace Drive as soon as research reaches level 8. As soon as Hyperspace Drive research reaches level 15, the Recycler is refitted with a Hyperspace Drive.';
         $hyperspaceDrive->requirements = [
+            new GameObjectRequirement('research_lab', 7),
             new GameObjectRequirement('energy_technology', 1),
             new GameObjectRequirement('hyperspace_technology', 3),
         ];
