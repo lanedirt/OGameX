@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers\Admin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
+use OGame\Models\Enums\ResourceType;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
@@ -93,6 +94,24 @@ class DeveloperShortcutsController extends OGameController
         }
 
 
+        return redirect()->route('admin.developershortcuts.index')->with('success', __('Changes saved!'));
+    }
+
+    public function updateResources(\Illuminate\Http\Request $request, PlayerService $playerService): RedirectResponse
+    {
+        // Handle resource addition / subtraction
+        foreach (ResourceType::cases() as $resourceType) {
+            if ($request->has('resource_' . $resourceType->value)) {
+                foreach ($request->post() as $req_key => $request_item) {
+                    if (str_contains($req_key, 'resource_')) {
+                        $resourceName = str_replace("resource_", "", $req_key);
+                        if (isset($request->amount_of_resources)) {
+                            $playerService->planets->current()->addResource($resourceName, $request->amount_of_resources);
+                        }
+                    }
+                }
+            }
+        }
         return redirect()->route('admin.developershortcuts.index')->with('success', __('Changes saved!'));
     }
 }

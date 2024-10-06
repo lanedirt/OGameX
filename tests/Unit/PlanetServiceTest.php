@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
+use OGame\Models\Enums\ResourceType;
 use OGame\Models\Resources;
 use Tests\UnitTestCase;
 
@@ -10,6 +11,7 @@ class PlanetServiceTest extends UnitTestCase
 {
     /**
      * Set up common test components.
+     *
      * @throws BindingResolutionException
      */
     protected function setUp(): void
@@ -80,5 +82,35 @@ class PlanetServiceTest extends UnitTestCase
 
         // Call the method that should throw the exception
         $this->planetService->deductResources(new Resources(9999, 9999, 9999, 0));
+    }
+
+    public function testFailAddInvalidResource()
+    {
+
+        $this->expectException(\Exception::class);
+
+        $this->planetService->addResource('invalidResourceName', 100);
+
+    }
+
+    public function testAddValidResourceIndividually()
+    {
+        $this->createAndSetPlanetModel([
+            'metal' => 1000,
+            'crystal' => 2000,
+            'deuterium' => 3000,
+        ]);
+        foreach (ResourceType::cases() as $validResource) {
+            $this->planetService->addResource($validResource->value, 100, false);
+        }
+        $this->assertEquals([
+            'metal' => 1100,
+            'crystal' => 2100,
+            'deuterium' => 3100,
+        ], [
+            'metal' => $this->planetService->metal()->get(),
+            'crystal' => $this->planetService->crystal()->get(),
+            'deuterium' => $this->planetService->deuterium()->get(),
+        ]);
     }
 }
