@@ -1442,6 +1442,17 @@ class PlanetService
     }
 
     /**
+     * Get building count from planet
+     *
+     * @return int
+     */
+    public function getBuildingCount(): int
+    {
+        $queue = resolve(BuildingQueueService::class);
+        return $queue->processedBuildingItems($this->getPlanetId());
+    }
+
+    /**
      * Get planet average temperature.
      *
      * @return int
@@ -1684,4 +1695,5 @@ class PlanetService
         // Divide the score by 1000 to get the amount of points. Floor the result.
         return (int)floor($resources_spent / 1000);
     }
+
 }
