@@ -53,6 +53,7 @@ class OverviewController extends OGameController
         }
 
         $highscoreService = resolve(HighscoreService::class);
+        
         return view('ingame.overview.index')->with([
             'header_filename' => $player->planets->current()->getPlanetType(),
             'planet_name' => $player->planets->current()->getPlanetName(),
