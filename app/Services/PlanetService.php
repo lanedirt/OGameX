@@ -1449,7 +1449,7 @@ class PlanetService
     public function getBuildingCount(): int
     {
         $queue = resolve(BuildingQueueService::class);
-        return $queue->processedBuildingItems($this->getPlanetId());
+        return $queue->processedBuildingItems($this);
     }
 
     /**

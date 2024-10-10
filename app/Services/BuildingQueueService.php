@@ -175,11 +175,11 @@ class BuildingQueueService
      * @param int $planetId
      * @return int
      */
-    public function processedBuildingItems(int $planetId): int
+    public function processedBuildingItems(PlanetService $planet): int
     {
         // Fetch queue items that exist against the planet.
         return BuildingQueue::where([
-            ['planet_id', $planetId],
+            ['planet_id', $planet->getPlanetId()],
             ['processed', 1],
             ['canceled', 0],
         ])->count();
