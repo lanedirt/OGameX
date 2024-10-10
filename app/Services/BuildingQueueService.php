@@ -172,7 +172,7 @@ class BuildingQueueService
      * Get the processed buildings
      * building.
      *
-     * @param int $planetId
+     * @param PlanetService $planet
      * @return int
      */
     public function processedBuildingItems(PlanetService $planet): int
