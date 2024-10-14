@@ -12,7 +12,7 @@
     <script type="text/javascript">
         var textContent = [];
         textContent[0] = "@lang('Diameter'):";
-        textContent[1] = "{!! $planet_diameter !!}km (<span>{{ $building_count }}<\/span>\/<span>188<\/span>)";
+        textContent[1] = "{!! $planet_diameter !!}km (<span>{{ $building_count }}<\/span>\/<span>{{ $max_building_count }}<\/span>)";
         textContent[2] = "@lang('Temperature'):";
         textContent[3] = "{!! $planet_temp_min !!}\u00b0C to {!! $planet_temp_max !!}\u00b0C";
         textContent[4] = "@lang('Position'):";

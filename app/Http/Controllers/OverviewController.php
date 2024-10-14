@@ -67,6 +67,7 @@ class OverviewController extends OGameController
             'user_honor_points' => 0, // @TODO
             'build_active' => $build_active,
             'building_count' => $player->planets->current()->getBuildingCount(),
+            'max_building_count' => $player->planets->current()->getPlanetFieldMax(),
             'build_queue' => $build_queue,
             'research_active' => $research_active,
             'research_queue' => $research_queue,

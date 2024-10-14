@@ -104,4 +104,53 @@ class PlanetServiceTest extends UnitTestCase
             'deuterium' => $this->planetService->deuterium()->get(),
         ]);
     }
+
+    /**
+     * Test that the field max function returns expected values
+     */
+    public function testGetPlanetFieldMax(): void
+    {
+        $this->createAndSetPlanetModel([
+            'field_max' => 90,
+        ]);
+        $this->assertEquals(90, $this->planetService->getPlanetFieldMax());
+
+
+        $this->createAndSetPlanetModel([
+            'field_max' => 14,
+        ]);
+        $this->assertEquals(14, $this->planetService->getPlanetFieldMax());
+    }
+
+    /**
+     * Tests building count returns valid buildings, and specified levels.
+     */
+    public function testGetPlanetBuildingCount(): void
+    {
+        $this->createAndSetPlanetModel([
+            'metal_mine' => 50,
+            'crystal_mine' => 20,
+            'small_cargo' => 10,
+            'destroyer' => 3,
+            'espionage_probe' => 2,
+            'rocket_launcher' => 1,
+        ]);
+
+        // Should only return valid buildings, ( ie metal_mine and crystal_mine )
+        $this->assertEquals(70, $this->planetService->getBuildingCount());
+
+        // Do another test to ensure sum is correct.
+        $this->createAndSetPlanetModel([
+            'metal_mine' => 50,
+            'crystal_mine' => 50,
+            'solar_plant' => 50,
+            'destroyer' => 3,
+            'espionage_probe' => 2,
+            'rocket_launcher' => 44,
+        ]);
+
+        // Should only return valid buildings, ( ie metal_mine crystal_mine, solar_plant )
+        $this->assertEquals(150, $this->planetService->getBuildingCount());
+
+    }
 }

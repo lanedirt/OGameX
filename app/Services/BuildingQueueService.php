@@ -169,24 +169,6 @@ class BuildingQueueService
     }
 
     /**
-     * Get the processed buildings
-     * building.
-     *
-     * @param PlanetService $planet
-     * @return int
-     */
-    public function processedBuildingItems(PlanetService $planet): int
-    {
-        // Fetch queue items that exist against the planet.
-        return BuildingQueue::where([
-            ['planet_id', $planet->getPlanetId()],
-            ['processed', 1],
-            ['canceled', 0],
-        ])->count();
-
-    }
-
-    /**
      * Start building the next item in the queue (if available).
      *
      * This actually starts the building process and deducts the resources
