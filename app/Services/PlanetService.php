@@ -349,6 +349,14 @@ class PlanetService
     }
 
     /**
+     * @return int
+     */
+    public function getPlanetFieldMax(): int
+    {
+        return $this->planet->field_max;
+    }
+
+    /**
      * Get planet metal production per second (decimal number).
      *
      * @return float
@@ -1442,6 +1450,16 @@ class PlanetService
     }
 
     /**
+     * Get building count from planet
+     *
+     * @return int
+     */
+    public function getBuildingCount(): int
+    {
+        return collect($this->getBuildingArray())->sum();
+    }
+
+    /**
      * Get planet average temperature.
      *
      * @return int
@@ -1684,4 +1702,5 @@ class PlanetService
         // Divide the score by 1000 to get the amount of points. Floor the result.
         return (int)floor($resources_spent / 1000);
     }
+
 }
