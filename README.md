@@ -22,7 +22,7 @@
 
 OGameX is an open-source OGame redesign clone. This clone is built fully from scratch using the Laravel 11.x framework and uses modern PHP practices. All major functionality is covered by unit and feature tests which automatically run on every build. 
 
-We welcome any and all contributions to this project! If you want to help out, please read the [contributing](#contributing) section. If you have any questions you can [join the OGameX discord](https://discord.gg/MvDzTNpc)  where you can chat with the maintainers and contributors.
+We welcome any and all contributions to this project! If you want to help out, please read the [contributing](#contributing) section. If you have any questions you can [join the OGameX discord](https://discord.com/invite/HJ4QRxxB5N) to get in touch with the maintainers and other contributors.
 
 Disclaimer: this project is purely fan-based and does not contain any commercial features. All backend code is written from scratch. The rights and concepts for the artwork and frontend belong to the original creators: GameForge GmbH. Support them by checking out the official version: https://ogame.org.
 
