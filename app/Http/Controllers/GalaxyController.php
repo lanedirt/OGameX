@@ -57,8 +57,8 @@ class GalaxyController extends OGameController
             'current_galaxy' => $galaxy,
             'current_system' => $system,
             'espionage_probe_count' => $planet->getObjectAmount('espionage_probe'),
-            'recycler_count' => 0,
-            'interplanetary_missiles_count' => 0,
+            'recycler_count' => $planet->getObjectAmount('recycler'),
+            'interplanetary_missiles_count' => $planet->getObjectAmount('interplanetary_missile'),
             'used_slots' => 0,
             'max_slots' => 1,
             'max_galaxies' => $settingsService->numberOfGalaxies(),
@@ -367,6 +367,8 @@ class GalaxyController extends OGameController
         $planet = $player->planets->current();
         $galaxy = $request->input('galaxy');
         $system = $request->input('system');
+        $galaxyContent = $this->getGalaxyArray($galaxy, $system, $player, $planetServiceFactory);
+        $slotsColonized = $this->calculateColonizedSlots($galaxyContent);
 
         return response()->json([
             'components' => [],
@@ -376,7 +378,7 @@ class GalaxyController extends OGameController
             'reservedPositions' => [],
             'success' => true,
             'system' => [
-                'availableMissiles' => 0,
+                'availableMissiles' => $planet->getObjectAmount('interplanetary_missile'),
                 'availablePathfinders' => 0,
                 'availableProbes' => $planet->getObjectAmount('espionage_probe'),
                 'availableRecyclers' => $planet->getObjectAmount('recycler'),
@@ -391,7 +393,7 @@ class GalaxyController extends OGameController
                 'deuteriumInDebris' => true,
                 'galaxy' => $galaxy,
                 'system' => $system,
-                'galaxyContent' => $this->getGalaxyArray($galaxy, $system, $player, $planetServiceFactory),
+                'galaxyContent' => $galaxyContent,
                 'hasAdmiral' => false,
                 'hasBirthdayPlanet' => false,
                 'isOutlaw' => false,
@@ -399,7 +401,7 @@ class GalaxyController extends OGameController
                 'playerId' => $player->getId(),
                 'settingsProbeCount' => 3,
                 'showOutlawWarning' => true,
-                'slotsColonized' => 3,
+                'slotsColonized' => $slotsColonized,
                 'switchGalaxyDeuteriumCosts' => 10,
                 'toGalaxyLink' => route('galaxy.index', ['galaxy' => $galaxy, 'system' => $system]),
                 'usedFleetSlots' => 1
@@ -437,5 +439,27 @@ class GalaxyController extends OGameController
         }
 
         return $result;
+    }
+
+    /**
+     * Calculate the number of colonized slots in the galaxy.
+     *
+     * @param array<int, array<string, mixed>> $galaxyContent
+     * @return int
+     */
+    private function calculateColonizedSlots(array $galaxyContent): int
+    {
+        $slotsColonized = 0;
+
+        foreach ($galaxyContent as $record) {
+            if (!empty($record['planets'])) {
+                $activePlanets = array_filter($record['planets'], function ($planet) {
+                    return empty($planet['isDestroyed']) && !empty($planet['playerId']);
+                });
+                $slotsColonized += count($activePlanets);
+            }
+        }
+
+        return $slotsColonized;
     }
 }
