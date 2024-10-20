@@ -639,4 +639,74 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertEquals($battleReport->debris['crystal'], $debrisResources->crystal->get(), 'Debris field crystal in database does not match battle report.');
         $this->assertEquals($battleReport->debris['deuterium'], $debrisResources->deuterium->get(), 'Debris field deuterium in database does not match battle report.');
     }
+
+    /**
+     * Assert that a battle with a large amount of units works correctly and creates a debris field.
+     */
+    public function testLargeScaleAttackWithDebrisField(): void
+    {
+        // Set time to static time 2024-01-01
+        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
+        Carbon::setTestNow($startTime);
+
+        // Prepare attacker fleet
+        $this->planetAddUnit('cruiser', 700000);
+        $this->planetAddUnit('battle_ship', 100000);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('cruiser'), 700000);
+        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('battle_ship'), 100000);
+
+        // Send fleet to a nearby foreign planet
+        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Prepare defender units
+        $foreignPlanet->addUnit('plasma_turret', 20000);
+        $foreignPlanet->addUnit('rocket_launcher', 100000);
+
+        // Ensure that there is no debris field on the foreign planet
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        if ($debrisFieldService->loadForCoordinates($foreignPlanet->getPlanetCoordinates())) {
+            $debrisFieldService->delete();
+        }
+
+        // Get fleet mission
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+
+        // Calculate fleet mission duration
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+
+        // Set time to fleet mission duration + 1 second
+        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 1);
+        Carbon::setTestNow($fleetParentTime);
+
+        // Reload application to make sure the planet is not cached
+        $this->reloadApplication();
+
+        // Trigger the update logic
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the fleet mission is processed without errors
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Large-scale fleet mission was not processed successfully.');
+
+        // Get the battle report
+        $battleReport = BattleReport::orderBy('id', 'desc')->first();
+        $this->assertNotNull($battleReport, 'Battle report was not created for large-scale attack.');
+
+        // Assert that the battle report contains debris field information
+        $this->assertNotEmpty($battleReport->debris, 'Battle report does not contain debris field information for large-scale attack.');
+        $this->assertGreaterThan(0, $battleReport->debris['metal'] + $battleReport->debris['crystal'] + $battleReport->debris['deuterium'], 'Debris field in battle report is empty for large-scale attack.');
+
+        // Assert that a debris field was actually created in the database
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldExists = $debrisFieldService->loadForCoordinates($foreignPlanet->getPlanetCoordinates());
+        $this->assertTrue($debrisFieldExists, 'Debris field was not created in the database for large-scale attack.');
+
+        $debrisResources = $debrisFieldService->getResources();
+        $this->assertGreaterThan(0, $debrisResources->metal->get() + $debrisResources->crystal->get() + $debrisResources->deuterium->get(), 'Debris field resources are empty for large-scale attack.');
+    }
 }

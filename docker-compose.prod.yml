@@ -4,7 +4,7 @@ services:
   ogame-app:
     volumes:
       - ./:/var/www
-      - ./php/local.ini:/.usr/local/etc/php/conf.d/local.ini
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
     build:
       context: .
       dockerfile: Dockerfile
