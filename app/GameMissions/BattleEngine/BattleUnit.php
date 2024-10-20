@@ -25,11 +25,6 @@ class BattleUnit
     public int $originalShieldPoints;
 
     /**
-     * @var int The original attack power of the unit.
-     */
-    public int $originalAttackPower;
-
-    /**
      * @var int The current health points of the unit. Hull plating = structural integrity / 10.
      */
     public int $currentHullPlating;
@@ -44,7 +39,7 @@ class BattleUnit
     /**
      * @var int The attack power of the unit. This is the amount of damage the unit deals to another unit in a single round of combat.
      */
-    public int $currentAttackPower;
+    public int $attackPower;
 
     /**
      * Create a new BattleUnit object.
@@ -66,8 +61,7 @@ class BattleUnit
         $this->originalShieldPoints = $shieldPoints;
         $this->currentShieldPoints = $shieldPoints;
 
-        $this->originalAttackPower = $attackPower;
-        $this->currentAttackPower = $attackPower;
+        $this->attackPower = $attackPower;
     }
 
     /**

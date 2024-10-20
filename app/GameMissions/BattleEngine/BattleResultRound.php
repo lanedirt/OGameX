@@ -11,33 +11,6 @@ use OGame\GameObjects\Models\Units\UnitCollection;
  */
 class BattleResultRound
 {
-    /*
-   "attackerLosses": {"4492924": {"203": "1"}},
-            "attackerLossesInThisRound": {"4492924": {"203": "1"}},
-            "defenderLosses": [{"401": "15", "402": "45", "404": "1"}],
-            "defenderLossesInThisRound": [{"401": "15", "402": "45", "404": "1"}],
-            "statistic": {
-                "hitsAttacker": "361",
-                "hitsDefender": "66",
-                "absorbedDamageAttacker": "4448",
-                "absorbedDamageDefender": "3772",
-                "fullStrengthAttacker": "590656",
-                "fullStrengthDefender": "16740"
-            },
-                "c": {
-                    "4492924":
-                        {
-                            @foreach ($attacker_units_start->units as $unit)
-                            "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                            @endforeach
-                        }
-                },
-            "defenderShips": [{
-                @foreach ($defender_units_start->units as $unit)
-                "{{ $unit->unitObject->id }}": {{ $unit->amount }},
-                @endforeach
-            }]  */
-
     /**
      * @var UnitCollection Unit losses of the attacker player until now which includes previous rounds.
      * TODO: now this only works for a single attacker. Support for multiple attackers should be added later.
