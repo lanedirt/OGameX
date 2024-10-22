@@ -373,6 +373,11 @@ class ObjectService
             return 0;
         }
 
+        // Objects only be able to be built once
+        if ($machine_name === 'small_shield_dome' || $machine_name === 'large_shield_dome') {
+            return $planet->getObjectAmount($machine_name) ? 0 : 1;
+        }
+
         $price = $this->getObjectPrice($machine_name, $planet);
 
         // Calculate max build amount based on price
