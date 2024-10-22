@@ -99,12 +99,16 @@ abstract class AbstractUnitsController extends OGameController
                 // Check if the current planet has enough resources to build this building.
                 $enough_resources = $planet->hasResources($objects->getObjectPrice($object->machine_name, $planet));
 
+                // Get maximum build amount of this building
+                $max_build_amount = $objects->getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met);
+
                 $view_model = new UnitViewModel();
                 $view_model->object = $object;
                 $view_model->count = $count;
                 $view_model->amount = $amount;
                 $view_model->requirements_met = $requirements_met;
                 $view_model->enough_resources = $enough_resources;
+                $view_model->max_build_amount = $max_build_amount;
                 $view_model->currently_building = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name);
                 $view_model->currently_building_amount = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name) ? $build_active->object_amount_remaining : 0;
 
