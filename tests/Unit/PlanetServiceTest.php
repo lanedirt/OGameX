@@ -121,7 +121,49 @@ class PlanetServiceTest extends UnitTestCase
         ]);
         $this->assertEquals(14, $this->planetService->getPlanetFieldMax());
     }
+    /**
+     * Test that the field max function with terraformer returns expected values
+     */
+    public function testGetPlanetFieldMaxWithTerraformer(): void
+    {
 
+        // Test none divisible by 2-- should only add 5.
+        $this->createAndSetPlanetModel([
+            'field_max' => 90,
+            'terraformer' => 1,
+        ]);
+
+        $this->assertEquals(95, $this->planetService->getPlanetFieldMax());
+
+
+        // Test a divisible of 2, should add 5, and +1 bonus.
+        $this->createAndSetPlanetModel([
+            'field_max' => 150,
+            'terraformer' => 2,
+        ]);
+
+        $this->assertEquals(161, $this->planetService->getPlanetFieldMax());
+
+        // Larger divisible
+        $this->createAndSetPlanetModel([
+            'field_max' => 100,
+            'terraformer' => 20,
+        ]);
+
+        // 100 base, plus 20*5 = 200
+        // - each level + 5 max fields,
+        // - every 2 levels + 1 max field- 20/2 = 210
+        $this->assertEquals(210, $this->planetService->getPlanetFieldMax());
+
+
+        // Ensure if it's not built it doesn't alter the max fields.
+        $this->createAndSetPlanetModel([
+            'field_max' => 100,
+            'terraformer' => 0,
+        ]);
+
+        $this->assertEquals(100, $this->planetService->getPlanetFieldMax());
+    }
     /**
      * Tests building count returns valid buildings, and specified levels.
      */

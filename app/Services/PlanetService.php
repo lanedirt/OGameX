@@ -353,7 +353,20 @@ class PlanetService
      */
     public function getPlanetFieldMax(): int
     {
-        return $this->planet->field_max;
+        $extra_fields = 0;
+        if ($this->planet->terraformer != 0) {
+            // For every level, it increases by 5
+            $extra_fields += $this->planet->terraformer * 5;
+
+            // For every 2 levels, it adds another bonus field
+            $two_level_bonus_count = (int)(floor($this->planet->terraformer / 2));
+            if ($two_level_bonus_count != 0) {
+                $extra_fields += $two_level_bonus_count;
+
+            }
+
+        }
+        return $extra_fields + $this->planet->field_max;
     }
 
     /**
