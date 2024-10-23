@@ -151,7 +151,7 @@ class PlanetServiceTest extends UnitTestCase
         ]);
 
         // each level + 5 max fields - 100 base, plus 20*5 = 200
-        // every 2 levels + 1 max field- 20/2 = 10, so 200 + 100 = 210
+        // every 2 levels + 1 max field- 20/2 = 10, so 200 + 10 = 210
         $this->assertEquals(210, $this->planetService->getPlanetFieldMax());
 
 
