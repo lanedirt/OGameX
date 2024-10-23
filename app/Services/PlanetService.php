@@ -360,10 +360,8 @@ class PlanetService
 
             // For every 2 levels, it adds another bonus field
             $two_level_bonus_count = (int)(floor($this->planet->terraformer / 2));
-            if ($two_level_bonus_count != 0) {
-                $extra_fields += $two_level_bonus_count;
+            $extra_fields += $two_level_bonus_count;
 
-            }
 
         }
         return $extra_fields + $this->planet->field_max;
