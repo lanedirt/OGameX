@@ -362,7 +362,6 @@ class PlanetService
             $two_level_bonus_count = (int)(floor($this->planet->terraformer / 2));
             $extra_fields += $two_level_bonus_count;
 
-
         }
         return $extra_fields + $this->planet->field_max;
     }
