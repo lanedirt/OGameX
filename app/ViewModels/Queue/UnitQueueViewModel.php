@@ -12,7 +12,6 @@ class UnitQueueViewModel extends QueueViewModel
     public int $time_countdown_object_next;
     public int $time_countdown_per_object;
 
-
     /**
      * Constructor.
      *

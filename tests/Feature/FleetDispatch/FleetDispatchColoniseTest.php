@@ -319,7 +319,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
 
-
         // Assert that the cargo ships have returned without the colony ship.
         $this->assertObjectLevelOnPage($response, 'colony_ship', 0);
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5);

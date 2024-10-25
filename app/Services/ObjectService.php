@@ -80,7 +80,6 @@ class ObjectService
         return array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
     }
 
-
     /**
      * Get all ship objects.
      *

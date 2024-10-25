@@ -1712,5 +1712,4 @@ class PlanetService
         // Divide the score by 1000 to get the amount of points. Floor the result.
         return (int)floor($resources_spent / 1000);
     }
-
 }
