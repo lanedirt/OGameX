@@ -152,7 +152,6 @@ class PlanetServiceTest extends UnitTestCase
         // every 2 levels + 1 max field- 20/2 = 10, so 200 + 10 = 210
         $this->assertEquals(210, $this->planetService->getPlanetFieldMax());
 
-
         // Ensure if it's not built it doesn't alter the max fields.
         $this->createAndSetPlanetModel([
             'field_max' => 100,
