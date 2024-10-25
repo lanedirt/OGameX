@@ -1,0 +1,21 @@
+{
+  "preset": "laravel",
+  "rules": {
+    "simplified_null_return": true,
+    "braces": false,
+    "no_extra_blank_lines": true,
+    "class_attributes_separation": {
+      "elements": {
+        "method": "one"
+      }
+    },
+    "single_blank_line_at_eof": true,
+    "new_with_parentheses": {
+      "anonymous_class": true,
+      "named_class": true
+    },
+    "control_structure_continuation_position": {
+      "position": "same_line"
+    }
+  }
+}

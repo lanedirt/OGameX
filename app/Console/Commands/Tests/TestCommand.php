@@ -283,5 +283,4 @@ abstract class TestCommand extends Command
             }
         }
     }
-
 }

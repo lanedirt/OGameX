@@ -345,7 +345,6 @@ abstract class AccountTestCase extends TestCase
         }
     }
 
-
     /**
      * Assert that the resources are as expected on the page.
      *
