@@ -173,11 +173,11 @@ abstract class AccountTestCase extends TestCase
     protected function getNearbyForeignPlanet(): PlanetService
     {
         // Find a planet of another player that is close to the current player by checking the same galaxy
-        // and up to 10 systems away.
+        // and up to 15 systems away.
         $planet_id = \DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
-            ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 10, $this->planetService->getPlanetCoordinates()->system + 10])
+            ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
             ->inRandomOrder()
             ->limit(1)
             ->pluck('id');
@@ -188,7 +188,7 @@ abstract class AccountTestCase extends TestCase
             $planet_id = \DB::table('planets')
                 ->where('user_id', '!=', $this->currentUserId)
                 ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
-                ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 10, $this->planetService->getPlanetCoordinates()->system + 10])
+                ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
                 ->inRandomOrder()
                 ->limit(1)
                 ->pluck('id');
