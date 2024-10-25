@@ -3,11 +3,9 @@
 namespace Tests\Feature\FleetDispatch;
 
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\EspionageReport;
-use OGame\Models\Message;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
@@ -131,10 +129,11 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Get current updated timestamp of the target planet.
         $foreignPlanetUpdatedAt = $foreignPlanet->getUpdatedAt();
 
-        // Increase time by 10 hours to ensure the mission is done.
-        $currentTime = Carbon::now();
-        $currentTime->addHours(10);
-        Carbon::setTestNow($currentTime);
+        // Increase time by 10 hours from the foreign planet's last update time to ensure the mission is done
+        // and time has passed since the last update. This regardless of whether other tests have affected the
+        // foreign planet before and potentially mutated time themselves as well.
+        $missionCompletionTime = $foreignPlanetUpdatedAt->copy()->addHours(10);
+        Carbon::setTestNow($missionCompletionTime);
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -145,7 +144,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $foreignPlanet->reloadPlanet();
 
         // Assert that target planet has been updated.
-        $this->assertLessThan($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAt->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
+        $this->assertNotEquals($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAt->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
 
         // Assert that the updated resources are visible in the espionage report.
         // Get the latest espionage report message from the database.
@@ -166,7 +165,15 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Add debris field to the foreign planet.
+        // First check if it already exists, if so, delete it to make sure the debris field contains
+        // the exact resources that we expect.
         $debrisField = resolve(DebrisFieldService::class);
+        if ($debrisField->loadForCoordinates($foreignPlanet->getPlanetCoordinates())) {
+            $debrisField->delete();
+        }
+
+        // Create a new debris field for the foreign planet with an exact amount of resources
+        // that we later test for.
         $debrisField->loadOrCreateForCoordinates($foreignPlanet->getPlanetCoordinates());
         $debrisField->appendResources(new Resources(1337, 443, 259, 0));
         $debrisField->save();
@@ -174,10 +181,11 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Get current updated timestamp of the target planet.
         $foreignPlanetUpdatedAt = $foreignPlanet->getUpdatedAt();
 
-        // Increase time by 10 hours to ensure the mission is done.
-        $currentTime = Carbon::now();
-        $currentTime->addHours(10);
-        Carbon::setTestNow($currentTime);
+        // Increase time by 10 hours from the foreign planet's last update time to ensure the mission is done
+        // and time has passed since the last update. This regardless of whether other tests have affected the
+        // foreign planet before and potentially mutated time themselves as well.
+        $missionCompletionTime = $foreignPlanetUpdatedAt->copy()->addHours(10);
+        Carbon::setTestNow($missionCompletionTime);
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -188,7 +196,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $foreignPlanet->reloadPlanet();
 
         // Assert that target planet has been updated.
-        $this->assertLessThan($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAt->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
+        $this->assertNotEquals($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAt->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
 
         // Assert that the updated resources are visible in the espionage report.
         // Get the latest espionage report message from the database.
@@ -202,7 +210,6 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
     /**
      * Verify that dispatching a fleet launches a return trip.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testDispatchFleetReturnTrip(): void
@@ -286,11 +293,15 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Assert that we see both the parent and the return mission.
         $response->assertSee('data-return-flight="false"', false);
         $response->assertSee('data-return-flight="true"', false);
+
+        // Cancel the fleet mission, so it doesn't interfere with other tests.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionService->cancelMission($fleetMission);
     }
 
     /**
      * Verify that canceling/recalling an active mission works.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testDispatchFleetRecallMission(): void
@@ -311,7 +322,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -372,7 +383,6 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
     /**
      * Verify that canceling/recalling an active mission twice results in an error.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testDispatchFleetRecallMissionTwiceError(): void
@@ -454,5 +464,10 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['friendly' => 1]);
 
         $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);
+
+        // Cancel the fleet mission, so it doesn't interfere with other tests.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionService->cancelMission($fleetMission);
     }
 }

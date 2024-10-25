@@ -104,10 +104,16 @@ abstract class FleetDispatchTestCase extends AccountTestCase
 
     /**
      * Send a fleet to a planet of another player.
+     *
+     * @param UnitCollection $units
+     * @param Resources $resources
+     * @param int $assertStatus
+     * @return PlanetService
      */
     protected function sendMissionToOtherPlayer(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService
     {
         $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
+
         $this->dispatchFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, $assertStatus);
         return $nearbyForeignPlanet;
     }
