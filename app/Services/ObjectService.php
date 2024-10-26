@@ -329,21 +329,37 @@ class ObjectService
      * @param string $machine_name
      * @param PlanetService $planet
      * @param PlayerService $player
+     * @param int $level
      * @return bool
      */
-    public function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player): bool
+    public function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player, int $level = 0): bool
     {
         try {
             $object = $this->getObjectByMachineName($machine_name);
+
+            // Check if object prior levels are built or are in build queue
+            if($level) {
+                $current_level = $planet->getObjectLevel($object->machine_name);
+
+                // Check missing levels from build queue
+                for($i = $current_level + 1; $i < $level; $i++) {
+                    if(!$planet->isBuildingObject($object->machine_name, $i)) {
+                        return false;
+                    }
+                }
+            }
+
             foreach ($object->requirements as $requirement) {
                 // Load required object and check if requirements are met.
                 $object_required = $this->getObjectByMachineName($requirement->object_machine_name);
                 if ($object_required->type === GameObjectType::Research) {
-                    if ($player->getResearchLevel($object_required->machine_name) < $requirement->level) {
+                    if ($player->getResearchLevel($object_required->machine_name) < $requirement->level && !$player->isResearchingTech($requirement->object_machine_name, $requirement->level)) {
                         return false;
                     }
                 } else {
-                    if ($planet->getObjectLevel($object_required->machine_name) < $requirement->level) {
+                    // Check if requirements are met with existing buildings or with buildings on build queue.
+                    // Building queue is checked only for building queue objects, not for unit queue objects.
+                    if ($planet->getObjectLevel($object_required->machine_name) < $requirement->level && !$planet->isBuildingObject($requirement->object_machine_name, $requirement->level)) {
                         return false;
                     }
                 }

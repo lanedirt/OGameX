@@ -57,6 +57,23 @@ class BuildingQueueService
     }
 
     /**
+     * Get building queue items
+     *
+     * @return Collection<int, BuildingQueue>
+     */
+    public function retrieveQueueItems(PlanetService $planet): Collection
+    {
+        // Fetch queue items from model
+        return BuildingQueue::where([
+            ['planet_id', $planet->getPlanetId()],
+            ['processed', 0],
+            ['canceled', 0],
+        ])
+            ->orderBy('time_start', 'asc')
+            ->get();
+    }
+
+    /**
      * Add a building to the building queue for the current planet.
      *
      * @param PlanetService $planet
@@ -113,14 +130,7 @@ class BuildingQueueService
      */
     public function retrieveQueue(PlanetService $planet): BuildingQueueListViewModel
     {
-        // Fetch queue items from model
-        $queue_items = BuildingQueue::where([
-            ['planet_id', $planet->getPlanetId()],
-            ['processed', 0],
-            ['canceled', 0],
-        ])
-            ->orderBy('time_start', 'asc')
-            ->get();
+        $queue_items = $this->retrieveQueueItems($planet);
 
         // Convert to ViewModel array
         $list = array();
@@ -231,6 +241,14 @@ class BuildingQueueService
                 continue;
             }
 
+            // Sanity check: check if the building requirements are still met. If not,
+            // then cancel build request.
+            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $queue_item->object_level_target)) {
+                $this->cancel($planet, $queue_item->id, $queue_item->object_id);
+
+                continue;
+            }
+
             // All OK, deduct resources and start building process.
             $planet->deductResources($price);
 
@@ -277,26 +295,6 @@ class BuildingQueueService
 
         // If object is found: add canceled flag.
         if ($queue_item) {
-            // Gets all building queue records of this target level and all that
-            // come after it. So e.g. if user cancels build order for metal mine
-            // level 5 then any other already queued build orders for lvl 6,7,8 etc.
-            // will also be canceled.
-            $queue_items_higher_level = BuildingQueue::where([
-                ['planet_id', $planet->getPlanetId()],
-                ['object_id', $building_id],
-                ['object_level_target', '>', $queue_item->object_level_target],
-                ['processed', 0],
-                ['canceled', 0],
-            ])->get();
-
-            // Add canceled flag to all entries with a higher level (if any).
-            foreach ($queue_items_higher_level as $queue_item_higher_level) {
-                $queue_item_higher_level->building = 0;
-                $queue_item_higher_level->canceled = 1;
-
-                $queue_item_higher_level->save();
-            }
-
             // Give back resources if the current entry was already building.
             if ($queue_item->building === 1) {
                 $planet->addResources(new Resources($queue_item->metal, $queue_item->crystal, $queue_item->deuterium, 0));
@@ -308,8 +306,62 @@ class BuildingQueueService
 
             $queue_item->save();
 
+            // Check if requirements for all other items in the queue are still met.
+            // So e.g. if user cancels build order for metal mine
+            // level 5 then any other already queued build orders for lvl 6,7,8 etc.
+            // will also be canceled. Same applies to building requirements,
+            // if user cancels build order for robotics factory which is requirement
+            // for shipyard then shipyard will also be canceled.
+            // Requirements are checked only for building queue objects as
+            // unit queue objects cannot be canceled.
+            $this->cancelItemMissingRequirements($planet);
+
+            $research_queue = resolve('OGame\Services\ResearchQueueService');
+            $research_queue->cancelItemMissingRequirements($planet->getPlayer(), $planet);
+
             // Set the next queue item to start (if applicable)
             $this->start($planet);
+        }
+    }
+
+    /**
+     * Get is object in building queue
+     *
+     * @return bool
+     */
+    public function objectInBuildingQueue(PlanetService $planet, string $machine_name, int $level): bool
+    {
+        $queue_items = $this->retrieveQueueItems($planet);
+
+        foreach ($queue_items as $item) {
+            $object = $this->objects->getObjectById($item->object_id);
+
+            if($object->machine_name === $machine_name && $item->object_level_target === $level) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Cancel first building queue item missing requirements.
+     * This function will be called recursively when it cancels the item.
+     *
+     * @return void
+     */
+    public function cancelItemMissingRequirements(PlanetService $planet): void
+    {
+        $build_queue_items = $this->retrieveQueueItems($planet);
+
+        foreach ($build_queue_items as $build_queue_item) {
+            $object = $this->objects->getObjectById($build_queue_item->object_id);
+
+            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $build_queue_item->object_level_target)) {
+                $this->cancel($planet, $build_queue_item->id, $object->id);
+                break;
+            }
+
         }
     }
 }

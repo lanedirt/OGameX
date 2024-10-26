@@ -3,12 +3,17 @@
 namespace Tests\Unit;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use OGame\Models\BuildingQueue;
 use OGame\Models\Enums\ResourceType;
+use OGame\Models\Planet;
 use OGame\Models\Resources;
 use Tests\UnitTestCase;
 
 class PlanetServiceTest extends UnitTestCase
 {
+    use DatabaseTransactions;
+
     /**
      * Set up common test components.
      *
@@ -191,5 +196,25 @@ class PlanetServiceTest extends UnitTestCase
         // Should only return valid buildings, ( ie metal_mine crystal_mine, solar_plant )
         $this->assertEquals(150, $this->planetService->getBuildingCount());
 
+    }
+
+    /**
+     * Tests object building queue status.
+     */
+    public function testIsBuildingObject(): void
+    {
+        $planet = Planet::factory()->make(['id' => 1]);
+        $this->planetService->setPlanet($planet);
+
+        // Add level 3 shipyard to building queue
+        $queue = new BuildingQueue();
+        $queue->planet_id = $this->planetService->getPlanetId();
+        $queue->object_id = 21;
+        $queue->object_level_target = 3;
+        $queue->save();
+
+        $this->assertTrue($this->planetService->isBuildingObject('shipyard', 3));
+        $this->assertFalse($this->planetService->isBuildingObject('shipyard', 4));
+        $this->assertFalse($this->planetService->isBuildingObject('robot_factory', 3));
     }
 }

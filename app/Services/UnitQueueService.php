@@ -34,7 +34,7 @@ class UnitQueueService
     private UnitQueue $model;
 
     /**
-     * BuildingQueue constructor.
+     * UnitQueueService constructor.
      */
     public function __construct(ObjectService $objects)
     {
@@ -44,7 +44,7 @@ class UnitQueueService
     }
 
     /**
-     * Retrieve current building build queue for a planet.
+     * Retrieve current unit build queue for a planet.
      *
      * @param PlanetService $planet
      * @return UnitQueueListViewModel
@@ -100,7 +100,7 @@ class UnitQueueService
     }
 
     /**
-     * Retrieve current building build queue for a planet.
+     * Retrieve current unit build queue for a planet.
      *
      * @param int $planet_id
      * @return Collection<int, UnitQueue>

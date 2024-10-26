@@ -572,4 +572,15 @@ class PlayerService
         // Delete the actual user.
         $this->user->delete();
     }
+
+    /**
+     * Get is the player researching the tech or not
+     *
+     * @return bool
+     */
+    public function isResearchingTech(string $machine_name, int $level): bool
+    {
+        $research_queue = resolve('OGame\Services\ResearchQueueService');    
+        return $research_queue->objectInResearchQueue($this, $machine_name, $level);
+    }
 }
