@@ -336,7 +336,7 @@ class BuildingQueueService
         foreach ($queue_items as $item) {
             $object = $this->objects->getObjectById($item->object_id);
 
-            if($object->machine_name === $machine_name && $item->object_level_target === $level) {
+            if ($object->machine_name === $machine_name && $item->object_level_target === $level) {
                 return true;
             }
         }

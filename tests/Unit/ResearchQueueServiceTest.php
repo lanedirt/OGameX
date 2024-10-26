@@ -36,7 +36,7 @@ class ResearchQueueServiceTest extends UnitTestCase
     }
 
     /**
-     * Tests object is found from research queue 
+     * Tests object is found from research queue
      */
     public function testIsObjectInResearchQueue(): void
     {
@@ -79,6 +79,6 @@ class ResearchQueueServiceTest extends UnitTestCase
         $this->research_queue->cancelItemMissingRequirements($this->playerService, $this->planetService);
 
         // Assert that impulse drive is in research queue
-        $this->assertFalse($this->research_queue->objectInResearchQueue($this->playerService, 'impulse_drive', 1));       
+        $this->assertFalse($this->research_queue->objectInResearchQueue($this->playerService, 'impulse_drive', 1));
     }
 }

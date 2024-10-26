@@ -38,7 +38,7 @@ class BuildingQueueServiceTest extends UnitTestCase
     }
 
     /**
-     * Tests object is found from building queue 
+     * Tests object is found from building queue
      */
     public function testIsObjectInBuildingQueue(): void
     {

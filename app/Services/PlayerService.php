@@ -580,7 +580,7 @@ class PlayerService
      */
     public function isResearchingTech(string $machine_name, int $level): bool
     {
-        $research_queue = resolve('OGame\Services\ResearchQueueService');    
+        $research_queue = resolve('OGame\Services\ResearchQueueService');
         return $research_queue->objectInResearchQueue($this, $machine_name, $level);
     }
 }

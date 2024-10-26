@@ -399,7 +399,7 @@ class ResearchQueueService
     }
 
     /**
-     * Get is object in research queue 
+     * Get is object in research queue
      *
      * @return bool
      */
@@ -410,7 +410,7 @@ class ResearchQueueService
         foreach ($queue_items as $item) {
             $object = $this->objects->getObjectById($item->object_id);
 
-            if($object->machine_name === $machine_name && $item->object_level_target === $level) {
+            if ($object->machine_name === $machine_name && $item->object_level_target === $level) {
                 return true;
             }
         }

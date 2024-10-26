@@ -1469,11 +1469,11 @@ class PlanetService
         $object = $this->objects->getObjectByMachineName($machine_name);
 
         // Check only building queue objects
-        if($object->type !== GameObjectType::Building && $object->type !== GameObjectType::Station) {
+        if ($object->type !== GameObjectType::Building && $object->type !== GameObjectType::Station) {
             return false;
         }
 
-        $build_queue = resolve(BuildingQueueService::class);        
+        $build_queue = resolve(BuildingQueueService::class);
         return $build_queue->objectInBuildingQueue($this, $machine_name, $level);
     }
 

@@ -338,12 +338,12 @@ class ObjectService
             $object = $this->getObjectByMachineName($machine_name);
 
             // Check if object prior levels are built or are in build queue
-            if($level) {
+            if ($level) {
                 $current_level = $planet->getObjectLevel($object->machine_name);
 
                 // Check missing levels from build queue
-                for($i = $current_level + 1; $i < $level; $i++) {
-                    if(!$planet->isBuildingObject($object->machine_name, $i)) {
+                for ($i = $current_level + 1; $i < $level; $i++) {
+                    if (!$planet->isBuildingObject($object->machine_name, $i)) {
                         return false;
                     }
                 }
