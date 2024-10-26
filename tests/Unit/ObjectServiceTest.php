@@ -18,8 +18,6 @@ class ObjectServiceTest extends UnitTestCase
 
     /**
      * Set up common test components.
-     *
-     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {
