@@ -16,6 +16,7 @@ services:
     restart: unless-stopped
     tty: true
     environment:
+      CONTAINER_ROLE: app
       SERVICE_NAME: app
       SERVICE_TAGS: dev
     working_dir: /var/www
@@ -35,6 +36,20 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    networks:
+      - app-network
+  #Scheduler
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: digitalocean.com/php
+    depends_on:
+      - ogame-webserver
+    volumes:
+      - .:/var/www/html
+    environment:
+      CONTAINER_ROLE: scheduler
     networks:
       - app-network
 
