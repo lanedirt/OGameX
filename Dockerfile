@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
     vim \
     libzip-dev \
     unzip \
+    git \
     curl
 
 # Clear cache
