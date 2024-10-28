@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y \
     vim \
     libzip-dev \
     unzip \
-    git \
     curl
 
 # Clear cache
@@ -68,4 +67,9 @@ COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 
 # chmod and pass into entrypoint
 RUN ["chmod", "u+x", "/usr/local/bin/entrypoint"]
+
+# Switch user back to www
+USER www
+
+# Run entrypoint
 CMD ["/usr/local/bin/entrypoint"]
