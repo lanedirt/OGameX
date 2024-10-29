@@ -7,9 +7,7 @@ use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Highscore;
 use OGame\Models\User;
 use OGame\Services\HighscoreService;
-/**
- * @property-read User $players
- */
+
 class GenerateHighscore extends Command
 {
     /**
