@@ -339,7 +339,15 @@ class ObjectService
 
             // Check if object prior levels are built or are in build queue
             if ($level) {
-                $current_level = $planet->getObjectLevel($object->machine_name);
+                $current_level = 0;
+
+                if($object->type === GameObjectType::Research) {
+                    $current_level = $planet->getPlayer()->getResearchLevel($machine_name);
+                }
+                else {
+                    $current_level = $planet->getObjectLevel($object->machine_name);
+                }
+
                 // Check missing levels from build queue
                 for ($i = $current_level + 1; $i < $level; $i++) {
                     if (!$planet->isBuildingObject($object->machine_name, $i) && !$player->isResearchingTech($object->machine_name, $i)) {
