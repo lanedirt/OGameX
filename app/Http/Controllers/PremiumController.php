@@ -13,6 +13,8 @@ class PremiumController extends OGameController
      */
     public function index(): View
     {
+        $this->setBodyId('premium');
+
         return view('ingame.premium.index');
     }
 }
