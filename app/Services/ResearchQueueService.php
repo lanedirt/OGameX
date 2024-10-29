@@ -106,27 +106,6 @@ class ResearchQueueService
     }
 
     /**
-     * Get research queue items
-     *
-     * @return Collection<int, ResearchQueue>
-     */
-    public function retrieveQueueItems(PlayerService $player): Collection
-    {
-        // Fetch queue items from model
-        return $this->model
-            ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
-            ->join('users', 'planets.user_id', '=', 'users.id')
-            ->where([
-                ['users.id', $player->getId()],
-                ['research_queues.processed', 0],
-                ['research_queues.canceled', 0],
-            ])
-            ->select('research_queues.*')
-            ->orderBy('research_queues.time_start', 'asc')
-            ->get();
-    }
-
-    /**
      * Add a research object to the research queue for the current planet.
      *
      * @param PlayerService $player
@@ -405,7 +384,17 @@ class ResearchQueueService
      */
     public function objectInResearchQueue(PlayerService $player, string $machine_name, int $level): bool
     {
-        $queue_items = $this->retrieveQueueItems($player);
+        // Fetch queue items from model
+        $queue_items =  $this->model
+            ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
+            ->join('users', 'planets.user_id', '=', 'users.id')
+            ->where([
+                ['users.id', $player->getId()],
+                ['research_queues.canceled', 0],
+            ])
+            ->select('research_queues.*')
+            ->orderBy('research_queues.time_start', 'asc')
+            ->get();
 
         foreach ($queue_items as $item) {
             $object = $this->objects->getObjectById($item->object_id);
@@ -426,7 +415,18 @@ class ResearchQueueService
      */
     public function cancelItemMissingRequirements(PlayerService $player, PlanetService $planet): void
     {
-        $research_queue_items = $this->retrieveQueueItems($player);
+        // Fetch queue items from model
+        $research_queue_items = $this->model
+            ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
+            ->join('users', 'planets.user_id', '=', 'users.id')
+            ->where([
+                ['users.id', $player->getId()],
+                ['research_queues.processed', 0],
+                ['research_queues.canceled', 0],
+            ])
+            ->select('research_queues.*')
+            ->orderBy('research_queues.time_start', 'asc')
+            ->get();
 
         foreach ($research_queue_items as $research_queue_item) {
             $object = $this->objects->getObjectById($research_queue_item->object_id);
