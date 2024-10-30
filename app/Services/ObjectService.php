@@ -341,10 +341,9 @@ class ObjectService
             if ($level) {
                 $current_level = 0;
 
-                if($object->type === GameObjectType::Research) {
+                if ($object->type === GameObjectType::Research) {
                     $current_level = $planet->getPlayer()->getResearchLevel($machine_name);
-                }
-                else {
+                } else {
                     $current_level = $planet->getObjectLevel($object->machine_name);
                 }
 

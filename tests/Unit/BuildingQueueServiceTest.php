@@ -14,7 +14,6 @@ class BuildingQueueServiceTest extends AccountTestCase
     /**
      * Set up common test components.
      */
-
     protected function setUp(): void
     {
         parent::setUp();

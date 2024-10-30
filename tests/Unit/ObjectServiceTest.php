@@ -14,7 +14,7 @@ class ObjectServiceTest extends AccountTestCase
     /**
      * Set up common test components.
      */
-     protected function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
