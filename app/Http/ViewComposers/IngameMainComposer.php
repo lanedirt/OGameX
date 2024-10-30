@@ -5,7 +5,9 @@ namespace OGame\Http\ViewComposers;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 use OGame\Facades\AppUtil;
+use OGame\Models\Highscore;
 use OGame\Services\FleetMissionService;
 use OGame\Services\MessageService;
 use OGame\Services\PlayerService;
@@ -102,6 +104,10 @@ class IngameMainComposer
         // Get current locale
         $locale = App::getLocale();
 
+        $highscoreCount = Cache::remember('highscore-count', now()->addMinutes(5), function () {
+            return Highscore::count();
+        });
+
         $view->with([
             'underAttack' => $this->fleetMissionService->currentPlayerUnderAttack(),
             'unreadMessagesCount' => $this->messageService->getUnreadMessagesCount(),
@@ -109,6 +115,7 @@ class IngameMainComposer
             'currentPlayer' => $this->player,
             'currentPlanet' => $this->player->planets->current(),
             'planets' => $this->player->planets,
+            'highscoreCount' => $highscoreCount,
             'settings' => $this->settingsService,
             'body_id' => $body_id,
             'locale' => $locale,

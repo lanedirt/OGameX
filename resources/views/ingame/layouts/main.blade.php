@@ -100,7 +100,7 @@
                     </li>
                     <li>
                         <a href="{{ route('highscore.index') }}" accesskey="">@lang('Highscore')</a>
-                        (0)
+                        ( {{ $highscoreCount }} )
                     </li>
                     <li>
                         <a href="{{ route('notes.overlay') }}"
