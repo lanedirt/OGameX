@@ -135,6 +135,8 @@ class HighscoreService
 
         $count = 0;
         $highscores = Highscore::with('player')
+        ->ValidRanks()
+        ->orderBy($this->highscoreType->name.'_rank')
         ->paginate(perPage: $perPage, page: $pageOn);
         foreach ($highscores as $playerScore) {
 
@@ -146,7 +148,6 @@ class HighscoreService
             $mainPlanet = $playerService->planets->first();
 
             $score = $playerScore->{$this->highscoreType->name} ?? 0;
-
             $score_formatted = AppUtil::formatNumber($score);
 
             $parsedHighscores[] = [
@@ -159,7 +160,7 @@ class HighscoreService
             ];
         }
 
-        return Cache::remember('highscores'.$pageOn, now()->addMinutes(5), function () use ($parsedHighscores) {
+        return Cache::remember('highscores'.'-'.$this->highscoreType->name.'-'.$pageOn, now()->addMinutes(5), function () use ($parsedHighscores) {
             return $parsedHighscores;
         });
     }
