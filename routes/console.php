@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Support\Facades\Log;
+use OGame\Console\Commands\GenerateHighscore;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +13,4 @@ use Illuminate\Support\Facades\Log;
 |
 */
 
-Artisan::command('inspire', function () {
-    Log::info('I am a test!');
-})->describe('Display an inspiring quote')->everyMinute()->withoutOverlapping();
+Schedule::command(GenerateHighscore::class)->everyFiveMinutes();
