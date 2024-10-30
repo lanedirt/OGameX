@@ -243,7 +243,7 @@ class BuildingQueueService
 
             // Sanity check: check if the building requirements are still met. If not,
             // then cancel build request.
-            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $queue_item->object_level_target)) {
+            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $queue_item->object_level_target, false)) {
                 $this->cancel($planet, $queue_item->id, $queue_item->object_id);
 
                 continue;

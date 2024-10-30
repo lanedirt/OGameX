@@ -289,7 +289,7 @@ class ResearchQueueService
 
             // Sanity check: check if the researching requirements are still met. If not,
             // then cancel research request.
-            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $player, $queue_item->object_level_target)) {
+            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $player, $queue_item->object_level_target, false)) {
                 $this->cancel($player, $queue_item->id, $queue_item->object_id);
 
                 continue;
