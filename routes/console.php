@@ -1,6 +1,7 @@
 <?php
 
-use OGame\Console\Commands\GenerateHighscore;
+use OGame\Console\Commands\GenerateHighscores;
+use OGame\Console\Commands\GenerateHighscoreRanks;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,4 +14,5 @@ use OGame\Console\Commands\GenerateHighscore;
 |
 */
 
-Schedule::command(GenerateHighscore::class)->everyFiveMinutes();
+Schedule::command(GenerateHighscores::class)->everyFiveMinutes();
+Schedule::command(GenerateHighscoreRanks::class)->everyFiveMinutes();

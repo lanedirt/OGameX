@@ -2,10 +2,12 @@
 
 namespace OGame\Services;
 
+use Cache;
 use Exception;
+use OGame\Enums\HighscoreTypeEnum;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
-use OGame\Models\User;
+use OGame\Models\Highscore;
 
 /**
  * Class Highscore.
@@ -18,9 +20,9 @@ class HighscoreService
 {
     /**
      * Highscore type to calculate.
-     * @var int
+     * @var HighscoreTypeEnum
      */
-    private int $highscoreType;
+    private HighscoreTypeEnum $highscoreType;
 
     private PlayerServiceFactory $playerServiceFactory;
 
@@ -44,7 +46,7 @@ class HighscoreService
         // 1 = economy points
         // 2 = research points
         // 3 = military points
-        $this->highscoreType = $type;
+        $this->highscoreType = HighscoreTypeEnum::cases()[$type];
     }
 
     /**
@@ -120,75 +122,46 @@ class HighscoreService
     }
 
     /**
-     * Get highscore players.
+     * Get highscores.
      *
-     * @param int $offset_start
-     * @param int $return_amount
+     * @param int $perPage
+     * @param int $pageOn
      * @return array<int, array<string,mixed>>
-     * @throws Exception
      */
-    public function getHighscorePlayers(int $offset_start = 0, int $return_amount = 100): array
+    public function getHighscorePlayers(int $perPage = 100, int $pageOn = 1): array
     {
-        // Get all players
-        // TODO: when cached highscore results are available, remove this max 110 players limit.
-        // This limit is added to prevent loading all players in memory at once which causes timeout issues.
-        $players = User::take(110)->get();
-        $highscore = [];
-        $count = 0;
-        foreach ($players as $player) {
-            $count++;
+        // Get all player highscores
+        $parsedHighscores = [];
 
-            // TODO: we get the player score per player now, but we should get it from a cached highscore table
-            // to improve performance. Currently it works but is slow for large amounts of players.
-            // Load player object with all planets.
-            $playerService = $this->playerServiceFactory->make($player->id);
-            $score = 0;
-            switch ($this->highscoreType) {
-                case 1:
-                    $score = $this->getPlayerScoreEconomy($playerService);
-                    break;
-                case 2:
-                    $score = $this->getPlayerScoreResearch($playerService);
-                    break;
-                case 3:
-                    $score = $this->getPlayerScoreMilitary($playerService);
-                    break;
-                default:
-                    $score = $this->getPlayerScore($playerService);
-                    break;
-            }
+        $count = 0;
+        $highscores = Highscore::with('player')
+        ->paginate(perPage: $perPage, page: $pageOn);
+        foreach ($highscores as $playerScore) {
+
+            // Load player object
+            // TODO we only use this for the planet details now-- could we perhaps store the planet details in the highscore table too?.
+            $playerService = $this->playerServiceFactory->make($playerScore->player_id);
 
             // Get player main planet coords
             $mainPlanet = $playerService->planets->first();
 
+            $score = $playerScore->{$this->highscoreType->name} ?? 0;
+
             $score_formatted = AppUtil::formatNumber($score);
 
-            $highscore[] = [
-                'id' => $player->id,
-                'name' => $player->username,
+            $parsedHighscores[] = [
+                'id' => $playerScore->player_id,
+                'name' => $playerScore->player->username,
                 'points' => $score,
                 'points_formatted' => $score_formatted,
                 'planet_coords' => $mainPlanet->getPlanetCoordinates(),
-                'rank' => $count,
+                'rank' => $playerScore->{$this->highscoreType->name.'_rank'}
             ];
         }
 
-        // Order the array by points descending and reset the rank by counting up again.
-        usort($highscore, function ($a, $b) {
-            return $b['points'] <=> $a['points'];
+        return Cache::remember('highscores'.$pageOn, now()->addMinutes(5), function () use ($parsedHighscores) {
+            return $parsedHighscores;
         });
-        $count = 0;
-        foreach ($highscore as $key => &$value) {
-            $count++;
-            $value['rank'] = $count;
-        }
-
-        // Only return the requested 100 players based on starting rank.
-        if ($return_amount > 0) {
-            $highscore = array_slice($highscore, $offset_start, 100);
-        }
-
-        return $highscore;
     }
 
     /**
@@ -200,20 +173,9 @@ class HighscoreService
      */
     public function getHighscorePlayerRank(PlayerService $player): int
     {
-        // TODO: this is a slow method, we should cache the highscore list and get the rank from there.
-        // Get all players
-        $highscorePlayers = $this->getHighscorePlayers(0, 0);
 
         // Find the player in the highscore list to determine its rank.
-        $rank = 0;
-        foreach ($highscorePlayers as $highscorePlayer) {
-            $rank++;
-            if ($highscorePlayer['id'] === $player->getId()) {
-                return $rank;
-            }
-        }
-
-        return 0;
+        return Highscore::where('player_id', $player->getId())->first()->general_rank ?? 0;
     }
 
     /**
@@ -223,12 +185,8 @@ class HighscoreService
      */
     public function getHighscorePlayerAmount(): int
     {
-        // TODO: return actual player count again when caching is implemented.
-        $actualUserCount = User::count();
-        if ($actualUserCount > 110) {
-            return 110;
-        }
-
-        return $actualUserCount;
+        return Cache::remember('highscore-player-count', now()->addMinutes(5), function () {
+            return Highscore::query()->validRanks()->count();
+        });
     }
 }

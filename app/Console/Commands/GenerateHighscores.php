@@ -8,14 +8,14 @@ use OGame\Models\Highscore;
 use OGame\Models\User;
 use OGame\Services\HighscoreService;
 
-class GenerateHighscore extends Command
+class GenerateHighscores extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'ogamex:generate-highscore';
+    protected $signature = 'ogamex:generate-highscores';
 
     /**
      * The console command description.

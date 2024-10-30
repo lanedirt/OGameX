@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use OGame\Facades\AppUtil;
-use OGame\Models\Highscore;
 use OGame\Services\FleetMissionService;
+use OGame\Services\HighscoreService;
 use OGame\Services\MessageService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
@@ -28,6 +28,8 @@ class IngameMainComposer
     private SettingsService $settingsService;
     private FleetMissionService $fleetMissionService;
 
+    private HighscoreService $highscoreService;
+
     /**
      * IngameMainComposer constructor.
      *
@@ -40,13 +42,14 @@ class IngameMainComposer
      * @param SettingsService $settingsService
      * @param FleetMissionService $fleetMissionService
      */
-    public function __construct(Request $request, PlayerService $player, MessageService $messageService, SettingsService $settingsService, FleetMissionService $fleetMissionService)
+    public function __construct(Request $request, PlayerService $player, MessageService $messageService, SettingsService $settingsService, FleetMissionService $fleetMissionService, HighscoreService $highscoreService)
     {
         $this->request = $request;
         $this->player = $player;
         $this->messageService = $messageService;
         $this->settingsService = $settingsService;
         $this->fleetMissionService = $fleetMissionService;
+        $this->highscoreService = $highscoreService;
     }
 
     /**
@@ -104,8 +107,10 @@ class IngameMainComposer
         // Get current locale
         $locale = App::getLocale();
 
-        $highscoreCount = Cache::remember('highscore-count', now()->addMinutes(5), function () {
-            return Highscore::count();
+        $playerId = (string) $this->player->getId();
+
+        $highscoreRank = Cache::remember($playerId, now()->addMinutes(5), function () {
+            return $this->highscoreService->getHighscorePlayerRank($this->player);
         });
 
         $view->with([
@@ -115,7 +120,7 @@ class IngameMainComposer
             'currentPlayer' => $this->player,
             'currentPlanet' => $this->player->planets->current(),
             'planets' => $this->player->planets,
-            'highscoreCount' => $highscoreCount,
+            'highscoreRank' => $highscoreRank,
             'settings' => $this->settingsService,
             'body_id' => $body_id,
             'locale' => $locale,
