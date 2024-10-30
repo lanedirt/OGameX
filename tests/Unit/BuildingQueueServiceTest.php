@@ -2,37 +2,25 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use OGame\Models\BuildingQueue;
-use OGame\Models\Planet;
-use OGame\Models\User;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\ObjectService;
-use Tests\UnitTestCase;
+use Tests\AccountTestCase;
 
-class BuildingQueueServiceTest extends UnitTestCase
+class BuildingQueueServiceTest extends AccountTestCase
 {
-    use DatabaseTransactions;
-
     protected BuildingQueueService $building_queue;
-
-    protected User $player;
 
     /**
      * Set up common test components.
      */
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $object_service = new ObjectService();
         $this->building_queue = new BuildingQueueService($object_service);
-
-        $planet = Planet::factory()->make(['id' => 1]);
-        $this->planetService->setPlanet($planet);
-
-        $this->player = User::factory()->make(['id' => 1]);
-        $this->playerService->load(1);
     }
 
     /**
@@ -40,9 +28,6 @@ class BuildingQueueServiceTest extends UnitTestCase
      */
     public function testIsObjectInBuildingQueue(): void
     {
-        $planet = Planet::factory()->make(['id' => 1]);
-        $this->planetService->setPlanet($planet);
-
         // Add level 3 shipyard to building queue
         $queue = new BuildingQueue();
         $queue->planet_id = $this->planetService->getPlanetId();
@@ -58,7 +43,7 @@ class BuildingQueueServiceTest extends UnitTestCase
     /**
      * Tests building queue item is cancelled if requirements are not met.
      */
-    public function testCancelItemMissingRequirements(): void
+    public function testCancelObjectMissingRequirements(): void
     {
         // Add level 2 robot factory to building queue
         $queue_robot_factory = new BuildingQueue();

@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use OGame\Models\BuildingQueue;
 use OGame\Models\Enums\ResourceType;
 use OGame\Models\Planet;
@@ -12,8 +11,6 @@ use Tests\UnitTestCase;
 
 class PlanetServiceTest extends UnitTestCase
 {
-    use DatabaseTransactions;
-
     /**
      * Set up common test components.
      *

@@ -2,18 +2,13 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use OGame\Models\Planet;
 use OGame\Models\ResearchQueue;
-use OGame\Models\User;
 use OGame\Services\ObjectService;
 use OGame\Services\ResearchQueueService;
-use Tests\UnitTestCase;
+use Tests\AccountTestCase;
 
-class ResearchQueueServiceTest extends UnitTestCase
+class ResearchQueueServiceTest extends AccountTestCase
 {
-    use DatabaseTransactions;
-
     protected ResearchQueueService $research_queue;
 
     /**
@@ -25,12 +20,6 @@ class ResearchQueueServiceTest extends UnitTestCase
 
         $object_service = new ObjectService();
         $this->research_queue = new ResearchQueueService($object_service);
-
-        $planet = Planet::factory()->make(['id' => 1]);
-        $this->planetService->setPlanet($planet);
-
-        User::factory()->make(['id' => 1]);
-        $this->playerService->load(1);
     }
 
     /**
@@ -45,9 +34,9 @@ class ResearchQueueServiceTest extends UnitTestCase
         $queue->object_level_target = 3;
         $queue->save();
 
-        $this->assertTrue($this->research_queue->objectInResearchQueue($this->playerService, 'impulse_drive', 3));
-        $this->assertFalse($this->research_queue->objectInResearchQueue($this->playerService, 'impulse_drive', 4));
-        $this->assertFalse($this->research_queue->objectInResearchQueue($this->playerService, 'energy_technology', 4));
+        $this->assertTrue($this->research_queue->objectInResearchQueue($this->planetService->getPlayer(), 'impulse_drive', 3));
+        $this->assertFalse($this->research_queue->objectInResearchQueue($this->planetService->getPlayer(), 'impulse_drive', 4));
+        $this->assertFalse($this->research_queue->objectInResearchQueue($this->planetService->getPlayer(), 'energy_technology', 4));
     }
 
     /**
@@ -70,13 +59,13 @@ class ResearchQueueServiceTest extends UnitTestCase
         $queue->save();
 
         // Assert that impulse drive is in research queue
-        $this->assertTrue($this->research_queue->objectInResearchQueue($this->playerService, 'impulse_drive', 1));
+        $this->assertTrue($this->research_queue->objectInResearchQueue($this->planetService->getPlayer(), 'impulse_drive', 1));
 
         // Cancel energy technology
-        $this->research_queue->cancel($this->playerService, $queue_energy_tech->id, 113);
-        $this->research_queue->cancelItemMissingRequirements($this->playerService, $this->planetService);
+        $this->research_queue->cancel($this->planetService->getPlayer(), $queue_energy_tech->id, 113);
+        $this->research_queue->cancelItemMissingRequirements($this->planetService->getPlayer(), $this->planetService);
 
         // Assert that impulse drive is in research queue
-        $this->assertFalse($this->research_queue->objectInResearchQueue($this->playerService, 'impulse_drive', 1));
+        $this->assertFalse($this->research_queue->objectInResearchQueue($this->planetService->getPlayer(), 'impulse_drive', 1));
     }
 }
