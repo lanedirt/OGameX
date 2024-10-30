@@ -28,6 +28,10 @@ class Highscore extends Model
         'economy',
         'research',
         'military',
+        'general_rank',
+        'economy_rank',
+        'research_rank',
+        'military_rank',
     ];
 
     /**
