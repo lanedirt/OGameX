@@ -338,15 +338,6 @@ class ObjectService
         try {
             $object = $this->getObjectByMachineName($machine_name);
 
-            // Check that planet has research lab for research objects
-            if ($object->type === GameObjectType::Research) {
-                $research_lab = $planet->getObjectLevel('research_lab');
-
-                if (!$research_lab) {
-                    return false;
-                }
-            }
-
             // Check required prior levels
             if ($level) {
                 if (!$this->objectLevelsMet($object, $planet, $player, $level, $queued)) {
@@ -357,15 +348,22 @@ class ObjectService
             foreach ($object->requirements as $requirement) {
                 // Load required object and check if requirements are met.
                 $object_required = $this->getObjectByMachineName($requirement->object_machine_name);
+                $check_queue = $queued;
+
+                // SKip queue check for research lab as it must be present for research objects
+                if ($object_required->machine_name === 'research_lab') {
+                    $check_queue = false;
+                }
+
                 if ($object_required->type === GameObjectType::Research) {
                     // Check if requirements are met with existing technology or with research items in build queue.
-                    if ($player->getResearchLevel($object_required->machine_name) < $requirement->level && (!$queued || !$player->isResearchingTech($requirement->object_machine_name, $requirement->level))) {
+                    if ($player->getResearchLevel($object_required->machine_name) < $requirement->level && (!$check_queue || !$player->isResearchingTech($requirement->object_machine_name, $requirement->level))) {
                         return false;
                     }
                 } else {
                     // Check if requirements are met with existing buildings or with buildings in build queue.
                     // Building queue is checked only for building queue objects, not for unit queue objects.
-                    if ($planet->getObjectLevel($object_required->machine_name) < $requirement->level && (!$queued || !$planet->isBuildingObject($requirement->object_machine_name, $requirement->level))) {
+                    if ($planet->getObjectLevel($object_required->machine_name) < $requirement->level && (!$check_queue || !$planet->isBuildingObject($requirement->object_machine_name, $requirement->level))) {
                         return false;
                     }
                 }
