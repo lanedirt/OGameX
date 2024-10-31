@@ -109,6 +109,7 @@ class ResearchQueueTest extends AccountTestCase
         Carbon::setTestNow($testTime);
 
         // Check if one of the research items is finished and is now level 1.
+        $this->planetService->getPlayer()->updateResearchQueue();
         $response = $this->get('/research');
         $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'energy_technology', 1, 'Energy technology is not at level one 15 minutes after build request issued.');
