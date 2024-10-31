@@ -421,7 +421,6 @@ class ResearchQueueService
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
                 ['users.id', $player->getId()],
-                ['research_queues.processed', 0],
                 ['research_queues.canceled', 0],
             ])
             ->select('research_queues.*')
