@@ -23,15 +23,7 @@ class GlobalGame
     public function handle(Request $request, Closure $next): mixed
     {
         if (Auth::check()) {
-            // Get objects.
-            $object = new ObjectService();
-            app()->instance(ObjectService::class, $object);
-
-            // Instantiate settings service.
-            $settings = resolve(SettingsService::class);
-            app()->instance(SettingsService::class, $settings);
-
-            // Load player.
+            // Load current player and make it available as a request singleton via PlayerService.
             $player = resolve(PlayerService::class, ['player_id' => $request->user()->id]);
             app()->instance(PlayerService::class, $player);
 

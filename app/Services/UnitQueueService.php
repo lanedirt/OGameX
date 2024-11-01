@@ -20,13 +20,6 @@ use OGame\ViewModels\QueueListViewModel;
 class UnitQueueService
 {
     /**
-     * Information about objects.
-     *
-     * @var ObjectService
-     */
-    private ObjectService $objects;
-
-    /**
      * The queue model where this class should get its data from.
      *
      * @var UnitQueue
@@ -34,12 +27,10 @@ class UnitQueueService
     private UnitQueue $model;
 
     /**
-     * BuildingQueue constructor.
+     * UnitQueueService constructor.
      */
-    public function __construct(ObjectService $objects)
+    public function __construct()
     {
-        $this->objects = $objects;
-
         $this->model = new UnitQueue();
     }
 
@@ -63,7 +54,7 @@ class UnitQueueService
         // Convert to ViewModel array
         $list = array();
         foreach ($queue_items as $item) {
-            $object = $this->objects->getObjectById($item['object_id']);
+            $object = ObjectService::getObjectById($item['object_id']);
 
             $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
             if ($time_countdown < 0) {
@@ -156,16 +147,16 @@ class UnitQueueService
             return;
         }
 
-        $object = $this->objects->getUnitObjectById($object_id);
+        $object = ObjectService::getUnitObjectById($object_id);
 
         // Check if user satisifes requirements to build this object.
-        $requirements_met = $this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer());
+        $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer());
 
         // Sanity check: check if the planet has enough resources to build
         // the amount requested. If not, then adjust the ordered amount.
         // E.g. if a player orders 100 units but can only afford 60 units,
         // 60 units will be added to the queue and resources will be deducted.
-        $max_build_amount = $this->objects->getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met);
+        $max_build_amount = ObjectService::getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met);
         if ($requested_build_amount > $max_build_amount) {
             $requested_build_amount = $max_build_amount;
         }
@@ -177,7 +168,7 @@ class UnitQueueService
         }
 
         // Get price per unit
-        $price_per_unit = $this->objects->getObjectPrice($object->machine_name, $planet);
+        $price_per_unit = ObjectService::getObjectPrice($object->machine_name, $planet);
         $total_price = $price_per_unit->multiply($requested_build_amount);
 
         // @TODO: add abstraction and unittest to see if multiplication

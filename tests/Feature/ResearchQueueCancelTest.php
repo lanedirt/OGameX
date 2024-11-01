@@ -23,10 +23,6 @@ class ResearchQueueCancelTest extends AccountTestCase
         $this->planetAddResources(new Resources(0, 10000, 5000, 0));
         $this->planetSetObjectLevel('research_lab', 1);
 
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
         // ---
         // Step 1: Issue a request to build three levels of energy technology
         // ---
@@ -35,8 +31,7 @@ class ResearchQueueCancelTest extends AccountTestCase
         }
 
         // Access the build queue page to verify the buildings are in the queue
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 1);
-        Carbon::setTestNow($testTime);
+        $this->travel(1)->seconds();
 
         $response = $this->get('/research');
         $this->assertObjectInQueue($response, 'energy_technology', 'Energy Technology is expected in build queue but cannot be found.');
@@ -49,8 +44,7 @@ class ResearchQueueCancelTest extends AccountTestCase
         $this->assertObjectNotInQueue($response, 'energy_technology', 'Energy Technology is in build queue but should have been canceled.');
 
         // Advance time by 30 minutes
-        $testTime = Carbon::create(2024, 1, 1, 12, 30, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(30)->minutes();
 
         // Verify that Energy Technology is still at level 0
         $response = $this->get('/research');
@@ -67,10 +61,6 @@ class ResearchQueueCancelTest extends AccountTestCase
     {
         $this->planetAddResources(new Resources(0, 800, 400, 0));
         $this->planetSetObjectLevel('research_lab', 1);
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
 
         // Verify that we begin the test with 500 metal and 500 crystal
         $response = $this->get('/research');
@@ -100,10 +90,6 @@ class ResearchQueueCancelTest extends AccountTestCase
     {
         $this->planetAddResources(new Resources(0, 1600, 1600, 0));
         $this->planetSetObjectLevel('research_lab', 1);
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
 
         $response = $this->get('/research');
         $response->assertStatus(200);
@@ -154,10 +140,6 @@ class ResearchQueueCancelTest extends AccountTestCase
     {
         $this->planetAddResources(new Resources(0, 1600, 1600, 0));
         $this->planetSetObjectLevel('research_lab', 1);
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
 
         $response = $this->get('/research');
         $response->assertStatus(200);

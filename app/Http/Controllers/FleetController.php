@@ -26,12 +26,11 @@ class FleetController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @param SettingsService $settings
      * @return View
      * @throws Exception
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects, SettingsService $settings): View
+    public function index(Request $request, PlayerService $player, SettingsService $settings): View
     {
         // Define ship ids to include in the fleet screen.
         // 0 = military ships
@@ -50,7 +49,7 @@ class FleetController extends OGameController
             foreach ($objects_row as $object_machine_name) {
                 $count++;
 
-                $object = $objects->getUnitObjectByMachineName($object_machine_name);
+                $object = ObjectService::getUnitObjectByMachineName($object_machine_name);
 
                 // Get current level of building
                 $amount = $planet->getObjectAmount($object_machine_name);
@@ -68,7 +67,7 @@ class FleetController extends OGameController
             'player' => $player,
             'planet' => $planet,
             'units' => $units,
-            'objects' => $objects->getShipObjects(),
+            'objects' => ObjectService::getShipObjects(),
             'shipAmount' => $planet->getFlightShipAmount(),
             'galaxy' => $request->get('galaxy'),
             'system' => $request->get('system'),
@@ -93,18 +92,17 @@ class FleetController extends OGameController
      * Checks the target planet for possible missions.
      *
      * @param PlayerService $currentPlayer
-     * @param ObjectService $objects
      * @param PlanetServiceFactory $planetServiceFactory
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchCheckTarget(PlayerService $currentPlayer, ObjectService $objects, PlanetServiceFactory $planetServiceFactory): JsonResponse
+    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory): JsonResponse
     {
         $currentPlanet = $currentPlayer->planets->current();
 
         // Return ships data for this planet taking into account the current planet's properties and research levels.
         $shipsData = [];
-        foreach ($objects->getShipObjects() as $shipObject) {
+        foreach (ObjectService::getShipObjects() as $shipObject) {
             $shipsData[$shipObject->id] = [
                 'id' => $shipObject->id,
                 'name' => $shipObject->title,
@@ -304,11 +302,11 @@ class FleetController extends OGameController
             case 6: // Espionage
                 // TODO: make espionage probe amount configurable in user settings and use that value here.
                 $responseMessage = __('Send espionage probe to:');
-                $units->addUnit($planet->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+                $units->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
                 break;
             case 8: // Recycle
                 $responseMessage = __('Send recycler to:');
-                $units->addUnit($planet->objects->getUnitObjectByMachineName('recycler'), $shipCount);
+                $units->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), $shipCount);
                 break;
         }
 
@@ -411,7 +409,7 @@ class FleetController extends OGameController
             if (str_starts_with($key, 'am')) {
                 $unit_id = (int)str_replace('am', '', $key);
                 // Create GameObject
-                $unitObject = $planet->objects->getUnitObjectById($unit_id);
+                $unitObject = ObjectService::getUnitObjectById($unit_id);
                 $units->addUnit($unitObject, (int)$value);
             }
         }

@@ -6,9 +6,11 @@ use Exception;
 use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\EspionageReport;
+use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
+use OGame\Services\ObjectService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -57,7 +59,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
         $this->fleetCheckToSecondPlanet($unitCollection, false);
     }
 
@@ -68,7 +70,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
         $this->fleetCheckToOtherPlayer($unitCollection, true);
     }
 
@@ -79,7 +81,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
         $this->fleetCheckToEmptyPosition($unitCollection, false);
     }
 
@@ -87,20 +89,16 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
 
         // Increase time by 10 hours to ensure the mission is done.
-        Carbon::setTestNow($startTime->copy()->addHours(10));
+        $this->travel(10)->hours();
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -123,17 +121,17 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get current updated timestamp of the target planet.
-        $foreignPlanetUpdatedAt = $foreignPlanet->getUpdatedAt();
+        $foreignPlanetUpdatedAtBefore = $foreignPlanet->getUpdatedAt();
 
         // Increase time by 10 hours from the foreign planet's last update time to ensure the mission is done
         // and time has passed since the last update. This regardless of whether other tests have affected the
         // foreign planet before and potentially mutated time themselves as well.
-        $missionCompletionTime = $foreignPlanetUpdatedAt->copy()->addHours(10);
-        Carbon::setTestNow($missionCompletionTime);
+        $missionCompletionTime = $foreignPlanetUpdatedAtBefore->copy()->addHours(10);
+        $this->travelTo($missionCompletionTime);
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -144,7 +142,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $foreignPlanet->reloadPlanet();
 
         // Assert that target planet has been updated.
-        $this->assertNotEquals($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAt->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
+        $this->assertNotEquals($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAtBefore->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
 
         // Assert that the updated resources are visible in the espionage report.
         // Get the latest espionage report message from the database.
@@ -159,9 +157,13 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
+        // Mutate all planet time_last_update to 1st jan via Eloquent query
+        // to simulate error with this test.
+        Planet::query()->update(['time_last_update' => '1704103200']);
+
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Add debris field to the foreign planet.
@@ -179,13 +181,13 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $debrisField->save();
 
         // Get current updated timestamp of the target planet.
-        $foreignPlanetUpdatedAt = $foreignPlanet->getUpdatedAt();
+        $foreignPlanetUpdatedAtBefore = $foreignPlanet->getUpdatedAt();
 
         // Increase time by 10 hours from the foreign planet's last update time to ensure the mission is done
         // and time has passed since the last update. This regardless of whether other tests have affected the
         // foreign planet before and potentially mutated time themselves as well.
-        $missionCompletionTime = $foreignPlanetUpdatedAt->copy()->addHours(10);
-        Carbon::setTestNow($missionCompletionTime);
+        $missionCompletionTime = $foreignPlanetUpdatedAtBefore->copy()->addHours(10);
+        $this->travelTo($missionCompletionTime);
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -196,7 +198,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $foreignPlanet->reloadPlanet();
 
         // Assert that target planet has been updated.
-        $this->assertNotEquals($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAt->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
+        $this->assertNotEquals($foreignPlanet->getUpdatedAt()->timestamp, $foreignPlanetUpdatedAtBefore->timestamp, 'Target planet was not updated after espionage mission has arrived. Check target planet update logic on mission arrival.');
 
         // Assert that the updated resources are visible in the espionage report.
         // Get the latest espionage report message from the database.
@@ -216,17 +218,13 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'espionage_probe', 5, 'Espionage probe are not at 5 units at beginning of test.');
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -238,8 +236,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
 
         // Set time to fleet mission duration + 1 second.
-        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 1);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel($fleetMissionDuration + 1)->seconds();
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
@@ -269,13 +266,9 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
         $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // The eventbox should only show 1 mission (the parent).
@@ -311,17 +304,13 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Add resources for test.
         $this->planetAddResources(new Resources(5000, 5000, 0, 0));
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'espionage_probe', 5, 'Espionage probes are not at 5 units at beginning of test.');
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
         $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -330,8 +319,8 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 5 seconds.
-        $fleetParentTime = $startTime->copy()->addSeconds(5);
-        Carbon::setTestNow($fleetParentTime);
+        $fleetParentTime = Carbon::getTestNow()->addSeconds(5);
+        $this->travelTo($fleetParentTime);
 
         // Cancel the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -364,7 +353,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $this->playerSetAllMessagesRead();
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        Carbon::setTestNow(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -389,17 +378,13 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'espionage_probe', 5, 'Espionage probe ships are not at 5 units at beginning of test.');
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('espionage_probe'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -407,9 +392,8 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
-        // Advance time by 10 seconds
-        $fleetParentTime = $startTime->copy()->addSeconds(5);
-        Carbon::setTestNow($fleetParentTime);
+        // Advance time by 5 seconds
+        $this->travel(5)->seconds();
 
         // Cancel the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [

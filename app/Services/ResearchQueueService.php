@@ -20,13 +20,6 @@ use OGame\ViewModels\Queue\ResearchQueueViewModel;
 class ResearchQueueService
 {
     /**
-     * Information about objects.
-     *
-     * @var ObjectService
-     */
-    private ObjectService $objects;
-
-    /**
      * The queue model where this class should get its data from.
      *
      * @var ResearchQueue
@@ -34,14 +27,10 @@ class ResearchQueueService
     private ResearchQueue $model;
 
     /**
-     * BuildingQueue constructor.
-     *
-     * @param ObjectService $objects
+     * ResearchQueueService constructor.
      */
-    public function __construct(ObjectService $objects)
+    public function __construct()
     {
-        $this->objects = $objects;
-
         $this->model = new ResearchQueue();
     }
 
@@ -124,7 +113,7 @@ class ResearchQueueService
             throw new Exception('Maximum number of items already in queue.');
         }
 
-        $object = $this->objects->getResearchObjectById($research_object_id);
+        $object = ObjectService::getResearchObjectById($research_object_id);
 
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the building queue.
@@ -172,7 +161,7 @@ class ResearchQueueService
         // Convert to ViewModel array
         $list = [];
         foreach ($queue_items as $item) {
-            $object = $this->objects->getResearchObjectById($item->object_id);
+            $object = ObjectService::getResearchObjectById($item->object_id);
             $planetService = $planet->getPlayer()->planets->childPlanetById($item['planet_id']);
             $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
             if ($time_countdown < 0) {
@@ -251,10 +240,10 @@ class ResearchQueueService
 
         foreach ($queue_items as $queue_item) {
             $planet = $player->planets->childPlanetById($queue_item->planet_id);
-            $object = $this->objects->getResearchObjectById($queue_item->object_id);
+            $object = ObjectService::getResearchObjectById($queue_item->object_id);
 
             // See if the planet has enough resources for this build attempt.
-            $price = $this->objects->getObjectPrice($object->machine_name, $planet);
+            $price = ObjectService::getObjectPrice($object->machine_name, $planet);
             $build_time = $player->planets->current()->getTechnologyResearchTime($object->machine_name);
 
             // Only start the queue item if there are no other queue items building

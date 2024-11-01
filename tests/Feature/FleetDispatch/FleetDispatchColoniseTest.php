@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\FleetDispatch;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
+use OGame\Services\ObjectService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -51,7 +51,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
         $this->fleetCheckToEmptyPosition($unitCollection, true);
     }
 
@@ -62,7 +62,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->fleetCheckToEmptyPosition($unitCollection, false);
     }
 
@@ -73,7 +73,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
         // Expecting 500 error.
         $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0), 500);
     }
@@ -85,7 +85,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         // Expecting 500 error.
         $this->sendMissionToEmptyPosition($unitCollection, new Resources(0, 0, 0, 0), 500);
     }
@@ -97,28 +97,21 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to an empty planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
         $newPlanetCoordinates = $this->sendMissionToEmptyPosition($unitCollection, new Resources(100, 0, 0, 0));
 
         // Increase time by 10 hours to ensure the mission is done.
-        Carbon::setTestNow($startTime->copy()->addHours(10));
+        $this->travel(10)->hours();
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
         // Assert that the new planet has been created.
-        try {
-            $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        } catch (BindingResolutionException) {
-            $this->fail('PlanetServiceFactory cannot be resolved from the container.');
-        }
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+
         $newPlanet = $planetServiceFactory->makeForCoordinate($newPlanetCoordinates);
         $this->assertNotNull($newPlanet, 'New planet cannot be loaded while it should have been created.');
 
@@ -143,31 +136,23 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->playerSetResearchLevel('astrophysics', 5);
         $this->planetAddUnit('colony_ship', 5);
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         $created_planets = [];
         // Send 5 colony ships to empty planets with colonization mission. Only 2 should be created.
         for ($i = 0; $i < 5; $i++) {
             // Send fleet to an empty planet.
             $unitCollection = new UnitCollection();
-            $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
+            $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
             $newPlanetCoordinates = $this->sendMissionToEmptyPosition($unitCollection, new Resources(10, 0, 0, 0));
 
             // Increase time by 10 hours to ensure the mission is done.
-            Carbon::setTestNow($startTime->addHours(10));
+            $this->travel(10)->hours();
 
             // Do a request to trigger the update logic.
             $response = $this->get('/overview');
             $response->assertStatus(200);
 
             // Assert that the new planet has been created.
-            try {
-                $planetServiceFactory = resolve(PlanetServiceFactory::class);
-            } catch (BindingResolutionException) {
-                $this->fail('PlanetServiceFactory cannot be resolved from the container.');
-            }
+            $planetServiceFactory = resolve(PlanetServiceFactory::class);
             $newPlanet = $planetServiceFactory->makeForCoordinate($newPlanetCoordinates);
             if ($newPlanet !== null) {
                 $created_planets[] = $newPlanet;
@@ -198,20 +183,16 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->playerSetResearchLevel('astrophysics', 2);
         $this->planetAddUnit('colony_ship', 5);
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to an empty planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
         $newPlanetCoordinates = $this->sendMissionToEmptyPosition($unitCollection, new Resources(10, 0, 0, 0));
 
         // Upgrade astrophysics research to level 3 via research page.
         $this->addResearchBuildRequest('astrophysics');
 
         // Increase time by 10 hours to ensure the mission and research should both be done.
-        Carbon::setTestNow($startTime->addHours(10));
+        $this->travel(10)->hours();
 
         // Do a request to trigger the update logic.
         $response = $this->get('/research');
@@ -221,11 +202,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->assertObjectLevelOnPage($response, 'astrophysics', 3, 'Astrophysics research is not at level 3 after 10 hours of research.');
 
         // Assert that the new planet has been created.
-        try {
-            $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        } catch (BindingResolutionException) {
-            $this->fail('PlanetServiceFactory cannot be resolved from the container.');
-        }
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $newPlanet = $planetServiceFactory->makeForCoordinate($newPlanetCoordinates);
 
         $this->assertNotNull($newPlanet, 'New planet cannot be loaded while it should have been created.');
@@ -239,10 +216,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 1 colony ship and 5 small cargos.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'colony_ship', 1);
@@ -250,8 +223,8 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Send fleet to an empty planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 3);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 3);
         $newPlanetCoordinates = $this->sendMissionToEmptyPosition($unitCollection, new Resources(400, 400, 0, 0));
 
         // Assert that the cargo ships have been sent.
@@ -260,7 +233,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->assertObjectLevelOnPage($response, 'small_cargo', 2);
 
         // Increase time by 10 hours to ensure the arrival and return missions are done.
-        Carbon::setTestNow($startTime->copy()->addHours(10));
+        $this->travel(10)->hours();
 
         // Do a request to trigger the update logic.
         // Note: we only make one request here, as the arrival and return missions should be processed in the same request
@@ -269,11 +242,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Assert that the new planet has been created.
-        try {
-            $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        } catch (BindingResolutionException) {
-            $this->fail('PlanetServiceFactory cannot be resolved from the container.');
-        }
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $newPlanet = $planetServiceFactory->makeForCoordinate($newPlanetCoordinates);
         $this->assertNotNull($newPlanet, 'New planet cannot be loaded while it should have been created.');
 
@@ -291,10 +260,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 1 colony ship and 5 small cargos.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'colony_ship', 1);
@@ -302,12 +267,12 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Send fleet to an empty planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 3);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 3);
         $this->sendMissionToEmptyPosition($unitCollection, new Resources(400, 400, 0, 0));
 
         // Increase time by 10 hours to ensure the arrival and return missions are done.
-        Carbon::setTestNow($startTime->copy()->addHours(10));
+        $this->travel(10)->hours();
 
         // Reload the application to ensure all caches are cleared and changed units are reflected.
         $this->reloadApplication();
@@ -334,18 +299,14 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         // Add resources for test.
         $this->planetAddResources(new Resources(5000, 5000, 0, 0));
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 5 small cargo ships and 1 colony ship on planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'colony_ship', 1);
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5);
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 5);
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('colony_ship'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 5);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
         $emptyPositionCoordinate = $this->sendMissionToEmptyPosition($unitCollection, new Resources(5000, 5000, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -354,8 +315,8 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
-        $fleetParentTime = $startTime->copy()->addMinutes(1);
-        Carbon::setTestNow($fleetParentTime);
+        $fleetParentTime = Carbon::getTestNow()->addMinute();
+        $this->travelTo($fleetParentTime);
 
         // Cancel the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -380,12 +341,12 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
 
-        // Assert that the return trip arrival time is exactly 1 minute after the cancelation time.
+        // Assert that the return trip arrival time is exactly 1 minute after the cancellation time.
         // Because the return trip should take exactly as long as the original trip has traveled until it was canceled.
         $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(60)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
 
         // Advance time by amount it takes for the return trip to arrive.
-        Carbon::setTestNow(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $this->get('/overview');

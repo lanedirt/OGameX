@@ -2,8 +2,9 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
+use Exception;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Services\ObjectService;
 use Tests\UnitTestCase;
 
 /**
@@ -16,7 +17,6 @@ class UnitCollectionTest extends UnitTestCase
 {
     /**
      * Set up common test components.
-     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {
@@ -26,6 +26,7 @@ class UnitCollectionTest extends UnitTestCase
 
     /**
      * Test that the slowest unit speed is calculated correctly.
+     * @throws Exception
      */
     public function testSlowestFleetSpeed(): void
     {
@@ -40,8 +41,8 @@ class UnitCollectionTest extends UnitTestCase
         ]);
 
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getShipObjectByMachineName('small_cargo'), 10);
-        $unitCollection->addUnit($this->planetService->objects->getShipObjectByMachineName('destroyer'), 3);
+        $unitCollection->addUnit(ObjectService::getShipObjectByMachineName('small_cargo'), 10);
+        $unitCollection->addUnit(ObjectService::getShipObjectByMachineName('destroyer'), 3);
 
         // Slowest ship should be the destroyer.
         // - 5.000 = destroyer base speed

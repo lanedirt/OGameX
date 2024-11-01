@@ -2,7 +2,7 @@
 
 namespace Tests;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
+use Exception;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
 use OGame\Models\UserTech;
@@ -18,7 +18,6 @@ abstract class UnitTestCase extends TestCase
 
     /**
      * Set up common test components.
-     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {
@@ -32,17 +31,20 @@ abstract class UnitTestCase extends TestCase
      * Helper method to create a planet model and configure it.
      *
      * @param array<string, int> $attributes
+     * @throws Exception
      */
     protected function createAndSetPlanetModel(array $attributes): void
     {
         // Create fake planet eloquent model with additional attributes
         try {
             $planetModelFake = Planet::factory()->make($attributes);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->fail('Failed to create fake planet model: ' . $e->getMessage());
         }
+
         // Set the fake model to the planet service
         $this->planetService->setPlanet($planetModelFake);
+
         // Update resource production stats
         $this->planetService->updateResourceProductionStats(false);
     }
@@ -56,6 +58,7 @@ abstract class UnitTestCase extends TestCase
     {
         // Create fake user tech eloquent model with additional attributes
         $userTechModelFake = UserTech::factory()->make($attributes);
+
         // Set the fake model to the planet service
         $this->playerService->setUserTech($userTechModelFake);
     }
@@ -64,7 +67,6 @@ abstract class UnitTestCase extends TestCase
      * Set up the planet service for testing.
      *
      * @return void
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function setUpPlanetService(): void
     {
@@ -77,7 +79,6 @@ abstract class UnitTestCase extends TestCase
      * Set up the player service for testing.
      *
      * @return void
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function setUpPlayerService(): void
     {
@@ -90,7 +91,6 @@ abstract class UnitTestCase extends TestCase
      * Set up the settings service for testing.
      *
      * @return void
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function setUpSettingsService(): void
     {

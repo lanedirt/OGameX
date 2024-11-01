@@ -29,11 +29,6 @@ class FleetMissionService
     private PlayerService $player;
 
     /**
-     * @var ObjectService $objects
-     */
-    private ObjectService $objects;
-
-    /**
      * @var MessageService $messageService
      */
     private MessageService $messageService;
@@ -55,10 +50,9 @@ class FleetMissionService
     /**
      * FleetMissionService constructor.
      */
-    public function __construct(PlayerService $player, ObjectService $objects, MessageService $messageService, GameMissionFactory $gameMissionFactory, SettingsService $settingsService)
+    public function __construct(PlayerService $player, MessageService $messageService, GameMissionFactory $gameMissionFactory, SettingsService $settingsService)
     {
         $this->player = $player;
-        $this->objects = $objects;
         $this->messageService = $messageService;
         $this->gameMissionFactory = $gameMissionFactory;
         $this->settingsService = $settingsService;
@@ -196,7 +190,7 @@ class FleetMissionService
         // Loop through all known unit types and sum them up.
         $unit_count = 0;
 
-        foreach ($this->objects->getShipObjects() as $ship) {
+        foreach (ObjectService::getShipObjects() as $ship) {
             $unit_count += $mission->{$ship->machine_name};
         }
 
@@ -213,7 +207,7 @@ class FleetMissionService
     {
         $units = new UnitCollection();
 
-        foreach ($this->objects->getShipObjects() as $ship) {
+        foreach (ObjectService::getShipObjects() as $ship) {
             $amount = $mission->{$ship->machine_name};
             if ($amount > 0) {
                 $units->addUnit($ship, $mission->{$ship->machine_name});

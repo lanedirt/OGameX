@@ -45,11 +45,10 @@ class ResearchController extends OGameController
      * Shows the research index page
      *
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return View
      * @throws Exception
      */
-    public function index(PlayerService $player, ObjectService $objects): View
+    public function index(PlayerService $player): View
     {
         $this->setBodyId('research');
         $planet = $player->planets->current();
@@ -74,16 +73,16 @@ class ResearchController extends OGameController
             foreach ($objects_row as $object_machine_name) {
                 $count++;
 
-                $object = $objects->getResearchObjectByMachineName($object_machine_name);
+                $object = ObjectService::getResearchObjectByMachineName($object_machine_name);
 
                 // Get current level of building
                 $current_level = $player->getResearchLevel($object->machine_name);
 
                 // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object->machine_name, $planet, $player);
+                $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $player);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $planet->hasResources($objects->getObjectPrice($object->machine_name, $planet));
+                $enough_resources = $planet->hasResources(ObjectService::getObjectPrice($object->machine_name, $planet));
 
                 $view_model = new BuildingViewModel();
                 $view_model->object = $object;
@@ -118,17 +117,16 @@ class ResearchController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return JsonResponse
      * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects): JsonResponse
+    public function ajax(Request $request, PlayerService $player): JsonResponse
     {
-        return $this->ajaxHandler($request, $player, $objects);
+        return $this->ajaxHandler($request, $player);
     }
 
     /**
-     * Handles an incoming add buildrequest.
+     * Handles an incoming add build request.
      *
      * @param Request $request
      * @param PlayerService $player

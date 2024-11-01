@@ -2,16 +2,15 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMissions\BattleEngine\BattleEngine;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Services\ObjectService;
 use Tests\UnitTestCase;
 
 class BattleEngineTest extends UnitTestCase
 {
     /**
      * Set up common test components.
-     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {
@@ -37,7 +36,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
+        $smallCargo = ObjectService::getUnitObjectByMachineName('small_cargo');
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
@@ -64,7 +63,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
+        $smallCargo = ObjectService::getUnitObjectByMachineName('small_cargo');
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
@@ -93,7 +92,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
+        $smallCargo = ObjectService::getUnitObjectByMachineName('small_cargo');
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
@@ -122,9 +121,9 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
+        $smallCargo = ObjectService::getUnitObjectByMachineName('small_cargo');
         $attackerFleet->addUnit($smallCargo, 5);
-        $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
         $attackerFleet->addUnit($lightFighter, 75);
 
         // Simulate battle.
@@ -170,7 +169,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
+        $smallCargo = ObjectService::getUnitObjectByMachineName('small_cargo');
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
@@ -201,7 +200,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
+        $smallCargo = ObjectService::getUnitObjectByMachineName('small_cargo');
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
@@ -248,7 +247,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $smallCargo = $this->planetService->objects->getUnitObjectByMachineName('small_cargo');
+        $smallCargo = ObjectService::getUnitObjectByMachineName('small_cargo');
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
@@ -271,7 +270,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
         $attackerFleet->addUnit($lightFighter, 150);
 
         // Simulate battle.
@@ -318,9 +317,9 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $deathStar = $this->planetService->objects->getUnitObjectByMachineName('deathstar');
+        $deathStar = ObjectService::getUnitObjectByMachineName('deathstar');
         $attackerFleet->addUnit($deathStar, 1);
-        $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
         $attackerFleet->addUnit($lightFighter, 1000);
 
         // Simulate battle.
@@ -351,7 +350,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
         $attackerFleet->addUnit($lightFighter, 30);
 
         // Simulate battle.
@@ -380,7 +379,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $cruiser = $this->planetService->objects->getUnitObjectByMachineName('cruiser');
+        $cruiser = ObjectService::getUnitObjectByMachineName('cruiser');
         $attackerFleet->addUnit($cruiser, 30);
 
         // Simulate battle.
@@ -417,7 +416,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $cruiser = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $cruiser = ObjectService::getUnitObjectByMachineName('light_fighter');
         $attackerFleet->addUnit($cruiser, 5000);
 
         // Simulate battle.
@@ -457,7 +456,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $cruiser = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $cruiser = ObjectService::getUnitObjectByMachineName('light_fighter');
         $attackerFleet->addUnit($cruiser, 5000);
 
         // Simulate battle.
@@ -488,7 +487,7 @@ class BattleEngineTest extends UnitTestCase
 
         // Create fleet of attacker player.
         $attackerFleet = new UnitCollection();
-        $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
         $attackerFleet->addUnit($lightFighter, 50);
 
         $this->settingsService->set('debris_field_from_ships', 30);
@@ -539,7 +538,7 @@ class BattleEngineTest extends UnitTestCase
             // Create fleet of attacker player.
             // Expected total losses of attacker player: 150k metal and 50k crystal.
             $attackerFleet = new UnitCollection();
-            $lightFighter = $this->planetService->objects->getUnitObjectByMachineName('light_fighter');
+            $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
             $attackerFleet->addUnit($lightFighter, 50);
 
             // Simulate battle
@@ -568,7 +567,7 @@ class BattleEngineTest extends UnitTestCase
             // Create fleet of attacker player.
             // Expected total losses of defender player: 300k metal and 100k crystal.
             $attackerFleet = new UnitCollection();
-            $bomber = $this->planetService->objects->getUnitObjectByMachineName('bomber');
+            $bomber = ObjectService::getUnitObjectByMachineName('bomber');
             $attackerFleet->addUnit($bomber, 500);
 
             // Simulate battle.
@@ -598,7 +597,7 @@ class BattleEngineTest extends UnitTestCase
             // Create fleet of attacker player.
             // Expected total losses of attacker player: 1M metal and 350k crystal, 100k deuterium.
             $attackerFleet = new UnitCollection();
-            $cruiser = $this->planetService->objects->getUnitObjectByMachineName('cruiser');
+            $cruiser = ObjectService::getUnitObjectByMachineName('cruiser');
             $attackerFleet->addUnit($cruiser, 50);
 
             // Simulate battle

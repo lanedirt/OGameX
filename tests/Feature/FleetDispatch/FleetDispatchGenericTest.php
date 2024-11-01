@@ -6,6 +6,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
+use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
@@ -98,7 +99,7 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
 
         // Create a unit collection with 5 small cargos.
         $units = new UnitCollection();
-        $units->addUnit($this->planetService->objects->getShipObjectByMachineName('small_cargo'), 5);
+        $units->addUnit(ObjectService::getShipObjectByMachineName('small_cargo'), 5);
 
         // Should take 2h:18m:05s to travel to the target planet 1 system away with base speed of 5000.
         $this->assertEquals(8285, $fleetMissionService->calculateFleetMissionDuration($this->planetService, $targetPlanetCoords, $units));

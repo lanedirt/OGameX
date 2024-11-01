@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature;
+namespace Tests\Feature;
 
 use OGame\Services\ObjectService;
 use Tests\AccountTestCase;
@@ -16,9 +16,7 @@ class TechtreeTest extends AccountTestCase
     public function testTechtreeInfoPopups(): void
     {
         // Get all objects
-        $objectService = new ObjectService();
-
-        foreach ($objectService->getObjects() as $object) {
+        foreach (ObjectService::getObjects() as $object) {
             $response = $this->get('ajax/techtree?tab=2&object_id=' . $object->id);
 
             try {
@@ -37,7 +35,7 @@ class TechtreeTest extends AccountTestCase
         // Get all objects
         $objectService = new ObjectService();
 
-        foreach ($objectService->getObjects() as $object) {
+        foreach (ObjectService::getObjects() as $object) {
             $response = $this->get('ajax/techtree?tab=4&object_id=' . $object->id);
 
             try {
@@ -54,8 +52,7 @@ class TechtreeTest extends AccountTestCase
     public function testTechtreeApplicationsPopupsLogic(): void
     {
         // User/planet without any levels/prerequisites.
-        $objectService = new ObjectService();
-        $object = $objectService->getObjectByMachineName('laser_technology');
+        $object = ObjectService::getObjectByMachineName('laser_technology');
 
         $response = $this->get('ajax/techtree?tab=4&object_id=' . $object->id);
         // Assert that no prerequisites are met for any of the applications.
@@ -99,9 +96,7 @@ class TechtreeTest extends AccountTestCase
     {
 
         // Get defense specific objects to test.
-        $objectService = new ObjectService();
-
-        $defenseObjects = $objectService->getDefenseObjects();
+        $defenseObjects = ObjectService::getDefenseObjects();
 
         foreach ($defenseObjects as $defenseObject) {
             $response = $this->get('ajax/techtree?tab=2&object_id=' . $defenseObject->id);
@@ -121,10 +116,8 @@ class TechtreeTest extends AccountTestCase
      */
     public function testTechinfoPropertiesNoneDefenseShowsHiddenDefenseProperties(): void
     {
-        // Get non defence specific objects to test.
-        $objectService = new ObjectService();
-
-        $civilShipObjects = $objectService->getCivilShipObjects();
+        // Get non defense specific objects to test.
+        $civilShipObjects = ObjectService::getCivilShipObjects();
 
         foreach ($civilShipObjects as $nonDefenseObject) {
             $response = $this->get('ajax/techtree?tab=2&object_id=' . $nonDefenseObject->id);

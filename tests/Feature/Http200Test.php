@@ -59,10 +59,7 @@ class Http200Test extends AccountTestCase
      */
     public function testAjaxResources(): void
     {
-        // Get all resource objects
-        $objectService = new ObjectService();
-
-        foreach ($objectService->getBuildingObjects() as $object) {
+        foreach (ObjectService::getBuildingObjects() as $object) {
             $response = $this->get('ajax/resources?technology=' . $object->id);
 
             try {
@@ -81,10 +78,7 @@ class Http200Test extends AccountTestCase
      */
     public function testAjaxFacilities(): void
     {
-        // Get all resource objects
-        $objectService = new ObjectService();
-
-        foreach ($objectService->getStationObjects() as $object) {
+        foreach (ObjectService::getStationObjects() as $object) {
             $response = $this->get('ajax/facilities?technology=' . $object->id);
 
             try {
@@ -102,10 +96,7 @@ class Http200Test extends AccountTestCase
      */
     public function testAjaxResearch(): void
     {
-        // Get all resource objects
-        $objectService = new ObjectService();
-
-        foreach ($objectService->getResearchObjects() as $object) {
+        foreach (ObjectService::getResearchObjects() as $object) {
             $response = $this->get('ajax/research?technology=' . $object->id);
 
             try {
@@ -123,10 +114,7 @@ class Http200Test extends AccountTestCase
      */
     public function testAjaxShipyard(): void
     {
-        // Get all resource objects
-        $objectService = new ObjectService();
-
-        foreach ($objectService->getShipObjects() as $object) {
+        foreach (ObjectService::getShipObjects() as $object) {
             $response = $this->get('ajax/shipyard?technology=' . $object->id);
 
             try {
@@ -144,10 +132,7 @@ class Http200Test extends AccountTestCase
      */
     public function testAjaxDefense(): void
     {
-        // Get all resource objects
-        $objectService = new ObjectService();
-
-        foreach ($objectService->getDefenseObjects() as $object) {
+        foreach (ObjectService::getDefenseObjects() as $object) {
             $response = $this->get('ajax/defense?technology=' . $object->id);
 
             try {

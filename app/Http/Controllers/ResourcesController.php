@@ -30,11 +30,10 @@ class ResourcesController extends AbstractBuildingsController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return View
      * @throws Exception
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects): View
+    public function index(Request $request, PlayerService $player): View
     {
         $this->setBodyId('resources');
 
@@ -45,7 +44,7 @@ class ResourcesController extends AbstractBuildingsController
         ];
         $this->view_name = 'ingame.resources.index';
 
-        return parent::index($request, $player, $objects);
+        return parent::index($request, $player);
     }
 
     /**
@@ -53,13 +52,12 @@ class ResourcesController extends AbstractBuildingsController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return JsonResponse
      * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects): JsonResponse
+    public function ajax(Request $request, PlayerService $player): JsonResponse
     {
-        return $this->ajaxHandler($request, $player, $objects);
+        return $this->ajaxHandler($request, $player);
     }
 
     /**
@@ -67,11 +65,10 @@ class ResourcesController extends AbstractBuildingsController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return View
      * @throws Exception
      */
-    public function settings(Request $request, PlayerService $player, ObjectService $objects): View
+    public function settings(Request $request, PlayerService $player): View
     {
         $this->setBodyId('resourceSettings');
         $this->planet = $player->planets->current();
@@ -85,7 +82,7 @@ class ResourcesController extends AbstractBuildingsController
 
         // Buildings that provide resource income
         // Get all buildings that have production values.
-        foreach ($objects->getGameObjectsWithProduction() as $building) {
+        foreach (ObjectService::getGameObjectsWithProduction() as $building) {
             // Retrieve all buildings that have production values.
             $production = $this->planet->getObjectProduction($building->machine_name);
             $production_total->add($production);
@@ -151,11 +148,11 @@ class ResourcesController extends AbstractBuildingsController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @param ObjectService $objects
      *
      * @return RedirectResponse
+     * @throws Exception
      */
-    public function settingsUpdate(Request $request, PlayerService $player, ObjectService $objects): RedirectResponse
+    public function settingsUpdate(Request $request, PlayerService $player): RedirectResponse
     {
         $this->planet = $player->planets->current();
 

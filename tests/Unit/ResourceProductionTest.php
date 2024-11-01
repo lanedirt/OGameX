@@ -10,7 +10,6 @@ class ResourceProductionTest extends UnitTestCase
 {
     /**
      * Set up common test components.
-     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {

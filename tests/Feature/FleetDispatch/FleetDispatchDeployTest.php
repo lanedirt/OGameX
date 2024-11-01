@@ -6,6 +6,7 @@ use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
+use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
@@ -73,7 +74,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->fleetCheckToSecondPlanet($unitCollection, true);
     }
 
@@ -84,7 +85,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->fleetCheckToOtherPlayer($unitCollection, false);
     }
 
@@ -95,7 +96,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->fleetCheckToEmptyPosition($unitCollection, false);
     }
 
@@ -103,20 +104,16 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to the second planet of the test user WITHOUT resources.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
 
         // Increase time by 10 hours to ensure the mission is done.
-        Carbon::setTestNow($startTime->copy()->addHours(10));
+        $this->travel(10)->hours();
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -149,7 +146,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
 
         $response = $this->get('/shipyard');
@@ -170,7 +167,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
 
         $response = $this->get('/shipyard');
@@ -190,7 +187,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(4500, 100, 0, 0), 500);
     }
 
@@ -204,7 +201,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 10);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 10);
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0), 500);
     }
 
@@ -215,17 +212,13 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');
 
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -238,8 +231,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).
-        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 30);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel($fleetMissionDuration + 30)->seconds();
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
@@ -268,13 +260,9 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
 
         // The eventbox should only show 1 mission (the parent).
@@ -304,17 +292,13 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         // Add resources for test.
         $this->planetAddResources(new Resources(5000, 5000, 0, 0));
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');
 
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 5);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 5);
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(5000, 5000, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -322,9 +306,9 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionId = $fleetMission->id;
 
-        // Advance time by 1 minute
-        $fleetParentTime = $startTime->copy()->addMinutes(1);
-        Carbon::setTestNow($fleetParentTime);
+        // Advance time by 1 minute.
+        $fleetParentTime = Carbon::getTestNow()->addSeconds(60);
+        $this->travelTo($fleetParentTime);
 
         // Cancel the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -349,7 +333,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
 
-        // Assert that the return trip arrival time is exactly 1 minute after the cancelation time.
+        // Assert that the return trip arrival time is exactly 1 minute after the cancellation time.
         // Because the return trip should take exactly as long as the original trip has traveled until it was canceled.
         $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(60)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
 
@@ -357,7 +341,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->playerSetAllMessagesRead();
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        Carbon::setTestNow(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -384,17 +368,13 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');
 
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -403,8 +383,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
-        $fleetParentTime = $startTime->copy()->addMinutes(1);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel(1)->minutes();
 
         // Cancel the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [

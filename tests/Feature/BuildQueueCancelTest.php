@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Carbon;
 use OGame\Models\Resources;
 use Tests\AccountTestCase;
 
@@ -19,10 +18,6 @@ class BuildQueueCancelTest extends AccountTestCase
      */
     public function testBuildQueueCancelMultiple(): void
     {
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
         // ---
         // Step 1: Issue a request to build three metal mines
         // ---
@@ -31,8 +26,7 @@ class BuildQueueCancelTest extends AccountTestCase
         }
 
         // Access the build queue page to verify the buildings are in the queue
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 1);
-        Carbon::setTestNow($testTime);
+        $this->travel(1)->seconds();
 
         $response = $this->get('/resources');
         $this->assertObjectInQueue($response, 'metal_mine', 'Metal mine is expected in build queue but cannot be found.');
@@ -68,8 +62,7 @@ class BuildQueueCancelTest extends AccountTestCase
         $this->assertObjectNotInQueue($response, 'metal_mine', 'Metal mine is in build queue but should have been canceled.');
 
         // Advance time by 30 minutes
-        $testTime = Carbon::create(2024, 1, 1, 12, 30, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(30)->minutes();
 
         // Verify that Metal Mine is still at level 0
         $response = $this->get('/resources');
@@ -83,10 +76,6 @@ class BuildQueueCancelTest extends AccountTestCase
      */
     public function testBuildQueueCancelRefundResources(): void
     {
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
         // Verify that we begin the test with 500 metal and 500 crystal
         $response = $this->get('/resources');
         $response->assertStatus(200);
@@ -131,10 +120,6 @@ class BuildQueueCancelTest extends AccountTestCase
      */
     public function testBuildQueueCancelSecondEntry(): void
     {
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
         // Verify that we begin the test with 500 metal and 500 crystal
         $response = $this->get('/resources');
         $response->assertStatus(200);

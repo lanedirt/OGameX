@@ -18,7 +18,6 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\User;
-use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 
@@ -71,11 +70,6 @@ abstract class TestCommand extends Command
     protected PlayerService $playerService;
 
     /**
-     * @var ObjectService The objectService.
-     */
-    protected ObjectService $objectService;
-
-    /**
      * @var PlanetService The current planet service of the test user.
      */
     protected PlanetService $currentPlanetService;
@@ -117,7 +111,6 @@ abstract class TestCommand extends Command
         $this->info("Test user created with ID: {$user->id}");
 
         $this->playerService = $playerServiceFactory->make($user->id);
-        $this->objectService = $this->playerService->planets->current()->objects;
 
         // Load current planet.
         $this->currentPlanetService = $this->playerService->planets->current();

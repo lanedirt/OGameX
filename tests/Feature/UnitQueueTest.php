@@ -18,7 +18,6 @@ class UnitQueueTest extends AccountTestCase
      * Prepare the planet for the test, so it has the required buildings and research.
      *
      * @return void
-     * @throws BindingResolutionException
      */
     private function basicSetup(): void
     {
@@ -35,7 +34,6 @@ class UnitQueueTest extends AccountTestCase
 
     /**
      * Verify that building more than one of a ship works as expected.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testUnitQueueShips(): void
@@ -43,10 +41,6 @@ class UnitQueueTest extends AccountTestCase
         $this->basicSetup();
         // Add resources to planet that test requires.
         $this->planetAddResources(new Resources(30000, 10000, 0, 0));
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
 
         // ---
         // Step 1: Issue a request to build 10 light fighters
@@ -63,28 +57,25 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 3: Verify the ships are still in the build queue 1 minute later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 1, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(1)->minutes();
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'light_fighter', 0, 'Light Fighter is not at 0 units 1m after build request issued.');
 
         // ---
-        // Step 4: Verify that some ships are finished 30 minute later.
+        // Step 4: Verify that some ships are finished 20 minute later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 20, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(20)->minutes();
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'light_fighter', 3, 'Light Fighter build job has not completed exactly 3 units 15m after build request issued.');
 
         // ---
-        // Step 5: Verify that ALL ships are finished 15 minute later.
+        // Step 5: Verify that ALL ships are finished 14 hours later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 14, 0, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(14)->hours();
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
@@ -93,7 +84,6 @@ class UnitQueueTest extends AccountTestCase
 
     /**
      * Verify that building large amount of ships with default shipyard level works as expected.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testUnitQueueLargeAmountLowShipyardLevel(): void
@@ -102,10 +92,6 @@ class UnitQueueTest extends AccountTestCase
 
         // Add resources to planet that test requires.
         $this->planetAddResources(new Resources(30000000, 10000000, 0, 0));
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
 
         // ---
         // Step 1: Issue a request to build 1k light fighters
@@ -120,10 +106,8 @@ class UnitQueueTest extends AccountTestCase
         $this->assertObjectLevelOnPage($response, 'light_fighter', 0, 'Light Fighter is not at 0 units directly after build request issued.');
 
         // Increase time by random 1-15 minute intervals 20 times in total to simulate partial updates.
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
         for ($i = 0; $i < 50; $i++) {
-            $testTime = $testTime->addMinutes(rand(1, 15));
-            Carbon::setTestNow($testTime);
+            $this->travel(rand(1, 15))->minutes();
 
             $response = $this->get('/shipyard');
             $response->assertStatus(200);
@@ -132,8 +116,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 4: Verify that all ships are finished 2 weeks later.
         // ---
-        $testTime = Carbon::create(2024, 1, 14, 0, 0, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(2)->weeks();
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
@@ -142,7 +125,6 @@ class UnitQueueTest extends AccountTestCase
 
     /**
      * Verify that building large amount of ships with high shipyard level works as expected.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testUnitQueueLargeAmountHighShipyardLevel(): void
@@ -155,10 +137,6 @@ class UnitQueueTest extends AccountTestCase
 
         // Add resources to planet that test requires.
         $this->planetAddResources(new Resources(30000000, 10000000, 0, 0));
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
 
         // ---
         // Step 1: Issue a request to build 10k light fighters
@@ -174,7 +152,7 @@ class UnitQueueTest extends AccountTestCase
 
         // Increase time by random 1-15 second intervals 20 times in total to simulate partial updates.
         for ($i = 0; $i < 20; $i++) {
-            Carbon::setTestNow($testTime->addSeconds(rand(1, 15)));
+            $this->travel(rand(1, 15))->seconds();
 
             $response = $this->get('/shipyard');
             $response->assertStatus(200);
@@ -182,14 +160,14 @@ class UnitQueueTest extends AccountTestCase
 
         // Do it again but now with just millisecond differences.
         for ($i = 0; $i < 20; $i++) {
-            Carbon::setTestNow($testTime->addMilliseconds(rand(400, 999)));
+            $this->travel(rand(400, 999))->milliseconds();
 
             $response = $this->get('/shipyard');
             $response->assertStatus(200);
         }
 
         // Increase time by 10 hours to simulate the final update.
-        Carbon::setTestNow($testTime->addHours(10));
+        $this->travel(10)->hours();
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
@@ -198,7 +176,6 @@ class UnitQueueTest extends AccountTestCase
 
     /**
      * Verify that adding three different build jobs and waiting for them all to complete works as expected.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testUnitQueueShipsMultiQueues(): void
@@ -210,10 +187,6 @@ class UnitQueueTest extends AccountTestCase
         $this->planetAddResources(new Resources(15000, 5000, 0, 0));
         // For 10 solar satellites
         $this->planetAddResources(new Resources(0, 20000, 50000, 0));
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
 
         // ---
         // Step 1: Issue a request to build 3 light fighters, 10 solar sats, and then 2 light fighters
@@ -231,10 +204,9 @@ class UnitQueueTest extends AccountTestCase
         $this->assertObjectLevelOnPage($response, 'solar_satellite', 0, 'Solar Satellite is not at 0 units directly after build request issued.');
 
         // ---
-        // Step 3: Verify that the light fighters and partial solar satellites are finished 30 minute later.
+        // Step 3: Verify that the light fighters and partial solar satellites are finished 25 minute later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 25, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(25)->minutes();
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
@@ -242,10 +214,9 @@ class UnitQueueTest extends AccountTestCase
         $this->assertObjectLevelOnPage($response, 'solar_satellite', 2, 'Solar Satellite is not at 2 units 25m after build request issued.');
 
         // ---
-        // Step 5: Verify that ALL ships are finished 30 minute later.
+        // Step 5: Verify that ALL ships are finished 35 minute later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 14, 0, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(35)->minutes();
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
@@ -255,7 +226,6 @@ class UnitQueueTest extends AccountTestCase
 
     /**
      * Verify that building more than one of a defense unit works as expected.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testUnitQueueDefense(): void
@@ -265,10 +235,6 @@ class UnitQueueTest extends AccountTestCase
         $this->planetAddResources(new Resources(20000, 0, 0, 0));
         $this->planetSetObjectLevel('robot_factory', 2);
         $this->planetSetObjectLevel('shipyard', 1);
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
 
         // ---
         // Step 1: Issue a request to build 10 light fighters
@@ -285,8 +251,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 3: Verify the defense units are still in the build queue 1 minute later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 1, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(1)->minutes();
 
         $response = $this->get('/defense');
         $response->assertStatus(200);
@@ -295,8 +260,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 4: Verify that some defense units are finished 10 minute later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 10, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(10)->minutes();
 
         $response = $this->get('/defense');
         $response->assertStatus(200);
@@ -305,8 +269,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 5: Verify that ALL defense units are finished 1h later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 13, 0, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(1)->hours();
 
         $response = $this->get('/defense');
         $response->assertStatus(200);
@@ -315,16 +278,11 @@ class UnitQueueTest extends AccountTestCase
 
     /**
      * Verify that building ships deducts correct amount of resources from planet.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testUnitQueueDeductResources(): void
     {
         $this->basicSetup();
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
 
         // ---
         // Step 1: Issue a request to build 10 light fighters
@@ -334,8 +292,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 2: Verify that nothing has been built as there were not enough resources.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 13, 0, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(1)->hours();
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
@@ -344,17 +301,11 @@ class UnitQueueTest extends AccountTestCase
 
     /**
      * Verify that building ships without resources fails.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testUnitQueueInsufficientResources(): void
     {
         $this->basicSetup();
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
         $this->planetAddResources(new Resources(30000, 10000, 0, 0));
 
         // Assert that we begin with 30500 metal and 10500 crystal.
@@ -376,7 +327,6 @@ class UnitQueueTest extends AccountTestCase
 
     /**
      * Verify that unit construction time is calculated correctly (higher than 0)
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testUnitProductionTime(): void
@@ -389,7 +339,6 @@ class UnitQueueTest extends AccountTestCase
 
     /**
      * Verify that unit construction time is calculated correctly (higher than 0)
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testUnitProductionTimeHighShipyardLevel(): void
@@ -400,10 +349,6 @@ class UnitQueueTest extends AccountTestCase
         $this->planetSetObjectLevel('robot_factory', 2);
         $this->planetSetObjectLevel('shipyard', 10);
         $this->planetSetObjectLevel('nano_factory', 10);
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
 
         // ---
         // Step 1: Issue a request to build 100 rocket launchers.
@@ -421,8 +366,7 @@ class UnitQueueTest extends AccountTestCase
         // ---
         // Step 3: Verify that after 50 seconds, exactly 50 units are built. (Minimum time per unit is always 1 second)
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 50);
-        Carbon::setTestNow($testTime);
+        $this->travel(50)->seconds();
 
         $response = $this->get('/defense');
         $response->assertStatus(200);
