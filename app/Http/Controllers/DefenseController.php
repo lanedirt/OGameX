@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractUnitsController;
-use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\UnitQueueService;
 

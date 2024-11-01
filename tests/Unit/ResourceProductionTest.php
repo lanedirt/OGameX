@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Services\SettingsService;
 use Tests\UnitTestCase;
 

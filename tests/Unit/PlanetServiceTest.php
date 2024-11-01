@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Models\Enums\ResourceType;
 use OGame\Models\Resources;
 use Tests\UnitTestCase;
@@ -11,8 +10,6 @@ class PlanetServiceTest extends UnitTestCase
 {
     /**
      * Set up common test components.
-     *
-     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {
@@ -38,7 +35,7 @@ class PlanetServiceTest extends UnitTestCase
     /**
      * Test for espionage report getXXXArray() methods.
      */
-    public function testGetObjectarrays(): void
+    public function testGetObjectArrays(): void
     {
         $this->createAndSetPlanetModel([
             'metal_mine' => 1,

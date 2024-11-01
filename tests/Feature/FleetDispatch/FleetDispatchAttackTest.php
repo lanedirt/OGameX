@@ -610,8 +610,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
      */
     public function testLargeScaleAttackWithDebrisField(): void
     {
-        return;
-
         // Prepare attacker fleet
         $this->planetAddUnit('cruiser', 700000);
         $this->planetAddUnit('battle_ship', 100000);

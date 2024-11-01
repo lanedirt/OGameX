@@ -5,9 +5,7 @@ namespace OGame\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
-use OGame\Services\SettingsService;
 use Throwable;
 
 class GlobalGame

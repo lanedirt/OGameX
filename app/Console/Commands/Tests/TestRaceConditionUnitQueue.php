@@ -8,6 +8,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 use OGame\Models\Resources;
+use OGame\Services\ObjectService;
 use OGame\Services\UnitQueueService;
 
 /**
@@ -65,9 +66,9 @@ class TestRaceConditionUnitQueue extends TestCommand
     {
         // Prepare user for testing the race conditions by adding some entries to the build queues.
         $this->currentPlanetService->addResources(new Resources(1000000, 1000000, 1000000, 0));
-        $this->currentPlanetService->setObjectLevel($this->objectService->getObjectByMachineName('robot_factory')->id, 2);
-        $this->currentPlanetService->setObjectLevel($this->objectService->getObjectByMachineName('shipyard')->id, 1);
-        $this->currentPlanetService->setObjectLevel($this->objectService->getObjectByMachineName('research_lab')->id, 1);
+        $this->currentPlanetService->setObjectLevel(ObjectService::getObjectByMachineName('robot_factory')->id, 2);
+        $this->currentPlanetService->setObjectLevel(ObjectService::getObjectByMachineName('shipyard')->id, 1);
+        $this->currentPlanetService->setObjectLevel(ObjectService::getObjectByMachineName('research_lab')->id, 1);
         $this->playerService->setResearchLevel('energy_technology', 1);
         $this->playerService->setResearchLevel('combustion_drive', 1);
 
@@ -77,7 +78,7 @@ class TestRaceConditionUnitQueue extends TestCommand
 
         // Add light fighter build job.
         $unitQueueService = resolve(UnitQueueService::class);
-        $unitQueueService->add($this->playerService->planets->current(), $this->objectService->getUnitObjectByMachineName('light_fighter')->id, 10);
+        $unitQueueService->add($this->playerService->planets->current(), ObjectService::getUnitObjectByMachineName('light_fighter')->id, 10);
     }
 
     /**

@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Services\BuildingQueueService;
-use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
 class FacilitiesController extends AbstractBuildingsController

@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Exception;
-use Illuminate\Support\Carbon;
 use Illuminate\Testing\TestResponse;
 use OGame\Models\Resources;
 use Tests\AccountTestCase;
