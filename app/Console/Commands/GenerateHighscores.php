@@ -29,15 +29,14 @@ class GenerateHighscores extends Command
      */
     public function handle(HighscoreService $highscoreService, PlayerServiceFactory $playerServiceFactory): void
     {
-        $users = User::query();
+        $users = User::query()->whereHas('tech');
         $this->info('Updating highscores...');
         $bar = $this->output->createProgressBar();
         $bar->start($users->count());
         $users->chunkById(200, function ($players) use ($playerServiceFactory, $highscoreService, &$bar) {
+            /** @var \Illuminate\Support\Collection<Highscore> $players */
             foreach ($players as $player) {
-                // @phpstan-ignore-next-line TODO - Is there a better way than this?
                 $playerService = $playerServiceFactory->make($player->id);
-                // @phpstan-ignore-next-line TODO - Is there a better way than this?
                 Highscore::updateOrCreate(['player_id' => $player->id], [
                     'general' => $highscoreService->getPlayerScore($playerService),
                     'economy' => $highscoreService->getPlayerScoreEconomy($playerService),

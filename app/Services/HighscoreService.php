@@ -133,9 +133,9 @@ class HighscoreService
         // Get all player highscores
         $parsedHighscores = [];
 
-        $count = 0;
-        $highscores = Highscore::with('player')
-        ->ValidRanks()
+        $highscores = Highscore::whereHas('player.tech')
+        ->with('player')
+        ->validRanks()
         ->orderBy($this->highscoreType->name.'_rank')
         ->paginate(perPage: $perPage, page: $pageOn);
         foreach ($highscores as $playerScore) {

@@ -2,9 +2,11 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OGame\Observers\UserTechObserver;
 
 /**
  *
@@ -56,6 +58,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Database\Factories\UserTechFactory factory($count = null, $state = [])
  * @mixin \Eloquent
  */
+#[ObservedBy([UserTechObserver::class])]
 class UserTech extends Model
 {
     use HasFactory;

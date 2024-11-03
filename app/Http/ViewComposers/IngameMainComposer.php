@@ -107,9 +107,7 @@ class IngameMainComposer
         // Get current locale
         $locale = App::getLocale();
 
-        $playerId = (string) $this->player->getId();
-
-        $highscoreRank = Cache::remember($playerId, now()->addMinutes(5), function () {
+        $highscoreRank = Cache::remember('player-highscore' . $this->player->getId(), now()->addMinutes(5), function () {
             return $this->highscoreService->getHighscorePlayerRank($this->player);
         });
 

@@ -37,13 +37,14 @@ class GenerateHighscoreRanks extends Command
     {
         $rank = 1;
         $this->info("Updating highscore ranks for $type->name...");
-        $query = Highscore::query()->where($type->name, '!=', null);
+        $query = Highscore::query()->whereHas('player.tech')
+        ->where($type->name, '!=', null);
         $query->orderBy($type->name, 'DESC');
         $bar = $this->output->createProgressBar();
         $bar->start($query->count());
         $query->chunkById(200, function ($highscores) use ($type, &$bar, &$rank) {
+            /** @var \Illuminate\Support\Collection<int, Highscore> $highscores */
             foreach ($highscores as $highscore) {
-                // @phpstan-ignore-next-line TODO - Is there a better way than this? - Access to an undefined property TModel of Illuminate\Database\Eloquent\Model::$research_rank.
                 $highscore->{$type->name.'_rank'} = $rank;
                 $highscore->save();
                 $bar->advance();
