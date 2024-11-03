@@ -1460,6 +1460,24 @@ class PlanetService
     }
 
     /**
+     * Get is the current planet building the object or not
+     *
+     * @return bool
+     */
+    public function isBuildingObject(string $machine_name, int $level): bool
+    {
+        $object = $this->objects->getObjectByMachineName($machine_name);
+
+        // Check only building queue objects
+        if ($object->type !== GameObjectType::Building && $object->type !== GameObjectType::Station) {
+            return false;
+        }
+
+        $build_queue = resolve(BuildingQueueService::class);
+        return $build_queue->objectInBuildingQueue($this, $machine_name, $level);
+    }
+
+    /**
      * Get building count from planet
      *
      * @return int

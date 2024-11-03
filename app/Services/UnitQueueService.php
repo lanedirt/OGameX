@@ -34,7 +34,7 @@ class UnitQueueService
     private UnitQueue $model;
 
     /**
-     * BuildingQueue constructor.
+     * UnitQueueService constructor.
      */
     public function __construct(ObjectService $objects)
     {
@@ -44,7 +44,7 @@ class UnitQueueService
     }
 
     /**
-     * Retrieve current building build queue for a planet.
+     * Retrieve current unit build queue for a planet.
      *
      * @param PlanetService $planet
      * @return UnitQueueListViewModel
@@ -100,7 +100,7 @@ class UnitQueueService
     }
 
     /**
-     * Retrieve current building build queue for a planet.
+     * Retrieve current unit build queue for a planet.
      *
      * @param int $planet_id
      * @return Collection<int, UnitQueue>
@@ -159,7 +159,7 @@ class UnitQueueService
         $object = $this->objects->getUnitObjectById($object_id);
 
         // Check if user satisifes requirements to build this object.
-        $requirements_met = $this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer());
+        $requirements_met = $this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), 0, false);
 
         // Sanity check: check if the planet has enough resources to build
         // the amount requested. If not, then adjust the ordered amount.

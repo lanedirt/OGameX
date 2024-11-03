@@ -329,21 +329,41 @@ class ObjectService
      * @param string $machine_name
      * @param PlanetService $planet
      * @param PlayerService $player
+     * @param int $level
+     * @param bool $queued
      * @return bool
      */
-    public function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player): bool
+    public function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player, int $level = 0, bool $queued = true): bool
     {
         try {
             $object = $this->getObjectByMachineName($machine_name);
+
+            // Check required prior levels
+            if ($level) {
+                if (!$this->objectLevelsMet($object, $planet, $player, $level, $queued)) {
+                    return false;
+                }
+            }
+
             foreach ($object->requirements as $requirement) {
                 // Load required object and check if requirements are met.
                 $object_required = $this->getObjectByMachineName($requirement->object_machine_name);
+                $check_queue = $queued;
+
+                // Skip queue check for research lab as it must be present for research objects
+                if ($object_required->machine_name === 'research_lab') {
+                    $check_queue = false;
+                }
+
                 if ($object_required->type === GameObjectType::Research) {
-                    if ($player->getResearchLevel($object_required->machine_name) < $requirement->level) {
+                    // Check if requirements are met with existing technology or with research items in build queue.
+                    if ($player->getResearchLevel($object_required->machine_name) < $requirement->level && (!$check_queue || !$player->isResearchingTech($requirement->object_machine_name, $requirement->level))) {
                         return false;
                     }
                 } else {
-                    if ($planet->getObjectLevel($object_required->machine_name) < $requirement->level) {
+                    // Check if requirements are met with existing buildings or with buildings in build queue.
+                    // Building queue is checked only for building queue objects, not for unit queue objects.
+                    if ($planet->getObjectLevel($object_required->machine_name) < $requirement->level && (!$check_queue || !$planet->isBuildingObject($requirement->object_machine_name, $requirement->level))) {
                         return false;
                     }
                 }
@@ -485,5 +505,47 @@ class ObjectService
         }
 
         return new Resources($metal, $crystal, $deuterium, $energy);
+    }
+
+    /**
+     * Check if object prior level requirements are met (for building it).
+     * Prior levels can be already built or in queues
+     *
+     * @param GameObject $object
+     * @param PlanetService $planet
+     * @param PlayerService $player
+     * @param int $level
+     * @param bool $queued
+     * @return bool
+     */
+    private function objectLevelsMet(GameObject $object, PlanetService $planet, PlayerService $player, int $level, bool $queued): bool
+    {
+        $current_level = 0;
+
+        if ($object->type === GameObjectType::Research) {
+            $current_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+        } else {
+            $current_level = $planet->getObjectLevel($object->machine_name);
+        }
+
+        // Check if target level is next level
+        if ($current_level + 1 === $level) {
+            return true;
+        }
+
+        // Check if items in queues should be included or not
+        if (!$queued) {
+            // There are prior levels, but queue should not be included
+            return false;
+        }
+
+        // Check prior levels from queues
+        for ($i = $current_level + 1; $i < $level; $i++) {
+            if (!$planet->isBuildingObject($object->machine_name, $i) && !$player->isResearchingTech($object->machine_name, $i)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

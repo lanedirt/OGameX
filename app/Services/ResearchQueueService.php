@@ -116,21 +116,29 @@ class ResearchQueueService
      */
     public function add(PlayerService $player, PlanetService $planet, int $research_object_id): void
     {
-        $build_queue = $this->retrieveQueue($planet);
+        $research_queue = $this->retrieveQueue($planet);
 
-        // Max amount of buildings that can be in the queue at a given time.
-        if ($build_queue->isQueueFull()) {
-            // Max amount of build queue items already exist, throw exception.
+        // Max amount of research items that can be in the queue at a given time.
+        // TODO: refactor throw exception into a more user-friendly message.
+        if ($research_queue->isQueueFull()) {
+            // Max amount of research queue items already exist, throw exception.
             throw new Exception('Maximum number of items already in queue.');
         }
 
         $object = $this->objects->getResearchObjectById($research_object_id);
 
+        // Check if user satisifes requirements to research this object.
+        // TODO: refactor throw exception into a more user-friendly message.
+        $requirements_met = $this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer());
+        if (!$requirements_met) {
+            throw new Exception('Requirements not met to build this object.');
+        }
+
         // @TODO: add checks that current logged in user is owner of planet
-        // and is able to add this object to the building queue.
+        // and is able to add this object to the research queue.
         $current_level = $player->getResearchLevel($object->machine_name);
 
-        // Check to see how many other items of this building there are already
+        // Check to see how many other items of this technology there are already
         // in the queue, because if so then the level needs to be higher than that.
         $amount = $this->activeBuildingQueueItemCount($player, $research_object_id);
         $next_level = $current_level + $amount + 1;
@@ -148,7 +156,7 @@ class ResearchQueueService
     }
 
     /**
-     * Retrieve current building build queue for a planet.
+     * Retrieve current research queue for a planet.
      *
      * @param PlanetService $planet
      * @return ResearchQueueListViewModel
@@ -219,9 +227,9 @@ class ResearchQueueService
     }
 
     /**
-     * Start building the next item in the queue (if available).
+     * Start researching the next item in the queue (if available).
      *
-     * This actually starts the building process and deducts the resources
+     * This actually starts the research process and deducts the resources
      * from the planet. If there are not enough resources the build attempt
      * will fail.
      *
@@ -229,7 +237,7 @@ class ResearchQueueService
      *
      * @param int $time_start
      *  Optional parameter to indicate when the new item should start, this
-     *  is used for when a few build queue items are finished at the exact
+     *  is used for when a few research queue items are finished at the exact
      *  same time, e.g. when a user closes its session and logs back in
      *  after a while.
      * @return void
@@ -253,17 +261,17 @@ class ResearchQueueService
             $planet = $player->planets->childPlanetById($queue_item->planet_id);
             $object = $this->objects->getResearchObjectById($queue_item->object_id);
 
-            // See if the planet has enough resources for this build attempt.
+            // See if the planet has enough resources for this research attempt.
             $price = $this->objects->getObjectPrice($object->machine_name, $planet);
-            $build_time = $player->planets->current()->getTechnologyResearchTime($object->machine_name);
+            $research_time = $player->planets->current()->getTechnologyResearchTime($object->machine_name);
 
-            // Only start the queue item if there are no other queue items building
+            // Only start the queue item if there are no other queue items researching
             // for this planet.
-            $build_queue = $this->retrieveQueue($planet);
-            $currently_building = $build_queue->getCurrentlyBuildingFromQueue();
+            $research_queue = $this->retrieveQueue($planet);
+            $currently_researching = $research_queue->getCurrentlyBuildingFromQueue();
 
-            if ($currently_building !== null) {
-                // There already is something else building, don't start a new one.
+            if ($currently_researching !== null) {
+                // There already is something else researching, don't start a new one.
                 break;
             }
 
@@ -272,29 +280,37 @@ class ResearchQueueService
             // is wrong.
             $current_level = $player->getResearchLevel($object->machine_name);
             if ($queue_item->object_level_target !== ($current_level + 1)) {
-                // Error, cancel build queue item.
+                // Error, cancel research queue item.
                 $this->cancel($player, $queue_item->id, $queue_item->object_id);
 
                 continue;
             }
 
             // Sanity check: check if the planet has enough resources. If not,
-            // then cancel build request.
+            // then cancel research request.
             if (!$planet->hasResources($price)) {
-                // Error, cancel build queue item.
+                // Error, cancel research queue item.
                 $this->cancel($player, $queue_item->id, $queue_item->object_id);
 
                 continue;
             }
 
-            // All OK, deduct resources and start building process.
+            // Sanity check: check if the researching requirements are still met. If not,
+            // then cancel research request.
+            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $player, $queue_item->object_level_target, false)) {
+                $this->cancel($player, $queue_item->id, $queue_item->object_id);
+
+                continue;
+            }
+
+            // All OK, deduct resources and start researching process.
             $planet->deductResources($price);
 
             if (!$time_start) {
                 $time_start = (int)Carbon::now()->timestamp;
             }
 
-            $queue_item->time_duration = (int)$build_time;
+            $queue_item->time_duration = (int)$research_time;
             $queue_item->time_start = $time_start;
             $queue_item->time_end = $queue_item->time_start + $queue_item->time_duration;
             $queue_item->building = 1;
@@ -305,7 +321,7 @@ class ResearchQueueService
 
             // If the calculated end time is lower than the current time,
             // we force that the planet is updated again which will grant
-            // the building immediately without having to wait for a refresh.
+            // the research immediately without having to wait for a refresh.
             if ($queue_item->time_end < Carbon::now()->timestamp) {
                 $player->updateResearchQueue();
             }
@@ -313,22 +329,22 @@ class ResearchQueueService
     }
 
     /**
-     * Cancels an active building queue record.
+     * Cancels an active research queue record.
      *
      * @param PlayerService $player
-     * @param int $building_queue_id
-     * @param int $building_id
+     * @param int $research_queue_id
+     * @param int $research_id
      * @throws Exception
      */
-    public function cancel(PlayerService $player, int $building_queue_id, int $building_id): void
+    public function cancel(PlayerService $player, int $research_queue_id, int $research_id): void
     {
         $queue_item = $this->model
             ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
                 ['users.id', $player->getId()],
-                ['research_queues.id', $building_queue_id],
-                ['object_id', $building_id],
+                ['research_queues.id', $research_queue_id],
+                ['object_id', $research_id],
                 ['processed', 0],
                 ['canceled', 0],
             ])
@@ -339,36 +355,18 @@ class ResearchQueueService
         if ($queue_item) {
             // Typecast to a new object to avoid issues with the model.
             $queue_item = $queue_item instanceof ResearchQueue ? $queue_item : new ResearchQueue($queue_item->getAttributes());
-            $planetService = $player->planets->childPlanetById($queue_item->planet_id);
+            $planet = $player->planets->childPlanetById($queue_item->planet_id);
 
-            // Gets all building queue records of this target level and all that
+            // Gets all research queue records of this target level and all that
             // come after it. So e.g. if user cancels build order for metal mine
             // level 5 then any other already queued build orders for lvl 6,7,8 etc.
-            // will also be canceled.
-            $queue_items_higher_level = $this->model
-                ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
-                ->join('users', 'planets.user_id', '=', 'users.id')
-                ->where([
-                    ['users.id', $player->getId()],
-                    ['object_id', $building_id],
-                    ['object_level_target', '>', $queue_item->object_level_target],
-                    ['processed', 0],
-                    ['canceled', 0],
-                ])
-                ->select('research_queues.*')
-                ->get();
-
-            // Add canceled flag to all entries with a higher level (if any).
-            foreach ($queue_items_higher_level as $queue_item_higher_level) {
-                $queue_item_higher_level->building = 0;
-                $queue_item_higher_level->canceled = 1;
-
-                $queue_item_higher_level->save();
-            }
+            // will also be canceled. Same applies to research requirements,
+            // if user cancels research order for Energy Technology which is requirement
+            // for Impulse Drive then Impulse Drive will also be canceled.
 
             // Give back resources if the current entry was already building.
             if ($queue_item->building === 1) {
-                $planetService->addResources(new Resources($queue_item->metal, $queue_item->crystal, $queue_item->deuterium, 0));
+                $planet->addResources(new Resources($queue_item->metal, $queue_item->crystal, $queue_item->deuterium, 0));
             }
 
             // Add canceled flag to the main entry.
@@ -377,8 +375,73 @@ class ResearchQueueService
 
             $queue_item->save();
 
+            $this->cancelItemMissingRequirements($player, $planet);
+
+            $build_queue = resolve('OGame\Services\BuildingQueueService');
+            $build_queue->cancelItemMissingRequirements($planet);
+
             // Set the next queue item to start (if applicable)
             $this->start($player);
+        }
+    }
+
+    /**
+     * Get is object in research queue
+     *
+     * @return bool
+     */
+    public function objectInResearchQueue(PlayerService $player, string $machine_name, int $level): bool
+    {
+        // Fetch queue items from model
+        $queue_items =  $this->model
+            ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
+            ->join('users', 'planets.user_id', '=', 'users.id')
+            ->where([
+                ['users.id', $player->getId()],
+                ['research_queues.canceled', 0],
+            ])
+            ->select('research_queues.*')
+            ->orderBy('research_queues.time_start', 'asc')
+            ->get();
+
+        foreach ($queue_items as $item) {
+            $object = $this->objects->getObjectById($item->object_id);
+
+            if ($object->machine_name === $machine_name && $item->object_level_target === $level) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Cancel first research queue item missing requirements.
+     * This function will be called recursively when it cancels the item.
+     *
+     * @return void
+     */
+    public function cancelItemMissingRequirements(PlayerService $player, PlanetService $planet): void
+    {
+        // Fetch queue items from model
+        $research_queue_items = $this->model
+            ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
+            ->join('users', 'planets.user_id', '=', 'users.id')
+            ->where([
+                ['users.id', $player->getId()],
+                ['research_queues.canceled', 0],
+            ])
+            ->select('research_queues.*')
+            ->orderBy('research_queues.time_start', 'asc')
+            ->get();
+
+        foreach ($research_queue_items as $research_queue_item) {
+            $object = $this->objects->getObjectById($research_queue_item->object_id);
+
+            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $player, $research_queue_item->object_level_target)) {
+                $this->cancel($player, $research_queue_item->id, $object->id);
+                break;
+            }
         }
     }
 }
