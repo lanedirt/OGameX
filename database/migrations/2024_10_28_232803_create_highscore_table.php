@@ -13,7 +13,7 @@ return new class () extends Migration {
         Schema::create('highscores', function (Blueprint $table) {
             $table->id();
             $table->integer('player_id', false, true);
-            $table->foreign('player_id')->references('id')->on('users');
+            $table->foreign('player_id')->references('id')->on('users')->onDelete('cascade');
             $table->bigInteger('general')->default(0);
             $table->bigInteger('economy')->default(0);
             $table->bigInteger('research')->default(0);
