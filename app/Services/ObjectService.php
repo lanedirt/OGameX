@@ -350,7 +350,7 @@ class ObjectService
                 $object_required = $this->getObjectByMachineName($requirement->object_machine_name);
                 $check_queue = $queued;
 
-                // SKip queue check for research lab as it must be present for research objects
+                // Skip queue check for research lab as it must be present for research objects
                 if ($object_required->machine_name === 'research_lab') {
                     $check_queue = false;
                 }

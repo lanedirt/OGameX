@@ -84,14 +84,14 @@ class BuildingQueueService
     {
         $build_queue = $this->retrieveQueue($planet);
 
-        $building = $this->objects->getObjectById($building_id);
-
         // Max amount of buildings that can be in the queue in a given time.
         // TODO: refactor throw exception into a more user-friendly message.
         if ($build_queue->isQueueFull()) {
             // Max amount of build queue items already exist, throw exception.
             throw new Exception('Maximum number of items already in queue.');
         }
+
+        $building = $this->objects->getObjectById($building_id);
 
         // Check if user satisifes requirements to build this object.
         // TODO: refactor throw exception into a more user-friendly message.

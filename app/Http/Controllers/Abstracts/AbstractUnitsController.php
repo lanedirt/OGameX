@@ -94,7 +94,7 @@ abstract class AbstractUnitsController extends OGameController
                 $amount = $planet->getObjectAmount($object->machine_name);
 
                 // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object->machine_name, $planet, $player);
+                $requirements_met = $objects->objectRequirementsMet($object->machine_name, $planet, $player, 0, false);
 
                 // Check if the current planet has enough resources to build this building.
                 $enough_resources = $planet->hasResources($objects->getObjectPrice($object->machine_name, $planet));

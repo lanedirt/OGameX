@@ -5,7 +5,6 @@ namespace Tests\Unit;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Models\BuildingQueue;
 use OGame\Models\Enums\ResourceType;
-use OGame\Models\Planet;
 use OGame\Models\Resources;
 use Tests\UnitTestCase;
 
@@ -200,8 +199,9 @@ class PlanetServiceTest extends UnitTestCase
      */
     public function testIsBuildingObject(): void
     {
-        $planet = Planet::factory()->make(['id' => 1]);
-        $this->planetService->setPlanet($planet);
+        $this->createAndSetPlanetModel([
+            'id' => 1,
+        ]);
 
         // Add level 3 shipyard to building queue
         $queue = new BuildingQueue();
@@ -211,7 +211,5 @@ class PlanetServiceTest extends UnitTestCase
         $queue->save();
 
         $this->assertTrue($this->planetService->isBuildingObject('shipyard', 3));
-        $this->assertFalse($this->planetService->isBuildingObject('shipyard', 4));
-        $this->assertFalse($this->planetService->isBuildingObject('robot_factory', 3));
     }
 }

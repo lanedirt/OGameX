@@ -155,7 +155,7 @@ class ResearchQueueTest extends AccountTestCase
         // Assert that resources have been actually deducted
         $this->assertResourcesOnPage($response, new Resources(0, 500, 0, 0));
         // Assert that the research is in the queue
-        $this->assertObjectInQueue($response, 'energy_technology', 'Energy Technology is not in build queue.');
+        $this->assertObjectInQueue($response, 'energy_technology', 1, 'Energy Technology level 1 is not in build queue.');
 
         // Extract first and second number on page which looks like this where num1/num2 are ints:
         // "cancelProduction(num1,num2,"
@@ -197,5 +197,46 @@ class ResearchQueueTest extends AccountTestCase
 
         $research_time = $this->planetService->getTechnologyResearchTime('energy_technology');
         $this->assertGreaterThan(0, $research_time);
+    }
+
+    /**
+     * Verify that research lab requirement is working for research objects.
+     * @throws Exception
+     */
+    public function testResearchLabRequirement(): void
+    {
+        // Set the current time to a specific moment for testing
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
+        Carbon::setTestNow($testTime);
+
+        // Add required resources for research to planet
+        $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
+
+        // Assert that research requirements for Energy Technology are not met as Research Lab is missing
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+        $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements not met.');
+
+        // Add Research Lab level 1 to build queue
+        $this->addFacilitiesBuildRequest('research_lab');
+
+        // Assert that research requirements for Energy Technology are not met as Research Lab is in build queue
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+        $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements not met.');
+
+        // Verify that Energy Technology can be added to research queue 2 minute later.
+        $testTime = Carbon::create(2024, 1, 1, 12, 2, 0);
+        Carbon::setTestNow($testTime);
+
+        $this->addResearchBuildRequest('energy_technology');
+
+        // Verify the research is finished 2 minute later.
+        $testTime = Carbon::create(2024, 1, 1, 12, 4, 0);
+        Carbon::setTestNow($testTime);
+
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 1, 'Energy technology is not at level one 2 minutes after build request issued.');
     }
 }
