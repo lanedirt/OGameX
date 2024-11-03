@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
+use OGame\Http\Controllers\ShipyardController;
 use OGame\Http\Traits\ObjectAjaxTrait;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\ObjectService;
@@ -154,6 +155,11 @@ abstract class AbstractBuildingsController extends OGameController
      */
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
+        // If the technology is a solar satellite, execute the addBuildRequest method in ShipyardController.
+        if ($request->input('technologyId') === '212') {
+            resolve(ShipyardController::class)->addBuildRequest($request, $player);
+        }
+
         // Explicitly verify CSRF token because this request supports both POST and GET.
         if (!hash_equals($request->session()->token(), $request->input('_token'))) {
             return response()->json([
