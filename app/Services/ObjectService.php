@@ -80,7 +80,6 @@ class ObjectService
         return array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
     }
 
-
     /**
      * Get all ship objects.
      *
@@ -371,6 +370,11 @@ class ObjectService
         // If requirements are false, the max build amount is 0
         if (!$requirements_met) {
             return 0;
+        }
+
+        // Objects only be able to be built once
+        if ($machine_name === 'small_shield_dome' || $machine_name === 'large_shield_dome') {
+            return $planet->getObjectAmount($machine_name) ? 0 : 1;
         }
 
         $price = $this->getObjectPrice($machine_name, $planet);

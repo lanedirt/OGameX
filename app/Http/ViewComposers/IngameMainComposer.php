@@ -114,5 +114,4 @@ class IngameMainComposer
             'locale' => $locale,
         ]);
     }
-
 }

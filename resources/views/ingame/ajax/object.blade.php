@@ -163,7 +163,7 @@
 
             </div>
 
-            @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
+            @if ($max_build_amount && ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense))
                 <div class="build_amount">
                     <label for="build_amount">Number:</label>
                     <input type="text" name="build_amount" id="build_amount" min="0" max="{{ $max_build_amount }}" onfocus="clearInput(this);" onkeyup="checkIntInput(this, 1, {{ $max_build_amount }});event.stopPropagation();">
@@ -181,7 +181,7 @@
             <div class="build-it_wrap">
                 <div class="ipiHintable" data-ipi-hint="ipiTechnologyUpgradedeuteriumSynthesizer">
                     <button class="upgrade"
-                            @if (!$enough_resources || !$requirements_met || $build_queue_max)
+                            @if (!$enough_resources || !$requirements_met || $build_queue_max || !$max_build_amount)
                                 disabled
                             @else
                             @endif

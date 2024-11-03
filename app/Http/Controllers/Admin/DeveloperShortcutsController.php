@@ -25,7 +25,6 @@ class DeveloperShortcutsController extends OGameController
         // Get all unit objects
         $units = $objectService->getUnitObjects();
 
-
         return view('ingame.admin.developershortcuts')->with([
             'units' => $units,
         ]);
@@ -92,7 +91,6 @@ class DeveloperShortcutsController extends OGameController
                 }
             }
         }
-
 
         return redirect()->route('admin.developershortcuts.index')->with('success', __('Changes saved!'));
     }

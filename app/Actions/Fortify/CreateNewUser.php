@@ -105,7 +105,6 @@ class CreateNewUser implements CreatesNewUsers
         "Zephy", "Borel", "Eurus", "Notus", "Austro"
     ];
 
-
     /**
      * Generate a random name based on the first and last name arrays.
      *
@@ -174,7 +173,6 @@ class CreateNewUser implements CreatesNewUsers
             ],
             'password' => $this->passwordRules(),
         ])->validate();
-
 
         // Add try/catch to retry creating user 5 times because exception could be triggered
         // if the username is already taken.

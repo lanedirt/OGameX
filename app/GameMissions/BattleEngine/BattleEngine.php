@@ -246,7 +246,7 @@ class BattleEngine
     private function attackUnit(bool $isAttacker, BattleResultRound $round, BattleUnit $attacker, BattleUnit $defender): bool
     {
         // Calculate the damage dealt by the attacker to the defender.
-        $damage = $attacker->currentAttackPower;
+        $damage = $attacker->attackPower;
         $shieldAbsorption = 0;
 
         if ($damage < (0.01 * $defender->currentShieldPoints)) {

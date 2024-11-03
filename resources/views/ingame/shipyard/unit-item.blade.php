@@ -20,6 +20,9 @@
     @elseif (!$building->enough_resources)
         data-status="disabled"
     title="{{ $building->object->title }}<br/>@lang('Not enough resources!')"
+    @elseif (!$building->max_build_amount)
+        data-status="disabled"
+    title="{{ $building->object->title }}<br/>@lang('Maximum number reached!')"
     @else
         data-status="on"
     title="{{ $building->object->title }}"
