@@ -168,29 +168,42 @@ several performance optimizations and security settings that are not present in 
 ***Caution:*** the production configuration is not yet fully optimized and should be used with caution. As an example, the database root user uses a default password which should be changed to something unique. 
 You should review all settings before deploying this project to a publicly accessible server.
 
-1. Clone the repository.
+**Note:** The instructions below are for Linux. OGameX should also work under Docker for Windows but the steps might be a little bit different.
+
+1. The OGameX docker containers are expected to be run under a separate (non-root) user. Create a new user (e.g., ogamex) and add it to the Docker group:
+  ```
+  $ sudo useradd -m ogamex
+  $ sudo usermod -aG docker ogamex
+  ```
+
+2. Switch to the new user (ogamex):
+  ```
+  $ sudo su ogamex
+  ```
+
+3. Clone the git repo and run the Docker commands as the ogamex user to ensure all files are created with the correct permissions.
   ```
   $ git clone https://github.com/lanedirt/OGameX.git
   $ cd OGameX
   ```
 
-2. Copy `.env.example-prod` to `.env`.
+4. Copy `.env.example-prod` to `.env`.
   ```
   $ cp .env.example-prod .env
   ```
 
-3. Launch the project using Docker Compose:
+5. Launch the project using Docker Compose:
   ```
   $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
   ```
 > Note: The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed.
 
-4. Access the "ogame-app" Docker container:
+6. Access the "ogame-app" Docker container:
   ```
   $ docker exec -it ogame-app /bin/bash
   ```
 
-5. Run Laravel setup commands to download composer dependencies, generate an encryption key, cache configuration and prepare the database:
+7. Run Laravel setup commands to download composer dependencies, generate an encryption key, cache configuration and prepare the database:
   ```
   $ composer install --no-dev
   $ php artisan key:generate --force
