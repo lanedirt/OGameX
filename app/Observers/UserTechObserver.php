@@ -2,7 +2,6 @@
 
 namespace OGame\Observers;
 
-use Artisan;
 use OGame\Models\Highscore;
 use OGame\Models\User;
 use OGame\Models\UserTech;
