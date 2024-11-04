@@ -29,7 +29,7 @@ class BuildQueueCancelTest extends AccountTestCase
         $this->travel(1)->seconds();
 
         $response = $this->get('/resources');
-        $this->assertObjectInQueue($response, 'metal_mine', 'Metal mine is expected in build queue but cannot be found.');
+        $this->assertObjectInQueue($response, 'metal_mine', 3, 'Metal mine level 3 is expected in build queue but cannot be found.');
 
         // Extract first and second number on page which looks like this where num1/num2 are ints:
         // "cancelProduction(num1,num2,"
@@ -84,7 +84,7 @@ class BuildQueueCancelTest extends AccountTestCase
         $this->addResourceBuildRequest('metal_mine');
 
         $response = $this->get('/resources');
-        $this->assertObjectInQueue($response, 'metal_mine', 'Metal mine is not in build queue.');
+        $this->assertObjectInQueue($response, 'metal_mine', 1, 'Metal mine level 1 is not in build queue.');
 
         // Extract first and second number on page which looks like this where num1/num2 are ints:
         // "cancelProduction(num1,num2,"
@@ -134,7 +134,7 @@ class BuildQueueCancelTest extends AccountTestCase
 
         // Extract first and second number on page which looks like this where num1/num2 are ints:
         // "cancelbuilding(num1,num2,"
-        $this->assertObjectInQueue($response, 'crystal_mine', 'Crystal mine is not in build queue.');
+        $this->assertObjectInQueue($response, 'crystal_mine', 1, 'Crystal mine level 1 is not in build queue.');
 
         // Extract the content from the response
         $pageContent = $response->getContent();
@@ -162,5 +162,52 @@ class BuildQueueCancelTest extends AccountTestCase
         } else {
             $this->throwException(new BindingResolutionException('Less than two "cancelProduction" calls found.'));
         }
+    }
+
+    /**
+     * Tests building queue item is cancelled if requirements are not met.
+     */
+    public function testCancelObjectMissingRequirements(): void
+    {
+        // Assert that build queue is empty
+        $response = $this->get('/facilities');
+        $response->assertStatus(200);
+
+        $this->assertEmptyBuildingQueue($response);
+
+        // Add resource to build required facilities to planet
+        $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
+
+        // Add required facilities to building queue
+        $this->addFacilitiesBuildRequest('robot_factory');
+        $this->addFacilitiesBuildRequest('robot_factory');
+        $this->addFacilitiesBuildRequest('shipyard');
+
+        $response = $this->get('/facilities');
+        $this->assertObjectInQueue($response, 'shipyard', 1, 'Shipyard level 1 is not in build queue.');
+
+        // Extract the first and second number from the first cancelbuilding call
+        $cancelProductionCall = $response->getContent();
+        if (empty($cancelProductionCall)) {
+            $cancelProductionCall = '';
+        }
+        $cancelProductionCall = explode('onclick="cancelbuilding(', $cancelProductionCall);
+        $cancelProductionCall = explode(',', $cancelProductionCall[1]);
+        $number1 = (int)$cancelProductionCall[0];
+        $number2 = (int)$cancelProductionCall[1];
+
+        // Check if both numbers are integers. If not, throw an exception.
+        if (empty($number1) || empty($number2)) {
+            throw new BindingResolutionException('Could not extract the building queue ID from the page.');
+        }
+
+        // Cancel Robotics Factory level 1, this will cancel also Robotics Factory level 2 and Shipyard level 1
+        $this->cancelFacilitiesBuildRequest($number1, $number2);
+
+        // Assert that building queue is empty
+        $response = $this->get('/facilities');
+        $response->assertStatus(200);
+
+        $this->assertEmptyBuildingQueue($response);
     }
 }

@@ -390,7 +390,7 @@ abstract class AccountTestCase extends TestCase
         }
     }
 
-    protected function assertObjectInQueue(TestResponse $response, string $machine_name, string $error_message = ''): void
+    protected function assertObjectInQueue(TestResponse $response, string $machine_name, int $level, string $error_message = ''): void
     {
         // Get object name from machine name.
         try {
@@ -405,7 +405,7 @@ abstract class AccountTestCase extends TestCase
             if (!$responseContent) {
                 $responseContent = '';
             }
-            $condition1 = str_contains($responseContent, 'Cancel production of ' . $object->title);
+            $condition1 = str_contains($responseContent, 'Cancel production of ' . $object->title . ' level '. $level);
             $condition2 = str_contains($responseContent, 'do you really want to cancel ' . $object->title);
             $this->assertTrue($condition1 || $condition2, 'Neither of the expected texts were found in the response.');
         } catch (Exception $e) {
@@ -434,6 +434,70 @@ abstract class AccountTestCase extends TestCase
                 $this->fail($error_message . '. Error: ' . $e->getMessage());
             } else {
                 $this->fail('Object ' . $object->title . ' is not in the queue. Error: ' . $e->getMessage());
+            }
+        }
+    }
+
+    protected function assertEmptyBuildingQueue(TestResponse $response, string $error_message = ''): void
+    {
+        // Check if "no buildings being built" text is present on page.
+        try {
+            $responseContent = $response->getContent();
+            if (!$responseContent) {
+                $responseContent = '';
+            }
+            $condition = str_contains($responseContent, 'no building being built');
+            $this->assertTrue($condition, 'expected text was not found in the response.');
+        } catch (Exception $e) {
+            if (!empty($error_message)) {
+                $this->fail($error_message . '. Error: ' . $e->getMessage());
+            } else {
+                $this->fail('Building queue is not empty. Error: ' . $e->getMessage());
+            }
+        }
+    }
+
+    protected function assertEmptyResearchQueue(TestResponse $response, string $error_message = ''): void
+    {
+        // Check if "no research done" text is present on page.
+        try {
+            $responseContent = $response->getContent();
+            if (!$responseContent) {
+                $responseContent = '';
+            }
+            $condition = str_contains($responseContent, 'no research done');
+            $this->assertTrue($condition, 'expected text was not found in the response.');
+        } catch (Exception $e) {
+            if (!empty($error_message)) {
+                $this->fail($error_message . '. Error: ' . $e->getMessage());
+            } else {
+                $this->fail('Research queue is not empty. Error: ' . $e->getMessage());
+            }
+        }
+    }
+
+    protected function assertRequirementsNotMet(TestResponse $response, string $machine_name, string $error_message = ''): void
+    {
+        // Get object name from machine name.
+        try {
+            $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+        } catch (Exception $e) {
+            $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
+        }
+
+        // Check if "Requirements are not met" text is present on page.
+        try {
+            $responseContent = $response->getContent();
+            if (!$responseContent) {
+                $responseContent = '';
+            }
+            $condition = str_contains($responseContent, $object->title.'<br/>Requirements are not met!');
+            $this->assertTrue($condition, 'expected text was not found in the response.');
+        } catch (Exception $e) {
+            if (!empty($error_message)) {
+                $this->fail($error_message . '. Error: ' . $e->getMessage());
+            } else {
+                $this->fail('Requirements are met. Error: ' . $e->getMessage());
             }
         }
     }

@@ -33,7 +33,7 @@ class ResearchQueueCancelTest extends AccountTestCase
         $this->travel(1)->seconds();
 
         $response = $this->get('/research');
-        $this->assertObjectInQueue($response, 'energy_technology', 'Energy Technology is expected in build queue but cannot be found.');
+        $this->assertObjectInQueue($response, 'energy_technology', 3, 'Energy Technology level 3 is expected in build queue but cannot be found.');
 
         $this->pressCancelButtonOnPage($response);
 
@@ -70,7 +70,7 @@ class ResearchQueueCancelTest extends AccountTestCase
 
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $this->assertObjectInQueue($response, 'energy_technology', 'Energy Technology is not in build queue.');
+        $this->assertObjectInQueue($response, 'energy_technology', 1, 'Energy Technology level 1 is not in build queue.');
 
         $this->pressCancelButtonOnPage($response);
 
@@ -101,7 +101,7 @@ class ResearchQueueCancelTest extends AccountTestCase
         $response = $this->get('/research');
         $response->assertStatus(200);
 
-        $this->assertObjectInQueue($response, 'computer_technology', 'Computer Technology is not in build queue.');
+        $this->assertObjectInQueue($response, 'computer_technology', 1, 'Computer Technology level 1 is not in build queue.');
 
         // Extract the content from the response
         $pageContent = $response->getContent();
@@ -188,5 +188,51 @@ class ResearchQueueCancelTest extends AccountTestCase
 
         // Do POST to cancel build queue item:
         $this->cancelResearchBuildRequest($number1, $number2);
+    }
+
+    /**
+     * Tests research queue item is cancelled if requirements are not met.
+     */
+    public function testCancelResearchMissingRequirements(): void
+    {
+        // Assert that research queue is empty
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+
+        $this->assertEmptyResearchQueue($response);
+
+        // Set facilities and add resources to planet that test requires.
+        $this->planetSetObjectLevel('research_lab', 2);
+        $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
+
+        $this->addResearchBuildRequest('energy_technology');
+        $this->addResearchBuildRequest('impulse_drive');
+
+        $response = $this->get('/research');
+        $this->assertObjectInQueue($response, 'impulse_drive', 1, 'Impulse Drive 1 is not in research queue.');
+
+        // Extract the first and second number from the first cancelbuilding call
+        $cancelProductionCall = $response->getContent();
+        if (empty($cancelProductionCall)) {
+            $cancelProductionCall = '';
+        }
+        $cancelProductionCall = explode('onclick="cancelbuilding(', $cancelProductionCall);
+        $cancelProductionCall = explode(',', $cancelProductionCall[1]);
+        $number1 = (int)$cancelProductionCall[0];
+        $number2 = (int)$cancelProductionCall[1];
+
+        // Check if both numbers are integers. If not, throw an exception.
+        if (empty($number1) || empty($number2)) {
+            throw new BindingResolutionException('Could not extract the building queue ID from the page.');
+        }
+
+        // Cancel Energy technology level 1, this will cancel also Impulse Drive level 1
+        $this->cancelResearchBuildRequest($number1, $number2);
+
+        // Assert that building queue is empty
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+
+        $this->assertEmptyResearchQueue($response);
     }
 }

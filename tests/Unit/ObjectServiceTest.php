@@ -7,17 +7,20 @@ use Tests\UnitTestCase;
 
 class ObjectServiceTest extends UnitTestCase
 {
+    /**
+     * Tests maximum building amount returns correct value.
+     */
     public function testGetObjectMaxBuildAmount(): void
     {
         $this->createAndSetPlanetModel([]);
 
-        // Test with requirement not met
-        $maxBuildAmount = ObjectService::getObjectMaxBuildAmount('plasma_turret', $this->planetService, false);
-        $this->assertEquals(0, $maxBuildAmount);
+        // Test with requirements not met
+        $max_build_amount = ObjectService::getObjectMaxBuildAmount('plasma_turret', $this->planetService, false);
+        $this->assertEquals(0, $max_build_amount);
 
-        // Test with object limited to one instance
-        $maxBuildAmount = ObjectService::getObjectMaxBuildAmount('small_shield_dome', $this->planetService, true);
-        $this->assertEquals(1, $maxBuildAmount);
+        // Test with object limited to one instance per user
+        $max_build_amount = ObjectService::getObjectMaxBuildAmount('small_shield_dome', $this->planetService, true);
+        $this->assertEquals(1, $max_build_amount);
 
         $this->createAndSetPlanetModel([
             'small_shield_dome' => 1,

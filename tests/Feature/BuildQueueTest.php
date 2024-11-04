@@ -193,6 +193,40 @@ class BuildQueueTest extends AccountTestCase
     }
 
     /**
+     * Verify that shipyard can be queued when robotics factory is in queue.
+     * @throws Exception
+     */
+    public function testBuildQueueFacilitiesShipyardQueuedRequirements(): void
+    {
+        // Set the current time to a specific moment for testing
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
+        Carbon::setTestNow($testTime);
+
+        // Add resource to build required facilities to planet
+        $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
+
+        // Assert that building requirements for Shipyard are not met as Robotics Factory is missing
+        $response = $this->get('/facilities');
+        $response->assertStatus(200);
+        $this->assertRequirementsNotMet($response, 'shipyard', 'Shipyard building requirements not met.');
+
+        // Add Robotics Factory level 1 and 2 to build queue
+        $this->addFacilitiesBuildRequest('robot_factory');
+        $this->addFacilitiesBuildRequest('robot_factory');
+
+        // Add Shipyard level 1 to queue
+        $this->addFacilitiesBuildRequest('shipyard');
+
+        // Verify the research is finished 10 minute later.
+        $testTime = Carbon::create(2024, 1, 1, 12, 10, 0);
+        Carbon::setTestNow($testTime);
+
+        $response = $this->get('/facilities');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'shipyard', 1, 'Shipyard is not at level one 10 minutes after build request issued.');
+    }
+
+    /**
      * Verify that building construction time is calculated correctly (higher than 0)
      * @throws Exception
      */

@@ -324,6 +324,115 @@ class UnitQueueTest extends AccountTestCase
     }
 
     /**
+     * Verify that shipyard requirement is working for unit objects.
+     * @throws Exception
+     */
+    public function testUnitQueueShipyardRequirement(): void
+    {
+        // Set the current time to a specific moment for testing
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
+        Carbon::setTestNow($testTime);
+
+        // Add required resources to planet
+        $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
+
+        // Assert that build requirements for Solar Satellite are not met as Shipyard is missing
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+        $this->assertRequirementsNotMet($response, 'solar_satellite', 'Solar Satellite build requirements are met.');
+
+        // Add Shipyard level 1 with requisities to build queue
+        $this->addFacilitiesBuildRequest('robot_factory');
+        $this->addFacilitiesBuildRequest('robot_factory');
+        $this->addFacilitiesBuildRequest('shipyard');
+
+        // Assert that build requirements for Solar Satellite are not met as Shipyard is in build queue
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+        $this->assertRequirementsNotMet($response, 'solar_satellite', 'Solar Satellite build requirements are met.');
+
+        // Verify that Solar Satellite can be added to unit queue 10 minute later.
+        $testTime = Carbon::create(2024, 1, 1, 12, 10, 0);
+        Carbon::setTestNow($testTime);
+
+        $this->addShipyardBuildRequest('solar_satellite', 1);
+
+        // Verify the building is finished 10 minute later.
+        $testTime = Carbon::create(2024, 1, 1, 12, 20, 0);
+        Carbon::setTestNow($testTime);
+
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'solar_satellite', 1, 'Solar Satellite build job is not finished yet 10 minute after build request issued.');
+    }
+
+    /**
+     * Verify that research requirements are working for unit objects.
+     * @throws Exception
+     */
+    public function testUnitQueueResearchRequirement(): void
+    {
+        // Set the current time to a specific moment for testing
+        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
+        Carbon::setTestNow($testTime);
+
+        // Add required resources to planet
+        $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
+
+        // Assert that build requirements for Light Fighter are not met
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+        $this->assertRequirementsNotMet($response, 'light_fighter', 'Light Fighter build requirements are met.');
+
+        // Add Shipyard and Research Lab to build queue
+        $this->addFacilitiesBuildRequest('robot_factory');
+        $this->addFacilitiesBuildRequest('robot_factory');
+        $this->addFacilitiesBuildRequest('shipyard');
+        $this->addFacilitiesBuildRequest('research_lab');
+
+        // Verify the building is finished 10 minute later.
+        $testTime = Carbon::create(2024, 1, 1, 12, 10, 0);
+        Carbon::setTestNow($testTime);
+
+        $response = $this->get('/facilities');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'research_lab', 1, 'Research Lab build job is not finished yet 10 minute after build request issued.');
+
+        // Assert that build requirements for Light Fighter are not met as Combustion Drive technology is missing
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+        $this->assertRequirementsNotMet($response, 'light_fighter', 'Light Fighter build requirements are met.');
+
+        // Add required technology to research queue
+        $this->addResearchBuildRequest('energy_technology');
+        $this->addResearchBuildRequest('combustion_drive');
+
+        // Assert that build requirements for Light Fighter are not met as Combustion Drive technology is in build queue
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+        $this->assertRequirementsNotMet($response, 'light_fighter', 'Light Fighter build requirements are met.');
+
+        // Verify the research is finished 10 minute later.
+        $testTime = Carbon::create(2024, 1, 1, 12, 20, 0);
+        Carbon::setTestNow($testTime);
+
+        $this->planetService->getPlayer()->updateResearchQueue();
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'combustion_drive', 1, 'Combustion Drive is not at level one 10 minutes after build request issued.');
+
+        $this->addShipyardBuildRequest('light_fighter', 1);
+
+        // Verify the building is finished 10 minute later.
+        $testTime = Carbon::create(2024, 1, 1, 12, 30, 0);
+        Carbon::setTestNow($testTime);
+
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 1, 'Light Fighter build job is not finished yet 10 minute after build request issued.');
+    }
+
+    /**
      * Verify that unit construction time is calculated correctly (higher than 0)
      * @throws Exception
      */
