@@ -17,11 +17,10 @@ trait ObjectAjaxTrait
      *
      * @param Request $request
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return JsonResponse
      * @throws Exception
      */
-    public function ajaxHandler(Request $request, PlayerService $player, ObjectService $objects): JsonResponse
+    public function ajaxHandler(Request $request, PlayerService $player): JsonResponse
     {
         $planet = $player->planets->current();
 
@@ -30,7 +29,7 @@ trait ObjectAjaxTrait
             throw new Exception('No object ID provided.');
         }
 
-        $object = $objects->getObjectById($object_id);
+        $object = ObjectService::getObjectById($object_id);
 
         $current_level = 0;
         if ($object->type == GameObjectType::Research) {
@@ -43,12 +42,12 @@ trait ObjectAjaxTrait
         $next_level = $current_level + 1;
 
         // Check requirements of this object
-        $requirements_met = $objects->objectRequirementsMet($object->machine_name, $planet, $player);
+        $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $player);
 
-        $price = $objects->getObjectPrice($object->machine_name, $planet);
+        $price = ObjectService::getObjectPrice($object->machine_name, $planet);
 
         // Get max build amount of this object (unit).
-        $max_build_amount = $objects->getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met);
+        $max_build_amount = ObjectService::getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met);
 
         // Switch
         $production_time = '';

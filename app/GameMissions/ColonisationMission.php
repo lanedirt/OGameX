@@ -11,6 +11,7 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 
 class ColonisationMission extends GameMission
@@ -103,7 +104,7 @@ class ColonisationMission extends GameMission
         // Assembly new unit collection.
         $units = $this->fleetMissionService->getFleetUnits($mission);
         // Remove one colony ship from the fleet as it was used to colonize the planet.
-        $colony_ship = $target_planet->objects->getUnitObjectByMachineName('colony_ship');
+        $colony_ship = ObjectService::getUnitObjectByMachineName('colony_ship');
         $units->removeUnit($colony_ship, 1);
 
         // Create and start the return mission (if the colonisation mission had ships other than the colony ship itself).

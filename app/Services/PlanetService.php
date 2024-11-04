@@ -27,13 +27,6 @@ use Throwable;
 class PlanetService
 {
     /**
-     * Information about objects.
-     *
-     * @var ObjectService
-     */
-    public ObjectService $objects;
-
-    /**
      * The planet object from the model.
      *
      * @var Planet
@@ -62,7 +55,7 @@ class PlanetService
      * @param int $planet_id
      *  If supplied the constructor will try to load the planet from the database.
      */
-    public function __construct(ObjectService $objectService, PlayerServiceFactory $playerServiceFactory, SettingsService $settingsService, PlayerService|null $player = null, int $planet_id = 0)
+    public function __construct(PlayerServiceFactory $playerServiceFactory, SettingsService $settingsService, PlayerService|null $player = null, int $planet_id = 0)
     {
         // Load the planet object if a positive planet ID is given.
         // If no planet ID is given then planet context will not be available
@@ -81,7 +74,6 @@ class PlanetService
             $this->player = $player;
         }
 
-        $this->objects = $objectService;
         $this->settingsService = $settingsService;
     }
 
@@ -575,7 +567,7 @@ class PlanetService
     {
         $totalCount = 0;
 
-        $objects = $this->objects->getShipObjects();
+        $objects = ObjectService::getShipObjects();
         foreach ($objects as $object) {
             if ($object->machine_name === 'solar_satellite') {
                 // Do not count solar satellite as ship.
@@ -595,7 +587,7 @@ class PlanetService
     public function getShipUnits(): UnitCollection
     {
         $units = new UnitCollection();
-        $objects = $this->objects->getShipObjects();
+        $objects = ObjectService::getShipObjects();
         foreach ($objects as $object) {
             if ($this->planet->{$object->machine_name} > 0) {
                 $units->addUnit($object, $this->planet->{$object->machine_name});
@@ -613,7 +605,7 @@ class PlanetService
     public function getDefenseUnits(): UnitCollection
     {
         $units = new UnitCollection();
-        $objects = $this->objects->getDefenseObjects();
+        $objects = ObjectService::getDefenseObjects();
         foreach ($objects as $object) {
             if ($this->planet->{$object->machine_name} > 0) {
                 $units->addUnit($object, $this->planet->{$object->machine_name});
@@ -632,7 +624,7 @@ class PlanetService
     {
         // TODO: can this logic be moved to the EspionageReport class if its not used elsewehere?
         $array = [];
-        $objects = [...$this->objects->getBuildingObjects(), ...$this->objects->getStationObjects()];
+        $objects = [...ObjectService::getBuildingObjects(), ...ObjectService::getStationObjects()];
         foreach ($objects as $object) {
             if ($this->planet->{$object->machine_name} > 0) {
                 $array[$object->machine_name] = $this->planet->{$object->machine_name};
@@ -653,7 +645,7 @@ class PlanetService
     {
         $current_level = $this->getObjectLevel($machine_name);
         $next_level = $current_level + 1;
-        $price = $this->objects->getObjectPrice($machine_name, $this);
+        $price = ObjectService::getObjectPrice($machine_name, $this);
 
         $robotfactory_level = $this->getObjectLevel('robot_factory');
         $nanitefactory_level = $this->getObjectLevel('nano_factory');
@@ -687,7 +679,7 @@ class PlanetService
      */
     public function getObjectLevel(string $machine_name): int
     {
-        $object = $this->objects->getObjectByMachineName($machine_name);
+        $object = ObjectService::getObjectByMachineName($machine_name);
         $level = $this->planet->{$object->machine_name};
 
         // Required for unittests to work because db factories do not always set initial values.
@@ -707,7 +699,7 @@ class PlanetService
      */
     public function getUnitConstructionTime(string $machine_name): int
     {
-        $object = $this->objects->getUnitObjectByMachineName($machine_name);
+        $object = ObjectService::getUnitObjectByMachineName($machine_name);
 
         $shipyard_level = $this->getObjectLevel('shipyard');
         $nanitefactory_level = $this->getObjectLevel('nano_factory');
@@ -740,9 +732,9 @@ class PlanetService
      */
     public function getTechnologyResearchTime(string $machine_name): float
     {
-        $price = $this->objects->getObjectPrice($machine_name, $this);
-
+        $price = ObjectService::getObjectPrice($machine_name, $this);
         $research_lab_level = $this->getObjectLevel('research_lab');
+
         // Research speed is = (economy x research speed).
         $universe_speed = $this->settingsService->economySpeed() * $this->settingsService->researchSpeed();
 
@@ -774,7 +766,7 @@ class PlanetService
      */
     public function setBuildingPercent(int $building_id, int $percentage): bool
     {
-        $building = $this->objects->getObjectById($building_id);
+        $building = ObjectService::getObjectById($building_id);
 
         // Sanity check: percentage inside allowed values.
         // Sanity check: model property exists.
@@ -1084,7 +1076,7 @@ class PlanetService
      */
     public function setObjectLevel(int $object_id, int $level, bool $save_planet = true): void
     {
-        $object = $this->objects->getObjectById($object_id);
+        $object = ObjectService::getObjectById($object_id);
         $this->planet->{$object->machine_name} = $level;
         if ($save_planet) {
             $this->save();
@@ -1109,7 +1101,7 @@ class PlanetService
         // @TODO: add DB transaction wrapper
         foreach ($unit_queue as $item) {
             // Get object information.
-            $object = $this->objects->getUnitObjectById($item->object_id);
+            $object = ObjectService::getUnitObjectById($item->object_id);
 
             // Calculate if we can partially (or fully) complete this order
             // yet based on time per unit and amount of ordered units.
@@ -1163,7 +1155,7 @@ class PlanetService
      */
     public function addUnit(string $machine_name, int $amount, bool $save_planet = true): void
     {
-        $object = $this->objects->getUnitObjectByMachineName($machine_name);
+        $object = ObjectService::getUnitObjectByMachineName($machine_name);
         $this->planet->{$object->machine_name} += $amount;
 
         if ($save_planet) {
@@ -1200,7 +1192,7 @@ class PlanetService
      */
     public function removeUnit(string $machine_name, int $amount, bool $save_planet = true): void
     {
-        $object = $this->objects->getUnitObjectByMachineName($machine_name);
+        $object = ObjectService::getUnitObjectByMachineName($machine_name);
         if ($this->planet->{$object->machine_name} < $amount) {
             throw new RuntimeException('Planet does not have enough units.');
         }
@@ -1293,7 +1285,7 @@ class PlanetService
      */
     private function updateResourceProductionStatsInner(Resources $production_total, int|float $energy_production_total, int|float $energy_consumption_total, bool $save_planet = true): void
     {
-        foreach ($this->objects->getGameObjectsWithProduction() as $object) {
+        foreach (ObjectService::getGameObjectsWithProduction() as $object) {
             // Retrieve all game objects that have production values.
             $production = $this->getObjectProduction($object->machine_name);
 
@@ -1336,7 +1328,7 @@ class PlanetService
      */
     public function getObjectProduction(string $machine_name, int|null $object_level = null, bool $force_factor = false): Resources
     {
-        $gameObject = $this->objects->getGameObjectsWithProductionByMachineName($machine_name);
+        $gameObject = ObjectService::getGameObjectsWithProductionByMachineName($machine_name);
 
         $resource_production_factor = 100; // Set default to 100, only override
         // when the building level is not set (which means current output is
@@ -1439,7 +1431,7 @@ class PlanetService
      */
     public function getBuildingPercent(string $machine_name): int
     {
-        $building = $this->objects->getObjectByMachineName($machine_name);
+        $building = ObjectService::getObjectByMachineName($machine_name);
 
         // Sanity check: model property exists.
         return $this->planet->{$building->machine_name . '_percent'} ?? 0;
@@ -1466,7 +1458,7 @@ class PlanetService
      */
     public function isBuildingObject(string $machine_name, int $level): bool
     {
-        $object = $this->objects->getObjectByMachineName($machine_name);
+        $object = ObjectService::getObjectByMachineName($machine_name);
 
         // Check only building queue objects
         if ($object->type !== GameObjectType::Building && $object->type !== GameObjectType::Station) {
@@ -1536,7 +1528,7 @@ class PlanetService
     public function updateResourceStorageStats(bool $save_planet = true): void
     {
         $storage_sum = new Resources(0, 0, 0, 0);
-        foreach ($this->objects->getBuildingObjectsWithStorage() as $building) {
+        foreach (ObjectService::getBuildingObjectsWithStorage() as $building) {
             // Retrieve all buildings that have production values.
             $storage = $this->getBuildingMaxStorage($building->machine_name);
 
@@ -1565,7 +1557,7 @@ class PlanetService
      */
     public function getBuildingMaxStorage(string $machine_name, int|bool $object_level = false): Resources
     {
-        $building = $this->objects->getBuildingObjectByMachineName($machine_name);
+        $building = ObjectService::getBuildingObjectByMachineName($machine_name);
 
         // NOTE: $object_level is used by eval() function in the formula.
         if (!$object_level) {
@@ -1594,17 +1586,17 @@ class PlanetService
         $resources_spent = new Resources(0, 0, 0, 0);
 
         // Create object array
-        $building_objects = $this->objects->getBuildingObjects() + $this->objects->getStationObjects();
+        $building_objects = ObjectService::getBuildingObjects() + ObjectService::getStationObjects();
         foreach ($building_objects as $object) {
             for ($i = 1; $i <= $this->getObjectLevel($object->machine_name); $i++) {
                 // Concatenate price which is array of metal, crystal and deuterium.
-                $raw_price = $this->objects->getObjectRawPrice($object->machine_name, $i);
+                $raw_price = ObjectService::getObjectRawPrice($object->machine_name, $i);
                 $resources_spent->add($raw_price);
             }
         }
-        $unit_objects = $this->objects->getShipObjects() + $this->objects->getDefenseObjects();
+        $unit_objects = ObjectService::getShipObjects() + ObjectService::getDefenseObjects();
         foreach ($unit_objects as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
+            $raw_price = ObjectService::getObjectRawPrice($object->machine_name);
             // Multiply raw_price by the amount of units.
             $resources_spent->add($raw_price->multiply($this->getObjectAmount($object->machine_name)));
         }
@@ -1624,7 +1616,7 @@ class PlanetService
      */
     public function getObjectAmount(string $machine_name): int
     {
-        $object = $this->objects->getUnitObjectByMachineName($machine_name);
+        $object = ObjectService::getUnitObjectByMachineName($machine_name);
 
         if (!empty($this->planet->{$object->machine_name})) {
             return $this->planet->{$object->machine_name};
@@ -1654,26 +1646,26 @@ class PlanetService
         $resources_spent = 0;
 
         // Buildings (100%)
-        $building_objects = [ ...$this->objects->getBuildingObjects(), ...$this->objects->getStationObjects() ];
+        $building_objects = [ ...ObjectService::getBuildingObjects(), ...ObjectService::getStationObjects() ];
         foreach ($building_objects as $object) {
             for ($i = 1; $i <= $this->getObjectLevel($object->machine_name); $i++) {
                 // Concatenate price which is array of metal, crystal and deuterium.
-                $raw_price = $this->objects->getObjectRawPrice($object->machine_name, $i);
+                $raw_price = ObjectService::getObjectRawPrice($object->machine_name, $i);
                 $resources_spent += $raw_price->sum();
             }
         }
 
         // Defense (100%)
-        $defense_objects = $this->objects->getDefenseObjects();
+        $defense_objects = ObjectService::getDefenseObjects();
         foreach ($defense_objects as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
+            $raw_price = ObjectService::getObjectRawPrice($object->machine_name);
             $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum();
         }
 
         // Civil ships (50%)
-        $civil_ships = $this->objects->getCivilShipObjects();
+        $civil_ships = ObjectService::getCivilShipObjects();
         foreach ($civil_ships as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
+            $raw_price = ObjectService::getObjectRawPrice($object->machine_name);
             $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum() * 0.5;
         }
 
@@ -1704,24 +1696,24 @@ class PlanetService
         $resources_spent = 0;
 
         // Defense (100%)
-        $defense_objects = $this->objects->getDefenseObjects();
+        $defense_objects = ObjectService::getDefenseObjects();
         foreach ($defense_objects as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
+            $raw_price = ObjectService::getObjectRawPrice($object->machine_name);
             // Multiply raw_price by the amount of units.
             $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum();
         }
 
         // Military ships (100%)
-        $military_ships = $this->objects->getMilitaryShipObjects();
+        $military_ships = ObjectService::getMilitaryShipObjects();
         foreach ($military_ships as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
+            $raw_price = ObjectService::getObjectRawPrice($object->machine_name);
             $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum();
         }
 
         // Civil ships (50%)
-        $civil_ships = $this->objects->getCivilShipObjects();
+        $civil_ships = ObjectService::getCivilShipObjects();
         foreach ($civil_ships as $object) {
-            $raw_price = $this->objects->getObjectRawPrice($object->machine_name);
+            $raw_price = ObjectService::getObjectRawPrice($object->machine_name);
             $resources_spent += $raw_price->multiply($this->getObjectAmount($object->machine_name))->sum() * 0.5;
         }
 

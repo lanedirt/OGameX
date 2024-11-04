@@ -21,9 +21,9 @@ use OGame\Models\Resources;
 use RuntimeException;
 
 /**
- * Class ObjectService.
+ * Static class ObjectService.
  *
- * Contains all information about game objects such as buildings, research,
+ * Contains static helper methods to retrieve information about game objects such as buildings, research,
  * ships, defense etc.
  *
  * @package OGame\Services
@@ -35,7 +35,7 @@ class ObjectService
      *
      * @return array<GameObject>
      */
-    public function getObjects(): array
+    public static function getObjects(): array
     {
         return array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
     }
@@ -45,7 +45,7 @@ class ObjectService
      *
      * @return array<BuildingObject>
      */
-    public function getBuildingObjects(): array
+    public static function getBuildingObjects(): array
     {
         return BuildingObjects::get();
     }
@@ -55,7 +55,7 @@ class ObjectService
      *
      * @return array<StationObject>
      */
-    public function getStationObjects(): array
+    public static function getStationObjects(): array
     {
         return StationObjects::get();
     }
@@ -65,7 +65,7 @@ class ObjectService
      *
      * @return array<ResearchObject>
      */
-    public function getResearchObjects(): array
+    public static function getResearchObjects(): array
     {
         return ResearchObjects::get();
     }
@@ -75,7 +75,7 @@ class ObjectService
      *
      * @return array<UnitObject>
      */
-    public function getUnitObjects(): array
+    public static function getUnitObjects(): array
     {
         return array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
     }
@@ -85,7 +85,7 @@ class ObjectService
      *
      * @return array<ShipObject>
      */
-    public function getShipObjects(): array
+    public static function getShipObjects(): array
     {
         return array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
     }
@@ -95,7 +95,7 @@ class ObjectService
      *
      * @return array<DefenseObject>
      */
-    public function getDefenseObjects(): array
+    public static function getDefenseObjects(): array
     {
         return DefenseObjects::get();
     }
@@ -105,7 +105,7 @@ class ObjectService
      *
      * @return array<ShipObject>
      */
-    public function getMilitaryShipObjects(): array
+    public static function getMilitaryShipObjects(): array
     {
         return MilitaryShipObjects::get();
     }
@@ -115,7 +115,7 @@ class ObjectService
      *
      * @return array<ShipObject>
      */
-    public function getCivilShipObjects(): array
+    public static function getCivilShipObjects(): array
     {
         return CivilShipObjects::get();
     }
@@ -126,7 +126,7 @@ class ObjectService
      * @param string $machine_name
      * @return BuildingObject
      */
-    public function getBuildingObjectByMachineName(string $machine_name): BuildingObject
+    public static function getBuildingObjectByMachineName(string $machine_name): BuildingObject
     {
         // Loop through all buildings and return the one with the matching UID
         foreach (BuildingObjects::get() as $building) {
@@ -144,7 +144,7 @@ class ObjectService
      * @param string $machine_name
      * @return ShipObject
      */
-    public function getShipObjectByMachineName(string $machine_name): ShipObject
+    public static function getShipObjectByMachineName(string $machine_name): ShipObject
     {
         // Loop through all buildings and return the one with the matching UID
         $shipObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
@@ -163,7 +163,7 @@ class ObjectService
      * @param int $object_id
      * @return GameObject
      */
-    public function getObjectById(int $object_id): GameObject
+    public static function getObjectById(int $object_id): GameObject
     {
         // Loop through all buildings and return the one with the matching UID
         $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
@@ -182,7 +182,7 @@ class ObjectService
      * @param string $machine_name
      * @return GameObject
      */
-    public function getObjectByMachineName(string $machine_name): GameObject
+    public static function getObjectByMachineName(string $machine_name): GameObject
     {
         // Loop through all buildings and return the one with the matching UID
         $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
@@ -201,7 +201,7 @@ class ObjectService
      * @param string $machine_name
      * @return ResearchObject
      */
-    public function getResearchObjectByMachineName(string $machine_name): ResearchObject
+    public static function getResearchObjectByMachineName(string $machine_name): ResearchObject
     {
         // Loop through all buildings and return the one with the matching UID
         $allObjects = ResearchObjects::get();
@@ -220,7 +220,7 @@ class ObjectService
      * @param int $object_id
      * @return ResearchObject
      */
-    public function getResearchObjectById(int $object_id): ResearchObject
+    public static function getResearchObjectById(int $object_id): ResearchObject
     {
         // Loop through all buildings and return the one with the matching UID
         $allObjects = ResearchObjects::get();
@@ -239,7 +239,7 @@ class ObjectService
      * @param int $object_id
      * @return UnitObject
      */
-    public function getUnitObjectById(int $object_id): UnitObject
+    public static function getUnitObjectById(int $object_id): UnitObject
     {
         $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
@@ -257,7 +257,7 @@ class ObjectService
      * @param string $machine_name
      * @return UnitObject
      */
-    public function getUnitObjectByMachineName(string $machine_name): UnitObject
+    public static function getUnitObjectByMachineName(string $machine_name): UnitObject
     {
         // Loop through all buildings and return the one with the matching UID
         $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
@@ -275,11 +275,11 @@ class ObjectService
      *
      * @return array<GameObject>
      */
-    public function getGameObjectsWithProduction(): array
+    public static function getGameObjectsWithProduction(): array
     {
         $return = array();
 
-        foreach ($this->getObjects() as $value) {
+        foreach (self::getObjects() as $value) {
             if (!empty(($value->production))) {
                 $return[] = $value;
             }
@@ -294,9 +294,9 @@ class ObjectService
      * @param string $machine_name
      * @return GameObject
      */
-    public function getGameObjectsWithProductionByMachineName(string $machine_name): GameObject
+    public static function getGameObjectsWithProductionByMachineName(string $machine_name): GameObject
     {
-        foreach ($this->getObjects() as $object) {
+        foreach (self::getObjects() as $object) {
             if ($object->machine_name === $machine_name && !empty(($object->production))) {
                 return $object;
             }
@@ -310,7 +310,7 @@ class ObjectService
      *
      * @return array<BuildingObject>
      */
-    public function getBuildingObjectsWithStorage(): array
+    public static function getBuildingObjectsWithStorage(): array
     {
         $return = array();
 
@@ -333,21 +333,21 @@ class ObjectService
      * @param bool $queued
      * @return bool
      */
-    public function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player, int $level = 0, bool $queued = true): bool
+    public static function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player, int $level = 0, bool $queued = true): bool
     {
         try {
-            $object = $this->getObjectByMachineName($machine_name);
+            $object = self::getObjectByMachineName($machine_name);
 
             // Check required prior levels
             if ($level) {
-                if (!$this->objectLevelsMet($object, $planet, $player, $level, $queued)) {
+                if (!self::objectLevelsMet($object, $planet, $player, $level, $queued)) {
                     return false;
                 }
             }
 
             foreach ($object->requirements as $requirement) {
                 // Load required object and check if requirements are met.
-                $object_required = $this->getObjectByMachineName($requirement->object_machine_name);
+                $object_required = self::getObjectByMachineName($requirement->object_machine_name);
                 $check_queue = $queued;
 
                 // Skip queue check for research lab as it must be present for research objects
@@ -385,7 +385,7 @@ class ObjectService
      * @return int
      * @throws Exception
      */
-    public function getObjectMaxBuildAmount(string $machine_name, PlanetService $planet, bool $requirements_met): int
+    public static function getObjectMaxBuildAmount(string $machine_name, PlanetService $planet, bool $requirements_met): int
     {
         // If requirements are false, the max build amount is 0
         if (!$requirements_met) {
@@ -397,7 +397,7 @@ class ObjectService
             return $planet->getObjectAmount($machine_name) ? 0 : 1;
         }
 
-        $price = $this->getObjectPrice($machine_name, $planet);
+        $price = self::getObjectPrice($machine_name, $planet);
 
         // Calculate max build amount based on price
         $max_build_amount = [];
@@ -430,9 +430,9 @@ class ObjectService
      * @return Resources
      * @throws Exception
      */
-    public function getObjectPrice(string $machine_name, PlanetService $planet): Resources
+    public static function getObjectPrice(string $machine_name, PlanetService $planet): Resources
     {
-        $object = $this->getObjectByMachineName($machine_name);
+        $object = self::getObjectByMachineName($machine_name);
         $player = $planet->getPlayer();
 
         // Price calculation for buildings or research (price depends on level)
@@ -443,11 +443,11 @@ class ObjectService
                 $current_level = $player?->getResearchLevel($object->machine_name);
             }
 
-            $price = $this->getObjectRawPrice($machine_name, $current_level + 1);
+            $price = self::getObjectRawPrice($machine_name, $current_level + 1);
         }
         // Price calculation for fleet or defense (regular price per unit)
         else {
-            $price = $this->getObjectRawPrice($machine_name);
+            $price = self::getObjectRawPrice($machine_name);
         }
 
         return $price;
@@ -460,10 +460,10 @@ class ObjectService
      * @param int $level
      * @return Resources
      */
-    public function getObjectRawPrice(string $machine_name, int $level = 0): Resources
+    public static function getObjectRawPrice(string $machine_name, int $level = 0): Resources
     {
         try {
-            $object = $this->getObjectByMachineName($machine_name);
+            $object = self::getObjectByMachineName($machine_name);
         } catch (Exception $e) {
             return new Resources(0, 0, 0, 0);
         }
@@ -518,7 +518,7 @@ class ObjectService
      * @param bool $queued
      * @return bool
      */
-    private function objectLevelsMet(GameObject $object, PlanetService $planet, PlayerService $player, int $level, bool $queued): bool
+    private static function objectLevelsMet(GameObject $object, PlanetService $planet, PlayerService $player, int $level, bool $queued): bool
     {
         $current_level = 0;
 

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Carbon;
 use OGame\Models\Resources;
 use OGame\Services\SettingsService;
 use Tests\AccountTestCase;
@@ -16,7 +15,6 @@ class ResearchQueueTest extends AccountTestCase
 {
     /**
      * Verify that researching energy technology works as expected.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testResearchQueueEnergyTechnology(): void
@@ -29,10 +27,6 @@ class ResearchQueueTest extends AccountTestCase
         $this->planetAddResources(new Resources(0, 800, 400, 0));
         $this->planetSetObjectLevel('research_lab', 1);
 
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
         // ---
         // Step 1: Issue a request to research energy technology
         // ---
@@ -41,37 +35,36 @@ class ResearchQueueTest extends AccountTestCase
         // ---
         // Step 2: Verify the technology is in the research queue
         // ---
+        $this->travel(1)->seconds();
+
         // Check if the research is in the queue and is still level 0.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $this->assertObjectLevelOnPage($response, 'energy_technology', 0, 'Energy technology is not still at level 0 two seconds after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 0, 'Energy technology is not still at level 0 immediately after build request issued.');
 
         // ---
         // Step 3: Verify the research is still in the build queue 1 minute later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 1, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(1)->minutes();
 
         // Check if the technology is still in the queue and is still level 0.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $this->assertObjectLevelOnPage($response, 'energy_technology', 0, 'Energy technology is not still at level 0 two seconds after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 0, 'Energy technology is not still at level 0 one minute after build request issued.');
 
         // ---
-        // Step 4: Verify the research is finished 10 minute later.
+        // Step 4: Verify the research is finished 5 minutes later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 10, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(5)->minutes();
 
         // Check if the technology research is finished and is now level 1.
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $this->assertObjectLevelOnPage($response, 'energy_technology', 1, 'Energy technology is not at level one 10 minutes after build request issued.');
+        $this->assertObjectLevelOnPage($response, 'energy_technology', 1, 'Energy technology is not at level 1 ten minutes after build request issued.');
     }
 
     /**
      * Verify that researching multiple technologies works as expected.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testResearchQueueMultiQueue(): void
@@ -83,10 +76,6 @@ class ResearchQueueTest extends AccountTestCase
 
         $this->planetAddResources(new Resources(0, 2400, 1200, 0));
         $this->planetSetObjectLevel('research_lab', 1);
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
 
         // ---
         // Step 1: Issue a request to research energy technology
@@ -105,8 +94,7 @@ class ResearchQueueTest extends AccountTestCase
         // ---
         // Step 3: Verify that 1 research queue item is finished 2 minutes later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 2, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(2)->minutes();
 
         // Check if one of the research items is finished and is now level 1.
         $this->planetService->getPlayer()->updateResearchQueue();
@@ -117,8 +105,7 @@ class ResearchQueueTest extends AccountTestCase
         // ---
         // Step 3: Verify that both research queue items are finished 30 minutes later.
         // ---
-        $testTime = Carbon::create(2024, 1, 1, 12, 30, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(30)->minutes();
 
         // Check if the research is finished and is now level 1.
         $response = $this->get('/research');
@@ -135,12 +122,6 @@ class ResearchQueueTest extends AccountTestCase
     {
         $this->planetAddResources(new Resources(0, 800, 400, 0));
         $this->planetSetObjectLevel('research_lab', 1);
-
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
-        // ---------
 
         // Verify that we begin the test with expected resources.
         $response = $this->get('/research');
@@ -205,10 +186,6 @@ class ResearchQueueTest extends AccountTestCase
      */
     public function testResearchLabRequirement(): void
     {
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
         // Add required resources for research to planet
         $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
 
@@ -226,14 +203,11 @@ class ResearchQueueTest extends AccountTestCase
         $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements not met.');
 
         // Verify that Energy Technology can be added to research queue 2 minute later.
-        $testTime = Carbon::create(2024, 1, 1, 12, 2, 0);
-        Carbon::setTestNow($testTime);
-
+        $this->travel(2)->minutes();
         $this->addResearchBuildRequest('energy_technology');
 
         // Verify the research is finished 2 minute later.
-        $testTime = Carbon::create(2024, 1, 1, 12, 4, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(2)->minutes();
 
         $response = $this->get('/research');
         $response->assertStatus(200);

@@ -12,17 +12,15 @@ class ObjectLogicTest extends UnitTestCase
      */
     public function testObjectServiceContents(): void
     {
-        $objectService = new ObjectService();
-
-        $this->assertTrue(count($objectService->getObjects()) > 1);
-        $this->assertTrue(count($objectService->getBuildingObjects()) > 1);
-        $this->assertTrue(count($objectService->getStationObjects()) > 1);
-        $this->assertTrue(count($objectService->getResearchObjects()) > 1);
-        $this->assertTrue(count($objectService->getUnitObjects()) > 1);
-        $this->assertTrue(count($objectService->getShipObjects()) > 1);
-        $this->assertTrue(count($objectService->getMilitaryShipObjects()) > 1);
-        $this->assertTrue(count($objectService->getCivilShipObjects()) > 1);
-        $this->assertTrue(count($objectService->getDefenseObjects()) > 1);
+        $this->assertTrue(count(ObjectService::getObjects()) > 1);
+        $this->assertTrue(count(ObjectService::getBuildingObjects()) > 1);
+        $this->assertTrue(count(ObjectService::getStationObjects()) > 1);
+        $this->assertTrue(count(ObjectService::getResearchObjects()) > 1);
+        $this->assertTrue(count(ObjectService::getUnitObjects()) > 1);
+        $this->assertTrue(count(ObjectService::getShipObjects()) > 1);
+        $this->assertTrue(count(ObjectService::getMilitaryShipObjects()) > 1);
+        $this->assertTrue(count(ObjectService::getCivilShipObjects()) > 1);
+        $this->assertTrue(count(ObjectService::getDefenseObjects()) > 1);
     }
 
     /**
@@ -30,9 +28,7 @@ class ObjectLogicTest extends UnitTestCase
      */
     public function testShipProperties(): void
     {
-        $objectService = new ObjectService();
-
-        $ships = $objectService->getShipObjects();
+        $ships = ObjectService::getShipObjects();
         foreach ($ships as $ship) {
             $this->assertNotNull($ship->properties->structural_integrity);
             $this->assertNotNull($ship->properties->shield);
@@ -46,11 +42,9 @@ class ObjectLogicTest extends UnitTestCase
     /**
      * Test that all defense objects have properties such as structural integrity, shield etc. defined.
      */
-    public function testDefenceProperties(): void
+    public function testDefenseProperties(): void
     {
-        $objectService = new ObjectService();
-
-        $objects = $objectService->getDefenseObjects();
+        $objects = ObjectService::getDefenseObjects();
         foreach ($objects as $object) {
             $this->assertNotNull($object->properties->structural_integrity);
             $this->assertNotNull($object->properties->shield);

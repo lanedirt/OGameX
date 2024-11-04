@@ -11,8 +11,8 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
-use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 
 class RecycleMission extends GameMission
@@ -57,7 +57,7 @@ class RecycleMission extends GameMission
         $debrisField->loadOrCreateForCoordinates($targetCoordinate);
 
         // Get recycler unit count
-        $recycler = $originPlanet->objects->getShipObjectByMachineName('recycler');
+        $recycler = ObjectService::getShipObjectByMachineName('recycler');
         $recyclerCount = $this->fleetMissionService->getFleetUnits($mission)->getAmountByMachineName($recycler->machine_name);
 
         // Calculate total recycler capacity.

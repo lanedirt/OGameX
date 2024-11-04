@@ -20,23 +20,6 @@ use OGame\ViewModels\Queue\BuildingQueueViewModel;
 class BuildingQueueService
 {
     /**
-     * Information about objects.
-     *
-     * @var ObjectService
-     */
-    private ObjectService $objects;
-
-    /**
-     * BuildingQueue constructor.
-     *
-     * @param ObjectService $objects
-     */
-    public function __construct(ObjectService $objects)
-    {
-        $this->objects = $objects;
-    }
-
-    /**
      * Retrieve all build queue items that already should be finished for a planet.
      *
      * @param int $planet_id
@@ -91,11 +74,12 @@ class BuildingQueueService
             throw new Exception('Maximum number of items already in queue.');
         }
 
-        $building = $this->objects->getObjectById($building_id);
+        // Check if user satisfies requirements to build this object.
+        $building = ObjectService::getObjectById($building_id);
 
-        // Check if user satisifes requirements to build this object.
+        // Check if user satisfies requirements to build this object.
         // TODO: refactor throw exception into a more user-friendly message.
-        $requirements_met = $this->objects->objectRequirementsMet($building->machine_name, $planet, $planet->getPlayer());
+        $requirements_met = ObjectService::objectRequirementsMet($building->machine_name, $planet, $planet->getPlayer());
         if (!$requirements_met) {
             throw new Exception('Requirements not met to build this object.');
         }
@@ -135,7 +119,7 @@ class BuildingQueueService
         // Convert to ViewModel array
         $list = array();
         foreach ($queue_items as $item) {
-            $object = $this->objects->getObjectById($item['object_id']);
+            $object = ObjectService::getObjectById($item['object_id']);
 
             $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
             if ($time_countdown < 0) {
@@ -206,10 +190,10 @@ class BuildingQueueService
             ->get();
 
         foreach ($queue_items as $queue_item) {
-            $object = $this->objects->getObjectById($queue_item->object_id);
+            $object = ObjectService::getObjectById($queue_item->object_id);
 
             // See if the planet has enough resources for this build attempt.
-            $price = $this->objects->getObjectPrice($object->machine_name, $planet);
+            $price = ObjectService::getObjectPrice($object->machine_name, $planet);
             $build_time = $planet->getBuildingConstructionTime($object->machine_name);
 
             // Only start the queue item if there are no other queue items building
@@ -243,7 +227,7 @@ class BuildingQueueService
 
             // Sanity check: check if the building requirements are still met. If not,
             // then cancel build request.
-            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $queue_item->object_level_target, false)) {
+            if (!ObjectService::objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $queue_item->object_level_target, false)) {
                 $this->cancel($planet, $queue_item->id, $queue_item->object_id);
 
                 continue;
@@ -334,7 +318,7 @@ class BuildingQueueService
         $queue_items = $this->retrieveQueueItems($planet);
 
         foreach ($queue_items as $item) {
-            $object = $this->objects->getObjectById($item->object_id);
+            $object = ObjectService::getObjectById($item->object_id);
 
             if ($object->machine_name === $machine_name && $item->object_level_target === $level) {
                 return true;
@@ -355,9 +339,9 @@ class BuildingQueueService
         $build_queue_items = $this->retrieveQueueItems($planet);
 
         foreach ($build_queue_items as $build_queue_item) {
-            $object = $this->objects->getObjectById($build_queue_item->object_id);
+            $object = ObjectService::getObjectById($build_queue_item->object_id);
 
-            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $build_queue_item->object_level_target)) {
+            if (!ObjectService::objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $build_queue_item->object_level_target)) {
                 $this->cancel($planet, $build_queue_item->id, $object->id);
                 break;
             }

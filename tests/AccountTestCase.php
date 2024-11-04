@@ -13,9 +13,11 @@ use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\User;
+use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use Carbon\Carbon;
 
 /**
  * Base class for tests that require account context. Common setup includes signup of new account and login.
@@ -26,6 +28,7 @@ abstract class AccountTestCase extends TestCase
     protected string $currentUsername = '';
     protected int $currentPlanetId = 0;
     protected PlanetService $secondPlanetService;
+    protected Carbon $defaultTestTime;
 
     /**
      * Set up common test components.
@@ -34,6 +37,9 @@ abstract class AccountTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Set default test time to 2024-01-01 00:00:00 to ensure all tests have the same starting point.
+        $this->travelTo(Carbon::create(2024, 1, 1, 0, 0, 0));
 
         // Set amount of planets to be created for the user to 2 because planet switching
         // is a part of the test suite.
@@ -271,7 +277,7 @@ abstract class AccountTestCase extends TestCase
     protected function planetSetObjectLevel(string $machine_name, int $object_level): void
     {
         // Update the object level on the planet.
-        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+        $object = ObjectService::getObjectByMachineName($machine_name);
         $this->planetService->setObjectLevel($object->id, $object_level, true);
     }
 
@@ -321,7 +327,7 @@ abstract class AccountTestCase extends TestCase
 
         // Get object name from machine name.
         try {
-            $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+            $object = ObjectService::getObjectByMachineName($machine_name);
         } catch (Exception $e) {
             $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
         }
@@ -388,7 +394,7 @@ abstract class AccountTestCase extends TestCase
     {
         // Get object name from machine name.
         try {
-            $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+            $object = ObjectService::getObjectByMachineName($machine_name);
         } catch (Exception $e) {
             $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
         }
@@ -415,7 +421,7 @@ abstract class AccountTestCase extends TestCase
     {
         // Get object name from machine name.
         try {
-            $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+            $object = ObjectService::getObjectByMachineName($machine_name);
         } catch (Exception $e) {
             $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
         }
@@ -474,7 +480,7 @@ abstract class AccountTestCase extends TestCase
     {
         // Get object name from machine name.
         try {
-            $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+            $object = ObjectService::getObjectByMachineName($machine_name);
         } catch (Exception $e) {
             $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
         }
@@ -505,7 +511,7 @@ abstract class AccountTestCase extends TestCase
      */
     protected function addResourceBuildRequest(string $machine_name, bool $ignoreErrors = false): void
     {
-        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+        $object = ObjectService::getObjectByMachineName($machine_name);
 
         $response = $this->post('/resources/add-buildrequest', [
             '_token' => csrf_token(),
@@ -547,7 +553,7 @@ abstract class AccountTestCase extends TestCase
      */
     protected function addFacilitiesBuildRequest(string $machine_name): void
     {
-        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+        $object = ObjectService::getObjectByMachineName($machine_name);
 
         $response = $this->post('/facilities/add-buildrequest', [
             '_token' => csrf_token(),
@@ -583,7 +589,7 @@ abstract class AccountTestCase extends TestCase
      */
     protected function addResearchBuildRequest(string $machine_name): void
     {
-        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+        $object = ObjectService::getObjectByMachineName($machine_name);
 
         $response = $this->post('/research/add-buildrequest', [
             '_token' => csrf_token(),
@@ -622,7 +628,7 @@ abstract class AccountTestCase extends TestCase
      */
     protected function addShipyardBuildRequest(string $machine_name, int $amount): void
     {
-        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+        $object = ObjectService::getObjectByMachineName($machine_name);
 
         $response = $this->post('/shipyard/add-buildrequest', [
             '_token' => csrf_token(),
@@ -643,7 +649,7 @@ abstract class AccountTestCase extends TestCase
      */
     protected function addDefenseBuildRequest(string $machine_name, int $amount): void
     {
-        $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+        $object = ObjectService::getObjectByMachineName($machine_name);
 
         $response = $this->post('/defense/add-buildrequest', [
             '_token' => csrf_token(),
@@ -753,5 +759,14 @@ abstract class AccountTestCase extends TestCase
     {
         $response = $this->get('/overview?cp=' . $this->secondPlanetService->getPlanetId());
         $response->assertStatus(200);
+    }
+
+    /**
+     * Add helper method to reset time to default
+     * @return void
+     */
+    protected function resetTestTime(): void
+    {
+        Carbon::setTestNow($this->defaultTestTime);
     }
 }

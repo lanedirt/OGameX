@@ -16,15 +16,14 @@ use OGame\Services\PlayerService;
 class TechtreeController extends OGameController
 {
     /**
-     * Returns techtree ajax content.
+     * Returns tech tree ajax content.
      *
      * @param Request $request
-     * @param ObjectService $objects
      * @param PlayerService $player
      * @return View
      * @throws Exception
      */
-    public function ajax(Request $request, ObjectService $objects, PlayerService $player): View
+    public function ajax(Request $request, PlayerService $player): View
     {
         $object_id = (int)$request->input('object_id');
         $tab = (int)$request->input('tab');
@@ -32,7 +31,7 @@ class TechtreeController extends OGameController
         $planet = $player->planets->current();
 
         // Load object
-        $object = $objects->getObjectById($object_id);
+        $object = ObjectService::getObjectById($object_id);
 
         if ($tab === 1) {
             return view('ingame.techtree.techtree')->with([
@@ -45,10 +44,10 @@ class TechtreeController extends OGameController
                 'object' => $object,
                 'object_id' => $object_id,
                 'planet' => $planet,
-                'production_table' => $this->getProductionTable($object, $player, $objects),
-                'storage_table' => $this->getStorageTable($object, $player, $objects),
-                'rapidfire_table' => $this->getRapidfireTable($object, $objects),
-                'properties_table' => $this->getPropertiesTable($object, $player, $objects),
+                'production_table' => $this->getProductionTable($object, $player),
+                'storage_table' => $this->getStorageTable($object, $player),
+                'rapidfire_table' => $this->getRapidfireTable($object),
+                'properties_table' => $this->getPropertiesTable($object, $player),
                 'plasma_table' => $this->getPlasmaTable($object, $player),
                 'astrophysics_table' => $this->getAstrophysicsTable($object, $player),
             ]);
@@ -63,7 +62,7 @@ class TechtreeController extends OGameController
                 'object' => $object,
                 'object_id' => $object_id,
                 'planet' => $planet,
-                'required_by' => $this->getRequiredBy($object, $player, $objects, $planet)
+                'required_by' => $this->getRequiredBy($object, $player, $planet)
             ]);
         }
 
@@ -71,22 +70,21 @@ class TechtreeController extends OGameController
     }
 
     /**
-     * Returns techtree production table.
+     * Returns tech tree production table.
      *
      * @param GameObject $object
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return View
      * @throws Exception
      */
-    public function getProductionTable(GameObject $object, PlayerService $player, ObjectService $objects): View
+    public function getProductionTable(GameObject $object, PlayerService $player): View
     {
         if ($object->type !== GameObjectType::Building) {
             return view('empty');
         }
 
         // Reload object to get the BuildingObject
-        $object = $objects->getBuildingObjectByMachineName($object->machine_name);
+        $object = ObjectService::getBuildingObjectByMachineName($object->machine_name);
 
         $planet = $player->planets->current();
         $current_level = $player->planets->current()->getObjectLevel($object->machine_name);
@@ -125,22 +123,21 @@ class TechtreeController extends OGameController
     }
 
     /**
-     * Returns techtree storage table.
+     * Returns tech tree storage table.
      *
      * @param GameObject $object
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return View
      * @throws Exception
      */
-    public function getStorageTable(GameObject $object, PlayerService $player, ObjectService $objects): View
+    public function getStorageTable(GameObject $object, PlayerService $player): View
     {
         if ($object->type !== GameObjectType::Building) {
             return view('empty');
         }
 
         // Reload object to get the BuildingObject
-        $object = $objects->getBuildingObjectByMachineName($object->machine_name);
+        $object = ObjectService::getBuildingObjectByMachineName($object->machine_name);
 
         $planet = $player->planets->current();
         $current_level = $player->planets->current()->getObjectLevel($object->machine_name);
@@ -175,13 +172,12 @@ class TechtreeController extends OGameController
     }
 
     /**
-     * Returns techtree rapidfire table.
+     * Returns tech tree rapidfire table.
      *
      * @param GameObject $object
-     * @param ObjectService $objects
      * @return View
      */
-    public function getRapidfireTable(GameObject $object, ObjectService $objects): View
+    public function getRapidfireTable(GameObject $object): View
     {
         if ($object->type !== GameObjectType::Ship && $object->type !== GameObjectType::Defense) {
             return view('empty');
@@ -197,7 +193,7 @@ class TechtreeController extends OGameController
         // ]
 
         $rapidfire_from = [];
-        foreach ($objects->getObjects() as $from_object) {
+        foreach (ObjectService::getObjects() as $from_object) {
             if (empty($from_object->rapidfire)) {
                 continue;
             }
@@ -217,7 +213,7 @@ class TechtreeController extends OGameController
         if (!empty($object->rapidfire)) {
             foreach ($object->rapidfire as $rapidfire) {
                 // Add object name to rapidfire array
-                $object = $objects->getObjectByMachineName($rapidfire->object_machine_name);
+                $object = ObjectService::getObjectByMachineName($rapidfire->object_machine_name);
                 $rapidfire_against[$object->id] = [
                     'rapidfire' => $rapidfire,
                     'object' => $object,
@@ -233,15 +229,14 @@ class TechtreeController extends OGameController
     }
 
     /**
-     * Returns techtree properties table.
+     * Returns tech tree properties table.
      *
      * @param GameObject $object
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return View
      * @throws Exception
      */
-    public function getPropertiesTable(GameObject $object, PlayerService $player, ObjectService $objects): View
+    public function getPropertiesTable(GameObject $object, PlayerService $player): View
     {
         if ($object->type !== GameObjectType::Ship && $object->type !== GameObjectType::Defense) {
             return view('empty');
@@ -253,7 +248,7 @@ class TechtreeController extends OGameController
         }
 
         // Load object again to get the UnitObject
-        $object = $objects->getUnitObjectByMachineName($object->machine_name);
+        $object = ObjectService::getUnitObjectByMachineName($object->machine_name);
 
         // Get UnitObject properties...
         $properties = $object->properties;
@@ -382,13 +377,12 @@ class TechtreeController extends OGameController
     /**
      * @param GameObject $object
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @param PlanetService $planet
      * @return array<TechtreeRequiredBy>
      */
-    private function getRequiredBy(GameObject $object, PlayerService $player, ObjectService $objects, PlanetService $planet): array
+    private function getRequiredBy(GameObject $object, PlayerService $player, PlanetService $planet): array
     {
-        $all_objects = $objects->getObjects();
+        $all_objects = ObjectService::getObjects();
         $required_by = [];
 
         $require_objects = array_filter($all_objects, function ($a_object) use ($object) {
@@ -403,7 +397,7 @@ class TechtreeController extends OGameController
         });
 
         foreach ($require_objects as $r_object) {
-            $required_by[] = new TechtreeRequiredBy($r_object, $objects->objectRequirementsMet($r_object->machine_name, $planet, $player));
+            $required_by[] = new TechtreeRequiredBy($r_object, ObjectService::objectRequirementsMet($r_object->machine_name, $planet, $player));
         }
 
         return $required_by;

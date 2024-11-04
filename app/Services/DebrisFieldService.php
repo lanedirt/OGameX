@@ -24,11 +24,6 @@ class DebrisFieldService
     private DebrisField $debrisField;
 
     /**
-     * @var ObjectService
-     */
-    private ObjectService $objectService;
-
-    /**
      * @var PlayerService
      */
     private PlayerService $playerService;
@@ -36,12 +31,10 @@ class DebrisFieldService
     /**
      * DebrisFieldService constructor.
      *
-     * @param ObjectService $objectService
      * @param PlayerService $playerService
      */
-    public function __construct(ObjectService $objectService, PlayerService $playerService)
+    public function __construct(PlayerService $playerService)
     {
-        $this->objectService = $objectService;
         $this->playerService = $playerService;
     }
 
@@ -201,7 +194,7 @@ class DebrisFieldService
      */
     public function calculateRequiredRecyclers(): int
     {
-        $recycler = $this->objectService->getUnitObjectByMachineName('recycler');
+        $recycler = ObjectService::getUnitObjectByMachineName('recycler');
         $recyclerCapacity = $recycler->properties->capacity->calculate($this->playerService)->totalValue;
 
         $totalDebris = $this->debrisField->metal + $this->debrisField->crystal + $this->debrisField->deuterium;

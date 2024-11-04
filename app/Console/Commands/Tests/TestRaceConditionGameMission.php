@@ -6,6 +6,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Validation\ValidationException;
 use OGame\Models\FleetMission;
+use OGame\Services\ObjectService;
 
 /**
  * Class TestRaceConditionGameMission.
@@ -119,7 +120,7 @@ class TestRaceConditionGameMission extends TestCommand
                 'metal' => 0,
                 'crystal' => 0,
                 'deuterium' => 0,
-                'am' . $this->objectService->getUnitObjectByMachineName('small_cargo')->id  => '10',
+                'am' . ObjectService::getUnitObjectByMachineName('small_cargo')->id  => '10',
             ]
         ]);
 

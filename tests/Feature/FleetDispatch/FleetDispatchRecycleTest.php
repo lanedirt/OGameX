@@ -7,6 +7,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
+use OGame\Services\ObjectService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -70,7 +71,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 1);
         $this->fleetCheckToSecondPlanetDebrisField($unitCollection, true);
     }
 
@@ -81,7 +82,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('small_cargo'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->fleetCheckToSecondPlanetDebrisField($unitCollection, false);
     }
 
@@ -92,7 +93,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 1);
         $this->fleetCheckToFirstPlanetDebrisField($unitCollection, false);
     }
 
@@ -109,7 +110,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 1);
         $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
 
         $response = $this->get('/shipyard');
@@ -123,17 +124,13 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 5 recyclers.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'recycler', 5, 'Recycler ships are not at 5 units at beginning of test.');
 
         // Send fleet to the debris field located at second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 1);
         $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -146,8 +143,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).
-        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel($fleetMissionDuration)->seconds();
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
@@ -181,8 +177,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Advance time to the return trip arrival.
         $returnTripDuration = $returnMission->time_arrival - $returnMission->time_departure;
-        $fleetReturnTime = $fleetParentTime->copy()->addSeconds($returnTripDuration + 1);
-        Carbon::setTestNow($fleetReturnTime);
+        $this->travel($returnTripDuration + 1)->seconds();
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -206,13 +201,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 1);
         $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(100, 100, 0, 0));
 
         // The eventbox should only show 1 mission (the parent).
@@ -240,10 +231,6 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Make sure the debris field has a lot of resources.
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
@@ -254,7 +241,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Send fleet to the debris field located at second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 5);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 5);
         $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -267,8 +254,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).
-        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel($fleetMissionDuration)->seconds();
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -306,10 +292,6 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Make sure the debris field contains resources when sending the fleet.
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
@@ -318,7 +300,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Send fleet to the debris field located at second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 5);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 5);
         $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
 
         // Now delete the resources from the debris field to simulate another mission that has harvested it.
@@ -334,8 +316,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).
-        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel($fleetMissionDuration + 30)->seconds();
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -366,13 +347,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Add resources for test.
         $this->planetAddResources(new Resources(5000, 5000, 0, 0));
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to the second planet debris field of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 5);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 5);
         $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -382,8 +359,8 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
-        $fleetParentTime = $startTime->copy()->addMinutes(1);
-        Carbon::setTestNow($fleetParentTime);
+        $fleetParentTime = Carbon::getTestNow()->addMinute();
+        $this->travelTo($fleetParentTime);
 
         // Cancel the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -415,7 +392,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(60)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        Carbon::setTestNow(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $this->get('/overview');
@@ -436,13 +413,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('recycler'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 1);
         $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(100, 100, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -452,8 +425,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
-        $fleetParentTime = $startTime->copy()->addMinutes(1);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel(1)->minutes();
 
         // Cancel the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [

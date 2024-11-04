@@ -11,6 +11,7 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
+use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 use OGame\Services\DebrisFieldService;
@@ -34,14 +35,14 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
      * Prepare the planet for the test, so it has the required buildings and research.
      *
      * @return void
-     * @throws BindingResolutionException
      */
     protected function basicSetup(): void
     {
         $this->planetAddUnit('light_fighter', 5);
 
-        // Set the fleet speed to 5x for this test.
+        // Set the fleet speed to 1x for this test.
         $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
         $settingsService->set('fleet_speed', 1);
     }
 
@@ -69,7 +70,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $this->fleetCheckToSecondPlanet($unitCollection, false);
     }
 
@@ -80,7 +81,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $this->fleetCheckToOtherPlayer($unitCollection, true);
     }
 
@@ -91,7 +92,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $this->fleetCheckToEmptyPosition($unitCollection, false);
     }
 
@@ -103,20 +104,16 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
 
         // Increase time by 10 hours to ensure the mission is done.
-        Carbon::setTestNow($startTime->copy()->addHours(10));
+        $this->travel(10)->hours();
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -151,17 +148,13 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 5 light fighter ships on planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light fighter are not at 5 units at beginning of test.');
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 5);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Clear any units from foreign planet to ensure we win the battle.
@@ -177,8 +170,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
 
         // Set time to fleet mission duration + 1 second.
-        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 1);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel($fleetMissionDuration + 1)->seconds();
 
         // Reload application to make sure the defender planet is not cached as we modified it above during test.
         $this->reloadApplication();
@@ -203,7 +195,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertCount(1, $activeMissions, 'No return trip launched after fleet with deployment mission has arrived at destination.');
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        Carbon::setTestNow(Carbon::createFromTimestamp($activeMissions->first()->time_arrival));
+        $this->travelTo(Carbon::createFromTimestamp($activeMissions->first()->time_arrival));
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -230,13 +222,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // The eventbox should only show 1 mission (the parent).
@@ -268,17 +256,13 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Add resources for test.
         $this->planetAddResources(new Resources(5000, 5000, 0, 0));
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light fighter not at 5 units at beginning of test.');
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -287,8 +271,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 5 seconds.
-        $fleetParentTime = $startTime->copy()->addSeconds(5);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel(5)->seconds();
+        $fleetParentTime = Carbon::getTestNow();
 
         // Cancel the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -321,7 +305,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->playerSetAllMessagesRead();
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        Carbon::setTestNow(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -347,17 +331,13 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light fighter not at 5 units at beginning of test.');
 
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
@@ -366,8 +346,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 10 seconds
-        $fleetParentTime = $startTime->copy()->addSeconds(5);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel(10)->seconds();
 
         // Cancel the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -398,17 +377,13 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
      */
     public function testDispatchFleetCombatUnitsLostAndResourceGained(): void
     {
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to a nearby foreign planet.
-        // Attack with 150 light fighters, defend with 100 rocket launchers.
+        // Attack with 200 light fighters, defend with 100 rocket launchers.
         // We expect attacker to win in +/- 4 rounds, while losing 10-50 light fighters.
         $this->planetAddUnit('light_fighter', 200);
 
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 200);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 200);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Clear existing units from foreign planet.
@@ -421,8 +396,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Reload application to make sure the planet is not cached.
         $this->reloadApplication();
 
-        // Increase time by 10 hours to ensure the mission is done.
-        Carbon::setTestNow($startTime->copy()->addHours(10));
+        // Increase time by 2 hours to ensure the mission is done.
+        $this->travel(2)->hours();
 
         // Get amount of resources of the foreign planet before the battle.
         $attackerResourcesBefore = $this->planetService->getResources();
@@ -457,17 +432,13 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
      */
     public function testDispatchFleetAttackerLossNoReturnMission(): void
     {
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to a nearby foreign planet.
         // Attack with 50 light fighters, defend with 100 rocket launchers.
         // We expect defender to win in +/- 3 rounds. Attacker will lose all units.
         $this->planetAddUnit('light_fighter', 50);
 
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 50);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 50);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Give the foreign planet some units to defend itself.
@@ -482,8 +453,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
 
         // Set time to fleet mission duration + 1 second.
-        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 1);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel($fleetMissionDuration + 1)->seconds();
 
         // Reload application to make sure the planet is not cached.
         $this->reloadApplication();
@@ -524,7 +494,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Add units to foreign planet.
         $foreignPlanet->addUnit('light_fighter', 1);
         $unitsToSend = new UnitCollection();
-        $unitsToSend->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+        $unitsToSend->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
         $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
@@ -552,14 +522,14 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Add units to foreign planet.
         $foreignPlanet->addUnit('light_fighter', 1);
         $unitsToSend = new UnitCollection();
-        $unitsToSend->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 1);
+        $unitsToSend->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
 
         // Launch attack from foreign planet to the current players second planet.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
         $fleetMission = $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->secondPlanetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
 
         // Advance time by 24 hours to ensure the mission is done.
-        Carbon::setTestNow(Carbon::now()->addHours(24));
+        $this->travel(24)->hours();
 
         // Load overview page to trigger the update logic which should process all fleet missions associated with user,
         // not just the current planet.
@@ -576,17 +546,13 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
      */
     public function testDispatchFleetAttackerLossDebrisFieldCreated(): void
     {
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Send fleet to a nearby foreign planet.
         // Attack with 50 light fighters, defend with 200 rocket launchers.
         // We expect defender to win in +/- 3 rounds. Attacker will lose all units.
         $this->planetAddUnit('light_fighter', 50);
 
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('light_fighter'), 50);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 50);
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
 
         // Ensure that there is no debris field on the foreign planet.
@@ -607,8 +573,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
 
         // Set time to fleet mission duration + 1 second.
-        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 1);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel($fleetMissionDuration + 1)->seconds();
 
         // Reload application to make sure the planet is not cached.
         $this->reloadApplication();
@@ -645,17 +610,13 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
      */
     public function testLargeScaleAttackWithDebrisField(): void
     {
-        // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
-
         // Prepare attacker fleet
         $this->planetAddUnit('cruiser', 700000);
         $this->planetAddUnit('battle_ship', 100000);
 
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('cruiser'), 700000);
-        $unitCollection->addUnit($this->planetService->objects->getUnitObjectByMachineName('battle_ship'), 100000);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), 700000);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('battle_ship'), 100000);
 
         // Send fleet to a nearby foreign planet
         $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
@@ -679,8 +640,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
 
         // Set time to fleet mission duration + 1 second
-        $fleetParentTime = $startTime->copy()->addSeconds($fleetMissionDuration + 1);
-        Carbon::setTestNow($fleetParentTime);
+        $this->travel($fleetMissionDuration + 1)->seconds();
 
         // Reload application to make sure the planet is not cached
         $this->reloadApplication();

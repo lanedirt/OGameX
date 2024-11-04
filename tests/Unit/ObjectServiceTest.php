@@ -12,15 +12,14 @@ class ObjectServiceTest extends UnitTestCase
      */
     public function testGetObjectMaxBuildAmount(): void
     {
-        $object_service = new ObjectService();
         $this->createAndSetPlanetModel([]);
 
         // Test with requirements not met
-        $max_build_amount = $object_service->getObjectMaxBuildAmount('plasma_turret', $this->planetService, false);
+        $max_build_amount = ObjectService::getObjectMaxBuildAmount('plasma_turret', $this->planetService, false);
         $this->assertEquals(0, $max_build_amount);
 
         // Test with object limited to one instance per user
-        $max_build_amount = $object_service->getObjectMaxBuildAmount('small_shield_dome', $this->planetService, true);
+        $max_build_amount = ObjectService::getObjectMaxBuildAmount('small_shield_dome', $this->planetService, true);
         $this->assertEquals(1, $max_build_amount);
 
         $this->createAndSetPlanetModel([
@@ -28,8 +27,8 @@ class ObjectServiceTest extends UnitTestCase
         ]);
 
         // Test with object limited to one instance which already exists
-        $max_build_amount = $object_service->getObjectMaxBuildAmount('small_shield_dome', $this->planetService, true);
-        $this->assertEquals(0, $max_build_amount);
+        $maxBuildAmount = ObjectService::getObjectMaxBuildAmount('small_shield_dome', $this->planetService, true);
+        $this->assertEquals(0, $maxBuildAmount);
 
         $this->createAndSetPlanetModel([
             'metal' => 24000,
@@ -37,7 +36,7 @@ class ObjectServiceTest extends UnitTestCase
         ]);
 
         // Test it calculates max amount correctly
-        $max_build_amount = $object_service->getObjectMaxBuildAmount('anti_ballistic_missile', $this->planetService, true);
-        $this->assertEquals(3, $max_build_amount);
+        $maxBuildAmount = ObjectService::getObjectMaxBuildAmount('anti_ballistic_missile', $this->planetService, true);
+        $this->assertEquals(3, $maxBuildAmount);
     }
 }

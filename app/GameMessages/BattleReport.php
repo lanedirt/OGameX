@@ -9,6 +9,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
+use OGame\Services\ObjectService;
 
 class BattleReport extends GameMessage
 {
@@ -163,12 +164,12 @@ class BattleReport extends GameMessage
 
         $attacker_units = new UnitCollection();
         foreach ($this->battleReportModel->attacker['units'] as $machine_name => $amount) {
-            $attacker_units->addUnit($this->objects->getUnitObjectByMachineName($machine_name), $amount);
+            $attacker_units->addUnit(ObjectService::getUnitObjectByMachineName($machine_name), $amount);
         }
 
         $defender_units = new UnitCollection();
         foreach ($this->battleReportModel->defender['units'] as $machine_name => $amount) {
-            $defender_units->addUnit($this->objects->getUnitObjectByMachineName($machine_name), $amount);
+            $defender_units->addUnit(ObjectService::getUnitObjectByMachineName($machine_name), $amount);
         }
 
         // Load rounds and cast to battle result round object.
@@ -184,32 +185,32 @@ class BattleReport extends GameMessage
                 $obj->hitsDefender = $round['hits_defender'];
                 $obj->defenderShips = new UnitCollection();
                 foreach ($round['defender_ships'] as $machine_name => $amount) {
-                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $unit = ObjectService::getUnitObjectByMachineName($machine_name);
                     $obj->defenderShips->addUnit($unit, $amount);
                 }
                 $obj->attackerShips = new UnitCollection();
                 foreach ($round['attacker_ships'] as $machine_name => $amount) {
-                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $unit = ObjectService::getUnitObjectByMachineName($machine_name);
                     $obj->attackerShips->addUnit($unit, $amount);
                 }
                 $obj->defenderLosses = new UnitCollection();
                 foreach ($round['defender_losses'] as $machine_name => $amount) {
-                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $unit = ObjectService::getUnitObjectByMachineName($machine_name);
                     $obj->defenderLosses->addUnit($unit, $amount);
                 }
                 $obj->attackerLosses = new UnitCollection();
                 foreach ($round['attacker_losses'] as $machine_name => $amount) {
-                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $unit = ObjectService::getUnitObjectByMachineName($machine_name);
                     $obj->attackerLosses->addUnit($unit, $amount);
                 }
                 $obj->defenderLossesInThisRound = new UnitCollection();
                 foreach ($round['defender_losses_in_this_round'] as $machine_name => $amount) {
-                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $unit = ObjectService::getUnitObjectByMachineName($machine_name);
                     $obj->defenderLossesInThisRound->addUnit($unit, $amount);
                 }
                 $obj->attackerLossesInThisRound = new UnitCollection();
                 foreach ($round['attacker_losses_in_this_round'] as $machine_name => $amount) {
-                    $unit = $this->objects->getUnitObjectByMachineName($machine_name);
+                    $unit = ObjectService::getUnitObjectByMachineName($machine_name);
                     $obj->attackerLossesInThisRound->addUnit($unit, $amount);
                 }
                 $rounds[] = $obj;
@@ -260,9 +261,9 @@ class BattleReport extends GameMessage
             'defender_weapons' => $defender_weapons,
             'defender_shields' => $defender_shields,
             'defender_armor' => $defender_armor,
-            'military_objects' => $this->objects->getMilitaryShipObjects(),
-            'civil_objects' => $this->objects->getCivilShipObjects(),
-            'defense_objects' => $this->objects->getDefenseObjects(),
+            'military_objects' => ObjectService::getMilitaryShipObjects(),
+            'civil_objects' => ObjectService::getCivilShipObjects(),
+            'defense_objects' => ObjectService::getDefenseObjects(),
             'attacker_units_start' => $attacker_units,
             'defender_units_start' => $defender_units,
             'rounds' => $rounds,

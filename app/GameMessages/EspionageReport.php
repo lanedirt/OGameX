@@ -5,6 +5,7 @@ namespace OGame\GameMessages;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Services\ObjectService;
 use OGame\ViewModels\UnitViewModel;
 
 class EspionageReport extends GameMessage
@@ -134,7 +135,7 @@ class EspionageReport extends GameMessage
         if ($this->espionageReportModel->ships !== null) {
             foreach ($this->espionageReportModel->ships as $machine_name => $amount) {
                 // Get object
-                $unit = $planet->objects->getUnitObjectByMachineName($machine_name);
+                $unit = ObjectService::getUnitObjectByMachineName($machine_name);
 
                 $unitViewModel = new UnitViewModel();
                 $unitViewModel->amount = $amount;
@@ -149,7 +150,7 @@ class EspionageReport extends GameMessage
         if ($this->espionageReportModel->defense !== null) {
             foreach ($this->espionageReportModel->defense as $machine_name => $amount) {
                 // Get object
-                $unit = $planet->objects->getUnitObjectByMachineName($machine_name);
+                $unit = ObjectService::getUnitObjectByMachineName($machine_name);
 
                 $unitViewModel = new UnitViewModel();
                 $unitViewModel->amount = $amount;
@@ -164,7 +165,7 @@ class EspionageReport extends GameMessage
         if ($this->espionageReportModel->buildings !== null) {
             foreach ($this->espionageReportModel->buildings as $machine_name => $amount) {
                 // Get object
-                $unit = $planet->objects->getObjectByMachineName($machine_name);
+                $unit = ObjectService::getObjectByMachineName($machine_name);
 
                 $unitViewModel = new UnitViewModel();
                 $unitViewModel->amount = $amount;
@@ -179,7 +180,7 @@ class EspionageReport extends GameMessage
         if ($this->espionageReportModel->research !== null) {
             foreach ($this->espionageReportModel->research as $machine_name => $amount) {
                 // Get object
-                $unit = $planet->objects->getObjectByMachineName($machine_name);
+                $unit = ObjectService::getObjectByMachineName($machine_name);
 
                 $unitViewModel = new UnitViewModel();
                 $unitViewModel->amount = $amount;

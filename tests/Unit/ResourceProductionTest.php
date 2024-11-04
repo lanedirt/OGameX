@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Services\SettingsService;
 use Tests\UnitTestCase;
 
@@ -10,7 +9,6 @@ class ResourceProductionTest extends UnitTestCase
 {
     /**
      * Set up common test components.
-     * @throws BindingResolutionException
      */
     protected function setUp(): void
     {

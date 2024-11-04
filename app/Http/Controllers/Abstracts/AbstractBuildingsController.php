@@ -67,11 +67,10 @@ abstract class AbstractBuildingsController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return View
      * @throws Exception
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects): View
+    public function index(Request $request, PlayerService $player): View
     {
         $this->planet = $player->planets->current();
 
@@ -90,16 +89,16 @@ abstract class AbstractBuildingsController extends OGameController
                 $count++;
 
                 // Get object
-                $object = $objects->getObjectByMachineName($object_machine_name);
+                $object = ObjectService::getObjectByMachineName($object_machine_name);
 
                 // Get current level of building
                 $current_level = $this->planet->getObjectLevel($object_machine_name);
 
                 // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object_machine_name, $this->planet, $player);
+                $requirements_met = ObjectService::objectRequirementsMet($object_machine_name, $this->planet, $player);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $this->planet->hasResources($objects->getObjectPrice($object_machine_name, $this->planet));
+                $enough_resources = $this->planet->hasResources(ObjectService::getObjectPrice($object_machine_name, $this->planet));
 
                 // If building level is 1 or higher, add to header filename parts to
                 // render the header of this planet.

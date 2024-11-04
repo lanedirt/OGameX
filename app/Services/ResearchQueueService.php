@@ -20,13 +20,6 @@ use OGame\ViewModels\Queue\ResearchQueueViewModel;
 class ResearchQueueService
 {
     /**
-     * Information about objects.
-     *
-     * @var ObjectService
-     */
-    private ObjectService $objects;
-
-    /**
      * The queue model where this class should get its data from.
      *
      * @var ResearchQueue
@@ -34,14 +27,10 @@ class ResearchQueueService
     private ResearchQueue $model;
 
     /**
-     * BuildingQueue constructor.
-     *
-     * @param ObjectService $objects
+     * ResearchQueueService constructor.
      */
-    public function __construct(ObjectService $objects)
+    public function __construct()
     {
-        $this->objects = $objects;
-
         $this->model = new ResearchQueue();
     }
 
@@ -125,11 +114,11 @@ class ResearchQueueService
             throw new Exception('Maximum number of items already in queue.');
         }
 
-        $object = $this->objects->getResearchObjectById($research_object_id);
+        $object = ObjectService::getResearchObjectById($research_object_id);
 
         // Check if user satisifes requirements to research this object.
         // TODO: refactor throw exception into a more user-friendly message.
-        $requirements_met = $this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer());
+        $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer());
         if (!$requirements_met) {
             throw new Exception('Requirements not met to build this object.');
         }
@@ -180,7 +169,7 @@ class ResearchQueueService
         // Convert to ViewModel array
         $list = [];
         foreach ($queue_items as $item) {
-            $object = $this->objects->getResearchObjectById($item->object_id);
+            $object = ObjectService::getResearchObjectById($item->object_id);
             $planetService = $planet->getPlayer()->planets->childPlanetById($item['planet_id']);
             $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
             if ($time_countdown < 0) {
@@ -259,10 +248,10 @@ class ResearchQueueService
 
         foreach ($queue_items as $queue_item) {
             $planet = $player->planets->childPlanetById($queue_item->planet_id);
-            $object = $this->objects->getResearchObjectById($queue_item->object_id);
+            $object = ObjectService::getResearchObjectById($queue_item->object_id);
 
             // See if the planet has enough resources for this research attempt.
-            $price = $this->objects->getObjectPrice($object->machine_name, $planet);
+            $price = ObjectService::getObjectPrice($object->machine_name, $planet);
             $research_time = $player->planets->current()->getTechnologyResearchTime($object->machine_name);
 
             // Only start the queue item if there are no other queue items researching
@@ -297,7 +286,7 @@ class ResearchQueueService
 
             // Sanity check: check if the researching requirements are still met. If not,
             // then cancel research request.
-            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $player, $queue_item->object_level_target, false)) {
+            if (!ObjectService::objectRequirementsMet($object->machine_name, $planet, $player, $queue_item->object_level_target, false)) {
                 $this->cancel($player, $queue_item->id, $queue_item->object_id);
 
                 continue;
@@ -405,7 +394,7 @@ class ResearchQueueService
             ->get();
 
         foreach ($queue_items as $item) {
-            $object = $this->objects->getObjectById($item->object_id);
+            $object = ObjectService::getObjectById($item->object_id);
 
             if ($object->machine_name === $machine_name && $item->object_level_target === $level) {
                 return true;
@@ -436,9 +425,9 @@ class ResearchQueueService
             ->get();
 
         foreach ($research_queue_items as $research_queue_item) {
-            $object = $this->objects->getObjectById($research_queue_item->object_id);
+            $object = ObjectService::getObjectById($research_queue_item->object_id);
 
-            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $player, $research_queue_item->object_level_target)) {
+            if (!ObjectService::objectRequirementsMet($object->machine_name, $planet, $player, $research_queue_item->object_level_target)) {
                 $this->cancel($player, $research_queue_item->id, $object->id);
                 break;
             }

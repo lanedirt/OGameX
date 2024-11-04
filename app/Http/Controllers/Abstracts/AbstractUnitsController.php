@@ -61,11 +61,10 @@ abstract class AbstractUnitsController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return View
      * @throws Exception
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects): View
+    public function index(Request $request, PlayerService $player): View
     {
         $planet = $player->planets->current();
 
@@ -88,19 +87,19 @@ abstract class AbstractUnitsController extends OGameController
             foreach ($objects_row as $object_machine_name) {
                 $count++;
 
-                $object = $objects->getUnitObjectByMachineName($object_machine_name);
+                $object = ObjectService::getUnitObjectByMachineName($object_machine_name);
 
-                // Get current level of building
+                // Get current amount of this unit.
                 $amount = $planet->getObjectAmount($object->machine_name);
 
                 // Check requirements of this building
-                $requirements_met = $objects->objectRequirementsMet($object->machine_name, $planet, $player, 0, false);
+                $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $player, 0, false);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $planet->hasResources($objects->getObjectPrice($object->machine_name, $planet));
+                $enough_resources = $planet->hasResources(ObjectService::getObjectPrice($object->machine_name, $planet));
 
                 // Get maximum build amount of this building
-                $max_build_amount = $objects->getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met);
+                $max_build_amount = ObjectService::getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met);
 
                 $view_model = new UnitViewModel();
                 $view_model->object = $object;
@@ -127,7 +126,7 @@ abstract class AbstractUnitsController extends OGameController
     }
 
     /**
-     * Handles an incoming add buildrequest.
+     * Handles an incoming add build request.
      *
      * @param Request $request
      * @param PlayerService $player

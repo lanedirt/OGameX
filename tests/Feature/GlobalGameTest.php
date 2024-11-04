@@ -16,9 +16,9 @@ class GlobalGameTest extends AccountTestCase
         $startPlanetCount = $this->planetService->getPlayer()->planets->count();
         $this->assertGreaterThanOrEqual(2, $startPlanetCount);
 
-        // Set time to +1 hour so we can verify that only the current planet will be updated with the new time.
+        // Set time to +1 hour, so we can verify that only the current planet will be updated with the new time.
         $testTime = Carbon::now()->addHour();
-        Carbon::setTestNow($testTime);
+        $this->travelTo($testTime);
 
         // Request overview page.
         $response = $this->get('/overview');

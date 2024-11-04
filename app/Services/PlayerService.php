@@ -26,7 +26,7 @@ use Throwable;
 class PlayerService
 {
     /**
-     * The planetlist object for this player.
+     * The planet list object for this player.
      *
      * @var PlanetListService
      */
@@ -47,25 +47,17 @@ class PlayerService
     private UserTech $user_tech;
 
     /**
-     * @var ObjectService
-     */
-    private ObjectService $objects;
-
-    /**
      * Player constructor.
      *
      * @param int $player_id
-     * @param ObjectService $objectService
      */
-    public function __construct(int $player_id, ObjectService $objectService)
+    public function __construct(int $player_id)
     {
         // Load the player object if a positive player ID is given.
         // If no player ID is given then player context will not be available, but this can be fine for unittests.
         if ($player_id !== 0) {
             $this->load($player_id);
         }
-
-        $this->objects = $objectService;
     }
 
     /**
@@ -287,7 +279,7 @@ class PlayerService
      */
     public function getResearchLevel(string $machine_name): int
     {
-        $research = $this->objects->getResearchObjectByMachineName($machine_name);
+        $research = ObjectService::getResearchObjectByMachineName($machine_name);
         $research_level = $this->user_tech->{$research->machine_name};
 
         if ($research_level) {
@@ -307,7 +299,7 @@ class PlayerService
      */
     public function setResearchLevel(string $machine_name, int $level, bool $save_to_db = true): void
     {
-        $research = $this->objects->getResearchObjectByMachineName($machine_name);
+        $research = ObjectService::getResearchObjectByMachineName($machine_name);
         $this->user_tech->{$research->machine_name} = $level;
 
         if ($save_to_db) {
@@ -407,7 +399,7 @@ class PlayerService
         // @TODO: add DB transaction wrapper
         foreach ($research_queue as $item) {
             // Get object information of research object.
-            $object = $this->objects->getResearchObjectById($item->object_id);
+            $object = ObjectService::getResearchObjectById($item->object_id);
 
             // Update planet and update level of the building that has been processed.
             $this->setResearchLevel($object->machine_name, $item->object_level_target);
@@ -487,11 +479,11 @@ class PlayerService
         $resources_spent = new Resources(0, 0, 0, 0);
 
         // Create object array
-        $research_objects = $this->objects->getResearchObjects();
+        $research_objects = ObjectService::getResearchObjects();
         foreach ($research_objects as $object) {
             for ($i = 1; $i <= $this->getResearchLevel($object->machine_name); $i++) {
                 // Concatenate price which is array of metal, crystal and deuterium.
-                $raw_price = $this->objects->getObjectRawPrice($object->machine_name, $i);
+                $raw_price = ObjectService::getObjectRawPrice($object->machine_name, $i);
                 $resources_spent->add($raw_price);
             }
         }
@@ -509,7 +501,7 @@ class PlayerService
     public function getResearchArray(): array
     {
         $array = [];
-        $objects = $this->objects->getResearchObjects();
+        $objects = ObjectService::getResearchObjects();
         foreach ($objects as $object) {
             if ($this->user_tech->{$object->machine_name} > 0) {
                 $array[$object->machine_name] = $this->user_tech->{$object->machine_name};
@@ -527,7 +519,7 @@ class PlayerService
     public function getMaxPlanetAmount(): int
     {
         $astrophyicsLevel = $this->getResearchLevel('astrophysics');
-        $astrophysicsObject = $this->planets->current()->objects->getResearchObjectByMachineName('astrophysics');
+        $astrophysicsObject = ObjectService::getResearchObjectByMachineName('astrophysics');
 
         // +1 to max_colonies to get max_planets because the main planet is not included in the calculation above.
         return 1 + $astrophysicsObject->performCalculation(CalculationType::MAX_COLONIES, $astrophyicsLevel);

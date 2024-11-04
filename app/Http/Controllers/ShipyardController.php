@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractUnitsController;
-use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\UnitQueueService;
 
@@ -29,11 +28,10 @@ class ShipyardController extends AbstractUnitsController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return View
      * @throws Exception
      */
-    public function index(Request $request, PlayerService $player, ObjectService $objects): View
+    public function index(Request $request, PlayerService $player): View
     {
         $this->setBodyId('shipyard');
 
@@ -44,7 +42,7 @@ class ShipyardController extends AbstractUnitsController
         ];
         $this->view_name = 'ingame.shipyard.index';
 
-        return parent::index($request, $player, $objects);
+        return parent::index($request, $player);
     }
 
     /**
@@ -52,12 +50,11 @@ class ShipyardController extends AbstractUnitsController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @param ObjectService $objects
      * @return JsonResponse
      * @throws Exception
      */
-    public function ajax(Request $request, PlayerService $player, ObjectService $objects): JsonResponse
+    public function ajax(Request $request, PlayerService $player): JsonResponse
     {
-        return $this->ajaxHandler($request, $player, $objects);
+        return $this->ajaxHandler($request, $player);
     }
 }
