@@ -221,10 +221,9 @@ class ResearchQueueCancelTest extends AccountTestCase
         $number1 = (int)$cancelProductionCall[0];
         $number2 = (int)$cancelProductionCall[1];
 
-        // Check if both numbers are integers. If not, throw an exception.
-        if (empty($number1) || empty($number2)) {
-            throw new BindingResolutionException('Could not extract the building queue ID from the page.');
-        }
+        // Assert that both numbers are integers.
+        $this->assertIsInt($number1);
+        $this->assertIsInt($number2);
 
         // Cancel Energy technology level 1, this will cancel also Impulse Drive level 1
         $this->cancelResearchBuildRequest($number1, $number2);

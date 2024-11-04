@@ -89,11 +89,11 @@ abstract class AbstractUnitsController extends OGameController
 
                 $object = ObjectService::getUnitObjectByMachineName($object_machine_name);
 
-                // Get current level of building
+                // Get current amount of this unit.
                 $amount = $planet->getObjectAmount($object->machine_name);
 
                 // Check requirements of this building
-                $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $player, false);
+                $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $player, 0, false);
 
                 // Check if the current planet has enough resources to build this building.
                 $enough_resources = $planet->hasResources(ObjectService::getObjectPrice($object->machine_name, $planet));

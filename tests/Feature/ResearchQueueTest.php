@@ -186,10 +186,6 @@ class ResearchQueueTest extends AccountTestCase
      */
     public function testResearchLabRequirement(): void
     {
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
         // Add required resources for research to planet
         $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
 
@@ -207,14 +203,11 @@ class ResearchQueueTest extends AccountTestCase
         $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements not met.');
 
         // Verify that Energy Technology can be added to research queue 2 minute later.
-        $testTime = Carbon::create(2024, 1, 1, 12, 2, 0);
-        Carbon::setTestNow($testTime);
-
+        $this->travel(2)->minutes();
         $this->addResearchBuildRequest('energy_technology');
 
         // Verify the research is finished 2 minute later.
-        $testTime = Carbon::create(2024, 1, 1, 12, 4, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(2)->minutes();
 
         $response = $this->get('/research');
         $response->assertStatus(200);

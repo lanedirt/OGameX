@@ -227,7 +227,7 @@ class BuildingQueueService
 
             // Sanity check: check if the building requirements are still met. If not,
             // then cancel build request.
-            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $queue_item->object_level_target, false)) {
+            if (!ObjectService::objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $queue_item->object_level_target, false)) {
                 $this->cancel($planet, $queue_item->id, $queue_item->object_id);
 
                 continue;
@@ -318,7 +318,7 @@ class BuildingQueueService
         $queue_items = $this->retrieveQueueItems($planet);
 
         foreach ($queue_items as $item) {
-            $object = $this->objects->getObjectById($item->object_id);
+            $object = ObjectService::getObjectById($item->object_id);
 
             if ($object->machine_name === $machine_name && $item->object_level_target === $level) {
                 return true;
@@ -339,9 +339,9 @@ class BuildingQueueService
         $build_queue_items = $this->retrieveQueueItems($planet);
 
         foreach ($build_queue_items as $build_queue_item) {
-            $object = $this->objects->getObjectById($build_queue_item->object_id);
+            $object = ObjectService::getObjectById($build_queue_item->object_id);
 
-            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $build_queue_item->object_level_target)) {
+            if (!ObjectService::objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), $build_queue_item->object_level_target)) {
                 $this->cancel($planet, $build_queue_item->id, $object->id);
                 break;
             }

@@ -1458,7 +1458,7 @@ class PlanetService
      */
     public function isBuildingObject(string $machine_name, int $level): bool
     {
-        $object = $this->objects->getObjectByMachineName($machine_name);
+        $object = ObjectService::getObjectByMachineName($machine_name);
 
         // Check only building queue objects
         if ($object->type !== GameObjectType::Building && $object->type !== GameObjectType::Station) {

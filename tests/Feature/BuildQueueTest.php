@@ -198,10 +198,6 @@ class BuildQueueTest extends AccountTestCase
      */
     public function testBuildQueueFacilitiesShipyardQueuedRequirements(): void
     {
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
         // Add resource to build required facilities to planet
         $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
 
@@ -218,8 +214,7 @@ class BuildQueueTest extends AccountTestCase
         $this->addFacilitiesBuildRequest('shipyard');
 
         // Verify the research is finished 10 minute later.
-        $testTime = Carbon::create(2024, 1, 1, 12, 10, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(10)->minutes();
 
         $response = $this->get('/facilities');
         $response->assertStatus(200);

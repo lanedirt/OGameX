@@ -336,18 +336,18 @@ class ObjectService
     public static function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player, int $level = 0, bool $queued = true): bool
     {
         try {
-            $object = $this->getObjectByMachineName($machine_name);
+            $object = self::getObjectByMachineName($machine_name);
 
             // Check required prior levels
             if ($level) {
-                if (!$this->objectLevelsMet($object, $planet, $player, $level, $queued)) {
+                if (!self::objectLevelsMet($object, $planet, $player, $level, $queued)) {
                     return false;
                 }
             }
 
             foreach ($object->requirements as $requirement) {
                 // Load required object and check if requirements are met.
-                $object_required = $this->getObjectByMachineName($requirement->object_machine_name);
+                $object_required = self::getObjectByMachineName($requirement->object_machine_name);
                 $check_queue = $queued;
 
                 // Skip queue check for research lab as it must be present for research objects
@@ -518,7 +518,7 @@ class ObjectService
      * @param bool $queued
      * @return bool
      */
-    private function objectLevelsMet(GameObject $object, PlanetService $planet, PlayerService $player, int $level, bool $queued): bool
+    private static function objectLevelsMet(GameObject $object, PlanetService $planet, PlayerService $player, int $level, bool $queued): bool
     {
         $current_level = 0;
 

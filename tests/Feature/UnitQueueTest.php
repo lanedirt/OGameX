@@ -329,10 +329,6 @@ class UnitQueueTest extends AccountTestCase
      */
     public function testUnitQueueShipyardRequirement(): void
     {
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
         // Add required resources to planet
         $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
 
@@ -352,14 +348,11 @@ class UnitQueueTest extends AccountTestCase
         $this->assertRequirementsNotMet($response, 'solar_satellite', 'Solar Satellite build requirements are met.');
 
         // Verify that Solar Satellite can be added to unit queue 10 minute later.
-        $testTime = Carbon::create(2024, 1, 1, 12, 10, 0);
-        Carbon::setTestNow($testTime);
-
+        $this->travel(10)->minutes();
         $this->addShipyardBuildRequest('solar_satellite', 1);
 
         // Verify the building is finished 10 minute later.
-        $testTime = Carbon::create(2024, 1, 1, 12, 20, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(10)->minutes();
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
@@ -372,10 +365,6 @@ class UnitQueueTest extends AccountTestCase
      */
     public function testUnitQueueResearchRequirement(): void
     {
-        // Set the current time to a specific moment for testing
-        $testTime = Carbon::create(2024, 1, 1, 12, 0, 0);
-        Carbon::setTestNow($testTime);
-
         // Add required resources to planet
         $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
 
@@ -391,8 +380,7 @@ class UnitQueueTest extends AccountTestCase
         $this->addFacilitiesBuildRequest('research_lab');
 
         // Verify the building is finished 10 minute later.
-        $testTime = Carbon::create(2024, 1, 1, 12, 10, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(10)->minutes();
 
         $response = $this->get('/facilities');
         $response->assertStatus(200);
@@ -413,8 +401,7 @@ class UnitQueueTest extends AccountTestCase
         $this->assertRequirementsNotMet($response, 'light_fighter', 'Light Fighter build requirements are met.');
 
         // Verify the research is finished 10 minute later.
-        $testTime = Carbon::create(2024, 1, 1, 12, 20, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(10)->minutes();
 
         $this->planetService->getPlayer()->updateResearchQueue();
         $response = $this->get('/research');
@@ -424,8 +411,7 @@ class UnitQueueTest extends AccountTestCase
         $this->addShipyardBuildRequest('light_fighter', 1);
 
         // Verify the building is finished 10 minute later.
-        $testTime = Carbon::create(2024, 1, 1, 12, 30, 0);
-        Carbon::setTestNow($testTime);
+        $this->travel(10)->minutes();
 
         $response = $this->get('/shipyard');
         $response->assertStatus(200);

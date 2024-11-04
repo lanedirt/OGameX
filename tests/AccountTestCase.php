@@ -480,7 +480,7 @@ abstract class AccountTestCase extends TestCase
     {
         // Get object name from machine name.
         try {
-            $object = $this->planetService->objects->getObjectByMachineName($machine_name);
+            $object = ObjectService::getObjectByMachineName($machine_name);
         } catch (Exception $e) {
             $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
         }

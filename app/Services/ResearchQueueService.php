@@ -118,7 +118,7 @@ class ResearchQueueService
 
         // Check if user satisifes requirements to research this object.
         // TODO: refactor throw exception into a more user-friendly message.
-        $requirements_met = $this->objects->objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer());
+        $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer());
         if (!$requirements_met) {
             throw new Exception('Requirements not met to build this object.');
         }
@@ -286,7 +286,7 @@ class ResearchQueueService
 
             // Sanity check: check if the researching requirements are still met. If not,
             // then cancel research request.
-            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $player, $queue_item->object_level_target, false)) {
+            if (!ObjectService::objectRequirementsMet($object->machine_name, $planet, $player, $queue_item->object_level_target, false)) {
                 $this->cancel($player, $queue_item->id, $queue_item->object_id);
 
                 continue;
@@ -394,7 +394,7 @@ class ResearchQueueService
             ->get();
 
         foreach ($queue_items as $item) {
-            $object = $this->objects->getObjectById($item->object_id);
+            $object = ObjectService::getObjectById($item->object_id);
 
             if ($object->machine_name === $machine_name && $item->object_level_target === $level) {
                 return true;
@@ -425,9 +425,9 @@ class ResearchQueueService
             ->get();
 
         foreach ($research_queue_items as $research_queue_item) {
-            $object = $this->objects->getObjectById($research_queue_item->object_id);
+            $object = ObjectService::getObjectById($research_queue_item->object_id);
 
-            if (!$this->objects->objectRequirementsMet($object->machine_name, $planet, $player, $research_queue_item->object_level_target)) {
+            if (!ObjectService::objectRequirementsMet($object->machine_name, $planet, $player, $research_queue_item->object_level_target)) {
                 $this->cancel($player, $research_queue_item->id, $object->id);
                 break;
             }
