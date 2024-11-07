@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y \
     vim \
     libzip-dev \
     unzip \
-    git \
     curl
 
 # Clear cache
@@ -63,13 +62,12 @@ COPY --chown=www:www . /var/www
 # Switch to root to copy entry point scripts
 USER root
 
-# Copy entry point
+# Copy entry point and set permissions for www user
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
+RUN chmod +x /usr/local/bin/entrypoint && \
+    chown www:www /usr/local/bin/entrypoint
 
-# chmod and pass into entrypoint
-RUN ["chmod", "u+x", "/usr/local/bin/entrypoint"]
-
-# Switch user back to www
+# Switch to www user
 USER www
 
 # Run entrypoint

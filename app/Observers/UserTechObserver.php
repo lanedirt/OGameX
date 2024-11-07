@@ -2,6 +2,8 @@
 
 namespace OGame\Observers;
 
+use Cache;
+use OGame\Enums\HighscoreTypeEnum;
 use OGame\Models\Highscore;
 use OGame\Models\User;
 use OGame\Models\UserTech;
@@ -23,5 +25,15 @@ class UserTechObserver
             'research_rank' => Highscore::max('research_rank') + 1,
             'military_rank' => Highscore::max('military_rank') + 1,
         ]);
+
+        // Clear highscore caches.
+        Cache::forget('highscore-player-count');
+
+        foreach (HighscoreTypeEnum::cases() as $type) {
+            $pages = floor(Highscore::count() / 100) + 1;
+            for ($page = 1; $page <= $pages; $page++) {
+                Cache::forget('highscores'.'-'.$type->name.'-'.$page);
+            }
+        }
     }
 }
