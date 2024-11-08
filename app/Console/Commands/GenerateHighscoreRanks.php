@@ -42,7 +42,7 @@ class GenerateHighscoreRanks extends Command
         $query->orderBy($type->name, 'DESC');
         $bar = $this->output->createProgressBar();
         $bar->start($query->count());
-        $query->chunkById(200, function ($highscores) use ($type, &$bar, &$rank) {
+        $query->chunk(200, function ($highscores) use ($type, &$bar, &$rank) {
             /** @var \Illuminate\Support\Collection<int, Highscore> $highscores */
             foreach ($highscores as $highscore) {
                 $highscore->{$type->name.'_rank'} = $rank;

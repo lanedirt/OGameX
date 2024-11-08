@@ -33,7 +33,7 @@ class GenerateHighscores extends Command
         $this->info('Updating highscores...');
         $bar = $this->output->createProgressBar();
         $bar->start($users->count());
-        $users->chunkById(200, function ($players) use ($playerServiceFactory, $highscoreService, &$bar) {
+        $users->chunk(200, function ($players) use ($playerServiceFactory, $highscoreService, &$bar) {
             /** @var \Illuminate\Support\Collection<Highscore> $players */
             foreach ($players as $player) {
                 $playerService = $playerServiceFactory->make($player->id);
