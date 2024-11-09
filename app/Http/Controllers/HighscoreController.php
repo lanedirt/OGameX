@@ -78,6 +78,7 @@ class HighscoreController extends OGameController
 
         // Current player rank.
         $currentPlayerRank = $highscoreService->getHighscorePlayerRank($player);
+
         $currentPlayerPage = floor($currentPlayerRank / 100)  + 1;
 
         // Check if we received a page number, if so, use it instead of the current player rank.
@@ -86,14 +87,12 @@ class HighscoreController extends OGameController
             $page = (int)$page;
         } else {
             // Initial page based on current player rank (round to the nearest 100 floored).
-            $page = $currentPlayerPage;
+            $page = (int)$currentPlayerPage;
         }
-
-        $offset_start = (int)($page - 1) * 100;
 
         // Get highscore players content view statically to insert into page.
         return view('ingame.highscore.players_points')->with([
-            'highscorePlayers' => $highscoreService->getHighscorePlayers($offset_start),
+            'highscorePlayers' => $highscoreService->getHighscorePlayers(pageOn: $page),
             'highscorePlayerAmount' => $highscoreService->getHighscorePlayerAmount(),
             'highscoreCurrentPlayerRank' => $currentPlayerRank,
             'highscoreCurrentPlayerPage' => $currentPlayerPage,
@@ -142,11 +141,9 @@ class HighscoreController extends OGameController
             $page = $currentPlayerPage;
         }
 
-        $offset_start = ($page - 1) * 100;
-
         // Get highscore players content view statically to insert into page.
         return view('ingame.highscore.alliance_points')->with([
-            'highscorePlayers' => $highscoreService->getHighscorePlayers($offset_start),
+            'highscorePlayers' => $highscoreService->getHighscorePlayers(pageOn: $page),
             'highscorePlayerAmount' => $highscoreService->getHighscorePlayerAmount(),
             'highscoreCurrentPlayerRank' => $currentPlayerRank,
             'highscoreCurrentPlayerPage' => $currentPlayerPage,

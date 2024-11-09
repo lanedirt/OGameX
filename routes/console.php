@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
+use OGame\Console\Commands\GenerateHighscores;
+use OGame\Console\Commands\GenerateHighscoreRanks;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,5 @@ use Illuminate\Foundation\Inspiring;
 |
 */
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->describe('Display an inspiring quote');
+Schedule::command(GenerateHighscores::class)->everyFiveMinutes();
+Schedule::command(GenerateHighscoreRanks::class)->everyFiveMinutes();

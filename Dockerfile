@@ -60,9 +60,16 @@ COPY . /var/www
 # Copy existing application directory permissions
 COPY --chown=www:www . /var/www
 
-# Change current user to www (disabled when running through GitHub Actions)
+# Switch to root to copy entry point scripts
+USER root
+
+# Copy entry point and set permissions for www user
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint
+RUN chmod +x /usr/local/bin/entrypoint && \
+    chown www:www /usr/local/bin/entrypoint
+
+# Switch to www user
 USER www
 
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000
-CMD ["php-fpm"]
+# Run entrypoint
+CMD ["/usr/local/bin/entrypoint"]
