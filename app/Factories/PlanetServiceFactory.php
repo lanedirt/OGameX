@@ -10,23 +10,34 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use OGame\Models\Enums\PlanetType;
 use RuntimeException;
 
+/**
+ * Factory class for creating and caching planetService instances. A planetService can represent either a planet (PlanetType::Planet) or a moon (PlanetType::Moon).
+ */
 class PlanetServiceFactory
 {
     /**
-     * Cached instances of planetService.
+     * Cached instances of planetService for planets.
+     *
+     * @var array<string, PlanetService>
+     */
+    protected array $planetInstancesByCoordinate = [];
+
+    /**
+     * Cached instances of planetService for moons.
+     *
+     * @var array<string, PlanetService>
+     */
+    protected array $moonInstancesByCoordinate = [];
+
+    /**
+     * Cached instances of planetService by id (can be either planet or moon).
      *
      * @var array<int, PlanetService>
      */
     protected array $instancesById = [];
-
-    /**
-     * Cached instances of planetService.
-     *
-     * @var array<string, PlanetService>
-     */
-    protected array $instancesByCoordinate = [];
 
     /**
      * SettingsService.
@@ -57,15 +68,21 @@ class PlanetServiceFactory
     public function make(int $planetId, bool $reloadCache = false): PlanetService|null
     {
         if ($reloadCache || !isset($this->instancesById[$planetId])) {
-            try {
-                $planetService = resolve(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
-                $this->instancesById[$planetId] = $planetService;
+            $planetService = resolve(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
 
-                if ($planetService->planetInitialized()) {
-                    $this->instancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
-                }
-            } catch (BindingResolutionException $e) {
+            // Verify planet type is valid
+            if (!in_array($planetService->getPlanetType(), [PlanetType::Planet, PlanetType::Moon])) {
                 return null;
+            }
+
+            $this->instancesById[$planetId] = $planetService;
+
+            if ($planetService->planetInitialized()) {
+                if ($planetService->getPlanetType() === PlanetType::Planet) {
+                    $this->planetInstancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
+                } else {
+                    $this->moonInstancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
+                }
             }
         }
 
@@ -87,15 +104,15 @@ class PlanetServiceFactory
     public function makeForPlayer(PlayerService $player, int $planetId, bool $useCache = true): PlanetService
     {
         if (!$useCache || !isset($this->instancesById[$planetId])) {
-            try {
-                $planetService = resolve(PlanetService::class, ['player' => $player, 'planet_id' => $planetId]);
-                $this->instancesById[$planetId] = $planetService;
-            } catch (BindingResolutionException $e) {
-                throw new RuntimeException('Class not found: ' . PlayerService::class);
-            }
+            $planetService = resolve(PlanetService::class, ['player' => $player, 'planet_id' => $planetId]);
+            $this->instancesById[$planetId] = $planetService;
 
             if ($planetService->planetInitialized()) {
-                $this->instancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
+                if ($planetService->getPlanetType() === PlanetType::Planet) {
+                    $this->planetInstancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
+                } else {
+                    $this->moonInstancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
+                }
             }
         }
 
@@ -106,35 +123,56 @@ class PlanetServiceFactory
      * Returns a planetService for a given coordinate.
      *
      * @param Coordinate $coordinate
-     * @param bool $useCache Whether to use the cache or not. Defaults to true. Note: for certain usecases
-     *   such as updating planets/missions after gaining a lock, its essential to set this to false in order
-     *   to get the latest data from the database.
+     * @param bool $useCache Whether to use the cache or not. Defaults to true.
+     * @param PlanetType $type The type of planet object to look for. Can be PlanetType::Planet or PlanetType::Moon. Defaults to Planet.
      *
      * @return ?PlanetService
      */
-    public function makeForCoordinate(Coordinate $coordinate, bool $useCache = true): ?PlanetService
+    public function makeForCoordinate(Coordinate $coordinate, bool $useCache = true, PlanetType $type = PlanetType::Planet): ?PlanetService
     {
-        if (!$useCache || !isset($this->instancesByCoordinate[$coordinate->asString()])) {
-            $planetId = Planet::where('galaxy', $coordinate->galaxy)
+        $instancesArray = $type === PlanetType::Planet ?
+            $this->planetInstancesByCoordinate :
+            $this->moonInstancesByCoordinate;
+
+        if (!$useCache || !isset($instancesArray[$coordinate->asString()])) {
+            $planet = Planet::where('galaxy', $coordinate->galaxy)
                 ->where('system', $coordinate->system)
                 ->where('planet', $coordinate->position)
-                ->value('id');
+                ->where('planet_type', $type->value)
+                ->first();
 
-            if (!$planetId) {
+            if (!$planet) {
                 return null;
             }
 
-            try {
-                $planetService = resolve(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
-                $this->instancesByCoordinate[$coordinate->asString()] = $planetService;
-                $this->instancesById[$planetService->getPlanetId()] = $planetService;
-                return $this->instancesByCoordinate[$coordinate->asString()];
-            } catch (BindingResolutionException $e) {
-                throw new RuntimeException('Class not found: ' . PlayerService::class);
+            $planetService = resolve(PlanetService::class, ['player' => null, 'planet_id' => $planet->id]);
+
+            if ($type === PlanetType::Planet) {
+                $this->planetInstancesByCoordinate[$coordinate->asString()] = $planetService;
+            } else {
+                $this->moonInstancesByCoordinate[$coordinate->asString()] = $planetService;
             }
+
+            $this->instancesById[$planetService->getPlanetId()] = $planetService;
+
+            return $type === PlanetType::Planet ?
+                $this->planetInstancesByCoordinate[$coordinate->asString()] :
+                $this->moonInstancesByCoordinate[$coordinate->asString()];
         }
 
-        return $this->instancesByCoordinate[$coordinate->asString()];
+        return $instancesArray[$coordinate->asString()];
+    }
+
+    /**
+     * Convenience method to get a moon at the given coordinate.
+     *
+     * @param Coordinate $coordinate
+     * @param bool $useCache
+     * @return ?PlanetService
+     */
+    public function makeForMoonCoordinate(Coordinate $coordinate, bool $useCache = true): ?PlanetService
+    {
+        return $this->makeForCoordinate($coordinate, $useCache, PlanetType::Moon);
     }
 
     /**
@@ -192,7 +230,7 @@ class PlanetServiceFactory
                 foreach ($positions as $position) {
                     $existingPlanet = Planet::where('galaxy', $galaxy)->where('system', $system)->where('planet', $position)->first();
                     if (!$existingPlanet) {
-                        return new Planet\Coordinate($galaxy, $system, $position);
+                        return new Coordinate($galaxy, $system, $position);
                     }
                 }
 
@@ -223,10 +261,9 @@ class PlanetServiceFactory
      * @param string $planetName
      * @return PlanetService
      */
-    public function createInitialForPlayer(PlayerService $player, string $planetName): PlanetService
+    public function createInitialPlanetForPlayer(PlayerService $player, string $planetName): PlanetService
     {
         // Use lock when using the determineNewPlanetPosition so that no other process can get the same position
-        // which would result in an error.
         $lockKey = "planet_create_lock";
         $lock = Cache::lock($lockKey, 10);
 
@@ -235,11 +272,10 @@ class PlanetServiceFactory
             try {
                 $new_position = $this->determineNewPlanetPosition();
                 if (empty($new_position->galaxy) || empty($new_position->system) || empty($new_position->position)) {
-                    // Failed to get a new position for the to be created planet. Throw exception.
                     throw new RuntimeException('Unable to determine new planet position.');
                 }
 
-                $createdPlanet = $this->createPlanet($player, $new_position, $planetName);
+                $createdPlanet = $this->createPlanet($player, $new_position, $planetName, PlanetType::Planet);
 
                 // Update settings with the last assigned galaxy and system if they changed.
                 $this->settings->set('last_assigned_galaxy', $createdPlanet->getPlanetCoordinates()->galaxy);
@@ -264,12 +300,21 @@ class PlanetServiceFactory
      * @param Coordinate $coordinate
      * @return PlanetService
      */
-    public function createAdditionalForPlayer(PlayerService $player, Coordinate $coordinate): PlanetService
+    public function createAdditionalPlanetForPlayer(PlayerService $player, Coordinate $coordinate): PlanetService
     {
-        return $this->createPlanet($player, $coordinate, 'Colony');
+        return $this->createPlanet($player, $coordinate, 'Colony', PlanetType::Planet);
     }
 
-    private function createPlanet(PlayerService $player, Coordinate $new_position, string $planet_name): PlanetService
+    /**
+     * Creates a new planet for a player at the given coordinate and then return the planetService instance for it.
+     *
+     * @param PlayerService $player
+     * @param Coordinate $new_position
+     * @param string $planet_name
+     * @param PlanetType $planet_type The type of planet to create. This supports PlanetType::Planet and PlanetType::Moon.
+     * @return PlanetService
+     */
+    private function createPlanet(PlayerService $player, Coordinate $new_position, string $planet_name, PlanetType $planet_type): PlanetService
     {
         // Position is available
         $planet = new Planet();
@@ -280,10 +325,11 @@ class PlanetServiceFactory
         $planet->planet = $new_position->position;
         $planet->destroyed = 0;
         $planet->field_current = 0;
-        // TODO: figure out how to determine the properties below so it matches the game logic.
-        $planet->planet_type = 1; //?
-        $planet->diameter = 300;
-        $planet->field_max = rand(140, 250);
+        $planet->planet_type = $planet_type->value;
+        $planet->diameter = $planet_type === PlanetType::Moon ? 200 : 300;
+        $planet->field_max = $planet_type === PlanetType::Moon ?
+            rand(80, 120) :
+            rand(140, 250);
         $planet->temp_min = rand(0, 100);
         $planet->temp_max = $planet->temp_min + 40;
 

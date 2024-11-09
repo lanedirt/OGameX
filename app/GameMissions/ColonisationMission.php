@@ -86,7 +86,7 @@ class ColonisationMission extends GameMission
         }
 
         // Create a new planet at the target coordinates.
-        $target_planet = $this->planetServiceFactory->createAdditionalForPlayer($player, new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
+        $target_planet = $this->planetServiceFactory->createAdditionalPlanetForPlayer($player, new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
 
         // Send success message
         $this->messageService->sendSystemMessageToPlayer($player, ColonyEstablished::class, [

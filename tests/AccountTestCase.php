@@ -9,6 +9,7 @@ use Illuminate\Testing\TestResponse;
 use OGame\Factories\GameMessageFactory;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -183,6 +184,7 @@ abstract class AccountTestCase extends TestCase
         $planet_id = \DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+            ->where('planet_type', PlanetType::Planet)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
             ->inRandomOrder()
             ->limit(1)
@@ -194,6 +196,7 @@ abstract class AccountTestCase extends TestCase
             $planet_id = \DB::table('planets')
                 ->where('user_id', '!=', $this->currentUserId)
                 ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+                ->where('planet_type', PlanetType::Planet)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
                 ->inRandomOrder()
                 ->limit(1)

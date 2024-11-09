@@ -143,7 +143,7 @@ class GalaxyController extends OGameController
                 'activity' => $this->getPlanetActivityStatus($planet),
                 'availableMissions' => $availableMissions,
                 'fleet' => [],
-                'imageInformation' => $planet->getPlanetType() . '_' . $planet->getPlanetImageType(),
+                'imageInformation' => $planet->getPlanetBiomeType() . '_' . $planet->getPlanetImageType(),
                 'isDestroyed' => false,
                 'planetId' => $planet->getPlanetId(),
                 'planetName' => $planet->getPlanetName(),

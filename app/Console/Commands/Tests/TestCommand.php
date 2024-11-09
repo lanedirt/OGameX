@@ -127,7 +127,7 @@ abstract class TestCommand extends Command
                 $coordinate = new Coordinate($coordinate->galaxy, $coordinate->system, $attempts);
 
                 try {
-                    $planetServiceFactory->createAdditionalForPlayer($this->playerService, $coordinate);
+                    $planetServiceFactory->createAdditionalPlanetForPlayer($this->playerService, $coordinate);
                     $planet_created = true;
                 } catch (Exception $e) {
                     // Planet already exists, try next position.

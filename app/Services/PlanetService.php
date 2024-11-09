@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Enums\ResourceType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
@@ -256,11 +257,21 @@ class PlanetService
     }
 
     /**
-     * Get planet type (e.g. gas, ice, jungle etc.)
+     * Get planet type as enum.
+     *
+     * @return PlanetType
+     */
+    public function getPlanetType(): PlanetType
+    {
+        return PlanetType::from($this->planet->planet_type);
+    }
+
+    /**
+     * Get planet biome type as string (e.g. gas, ice, jungle etc.)
      *
      * @return string
      */
-    public function getPlanetType(): string
+    public function getPlanetBiomeType(): string
     {
         // Get system and planet.
         $coordinates = $this->getPlanetCoordinates();

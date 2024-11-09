@@ -150,7 +150,9 @@
                          data-ipi-hint="ipiResourcemetal">
                         <div class="resourceIcon metal"></div>
                         <span class="value">
-                        <span id="resources_metal" class="{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['metal']['amount'] !!}">{!! $resources['metal']['amount_formatted'] !!}</span>
+                        <span id="resources_metal"
+                              class="{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}"
+                              data-raw="{!! $resources['metal']['amount'] !!}">{!! $resources['metal']['amount_formatted'] !!}</span>
                     </span>
                     </div>
                 </div>
@@ -161,7 +163,9 @@
                          data-ipi-hint="ipiResourcecrystal">
                         <div class="resourceIcon crystal"></div>
                         <span class="value">
-                        <span id="resources_crystal" class="{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['crystal']['amount'] !!}">{!! $resources['crystal']['amount_formatted'] !!}</span>
+                        <span id="resources_crystal"
+                              class="{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}"
+                              data-raw="{!! $resources['crystal']['amount'] !!}">{!! $resources['crystal']['amount_formatted'] !!}</span>
                     </span>
                     </div>
                 </div>
@@ -172,7 +176,9 @@
                          data-ipi-hint="ipiResourcedeuterium">
                         <div class="resourceIcon deuterium"></div>
                         <span class="value">
-                        <span id="resources_deuterium" class="{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['deuterium']['amount'] !!}">{!! $resources['deuterium']['amount_formatted'] !!}</span>
+                        <span id="resources_deuterium"
+                              class="{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}"
+                              data-raw="{!! $resources['deuterium']['amount'] !!}">{!! $resources['deuterium']['amount_formatted'] !!}</span>
                     </span>
                     </div>
                 </div>
@@ -303,7 +309,8 @@ Combat simulation save slots +20">
                         @lang('No fleet movement')
                     </div>
                 </div>
-                <div id="attack_alert" class="tooltip @if ($underAttack) soon @else noAttack @endif" title="@if ($underAttack) @lang('You are under attack!') @endif">
+                <div id="attack_alert" class="tooltip @if ($underAttack) soon @else noAttack @endif"
+                     title="@if ($underAttack) @lang('You are under attack!') @endif">
                     <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
                 </div>
             </div>
@@ -558,7 +565,23 @@ Combat simulation save slots +20">
                     "hasAPassword": true
                 };
                 var hasAPassword = true;
-                var jsloca = {"INTERNAL_ERROR":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No","LOCA_NOTIFY_ERROR":"Error","LOCA_NOTIFY_INFO":"Info","LOCA_NOTIFY_SUCCESS":"Success","LOCA_NOTIFY_WARNING":"Warning","COMBATSIM_PLANNING":"Planning","COMBATSIM_PENDING":"Simulation running...","COMBATSIM_DONE":"Complete","MSG_RESTORE":"restore","MSG_DELETE":"delete","COPIED_TO_CLIPBOARD":"Copied to clipboard","LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_NETWORK_MSG_GAMEOPERATOR":"Report this message to a game operator?"};
+                var jsloca = {
+                    "INTERNAL_ERROR": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
+                    "LOCA_ALL_YES": "yes",
+                    "LOCA_ALL_NO": "No",
+                    "LOCA_NOTIFY_ERROR": "Error",
+                    "LOCA_NOTIFY_INFO": "Info",
+                    "LOCA_NOTIFY_SUCCESS": "Success",
+                    "LOCA_NOTIFY_WARNING": "Warning",
+                    "COMBATSIM_PLANNING": "Planning",
+                    "COMBATSIM_PENDING": "Simulation running...",
+                    "COMBATSIM_DONE": "Complete",
+                    "MSG_RESTORE": "restore",
+                    "MSG_DELETE": "delete",
+                    "COPIED_TO_CLIPBOARD": "Copied to clipboard",
+                    "LOCA_ALL_NETWORK_ATTENTION": "Caution",
+                    "LOCA_NETWORK_MSG_GAMEOPERATOR": "Report this message to a game operator?"
+                };
                 var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
                 var isMobile = false;
                 var isMobileApp = false;
@@ -1081,7 +1104,8 @@ Combat simulation save slots +20">
                                        class="planetlink {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->count() > 1) ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable"
                                        data-ipi-hint="ipiPlanetHomeplanet">
                                         <img class="planetPic js_replace2x" alt="{{ $planet->getPlanetName() }}"
-                                             src="{!! asset('img/planets/medium/' . $planet->getPlanetType() . '_' . $planet->getPlanetImageType() . '.png') !!}" width="48" height="48">
+                                             src="{!! asset('img/planets/medium/' . $planet->getPlanetBiomeType() . '_' . $planet->getPlanetImageType() . '.png') !!}"
+                                             width="48" height="48">
                                         <span class="planet-name ">{!! $planet->getPlanetName() !!}</span>
                                         <span class="planet-koords ">[{!! $planet->getPlanetCoordinates()->asString() !!}]</span>
                                     </a>
@@ -1144,7 +1168,9 @@ Combat simulation save slots +20">
                 OGameX. @lang('All rights reserved.')</a>
         </div>
         <div class="fright textRight">
-            <a href="{{ route('serversettings.overlay') }}" class="overlay" data-overlay-title="@lang('Server Settings')" data-overlay-class="serversettingsoverlay" data-overlay-popup-width="400" data-overlay-popup-height="510">@lang('Server Settings')</a>|
+            <a href="{{ route('serversettings.overlay') }}" class="overlay"
+               data-overlay-title="@lang('Server Settings')" data-overlay-class="serversettingsoverlay"
+               data-overlay-popup-width="400" data-overlay-popup-height="510">@lang('Server Settings')</a>|
             <a href="http://wiki.ogame.org/" target="_blank">Help</a>|
             @switch ($locale)
                 @case('en')

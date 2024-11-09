@@ -1,6 +1,7 @@
 @php /** @var OGame\Services\PlanetService $currentPlanet */ @endphp
 <div id="abandonplanet">
-    <img src="{!! asset('img/planets/big/' . $currentPlanet->getPlanetType() . '_' . $currentPlanet->getPlanetImageType() . '.png') !!}" class="float_left" />
+    <img src="{!! asset('img/planets/big/' . $currentPlanet->getPlanetBiomeType() . '_' . $currentPlanet->getPlanetImageType() . '.png') !!}"
+         class="float_left"/>
     <p class="desc_txt">@lang('Using this menu you can change planet names and moons or completely abandon them.')</p>
     <table cellpadding="0" cellspacing="0">
         <tbody>
@@ -9,9 +10,10 @@
         </tr>
         <tr>
             <td colspan="3" class="ipiHintable" data-ipi-hint="ipiPlanetSettingsName">
-                <form id="planetMaintenance" class="formValidation" onsubmit="clearField(); $('#newPlanetName').val($('#planetName').val()); ajaxFormSubmit('planetMaintenance', '{{ route('planetabandon.rename') }}', planetRenamed); return false;">
+                <form id="planetMaintenance" class="formValidation"
+                      onsubmit="clearField(); $('#newPlanetName').val($('#planetName').val()); ajaxFormSubmit('planetMaintenance', '{{ route('planetabandon.rename') }}', planetRenamed); return false;">
                     <input type="hidden" id="newPlanetName" name="newPlanetName" value="New planet name">
-                    <input type='hidden' name='_token' value='{{ csrf_token() }}' />
+                    <input type='hidden' name='_token' value='{{ csrf_token() }}'/>
 
                     <a title="Rules|You can rename your planet here.&lt;br /&gt;
 &lt;br /&gt;
@@ -71,12 +73,13 @@ They may contain hyphens, underscores and spaces - however these may not be plac
         <tr>
             <td colspan="3">
                 <form id="planetMaintenanceDelete" action="{{ route('planetabandon.abandon.confirm') }}">
-                    <input type='hidden' name='_token' value='{{ csrf_token() }}' />
+                    <input type='hidden' name='_token' value='{{ csrf_token() }}'/>
                     <div id="giveUpNotification">
                         @lang('If you have activated items on a planet, they will be lost if you abandon the planet.')
                     </div>
                     <div class="validate" id="validate" style="display:none;">
-                        <p class="margin_10_0">Please confirm deletion of planet [{{ $currentPlanet->getPlanetCoordinates()->asString() }}] by putting in your password</p>
+                        <p class="margin_10_0">Please confirm deletion of planet
+                            [{{ $currentPlanet->getPlanetCoordinates()->asString() }}] by putting in your password</p>
                         <input class="text w200 pw_field" type="password" name="password" maxlength="1024" size="25"/>
                         <input class="btn_blue" type="submit" value="Confirm"/>
                     </div>
@@ -87,53 +90,68 @@ They may contain hyphens, underscores and spaces - however these may not be plac
     </table>
 
     <script type="text/javascript">
-        (function($) {
-            $.fn.validationEngineLanguage = function() {};
+        (function ($) {
+            $.fn.validationEngineLanguage = function () {
+            };
             $.validationEngineLanguage = {
-                newLang: function() {
-                    $.validationEngineLanguage.allRules = 	{
+                newLang: function () {
+                    $.validationEngineLanguage.allRules = {
                         "minSize": {
                             "regex": "none",
-                            "alertText": "Not enough characters"},
+                            "alertText": "Not enough characters"
+                        },
                         "pwMinSize": {
                             "regex": /^.{ 4,}$/,
-                            "alertText": "The entered password is to short (min. 4 characters)"},
+                            "alertText": "The entered password is to short (min. 4 characters)"
+                        },
                         "pwMaxSize": {
                             "regex": /^.{0, 20}$/,
-                            "alertText": "The entered password is to long (max. 20 characters)"},
-                        "email":{
-                            "regex":/^[a-zA-Z0-9_\.\-]+\@([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9]{2,4}$/,
-                            "alertText":"You need to enter a valid email address!"},
-                        "noSpecialCharacters":{
-                            "regex":/^[a-zA-Z0-9\-_\s]+$/,
-                            "alertText": "Contains invalid characters."},
-                        "noBeginOrEndUnderscore":{
-                            "regex":/^([^_]+(.*[^_])?)?$/,
-                            "alertText": "Your name may not start or end with an underscore."},
-                        "noBeginOrEndHyphen":{
-                            "regex":/^([^\-]+(.*[^\-])?)?$/,
-                            "alertText": "Your name may not start or finish with a hyphen."},
-                        "noBeginOrEndWhitespace":{
-                            "regex":/^([^\s]+(.*[^\s])?)?$/,
-                            "alertText": "Your name may not start or end with a space."},
-                        "notMoreThanThreeUnderscores":{
-                            "regex":/^[^_]*(_[^_]*){0,3}$/,
-                            "alertText": "Your name may not contain more than 3 underscores in total."},
-                        "notMoreThanThreeHyphen":{
-                            "regex":/^[^\-]*(\-[^\-]*){0,3}$/,
-                            "alertText": "Your name may not contain more than 3 hyphens."},
-                        "notMoreThanThreeWhitespaces":{
-                            "regex":/^[^\s]*(\s[^\s]*){0,3}$/,
-                            "alertText": "Your name may not include more than 3 spaces in total."},
-                        "noCollocateUnderscores":{
-                            "regex":/^[^_]*(_[^_]+)*_?$/,
-                            "alertText": "You may not use two or more underscores one after the other."},
-                        "noCollocateHyphen":{
-                            "regex":/^[^\-]*(\-[^\-]+)*-?$/,
-                            "alertText": "You may not use two or more hyphens consecutively."},
-                        "noCollocateWhitespaces":{
-                            "regex":/^[^\s]*(\s[^\s]+)*\s?$/,
-                            "alertText": "You may not use two or more spaces one after the other."}
+                            "alertText": "The entered password is to long (max. 20 characters)"
+                        },
+                        "email": {
+                            "regex": /^[a-zA-Z0-9_\.\-]+\@([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9]{2,4}$/,
+                            "alertText": "You need to enter a valid email address!"
+                        },
+                        "noSpecialCharacters": {
+                            "regex": /^[a-zA-Z0-9\-_\s]+$/,
+                            "alertText": "Contains invalid characters."
+                        },
+                        "noBeginOrEndUnderscore": {
+                            "regex": /^([^_]+(.*[^_])?)?$/,
+                            "alertText": "Your name may not start or end with an underscore."
+                        },
+                        "noBeginOrEndHyphen": {
+                            "regex": /^([^\-]+(.*[^\-])?)?$/,
+                            "alertText": "Your name may not start or finish with a hyphen."
+                        },
+                        "noBeginOrEndWhitespace": {
+                            "regex": /^([^\s]+(.*[^\s])?)?$/,
+                            "alertText": "Your name may not start or end with a space."
+                        },
+                        "notMoreThanThreeUnderscores": {
+                            "regex": /^[^_]*(_[^_]*){0,3}$/,
+                            "alertText": "Your name may not contain more than 3 underscores in total."
+                        },
+                        "notMoreThanThreeHyphen": {
+                            "regex": /^[^\-]*(\-[^\-]*){0,3}$/,
+                            "alertText": "Your name may not contain more than 3 hyphens."
+                        },
+                        "notMoreThanThreeWhitespaces": {
+                            "regex": /^[^\s]*(\s[^\s]*){0,3}$/,
+                            "alertText": "Your name may not include more than 3 spaces in total."
+                        },
+                        "noCollocateUnderscores": {
+                            "regex": /^[^_]*(_[^_]+)*_?$/,
+                            "alertText": "You may not use two or more underscores one after the other."
+                        },
+                        "noCollocateHyphen": {
+                            "regex": /^[^\-]*(\-[^\-]+)*-?$/,
+                            "alertText": "You may not use two or more hyphens consecutively."
+                        },
+                        "noCollocateWhitespaces": {
+                            "regex": /^[^\s]*(\s[^\s]+)*\s?$/,
+                            "alertText": "You may not use two or more spaces one after the other."
+                        }
 
                     }
                 }

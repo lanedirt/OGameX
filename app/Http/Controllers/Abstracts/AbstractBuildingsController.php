@@ -120,7 +120,7 @@ abstract class AbstractBuildingsController extends OGameController
 
         // Parse header filename for this planet
         ksort($header_filename_parts);
-        $header_filename = $this->planet->getPlanetType();
+        $header_filename = $this->planet->getPlanetBiomeType();
         foreach ($header_filename_parts as $building_id) {
             $header_filename .= '_' . $building_id;
         }
