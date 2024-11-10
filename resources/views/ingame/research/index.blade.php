@@ -21,7 +21,7 @@
                 <div id="technologies_basic">
                     <h3>@lang('Basic research')</h3>
                     <ul class="icons">
-                        @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
+                        @php /** @var OGame\ViewModels\ResearchViewModel $building */ @endphp
                         @foreach ($research[0] as $building)
                             @include('ingame.research.research-item', ['building' => $building, 'build_queue_max' => $build_queue_max])
                         @endforeach
@@ -30,7 +30,7 @@
                 <div id="technologies_drive">
                     <h3>@lang('Drive research')</h3>
                     <ul class="icons">
-                        @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
+                        @php /** @var OGame\ViewModels\ResearchViewModel $building */ @endphp
                         @foreach ($research[1] as $building)
                             @include('ingame.research.research-item', ['building' => $building, 'build_queue_max' => $build_queue_max])
                         @endforeach
@@ -39,7 +39,7 @@
                 <div id="technologies_advanced">
                     <h3>@lang('Advanced researches')</h3>
                     <ul class="icons">
-                        @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
+                        @php /** @var OGame\ViewModels\ResearchViewModel $building */ @endphp
                         @foreach ($research[2] as $building)
                             @include('ingame.research.research-item', ['building' => $building, 'build_queue_max' => $build_queue_max])
                         @endforeach
@@ -48,7 +48,7 @@
                 <div id="technologies_combat">
                     <h3>@lang('Combat research')</h3>
                     <ul class="icons">
-                        @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
+                        @php /** @var OGame\ViewModels\ResearchViewModel $building */ @endphp
                         @foreach ($research[3] as $building)
                             @include('ingame.research.research-item', ['building' => $building, 'build_queue_max' => $build_queue_max])
                         @endforeach

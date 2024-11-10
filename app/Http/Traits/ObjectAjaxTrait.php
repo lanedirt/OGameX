@@ -52,6 +52,7 @@ trait ObjectAjaxTrait
         // Switch
         $production_time = '';
         $production_datetime = '';
+        $research_lab_upgrading = false;
         switch ($object->type) {
             case GameObjectType::Building:
             case GameObjectType::Station:
@@ -66,6 +67,10 @@ trait ObjectAjaxTrait
             case GameObjectType::Research:
                 $production_time = AppUtil::formatTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
+
+                // Researching is disallowed when Research Lab is upgrading
+                $research_lab_level = $planet->getObjectLevel('research_lab');
+                $research_lab_upgrading = $planet->isBuildingObject('research_lab', $research_lab_level + 1);
                 break;
             default:
                 // Unknown object type, throw error.
@@ -153,6 +158,7 @@ trait ObjectAjaxTrait
             'max_storage' => $max_storage,
             'max_build_amount' => $max_build_amount,
             'current_amount' => $current_amount,
+            'research_lab_upgrading' => $research_lab_upgrading,
         ]);
 
         return response()->json([

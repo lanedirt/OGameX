@@ -181,7 +181,7 @@
             <div class="build-it_wrap">
                 <div class="ipiHintable" data-ipi-hint="ipiTechnologyUpgradedeuteriumSynthesizer">
                     <button class="upgrade"
-                            @if (!$enough_resources || !$requirements_met || $build_queue_max || !$max_build_amount)
+                            @if (!$enough_resources || !$requirements_met || $build_queue_max || !$max_build_amount || $research_lab_upgrading)
                                 disabled
                             @else
                             @endif
