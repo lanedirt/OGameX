@@ -5,6 +5,7 @@ namespace OGame\Services;
 use Exception;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet as Planet;
+use OGame\Models\Enums\PlanetType;
 
 /**
  * Class PlanetList.
@@ -16,11 +17,18 @@ use OGame\Models\Planet as Planet;
 class PlanetListService
 {
     /**
-     * The planet object from the model.
+     * Array of planets.
      *
      * @var array<PlanetService>
      */
     private array $planets = [];
+
+    /**
+     * Array of moons.
+     *
+     * @var array<PlanetService>
+     */
+    private array $moons = [];
 
     /**
      * PlayerService
@@ -52,11 +60,17 @@ class PlanetListService
      */
     public function load(int $id): void
     {
-        // Get all planets of user
+        // Get all planets (and moons) of user.
         $planets = Planet::where('user_id', $id)->get();
         foreach ($planets as $record) {
             $planetService = $this->planetServiceFactory->makeForPlayer($this->player, $record->id);
-            $this->planets[] = $planetService;
+
+            if ($planetService->getPlanetType() === PlanetType::Planet) {
+                $this->planets[] = $planetService;
+            }
+            else if ($planetService->getPlanetType() === PlanetType::Moon) {
+                $this->moons[] = $planetService;
+            }
         }
     }
 
@@ -72,8 +86,13 @@ class PlanetListService
                 return $planet;
             }
         }
+        foreach ($this->moons as $moon) {
+            if ($moon->getPlanetId() === $id) {
+                return $moon;
+            }
+        }
 
-        throw new Exception('Requested planet is not owned by this player.');
+        throw new Exception('Requested planet or moon is not owned by this player.');
     }
 
     /**
@@ -86,6 +105,12 @@ class PlanetListService
     {
         foreach ($this->planets as $planet) {
             if ($planet->getPlanetId() === $id) {
+                return true;
+            }
+        }
+
+        foreach ($this->moons as $moon) {
+            if ($moon->getPlanetId() === $id) {
                 return true;
             }
         }
@@ -105,6 +130,12 @@ class PlanetListService
         foreach ($this->planets as $planet) {
             if ($planet->getPlanetId() === $currentPlanetId) {
                 return $planet;
+            }
+        }
+
+        foreach ($this->moons as $moon) {
+            if ($moon->getPlanetId() === $currentPlanetId) {
+                return $moon;
             }
         }
 
@@ -142,6 +173,10 @@ class PlanetListService
         $planetIds = [];
         foreach ($this->planets as $planet) {
             $planetIds[] = $planet->getPlanetId();
+        }
+
+        foreach ($this->moons as $moon) {
+            $planetIds[] = $moon->getPlanetId();
         }
 
         return $planetIds;
