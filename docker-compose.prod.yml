@@ -71,6 +71,19 @@ services:
     networks:
       - app-network
 
+#PHPMYADMIN
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=ogame-db
+    networks:
+      - app-network
+    volumes:
+      - ./docker/phpmyadmin/phpmyadmin.conf:/etc/apache2/conf-available/.htaccess
 #Docker Networks
 networks:
   app-network:
