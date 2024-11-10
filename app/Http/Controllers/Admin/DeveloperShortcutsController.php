@@ -8,6 +8,9 @@ use OGame\Http\Controllers\OGameController;
 use OGame\Models\Enums\ResourceType;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
+use OGame\Models\Planet\Coordinate;
+use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Enums\PlanetType;
 
 class DeveloperShortcutsController extends OGameController
 {
@@ -16,13 +19,14 @@ class DeveloperShortcutsController extends OGameController
      *
      * @return View
      */
-    public function index(): View
+    public function index(PlayerService $playerService): View
     {
         // Get all unit objects
         $units = ObjectService::getUnitObjects();
 
         return view('ingame.admin.developershortcuts')->with([
             'units' => $units,
+            'currentPlanet' => $playerService->planets->current(),
         ]);
     }
 
@@ -101,5 +105,53 @@ class DeveloperShortcutsController extends OGameController
             }
         }
         return redirect()->route('admin.developershortcuts.index')->with('success', __('Changes saved!'));
+    }
+
+    /**
+     * Creates a planet or moon at the specified coordinates.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function createAtCoords(\Illuminate\Http\Request $request, PlanetServiceFactory $planetServiceFactory, PlayerService $player): RedirectResponse
+    {
+        // Validate coordinates
+        $validated = $request->validate([
+            'galaxy' => 'required|integer|min:1|max:9',
+            'system' => 'required|integer|min:1|max:499',
+            'position' => 'required|integer|min:1|max:15',
+        ]);
+
+        $coordinate = new Coordinate(
+            $validated['galaxy'],
+            $validated['system'],
+            $validated['position']
+        );
+
+        try {
+            if ($request->has('create_planet')) {
+                // Create planet for current admin user
+                $planetServiceFactory->createAdditionalPlanetForPlayer($player, $coordinate);
+                return redirect()->back()->with('success', 'Planet created successfully at ' . $coordinate->asString());
+            }
+
+            if ($request->has('create_moon')) {
+                // First check if there's a planet at these coordinates
+                $existingPlanet = $planetServiceFactory->makeForCoordinate($coordinate);
+                if (!$existingPlanet) {
+                    return redirect()->back()->with('error', 'Cannot create moon - no planet exists at ' . $coordinate->asString());
+                }
+
+                // Create moon for the planet's owner
+                $planetOwner = $existingPlanet->getPlayer();
+                $planetServiceFactory->createMoonForPlayer(planet: $existingPlanet);
+
+                return redirect()->back()->with('success', 'Moon created successfully at ' . $coordinate->asString());
+            }
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Failed to create planet/moon: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('error', 'Invalid action specified');
     }
 }

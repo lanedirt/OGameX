@@ -2,6 +2,8 @@
 
 @section('content')
 
+    @php /** @var \OGame\Services\PlanetService $currentPlanet */ @endphp
+
     @if (session('status'))
         <div class="alert alert-success">
             {{ session('status') }}
@@ -30,8 +32,6 @@
                                         <input type="submit" class="btn_blue" name="set_research" value="Set all research to level 10">
                                     </div>
                                 </div>
-
-
 
                                 <p class="box_highlight textCenter no_buddies">@lang('Add X of unit to current planet:')</p>
                                 <div class="group bborder" style="display: block;">
@@ -75,6 +75,28 @@
                                         @foreach (\OGame\Models\Enums\ResourceType::cases() as $resource)
                                             <input type="submit" name="resource_{{ $resource->value }}" class="btn_blue" value="{{$resource->name}}">
                                         @endforeach
+                                    </div>
+                                </div>
+                            </form>
+
+                            <form action="{{ route('admin.developershortcuts.create-at-coords') }}" name="form" method="post">
+                                {{ csrf_field() }}
+                                <p class="box_highlight textCenter no_buddies">@lang('Create planet/moon at coordinates:')</p>
+                                <div class="group bborder" style="display: block;">
+                                    <div class="fieldwrapper">
+                                        <label class="styled textBeefy">Coordinates:</label>
+                                        <div class="thefield" style="display: flex; gap: 10px;">
+                                            <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy"
+                                                   value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="6" name="galaxy" placeholder="Galaxy">
+                                            <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy"
+                                                   value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system" placeholder="System">
+                                            <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy"
+                                                   value="{{ $currentPlanet->getPlanetCoordinates()->position }}" min="1" max="15" name="position" placeholder="Position">
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper" style="margin-bottom: 50px;">
+                                        <input type="submit" class="btn_blue" name="create_planet" value="Create Planet (For Myself)">
+                                        <input type="submit" class="btn_blue" name="create_moon" value="Create Moon (For Planet Owner)">
                                     </div>
                                 </div>
                             </form>

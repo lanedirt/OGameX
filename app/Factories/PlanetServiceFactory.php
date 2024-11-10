@@ -306,6 +306,17 @@ class PlanetServiceFactory
     }
 
     /**
+     * Creates a new moon for a player at the given coordinate and then return the planetService instance for it.
+     *
+     * @param PlanetService $planet The planet to create the moon for.
+     * @return PlanetService The new moon.
+     */
+    public function createMoonForPlayer(PlanetService $planet): PlanetService
+    {
+        return $this->createPlanet($planet->getPlayer(), $planet->getPlanetCoordinates(), 'Moon', PlanetType::Moon);
+    }
+
+    /**
      * Creates a new planet for a player at the given coordinate and then return the planetService instance for it.
      *
      * @param PlayerService $player
@@ -316,7 +327,6 @@ class PlanetServiceFactory
      */
     private function createPlanet(PlayerService $player, Coordinate $new_position, string $planet_name, PlanetType $planet_type): PlanetService
     {
-        // Position is available
         $planet = new Planet();
         $planet->user_id = $player->getId();
         $planet->name = $planet_name;
