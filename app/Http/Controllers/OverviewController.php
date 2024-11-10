@@ -73,7 +73,7 @@ class OverviewController extends OGameController
             'planet_coordinates' => $player->planets->current()->getPlanetCoordinates()->asString(),
             'user_points' => AppUtil::formatNumber($highscoreService->getPlayerScore($player)),
             'user_rank' => $user_rank,
-            'max_rank' => $max_ranks, // @TODO
+            'max_rank' => $max_ranks,
             'user_honor_points' => 0, // @TODO
             'build_active' => $build_active,
             'building_count' => $player->planets->current()->getBuildingCount(),
