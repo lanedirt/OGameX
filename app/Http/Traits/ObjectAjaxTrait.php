@@ -42,7 +42,7 @@ trait ObjectAjaxTrait
         $next_level = $current_level + 1;
 
         // Check requirements of this object
-        $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $player);
+        $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet, $player);
 
         $price = ObjectService::getObjectPrice($object->machine_name, $planet);
 

@@ -192,7 +192,7 @@ class ResearchQueueTest extends AccountTestCase
         // Assert that research requirements for Energy Technology are not met as Research Lab is missing
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements not met.');
+        $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements met.');
 
         // Add Research Lab level 1 to build queue
         $this->addFacilitiesBuildRequest('research_lab');
@@ -200,7 +200,7 @@ class ResearchQueueTest extends AccountTestCase
         // Assert that research requirements for Energy Technology are not met as Research Lab is in build queue
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements not met.');
+        $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements met.');
 
         // Verify that Energy Technology can be added to research queue 2 minute later.
         $this->travel(2)->minutes();

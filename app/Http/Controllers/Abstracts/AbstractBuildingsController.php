@@ -93,9 +93,10 @@ abstract class AbstractBuildingsController extends OGameController
 
                 // Get current level of building
                 $current_level = $this->planet->getObjectLevel($object_machine_name);
+                $next_level = $current_level + 1;
 
                 // Check requirements of this building
-                $requirements_met = ObjectService::objectRequirementsMet($object_machine_name, $this->planet, $player);
+                $requirements_met = ObjectService::objectRequirementsMetWithQueue($object_machine_name, $next_level, $this->planet, $player);
 
                 // Check if the current planet has enough resources to build this building.
                 $enough_resources = $this->planet->hasResources(ObjectService::getObjectPrice($object_machine_name, $this->planet));

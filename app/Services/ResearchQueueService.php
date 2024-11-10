@@ -116,13 +116,6 @@ class ResearchQueueService
 
         $object = ObjectService::getResearchObjectById($research_object_id);
 
-        // Check if user satisifes requirements to research this object.
-        // TODO: refactor throw exception into a more user-friendly message.
-        $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer());
-        if (!$requirements_met) {
-            throw new Exception('Requirements not met to build this object.');
-        }
-
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the research queue.
         $current_level = $player->getResearchLevel($object->machine_name);
@@ -131,6 +124,13 @@ class ResearchQueueService
         // in the queue, because if so then the level needs to be higher than that.
         $amount = $this->activeBuildingQueueItemCount($player, $research_object_id);
         $next_level = $current_level + $amount + 1;
+
+        // Check if user satisifes requirements to research this object.
+        // TODO: refactor throw exception into a more user-friendly message.
+        $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet, $planet->getPlayer());
+        if (!$requirements_met) {
+            throw new Exception('Requirements not met to build this object.');
+        }
 
         $queue = new $this->model();
         $queue->planet_id = $planet->getPlanetId();
@@ -286,7 +286,7 @@ class ResearchQueueService
 
             // Sanity check: check if the researching requirements are still met. If not,
             // then cancel research request.
-            if (!ObjectService::objectRequirementsMet($object->machine_name, $planet, $player, $queue_item->object_level_target, false)) {
+            if (!ObjectService::objectRequirementsWithLevelsMet($object->machine_name, $queue_item->object_level_target, $planet, $player)) {
                 $this->cancel($player, $queue_item->id, $queue_item->object_id);
 
                 continue;
@@ -427,7 +427,7 @@ class ResearchQueueService
         foreach ($research_queue_items as $research_queue_item) {
             $object = ObjectService::getObjectById($research_queue_item->object_id);
 
-            if (!ObjectService::objectRequirementsMet($object->machine_name, $planet, $player, $research_queue_item->object_level_target)) {
+            if (!ObjectService::objectRequirementsMetWithQueue($object->machine_name, $research_queue_item->object_level_target, $planet, $player)) {
                 $this->cancel($player, $research_queue_item->id, $object->id);
                 break;
             }
