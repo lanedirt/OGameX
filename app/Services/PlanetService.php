@@ -1034,6 +1034,16 @@ class PlanetService
     }
 
     /**
+     * Returns true if the planet has a moon, false otherwise.
+     *
+     * @return bool
+     */
+    public function hasMoon(): bool
+    {
+        return false;
+    }
+
+    /**
      * Update this planet's buildings by checking the build queue.
      * This should happen on every users page load and every time the planet is touched.
      *
@@ -1449,7 +1459,7 @@ class PlanetService
     }
 
     /**
-     * Get is the current planet is building something or not
+     * Get is the current planet is building something or not.
      *
      * @return bool
      * @throws Exception

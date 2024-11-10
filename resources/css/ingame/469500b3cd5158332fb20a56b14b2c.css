@@ -2770,8 +2770,8 @@ a:hover img.queuePic { border-color: #E7AE46;}
 #rechts .smallplanet a.moonlink {
     position:absolute;
     display:block;
-    left: 4px;
-    top: 16px;
+    left: 6px;
+    top: 10px;
     padding: 10px;
 }
 
@@ -2864,7 +2864,7 @@ a:hover img.queuePic { border-color: #E7AE46;}
     border-radius: 15px;
 }
 #rechts a.moonlink .icon-moon {
-    border-radius: 8px;
+    border-radius: 10px;
 }
 #rechts a.planetlink.active .planetPic {
     box-shadow: 0 0 6px 1px #FF9600, inset 0 0 3px 4px #FF9600;
@@ -31341,8 +31341,8 @@ a.refreshPhalanxLink span {
 #planetbarcomponent #rechts .smallplanet a.moonlink {
     position: absolute;
     display: block;
-    left: 4px;
-    top: 16px;
+    left: 6px;
+    top: 10px;
     padding: 10px;
 }
 
@@ -31457,7 +31457,7 @@ a.refreshPhalanxLink span {
 }
 
 #planetbarcomponent #rechts a.moonlink .icon-moon {
-    border-radius: 8px;
+    border-radius: 10px;
     margin-top: 10px;
     margin-left: 9px;
 }
