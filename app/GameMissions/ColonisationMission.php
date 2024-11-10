@@ -75,7 +75,7 @@ class ColonisationMission extends GameMission
 
         // Check if the astrophysics research level is high enough to colonize a new planet.
         $max_planets = $player->getMaxPlanetAmount();
-        if ($player->planets->count() + 1 > $max_planets) {
+        if ($player->planets->planetCount() + 1 > $max_planets) {
             // Astrophysics level is not high enough, send failed message and cancel the mission.
             $this->messageService->sendSystemMessageToPlayer($player, ColonyEstablishFailAstrophysics::class, [
                 'coordinates' => $target_coordinates->asString(),

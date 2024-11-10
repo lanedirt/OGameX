@@ -116,7 +116,7 @@ abstract class TestCommand extends Command
         $this->currentPlanetService = $this->playerService->planets->current();
 
         // If user does not have 2 planets already, create the second planet now.
-        if ($this->playerService->planets->count() < 2) {
+        if ($this->playerService->planets->planetCount() < 2) {
             // Try a random coordinate around the players current planet until we find a free one.
             $planet_created = false;
             $attempts = 0;

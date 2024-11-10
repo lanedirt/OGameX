@@ -56,22 +56,22 @@ class PlanetService
      * @param int $planet_id
      *  If supplied the constructor will try to load the planet from the database.
      */
-    public function __construct(PlayerServiceFactory $playerServiceFactory, SettingsService $settingsService, PlayerService|null $player = null, int $planet_id = 0)
+    public function __construct(PlayerServiceFactory $playerServiceFactory, SettingsService $settingsService, PlayerService|null $player = null, Planet|null $planet = null, int|null $planet_id = null)
     {
         // Load the planet object if a positive planet ID is given.
         // If no planet ID is given then planet context will not be available
         // but this can be fine for unittests or when creating a new planet.
-        if ($planet_id !== 0) {
+        if ($planet !== null) {
+            $this->planet = $planet;
+        } elseif ($planet_id !== 0) {
             $this->loadByPlanetId($planet_id);
+        }
 
-            if ($player === null) {
-                // No player has been provided, so we load it ourselves here.
-                $playerService = $playerServiceFactory->make($this->planet->user_id);
-                $this->player = $playerService;
-            } else {
-                $this->player = $player;
-            }
-        } elseif ($player !== null) {
+        if ($player === null) {
+            // If no player has been provided, we load it ourselves here.
+            $playerService = $playerServiceFactory->make($this->planet->user_id);
+            $this->player = $playerService;
+        } else {
             $this->player = $player;
         }
 
@@ -176,7 +176,7 @@ class PlanetService
         FleetMission::where('planet_id_from', $this->planet->id)->update(['planet_id_from' => null]);
         FleetMission::where('planet_id_to', $this->planet->id)->update(['planet_id_to' => null]);
 
-        if ($this->player->planets->count() < 2) {
+        if ($this->player->planets->planetCount() < 2) {
             throw new Exception('Cannot abandon only remaining planet.');
         }
 
@@ -1040,6 +1040,12 @@ class PlanetService
      */
     public function hasMoon(): bool
     {
+        // Access all players planets and see if there is a moon with the same coordinates
+        // as this planet.
+        if ($this->getPlayer()->planets->getMoonByCoordinates($this->getPlanetCoordinates()) !== null) {
+            return true;
+        }
+        
         return false;
     }
 

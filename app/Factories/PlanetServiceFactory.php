@@ -68,7 +68,9 @@ class PlanetServiceFactory
     public function make(int $planetId, bool $reloadCache = false): PlanetService|null
     {
         if ($reloadCache || !isset($this->instancesById[$planetId])) {
-            $planetService = resolve(PlanetService::class, ['player' => null, 'planet_id' => $planetId]);
+            $planetService = resolve(PlanetService::class, [
+                'planet_id' => $planetId,
+            ]);
 
             // Verify planet type is valid
             if (!in_array($planetService->getPlanetType(), [PlanetType::Planet, PlanetType::Moon])) {
@@ -104,7 +106,10 @@ class PlanetServiceFactory
     public function makeForPlayer(PlayerService $player, int $planetId, bool $useCache = true): PlanetService
     {
         if (!$useCache || !isset($this->instancesById[$planetId])) {
-            $planetService = resolve(PlanetService::class, ['player' => $player, 'planet_id' => $planetId]);
+            $planetService = resolve(PlanetService::class, [
+                'player' => $player,
+                'planet_id' => $planetId,
+            ]);
             $this->instancesById[$planetId] = $planetService;
 
             if ($planetService->planetInitialized()) {
@@ -117,6 +122,33 @@ class PlanetServiceFactory
         }
 
         return $this->instancesById[$planetId];
+    }
+
+    /**
+     * Returns a planetService for a playerService and planet model that has already been loaded.
+     * This saves database queries when planet data is already available.
+     *
+     * @param PlayerService $player
+     * @param Planet $planet
+     * @return PlanetService
+     */
+    public function makeFromModel(PlayerService $player, Planet $planet): PlanetService
+    {
+        $planetService = resolve(PlanetService::class, [
+            'player' => $player,
+            'planet' => $planet,
+        ]);
+        $this->instancesById[$planet->id] = $planetService;
+
+        if ($planetService->planetInitialized()) {
+            if ($planetService->getPlanetType() === PlanetType::Planet) {
+                $this->planetInstancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
+            } else {
+                $this->moonInstancesByCoordinate[$planetService->getPlanetCoordinates()->asString()] = $planetService;
+            }
+        }
+
+        return $this->instancesById[$planet->id];
     }
 
     /**

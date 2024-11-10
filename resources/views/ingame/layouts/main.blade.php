@@ -1078,7 +1078,7 @@ Combat simulation save slots +20">
                     <div id="myWorlds">
                         <div id="countColonies">
                             <p class="textCenter">
-                                <span>{{ $currentPlayer->planets->count() }}/{{ $currentPlayer->getMaxPlanetAmount() }}</span> @lang('Planets')
+                                <span>{{ $currentPlayer->planets->planetCount() }}/{{ $currentPlayer->getMaxPlanetAmount() }}</span> @lang('Planets')
                             </p>
                         </div>
                         <div id="planetList">
@@ -1096,12 +1096,12 @@ Combat simulation save slots +20">
                                    $urlToCurrentWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
                                 @endphp
 
-                                <div class="smallplanet {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->count() > 1) ? 'hightlightPlanet' : '' }}"
+                                <div class="smallplanet {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->planetCount() > 1) ? 'hightlightPlanet' : '' }}"
                                      data-planet-id="{{ $planet->getPlanetId() }}" id="planet-{{ $key + 1 }}">
                                     <a href="{{ $urlToCurrentWithUpdatedParam }}"
                                        data-link="{{ $urlToCurrentWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>@lang('Lifeform'): Humans
 <br/>12,800km ({{ $planet->getBuildingCount() }}/{{ $planet->getPlanetFieldMax() }})<br>20°C to 60°C<br/><a href=&quot;#TODO=ingame&amp;component=overview&amp;cp=33624092&quot;>@lang('Overview')</a><br/><a href=&quot;#TODO=ingame&amp;component=supplies&amp;cp=33624092&quot;>@lang('Resources')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=lfbuildings&amp;cp=33624092&quot;>@lang('Lifeform')</a><br/><a href=&quot;#TODOpage=ingame&amp;component=research&amp;cp=33624092&quot;>@lang('Research')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=facilities&amp;cp=33624092&quot;>@lang('Facilities')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=shipyard&amp;cp=33624092&quot;>@lang('Shipyard')</a><br/><a href=&quot;#TODO_component=defenses&amp;cp=33624092&quot;>@lang('Defense')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=fleetdispatch&amp;cp=33624092&quot;>@lang('Fleet')</a><br/><a href=&quot;#TODO_component=galaxy&amp;cp=33624092&amp;galaxy=2&amp;system=3&amp;position=6&quot;>@lang('Galaxy')</a>"
-                                       class="planetlink {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->count() > 1) ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable"
+                                       class="planetlink {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->planetCount() > 1) ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable"
                                        data-ipi-hint="ipiPlanetHomeplanet">
                                         <img class="planetPic js_replace2x" alt="{{ $planet->getPlanetName() }}"
                                              src="{!! asset('img/planets/medium/' . $planet->getPlanetBiomeType() . '_' . $planet->getPlanetImageType() . '.png') !!}"
@@ -1118,8 +1118,13 @@ Combat simulation save slots +20">
                                         </a>
                                     @endif
                                     @if ($planet->hasMoon())
-                                        <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile" title="<b>Moon [2:3:6]</b><br>8,888km (0/1)<br/><a href=&quot;#TODO_ingame&amp;component=overview&amp;cp=33644212&quot;>Overview</a><br/><a href=&quot;#TODO_page=ingame&amp;component=supplies&amp;cp=33644212&quot;>Resources</a><br/><a href=&quot;#TODO=ingame&amp;component=facilities&amp;cp=33644212&quot;>Facilities</a><br/><a href=&quot;#TODO=ingame&amp;component=defenses&amp;cp=33644212&quot;>Defense</a><br/><a href=&quot;#TODO=ingame&amp;component=fleetdispatch&amp;cp=33644212&quot;>Fleet</a><br/><a href=&quot;#TODO=ingame&amp;component=galaxy&amp;cp=33644212&amp;galaxy=2&amp;system=3&amp;position=6&quot;>Galaxy</a>" href="#TODO=ingame&amp;component=shipyard&amp;cp=33644212" data-link="#TODO=ingame&amp;component=shipyard&amp;cp=33644212" data-jumpgatelevel="0">
-                                            <img src="/img/planets/moons/default.png" width="24" height="24" alt="Moon" class="icon-moon">
+                                        <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile"
+                                           title="<b>Moon [2:3:6]</b><br>8,888km (0/1)<br/><a href=&quot;#TODO_ingame&amp;component=overview&amp;cp=33644212&quot;>Overview</a><br/><a href=&quot;#TODO_page=ingame&amp;component=supplies&amp;cp=33644212&quot;>Resources</a><br/><a href=&quot;#TODO=ingame&amp;component=facilities&amp;cp=33644212&quot;>Facilities</a><br/><a href=&quot;#TODO=ingame&amp;component=defenses&amp;cp=33644212&quot;>Defense</a><br/><a href=&quot;#TODO=ingame&amp;component=fleetdispatch&amp;cp=33644212&quot;>Fleet</a><br/><a href=&quot;#TODO=ingame&amp;component=galaxy&amp;cp=33644212&amp;galaxy=2&amp;system=3&amp;position=6&quot;>Galaxy</a>"
+                                           href="#TODO=ingame&amp;component=shipyard&amp;cp=33644212"
+                                           data-link="#TODO=ingame&amp;component=shipyard&amp;cp=33644212"
+                                           data-jumpgatelevel="0">
+                                            <img src="/img/planets/moons/default.png" width="24" height="24" alt="Moon"
+                                                 class="icon-moon">
                                         </a>
                                     @endif
                                 </div>
