@@ -70,8 +70,7 @@ class ResearchController extends OGameController
         $research_queue = $research_full_queue->getQueuedFromQueue();
 
         // Researching is disallowed when Research Lab is upgrading
-        $research_lab_level = $planet->getObjectLevel('research_lab');
-        $research_lab_upgrading = $planet->isBuildingObject('research_lab', $research_lab_level + 1);
+        $research_lab_upgrading = $player->isBuildingObject('research_lab');
 
         $research = [];
         foreach ($screen_objects as $key_row => $objects_row) {

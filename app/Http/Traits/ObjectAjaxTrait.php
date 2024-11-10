@@ -69,8 +69,7 @@ trait ObjectAjaxTrait
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
 
                 // Researching is disallowed when Research Lab is upgrading
-                $research_lab_level = $planet->getObjectLevel('research_lab');
-                $research_lab_upgrading = $planet->isBuildingObject('research_lab', $research_lab_level + 1);
+                $research_lab_upgrading = $player->isBuildingObject('research_lab');
                 break;
             default:
                 // Unknown object type, throw error.
