@@ -49,11 +49,14 @@ class PlanetService
     /**
      * Planet constructor.
      *
-     * @param ?PlayerService $player
+     * @param PlayerServiceFactory $playerServiceFactory
+     * @param SettingsService $settingsService
+     * @param PlayerService|null $player
      *  Player object that the to be loaded planet belongs to. If none is provided, we will auto
      *  attempt to load the playerService object after loading the planet.
-     *
-     * @param int $planet_id
+     * @param Planet|null $planet
+     *  If supplied the constructor will use this planet object directly, saving a database query.
+     * @param int|null $planet_id
      *  If supplied the constructor will try to load the planet from the database.
      */
     public function __construct(PlayerServiceFactory $playerServiceFactory, SettingsService $settingsService, PlayerService|null $player = null, Planet|null $planet = null, int|null $planet_id = null)

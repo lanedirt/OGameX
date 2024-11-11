@@ -69,7 +69,9 @@ class PlanetServiceFactory
     {
         if ($reloadCache || !isset($this->instancesById[$planetId])) {
             $planetService = resolve(PlanetService::class, [
+                'player' => null,
                 'planet_id' => $planetId,
+                'planet' => null,
             ]);
 
             // Verify planet type is valid
@@ -108,6 +110,7 @@ class PlanetServiceFactory
         if (!$useCache || !isset($this->instancesById[$planetId])) {
             $planetService = resolve(PlanetService::class, [
                 'player' => $player,
+                'planet' => null,
                 'planet_id' => $planetId,
             ]);
             $this->instancesById[$planetId] = $planetService;
@@ -137,6 +140,7 @@ class PlanetServiceFactory
         $planetService = resolve(PlanetService::class, [
             'player' => $player,
             'planet' => $planet,
+            'planet_id' => null,
         ]);
         $this->instancesById[$planet->id] = $planetService;
 
@@ -177,7 +181,11 @@ class PlanetServiceFactory
                 return null;
             }
 
-            $planetService = resolve(PlanetService::class, ['player' => null, 'planet_id' => $planet->id]);
+            $planetService = resolve(PlanetService::class, [
+                'player' => null,
+                'planet' => null,
+                'planet_id' => $planet->id,
+            ]);
 
             if ($type === PlanetType::Planet) {
                 $this->planetInstancesByCoordinate[$coordinate->asString()] = $planetService;

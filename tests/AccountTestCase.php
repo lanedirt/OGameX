@@ -28,6 +28,19 @@ abstract class AccountTestCase extends TestCase
     protected int $currentUserId = 0;
     protected string $currentUsername = '';
     protected int $currentPlanetId = 0;
+
+    /**
+     * Test user main planet.
+     *
+     * @var PlanetService
+     */
+    protected PlanetService $planetService;
+
+    /**
+     * Test user second planet.
+     *
+     * @var PlanetService
+     */
     protected PlanetService $secondPlanetService;
     protected Carbon $defaultTestTime;
 
@@ -53,8 +66,6 @@ abstract class AccountTestCase extends TestCase
         // We should now automatically be logged in. Retrieve meta fields to verify.
         $this->retrieveMetaFields();
     }
-
-    protected PlanetService $planetService;
 
     /**
      * By default, Laravel does not refresh the application state between requests in a single test.
@@ -761,6 +772,18 @@ abstract class AccountTestCase extends TestCase
     protected function switchToSecondPlanet(): void
     {
         $response = $this->get('/overview?cp=' . $this->secondPlanetService->getPlanetId());
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Switch the active planet context to the second planet of the current user which affects
+     * interactive requests done such as building queue items or canceling build queue items.
+     *
+     * @return void
+     */
+    protected function switchToMoon(): void
+    {
+        $response = $this->get('/overview?cp=' . $this->moonService->getPlanetId());
         $response->assertStatus(200);
     }
 
