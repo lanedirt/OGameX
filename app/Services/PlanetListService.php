@@ -197,4 +197,14 @@ class PlanetListService
     {
         return count($this->planets);
     }
+
+    /**
+     * Get amount of planets and moons combined.
+     *
+     * @return int
+     */
+    public function allCount(): int
+    {
+        return count($this->planets) + count($this->moons);
+    }
 }

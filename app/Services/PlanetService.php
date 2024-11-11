@@ -1045,8 +1045,24 @@ class PlanetService
         if ($this->getPlayer()->planets->getMoonByCoordinates($this->getPlanetCoordinates()) !== null) {
             return true;
         }
-        
+
         return false;
+    }
+
+    /**
+     * Returns moon object associated with this planet. If no moon is found, an exception is thrown.
+     *
+     * @return PlanetService
+     */
+    public function moon(): PlanetService
+    {
+        $moon = $this->getPlayer()->planets->getMoonByCoordinates($this->getPlanetCoordinates());
+
+        if ($moon === null) {
+            throw new RuntimeException('No moon found for this planet.');
+        }
+
+        return $moon;
     }
 
     /**
