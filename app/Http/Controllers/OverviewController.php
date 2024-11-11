@@ -2,10 +2,12 @@
 
 namespace OGame\Http\Controllers;
 
+use Cache;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use OGame\Facades\AppUtil;
+use OGame\Models\Highscore;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\HighscoreService;
 use OGame\Services\PlayerService;
@@ -54,6 +56,18 @@ class OverviewController extends OGameController
 
         $highscoreService = resolve(HighscoreService::class);
 
+        $user_rank = Cache::remember('player-rank-'.$player->getId(), now()->addMinutes(5), function () use ($highscoreService, $player) {
+            return $highscoreService->getHighscorePlayerRank($player);
+        });
+
+        $max_ranks = Cache::remember('highscore-player-count', now()->addMinutes(5), function () {
+            return Highscore::query()->validRanks()->count();
+        });
+
+        $user_score =  Cache::remember('player-score-'.$player->getId(), now()->addMinutes(5), function () use ($player) {
+            return AppUtil::formatNumber(Highscore::where('player_id', $player->getId())->first()->general ?? 0);
+        });
+
         return view('ingame.overview.index')->with([
             'header_filename' => $player->planets->current()->getPlanetType(),
             'planet_name' => $player->planets->current()->getPlanetName(),
@@ -61,9 +75,9 @@ class OverviewController extends OGameController
             'planet_temp_min' => $player->planets->current()->getPlanetTempMin(),
             'planet_temp_max' => $player->planets->current()->getPlanetTempMax(),
             'planet_coordinates' => $player->planets->current()->getPlanetCoordinates()->asString(),
-            'user_points' => AppUtil::formatNumber($highscoreService->getPlayerScore($player)),
-            'user_rank' => 0, // @TODO
-            'max_rank' => 0, // @TODO
+            'user_points' => $user_score,
+            'user_rank' => $user_rank,
+            'max_rank' => $max_ranks,
             'user_honor_points' => 0, // @TODO
             'build_active' => $build_active,
             'building_count' => $player->planets->current()->getBuildingCount(),
