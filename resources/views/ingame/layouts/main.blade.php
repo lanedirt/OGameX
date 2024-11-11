@@ -1130,7 +1130,7 @@ Combat simulation save slots +20">
                                            href="{{ $urlToMoonWithUpdatedParam }}"
                                            data-link="{{ $urlToMoonWithUpdatedParam }}"
                                            data-jumpgatelevel="0">
-                                            <img src="/img/planets/moons/default.png" width="24" height="24" alt="Moon"
+                                            <img src="/img/moons/small/1.gif" width="16" height="16" alt="Moon"
                                                  class="icon-moon">
                                         </a>
                                     @endif

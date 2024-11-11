@@ -2770,8 +2770,8 @@ a:hover img.queuePic { border-color: #E7AE46;}
 #rechts .smallplanet a.moonlink {
     position:absolute;
     display:block;
-    left: 6px;
-    top: 10px;
+    left: 4px;
+    top: 16px;
     padding: 10px;
 }
 
@@ -31192,8 +31192,8 @@ a.refreshPhalanxLink span {
 #planetbarcomponent #rechts .smallplanet a.moonlink {
     position: absolute;
     display: block;
-    left: 6px;
-    top: 10px;
+    left: 4px;
+    top: 16px;
     padding: 10px;
 }
 
