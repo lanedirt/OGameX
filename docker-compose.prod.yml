@@ -83,7 +83,7 @@ services:
     networks:
       - app-network
     volumes:
-      - ./docker/phpmyadmin/phpmyadmin.conf:/etc/apache2/conf-available/.htaccess
+      - ./docker/phpmyadmin/.htaccess:/var/www/html/.htaccess
 #Docker Networks
 networks:
   app-network:
