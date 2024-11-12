@@ -360,6 +360,14 @@ class PlanetService
             $type -= 10;
         }
 
+        // For a moon, we need to map planet types 1-10 to moon types 1-5.
+        // Moon types are planet types 1-5 repeated.
+        if ($this->isMoon()) {
+            if ($type > 5) {
+                $type -= 5;
+            }
+        }
+
         // Return a string
         return (string)$type;
     }
