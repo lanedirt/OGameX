@@ -270,6 +270,16 @@ class PlanetService
     }
 
     /**
+     * Returns true if the current planet is a moon, false otherwise.
+     *
+     * @return bool
+     */
+    public function isMoon(): bool
+    {
+        return $this->getPlanetType() === PlanetType::Moon;
+    }
+
+    /**
      * Get planet biome type as string (e.g. gas, ice, jungle etc.)
      *
      * @return string
@@ -1292,8 +1302,8 @@ class PlanetService
         }
 
         // Calculate the production values twice:
-        // 1. First one time in order for the energy production to be updated.
-        // 2. Second time for the mine production to be updated according to the actual energy production.
+        // 1. First time in order to ensure the energy production is up-to-date.
+        // 2. Second time for the mine production to be updated according to the up-to-date (actual) energy production.
         $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
         $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
 
@@ -1309,6 +1319,11 @@ class PlanetService
      */
     public function getPlanetBasicIncome(): Resources
     {
+        // Moons do not have mines and therefore also do not have basic income.
+        if ($this->isMoon()) {
+            return new Resources(0, 0, 0, 0);
+        }
+
         $universe_resource_multiplier = $this->settingsService->economySpeed();
 
         return new Resources(
@@ -1338,13 +1353,14 @@ class PlanetService
             if ($production->energy->get() > 0) {
                 $energy_production_total += $production->energy->get();
             } else {
-                // Multiplies the negative number with "-1" so it will become
-                // a positive number, which is what the system expects.
-                $production_total->energy->add(new Resource($production->energy->get() * -1));
-                $energy_consumption_total += $production->energy->get() * -1;
+                // Convert negative production to positive consumption, same value.
+                $energy_consumption = abs($production->energy->get());
+
+                $production_total->energy->add(new Resource($energy_consumption));
+                $energy_consumption_total += $energy_consumption;
             }
 
-            // Combine values to one array so we have the total production.
+            // Combine values to one array, so we have the total production.
             $production_total->add($production);
         }
 
