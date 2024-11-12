@@ -17,4 +17,15 @@ class MoonTest extends MoonTestCase
         $this->assertEquals(0, $this->moonService->getDeuteriumProductionPerHour());
         $this->assertEquals(0, $this->moonService->energyProduction()->get());
     }
+
+    /**
+     * Check that a moon has no starting resources upon creation.
+     */
+    public function testMoonNoStartingResources(): void
+    {
+        // Assert that moon has no resource production.
+        $this->assertEquals(0, $this->moonService->metal()->get());
+        $this->assertEquals(0, $this->moonService->crystal()->get());
+        $this->assertEquals(0, $this->moonService->deuterium()->get());
+    }
 }
