@@ -9,7 +9,7 @@ class MoonTest extends MoonTestCase
     /**
      * Check that a moon has no resource base production.
      */
-    public function testMoonNoResourceProduction(): void
+    public function testMoonHasNoBaseResourceProduction(): void
     {
         // Assert that moon has no resource production.
         $this->assertEquals(0, $this->moonService->getMetalProductionPerHour());
@@ -21,7 +21,7 @@ class MoonTest extends MoonTestCase
     /**
      * Check that a moon has no starting resources upon creation.
      */
-    public function testMoonNoStartingResources(): void
+    public function testMoonHasNoStartingResources(): void
     {
         // Assert that moon has no resource production.
         $this->assertEquals(0, $this->moonService->metal()->get());
