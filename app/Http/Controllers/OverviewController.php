@@ -69,7 +69,7 @@ class OverviewController extends OGameController
         }
 
         return view('ingame.overview.index')->with([
-            'header_filename' => $planet->getPlanetBiomeType(),
+            'header_filename' => $planet->isMoon() ? 'moon/' . $planet->getPlanetImageType() : $planet->getPlanetBiomeType(),
             'planet_name' => $planet->getPlanetName(),
             'planet_diameter' => $planet->getPlanetDiameter(),
             'planet_temp_min' => $planet->getPlanetTempMin(),
