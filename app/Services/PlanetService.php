@@ -284,6 +284,16 @@ class PlanetService
     }
 
     /**
+     * Returns true if the current planet is a planet, false otherwise.
+     *
+     * @return bool
+     */
+    public function isPlanet(): bool
+    {
+        return $this->getPlanetType() === PlanetType::Planet;
+    }
+
+    /**
      * Get planet biome type as string (e.g. gas, ice, jungle etc.)
      *
      * @return string
@@ -1065,6 +1075,11 @@ class PlanetService
      */
     public function hasMoon(): bool
     {
+        // If this planet is a moon, it cannot have another moon.
+        if ($this->isMoon()) {
+            return false;
+        }
+
         // Access all players planets and see if there is a moon with the same coordinates
         // as this planet.
         if ($this->getPlayer()->planets->getMoonByCoordinates($this->getPlanetCoordinates()) !== null) {
@@ -1085,6 +1100,43 @@ class PlanetService
 
         if ($moon === null) {
             throw new RuntimeException('No moon found for this planet.');
+        }
+
+        return $moon;
+    }
+
+    /**
+     * Returns true if the planet has a moon, false otherwise.
+     *
+     * @return bool
+     */
+    public function hasPlanet(): bool
+    {
+        // If this planet is a planet, it cannot have another planet.
+        if ($this->isPlanet()) {
+            return false;
+        }
+
+        // Access all players planets and see if there is a moon with the same coordinates
+        // as this planet.
+        if ($this->getPlayer()->planets->getPlanetByCoordinates($this->getPlanetCoordinates()) !== null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns planet object associated with this moon (on the same coordinates). If no planet is found, an exception is thrown.
+     *
+     * @return PlanetService
+     */
+    public function planet(): PlanetService
+    {
+        $moon = $this->getPlayer()->planets->getPlanetByCoordinates($this->getPlanetCoordinates());
+
+        if ($moon === null) {
+            throw new RuntimeException('No planet found for this moon.');
         }
 
         return $moon;

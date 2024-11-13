@@ -54,13 +54,27 @@ class OverviewController extends OGameController
 
         $highscoreService = resolve(HighscoreService::class);
 
+        $planet = $player->planets->current();
+
+        // Check if this planet has a moon or a planet on the same coordinates.
+        // The other_planet is used for rendering the switch link to the other planet.
+        $has_moon = $planet->hasMoon();
+        $has_planet = $planet->hasPlanet();
+        $other_planet = null;
+        if ($has_moon) {
+            $other_planet = $planet->moon();
+        }
+        else if ($has_planet) {
+            $other_planet = $planet->planet();
+        }
+
         return view('ingame.overview.index')->with([
-            'header_filename' => $player->planets->current()->getPlanetBiomeType(),
-            'planet_name' => $player->planets->current()->getPlanetName(),
-            'planet_diameter' => $player->planets->current()->getPlanetDiameter(),
-            'planet_temp_min' => $player->planets->current()->getPlanetTempMin(),
-            'planet_temp_max' => $player->planets->current()->getPlanetTempMax(),
-            'planet_coordinates' => $player->planets->current()->getPlanetCoordinates()->asString(),
+            'header_filename' => $planet->getPlanetBiomeType(),
+            'planet_name' => $planet->getPlanetName(),
+            'planet_diameter' => $planet->getPlanetDiameter(),
+            'planet_temp_min' => $planet->getPlanetTempMin(),
+            'planet_temp_max' => $planet->getPlanetTempMax(),
+            'planet_coordinates' => $planet->getPlanetCoordinates()->asString(),
             'user_points' => AppUtil::formatNumber($highscoreService->getPlayerScore($player)),
             'user_rank' => 0, // @TODO
             'max_rank' => 0, // @TODO
@@ -74,6 +88,9 @@ class OverviewController extends OGameController
             'ship_active' => $ship_active,
             'ship_queue' => $ship_queue,
             'ship_queue_time_countdown' => $ship_queue_time_countdown,
+            'has_moon' => $has_moon,
+            'has_planet' => $has_planet,
+            'other_planet' => $other_planet,
         ]);
     }
 }

@@ -87,6 +87,21 @@ class PlanetListService
     }
 
     /**
+     * Try to find a planet by its coordinates. Returns null if no planet is found.
+     */
+    public function getPlanetByCoordinates(Coordinate $coordinate): PlanetService|null
+    {
+        foreach ($this->planets as $planet) {
+            $planetCoordinates = $planet->getPlanetCoordinates();
+            if ($planetCoordinates->galaxy === $coordinate->galaxy && $planetCoordinates->system === $coordinate->system && $planetCoordinates->position === $coordinate->position) {
+                return $planet;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Try to find a moon by its coordinates. Returns null if no moon is found.
      */
     public function getMoonByCoordinates(Coordinate $coordinate): PlanetService|null
