@@ -357,12 +357,11 @@ class PlanetServiceFactory
     }
 
     /**
-     * Creates a new planet for a player at the given coordinate and then return the planetService instance for it.
-     *
+     * Creates a new planet/moon for a player at the given coordinate.
      * @param PlayerService $player
      * @param Coordinate $new_position
      * @param string $planet_name
-     * @param PlanetType $planet_type The type of planet to create. This supports PlanetType::Planet and PlanetType::Moon.
+     * @param PlanetType $planet_type
      * @return PlanetService
      */
     private function createPlanet(PlayerService $player, Coordinate $new_position, string $planet_name, PlanetType $planet_type): PlanetService
@@ -376,13 +375,54 @@ class PlanetServiceFactory
         $planet->destroyed = 0;
         $planet->field_current = 0;
         $planet->planet_type = $planet_type->value;
-        $planet->diameter = $planet_type === PlanetType::Moon ? 200 : 300;
-        $planet->field_max = $planet_type === PlanetType::Moon ?
-            rand(80, 120) :
-            rand(140, 250);
+        $planet->time_last_update = (int)Carbon::now()->timestamp;
+
+        if ($planet_type === PlanetType::Moon) {
+            $this->setupMoonProperties($planet);
+        } else {
+            $this->setupPlanetProperties($planet);
+        }
+
+        $planet->save();
+
+        return $this->makeForPlayer($player, $planet->id);
+    }
+
+    /**
+     * Sets up moon-specific properties.
+     * @param Planet $planet
+     */
+    private function setupMoonProperties(Planet $planet): void
+    {
+        // TODO: moon diameter should be made dependent on the moon chance percentage
+        // that resulted from battle that created this moon.
+        $planet->diameter = rand(7500, 8888);
+        $planet->field_max = 1;
+
+        // TODO: temperature range should be dependent on the moon position.
         $planet->temp_min = rand(0, 100);
         $planet->temp_max = $planet->temp_min + 40;
 
+        // Moons start with no resources.
+        $planet->metal = 0;
+        $planet->crystal = 0;
+        $planet->deuterium = 0;
+    }
+
+    /**
+     * Sets up planet-specific properties.
+     * @param Planet $planet
+     */
+    private function setupPlanetProperties(Planet $planet): void
+    {
+        $planet->diameter = 300;
+        $planet->field_max = rand(140, 250);
+
+        // TODO: temperature range should be dependent on the planet position.
+        $planet->temp_min = rand(0, 100);
+        $planet->temp_max = $planet->temp_min + 40;
+
+        // Starting resources for planets.
         $planet->metal = 500;
         $planet->crystal = 500;
         $planet->deuterium = 0;
@@ -394,11 +434,5 @@ class PlanetServiceFactory
         $planet->solar_plant_percent = 10;
         $planet->fusion_plant_percent = 10;
         $planet->solar_satellite_percent = 10;
-
-        $planet->time_last_update = (int)Carbon::now()->timestamp;
-        $planet->save();
-
-        // Now make and return the planetService.
-        return $this->makeForPlayer($player, $planet->id);
     }
 }
