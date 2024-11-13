@@ -97,6 +97,7 @@
                                     <div class="fieldwrapper" style="margin-bottom: 50px;">
                                         <input type="submit" class="btn_blue" name="create_planet" value="Create Planet (For Myself)">
                                         <input type="submit" class="btn_blue" name="create_moon" value="Create Moon (For Planet Owner)">
+                                        <input type="submit" class="btn_blue" name="delete_moon" value="Delete Moon">
                                     </div>
                                 </div>
                             </form>

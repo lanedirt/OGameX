@@ -15,6 +15,7 @@ use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
+use OGame\Models\BuildingQueue;
 use RuntimeException;
 use Throwable;
 
@@ -178,6 +179,9 @@ class PlanetService
         // Fleet missions
         FleetMission::where('planet_id_from', $this->planet->id)->update(['planet_id_from' => null]);
         FleetMission::where('planet_id_to', $this->planet->id)->update(['planet_id_to' => null]);
+
+        // Building queues
+        BuildingQueue::where('planet_id', $this->planet->id)->delete();
 
         if ($this->player->planets->planetCount() < 2) {
             throw new Exception('Cannot abandon only remaining planet.');

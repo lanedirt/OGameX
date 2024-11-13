@@ -129,6 +129,19 @@ class DeveloperShortcutsController extends OGameController
         );
 
         try {
+            if ($request->has('delete_moon')) {
+                // Check if there's a moon at these coordinates.
+                $moon = $player->planets->getMoonByCoordinates($coordinate);
+
+                if (!$moon) {
+                    return redirect()->back()->with('error', 'No moon exists at ' . $coordinate->asString());
+                }
+
+                // Delete the moon.
+                $moon->abandonPlanet();
+                return redirect()->back()->with('success', 'Moon deleted successfully at ' . $coordinate->asString());
+            }
+
             if ($request->has('create_planet')) {
                 // Create planet for current admin user
                 $planetServiceFactory->createAdditionalPlanetForPlayer($player, $coordinate);
@@ -136,13 +149,13 @@ class DeveloperShortcutsController extends OGameController
             }
 
             if ($request->has('create_moon')) {
-                // First check if there's a planet at these coordinates
+                // First check if there's a planet at these coordinates.
                 $existingPlanet = $planetServiceFactory->makeForCoordinate($coordinate);
                 if (!$existingPlanet) {
                     return redirect()->back()->with('error', 'Cannot create moon - no planet exists at ' . $coordinate->asString());
                 }
 
-                // Create moon for the planet's owner
+                // Create moon for the planet's owner.
                 $planetOwner = $existingPlanet->getPlayer();
                 $planetServiceFactory->createMoonForPlayer(planet: $existingPlanet);
 
