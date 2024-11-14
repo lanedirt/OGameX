@@ -54,7 +54,7 @@ class PlanetListService
         // Get all planets (and moons) of user.
         $planets = Planet::where('user_id', $player->getId())->get();
         foreach ($planets as $planetModel) {
-            $planetService = $this->planetServiceFactory->makeFromModel($this->player, $planetModel);
+            $planetService = $this->planetServiceFactory->makeFromModel($planetModel, $this->player);
 
             if ($planetService->getPlanetType() === PlanetType::Planet) {
                 $this->planets[] = $planetService;

@@ -131,11 +131,11 @@ class PlanetServiceFactory
      * Returns a planetService for a playerService and planet model that has already been loaded.
      * This saves database queries when planet data is already available.
      *
-     * @param PlayerService $player
      * @param Planet $planet
+     * @param PlayerService|null $player PlayerService instance or null if not available.
      * @return PlanetService
      */
-    public function makeFromModel(PlayerService $player, Planet $planet): PlanetService
+    public function makeFromModel(Planet $planet, PlayerService|null $player = null): PlanetService
     {
         $planetService = resolve(PlanetService::class, [
             'player' => $player,
