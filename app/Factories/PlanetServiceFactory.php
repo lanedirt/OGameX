@@ -204,13 +204,25 @@ class PlanetServiceFactory
     }
 
     /**
+     * Convenience method to get a planet at the given coordinate.
+     *
+     * @param Coordinate $coordinate
+     * @param bool $useCache
+     * @return ?PlanetService
+     */
+    public function makePlanetForCoordinate(Coordinate $coordinate, bool $useCache = true): ?PlanetService
+    {
+        return $this->makeForCoordinate($coordinate, $useCache, PlanetType::Planet);
+    }
+
+    /**
      * Convenience method to get a moon at the given coordinate.
      *
      * @param Coordinate $coordinate
      * @param bool $useCache
      * @return ?PlanetService
      */
-    public function makeForMoonCoordinate(Coordinate $coordinate, bool $useCache = true): ?PlanetService
+    public function makeMoonForCoordinate(Coordinate $coordinate, bool $useCache = true): ?PlanetService
     {
         return $this->makeForCoordinate($coordinate, $useCache, PlanetType::Moon);
     }

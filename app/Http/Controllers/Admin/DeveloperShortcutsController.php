@@ -156,7 +156,7 @@ class DeveloperShortcutsController extends OGameController
         try {
             if ($request->has('delete_moon')) {
                 // Check if there's a moon at these coordinates.
-                $moon = $player->planets->getMoonByCoordinates($coordinate);
+                $moon = $planetServiceFactory->makeMoonForCoordinate($coordinate);
 
                 if (!$moon) {
                     return redirect()->back()->with('error', 'No moon exists at ' . $coordinate->asString());
