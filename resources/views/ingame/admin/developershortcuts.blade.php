@@ -38,7 +38,7 @@
                                     <div class="fieldwrapper">
                                         <label class="styled textBeefy">Amount of units to add:</label>
                                         <div class="thefield">
-                                            <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="1" size="2" name="amount_of_units">
+                                            <input type="text" pattern="^[0-9,.kmb]+$" class="textInput w50 textCenter textBeefy" value="1" size="2" name="amount_of_units">
                                         </div>
                                     </div>
                                     <div class="fieldwrapper">
@@ -52,29 +52,35 @@
 
                                 <p class="box_highlight textCenter no_buddies">@lang('Reset planet')</p>
                                 <div class="group bborder" style="display: block;">
-                                    <div class="fieldwrapper" style="margin-bottom: 50px;">
+                                    <div class="fieldwrapper">
                                         <input type="submit" class="btn_blue" name="reset_buildings" value="Set all buildings to level 0">
                                         <input type="submit" class="btn_blue" name="reset_research" value="Set all research to level 0">
                                         <input type="submit" class="btn_blue" name="reset_units" value="Remove all units">
+                                        <input type="submit" class="btn_blue" name="reset_resources" value="Set all resources to 0">
                                     </div>
                                 </div>
                             </form>
 
                             <form action="{{ route('admin.developershortcuts.update-resources') }}" name="form" method="post">
                                 {{ csrf_field() }}
-                                <p class="box_highlight textCenter no_buddies">@lang('Add / Subtract X of resource to current planet:')</p>
+                                <p class="box_highlight textCenter no_buddies">@lang('Add / subtract X of resource to current planet:')</p>
                                 <div class="group bborder" style="display: block;">
                                     <div class="fieldwrapper">
-                                        <div class="smallFont">You can enter positive or negative values to add or subtract to the selected resource.</div>
-                                        <label class="styled textBeefy">Amount of resources to add / subtract :</label>
-                                        <div class="thefield">
-                                            <input type="text" pattern="^([-+,0-9.]+)" class="textInput w50 textCenter textBeefy" value="1" size="2" name="amount_of_resources">
+                                        <div class="smallFont">You can enter positive or negative values to add or subtract to the selected resource. Supports k/m/b suffixes (e.g., 1k, 2m, 3b)</div>
+                                        <label class="styled textBeefy">Resources to add/subtract:</label>
+                                        <div class="thefield" style="display: flex; flex-direction: column; gap: 10px;">
+                                            @foreach (\OGame\Models\Enums\ResourceType::cases() as $resource)
+                                                <div style="display: flex; gap: 10px;">
+                                                    <label for="{{ $resource->value }}" style="min-width: 80px;">{{ $resource->name }}:</label>
+                                                    <input type="text" id="{{ $resource->value }}" pattern="^[-+0-9,.kmb]+$"
+                                                           class="textInput w100 textCenter textBeefy"
+                                                           placeholder="0" name="{{ $resource->value }}">
+                                                </div>
+                                            @endforeach
                                         </div>
                                     </div>
-                                    <div class="fieldwrapper" style="margin-bottom: 50px;">
-                                        @foreach (\OGame\Models\Enums\ResourceType::cases() as $resource)
-                                            <input type="submit" name="resource_{{ $resource->value }}" class="btn_blue" value="{{$resource->name}}">
-                                        @endforeach
+                                    <div class="fieldwrapper" style="text-align: center;">
+                                        <input type="submit" class="btn_blue" name="update_resources" value="Update Resources">
                                     </div>
                                 </div>
                             </form>
@@ -86,18 +92,71 @@
                                     <div class="fieldwrapper">
                                         <label class="styled textBeefy">Coordinates:</label>
                                         <div class="thefield" style="display: flex; gap: 10px;">
-                                            <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy"
-                                                   value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="6" name="galaxy" placeholder="Galaxy">
-                                            <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy"
-                                                   value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system" placeholder="System">
-                                            <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy"
-                                                   value="{{ $currentPlanet->getPlanetCoordinates()->position }}" min="1" max="15" name="position" placeholder="Position">
+                                            <div>
+                                                <label for="galaxy">Galaxy:</label>
+                                                <input type="text" id="galaxy" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="6" name="galaxy">
+                                            </div>
+                                            <div>
+                                                <label for="system">System:</label>
+                                                <input type="text" id="system" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system">
+                                            </div>
+                                            <div>
+                                                <label for="position">Position:</label>
+                                                <input type="text" id="position" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->position }}" min="1" max="15" name="position">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="fieldwrapper" style="margin-bottom: 50px;">
+                                    <div class="fieldwrapper" style="text-align: center; margin-bottom: 20px;">
                                         <input type="submit" class="btn_blue" name="create_planet" value="Create Planet (For Myself)">
                                         <input type="submit" class="btn_blue" name="create_moon" value="Create Moon (For Planet Owner)">
                                         <input type="submit" class="btn_blue" name="delete_moon" value="Delete Moon">
+                                    </div>
+                                </div>
+                            </form>
+
+                            <form action="{{ route('admin.developershortcuts.create-debris') }}" name="form" method="post">
+                                {{ csrf_field() }}
+                                <p class="box_highlight textCenter no_buddies">@lang('Create/delete debris field at coordinates:')</p>
+                                <div class="group bborder" style="display: block;">
+                                    <div class="fieldwrapper">
+                                        <label class="styled textBeefy">Coordinates:</label>
+                                        <div class="thefield" style="display: flex; gap: 10px;">
+                                            <div>
+                                                <label for="galaxy">Galaxy:</label>
+                                                <input type="text" id="galaxy" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="6" name="galaxy">
+                                            </div>
+                                            <div>
+                                                <label for="system">System:</label>
+                                                <input type="text" id="system" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system">
+                                            </div>
+                                            <div>
+                                                <label for="position">Position:</label>
+                                                <input type="text" id="position" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->position }}" min="1" max="15" name="position">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper">
+                                        <label class="styled textBeefy">Resources to add:</label>
+                                        <div class="thefield" style="display: flex; flex-direction: column; gap: 10px;">
+                                            @foreach (\OGame\Models\Enums\ResourceType::cases() as $resource)
+                                                <div style="display: flex; gap: 10px;">
+                                                    <label for="{{ $resource->value }}" style="min-width: 80px;">{{ $resource->name }}:</label>
+                                                    <input type="text" id="{{ $resource->value }}" pattern="^[-+0-9,.kmb]+$"
+                                                           class="textInput w100 textCenter textBeefy"
+                                                           placeholder="0" name="{{ $resource->value }}">
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper" style="text-align: center; margin-bottom: 50px;">
+                                        <input type="submit" class="btn_blue" name="create_debris" value="Create/Append Debris Field">
+                                        <input type="submit" class="btn_blue" name="delete_debris" value="Delete Debris Field">
                                     </div>
                                 </div>
                             </form>

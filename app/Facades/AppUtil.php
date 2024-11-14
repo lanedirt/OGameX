@@ -161,4 +161,44 @@ class AppUtil extends Facade
 
         return 'PT' . trim($formatted_string);
     }
+
+    /**
+     * Parse a resource value that may include k/m/b suffixes.
+     * Examples: 1k = 1,000; 2.5m = 2,500,000; 1b = 1,000,000,000
+     *
+     * @param string|int|float|null $value
+     * @return int
+     */
+    public static function parseResourceValue(string|int|float|null $value): int
+    {
+        if ($value === null || $value === '') {
+            return 0;
+        }
+
+        if (is_numeric($value)) {
+            return (int)$value;
+        }
+
+        // Convert to lowercase for easier matching.
+        $value = strtolower(trim($value));
+
+        // Remove any commas from the number.
+        $value = str_replace(',', '', $value);
+
+        // Match the number and suffix.
+        if (!preg_match('/^(-?\d+\.?\d*)([kmb])?$/', $value, $matches)) {
+            return 0;
+        }
+
+        $number = (float)$matches[1];
+        $suffix = $matches[2] ?? '';
+
+        // Apply multiplier based on suffix.
+        return (int)match($suffix) {
+            'k' => $number * 1000,
+            'm' => $number * 1000000,
+            'b' => $number * 1000000000,
+            default => $number,
+        };
+    }
 }

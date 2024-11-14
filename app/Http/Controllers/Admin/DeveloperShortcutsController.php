@@ -2,15 +2,17 @@
 
 namespace OGame\Http\Controllers\Admin;
 
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
-use OGame\Models\Enums\ResourceType;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Models\Planet\Coordinate;
 use OGame\Factories\PlanetServiceFactory;
-use OGame\Models\Enums\PlanetType;
+use OGame\Services\DebrisFieldService;
+use OGame\Models\Resources;
+use OGame\Facades\AppUtil;
 
 class DeveloperShortcutsController extends OGameController
 {
@@ -31,7 +33,7 @@ class DeveloperShortcutsController extends OGameController
     }
 
     /**
-     * Updates the server settings.
+     * Updates the planet objects and units.
      *
      * @param \Illuminate\Http\Request $request
      * @param PlayerService $playerService
@@ -81,12 +83,17 @@ class DeveloperShortcutsController extends OGameController
             foreach (ObjectService::getUnitObjects() as $unit) {
                 $playerService->planets->current()->removeUnit($unit->machine_name, $playerService->planets->current()->getObjectAmount($unit->machine_name));
             }
+        } elseif ($request->has('reset_resources')) {
+            // Set all resources to 0 by deducting the current amount.
+            $playerService->planets->current()->deductResources($playerService->planets->current()->getResources());
+
+            return redirect()->back()->with('success', 'All resources have been set to 0');
         } else {
             // Handle unit submission
             foreach (ObjectService::getUnitObjects() as $unit) {
                 if ($request->has('unit_' . $unit->id)) {
                     // Handle adding the specific unit
-                    $playerService->planets->current()->addUnit($unit->machine_name, $request->input('amount_of_units'));
+                    $playerService->planets->current()->addUnit($unit->machine_name, (int)AppUtil::parseResourceValue($request->input('amount_of_units')));
                 }
             }
         }
@@ -94,17 +101,35 @@ class DeveloperShortcutsController extends OGameController
         return redirect()->route('admin.developershortcuts.index')->with('success', __('Changes saved!'));
     }
 
+    /**
+     * Updates the resources of the specified planet.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param PlayerService $playerService
+     * @return RedirectResponse
+     */
     public function updateResources(\Illuminate\Http\Request $request, PlayerService $playerService): RedirectResponse
     {
-        // Handle resource addition / subtraction
-        foreach (ResourceType::cases() as $resourceType) {
-            if ($request->has('resource_' . $resourceType->value)) {
-                if (isset($request->amount_of_resources)) {
-                    $playerService->planets->current()->addResource($resourceType, $request->amount_of_resources);
-                }
-            }
+        $resources = [];
+        foreach (['metal', 'crystal', 'deuterium'] as $resource) {
+            $resources[$resource] = AppUtil::parseResourceValue($request->input("resource_{$resource}", 0));
         }
-        return redirect()->route('admin.developershortcuts.index')->with('success', __('Changes saved!'));
+
+        $resourcesObj = new Resources(
+            metal: $resources['metal'],
+            crystal: $resources['crystal'],
+            deuterium: $resources['deuterium'],
+            energy: 0
+        );
+
+        $planet = $playerService->planets->current();
+
+        // Add the resources (negative values will subtract)
+        $planet->addResources($resourcesObj);
+        $planet->save();
+
+        return redirect()->route('admin.developershortcuts.index')
+            ->with('success', __('Resources updated successfully!'));
     }
 
     /**
@@ -166,5 +191,47 @@ class DeveloperShortcutsController extends OGameController
         }
 
         return redirect()->back()->with('error', 'Invalid action specified');
+    }
+
+    /**
+     * Creates a debris field at the specified coordinates.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function createDebris(\Illuminate\Http\Request $request)
+    {
+        $coordinate = new Coordinate(
+            galaxy: (int)$request->input('galaxy'),
+            system: (int)$request->input('system'),
+            position: (int)$request->input('position')
+        );
+
+        $debrisField = app(DebrisFieldService::class);
+
+        if ($request->has('delete_debris')) {
+            // Load and delete if exists
+            if ($debrisField->loadForCoordinates($coordinate)) {
+                $debrisField->delete();
+                return redirect()->back()->with('success', 'Debris field deleted successfully at ' . $coordinate->asString());
+            }
+            return redirect()->back()->with('error', 'No debris field exists at ' . $coordinate->asString());
+        }
+
+        // Create/append debris field
+        $debrisField->loadOrCreateForCoordinates($coordinate);
+
+        // Add the resources
+        $resources = new Resources(
+            metal: (int)AppUtil::parseResourceValue($request->input('metal', 0)),
+            crystal: (int)AppUtil::parseResourceValue($request->input('crystal', 0)),
+            deuterium: (int)AppUtil::parseResourceValue($request->input('deuterium', 0)),
+            energy: 0,
+        );
+
+        $debrisField->appendResources($resources);
+        $debrisField->save();
+
+        return redirect()->back()->with('success', 'Debris field created/updated successfully at ' . $coordinate->asString());
     }
 }

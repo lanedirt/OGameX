@@ -133,5 +133,6 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
         Route::post('/admin/developer-shortcuts', 'DeveloperShortcutsController@update')->name('admin.developershortcuts.update');
         Route::post('/admin/developer-shortcuts/resources', 'DeveloperShortcutsController@updateResources')->name('admin.developershortcuts.update-resources');
         Route::post('/admin/developershortcuts/create-at-coords', 'DeveloperShortcutsController@createAtCoords')->name('admin.developershortcuts.create-at-coords');
+        Route::post('/admin/developershortcuts/create-debris', 'DeveloperShortcutsController@createDebris')->name('admin.developershortcuts.create-debris');
     });
 });
