@@ -19,6 +19,7 @@ class PlanetAbandonController extends OGameController
     {
         return view('ingame.planetabandon.overlay')->with([
             'currentPlanet' => $player->planets->current(),
+            'isMoon' => $player->planets->current()->isMoon(),
             'isCurrentPlanetHomePlanet' => $player->planets->current()->getPlanetId() === $player->planets->first()->getPlanetId(),
         ]);
     }
@@ -36,11 +37,13 @@ class PlanetAbandonController extends OGameController
 
         // Validate planet name
         if ($player->planets->current()->isValidPlanetName($planetName) === false) {
+            $errorText = $player->planets->current()->isMoon() ? __('The new moon name is invalid. Please try again.') : __('The new planet name is invalid. Please try again.');
+
             return response()->json([
                 'status' => 'error',
                 'errorbox' => [
                     'type' => 'fadeBox',
-                    'text' => __('The new planet name is invalid. Please try again.'),
+                    'text' => $errorText,
                     'failed' => true,
                 ],
             ]);
@@ -49,14 +52,16 @@ class PlanetAbandonController extends OGameController
         // Update planet name
         $player->planets->current()->setPlanetName($planetName);
 
+        $successText = $player->planets->current()->isMoon() ? __('Moon renamed successfully.') : __('Planet renamed successfully.');
+
         // Return JSON response
         return response()->json([
             'status' => 'success',
             'errorbox' => [
                 'type' => 'fadeBox',
-                'text' => __('Planet renamed successfully.'),
+                'text' => $successText,
                 'failed' => false,
-                ],
+            ],
         ]);
     }
 

@@ -12,10 +12,22 @@
             <td colspan="3" class="ipiHintable" data-ipi-hint="ipiPlanetSettingsName">
                 <form id="planetMaintenance" class="formValidation"
                       onsubmit="clearField(); $('#newPlanetName').val($('#planetName').val()); ajaxFormSubmit('planetMaintenance', '{{ route('planetabandon.rename') }}', planetRenamed); return false;">
-                    <input type="hidden" id="newPlanetName" name="newPlanetName" value="New planet name">
+                    <input type="hidden" id="newPlanetName" name="newPlanetName" value="{{ $isMoon ? 'New name of the moon' : 'New planet name ' }}">
                     <input type='hidden' name='_token' value='{{ csrf_token() }}'/>
 
-                    <a title="Rules|You can rename your planet here.&lt;br /&gt;
+                    @if ($isMoon)
+                        <a title="Rules|You can rename your moon here.&lt;br /&gt;
+&lt;br /&gt;
+The moon name has to be between &lt;span style=&quot;font-weight: bold;&quot;&gt;2 and 20 characters&lt;/span&gt; long.&lt;br /&gt;
+Moon names may comprise of lower and upper case letters as well as numbers.&lt;br /&gt;
+They may contain hyphens, underscores and spaces - however these may not be placed as follows:&lt;br /&gt;
+- at the beginning or at the end of the name&lt;br /&gt;
+- directly next to one another&lt;br /&gt;
+- more than three times in the name"
+                       href="javascript:void(0);"
+                       class="tooltipHTML tooltipLeft help"></a>
+                    @else
+                        <a title="Rules|You can rename your planet here.&lt;br /&gt;
 &lt;br /&gt;
 The planet name has to be between &lt;span style=&quot;font-weight: bold;&quot;&gt;2 and 20 characters&lt;/span&gt; long.&lt;br /&gt;
 Planet names may comprise of lower and upper case letters as well as numbers.&lt;br /&gt;
@@ -25,13 +37,14 @@ They may contain hyphens, underscores and spaces - however these may not be plac
 - more than three times in the name"
                        href="javascript:void(0);"
                        class="tooltipHTML tooltipLeft help"></a>
+                    @endif
                     <input
                             class="text w200 validate[optional,custom[noSpecialCharacters],custom[noBeginOrEndUnderscore],custom[noBeginOrEndWhitespace],custom[noBeginOrEndHyphen],custom[notMoreThanThreeUnderscores],custom[notMoreThanThreeWhitespaces],custom[notMoreThanThreeHyphen],custom[noCollocateUnderscores],custom[noCollocateWhitespaces],custom[noCollocateHyphen],minSize[2]]"
                             type="text"
                             maxlength="20"
                             size="25"
                             id="planetName"
-                            value="New planet name"
+                            value="{{ $isMoon ? 'New name of the moon' : 'New planet name' }}"
                             onFocus="clearField()"
                             onBlur="fillField()"
                     />
@@ -43,6 +56,8 @@ They may contain hyphens, underscores and spaces - however these may not be plac
             <th colspan="3" class="second" id="giveupHeadline" rel="1">
                 @if ($isCurrentPlanetHomePlanet)
                     @lang('Abandom home planet')
+                @elseif ($isMoon)
+                    @lang('Abandon Moon')
                 @else
                     @lang('Abandon Colony')
                 @endif
@@ -64,6 +79,8 @@ They may contain hyphens, underscores and spaces - however these may not be plac
                 <a id="block" class="start btn_blue float_right">
                     @if ($isCurrentPlanetHomePlanet)
                         @lang('Abandon Home Planet')
+                    @elseif ($isMoon)
+                        @lang('Abandon moon')
                     @else
                         @lang('Abandon Colony')
                     @endif
@@ -75,7 +92,11 @@ They may contain hyphens, underscores and spaces - however these may not be plac
                 <form id="planetMaintenanceDelete" action="{{ route('planetabandon.abandon.confirm') }}">
                     <input type='hidden' name='_token' value='{{ csrf_token() }}'/>
                     <div id="giveUpNotification">
-                        @lang('If you have activated items on a planet, they will be lost if you abandon the planet.')
+                        @if ($isMoon)
+                            @lang('If you have activated items on a moon, they will be lost if you abandon the moon.')
+                        @else
+                            @lang('If you have activated items on a planet, they will be lost if you abandon the planet.')
+                        @endif
                     </div>
                     <div class="validate" id="validate" style="display:none;">
                         <p class="margin_10_0">Please confirm deletion of planet
@@ -160,7 +181,7 @@ They may contain hyphens, underscores and spaces - however these may not be plac
         })(jQuery);
     </script>
     <script language="javascript">
-        var defaultName = "New planet name";
+        var defaultName = "{{ $isMoon ? 'New name of the moon' : 'New planet name' }}";
     </script>
     <script>
         initFormValidation();
