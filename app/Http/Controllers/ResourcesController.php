@@ -36,12 +36,21 @@ class ResourcesController extends AbstractBuildingsController
     public function index(Request $request, PlayerService $player): View
     {
         $this->setBodyId('resources');
+        $this->planet = $player->planets->current();
 
-        // Prepare custom properties
-        $this->header_filename_objects = [1, 2, 3, 4]; // Building ID's that make up the header filename.
+        // Prepare custom properties.
+        // Header filename objects are the building IDs that make up the header filename
+        // to be used in the background image of the page header.
+        if ($this->planet->isPlanet()) {
+            $this->header_filename_objects = [1, 2, 3, 4];
+        } else if ($this->planet->isMoon()) {
+            $this->header_filename_objects = [];
+        }
+
         $this->objects = [
             0 => ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite', 'metal_store', 'crystal_store', 'deuterium_store'],
         ];
+
         $this->view_name = 'ingame.resources.index';
 
         return parent::index($request, $player);
