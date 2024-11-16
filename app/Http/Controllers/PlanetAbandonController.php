@@ -93,13 +93,18 @@ class PlanetAbandonController extends OGameController
         // NOTE: We are abandoning the current planet. If the user has switched to another planet while this popup
         // is shown or deletion is being processed it is possible that the wrong planet will be deleted.
         // TODO: pass along planet ID explicitly to avoid this issue.
+        $isMoon = $planetToDelete->isMoon();
 
         // Return JSON response to ask user to confirm.
         return response()->json([
             'errorbox' => [
                 'type' => 'decision',
                 'title' => __('Confirm'),
-                'text' => __('If you confirm the deletion of the planet [' . $planetToDelete->getPlanetCoordinates()->asString() . '] (' . $planetToDelete->getPlanetName() . '), all buildings, ships and defense systems that are located on that planet will be removed from your account. If you have items active on your planet, these will also be lost when you give up the planet. This process cannot be reversed!'),
+                'text' => __('If you confirm the deletion of the :type [:coordinates] (:name), all buildings, ships and defense systems that are located on that :type will be removed from your account. If you have items active on your :type, these will also be lost when you give up the :type. This process cannot be reversed!', [
+                    'type' => $isMoon ? __('moon') : __('planet'),
+                    'coordinates' => $planetToDelete->getPlanetCoordinates()->asString(),
+                    'name' => $planetToDelete->getPlanetName()
+                ]),
                 'buttonOk' => __('Yes'),
                 'buttonNOk' => __('No'),
                 'okFunction' => 'submit_planet_delete_form',
@@ -109,7 +114,6 @@ class PlanetAbandonController extends OGameController
             'intent' => route('planetabandon.abandon'),
             // TODO: the original code includes "productionBox" key with HTML inside of it, check later if it's needed?
         ]);
-
     }
 
     /**
@@ -125,6 +129,7 @@ class PlanetAbandonController extends OGameController
         $password = request('password');
 
         $planetToDelete = $player->planets->current();
+        $isMoon = $planetToDelete->isMoon();
 
         // Validate password
         if (!$player->isPasswordValid($password)) {
@@ -146,7 +151,9 @@ class PlanetAbandonController extends OGameController
             'errorbox' => [
                 'type' => 'notify',
                 'title' => __('Reference'),
-                'text' => __('Planet has been abandoned succesfully!'),
+                'text' => __(':type has been abandoned successfully!', [
+                    'type' => $isMoon ? __('Moon') : __('Planet')
+                ]),
                 'buttonOk' => __('Ok'),
                 'okFunction' => 'reloadPage',
             ],

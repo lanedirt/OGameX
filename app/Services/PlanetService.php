@@ -173,6 +173,11 @@ class PlanetService
      */
     public function abandonPlanet(): void
     {
+        // If this is a planet and has a moon, delete the moon first
+        if ($this->isPlanet() && $this->hasMoon()) {
+            $this->moon()->abandonPlanet();
+        }
+
         // Anonymize the planet in all tables where it is referenced.
         // This is done to prevent foreign key constraints from failing.
 

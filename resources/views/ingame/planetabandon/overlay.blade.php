@@ -99,10 +99,12 @@ They may contain hyphens, underscores and spaces - however these may not be plac
                         @endif
                     </div>
                     <div class="validate" id="validate" style="display:none;">
-                        <p class="margin_10_0">Please confirm deletion of planet
-                            [{{ $currentPlanet->getPlanetCoordinates()->asString() }}] by putting in your password</p>
+                        <p class="margin_10_0">@lang('Please confirm deletion of :type [:coordinates] by putting in your password', [
+                            'type' => $isMoon ? __('moon') : __('planet'),
+                            'coordinates' => $currentPlanet->getPlanetCoordinates()->asString()
+                        ])</p>
                         <input class="text w200 pw_field" type="password" name="password" maxlength="1024" size="25"/>
-                        <input class="btn_blue" type="submit" value="Confirm"/>
+                        <input class="btn_blue" type="submit" value="@lang('Confirm')"/>
                     </div>
                 </form>
             </td>
