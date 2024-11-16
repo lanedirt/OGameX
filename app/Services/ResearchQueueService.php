@@ -122,7 +122,7 @@ class ResearchQueueService
 
         // Check to see how many other items of this technology there are already
         // in the queue, because if so then the level needs to be higher than that.
-        $amount = $this->activeBuildingQueueItemCount($player, $research_object_id);
+        $amount = $this->activeResearchQueueItemCount($player, $research_object_id);
         $next_level = $current_level + $amount + 1;
 
         // Check if user satisifes requirements to research this object.
@@ -146,6 +146,10 @@ class ResearchQueueService
 
     /**
      * Retrieve current research queue for a planet.
+     *
+     * @TODO this function is not retrieving the queue for a planet
+     * like the comment says, instead the queue is retrieved for a player.
+     * Bug or incorrect comment?
      *
      * @param PlanetService $planet
      * @return ResearchQueueListViewModel
@@ -193,14 +197,13 @@ class ResearchQueueService
     }
 
     /**
-     * Get the amount of already existing queue items for a particular
-     * building.
+     * Get the amount of player active research queue items.
      *
      * @param PlayerService $player
-     * @param int $building_id
+     * @param int $tech_id
      * @return int
      */
-    public function activeBuildingQueueItemCount(PlayerService $player, int $building_id): int
+    public function activeResearchQueueItemCount(PlayerService $player, int $tech_id = 0): int
     {
         // Fetch queue items from model
         return $this->model
@@ -208,7 +211,7 @@ class ResearchQueueService
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
                 ['users.id', $player->getId()],
-                ['research_queues.object_id', $building_id],
+                ['research_queues.object_id', $tech_id],
                 ['research_queues.processed', 0],
                 ['research_queues.canceled', 0],
             ])

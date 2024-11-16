@@ -11,6 +11,7 @@ use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Models\BuildingObject;
 use OGame\GameObjects\Models\DefenseObject;
 use OGame\GameObjects\Models\Enums\GameObjectType;
+use OGame\GameObjects\Models\Fields\GameObjectRequirement;
 use OGame\GameObjects\Models\ResearchObject;
 use OGame\GameObjects\Models\ShipObject;
 use OGame\GameObjects\Models\StationObject;
@@ -333,34 +334,12 @@ class ObjectService
      */
     public static function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player): bool
     {
-        try {
-            $object = self::getObjectByMachineName($machine_name);
-
-            foreach ($object->requirements as $requirement) {
-                // Load required object and check if requirements are met.
-                $object_required = self::getObjectByMachineName($requirement->object_machine_name);
-
-                if ($object_required->type === GameObjectType::Research) {
-                    // Check if requirements are met with existing technology.
-                    if ($player->getResearchLevel($object_required->machine_name) < $requirement->level) {
-                        return false;
-                    }
-                } else {
-                    // Check if requirements are met with existing buildings.
-                    if ($planet->getObjectLevel($object_required->machine_name) < $requirement->level) {
-                        return false;
-                    }
-                }
-            }
-        } catch (Exception $e) {
-            return false;
-        }
-
-        return true;
+        $object = self::getObjectByMachineName($machine_name);
+        return count(self::filterCompletedRequirements($object->requirements, $planet, $player)) === 0;
     }
 
     /**
-     * Check if object requirements are met (for building it).
+     * Check if object requirements are met (for building it) with previous levels completed.
      *
      * @param string $machine_name
      * @param PlanetService $planet
@@ -373,9 +352,9 @@ class ObjectService
         try {
             $object = self::getObjectByMachineName($machine_name);
 
-            // Check that the object's previous levels exist.
+            // Check that the object's previous level exists.
             if ($target_level) {
-                if (!self::hasRequiredLevels($target_level, $object, $planet, $player)) {
+                if (!self::hasPreviousLevels($target_level, $object, $planet, $player)) {
                     return false;
                 }
             }
@@ -383,11 +362,11 @@ class ObjectService
             return false;
         }
 
-        return self::objectRequirementsMet($machine_name, $planet, $player);
+        return count(self::filterCompletedRequirements($object->requirements, $planet, $player)) === 0;
     }
 
     /**
-     * Check if object requirements are met with existing and queued items (for building it).
+     * Check if object requirements are met (for building it) with existing and queued items.
      *
      * @param string $machine_name
      * @param PlanetService $planet
@@ -398,49 +377,18 @@ class ObjectService
     public static function objectRequirementsMetWithQueue(string $machine_name, int $target_level, PlanetService $planet, PlayerService $player): bool
     {
         // Check the object's requirements against the existing objects
-        if (self::objectRequirementsWithLevelsMet($machine_name, $target_level, $planet, $player)) {
-            return true;
-        }
+        $object = self::getObjectByMachineName($machine_name);
+        $incompleteRequirements = self::filterCompletedRequirements($object->requirements, $planet, $player);
 
-        // Check the object’s requirements against the queued objects.
-        try {
-            $object = self::getObjectByMachineName($machine_name);
-
-            if (!self::hasRequiredLevelsInQueue($target_level, $object, $planet, $player)) {
-                return false;
-            }
-
-            foreach ($object->requirements as $requirement) {
-                // Load required object and check if requirements are met.
-                $object_required = self::getObjectByMachineName($requirement->object_machine_name);
-
-                // Skip the queue check for the research lab, as it must be present for research objects.
-                if ($object_required->machine_name === 'research_lab') {
-                    if ($planet->getObjectLevel('research_lab') === $requirement->level) {
-                        continue;
-                    } else {
-                        return false;
-                    }
-                }
-
-                if ($object_required->type === GameObjectType::Research) {
-                    // Check if the requirements are met by the items in the research queue.
-                    if (!$player->isResearchingTech($requirement->object_machine_name, $requirement->level)) {
-                        return false;
-                    }
-                } else {
-                    // Check if the requirements are met by the items in the building queue.
-                    // The building queue is checked only for building queue objects, not for unit queue objects.
-                    if (!$planet->isBuildingObject($requirement->object_machine_name, $requirement->level)) {
-                        return false;
-                    }
-                }
-            }
-        } catch (Exception $e) {
+        if (!self::hasPreviousLevelsInQueue($target_level, $object, $planet, $player)) {
             return false;
         }
 
-        return true;
+        if (count($incompleteRequirements) === 0) {
+            return true;
+        }
+
+        return count(self::filterQueuedRequirements($incompleteRequirements, $planet, $player)) === 0;
     }
 
     /**
@@ -576,6 +524,78 @@ class ObjectService
     }
 
     /**
+     * Filter out completed requirements.
+     *
+     * @param array<GameObjectRequirement> $requirements
+     * @param PlanetService $planet
+     * @param PlayerService $player
+     * @return array<GameObjectRequirement>
+     */
+    private static function filterCompletedRequirements(array $requirements, PlanetService $planet, PlayerService $player): array
+    {
+        return array_filter($requirements, function ($requirement) use ($planet, $player) {
+            try {
+                $object = self::getObjectByMachineName($requirement->object_machine_name);
+
+                if ($object->type === GameObjectType::Research) {
+                    // Check if requirements are met with existing technology.
+                    if ($player->getResearchLevel($requirement->object_machine_name) < $requirement->level) {
+                        return true;
+                    }
+                } else {
+                    // Check if requirements are met with existing buildings.
+                    if ($planet->getObjectLevel($requirement->object_machine_name) < $requirement->level) {
+                        return true;
+                    }
+                }
+
+                return false;
+            } catch (Exception $e) {
+                return true;
+            }
+        });
+    }
+
+    /**
+     * Filter out queued requirements.
+     *
+     * @param array<GameObjectRequirement> $requirements
+     * @param PlanetService $planet
+     * @param PlayerService $player
+     * @return array<GameObjectRequirement>
+     */
+    private static function filterQueuedRequirements(array $requirements, PlanetService $planet, PlayerService $player): array
+    {
+        return array_filter($requirements, function ($requirement) use ($planet, $player) {
+            try {
+                $object = self::getObjectByMachineName($requirement->object_machine_name);
+
+                // Skip the queue check for the research lab, as it must be present for research objects.
+                if ($requirement->object_machine_name === 'research_lab') {
+                    return ($planet->getObjectLevel('research_lab') !== $requirement->level);
+                }
+
+                if ($object->type === GameObjectType::Research) {
+                    // Check if the requirements are met by the items in the research queue.
+                    if (!$player->isResearchingTech($requirement->object_machine_name, $requirement->level)) {
+                        return true;
+                    }
+                } else {
+                    // Check if the requirements are met by the items in the building queue.
+                    // The building queue is checked only for building queue objects, not for unit queue objects.
+                    if (!$planet->isBuildingObject($requirement->object_machine_name, $requirement->level)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            } catch (Exception $e) {
+                return true;
+            }
+        });
+    }
+
+    /**
      * Check if object previous level requirements are met (for building it).
      *
      * @param int $target_level
@@ -584,7 +604,7 @@ class ObjectService
      * @param PlayerService $player
      * @return bool
      */
-    private static function hasRequiredLevels(int $target_level, GameObject $object, PlanetService $planet, PlayerService $player): bool
+    private static function hasPreviousLevels(int $target_level, GameObject $object, PlanetService $planet, PlayerService $player): bool
     {
         $current_level = 0;
 
@@ -611,7 +631,7 @@ class ObjectService
      * @param PlayerService $player
      * @return bool
      */
-    private static function hasRequiredLevelsInQueue(int $target_level, GameObject $object, PlanetService $planet, PlayerService $player): bool
+    private static function hasPreviousLevelsInQueue(int $target_level, GameObject $object, PlanetService $planet, PlayerService $player): bool
     {
         // Check prior levels from queues
         $current_level = 0;
