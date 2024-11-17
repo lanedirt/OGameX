@@ -376,19 +376,27 @@ class ObjectService
      */
     public static function objectRequirementsMetWithQueue(string $machine_name, int $target_level, PlanetService $planet, PlayerService $player): bool
     {
-        // Check the object's requirements against the existing objects
         $object = self::getObjectByMachineName($machine_name);
-        $incompleteRequirements = self::filterCompletedRequirements($object->requirements, $planet, $player);
 
+        // Check object's previous levels against queued objects
         if (!self::hasPreviousLevelsInQueue($target_level, $object, $planet, $player)) {
             return false;
         }
 
-        if (count($incompleteRequirements) === 0) {
+        // Disallow researching when Research Lab is upgrading
+        if ($object->type === GameObjectType::Research && $player->isBuildingObject('research_lab')) {
+            return false;
+        }
+
+        // Check object's requirements against built objects
+        $missingRequirements = self::filterCompletedRequirements($object->requirements, $planet, $player);
+
+        if (count($missingRequirements) === 0) {
             return true;
         }
 
-        return count(self::filterQueuedRequirements($incompleteRequirements, $planet, $player)) === 0;
+        // Check object's requirements against queued objects
+        return count(self::filterQueuedRequirements($missingRequirements, $planet, $player)) === 0;
     }
 
     /**

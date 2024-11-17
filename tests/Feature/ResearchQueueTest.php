@@ -213,4 +213,30 @@ class ResearchQueueTest extends AccountTestCase
         $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'energy_technology', 1, 'Energy technology is not at level one 2 minutes after build request issued.');
     }
+
+    /**
+     * Verify that ongoing upgrade of research lab prevents researching.
+     * @throws Exception
+     */
+    public function testResearchLabUpgradingPreventsResearching(): void
+    {
+        // Add required resources for research to planet
+        $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
+        $this->planetSetObjectLevel('research_lab', 1);
+
+        // Add Research Lab level 2 to build queue
+        $this->addFacilitiesBuildRequest('research_lab');
+        $response = $this->get('/facilities');
+        $response->assertStatus(200);
+        $this->assertObjectInQueue($response, 'research_lab', 2, 'Research Lab level 2 is not in build queue');
+
+        $this->assertThrows(
+            fn () => $this->addResearchBuildRequest('energy_technology'),
+        );
+
+        // Verify that Energy Technology is not in research queue
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+        $this->assertObjectNotInResearchQueue($response, 'energy_technology', 'Energy Technology is in research queue but should not be added.');
+    }
 }

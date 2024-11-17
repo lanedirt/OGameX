@@ -502,6 +502,27 @@ abstract class AccountTestCase extends TestCase
         }
     }
 
+    protected function assertObjectNotInResearchQueue(TestResponse $response, string $machine_name, string $error_message = ''): void
+    {
+        // Get object name from machine name.
+        try {
+            $object = ObjectService::getObjectByMachineName($machine_name);
+        } catch (Exception $e) {
+            $this->fail('Failed to get object by machine name: ' . $machine_name . '. Error: ' . $e->getMessage());
+        }
+
+        // Check if cancel text is present on page.
+        try {
+            $response->assertDontSee('cancel ' . $object->title);
+        } catch (Exception $e) {
+            if (!empty($error_message)) {
+                $this->fail($error_message . '. Error: ' . $e->getMessage());
+            } else {
+                $this->fail('Object ' . $object->title . ' is in the research queue. Error: ' . $e->getMessage());
+            }
+        }
+    }
+
     /**
      * Add a resource build request to the current users current planet.
      * @param string $machine_name
