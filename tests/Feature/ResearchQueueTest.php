@@ -230,13 +230,11 @@ class ResearchQueueTest extends AccountTestCase
         $response->assertStatus(200);
         $this->assertObjectInQueue($response, 'research_lab', 2, 'Research Lab level 2 is not in build queue');
 
-        $this->assertThrows(
-            fn () => $this->addResearchBuildRequest('energy_technology'),
-        );
+        $this->addResearchBuildRequest('energy_technology');
 
         // Verify that Energy Technology is not in research queue
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $this->assertObjectNotInResearchQueue($response, 'energy_technology', 'Energy Technology is in research queue but should not be added.');
+        $this->assertObjectNotInQueue($response, 'energy_technology', 'Energy Technology is in research queue but should not be added.');
     }
 }

@@ -383,11 +383,6 @@ class ObjectService
             return false;
         }
 
-        // Disallow researching when Research Lab is upgrading
-        if ($object->type === GameObjectType::Research && $player->isBuildingObject('research_lab')) {
-            return false;
-        }
-
         // Check object's requirements against built objects
         $missingRequirements = self::filterCompletedRequirements($object->requirements, $planet, $player);
 

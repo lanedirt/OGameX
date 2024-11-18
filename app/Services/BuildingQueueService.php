@@ -216,6 +216,14 @@ class BuildingQueueService
                 continue;
             }
 
+            // Sanity check: check if the Research Lab is tried to upgrade when research is in progress
+            if ($object->machine_name === 'research_lab' && $planet->getPlayer()->isResearching()) {
+                // Error, cancel build queue item.
+                $this->cancel($planet, $queue_item->id, $queue_item->object_id);
+
+                continue;
+            }
+
             // Sanity check: check if the planet has enough resources. If not,
             // then cancel build request.
             if (!$planet->hasResources($price)) {

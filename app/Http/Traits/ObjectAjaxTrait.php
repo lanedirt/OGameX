@@ -53,11 +53,15 @@ trait ObjectAjaxTrait
         $production_time = '';
         $production_datetime = '';
         $research_lab_upgrading = false;
+        $research_in_progress = false;
         switch ($object->type) {
             case GameObjectType::Building:
             case GameObjectType::Station:
                 $production_time = AppUtil::formatTimeDuration($planet->getBuildingConstructionTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getBuildingConstructionTime($object->machine_name));
+
+                // Research Lab upgrading is disallowed when research is in progress
+                $research_in_progress = $player->isResearching();
                 break;
             case GameObjectType::Ship:
             case GameObjectType::Defense:
@@ -158,6 +162,7 @@ trait ObjectAjaxTrait
             'max_build_amount' => $max_build_amount,
             'current_amount' => $current_amount,
             'research_lab_upgrading' => $research_lab_upgrading,
+            'research_in_progress' => $research_in_progress,
         ]);
 
         return response()->json([

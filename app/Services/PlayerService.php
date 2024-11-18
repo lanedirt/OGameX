@@ -512,6 +512,17 @@ class PlayerService
     }
 
     /**
+     * Get is the player researching any tech or not
+     *
+     * @return bool
+     */
+    public function isResearching(): bool
+    {
+        $research_queue = resolve('OGame\Services\ResearchQueueService');
+        return (bool) $research_queue->activeResearchQueueItemCount($this);
+    }
+
+    /**
      * Get is the player researching the tech or not
      *
      * @return bool

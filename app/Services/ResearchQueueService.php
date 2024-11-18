@@ -206,15 +206,17 @@ class ResearchQueueService
     public function activeResearchQueueItemCount(PlayerService $player, int $tech_id = 0): int
     {
         // Fetch queue items from model
-        return $this->model
+        return $this->model::query()
             ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
                 ['users.id', $player->getId()],
-                ['research_queues.object_id', $tech_id],
                 ['research_queues.processed', 0],
                 ['research_queues.canceled', 0],
             ])
+            ->when($tech_id, function ($q) use ($tech_id) {
+                return $q->where('research_queues.object_id', '=', $tech_id);
+            })
             ->count();
     }
 
@@ -265,6 +267,14 @@ class ResearchQueueService
             if ($currently_researching !== null) {
                 // There already is something else researching, don't start a new one.
                 break;
+            }
+
+            // Sanity check: check if the Research Lab is being upgraded
+            if ($player->isBuildingObject('research_lab')) {
+                // Error, cancel research queue item.
+                $this->cancel($player, $queue_item->id, $queue_item->object_id);
+
+                continue;
             }
 
             // Sanity check: check if the target level as stored in the database

@@ -82,6 +82,9 @@ abstract class AbstractBuildingsController extends OGameController
         $build_active = $build_full_queue->getCurrentlyBuildingFromQueue();
         $build_queue = $build_full_queue->getQueuedFromQueue();
 
+        // Research Lab upgrading is disallowed when researching is ongoing
+        $research_in_progress = $player->isResearching();
+
         $buildings = [];
         foreach ($this->objects as $key_row => $objects_row) {
             $buildings[$key_row] = [];
@@ -114,6 +117,7 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->requirements_met = $requirements_met;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
+                $view_model->research_in_progress = $research_in_progress;
 
                 $buildings[$key_row][$object->id] = $view_model;
             }
