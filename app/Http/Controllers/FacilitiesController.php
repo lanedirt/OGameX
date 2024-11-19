@@ -39,13 +39,16 @@ class FacilitiesController extends AbstractBuildingsController
         // to be used in the background image of the page header.
         if ($this->planet->isPlanet()) {
             $this->header_filename_objects = [14, 21, 31, 34];
+            $this->objects = [
+                ['robot_factory', 'shipyard', 'research_lab', 'alliance_depot', 'missile_silo', 'nano_factory', 'terraformer', 'space_dock'],
+            ];
         } else if ($this->planet->isMoon()) {
             $this->header_filename_objects = [];
+            $this->objects = [
+                ['robot_factory', 'shipyard', 'lunar_base', 'sensor_phalanx', 'jump_gate'],
+            ];
         }
 
-        $this->objects = [
-            ['robot_factory', 'shipyard', 'research_lab', 'alliance_depot', 'missile_silo', 'nano_factory', 'terraformer', 'space_dock'],
-        ];
         $this->view_name = 'ingame.facilities.index';
 
         return parent::index($request, $player);

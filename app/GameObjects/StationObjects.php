@@ -172,7 +172,7 @@ Since the Space Dock floats in orbit, it does not require a planet field.';
         $lunarBase->id = 41;
         $lunarBase->title = 'Lunar Base';
         $lunarBase->machine_name = 'lunar_base';
-        $lunarBase->class_name = 'moonBase';
+        $lunarBase->class_name = 'moonbase';
         $lunarBase->description = 'Since the moon has no atmosphere, a lunar base is required to generate habitable space.';
         $lunarBase->description_long = 'A moon has no atmosphere, so a lunar base must first be built before a settlement can be set up. This then provides oxygen, heating, and gravity. With each level constructed, a larger living and development area is provided within the biosphere. Each constructed level allows three fields for other buildings. With each level, the Lunar base occupies one field itself.
 Once built, the lunar base can not be torn down.';
