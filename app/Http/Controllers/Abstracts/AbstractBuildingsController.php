@@ -161,7 +161,7 @@ abstract class AbstractBuildingsController extends OGameController
     {
         // If the technology is a solar satellite, execute the addBuildRequest method in ShipyardController.
         if ($request->input('technologyId') === '212') {
-            resolve(ShipyardController::class)->addBuildRequest($request, $player);
+            return resolve(ShipyardController::class)->addBuildRequest($request, $player);
         }
 
         // Explicitly verify CSRF token because this request supports both POST and GET.

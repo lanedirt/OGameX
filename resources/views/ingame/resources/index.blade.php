@@ -99,7 +99,6 @@
                 </div>
             </div>
             <div class="productionBoxShips boxColumn ship">
-
                 <div id="productionboxshipyardcomponent"
                      class="productionboxshipyard injectedComponent parent supplies">
                     <div class="content-box-s">
@@ -107,20 +106,10 @@
                             <h3>Shipyard</h3>
                         </div>
                         <div class="content">
-                            <table cellspacing="0" cellpadding="0" class="construction active">
-                                <tbody>
-                                <tr>
-                                    <td colspan="2" class="idle">
-                                        <a class="tooltip js_hideTipOnMobile tpd-hideOnClickOutside" title=""
-                                           href="#TODO_page=ingame&amp;component=shipyard">
-                                            No ships/defense in construction.
-                                            <br>
-                                            (To shipyard)
-                                        </a>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
+                            {{-- Unit is actively being built. --}}
+                            @include ('ingame.shared.buildqueue.unit-active', ['build_active' => $unit_build_active, 'build_queue_countdown' => $unit_queue_time_countdown])
+                            {{-- Unit queue has items. --}}
+                            @include ('ingame.shared.buildqueue.unit-queue', ['build_queue' => $unit_build_queue])
                         </div>
                         <div class="footer"></div>
                     </div>

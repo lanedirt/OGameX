@@ -11,8 +11,10 @@ use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Models\Resources;
 use OGame\Services\BuildingQueueService;
+use OGame\Services\UnitQueueService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
+use Carbon\Carbon;
 
 class ResourcesController extends AbstractBuildingsController
 {
@@ -36,6 +38,7 @@ class ResourcesController extends AbstractBuildingsController
     public function index(Request $request, PlayerService $player): View
     {
         $this->setBodyId('resources');
+        $this->planet = $player->planets->current();
 
         // Prepare custom properties
         $this->header_filename_objects = [1, 2, 3, 4]; // Building ID's that make up the header filename.
@@ -44,7 +47,25 @@ class ResourcesController extends AbstractBuildingsController
         ];
         $this->view_name = 'ingame.resources.index';
 
-        return parent::index($request, $player);
+        // Parse shipyard queue for this planet because the resources page
+        // shows both the building queue (handled by parent) but also the shipyard queue.
+        $unitQueue = resolve(UnitQueueService::class);
+        $unit_full_queue = $unitQueue->retrieveQueue($this->planet);
+        $unit_build_active = $unit_full_queue->getCurrentlyBuildingFromQueue();
+        $unit_build_queue = $unit_full_queue->getQueuedFromQueue();
+
+        // Get total time of all items in unit queue.
+        $unit_queue_time_end = $unitQueue->retrieveQueueTimeEnd($this->planet);
+        $unit_queue_time_countdown = 0;
+        if ($unit_queue_time_end > 0) {
+            $unit_queue_time_countdown = $unit_queue_time_end - (int)Carbon::now()->timestamp;
+        }
+
+        return parent::index($request, $player)->with([
+            'unit_build_active' => $unit_build_active,
+            'unit_build_queue' => $unit_build_queue,
+            'unit_queue_time_countdown' => $unit_queue_time_countdown,
+        ]);
     }
 
     /**
