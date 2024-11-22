@@ -60,7 +60,8 @@
                             @elseif (!$building->requirements_met)
                             @elseif (!$building->enough_resources)
                             @elseif ($build_queue_max)
-                            @elseif ($building->object->type != \OGame\GameObjects\Models\Enums\GameObjectType::Ship)
+                            @elseif ($building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
+                            @else
                                 <button
                                         class="upgrade tooltip hideOthers js_hideTipOnMobile"
                                         aria-label="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}" title="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}"
@@ -71,7 +72,7 @@
                                 <div class="cooldownBackground"></div>
                                 <time-counter><time class="countdown buildingCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>
                             @endif
-                            @if ($building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship)
+                            @if ($building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                                 <span class="amount" data-value="{{ $building->current_level }}" data-bonus="0">
                             @else
                                 <span class="level" data-value="{{ $building->current_level }}" data-bonus="0">
@@ -107,7 +108,7 @@
                      class="productionboxshipyard injectedComponent parent supplies">
                     <div class="content-box-s">
                         <div class="header">
-                            <h3>Shipyard</h3>
+                            <h3>@lang('Shipyard')</h3>
                         </div>
                         <div class="content">
                             {{-- Unit is actively being built. --}}

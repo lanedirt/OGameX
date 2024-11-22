@@ -57,7 +57,7 @@
             </ul>
 
             <div class="costs">
-                @if ($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship)
+                @if ($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                     <p>@lang('Costs per piece'):</p>
                 @else
                     <p>@lang('Required to improve to level') {!! $next_level !!}:</p>
