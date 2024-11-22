@@ -26,25 +26,23 @@
     @else
         data-status="on"
     title="{{ $building->object->title }}"
-        @endif
+    @endif
 >
-
-                        <span class="icon sprite @if ($building->object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
-                            sprite_medium medium
-                         @else
-                            sprite_small small
-                         @endif{{ $building->object->class_name }}">
-                            @if ($building->currently_building)
-                                <span class="targetamount" data-value="54" data-bonus="0">
-                                    {{ $building->amount + $building->currently_building_amount }}
-                                </span>
-                                <div class="cooldownBackground"></div>
-                                <time-counter><time class="countdown buildingCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>
-                            @endif
-                            <span class="amount"
-                              data-value="{{ $building->amount }}"
-                              data-bonus="0">
-                                <span class="stockAmount">{{ $building->amount }}</span>
-                                <span class="bonus"></span>
-                            </span>
-                        </span>
+    <span class="icon sprite @if ($building->object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
+        sprite_medium medium
+        @else
+        sprite_small small
+        @endif{{ $building->object->class_name }}">
+        @if ($building->currently_building)
+            <span class="targetamount" data-value="54" data-bonus="0">
+                {{ $building->amount + $building->currently_building_amount }}
+            </span>
+            <div class="cooldownBackground"></div>
+            <time-counter><time class="countdown buildingCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>
+        @endif
+            <span class="amount" data-value="{{ $building->amount }}" data-bonus="0">
+            <span class="stockAmount">{{ $building->amount }}</span>
+            <span class="bonus"></span>
+        </span>
+    </span>
+</li>

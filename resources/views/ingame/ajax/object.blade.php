@@ -57,8 +57,11 @@
             </ul>
 
             <div class="costs">
-
-                <p>@lang('Required to improve to level') {!! $next_level !!}:</p>
+                @if ($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
+                    <p>@lang('Costs per piece'):</p>
+                @else
+                    <p>@lang('Required to improve to level') {!! $next_level !!}:</p>
+                @endif
 
                 <ul class="ipiHintable" data-ipi-hint="">
                     @if (!empty($price->metal->get()))
