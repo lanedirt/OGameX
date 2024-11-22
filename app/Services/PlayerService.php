@@ -5,6 +5,7 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use OGame\GameObjects\Models\Calculations\CalculationType;
@@ -531,6 +532,19 @@ class PlayerService
     {
         $research_queue = resolve('OGame\Services\ResearchQueueService');
         return $research_queue->objectInResearchQueue($this, $machine_name, $level);
+    }
+
+    /**
+     * Retrieves research labs from the player planets.
+     *
+     * @return Collection
+     */
+    public function retrievePlanetResearchLabs(): Collection
+    {
+        return Planet::where('user_id', '=', $this->getId())
+            ->select('id', 'research_lab')
+            ->orderBy('research_lab', 'desc')
+            ->get();
     }
 
     /**

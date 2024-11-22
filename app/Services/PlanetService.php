@@ -738,6 +738,28 @@ class PlanetService
         // Research speed is = (economy x research speed).
         $universe_speed = $this->settingsService->economySpeed() * $this->settingsService->researchSpeed();
 
+        // Intergalactic Research Network technology allows multiple research
+        // labs on multiple planets to work together to reduce research times.
+        $irn_level = $this->player->getResearchLevel('intergalactic_research_network');
+        if ($irn_level) {
+            $research_labs = $this->player->retrievePlanetResearchLabs()->filter(function (Planet $planet) use ($machine_name) {
+                // Check if object requirements are met in the planet
+                $planetService = resolve(PlanetService::class, ['player' => $this->player, 'planet_id' => $planet->id]);
+                if (!ObjectService::objectRequirementsMet($machine_name, $planetService, $this->player)) {
+                    return false;
+                }
+
+                // Exclude current planet as it's already included as a base value
+                if ($planet->id === $this->planet->id) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            $research_lab_level += $research_labs->take($irn_level)->sum('research_lab');
+        }
+
         // The actual formula which return time in seconds
         $time_hours =
             (
