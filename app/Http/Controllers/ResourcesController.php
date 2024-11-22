@@ -47,8 +47,8 @@ class ResourcesController extends AbstractBuildingsController
         ];
         $this->view_name = 'ingame.resources.index';
 
-        // Parse shipyard queue for this planet because the resources page
-        // shows both the building queue (handled by parent) but also the shipyard queue.
+        // Parse shipyard queue because the resources page shows both the
+        // building queue (handled by parent) but also the shipyard queue.
         $unitQueue = resolve(UnitQueueService::class);
         $unit_full_queue = $unitQueue->retrieveQueue($this->planet);
         $unit_build_active = $unit_full_queue->getCurrentlyBuildingFromQueue();
@@ -61,6 +61,7 @@ class ResourcesController extends AbstractBuildingsController
             $unit_queue_time_countdown = $unit_queue_time_end - (int)Carbon::now()->timestamp;
         }
 
+        // Append unit queue data to the default view output handled by parent.
         return parent::index($request, $player)->with([
             'unit_build_active' => $unit_build_active,
             'unit_build_queue' => $unit_build_queue,

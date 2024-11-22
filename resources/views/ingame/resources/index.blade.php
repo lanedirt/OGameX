@@ -24,7 +24,7 @@
             </div>
             <div id="technologies">
                 <h3>
-                    Resource buildings
+                    @lang('Resource buildings')
                 </h3>
                 <ul id="producers" class="icons">
                     @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
@@ -71,9 +71,13 @@
                                 <div class="cooldownBackground"></div>
                                 <time-counter><time class="countdown buildingCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>
                             @endif
-                            <span class="level" data-value="{{ $building->current_level }}" data-bonus="0">
-                            <span class="stockAmount">{{ $building->current_level }}</span>
-                            <span class="bonus"></span>
+                            @if ($building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship)
+                                <span class="amount" data-value="{{ $building->current_level }}" data-bonus="0">
+                            @else
+                                <span class="level" data-value="{{ $building->current_level }}" data-bonus="0">
+                            @endif
+                                <span class="stockAmount">{{ $building->current_level }}</span>
+                                <span class="bonus"></span>
                             </span>
                         </span></li>
                     @endforeach
