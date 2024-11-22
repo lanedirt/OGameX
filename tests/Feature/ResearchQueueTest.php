@@ -192,7 +192,7 @@ class ResearchQueueTest extends AccountTestCase
         // Assert that research requirements for Energy Technology are not met as Research Lab is missing
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements not met.');
+        $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements met.');
 
         // Add Research Lab level 1 to build queue
         $this->addFacilitiesBuildRequest('research_lab');
@@ -200,7 +200,7 @@ class ResearchQueueTest extends AccountTestCase
         // Assert that research requirements for Energy Technology are not met as Research Lab is in build queue
         $response = $this->get('/research');
         $response->assertStatus(200);
-        $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements not met.');
+        $this->assertRequirementsNotMet($response, 'energy_technology', 'Energy Technology research requirements met.');
 
         // Verify that Energy Technology can be added to research queue 2 minute later.
         $this->travel(2)->minutes();
@@ -212,5 +212,29 @@ class ResearchQueueTest extends AccountTestCase
         $response = $this->get('/research');
         $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'energy_technology', 1, 'Energy technology is not at level one 2 minutes after build request issued.');
+    }
+
+    /**
+     * Verify that ongoing upgrade of research lab prevents researching.
+     * @throws Exception
+     */
+    public function testResearchLabUpgradingPreventsResearching(): void
+    {
+        // Add required resources for research to planet
+        $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
+        $this->planetSetObjectLevel('research_lab', 1);
+
+        // Add Research Lab level 2 to build queue
+        $this->addFacilitiesBuildRequest('research_lab');
+        $response = $this->get('/facilities');
+        $response->assertStatus(200);
+        $this->assertObjectInQueue($response, 'research_lab', 2, 'Research Lab level 2 is not in build queue');
+
+        $this->addResearchBuildRequest('energy_technology');
+
+        // Verify that Energy Technology is not in research queue
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+        $this->assertObjectNotInQueue($response, 'energy_technology', 'Energy Technology is in research queue but should not be added.');
     }
 }

@@ -150,7 +150,7 @@ class UnitQueueService
         $object = ObjectService::getUnitObjectById($object_id);
 
         // Check if user satisifes requirements to build this object.
-        $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer(), 0, false);
+        $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $planet->getPlayer());
 
         // Sanity check: check if the planet has enough resources to build
         // the amount requested. If not, then adjust the ordered amount.

@@ -428,7 +428,7 @@ abstract class AccountTestCase extends TestCase
 
         // Check if cancel text is present on page.
         try {
-            $response->assertDontSee('Cancel production of ' . $object->title);
+            $response->assertDontSee(['Cancel production of ' . $object->title, 'cancel ' . $object->title]);
         } catch (Exception $e) {
             if (!empty($error_message)) {
                 $this->fail($error_message . '. Error: ' . $e->getMessage());

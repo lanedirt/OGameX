@@ -82,6 +82,9 @@ abstract class AbstractBuildingsController extends OGameController
         $build_active = $build_full_queue->getCurrentlyBuildingFromQueue();
         $build_queue = $build_full_queue->getQueuedFromQueue();
 
+        // Research Lab upgrading is disallowed when researching is ongoing
+        $research_in_progress = $player->isResearching();
+
         $buildings = [];
         foreach ($this->objects as $key_row => $objects_row) {
             $buildings[$key_row] = [];
@@ -93,9 +96,10 @@ abstract class AbstractBuildingsController extends OGameController
 
                 // Get current level of building
                 $current_level = $this->planet->getObjectLevel($object_machine_name);
+                $next_level = $current_level + 1;
 
                 // Check requirements of this building
-                $requirements_met = ObjectService::objectRequirementsMet($object_machine_name, $this->planet, $player);
+                $requirements_met = ObjectService::objectRequirementsMetWithQueue($object_machine_name, $next_level, $this->planet, $player);
 
                 // Check if the current planet has enough resources to build this building.
                 $enough_resources = $this->planet->hasResources(ObjectService::getObjectPrice($object_machine_name, $this->planet));
@@ -113,6 +117,7 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->requirements_met = $requirements_met;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
+                $view_model->research_in_progress = $research_in_progress;
 
                 $buildings[$key_row][$object->id] = $view_model;
             }

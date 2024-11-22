@@ -11,7 +11,7 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\ResearchQueueService;
-use OGame\ViewModels\BuildingViewModel;
+use OGame\ViewModels\ResearchViewModel;
 
 class ResearchController extends OGameController
 {
@@ -38,6 +38,7 @@ class ResearchController extends OGameController
     {
         $this->route_view_index = 'research.index';
         $this->queue = $queue;
+
         parent::__construct();
     }
 
@@ -63,10 +64,13 @@ class ResearchController extends OGameController
 
         $count = 0;
 
-        // Parse build queue for this planet
+        // Parse research queue for this planet
         $research_full_queue = $this->queue->retrieveQueue($planet);
-        $build_active = $research_full_queue->getCurrentlyBuildingFromQueue();
-        $build_queue = $research_full_queue->getQueuedFromQueue();
+        $research_active = $research_full_queue->getCurrentlyBuildingFromQueue();
+        $research_queue = $research_full_queue->getQueuedFromQueue();
+
+        // Researching is disallowed when Research Lab is upgrading
+        $research_lab_upgrading = $player->isBuildingObject('research_lab');
 
         $research = [];
         foreach ($screen_objects as $key_row => $objects_row) {
@@ -75,22 +79,24 @@ class ResearchController extends OGameController
 
                 $object = ObjectService::getResearchObjectByMachineName($object_machine_name);
 
-                // Get current level of building
+                // Get current level of technology
                 $current_level = $player->getResearchLevel($object->machine_name);
+                $next_level = $current_level + 1;
 
-                // Check requirements of this building
-                $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet, $player);
+                // Check requirements of this technology
+                $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet, $player);
 
-                // Check if the current planet has enough resources to build this building.
+                // Check if the current planet has enough resources to research this technology.
                 $enough_resources = $planet->hasResources(ObjectService::getObjectPrice($object->machine_name, $planet));
 
-                $view_model = new BuildingViewModel();
+                $view_model = new ResearchViewModel();
                 $view_model->object = $object;
                 $view_model->current_level = $current_level;
                 $view_model->requirements_met = $requirements_met;
                 $view_model->count = $count;
                 $view_model->enough_resources = $enough_resources;
-                $view_model->currently_building = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name);
+                $view_model->currently_building = (!empty($research_active) && $research_active->object->machine_name === $object->machine_name);
+                $view_model->research_lab_upgrading = $research_lab_upgrading;
 
                 $research[$key_row][$object->id] = $view_model;
             }
@@ -106,9 +112,10 @@ class ResearchController extends OGameController
             'planet_id' => $planet->getPlanetId(),
             'planet_name' => $planet->getPlanetName(),
             'research' => $research,
-            'build_active' => $build_active,
-            'build_queue' => $build_queue,
+            'build_active' => $research_active,
+            'build_queue' => $research_queue,
             'build_queue_max' => $build_queue_max,
+            'research_lab_upgrading' => $research_lab_upgrading,
         ]);
     }
 
