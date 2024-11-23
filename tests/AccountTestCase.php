@@ -41,10 +41,10 @@ abstract class AccountTestCase extends TestCase
         // Set default test time to 2024-01-01 00:00:00 to ensure all tests have the same starting point.
         $this->travelTo(Carbon::create(2024, 1, 1, 0, 0, 0));
 
-        // Set amount of planets to be created for the user to 2 because planet switching
+        // Set amount of planets to be created for the user to 4 because planet switching
         // is a part of the test suite.
         $settingsService = resolve(SettingsService::class);
-        $settingsService->set('registration_planet_amount', 2);
+        $settingsService->set('registration_planet_amount', 4);
 
         // Create a new user and login so we can access ingame features.
         $this->createAndLoginUser();

@@ -181,6 +181,46 @@ class ResearchQueueTest extends AccountTestCase
     }
 
     /**
+     * Verify that Intergalactic Research Network research construction time is calculated correctly
+     * @throws Exception
+     */
+    public function testIntergalacticResearchNetworkResearchLabLevel(): void
+    {
+        // Add resources to planet to initialize planet.
+        $this->planetAddResources(new Resources(400, 120, 200, 0));
+
+        // Assert single planet research lab level
+        $this->planetSetObjectLevel('research_lab', 8);
+        $this->assertSame(8, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
+
+        // Assert two planets combined research lab level when second planet doesn't met requirements.
+        $this->playerSetResearchLevel('intergalactic_research_network', 2);
+        $this->playerSetResearchLevel('energy_technology', 3);
+        $this->secondPlanetService->setObjectLevel(31, 5); // Research Lab
+        $this->assertSame(8, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
+
+        // Assert two planets combined research lab level.
+        $this->secondPlanetService->setObjectLevel(31, 10); // Research Lab
+        $this->assertSame(18, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
+
+        // Assert three planets combined research lab level.
+        $thirdPlanetService = $this->planetService->getPlayer()->planets->all()[2];
+        $thirdPlanetService->setObjectLevel(31, 6); // Research Lab
+        $this->assertSame(24, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
+
+        // Assert four planets combined research lab level. Forth planet is not counted in as
+        // Intergalactic Research Network technology level 2 limits combined planet count to 3.
+        $forthPlanetService = $this->planetService->getPlayer()->planets->all()[3];
+        $forthPlanetService->setObjectLevel(31, 6); // Research Lab
+        $this->assertSame(24, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
+
+        // Assert the combined research lab level of the four planets when two of the planets do not meet the requirements.
+        $thirdPlanetService->setObjectLevel(31, 1); // Research Lab
+        $forthPlanetService->setObjectLevel(31, 1); // Research Lab
+        $this->assertSame(18, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
+    }
+
+    /**
      * Verify that research lab requirement is working for research objects.
      * @throws Exception
      */
