@@ -110,26 +110,38 @@ class DeveloperShortcutsController extends OGameController
      */
     public function updateResources(\Illuminate\Http\Request $request, PlayerService $playerService): RedirectResponse
     {
-        $resources = [];
-        foreach (['metal', 'crystal', 'deuterium'] as $resource) {
-            $resources[$resource] = AppUtil::parseResourceValue($request->input("resource_{$resource}", 0));
-        }
-
-        $resourcesObj = new Resources(
-            metal: $resources['metal'],
-            crystal: $resources['crystal'],
-            deuterium: $resources['deuterium'],
-            energy: 0
-        );
+        // Parse each resource value, handling k/m/b suffixes and negative values
+        $metal = AppUtil::parseResourceValue($request->input('metal', 0));
+        $crystal = AppUtil::parseResourceValue($request->input('crystal', 0));
+        $deuterium = AppUtil::parseResourceValue($request->input('deuterium', 0));
 
         $planet = $playerService->planets->current();
 
-        // Add the resources (negative values will subtract)
-        $planet->addResources($resourcesObj);
-        $planet->save();
+        // Split resources into positive and negative values
+        $resourcesToAdd = new Resources(
+            metal: max(0, $metal),
+            crystal: max(0, $crystal),
+            deuterium: max(0, $deuterium),
+            energy: 0
+        );
 
-        return redirect()->route('admin.developershortcuts.index')
-            ->with('success', __('Resources updated successfully!'));
+        $resourcesToDeduct = new Resources(
+            metal: abs(min(0, $metal)),
+            crystal: abs(min(0, $crystal)),
+            deuterium: abs(min(0, $deuterium)),
+            energy: 0
+        );
+
+        // First deduct negative values, then add positive values
+        if ($resourcesToDeduct->sum() > 0) {
+            $planet->deductResources($resourcesToDeduct);
+        }
+
+        if ($resourcesToAdd->sum() > 0) {
+            $planet->addResources($resourcesToAdd);
+        }
+
+        return redirect()->back()->with('success', 'Resources updated successfully');
     }
 
     /**
