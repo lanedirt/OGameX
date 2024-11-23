@@ -241,7 +241,7 @@ abstract class AccountTestCase extends TestCase
         $tryCount = 0;
         while ($tryCount < 100) {
             $tryCount++;
-            $coordinate->system = max(1, min(250, $this->planetService->getPlanetCoordinates()->system + rand(-10, 10)));
+            $coordinate->system = max(1, min(499, $this->planetService->getPlanetCoordinates()->system + rand(-10, 10)));
             $coordinate->position = rand($min_position, $max_position);
             $planetCount = \DB::table('planets')
                 ->where('galaxy', $coordinate->galaxy)
