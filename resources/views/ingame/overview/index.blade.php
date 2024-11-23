@@ -84,7 +84,7 @@
             <div id="detailWrapper">
                 @if ($has_moon)
                     <div id="moon">
-                        <a href="{{ request()->url() }}?{{ http_build_query(array_merge(request()->query(), ['cp' => $other_planet->getPlanetId()])) }}"
+                        <a href="{{ request()->url() }}?{{ http_build_query([...request()->query(), 'cp' => $other_planet->getPlanetId()]) }}"
                            class="tooltipBottom js_hideTipOnMobile"
                            title="@lang('Switch to moon') {{ $other_planet->getPlanetName() }}">
                             <img alt="{{ $other_planet->getPlanetName() }}" src="{!! asset('img/moons/big/' . $other_planet->getPlanetImageType() . '.gif') !!}">
@@ -92,7 +92,7 @@
                     </div>
                 @elseif ($has_planet)
                     <div id="planet_as_moon">
-                        <a href="{{ request()->url() }}?{{ http_build_query(array_merge(request()->query(), ['cp' => $other_planet->getPlanetId()])) }}"
+                        <a href="{{ request()->url() }}?{{ http_build_query([...request()->query(), 'cp' => $other_planet->getPlanetId()]) }}"
                            class="tooltipBottom js_hideTipOnMobile"
                            title="@lang('Switch to planet') {{ $other_planet->getPlanetName() }}">
                             <img alt="{{ $other_planet->getPlanetName() }}" src="{!! asset('img/planets/' . $other_planet->getPlanetBiomeType() . '_moon_view.jpg') !!}">

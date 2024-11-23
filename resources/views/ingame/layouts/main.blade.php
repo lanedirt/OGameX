@@ -1088,7 +1088,7 @@ Combat simulation save slots +20">
                             @endphp
 
                             @php /** @var OGame\Services\PlanetService $planet */ @endphp
-                            @foreach ($planets->all() as $key => $planet)
+                            @foreach ($planets->allPlanets() as $key => $planet)
                                 @php
                                     // Set or replace the 'cp' parameter
                                    $currentQueryParams['cp'] = $planet->getPlanetId();

@@ -146,14 +146,15 @@ abstract class FleetDispatchTestCase extends AccountTestCase
     {
         $unitsArray = $this->convertUnitsToArray($units);
 
-        $post = $this->post('/ajax/fleet/dispatch/check-target', array_merge([
+        $post = $this->post('/ajax/fleet/dispatch/check-target', [
             'galaxy' => $coordinates->galaxy,
             'system' => $coordinates->system,
             'position' => $coordinates->position,
             'type' => $planetType->value,
             'mission' => $this->missionType,
             '_token' => csrf_token(),
-        ], $unitsArray));
+            ...$unitsArray
+        ]);
 
         // Check request should always result in success HTTP call, even if the mission is not possible.
         // All errors should be included in the JSON response.
@@ -186,7 +187,7 @@ abstract class FleetDispatchTestCase extends AccountTestCase
     {
         $unitsArray = $this->convertUnitsToArray($units);
 
-        $post = $this->post('/ajax/fleet/dispatch/send-fleet', array_merge([
+        $post = $this->post('/ajax/fleet/dispatch/send-fleet', [
             'galaxy' => $coordinates->galaxy,
             'system' => $coordinates->system,
             'position' => $coordinates->position,
@@ -196,7 +197,8 @@ abstract class FleetDispatchTestCase extends AccountTestCase
             'crystal' => $resources->crystal->get(),
             'deuterium' => $resources->deuterium->get(),
             '_token' => csrf_token(),
-        ], $unitsArray));
+            ...$unitsArray
+        ]);
 
         $post->assertStatus($assertStatus);
 

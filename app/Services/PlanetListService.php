@@ -181,7 +181,27 @@ class PlanetListService
      */
     public function all(): array
     {
-        return $this->planets + $this->moons;
+        return [...$this->planets, ...$this->moons];
+    }
+
+    /**
+     * Return array of all planet objects.
+     *
+     * @return array<PlanetService>
+     */
+    public function allPlanets(): array
+    {
+        return $this->planets;
+    }
+
+    /**
+     * Return array of all moon objects.
+     *
+     * @return array<PlanetService>
+     */
+    public function allMoons(): array
+    {
+        return $this->moons;
     }
 
     /**
