@@ -14,6 +14,17 @@ use Tests\AccountTestCase;
 class ResearchQueueTest extends AccountTestCase
 {
     /**
+     * Set up common test components.
+     * @throws BindingResolutionException
+     */
+    protected function setUp(): void
+    {
+        $this->userPlanetAmount = 4;
+
+        parent::setUp();
+    }
+
+    /**
      * Verify that researching energy technology works as expected.
      * @throws Exception
      */

@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
@@ -17,7 +18,6 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use Carbon\Carbon;
 
 /**
  * Base class for tests that require account context. Common setup includes signup of new account and login.
@@ -25,10 +25,12 @@ use Carbon\Carbon;
 abstract class AccountTestCase extends TestCase
 {
     protected int $currentUserId = 0;
-    protected string $currentUsername = '';
     protected int $currentPlanetId = 0;
-    protected PlanetService $secondPlanetService;
+    protected int $userPlanetAmount = 2;
+    protected string $currentUsername = '';
     protected Carbon $defaultTestTime;
+    protected PlanetService $planetService;
+    protected PlanetService $secondPlanetService;
 
     /**
      * Set up common test components.
@@ -41,10 +43,10 @@ abstract class AccountTestCase extends TestCase
         // Set default test time to 2024-01-01 00:00:00 to ensure all tests have the same starting point.
         $this->travelTo(Carbon::create(2024, 1, 1, 0, 0, 0));
 
-        // Set amount of planets to be created for the user to 4 because planet switching
+        // Set amount of planets to be created for the user because planet switching
         // is a part of the test suite.
         $settingsService = resolve(SettingsService::class);
-        $settingsService->set('registration_planet_amount', 4);
+        $settingsService->set('registration_planet_amount', $this->userPlanetAmount);
 
         // Create a new user and login so we can access ingame features.
         $this->createAndLoginUser();
@@ -52,8 +54,6 @@ abstract class AccountTestCase extends TestCase
         // We should now automatically be logged in. Retrieve meta fields to verify.
         $this->retrieveMetaFields();
     }
-
-    protected PlanetService $planetService;
 
     /**
      * By default, Laravel does not refresh the application state between requests in a single test.
