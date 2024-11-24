@@ -733,7 +733,7 @@ class PlanetService
     public function getTechnologyResearchTime(string $machine_name): float
     {
         $price = ObjectService::getObjectPrice($machine_name, $this);
-        $research_lab_level = $this->getObjectLevel('research_lab');
+        $research_lab_level = $this->getResearchNetworkLabLevel($machine_name);
 
         // Research speed is = (economy x research speed).
         $universe_speed = $this->settingsService->economySpeed() * $this->settingsService->researchSpeed();
@@ -754,6 +754,43 @@ class PlanetService
         }
 
         return $time_seconds;
+    }
+
+    /**
+     * Gets the Intergalactic Research Network research lab level for object.
+     *
+     * @param string $machine_name
+     * @return int
+     * @throws Exception
+     */
+    public function getResearchNetworkLabLevel(string $machine_name): int
+    {
+        $research_lab_level = $this->getObjectLevel('research_lab');
+
+        // The Intergalactic Research Network technology enables multiple research labs
+        // across different planets to collaborate, significantly reducing research times.
+        $irn_level = $this->player->getResearchLevel('intergalactic_research_network');
+        if ($irn_level) {
+            $research_labs = $this->player->retrievePlanetResearchLabs()->filter(function (Planet $planet) use ($machine_name) {
+                // Check if the object's requirements are met on the planet;
+                // otherwise, the planet's research lab cannot be included in the research network.
+                $planetService = resolve(PlanetService::class, ['player' => $this->player, 'planet_id' => $planet->id]);
+                if (!ObjectService::objectRequirementsMet($machine_name, $planetService, $this->player)) {
+                    return false;
+                }
+
+                // Exclude the current planet, as it is already part of the research network.
+                if ($planet->id === $this->planet->id) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            $research_lab_level += $research_labs->take($irn_level)->sum('research_lab');
+        }
+
+        return $research_lab_level;
     }
 
     /**
