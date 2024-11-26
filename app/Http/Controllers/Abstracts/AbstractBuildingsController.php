@@ -100,12 +100,6 @@ abstract class AbstractBuildingsController extends OGameController
                 // Check if the current planet has enough resources to build this building.
                 $enough_resources = $this->planet->hasResources(ObjectService::getObjectPrice($object_machine_name, $this->planet));
 
-                // If building level is 1 or higher, add to header filename parts to
-                // render the header of this planet.
-                if ($current_level >= 1 && in_array($object->id, $this->header_filename_objects, true)) {
-                    $header_filename_parts[$object->id] = $object->id;
-                }
-
                 $view_model = new BuildingViewModel();
                 $view_model->count = $count;
                 $view_model->object = $object;
@@ -115,6 +109,18 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
 
                 $buildings[$key_row][$object->id] = $view_model;
+            }
+        }
+
+        // If building level is 1 or higher, add to header filename parts to
+        // render the header of this planet.
+        foreach ($this->header_filename_objects as $building_id) {
+            // Get object
+            $object = ObjectService::getObjectById($building_id);
+            $current_level = $this->planet->getObjectLevel($object->machine_name);
+
+            if ($current_level >= 1) {
+                $header_filename_parts[$building_id] = $building_id;
             }
         }
 

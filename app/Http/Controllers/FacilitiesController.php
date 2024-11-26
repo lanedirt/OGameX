@@ -43,7 +43,7 @@ class FacilitiesController extends AbstractBuildingsController
                 ['robot_factory', 'shipyard', 'research_lab', 'alliance_depot', 'missile_silo', 'nano_factory', 'terraformer', 'space_dock'],
             ];
         } else if ($this->planet->isMoon()) {
-            $this->header_filename_objects = [];
+            $this->header_filename_objects = [41, 42, 43];
             $this->objects = [
                 ['robot_factory', 'shipyard', 'lunar_base', 'sensor_phalanx', 'jump_gate'],
             ];
