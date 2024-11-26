@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\AccountTestCase;
+use OGame\Models\Resources;
 
 class PlanetTest extends AccountTestCase
 {
@@ -34,5 +35,25 @@ class PlanetTest extends AccountTestCase
         $this->assertEquals(500, $this->planetService->metal()->get());
         $this->assertEquals(500, $this->planetService->crystal()->get());
         $this->assertEquals(0, $this->planetService->deuterium()->get());
+    }
+
+    /**
+     * Check that building a lunar base on a planet fails as that building can only be built on a moon.
+     */
+    public function testPlanetCannotBuildLunarBase(): void
+    {
+        // Give moon enough resources
+        $this->planetService->addResources(new Resources(1000000, 1000000, 1000000, 0));
+
+        // Try to build lunar base
+        $this->addFacilitiesBuildRequest('lunar_base');
+
+        // Assert that lunar base is not built after 24 hours
+        $this->travel(24)->hours();
+        $response = $this->get('/facilities');
+
+        // Reload planet to get updated data
+        $this->planetService->reloadPlanet();
+        $this->assertEquals(0, $this->planetService->getObjectLevel('lunar_base'), 'Lunar base is built on planet while it can only be built on a moon.');
     }
 }

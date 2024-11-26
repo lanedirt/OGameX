@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\MoonTestCase;
+use OGame\Models\Resources;
 
 class MoonTest extends MoonTestCase
 {
@@ -27,5 +28,22 @@ class MoonTest extends MoonTestCase
         $this->assertEquals(0, $this->moonService->metal()->get());
         $this->assertEquals(0, $this->moonService->crystal()->get());
         $this->assertEquals(0, $this->moonService->deuterium()->get());
+    }
+
+    /**
+     * Check that building a metal mine on a moon fails as that building can only be built on a planet.
+     */
+    public function testMoonCannotBuildMetalMine(): void
+    {
+        // Give moon enough resources
+        $this->moonService->addResources(new Resources(1000, 1000, 1000, 0));
+
+        // Try to build metal mine
+        $this->addResourceBuildRequest('metal_mine');
+
+        // Assert that metal mine is not built after 1 hour
+        $this->travel(1)->hours();
+        $response = $this->get('/resources');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal mine is built on moon while it can only be built on a planet.');
     }
 }
