@@ -28,6 +28,7 @@ class DeveloperShortcutsController extends OGameController
 
         return view('ingame.admin.developershortcuts')->with([
             'units' => $units,
+            'buildings' => [...ObjectService::getBuildingObjects(), ...ObjectService::getStationObjects()],
             'currentPlanet' => $playerService->planets->current(),
         ]);
     }
@@ -88,12 +89,33 @@ class DeveloperShortcutsController extends OGameController
             $playerService->planets->current()->deductResources($playerService->planets->current()->getResources());
 
             return redirect()->back()->with('success', 'All resources have been set to 0');
-        } else {
-            // Handle unit submission
-            foreach (ObjectService::getUnitObjects() as $unit) {
-                if ($request->has('unit_' . $unit->id)) {
-                    // Handle adding the specific unit
-                    $playerService->planets->current()->addUnit($unit->machine_name, (int)AppUtil::parseResourceValue($request->input('amount_of_units')));
+        }
+
+        // Handle unit submission
+        foreach (ObjectService::getUnitObjects() as $unit) {
+            if ($request->has('unit_' . $unit->id)) {
+                // Handle adding the specific unit
+                $playerService->planets->current()->addUnit($unit->machine_name, (int)AppUtil::parseResourceValue($request->input('amount_of_units')));
+            }
+        }
+
+        // Handle building level setting
+        foreach ($request->all() as $key => $value) {
+            if (str_starts_with($key, 'building_')) {
+                $buildingId = (int)substr($key, 9); // Remove 'building_' prefix
+                $level = (int)$request->input('building_level', 1);
+
+                // Find the building object
+                $building = null;
+                foreach ([...ObjectService::getBuildingObjects(), ...ObjectService::getStationObjects()] as $obj) {
+                    if ($obj->id === $buildingId) {
+                        $building = $obj;
+                        break;
+                    }
+                }
+
+                if ($building) {
+                    $playerService->planets->current()->setObjectLevel($building->id, $level);
                 }
             }
         }
