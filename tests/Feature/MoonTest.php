@@ -39,7 +39,7 @@ class MoonTest extends MoonTestCase
         $this->moonService->addResources(new Resources(1000, 1000, 1000, 0));
 
         // Try to build metal mine
-        $this->addResourceBuildRequest('metal_mine');
+        $this->addResourceBuildRequest('metal_mine', true);
 
         // Assert that metal mine is not built after 1 hour
         $this->travel(1)->hours();

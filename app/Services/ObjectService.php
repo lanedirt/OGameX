@@ -379,6 +379,24 @@ class ObjectService
     }
 
     /**
+     * Check if building can be built on this planet type (planet or moon).
+     *
+     * @param string $machine_name
+     * @param PlanetService $planet
+     * @return bool
+     */
+    public static function objectValidPlanetType(string $machine_name, PlanetService $planet): bool
+    {
+        $object = self::getObjectByMachineName($machine_name);
+
+        if (empty($object->valid_planet_types)) {
+            return true;
+        }
+
+        return in_array($planet->getPlanetType(), $object->valid_planet_types);
+    }
+
+    /**
      * Calculates the max build amount of an object (unit) based on available
      * planet resources.
      *

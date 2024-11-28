@@ -8,6 +8,7 @@ use OGame\GameObjects\Models\Fields\GameObjectPrice;
 use OGame\GameObjects\Models\Fields\GameObjectProduction;
 use OGame\GameObjects\Models\Fields\GameObjectRequirement;
 use OGame\GameObjects\Models\Fields\GameObjectStorage;
+use OGame\Models\Enums\PlanetType;
 
 class BuildingObjects
 {
@@ -30,6 +31,7 @@ class BuildingObjects
         $metalMine->description_long = 'Metal is the primary resource used in the foundation of your Empire. At greater depths, the mines can produce more output of viable metal for use in the construction of buildings, ships, defense systems, and research. As the mines drill deeper, more energy is required for maximum production. As metal is the most abundant of all resources available, its value is considered to be the lowest of all resources for trading.';
 
         $metalMine->price = new GameObjectPrice(60, 15, 0, 0, 1.5);
+        $metalMine->valid_planet_types = [PlanetType::Planet];
 
         $metalMine->production = new GameObjectProduction();
         $metalMine->production->metal = 'return (30 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
@@ -111,9 +113,9 @@ class BuildingObjects
         $fusionReactor->class_name = 'fusionPlant';
         $fusionReactor->description = 'The fusion reactor uses deuterium to produce energy.';
         $fusionReactor->description_long = 'In fusion power plants, hydrogen nuclei are fused into helium nuclei under enormous temperature and pressure, releasing tremendous amounts of energy. For each gram of Deuterium consumed, up to 41,32*10^-13 Joule of energy can be produced; with 1 g you are able to produce 172 MWh energy.
-        
+
         Larger reactor complexes use more deuterium and can produce more energy per hour. The energy effect could be increased by researching energy technology.
-            
+
         The energy production of the fusion plant is calculated like that:
         30 * [Level Fusion Plant] * (1,05 + [Level Energy Technology] * 0,01) ^ [Level Fusion Plant]';
 
@@ -140,7 +142,7 @@ class BuildingObjects
         $metalStorage->class_name = 'metalStorage';
         $metalStorage->description = 'Provides storage for excess metal.';
         $metalStorage->description_long = 'This giant storage facility is used to store metal ore. Each level of upgrading increases the amount of metal ore that can be stored. If the stores are full, no further metal will be mined.
-        
+
         The Metal Storage protects a certain percentage of the mine`s daily production (max. 10 percent).';
 
         $metalStorage->price = new GameObjectPrice(1000, 0, 0, 0, 2);
@@ -162,7 +164,7 @@ class BuildingObjects
         $crystalStorage->description = 'Provides storage for excess crystal.';
 
         $crystalStorage->description_long = 'The unprocessed crystal will be stored in these giant storage halls in the meantime. With each level of upgrade, it increases the amount of crystal can be stored. If the crystal stores are full, no further crystal will be mined.
-            
+
         The Crystal Storage protects a certain percentage of the mine`s daily production (max. 10 percent).';
         $crystalStorage->price = new GameObjectPrice(1000, 500, 0, 0, 2);
         $crystalStorage->storage = new GameObjectStorage();
@@ -182,7 +184,7 @@ class BuildingObjects
         $deuteriumTank->class_name = 'deuteriumStorage';
         $deuteriumTank->description = 'Giant tanks for storing newly-extracted deuterium.';
         $deuteriumTank->description_long = 'The Deuterium tank is for storing newly-synthesized deuterium. Once it is processed by the synthesizer, it is piped into this tank for later use. With each upgrade of the tank, the total storage capacity is increased. Once the capacity is reached, no further Deuterium will be synthesized.
-        
+
         The Deuterium Tank protects a certain percentage of the synthesizer`s daily production (max. 10 percent).';
 
         $deuteriumTank->price = new GameObjectPrice(1000, 1000, 0, 0, 2);
