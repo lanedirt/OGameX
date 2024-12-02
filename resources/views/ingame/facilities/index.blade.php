@@ -40,22 +40,26 @@
                             title="{{ $building->object->title }}<br/>@lang('Under construction')"
                             @elseif (!$building->requirements_met)
                                 data-status="off"
-                            title="{{ $building->object->title }}<br/>@lang('Requirements are not met!')"
+                                title="{{ $building->object->title }}<br/>@lang('Requirements are not met!')"
+                            @elseif (!$building->valid_planet_type)
+                                data-status="disabled"
+                                title="{{ $building->object->title }}<br/>@lang('You can\'t construct that building on a moon!')"
                             @elseif (!$building->enough_resources)
                                 data-status="disabled"
-                            title="{{ $building->object->title }}<br/>@lang('Not enough resources!')"
+                                title="{{ $building->object->title }}<br/>@lang('Not enough resources!')"
                             @elseif ($build_queue_max)
                                 data-status="disabled"
-                            title="{{ $building->object->title }}<br/>@lang('Queue is full')"
+                                title="{{ $building->object->title }}<br/>@lang('Queue is full')"
                             @else
                                 data-status="on"
-                            title="{{ $building->object->title }}"
+                                title="{{ $building->object->title }}"
                                 @endif
                         >
 
                         <span class="icon sprite sprite_medium medium {{ $building->object->class_name }}">
                             @if ($building->currently_building)
                             @elseif (!$building->requirements_met)
+                            @elseif (!$building->valid_planet_type)
                             @elseif (!$building->enough_resources)
                             @elseif ($build_queue_max)
                             @else

@@ -97,6 +97,8 @@ abstract class AbstractBuildingsController extends OGameController
                 // Check requirements of this building
                 $requirements_met = ObjectService::objectRequirementsMet($object_machine_name, $this->planet, $player);
 
+                $valid_planet_type = ObjectService::objectValidPlanetType($object_machine_name, $this->planet);
+
                 // Check if the current planet has enough resources to build this building.
                 $enough_resources = $this->planet->hasResources(ObjectService::getObjectPrice($object_machine_name, $this->planet));
 
@@ -105,6 +107,7 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->object = $object;
                 $view_model->current_level = $current_level;
                 $view_model->requirements_met = $requirements_met;
+                $view_model->valid_planet_type = $valid_planet_type;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
 
