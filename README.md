@@ -79,9 +79,9 @@ OGameX is under active development with several core features already implemente
 - Building and updating resources, facilities, shipyards, and defenses
 - Galaxy overview
 - Planet switching
-- Highscore system
-- Messages system
-- Battle system
+- Highscores
+- Messages
+- Battle engine
 - Basic admin panel
 - Fleet dispatch missions
   - Transport
@@ -99,9 +99,10 @@ New features are continuously being added. Upcoming major features:
   - Moon buildings
   - Phalanx
   - Moon destruction fleet dispatch mission
-- Alliance system
+- Missile attacks
+- Alliances
 - ACS fleet dispatch missions
-
+- Merchant & shop (non-commercial)
 
 ## <a name="contributing"></a> 🚀 Contributing
 
