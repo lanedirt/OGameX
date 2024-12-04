@@ -151,6 +151,7 @@ abstract class AbstractBuildingsController extends OGameController
         return view($this->view_name)->with([
             'planet_id' => $this->planet->getPlanetId(),
             'planet_name' => $this->planet->getPlanetName(),
+            'planet' => $this->planet,
             'header_filename' => $header_filename,
             'buildings' => $buildings,
             'build_active' => $build_active,

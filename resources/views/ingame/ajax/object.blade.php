@@ -237,17 +237,18 @@
     </div>
 
 </div>
-<script type="text/javascript">    if (document.getElementById("build_amount") !== null) {
+<script type="text/javascript">
+    if (document.getElementById("build_amount") !== null) {
         document.getElementById("build_amount").focus();
     }
     var showLifeformBonusCapReached = false
-    var lastBuildingSlot = {
-        "showWarning": false,
-        "slotWarning": "This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item (e.g. <a href='#TODO_link'>Gold Planet Fields<\\/a>) to obtain more slots. Are you sure you want to build this building?"
-    }
     if (typeof IPI !== 'undefined') {
         IPI.refreshHighlights()
-    }</script>
+    }
+</script>
+
+{{-- Last building slot warning --}}
+@include ('ingame.shared.buildings.last-building-slot-warning', ['planet' => $planet])
 
 <script>
     $(document).ready(function () {
