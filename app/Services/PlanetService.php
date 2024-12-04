@@ -406,6 +406,12 @@ class PlanetService
             $extra_fields += $two_level_bonus_count;
 
         }
+
+        if ($this->planet->lunar_base != 0) {
+            // For every level, it increases by 3
+            $extra_fields += $this->planet->lunar_base * 3;
+        }
+
         return $extra_fields + $this->planet->field_max;
     }
 
