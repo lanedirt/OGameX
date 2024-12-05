@@ -40053,19 +40053,6 @@ div.values .r_rare div.item_img_box {background-position: 0 0;}
 #activeBuffDetails .item_img a.active,
 .no-touch #activeBuffDetails .item_img a:hover { background: url("/img/icons/ce5a256cdc38d913295a8cdecbad41.png") no-repeat; }
 
-/*#shop .item_img .ecke,*/
-#inhalt .item_img .ecke,
-#div_traderScrap .image .ecke,
-div.values .item_img .ecke {
-    color: #FF9600;
-    float: left;
-    left: 0;
-    position: relative;
-    text-align: right;
-    top: 60px;
-    width: 72px;
-}
-
 #shop .item_img .ecke {
     top: 90px;
     width: 100px;

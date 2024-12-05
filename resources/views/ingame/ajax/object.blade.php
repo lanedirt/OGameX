@@ -111,6 +111,10 @@
                 </ul>
 
             </div>
+            <button class="downgrade" data-technology="2" data-name="Crystal Mine">
+                <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement" data-ipi-hint="ipiTechnologyTearDowncrystalMine"></div>
+                <span class="label">Tear down</span>
+            </button>
 
             <div id="demolition_costs_tooltip" class="htmlTooltip">
                 <h1>Deconstruction costs</h1>

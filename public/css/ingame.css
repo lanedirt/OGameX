@@ -1552,6 +1552,355 @@ button.ui-button::-moz-focus-inner {
 .ui-front {
     z-index: 99999
 }
+#shopcomponent #planet {
+    background: url("//gf3.geo.gfsrv.net/cdnb2/dbba5547458345f9e3b3baa09c3ef2.jpg") no-repeat;
+    height: 250px;
+}
+
+#shopcomponent .c-left,
+#shopcomponent .c-right {
+    top: 214px;
+}
+
+#shopcomponent .content {
+
+}
+
+#shopcomponent .tabSelection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+
+#shopcomponent .shopTab,
+#shopcomponent .inventoryTab {
+    background: #1f2a35 url("//gf3.geo.gfsrv.net/cdn56/d35209a9c49a975f83fca6b7e48ad5.png") 0 -60px repeat-x;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 55px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+#shopcomponent .shopTab.hover,
+#shopcomponent .inventoryTab.hover {
+    background: #1e252f url("//gf3.geo.gfsrv.net/cdn56/d35209a9c49a975f83fca6b7e48ad5.png") 0 0 repeat-x;
+    color: #fff;
+}
+
+#shopcomponent .shopTab.active,
+#shopcomponent .inventoryTab.active {
+    background: #1e252f url("//gf3.geo.gfsrv.net/cdn56/d35209a9c49a975f83fca6b7e48ad5.png") 0 0 repeat-x;
+    color: #fff;
+}
+
+
+#shopcomponent .to_shop_icon,
+#shopcomponent .to_inventory_icon {
+    background: url("//gf1.geo.gfsrv.net/cdn69/aea029ec41eebf71b804ac46df7a8f.png") no-repeat 100% -85px;
+}
+
+#shopcomponent .to_inventory_icon {
+    background-position: 100% -132px;
+}
+
+#shopcomponent .to_shop.active .to_shop_icon,
+#shopcomponent .to_shop.hover .to_shop_icon {
+    background-position: 100% 5px;
+}
+
+#shopcomponent .to_inventory.active .to_inventory_icon,
+#shopcomponent .to_inventory.hover .to_inventory_icon {
+    background-position: 100% -42px;
+}
+
+#shopcomponent .to_inventory.bought_item_notice {
+    color: #fff;
+}
+
+#shopcomponent .shopIcon {
+    background: url(//gf1.geo.gfsrv.net/cdn69/aea029ec41eebf71b804ac46df7a8f.png) no-repeat 0 -89px;
+    width: 55px;
+    height: 47px;
+}
+
+#shopcomponent .active .shopIcon {
+    background: url(//gf1.geo.gfsrv.net/cdn69/aea029ec41eebf71b804ac46df7a8f.png) no-repeat 0 0;
+}
+
+#shopcomponent .inventoryIcon {
+    background: url(//gf1.geo.gfsrv.net/cdn69/aea029ec41eebf71b804ac46df7a8f.png) no-repeat 0 -132px;
+    width: 55px;
+    height: 47px;
+}
+
+#shopcomponent .active .inventoryIcon {
+    background: url(//gf1.geo.gfsrv.net/cdn69/aea029ec41eebf71b804ac46df7a8f.png) no-repeat 0 -44px;
+}
+
+#shopcomponent .categoryHolder {
+    max-height: 210px;
+    overflow-y: scroll;
+}
+
+#shopcomponent .itemsHolder {
+    display: flex;
+    background: -webkit-linear-gradient(top, #1c242d 0%, #10181e 100%);
+    padding: 5px;
+    gap: 5px;
+}
+
+#shopcomponent #itemBox .btn_wrap {
+    margin: 10px 2px 0 2px;
+}
+
+#shopcomponent #itemBox .btn_wrap a {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    line-height: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#shopcomponent .footer {
+    background: url(//gf3.geo.gfsrv.net/cdnbe/04a7b39dc27c29c4c2cadd3fd44ec0.gif) no-repeat;
+    bottom: -17px;
+    height: 29px;
+    left: 0;
+    position: absolute;
+    width: 667px;
+    z-index: 1;
+}
+
+#shopcomponent .shopContent {
+    padding: 12px;
+    margin: 0 8px 20px 8px;
+    background: #0d1014;
+}
+
+#shopcomponent .categoryHolder {
+    /* color: #848484; */
+    /* min-height: 207px; */
+    background: #090d12 url("//gf3.geo.gfsrv.net/cdn89/5fbbb1876fcff20a8a265c06862495.png") 0 -590px repeat-x;
+    background: linear-gradient(top,  rgba(20,29,37,0.8) 0%,rgba(9,13,18,0.8) 100%);
+    position: relative;
+    padding: 0 0 55px 0;
+    border-radius: 5px;
+
+}
+
+#shopcomponent .categoryHolder .categoryItem {
+    cursor: pointer;
+    line-height: 31px;
+    list-style: none;
+    margin: 2px;
+    border: 1px solid transparent;
+}
+
+#shopcomponent .categoryHolder .categoryItem:hover,
+#shopcomponent .categoryHolder .categoryItem.active {
+    background: #3d4b5b url("//gf3.geo.gfsrv.net/cdn89/5fbbb1876fcff20a8a265c06862495.png") 0 -990px repeat-x; /* Old browsers */ /* FF3.6+ */ /* Chrome,Safari4+ */ /* Chrome10+,Safari5.1+ */ /* Opera 11.10+ */ /* IE10+ */
+    background: linear-gradient(top,  #3d4b5b 0%,#2b343f 49%,#1f262d 50%,#1f2934 100%); /* W3C */
+    border: 1px solid #111a22;
+    border-radius: 5px;
+}
+
+#shopcomponent .categoryHolder a {
+    color: #848484;
+    display: block;
+    text-decoration: none;
+}
+
+#shopcomponent .categoryHolder a>span {
+    padding: 0 0 0 20px;
+}
+
+#shopcomponent .categoryHolder .categoryItem:hover a,
+#shopcomponent .categoryHolder a.active {
+    color: #fff;
+}
+
+#shopcomponent .categoryHolder a.active > span {
+    background-position: -165px -445px;
+}
+
+#shopcomponent .shop_slider,
+#shopcomponent .inventory_slider {
+    width: 405px;
+    height: 360px;
+}
+
+/* items */
+
+#shop .item_img,
+#activeBuffDetails .active_item_slider .item_img,
+div.values div.equipment .item_img {
+    background-repeat: no-repeat;
+    height: 75px;
+    margin: 2px;
+    position: relative;
+    width: 75px;
+    background-size: 71px;
+    background-position: 2px 2px;
+    display: block;
+    float: left;
+}
+#empire div.values div.equipment .item_img {
+    height: 34px;
+    width: 34px;
+}
+
+#activeBuffDetails .active_item_slider .item_img {
+    height: 90px;
+    margin: 7px 0 0 10px;
+}
+#activeBuffDetails .item_img .empty { height: 75px; }
+
+#shop #inhalt .item_img {
+    cursor: pointer;
+    width: 105px;
+    height: 105px;
+}
+div.values div.equipment .item_img { margin: 4px 2px 1px 1px; }
+
+#inhalt .item_img_box,
+div.values div.item_img_box {
+    background: url("//gf1.geo.gfsrv.net/cdn9b/14e5b9c95e1eefb2700775852cdb47.png") no-repeat 0 0;
+    height: 75px;
+    margin: 0 0 2px;
+    position: relative;
+    width: 75px;
+    z-index: 10;
+}
+#empire div.values div.item_img_box {
+    background: none;
+    height: 32px;
+    width: 32px;
+    border-radius: 2px;
+}
+
+#shopcomponent  #inhalt .item_img {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100px 100px;
+}
+
+#shopcomponent #inhalt .item_img_box {
+    background: url("//gf1.geo.gfsrv.net/cdn05/40c2de12da5e952a18570b71e7a081.png") no-repeat 0 0;
+    height: 105px;
+    width: 105px; /* Saf3-4, iOS 4.0.2 - 4.2, Android 2.3+ */ /* FF3.5 - 3.6 */
+    box-shadow: 2px 2px 3px 0 #000; /* Opera 10.5, IE9, FF4+, Chrome 6+, iOS 5 */
+}
+
+#shopcomponent #inhalt .r_epic .item_img_box { background-position: -420px 0; }
+#shopcomponent #inhalt .r_buddy .item_img_box { background-position: -315px 0; }
+#shopcomponent #inhalt .r_common .item_img_box { background-position: -210px 0; }
+#shopcomponent #inhalt .r_uncommon .item_img_box { background-position: -105px 0; }
+#shopcomponent #inhalt .r_rare .item_img_box { background-position: 0 0; }
+
+
+#inhalt .r_buddy .item_img_box,
+div.values .r_buddy div.item_img_box {background-position: -225px 0;}
+#inhalt .r_epic .item_img_box,
+div.values .r_epic div.item_img_box  {background-position: -300px 0;}
+#inhalt .r_common .item_img_box,
+div.values .r_common div.item_img_box  {background-position:  -150px 0;}
+#inhalt .r_uncommon .item_img_box,
+div.values .r_uncommon div.item_img_box {background-position: -75px 0;}
+#inhalt .r_rare .item_img_box,
+div.values .r_rare div.item_img_box {background-position: 0 0;}
+
+#shopcomponent  #inhalt .item_img .empty,
+#activeBuffDetails .item_img .empty {
+    background: #000;
+    cursor: default;
+    opacity: 0.4; /* Chrome 4+, FF2+, Saf3.1+, Opera 9+, IE9, iOS 3.2+, Android 2.1+ */
+    -khtml-opacity: 0.4;
+    filter: alpha(opacity=40); /* IE6-IE8 */
+}
+#shopcomponent #inhalt .item_img a,
+#activeBuffDetails .item_img a,
+#div_traderScrap .image a {
+    color: #FF9600;
+    display: block;
+    height: 75px;
+    position: relative;
+    text-decoration: none;
+    text-indent: -9999px;
+    width: 75px;
+}
+#shopcomponent #inhalt .item_img a,
+#shopcomponent  #inhalt .item_img .empty {
+    height: 105px;
+    width: 105px;
+}
+#div_traderScrap .image a {
+    background: url("//gf2.geo.gfsrv.net/cdn42/e3d481656bab1b216428a98a2e022e.gif") no-repeat 0 0;
+    height: 80px;
+    width: 80px;
+}
+#buffBar .active_item a {
+    display: block;
+    height:32px;
+    width: 32px;
+}
+
+#shopcomponent .item_img a.active,
+.no-touch#shopcomponent .item_img a:hover { background: url("//gf1.geo.gfsrv.net/cdn3a/1f4d3d656e8c12b494296a652927f0.png") no-repeat; }
+
+#activeBuffDetails .item_img a.active,
+.no-touch #activeBuffDetails .item_img a:hover { background: url("//gf1.geo.gfsrv.net/cdnff/ce5a256cdc38d913295a8cdecbad41.png") no-repeat; }
+
+#shopcomponent .item_img .ecke {
+    color: #FF9600;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 72px;
+    text-align: right;
+}
+
+#shopcomponent #inhalt .item_img {
+    cursor: pointer;
+    width: 105px;
+    height: 105px;
+}
+
+#shopcomponent .anythingBase .panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+#shopcomponent .detailsHolder {
+    display: flex;
+}
+
+#shopcomponent #description p,
+#shopcomponent #description div.item_characterclass_bonus {
+    color: #6F9FC8;
+    font-weight: 700;
+}
+
+#shopcomponent .inventoryTab:hover {
+    background: #1e252f url("//gf3.geo.gfsrv.net/cdn56/d35209a9c49a975f83fca6b7e48ad5.png") 0 0 repeat-x;
+    color: #fff;
+}
+
+#shopcomponent #inhalt .item_img .seasonExpiration {
+    display: block;
+    position: absolute;
+    right: 3px;
+    bottom: 20px;
+    font-size: 16px;
+    align-content: center;
+}
+
 
 /********************************************************
 ********************************************************
@@ -43158,19 +43507,6 @@ div.values .r_rare div.item_img_box {background-position: 0 0;}
 #activeBuffDetails .item_img a.active,
 .no-touch #activeBuffDetails .item_img a:hover { background: url("/img/icons/ce5a256cdc38d913295a8cdecbad41.png") no-repeat; }
 
-/*#shop .item_img .ecke,*/
-#inhalt .item_img .ecke,
-#div_traderScrap .image .ecke,
-div.values .item_img .ecke {
-    color: #FF9600;
-    float: left;
-    left: 0;
-    position: relative;
-    text-align: right;
-    top: 60px;
-    width: 72px;
-}
-
 #shop .item_img .ecke {
     top: 90px;
     width: 100px;
@@ -47135,6 +47471,7 @@ div.claimsmall p {
 }
 /*@import "ingame/base1.css";*/
 /*@import "ingame/base2.css";*/
+
 
 
 /* New style overrides that conflict with some existing styles, implement later */

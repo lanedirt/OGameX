@@ -29801,6 +29801,13 @@ function initTrader() {
         traderObj.selectTrader(e.page, undefined, e.tab)
     }
 };
+function switchShopTab(obj, tab) {
+    $('.tabSelectionTab').removeClass('active');
+    obj.addClass('active');
+    $.bbq.pushState({
+      'page': tab
+    });
+  }
 var TimerHandler = function (d, c) {
     if (typeof(d) == "undefined") {
         d = 1000
