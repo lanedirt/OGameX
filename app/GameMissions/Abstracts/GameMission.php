@@ -200,9 +200,15 @@ abstract class GameMission
 
         $mission->type_to = $targetType->value;
 
-        // Only set the target planet ID if the target is a planet.
+        // Only set the target planet ID if the target is a planet or moon.
         if ($targetType === PlanetType::Planet) {
-            $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
+            $targetPlanet = $this->planetServiceFactory->makePlanetForCoordinate($targetCoordinate);
+            if ($targetPlanet !== null) {
+                $mission->planet_id_to = $targetPlanet->getPlanetId();
+            }
+        }
+        else if ($targetType === PlanetType::Moon) {
+            $targetPlanet = $this->planetServiceFactory->makeMoonForCoordinate($targetCoordinate);
             if ($targetPlanet !== null) {
                 $mission->planet_id_to = $targetPlanet->getPlanetId();
             }
