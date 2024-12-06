@@ -5,6 +5,7 @@ namespace OGame\GameMessages\Abstracts;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
 
@@ -324,8 +325,24 @@ abstract class GameMessage
             }
 
             if ($planetService !== null) {
+                $planetIcon = '';
+                $planetIconTitle = '';
+                switch ($planetService->getPlanetType()) {
+                    case PlanetType::Planet:
+                        $planetIcon = 'planet';
+                        $planetIconTitle = 'Planet';
+                        break;
+                    case PlanetType::Moon:
+                        $planetIcon = 'moon';
+                        $planetIconTitle = 'Moon';
+                        break;
+                    case PlanetType::DebrisField:
+                        $planetIcon = 'tf';
+                        $planetIcon = 'Debris Field';
+                        break;
+                }
                 $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
-                                    <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
+                                    <figure class="planetIcon ' . $planetIcon . ' tooltip js_hideTipOnMobile" title="' . $planetIconTitle . '"></figure>
                                 ' . $planetService->getPlanetName() . ' [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
             } else {
                 $planetName = 'Unknown Planet';
