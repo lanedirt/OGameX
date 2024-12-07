@@ -46,11 +46,17 @@ class PlanetTest extends AccountTestCase
         $this->planetService->addResources(new Resources(1000000, 1000000, 1000000, 0));
 
         // Try to build lunar base
-        $this->addFacilitiesBuildRequest('lunar_base');
+        try {
+            $this->addFacilitiesBuildRequest('lunar_base');
+        } catch (\Exception $e) {
+            // Expecting an exception to be thrown, continue with checks below that
+            // assert the correct state.
+        }
 
         // Assert that lunar base is not built after 24 hours
         $this->travel(24)->hours();
         $response = $this->get('/facilities');
+        $response->assertStatus(200);
 
         // Reload planet to get updated data
         $this->planetService->reloadPlanet();
