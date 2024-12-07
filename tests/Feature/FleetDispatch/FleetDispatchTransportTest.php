@@ -103,7 +103,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Send fleet to a planet of another player.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(100, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(100, 0, 0, 0));
 
         // Increase time by 10 hours to ensure the mission is done.
         $this->travel(10)->hours();

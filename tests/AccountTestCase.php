@@ -228,6 +228,55 @@ abstract class AccountTestCase extends TestCase
     }
 
     /**
+     * Gets a nearby foreign moon for the current user. This is useful for testing interactions between two players.
+     *
+     * @return PlanetService
+     */
+    protected function getNearbyForeignMoon(): PlanetService
+    {
+        // Find a planet of another player that is close to the current player by checking the same galaxy
+        // and up to 15 systems away.
+        $planet_id = \DB::table('planets')
+            ->where('user_id', '!=', $this->currentUserId)
+            ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+            ->where('planet_type', PlanetType::Moon)
+            ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+            ->inRandomOrder()
+            ->limit(1)
+            ->pluck('id');
+
+        if ($planet_id == null) {
+            // No nearby moons found, give current user a moon then login as a new user to see if this fixes it.
+            $planetServiceFactory =  resolve(PlanetServiceFactory::class);
+            $planetServiceFactory->createMoonForPlayer($this->planetService);
+
+            // Switch to new user that should then be able to find the moon of the previous player.
+            $this->createAndLoginUser();
+
+            $planet_id = \DB::table('planets')
+                ->where('user_id', '!=', $this->currentUserId)
+                ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+                ->where('planet_type', PlanetType::Moon)
+                ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+                ->inRandomOrder()
+                ->limit(1)
+                ->pluck('id');
+        }
+
+        if ($planet_id == null) {
+            $this->fail('Failed to find a nearby foreign moon for testing.');
+        } else {
+            // Create and return a new PlanetService instance for the found planet.
+            try {
+                $planetServiceFactory =  resolve(PlanetServiceFactory::class);
+                return $planetServiceFactory->make($planet_id[0]);
+            } catch (Exception $e) {
+                $this->fail('Failed to create planet service for planet id: ' . $planet_id[0] . '. Error: ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
      * Gets a nearby empty coordinate for the current user. This is useful for testing interactions towards empty planets.
      *
      * @param int $min_position

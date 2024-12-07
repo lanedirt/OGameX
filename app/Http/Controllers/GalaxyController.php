@@ -262,7 +262,7 @@ class GalaxyController extends OGameController
         // Transport.
         $availableMissions[] = [
             'missionType' => 3,
-            'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => 1, 'mission' => 3]),
+            'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 3]),
             'name' => __('Transport'),
         ];
 
@@ -273,14 +273,14 @@ class GalaxyController extends OGameController
                 'canSpy' => true,
                 'reportId' => '',
                 'reportLink' => '',
-                'link' => route('fleet.dispatch.sendfleet', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => 1, 'mission' => 6, 'am210' => 1]),
+                'link' => route('fleet.dispatch.sendfleet', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 6, 'am210' => 1]),
                 'name' => __('Espionage'),
             ];
 
             // Attack (only if foreign planet).
             $availableMissions[] = [
                 'missionType' => 1,
-                'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => 1, 'mission' => 1]),
+                'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 1]),
                 'name' => __('Attack'),
             ];
 
@@ -288,7 +288,7 @@ class GalaxyController extends OGameController
             if ($planet->isMoon()) {
                 $availableMissions[] = [
                     'missionType' => 10,
-                    'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => 1, 'mission' => 10]),
+                    'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 10]),
                     'name' => __('Moon destruction'),
                 ];
             }
@@ -296,7 +296,7 @@ class GalaxyController extends OGameController
             // Deployment (only if own planet).
             $availableMissions[] = [
                 'missionType' => 4,
-                'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => 1, 'mission' => 4]),
+                'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 4]),
                 'name' => __('Deployment'),
             ];
         }

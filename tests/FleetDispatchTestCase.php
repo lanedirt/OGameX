@@ -137,12 +137,28 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      * @param int $assertStatus
      * @return PlanetService
      */
-    protected function sendMissionToOtherPlayer(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService
+    protected function sendMissionToOtherPlayerPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService
     {
         $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
 
         $this->dispatchFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, $assertStatus);
         return $nearbyForeignPlanet;
+    }
+
+    /**
+     * Send a fleet to a moon of another player.
+     *
+     * @param UnitCollection $units
+     * @param Resources $resources
+     * @param int $assertStatus
+     * @return PlanetService
+     */
+    protected function sendMissionToOtherPlayerMoon(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService
+    {
+        $nearbyForeignMoon = $this->getNearbyForeignMoon();
+
+        $this->dispatchFleet($nearbyForeignMoon->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, $assertStatus);
+        return $nearbyForeignMoon;
     }
 
     /**
