@@ -7,6 +7,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlanetService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -39,7 +40,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->planetAddUnit('small_cargo', 5);
     }
 
-    protected function messageCheckMissionArrival(): void
+    protected function messageCheckMissionArrival(PlanetService $destinationPlanet): void
     {
         // Assert that message has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'transport', [
@@ -47,18 +48,18 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
             'Metal: 100',
             'Crystal: 100',
             $this->planetService->getPlanetName(),
-            $this->secondPlanetService->getPlanetName()
+            $destinationPlanet->getPlanetName()
         ]);
     }
 
-    protected function messageCheckMissionReturn(): void
+    protected function messageCheckMissionReturn(PlanetService $destinationPlanet): void
     {
         // Assert that message has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'other', [
             'Your fleet is returning from',
             'The fleet doesn\'t deliver goods',
             $this->planetService->getPlanetName(),
-            $this->secondPlanetService->getPlanetName()
+            $destinationPlanet->getPlanetName()
         ]);
     }
 
@@ -230,7 +231,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Check that message has been received by calling extended method
-        $this->messageCheckMissionArrival();
+        $this->messageCheckMissionArrival($this->secondPlanetService);
 
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 
@@ -253,7 +254,73 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units after return trip.');
 
-        $this->messageCheckMissionReturn();
+        $this->messageCheckMissionReturn($this->secondPlanetService);
+    }
+
+    /**
+     * Verify that dispatching a fleet towards a moon launches a return trip and brings back units to origin planet.
+     */
+    public function testDispatchFleetMoonReturnTrip(): void
+    {
+        $this->basicSetup();
+
+        // Assert that we begin with 5 small cargo ships on planet.
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');
+
+        // Send fleet to the moon of the test user.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+        $this->sendMissionToFirstPlanetMoon($unitCollection, new Resources(100, 100, 0, 0));
+
+        // Get just dispatched fleet mission ID from database.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+
+        // Get time it takes for the fleet to travel to the second planet.
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->moonService->getPlanetCoordinates(), $unitCollection);
+
+        // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
+        // and are calculated based on the arrival time instead of the time the job got processed).
+        $this->travel($fleetMissionDuration + 30)->seconds();
+
+        // Set all messages as read to avoid unread messages count in the overview.
+        $this->playerSetAllMessagesRead();
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the fleet mission is processed.
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
+
+        // Check that message has been received by calling extended method
+        $this->messageCheckMissionArrival($this->moonService);
+
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+
+        // Assert that a return trip has been launched by checking the active missions for the current planet.
+        $this->assertCount(1, $activeMissions, 'No return trip launched after fleet has arrived at destination.');
+
+        // Advance time to the return trip arrival.
+        $returnTripDuration = $activeMissions->first()->time_arrival - $activeMissions->first()->time_departure;
+        $this->travel($returnTripDuration + 1)->seconds();
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the return trip has been processed.
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(0, $activeMissions, 'Return trip is not processed after fleet has arrived back at origin planet.');
+
+        // Assert that the units have been returned to the origin planet.
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units after return trip.');
+
+        $this->messageCheckMissionReturn($this->moonService);
     }
 
     /**
@@ -276,6 +343,39 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // The event list should show either 1 or 2 missions (the parent and the to-be-created return trip).
         $response = $this->get('/ajax/fleet/eventlist/fetch');
         $response->assertStatus(200);
+        $response->assertContent('planetIcon planet');
+        $response->assertSee($this->secondPlanetService->getPlanetName());
+
+        // If the mission has a return mission, we should see both in the event list.
+        $response->assertSee($this->missionName);
+        $response->assertSee($this->missionName .  ' (R)');
+        // Assert that we see both rows in the event list.
+        $response->assertSee('data-return-flight="false"', false);
+        $response->assertSee('data-return-flight="true"', false);
+    }
+
+    /**
+     * Verify that an active mission towards a moon shows the moon icon and the (not yet existing) return trip in the fleet event list.
+     */
+    public function testDispatchFleetMoonReturnShown(): void
+    {
+        $this->basicSetup();
+
+        // Send fleet to the second planet of the test user.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+        $this->sendMissionToFirstPlanetMoon($unitCollection, new Resources(100, 100, 0, 0));
+
+        // The eventbox should only show 1 mission (the parent).
+        $response = $this->get('/ajax/fleet/eventbox/fetch');
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['friendly' => 1]);
+
+        // The event list should show either 1 or 2 missions (the parent and the to-be-created return trip).
+        $response = $this->get('/ajax/fleet/eventlist/fetch');
+        $response->assertStatus(200);
+        $response->assertSee('planetIcon moon');
+        $response->assertSee($this->moonService->getPlanetName());
 
         // If the mission has a return mission, we should see both in the event list.
         $response->assertSee($this->missionName);

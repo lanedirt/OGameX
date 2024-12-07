@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
@@ -13,7 +14,7 @@ use OGame\Services\PlanetService;
  * Base class to test that fleet missions work as expected.
  * Extending this class will include basic tests for dispatching fleets for that mission type.
  */
-abstract class FleetDispatchTestCase extends AccountTestCase
+abstract class FleetDispatchTestCase extends MoonTestCase
 {
     /**
      * @var int The mission type for the test.
@@ -44,6 +45,18 @@ abstract class FleetDispatchTestCase extends AccountTestCase
      */
     abstract protected function basicSetup(): void;
 
+    /**
+     * Set up common test components.
+     * @throws BindingResolutionException
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Switch back to main planet as the tests default to sending fleet sfrom main planet.
+        $this->switchToFirstPlanet();
+    }
+
     protected function fleetCheckToSecondPlanet(UnitCollection $units, bool $assertSuccess): void
     {
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
@@ -72,6 +85,20 @@ abstract class FleetDispatchTestCase extends AccountTestCase
     {
         $coordinates = $this->getNearbyEmptyCoordinate();
         $this->checkTargetFleet($coordinates, $units, PlanetType::Planet, $assertSuccess);
+    }
+
+    /**
+     * Send a fleet to the first planet moon of the test user.
+     *
+     * @param UnitCollection $units
+     * @param Resources $resources
+     * @param int $assertStatus
+     * @return void
+     */
+    protected function sendMissionToFirstPlanetMoon(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    {
+        $coordinates = $this->moonService->getPlanetCoordinates();
+        $this->dispatchFleet($coordinates, $units, $resources, PlanetType::Moon, $assertStatus);
     }
 
     /**

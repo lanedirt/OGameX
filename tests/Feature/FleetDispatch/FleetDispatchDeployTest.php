@@ -7,6 +7,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlanetService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
@@ -44,7 +45,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $settingsService->set('fleet_speed', 5);
     }
 
-    protected function messageCheckMissionArrival(): void
+    protected function messageCheckMissionArrival(PlanetService $destinationPlanet): void
     {
         // Assert that message has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'other', [
@@ -52,7 +53,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
             'has reached',
             'Metal: 100',
             $this->planetService->getPlanetName(),
-            $this->secondPlanetService->getPlanetName()
+            $destinationPlanet->getPlanetName()
         ]);
     }
 
@@ -245,7 +246,55 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Check that message has been received by calling extended method
-        $this->messageCheckMissionArrival();
+        $this->messageCheckMissionArrival($this->secondPlanetService);
+
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+
+        // Assert that NO return trip has been launched by checking the active missions for the current planet.
+        $this->assertCount(0, $activeMissions, 'Return trip launched after fleet with deployment mission has arrived at destination.');
+    }
+
+    /**
+     * Verify that dispatching a fleet towards a moon does NOT launch a return trip as deploy is only one way.
+     */
+    public function testDispatchFleetMoonNoReturnTrip(): void
+    {
+        $this->basicSetup();
+
+        // Assert that we begin with 5 small cargo ships on planet.
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');
+
+        // Send fleet to the second planet of the test user.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+        $this->sendMissionToFirstPlanetMoon($unitCollection, new Resources(100, 100, 0, 0));
+
+        // Get just dispatched fleet mission ID from database.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+
+        // Get time it takes for the fleet to travel to the second planet.
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->moonService->getPlanetCoordinates(), $unitCollection);
+
+        // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
+        // and are calculated based on the arrival time instead of the time the job got processed).
+        $this->travel($fleetMissionDuration + 30)->seconds();
+
+        // Set all messages as read to avoid unread messages count in the overview.
+        $this->playerSetAllMessagesRead();
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the fleet mission is processed.
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
+
+        // Check that message has been received by calling extended method
+        $this->messageCheckMissionArrival($this->moonService);
 
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 

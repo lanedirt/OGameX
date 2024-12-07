@@ -764,6 +764,18 @@ abstract class AccountTestCase extends TestCase
     }
 
     /**
+     * Switch the active planet context to the first planet of the current user which affects
+     * interactive requests done such as building queue items or canceling build queue items.
+     *
+     * @return void
+     */
+    protected function switchToFirstPlanet(): void
+    {
+        $response = $this->get('/overview?cp=' . $this->planetService->getPlanetId());
+        $response->assertStatus(200);
+    }
+
+    /**
      * Switch the active planet context to the second planet of the current user which affects
      * interactive requests done such as building queue items or canceling build queue items.
      *

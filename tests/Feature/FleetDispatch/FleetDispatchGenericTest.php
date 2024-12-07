@@ -80,7 +80,6 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
 
     /**
      * Test that the fleet travel duration is calculated correctly.
-     * @throws BindingResolutionException
      */
     public function testFleetDurationCalculation(): void
     {
