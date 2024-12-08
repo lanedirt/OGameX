@@ -4,6 +4,7 @@ namespace OGame\Http\Controllers\Admin;
 
 use Exception;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
 use OGame\Services\ObjectService;
@@ -36,12 +37,12 @@ class DeveloperShortcutsController extends OGameController
     /**
      * Updates the planet objects and units.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @param PlayerService $playerService
      * @return RedirectResponse
      * @throws \Exception
      */
-    public function update(\Illuminate\Http\Request $request, PlayerService $playerService): RedirectResponse
+    public function update(Request $request, PlayerService $playerService): RedirectResponse
     {
         if ($request->has('set_mines')) {
             // Handle "Set all mines to level 30"
@@ -92,10 +93,11 @@ class DeveloperShortcutsController extends OGameController
         }
 
         // Handle unit submission
+        $amountOfUnits = max(1, $request->input('amount_of_units', 1));
         foreach (ObjectService::getUnitObjects() as $unit) {
             if ($request->has('unit_' . $unit->id)) {
                 // Handle adding the specific unit
-                $playerService->planets->current()->addUnit($unit->machine_name, (int)AppUtil::parseResourceValue($request->input('amount_of_units')));
+                $playerService->planets->current()->addUnit($unit->machine_name, AppUtil::parseResourceValue($amountOfUnits));
             }
         }
 
@@ -126,18 +128,40 @@ class DeveloperShortcutsController extends OGameController
     /**
      * Updates the resources of the specified planet.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @param PlayerService $playerService
      * @return RedirectResponse
      */
-    public function updateResources(\Illuminate\Http\Request $request, PlayerService $playerService): RedirectResponse
+    public function updateResources(Request $request, PlayerService $playerService): RedirectResponse
     {
+        // Validate coordinates
+        $validated = $request->validate([
+            'galaxy' => 'required|integer|min:1|max:9',
+            'system' => 'required|integer|min:1|max:499',
+            'position' => 'required|integer|min:1|max:15',
+        ]);
+
+        $coordinate = new Coordinate(
+            $validated['galaxy'],
+            $validated['system'],
+            $validated['position']
+        );
+
+        $planetFactory = app(PlanetServiceFactory::class);
+        if ($request->has('update_resources_planet')) {
+            $planet = $planetFactory->makePlanetForCoordinate($coordinate);
+        }
+        else if ($request->has('update_resources_moon')) {
+            $planet = $planetFactory->makeMoonForCoordinate($coordinate);
+        }
+        else {
+            return redirect()->back()->with('error', 'Invalid action specified');
+        }
+
         // Parse each resource value, handling k/m/b suffixes and negative values
         $metal = AppUtil::parseResourceValue($request->input('metal', 0));
         $crystal = AppUtil::parseResourceValue($request->input('crystal', 0));
         $deuterium = AppUtil::parseResourceValue($request->input('deuterium', 0));
-
-        $planet = $playerService->planets->current();
 
         // Split resources into positive and negative values
         $resourcesToAdd = new Resources(
@@ -169,10 +193,12 @@ class DeveloperShortcutsController extends OGameController
     /**
      * Creates a planet or moon at the specified coordinates.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @param Request $request
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @param PlayerService $player
+     * @return RedirectResponse
      */
-    public function createAtCoords(\Illuminate\Http\Request $request, PlanetServiceFactory $planetServiceFactory, PlayerService $player): RedirectResponse
+    public function createAtCoords(Request $request, PlanetServiceFactory $planetServiceFactory, PlayerService $player): RedirectResponse
     {
         // Validate coordinates
         $validated = $request->validate([
@@ -230,10 +256,10 @@ class DeveloperShortcutsController extends OGameController
     /**
      * Creates a debris field at the specified coordinates.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @param Request $request
+     * @return RedirectResponse
      */
-    public function createDebris(\Illuminate\Http\Request $request)
+    public function createDebris(Request $request)
     {
         $coordinate = new Coordinate(
             galaxy: (int)$request->input('galaxy'),

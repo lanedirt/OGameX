@@ -38,7 +38,7 @@
                                     <div class="fieldwrapper">
                                         <label class="styled textBeefy">@lang('Amount of units to add:')</label>
                                         <div class="thefield">
-                                            <input type="text" pattern="^[0-9,.kmb]+$" class="textInput w50 textCenter textBeefy" value="1" size="2" name="amount_of_units">
+                                            <input type="text" pattern="^[0-9,.kmb]+$" class="textInput w50 textCenter textBeefy" placeholder="1" size="2" name="amount_of_units">
                                         </div>
                                     </div>
                                     <div class="fieldwrapper">
@@ -78,11 +78,30 @@
 
                             <form action="{{ route('admin.developershortcuts.update-resources') }}" name="form" method="post">
                                 {{ csrf_field() }}
-                                <p class="box_highlight textCenter no_buddies">@lang('Add / subtract X of resource to current planet:')</p>
+                                <p class="box_highlight textCenter no_buddies">@lang('Add / subtract resources at coordinates:')</p>
                                 <div class="group bborder" style="display: block;">
                                     <div class="fieldwrapper">
                                         <div class="smallFont">@lang('You can enter positive or negative values to add or subtract to the selected resource. Supports k/m/b suffixes (e.g., 1k, 2m, 3b)')</div>
-                                        <label class="styled textBeefy">@lang('Resources to add/subtract:')</label>
+                                        <label class="styled textBeefy">@lang('Coordinates:')</label>
+                                        <div class="thefield" style="display: flex; gap: 10px;">
+                                            <div>
+                                                <label for="galaxy">@lang('Galaxy:')</label>
+                                                <input type="text" id="galaxy" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="6" name="galaxy">
+                                            </div>
+                                            <div>
+                                                <label for="system">@lang('System:')</label>
+                                                <input type="text" id="system" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system">
+                                            </div>
+                                            <div>
+                                                <label for="position">@lang('Position:')</label>
+                                                <input type="text" id="position" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->position }}" min="1" max="15" name="position">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper"><label class="styled textBeefy">@lang('Resources to add/subtract:')</label>
                                         <div class="thefield" style="display: flex; flex-direction: column; gap: 10px;">
                                             @foreach (\OGame\Models\Enums\ResourceType::cases() as $resource)
                                                 <div style="display: flex; gap: 10px;">
@@ -95,7 +114,8 @@
                                         </div>
                                     </div>
                                     <div class="fieldwrapper" style="text-align: center;">
-                                        <input type="submit" class="btn_blue" name="update_resources" value="Update Resources">
+                                        <input type="submit" class="btn_blue" name="update_resources_planet" value="Update Resources (planet)">
+                                        <input type="submit" class="btn_blue" name="update_resources_moon" value="Update Resources (moon)">
                                     </div>
                                 </div>
                             </form>
