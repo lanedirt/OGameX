@@ -157,7 +157,7 @@ abstract class FleetDispatchTestCase extends MoonTestCase
     {
         $nearbyForeignMoon = $this->getNearbyForeignMoon();
 
-        $this->dispatchFleet($nearbyForeignMoon->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, $assertStatus);
+        $this->dispatchFleet($nearbyForeignMoon->getPlanetCoordinates(), $units, $resources, PlanetType::Moon, $assertStatus);
         return $nearbyForeignMoon;
     }
 
