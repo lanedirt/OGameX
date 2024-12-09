@@ -284,11 +284,9 @@ abstract class GameMessage
     {
         // Find and replace the following placeholders:
         // [player]{playerId}[/player] with the player name.
-        // [alliance]{allianceId}[/alliance] with the alliance name.
         // [planet]{planetId}[/planet] with the planet name and coordinates.
-        // TODO: Implement the other placeholders.
-        // TODO: add unittests to cover the placeholder replacements.
-        // Pattern to match [player]{playerId}[/player] placeholders
+        // [coordinates]{galaxy}:{system}:{position}[/coordinates] with coordinates.
+        // [debrisfield]{galaxy}:{system}:{position}[/debrisfield] with coordinates.
         $body = preg_replace_callback('/\[player\](\d+)\[\/player\]/', function ($matches) {
             if (!is_numeric($matches[1])) {
                 return 'Unknown Player';

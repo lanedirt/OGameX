@@ -34,7 +34,7 @@ This message will be deleted in 7 days.',
         'from' => 'Fleet Command',
         'subject' => 'Return of a fleet',
         'body' => 'Your fleet is returning from :from to :to and delivered its goods:
-            
+
 Metal: :metal
 Crystal: :crystal
 Deuterium: :deuterium',
@@ -45,7 +45,7 @@ Deuterium: :deuterium',
         'from' => 'Fleet Command',
         'subject' => 'Return of a fleet',
         'body' => 'Your fleet is returning from planet :from to planet :to.
-        
+
 The fleet doesn\'t deliver goods.',
         ],
 
@@ -53,8 +53,8 @@ The fleet doesn\'t deliver goods.',
     'fleet_deployment_with_resources' => [
         'from' => 'Fleet Command',
         'subject' => 'Return of a fleet',
-        'body' => 'One of your fleets from :from has reached :to and delivered its goods:
-            
+        'body' => 'One of your fleets from planet :from has reached planet :to and delivered its goods:
+
 Metal: :metal
 Crystal: :crystal
 Deuterium: :deuterium',
