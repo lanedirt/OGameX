@@ -341,7 +341,7 @@ abstract class GameMission
         $return_resources = $this->fleetMissionService->getResources($mission);
 
         // Define from string based on whether the planet is available or not.
-        $from = '';
+        $from = '[coordinates]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/coordinates]';
         switch ($mission->type_from) {
             case PlanetType::Planet->value:
             case PlanetType::Moon->value:

@@ -343,7 +343,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // The event list should show either 1 or 2 missions (the parent and the to-be-created return trip).
         $response = $this->get('/ajax/fleet/eventlist/fetch');
         $response->assertStatus(200);
-        $response->assertContent('planetIcon planet');
+        $response->assertSee('planetIcon planet');
         $response->assertSee($this->secondPlanetService->getPlanetName());
 
         // If the mission has a return mission, we should see both in the event list.
