@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\FleetDispatch;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;

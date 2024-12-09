@@ -206,8 +206,7 @@ abstract class GameMission
             if ($targetPlanet !== null) {
                 $mission->planet_id_to = $targetPlanet->getPlanetId();
             }
-        }
-        else if ($targetType === PlanetType::Moon) {
+        } elseif ($targetType === PlanetType::Moon) {
             $targetPlanet = $this->planetServiceFactory->makeMoonForCoordinate($targetCoordinate);
             if ($targetPlanet !== null) {
                 $mission->planet_id_to = $targetPlanet->getPlanetId();

@@ -58,8 +58,7 @@ class PlanetListService
 
             if ($planetService->getPlanetType() === PlanetType::Planet) {
                 $this->planets[] = $planetService;
-            }
-            else if ($planetService->getPlanetType() === PlanetType::Moon) {
+            } elseif ($planetService->getPlanetType() === PlanetType::Moon) {
                 $this->moons[] = $planetService;
             }
         }

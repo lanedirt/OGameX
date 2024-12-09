@@ -43,7 +43,7 @@ class ResourcesController extends AbstractBuildingsController
         // to be used in the background image of the page header.
         if ($this->planet->isPlanet()) {
             $this->header_filename_objects = [1, 2, 3, 4];
-        } else if ($this->planet->isMoon()) {
+        } elseif ($this->planet->isMoon()) {
             $this->header_filename_objects = [41, 42, 43];
         }
 

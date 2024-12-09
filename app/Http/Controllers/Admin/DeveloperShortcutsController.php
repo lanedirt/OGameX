@@ -150,11 +150,9 @@ class DeveloperShortcutsController extends OGameController
         $planetFactory = app(PlanetServiceFactory::class);
         if ($request->has('update_resources_planet')) {
             $planet = $planetFactory->makePlanetForCoordinate($coordinate);
-        }
-        else if ($request->has('update_resources_moon')) {
+        } elseif ($request->has('update_resources_moon')) {
             $planet = $planetFactory->makeMoonForCoordinate($coordinate);
-        }
-        else {
+        } else {
             return redirect()->back()->with('error', 'Invalid action specified');
         }
 

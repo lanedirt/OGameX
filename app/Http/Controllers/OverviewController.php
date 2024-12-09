@@ -63,8 +63,7 @@ class OverviewController extends OGameController
         $other_planet = null;
         if ($has_moon) {
             $other_planet = $planet->moon();
-        }
-        else if ($has_planet) {
+        } elseif ($has_planet) {
             $other_planet = $planet->planet();
         }
 

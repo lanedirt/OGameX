@@ -83,7 +83,6 @@ class GalaxyController extends OGameController
         $this->playerService = $player;
         $this->planetServiceFactory = $planetServiceFactory;
 
-
         // Retrieve all planets from this galaxy and system.
         $planet_list = Planet::where([
             'galaxy' => $galaxy,

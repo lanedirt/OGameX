@@ -837,18 +837,6 @@ abstract class AccountTestCase extends TestCase
     }
 
     /**
-     * Switch the active planet context to the second planet of the current user which affects
-     * interactive requests done such as building queue items or canceling build queue items.
-     *
-     * @return void
-     */
-    protected function switchToMoon(): void
-    {
-        $response = $this->get('/overview?cp=' . $this->moonService->getPlanetId());
-        $response->assertStatus(200);
-    }
-
-    /**
      * Add helper method to reset time to default
      * @return void
      */

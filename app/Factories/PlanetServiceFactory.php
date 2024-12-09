@@ -3,7 +3,6 @@
 namespace OGame\Factories;
 
 use Cache;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
@@ -68,6 +67,7 @@ class PlanetServiceFactory
     public function make(int $planetId, bool $reloadCache = false): PlanetService|null
     {
         if ($reloadCache || !isset($this->instancesById[$planetId])) {
+            /** @var PlanetService */
             $planetService = resolve(PlanetService::class, [
                 'player' => null,
                 'planet_id' => $planetId,
@@ -108,6 +108,7 @@ class PlanetServiceFactory
     public function makeForPlayer(PlayerService $player, int $planetId, bool $useCache = true): PlanetService
     {
         if (!$useCache || !isset($this->instancesById[$planetId])) {
+            /** @var PlanetService */
             $planetService = resolve(PlanetService::class, [
                 'player' => $player,
                 'planet' => null,
@@ -137,6 +138,7 @@ class PlanetServiceFactory
      */
     public function makeFromModel(Planet $planet, PlayerService|null $player = null): PlanetService
     {
+        /** @var PlanetService */
         $planetService = resolve(PlanetService::class, [
             'player' => $player,
             'planet' => $planet,
@@ -181,6 +183,7 @@ class PlanetServiceFactory
                 return null;
             }
 
+            /** @var PlanetService */
             $planetService = resolve(PlanetService::class, [
                 'player' => null,
                 'planet' => null,

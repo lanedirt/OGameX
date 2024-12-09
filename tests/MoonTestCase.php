@@ -36,4 +36,16 @@ abstract class MoonTestCase extends AccountTestCase
         // Reload the moon object to ensure all stats are loaded correctly.
         $this->moonService->reloadPlanet();
     }
+
+    /**
+     * Switch the active planet context to the second planet of the current user which affects
+     * interactive requests done such as building queue items or canceling build queue items.
+     *
+     * @return void
+     */
+    protected function switchToMoon(): void
+    {
+        $response = $this->get('/overview?cp=' . $this->moonService->getPlanetId());
+        $response->assertStatus(200);
+    }
 }

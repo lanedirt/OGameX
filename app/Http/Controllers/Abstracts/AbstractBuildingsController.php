@@ -133,7 +133,7 @@ abstract class AbstractBuildingsController extends OGameController
         $header_filename = '';
         if ($this->planet->isPlanet()) {
             $header_filename = $this->planet->getPlanetBiomeType();
-        } else if ($this->planet->isMoon()) {
+        } elseif ($this->planet->isMoon()) {
             $header_filename = 'moon_' . $this->planet->getPlanetImageType();
         }
 
