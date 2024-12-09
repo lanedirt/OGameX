@@ -44,6 +44,12 @@ abstract class AccountTestCase extends TestCase
      * @var PlanetService
      */
     protected PlanetService $secondPlanetService;
+
+    /**
+     * The default test time that is used to start tests with.
+     *
+     * @var Carbon
+     */
     protected Carbon $defaultTestTime;
 
     /**
@@ -165,7 +171,7 @@ abstract class AccountTestCase extends TestCase
         $playerServiceFactory = resolve(PlayerServiceFactory::class);
         $playerService = $playerServiceFactory->make($this->currentUserId);
         $this->planetService = $playerService->planets->current();
-        $this->secondPlanetService = $playerService->planets->all()[1];
+        $this->secondPlanetService = $playerService->planets->allPlanets()[1];
     }
 
     /**

@@ -77,13 +77,6 @@ class BuildingQueueService
         // Check if user satisfies requirements to build this object.
         $building = ObjectService::getObjectById($building_id);
 
-        // Check if user satisfies requirements to build this object.
-        // TODO: refactor throw exception into a more user-friendly message.
-        $requirements_met = ObjectService::objectRequirementsMet($building->machine_name, $planet, $planet->getPlayer());
-        if (!$requirements_met) {
-            throw new Exception('Requirements not met to build this object.');
-        }
-
         // Check if building can be built on this planet type (planet or moon).
         $correct_planet_type = ObjectService::objectValidPlanetType($building->machine_name, $planet);
         if (!$correct_planet_type) {
