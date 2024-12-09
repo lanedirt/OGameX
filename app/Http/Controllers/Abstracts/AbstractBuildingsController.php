@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
+use OGame\Http\Controllers\ShipyardController;
 use OGame\Http\Traits\ObjectAjaxTrait;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\ObjectService;
@@ -82,6 +83,9 @@ abstract class AbstractBuildingsController extends OGameController
         $build_active = $build_full_queue->getCurrentlyBuildingFromQueue();
         $build_queue = $build_full_queue->getQueuedFromQueue();
 
+        // Research Lab upgrading is disallowed when researching is ongoing
+        $research_in_progress = $player->isResearching();
+
         $buildings = [];
         foreach ($this->objects as $key_row => $objects_row) {
             $buildings[$key_row] = [];
@@ -93,9 +97,10 @@ abstract class AbstractBuildingsController extends OGameController
 
                 // Get current level of building
                 $current_level = $this->planet->getObjectLevel($object_machine_name);
+                $next_level = $current_level + 1;
 
                 // Check requirements of this building
-                $requirements_met = ObjectService::objectRequirementsMet($object_machine_name, $this->planet, $player);
+                $requirements_met = ObjectService::objectRequirementsMetWithQueue($object_machine_name, $next_level, $this->planet, $player);
 
                 $valid_planet_type = ObjectService::objectValidPlanetType($object_machine_name, $this->planet);
 
@@ -110,6 +115,7 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->valid_planet_type = $valid_planet_type;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
+                $view_model->research_in_progress = $research_in_progress;
 
                 $buildings[$key_row][$object->id] = $view_model;
             }
@@ -170,6 +176,11 @@ abstract class AbstractBuildingsController extends OGameController
      */
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
+        // If the technology is a solar satellite, execute the addBuildRequest method in ShipyardController.
+        if ($request->input('technologyId') === '212') {
+            return resolve(ShipyardController::class)->addBuildRequest($request, $player);
+        }
+
         // Explicitly verify CSRF token because this request supports both POST and GET.
         if (!hash_equals($request->session()->token(), $request->input('_token'))) {
             return response()->json([

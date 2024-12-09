@@ -256,4 +256,28 @@ class BuildQueueTest extends AccountTestCase
         $building_construction_time = $this->planetService->getBuildingConstructionTime('metal_mine');
         $this->assertEquals(1, $building_construction_time);
     }
+
+    /**
+     * Verify that ongoing researching prevents upgrade of research lab.
+     * @throws Exception
+     */
+    public function testResearchingPreventsResearchLabUpgrading(): void
+    {
+        // Add required resources for research to planet
+        $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
+        $this->planetSetObjectLevel('research_lab', 1);
+
+        // Add Energy Technology to research queue
+        $this->addResearchBuildRequest('energy_technology');
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+        $this->assertObjectInQueue($response, 'energy_technology', 1, 'Energy Technology level 1 is not in research queue');
+
+        $this->addFacilitiesBuildRequest('research_lab');
+
+        // Verify that Research Lab is not in build queue
+        $response = $this->get('/facilities');
+        $response->assertStatus(200);
+        $this->assertObjectNotInQueue($response, 'research_lab', 'Research lab is in build queue but should not be added.');
+    }
 }

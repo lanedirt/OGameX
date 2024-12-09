@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
@@ -18,7 +19,6 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use Carbon\Carbon;
 
 /**
  * Base class for tests that require account context. Common setup includes signup of new account and login.
@@ -27,6 +27,8 @@ abstract class AccountTestCase extends TestCase
 {
     protected int $currentUserId = 0;
     protected string $currentUsername = '';
+    protected int $userPlanetAmount = 2;
+
     protected int $currentPlanetId = 0;
 
     /**
@@ -55,10 +57,10 @@ abstract class AccountTestCase extends TestCase
         // Set default test time to 2024-01-01 00:00:00 to ensure all tests have the same starting point.
         $this->travelTo(Carbon::create(2024, 1, 1, 0, 0, 0));
 
-        // Set amount of planets to be created for the user to 2 because planet switching
+        // Set amount of planets to be created for the user because planet switching
         // is a part of the test suite.
         $settingsService = resolve(SettingsService::class);
-        $settingsService->set('registration_planet_amount', 2);
+        $settingsService->set('registration_planet_amount', $this->userPlanetAmount);
 
         // Create a new user and login so we can access ingame features.
         $this->createAndLoginUser();
@@ -491,7 +493,7 @@ abstract class AccountTestCase extends TestCase
 
         // Check if cancel text is present on page.
         try {
-            $response->assertDontSee('Cancel production of ' . $object->title);
+            $response->assertDontSee(['Cancel production of ' . $object->title, 'cancel ' . $object->title]);
         } catch (Exception $e) {
             if (!empty($error_message)) {
                 $this->fail($error_message . '. Error: ' . $e->getMessage());

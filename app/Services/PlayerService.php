@@ -5,6 +5,7 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use OGame\GameObjects\Models\Calculations\CalculationType;
@@ -512,6 +513,41 @@ class PlayerService
     }
 
     /**
+     * Get is the player researching any tech or not
+     *
+     * @return bool
+     */
+    public function isResearching(): bool
+    {
+        $research_queue = resolve('OGame\Services\ResearchQueueService');
+        return (bool) $research_queue->activeResearchQueueItemCount($this);
+    }
+
+    /**
+     * Get is the player researching the tech or not
+     *
+     * @return bool
+     */
+    public function isResearchingTech(string $machine_name, int $level): bool
+    {
+        $research_queue = resolve('OGame\Services\ResearchQueueService');
+        return $research_queue->objectInResearchQueue($this, $machine_name, $level);
+    }
+
+    /**
+     * Retrieves research labs from the player planets.
+     *
+     * @return Collection
+     */
+    public function retrievePlanetResearchLabs(): Collection
+    {
+        return Planet::where('user_id', '=', $this->getId())
+            ->select('id', 'research_lab')
+            ->orderBy('research_lab', 'desc')
+            ->get();
+    }
+
+    /**
      * Get the maximum amount of planets that this player can have based on research levels.
      *
      * @return int
@@ -566,13 +602,19 @@ class PlayerService
     }
 
     /**
-     * Get is the player researching the tech or not
+     * Get is the player building the object or not
      *
      * @return bool
      */
-    public function isResearchingTech(string $machine_name, int $level): bool
+    public function isBuildingObject(string $machine_name): bool
     {
-        $research_queue = resolve('OGame\Services\ResearchQueueService');
-        return $research_queue->objectInResearchQueue($this, $machine_name, $level);
+        foreach ($this->planets->all() as $planet) {
+            $object_level = $planet->getObjectLevel($machine_name);
+            if ($planet->isBuildingObject($machine_name, $object_level + 1)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

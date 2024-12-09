@@ -79,9 +79,9 @@ OGameX is under active development with several core features already implemente
 - Building and updating resources, facilities, shipyards, and defenses
 - Galaxy overview
 - Planet switching
-- Highscore system
-- Messages system
-- Battle system
+- Highscores
+- Messages
+- Battle engine
 - Basic admin panel
 - Fleet dispatch missions
   - Transport
@@ -99,9 +99,10 @@ New features are continuously being added. Upcoming major features:
   - Moon buildings
   - Phalanx
   - Moon destruction fleet dispatch mission
-- Alliance system
+- Missile attacks
+- Alliances
 - ACS fleet dispatch missions
-
+- Merchant & shop (non-commercial)
 
 ## <a name="contributing"></a> 🚀 Contributing
 
@@ -145,7 +146,9 @@ For local development you can run the default docker-compose file that is includ
   ```
   $ docker compose up -d
   ```
-  > Note: The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed.
+  > Note: The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080. Modify docker-compose.yml if needed.
+
+
   
 4. Access the "ogame-app" Docker container:
   ```
@@ -210,6 +213,9 @@ You should review all settings before deploying this project to a publicly acces
   $ php artisan migrate --force
   $ php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
   ```
+  > Note: The default setup binds to ports 80/443. PhpMyAdmin is also included for database management and is bound to port 8080, however to access it you need to explicitly specify your IP addresses via ./docker/phpmyadmin/.htaccess for safety purposes. Modify docker-compose.yml or .htaccess if needed.
+
+
 
 After completing the setup, visit https://localhost to access OGameX. You first need to create an account (no email validation), afterwards you can login using that account.
 > Note: The production version runs in forced-HTTPS (redirect) mode by default using a self-signed SSL certificate. If you want to access the application via HTTP, open `.env` and change `APP_ENV` from `production` to `local`.

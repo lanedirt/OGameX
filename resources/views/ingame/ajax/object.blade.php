@@ -57,8 +57,11 @@
             </ul>
 
             <div class="costs">
-
-                <p>@lang('Required to improve to level') {!! $next_level !!}:</p>
+                @if ($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
+                    <p>@lang('Costs per piece'):</p>
+                @else
+                    <p>@lang('Required to improve to level') {!! $next_level !!}:</p>
+                @endif
 
                 <ul class="ipiHintable" data-ipi-hint="">
                     @if (!empty($price->metal->get()))
@@ -181,7 +184,7 @@
             <div class="build-it_wrap">
                 <div class="ipiHintable" data-ipi-hint="ipiTechnologyUpgradedeuteriumSynthesizer">
                     <button class="upgrade"
-                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount)
+                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress))
                                 disabled
                             @else
                             @endif

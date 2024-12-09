@@ -68,7 +68,7 @@
         <tbody>
         <tr>
             <td colspan="2" class="idle">
-                <a class="tooltip js_hideTipOnMobile " title="@lang('At the moment there are no ships or defense built on this planet. Click here to get to the shipyard.')" href="#ingame&amp;component=shipyard">
+                <a class="tooltip js_hideTipOnMobile " title="@lang('At the moment there are no ships or defense built on this planet. Click here to get to the shipyard.')" href="{{ route('shipyard.index') }}">
                     @lang('No ships/defense in construction.')
                     <br>
                     @lang('(To shipyard)')
