@@ -13,7 +13,7 @@ class GlobalGameTest extends AccountTestCase
     public function testPageLoadOnlyUpdatesCurrentPlanet(): void
     {
         // Check that the user has at least two planets.
-        $startPlanetCount = $this->planetService->getPlayer()->planets->count();
+        $startPlanetCount = $this->planetService->getPlayer()->planets->planetCount();
         $this->assertGreaterThanOrEqual(2, $startPlanetCount);
 
         // Set time to +1 hour, so we can verify that only the current planet will be updated with the new time.

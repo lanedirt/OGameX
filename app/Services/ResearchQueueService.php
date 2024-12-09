@@ -174,7 +174,7 @@ class ResearchQueueService
         $list = [];
         foreach ($queue_items as $item) {
             $object = ObjectService::getResearchObjectById($item->object_id);
-            $planetService = $planet->getPlayer()->planets->childPlanetById($item['planet_id']);
+            $planetService = $planet->getPlayer()->planets->getById($item['planet_id']);
             $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
@@ -252,7 +252,7 @@ class ResearchQueueService
             ->get();
 
         foreach ($queue_items as $queue_item) {
-            $planet = $player->planets->childPlanetById($queue_item->planet_id);
+            $planet = $player->planets->getById($queue_item->planet_id);
             $object = ObjectService::getResearchObjectById($queue_item->object_id);
 
             // See if the planet has enough resources for this research attempt.
@@ -357,7 +357,7 @@ class ResearchQueueService
         if ($queue_item) {
             // Typecast to a new object to avoid issues with the model.
             $queue_item = $queue_item instanceof ResearchQueue ? $queue_item : new ResearchQueue($queue_item->getAttributes());
-            $planet = $player->planets->childPlanetById($queue_item->planet_id);
+            $planet = $player->planets->getById($queue_item->planet_id);
 
             // Gets all research queue records of this target level and all that
             // come after it. So e.g. if user cancels build order for metal mine

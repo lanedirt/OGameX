@@ -6,6 +6,7 @@ use OGame\Facades\AppUtil;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMissions\BattleEngine\BattleResultRound;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
@@ -57,7 +58,7 @@ class BattleReport extends GameMessage
 
         // Load the planet name from the references table and return the subject filled with the planet name.
         $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
         if ($planet) {
             $subject = __('Combat report :planet', ['planet' => '[planet]' . $planet->getPlanetId() . '[/planet]']);
         } else {
@@ -112,7 +113,7 @@ class BattleReport extends GameMessage
 
         // Load planet by coordinate.
         $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
 
         // If planet owner is the same as the player, we load the player by planet owner which is already loaded.
         if ($this->battleReportModel->planet_user_id === $planet->getPlayer()->getId()) {

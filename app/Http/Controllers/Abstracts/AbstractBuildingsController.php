@@ -102,20 +102,17 @@ abstract class AbstractBuildingsController extends OGameController
                 // Check requirements of this building
                 $requirements_met = ObjectService::objectRequirementsMetWithQueue($object_machine_name, $next_level, $this->planet, $player);
 
+                $valid_planet_type = ObjectService::objectValidPlanetType($object_machine_name, $this->planet);
+
                 // Check if the current planet has enough resources to build this building.
                 $enough_resources = $this->planet->hasResources(ObjectService::getObjectPrice($object_machine_name, $this->planet));
-
-                // If building level is 1 or higher, add to header filename parts to
-                // render the header of this planet.
-                if ($current_level >= 1 && in_array($object->id, $this->header_filename_objects, true)) {
-                    $header_filename_parts[$object->id] = $object->id;
-                }
 
                 $view_model = new BuildingViewModel();
                 $view_model->count = $count;
                 $view_model->object = $object;
                 $view_model->current_level = $current_level;
                 $view_model->requirements_met = $requirements_met;
+                $view_model->valid_planet_type = $valid_planet_type;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
                 $view_model->research_in_progress = $research_in_progress;
@@ -124,9 +121,28 @@ abstract class AbstractBuildingsController extends OGameController
             }
         }
 
+        // If building level is 1 or higher, add to header filename parts to
+        // render the header of this planet.
+        foreach ($this->header_filename_objects as $building_id) {
+            // Get object
+            $object = ObjectService::getObjectById($building_id);
+            $current_level = $this->planet->getObjectLevel($object->machine_name);
+
+            if ($current_level >= 1) {
+                $header_filename_parts[$building_id] = $building_id;
+            }
+        }
+
         // Parse header filename for this planet
         ksort($header_filename_parts);
-        $header_filename = $this->planet->getPlanetType();
+
+        $header_filename = '';
+        if ($this->planet->isPlanet()) {
+            $header_filename = $this->planet->getPlanetBiomeType();
+        } elseif ($this->planet->isMoon()) {
+            $header_filename = 'moon_' . $this->planet->getPlanetImageType();
+        }
+
         foreach ($header_filename_parts as $building_id) {
             $header_filename .= '_' . $building_id;
         }
@@ -141,6 +157,7 @@ abstract class AbstractBuildingsController extends OGameController
         return view($this->view_name)->with([
             'planet_id' => $this->planet->getPlanetId(),
             'planet_name' => $this->planet->getPlanetName(),
+            'planet' => $this->planet,
             'header_filename' => $header_filename,
             'buildings' => $buildings,
             'build_active' => $build_active,

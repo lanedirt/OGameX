@@ -10,6 +10,7 @@ use Illuminate\Testing\TestResponse;
 use OGame\Factories\GameMessageFactory;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -25,12 +26,31 @@ use OGame\Services\SettingsService;
 abstract class AccountTestCase extends TestCase
 {
     protected int $currentUserId = 0;
-    protected int $currentPlanetId = 0;
-    protected int $userPlanetAmount = 2;
     protected string $currentUsername = '';
-    protected Carbon $defaultTestTime;
+    protected int $userPlanetAmount = 2;
+
+    protected int $currentPlanetId = 0;
+
+    /**
+     * Test user main planet.
+     *
+     * @var PlanetService
+     */
     protected PlanetService $planetService;
+
+    /**
+     * Test user second planet.
+     *
+     * @var PlanetService
+     */
     protected PlanetService $secondPlanetService;
+
+    /**
+     * The default test time that is used to start tests with.
+     *
+     * @var Carbon
+     */
+    protected Carbon $defaultTestTime;
 
     /**
      * Set up common test components.
@@ -151,7 +171,7 @@ abstract class AccountTestCase extends TestCase
         $playerServiceFactory = resolve(PlayerServiceFactory::class);
         $playerService = $playerServiceFactory->make($this->currentUserId);
         $this->planetService = $playerService->planets->current();
-        $this->secondPlanetService = $playerService->planets->all()[1];
+        $this->secondPlanetService = $playerService->planets->allPlanets()[1];
     }
 
     /**
@@ -183,6 +203,7 @@ abstract class AccountTestCase extends TestCase
         $planet_id = \DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+            ->where('planet_type', PlanetType::Planet)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
             ->inRandomOrder()
             ->limit(1)
@@ -194,6 +215,7 @@ abstract class AccountTestCase extends TestCase
             $planet_id = \DB::table('planets')
                 ->where('user_id', '!=', $this->currentUserId)
                 ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+                ->where('planet_type', PlanetType::Planet)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
                 ->inRandomOrder()
                 ->limit(1)
@@ -202,6 +224,55 @@ abstract class AccountTestCase extends TestCase
 
         if ($planet_id == null) {
             $this->fail('Failed to find a nearby foreign planet for testing.');
+        } else {
+            // Create and return a new PlanetService instance for the found planet.
+            try {
+                $planetServiceFactory =  resolve(PlanetServiceFactory::class);
+                return $planetServiceFactory->make($planet_id[0]);
+            } catch (Exception $e) {
+                $this->fail('Failed to create planet service for planet id: ' . $planet_id[0] . '. Error: ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Gets a nearby foreign moon for the current user. This is useful for testing interactions between two players.
+     *
+     * @return PlanetService
+     */
+    protected function getNearbyForeignMoon(): PlanetService
+    {
+        // Find a planet of another player that is close to the current player by checking the same galaxy
+        // and up to 15 systems away.
+        $planet_id = \DB::table('planets')
+            ->where('user_id', '!=', $this->currentUserId)
+            ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+            ->where('planet_type', PlanetType::Moon)
+            ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+            ->inRandomOrder()
+            ->limit(1)
+            ->pluck('id');
+
+        if ($planet_id == null) {
+            // No nearby moons found, give current user a moon then login as a new user to see if this fixes it.
+            $planetServiceFactory =  resolve(PlanetServiceFactory::class);
+            $planetServiceFactory->createMoonForPlayer($this->planetService);
+
+            // Switch to new user that should then be able to find the moon of the previous player.
+            $this->createAndLoginUser();
+
+            $planet_id = \DB::table('planets')
+                ->where('user_id', '!=', $this->currentUserId)
+                ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+                ->where('planet_type', PlanetType::Moon)
+                ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+                ->inRandomOrder()
+                ->limit(1)
+                ->pluck('id');
+        }
+
+        if ($planet_id == null) {
+            $this->fail('Failed to find a nearby foreign moon for testing.');
         } else {
             // Create and return a new PlanetService instance for the found planet.
             try {
@@ -227,7 +298,7 @@ abstract class AccountTestCase extends TestCase
         $tryCount = 0;
         while ($tryCount < 100) {
             $tryCount++;
-            $coordinate->system = max(1, min(250, $this->planetService->getPlanetCoordinates()->system + rand(-10, 10)));
+            $coordinate->system = max(1, min(499, $this->planetService->getPlanetCoordinates()->system + rand(-10, 10)));
             $coordinate->position = rand($min_position, $max_position);
             $planetCount = \DB::table('planets')
                 ->where('galaxy', $coordinate->galaxy)
@@ -747,6 +818,18 @@ abstract class AccountTestCase extends TestCase
         }
 
         $this->assertEquals($expected_count, $messages_found, 'Expected ' . $expected_count . ' messages to contain the specified text:' . implode(', ', $must_contain) . '. Found ' . $messages_found . ' messages.');
+    }
+
+    /**
+     * Switch the active planet context to the first planet of the current user which affects
+     * interactive requests done such as building queue items or canceling build queue items.
+     *
+     * @return void
+     */
+    protected function switchToFirstPlanet(): void
+    {
+        $response = $this->get('/overview?cp=' . $this->planetService->getPlanetId());
+        $response->assertStatus(200);
     }
 
     /**

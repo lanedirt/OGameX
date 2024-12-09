@@ -159,6 +159,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Database\Factories\PlanetFactory factory($count = null, $state = [])
  * @property int $solar_satellite_percent
  * @method static \Illuminate\Database\Eloquent\Builder|Planet whereSolarSatellitePercent($value)
+ * @property int $lunar_base
+ * @property int $sensor_phalanx
+ * @property int $jump_gate
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Planet whereJumpGate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Planet whereLunarBase($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Planet whereSensorPhalanx($value)
  * @mixin \Eloquent
  */
 class Planet extends Model

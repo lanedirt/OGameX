@@ -22,6 +22,7 @@ class UnitQueueTest extends AccountTestCase
         // Set the universe speed to 8x for this test.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
+        $settingsService->set('research_speed', 1);
 
         $this->planetSetObjectLevel('robot_factory', 2);
         $this->planetSetObjectLevel('shipyard', 1);

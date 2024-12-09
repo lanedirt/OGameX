@@ -8,12 +8,14 @@ use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Enums\ResourceType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
+use OGame\Models\BuildingQueue;
 use RuntimeException;
 use Throwable;
 
@@ -48,29 +50,32 @@ class PlanetService
     /**
      * Planet constructor.
      *
-     * @param ?PlayerService $player
+     * @param PlayerServiceFactory $playerServiceFactory
+     * @param SettingsService $settingsService
+     * @param PlayerService|null $player
      *  Player object that the to be loaded planet belongs to. If none is provided, we will auto
      *  attempt to load the playerService object after loading the planet.
-     *
-     * @param int $planet_id
+     * @param Planet|null $planet
+     *  If supplied the constructor will use this planet object directly, saving a database query.
+     * @param int|null $planet_id
      *  If supplied the constructor will try to load the planet from the database.
      */
-    public function __construct(PlayerServiceFactory $playerServiceFactory, SettingsService $settingsService, PlayerService|null $player = null, int $planet_id = 0)
+    public function __construct(PlayerServiceFactory $playerServiceFactory, SettingsService $settingsService, PlayerService|null $player = null, Planet|null $planet = null, int|null $planet_id = null)
     {
         // Load the planet object if a positive planet ID is given.
         // If no planet ID is given then planet context will not be available
         // but this can be fine for unittests or when creating a new planet.
-        if ($planet_id !== 0) {
+        if ($planet !== null) {
+            $this->planet = $planet;
+        } elseif ($planet_id !== 0) {
             $this->loadByPlanetId($planet_id);
+        }
 
-            if ($player === null) {
-                // No player has been provided, so we load it ourselves here.
-                $playerService = $playerServiceFactory->make($this->planet->user_id);
-                $this->player = $playerService;
-            } else {
-                $this->player = $player;
-            }
-        } elseif ($player !== null) {
+        if ($player === null) {
+            // If no player has been provided, we load it ourselves here.
+            $playerService = $playerServiceFactory->make($this->planet->user_id);
+            $this->player = $playerService;
+        } else {
             $this->player = $player;
         }
 
@@ -168,6 +173,11 @@ class PlanetService
      */
     public function abandonPlanet(): void
     {
+        // If this is a planet and has a moon, delete the moon first
+        if ($this->isPlanet() && $this->hasMoon()) {
+            $this->moon()->abandonPlanet();
+        }
+
         // Anonymize the planet in all tables where it is referenced.
         // This is done to prevent foreign key constraints from failing.
 
@@ -175,7 +185,10 @@ class PlanetService
         FleetMission::where('planet_id_from', $this->planet->id)->update(['planet_id_from' => null]);
         FleetMission::where('planet_id_to', $this->planet->id)->update(['planet_id_to' => null]);
 
-        if ($this->player->planets->count() < 2) {
+        // Building queues
+        BuildingQueue::where('planet_id', $this->planet->id)->delete();
+
+        if ($this->player->planets->planetCount() < 2) {
             throw new Exception('Cannot abandon only remaining planet.');
         }
 
@@ -256,11 +269,41 @@ class PlanetService
     }
 
     /**
-     * Get planet type (e.g. gas, ice, jungle etc.)
+     * Get planet type as enum.
+     *
+     * @return PlanetType
+     */
+    public function getPlanetType(): PlanetType
+    {
+        return PlanetType::from($this->planet->planet_type);
+    }
+
+    /**
+     * Returns true if the current planet is a moon, false otherwise.
+     *
+     * @return bool
+     */
+    public function isMoon(): bool
+    {
+        return $this->getPlanetType() === PlanetType::Moon;
+    }
+
+    /**
+     * Returns true if the current planet is a planet, false otherwise.
+     *
+     * @return bool
+     */
+    public function isPlanet(): bool
+    {
+        return $this->getPlanetType() === PlanetType::Planet;
+    }
+
+    /**
+     * Get planet biome type as string (e.g. gas, ice, jungle etc.)
      *
      * @return string
      */
-    public function getPlanetType(): string
+    public function getPlanetBiomeType(): string
     {
         // Get system and planet.
         $coordinates = $this->getPlanetCoordinates();
@@ -336,6 +379,14 @@ class PlanetService
             $type -= 10;
         }
 
+        // For a moon, we need to map planet types 1-10 to moon types 1-5.
+        // Moon types are planet types 1-5 repeated.
+        if ($this->isMoon()) {
+            if ($type > 5) {
+                $type -= 5;
+            }
+        }
+
         // Return a string
         return (string)$type;
     }
@@ -355,6 +406,12 @@ class PlanetService
             $extra_fields += $two_level_bonus_count;
 
         }
+
+        if ($this->planet->lunar_base != 0) {
+            // For every level, it increases by 3
+            $extra_fields += $this->planet->lunar_base * 3;
+        }
+
         return $extra_fields + $this->planet->field_max;
     }
 
@@ -1060,6 +1117,80 @@ class PlanetService
     }
 
     /**
+     * Returns true if the planet has a moon, false otherwise.
+     *
+     * @return bool
+     */
+    public function hasMoon(): bool
+    {
+        // If this planet is a moon, it cannot have another moon.
+        if ($this->isMoon()) {
+            return false;
+        }
+
+        // Access all players planets and see if there is a moon with the same coordinates
+        // as this planet.
+        if ($this->getPlayer()->planets->getMoonByCoordinates($this->getPlanetCoordinates()) !== null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns moon object associated with this planet. If no moon is found, an exception is thrown.
+     *
+     * @return PlanetService
+     */
+    public function moon(): PlanetService
+    {
+        $moon = $this->getPlayer()->planets->getMoonByCoordinates($this->getPlanetCoordinates());
+
+        if ($moon === null) {
+            throw new RuntimeException('No moon found for this planet.');
+        }
+
+        return $moon;
+    }
+
+    /**
+     * Returns true if the planet has a moon, false otherwise.
+     *
+     * @return bool
+     */
+    public function hasPlanet(): bool
+    {
+        // If this planet is a planet, it cannot have another planet.
+        if ($this->isPlanet()) {
+            return false;
+        }
+
+        // Access all players planets and see if there is a moon with the same coordinates
+        // as this planet.
+        if ($this->getPlayer()->planets->getPlanetByCoordinates($this->getPlanetCoordinates()) !== null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns planet object associated with this moon (on the same coordinates). If no planet is found, an exception is thrown.
+     *
+     * @return PlanetService
+     */
+    public function planet(): PlanetService
+    {
+        $moon = $this->getPlayer()->planets->getPlanetByCoordinates($this->getPlanetCoordinates());
+
+        if ($moon === null) {
+            throw new RuntimeException('No planet found for this moon.');
+        }
+
+        return $moon;
+    }
+
+    /**
      * Update this planet's buildings by checking the build queue.
      * This should happen on every users page load and every time the planet is touched.
      *
@@ -1283,8 +1414,8 @@ class PlanetService
         }
 
         // Calculate the production values twice:
-        // 1. First one time in order for the energy production to be updated.
-        // 2. Second time for the mine production to be updated according to the actual energy production.
+        // 1. First time in order to ensure the energy production is up-to-date.
+        // 2. Second time for the mine production to be updated according to the up-to-date (actual) energy production.
         $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
         $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
 
@@ -1300,6 +1431,11 @@ class PlanetService
      */
     public function getPlanetBasicIncome(): Resources
     {
+        // Moons do not have mines and therefore also do not have basic income.
+        if ($this->isMoon()) {
+            return new Resources(0, 0, 0, 0);
+        }
+
         $universe_resource_multiplier = $this->settingsService->economySpeed();
 
         return new Resources(
@@ -1329,13 +1465,14 @@ class PlanetService
             if ($production->energy->get() > 0) {
                 $energy_production_total += $production->energy->get();
             } else {
-                // Multiplies the negative number with "-1" so it will become
-                // a positive number, which is what the system expects.
-                $production_total->energy->add(new Resource($production->energy->get() * -1));
-                $energy_consumption_total += $production->energy->get() * -1;
+                // Convert negative production to positive consumption, same value.
+                $energy_consumption = abs($production->energy->get());
+
+                $production_total->energy->add(new Resource($energy_consumption));
+                $energy_consumption_total += $energy_consumption;
             }
 
-            // Combine values to one array so we have the total production.
+            // Combine values to one array, so we have the total production.
             $production_total->add($production);
         }
 
@@ -1475,7 +1612,7 @@ class PlanetService
     }
 
     /**
-     * Get is the current planet is building something or not
+     * Get is the current planet is building something or not.
      *
      * @return bool
      * @throws Exception

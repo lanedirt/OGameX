@@ -54,6 +54,19 @@ class OverviewController extends OGameController
             $ship_queue_time_countdown = $ship_queue_time_end - (int)Carbon::now()->timestamp;
         }
 
+        $planet = $player->planets->current();
+
+        // Check if this planet has a moon or a planet on the same coordinates.
+        // The other_planet is used for rendering the switch link to the other planet.
+        $has_moon = $planet->hasMoon();
+        $has_planet = $planet->hasPlanet();
+        $other_planet = null;
+        if ($has_moon) {
+            $other_planet = $planet->moon();
+        } elseif ($has_planet) {
+            $other_planet = $planet->planet();
+        }
+
         $highscoreService = resolve(HighscoreService::class);
 
         $user_rank = Cache::remember('player-rank-'.$player->getId(), now()->addMinutes(5), function () use ($highscoreService, $player) {
@@ -69,12 +82,12 @@ class OverviewController extends OGameController
         });
 
         return view('ingame.overview.index')->with([
-            'header_filename' => $player->planets->current()->getPlanetType(),
-            'planet_name' => $player->planets->current()->getPlanetName(),
-            'planet_diameter' => $player->planets->current()->getPlanetDiameter(),
-            'planet_temp_min' => $player->planets->current()->getPlanetTempMin(),
-            'planet_temp_max' => $player->planets->current()->getPlanetTempMax(),
-            'planet_coordinates' => $player->planets->current()->getPlanetCoordinates()->asString(),
+            'header_filename' => $planet->isMoon() ? 'moon/' . $planet->getPlanetImageType() : $planet->getPlanetBiomeType(),
+            'planet_name' => $planet->getPlanetName(),
+            'planet_diameter' => $planet->getPlanetDiameter(),
+            'planet_temp_min' => $planet->getPlanetTempMin(),
+            'planet_temp_max' => $planet->getPlanetTempMax(),
+            'planet_coordinates' => $planet->getPlanetCoordinates()->asString(),
             'user_points' => $user_score,
             'user_rank' => $user_rank,
             'max_rank' => $max_ranks,
@@ -88,6 +101,9 @@ class OverviewController extends OGameController
             'ship_active' => $ship_active,
             'ship_queue' => $ship_queue,
             'ship_queue_time_countdown' => $ship_queue_time_countdown,
+            'has_moon' => $has_moon,
+            'has_planet' => $has_planet,
+            'other_planet' => $other_planet,
         ]);
     }
 }

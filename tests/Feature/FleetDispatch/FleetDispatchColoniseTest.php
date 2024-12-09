@@ -75,7 +75,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
         // Expecting 500 error.
-        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0), 500);
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0), 500);
     }
 
     /**

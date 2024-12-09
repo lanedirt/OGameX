@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -100,6 +101,7 @@ class FleetEventsController extends OGameController
 
             $eventRowViewModel->origin_planet_name = '';
             $eventRowViewModel->origin_planet_coords = new Coordinate($row->galaxy_from, $row->system_from, $row->position_from);
+            $eventRowViewModel->origin_planet_type = PlanetType::from($row->type_from);
             if ($row->planet_id_from !== null) {
                 $planetFromService = $planetServiceFactory->make($row->planet_id_from);
                 if ($planetFromService !== null) {
@@ -110,6 +112,8 @@ class FleetEventsController extends OGameController
 
             $eventRowViewModel->destination_planet_name = '';
             $eventRowViewModel->destination_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
+            $eventRowViewModel->destination_planet_type = PlanetType::from($row->type_to);
+
             if ($row->planet_id_to !== null) {
                 $planetToService = $planetServiceFactory->make($row->planet_id_to);
                 if ($planetToService !== null) {
@@ -131,8 +135,7 @@ class FleetEventsController extends OGameController
 
             $fleet_events[] = $eventRowViewModel;
 
-            // Check if this is a transport mission parent, if so, add the return trip to the list.
-            // TODO: refactor this logic to abstracted classes per mission type where these eventList rendering are done.
+            // Add return trip row if the mission has a return mission, even though the return mission does not exist yet in the database.
             if ($friendlyStatus === 'friendly' && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
                 $returnTripRow = new FleetEventRowViewModel();
                 $returnTripRow->is_return_trip = true;
@@ -142,8 +145,10 @@ class FleetEventsController extends OGameController
                 $returnTripRow->mission_time_arrival = $row->time_arrival + ($row->time_arrival - $row->time_departure); // Round trip arrival time is double the time of the first trip
                 $returnTripRow->origin_planet_name = $eventRowViewModel->destination_planet_name;
                 $returnTripRow->origin_planet_coords = $eventRowViewModel->destination_planet_coords;
+                $returnTripRow->origin_planet_type = $eventRowViewModel->destination_planet_type;
                 $returnTripRow->destination_planet_name = $eventRowViewModel->origin_planet_name;
                 $returnTripRow->destination_planet_coords = $eventRowViewModel->origin_planet_coords;
+                $returnTripRow->destination_planet_type = $eventRowViewModel->origin_planet_type;
                 $returnTripRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
                 $returnTripRow->fleet_units = $eventRowViewModel->fleet_units;
                 $returnTripRow->resources = new Resources(0, 0, 0, 0);

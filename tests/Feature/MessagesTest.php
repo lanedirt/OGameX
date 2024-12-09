@@ -2,18 +2,19 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Factories\GameMessageFactory;
 use OGame\Models\BattleReport;
 use OGame\Models\EspionageReport;
 use OGame\Models\Message;
+use OGame\Models\Resources;
 use OGame\Services\MessageService;
-use Tests\AccountTestCase;
+use OGame\Services\DebrisFieldService;
+use Tests\MoonTestCase;
 
 /**
  * Test AJAX calls to make sure they work as expected.
  */
-class MessagesTest extends AccountTestCase
+class MessagesTest extends MoonTestCase
 {
     /**
      * Verify that a new message has been received (as part of account registration).
@@ -66,15 +67,125 @@ class MessagesTest extends AccountTestCase
     }
 
     /**
+     * Test that player ID message placeholders are replaced correctly.
+     */
+    public function testMessagePlaceholdersPlayerIds(): void
+    {
+        // Create message model with planet and moon placeholders
+        $messageModel = new Message();
+        $messageModel->key = 'welcome_message';
+        $messageModel->params = [
+            'player' => '[player]' . $this->currentUserId . '[/player]',
+        ];
+
+        // Create game message instance
+        $gameMessage = GameMessageFactory::createGameMessage($messageModel);
+
+        // Get the body of the message which should trigger placeholder replacement
+        $body = $gameMessage->getBody();
+
+        // Assert that the player name placeholder was replaced correctly
+        $this->assertStringContainsString($this->currentUsername, $body, 'Player name not found in message body');
+
+        // Assert that the original placeholder tags are not present in the final message
+        $this->assertStringNotContainsString('[player]', $body, 'Player tag still present in message body');
+        $this->assertStringNotContainsString('[/player]', $body, 'Player closing tag still present in message body');
+    }
+
+    /**
+     * Test that planet and moon ID placeholders are replaced correctly.
+     */
+    public function testMessagePlaceholdersPlanetIds(): void
+    {
+        // Create message model with planet and moon placeholders
+        $messageModel = new Message();
+        $messageModel->key = 'return_of_fleet';
+        $messageModel->params = [
+            'from' => '[planet]' . $this->planetService->getPlanetId() . '[/planet]',
+            'to' => '[planet]' . $this->moonService->getPlanetId() . '[/planet]'
+        ];
+
+        // Create game message instance
+        $gameMessage = GameMessageFactory::createGameMessage($messageModel);
+
+        // Get the body of the message which should trigger placeholder replacement
+        $body = $gameMessage->getBody();
+
+        // Assert that the planet placeholder was replaced correctly
+        $this->assertStringContainsString($this->planetService->getPlanetName(), $body, 'Planet name not found in message body');
+        $this->assertStringContainsString($this->planetService->getPlanetCoordinates()->asString(), $body, 'Planet coordinates not found in message body');
+
+        // Assert that the moon placeholder was replaced correctly
+        $this->assertStringContainsString($this->moonService->getPlanetName(), $body, 'Moon name not found in message body');
+        $this->assertStringContainsString($this->moonService->getPlanetCoordinates()->asString(), $body, 'Moon coordinates not found in message body');
+
+        // Assert that the planet has the correct planet icon
+        $this->assertStringContainsString('planetIcon planet', $body, 'Planet icon not found in message body');
+
+        // Assert that the moon has the correct moon icon
+        $this->assertStringContainsString('planetIcon moon', $body, 'Moon icon not found in message body');
+
+        // Assert that the original placeholder tags are not present in the final message
+        $this->assertStringNotContainsString('[planet]', $body, 'Planet tag still present in message body');
+        $this->assertStringNotContainsString('[/planet]', $body, 'Planet closing tag still present in message body');
+    }
+
+    /**
+     * Test that debris field and coordinates placeholders are replaced correctly at current player coordinates.
+     */
+    public function testMessagePlaceholdersDebrisFieldCoordinates(): void
+    {
+        // Create debris field at current player's planet coordinates
+        $debrisField = resolve(DebrisFieldService::class);
+        $debrisField->loadOrCreateForCoordinates($this->planetService->getPlanetCoordinates());
+        $debrisField->appendResources(new Resources(5000, 4000, 3000, 0));
+        $debrisField->save();
+
+        // Create message model with debris field placeholder
+        $messageModel = new Message();
+        $messageModel->key = 'debris_field_harvest';
+        $messageModel->params = [
+            'to' => '[debrisfield]' . $this->planetService->getPlanetCoordinates()->asString() . '[/debrisfield]',
+            'coordinates' => $this->planetService->getPlanetCoordinates()->asString(),
+            'ship_name' => 'Recycler',
+            'ship_amount' => '5',
+            'storage_capacity' => '25000',
+            'metal' => '5000',
+            'crystal' => '4000',
+            'deuterium' => '3000',
+            'harvested_metal' => '5000',
+            'harvested_crystal' => '4000',
+            'harvested_deuterium' => '3000'
+        ];
+
+        // Create game message instance
+        $gameMessage = GameMessageFactory::createGameMessage($messageModel);
+
+        // Get the body of the message which should trigger placeholder replacement
+        $body = $gameMessage->getBody();
+
+        // Assert that the coordinates are present in the message
+        $this->assertStringContainsString($this->planetService->getPlanetCoordinates()->asString(), $body, 'Coordinates not found in message body');
+
+        // Assert that the debris field has the correct debris field icon
+        $this->assertStringContainsString('planetIcon tf', $body, 'Debris field icon not found in message body');
+
+        // Assert that the debris field resources are present
+        $this->assertStringContainsString('5,000 Metal', $body, 'Metal amount not found in message body');
+        $this->assertStringContainsString('4,000 Crystal', $body, 'Crystal amount not found in message body');
+        $this->assertStringContainsString('3,000 Deuterium', $body, 'Deuterium amount not found in message body');
+
+        // Assert that the original placeholder tags are not present in the final message
+        $this->assertStringNotContainsString('[debrisfield]', $body, 'Debris field tag still present in message body');
+        $this->assertStringNotContainsString('[/debrisfield]', $body, 'Debris field closing tag still present in message body');
+    }
+
+    /**
      * Test EspionageReport to make sure they can be instantiated and the subject and body return a non-empty string.
      */
     public function testEspionageReport(): void
     {
-        try {
-            $messageService = resolve(MessageService::class);
-        } catch (BindingResolutionException $e) {
-            $this->fail('Failed to resolve MessageService in testEspionageReport.');
-        }
+        $messageService = resolve(MessageService::class);
 
         // Create a new espionage report record in the db and set the espionage_report_id to its ID.
         $espionageReportId = $this->createEspionageReport();
@@ -99,11 +210,8 @@ class MessagesTest extends AccountTestCase
      */
     public function testBattleReport(): void
     {
-        try {
-            $messageService = resolve(MessageService::class);
-        } catch (BindingResolutionException $e) {
-            $this->fail('Failed to resolve MessageService in testBattleReport.');
-        }
+        $messageService = resolve(MessageService::class);
+
         // Create a new espionage report record in the db and set the battle_report_id to its ID.
         $battleReportId = $this->createBattleReport();
         $messageModel = $messageService->sendBattleReportMessageToPlayer($this->planetService->getPlayer(), $battleReportId);
