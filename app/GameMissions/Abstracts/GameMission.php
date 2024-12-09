@@ -342,9 +342,10 @@ abstract class GameMission
         $return_resources = $this->fleetMissionService->getResources($mission);
 
         // Define from string based on whether the planet is available or not.
-        $from = '[coordinates]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/coordinates]';
+        $from = '';
         switch ($mission->type_from) {
             case PlanetType::Planet->value:
+            case PlanetType::Moon->value:
                 if ($mission->planet_id_from !== null) {
                     $from = __('planet') . ' [planet]' . $mission->planet_id_from . '[/planet]';
                 }
@@ -352,14 +353,9 @@ abstract class GameMission
             case PlanetType::DebrisField->value:
                 $from = '[debrisfield]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/debrisfield]';
                 break;
-            case PlanetType::Moon->value:
-                // TODO: add check if moon exists based on moon_id_from when added later?
-                $from = __('moon') . ' [moon]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/moon]';
-                break;
         }
 
         $to = __('planet') . ' [planet]' . $mission->planet_id_to . '[/planet]';
-        // TODO: add check if moon exists based on moon_id_to when added later and add moon tag if it exists.
 
         if ($return_resources->any()) {
             $params = [
