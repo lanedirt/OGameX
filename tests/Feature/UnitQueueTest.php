@@ -380,7 +380,7 @@ class UnitQueueTest extends AccountTestCase
         $this->addFacilitiesBuildRequest('shipyard');
         $this->addFacilitiesBuildRequest('research_lab');
 
-        // Verify the building is finished 10 minute later.
+        // Verify the buildings are finished 10 minutes later.
         $this->travel(10)->minutes();
 
         $response = $this->get('/facilities');
@@ -396,7 +396,8 @@ class UnitQueueTest extends AccountTestCase
         $this->addResearchBuildRequest('energy_technology');
         $this->addResearchBuildRequest('combustion_drive');
 
-        // Assert that build requirements for Light Fighter are not met as Combustion Drive technology is in build queue
+        // Assert that build requirements for Light Fighter are not met as Combustion Drive technology is still in
+        // research queue and not finished yet.
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
         $this->assertRequirementsNotMet($response, 'light_fighter', 'Light Fighter build requirements are met.');
@@ -404,14 +405,15 @@ class UnitQueueTest extends AccountTestCase
         // Verify the research is finished 10 minute later.
         $this->travel(10)->minutes();
 
-        $this->planetService->getPlayer()->updateResearchQueue();
+        // Reload the page to update the research queue
         $response = $this->get('/research');
         $response->assertStatus(200);
+
         $this->assertObjectLevelOnPage($response, 'combustion_drive', 1, 'Combustion Drive is not at level one 10 minutes after build request issued.');
 
         $this->addShipyardBuildRequest('light_fighter', 1);
 
-        // Verify the building is finished 10 minute later.
+        // Verify the ship is finished 10 minute later.
         $this->travel(10)->minutes();
 
         $response = $this->get('/shipyard');
