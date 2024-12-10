@@ -6,6 +6,7 @@ use OGame\GameObjects\Models\Fields\GameObjectAssets;
 use OGame\GameObjects\Models\Fields\GameObjectPrice;
 use OGame\GameObjects\Models\Fields\GameObjectRequirement;
 use OGame\GameObjects\Models\StationObject;
+use OGame\Models\Enums\PlanetType;
 
 class StationObjects
 {
@@ -60,6 +61,7 @@ class StationObjects
         $researchLab->description = 'A research lab is required in order to conduct research into new technologies.';
         $researchLab->description_long = 'An essential part of any empire, Research Labs are where new technologies are discovered and older technologies are improved upon. With each level of the Research Lab constructed, the speed in which new technologies are researched is increased, while also unlocking newer technologies to research. In order to conduct research as quickly as possible, research scientists are immediately dispatched to the colony to begin work and development. In this way, knowledge about new technologies can easily be disseminated throughout the empire.';
         $researchLab->price = new GameObjectPrice(200, 400, 200, 0, 2);
+        $researchLab->valid_planet_types = [PlanetType::Planet];
         $researchLab->assets = new GameObjectAssets();
         $researchLab->assets->imgMicro = 'research_lab_micro.jpg';
         $researchLab->assets->imgSmall = 'research_lab_small.jpg';
@@ -75,6 +77,7 @@ class StationObjects
         $allianceDepot->description = 'The alliance depot supplies fuel to friendly fleets in orbit helping with defense.';
         $allianceDepot->description_long = 'The alliance depot supplies fuel to friendly fleets in orbit helping with defense. For each upgrade level of the alliance depot, a special demand of deuterium per hour can be sent to an orbiting fleet.';
         $allianceDepot->price = new GameObjectPrice(20000, 40000, 0, 0, 2);
+        $allianceDepot->valid_planet_types = [PlanetType::Planet];
         $allianceDepot->assets = new GameObjectAssets();
         $allianceDepot->assets->imgMicro = 'alliance_depot_micro.jpg';
         $allianceDepot->assets->imgSmall = 'alliance_depot_small.jpg';
@@ -112,6 +115,7 @@ class StationObjects
             new GameObjectRequirement('computer_technology', 10),
         ];
         $naniteFactory->price = new GameObjectPrice(1000000, 500000, 100000, 0, 2);
+        $naniteFactory->valid_planet_types = [PlanetType::Planet];
         $naniteFactory->assets = new GameObjectAssets();
         $naniteFactory->assets->imgMicro = 'nanite_factory_micro.jpg';
         $naniteFactory->assets->imgSmall = 'nanite_factory_small.jpg';
@@ -137,6 +141,7 @@ Once built, the terraformer cannot be dismantled.';
             new GameObjectRequirement('energy_technology', 12),
         ];
         $terraformer->price = new GameObjectPrice(50000, 0, 100000, 1000, 2);
+        $terraformer->valid_planet_types = [PlanetType::Planet];
         $terraformer->assets = new GameObjectAssets();
         $terraformer->assets->imgMicro = 'terraformer_micro.jpg';
         $terraformer->assets->imgSmall = 'terraformer_small.jpg';
@@ -151,7 +156,7 @@ Once built, the terraformer cannot be dismantled.';
         $spaceDock->class_name = 'repairDock';
         $spaceDock->description = 'Wreckages can be repaired in the Space Dock.';
         $spaceDock->description_long = 'The Space Dock offers the possibility to repair ships destroyed in battle which left behind wreckage. The repair time takes a maximum of 12 hours, but it takes at least 30 minutes until the ships can be put back into service.
-        
+
 Repairs must begin within 3 days of the creation of the wreckage. The repaired ships must be returned to duty manually after completion of the repairs. If this is not done, individual ships of any type will be returned to service after 3 days.
 
 Wreckage only appears if more than 150,000 units have been destroyed including one’s own ships which took part in the combat with a value of at least 5% of the ship points.
@@ -161,11 +166,69 @@ Since the Space Dock floats in orbit, it does not require a planet field.';
             new GameObjectRequirement('shipyard', 2),
         ];
         $spaceDock->price = new GameObjectPrice(200, 0, 50, 50, 2);
+        $spaceDock->valid_planet_types = [PlanetType::Planet];
         $spaceDock->assets = new GameObjectAssets();
         $spaceDock->assets->imgMicro = 'space_dock_micro.jpg';
         $spaceDock->assets->imgSmall = 'space_dock_small.jpg';
 
         $buildingObjectsNew[] = $spaceDock;
+
+        // --- Lunar Base ---
+        $lunarBase = new StationObject();
+        $lunarBase->id = 41;
+        $lunarBase->title = 'Lunar Base';
+        $lunarBase->machine_name = 'lunar_base';
+        $lunarBase->class_name = 'moonbase';
+        $lunarBase->description = 'Since the moon has no atmosphere, a lunar base is required to generate habitable space.';
+        $lunarBase->description_long = 'A moon has no atmosphere, so a lunar base must first be built before a settlement can be set up. This then provides oxygen, heating, and gravity. With each level constructed, a larger living and development area is provided within the biosphere. Each constructed level allows three fields for other buildings. With each level, the Lunar base occupies one field itself.
+Once built, the lunar base can not be torn down.';
+        $lunarBase->price = new GameObjectPrice(20000, 40000, 20000, 0, 2);
+        $lunarBase->valid_planet_types = [PlanetType::Moon];
+        $lunarBase->assets = new GameObjectAssets();
+        $lunarBase->assets->imgMicro = 'lunar_base_micro.jpg';
+        $lunarBase->assets->imgSmall = 'lunar_base_small.jpg';
+
+        $buildingObjectsNew[] = $lunarBase;
+
+        // --- Sensor Phalanx ---
+        $sensorPhalanx = new StationObject();
+        $sensorPhalanx->id = 42;
+        $sensorPhalanx->title = 'Sensor Phalanx';
+        $sensorPhalanx->machine_name = 'sensor_phalanx';
+        $sensorPhalanx->class_name = 'sensorPhalanx';
+        $sensorPhalanx->description = 'Using the sensor phalanx, fleets of other empires can be discovered and observed. The bigger the sensor phalanx array, the larger the range it can scan.';
+        $sensorPhalanx->description_long = 'Utilizing high-resolution sensors, the Sensor Phalanx first scans the spectrum of light, composition of gases, and radiation emissions from a distant world and transmits the data to a supercomputer for processing. Once the information is obtained, the supercomputer compares changes in the spectrum, gas composition, and radiation emissions, to a base line chart of known changes of the spectrum created by various ship movements. The resulting data then displays activity of any fleet within the range of the phalanx. To prevent the supercomputer from overheating during the process, it is cooled by utilizing 5k of processed Deuterium.
+To use the Phalanx, click on any planet in the Galaxy View within your sensors range.';
+        $sensorPhalanx->requirements = [
+            new GameObjectRequirement('lunar_base', 1),
+        ];
+        $sensorPhalanx->price = new GameObjectPrice(20000, 40000, 10000, 0, 2);
+        $sensorPhalanx->valid_planet_types = [PlanetType::Moon];
+        $sensorPhalanx->assets = new GameObjectAssets();
+        $sensorPhalanx->assets->imgMicro = 'sensor_phalanx_micro.jpg';
+        $sensorPhalanx->assets->imgSmall = 'sensor_phalanx_small.jpg';
+
+        $buildingObjectsNew[] = $sensorPhalanx;
+
+        // --- Jump Gate ---
+        $jumpGate = new StationObject();
+        $jumpGate->id = 43;
+        $jumpGate->title = 'Jump Gate';
+        $jumpGate->machine_name = 'jump_gate';
+        $jumpGate->class_name = 'jumpGate';
+        $jumpGate->description = 'Jump gates are huge transceivers capable of sending even the biggest fleet in no time to a distant jump gate.';
+        $jumpGate->description_long = 'A Jump Gate is a system of giant transceivers capable of sending even the largest fleets to a receiving Gate anywhere in the universe without loss of time. Utilizing technology similar to that of a Worm Hole to achieve the jump, deuterium is not required. A recharge period of a few minutes must pass between jumps to allow for regeneration. Transporting resources through the Gate is not possible either. With every upgrade level the jump gate`s cooldown time can be reduced.';
+        $jumpGate->requirements = [
+            new GameObjectRequirement('lunar_base', 1),
+            new GameObjectRequirement('hyperspace_technology', level: 7),
+        ];
+        $jumpGate->price = new GameObjectPrice(2000000, 4000000, 2000000, 0, 2);
+        $jumpGate->valid_planet_types = [PlanetType::Moon];
+        $jumpGate->assets = new GameObjectAssets();
+        $jumpGate->assets->imgMicro = 'jump_gate_micro.jpg';
+        $jumpGate->assets->imgSmall = 'jump_gate_small.jpg';
+
+        $buildingObjectsNew[] = $jumpGate;
 
         return $buildingObjectsNew;
     }

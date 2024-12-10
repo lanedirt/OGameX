@@ -5,6 +5,7 @@ namespace OGame\GameMessages\Abstracts;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
 
@@ -283,11 +284,9 @@ abstract class GameMessage
     {
         // Find and replace the following placeholders:
         // [player]{playerId}[/player] with the player name.
-        // [alliance]{allianceId}[/alliance] with the alliance name.
         // [planet]{planetId}[/planet] with the planet name and coordinates.
-        // TODO: Implement the other placeholders.
-        // TODO: add unittests to cover the placeholder replacements.
-        // Pattern to match [player]{playerId}[/player] placeholders
+        // [coordinates]{galaxy}:{system}:{position}[/coordinates] with coordinates.
+        // [debrisfield]{galaxy}:{system}:{position}[/debrisfield] with coordinates.
         $body = preg_replace_callback('/\[player\](\d+)\[\/player\]/', function ($matches) {
             if (!is_numeric($matches[1])) {
                 return 'Unknown Player';
@@ -324,8 +323,24 @@ abstract class GameMessage
             }
 
             if ($planetService !== null) {
+                $planetIcon = '';
+                $planetIconTitle = '';
+                switch ($planetService->getPlanetType()) {
+                    case PlanetType::Planet:
+                        $planetIcon = 'planet';
+                        $planetIconTitle = 'Planet';
+                        break;
+                    case PlanetType::Moon:
+                        $planetIcon = 'moon';
+                        $planetIconTitle = 'Moon';
+                        break;
+                    case PlanetType::DebrisField:
+                        $planetIcon = 'tf';
+                        $planetIcon = 'Debris Field';
+                        break;
+                }
                 $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
-                                    <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
+                                    <figure class="planetIcon ' . $planetIcon . ' tooltip js_hideTipOnMobile" title="' . $planetIconTitle . '"></figure>
                                 ' . $planetService->getPlanetName() . ' [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
             } else {
                 $planetName = 'Unknown Planet';

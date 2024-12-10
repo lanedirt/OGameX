@@ -5,7 +5,6 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use OGame\GameObjects\Models\Calculations\CalculationType;
@@ -394,7 +393,7 @@ class PlayerService
      */
     public function updateResearchQueue(bool $save_user = true): void
     {
-        $queue = resolve('OGame\Services\ResearchQueueService');
+        $queue = resolve(ResearchQueueService::class);
         $research_queue = $queue->retrieveFinishedForUser($this);
 
         // @TODO: add DB transaction wrapper
@@ -519,32 +518,21 @@ class PlayerService
      */
     public function isResearching(): bool
     {
-        $research_queue = resolve('OGame\Services\ResearchQueueService');
+        $research_queue = resolve(ResearchQueueService::class);
         return (bool) $research_queue->activeResearchQueueItemCount($this);
     }
 
     /**
      * Get is the player researching the tech or not
      *
+     * @param string $machine_name
+     * @param int $level
      * @return bool
      */
     public function isResearchingTech(string $machine_name, int $level): bool
     {
-        $research_queue = resolve('OGame\Services\ResearchQueueService');
+        $research_queue = resolve(ResearchQueueService::class);
         return $research_queue->objectInResearchQueue($this, $machine_name, $level);
-    }
-
-    /**
-     * Retrieves research labs from the player planets.
-     *
-     * @return Collection
-     */
-    public function retrievePlanetResearchLabs(): Collection
-    {
-        return Planet::where('user_id', '=', $this->getId())
-            ->select('id', 'research_lab')
-            ->orderBy('research_lab', 'desc')
-            ->get();
     }
 
     /**

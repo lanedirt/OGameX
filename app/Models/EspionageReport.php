@@ -40,6 +40,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereShips($value)
  * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereDebris($value)
+ * @property int $planet_type
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EspionageReport wherePlanetType($value)
  * @mixin \Eloquent
  */
 class EspionageReport extends Model

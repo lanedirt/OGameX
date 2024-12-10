@@ -18,7 +18,17 @@
         </td>
 
         <td class="originFleet">
-            <figure class="planetIcon planet"></figure>
+            @switch ($fleet_event_row->destination_planet_type)
+                @case (OGame\Models\Enums\PlanetType::Planet)
+                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>
+                    @break
+                @case (OGame\Models\Enums\PlanetType::Moon)
+                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>
+                    @break
+                @case (OGame\Models\Enums\PlanetType::DebrisField)
+                    <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>
+                    @break
+            @endswitch
             {{ $fleet_event_row->destination_planet_name }}
         </td>
         <td class="coordsOrigin">
@@ -84,13 +94,17 @@
         -->
 
         <td class="destFleet">
-            @php // 8 = harvest/recycle mission. @endphp
-            @if ($fleet_event_row->mission_type == 8)
-                <figure class="planetIcon tf tooltip js_hideTipOnMobile" title="debris field"></figure>debris field
-            @else
-                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
-                {{ $fleet_event_row->destination_planet_name }}
-            @endif
+            @switch ($fleet_event_row->origin_planet_type)
+                @case (OGame\Models\Enums\PlanetType::Planet)
+                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>{{ $fleet_event_row->origin_planet_name }}
+                    @break
+                @case (OGame\Models\Enums\PlanetType::Moon)
+                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>{{ $fleet_event_row->origin_planet_name }}
+                    @break
+                @case (OGame\Models\Enums\PlanetType::DebrisField)
+                    <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
+                    @break
+            @endswitch
         </td>
         <td class="destCoords">
             <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->origin_planet_coords->galaxy, 'system' => $fleet_event_row->origin_planet_coords->system]) }}"
@@ -124,8 +138,17 @@
         </td>
 
         <td class="originFleet">
-            <figure class="planetIcon planet"></figure>
-            {{ $fleet_event_row->origin_planet_name }}
+            @switch ($fleet_event_row->origin_planet_type)
+                @case (OGame\Models\Enums\PlanetType::Planet)
+                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>{{ $fleet_event_row->origin_planet_name }}
+                    @break
+                @case (OGame\Models\Enums\PlanetType::Moon)
+                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>{{ $fleet_event_row->origin_planet_name }}
+                    @break
+                @case (OGame\Models\Enums\PlanetType::DebrisField)
+                    <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
+                    @break
+            @endswitch
         </td>
         <td class="coordsOrigin">
             <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->origin_planet_coords->galaxy, 'system' => $fleet_event_row->origin_planet_coords->system]) }}"
@@ -183,13 +206,17 @@
         </td>
 
         <td class="destFleet">
-            @php // 8 = harvest/recycle mission. @endphp
-            @if ($fleet_event_row->mission_type == 8)
-                <figure class="planetIcon tf tooltip js_hideTipOnMobile" title="debris field"></figure>debris field
-            @else
-                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
-                {{ $fleet_event_row->destination_planet_name }}
-            @endif
+            @switch ($fleet_event_row->destination_planet_type)
+                @case (OGame\Models\Enums\PlanetType::Planet)
+                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>{{ $fleet_event_row->destination_planet_name }}
+                    @break
+                @case (OGame\Models\Enums\PlanetType::Moon)
+                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>{{ $fleet_event_row->destination_planet_name }}
+                    @break
+                @case (OGame\Models\Enums\PlanetType::DebrisField)
+                    <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
+                    @break
+            @endswitch
         </td>
         <td class="destCoords">
             <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->destination_planet_coords->galaxy, 'system' => $fleet_event_row->destination_planet_coords->system]) }}"

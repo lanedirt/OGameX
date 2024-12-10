@@ -145,6 +145,7 @@ class AttackMission extends GameMission
         $report->planet_galaxy = $defenderPlanet->getPlanetCoordinates()->galaxy;
         $report->planet_system = $defenderPlanet->getPlanetCoordinates()->system;
         $report->planet_position = $defenderPlanet->getPlanetCoordinates()->position;
+        $report->planet_type = $defenderPlanet->getPlanetType()->value;
 
         $report->planet_user_id = $defenderPlanet->getPlayer()->getId();
 

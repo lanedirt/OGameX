@@ -120,7 +120,7 @@ class PlanetServiceTest extends UnitTestCase
     }
 
     /**
-     * Test that the field max function with terraformer returns expected values
+     * Test that the field max function with terraformer (for planets) returns expected values
      */
     public function testGetPlanetFieldMaxWithTerraformer(): void
     {
@@ -130,7 +130,7 @@ class PlanetServiceTest extends UnitTestCase
             'terraformer' => 1,
         ]);
 
-        $this->assertEquals(95, $this->planetService->getPlanetFieldMax());
+        $this->assertEquals(95, $this->planetService->getPlanetFieldMax(), 'Terraformer level 1 should add 5 to the max fields.');
 
         // Test a divisible of 2, should add 5, and +1 bonus.
         $this->createAndSetPlanetModel([
@@ -138,7 +138,7 @@ class PlanetServiceTest extends UnitTestCase
             'terraformer' => 2,
         ]);
 
-        $this->assertEquals(161, $this->planetService->getPlanetFieldMax());
+        $this->assertEquals(161, $this->planetService->getPlanetFieldMax(), 'Terraformer level 2 should add 11 to the max fields.');
 
         // Larger divisible
         $this->createAndSetPlanetModel([
@@ -148,7 +148,7 @@ class PlanetServiceTest extends UnitTestCase
 
         // each level + 5 max fields - 100 base, plus 20*5 = 200
         // every 2 levels + 1 max field- 20/2 = 10, so 200 + 10 = 210
-        $this->assertEquals(210, $this->planetService->getPlanetFieldMax());
+        $this->assertEquals(210, $this->planetService->getPlanetFieldMax(), 'Terraformer level 20 should add 210 to the max fields.');
 
         // Ensure if it's not built it doesn't alter the max fields.
         $this->createAndSetPlanetModel([
@@ -156,7 +156,40 @@ class PlanetServiceTest extends UnitTestCase
             'terraformer' => 0,
         ]);
 
-        $this->assertEquals(100, $this->planetService->getPlanetFieldMax());
+        $this->assertEquals(100, $this->planetService->getPlanetFieldMax(), 'Terraformer level 0 should not alter the max fields.');
+    }
+
+    /**
+     * Test that the field max function with lunar base (for moons) returns expected values
+     */
+    public function testGetPlanetFieldMaxWithLunarBase(): void
+    {
+        // Test lunar base level 0 for baseline.
+        $this->createAndSetPlanetModel([
+            'field_max' => 90,
+            'lunar_base' => 0,
+        ]);
+
+        $this->assertEquals(0, $this->planetService->getBuildingCount());
+        $this->assertEquals(90, $this->planetService->getPlanetFieldMax(), 'Lunar base level 0 should not alter the max fields.');
+
+        // Test lunar base level 1-- should add 3 (lunar base itself takes up one field so 2 bonus).
+        $this->createAndSetPlanetModel([
+            'field_max' => 90,
+            'lunar_base' => 1,
+        ]);
+
+        $this->assertEquals(1, $this->planetService->getBuildingCount());
+        $this->assertEquals(93, $this->planetService->getPlanetFieldMax(), 'Lunar base level 1 should add 3 to the max fields.');
+
+        // Test lunar base level 2-- should add 6.
+        $this->createAndSetPlanetModel([
+            'field_max' => 150,
+            'lunar_base' => 2,
+        ]);
+
+        $this->assertEquals(2, $this->planetService->getBuildingCount());
+        $this->assertEquals(156, $this->planetService->getPlanetFieldMax(), 'Lunar base level 2 should add 6 to the max fields.');
     }
 
     /**

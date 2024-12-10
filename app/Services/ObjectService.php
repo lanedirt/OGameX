@@ -38,7 +38,8 @@ class ObjectService
      */
     public static function getObjects(): array
     {
-        return array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
+        return [...BuildingObjects::get(), ...StationObjects::get(), ...ResearchObjects::get(),
+                ...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
     }
 
     /**
@@ -78,7 +79,7 @@ class ObjectService
      */
     public static function getUnitObjects(): array
     {
-        return array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
+        return [...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
     }
 
     /**
@@ -88,7 +89,7 @@ class ObjectService
      */
     public static function getShipObjects(): array
     {
-        return array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
+        return [...MilitaryShipObjects::get(), ...CivilShipObjects::get()];
     }
 
     /**
@@ -147,8 +148,8 @@ class ObjectService
      */
     public static function getShipObjectByMachineName(string $machine_name): ShipObject
     {
+        $shipObjects = [...MilitaryShipObjects::get(), ...CivilShipObjects::get()];
         // Loop through all buildings and return the one with the matching UID
-        $shipObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get());
         foreach ($shipObjects as $ship) {
             if ($ship->machine_name === $machine_name) {
                 return $ship;
@@ -166,8 +167,9 @@ class ObjectService
      */
     public static function getObjectById(int $object_id): GameObject
     {
+        $allObjects = [...BuildingObjects::get(), ...StationObjects::get(), ...ResearchObjects::get(),
+                       ...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
         // Loop through all buildings and return the one with the matching UID
-        $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
             if ($object->id == $object_id) {
                 return $object;
@@ -185,8 +187,9 @@ class ObjectService
      */
     public static function getObjectByMachineName(string $machine_name): GameObject
     {
+        $allObjects = [...BuildingObjects::get(), ...StationObjects::get(), ...ResearchObjects::get(),
+                       ...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
         // Loop through all buildings and return the one with the matching UID
-        $allObjects = array_merge(BuildingObjects::get(), StationObjects::get(), ResearchObjects::get(), MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
             if ($object->machine_name == $machine_name) {
                 return $object;
@@ -242,7 +245,7 @@ class ObjectService
      */
     public static function getUnitObjectById(int $object_id): UnitObject
     {
-        $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
+        $allObjects = [...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
         foreach ($allObjects as $object) {
             if ($object->id === $object_id) {
                 return $object;
@@ -260,8 +263,8 @@ class ObjectService
      */
     public static function getUnitObjectByMachineName(string $machine_name): UnitObject
     {
+        $allObjects = [...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
         // Loop through all buildings and return the one with the matching UID
-        $allObjects = array_merge(MilitaryShipObjects::get(), CivilShipObjects::get(), DefenseObjects::get());
         foreach ($allObjects as $object) {
             if ($object->machine_name === $machine_name) {
                 return $object;
@@ -392,6 +395,24 @@ class ObjectService
 
         // Check object's requirements against queued objects
         return count(self::filterQueuedRequirements($missingRequirements, $planet, $player)) === 0;
+    }
+
+    /**
+     * Check if building can be built on this planet type (planet or moon).
+     *
+     * @param string $machine_name
+     * @param PlanetService $planet
+     * @return bool
+     */
+    public static function objectValidPlanetType(string $machine_name, PlanetService $planet): bool
+    {
+        $object = self::getObjectByMachineName($machine_name);
+
+        if (empty($object->valid_planet_types)) {
+            return true;
+        }
+
+        return in_array($planet->getPlanetType(), $object->valid_planet_types);
     }
 
     /**

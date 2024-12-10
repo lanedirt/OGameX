@@ -77,6 +77,12 @@ class BuildingQueueService
         // Check if user satisfies requirements to build this object.
         $building = ObjectService::getObjectById($building_id);
 
+        // Check if building can be built on this planet type (planet or moon).
+        $correct_planet_type = ObjectService::objectValidPlanetType($building->machine_name, $planet);
+        if (!$correct_planet_type) {
+            throw new Exception('This building can not be built on this planet type (planet or moon specific).');
+        }
+
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the building queue.
         $current_level = $planet->getObjectLevel($building->machine_name);
@@ -308,7 +314,7 @@ class BuildingQueueService
             // unit queue objects cannot be canceled.
             $this->cancelItemMissingRequirements($planet);
 
-            $research_queue = resolve('OGame\Services\ResearchQueueService');
+            $research_queue = resolve(ResearchQueueService::class);
             $research_queue->cancelItemMissingRequirements($planet->getPlayer(), $planet);
 
             // Set the next queue item to start (if applicable)

@@ -107,7 +107,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
@@ -140,8 +140,50 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     }
 
     /**
+     * Assert that attacking a foreign moon works and results in a battle report for both the attacker and defender
+     * players.
+     */
+    public function testDispatchFleetMoonCombatReport(): void
+    {
+        $this->basicSetup();
+
+        // Send fleet to a nearby foreign moon.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $foreignMoon = $this->sendMissionToOtherPlayerMoon($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Set all messages as read to avoid unread messages count in the overview.
+        $this->playerSetAllMessagesRead();
+
+        // Increase time by 10 hours to ensure the mission is done.
+        $this->travel(10)->hours();
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that battle report has been sent to attacker and contains the correct information.
+        $this->assertMessageReceivedAndContains('fleets', 'combat_reports', [
+            'Combat report',
+            $foreignMoon->getPlanetName()
+        ]);
+
+        // Get battle report message of attacker from database.
+        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())->where('key', 'battle_report')->orderByDesc('id')->first();
+        $this->assertNotNull($messageAttacker, 'Attacker has not received a battle report after combat.');
+
+        // Assert that defender also received a message with the same battle report ID.
+        $messageDefender = Message::where('user_id', $foreignMoon->getPlayer()->getId())->orderByDesc('id')->first();
+        if ($messageDefender) {
+            $messageDefender = $messageDefender instanceof Message ? $messageDefender : new Message($messageDefender->getAttributes());
+            $this->assertEquals($messageAttacker->battle_report_id, $messageDefender->battle_report_id, 'Defender has not received the same battle report as attacker.');
+        } else {
+            $this->fail('Defender has not received a battle report after combat.');
+        }
+    }
+
+    /**
      * Verify that dispatching a fleet launches a return trip.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testDispatchFleetReturnTrip(): void
@@ -155,7 +197,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Clear any units from foreign planet to ensure we win the battle.
         $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
@@ -225,7 +267,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
-        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // The eventbox should only show 1 mission (the parent).
         $response = $this->get('/ajax/fleet/eventbox/fetch');
@@ -246,7 +288,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
     /**
      * Verify that canceling/recalling an active mission works.
-     * @throws BindingResolutionException
      * @throws Exception
      */
     public function testDispatchFleetRecallMission(): void
@@ -263,7 +304,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
-        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -338,7 +379,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
-        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -384,7 +425,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 200);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Clear existing units from foreign planet.
         $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
@@ -439,7 +480,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 50);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Give the foreign planet some units to defend itself.
         $foreignPlanet->addUnit('rocket_launcher', 100);
@@ -553,7 +594,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 50);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Ensure that there is no debris field on the foreign planet.
         $debrisFieldService = resolve(DebrisFieldService::class);
@@ -619,7 +660,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('battle_ship'), 100000);
 
         // Send fleet to a nearby foreign planet
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Prepare defender units
         $foreignPlanet->addUnit('plasma_turret', 20000);

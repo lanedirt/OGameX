@@ -225,7 +225,7 @@ class CreateNewUser implements CreatesNewUsers
         $planetNames = ['Homeworld', 'Colony'];
         // The amount of planets to create is defined in the settings and defaults to 1.
         for ($i = 0; $i < $this->settings->registrationPlanetAmount(); $i++) {
-            $this->planetServiceFactory->createInitialForPlayer($playerService, $planetNames[$i === 0 ? 0 : 1]);
+            $this->planetServiceFactory->createInitialPlanetForPlayer($playerService, $planetNames[$i === 0 ? 0 : 1]);
         }
 
         // Send welcome message to player

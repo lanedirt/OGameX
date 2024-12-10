@@ -40,6 +40,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereRounds($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereWreckage($value)
+ * @property int $planet_type
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BattleReport wherePlanetType($value)
  * @mixin \Eloquent
  */
 class BattleReport extends Model

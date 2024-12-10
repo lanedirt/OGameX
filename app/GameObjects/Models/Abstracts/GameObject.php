@@ -9,6 +9,7 @@ use OGame\GameObjects\Models\Fields\GameObjectAssets;
 use OGame\GameObjects\Models\Fields\GameObjectPrice;
 use OGame\GameObjects\Models\Fields\GameObjectProduction;
 use OGame\GameObjects\Models\Fields\GameObjectRequirement;
+use OGame\Models\Enums\PlanetType;
 
 /**
  * Class GameObject
@@ -40,6 +41,13 @@ abstract class GameObject
      * @var array<GameObjectRequirement>
      */
     public array $requirements = [];
+
+    /**
+     * Array of planet types that this object can be built on. Empty array means it can be built on any planet type.
+     *
+     * @var array<PlanetType>
+     */
+    public array $valid_planet_types = [];
 
     /**
      * Production gained by object (in case of mines, solar satellites, plasma technology, etc).

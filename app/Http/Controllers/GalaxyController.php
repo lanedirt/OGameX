@@ -12,6 +12,7 @@ use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use OGame\Models\Enums\PlanetType;
 
 class GalaxyController extends OGameController
 {
@@ -83,11 +84,16 @@ class GalaxyController extends OGameController
         $this->planetServiceFactory = $planetServiceFactory;
 
         // Retrieve all planets from this galaxy and system.
-        $planet_list = Planet::where(['galaxy' => $galaxy, 'system' => $system])->get();
+        $planet_list = Planet::where([
+            'galaxy' => $galaxy,
+            'system' => $system,
+            'planet_type' => PlanetType::Planet->value
+        ])->get();
+
         $planets = [];
-        foreach ($planet_list as $record) {
-            $planetService = $planetServiceFactory->make($record->id);
-            $planets[$record->planet] = $planetService;
+        foreach ($planet_list as $planet) {
+            $planetService = $planetServiceFactory->makeFromModel($planet);
+            $planets[$planet->planet] = $planetService;
         }
 
         // Render galaxy rows.
@@ -143,7 +149,7 @@ class GalaxyController extends OGameController
                 'activity' => $this->getPlanetActivityStatus($planet),
                 'availableMissions' => $availableMissions,
                 'fleet' => [],
-                'imageInformation' => $planet->getPlanetType() . '_' . $planet->getPlanetImageType(),
+                'imageInformation' => $planet->getPlanetBiomeType() . '_' . $planet->getPlanetImageType(),
                 'isDestroyed' => false,
                 'planetId' => $planet->getPlanetId(),
                 'planetName' => $planet->getPlanetName(),
@@ -156,6 +162,10 @@ class GalaxyController extends OGameController
         $debrisFieldExists = $debrisField->loadForCoordinates($planet->getPlanetCoordinates());
         if ($debrisFieldExists && $debrisField->getResources()->any()) {
             $planets_array[] = $this->createDebrisFieldArray($debrisField);
+        }
+
+        if ($planet->hasMoon()) {
+            $planets_array[] = $this->createMoonArray($planet->moon());
         }
 
         return $planets_array;
@@ -202,6 +212,40 @@ class GalaxyController extends OGameController
     }
 
     /**
+     * Creates an array for a moon in the galaxy view.
+     *
+     * @param PlanetService $moon
+     * @return array<string, mixed>
+     */
+    private function createMoonArray(PlanetService $moon): array
+    {
+        $availableMissions = $this->getAvailableMissions(
+            $moon->getPlanetCoordinates()->galaxy,
+            $moon->getPlanetCoordinates()->system,
+            $moon->getPlanetCoordinates()->position,
+            $moon
+        );
+
+        return [
+            'activity' => $this->getPlanetActivityStatus($moon),
+            'availableMissions' => $availableMissions,
+            'fleet' => [],
+            // TODO: moon_c appears as red (recently destroyed?)
+            'imageInformation' => 'moon_a',
+            'isDestroyed' => false,
+            'planetId' => $moon->getPlanetId(),
+            'planetName' => $moon->getPlanetName(),
+            'playerId' => $moon->getPlayer()->getId(),
+            'planetType' => 3,
+            'size' => $moon->getPlanetDiameter(),
+            'tooltipInfo' => [
+                'diameter' => $moon->getPlanetDiameter(),
+                'name' => $moon->getPlanetName(),
+            ],
+        ];
+    }
+
+    /**
      * Gets available missions for a planet
      *
      * @param int $galaxy
@@ -217,7 +261,7 @@ class GalaxyController extends OGameController
         // Transport.
         $availableMissions[] = [
             'missionType' => 3,
-            'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => 1, 'mission' => 3]),
+            'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 3]),
             'name' => __('Transport'),
         ];
 
@@ -228,21 +272,30 @@ class GalaxyController extends OGameController
                 'canSpy' => true,
                 'reportId' => '',
                 'reportLink' => '',
-                'link' => route('fleet.dispatch.sendfleet', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => 1, 'mission' => 6, 'am210' => 1]),
+                'link' => route('fleet.dispatch.sendfleet', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 6, 'am210' => 1]),
                 'name' => __('Espionage'),
             ];
 
             // Attack (only if foreign planet).
             $availableMissions[] = [
                 'missionType' => 1,
-                'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => 1, 'mission' => 1]),
+                'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 1]),
                 'name' => __('Attack'),
             ];
+
+            // Moon destruction (only if planet is a moon).
+            if ($planet->isMoon()) {
+                $availableMissions[] = [
+                    'missionType' => 10,
+                    'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 10]),
+                    'name' => __('Moon destruction'),
+                ];
+            }
         } else {
             // Deployment (only if own planet).
             $availableMissions[] = [
                 'missionType' => 4,
-                'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => 1, 'mission' => 4]),
+                'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 4]),
                 'name' => __('Deployment'),
             ];
         }
