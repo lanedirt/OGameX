@@ -526,6 +526,8 @@ class PlayerService
     /**
      * Get is the player researching the tech or not
      *
+     * @param string $machine_name
+     * @param int $level
      * @return bool
      */
     public function isResearchingTech(string $machine_name, int $level): bool

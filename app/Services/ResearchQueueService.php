@@ -145,11 +145,7 @@ class ResearchQueueService
     }
 
     /**
-     * Retrieve current research queue for a planet.
-     *
-     * @TODO this function is not retrieving the queue for a planet
-     * like the comment says, instead the queue is retrieved for a player.
-     * Bug or incorrect comment?
+     * Retrieve current research queue for a player.
      *
      * @param PlanetService $planet
      * @return ResearchQueueListViewModel
