@@ -537,19 +537,6 @@ class PlayerService
     }
 
     /**
-     * Retrieves research labs from the player planets.
-     *
-     * @return Collection
-     */
-    public function retrievePlanetResearchLabs(): Collection
-    {
-        return Planet::where('user_id', '=', $this->getId())
-            ->select('id', 'research_lab')
-            ->orderBy('research_lab', 'desc')
-            ->get();
-    }
-
-    /**
      * Get the maximum amount of planets that this player can have based on research levels.
      *
      * @return int

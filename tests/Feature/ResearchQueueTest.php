@@ -203,7 +203,7 @@ class ResearchQueueTest extends AccountTestCase
         $this->planetSetObjectLevel('research_lab', 8);
         $this->assertSame(8, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
 
-        // Assert two planets combined research lab level when second planet doesn't met requirements.
+        // Assert two planets combined research lab level when second planet doesn't meet requirements.
         $this->playerSetResearchLevel('intergalactic_research_network', 2);
         $this->playerSetResearchLevel('energy_technology', 3);
         $this->secondPlanetService->setObjectLevel(31, 5); // Research Lab

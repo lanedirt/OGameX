@@ -188,13 +188,13 @@ class PlanetService
         // Building queues
         BuildingQueue::where('planet_id', $this->planet->id)->delete();
 
-        if ($this->player->planets->planetCount() < 2) {
+        if ($this->getPlayer()->planets->planetCount() < 2) {
             throw new Exception('Cannot abandon only remaining planet.');
         }
 
         // Update the player's current planet if it is the planet being abandoned.
-        if ($this->player->getCurrentPlanetId() === $this->planet->id) {
-            $this->player->setCurrentPlanetId(0);
+        if ($this->getPlayer()->getCurrentPlanetId() === $this->planet->id) {
+            $this->getPlayer()->setCurrentPlanetId(0);
         }
 
         // TODO: add sanity check that a planet can only be abandoned if it has no active fleet missions going to or from it.
@@ -814,11 +814,10 @@ class PlanetService
     }
 
     /**
-     * Gets the Intergalactic Research Network research lab level for object.
+     * Gets the Intergalactic Research Network combined research lab level for object.
      *
      * @param string $machine_name
      * @return int
-     * @throws Exception
      */
     public function getResearchNetworkLabLevel(string $machine_name): int
     {
@@ -826,25 +825,31 @@ class PlanetService
 
         // The Intergalactic Research Network technology enables multiple research labs
         // across different planets to collaborate, significantly reducing research times.
-        $irn_level = $this->player->getResearchLevel('intergalactic_research_network');
-        if ($irn_level) {
-            $research_labs = $this->player->retrievePlanetResearchLabs()->filter(function (Planet $planet) use ($machine_name) {
+        $irn_level = $this->getPlayer()->getResearchLevel('intergalactic_research_network');
+        if ($irn_level > 0) {
+            // Get the research lab levels of all planets in the player's possession.
+            $research_lab_levels = [];
+            foreach ($this->getPlayer()->planets->allPlanets() as $planet) {
                 // Check if the object's requirements are met on the planet;
                 // otherwise, the planet's research lab cannot be included in the research network.
-                $planetService = resolve(PlanetService::class, ['player' => $this->player, 'planet_id' => $planet->id]);
-                if (!ObjectService::objectRequirementsMet($machine_name, $planetService, $this->player)) {
-                    return false;
+                if (!ObjectService::objectRequirementsMet($machine_name, $planet, $this->getPlayer())) {
+                    continue;
                 }
 
                 // Exclude the current planet, as it is already part of the research network.
-                if ($planet->id === $this->planet->id) {
-                    return false;
+                if ($planet->getPlanetId() === $this->getPlanetId()) {
+                    continue;
                 }
 
-                return true;
-            });
+                $research_lab_levels[] = $planet->getObjectLevel('research_lab');
+            }
 
-            $research_lab_level += $research_labs->take($irn_level)->sum('research_lab');
+            // Sort the research lab levels in descending order so the highest levels are first.
+            rsort($research_lab_levels);
+
+            // Take the first $irn_level research labs and append the sum of their levels to the current planet's
+            // research lab level. This will result in the effective research lab level.
+            $research_lab_level += array_sum(array_slice($research_lab_levels, 0, $irn_level));
         }
 
         return $research_lab_level;
