@@ -250,9 +250,10 @@
     }
 </script>
 
-{{-- Last building slot warning --}}
-@include ('ingame.shared.buildings.last-building-slot-warning', ['planet' => $planet])
-
+@if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station))
+    {{-- Last building slot warning for buildings --}}
+    @include ('ingame.shared.buildings.last-building-slot-warning', ['planet' => $planet])
+@endif
 <script>
     $(document).ready(function () {
         $("#number").focus();
