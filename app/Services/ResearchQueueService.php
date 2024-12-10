@@ -379,7 +379,7 @@ class ResearchQueueService
 
             $this->cancelItemMissingRequirements($player, $planet);
 
-            $build_queue = resolve('OGame\Services\BuildingQueueService');
+            $build_queue = resolve(BuildingQueueService::class);
             $build_queue->cancelItemMissingRequirements($planet);
 
             // Set the next queue item to start (if applicable)
@@ -390,6 +390,9 @@ class ResearchQueueService
     /**
      * Get is object in research queue
      *
+     * @param PlayerService $player
+     * @param string $machine_name
+     * @param int $level
      * @return bool
      */
     public function objectInResearchQueue(PlayerService $player, string $machine_name, int $level): bool
@@ -401,6 +404,7 @@ class ResearchQueueService
             ->where([
                 ['users.id', $player->getId()],
                 ['research_queues.canceled', 0],
+                ['research_queues.processed', 0],
             ])
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')

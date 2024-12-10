@@ -394,7 +394,7 @@ class PlayerService
      */
     public function updateResearchQueue(bool $save_user = true): void
     {
-        $queue = resolve('OGame\Services\ResearchQueueService');
+        $queue = resolve(ResearchQueueService::class);
         $research_queue = $queue->retrieveFinishedForUser($this);
 
         // @TODO: add DB transaction wrapper
@@ -519,7 +519,7 @@ class PlayerService
      */
     public function isResearching(): bool
     {
-        $research_queue = resolve('OGame\Services\ResearchQueueService');
+        $research_queue = resolve(ResearchQueueService::class);
         return (bool) $research_queue->activeResearchQueueItemCount($this);
     }
 
@@ -530,7 +530,7 @@ class PlayerService
      */
     public function isResearchingTech(string $machine_name, int $level): bool
     {
-        $research_queue = resolve('OGame\Services\ResearchQueueService');
+        $research_queue = resolve(ResearchQueueService::class);
         return $research_queue->objectInResearchQueue($this, $machine_name, $level);
     }
 

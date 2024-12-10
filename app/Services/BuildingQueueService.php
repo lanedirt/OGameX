@@ -314,7 +314,7 @@ class BuildingQueueService
             // unit queue objects cannot be canceled.
             $this->cancelItemMissingRequirements($planet);
 
-            $research_queue = resolve('OGame\Services\ResearchQueueService');
+            $research_queue = resolve(ResearchQueueService::class);
             $research_queue->cancelItemMissingRequirements($planet->getPlayer(), $planet);
 
             // Set the next queue item to start (if applicable)
