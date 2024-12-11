@@ -1,13 +1,13 @@
-<h1 align="center"><img align="center" src="https://github.com/lanedirt/OGameX/assets/6917405/c81061d5-0310-4574-a91d-1ea155b567c0" alt="OGameX logo" /></h1>
+<p align="center"><img align="center" src="https://github.com/lanedirt/OGameX/assets/6917405/c81061d5-0310-4574-a91d-1ea155b567c0" alt="OGameX logo" /></p>
 
 <p align="center">
 <a href="https://main.ogamex.dev">Live demo 🚀</a> • <a href="#installation">Installation 📦</a> • <a href="https://github.com/lanedirt/OGameX/blob/main/CONTRIBUTING.md">Contributing 💻</a> 
 </p>
 
 
-<h3 align="center">
-Open-source OGame redesign clone
-</h3>
+<p align="center">
+<strong>Open-source OGame redesign clone</strong>
+</p>
 
 <div align="center">
     
