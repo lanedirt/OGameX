@@ -11,6 +11,7 @@ use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
+use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -36,6 +37,11 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     protected function basicSetup(): void
     {
         $this->planetAddUnit('espionage_probe', 5);
+
+        // Set the fleet speed to 1x for this test.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+        $settingsService->set('fleet_speed', 1);
     }
 
     protected function messageCheckMissionArrival(): void
@@ -92,7 +98,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
@@ -112,6 +118,37 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     }
 
     /**
+     * Tests that launching an espionage mission towards a moon works as expected.
+     *
+     * @return void
+     */
+    public function testDispatchFleetEspionageReportMoon(): void
+    {
+        $this->basicSetup();
+
+        // Send fleet to a nearby foreign planet.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
+        $foreignMoon = $this->sendMissionToOtherPlayerMoon($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Set all messages as read to avoid unread messages count in the overview.
+        $this->playerSetAllMessagesRead();
+
+        // Increase time by 10 hours to ensure the mission is done.
+        $this->travel(10)->hours();
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that espionage report has been sent to player and contains the correct information.
+        $this->assertMessageReceivedAndContains('fleets', 'espionage', [
+            'Espionage report from',
+            $foreignMoon->getPlanetName()
+        ]);
+    }
+
+    /**
      * Test that when espionage reaches destination planet, the planet is updated and the updated
      * resources are visible in the espionage report.
      */
@@ -122,7 +159,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get current updated timestamp of the target planet.
         $foreignPlanetUpdatedAtBefore = $foreignPlanet->getUpdatedAt();
@@ -164,7 +201,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Add debris field to the foreign planet.
         // First check if it already exists, if so, delete it to make sure the debris field contains
@@ -225,7 +262,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -269,7 +306,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // The eventbox should only show 1 mission (the parent).
         $response = $this->get('/ajax/fleet/eventbox/fetch');
@@ -311,7 +348,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -385,7 +422,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayer($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);

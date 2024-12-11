@@ -44,6 +44,9 @@ trait ObjectAjaxTrait
         // Check requirements of this object
         $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet, $player);
 
+        // Check if the current planet has the right type to build this object.
+        $valid_planet_type = ObjectService::objectValidPlanetType($object->machine_name, $planet);
+
         $price = ObjectService::getObjectPrice($object->machine_name, $planet);
 
         // Get max build amount of this object (unit).
@@ -153,6 +156,7 @@ trait ObjectAjaxTrait
             'energy_difference' => $energy_difference,
             'enough_resources' => $enough_resources,
             'requirements_met' => $requirements_met,
+            'valid_planet_type' => $valid_planet_type,
             'build_active' => $build_queue->count(),
             'build_active_current' => $build_active_current,
             'build_queue_max' => $build_queue_max,

@@ -75,7 +75,7 @@ class ColonisationMission extends GameMission
 
         // Check if the astrophysics research level is high enough to colonize a new planet.
         $max_planets = $player->getMaxPlanetAmount();
-        if ($player->planets->count() + 1 > $max_planets) {
+        if ($player->planets->planetCount() + 1 > $max_planets) {
             // Astrophysics level is not high enough, send failed message and cancel the mission.
             $this->messageService->sendSystemMessageToPlayer($player, ColonyEstablishFailAstrophysics::class, [
                 'coordinates' => $target_coordinates->asString(),
@@ -86,7 +86,7 @@ class ColonisationMission extends GameMission
         }
 
         // Create a new planet at the target coordinates.
-        $target_planet = $this->planetServiceFactory->createAdditionalForPlayer($player, new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
+        $target_planet = $this->planetServiceFactory->createAdditionalPlanetForPlayer($player, new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
 
         // Send success message
         $this->messageService->sendSystemMessageToPlayer($player, ColonyEstablished::class, [

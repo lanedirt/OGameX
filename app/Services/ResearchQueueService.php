@@ -145,11 +145,7 @@ class ResearchQueueService
     }
 
     /**
-     * Retrieve current research queue for a planet.
-     *
-     * @TODO this function is not retrieving the queue for a planet
-     * like the comment says, instead the queue is retrieved for a player.
-     * Bug or incorrect comment?
+     * Retrieve current research queue for a player.
      *
      * @param PlanetService $planet
      * @return ResearchQueueListViewModel
@@ -174,7 +170,7 @@ class ResearchQueueService
         $list = [];
         foreach ($queue_items as $item) {
             $object = ObjectService::getResearchObjectById($item->object_id);
-            $planetService = $planet->getPlayer()->planets->childPlanetById($item['planet_id']);
+            $planetService = $planet->getPlayer()->planets->getById($item['planet_id']);
             $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
@@ -252,7 +248,7 @@ class ResearchQueueService
             ->get();
 
         foreach ($queue_items as $queue_item) {
-            $planet = $player->planets->childPlanetById($queue_item->planet_id);
+            $planet = $player->planets->getById($queue_item->planet_id);
             $object = ObjectService::getResearchObjectById($queue_item->object_id);
 
             // See if the planet has enough resources for this research attempt.
@@ -357,7 +353,7 @@ class ResearchQueueService
         if ($queue_item) {
             // Typecast to a new object to avoid issues with the model.
             $queue_item = $queue_item instanceof ResearchQueue ? $queue_item : new ResearchQueue($queue_item->getAttributes());
-            $planet = $player->planets->childPlanetById($queue_item->planet_id);
+            $planet = $player->planets->getById($queue_item->planet_id);
 
             // Gets all research queue records of this target level and all that
             // come after it. So e.g. if user cancels build order for metal mine
@@ -379,7 +375,7 @@ class ResearchQueueService
 
             $this->cancelItemMissingRequirements($player, $planet);
 
-            $build_queue = resolve('OGame\Services\BuildingQueueService');
+            $build_queue = resolve(BuildingQueueService::class);
             $build_queue->cancelItemMissingRequirements($planet);
 
             // Set the next queue item to start (if applicable)
@@ -390,6 +386,9 @@ class ResearchQueueService
     /**
      * Get is object in research queue
      *
+     * @param PlayerService $player
+     * @param string $machine_name
+     * @param int $level
      * @return bool
      */
     public function objectInResearchQueue(PlayerService $player, string $machine_name, int $level): bool
@@ -401,6 +400,7 @@ class ResearchQueueService
             ->where([
                 ['users.id', $player->getId()],
                 ['research_queues.canceled', 0],
+                ['research_queues.processed', 0],
             ])
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')

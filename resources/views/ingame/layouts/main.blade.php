@@ -150,7 +150,9 @@
                          data-ipi-hint="ipiResourcemetal">
                         <div class="resourceIcon metal"></div>
                         <span class="value">
-                        <span id="resources_metal" class="{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['metal']['amount'] !!}">{!! $resources['metal']['amount_formatted'] !!}</span>
+                        <span id="resources_metal"
+                              class="{{ $resources['metal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['metal']['amount'] >= $resources['metal']['storage'] ? 'overmark' : '' }}"
+                              data-raw="{!! $resources['metal']['amount'] !!}">{!! $resources['metal']['amount_formatted'] !!}</span>
                     </span>
                     </div>
                 </div>
@@ -161,7 +163,9 @@
                          data-ipi-hint="ipiResourcecrystal">
                         <div class="resourceIcon crystal"></div>
                         <span class="value">
-                        <span id="resources_crystal" class="{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['crystal']['amount'] !!}">{!! $resources['crystal']['amount_formatted'] !!}</span>
+                        <span id="resources_crystal"
+                              class="{{ $resources['crystal']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['crystal']['amount'] >= $resources['crystal']['storage'] ? 'overmark' : '' }}"
+                              data-raw="{!! $resources['crystal']['amount'] !!}">{!! $resources['crystal']['amount_formatted'] !!}</span>
                     </span>
                     </div>
                 </div>
@@ -172,7 +176,9 @@
                          data-ipi-hint="ipiResourcedeuterium">
                         <div class="resourceIcon deuterium"></div>
                         <span class="value">
-                        <span id="resources_deuterium" class="{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}" data-raw="{!! $resources['deuterium']['amount'] !!}">{!! $resources['deuterium']['amount_formatted'] !!}</span>
+                        <span id="resources_deuterium"
+                              class="{{ $resources['deuterium']['storage_almost_full'] ? 'middlemark' : '' }}{{ $resources['deuterium']['amount'] >= $resources['deuterium']['storage'] ? 'overmark' : '' }}"
+                              data-raw="{!! $resources['deuterium']['amount'] !!}">{!! $resources['deuterium']['amount_formatted'] !!}</span>
                     </span>
                     </div>
                 </div>
@@ -303,7 +309,8 @@ Combat simulation save slots +20">
                         @lang('No fleet movement')
                     </div>
                 </div>
-                <div id="attack_alert" class="tooltip @if ($underAttack) soon @else noAttack @endif" title="@if ($underAttack) @lang('You are under attack!') @endif">
+                <div id="attack_alert" class="tooltip @if ($underAttack) soon @else noAttack @endif"
+                     title="@if ($underAttack) @lang('You are under attack!') @endif">
                     <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
                 </div>
             </div>
@@ -558,7 +565,23 @@ Combat simulation save slots +20">
                     "hasAPassword": true
                 };
                 var hasAPassword = true;
-                var jsloca = {"INTERNAL_ERROR":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No","LOCA_NOTIFY_ERROR":"Error","LOCA_NOTIFY_INFO":"Info","LOCA_NOTIFY_SUCCESS":"Success","LOCA_NOTIFY_WARNING":"Warning","COMBATSIM_PLANNING":"Planning","COMBATSIM_PENDING":"Simulation running...","COMBATSIM_DONE":"Complete","MSG_RESTORE":"restore","MSG_DELETE":"delete","COPIED_TO_CLIPBOARD":"Copied to clipboard","LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_NETWORK_MSG_GAMEOPERATOR":"Report this message to a game operator?"};
+                var jsloca = {
+                    "INTERNAL_ERROR": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
+                    "LOCA_ALL_YES": "yes",
+                    "LOCA_ALL_NO": "No",
+                    "LOCA_NOTIFY_ERROR": "Error",
+                    "LOCA_NOTIFY_INFO": "Info",
+                    "LOCA_NOTIFY_SUCCESS": "Success",
+                    "LOCA_NOTIFY_WARNING": "Warning",
+                    "COMBATSIM_PLANNING": "Planning",
+                    "COMBATSIM_PENDING": "Simulation running...",
+                    "COMBATSIM_DONE": "Complete",
+                    "MSG_RESTORE": "restore",
+                    "MSG_DELETE": "delete",
+                    "COPIED_TO_CLIPBOARD": "Copied to clipboard",
+                    "LOCA_ALL_NETWORK_ATTENTION": "Caution",
+                    "LOCA_NETWORK_MSG_GAMEOPERATOR": "Report this message to a game operator?"
+                };
                 var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
                 var isMobile = false;
                 var isMobileApp = false;
@@ -1055,7 +1078,7 @@ Combat simulation save slots +20">
                     <div id="myWorlds">
                         <div id="countColonies">
                             <p class="textCenter">
-                                <span>{{ $currentPlayer->planets->count() }}/{{ $currentPlayer->getMaxPlanetAmount() }}</span> @lang('Planets')
+                                <span>{{ $currentPlayer->planets->planetCount() }}/{{ $currentPlayer->getMaxPlanetAmount() }}</span> @lang('Planets')
                             </p>
                         </div>
                         <div id="planetList">
@@ -1065,39 +1088,52 @@ Combat simulation save slots +20">
                             @endphp
 
                             @php /** @var OGame\Services\PlanetService $planet */ @endphp
-                            @foreach ($planets->all() as $key => $planet)
+                            @foreach ($planets->allPlanets() as $key => $planet)
                                 @php
                                     // Set or replace the 'cp' parameter
                                    $currentQueryParams['cp'] = $planet->getPlanetId();
                                    // Generate the URL to the current route with the updated query parameters
-                                   $urlToCurrentWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
+                                   $urlToPlanetWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
                                 @endphp
 
-                                <div class="smallplanet {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->count() > 1) ? 'hightlightPlanet' : '' }}"
+                                <div class="smallplanet {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'hightlightPlanet' : '' }}"
                                      data-planet-id="{{ $planet->getPlanetId() }}" id="planet-{{ $key + 1 }}">
-                                    <a href="{{ $urlToCurrentWithUpdatedParam }}"
-                                       data-link="{{ $urlToCurrentWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>@lang('Lifeform'): Humans
-<br/>12,800km ({{ $planet->getBuildingCount() }}/{{ $planet->getPlanetFieldMax() }})<br>20°C to 60°C<br/><a href=&quot;#TODO=ingame&amp;component=overview&amp;cp=33624092&quot;>@lang('Overview')</a><br/><a href=&quot;#TODO=ingame&amp;component=supplies&amp;cp=33624092&quot;>@lang('Resources')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=lfbuildings&amp;cp=33624092&quot;>@lang('Lifeform')</a><br/><a href=&quot;#TODOpage=ingame&amp;component=research&amp;cp=33624092&quot;>@lang('Research')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=facilities&amp;cp=33624092&quot;>@lang('Facilities')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=shipyard&amp;cp=33624092&quot;>@lang('Shipyard')</a><br/><a href=&quot;#TODO_component=defenses&amp;cp=33624092&quot;>@lang('Defense')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=fleetdispatch&amp;cp=33624092&quot;>@lang('Fleet')</a><br/><a href=&quot;#TODO_component=galaxy&amp;cp=33624092&amp;galaxy=2&amp;system=3&amp;position=6&quot;>@lang('Galaxy')</a>"
-                                       class="planetlink {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->count() > 1) ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable"
+                                    <a href="{{ $urlToPlanetWithUpdatedParam }}"
+                                       data-link="{{ $urlToPlanetWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>@lang('Lifeform'): Humans
+<br/>{{ OGame\Facades\AppUtil::formatNumber($planet->getPlanetDiameter()) }}km ({{ $planet->getBuildingCount() }}/{{ $planet->getPlanetFieldMax() }})<br>20°C to 60°C<br/><a href=&quot;#TODO=ingame&amp;component=overview&amp;cp=33624092&quot;>@lang('Overview')</a><br/><a href=&quot;#TODO=ingame&amp;component=supplies&amp;cp=33624092&quot;>@lang('Resources')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=lfbuildings&amp;cp=33624092&quot;>@lang('Lifeform')</a><br/><a href=&quot;#TODOpage=ingame&amp;component=research&amp;cp=33624092&quot;>@lang('Research')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=facilities&amp;cp=33624092&quot;>@lang('Facilities')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=shipyard&amp;cp=33624092&quot;>@lang('Shipyard')</a><br/><a href=&quot;#TODO_component=defenses&amp;cp=33624092&quot;>@lang('Defense')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=fleetdispatch&amp;cp=33624092&quot;>@lang('Fleet')</a><br/><a href=&quot;#TODO_component=galaxy&amp;cp=33624092&amp;galaxy=2&amp;system=3&amp;position=6&quot;>@lang('Galaxy')</a>"
+                                       class="planetlink {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable"
                                        data-ipi-hint="ipiPlanetHomeplanet">
                                         <img class="planetPic js_replace2x" alt="{{ $planet->getPlanetName() }}"
-                                             src="{!! asset('img/planets/medium/' . $planet->getPlanetType() . '_' . $planet->getPlanetImageType() . '.png') !!}" width="48" height="48">
+                                             src="{!! asset('img/planets/medium/' . $planet->getPlanetBiomeType() . '_' . $planet->getPlanetImageType() . '.png') !!}"
+                                             width="48" height="48">
                                         <span class="planet-name ">{!! $planet->getPlanetName() !!}</span>
                                         <span class="planet-koords ">[{!! $planet->getPlanetCoordinates()->asString() !!}]</span>
                                     </a>
                                     @if ($planet->isBuilding())
                                         <a class="constructionIcon tooltip js_hideTipOnMobile tpd-hideOnClickOutside"
-                                           data-link="{{ $urlToCurrentWithUpdatedParam }}"
-                                           href="{{ $urlToCurrentWithUpdatedParam }}" title=""
+                                           data-link="{{ $urlToPlanetWithUpdatedParam }}"
+                                           href="{{ $urlToPlanetWithUpdatedParam }}" title=""
                                         >
                                             <span class="icon12px icon_wrench"></span>
                                         </a>
                                     @endif
-                                    <!--
-                                    <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile" title="<b>Moon [2:3:6]</b><br>8,888km (0/1)<br/><a href=&quot;#TODO_ingame&amp;component=overview&amp;cp=33644212&quot;>Overview</a><br/><a href=&quot;#TODO_page=ingame&amp;component=supplies&amp;cp=33644212&quot;>Resources</a><br/><a href=&quot;#TODO=ingame&amp;component=facilities&amp;cp=33644212&quot;>Facilities</a><br/><a href=&quot;#TODO=ingame&amp;component=defenses&amp;cp=33644212&quot;>Defense</a><br/><a href=&quot;#TODO=ingame&amp;component=fleetdispatch&amp;cp=33644212&quot;>Fleet</a><br/><a href=&quot;#TODO=ingame&amp;component=galaxy&amp;cp=33644212&amp;galaxy=2&amp;system=3&amp;position=6&quot;>Galaxy</a>" href="#TODO=ingame&amp;component=shipyard&amp;cp=33644212" data-link="#TODO=ingame&amp;component=shipyard&amp;cp=33644212" data-jumpgatelevel="0">
-                                        <img src="/img/icons/9c9f0a78e85bcf40c2ccfc08db5cb4.gif" width="16" height="16" alt="Moon" class="icon-moon">
-                                    </a>
-                                    -->
+                                    @if ($planet->hasMoon())
+                                        @php
+                                           // Set or replace the 'cp' parameter
+                                           $moon = $planet->moon();
+                                           $currentQueryParams['cp'] = $moon->getPlanetId();
+                                           // Generate the URL to the current route with the updated query parameters
+                                           $urlToMoonWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
+                                        @endphp
+                                        <a class="moonlink {{ ($moon->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'active' : '' }} tooltipLeft tooltipClose js_hideTipOnMobile"
+                                           title="<b>{{ $moon->getPlanetName() }} [{{ $moon->getPlanetCoordinates()->asString() }}]</b><br>{{ OGame\Facades\AppUtil::formatNumber($moon->getPlanetDiameter()) }}km ({{ $moon->getBuildingCount() }}/{{ $moon->getPlanetFieldMax() }})<br/><a href=&quot;#TODO_ingame&amp;component=overview&amp;cp=33644212&quot;>Overview</a><br/><a href=&quot;#TODO_page=ingame&amp;component=supplies&amp;cp=33644212&quot;>Resources</a><br/><a href=&quot;#TODO=ingame&amp;component=facilities&amp;cp=33644212&quot;>Facilities</a><br/><a href=&quot;#TODO=ingame&amp;component=defenses&amp;cp=33644212&quot;>Defense</a><br/><a href=&quot;#TODO=ingame&amp;component=fleetdispatch&amp;cp=33644212&quot;>Fleet</a><br/><a href=&quot;#TODO=ingame&amp;component=galaxy&amp;cp=33644212&amp;galaxy=2&amp;system=3&amp;position=6&quot;>Galaxy</a>"
+                                           href="{{ $urlToMoonWithUpdatedParam }}"
+                                           data-link="{{ $urlToMoonWithUpdatedParam }}"
+                                           data-jumpgatelevel="0">
+                                            <img src="/img/moons/small/{{ $moon->getPlanetImageType() }}.gif" width="16" height="16" alt="Moon"
+                                                 class="icon-moon">
+                                        </a>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
@@ -1144,7 +1180,9 @@ Combat simulation save slots +20">
                 OGameX. @lang('All rights reserved.')</a>
         </div>
         <div class="fright textRight">
-            <a href="{{ route('serversettings.overlay') }}" class="overlay" data-overlay-title="@lang('Server Settings')" data-overlay-class="serversettingsoverlay" data-overlay-popup-width="400" data-overlay-popup-height="510">@lang('Server Settings')</a>|
+            <a href="{{ route('serversettings.overlay') }}" class="overlay"
+               data-overlay-title="@lang('Server Settings')" data-overlay-class="serversettingsoverlay"
+               data-overlay-popup-width="400" data-overlay-popup-height="510">@lang('Server Settings')</a>|
             <a href="http://wiki.ogame.org/" target="_blank">Help</a>|
             @switch ($locale)
                 @case('en')

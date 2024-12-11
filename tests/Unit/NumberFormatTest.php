@@ -41,4 +41,42 @@ class NumberFormatTest extends TestCase
     {
         $this->assertEquals('2,937,205', AppUtil::formatNumber(2937205));
     }
+
+    /**
+     * Test that resource string parsing works as expected.
+     */
+    public function testParseResourceValue(): void
+    {
+        // Test k (thousand) variations
+        $this->assertEquals(5000, AppUtil::parseResourceValue('5k'));
+        $this->assertEquals(5000, AppUtil::parseResourceValue('5K'));
+        $this->assertEquals(5500, AppUtil::parseResourceValue('5.5k'));
+        $this->assertEquals(5100, AppUtil::parseResourceValue('5.1k'));
+
+        // Test m (million) variations
+        $this->assertEquals(1000000, AppUtil::parseResourceValue('1m'));
+        $this->assertEquals(1000000, AppUtil::parseResourceValue('1M'));
+        $this->assertEquals(1500000, AppUtil::parseResourceValue('1.5m'));
+        $this->assertEquals(2300000, AppUtil::parseResourceValue('2.3m'));
+
+        // Test b (billion) variations
+        $this->assertEquals(1000000000, AppUtil::parseResourceValue('1b'));
+        $this->assertEquals(1000000000, AppUtil::parseResourceValue('1B'));
+        $this->assertEquals(1500000000, AppUtil::parseResourceValue('1.5b'));
+        $this->assertEquals(2500000000, AppUtil::parseResourceValue('2.5b'));
+
+        // Test plain numbers
+        $this->assertEquals(5000, AppUtil::parseResourceValue('5000'));
+        $this->assertEquals(5100, AppUtil::parseResourceValue('5100'));
+
+        // Test with spaces (should be trimmed)
+        $this->assertEquals(5000, AppUtil::parseResourceValue(' 5k '));
+
+        // Test with commas
+        $this->assertEquals(5000, AppUtil::parseResourceValue('5,000'));
+        $this->assertEquals(1500000, AppUtil::parseResourceValue('1,500k'));
+
+        // Test null
+        $this->assertEquals(0, AppUtil::parseResourceValue(null));
+    }
 }

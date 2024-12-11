@@ -41,6 +41,9 @@
                             @elseif (!$building->requirements_met)
                                 data-status="off"
                                 title="{{ $building->object->title }}<br/>@lang('Requirements are not met!')"
+                            @elseif (!$building->valid_planet_type)
+                                data-status="disabled"
+                                title="{{ $building->object->title }}<br/>@lang('You can\'t construct that building on a moon!')"
                             @elseif ($building->research_in_progress && $building->object->machine_name == 'research_lab')
                                 data-status="disabled"
                                 title="{{ $building->object->title }}<br/>@lang('Research is currently being carried out!')"
@@ -53,12 +56,13 @@
                             @else
                                 data-status="on"
                                 title="{{ $building->object->title }}"
-                            @endif
+                                @endif
                         >
 
                         <span class="icon sprite sprite_medium medium {{ $building->object->class_name }}">
                             @if ($building->currently_building)
                             @elseif (!$building->requirements_met)
+                            @elseif (!$building->valid_planet_type)
                             @elseif (!$building->enough_resources)
                             @elseif ($build_queue_max)
                             @elseif ($building->research_in_progress && $building->object->machine_name == 'research_lab')
@@ -108,9 +112,9 @@
         </div>
         <script type="text/javascript">
             var planetMoveInProgress = false;
-            var lastBuildingSlot = {"showWarning":false,"slotWarning":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item (e.g. <a href=\"#index.php?page&#61;shop#page&#61;shop&amp;category&#61;c18170d3125b9941ef3a86bd28dded7bf2066a6a&amp;item&#61;04e58444d6d0beb57b3e998edc34c60f8318825a\" class=\"tooltipHTML itemLink\">Gold Planet Fields<\/a>) to obtain more slots. Are you sure you want to build this building?"};
-
         </script>
+        {{-- Last building slot warning --}}
+        @include ('ingame.shared.buildings.last-building-slot-warning', ['planet' => $planet])
     </div>
 
     <div id="technologydetailscomponent" class="technologydetails injectedComponent parent facilities">

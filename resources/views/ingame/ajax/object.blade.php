@@ -184,7 +184,7 @@
             <div class="build-it_wrap">
                 <div class="ipiHintable" data-ipi-hint="ipiTechnologyUpgradedeuteriumSynthesizer">
                     <button class="upgrade"
-                            @if (!$enough_resources || !$requirements_met || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress))
+                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress))
                                 disabled
                             @else
                             @endif
@@ -240,18 +240,20 @@
     </div>
 
 </div>
-<script type="text/javascript">    if (document.getElementById("build_amount") !== null) {
+<script type="text/javascript">
+    if (document.getElementById("build_amount") !== null) {
         document.getElementById("build_amount").focus();
     }
     var showLifeformBonusCapReached = false
-    var lastBuildingSlot = {
-        "showWarning": false,
-        "slotWarning": "This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item (e.g. <a href='#TODO_link'>Gold Planet Fields<\\/a>) to obtain more slots. Are you sure you want to build this building?"
-    }
     if (typeof IPI !== 'undefined') {
         IPI.refreshHighlights()
-    }</script>
+    }
+</script>
 
+@if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station))
+    {{-- Last building slot warning for buildings --}}
+    @include ('ingame.shared.buildings.last-building-slot-warning', ['planet' => $planet])
+@endif
 <script>
     $(document).ready(function () {
         $("#number").focus();

@@ -3,6 +3,7 @@
 namespace OGame\GameMessages;
 
 use OGame\GameMessages\Abstracts\GameMessage;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
@@ -54,7 +55,7 @@ class EspionageReport extends GameMessage
 
         // Load the planet name from the references table and return the subject filled with the planet name.
         $coordinate = new Coordinate($this->espionageReportModel->planet_galaxy, $this->espionageReportModel->planet_system, $this->espionageReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->espionageReportModel->planet_type));
         if ($planet) {
             $subject = __('Espionage report from :planet', ['planet' => '[planet]' . $planet->getPlanetId() . '[/planet]']);
         } else {
@@ -109,7 +110,7 @@ class EspionageReport extends GameMessage
 
         // Load planet by coordinate.
         $coordinate = new Coordinate($this->espionageReportModel->planet_galaxy, $this->espionageReportModel->planet_system, $this->espionageReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->espionageReportModel->planet_type));
 
         // If planet owner is the same as the player, we load the player by planet owner which is already loaded.
         if ($this->espionageReportModel->planet_user_id === $planet->getPlayer()->getId()) {

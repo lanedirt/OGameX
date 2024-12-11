@@ -121,6 +121,7 @@ class EspionageMission extends GameMission
         $report->planet_galaxy = $targetPlanet->getPlanetCoordinates()->galaxy;
         $report->planet_system = $targetPlanet->getPlanetCoordinates()->system;
         $report->planet_position = $targetPlanet->getPlanetCoordinates()->position;
+        $report->planet_type = $targetPlanet->getPlanetType()->value;
 
         $report->planet_user_id = $targetPlanet->getPlayer()->getId();
 

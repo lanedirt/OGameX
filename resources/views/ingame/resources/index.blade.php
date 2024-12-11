@@ -45,6 +45,9 @@
                             @elseif (!$building->requirements_met)
                                 data-status="off"
                                 title="{{ $building->object->title }}<br/>@lang('Requirements are not met!')"
+                            @elseif (!$building->valid_planet_type)
+                                data-status="disabled"
+                                title="{{ $building->object->title }}<br/>@lang('You can\'t construct that building on a moon!')"
                             @elseif (!$building->enough_resources)
                                 data-status="disabled"
                                 title="{{ $building->object->title }}<br/>@lang('Not enough resources!')"
@@ -58,6 +61,7 @@
                         ><span class="icon sprite @if (in_array($building->object->machine_name, ['metal_store','crystal_store','deuterium_store'])) sprite_small small @else sprite_medium medium @endif {{ $building->object->class_name }}">
                             @if ($building->currently_building)
                             @elseif (!$building->requirements_met)
+                            @elseif (!$building->valid_planet_type)
                             @elseif (!$building->enough_resources)
                             @elseif ($build_queue_max)
                             @elseif ($building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
@@ -122,17 +126,13 @@
                         var scheduleBuildListEntryUrl = '{{ route('resources.addbuildrequest.post') }}';
                         var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
                         redirectPremiumLink = '#TODO_index.php?page=premium&showDarkMatter=1'
+                        var planetMoveInProgress = false;
                     </script>
                 </div>
             </div>
         </div>
-        <script type="text/javascript">
-            var planetMoveInProgress = false;
-            var lastBuildingSlot = {
-                "showWarning": false,
-                "slotWarning": "This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item (e.g. <a href=\"#TODO_?page&#61;shop#page&#61;shop&amp;category&#61;c18170d3125b9941ef3a86bd28dded7bf2066a6a&amp;item&#61;04e58444d6d0beb57b3e998edc34c60f8318825a\" class=\"tooltipHTML itemLink\">Gold Planet Fields<\/a>) to obtain more slots. Are you sure you want to build this building?"
-            };
-        </script>
+        {{-- Last building slot warning --}}
+        @include ('ingame.shared.buildings.last-building-slot-warning', ['planet' => $planet])
     </div>
     <div id="technologydetailscomponent" class="technologydetails injectedComponent parent supplies">
         <script type="text/javascript">
