@@ -48,9 +48,10 @@ class DefenseController extends AbstractUnitsController
                 'interplanetary_missile'
             ],
         ];
-        $this->view_name = 'ingame.defense.index';
 
-        return parent::index($request, $player);
+        return view(view: 'ingame.defense.index')->with(
+            parent::indexPage($request, $player)
+        );
     }
 
     /**

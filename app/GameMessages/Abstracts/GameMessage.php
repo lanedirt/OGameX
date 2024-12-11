@@ -288,10 +288,6 @@ abstract class GameMessage
         // [coordinates]{galaxy}:{system}:{position}[/coordinates] with coordinates.
         // [debrisfield]{galaxy}:{system}:{position}[/debrisfield] with coordinates.
         $body = preg_replace_callback('/\[player\](\d+)\[\/player\]/', function ($matches) {
-            if (!is_numeric($matches[1])) {
-                return 'Unknown Player';
-            }
-
             $playerService = null;
             try {
                 $playerServiceFactory =  resolve(PlayerServiceFactory::class);
@@ -310,10 +306,6 @@ abstract class GameMessage
         }, $body);
 
         $body = preg_replace_callback('/\[planet\](\d+)\[\/planet\]/', function ($matches) {
-            if (!is_numeric($matches[1])) {
-                return 'Unknown Planet';
-            }
-
             $planetService = null;
             try {
                 $planetServiceFactory = resolve(PlanetServiceFactory::class);
@@ -350,10 +342,6 @@ abstract class GameMessage
         }, $body);
 
         $body = preg_replace_callback('/\[coordinates\](\d+):(\d+):(\d+)\[\/coordinates\]/', function ($matches) {
-            if (!is_numeric($matches[1]) || !is_numeric($matches[2]) || !is_numeric($matches[3])) {
-                return 'Unknown Planet';
-            }
-
             $coordinates = new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]);
             return '<a href="' . route('galaxy.index', ['galaxy' => $coordinates->galaxy, 'system' => $coordinates->system, 'position' => $coordinates->position]) . '" class="txt_link">
                                 <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
@@ -361,10 +349,6 @@ abstract class GameMessage
         }, $body);
 
         $body = preg_replace_callback('/\[debrisfield\](\d+):(\d+):(\d+)\[\/debrisfield\]/', function ($matches) {
-            if (!is_numeric($matches[1]) || !is_numeric($matches[2]) || !is_numeric($matches[3])) {
-                return 'Unknown Debris Field';
-            }
-
             $coordinates = new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]);
             return '<a href="' . route('galaxy.index', ['galaxy' => $coordinates->galaxy, 'system' => $coordinates->system, 'position' => $coordinates->position]) . '" class="txt_link">
                                 <figure class="planetIcon tf tooltip js_hideTipOnMobile" title="Planet"></figure>

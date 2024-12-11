@@ -83,6 +83,7 @@ class PlayerService
         $this->user = $user;
 
         // Fetch user tech from model
+        /** @var UserTech */
         $tech = $this->user->tech()->first();
         if (!$tech) {
             throw new RuntimeException('User tech record not found.');

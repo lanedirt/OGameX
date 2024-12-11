@@ -37,12 +37,6 @@ class FleetEventsController extends OGameController
 
         if ($activeMissionRows->isNotEmpty()) {
             $firstMission = $activeMissionRows->first();
-
-            // Make sure $firstMission is an instance of FleetMission
-            if (!$firstMission instanceof FleetMission) {
-                throw new \UnexpectedValueException('Expected instance of FleetMission.');
-            }
-
             $missionCount = $activeMissionRows->count();
             $typeNextMission = $fleetMissionService->missionTypeToLabel($firstMission->mission_type) . ($firstMission->parent_id ? ' (R)' : '');
             $timeNextMission = $firstMission->time_arrival - (int)Carbon::now()->timestamp;

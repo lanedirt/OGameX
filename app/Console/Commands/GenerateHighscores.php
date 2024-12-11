@@ -34,7 +34,6 @@ class GenerateHighscores extends Command
         $bar = $this->output->createProgressBar();
         $bar->start($users->count());
         $users->chunk(200, function ($players) use ($playerServiceFactory, $highscoreService, &$bar) {
-            /** @var \Illuminate\Support\Collection<Highscore> $players */
             foreach ($players as $player) {
                 $playerService = $playerServiceFactory->make($player->id);
                 Highscore::updateOrCreate(['player_id' => $player->id], [

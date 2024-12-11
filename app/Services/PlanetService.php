@@ -869,7 +869,7 @@ class PlanetService
 
         // Sanity check: percentage inside allowed values.
         // Sanity check: model property exists.
-        if (!is_numeric($percentage) || $percentage < 0 || $percentage > 10 || !isset($this->planet->{$building->machine_name . '_percent'})) {
+        if ($percentage < 0 || $percentage > 10 || !isset($this->planet->{$building->machine_name . '_percent'})) {
             return false;
         }
 

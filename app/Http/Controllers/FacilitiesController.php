@@ -49,9 +49,9 @@ class FacilitiesController extends AbstractBuildingsController
             ];
         }
 
-        $this->view_name = 'ingame.facilities.index';
-
-        return parent::index($request, $player);
+        return view('ingame.facilities.index')->with(
+            parent::indexPageParams($request, $player)
+        );
     }
 
     /**
