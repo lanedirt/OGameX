@@ -74,8 +74,7 @@ class GalaxyController extends OGameController
      * @param PlayerService $player
      * @param PlanetServiceFactory $planetServiceFactory
      *
-     * @phpstan-ignore-next-line
-     * @return mixed
+     * @return array<mixed>
      * @throws Exception
      */
     public function getGalaxyArray(int $galaxy, int $system, PlayerService $player, PlanetServiceFactory $planetServiceFactory): array

@@ -206,7 +206,7 @@ class PlanetListService
     /**
      * Return array of planet ids.
      *
-     * @return int[];
+     * @return array<int>
      */
     public function allIds(): array
     {

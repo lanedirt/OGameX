@@ -53,8 +53,6 @@ class ResourcesController extends AbstractBuildingsController
             0 => ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite', 'metal_store', 'crystal_store', 'deuterium_store'],
         ];
 
-        $this->view_name = 'ingame.resources.index';
-
         // Parse shipyard queue because the resources page shows both the
         // building queue (handled by parent) but also the shipyard queue.
         $unitQueue = resolve(UnitQueueService::class);
@@ -70,11 +68,13 @@ class ResourcesController extends AbstractBuildingsController
         }
 
         // Append unit queue data to the default view output handled by parent.
-        return parent::index($request, $player)->with([
-            'unit_build_active' => $unit_build_active,
-            'unit_build_queue' => $unit_build_queue,
-            'unit_queue_time_countdown' => $unit_queue_time_countdown,
-        ]);
+        return view('ingame.resources.index')->with(
+            parent::indexPageParams($request, $player) + [
+                'unit_build_active' => $unit_build_active,
+                'unit_build_queue' => $unit_build_queue,
+                'unit_queue_time_countdown' => $unit_queue_time_countdown,
+            ]
+        );
     }
 
     /**

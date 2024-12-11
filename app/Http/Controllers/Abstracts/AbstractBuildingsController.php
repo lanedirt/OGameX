@@ -5,7 +5,6 @@ namespace OGame\Http\Controllers\Abstracts;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
 use OGame\Http\Controllers\ShipyardController;
 use OGame\Http\Traits\ObjectAjaxTrait;
@@ -48,13 +47,6 @@ abstract class AbstractBuildingsController extends OGameController
     protected array $header_filename_objects = [];
 
     /**
-     * Name of view that is returned by this controller.
-     *
-     * @var string
-     */
-    protected string $view_name;
-
-    /**
      * AbstractBuildingsController constructor.
      */
     public function __construct(BuildingQueueService $queue)
@@ -64,14 +56,14 @@ abstract class AbstractBuildingsController extends OGameController
     }
 
     /**
-     * Shows the building index page.
+     * Returns render data for the building index page.
      *
      * @param Request $request
      * @param PlayerService $player
-     * @return View
+     * @return array<string, mixed>
      * @throws Exception
      */
-    public function index(Request $request, PlayerService $player): View
+    public function indexPageParams(Request $request, PlayerService $player): array
     {
         $this->planet = $player->planets->current();
 
@@ -154,7 +146,7 @@ abstract class AbstractBuildingsController extends OGameController
             $build_queue_max = true;
         }
 
-        return view($this->view_name)->with([
+        return [
             'planet_id' => $this->planet->getPlanetId(),
             'planet_name' => $this->planet->getPlanetName(),
             'planet' => $this->planet,
@@ -163,7 +155,7 @@ abstract class AbstractBuildingsController extends OGameController
             'build_active' => $build_active,
             'build_queue' => $build_queue,
             'build_queue_max' => $build_queue_max,
-        ]);
+        ];
     }
 
     /**

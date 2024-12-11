@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\View\View;
 use OGame\Http\Controllers\OGameController;
 use OGame\Http\Traits\ObjectAjaxTrait;
 use OGame\Services\ObjectService;
@@ -41,13 +40,6 @@ abstract class AbstractUnitsController extends OGameController
     protected array $objects = [];
 
     /**
-     * Name of view that is returned by this controller.
-     *
-     * @var string
-     */
-    protected string $view_name;
-
-    /**
      * AbstractUnitsController constructor.
      */
     public function __construct(UnitQueueService $queue)
@@ -61,10 +53,10 @@ abstract class AbstractUnitsController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $player
-     * @return View
+     * @return array<string, mixed>
      * @throws Exception
      */
-    public function index(Request $request, PlayerService $player): View
+    public function indexPage(Request $request, PlayerService $player): array
     {
         $planet = $player->planets->current();
 
@@ -115,14 +107,14 @@ abstract class AbstractUnitsController extends OGameController
             }
         }
 
-        return view($this->view_name)->with([
+        return [
             'planet_id' => $planet->getPlanetId(),
             'planet_name' => $planet->getPlanetName(),
             'units' => $units,
             'build_active' => $build_active,
             'build_queue' => $build_queue,
             'build_queue_countdown' => $queue_time_countdown,
-        ]);
+        ];
     }
 
     /**

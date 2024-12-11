@@ -459,7 +459,11 @@ class ObjectService
 
         // Get the lowest divided value which is the maximum amount of times this ship
         // can be built right now.
-        return min($max_build_amount);
+        if (count($max_build_amount) === 0) {
+            return 0;
+        }
+
+        return (int)min($max_build_amount);
     }
 
     /**

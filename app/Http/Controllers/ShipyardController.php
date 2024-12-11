@@ -40,9 +40,10 @@ class ShipyardController extends AbstractUnitsController
             0 => ['light_fighter', 'heavy_fighter', 'cruiser', 'battle_ship', 'battlecruiser', 'bomber', 'destroyer', 'deathstar'],
             1 => ['small_cargo', 'large_cargo', 'colony_ship', 'recycler', 'espionage_probe', 'solar_satellite'],
         ];
-        $this->view_name = 'ingame.shipyard.index';
 
-        return parent::index($request, $player);
+        return view(view: 'ingame.shipyard.index')->with(
+            parent::indexPage($request, $player)
+        );
     }
 
     /**

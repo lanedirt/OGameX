@@ -11,14 +11,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $planet_system
  * @property int $planet_position
  * @property int $planet_user_id
- * @property array|null $general
- * @property array|null $attacker
- * @property array|null $defender
- * @property array|null $rounds
- * @property array|null $loot
- * @property array|null $debris
- * @property array|null $repaired_defenses
- * @property array|null $wreckage
+ * @property array<string, mixed>|null $general
+ * @property array<string, mixed>|null $attacker
+ * @property array<string, mixed>|null $defender
+ * @property array<mixed>|null $rounds
+ * @property array<string, mixed>|null $loot
+ * @property array<string, mixed>|null $debris
+ * @property array<string, mixed>|null $repaired_defenses
+ * @property array<string, mixed>|null $wreckage
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \OGame\Models\User|null $planetUserId

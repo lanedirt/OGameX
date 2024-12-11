@@ -131,7 +131,7 @@ class MessageService
      *
      * @param PlayerService $player
      * @param class-string<GameMessage> $gameMessageClass
-     * @param array<string,string> $params
+     * @param array<string,mixed> $params
      * @return void
      */
     public function sendSystemMessageToPlayer(PlayerService $player, string $gameMessageClass, array $params): void
