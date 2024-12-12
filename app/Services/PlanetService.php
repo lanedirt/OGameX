@@ -169,7 +169,6 @@ class PlanetService
      * Abandon (delete) the current planet. Careful: this action is irreversible!
      *
      * @return void
-     * @throws Exception
      */
     public function abandonPlanet(): void
     {
@@ -188,8 +187,8 @@ class PlanetService
         // Building queues
         BuildingQueue::where('planet_id', $this->planet->id)->delete();
 
-        if ($this->getPlayer()->planets->planetCount() < 2) {
-            throw new Exception('Cannot abandon only remaining planet.');
+        if ($this->isPlanet() && $this->player->planets->planetCount() < 2) {
+            throw new RuntimeException('Cannot abandon only remaining planet.');
         }
 
         // Update the player's current planet if it is the planet being abandoned.
