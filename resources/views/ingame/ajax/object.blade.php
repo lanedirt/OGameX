@@ -253,6 +253,14 @@
 @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station))
     {{-- Last building slot warning for buildings --}}
     @include ('ingame.shared.buildings.last-building-slot-warning', ['planet' => $planet])
+@else
+    {{-- Define default last building slot warning variables for other objects --}}
+    <script type="text/javascript">
+        var lastBuildingSlot = {
+            "showWarning": false,
+            "slotWarning": ""
+        };
+    </script>
 @endif
 <script>
     $(document).ready(function () {
