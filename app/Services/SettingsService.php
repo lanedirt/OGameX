@@ -236,6 +236,16 @@ class SettingsService
     }
 
     /**
+     * Returns the maximum percentage chance of a moon forming after battle.
+     *
+     * @return int
+     */
+    public function maximumMoonChance(): int
+    {
+        return (int)$this->get('maximum_moon_chance', 20);
+    }
+
+    /**
      * Returns the status of ignoring empty systems.
      *
      * @return int

@@ -25,6 +25,7 @@ class ServerSettingsController extends OGameController
             'debris_field_from_ships' => $settingsService->debrisFieldFromShips(),
             'debris_field_from_defense' => $settingsService->debrisFieldFromDefense(),
             'debris_field_deuterium_on' => $settingsService->debrisFieldDeuteriumOn(),
+            'maximum_moon_chance' => $settingsService->maximumMoonChance(),
             'ignore_empty_systems_on' => $settingsService->ignoreEmptySystemsOn(),
             'ignore_inactive_systems_on' => $settingsService->ignoreInactiveSystemsOn(),
             'number_of_galaxies' => $settingsService->numberOfGalaxies(),
