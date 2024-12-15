@@ -156,6 +156,20 @@ class BattleReport extends GameMessage
             }
         }
 
+        $moonExisted = false;
+        $moonChance = 0;
+        $moonCreated = false;
+
+        if (isset($this->battleReportModel->general['moon_existed'])) {
+            $moonExisted = $this->battleReportModel->general['moon_existed'];
+        }
+        if (isset($this->battleReportModel->general['moon_chance'])) {
+            $moonChance = $this->battleReportModel->general['moon_chance'];
+        }
+        if (isset($this->battleReportModel->general['moon_created'])) {
+            $moonCreated = $this->battleReportModel->general['moon_created'];
+        }
+
         // Load attacker player
         // TODO: add unit test for attacker/defender research levels.
         $attacker = $this->playerServiceFactory->make($attackerPlayerId, true);
@@ -256,6 +270,9 @@ class BattleReport extends GameMessage
             'debris_resources' => $debrisResources,
             'debris_recyclers_needed' => $debrisRecyclersNeeded,
             'repaired_defenses_count' => $repairedDefensesCount,
+            'moon_existed' => $moonExisted,
+            'moon_chance' => $moonChance,
+            'moon_created' => $moonCreated,
             'attacker_weapons' => $attacker_weapons,
             'attacker_shields' => $attacker_shields,
             'attacker_armor' => $attacker_armor,

@@ -763,9 +763,11 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Get the battle report
         $battleReport = BattleReport::orderBy('id', 'desc')->first();
         $this->assertNotNull($battleReport, 'Battle report was not created for battle that should result in moon creation.');
+        $this->assertSame(100, $battleReport->general['moon_chance'], 'Battle report does not contain 100% moon chance.');
 
-        // TODO: assert that the battle report contains moon creation mention and video
         $this->assertNotEmpty($battleReport->debris, 'Battle report does not contain debris field information for large-scale attack.');
+        $this->assertFalse($battleReport->general['moon_existed'], 'Battle report does not contain correct boolean that moon already existed before battle.');
+        $this->assertTrue($battleReport->general['moon_created'], 'Battle report does not contain moon creation information.');
 
         // Assert that debris field is at least 10M resources combined as every 100k results in 1%
         // So 10M results in 100% moon chance which is required for this test.
@@ -776,5 +778,63 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $newPlanet = $planetServiceFactory->makeMoonForCoordinate($foreignPlanet->getPlanetCoordinates());
 
         $this->assertNotNull($newPlanet, 'Battle with 100% moon chance did not result in moon creation.');
+    }
+
+    /**
+     * Assert that a battle with 100% moon chance but a moon already existing does not create a new moon.
+     */
+    public function testLargeScaleAttackMoonAlreadyExists(): void
+    {
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+
+        // Adjust maximum moon chance to 100% to ensure a moon is created.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('maximum_moon_chance', 100);
+
+        // Prepare attacker fleet
+        $this->planetAddUnit('cruiser', 2000);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), 2000);
+
+        // Send fleet to a nearby foreign planet
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Ensure that foreign planet has a moon already. If it doesn't have one yet, we create it.
+        if (!$foreignPlanet->hasMoon()) {
+            $planetServiceFactory->createMoonForPlanet($foreignPlanet);
+        }
+
+        // Prepare defender units
+        $foreignPlanet->addUnit('rocket_launcher', 100000);
+
+        // Get fleet mission
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+
+        // Calculate fleet mission duration
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+
+        // Set time to fleet mission duration + 1 second
+        $this->travel($fleetMissionDuration + 1)->seconds();
+
+        // Reload application to make sure the planet is not cached
+        $this->reloadApplication();
+
+        // Trigger the update logic
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the fleet mission is processed without errors
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Battle with expected moon creation fleet mission was not processed successfully.');
+
+        // Get the battle report
+        $battleReport = BattleReport::orderBy('id', 'desc')->first();
+        $this->assertNotNull($battleReport, 'Battle report was not created for battle that should result in moon creation.');
+        $this->assertSame(0, $battleReport->general['moon_chance'], 'Battle report should contain 0 percent moon chance because moon already existed before battle.');
+        $this->assertTrue($battleReport->general['moon_existed'], 'Battle report does not contain correct boolean that moon already existed before battle.');
+        $this->assertFalse($battleReport->general['moon_created'], 'Battle report does not contain moon creation information.');
     }
 }

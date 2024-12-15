@@ -164,6 +164,13 @@
            @lang(' Honour points'):<br> (<span class="overmark">@lang('Dishonourable fight'): -0</span>)
             @lang('vs'). (<span class="undermark">@lang('Honourable fight'): +0</span>)
         </div>
+@if ($moon_created)
+        <div class="og_video">
+            <video src="{{ asset('video/messages/moon-created.mp4') }}" width="655" height="380" autoplay preload="auto" controls>
+                <source src="{{ asset('video/messages/moon-created.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+@endif
         <!-- Attacker -->
         <!-- possible classes: winner, draw, defeated -->
         <div class="combat_participant attacker winner">

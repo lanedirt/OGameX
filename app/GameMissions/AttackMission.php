@@ -90,6 +90,11 @@ class AttackMission extends GameMission
         // Save the debris field
         $debrisFieldService->save();
 
+        // Create a moon for defender if result of battle indicates so and defender planet does not already have a moon.
+        if (!$defenderPlanet->hasMoon() && $battleResult->moonCreated) {
+            $this->planetServiceFactory->createMoonForPlanet($defenderPlanet);
+        }
+
         // Send a message to both attacker and defender with a reference to the same battle report.
         $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
         // Send to attacker.
@@ -150,7 +155,9 @@ class AttackMission extends GameMission
         $report->planet_user_id = $defenderPlanet->getPlayer()->getId();
 
         $report->general = [
-            'moon_chance' => 0,
+            'moon_existed' => $battleResult->moonExisted,
+            'moon_chance' => $battleResult->moonChance,
+            'moon_created' => $battleResult->moonCreated,
         ];
 
         $report->attacker = [

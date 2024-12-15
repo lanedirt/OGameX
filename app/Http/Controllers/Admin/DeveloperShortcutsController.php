@@ -238,9 +238,8 @@ class DeveloperShortcutsController extends OGameController
                     return redirect()->back()->with('error', 'Cannot create moon - no planet exists at ' . $coordinate->asString());
                 }
 
-                // Create moon for the planet's owner.
-                $planetOwner = $existingPlanet->getPlayer();
-                $planetServiceFactory->createMoonForPlayer(planet: $existingPlanet);
+                // Create moon for the specified planet.
+                $planetServiceFactory->createMoonForPlanet(planet: $existingPlanet);
 
                 return redirect()->back()->with('success', 'Moon created successfully at ' . $coordinate->asString());
             }

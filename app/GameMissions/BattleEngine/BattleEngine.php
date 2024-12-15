@@ -125,6 +125,18 @@ class BattleEngine
         // Calculate debris.
         $result->debris = $this->calculateDebris($result->attackerUnitsLost, $result->defenderUnitsLost);
 
+        // Determine if a moon already exists for defender's planet.
+        $result->moonExisted = $this->defenderPlanet->hasMoon();
+
+        // Calculate moon percentage if a moon does not exist yet.
+        if ($result->moonExisted) {
+            $result->moonChance = 0;
+            $result->moonCreated = false;
+        } else {
+            $result->moonChance = $this->calculateMoonChance($result->debris);
+            $result->moonCreated = $this->rollMoonCreation($result->moonChance);
+        }
+
         return $result;
     }
 
@@ -381,5 +393,35 @@ class BattleEngine
         }
 
         return new Resources($metal, $crystal, $deuterium, 0);
+    }
+
+    /**
+     * Calculate moon chance based on the debris field.
+     *
+     * @param Resources $debris
+     * @return int
+     */
+    private function calculateMoonChance(Resources $debris): int {
+        $max_moon_chance = $this->settings->maximumMoonChance();
+
+        // Every 100k debris results in 1% moon chance, up to a maximum
+        // of max moon chance configured in server settings.
+        $moon_chance = floor(($debris->sum()) / 100000);
+        if ($moon_chance > $max_moon_chance) {
+            $moon_chance = $max_moon_chance;
+        }
+
+        return (int)$moon_chance;
+    }
+
+    /**
+     * Roll the dice to see if a moon is created based on the moon chance.
+     *
+     * @param int $moonChance
+     * @return bool
+     */
+    private function rollMoonCreation($moonChance): bool {
+        $dice = rand(1, 100);
+        return $dice <= $moonChance;
     }
 }
