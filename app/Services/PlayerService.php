@@ -3,7 +3,6 @@
 namespace OGame\Services;
 
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -56,8 +55,7 @@ class PlayerService
         // Load the player object if a positive player ID is given.
         if ($player_id !== 0) {
             $this->load($player_id);
-        }
-        else {
+        } else {
             // If no player ID is given then an actual player context will not be available.
             // This is expected for unittests, that's why we create a dummy user object here.
             $this->user = new User();

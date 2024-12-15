@@ -401,7 +401,8 @@ class BattleEngine
      * @param Resources $debris
      * @return int
      */
-    private function calculateMoonChance(Resources $debris): int {
+    private function calculateMoonChance(Resources $debris): int
+    {
         $max_moon_chance = $this->settings->maximumMoonChance();
 
         // Every 100k debris results in 1% moon chance, up to a maximum
@@ -420,7 +421,8 @@ class BattleEngine
      * @param int $moonChance
      * @return bool
      */
-    private function rollMoonCreation($moonChance): bool {
+    private function rollMoonCreation($moonChance): bool
+    {
         $dice = rand(1, 100);
         return $dice <= $moonChance;
     }
