@@ -37,6 +37,12 @@ abstract class UnitTestCase extends TestCase
     {
         // Create fake planet eloquent model with additional attributes
         try {
+            // Fill in mandatory attributes with default values ir
+            // they are not provided.
+            $attributes['galaxy'] = $attributes['galaxy'] ?? 1;
+            $attributes['system'] = $attributes['system'] ?? 1;
+            $attributes['planet'] = $attributes['planet'] ?? 1;
+
             $planetModelFake = Planet::factory()->make($attributes);
         } catch (Exception $e) {
             $this->fail('Failed to create fake planet model: ' . $e->getMessage());

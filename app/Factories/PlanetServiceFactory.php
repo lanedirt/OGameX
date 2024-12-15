@@ -108,7 +108,7 @@ class PlanetServiceFactory
     public function makeForPlayer(PlayerService $player, int $planetId, bool $useCache = true): PlanetService
     {
         if (!$useCache || !isset($this->instancesById[$planetId])) {
-            /** @var PlanetService */
+            /** @var PlanetService $planetService */
             $planetService = resolve(PlanetService::class, [
                 'player' => $player,
                 'planet' => null,
