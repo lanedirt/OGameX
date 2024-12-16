@@ -11,7 +11,6 @@ services:
       args:
         OPCACHE_ENABLE: "0"  # Disable opcache for development
         USE_USER: ${USE_USER_ARG:-yes}  # Defaults to "yes". Set to "no" for GitHub Actions.
-    image: digitalocean.com/php
     container_name: ogame-app
     restart: unless-stopped
     tty: true
@@ -46,7 +45,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: digitalocean.com/php
     depends_on:
       - ogame-app
       - ogame-db

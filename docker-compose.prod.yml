@@ -10,7 +10,6 @@ services:
       dockerfile: Dockerfile
       args:
         OPCACHE_ENABLE: "1" # Enable opcache in production
-    image: digitalocean.com/php
     container_name: ogame-app
     restart: unless-stopped
     tty: true
@@ -43,7 +42,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: digitalocean.com/php
     depends_on:
       - ogame-webserver
     volumes:
