@@ -911,7 +911,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
             if (!$moonCreated) {
                 // Reset the test state
                 $this->reloadApplication();
-                $this->basicSetup();
+                // Do a request to get a new CSRF token
+                $this->get('/overview');
             }
         }
 
