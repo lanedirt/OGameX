@@ -6,6 +6,9 @@ if grep -q "^APP_ENV=production" .env; then
     is_production=true
 fi
 
+# Configure Git to trust the working directory
+git config --global --add safe.directory /var/www
+
 if [ "$role" = "scheduler" ]; then
       while [ true ]
          do

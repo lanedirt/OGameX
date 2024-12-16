@@ -18,21 +18,62 @@ jobs:
       - name: Modify Dockerfile to disable USER www (which is not supported by GitHub Actions, as it runs as root)
         run: |
           sed -i '/USER www/s/^/#/' ./Dockerfile
-      - name: Set up Docker Compose
+      - name: Set Permissions
+        run: sudo chmod -R 777 /var/www
+      - name: Copy .env
+        run: sudo cp .env.example-prod .env
+      - name: Build and start the services
         run: |
           # Build the images and start the services
           docker compose -f docker-compose.prod.yml up -d
-          # Ensure the database is ready
-          docker compose exec -T ogame-db bash -c 'until mariadb -h "ogame-db" -u "root" -p"toor" -e "SELECT 1"; do sleep 1; done'
-      - name: Set Permissions
-        run: docker compose exec -T ogame-app chmod -R 777 /var/www
-      - name: Copy .env
-        run: docker compose exec -T ogame-app cp .env.example-prod .env
-      - name: Run Laravel setup commands
-        run: |
-          docker compose exec -T ogame-app composer install --no-dev
-          docker compose exec -T ogame-app php artisan key:generate
-      - name: Run DB Migrations
-        run: docker compose exec -T ogame-app php artisan migrate --force
-      - name: Run configuration cache commands
-        run: docker compose exec -T ogame-app php artisan cache:clear && docker compose exec -T ogame-app php artisan config:cache && docker compose exec -T ogame-app php artisan route:cache && docker compose exec -T ogame-app php artisan view:cache
+      - name: Test if the services are running
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 5
+          command: |
+            sleep 15
+
+            # Array of endpoints to test
+            declare -A endpoints=(
+              ["Web"]="https://localhost:443/login"
+            )
+
+            failed=false
+
+            # Test HTTP endpoints
+            for name in "${!endpoints[@]}"; do
+              url="${endpoints[$name]}"
+              echo "Testing $name at $url"
+
+              # Store both response body and HTTP code
+              response=$(curl -k -s -w "\nHTTP_CODE=%{http_code}" "$url")
+              http_code=$(echo "$response" | grep "HTTP_CODE=" | cut -d= -f2)
+              body=$(echo "$response" | sed '$d')  # Remove the last line (HTTP_CODE)
+
+              if [ "$http_code" -ne 200 ]; then
+                echo "❌ $name failed with HTTP $http_code at $url"
+                echo "Response body:"
+                echo "$body"
+                failed=true
+              else
+                echo "✅ $name responded with HTTP 200"
+              fi
+            done
+
+            # Exit with error if any service failed
+            if [ "$failed" = true ]; then
+              # Get container logs
+              echo "Container Logs ogame-app:"
+              docker compose logs ogame-app
+              echo "Container Logs ogame-db:"
+              docker compose logs ogame-db
+              echo "Container Logs ogame-webserver:"
+              docker compose logs ogame-webserver
+              echo "Container Logs scheduler:"
+              docker compose logs scheduler
+
+              # Restart containers for next test in case of failure
+              docker compose restart
+              exit 1
+            fi
