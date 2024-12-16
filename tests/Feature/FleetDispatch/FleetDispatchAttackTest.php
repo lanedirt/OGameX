@@ -16,7 +16,6 @@ use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 use OGame\Services\DebrisFieldService;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Test that fleet dispatch works as expected for attack missions.
