@@ -48,12 +48,12 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 - [7. Installation](#installation)
   - [a) Development: Install OGameX using Docker](#development)
   - [b) Production: Install OGameX using Docker](#production)
-  - [c) Tips for initial setup](#tips-for-initial-setup)
-- [8. Support](#support)
-- [9. Sponsorship](#sponsorship)
-- [10. License](#license)
+- [8. Upgrade](#upgrade)
+- [9. Support](#support)
+- [10. Sponsorship](#sponsorship)
+- [11. License](#license)
 
-## <a name="screenshots"></a> 🖥️ Example screenshots
+## <a name="screenshots"></a> 🖥️ 1. Example screenshots
 
 
 <img width="1142" alt="Screenshot 2024-10-06 at 15 41 14" src="https://github.com/user-attachments/assets/7f9041ad-82cd-42b0-acd1-0036c0f49da2">
@@ -62,15 +62,15 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 <img width="1132" alt="Screenshot 2024-10-06 at 15 42 44" src="https://github.com/user-attachments/assets/cb112ca3-73d5-42ba-98f1-be844533be41">
 <img width="1147" alt="Screenshot 2024-10-06 at 15 43 18" src="https://github.com/user-attachments/assets/d90a0651-c841-4f3a-a119-8abde4c45b90">
 
-## <a name="author"></a> ✨ About the author
+## <a name="author"></a> ✨ 2. About the author
 
 My ([@lanedirt](https://github.com/lanedirt)) journey into software development began in 2007 at the age of 14 when I discovered the source code for Ugamela, an early open-source PHP clone of OGame. I really liked running my own browser game server and dedicated myself to modifying this version and translating it to Dutch, leading to the launch of OGameX.nl. This server, active from 2007 to 2009, nurtured a small yet engaged community. This experience not only sparked my passion for software development but also laid the groundwork for my professional career. OGame has always held a special place in my heart, which is why now, 15 years later, I've decided to return to it and create this open-source clone from the ground up.
 
-## <a name="goal"></a> ✨ Goal
+## <a name="goal"></a> ✨ 3. Goal
 
 The primary goal of this fan-based project is to engineer a faithful rendition of OGame, specifically reflecting its state prior to the Lifeforms update introduced in 2020. This initiative, purely fan-based and non-commercial, is pursued strictly for educational purposes.
 
-## <a name="current-state"></a> 🖥️ Current State of the Project
+## <a name="current-state"></a> 🖥️ 4. Current State of the Project
 
 OGameX is under active development with a lot of core features already implemented and working:
 
@@ -92,7 +92,7 @@ OGameX is under active development with a lot of core features already implement
   - Moon creation through debris field after battle
   - Moon buildings
 
-### <a name="upcoming-features"></a> a) Upcoming Features
+### <a name="upcoming-features"></a> Upcoming Features
 
 The next major upcoming features that are being worked on:
 
@@ -105,7 +105,7 @@ The next major upcoming features that are being worked on:
 - ACS fleet dispatch missions
 - Merchant & shop (non-commercial)
 
-## <a name="contributing"></a> 🚀 Contributing
+## <a name="contributing"></a> 🚀 5. Contributing
 
 Contributions are warmly welcomed, whether in development, testing, or spreading the word. Feel free to submit pull requests or contact me for any other contributions.
 
@@ -115,14 +115,14 @@ A good starting point are issues labeled as "good first issue".
 
 Read the [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/blob/main/CONTRIBUTING.md) file for more information.
 
-## <a name="disclaimer"></a> 📓 Disclaimer
+## <a name="disclaimer"></a> 📓 6. Disclaimer
 
 This project is a non-commercial hobby project. All rights and concepts related to OGame are owned by GameForge GmbH. We encourage supporters to try the official OGame at https://ogame.org to support its creators.
 
-## <a name="installation"></a> 🖥️ Installation
+## <a name="installation"></a> 🖥️ 7. Installation
 The easiest way to get OGameX up and running on your own machine is by running the Docker containers via the docker-compose.yml file that is supplied in this repository.
 
-Alternatively, you can also deploy this project manually on any host that supports at least the following:
+Alternatively, deploy this project manually on any host that supports at least the following:
 - PHP >= 8.2
 - MySQL/MariaDB
 - Ability to enable specific PHP extensions (Ctype, cURL, DOM, Fileinfo and more...)
@@ -130,7 +130,7 @@ Alternatively, you can also deploy this project manually on any host that suppor
 See the full list of requirements for Laravel 11.x and how to deploy to a server here: https://laravel.com/docs/11.x/deployment.
 
 ### <a name="development"></a> a) Development: Install OGameX using Docker
-For local development you can run the default docker-compose file that is included in this repository. This configuration is optimized for development and includes several tools that are useful for debugging and testing.
+For local development use the default docker-compose file that is included in this repository. This configuration is optimized for development and includes several tools that are useful for debugging and testing.
 
 1. Clone the repository.
   ```
@@ -147,23 +147,10 @@ For local development you can run the default docker-compose file that is includ
   ```
   $ docker compose up -d
   ```
-  > Note: The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080. Modify docker-compose.yml if needed.
 
+  > Note: The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080.
 
-
-4. Access the "ogame-app" Docker container:
-  ```
-  $ docker exec -it ogame-app /bin/bash
-  ```
-
-5. Run Laravel setup commands to download composer dependencies, generate an encryption key and prepare the database:
-  ```
-  $ composer install
-  $ php artisan key:generate
-  $ php artisan migrate
-  ```
-
-After completing the setup, visit http://localhost to access OGameX. You first need to create an account (no email validation), afterwards you can login using that account.
+After the docker containers have started, visit http://localhost to access OGameX. Create a new account and login using that account. The first account created will be automatically assigned the admin role.
 
 ### <a name="production"></a> b) Production: Install OGameX using Docker
 For production there is a separate docker-compose file that is used to run the application. This file is called `docker-compose.prod.yml`. This configuration contains
@@ -200,29 +187,36 @@ You should review all settings before deploying this project to a publicly acces
   ```
   $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
   ```
-> Note: The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed.
 
-6. Access the "ogame-app" Docker container:
-  ```
-  $ docker exec -it ogame-app /bin/bash
-  ```
+  > Note: The default setup binds to ports 80/443, to change it modify `docker-compose.yml`. PhpMyAdmin is also included for database management and is bound to port 8080, however to access it you need to explicitly specify your IP addresses via `./docker/phpmyadmin/.htaccess` for safety purposes.
 
-7. Run Laravel setup commands to download composer dependencies, generate an encryption key, cache configuration and prepare the database:
-  ```
-  $ composer install --no-dev
-  $ php artisan key:generate --force
-  $ php artisan migrate --force
-  $ php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
-  ```
-  > Note: The default setup binds to ports 80/443. PhpMyAdmin is also included for database management and is bound to port 8080, however to access it you need to explicitly specify your IP addresses via ./docker/phpmyadmin/.htaccess for safety purposes. Modify docker-compose.yml or .htaccess if needed.
+After the docker containers have started, visit https://localhost to access OGameX. Create a new account and login using that account. The first account created will be automatically assigned the admin role.
 
-
-
-After completing the setup, visit https://localhost to access OGameX. You first need to create an account (no email validation), afterwards you can login using that account.
 > Note: The production version runs in forced-HTTPS (redirect) mode by default using a self-signed SSL certificate. If you want to access the application via HTTP, open `.env` and change `APP_ENV` from `production` to `local`.
 
-### <a name="tips-for-initial-setup"></a> c) Tips for initial setup
-- **Admin account**: By default, the first registered user is assigned the admin role which can see the admin bar and is able to change server settings. You can also assign the admin role manually via the command line:
+## <a name="upgrade"></a> 🖥️ 8. Upgrade and misc instructions
+
+### Upgrade OGameX to a new version
+1. Stop the existing containers:
+  ```
+  $ docker compose down
+  ```
+  2. Pull the latest changes from the main branch or checkout the new release tag:
+  ```
+  $ git pull origin main
+  ```
+  -- or --
+  ```
+  $ git checkout 0.9.0 # replace with the latest release tag
+  ```
+  3. Rebuild and start the containers:
+  ```
+  $ docker compose up -d --build --force-recreate
+  ```
+  > When the docker containers are started, the entrypoint script in `./docker/entrypoint.sh` will automatically run the appropriate laravel install commands to upgrade the database schema and refresh the cache. Note that depending on the migrations this might take a short while. After the containers are started, you can visit the application at `https://localhost` (or http://localhost) to check if the upgrade was successful. If you run into any issues, please check the logs for more information or open an issue on GitHub.
+
+### Assigning admin role
+By default, the first registered user is assigned the admin role which can see the admin bar and is able to change server settings. You can also assign the admin role manually via the command line:
   ```
   $ php artisan ogamex:assign-admin-role {username}
   ```
@@ -231,11 +225,11 @@ After completing the setup, visit https://localhost to access OGameX. You first 
   $ php artisan ogamex:remove-admin-role {username}
   ```
 
-## <a name="support"></a> 📞 Support
+## <a name="support"></a> 📞 9. Support
 
 Did you encounter issues in this project? Please open a ticket on GitHub and we'll try to help you out as soon as possible.
 
-## <a name="sponsorship"></a> 💰 Sponsorship
+## <a name="sponsorship"></a> 💰 10. Sponsorship
 We thank the following parties for sponsoring this project:
 
 <table>
@@ -260,6 +254,6 @@ We thank the following parties for sponsoring this project:
 
 Interested in supporting OGameX? We welcome sponsorships of all sizes! Your support helps us maintain and improve this open-source project. Please get in touch with us via GitHub or Discord to discuss sponsorship opportunities.
 
-## <a name="license"></a> 📰 License
+## <a name="license"></a> 📰 11. License
 
 The OGameX Laravel source code is open-source software licensed under the MIT license. See the LICENSE file for more details. All rights and concepts related to OGame are owned by GameForge GmbH.
