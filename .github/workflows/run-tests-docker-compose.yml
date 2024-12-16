@@ -18,27 +18,23 @@ jobs:
       - name: Modify Dockerfile to disable USER www (which is not supported by GitHub Actions, as it runs as root)
         run: |
           sed -i '/USER www/s/^/#/' ./Dockerfile
+      - name: Set Permissions
+        run: sudo chmod -R 777 /var/www
+      - name: Copy .env
+        run: sudo cp .env.example .env
       - name: Set up Docker Compose
         run: |
           # Build the images and start the services
           docker compose -f docker-compose.yml up -d
-          # Ensure the database is ready
-          docker compose exec -T ogame-db bash -c 'until mariadb -h "ogame-db" -u "root" -p"toor" -e "SELECT 1"; do sleep 1; done'
-      - name: Set Permissions
-        run: docker compose exec -T ogame-app chmod -R 777 /var/www
-      - name: Copy .env
-        run: docker compose exec -T ogame-app cp .env.example .env
-      - name: Run Laravel setup commands
+      - name: Wait 10 seconds
+        run: sleep 10
+      - name: Wait for application to be ready up to 60 seconds
         run: |
-          docker compose exec -T ogame-app composer install
-          docker compose exec -T ogame-app php artisan key:generate
-      - name: Run DB Migrations
-        run: docker compose exec -T ogame-app php artisan migrate
-      - name: Run configuration cache commands
-        run: docker compose exec -T ogame-app php artisan cache:clear && docker compose exec -T ogame-app php artisan config:cache && docker compose exec -T ogame-app php artisan route:cache && docker compose exec -T ogame-app php artisan view:cache
+          # Wait for the application to be ready (max 60 seconds)
+          timeout 60 bash -c 'until docker compose exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do echo "Waiting for application to be ready..." && sleep 2; done'
       - name: Run Tests
-        run: docker compose exec -T ogame-app php artisan test
+        run: docker compose exec -T ogamex-app php artisan test
       - name: Run custom Race Condition Tests
         run: |
-          docker compose exec -T ogame-app php artisan test:race-condition-unitqueue
-          docker compose exec -T ogame-app php artisan test:race-condition-game-mission
+          docker compose exec -T ogamex-app php artisan test:race-condition-unitqueue
+          docker compose exec -T ogamex-app php artisan test:race-condition-game-mission
