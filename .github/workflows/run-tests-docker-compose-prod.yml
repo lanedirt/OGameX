@@ -28,6 +28,12 @@ jobs:
         run: |
           # Build the images and start the services
           docker compose -f docker-compose.prod.yml up -d
+      - name: Wait 10 seconds
+        run: sleep 10
+      - name: Wait for application to be ready up to 60 seconds
+        run: |
+          # Wait for the application to be ready (max 60 seconds)
+          timeout 60 bash -c 'until docker compose exec -T ogame-app php artisan migrate:status > /dev/null 2>&1; do echo "Waiting for application to be ready..." && sleep 2; done'
       - name: Run Tests
         run: docker compose exec -T ogame-app php artisan test
       - name: Run custom Race Condition Tests
