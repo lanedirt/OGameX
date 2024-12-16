@@ -28,7 +28,7 @@ abstract class MoonTestCase extends AccountTestCase
 
         // Create moon for the current user.
         $planetServiceFactory =  resolve(PlanetServiceFactory::class);
-        $this->moonService = $planetServiceFactory->createMoonForPlayer($this->planetService);
+        $this->moonService = $planetServiceFactory->createMoonForPlanet($this->planetService);
 
         // Switch to the moon to ensure the correct planet is used by default in tests.
         $this->switchToMoon();

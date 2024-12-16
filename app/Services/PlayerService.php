@@ -3,7 +3,6 @@
 namespace OGame\Services;
 
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -54,9 +53,14 @@ class PlayerService
     public function __construct(int $player_id)
     {
         // Load the player object if a positive player ID is given.
-        // If no player ID is given then player context will not be available, but this can be fine for unittests.
         if ($player_id !== 0) {
             $this->load($player_id);
+        } else {
+            // If no player ID is given then an actual player context will not be available.
+            // This is expected for unittests, that's why we create a dummy user object here.
+            $this->user = new User();
+            $this->user->id = 0;
+            $this->planets = resolve(PlanetListService::class, ['player' => $this]);
         }
     }
 
@@ -83,7 +87,7 @@ class PlayerService
         $this->user = $user;
 
         // Fetch user tech from model
-        /** @var UserTech */
+        /** @var UserTech $tech */
         $tech = $this->user->tech()->first();
         if (!$tech) {
             throw new RuntimeException('User tech record not found.');
@@ -91,12 +95,8 @@ class PlayerService
         $this->setUserTech($tech);
 
         // Fetch all planets of user
-        try {
-            $planet_list_service = resolve(PlanetListService::class, ['player' => $this]);
-            $this->planets = $planet_list_service;
-        } catch (BindingResolutionException $e) {
-            throw new RuntimeException('Class not found: ' . PlanetListService::class);
-        }
+        $planet_list_service = resolve(PlanetListService::class, ['player' => $this]);
+        $this->planets = $planet_list_service;
     }
 
     /**

@@ -22,7 +22,7 @@
                 <div class="content">
                     <div class="buddylistContent">
                         <p class="box_highlight textCenter no_buddies">@lang('Basic settings.')</p>
-                        
+
                         <div class="group bborder" style="display: block;">
                             <div class="fieldwrapper">
                                 <label class="styled textBeefy">@lang('Universe name:')</label>
@@ -160,6 +160,24 @@
                                         <input type="checkbox" id="square-checkBoxDeuteriumInDebris" name="debris_field_deuterium_on" value="1" {{ $debris_field_deuterium_on ? 'checked' : '' }}>
                                         <label for="square-checkBoxDeuteriumInDebris"></label>
                                     </square-checkbox>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Maximum moon chance:')</label>
+                                <div class="thefield">
+                                    <select name="maximum_moon_chance" class="w130" data-value="{{ $maximum_moon_chance }}">
+                                        <option value="0"{{ $maximum_moon_chance == 0 ? ' selected' : '' }}>0%</option>
+                                        <option value="10"{{ $maximum_moon_chance == 10 ? ' selected' : '' }}>10%</option>
+                                        <option value="20"{{ $maximum_moon_chance == 20 ? ' selected' : '' }}>20%</option>
+                                        <option value="30"{{ $maximum_moon_chance == 30 ? ' selected' : '' }}>30%</option>
+                                        <option value="40"{{ $maximum_moon_chance == 40 ? ' selected' : '' }}>40%</option>
+                                        <option value="50"{{ $maximum_moon_chance == 50 ? ' selected' : '' }}>50%</option>
+                                        <option value="60"{{ $maximum_moon_chance == 60 ? ' selected' : '' }}>60%</option>
+                                        <option value="70"{{ $maximum_moon_chance == 70 ? ' selected' : '' }}>70%</option>
+                                        <option value="80"{{ $maximum_moon_chance == 80 ? ' selected' : '' }}>80%</option>
+                                        <option value="90"{{ $maximum_moon_chance == 90 ? ' selected' : '' }}>90%</option>
+                                        <option value="100"{{ $maximum_moon_chance == 100 ? ' selected' : '' }}>100%</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>

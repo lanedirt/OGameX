@@ -111,8 +111,8 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Assert that the new planet has been created.
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-
         $newPlanet = $planetServiceFactory->makeForCoordinate($newPlanetCoordinates);
+
         $this->assertNotNull($newPlanet, 'New planet cannot be loaded while it should have been created.');
 
         // Assert that last message sent to current player contains the new planet colonize confirm message.

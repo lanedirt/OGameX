@@ -23,6 +23,21 @@ class BattleResult
     public Resources $debris;
 
     /**
+     * @var bool Whether a moon already existed at defender's planet location before battle commenced.
+     */
+    public bool $moonExisted;
+
+    /**
+     * @var int The percentage chance of a moon appearing out of the debris field as a result of the battle.
+     */
+    public int $moonChance;
+
+    /**
+     * @var bool Whether a moon was created as a result of the battle. This is based on a dice roll using the moon chance.
+     */
+    public bool $moonCreated;
+
+    /**
      * @var int The max. percentage of resources that the attacker player could steal from the defender player's planet.
      */
     public int $lootPercentage;

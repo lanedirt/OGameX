@@ -35,6 +35,7 @@ class ServerSettingsController extends OGameController
             'debris_field_from_ships' => $settingsService->debrisFieldFromShips(),
             'debris_field_from_defense' => $settingsService->debrisFieldFromDefense(),
             'debris_field_deuterium_on' => $settingsService->debrisFieldDeuteriumOn(),
+            'maximum_moon_chance' => $settingsService->maximumMoonChance(),
             'ignore_empty_systems_on' => $settingsService->ignoreEmptySystemsOn(),
             'ignore_inactive_systems_on' => $settingsService->ignoreInactiveSystemsOn(),
             'number_of_galaxies' => $settingsService->numberOfGalaxies(),
@@ -66,6 +67,8 @@ class ServerSettingsController extends OGameController
         $settingsService->set('debris_field_from_ships', request('debris_field_from_ships'));
         $settingsService->set('debris_field_from_defense', request('debris_field_from_defense'));
         $settingsService->set('debris_field_deuterium_on', request('debris_field_deuterium_on', 0));
+        $settingsService->set('maximum_moon_chance', request('maximum_moon_chance'));
+
         $settingsService->set('ignore_empty_systems_on', request('ignore_empty_systems_on', 0));
         $settingsService->set('ignore_inactive_systems_on', request('ignore_inactive_systems_on', 0));
         $settingsService->set('number_of_galaxies', request('number_of_galaxies'));
