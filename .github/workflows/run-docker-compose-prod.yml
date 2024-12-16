@@ -64,14 +64,14 @@ jobs:
             # Exit with error if any service failed
             if [ "$failed" = true ]; then
               # Get container logs
-              echo "Container Logs ogame-app:"
-              docker compose logs ogame-app
-              echo "Container Logs ogame-db:"
-              docker compose logs ogame-db
-              echo "Container Logs ogame-webserver:"
-              docker compose logs ogame-webserver
-              echo "Container Logs scheduler:"
-              docker compose logs scheduler
+              echo "Container Logs ogamex-app:"
+              docker compose logs ogamex-app
+              echo "Container Logs ogamex-db:"
+              docker compose logs ogamex-db
+              echo "Container Logs ogamex-webserver:"
+              docker compose logs ogamex-webserver
+              echo "Container Logs ogamex-scheduler:"
+              docker compose logs ogamex-scheduler
 
               # Restart containers for next test in case of failure
               docker compose restart

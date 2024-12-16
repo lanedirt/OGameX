@@ -147,7 +147,7 @@ For local development use the default docker-compose file that is included in th
 
 After the docker containers have started, visit http://localhost to access OGameX. Note that it might take a few seconds for the application to start. Create a new account and login using that account. The first account created will be automatically assigned the admin role.
 
-> Note: if you need to run manual `php artisan` commands, you can SSH into the `ogame-app` container with the `docker compose exec -it ogame-app bash` command.
+> Note: if you need to run manual `php artisan` commands, you can SSH into the `ogamex-app` container with the `docker compose exec -it ogamex-app bash` command.
 
 ### <a name="production"></a> b) Install for production
 For production there is a separate docker-compose file called `docker-compose.prod.yml`. This configuration contains

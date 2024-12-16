@@ -1,64 +1,9 @@
 services:
 
-  #PHP Service
-  ogame-app:
-    volumes:
-      - ./:/var/www
-      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        OPCACHE_ENABLE: "0"  # Disable opcache for development
-        USE_USER: ${USE_USER_ARG:-yes}  # Defaults to "yes". Set to "no" for GitHub Actions.
-    container_name: ogame-app
-    restart: unless-stopped
-    tty: true
-    environment:
-      CONTAINER_ROLE: app
-      SERVICE_NAME: app
-      SERVICE_TAGS: dev
-    working_dir: /var/www
-    networks:
-      - app-network
-    depends_on:
-      - ogame-db
-
-  #Nginx Service
-  ogame-webserver:
-    image: nginx:alpine
-    container_name: ogame-webserver
-    restart: unless-stopped
-    tty: true
-    volumes:
-      - ./:/var/www:cached
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
-      - ./nginx/ssl/:/etc/nginx/ssl/
-    ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - app-network
-
-  #Scheduler
-  scheduler:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    depends_on:
-      - ogame-app
-      - ogame-db
-    volumes:
-      - .:/var/www/html
-    environment:
-      CONTAINER_ROLE: scheduler
-    networks:
-      - app-network
-
-  #MariaDB Service
-  ogame-db:
+  # MariaDB Service
+  ogamex-db:
     image: mariadb:11.3.2-jammy
-    container_name: ogame-db
+    container_name: ogamex-db
     restart: unless-stopped
     tty: true
     volumes:
@@ -72,11 +17,70 @@ services:
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     networks:
+      app-network:
+        aliases:
+          - ogame-db
+
+  # PHP Service
+  ogamex-app:
+    volumes:
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        OPCACHE_ENABLE: "0"  # Disable opcache for development
+        USE_USER: ${USE_USER_ARG:-yes}  # Defaults to "yes". Set to "no" for GitHub Actions.
+    container_name: ogamex-app
+    restart: unless-stopped
+    tty: true
+    environment:
+      CONTAINER_ROLE: app
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    networks:
+      - app-network
+    depends_on:
+      - ogamex-db
+
+  # Scheduler
+  ogamex-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ogamex-scheduler
+    volumes:
+      - .:/var/www/html
+    environment:
+      CONTAINER_ROLE: scheduler
+    networks:
+      - app-network
+    depends_on:
+      - ogamex-app
+      - ogamex-db
+
+  # Nginx Service
+  ogamex-webserver:
+    image: nginx:alpine
+    container_name: ogamex-webserver
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./:/var/www:cached
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./nginx/ssl/:/etc/nginx/ssl/
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
       - app-network
 
-  #PHPMYADMIN
-  phpmyadmin:
+  # PhpMyAdmin
+  ogamex-phpmyadmin:
     image: phpmyadmin
+    container_name: ogamex-phpmyadmin
     restart: always
     ports:
       - 8080:80
@@ -85,12 +89,13 @@ services:
       - PMA_HOST=ogame-db
     networks:
       - app-network
-#Docker Networks
+
+# Docker Networks
 networks:
   app-network:
     driver: bridge
 
-#Volumes
+# Volumes
 volumes:
   ogame-dbdata:
     driver: local

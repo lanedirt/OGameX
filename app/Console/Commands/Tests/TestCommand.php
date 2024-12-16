@@ -26,12 +26,12 @@ abstract class TestCommand extends Command
     /**
      * @var string The default application URL that the tests will run against in the development environment.
      */
-    protected string $baseUrlDevelopment = 'http://ogame-webserver:80';
+    protected string $baseUrlDevelopment = 'http://ogamex-webserver:80';
 
     /**
      * @var string The default application URL that the tests will run against in the production environment.
      */
-    private string $baseUrlProduction = 'https://ogame-webserver:443';
+    private string $baseUrlProduction = 'https://ogamex-webserver:443';
 
     /**
      * @var string The email of the test user.
