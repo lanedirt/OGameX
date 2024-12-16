@@ -72,17 +72,15 @@ The primary goal of this fan-based project is to engineer a faithful rendition o
 
 ## <a name="current-state"></a> 🖥️ Current State of the Project
 
-OGameX is under active development with several core features already implemented:
+OGameX is under active development with a lot of core features already implemented and working:
 
-- Registration and login
 - Planets and resource management (metal, crystal, deuterium, energy)
-- Building and updating resources, facilities, shipyards, and defenses
+- Building and research queue system
 - Galaxy overview
-- Planet switching
 - Highscores
 - Messages
 - Battle engine
-- Basic admin panel
+- Admin panel
 - Fleet dispatch missions
   - Transport
   - Deployment
@@ -90,14 +88,17 @@ OGameX is under active development with several core features already implemente
   - Espionage
   - Attack
   - Recycle
+- Moon
+  - Moon creation through debris field after battle
+  - Moon buildings
 
 ### <a name="upcoming-features"></a> a) Upcoming Features
 
-New features are continuously being added. Upcoming major features:
-- Support for Moons 
-  - Moon creation through debris field after battle
-  - Moon buildings
-  - Phalanx
+The next major upcoming features that are being worked on:
+
+- Moon
+  - Phalanx feature
+  - Jump Gate feature
   - Moon destruction fleet dispatch mission
 - Missile attacks
 - Alliances
