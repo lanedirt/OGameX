@@ -1,5 +1,11 @@
 role=${CONTAINER_ROLE:-none}
 
+# Extract environment information
+is_production=false
+if grep -q "^APP_ENV=production" .env; then
+    is_production=true
+fi
+
 if [ "$role" = "scheduler" ]; then
       while [ true ]
          do
@@ -7,6 +13,37 @@ if [ "$role" = "scheduler" ]; then
            sleep 60
          done
 elif [ "$role" = "app" ]; then
+      # Check APP_ENV and run appropriate composer install
+      if [ "$is_production" = true ]; then
+            echo "Production environment detected. Running composer install --no-dev..."
+            composer install --no-dev
+      else
+            echo "Development environment detected. Running composer install..."
+            composer install
+      fi
+
+      # Generate APP_KEY if not set in the .env file
+      if grep -q "^APP_KEY=" .env; then
+      if [ -z "$(grep "^APP_KEY=" .env | cut -d '=' -f2)" ]; then
+            echo "APP_KEY is empty. Generating a new key..."
+            php artisan key:generate --force
+      else
+            echo "APP_KEY already set. Skipping key generation."
+      fi
+      else
+            echo "APP_KEY not found in .env. Generating a new key..."
+            php artisan key:generate --force
+      fi
+
+      # Run migrations
+      php artisan migrate --force
+
+      # Only run caching in production
+      if [ "$is_production" = true ]; then
+            echo "Production environment: Caching configurations..."
+            php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
+      fi
+
       exec "php-fpm"
 else
     echo "Could not match the container role \"$role\""
