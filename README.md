@@ -120,16 +120,11 @@ Read the [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/blob/main/CONTRIBU
 This project is a non-commercial hobby project. All rights and concepts related to OGame are owned by GameForge GmbH. We encourage supporters to try the official OGame at https://ogame.org to support its creators.
 
 ## <a name="installation"></a> 🖥️ 7. Installation
-The easiest way to get OGameX up and running on your own machine is by running the Docker containers via the docker-compose.yml file that is supplied in this repository.
+The recommended way to install OGameX is by running the bundled Docker containers. This takes care of all the dependencies and is the easiest way to get started.
 
-Alternatively, deploy this project manually on any host that supports at least the following:
-- PHP >= 8.2
-- MySQL/MariaDB
-- Ability to enable specific PHP extensions (Ctype, cURL, DOM, Fileinfo and more...)
+If you insteda wish to install OGameX manually, see the list of requirements for Laravel 11.x and how to deploy manually to a server here: https://laravel.com/docs/11.x/deployment.
 
-See the full list of requirements for Laravel 11.x and how to deploy to a server here: https://laravel.com/docs/11.x/deployment.
-
-### <a name="development"></a> a) Development: Install OGameX using Docker
+### <a name="development"></a> a) Install for local development
 For local development use the default docker-compose file that is included in this repository. This configuration is optimized for development and includes several tools that are useful for debugging and testing.
 
 1. Clone the repository.
@@ -150,14 +145,15 @@ For local development use the default docker-compose file that is included in th
 
   > Note: The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080.
 
-After the docker containers have started, visit http://localhost to access OGameX. Create a new account and login using that account. The first account created will be automatically assigned the admin role.
+After the docker containers have started, visit http://localhost to access OGameX. Note that it might take a few seconds for the application to start. Create a new account and login using that account. The first account created will be automatically assigned the admin role.
 
-### <a name="production"></a> b) Production: Install OGameX using Docker
-For production there is a separate docker-compose file that is used to run the application. This file is called `docker-compose.prod.yml`. This configuration contains
+> Note: if you need to run manual `php artisan` commands, you can SSH into the `ogame-app` container with the `docker compose exec -it ogame-app bash` command.
+
+### <a name="production"></a> b) Install for production
+For production there is a separate docker-compose file called `docker-compose.prod.yml`. This configuration contains
 several performance optimizations and security settings that are not present in the development configuration.
 
-***Caution:*** the production configuration is not yet fully optimized and should be used with caution. As an example, the database root user uses a default password which should be changed to something unique.
-You should review all settings before deploying this project to a publicly accessible server.
+***Caution:*** the production configuration is not yet fully optimized and should be used with caution. As an example, the database root user uses a default password which should be changed to something unique. You should review all settings before deploying this project to a publicly accessible server.
 
 **Note:** The instructions below are for Linux. OGameX should also work under Docker for Windows but the steps might be a little bit different.
 
@@ -190,13 +186,15 @@ You should review all settings before deploying this project to a publicly acces
 
   > Note: The default setup binds to ports 80/443, to change it modify `docker-compose.yml`. PhpMyAdmin is also included for database management and is bound to port 8080, however to access it you need to explicitly specify your IP addresses via `./docker/phpmyadmin/.htaccess` for safety purposes.
 
-After the docker containers have started, visit https://localhost to access OGameX. Create a new account and login using that account. The first account created will be automatically assigned the admin role.
+After the docker containers have started, visit https://localhost to access OGameX. Note that it might take a few seconds for the application to start. Create a new account and login using that account. The first account created will be automatically assigned the admin role.
 
 > Note: The production version runs in forced-HTTPS (redirect) mode by default using a self-signed SSL certificate. If you want to access the application via HTTP, open `.env` and change `APP_ENV` from `production` to `local`.
 
 ## <a name="upgrade"></a> 🖥️ 8. Upgrade and misc instructions
 
 ### Upgrade OGameX to a new version
+If you want to upgrade an existing installation of OGameX to a new version, follow these steps:
+
 1. Stop the existing containers:
   ```
   $ docker compose down
