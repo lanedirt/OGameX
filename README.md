@@ -208,8 +208,14 @@ If you want to upgrade an existing installation of OGameX to a new version, foll
   $ git checkout 0.9.0 # replace with the latest release tag
   ```
   3. Rebuild and start the containers:
+
+  **For development:**
   ```
-  $ docker compose up -d --build --force-recreate
+  $ docker compose up -d --build --force-recreate --remove-orphans
+  ```
+  **For production:**
+  ```
+  $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans
   ```
   > When the docker containers are started, the entrypoint script in `./docker/entrypoint.sh` will automatically run the appropriate laravel install commands to upgrade the database schema and refresh the cache. Note that depending on the migrations this might take a short while. After the containers are started, you can visit the application at `https://localhost` (or http://localhost) to check if the upgrade was successful. If you run into any issues, please check the logs for more information or open an issue on GitHub.
 
