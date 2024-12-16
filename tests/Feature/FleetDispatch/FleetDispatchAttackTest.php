@@ -16,6 +16,7 @@ use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 use OGame\Services\DebrisFieldService;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Test that fleet dispatch works as expected for attack missions.
@@ -836,5 +837,90 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertSame(0, $battleReport->general['moon_chance'], 'Battle report should contain 0 percent moon chance because moon already existed before battle.');
         $this->assertTrue($battleReport->general['moon_existed'], 'Battle report does not contain correct boolean that moon already existed before battle.');
         $this->assertFalse($battleReport->general['moon_created'], 'Battle report does not contain moon creation information.');
+    }
+
+    /**
+     * Assert that a battle with specific units eventually creates a moon within 100 attempts.
+     */
+    public function testLargeScaleAttackMoonCreationWithinAttempts(): void
+    {
+        // Set moon chance to 20%
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('maximum_moon_chance', 20);
+
+        // Track if moon was created in any attempt
+        $moonCreated = false;
+        $attempts = 0;
+        $maxAttempts = 100;
+
+        while (!$moonCreated && $attempts < $maxAttempts) {
+            $attempts++;
+
+            // Prepare attacker fleet
+            $this->planetAddUnit('light_fighter', 1667);
+
+            $unitCollection = new UnitCollection();
+            $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1667);
+
+            // Send fleet to a nearby foreign planet
+            $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+            // Ensure that foreign planet has no moon
+            if ($foreignPlanet->hasMoon()) {
+                $foreignPlanet->moon()->abandonPlanet();
+            }
+
+            // Add defender units
+            $foreignPlanet->addUnit('rocket_launcher', 20000);
+
+            // Get fleet mission
+            $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+            $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+            $fleetMissionId = $fleetMission->id;
+
+            // Calculate fleet mission duration
+            $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration(
+                $this->planetService,
+                $foreignPlanet->getPlanetCoordinates(),
+                $unitCollection
+            );
+
+            // Set time to fleet mission duration + 1 second
+            $this->travel($fleetMissionDuration + 1)->seconds();
+
+            // Reload application to make sure the planet is not cached
+            $this->reloadApplication();
+
+            // Trigger the update logic
+            $response = $this->get('/overview');
+            $response->assertStatus(200);
+
+            // Assert that the fleet mission is processed
+            $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+            $this->assertTrue($fleetMission->processed == 1, 'Fleet mission was not processed successfully.');
+
+            // Get the battle report
+            $battleReport = BattleReport::orderBy('id', 'desc')->first();
+            $this->assertNotNull($battleReport, 'Battle report was not created.');
+
+            // Check if moon was created in this attempt
+            if ($battleReport->general['moon_created']) {
+                $moonCreated = true;
+            }
+
+            // Clean up for next attempt if moon wasn't created
+            if (!$moonCreated) {
+                // Reset the test state
+                $this->reloadApplication();
+                $this->basicSetup();
+            }
+        }
+
+        // Assert that a moon was created within the maximum attempts
+        $this->assertTrue($moonCreated, sprintf('Moon was not created within %d attempts with 20%% maximum moon chance.', $maxAttempts));
+        $this->assertLessThanOrEqual($maxAttempts, $attempts, 'Test exceeded maximum allowed attempts.');
+
+        // Output the number of attempts it took to create the moon
+        dump("Moon was created after amount of attempts: " . $attempts);
     }
 }

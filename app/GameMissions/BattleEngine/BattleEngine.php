@@ -423,7 +423,7 @@ class BattleEngine
      */
     private function rollMoonCreation($moonChance): bool
     {
-        $dice = rand(1, 100);
+        $dice = random_int(1, 100);
         return $dice <= $moonChance;
     }
 }
