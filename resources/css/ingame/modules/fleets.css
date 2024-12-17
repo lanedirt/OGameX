@@ -356,12 +356,6 @@
     content: "";
 }
 
-.technology[data-status="active"] .icon::after {
-    top: auto;
-    bottom: 0;
-    background: rgba(0, 0, 0, .75);
-}
-
 .technology[data-status="disabled"] .icon::after {
     background: repeating-linear-gradient(-45deg, rgba(255, 150, 0, .33), rgba(255, 150, 0, .33) 2px, transparent 3px, transparent 7px);
 }

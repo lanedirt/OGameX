@@ -51,7 +51,7 @@
         </tr>
         <tr class="data">
             <td class="desc timer">
-                <time class="countdown buildingCountdown" data-segments="2">{{ \OGame\Facades\AppUtil::formatTimeDuration($build_active->time_countdown) }}</time>
+                <time class="countdown researchCountdown" data-segments="2">{{ \OGame\Facades\AppUtil::formatTimeDuration($build_active->time_countdown) }}</time>
             </td>
         </tr>
         <tr class="data">
@@ -78,7 +78,7 @@
         var pricebuilding = 750;
         var referrerPage = $.deparam.querystring().page;
 
-        new CountdownTimer('buildingCountdown', {{ $build_active->time_countdown }},'{{ url()->current() }}',null,true,3)
+        new CountdownTimer('researchCountdown', {{ $build_active->time_countdown }},'{{ url()->current() }}',null,true,3)
 
         function cancelbuilding(id, listId, question) {
             errorBoxDecision('Caution', "" + question + "", 'yes', 'No', function() {

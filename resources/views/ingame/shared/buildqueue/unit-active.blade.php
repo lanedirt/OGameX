@@ -31,7 +31,7 @@
         </tr>
         <tr class="data">
             <td class="desc timer">
-                <time class="countdown buildingCountdown"
+                <time class="countdown unitCountdown"
                       data-segments="2">{{ \OGame\Facades\AppUtil::formatTimeDuration($build_queue_countdown) }}</time>
             </td>
         </tr>
@@ -60,7 +60,7 @@
         var questionbuilding = 'Do\u0020you\u0020want\u0020to\u0020reduce\u0020the\u0020construction\u0020time\u0020of\u0020the\u0020current\u0020construction\u0020project\u0020by\u002050\u0025\u0020of\u0020the\u0020total\u0020construction\u0020time\u0020\u00287m\u002010s\u0029\u0020for\u0020\u003Cspan\u0020style\u003D\u0022font\u002Dweight\u003A\u0020bold\u003B\u0022\u003E750\u0020Dark\u0020Matter\u003C\/span\u003E\u003F';
         var pricebuilding = 750;
         var referrerPage = $.deparam.querystring().page;
-        new CountdownTimer('buildingCountdown', {{ $build_active->time_countdown }}, '{{ url()->current() }}', null, true, 3)
+        new CountdownTimer('unitCountdown', {{ $build_active->time_countdown }}, '{{ url()->current() }}', null, true, 3)
         new CountdownTimerUnit('shipyardCountdownUnit', {{ $build_active->time_countdown_object_next }}, {{ $build_active->object_amount_remaining }}, {{ $build_active->object->id }}, {{ $build_active->time_countdown_per_object }}, false, 3)
     </script>
 @else

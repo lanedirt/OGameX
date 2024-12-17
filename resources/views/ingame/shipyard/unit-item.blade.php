@@ -34,11 +34,11 @@
         sprite_small small
         @endif{{ $building->object->class_name }}">
         @if ($building->currently_building)
-            <span class="targetamount" data-value="54" data-bonus="0">
+            <span class="targetamount" data-value="{{ $building->amount + $building->currently_building_amount }}" data-bonus="0">
                 {{ $building->amount + $building->currently_building_amount }}
             </span>
             <div class="cooldownBackground"></div>
-            <time-counter><time class="countdown buildingCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>
+            <time-counter><time class="countdown unitCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>
         @endif
             <span class="amount" data-value="{{ $building->amount }}" data-bonus="0">
             <span class="stockAmount">{{ $building->amount }}</span>
