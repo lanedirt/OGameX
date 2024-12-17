@@ -39,8 +39,9 @@
                                     -25% ⌛
                                 </span>-->
                             @if ($building->currently_building)
+                                <span class="targetlevel" data-value="{{ $building->current_level + 1 }}" data-bonus="0">{{ $building->current_level + 1 }}</span>
                                 <div class="cooldownBackground"></div>
-                                <time-counter><time class="countdown buildingCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>
+                                <time-counter><time class="countdown researchCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>
                             @endif
                             <span class="level" data-value="{{ $building->current_level }}" data-bonus="0">
                             <span class="stockAmount">{{ $building->current_level }}</span>
