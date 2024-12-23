@@ -381,8 +381,6 @@ class PlanetServiceFactory
      */
     private function createPlanet(PlayerService $player, Coordinate $new_position, string $planet_name, PlanetType $planet_type): PlanetService
     {
-
-
         $planet = new Planet();
         $planet->user_id = $player->getId();
         $planet->name = $planet_name;
@@ -679,5 +677,4 @@ class PlanetServiceFactory
             'solar_satellite_percent' => 10,
         ];
     }
-
 }
