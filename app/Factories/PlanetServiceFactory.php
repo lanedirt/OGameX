@@ -399,7 +399,7 @@ class PlanetServiceFactory
         } else {
             $is_first_planet = $player->planets->planetCount() == 0;
 
-            $this->setupPlanetProperties($planet,$is_first_planet);
+            $this->setupPlanetProperties($planet, $is_first_planet);
         }
 
         $planet->save();
@@ -432,14 +432,14 @@ class PlanetServiceFactory
      * Sets up planet-specific properties.
      * @param Planet $planet
      */
-    private function setupPlanetProperties(Planet $planet, bool $is_first_planet = FALSE): void
+    private function setupPlanetProperties(Planet $planet, bool $is_first_planet = false): void
     {
 
         $planet_data = $this->planetData($planet->planet, $is_first_planet);
 
         // Random field count between the min and max values and add the Server planet fields bonus setting.
         $planet->field_max = rand($planet_data['fields'][0], $planet_data['fields'][1]) + $this->settings->planetFieldsBonus();
-        $planet->diameter = 36.14 * $planet->field_max + 5697.23;
+        $planet->diameter = (int) (36.14 * $planet->field_max + 5697.23);
 
         // TODO: temperature range should be dependent on the planet position.
         $planet->temp_min = rand($planet_data['temperature'][0], $planet_data['temperature'][1]);
@@ -459,6 +459,23 @@ class PlanetServiceFactory
         $planet->solar_satellite_percent = $planet_data['solar_satellite_percent'];
     }
 
+    /**
+     * Returns an array of planet data:
+     *   - fields => int[]
+     *   - temperature => int[]
+     *   - X_mine_percent => int
+     *
+     * @return array{
+     *     fields: int[],
+     *     temperature: int[],
+     *     metal_mine_percent: int,
+     *     crystal_mine_percent: int,
+     *     deuterium_synthesizer_percent: int,
+     *     solar_plant_percent: int,
+     *     fusion_plant_percent: int,
+     *     solar_satellite_percent: int
+     * }
+     */
     public function planetData(int $planetPosition, bool $is_first_planet): array
     {
         // Each planet position (1-15) has its own data: field range, temperature range,
@@ -466,21 +483,6 @@ class PlanetServiceFactory
         // The base production percent is 10 (which is effectively 100%).
         // "Max Deterium production" on position 15 is interpreted as a higher deuterium bonus.
         // You can tweak these values according to your game's balance.
-
-
-        //first_planet static data
-        if ($is_first_planet) {
-            return $data[$planetPosition] ?? [
-                'fields' => [163, 163],
-                'temperature' => [20, 60],
-                'metal_mine_percent' => 10,
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
-            ];
-        }
 
         $data = [
             // Position 1
@@ -649,6 +651,20 @@ class PlanetServiceFactory
                 'solar_satellite_percent' => 10,
             ],
         ];
+
+        //first_planet static data
+        if ($is_first_planet) {
+            return $data[$planetPosition] ?? [
+                'fields' => [163, 163],
+                'temperature' => [20, 60],
+                'metal_mine_percent' => 10,
+                'crystal_mine_percent' => 10,
+                'deuterium_synthesizer_percent' => 10,
+                'solar_plant_percent' => 10,
+                'fusion_plant_percent' => 10,
+                'solar_satellite_percent' => 10,
+            ];
+        }
 
         // If the position doesn't exist, return some default values
         // Deuterium can be adjusted according to planet temperature as needed
