@@ -78,7 +78,7 @@ class BuildingObjects
         $deuteriumSynthesizer->valid_planet_types = [PlanetType::Planet];
 
         $deuteriumSynthesizer->production = new GameObjectProduction();
-        $deuteriumSynthesizer->production->deuterium = 'return ((10 * $object_level * pow((1.1), $object_level)) * (-0.002 * $planet_temperature + 1.28))  * (0.1 * $building_percentage);';
+        $deuteriumSynthesizer->production->deuterium = 'return ((10 * $object_level * pow((1.1), $object_level)) * (1.44 - 0.004 * $planet_max_temperature) ) * (0.1 * $building_percentage);';
         $deuteriumSynthesizer->production->energy = 'return - (20 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
 
         $deuteriumSynthesizer->assets = new GameObjectAssets();

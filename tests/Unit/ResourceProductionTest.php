@@ -76,12 +76,13 @@ class ResourceProductionTest extends UnitTestCase
         $this->createAndSetPlanetModel([
             'solar_satellite' => 100,
             'solar_satellite_percent' => 10,
+            'temp_max' => 100
         ]);
 
         // Currently solar satellites produce fixed 20 energy each.
         // So 100 satellites should produce 2000 energy.
         // @TODO: this will need to be updated once the planet temperature
         // is added and the energy production formula is updated.
-        $this->assertEquals(2000, $this->planetService->energyProduction()->get());
+        $this->assertEquals(4000, $this->planetService->energyProduction()->get());
     }
 }
