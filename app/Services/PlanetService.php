@@ -1453,13 +1453,15 @@ class PlanetService
         return $this->calculatePlanetBonuses($baseIncome);
 
     }
+
     /**
      * Calculate the planet bonuses.
      *
      * @param Resources $baseIncome
      * @return Resources
      */
-    public function calculatePlanetBonuses(Resources $baseIncome) : Resources {
+    public function calculatePlanetBonuses(Resources $baseIncome): Resources
+    {
         // Calculate the planet position production bonuses.
         $baseIncome = $this->calculatePlanetProductionBonuses($baseIncome);
         return $baseIncome;
@@ -1471,7 +1473,8 @@ class PlanetService
      * @param Resources $baseIncome
      * @return Resources
      */
-    public function calculatePlanetProductionBonuses(Resources $baseIncome) : Resources {
+    public function calculatePlanetProductionBonuses(Resources $baseIncome): Resources
+    {
         $position = $this->planet->planet;
 
         // Define production bonuses by position
@@ -1517,8 +1520,6 @@ class PlanetService
      */
     private function updateResourceProductionStatsInner(Resources $production_total, int|float $energy_production_total, int|float $energy_consumption_total, bool $save_planet = true): void
     {
-
-
 
         foreach (ObjectService::getGameObjectsWithProduction() as $object) {
             // Retrieve all game objects that have production values.
