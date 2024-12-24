@@ -439,7 +439,6 @@ class PlanetServiceFactory
         $planet->field_max = rand($planet_data['fields'][0], $planet_data['fields'][1]) + $this->settings->planetFieldsBonus();
         $planet->diameter = (int) (36.14 * $planet->field_max + 5697.23);
 
-        // TODO: temperature range should be dependent on the planet position.
         $planet->temp_min = rand($planet_data['temperature'][0], $planet_data['temperature'][1]);
         $planet->temp_max = $planet->temp_min + 40;
 
@@ -449,29 +448,22 @@ class PlanetServiceFactory
         $planet->deuterium = 0;
 
         // Set default mine production percentages to 10 (100%).
-        $planet->metal_mine_percent = $planet_data['metal_mine_percent'];
-        $planet->crystal_mine_percent = $planet_data['crystal_mine_percent'];
-        $planet->deuterium_synthesizer_percent = $planet_data['deuterium_synthesizer_percent'];
-        $planet->solar_plant_percent = $planet_data['solar_plant_percent'];
-        $planet->fusion_plant_percent = $planet_data['fusion_plant_percent'];
-        $planet->solar_satellite_percent = $planet_data['solar_satellite_percent'];
+        $planet->metal_mine_percent = 10;
+        $planet->crystal_mine_percent = 10;
+        $planet->deuterium_synthesizer_percent = 10;
+        $planet->solar_plant_percent = 10;
+        $planet->fusion_plant_percent = 10;
+        $planet->solar_satellite_percent = 10;
     }
 
     /**
      * Returns an array of planet data:
      *   - fields => int[]
      *   - temperature => int[]
-     *   - X_mine_percent => int
      *
      * @return array{
      *     fields: int[],
      *     temperature: int[],
-     *     metal_mine_percent: int,
-     *     crystal_mine_percent: int,
-     *     deuterium_synthesizer_percent: int,
-     *     solar_plant_percent: int,
-     *     fusion_plant_percent: int,
-     *     solar_satellite_percent: int
      * }
      */
     public function planetData(int $planetPosition, bool $is_first_planet): array
@@ -487,166 +479,76 @@ class PlanetServiceFactory
             1 => [
                 'fields' => [96, 172],           // min:96, max:172
                 'temperature' => [220, 260],     // min:220°C, max:260°C
-                'metal_mine_percent' => 10,      // base 100%
-                'crystal_mine_percent' => 14,    // +40% => 10 + (10 * 0.40) = 14
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 2
             2 => [
                 'fields' => [104, 176],
                 'temperature' => [170, 210],
-                'metal_mine_percent' => 10,
-                'crystal_mine_percent' => 13,    // +30% => 10 + (10 * 0.30) = 13
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 3
             3 => [
                 'fields' => [112, 182],
                 'temperature' => [120, 160],
-                'metal_mine_percent' => 10,
-                'crystal_mine_percent' => 12,    // +20% => 10 + (10 * 0.20) = 12
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 4
             4 => [
                 'fields' => [118, 208],
                 'temperature' => [70, 110],
-                'metal_mine_percent' => 10,
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 5
             5 => [
                 'fields' => [133, 232],
                 'temperature' => [60, 100],
-                'metal_mine_percent' => 10,
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 6
             6 => [
                 'fields' => [146, 242],
                 'temperature' => [50, 90],
-                'metal_mine_percent' => 12,      // +17% => 10 + (10 * 0.17) ≈ 12
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 7
             7 => [
                 'fields' => [152, 248],
                 'temperature' => [40, 80],
-                'metal_mine_percent' => 12,      // +23% => 10 + (10 * 0.23) ≈ 12
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 8
             8 => [
                 'fields' => [156, 252],
                 'temperature' => [30, 70],
-                'metal_mine_percent' => 14,      // +35% => 10 + (10 * 0.35) = 14
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 9
             9 => [
                 'fields' => [150, 246],
                 'temperature' => [20, 60],
-                'metal_mine_percent' => 12,      // +23% => 10 + (10 * 0.23) ≈ 12
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 10
             10 => [
                 'fields' => [142, 232],
                 'temperature' => [10, 50],
-                'metal_mine_percent' => 12,      // +17% => 10 + (10 * 0.17) ≈ 12
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 11
             11 => [
                 'fields' => [136, 210],
                 'temperature' => [0, 40],
-                'metal_mine_percent' => 10,
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 12
             12 => [
                 'fields' => [125, 186],
                 'temperature' => [-10, 30],
-                'metal_mine_percent' => 10,
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 13
             13 => [
                 'fields' => [114, 172],
                 'temperature' => [-50, -10],
-                'metal_mine_percent' => 10,
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 14
             14 => [
                 'fields' => [100, 168],
                 'temperature' => [-90, -50],
-                'metal_mine_percent' => 10,
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
             // Position 15
             15 => [
                 'fields' => [90, 164],
                 'temperature' => [-130, -90],
-                'metal_mine_percent' => 10,
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10, // 10 + (10 * 0.50) = 15
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ],
         ];
 
@@ -655,12 +557,6 @@ class PlanetServiceFactory
             return $data[$planetPosition] ?? [
                 'fields' => [163, 163],
                 'temperature' => [20, 60],
-                'metal_mine_percent' => 10,
-                'crystal_mine_percent' => 10,
-                'deuterium_synthesizer_percent' => 10,
-                'solar_plant_percent' => 10,
-                'fusion_plant_percent' => 10,
-                'solar_satellite_percent' => 10,
             ];
         }
 
@@ -669,12 +565,6 @@ class PlanetServiceFactory
         return $data[$planetPosition] ?? [
             'fields' => [100, 150],
             'temperature' => [0, 40],
-            'metal_mine_percent' => 10,
-            'crystal_mine_percent' => 10,
-            'deuterium_synthesizer_percent' => 10,
-            'solar_plant_percent' => 10,
-            'fusion_plant_percent' => 10,
-            'solar_satellite_percent' => 10,
         ];
     }
 }
