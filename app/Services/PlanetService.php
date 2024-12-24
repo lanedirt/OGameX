@@ -1528,7 +1528,6 @@ class PlanetService
      */
     private function updateResourceProductionStatsInner(Resources $production_total, int|float $energy_production_total, int|float $energy_consumption_total, bool $save_planet = true): void
     {
-
         foreach (ObjectService::getGameObjectsWithProduction() as $object) {
             // Retrieve all game objects that have production values.
             $production = $this->getObjectProduction($object->machine_name);
