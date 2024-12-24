@@ -1435,6 +1435,7 @@ class PlanetService
      */
     public function getPlanetBasicIncome(): Resources
     {
+
         // Moons do not have mines and therefore also do not have basic income.
         if ($this->isMoon()) {
             return new Resources(0, 0, 0, 0);
@@ -1442,12 +1443,77 @@ class PlanetService
 
         $universe_resource_multiplier = $this->settingsService->economySpeed();
 
-        return new Resources(
+        $baseIncome = new Resources(
             $this->settingsService->basicIncomeMetal() * $universe_resource_multiplier,
             $this->settingsService->basicIncomeCrystal() * $universe_resource_multiplier,
             $this->settingsService->basicIncomeDeuterium() * $universe_resource_multiplier,
             $this->settingsService->basicIncomeEnergy() * $universe_resource_multiplier
         );
+
+        return $this->calculatePlanetBonuses($baseIncome);
+
+    }
+
+    /**
+     * Calculate the planet bonuses.
+     *
+     * @param Resources $baseIncome
+     * @return Resources
+     */
+    public function calculatePlanetBonuses(Resources $baseIncome): Resources
+    {
+        // Calculate the planet position production bonuses.
+        $baseIncome = $this->calculatePlanetProductionBonuses($baseIncome);
+        return $baseIncome;
+    }
+
+    /**
+     * Calculate the planet position production bonuses.
+     *
+     * @param Resources $baseIncome
+     * @return Resources
+     */
+    public function calculatePlanetProductionBonuses(Resources $baseIncome): Resources
+    {
+        $position = $this->planet->planet;
+
+        $bonus = $this->getProductionForPositionBonuses($position);
+
+        $metalMultiplier = $bonus['metal'];
+        $crystalMultiplier = $bonus['crystal'];
+        $deuteriumMultiplier = $bonus['deuterium'];
+
+        // Apply multipliers to the base income
+        $baseIncome->metal->set($baseIncome->metal->get() * $metalMultiplier);
+        $baseIncome->crystal->set($baseIncome->crystal->get() * $crystalMultiplier);
+        $baseIncome->deuterium->set($baseIncome->deuterium->get() * $deuteriumMultiplier);
+
+        return $baseIncome;
+
+    }
+
+    /**
+     * Retrieves production bonuses for a given position.
+     *
+     * @param int $position
+     * @return array{metal: float, crystal: float, deuterium: float}
+     */
+    public function getProductionForPositionBonuses(int $position): array
+    {
+        // Define production bonuses by position
+        $productionBonuses = [
+            1 => ['metal' => 1, 'crystal' => 1.4, 'deuterium' => 1],
+            2 => ['metal' => 1, 'crystal' => 1.3, 'deuterium' => 1],
+            3 => ['metal' => 1, 'crystal' => 1.2, 'deuterium' => 1],
+            6 => ['metal' => 1.17, 'crystal' => 1, 'deuterium' => 1],
+            7 => ['metal' => 1.23, 'crystal' => 1, 'deuterium' => 1],
+            8 => ['metal' => 1.35, 'crystal' => 1, 'deuterium' => 1],
+            9 => ['metal' => 1.23, 'crystal' => 1, 'deuterium' => 1],
+            10 => ['metal' => 1.17, 'crystal' => 1, 'deuterium' => 1],
+        ];
+
+        // Return bonuses or default values
+        return $productionBonuses[$position] ?? ['metal' => 1, 'crystal' => 1, 'deuterium' => 1];
     }
 
     /**
@@ -1479,7 +1545,6 @@ class PlanetService
             // Combine values to one array, so we have the total production.
             $production_total->add($production);
         }
-
         // Write values to planet
         $this->planet->metal_production = (int)$production_total->metal->get();
         $this->planet->crystal_production = (int)$production_total->crystal->get();
