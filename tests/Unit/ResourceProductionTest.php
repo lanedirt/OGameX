@@ -37,6 +37,7 @@ class ResourceProductionTest extends UnitTestCase
         ]);
 
         // Assertions for production values with positive energy
+
         $this->assertGreaterThan(1000, $this->planetService->getMetalProductionPerHour());
         $this->assertGreaterThan(1000, $this->planetService->getCrystalProductionPerHour());
         $this->assertGreaterThan(500, $this->planetService->getDeuteriumProductionPerHour());
@@ -58,9 +59,12 @@ class ResourceProductionTest extends UnitTestCase
             'solar_plant_percent' => 10,
         ]);
 
+        $position = $this->planetService->getPlanetCoordinates()->position;
+        // Get the bonus for the planet position
+        $bonus_planet_position_bonuses = $this->planetService->getProductionForPositionBonuses($position);
         // Assertions for production values with zero energy
-        $this->assertEquals(240, $this->planetService->getMetalProductionPerHour());
-        $this->assertEquals(120, $this->planetService->getCrystalProductionPerHour());
+        $this->assertEquals(240 * $bonus_planet_position_bonuses["metal"], $this->planetService->getMetalProductionPerHour());
+        $this->assertEquals(120 * $bonus_planet_position_bonuses["crystal"], $this->planetService->getCrystalProductionPerHour());
         $this->assertEquals(0, $this->planetService->getDeuteriumProductionPerHour());
     }
 

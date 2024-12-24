@@ -1477,6 +1477,29 @@ class PlanetService
     {
         $position = $this->planet->planet;
 
+        $bonus = $this->getProductionForPositionBonuses($position);
+
+        $metalMultiplier = $bonus['metal'];
+        $crystalMultiplier = $bonus['crystal'];
+        $deuteriumMultiplier = $bonus['deuterium'];
+
+        // Apply multipliers to the base income
+        $baseIncome->metal->set($baseIncome->metal->get() * $metalMultiplier);
+        $baseIncome->crystal->set($baseIncome->crystal->get() * $crystalMultiplier);
+        $baseIncome->deuterium->set($baseIncome->deuterium->get() * $deuteriumMultiplier);
+
+        return $baseIncome;
+
+    }
+
+    /**
+     * Retrieves production bonuses for a given position.
+     *
+     * @param int $position
+     * @return array{metal: float, crystal: float, deuterium: float}
+     */
+    public function getProductionForPositionBonuses(int $position): array
+    {
         // Define production bonuses by position
         $productionBonuses = [
             1 => ['metal' => 1, 'crystal' => 1.4, 'deuterium' => 1],
@@ -1489,23 +1512,8 @@ class PlanetService
             10 => ['metal' => 1.17, 'crystal' => 1, 'deuterium' => 1],
         ];
 
-        // If the position has no bonus, return the base income
-        if (!isset($productionBonuses[$position])) {
-            return $baseIncome;
-        }
-
-        $bonus = $productionBonuses[$position];
-        $metalMultiplier = $bonus['metal'];
-        $crystalMultiplier = $bonus['crystal'];
-        $deuteriumMultiplier = $bonus['deuterium'];
-
-        // Apply multipliers to the base income
-        $baseIncome->metal->set($baseIncome->metal->get() * $metalMultiplier);
-        $baseIncome->crystal->set($baseIncome->crystal->get() * $crystalMultiplier);
-        $baseIncome->deuterium->set($baseIncome->deuterium->get() * $deuteriumMultiplier);
-
-        return $baseIncome;
-
+        // Return bonuses or default values
+        return $productionBonuses[$position] ?? ['metal' => 1, 'crystal' => 1, 'deuterium' => 1];
     }
 
     /**
