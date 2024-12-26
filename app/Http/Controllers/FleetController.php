@@ -284,7 +284,6 @@ class FleetController extends OGameController
         ]);
     }
 
-
     /**
      * Handles the dispatch of a fleet via shortcut buttons on galaxy page.
      *
@@ -345,7 +344,6 @@ class FleetController extends OGameController
         $planetType = PlanetType::from($targetType);
         $consumption = $fleetMissionService->calcConsumption($planet, $units, $targetCoordinate, 0, 10);
         $consumption_resources = new Resources(0, 0, $consumption, 0);
-
 
         $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $planetType, $mission_type, $units, $resources, $consumption_resources, 10);
 

@@ -469,7 +469,6 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units at beginning of test.');

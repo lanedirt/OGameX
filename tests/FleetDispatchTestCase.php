@@ -229,7 +229,6 @@ abstract class FleetDispatchTestCase extends MoonTestCase
     {
         $unitsArray = $this->convertUnitsToArray($units);
 
-
         $post = $this->post('/ajax/fleet/dispatch/send-fleet', [
             'galaxy' => $coordinates->galaxy,
             'system' => $coordinates->system,
