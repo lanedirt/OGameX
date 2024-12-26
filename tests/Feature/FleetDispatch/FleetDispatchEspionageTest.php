@@ -37,6 +37,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     protected function basicSetup(): void
     {
         $this->planetAddUnit('espionage_probe', 5);
+        $this->planetAddResources(new Resources(0, 0, 100000, 0));
 
         // Set the fleet speed to 1x for this test.
         $settingsService = resolve(SettingsService::class);

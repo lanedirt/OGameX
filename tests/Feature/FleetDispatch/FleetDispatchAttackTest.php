@@ -45,6 +45,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
         $settingsService->set('fleet_speed', 1);
+        $this->planetAddResources(new Resources(0, 0, 100000, 0));
+
     }
 
     protected function messageCheckMissionArrival(): void
@@ -296,7 +298,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Add resources for test.
-        $this->planetAddResources(new Resources(5000, 5000, 0, 0));
+        $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
 
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');
@@ -423,6 +425,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Attack with 200 light fighters, defend with 100 rocket launchers.
         // We expect attacker to win in +/- 4 rounds, while losing 10-50 light fighters.
         $this->planetAddUnit('light_fighter', 200);
+        $this->planetAddResources(new Resources(5000, 5000, 1000000, 0));
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 200);
@@ -478,6 +481,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Attack with 50 light fighters, defend with 100 rocket launchers.
         // We expect defender to win in +/- 3 rounds. Attacker will lose all units.
         $this->planetAddUnit('light_fighter', 50);
+        $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 50);
@@ -537,9 +541,13 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $foreignPlanet->addUnit('light_fighter', 1);
         $unitsToSend = new UnitCollection();
         $unitsToSend->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $foreignPlanet->addResources(new Resources(0, 0, 100000, 0));
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
-        $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
+        $consumption = $fleetMissionService->calcConsumption($foreignPlanet, $unitsToSend, $this->planetService->getPlanetCoordinates(), 0, 10);
+        $consumption_resources = new Resources(0, 0, $consumption, 0);
+
+        $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0), $consumption_resources, 10);
 
         // Check that now we're under attack.
         $response = $this->get('/overview');
@@ -552,11 +560,13 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
     /**
      * Assert that a fleet attack mission targeted not towards current planet still gets processed on page load.
+     * @throws Exception
      */
     public function testDispatchFleetMissionProcessedNotActivePlanet(): void
     {
         $response = $this->get('/overview');
         $response->assertStatus(200);
+        $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
 
         // Get foreign planet.
         $foreignPlanet = $this->getNearbyForeignPlanet();
@@ -565,10 +575,14 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $foreignPlanet->addUnit('light_fighter', 1);
         $unitsToSend = new UnitCollection();
         $unitsToSend->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $foreignPlanet->addResources(new Resources(0, 0, 100000, 0));
 
         // Launch attack from foreign planet to the current players second planet.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
-        $fleetMission = $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->secondPlanetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0));
+        $consumption = $fleetMissionService->calcConsumption($foreignPlanet, $unitsToSend, $this->planetService->getPlanetCoordinates(), 0, 10);
+        $consumption_resources = new Resources(0, 0, $consumption, 0);
+
+        $fleetMission = $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0), $consumption_resources, 10);
 
         // Advance time by 24 hours to ensure the mission is done.
         $this->travel(24)->hours();
@@ -592,6 +606,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Attack with 50 light fighters, defend with 200 rocket launchers.
         // We expect defender to win in +/- 3 rounds. Attacker will lose all units.
         $this->planetAddUnit('light_fighter', 50);
+        $this->planetAddResources(new Resources(5000, 5000, 100000000, 0));
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 50);
@@ -655,6 +670,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Prepare attacker fleet
         $this->planetAddUnit('cruiser', 700000);
         $this->planetAddUnit('battle_ship', 100000);
+
+        $this->planetAddResources(new Resources(5000, 5000, 100000000, 0));
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), 700000);
@@ -720,6 +737,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Adjust maximum moon chance to 100% to ensure a moon is created.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('maximum_moon_chance', 100);
+        $this->planetAddResources(new Resources(5000, 5000, 1000000, 0));
 
         // Prepare attacker fleet
         $this->planetAddUnit('cruiser', 2000);
@@ -793,6 +811,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Prepare attacker fleet
         $this->planetAddUnit('cruiser', 2000);
+        $this->planetAddResources(new Resources(5000, 5000, 1000000, 0));
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), 2000);
@@ -857,6 +876,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
             // Prepare attacker fleet
             $this->planetAddUnit('light_fighter', 1667);
+
+            $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
 
             $unitCollection = new UnitCollection();
             $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1667);
