@@ -544,10 +544,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $foreignPlanet->addResources(new Resources(0, 0, 100000, 0));
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
-        $consumption = $fleetMissionService->calcConsumption($foreignPlanet, $unitsToSend, $this->planetService->getPlanetCoordinates(), 0, 10);
-        $consumption_resources = new Resources(0, 0, $consumption, 0);
-
-        $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0), $consumption_resources, 10);
+        $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0), 10);
 
         // Check that now we're under attack.
         $response = $this->get('/overview');
@@ -579,10 +576,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Launch attack from foreign planet to the current players second planet.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
-        $consumption = $fleetMissionService->calcConsumption($foreignPlanet, $unitsToSend, $this->planetService->getPlanetCoordinates(), 0, 10);
-        $consumption_resources = new Resources(0, 0, $consumption, 0);
 
-        $fleetMission = $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0), $consumption_resources, 10);
+        $fleetMission = $fleetMissionService->createNewFromPlanet($foreignPlanet, $this->planetService->getPlanetCoordinates(), PlanetType::Planet, $this->missionType, $unitsToSend, new Resources(0, 0, 0, 0), 10);
 
         // Advance time by 24 hours to ensure the mission is done.
         $this->travel(24)->hours();

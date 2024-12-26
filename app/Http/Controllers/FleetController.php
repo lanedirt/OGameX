@@ -265,14 +265,13 @@ class FleetController extends OGameController
         $crystal = (int)request()->input('crystal');
         $deuterium = (int)request()->input('deuterium');
         $resources = new Resources($metal, $crystal, $deuterium, 0);
-        $consumption_resources = new Resources(0, 0, $consumption, 0);
 
         // Extract mission type from the request
         $mission_type = (int)request()->input('mission');
 
         // Create a new fleet mission
         $planetType = PlanetType::from($target_type);
-        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $consumption_resources, $speed_percent);
+        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent);
 
         return response()->json([
             'components' => [],
@@ -341,10 +340,8 @@ class FleetController extends OGameController
 
         // Create a new fleet mission
         $planetType = PlanetType::from($targetType);
-        $consumption = $fleetMissionService->calcConsumption($planet, $units, $targetCoordinate, 0, 10);
-        $consumption_resources = new Resources(0, 0, $consumption, 0);
 
-        $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $planetType, $mission_type, $units, $resources, $consumption_resources, 10);
+        $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $planetType, $mission_type, $units, $resources, 10);
 
         // Calculate the actual amount of units sent.
         $fleetUnitCount = $fleetMissionService->getFleetUnitCount($fleetMission);

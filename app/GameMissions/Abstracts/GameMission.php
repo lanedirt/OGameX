@@ -166,8 +166,12 @@ abstract class GameMission
      * @return FleetMission
      * @throws Exception
      */
-    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, Resources $consumption_resources, float $speed_percent, int $parent_id = 0): FleetMission
+    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, float $speed_percent, int $parent_id = 0): FleetMission
     {
+
+        $consumption = $this->fleetMissionService->calcConsumption($planet, $units, $targetCoordinate, 0, $speed_percent);
+        $consumption_resources = new Resources(0, 0, $consumption, 0);
+
         $total_deuterium = $resources->deuterium->get() + $consumption_resources->deuterium->get();
         $deduct_resources = new Resources($resources->metal->get(), $resources->crystal->get(), $total_deuterium, 0);
 
