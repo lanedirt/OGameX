@@ -73,8 +73,6 @@ class FleetMissionService
         // Get slowest unit speed.
         $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet->getPlayer());
         $distance = $this->calculateFleetMissionDistance($fromPlanet, $to);
-
-
         return (int) max(
             round(
                 (35000 / $speed_percent * sqrt($distance * 10 / $slowest_speed) + 10) / $this->settingsService->fleetSpeed()
@@ -172,7 +170,6 @@ class FleetMissionService
      * @param $mission
      * @return float|mixed
      */
-
     public function calcConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $target_coordinate, int $holdingTime, float $speed_percent)
     {
         $consumption = 0;
@@ -210,7 +207,6 @@ class FleetMissionService
 
         return $consumption;
     }
-
 
     /**
      * Convert a mission type to a human readable label.

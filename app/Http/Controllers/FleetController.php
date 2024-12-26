@@ -203,7 +203,6 @@ class FleetController extends OGameController
         ]);
     }
 
-
     /**
      * Handles the dispatch of a fleet.
      *
@@ -260,15 +259,14 @@ class FleetController extends OGameController
         $units = $this->getUnitsFromRequest($planet);
 
         // Calculate the consumption of the fleet mission
-        $consumption = $fleetMissionService->calcConsumption($planet, $units,$target_coordinate, $holding_time, $speed_percent);
+        $consumption = $fleetMissionService->calcConsumption($planet, $units, $target_coordinate, $holding_time, $speed_percent);
 
         // Extract resources from the request
         $metal = (int)request()->input('metal');
         $crystal = (int)request()->input('crystal');
         $deuterium = (int)request()->input('deuterium');
         $resources = new Resources($metal, $crystal, $deuterium, 0);
-        $consumption_resources = new Resources(0,0,$consumption,0);
-
+        $consumption_resources = new Resources(0, 0, $consumption, 0);
 
         // Extract mission type from the request
         $mission_type = (int)request()->input('mission');
@@ -345,8 +343,8 @@ class FleetController extends OGameController
 
         // Create a new fleet mission
         $planetType = PlanetType::from($targetType);
-        $consumption = $fleetMissionService->calcConsumption($planet, $units,$targetCoordinate, 0, 10);
-        $consumption_resources = new Resources(0,0,$consumption,0);
+        $consumption = $fleetMissionService->calcConsumption($planet, $units, $targetCoordinate, 0, 10);
+        $consumption_resources = new Resources(0, 0, $consumption, 0);
 
 
         $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $planetType, $mission_type, $units, $resources, $consumption_resources, 10);

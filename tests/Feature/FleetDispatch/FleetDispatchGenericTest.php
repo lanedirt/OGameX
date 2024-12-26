@@ -40,6 +40,8 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $this->planetAddUnit('colony_ship', 1);
         $this->playerSetResearchLevel('impulse_drive', 10);
         $this->playerSetResearchLevel('hyperspace_drive', 10);
+        $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
+
     }
 
     /**
@@ -123,10 +125,9 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $units = new UnitCollection();
         $units->addUnit(ObjectService::getShipObjectByMachineName('heavy_fighter'), 1000);
 
-        $consumption =  $fleetMissionService->calcConsumption($this->planetService, $units,$targetPlanetCoords, 0, 10);
+        $consumption =  $fleetMissionService->calcConsumption($this->planetService, $units, $targetPlanetCoords, 0, 10);
 
         // Verify that multiple ships count up to the sum of the ships.
         $this->assertEquals(23959, $consumption);
     }
-
 }

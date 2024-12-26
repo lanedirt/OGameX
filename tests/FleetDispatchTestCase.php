@@ -229,6 +229,7 @@ abstract class FleetDispatchTestCase extends MoonTestCase
     {
         $unitsArray = $this->convertUnitsToArray($units);
 
+
         $post = $this->post('/ajax/fleet/dispatch/send-fleet', [
             'galaxy' => $coordinates->galaxy,
             'system' => $coordinates->system,
@@ -239,6 +240,7 @@ abstract class FleetDispatchTestCase extends MoonTestCase
             'crystal' => $resources->crystal->get(),
             'deuterium' => $resources->deuterium->get(),
             '_token' => csrf_token(),
+            'speed' => 10,
             ...$unitsArray
         ]);
 

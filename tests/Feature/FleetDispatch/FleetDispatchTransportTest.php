@@ -38,6 +38,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->playerSetResearchLevel('energy_technology', 1);
         $this->playerSetResearchLevel('combustion_drive', 1);
         $this->planetAddUnit('small_cargo', 5);
+        $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
     }
 
     protected function messageCheckMissionArrival(PlanetService $destinationPlanet): void
@@ -174,7 +175,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(4500, 100, 0, 0), 500);
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100000, 50000, 0, 0), 500);
     }
 
     /**
@@ -467,6 +468,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
     public function testDispatchFleetRecallMissionTwiceError(): void
     {
         $this->basicSetup();
+
 
         // Assert that we begin with 5 small cargo ships on planet.
         $response = $this->get('/shipyard');

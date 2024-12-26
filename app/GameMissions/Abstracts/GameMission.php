@@ -166,11 +166,10 @@ abstract class GameMission
      * @return FleetMission
      * @throws Exception
      */
-    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources,Resources $consumption_resources,float $speed_percent,  int $parent_id = 0, ): FleetMission
+    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, Resources $consumption_resources, float $speed_percent, int $parent_id = 0): FleetMission
     {
         $total_deuterium = $resources->deuterium->get() + $consumption_resources->deuterium->get();
         $deduct_resources = new Resources($resources->metal->get(), $resources->crystal->get(), $total_deuterium, 0);
-
 
         $this->startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $deduct_resources);
 
@@ -230,7 +229,6 @@ abstract class GameMission
         $mission->crystal = $resources->crystal->getRounded();
         $mission->deuterium = $resources->deuterium->getRounded();
 
-
         // Deduct mission resources from the planet.
         $this->deductMissionResources($planet, $deduct_resources, $units);
 
@@ -263,7 +261,6 @@ abstract class GameMission
             // which consumed the colony ship and had no other units.
             return;
         }
-
 
         // No need to check for resources and units, as the return mission takes the units from the original
         // mission and the resources are already delivered. Nothing is deducted from the planet.
