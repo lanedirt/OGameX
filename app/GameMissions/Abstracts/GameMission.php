@@ -166,16 +166,20 @@ abstract class GameMission
      * @return FleetMission
      * @throws Exception
      */
-    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
+    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources,Resources $consumption_resources,float $speed_percent,  int $parent_id = 0, ): FleetMission
     {
-        $this->startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $resources);
+        $total_deuterium = $resources->deuterium->get() + $consumption_resources->deuterium->get();
+        $deduct_resources = new Resources($resources->metal->get(), $resources->crystal->get(), $total_deuterium, 0);
+
+
+        $this->startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $deduct_resources);
 
         // Time this fleet mission will depart (now).
         $time_start = (int)Carbon::now()->timestamp;
 
         // Time fleet mission will arrive.
         // TODO: refactor calculate to gamemission base class?
-        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units);
+        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $speed_percent);
 
         $mission = new FleetMission();
 
@@ -199,6 +203,7 @@ abstract class GameMission
         $mission->time_arrival = $time_end;
 
         $mission->type_to = $targetType->value;
+        $mission->deuterium_consumption = $consumption_resources->deuterium->get();
 
         // Only set the target planet ID if the target is a planet or moon.
         if ($targetType === PlanetType::Planet) {
@@ -225,8 +230,9 @@ abstract class GameMission
         $mission->crystal = $resources->crystal->getRounded();
         $mission->deuterium = $resources->deuterium->getRounded();
 
+
         // Deduct mission resources from the planet.
-        $this->deductMissionResources($planet, $resources, $units);
+        $this->deductMissionResources($planet, $deduct_resources, $units);
 
         // Save the new fleet mission.
         $mission->save();
@@ -257,6 +263,7 @@ abstract class GameMission
             // which consumed the colony ship and had no other units.
             return;
         }
+
 
         // No need to check for resources and units, as the return mission takes the units from the original
         // mission and the resources are already delivered. Nothing is deducted from the planet.

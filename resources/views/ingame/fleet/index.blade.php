@@ -162,7 +162,7 @@
             var PLAYER_ID_LEGOR = 1;
             var DONUT_GALAXY = 1;
             var DONUT_SYSTEM = 1;
-            var MAX_GALAXY = 9;
+            var MAX_GALAXY = {{ $settings->numberOfGalaxies() }};
             var MAX_SYSTEM = 499;
             var MAX_POSITION = 16;
             var SPEEDFAKTOR_FLEET_PEACEFUL = {{ $settings->fleetSpeed() }};

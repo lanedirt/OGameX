@@ -21,6 +21,7 @@ use OGame\ViewModels\UnitViewModel;
 
 class FleetController extends OGameController
 {
+
     /**
      * Shows the fleet index page
      *
@@ -202,6 +203,7 @@ class FleetController extends OGameController
         ]);
     }
 
+
     /**
      * Handles the dispatch of a fleet.
      *
@@ -249,22 +251,31 @@ class FleetController extends OGameController
         // Create the target coordinate
         $target_coordinate = new Coordinate($galaxy, $system, $position);
 
+        // Extract speed and holding time from the request
+        $speed_percent = (float)request()->input('speed');
+        $holding_time = (int)request()->input('holdingtime');
+
         // Extract units from the request and create a unit collection.
         // Loop through all input fields and get all units prefixed with "am".
         $units = $this->getUnitsFromRequest($planet);
+
+        // Calculate the consumption of the fleet mission
+        $consumption = $fleetMissionService->calcConsumption($planet, $units,$target_coordinate, $holding_time, $speed_percent);
 
         // Extract resources from the request
         $metal = (int)request()->input('metal');
         $crystal = (int)request()->input('crystal');
         $deuterium = (int)request()->input('deuterium');
         $resources = new Resources($metal, $crystal, $deuterium, 0);
+        $consumption_resources = new Resources(0,0,$consumption,0);
+
 
         // Extract mission type from the request
         $mission_type = (int)request()->input('mission');
 
         // Create a new fleet mission
         $planetType = PlanetType::from($target_type);
-        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources);
+        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $consumption_resources, $speed_percent);
 
         return response()->json([
             'components' => [],
@@ -274,6 +285,7 @@ class FleetController extends OGameController
             'success' => true,
         ]);
     }
+
 
     /**
      * Handles the dispatch of a fleet via shortcut buttons on galaxy page.
@@ -333,7 +345,11 @@ class FleetController extends OGameController
 
         // Create a new fleet mission
         $planetType = PlanetType::from($targetType);
-        $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $planetType, $mission_type, $units, $resources);
+        $consumption = $fleetMissionService->calcConsumption($planet, $units,$targetCoordinate, 0, 10);
+        $consumption_resources = new Resources(0,0,$consumption,0);
+
+
+        $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $planetType, $mission_type, $units, $resources, $consumption_resources, 10);
 
         // Calculate the actual amount of units sent.
         $fleetUnitCount = $fleetMissionService->getFleetUnitCount($fleetMission);

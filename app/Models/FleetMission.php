@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $metal
  * @property int $crystal
  * @property int $deuterium
+ * @property float $deuterium_consumption
  * @property int $light_fighter
  * @property int $heavy_fighter
  * @property int $cruiser

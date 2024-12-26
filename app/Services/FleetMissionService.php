@@ -68,43 +68,149 @@ class FleetMissionService
      * @param UnitCollection $units
      * @return int
      */
-    public function calculateFleetMissionDuration(PlanetService $fromPlanet, Coordinate $to, UnitCollection $units): int
+    public function calculateFleetMissionDuration(PlanetService $fromPlanet, Coordinate $to, UnitCollection $units, float $speed_percent = 10): int
     {
         // Get slowest unit speed.
         $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet->getPlayer());
+        $distance = $this->calculateFleetMissionDistance($fromPlanet, $to);
 
-        // Calculate distance between current planet and target planet.
-        // ----------------------------------------
-        // Between galaxies:
-        // 20.000 x (galaxy2 - galaxy1)
-        // Between systems:
-        // 2.700 + (95 x (system2 - system1))
-        // Between planets:
-        // 1.000 + (5 x (position2 - position1))
-        // Between moon or debris field and planet:
-        // 5
-        // ----------------------------------------
-        $fromCoordinate = $fromPlanet->getPlanetCoordinates();
-        $distance = 0;
-        if ($fromCoordinate->galaxy !== $to->galaxy) {
-            $distance = 20000 * abs($to->galaxy - $fromCoordinate->galaxy);
-        }
-        if ($fromCoordinate->system !== $to->system) {
-            $distance = 2700 + (95 * abs($to->system - $fromCoordinate->system));
-        }
-        if ($fromCoordinate->position !== $to->position) {
-            $distance = 1000 + (5 * abs($to->position - $fromCoordinate->position));
-        }
 
-        // If the target is a moon or debris field on the same coordinate, the distance is always 5.
-        if ($distance === 0) {
-            $distance = 5;
-        }
+        return (int) max(
+            round(
+                (35000 / $speed_percent * sqrt($distance * 10 / $slowest_speed) + 10) / $this->settingsService->fleetSpeed()
+            ),
+            1
+        );
 
-        // The duration is calculated as follows:
-        // duration = (10 + (3500 / speed modifier as decimal) * ((distance * 10) / lowest fleet speed) ^ 0.5) / universe fleet speed
-        return (int)((10 + (3500 / 1) * (($distance * 10) / $slowest_speed) ** 0.5) / $this->settingsService->fleetSpeed());
     }
+
+    /**
+     * Calculates the fleet mission distance between two coordinates in a galaxy map.
+     *
+     * The method determines the distance based on the differences in galaxy, system,
+     * and planet positions, while accounting for features like donut-shaped galaxy
+     * and system mechanics, empty systems, and inactive systems.
+     *
+     * Distance Calculation Rules:
+     * 1. If the galaxies differ:
+     *    Distance = 20,000 * |galaxy1 - galaxy2|
+     *    If "donut galaxy" is enabled, the shortest path between galaxies is used.
+     *
+     * 2. If the systems differ (within the same galaxy):
+     *    Distance = 2,700 + (19 * 5 * max(|system1 - system2| - emptySystems - inactiveSystems, 1))
+     *    If "donut system" is enabled, the shortest path between systems is used.
+     *
+     * 3. If only the planets differ (within the same system):
+     *    Distance = 1,000 + (5 * |planet1 - planet2|)
+     *
+     * 4. If the coordinates are identical (same galaxy, system, and planet):
+     *    Distance = 5 (minimum distance for same location).
+     *
+     * Parameters:
+     * - $fromPlanet: The starting planet's coordinates (PlanetService object).
+     * - $to: The target coordinates (Coordinate object).
+     * - $maxGalaxy: Maximum number of galaxies in the map.
+     * - $maxSystem: Maximum number of systems in each galaxy.
+     * - $emptySystems: Number of empty systems between start and target.
+     * - $inactiveSystems: Number of inactive systems between start and target.
+     *
+     * Returns:
+     * - int: The calculated fleet mission distance.
+     */
+    public function calculateFleetMissionDistance(PlanetService $fromPlanet, Coordinate $to): int
+    {
+
+        $fromCoordinate = $fromPlanet->getPlanetCoordinates();
+
+        $diffGalaxy = abs($fromCoordinate->galaxy - $to->galaxy);
+        $diffSystem = abs($fromCoordinate->system - $to->system);
+        $diffPlanet = abs($fromCoordinate->position - $to->position);
+
+        // Eğer galaksiler farklıysa
+        if ($diffGalaxy != 0) {
+            $diff2 = abs($diffGalaxy -  $this->settingsService->numberOfGalaxies());
+
+            if ($diff2 < $diffGalaxy) {
+                return $diff2 * 20000;
+            } else {
+                return $diffGalaxy * 20000;
+            }
+        }
+
+        // Eğer sistemler farklıysa
+        if ($diffSystem != 0) {
+            $diff2 = abs($diffSystem - 499);
+            $deltaSystem = 0;
+
+            if ($diff2 < $diffSystem) {
+                $deltaSystem = $diff2;
+            } else {
+                $deltaSystem = $diffSystem;
+            }
+
+            //deltaSystem = Math.max(deltaSystem - emptySystems - inactiveSystems, 1);
+            $deltaSystem = max($deltaSystem, 1);
+            return $deltaSystem * 5 * 19 + 2700;
+        }
+
+        // Eğer gezegenler farklıysa
+        if ($diffPlanet != 0) {
+            return $diffPlanet * 5 + 1000;
+        }
+
+        // Eğer koordinatlar aynıysa
+        return 5;
+    }
+
+    /**
+     * Calculate the consumption of a fleet mission based on the current planet, target coordinates and fleet.
+     * @param PlanetService $fromPlanet
+     * @param UnitCollection $ships
+     * @param Coordinate $target_coordinate
+     * @param int $holdingTime
+     * @param float $speed_percent
+     * @param $mission
+     * @return float|mixed
+     */
+
+    public function calcConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $target_coordinate, int $holdingTime, float $speed_percent)
+    {
+        $consumption = 0;
+        $holdingCosts = 0;
+
+        $distance = $this->calculateFleetMissionDistance($fromPlanet, $target_coordinate);
+        $duration = $this->calculateFleetMissionDuration($fromPlanet, $target_coordinate, $ships, $speed_percent);
+
+        $speedValue = max(0.5, $duration * $this->settingsService->fleetSpeed() - 10);
+        foreach ($ships->units as $shipEntry) {
+            // $shipEntry içeriğini çözüyoruz
+            $ship = $shipEntry->unitObject; // ShipObject alınır
+            $shipAmount = $shipEntry->amount; // Gemi sayısı
+            $ship_speed = $ship->properties->speed->calculate($fromPlanet->getPlayer())->totalValue; // Geminin hızı
+
+            if (!empty($shipAmount)) {
+                $shipSpeedValue = 35000 / $speedValue * sqrt($distance * 10 / $ship_speed);
+                $holdingCosts += $ship->properties->fuel->rawValue * $shipAmount * $holdingTime;
+
+                $consumption += max(
+                    $ship->properties->fuel->rawValue * $shipAmount * $distance / 35000 *
+                    (pow(($shipSpeedValue / 10 + 1), 2)),
+                    1
+                );
+            }
+        }
+
+        // Calculate the consumption based on the speed percent
+        $consumption = round($consumption);
+
+        // Holding costs
+        if ($holdingTime > 0) {
+            $consumption += max(floor($holdingCosts / 10), 1);
+        }
+
+        return $consumption;
+    }
+
 
     /**
      * Convert a mission type to a human readable label.
@@ -150,7 +256,7 @@ class FleetMissionService
             $query->where('user_id', $this->player->getId())
                 ->orWhereIn('planet_id_to', $planetIds);
         })
-        ->where('processed', 0);
+            ->where('processed', 0);
 
         return $query->orderBy('time_arrival')->get();
     }
@@ -228,7 +334,7 @@ class FleetMissionService
         return new Resources(
             $mission->metal,
             $mission->crystal,
-            $mission->deuterium,
+            $mission->deuterium + ($mission->deuterium_consumption / 2),  //if mission deployment: Add half of the consumed deuterium
             0
         );
     }
@@ -286,13 +392,13 @@ class FleetMissionService
      * @return FleetMission
      * @throws Exception
      */
-    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, int $parent_id = 0): FleetMission
+    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, Resources $consumption_resources, float $speed_percent, int $parent_id = 0): FleetMission
     {
         $missionObject = $this->gameMissionFactory->getMissionById($missionType, [
             'fleetMissionService' => $this,
             'messageService' => $this->messageService,
         ]);
-        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $parent_id);
+        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $consumption_resources, $speed_percent, $parent_id);
     }
 
     /**

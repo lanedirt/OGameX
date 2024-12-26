@@ -49,10 +49,11 @@ class DeploymentMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
 
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
         // Add resources to the target planet
         $resources = $this->fleetMissionService->getResources($mission);
+
         $target_planet->addResources($resources);
 
         // Add units to the target planet
@@ -65,7 +66,7 @@ class DeploymentMission extends GameMission
                 'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
                 'metal' => (string)$mission->metal,
                 'crystal' => (string)$mission->crystal,
-                'deuterium' => (string)$mission->deuterium
+                'deuterium' => (string)($mission->deuterium +  ($mission->deuterium_consumption / 2)), //if mission deployment: Add half of the consumed deuterium
             ]);
         } else {
             $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), FleetDeployment::class, [

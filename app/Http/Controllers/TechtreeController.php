@@ -249,7 +249,6 @@ class TechtreeController extends OGameController
 
         // Load object again to get the UnitObject
         $object = ObjectService::getUnitObjectByMachineName($object->machine_name);
-
         // Get UnitObject properties...
         $properties = $object->properties;
 
