@@ -21,7 +21,6 @@ use OGame\ViewModels\UnitViewModel;
 
 class FleetController extends OGameController
 {
-
     /**
      * Shows the fleet index page
      *
