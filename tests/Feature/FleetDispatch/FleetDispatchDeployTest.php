@@ -40,8 +40,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->playerSetResearchLevel('combustion_drive', 1);
         $this->planetAddUnit('small_cargo', 5);
         $this->planetAddResources(new Resources(0, 0, 100000, 0));
-
-
+        
         // Set the fleet speed to 5x for this test.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('fleet_speed', 5);

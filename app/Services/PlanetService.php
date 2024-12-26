@@ -532,7 +532,6 @@ class PlanetService
     public function hasResources(Resources $resources): bool
     {
 
-
         if (!empty($resources->metal->get()) && ceil($this->metal()->get()) < $resources->metal->get()) {
             return false;
         }
