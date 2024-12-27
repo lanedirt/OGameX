@@ -666,7 +666,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->planetAddUnit('cruiser', 700000);
         $this->planetAddUnit('battle_ship', 100000);
 
-        $this->planetAddResources(new Resources(5000, 5000, 100000000, 0));
+        $this->planetAddResources(new Resources(5000, 5000, 200000000, 0));
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), 700000);
