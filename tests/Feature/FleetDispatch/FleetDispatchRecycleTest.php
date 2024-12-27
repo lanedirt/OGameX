@@ -33,6 +33,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     protected function basicSetup(): void
     {
         $this->planetAddUnit('recycler', 5);
+        $this->planetAddResources(new Resources(0, 0, 100000, 0));
 
         // Add debris field to the second planet of the test user.
         $debrisFieldService = resolve(DebrisFieldService::class);

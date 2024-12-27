@@ -6,6 +6,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Validation\ValidationException;
 use OGame\Models\FleetMission;
+use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 
 /**
@@ -105,6 +106,7 @@ class TestRaceConditionGameMission extends TestCommand
     {
         $missionTypeTransport = 3;
         $secondPlanet = $this->playerService->planets->all()[1];
+        $this->playerService->planets->first()->addResources(new Resources(0, 0, 1000000, 0));
         $secondPlanetCoordinates = $secondPlanet->getPlanetCoordinates();
 
         $csrfToken = $this->getCsrfToken();
@@ -118,6 +120,7 @@ class TestRaceConditionGameMission extends TestCommand
                 'type' => 1,
                 'mission' => $missionTypeTransport,
                 'metal' => 0,
+                'speed' => 10,
                 'crystal' => 0,
                 'deuterium' => 0,
                 'am' . ObjectService::getUnitObjectByMachineName('small_cargo')->id  => '10',

@@ -42,6 +42,8 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->playerSetResearchLevel('astrophysics', 3);
         $this->planetAddUnit('small_cargo', 5);
         $this->planetAddUnit('colony_ship', 1);
+        $this->planetAddResources(new Resources(0, 0, 100000, 0));
+
     }
 
     /**

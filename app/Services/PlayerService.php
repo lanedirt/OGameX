@@ -281,8 +281,8 @@ class PlayerService
     public function getResearchLevel(string $machine_name): int
     {
         $research = ObjectService::getResearchObjectByMachineName($machine_name);
-        $research_level = $this->user_tech->{$research->machine_name};
 
+        $research_level = $this->user_tech->{$research->machine_name} ?? 0;
         if ($research_level) {
             return $research_level;
         } else {

@@ -39,7 +39,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->playerSetResearchLevel('energy_technology', 1);
         $this->playerSetResearchLevel('combustion_drive', 1);
         $this->planetAddUnit('small_cargo', 5);
-
+        $this->planetAddResources(new Resources(0, 0, 100000, 0));
         // Set the fleet speed to 5x for this test.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('fleet_speed', 5);
@@ -123,7 +123,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         // Assert that message has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'other', [
             'has reached',
-            'The fleet doesn`t deliver goods.',
+            //'The fleet doesn`t deliver goods.', Deployment now leaves half of the consumed deuterium on the target, so this feature has been removed.
             $this->planetService->getPlanetName(),
             $this->secondPlanetService->getPlanetName()
         ]);

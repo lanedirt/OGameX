@@ -239,6 +239,7 @@ abstract class FleetDispatchTestCase extends MoonTestCase
             'crystal' => $resources->crystal->get(),
             'deuterium' => $resources->deuterium->get(),
             '_token' => csrf_token(),
+            'speed' => 10,
             ...$unitsArray
         ]);
 

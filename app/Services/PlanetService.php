@@ -531,16 +531,17 @@ class PlanetService
      */
     public function hasResources(Resources $resources): bool
     {
-        if (!empty($resources->metal->get()) && $this->metal()->get() < $resources->metal->get()) {
+
+        if (!empty($resources->metal->get()) && ceil($this->metal()->get()) < $resources->metal->get()) {
             return false;
         }
-        if (!empty($resources->crystal->get()) && $this->crystal()->get() < $resources->crystal->get()) {
+        if (!empty($resources->crystal->get()) && ceil($this->crystal()->get()) < $resources->crystal->get()) {
             return false;
         }
-        if (!empty($resources->deuterium->get()) && $this->deuterium()->get() < $resources->deuterium->get()) {
+        if (!empty($resources->deuterium->get()) && ceil($this->deuterium()->get()) < $resources->deuterium->get()) {
             return false;
         }
-        if (!empty($resources->energy->get()) && $this->energyProduction()->get() < $resources->energy->get()) {
+        if (!empty($resources->energy->get()) && ceil($this->energyProduction()->get()) < $resources->energy->get()) {
             return false;
         }
 
