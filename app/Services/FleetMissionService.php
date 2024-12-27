@@ -180,10 +180,12 @@ class FleetMissionService
 
         $speedValue = max(0.5, $duration * $this->settingsService->fleetSpeed() - 10);
         foreach ($ships->units as $shipEntry) {
-            // $shipEntry içeriğini çözüyoruz
-            $ship = $shipEntry->unitObject; // ShipObject alınır
-            $shipAmount = $shipEntry->amount; // Gemi sayısı
-            $ship_speed = $ship->properties->speed->calculate($fromPlanet->getPlayer())->totalValue; // Geminin hızı
+            // Get the ship object and amount
+            $ship = $shipEntry->unitObject; // Ship object
+            $shipAmount = $shipEntry->amount; // Amount of ships
+
+            // Calculate the speed of the ship
+            $ship_speed = $ship->properties->speed->calculate($fromPlanet->getPlayer())->totalValue;
 
             if (!empty($shipAmount)) {
                 $shipSpeedValue = 35000 / $speedValue * sqrt($distance * 10 / $ship_speed);

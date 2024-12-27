@@ -103,7 +103,7 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $units = new UnitCollection();
         $units->addUnit(ObjectService::getShipObjectByMachineName('small_cargo'), 5);
 
-        // Should take 2h:18m:05s to travel to the target planet 1 system away with base speed of 5000.
+        // Should take 1h:19m:48s to travel to the target planet 1 system away with base speed of 5000.
         $this->assertEquals(4788, $fleetMissionService->calculateFleetMissionDuration($this->planetService, $targetPlanetCoords, $units));
     }
 
