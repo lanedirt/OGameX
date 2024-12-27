@@ -257,9 +257,6 @@ class FleetController extends OGameController
         // Loop through all input fields and get all units prefixed with "am".
         $units = $this->getUnitsFromRequest($planet);
 
-        // Calculate the consumption of the fleet mission
-        $consumption = $fleetMissionService->calcConsumption($planet, $units, $target_coordinate, $holding_time, $speed_percent);
-
         // Extract resources from the request
         $metal = (int)request()->input('metal');
         $crystal = (int)request()->input('crystal');

@@ -124,7 +124,7 @@ class FleetMissionService
         $diffSystem = abs($fromCoordinate->system - $to->system);
         $diffPlanet = abs($fromCoordinate->position - $to->position);
 
-        // Eğer galaksiler farklıysa
+        // If the galaxies are different
         if ($diffGalaxy != 0) {
             $diff2 = abs($diffGalaxy -  $this->settingsService->numberOfGalaxies());
 
@@ -135,7 +135,7 @@ class FleetMissionService
             }
         }
 
-        // Eğer sistemler farklıysa
+        // If the system are different
         if ($diffSystem != 0) {
             $diff2 = abs($diffSystem - 499);
             $deltaSystem = 0;
@@ -151,12 +151,12 @@ class FleetMissionService
             return $deltaSystem * 5 * 19 + 2700;
         }
 
-        // Eğer gezegenler farklıysa
+        // If the planet are different
         if ($diffPlanet != 0) {
             return $diffPlanet * 5 + 1000;
         }
 
-        // Eğer koordinatlar aynıysa
+        // If the coordinates are the same
         return 5;
     }
 
@@ -170,7 +170,7 @@ class FleetMissionService
      * @param $mission
      * @return float|mixed
      */
-    public function calcConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $target_coordinate, int $holdingTime, float $speed_percent)
+    public function calculateConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $target_coordinate, int $holdingTime, float $speed_percent)
     {
         $consumption = 0;
         $holdingCosts = 0;

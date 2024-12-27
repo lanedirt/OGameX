@@ -125,7 +125,7 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $units = new UnitCollection();
         $units->addUnit(ObjectService::getShipObjectByMachineName('heavy_fighter'), 1000);
 
-        $consumption =  $fleetMissionService->calcConsumption($this->planetService, $units, $targetPlanetCoords, 0, 10);
+        $consumption =  $fleetMissionService->calculateConsumption($this->planetService, $units, $targetPlanetCoords, 0, 10);
 
         // Verify that multiple ships count up to the sum of the ships.
         $this->assertEquals(23959, $consumption);
