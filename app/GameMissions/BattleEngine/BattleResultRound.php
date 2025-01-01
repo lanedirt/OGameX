@@ -72,5 +72,4 @@ class BattleResultRound
      * @var UnitCollection The units of defender player remaining at the end of the round.
      */
     public UnitCollection $defenderShips;
-
 }

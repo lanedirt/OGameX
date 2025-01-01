@@ -30,7 +30,6 @@ class GenerateHighscoreRanks extends Command
         foreach (HighscoreTypeEnum::cases() as $type) {
             $this->updateTypeRank($type);
         }
-
     }
 
     private function updateTypeRank(HighscoreTypeEnum $type): void
@@ -49,7 +48,6 @@ class GenerateHighscoreRanks extends Command
                 $highscore->save();
                 $bar->advance();
                 $rank++;
-
             }
         });
         $this->info("All highscores for type $type->name completed!");

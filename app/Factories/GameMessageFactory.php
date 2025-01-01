@@ -96,7 +96,6 @@ class GameMessageFactory
             } catch (BindingResolutionException $e) {
                 throw new \RuntimeException('Game message not found: ' . $className);
             }
-
         }
 
         return $matchingKeys;

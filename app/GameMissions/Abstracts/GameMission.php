@@ -168,7 +168,6 @@ abstract class GameMission
      */
     public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, float $speed_percent, int $parent_id = 0): FleetMission
     {
-
         $consumption = $this->fleetMissionService->calculateConsumption($planet, $units, $targetCoordinate, 0, $speed_percent);
         $consumption_resources = new Resources(0, 0, $consumption, 0);
 

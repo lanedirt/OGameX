@@ -324,7 +324,6 @@ class TechtreeController extends OGameController
         $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
 
         for ($i = $min_level; $i < $min_level + 15; $i++) {
-
             $plasma_table[] = [
                 'level' => $i,
                 'metal_bonus' => $i,

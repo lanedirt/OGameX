@@ -41,7 +41,6 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $this->playerSetResearchLevel('impulse_drive', 10);
         $this->playerSetResearchLevel('hyperspace_drive', 10);
         $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
-
     }
 
     /**

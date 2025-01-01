@@ -221,7 +221,6 @@ class PlanetServiceTest extends UnitTestCase
 
         // Should only return valid buildings, ( ie metal_mine crystal_mine, solar_plant )
         $this->assertEquals(150, $this->planetService->getBuildingCount());
-
     }
 
     /**

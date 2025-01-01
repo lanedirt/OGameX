@@ -432,7 +432,6 @@ class PlanetServiceFactory
      */
     private function setupPlanetProperties(Planet $planet, bool $is_first_planet = false): void
     {
-
         $planet_data = $this->planetData($planet->planet, $is_first_planet);
 
         // Random field count between the min and max values and add the Server planet fields bonus setting.

@@ -115,7 +115,6 @@ class NotesController extends OGameController
                 'error' => null,
                 'success' =>  $message
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'id' => null,

@@ -359,7 +359,6 @@ class BuildingQueueService
                 $this->cancel($planet, $build_queue_item->id, $object->id);
                 break;
             }
-
         }
     }
 }

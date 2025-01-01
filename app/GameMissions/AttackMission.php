@@ -54,7 +54,6 @@ class AttackMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-
         $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to, true);
         $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
 

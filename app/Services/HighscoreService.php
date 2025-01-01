@@ -139,7 +139,6 @@ class HighscoreService
         ->orderBy($this->highscoreType->name.'_rank')
         ->paginate(perPage: $perPage, page: $pageOn);
         foreach ($highscores as $playerScore) {
-
             // Load player object
             // TODO we only use this for the planet details now-- could we perhaps store the planet details in the highscore table too?.
             $playerService = $this->playerServiceFactory->make($playerScore->player_id);
@@ -174,7 +173,6 @@ class HighscoreService
      */
     public function getHighscorePlayerRank(PlayerService $player): int
     {
-
         // Find the player in the highscore list to determine its rank.
         return Highscore::where('player_id', $player->getId())->first()->general_rank ?? 0;
     }

@@ -25,7 +25,6 @@ class SettingsService
      */
     public function __construct()
     {
-
     }
 
     /**

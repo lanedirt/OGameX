@@ -12,5 +12,4 @@ enum ResourceType: string
     case Crystal = 'crystal';
 
     case Deuterium = 'deuterium';
-
 }

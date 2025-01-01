@@ -457,7 +457,6 @@ class PlayerService
                         // to the fleet missions are reflected in the player/planet objects.
                         $this->load($this->getId());
                     }
-
                 } catch (Exception $e) {
                     throw new RuntimeException('Fleet mission service process error: ' . $e->getMessage());
                 }

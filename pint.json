@@ -1,9 +1,22 @@
 {
-  "preset": "laravel",
+  "preset": "psr12",
+  "exclude": [
+    "config",
+    "database/migrations"
+  ],
   "rules": {
     "simplified_null_return": true,
     "braces": false,
-    "no_extra_blank_lines": true,
+    "no_extra_blank_lines": {
+      "tokens": [
+          "curly_brace_block",
+          "extra",
+          "parenthesis_brace_block",
+          "square_brace_block",
+          "throw",
+          "use"
+      ]
+    },
     "class_attributes_separation": {
       "elements": {
         "method": "one"
@@ -16,6 +29,7 @@
     },
     "control_structure_continuation_position": {
       "position": "same_line"
-    }
+    },
+    "no_whitespace_in_blank_line": true
   }
 }

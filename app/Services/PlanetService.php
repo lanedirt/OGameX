@@ -403,7 +403,6 @@ class PlanetService
             // For every 2 levels, it adds another bonus field
             $two_level_bonus_count = (int)(floor($this->planet->terraformer / 2));
             $extra_fields += $two_level_bonus_count;
-
         }
 
         if ($this->planet->lunar_base != 0) {
@@ -531,7 +530,6 @@ class PlanetService
      */
     public function hasResources(Resources $resources): bool
     {
-
         if (!empty($resources->metal->get()) && ceil($this->metal()->get()) < $resources->metal->get()) {
             return false;
         }
@@ -1109,7 +1107,6 @@ class PlanetService
      */
     public function addResource(ResourceType $resource, int|float $amount, bool $save_planet = true): void
     {
-
         if (isset($this->planet->{$resource->value})) {
             $this->planet->{$resource->value} += $amount;
             if ($save_planet) {
@@ -1118,7 +1115,6 @@ class PlanetService
         } else {
             throw new Exception('Invalid Resource');
         }
-
     }
 
     /**
@@ -1436,7 +1432,6 @@ class PlanetService
      */
     public function getPlanetBasicIncome(): Resources
     {
-
         // Moons do not have mines and therefore also do not have basic income.
         if ($this->isMoon()) {
             return new Resources(0, 0, 0, 0);
@@ -1452,7 +1447,6 @@ class PlanetService
         );
 
         return $this->calculatePlanetBonuses($baseIncome);
-
     }
 
     /**
@@ -1490,7 +1484,6 @@ class PlanetService
         $baseIncome->deuterium->set($baseIncome->deuterium->get() * $deuteriumMultiplier);
 
         return $baseIncome;
-
     }
 
     /**

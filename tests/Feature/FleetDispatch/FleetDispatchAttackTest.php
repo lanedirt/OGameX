@@ -46,7 +46,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $settingsService->set('economy_speed', 8);
         $settingsService->set('fleet_speed', 1);
         $this->planetAddResources(new Resources(0, 0, 100000, 0));
-
     }
 
     protected function messageCheckMissionArrival(): void

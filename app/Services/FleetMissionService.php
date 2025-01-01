@@ -79,7 +79,6 @@ class FleetMissionService
             ),
             1
         );
-
     }
 
     /**
@@ -117,7 +116,6 @@ class FleetMissionService
      */
     public function calculateFleetMissionDistance(PlanetService $fromPlanet, Coordinate $to): int
     {
-
         $fromCoordinate = $fromPlanet->getPlanetCoordinates();
 
         $diffGalaxy = abs($fromCoordinate->galaxy - $to->galaxy);

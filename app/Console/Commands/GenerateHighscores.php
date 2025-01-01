@@ -43,10 +43,8 @@ class GenerateHighscores extends Command
                     'military' => $highscoreService->getPlayerScoreMilitary($playerService),
                 ]);
                 $bar->advance();
-
             }
         });
         $this->info('All highscores completed!');
-
     }
 }

@@ -94,7 +94,6 @@ class TechtreeTest extends AccountTestCase
      */
     public function testTechinfoPropertiesDefenseHiddenProperties(): void
     {
-
         // Get defense specific objects to test.
         $defenseObjects = ObjectService::getDefenseObjects();
 
@@ -104,7 +103,6 @@ class TechtreeTest extends AccountTestCase
             try {
                 $response->assertStatus(200);
                 $response->assertDontSee(['Speed','Cargo Capacity','Fuel usage (Deuterium)']);
-
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
                 $this->fail('AJAX techinfo applications page for "' . $defenseObject->title . '"');
             }
@@ -125,7 +123,6 @@ class TechtreeTest extends AccountTestCase
             try {
                 $response->assertStatus(200);
                 $response->assertSee(['Speed','Cargo Capacity','Fuel usage (Deuterium)']);
-
             } catch (\PHPUnit\Framework\AssertionFailedError $e) {
                 $this->fail('AJAX techinfo applications page for "' . $nonDefenseObject->title . '"');
             }
