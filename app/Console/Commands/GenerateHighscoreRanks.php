@@ -36,11 +36,21 @@ class GenerateHighscoreRanks extends Command
     {
         $rank = 1;
         $this->info("Updating highscore ranks for $type->name...");
-        $query = Highscore::query()->whereHas('player.tech')
-        ->where($type->name, '!=', null);
-        $query->orderBy($type->name, 'DESC');
+
+        // Order by the highscore value in descending order, and by the player creation date in ascending order.
+        // This ensures that:
+        // - The highest ranked players are at the top of the list.
+        // - If two players have the same highscore value, the player who joined the game first will be ranked higher.
+        $query = Highscore::query()
+            ->join('users', 'highscores.player_id', '=', 'users.id')
+            ->whereHas('player.tech')
+            ->where($type->name, '!=', null);
+        $query->orderBy($type->name, 'DESC')
+              ->orderBy('users.created_at', 'ASC');
+
         $bar = $this->output->createProgressBar();
         $bar->start($query->count());
+
         $query->chunk(200, function ($highscores) use ($type, &$bar, &$rank) {
             /** @var \Illuminate\Support\Collection<int, Highscore> $highscores */
             foreach ($highscores as $highscore) {
