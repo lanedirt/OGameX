@@ -40,6 +40,12 @@ services:
       SERVICE_NAME: app
       SERVICE_TAGS: dev
     working_dir: /var/www
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000 || [ $? -eq 56 ]"]
+      interval: 6s
+      timeout: 6s
+      retries: 10
+      start_period: 60s
     networks:
       - app-network
     depends_on:
@@ -58,8 +64,8 @@ services:
     networks:
       - app-network
     depends_on:
-      - ogamex-app
-      - ogamex-db
+      ogamex-app:
+        condition: service_healthy
 
   # Nginx Service
   ogamex-webserver:
@@ -76,6 +82,9 @@ services:
       - "443:443"
     networks:
       - app-network
+    depends_on:
+      ogamex-app:
+        condition: service_healthy
 
   # PhpMyAdmin
   ogamex-phpmyadmin:
