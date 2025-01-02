@@ -63,9 +63,12 @@ abstract class AccountTestCase extends TestCase
         // Set default test time to 2024-01-01 00:00:00 to ensure all tests have the same starting point.
         $this->travelTo(Carbon::create(2024, 1, 1, 0, 0, 0));
 
+        // Set default server settings for all tests.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
         // Set amount of planets to be created for the user because planet switching
         // is a part of the test suite.
-        $settingsService = resolve(SettingsService::class);
         $settingsService->set('registration_planet_amount', $this->userPlanetAmount);
 
         // Create a new user and login so we can access ingame features.
@@ -233,6 +236,35 @@ abstract class AccountTestCase extends TestCase
                 $this->fail('Failed to create planet service for planet id: ' . $planet_id[0] . '. Error: ' . $e->getMessage());
             }
         }
+    }
+
+    /**
+     * Creates a new clean planet for a foreign player in a nearby system.
+     * This is useful for testing interactions with a fresh hostile planet that has no history.
+     *
+     * @return PlanetService
+     */
+    protected function getNearbyForeignCleanPlanet(): PlanetService
+    {
+        // First get a nearby foreign planet to obtain its player
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlayer = $foreignPlanet->getPlayer();
+
+        // Get a random empty coordinate near the current planet
+        $coordinate = $this->getNearbyEmptyCoordinate();
+
+        // Create a new planet at this coordinate for the foreign player
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $newPlanet = $planetServiceFactory->createAdditionalPlanetForPlayer($foreignPlayer, $coordinate);
+
+        if ($newPlanet === null) {
+            $this->fail('Failed to create a new clean planet');
+        }
+
+        // Reload the foreign player to include the new planet
+        $foreignPlayer->load($foreignPlayer->getId());
+
+        return $newPlanet;
     }
 
     /**

@@ -417,8 +417,8 @@ class PlanetServiceFactory
         $planet->field_max = 1;
 
         // TODO: temperature range should be dependent on the moon position.
-        $planet->temp_min = rand(0, 100);
-        $planet->temp_max = $planet->temp_min + 40;
+        $planet->temp_max = rand(0, 100);
+        $planet->temp_min = $planet->temp_max - 40;
 
         // Moons start with no resources.
         $planet->metal = 0;
@@ -438,8 +438,9 @@ class PlanetServiceFactory
         $planet->field_max = rand($planet_data['fields'][0], $planet_data['fields'][1]) + $this->settings->planetFieldsBonus();
         $planet->diameter = (int) (36.14 * $planet->field_max + 5697.23);
 
-        $planet->temp_min = rand($planet_data['temperature'][0], $planet_data['temperature'][1]);
-        $planet->temp_max = $planet->temp_min + 40;
+        // Random temperature between the min and max values is assigned to temp_max, then temp_min is calculated as temp_max - 40.
+        $planet->temp_max = rand($planet_data['temperature'][0], $planet_data['temperature'][1]);
+        $planet->temp_min = $planet->temp_max - 40;
 
         // Starting resources for planets.
         $planet->metal = 500;

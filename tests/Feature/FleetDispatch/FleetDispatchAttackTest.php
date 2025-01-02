@@ -420,6 +420,11 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
      */
     public function testDispatchFleetCombatUnitsLostAndResourceGained(): void
     {
+        // Disable all resource generation in server settings to ensure we're not affected by it
+        // when comparing resources before and after battle.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 0);
+
         // Send fleet to a nearby foreign planet.
         // Attack with 200 light fighters, defend with 100 rocket launchers.
         // We expect attacker to win in +/- 4 rounds, while losing 10-50 light fighters.
@@ -428,20 +433,16 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 200);
-        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
-
-        // Clear existing units from foreign planet.
-        $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
-        $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
+        $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Give the foreign planet some units to defend itself.
         $foreignPlanet->addUnit('rocket_launcher', 100);
 
+        // Increase time by 24 hours to ensure the mission is done and fleets have returned.
+        $this->travel(24)->hours();
+
         // Reload application to make sure the planet is not cached.
         $this->reloadApplication();
-
-        // Increase time by 2 hours to ensure the mission is done.
-        $this->travel(2)->hours();
 
         // Get amount of resources of the foreign planet before the battle.
         $attackerResourcesBefore = $this->planetService->getResources();
@@ -451,9 +452,10 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
-        // Assert that attacker has less than 200 light fighters after battle.
+        // Assert that attacker has more than 0 but less than 200 light fighters after battle.
         $this->planetService->reloadPlanet();
-        $this->assertLessThan(200, $this->planetService->getObjectAmount('light_fighter'), 'Attacker still has 150 light fighters after battle while it was expected they lost some.');
+        $this->assertGreaterThan(0, $this->planetService->getObjectAmount('light_fighter'), 'Attacker has no light fighters after battle while it was expected some should have survived and returned.');
+        $this->assertLessThan(200, $this->planetService->getObjectAmount('light_fighter'), 'Attacker still has 200 light fighters after battle while it was expected they lost some.');
 
         // Assert that the defender has lost all units.
         $foreignPlanet->reloadPlanet();

@@ -706,6 +706,11 @@ class PlanetService
         $nanitefactory_level = $this->getObjectLevel('nano_factory');
         $universe_speed = $this->settingsService->economySpeed();
 
+        // Sanity check: if universe speed is 0, set it to 1 to prevent division by zero.
+        if ($universe_speed == 0) {
+            $universe_speed = 1;
+        }
+
         // The actual formula which return time in seconds
         $time_hours =
             (
@@ -760,6 +765,11 @@ class PlanetService
         $nanitefactory_level = $this->getObjectLevel('nano_factory');
         $universe_speed = $this->settingsService->economySpeed();
 
+        // Sanity check: if universe speed is 0, set it to 1 to prevent division by zero.
+        if ($universe_speed == 0) {
+            $universe_speed = 1;
+        }
+
         // The actual formula which return time in seconds
         $time_hours =
             (
@@ -792,6 +802,11 @@ class PlanetService
 
         // Research speed is = (economy x research speed).
         $universe_speed = $this->settingsService->economySpeed() * $this->settingsService->researchSpeed();
+
+        // Sanity check: if universe speed is 0, set it to 1 to prevent division by zero.
+        if ($universe_speed == 0) {
+            $universe_speed = 1;
+        }
 
         // The actual formula which return time in seconds
         $time_hours =
