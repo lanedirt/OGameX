@@ -109,6 +109,7 @@ The next major upcoming features that are being worked on:
 - Alliances
 - ACS fleet dispatch missions
 - Merchant & shop (non-commercial)
+- Multi-language (making all in-game strings translatable)
 
 ## <a name="contributing"></a> 🚀 5. Contributing
 
@@ -127,7 +128,7 @@ This project is a non-commercial hobby project. All rights and concepts related 
 ## <a name="installation"></a> 🖥️ 7. Installation
 The recommended way to install OGameX is by running the bundled Docker containers. This takes care of all the dependencies and is the easiest way to get started.
 
-If you insteda wish to install OGameX manually, see the list of requirements for Laravel 11.x and how to deploy manually to a server here: https://laravel.com/docs/11.x/deployment.
+If you instead wish to install OGameX manually, see the list of requirements for Laravel 11.x and how to deploy manually to a server here: https://laravel.com/docs/11.x/deployment.
 
 ### <a name="development"></a> a) Install for local development
 For local development use the default docker-compose file that is included in this repository. This configuration is optimized for development and includes several tools that are useful for debugging and testing.
