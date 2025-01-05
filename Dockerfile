@@ -23,6 +23,17 @@ RUN apt-get update && apt-get install -y \
     git \
     curl
 
+
+# Install Rust toolchain
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Install PHP FFI development files
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libffi-dev
+RUN docker-php-ext-install ffi
+
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
