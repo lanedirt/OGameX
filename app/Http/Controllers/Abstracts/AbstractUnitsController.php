@@ -107,6 +107,15 @@ abstract class AbstractUnitsController extends OGameController
             }
         }
 
+        // If openTech is in querystring, add client JS to open the technology tab.
+        $open_tech_id = 0;
+        if ($request->query->has('openTech')) {
+            $open_tech_id = $request->query('openTech');
+            if (!is_numeric($open_tech_id)) {
+                $open_tech_id = 0;
+            }
+        }
+
         return [
             'planet_id' => $planet->getPlanetId(),
             'planet_name' => $planet->getPlanetName(),
@@ -114,6 +123,7 @@ abstract class AbstractUnitsController extends OGameController
             'build_active' => $build_active,
             'build_queue' => $build_queue,
             'build_queue_countdown' => $queue_time_countdown,
+            'open_tech_id' => $open_tech_id,
         ];
     }
 
