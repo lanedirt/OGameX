@@ -60,6 +60,9 @@ class PlanetAbandonTest extends AccountTestCase
             '_token' => csrf_token(),
             'password' => 'password',
         ]);
-        $response->assertStatus(500);
+
+        // Assert that response is HTTP 200 but contains error message.
+        $response->assertStatus(200);
+        $this->assertStringContainsString('Cannot abandon only remaining planet', (string)$response->getContent());
     }
 }
