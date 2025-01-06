@@ -146,8 +146,7 @@ class PlanetAbandonController extends OGameController
         try {
             // Abandon the planet.
             $planetToDelete->abandonPlanet();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             // Exception occured, return error.
             return response()->json([
                 'status' => 'error',
