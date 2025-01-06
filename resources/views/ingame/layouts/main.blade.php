@@ -1095,12 +1095,21 @@ Combat simulation save slots +20">
                                    // Generate the URL to the current route with the updated query parameters
                                    $urlToPlanetWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
                                 @endphp
-
                                 <div class="smallplanet {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'hightlightPlanet' : '' }}"
                                      data-planet-id="{{ $planet->getPlanetId() }}" id="planet-{{ $key + 1 }}">
                                     <a href="{{ $urlToPlanetWithUpdatedParam }}"
-                                       data-link="{{ $urlToPlanetWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>@lang('Lifeform'): Humans
-<br/>{{ OGame\Facades\AppUtil::formatNumber($planet->getPlanetDiameter()) }}km ({{ $planet->getBuildingCount() }}/{{ $planet->getPlanetFieldMax() }})<br>20°C to 60°C<br/><a href=&quot;#TODO=ingame&amp;component=overview&amp;cp=33624092&quot;>@lang('Overview')</a><br/><a href=&quot;#TODO=ingame&amp;component=supplies&amp;cp=33624092&quot;>@lang('Resources')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=lfbuildings&amp;cp=33624092&quot;>@lang('Lifeform')</a><br/><a href=&quot;#TODOpage=ingame&amp;component=research&amp;cp=33624092&quot;>@lang('Research')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=facilities&amp;cp=33624092&quot;>@lang('Facilities')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=shipyard&amp;cp=33624092&quot;>@lang('Shipyard')</a><br/><a href=&quot;#TODO_component=defenses&amp;cp=33624092&quot;>@lang('Defense')</a><br/><a href=&quot;#TODO_page=ingame&amp;component=fleetdispatch&amp;cp=33624092&quot;>@lang('Fleet')</a><br/><a href=&quot;#TODO_component=galaxy&amp;cp=33624092&amp;galaxy=2&amp;system=3&amp;position=6&quot;>@lang('Galaxy')</a>"
+                                       data-link="{{ $urlToPlanetWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>
+                                        @lang('Lifeform'): Humans<br/>
+                                        {{ OGame\Facades\AppUtil::formatNumber($planet->getPlanetDiameter()) }}km ({{ $planet->getBuildingCount() }}/{{ $planet->getPlanetFieldMax() }})<br>
+                                        20°C to 60°C<br/>
+                                        <a href=&quot;{{ route('overview.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Overview')</a><br/>
+                                        <a href=&quot;{{ route('resources.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Resources')</a><br/>
+                                        <a href=&quot;{{ route('research.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Research')</a><br/>
+                                        <a href=&quot;{{ route('facilities.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Facilities')</a><br/>
+                                        <a href=&quot;{{ route('shipyard.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Shipyard')</a><br/>
+                                        <a href=&quot;{{ route('defense.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Defense')</a><br/>
+                                        <a href=&quot;{{ route('fleet.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Fleet')</a><br/>
+                                        <a href=&quot;{{ route('galaxy.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Galaxy')</a><br/>"
                                        class="planetlink {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable"
                                        data-ipi-hint="ipiPlanetHomeplanet">
                                         <img class="planetPic js_replace2x" alt="{{ $planet->getPlanetName() }}"
@@ -1126,7 +1135,14 @@ Combat simulation save slots +20">
                                            $urlToMoonWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
                                         @endphp
                                         <a class="moonlink {{ ($moon->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'active' : '' }} tooltipLeft tooltipClose js_hideTipOnMobile"
-                                           title="<b>{{ $moon->getPlanetName() }} [{{ $moon->getPlanetCoordinates()->asString() }}]</b><br>{{ OGame\Facades\AppUtil::formatNumber($moon->getPlanetDiameter()) }}km ({{ $moon->getBuildingCount() }}/{{ $moon->getPlanetFieldMax() }})<br/><a href=&quot;#TODO_ingame&amp;component=overview&amp;cp=33644212&quot;>Overview</a><br/><a href=&quot;#TODO_page=ingame&amp;component=supplies&amp;cp=33644212&quot;>Resources</a><br/><a href=&quot;#TODO=ingame&amp;component=facilities&amp;cp=33644212&quot;>Facilities</a><br/><a href=&quot;#TODO=ingame&amp;component=defenses&amp;cp=33644212&quot;>Defense</a><br/><a href=&quot;#TODO=ingame&amp;component=fleetdispatch&amp;cp=33644212&quot;>Fleet</a><br/><a href=&quot;#TODO=ingame&amp;component=galaxy&amp;cp=33644212&amp;galaxy=2&amp;system=3&amp;position=6&quot;>Galaxy</a>"
+                                           title="<b>{{ $moon->getPlanetName() }} [{{ $moon->getPlanetCoordinates()->asString() }}]</b><br>
+                                           {{ OGame\Facades\AppUtil::formatNumber($moon->getPlanetDiameter()) }}km ({{ $moon->getBuildingCount() }}/{{ $moon->getPlanetFieldMax() }})<br/>
+                                           <a href=&quot;{{ route('overview.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Overview')</a><br/>
+                                           <a href=&quot;{{ route('resources.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Resources')</a><br/>
+                                           <a href=&quot;{{ route('facilities.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Facilities')</a><br/>
+                                           <a href=&quot;{{ route('defense.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Defense')</a><br/>
+                                           <a href=&quot;{{ route('fleet.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Fleet')</a><br/>
+                                           <a href=&quot;{{ route('galaxy.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Galaxy')</a><br/>"
                                            href="{{ $urlToMoonWithUpdatedParam }}"
                                            data-link="{{ $urlToMoonWithUpdatedParam }}"
                                            data-jumpgatelevel="0">
