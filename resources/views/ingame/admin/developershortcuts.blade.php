@@ -145,8 +145,9 @@
                                         </div>
                                     </div>
                                     <div class="fieldwrapper" style="text-align: center; margin-bottom: 20px;">
-                                        <input type="submit" class="btn_blue" name="create_planet" value="@lang('Create Planet (For Myself)')">
+                                        <input type="submit" class="btn_blue" name="create_planet" value="@lang('Create Planet')">
                                         <input type="submit" class="btn_blue" name="create_moon" value="@lang('Create Moon')">
+                                        <input type="submit" class="btn_blue" name="delete_planet" value="@lang('Delete Planet')">
                                         <input type="submit" class="btn_blue" name="delete_moon" value="@lang('Delete Moon')">
                                     </div>
                                 </div>
