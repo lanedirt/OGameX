@@ -224,6 +224,19 @@ class DeveloperShortcutsController extends OGameController
                 return redirect()->back()->with('success', 'Moon deleted successfully at ' . $coordinate->asString());
             }
 
+            if ($request->has('delete_planet')) {
+                // Check if there's a moon at these coordinates.
+                $planet = $planetServiceFactory->makePlanetForCoordinate($coordinate);
+
+                if (!$planet) {
+                    return redirect()->back()->with('error', 'No planet exists at ' . $coordinate->asString());
+                }
+
+                // Delete the planet.
+                $planet->abandonPlanet();
+                return redirect()->back()->with('success', 'Planet deleted successfully at ' . $coordinate->asString());
+            }
+
             if ($request->has('create_planet')) {
                 // Create planet for current admin user
                 $planetServiceFactory->createAdditionalPlanetForPlayer($player, $coordinate);
