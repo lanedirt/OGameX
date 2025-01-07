@@ -172,6 +172,11 @@ class PlanetService
      */
     public function abandonPlanet(): void
     {
+        // Sanity check: disallow abandoning the last remaining planet of user.
+        if ($this->isPlanet() && $this->player->planets->planetCount() < 2) {
+            throw new RuntimeException('Cannot abandon only remaining planet.');
+        }
+
         // If this is a planet and has a moon, delete the moon first
         if ($this->isPlanet() && $this->hasMoon()) {
             $this->moon()->abandonPlanet();
@@ -186,10 +191,6 @@ class PlanetService
 
         // Building queues
         BuildingQueue::where('planet_id', $this->planet->id)->delete();
-
-        if ($this->isPlanet() && $this->player->planets->planetCount() < 2) {
-            throw new RuntimeException('Cannot abandon only remaining planet.');
-        }
 
         // Update the player's current planet if it is the planet being abandoned.
         if ($this->getPlayer()->getCurrentPlanetId() === $this->planet->id) {
