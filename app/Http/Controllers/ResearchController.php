@@ -45,11 +45,12 @@ class ResearchController extends OGameController
     /**
      * Shows the research index page
      *
+     * @param Request $request
      * @param PlayerService $player
      * @return View
      * @throws Exception
      */
-    public function index(PlayerService $player): View
+    public function index(Request $request, PlayerService $player): View
     {
         $this->setBodyId('research');
         $planet = $player->planets->current();
@@ -108,6 +109,15 @@ class ResearchController extends OGameController
             $build_queue_max = true;
         }
 
+        // If openTech is in querystring, add client JS to open the technology tab.
+        $open_tech_id = 0;
+        if ($request->query->has('openTech')) {
+            $open_tech_id = $request->query('openTech');
+            if (!is_numeric($open_tech_id)) {
+                $open_tech_id = 0;
+            }
+        }
+
         return view('ingame.research.index')->with([
             'planet_id' => $planet->getPlanetId(),
             'planet_name' => $planet->getPlanetName(),
@@ -116,6 +126,7 @@ class ResearchController extends OGameController
             'build_queue' => $research_queue,
             'build_queue_max' => $build_queue_max,
             'research_lab_upgrading' => $research_lab_upgrading,
+            'open_tech_id' => $open_tech_id,
         ]);
     }
 

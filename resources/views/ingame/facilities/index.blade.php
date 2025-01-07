@@ -135,4 +135,6 @@
             technologyDetails.init()
         </script>
     </div>
+    {{-- openTech querystring parameter handling --}}
+    @include ('ingame.shared.technology.open-tech', ['open_tech_id' => $open_tech_id])
 @endsection
