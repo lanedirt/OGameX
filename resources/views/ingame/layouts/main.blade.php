@@ -1101,7 +1101,7 @@ Combat simulation save slots +20">
                                        data-link="{{ $urlToPlanetWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>
                                         @lang('Lifeform'): Humans<br/>
                                         {{ OGame\Facades\AppUtil::formatNumber($planet->getPlanetDiameter()) }}km ({{ $planet->getBuildingCount() }}/{{ $planet->getPlanetFieldMax() }})<br>
-                                        20°C to 60°C<br/>
+                                        {{ $planet->getPlanetTempMin() }} to {{ $planet->getPlanetTempMax() }}°C<br/>
                                         <a href=&quot;{{ route('overview.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Overview')</a><br/>
                                         <a href=&quot;{{ route('resources.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Resources')</a><br/>
                                         <a href=&quot;{{ route('research.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Research')</a><br/>
