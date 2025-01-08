@@ -48,6 +48,9 @@ elif [[ "$role" == "app" ]]; then
         php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
     fi
 
+    # Compile rust modules
+    ./rust/test_ffi/compile.sh
+
     exec php-fpm
 else
     echo "Could not match the container role \"$role\""
