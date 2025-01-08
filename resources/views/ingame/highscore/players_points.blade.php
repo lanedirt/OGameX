@@ -3,11 +3,11 @@
         <script type="text/javascript">
             var currentCategory = 1;
             var currentType = {{ $highscoreCurrentType }};
-            var searchPosition = 113970;
+            var searchPosition = {{ $player->getId() }};
             var site = {{ $highscoreCurrentPage }};
             var searchSite = {{ $highscoreCurrentPage }};
             var resultsPerPage = 100;
-            var searchRelId = 113970;
+            var searchRelId = {{ $player->getId() }};
         </script>
 
         <div class="pagebar">

@@ -556,8 +556,8 @@ Combat simulation save slots +20">
                     location.href = "{{ route('premium.index', ['showDarkMatter' => 1]) }}#TODO_premium&showDarkMatter=1";
                 }
 
-                var playerId = "1";
-                var playerName = "Admin";
+                var playerId = "{{ $currentPlayer->getId() }}";
+                var playerName = "{{ $currentPlayer->getUsername() }}";
                 var player = {
                     "playerId": {{ $currentPlayer->getId() }},
                     "name": "{{ $currentPlayer->getUsername() }}",

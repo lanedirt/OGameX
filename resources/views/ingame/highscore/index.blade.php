@@ -10,9 +10,9 @@
 
     <script type="text/javascript">
         highscoreContentUrl = '{{ route('highscore.ajax') }}';
-        var userWantsFocus = false;
+        var userWantsFocus = true;
     </script>
-    
+
     <div id="inhalt">
         <div id="highscoreContent">
             <div class="header">
