@@ -48,6 +48,9 @@ elif [[ "$role" == "app" ]]; then
         php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
     fi
 
+    # Source cargo environment before compiling rust modules to ensure cargo is available
+    source $HOME/.cargo/env
+
     # Compile rust modules
     chmod +x ./rust/test_ffi/compile.sh
     ./rust/test_ffi/compile.sh
