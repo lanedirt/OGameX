@@ -49,6 +49,7 @@ elif [[ "$role" == "app" ]]; then
     fi
 
     # Compile rust modules
+    chmod +x ./rust/test_ffi/compile.sh
     ./rust/test_ffi/compile.sh
 
     exec php-fpm
