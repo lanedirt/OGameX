@@ -8,10 +8,10 @@ take up a lot of memory and the BattleEngine in PHP can e.g. take up gigabytes o
 The rust source code is stored in the `./rust/` folder.
 
 ## Compile rust version
-After making change to any rust modules, you should manually compile them and copy it over to
-the `storage/ffi-libs` folder.
+The Rust modules are automatically compiled during container startup. However, during development
+or testing, you may want to manually compile the modules to test your changes immediately.
 
-To compile rust, go to the rust module directory, e.g.
+To compile rust, go to the rust module directory inside the container, e.g.
 
 ```bash
 # Navigate to the rust package you want to compile
@@ -28,9 +28,6 @@ cp target/release/libtest_ffi.so ../../storage/ffi-libs
 Alternatively, you can also run the `compile.sh` script inside the module's folder which executes the statements above:
 
 ```bash
-# Navigate to the rust package you want to compile
-cd rust/test_ffi
-
-# Execute compile.sh
-./compile.sh
+# Execute compile.sh (from app root)
+./rust/test_ffi/compile.sh
 ```
