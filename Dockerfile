@@ -23,12 +23,7 @@ RUN apt-get update && apt-get install -y \
     git \
     curl
 
-
-# Install Rust toolchain
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
-
-# Install PHP FFI development files
+# Install PHP FFI development files required to interface with Rust for BattleEngine
 RUN apt-get update && apt-get install -y \
     pkg-config \
     libffi-dev
@@ -81,6 +76,11 @@ RUN chmod +x /usr/local/bin/entrypoint && \
 
 # Switch to www user
 USER www
+
+# Setup Rust/Cargo for www user
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
+    . "$HOME/.cargo/env" && \
+    echo 'source $HOME/.cargo/env' >> ~/.bashrc
 
 # Run entrypoint
 CMD ["/usr/local/bin/entrypoint"]
