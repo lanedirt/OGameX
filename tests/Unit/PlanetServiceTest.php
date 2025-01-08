@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use OGame\Models\BuildingQueue;
 use OGame\Models\Enums\ResourceType;
 use OGame\Models\Resources;
 use Tests\UnitTestCase;
