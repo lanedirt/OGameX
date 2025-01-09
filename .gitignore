@@ -15,3 +15,8 @@ yarn-error.log
 .vscode
 .sql
 .codebuddy
+
+# Rust compilation dirs
+rust/*/target
+# Compiled rust apps (rust modules are recompiled during container start)
+storage/ffi-libs/*.so

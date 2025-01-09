@@ -1,0 +1,1 @@
+Rust modules will be compiled during container startup and will be placed here automatically.
