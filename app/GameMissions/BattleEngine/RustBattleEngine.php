@@ -182,7 +182,7 @@ class RustBattleEngine
      * Prepare the battle input for the Rust battle engine.
      *
      * @param BattleResult $result
-     * @return array
+     * @return array<string, list<array<string, float|int|string>>>
      */
     private function prepareBattleInput(BattleResult $result): array
     {
@@ -220,6 +220,12 @@ class RustBattleEngine
         ];
     }
 
+    /**
+     * Convert the battle output from Rust to PHP.
+     *
+     * @param array<string, list<array<string, float|int|string>>> $battleOutput
+     * @return array<BattleResultRound>
+     */
     private function convertBattleOutput(array $battleOutput): array
     {
         $rounds = [];
