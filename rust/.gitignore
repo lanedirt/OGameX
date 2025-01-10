@@ -1,0 +1,5 @@
+# Compiled files
+target
+
+# RustRover IDE files
+.idea

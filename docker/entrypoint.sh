@@ -52,10 +52,8 @@ elif [[ "$role" == "app" ]]; then
     source $HOME/.cargo/env
 
     # Compile rust modules
-    chmod +x ./rust/test_ffi/compile.sh
-    chmod +x ./rust/battle_engine_ffi/compile.sh
-    ./rust/test_ffi/compile.sh
-    ./rust/battle_engine_ffi/compile.sh
+    chmod +x ./rust/compile.sh
+    ./rust/compile.sh
 
     exec php-fpm
 else

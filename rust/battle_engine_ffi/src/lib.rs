@@ -2,8 +2,9 @@ use serde::{Deserialize, Serialize};
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use rand::Rng;
+use std::collections::HashMap;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 struct BattleUnit {
     unit_id: String,
     structural_integrity: f64,
@@ -14,14 +15,14 @@ struct BattleUnit {
     current_hull_plating: f64,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 struct BattleRound {
-    attacker_ships: Vec<String>,
-    defender_ships: Vec<String>,
-    attacker_losses: Vec<String>,
-    defender_losses: Vec<String>,
-    attacker_losses_in_round: Vec<String>,
-    defender_losses_in_round: Vec<String>,
+    attacker_ships: Vec<BattleUnit>,
+    defender_ships: Vec<BattleUnit>,
+    attacker_losses: Vec<BattleUnit>,
+    defender_losses: Vec<BattleUnit>,
+    attacker_losses_in_round: Vec<BattleUnit>,
+    defender_losses_in_round: Vec<BattleUnit>,
     absorbed_damage_attacker: f64,
     absorbed_damage_defender: f64,
     full_strength_attacker: f64,
@@ -31,39 +32,91 @@ struct BattleRound {
 }
 
 #[derive(Serialize, Deserialize)]
-struct BattleInput {
+pub struct BattleInput {
     attacker_units: Vec<BattleUnit>,
     defender_units: Vec<BattleUnit>,
 }
 
-#[derive(Serialize, Deserialize)]
-struct BattleOutput {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BattleOutput {
     rounds: Vec<BattleRound>,
 }
 
 #[no_mangle]
 pub extern "C" fn fight_battle_rounds(input_json: *const c_char) -> *mut c_char {
-    // Convert C string to Rust string
     let input_str = unsafe { CStr::from_ptr(input_json).to_str().unwrap() };
-
-    // Parse input JSON
     let battle_input: BattleInput = serde_json::from_str(input_str).unwrap();
-
-    // Process battle rounds
     let battle_output = process_battle_rounds(battle_input);
-
-    // Convert result to JSON string
     let result_json = serde_json::to_string(&battle_output).unwrap();
-
-    // Convert to C string and return
     let c_str = CString::new(result_json).unwrap();
     c_str.into_raw()
 }
 
-fn process_battle_rounds(input: BattleInput) -> BattleOutput {
+fn expand_units(units: &Vec<BattleUnit>) -> Vec<BattleUnit> {
+    let mut expanded = Vec::new();
+    for unit in units {
+        let count = unit.structural_integrity as i32;
+        for _ in 0..count {
+            expanded.push(BattleUnit {
+                unit_id: unit.unit_id.clone(),
+                structural_integrity: 1.0,
+                shield_points: unit.shield_points,
+                attack_power: unit.attack_power,
+                original_shield_points: unit.original_shield_points,
+                current_shield_points: unit.shield_points,
+                current_hull_plating: unit.current_hull_plating,
+            });
+        }
+    }
+    expanded
+}
+
+fn compress_units(units: &Vec<BattleUnit>) -> Vec<BattleUnit> {
+    let mut unit_counts: HashMap<String, (BattleUnit, i32)> = HashMap::new();
+
+    for unit in units {
+        if unit.current_hull_plating > 0.0 {
+            unit_counts.entry(unit.unit_id.clone())
+                .and_modify(|(_, count)| *count += 1)
+                .or_insert((unit.clone(), 1));
+        } else {
+            // Ensure destroyed units are included with count 0
+            unit_counts.entry(unit.unit_id.clone())
+                .or_insert((unit.clone(), 0));
+        }
+    }
+
+    unit_counts.into_iter()
+        .map(|(_, (mut unit, count))| {
+            unit.structural_integrity = count as f64;
+            unit
+        })
+        .collect()
+}
+
+pub fn process_battle_rounds(input: BattleInput) -> BattleOutput {
     let mut rounds = Vec::new();
-    let mut attacker_units = input.attacker_units;
-    let mut defender_units = input.defender_units;
+
+    // Expand units into individual ships
+    let mut attacker_units = expand_units(&input.attacker_units);
+    let mut defender_units = expand_units(&input.defender_units);
+
+    // Create initial round
+    let mut initial_round = BattleRound {
+        attacker_ships: input.attacker_units.clone(),
+        defender_ships: input.defender_units.clone(),
+        attacker_losses: Vec::new(),
+        defender_losses: Vec::new(),
+        attacker_losses_in_round: Vec::new(),
+        defender_losses_in_round: Vec::new(),
+        absorbed_damage_attacker: 0.0,
+        absorbed_damage_defender: 0.0,
+        full_strength_attacker: 0.0,
+        full_strength_defender: 0.0,
+        hits_attacker: 0,
+        hits_defender: 0,
+    };
+    rounds.push(initial_round);
 
     // Fight up to 6 rounds
     for _ in 0..6 {
@@ -74,8 +127,8 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
         let mut round = BattleRound {
             attacker_ships: Vec::new(),
             defender_ships: Vec::new(),
-            attacker_losses: Vec::new(),
-            defender_losses: Vec::new(),
+            attacker_losses: rounds.last().unwrap().attacker_losses.clone(),
+            defender_losses: rounds.last().unwrap().defender_losses.clone(),
             attacker_losses_in_round: Vec::new(),
             defender_losses_in_round: Vec::new(),
             absorbed_damage_attacker: 0.0,
@@ -86,12 +139,16 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
             hits_defender: 0,
         };
 
-        // Process attacks
-        process_attacks(&mut attacker_units, &mut defender_units, &mut round, true);
-        process_attacks(&mut defender_units, &mut attacker_units, &mut round, false);
+        // Process combat
+        process_combat(&mut attacker_units, &mut defender_units, &mut round, true);
+        process_combat(&mut defender_units, &mut attacker_units, &mut round, false);
 
         // Update round statistics
-        update_round_stats(&mut round, &attacker_units, &defender_units);
+        round.attacker_ships = compress_units(&attacker_units);
+        round.defender_ships = compress_units(&defender_units);
+
+        // Calculate losses
+        calculate_losses(&mut round, &input.attacker_units, &input.defender_units);
 
         rounds.push(round);
     }
@@ -99,7 +156,7 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
     BattleOutput { rounds }
 }
 
-fn process_attacks(
+fn process_combat(
     attackers: &mut Vec<BattleUnit>,
     defenders: &mut Vec<BattleUnit>,
     round: &mut BattleRound,
@@ -107,67 +164,91 @@ fn process_attacks(
 ) {
     let mut rng = rand::thread_rng();
 
-    for attacker in attackers.iter_mut() {
-        loop {
-            if defenders.is_empty() {
-                break;
-            }
-
-            let target_idx = rng.gen_range(0..defenders.len());
-            let defender = &mut defenders[target_idx];
-
-            // Apply damage
-            let damage = attacker.attack_power;
-
-            if damage < (0.01 * defender.current_shield_points) {
-                break;
-            }
-
-            let mut shield_absorption = 0.0;
-
-            if defender.current_shield_points > 0.0 {
-                if damage <= defender.current_shield_points {
-                    shield_absorption = damage;
-                    defender.current_shield_points -= damage;
-                } else {
-                    shield_absorption = defender.current_shield_points;
-                    defender.current_hull_plating -= damage - defender.current_shield_points;
-                    defender.current_shield_points = 0.0;
-                }
-            } else {
-                defender.current_hull_plating -= damage;
-            }
-
-            // Update round statistics
-            if is_attacker {
-                round.hits_attacker += 1;
-                round.full_strength_attacker += damage;
-                round.absorbed_damage_defender += shield_absorption;
-            } else {
-                round.hits_defender += 1;
-                round.full_strength_defender += damage;
-                round.absorbed_damage_attacker += shield_absorption;
-            }
-
-            // TODO: Implement rapidfire logic
-            break;
+    attackers.retain(|unit| {
+        if defenders.is_empty() {
+            return true;
         }
-    }
+
+        let target_idx = rng.gen_range(0..defenders.len());
+        let target = &mut defenders[target_idx];
+
+        let damage = unit.attack_power;
+
+        if damage < (0.01 * target.current_shield_points) {
+            return true;
+        }
+
+        let mut shield_absorption = 0.0;
+
+        if target.current_shield_points > 0.0 {
+            if damage <= target.current_shield_points {
+                shield_absorption = damage;
+                target.current_shield_points -= damage;
+            } else {
+                shield_absorption = target.current_shield_points;
+                target.current_hull_plating -= damage - target.current_shield_points;
+                target.current_shield_points = 0.0;
+            }
+        } else {
+            target.current_hull_plating -= damage;
+        }
+
+        // Update statistics
+        if is_attacker {
+            round.hits_attacker += 1;
+            round.full_strength_attacker += damage;
+            round.absorbed_damage_defender += shield_absorption;
+        } else {
+            round.hits_defender += 1;
+            round.full_strength_defender += damage;
+            round.absorbed_damage_attacker += shield_absorption;
+        }
+
+        true
+    });
+
+    // Remove destroyed defenders
+    defenders.retain(|unit| unit.current_hull_plating > 0.0);
 }
 
-fn update_round_stats(
+fn calculate_losses(
     round: &mut BattleRound,
-    attacker_units: &Vec<BattleUnit>,
-    defender_units: &Vec<BattleUnit>,
+    initial_attacker: &Vec<BattleUnit>,
+    initial_defender: &Vec<BattleUnit>,
 ) {
-    // Update ships remaining
-    round.attacker_ships = attacker_units.iter()
-        .map(|u| u.unit_id.clone())
-        .collect();
+    // Calculate losses by comparing current counts with initial counts
+    for unit in initial_attacker {
+        let current_count = round.attacker_ships.iter()
+            .find(|u| u.unit_id == unit.unit_id)
+            .map(|u| u.structural_integrity)
+            .unwrap_or(0.0);
 
-    round.defender_ships = defender_units.iter()
-        .map(|u| u.unit_id.clone())
-        .collect();
+        let initial_count = unit.structural_integrity;
 
-    // TODO: Update losses statistics
+        if current_count < initial_count {
+            let mut loss_unit = unit.clone();
+            loss_unit.structural_integrity = initial_count - current_count;
+            round.attacker_losses_in_round.push(loss_unit);
+        }
+    }
+
+    // Do the same for defender
+    for unit in initial_defender {
+        let current_count = round.defender_ships.iter()
+            .find(|u| u.unit_id == unit.unit_id)
+            .map(|u| u.structural_integrity)
+            .unwrap_or(0.0);
+
+        let initial_count = unit.structural_integrity;
+
+        if current_count < initial_count {
+            let mut loss_unit = unit.clone();
+            loss_unit.structural_integrity = initial_count - current_count;
+            round.defender_losses_in_round.push(loss_unit);
+        }
+    }
+
+    // Update total losses
+    round.attacker_losses.extend(round.attacker_losses_in_round.clone());
+    round.defender_losses.extend(round.defender_losses_in_round.clone());
 }
