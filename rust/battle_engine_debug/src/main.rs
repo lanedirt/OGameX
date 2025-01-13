@@ -19,36 +19,27 @@ fn main() -> Result<()> {
     {
         "attacker_units": [
             {
-                "unit_id": "small_cargo",
-                "structural_integrity": 4000,
+                "unit_id": 1,
+                "amount": 5,
                 "shield_points": 10,
                 "attack_power": 5,
-                "original_shield_points": 10,
-                "current_shield_points": 10,
-                "current_hull_plating": 400,
-                "amount": 5
+                "hull_plating": 400
             },
             {
-                "unit_id": "light_fighter",
-                "structural_integrity": 4000,
+                "unit_id": 2,
+                "amount": 75,
                 "shield_points": 10,
                 "attack_power": 50,
-                "original_shield_points": 10,
-                "current_shield_points": 10,
-                "current_hull_plating": 400,
-                "amount": 75
+                "hull_plating": 400
             }
         ],
         "defender_units": [
             {
-                "unit_id": "rocket_launcher",
-                "structural_integrity": 2000,
+                "unit_id": 100,
+                "amount": 100,
                 "shield_points": 20,
                 "attack_power": 80,
-                "original_shield_points": 20,
-                "current_shield_points": 20,
-                "current_hull_plating": 200,
-                "amount": 100
+                "hull_plating": 200
             }
         ]
     }

@@ -195,7 +195,7 @@ class BattleEngine
             // Let the attacker attack the defender.
             foreach ($attackerUnits as $unit) {
                 // Every single unit attacks a random unit from the defender's units.
-                // If the attacker has rapidfire against the defender and succesfully rolled a dice,
+                // If the attacker has rapidfire against the defender and successfully rolled a dice,
                 // the attacker can attack a random unit again.
                 do {
                     $targetUnitKey = array_rand($defenderUnits);
@@ -207,7 +207,7 @@ class BattleEngine
 
             // Let the defender attack the attacker.
             foreach ($defenderUnits as $unit) {
-                // If the attacker has rapidfire against the defender and succesfully rolled a dice,
+                // If the attacker has rapidfire against the defender and successfully rolled a dice,
                 // the attacker can attack a random unit again.
                 do {
                     $targetUnitKey = array_rand($attackerUnits);

@@ -190,13 +190,11 @@ class RustBattleEngine
         $attackerUnits = [];
         foreach ($result->attackerUnitsStart->units as $unit) {
             $attackerUnits[] = [
-                'unit_id' => $unit->unitObject->machine_name,
-                'structural_integrity' => $unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue,
+                'unit_id' => $unit->unitObject->id,
+                'amount' => $unit->amount,
                 'shield_points' => $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue,
                 'attack_power' => $unit->unitObject->properties->attack->calculate($this->attackerPlayer)->totalValue,
-                'original_shield_points' => $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue,
-                'current_shield_points' => $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue,
-                'current_hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue / 10),
+                'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue / 10),
             ];
         }
 
@@ -204,13 +202,11 @@ class RustBattleEngine
         $defenderUnits = [];
         foreach ($result->defenderUnitsStart->units as $unit) {
             $defenderUnits[] = [
-                'unit_id' => $unit->unitObject->machine_name,
-                'structural_integrity' => $unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue,
+                'unit_id' => $unit->unitObject->id,
+                'amount' => $unit->amount,
                 'shield_points' => $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue,
                 'attack_power' => $unit->unitObject->properties->attack->calculate($this->defenderPlanet->getPlayer())->totalValue,
-                'original_shield_points' => $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue,
-                'current_shield_points' => $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue,
-                'current_hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue / 10),
+                'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue / 10),
             ];
         }
 
@@ -240,7 +236,7 @@ class RustBattleEngine
             if (isset($roundData['attacker_ships']) && is_array($roundData['attacker_ships'])) {
                 foreach ($roundData['attacker_ships'] as $unitData) {
                     if (is_array($unitData) && isset($unitData['unit_id'])) {
-                        $unit = ObjectService::getUnitObjectByMachineName($unitData['unit_id']);
+                        $unit = ObjectService::getUnitObjectById($unitData['unit_id']);
                         $round->attackerShips->addUnit($unit, 1);
                     }
                 }
@@ -250,7 +246,7 @@ class RustBattleEngine
             if (isset($roundData['defender_ships']) && is_array($roundData['defender_ships'])) {
                 foreach ($roundData['defender_ships'] as $unitData) {
                     if (is_array($unitData) && isset($unitData['unit_id'])) {
-                        $unit = ObjectService::getUnitObjectByMachineName($unitData['unit_id']);
+                        $unit = ObjectService::getUnitObjectById($unitData['unit_id']);
                         $round->defenderShips->addUnit($unit, 1);
                     }
                 }
