@@ -233,7 +233,7 @@ class BattleEngine
             $round->attackerLosses = clone $attackerLosses;
             $round->defenderLosses = clone $defenderLosses;
 
-            // Update the remaining ships for the next round.
+            // Update the ships remaining at the end of this round.
             $round->attackerShips = clone $attackerRemainingShips;
             $round->defenderShips = clone $defenderRemainingShips;
 
