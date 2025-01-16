@@ -4,7 +4,7 @@ namespace OGame\GameMessages;
 
 use OGame\Facades\AppUtil;
 use OGame\GameMessages\Abstracts\GameMessage;
-use OGame\GameMissions\BattleEngine\BattleResultRound;
+use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;

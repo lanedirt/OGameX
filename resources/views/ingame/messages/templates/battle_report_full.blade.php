@@ -3,7 +3,7 @@
 @php /** @var array<OGame\GameObjects\Models\DefenseObject> $defense_objects */ @endphp
 @php /** @var array<OGame\GameObjects\Models\Units\UnitCollection> $attacker_units_start */ @endphp
 @php /** @var array<OGame\GameObjects\Models\Units\UnitCollection> $defender_units_start */ @endphp
-@php /** @var array<OGame\GameMissions\BattleEngine\BattleResultRound> $rounds */ @endphp
+@php /** @var array<OGame\GameMissions\BattleEngine\Models\BattleResultRound> $rounds */ @endphp
 
 <div id="messagedetails">
 <div class="detail_msg_head">

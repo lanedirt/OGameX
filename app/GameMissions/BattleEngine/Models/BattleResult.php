@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\GameMissions\BattleEngine;
+namespace OGame\GameMissions\BattleEngine\Models;
 
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;

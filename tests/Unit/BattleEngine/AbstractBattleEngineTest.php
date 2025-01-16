@@ -1,14 +1,18 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\BattleEngine;
 
-use OGame\GameMissions\BattleEngine\BattleEngine;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Services\ObjectService;
 use Tests\UnitTestCase;
 
-class BattleEngineTest extends UnitTestCase
+abstract class AbstractBattleEngineTest extends UnitTestCase
 {
+    /**
+     * Factory method that should return the battle engine instance to test.
+     */
+    abstract protected function createBattleEngine(UnitCollection $attackerFleet): mixed;
+
     /**
      * Set up common test components.
      */
@@ -40,7 +44,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Verify that the gained loot is calculated correctly.
         $this->assertEquals(5000, $battleResult->loot->metal->get());
@@ -67,7 +71,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Verify that the gained loot is calculated correctly.
         // 5 cargos have 25k capacity, total potential loot is 100k but in this case
@@ -96,7 +100,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Verify that the gained loot is calculated correctly.
         // 5 cargos have 25k capacity, total potential loot is 100k but in this case
@@ -127,7 +131,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($lightFighter, 75);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Assert that starting fleets are saved correctly in the battle report.
 
@@ -173,7 +177,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         $this->assertEquals(5, $battleResult->attackerWeaponLevel);
         $this->assertEquals(3, $battleResult->attackerShieldLevel);
@@ -204,7 +208,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Assert the rounds are not empty and contain valid data.
         $this->assertNotEmpty($battleResult->rounds);
@@ -251,7 +255,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($smallCargo, 5);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Assert the rounds are empty and contain valid data.
         $this->assertEmpty($battleResult->rounds);
@@ -274,7 +278,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($lightFighter, 150);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Assert the rounds are not empty and contain valid data.
         $this->assertNotEmpty($battleResult->rounds);
@@ -323,7 +327,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($lightFighter, 1000);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Assert the rounds are not empty and contain valid data.
         $this->assertNotEmpty($battleResult->rounds);
@@ -354,7 +358,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($lightFighter, 30);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Assert the rounds are not empty and contain valid data.
         $this->assertNotEmpty($battleResult->rounds);
@@ -383,7 +387,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($cruiser, 30);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Assert the rounds are not empty and contain valid data.
         $this->assertNotEmpty($battleResult->rounds);
@@ -420,7 +424,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($cruiser, 5000);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Assert that there are 6 rounds in the battle.
         $this->assertCount(6, $battleResult->rounds);
@@ -460,7 +464,7 @@ class BattleEngineTest extends UnitTestCase
         $attackerFleet->addUnit($cruiser, 5000);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Assert that there is only 1 round in the battle.
         $this->assertCount(1, $battleResult->rounds);
@@ -495,7 +499,7 @@ class BattleEngineTest extends UnitTestCase
         $this->settingsService->set('debris_field_deuterium_on', 0);
 
         // Simulate battle.
-        $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
         // Assert the rounds are not empty and contain valid data.
         $this->assertNotEmpty($battleResult->rounds);
@@ -542,7 +546,7 @@ class BattleEngineTest extends UnitTestCase
             $attackerFleet->addUnit($lightFighter, 50);
 
             // Simulate battle
-            $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+            $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
             // Calculate expected debris
             $expectedMetal = (150000 * $percentage) / 100;
@@ -571,7 +575,7 @@ class BattleEngineTest extends UnitTestCase
             $attackerFleet->addUnit($bomber, 500);
 
             // Simulate battle.
-            $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+            $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
             // Calculate expected debris.
             $expectedMetal = (300000 * $percentage) / 100;
@@ -601,7 +605,7 @@ class BattleEngineTest extends UnitTestCase
             $attackerFleet->addUnit($cruiser, 50);
 
             // Simulate battle
-            $battleResult = (new BattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService))->simulateBattle();
+            $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
 
             // Calculate expected debris
             $expectedMetal = 300000;

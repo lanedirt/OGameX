@@ -3,17 +3,17 @@
 namespace OGame\GameMissions;
 
 use OGame\GameMissions\Abstracts\GameMission;
-use OGame\GameMissions\BattleEngine\BattleEngine;
-use OGame\GameMissions\BattleEngine\BattleResult;
+use OGame\GameMissions\BattleEngine\Models\BattleResult;
+use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
-use OGame\Services\DebrisFieldService;
 use Throwable;
 
 class AttackMission extends GameMission
@@ -64,7 +64,7 @@ class AttackMission extends GameMission
         $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
 
         // Execute the battle logic.
-        $battleEngine = new BattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
+        $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
         $battleResult = $battleEngine->simulateBattle();
 
         // Deduct loot from the target planet.
