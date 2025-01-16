@@ -1,6 +1,7 @@
 use battle_engine_ffi;
 use serde::Deserialize;
 use serde_json::Result;
+use std::collections::HashMap;
 
 #[derive(Deserialize, Debug)]
 struct Unit {
@@ -12,6 +13,7 @@ struct Unit {
     current_shield_points: u32,
     current_hull_plating: u32,
     amount: u32,
+    rapidfire: HashMap<u32, u32>,
 }
 
 fn main() -> Result<()> {
@@ -23,14 +25,22 @@ fn main() -> Result<()> {
                 "amount": 5,
                 "shield_points": 10,
                 "attack_power": 5,
-                "hull_plating": 400
+                "hull_plating": 400,
+                "rapidfire": {
+                    "210": 5,
+                    "212": 5
+                }
             },
             {
                 "unit_id": 204,
                 "amount": 75,
                 "shield_points": 10,
                 "attack_power": 50,
-                "hull_plating": 400
+                "hull_plating": 400,
+                "rapidfire": {
+                    "210": 5,
+                    "212": 5
+                }
             }
         ],
         "defender_units": [
@@ -39,7 +49,8 @@ fn main() -> Result<()> {
                 "amount": 100,
                 "shield_points": 20,
                 "attack_power": 80,
-                "hull_plating": 200
+                "hull_plating": 200,
+                "rapidfire": {}
             }
         ]
     }
