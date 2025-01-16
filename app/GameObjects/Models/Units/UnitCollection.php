@@ -77,6 +77,23 @@ class UnitCollection
     }
 
     /**
+     * Check if the collection has a unit.
+     *
+     * @param UnitObject $unitObject
+     * @return bool
+     */
+    public function hasUnit(UnitObject $unitObject): bool
+    {
+        foreach ($this->units as $entry) {
+            if ($entry->unitObject->machine_name === $unitObject->machine_name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Get the amount of a unit in the collection.
      *
      * @param string $machine_name
@@ -171,15 +188,13 @@ class UnitCollection
      * Subtracts all units from another collection from this collection.
      *
      * @param UnitCollection $collection
-     * @param bool $remove_empty_units If true, the unit will be removed from the collection if the
-     *  amount reaches 0. Defaults to TRUE.
      * @return void
      * @throws Exception
      */
-    public function subtractCollection(UnitCollection $collection, bool $remove_empty_units = true): void
+    public function subtractCollection(UnitCollection $collection): void
     {
         foreach ($collection->units as $entry) {
-            $this->removeUnit($entry->unitObject, $entry->amount, $remove_empty_units);
+            $this->removeUnit($entry->unitObject, $entry->amount);
         }
     }
 

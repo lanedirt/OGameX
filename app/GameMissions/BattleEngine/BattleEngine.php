@@ -88,6 +88,12 @@ class BattleEngine
         // Execute the battle rounds, this will handle the actual combat logic.
         $result->rounds = $this->fightBattleRounds($result);
 
+        // Sanitize the round array to make sure that the remaining attacker and defender units
+        // for every round contain the starting unit types, even if there are no units of that type left.
+        // This is important for the battle report to show all units that were part of the battle on
+        // every round.
+        $result->rounds = $this->sanitizeRoundArray($result->rounds);
+
         // Get the result of the battle.
         if (count($result->rounds) > 0) {
             // Take the remaining ships in the last round as the result.
@@ -222,8 +228,8 @@ class BattleEngine
             $this->cleanupRound($round, $attackerUnits, $defenderUnits);
 
             // Subtract losses from the attacker and defender units.
-            $attackerRemainingShips->subtractCollection($round->attackerLossesInThisRound, false);
-            $defenderRemainingShips->subtractCollection($round->defenderLossesInThisRound, false);
+            $attackerRemainingShips->subtractCollection($round->attackerLossesInThisRound);
+            $defenderRemainingShips->subtractCollection($round->defenderLossesInThisRound);
 
             // Update the total losses for the attacker and defender.
             $attackerLosses->addCollection($round->attackerLossesInThisRound);
@@ -393,6 +399,37 @@ class BattleEngine
         }
 
         return new Resources($metal, $crystal, $deuterium, 0);
+    }
+
+    /**
+     * Sanitizes the round array to make sure that the remaining attacker and defender units
+     * for every round contain all the starting unit types, even if there are no units of that type left.
+     *
+     * This is important for the battle report to show all units that were part of the battle on
+     * every round.
+     *
+     * @param array<BattleResultRound> $rounds
+     * @return array<BattleResultRound>
+     */
+    private function sanitizeRoundArray(array $rounds): array
+    {
+        foreach ($rounds as $round) {
+            // Ensure all attacker units are present in the round
+            foreach ($this->attackerFleet->units as $unit) {
+                if (!$round->attackerShips->hasUnit($unit->unitObject)) {
+                    $round->attackerShips->addUnit($unit->unitObject, 0);
+                }
+            }
+
+            // Ensure all defender units are present in the round
+            foreach ($this->defenderPlanet->getShipUnits()->units as $unit) {
+                if (!$round->defenderShips->hasUnit($unit->unitObject)) {
+                    $round->defenderShips->addUnit($unit->unitObject, 0);
+                }
+            }
+        }
+
+        return $rounds;
     }
 
     /**

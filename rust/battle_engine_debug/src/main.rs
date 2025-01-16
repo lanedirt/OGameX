@@ -19,14 +19,14 @@ fn main() -> Result<()> {
     {
         "attacker_units": [
             {
-                "unit_id": 1,
+                "unit_id": 202,
                 "amount": 5,
                 "shield_points": 10,
                 "attack_power": 5,
                 "hull_plating": 400
             },
             {
-                "unit_id": 2,
+                "unit_id": 204,
                 "amount": 75,
                 "shield_points": 10,
                 "attack_power": 50,
@@ -35,7 +35,7 @@ fn main() -> Result<()> {
         ],
         "defender_units": [
             {
-                "unit_id": 100,
+                "unit_id": 401,
                 "amount": 100,
                 "shield_points": 20,
                 "attack_power": 80,
@@ -48,8 +48,8 @@ fn main() -> Result<()> {
     let input: battle_engine_ffi::BattleInput = serde_json::from_str(json_input)?;
     let output = battle_engine_ffi::process_battle_rounds(input);
 
-    // Print the output for debugging
-    println!("{:?}", output);
+    // Print the output as pretty JSON
+    println!("{}", serde_json::to_string_pretty(&output).unwrap());
 
     Ok(())
 }

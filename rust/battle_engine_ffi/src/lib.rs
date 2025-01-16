@@ -84,6 +84,34 @@ fn expand_units(units: &Vec<BattleUnitMetadata>) -> Vec<BattleUnitInstance> {
 }
 
 /**
+ * Compress hashmap of unit instances into a single unit metadata object which stores the amount of units
+ * instead of having a separate object for each unit.
+ */
+fn compress_units(units: &Vec<BattleUnitInstance>) -> HashMap<i32, BattleUnitMetadata> {
+    let mut unit_counts: HashMap<i32, i32> = HashMap::new();
+
+    // Count occurrences of each unit_id.
+    for unit in units {
+        *unit_counts.entry(unit.unit_id).or_insert(0) += 1;
+    }
+
+    // Convert counts to metadata objects and return it.
+    let compressed = unit_counts.into_iter()
+        .map(|(unit_id, count)| {
+            (unit_id, BattleUnitMetadata {
+                unit_id,
+                amount: count,
+                attack_power: 0.0, // TODO: Not necessary here
+                shield_points: 0.0, // TODO: Not necessary here
+                hull_plating: 0.0, // TODO: Not necessary here
+            })
+        })
+        .collect();
+
+    compressed
+}
+
+/**
  * Convert unit metadata vector to hashmap for quicker lookups via unit id as index.
  */
 fn convert_unit_metadata_to_hashmap(units: &Vec<BattleUnitMetadata>) -> HashMap<i32, BattleUnitMetadata> {
@@ -173,8 +201,8 @@ pub fn process_battle_rounds(input: BattleInput) -> BattleOutput {
         cleanup_round(&mut round, &mut attacker_units, &mut defender_units);
 
         // Update round statistics
-        // round.attacker_ships = compress_units(&attacker_units);
-        // round.defender_ships = compress_units(&defender_units);
+        round.attacker_ships = compress_units(&attacker_units);
+        round.defender_ships = compress_units(&defender_units);
 
         // Calculate losses
         calculate_losses(&mut round, &input.attacker_units, &input.defender_units);
@@ -265,16 +293,82 @@ fn cleanup_round(
     attackers: &mut Vec<BattleUnitInstance>,
     defenders: &mut Vec<BattleUnitInstance>,
 ) {
+    let mut rng = rand::thread_rng();
+
+    // -------
     // Cleanup attacker units.
+    // -------
     let metadata = round.attacker_ships.clone();
     attackers.retain(|unit| {
         // 1. Check if unit is fully destroyed.
         if unit.current_hull_plating <= 0.0 {
-           // Current unit is destroyed because hull plating reached 0.
-           // Add unit to attacker losses hashmap.
-           increment_unit_metadata_amount(&mut round.attacker_losses_in_round, unit.unit_id, 1);
-           // Remove unit from attacker units in this round by returning false to this parent retain.
-           return false
+            increment_unit_metadata_amount(&mut round.attacker_losses_in_round, unit.unit_id, 1);
+            return false;
+        }
+
+        // 2. Check hull integrity < 70%
+        let unit_metadata = metadata.get(&unit.unit_id).unwrap();
+        if unit.current_hull_plating / unit_metadata.hull_plating < 0.7 {
+            let explosion_chance = 100.0 - ((unit.current_hull_plating / unit_metadata.hull_plating) * 100.0);
+            let roll = rng.gen_range(0..=100);
+            if roll < explosion_chance as i32 {
+                increment_unit_metadata_amount(&mut round.attacker_losses_in_round, unit.unit_id, 1);
+                return false;
+            }
+        }
+
+        true
+    });
+
+    // Then update shields in separate pass
+    for unit in attackers.iter_mut() {
+        let unit_metadata = metadata.get(&unit.unit_id).unwrap();
+        unit.current_shield_points = unit_metadata.shield_points;
+    }
+
+    // -------
+    // Cleanup defender units.
+    // -------
+
+    // First remove destroyed units.
+    let metadata = round.defender_ships.clone();
+    defenders.retain(|unit| {
+        // 1. Check if unit is fully destroyed.
+        if unit.current_hull_plating <= 0.0 {
+            increment_unit_metadata_amount(&mut round.defender_losses_in_round, unit.unit_id, 1);
+            return false;
+        }
+
+        // 2. Check hull integrity < 70%
+        let unit_metadata = metadata.get(&unit.unit_id).unwrap();
+        if unit.current_hull_plating / unit_metadata.hull_plating < 0.7 {
+            let explosion_chance = 100.0 - ((unit.current_hull_plating / unit_metadata.hull_plating) * 100.0);
+            let roll = rng.gen_range(0..=100);
+            if roll < explosion_chance as i32 {
+                increment_unit_metadata_amount(&mut round.defender_losses_in_round, unit.unit_id, 1);
+                return false;
+            }
+        }
+
+        true
+    });
+
+    // Then update shields in separate pass for remaining units.
+    for unit in defenders.iter_mut() {
+        let unit_metadata = metadata.get(&unit.unit_id).unwrap();
+        unit.current_shield_points = unit_metadata.shield_points;
+    }
+
+    // Cleanup defender units.
+    /*let metadata = round.attacker_ships.clone();
+    defenders.retain(|unit| {
+        // 1. Check if unit is fully destroyed.
+        if unit.current_hull_plating <= 0.0 {
+            // Current unit is destroyed because hull plating reached 0.
+            // Add unit to attacker losses hashmap.
+            increment_unit_metadata_amount(&mut round.defender_losses_in_round, unit.unit_id, 1);
+            // Remove unit from attacker units in this round by returning false to this parent retain.
+            return false
         }
 
         // 2. Check if unit hull integrity is < 70% of original. If so, roll a dice to determine
@@ -288,11 +382,10 @@ fn cleanup_round(
         }
 
         // Apply shield generation to the unit.
-        // TODO: how to mutate entry itself from within retain()?
-        // unit.current_shield_points = unit_metadata.shield_points;
+        unit.current_shield_points = unit_metadata.shield_points;
 
         true
-    });
+    });*/
 
     /*
     // Cleanup attacker units.
@@ -351,7 +444,7 @@ fn calculate_losses(
     // Calculate losses by comparing current counts with initial counts
     for unit in initial_attacker {
         let initial_count = unit.amount;
-        let current_count = round.attacker_ships.get(&unit.unit_id).unwrap().amount;
+        let current_count = round.attacker_ships.get(&unit.unit_id).map(|unit| unit.amount).unwrap_or(0);
 
         if current_count < initial_count {
             let loss_amount = initial_count - current_count;
@@ -362,7 +455,7 @@ fn calculate_losses(
     // Do the same for defender
     for unit in initial_defender {
         let initial_count = unit.amount;
-        let current_count = round.defender_ships.get(&unit.unit_id).unwrap().amount;
+        let current_count = round.defender_ships.get(&unit.unit_id).map(|unit| unit.amount).unwrap_or(0);
 
         if current_count < initial_count {
             let loss_amount = initial_count - current_count;
