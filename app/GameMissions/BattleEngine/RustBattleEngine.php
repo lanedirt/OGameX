@@ -120,31 +120,40 @@ class RustBattleEngine extends BattleEngine
         foreach ($battleOutput['rounds'] as $roundData) {
             $round = new BattleResultRound();
 
-            // Initialize collections
+            // Initialize collections.
             $round->attackerShips = new UnitCollection();
             $round->defenderShips = new UnitCollection();
+            $round->attackerLosses = new UnitCollection();
+            $round->attackerLossesInRound = new UnitCollection();
+            $round->defenderLosses = new UnitCollection();
+            $round->defenderLossesInRound = new UnitCollection();
 
-            // Convert attacker ships
+            // Convert unit arrays to UnitCollections.
             if (isset($roundData['attacker_ships']) && is_array($roundData['attacker_ships'])) {
-                foreach ($roundData['attacker_ships'] as $unitData) {
-                    if (is_array($unitData) && isset($unitData['unit_id'])) {
-                        $unit = ObjectService::getUnitObjectById($unitData['unit_id']);
-                        $round->attackerShips->addUnit($unit, 1);
-                    }
-                }
+                $round->attackerShips = $this->convertUnitArrayToUnitCollection($roundData['attacker_ships']);
             }
 
-            // Convert defender ships
             if (isset($roundData['defender_ships']) && is_array($roundData['defender_ships'])) {
-                foreach ($roundData['defender_ships'] as $unitData) {
-                    if (is_array($unitData) && isset($unitData['unit_id'])) {
-                        $unit = ObjectService::getUnitObjectById($unitData['unit_id']);
-                        $round->defenderShips->addUnit($unit, 1);
-                    }
-                }
+                $round->defenderShips = $this->convertUnitArrayToUnitCollection($roundData['defender_ships']);
             }
 
-            // Set round statistics with safe defaults
+            if (isset($roundData['attacker_losses']) && is_array($roundData['attacker_losses'])) {
+                $round->attackerLosses = $this->convertUnitArrayToUnitCollection($roundData['attacker_losses']);
+            }
+
+            if (isset($roundData['attacker_losses_in_round']) && is_array($roundData['attacker_losses_in_round'])) {
+                $round->attackerLossesInRound = $this->convertUnitArrayToUnitCollection($roundData['attacker_losses_in_round']);
+            }
+
+            if (isset($roundData['defender_losses']) && is_array($roundData['defender_losses'])) {
+                $round->defenderLosses = $this->convertUnitArrayToUnitCollection($roundData['defender_losses']);
+            }
+
+            if (isset($roundData['defender_losses_in_round']) && is_array($roundData['defender_losses_in_round'])) {
+                $round->defenderLossesInRound = $this->convertUnitArrayToUnitCollection($roundData['defender_losses_in_round']);
+            }
+
+            // Extract other properties.
             $round->hitsAttacker = (int)($roundData['hits_attacker'] ?? 0);
             $round->hitsDefender = (int)($roundData['hits_defender'] ?? 0);
             $round->absorbedDamageAttacker = (int)($roundData['absorbed_damage_attacker'] ?? 0);
@@ -155,5 +164,21 @@ class RustBattleEngine extends BattleEngine
             $rounds[] = $round;
         }
         return $rounds;
+    }
+
+    /**
+     * Convert unit array received from the Rust FFI output to a UnitCollection.
+     *
+     * @param array<array<string, float|int|string>> $unitData
+     * @return UnitCollection
+     */
+    private function convertUnitArrayToUnitCollection(array $unitData): UnitCollection
+    {
+        $unitCollection = new UnitCollection();
+        foreach ($unitData as $unit) {
+            $unitObject = ObjectService::getUnitObjectById((int)$unit['unit_id']);
+            $unitCollection->addUnit($unitObject, (int)$unit['amount']);
+        }
+        return $unitCollection;
     }
 }

@@ -419,7 +419,7 @@
                     },
                     "attackerLossesInThisRound": {
                         "4492924": [
-@foreach ($round->attackerLossesInThisRound->units as $unit)
+@foreach ($round->attackerLossesInRound->units as $unit)
                         {
                             "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
                         },
@@ -434,7 +434,7 @@
 @endforeach
                     ],
                     "defenderLossesInThisRound": [
-@foreach ($round->defenderLossesInThisRound->units as $unit)
+@foreach ($round->defenderLossesInRound->units as $unit)
                         {
                             "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
                         },
@@ -511,7 +511,7 @@
                     {
                         "lossesInThisRound": {
                             "4492924": {
-@foreach ($round->attackerLossesInThisRound->units as $unit)
+@foreach ($round->attackerLossesInRound->units as $unit)
                                 "{{ $unit->unitObject->id }}": {{ $unit->amount }},
 @endforeach
                             }
@@ -575,7 +575,7 @@
 @foreach ($rounds as $round)
                     {
                         "lossesInThisRound": [{
-@foreach ($round->defenderLossesInThisRound->units as $unit)
+@foreach ($round->defenderLossesInRound->units as $unit)
                                 "{{ $unit->unitObject->id }}": "{{ $unit->amount }}",
 @endforeach
                         }],

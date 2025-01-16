@@ -65,8 +65,8 @@ class PhpBattleEngine extends BattleEngine
         while ($roundNumber < 6  && count($attackerUnits) > 0 && count($defenderUnits) > 0) {
             $roundNumber++;
             $round = new BattleResultRound();
-            $round->defenderLossesInThisRound = new UnitCollection();
-            $round->attackerLossesInThisRound = new UnitCollection();
+            $round->defenderLossesInRound = new UnitCollection();
+            $round->attackerLossesInRound = new UnitCollection();
             $round->absorbedDamageAttacker = 0;
             $round->absorbedDamageDefender = 0;
 
@@ -100,12 +100,12 @@ class PhpBattleEngine extends BattleEngine
             $this->cleanupRound($round, $attackerUnits, $defenderUnits);
 
             // Subtract losses from the attacker and defender units.
-            $attackerRemainingShips->subtractCollection($round->attackerLossesInThisRound);
-            $defenderRemainingShips->subtractCollection($round->defenderLossesInThisRound);
+            $attackerRemainingShips->subtractCollection($round->attackerLossesInRound);
+            $defenderRemainingShips->subtractCollection($round->defenderLossesInRound);
 
             // Update the total losses for the attacker and defender.
-            $attackerLosses->addCollection($round->attackerLossesInThisRound);
-            $defenderLosses->addCollection($round->defenderLossesInThisRound);
+            $attackerLosses->addCollection($round->attackerLossesInRound);
+            $defenderLosses->addCollection($round->defenderLossesInRound);
 
             // Clone the losses to the round object to keep track of the total losses at round point-in-time.
             $round->attackerLosses = clone $attackerLosses;
@@ -198,11 +198,11 @@ class PhpBattleEngine extends BattleEngine
         foreach ($attackerUnits as $key => $unit) {
             if ($unit->currentHullPlating <= 0) {
                 // Remove destroyed units from the array.
-                $round->attackerLossesInThisRound->addUnit($unit->unitObject, 1);
+                $round->attackerLossesInRound->addUnit($unit->unitObject, 1);
                 unset($attackerUnits[$key]);
             } elseif ($unit->damagedHullExplosion()) {
                 // Hull was damaged and dice roll was successful, destroy the unit.
-                $round->attackerLossesInThisRound->addUnit($unit->unitObject, 1);
+                $round->attackerLossesInRound->addUnit($unit->unitObject, 1);
                 unset($attackerUnits[$key]);
             } else {
                 // Apply shield regeneration.
@@ -214,11 +214,11 @@ class PhpBattleEngine extends BattleEngine
         foreach ($defenderUnits as $key => $unit) {
             if ($unit->currentHullPlating <= 0) {
                 // Remove destroyed units from the array.
-                $round->defenderLossesInThisRound->addUnit($unit->unitObject, 1);
+                $round->defenderLossesInRound->addUnit($unit->unitObject, 1);
                 unset($defenderUnits[$key]);
             } elseif ($unit->damagedHullExplosion()) {
                 // Hull was damaged and dice roll was successful, destroy the unit.
-                $round->defenderLossesInThisRound->addUnit($unit->unitObject, 1);
+                $round->defenderLossesInRound->addUnit($unit->unitObject, 1);
                 unset($defenderUnits[$key]);
             } else {
                 // Apply shield regeneration.

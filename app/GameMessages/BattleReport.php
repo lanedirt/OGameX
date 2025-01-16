@@ -218,15 +218,15 @@ class BattleReport extends GameMessage
                     $unit = ObjectService::getUnitObjectByMachineName($machine_name);
                     $obj->attackerLosses->addUnit($unit, $amount);
                 }
-                $obj->defenderLossesInThisRound = new UnitCollection();
+                $obj->defenderLossesInRound = new UnitCollection();
                 foreach ($round['defender_losses_in_this_round'] as $machine_name => $amount) {
                     $unit = ObjectService::getUnitObjectByMachineName($machine_name);
-                    $obj->defenderLossesInThisRound->addUnit($unit, $amount);
+                    $obj->defenderLossesInRound->addUnit($unit, $amount);
                 }
-                $obj->attackerLossesInThisRound = new UnitCollection();
+                $obj->attackerLossesInRound = new UnitCollection();
                 foreach ($round['attacker_losses_in_this_round'] as $machine_name => $amount) {
                     $unit = ObjectService::getUnitObjectByMachineName($machine_name);
-                    $obj->attackerLossesInThisRound->addUnit($unit, $amount);
+                    $obj->attackerLossesInRound->addUnit($unit, $amount);
                 }
                 $rounds[] = $obj;
             }

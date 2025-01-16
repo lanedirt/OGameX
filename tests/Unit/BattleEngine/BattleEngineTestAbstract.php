@@ -225,9 +225,9 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertEquals(5, $lastRound->attackerLosses->getAmountByMachineName($smallCargo->machine_name));
         $this->assertEquals(0, $lastRound->defenderLosses->getAmountByMachineName('rocket_launcher'));
 
-        $this->assertGreaterThan(0, $lastRound->attackerLossesInThisRound->getAmountByMachineName($smallCargo->machine_name));
-        $this->assertLessThan(5, $lastRound->attackerLossesInThisRound->getAmountByMachineName($smallCargo->machine_name));
-        $this->assertEquals(0, $lastRound->defenderLossesInThisRound->getAmountByMachineName('rocket_launcher'));
+        $this->assertGreaterThan(0, $lastRound->attackerLossesInRound->getAmountByMachineName($smallCargo->machine_name));
+        $this->assertLessThan(5, $lastRound->attackerLossesInRound->getAmountByMachineName($smallCargo->machine_name));
+        $this->assertEquals(0, $lastRound->defenderLossesInRound->getAmountByMachineName('rocket_launcher'));
 
         $this->assertGreaterThan(0, $lastRound->absorbedDamageAttacker);
         $this->assertGreaterThan(0, $lastRound->absorbedDamageDefender);

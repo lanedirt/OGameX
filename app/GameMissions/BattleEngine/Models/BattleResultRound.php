@@ -21,7 +21,7 @@ class BattleResultRound
      * @var UnitCollection Unit losses of the attacker player in this round.
      *  TODO: now this only works for a single attacker. Support for multiple attackers should be added later.
      */
-    public UnitCollection $attackerLossesInThisRound;
+    public UnitCollection $attackerLossesInRound;
 
     /**
      * @var UnitCollection Unit losses of the defender player until now which includes previous rounds.
@@ -31,7 +31,7 @@ class BattleResultRound
     /**
      * @var UnitCollection Unit losses of the defender player in this round.
      */
-    public UnitCollection $defenderLossesInThisRound;
+    public UnitCollection $defenderLossesInRound;
 
     /**
      * @var int Total amount of hits the attacker made this round.
