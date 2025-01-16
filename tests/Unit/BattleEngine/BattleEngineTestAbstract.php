@@ -6,7 +6,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Services\ObjectService;
 use Tests\UnitTestCase;
 
-abstract class AbstractBattleEngineTest extends UnitTestCase
+abstract class BattleEngineTestAbstract extends UnitTestCase
 {
     /**
      * Factory method that should return the battle engine instance to test.

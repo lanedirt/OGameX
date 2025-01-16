@@ -10,7 +10,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
  * Test class for the PHP BattleEngine. The actual tests that create the simulated battles
  * are defined in the abstract test class.
  */
-class PhpBattleEngineTest extends AbstractBattleEngineTest
+class PhpBattleEngineTest extends BattleEngineTestAbstract
 {
     /**
      * Create a new BattleEngine instance. This allows the test class itself to change the BattleEngine

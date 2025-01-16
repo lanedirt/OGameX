@@ -6,7 +6,7 @@ use OGame\GameMissions\BattleEngine\BattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameObjects\Models\Units\UnitCollection;
 
-class RustBattleEngineTest extends AbstractBattleEngineTest
+class RustBattleEngineTest extends BattleEngineTestAbstract
 {
     /**
      * Create a new BattleEngine instance. This allows the test class itself to change the BattleEngine
