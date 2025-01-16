@@ -12,6 +12,7 @@ struct BattleUnitMetadata {
     attack_power: f64,
     shield_points: f64,
     hull_plating: f64,
+    rapidfire: HashMap<i32, i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -123,11 +124,12 @@ fn convert_unit_metadata_to_hashmap(units: &Vec<BattleUnitMetadata>) -> HashMap<
     for unit in units {
         for _ in 0..unit.amount {
             expanded.insert(unit.unit_id.clone(), BattleUnitMetadata {
-                unit_id: unit.unit_id.clone(),
+                unit_id: unit.unit_id,
                 amount: unit.amount,
                 attack_power: unit.attack_power,
                 shield_points: unit.shield_points,
-                hull_plating: unit.hull_plating
+                hull_plating: unit.hull_plating,
+                rapidfire: unit.rapidfire.clone(),
             });
         }
     }
@@ -179,8 +181,6 @@ pub fn process_battle_rounds(input: BattleInput) -> BattleOutput {
             break;
         }
 
-        // TODO: do we need to create an initial round above and copy the counts here?
-        // Check PHP implementation, this doesn't seem right.
         let mut round = BattleRound {
             attacker_ships: HashMap::new(),
             defender_ships: HashMap::new(),
@@ -216,6 +216,10 @@ pub fn process_battle_rounds(input: BattleInput) -> BattleOutput {
     BattleOutput { rounds }
 }
 
+/**
+ * Process combat for a single round between attacker and defender.
+ * This method is called twice, once for [attacker --> defender] and once for [defender --> attacker].
+ */
 fn process_combat(
     attackers: &mut Vec<BattleUnitInstance>,
     defenders: &mut Vec<BattleUnitInstance>,
@@ -225,53 +229,74 @@ fn process_combat(
 ) {
     let mut rng = rand::thread_rng();
 
-    // TODO: is retain the best choice for basic loops where no filtering occurs?
-    attackers.retain(|unit| {
-        if defenders.is_empty() {
-            return true;
-        }
-
-        let target_idx = rng.gen_range(0..defenders.len());
-        let target = &mut defenders[target_idx];
+    for attacker in attackers.iter() {
+        let mut should_continue = true;
 
         // Get metadata of this unit.
-        let unit_metadata = units_metadata.get(&unit.unit_id).unwrap();
-
+        let unit_metadata = units_metadata.get(&attacker.unit_id).unwrap();
         let damage = unit_metadata.attack_power;
 
-        if damage < (0.01 * target.current_shield_points) {
-            return true;
-        }
+        while should_continue {
+            // Set should continue to false in case of early continue.
+            should_continue = false;
 
-        let mut shield_absorption = 0.0;
+            // Pick a random target from defenders.
+            let target_idx = rng.gen_range(0..defenders.len());
+            let target = &mut defenders[target_idx];
 
-        if target.current_shield_points > 0.0 {
-            if damage <= target.current_shield_points {
-                shield_absorption = damage;
-                target.current_shield_points -= damage;
-            } else {
-                shield_absorption = target.current_shield_points;
-                target.current_hull_plating -= damage - target.current_shield_points;
-                target.current_shield_points = 0.0;
+            // Check if the damage is less than 1% of the target's shield points. If so, attack is negated.
+            if damage < (0.01 * target.current_shield_points) {
+                continue
             }
-        } else {
-            target.current_hull_plating -= damage;
-        }
 
-        // Update statistics
-        if is_attacker {
-            round.hits_attacker += 1;
-            round.full_strength_attacker += damage;
-            round.absorbed_damage_defender += shield_absorption;
-        } else {
-            round.hits_defender += 1;
-            round.full_strength_defender += damage;
-            round.absorbed_damage_attacker += shield_absorption;
-        }
+            let mut shield_absorption = 0.0;
 
-        // TODO: implement rapidfire mechanism
-        true
-    });
+            if target.current_shield_points > 0.0 {
+                if damage <= target.current_shield_points {
+                    shield_absorption = damage;
+                    target.current_shield_points -= damage;
+                } else {
+                    shield_absorption = target.current_shield_points;
+                    target.current_hull_plating -= damage - target.current_shield_points;
+                    target.current_shield_points = 0.0;
+                }
+            } else {
+                target.current_hull_plating -= damage;
+            }
+
+            // Update statistics
+            if is_attacker {
+                round.hits_attacker += 1;
+                round.full_strength_attacker += damage;
+                round.absorbed_damage_defender += shield_absorption;
+            } else {
+                round.hits_defender += 1;
+                round.full_strength_defender += damage;
+                round.absorbed_damage_attacker += shield_absorption;
+            }
+
+            // Calculate rapidfire against the target unit which determines if this unit can attack again
+            // and loop should continue.
+            should_continue = if let Some(rapidfire_amount) = unit_metadata.rapidfire.get(&target.unit_id) {
+                // Rapidfire chance is calculated as 100 - (100 / amount). For example:
+                // - rapidfire amount of 4 means 100 - (100 / 4) = 75% chance.
+                // - rapidfire amount of 10 means 100 - (100 / 10) = 90% chance.
+                // - rapidfire amount of 33 means 100 - (100 / 33) = 96.97%
+                let chance = 100.0 / *rapidfire_amount as f64;
+                let rounded_chance = (chance * 100.0).floor() / 100.0;
+                let rapidfire_chance = 100.0 - rounded_chance;
+
+                // Roll for rapidfire
+                let roll = rng.gen_range(0.0..100.0);
+
+                // If the roll is less than or equal to the rapidfire chance, the unit can attack again
+                // and rapidfire is set to true which will cause the loop to continue.
+                roll <= rapidfire_chance
+            } else {
+                false
+            }
+        }
+    }
 }
 
 /**

@@ -9,6 +9,7 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use stdClass;
 
 /**
  * Class RustBattleEngine.
@@ -74,31 +75,62 @@ class RustBattleEngine extends BattleEngine
      * Prepare the battle input for the Rust battle engine.
      *
      * @param BattleResult $result
-     * @return array<string, list<array<string, float|int|string>>>
+     * @return array{
+     *     attacker_units: list<array{
+     *         unit_id: int,
+     *         amount: int,
+     *         shield_points: int,
+     *         attack_power: int,
+     *         hull_plating: float,
+     *         rapidfire: non-empty-array<int, int>|stdClass
+     *     }>,
+     *     defender_units: list<array{
+     *         unit_id: int,
+     *         amount: int,
+     *         shield_points: int,
+     *         attack_power: int,
+     *         hull_plating: float,
+     *         rapidfire: non-empty-array<int, int>|stdClass
+     *     }>
+     * }
      */
     private function prepareBattleInput(BattleResult $result): array
     {
         // Convert PHP battle units to Rust format
         $attackerUnits = [];
         foreach ($result->attackerUnitsStart->units as $unit) {
+            $rapidfire = [];
+            foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
+                $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
+                $rapidfire[$targetUnit->id] = $rapidfireObject->amount;
+            }
+
             $attackerUnits[] = [
                 'unit_id' => $unit->unitObject->id,
                 'amount' => $unit->amount,
                 'shield_points' => $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue,
                 'attack_power' => $unit->unitObject->properties->attack->calculate($this->attackerPlayer)->totalValue,
                 'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue / 10),
+                'rapidfire' => $rapidfire ?: new stdClass(), // Convert empty array to object to adhere to format that Rust expects.
             ];
         }
 
         // Convert defender units to Rust format
         $defenderUnits = [];
         foreach ($result->defenderUnitsStart->units as $unit) {
+            $rapidfire = [];
+            foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
+                $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
+                $rapidfire[$targetUnit->id] = $rapidfireObject->amount;
+            }
+
             $defenderUnits[] = [
                 'unit_id' => $unit->unitObject->id,
                 'amount' => $unit->amount,
                 'shield_points' => $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue,
                 'attack_power' => $unit->unitObject->properties->attack->calculate($this->defenderPlanet->getPlayer())->totalValue,
                 'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue / 10),
+                'rapidfire' => $rapidfire ?: new stdClass(), // Convert empty array to object adhere to format that Rust expects.
             ];
         }
 
