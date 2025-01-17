@@ -10,13 +10,18 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Services\ObjectService;
 use OGame\Models\Resources;
 use OGame\Services\SettingsService;
+use InvalidArgumentException;
 
+/**
+ * This command is used to test the performance of the battle engine with specified fleets.
+ * It can be used to test the performance of a single engine or to compare the performance of multiple engines.
+ */
 class TestBattleEnginePerformance extends TestCommand
 {
     protected $signature = 'test:battle-engine-performance
-        {units : Total number of units (e.g. 100000)}
-        {engine=all : The battle engine to test (php/rust). If no option is provided, all engines will be tested and compared.}';
-    protected $description = 'Test battle engine performance with specified number of units';
+        {engine=all : The battle engine to test (php/rust). If no option is provided, all engines will be tested and compared.}
+        {--fleet= : JSON string defining attacker and defender fleets}';
+    protected $description = 'Test battle engine performance with specified fleets';
 
     protected string $email = 'battleengineperformance@test.com';
     private float $startTime;
@@ -28,16 +33,21 @@ class TestBattleEnginePerformance extends TestCommand
      */
     public function handle(): int
     {
+        // Check for fleet option
+        if (!$this->option('fleet') || !$this->parseFleets($this->option('fleet'))) {
+            $this->error('Specify valid --fleet option in JSON format like this: --fleet=\'{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}\'');
+            return 1;
+        }
+
         // Set up the test environment
         parent::setup();
 
-        // Parse arguments
-        $totalUnits = (int)$this->argument('units');
+        $fleets = $this->parseFleets($this->option('fleet'));
 
         // Original single engine test logic
         $engine = $this->argument('engine');
         if ($engine === 'all') {
-            return $this->runComparisonTest($totalUnits);
+            return $this->runComparisonTest($fleets);
         }
 
         if (!in_array($engine, ['php', 'rust'])) {
@@ -45,17 +55,20 @@ class TestBattleEnginePerformance extends TestCommand
             return 1;
         }
 
-        return $this->runSingleEngineTest($engine, $totalUnits);
+        return $this->runSingleEngineTest($engine, $fleets);
     }
 
-    private function runComparisonTest(int $totalUnits): int
+    /**
+     * Run a comparison test between PHP and Rust battle engines.
+     */
+    private function runComparisonTest(array $units): int
     {
         $engines = ['php', 'rust'];
         $results = [];
 
-        // Create the same random fleet for all tests
-        $this->setupBattle($totalUnits);
-        $attackerFleet = $this->createRandomFleet($totalUnits / 2, false);
+        // Create fleet based on input
+        $this->setupBattle($units['defender']);
+        $attackerFleet = $units['attacker'];
 
         foreach ($engines as $engine) {
             // Force garbage collection before starting
@@ -75,6 +88,11 @@ class TestBattleEnginePerformance extends TestCommand
             $endMemory = memory_get_usage(true);
             $peakMemoryDuringExecution = memory_get_peak_usage(true);
 
+            // Show Rust FFI memory as peak memory if available
+            if ($engine === 'rust' && $battleResult->getMemoryUsagePeak() > 0) {
+                $peakMemoryDuringExecution = ($battleResult->getMemoryUsagePeak() * 1024 * 1024); // Convert MB to bytes
+            }
+
             $results[$engine] = [
                 'time' => ($endTime - $this->startTime) * 1000,
                 'memory' => ($endMemory - $this->startMemory) / 1024,
@@ -93,6 +111,9 @@ class TestBattleEnginePerformance extends TestCommand
         return 0;
     }
 
+    /**
+     * Display the comparison results between PHP and Rust battle engines.
+     */
     private function displayComparisonResults(array $results): void
     {
         $this->info("\n╔════════════════════════════════════════════════════════════════════╗");
@@ -152,6 +173,9 @@ class TestBattleEnginePerformance extends TestCommand
         $this->info("╚══════════════════╩═══════════════╩═══════════════╩═════════════════╝\n");
     }
 
+    /**
+     * Print a table row for comparison results.
+     */
     private function printTableRow(string $label, string $php, string $rust, string $diff): void
     {
         $this->info(sprintf(
@@ -163,6 +187,9 @@ class TestBattleEnginePerformance extends TestCommand
         ));
     }
 
+    /**
+     * Format the difference between two values.
+     */
     private function formatDifference(float $diff, string $unit, bool $lowerIsBetter): string
     {
         if ($diff == 0) {
@@ -180,7 +207,10 @@ class TestBattleEnginePerformance extends TestCommand
         return "<fg=$color>" . $paddedDiff . "</>";
     }
 
-    private function runSingleEngineTest(string $engine, int $totalUnits): int
+    /**
+     * Run a single engine test with specified fleets.
+     */
+    private function runSingleEngineTest(string $engine, array $fleets): int
     {
         // Set static time
         Carbon::setTestNow(Carbon::create(2024, 1, 1, 0, 0, 0));
@@ -191,9 +221,8 @@ class TestBattleEnginePerformance extends TestCommand
         $this->playerService->setResearchLevel('shielding_technology', 10);
         $this->playerService->setResearchLevel('armor_technology', 10);
 
-        // Set up defender planet with random units
-        $defenderUnits = $this->createRandomFleet($totalUnits / 2, true);
-        foreach ($defenderUnits->units as $unit) {
+        // Set up defender planet with provided units
+        foreach ($fleets['defender']->units as $unit) {
             $this->currentPlanetService->addUnit($unit->unitObject->machine_name, $unit->amount);
         }
 
@@ -206,7 +235,7 @@ class TestBattleEnginePerformance extends TestCommand
         $this->peakMemory = $this->startMemory;
 
         // Create attacker fleet
-        $attackerFleet = $this->createRandomFleet($totalUnits / 2, false);
+        $attackerFleet = $fleets['attacker'];
         $this->info("\nAttacker (" . number_format($attackerFleet->getAmount()) . ") and defender (" . number_format($this->currentPlanetService->getShipUnits()->getAmount()) . " + " . number_format($this->currentPlanetService->getDefenseUnits()->getAmount()) . ") fleet created");
 
         // Run battle simulation
@@ -222,7 +251,10 @@ class TestBattleEnginePerformance extends TestCommand
         return 0;
     }
 
-    private function setupBattle(int $totalUnits): void
+    /**
+     * Set up the battle environment.
+     */
+    private function setupBattle(UnitCollection $defenderFleet): void
     {
         // Set static time
         Carbon::setTestNow(Carbon::create(2024, 1, 1, 0, 0, 0));
@@ -233,62 +265,15 @@ class TestBattleEnginePerformance extends TestCommand
         $this->playerService->setResearchLevel('shielding_technology', 10);
         $this->playerService->setResearchLevel('armor_technology', 10);
 
-        // Set up defender planet with random units
-        $defenderUnits = $this->createRandomFleet($totalUnits / 2, true);
-        foreach ($defenderUnits->units as $unit) {
+        // Set up defender planet with provided units
+        foreach ($defenderFleet->units as $unit) {
             $this->currentPlanetService->addUnit($unit->unitObject->machine_name, $unit->amount);
         }
     }
 
-    private function createRandomFleet(int $targetUnits, bool $includeDefense): UnitCollection
-    {
-        $fleet = new UnitCollection();
-        $availableUnits = [
-            'light_fighter' => 1,
-            'heavy_fighter' => 3,
-            'cruiser' => 6,
-            'battle_ship' => 20,
-            'battlecruiser' => 30,
-            'bomber' => 50,
-            'destroyer' => 60,
-            'deathstar' => 200,
-            'small_cargo' => 1,
-            'large_cargo' => 4,
-        ];
-
-        if ($includeDefense) {
-            $availableUnits = array_merge($availableUnits, [
-                // Defense structures
-                'rocket_launcher' => 1,
-                'light_laser' => 2,
-                'heavy_laser' => 3,
-                'gauss_cannon' => 6,
-                'ion_cannon' => 5,
-                'plasma_turret' => 7,
-                'small_shield_dome' => 10,
-                'large_shield_dome' => 20
-            ]);
-        }
-
-        $totalUnitsCreated = 0;
-        while ($totalUnitsCreated < $targetUnits) {
-            $unitType = array_rand($availableUnits);
-
-            // Calculate how many more actual units we can add
-            $remainingUnits = $targetUnits - $totalUnitsCreated;
-            // Calculate a random amount between 1 and remaining units, but no more than 20% of target
-            $amount = min(
-                rand(1, max(1, (int)($targetUnits * 0.2))),
-                $remainingUnits
-            );
-
-            $fleet->addUnit(ObjectService::getUnitObjectByMachineName($unitType), $amount);
-            $totalUnitsCreated += $amount;
-        }
-
-        return $fleet;
-    }
-
+    /**
+     * Create a battle engine instance.
+     */
     private function createBattleEngine(string $engine, UnitCollection $attackerFleet)
     {
         // Resolve settings service.
@@ -299,34 +284,80 @@ class TestBattleEnginePerformance extends TestCommand
             : new RustBattleEngine($attackerFleet, $this->playerService, $this->currentPlanetService, $settingsService);
     }
 
+    /**
+     * Display the battle metrics.
+     */
     private function displayMetrics(BattleResult $battleResult): void
     {
         // Force garbage collection before final measurements
         gc_collect_cycles();
 
         $endTime = microtime(true);
-        $endMemory = memory_get_usage(true);
         $peakMemoryDuringExecution = memory_get_peak_usage(true);
 
         $executionTime = ($endTime - $this->startTime) * 1000; // Convert to milliseconds
-        $memoryUsage = ($endMemory - $this->startMemory) / 1024 / 1024; // Convert to MB
         $peakMemoryUsage = ($peakMemoryDuringExecution - $this->startMemory) / 1024 / 1024; // Convert to MB
 
-        $this->info("\n--------------------------------");
+        $this->info("\n========================================================");
         $this->info("Battle Statistics:");
-        $this->info("--------------------------------");
+        $this->info("========================================================");
         $this->info("Attacker initial fleet size: " . number_format($battleResult->attackerUnitsStart->getAmount()));
         $this->info("Defender initial fleet size: " . number_format($battleResult->defenderUnitsStart->getAmount()));
         $this->info("Number of rounds: " . number_format(count($battleResult->rounds)));
         $this->info("Attacker final fleet size: " . number_format($battleResult->attackerUnitsResult->getAmount()));
         $this->info("Defender final fleet size: " . number_format($battleResult->defenderUnitsResult->getAmount()));
 
-        $this->info("\n--------------------------------");
+        $this->info("\n========================================================");
         $this->info("Battle Engine Performance Metrics:");
-        $this->info("--------------------------------");
+        $this->info("========================================================");
         $this->info("Execution time: " . number_format($executionTime, 2) . "ms");
-        $this->info("Memory usage: " . number_format($memoryUsage, 2) . "MB");
-        $this->info("Peak memory usage: " . number_format($peakMemoryUsage, 2) . "MB");
+        $this->info("Peak PHP memory usage: " . number_format($peakMemoryUsage, 2) . "MB");
+
+        if ($battleResult->getMemoryUsagePeak() > 0) {
+            $this->info("Peak Rust (FFI) memory usage: " . number_format($battleResult->getMemoryUsagePeak(), 2) . "MB");
+        }
+
         $this->info("\n");
+    }
+
+    /**
+     * Parse the fleet JSON string into an array of fleets.
+     */
+    private function parseFleets(string $fleetJson): ?array
+    {
+        try {
+            $fleets = json_decode($fleetJson, true, 512, JSON_THROW_ON_ERROR);
+
+            if (!isset($fleets['attacker']) || !isset($fleets['defender'])) {
+                throw new InvalidArgumentException('Fleet JSON must contain both "attacker" and "defender" arrays');
+            }
+
+            return [
+                'attacker' => $this->createPresetFleet($fleets['attacker']),
+                'defender' => $this->createPresetFleet($fleets['defender'])
+            ];
+        } catch (Exception $e) {
+            $this->error('Invalid fleet JSON: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Create a preset fleet from an array of units.
+     */
+    private function createPresetFleet(array $units): UnitCollection
+    {
+        $fleet = new UnitCollection();
+
+        foreach ($units as $unitType => $amount) {
+            $unit = ObjectService::getUnitObjectByMachineName($unitType);
+            if ($unit) {
+                $fleet->addUnit($unit, $amount);
+            } else {
+                $this->warn("Unknown unit type: $unitType");
+            }
+        }
+
+        return $fleet;
     }
 }

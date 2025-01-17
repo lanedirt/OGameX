@@ -67,6 +67,13 @@ class RustBattleEngine extends BattleEngine
         // Parse JSON response
         $battleOutput = json_decode($output, true);
 
+        // Add memory metrics if available for debugging purposes
+        if (isset($battleOutput['memory_metrics'])) {
+            $result->setPeakMemory(
+                $battleOutput['memory_metrics']['peak_memory'] / 1024 / 1024 // Convert to MB
+            );
+        }
+
         // Convert Rust output back to PHP battle rounds
         return $this->convertBattleOutput($battleOutput);
     }

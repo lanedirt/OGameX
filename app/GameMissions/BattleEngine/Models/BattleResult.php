@@ -116,4 +116,25 @@ class BattleResult
      * @var array<BattleResultRound> The rounds of the battle.
      */
     public array $rounds;
+
+    /**
+     * @var float The peak memory usage during the battle.
+     */
+    private float $memoryUsagePeak = 0;
+
+    /**
+     * @var float The peak memory usage during the battle.
+     */
+    public function getMemoryUsagePeak(): float
+    {
+        return $this->memoryUsagePeak;
+    }
+
+    /**
+     * Set the peak memory usage for the battle.
+     */
+    public function setPeakMemory(float $peak): void
+    {
+        $this->memoryUsagePeak = $peak;
+    }
 }
