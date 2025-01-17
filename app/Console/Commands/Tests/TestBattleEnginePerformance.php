@@ -4,6 +4,7 @@ namespace OGame\Console\Commands\Tests;
 
 use Illuminate\Support\Carbon;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
+use OGame\GameMissions\BattleEngine\BattleEngine;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -11,6 +12,7 @@ use OGame\Services\ObjectService;
 use OGame\Models\Resources;
 use OGame\Services\SettingsService;
 use InvalidArgumentException;
+use Exception;
 
 /**
  * This command is used to test the performance of the battle engine with specified fleets.
@@ -40,8 +42,6 @@ class TestBattleEnginePerformance extends TestCommand
 
     protected string $email = 'battleengineperformance@test.com';
     private float $startTime;
-    private int $startMemory;
-    private int $peakMemory;
 
     /**
      * Main entry point for the command.
@@ -75,8 +75,11 @@ class TestBattleEnginePerformance extends TestCommand
 
     /**
      * Run a comparison test between PHP and Rust battle engines.
+     *
+     * @param array<string, UnitCollection> $fleets The fleets to test.
+     * @return int The exit code.
      */
-    private function runComparisonTest(array $units): int
+    private function runComparisonTest(array $fleets): int
     {
         $engines = ['php', 'rust'];
         $results = [];
@@ -86,8 +89,8 @@ class TestBattleEnginePerformance extends TestCommand
             gc_collect_cycles();
 
             // Create fleet based on input
-            $this->setupBattle($units['defender']);
-            $attackerFleet = $units['attacker'];
+            $this->setupBattle($fleets['defender']);
+            $attackerFleet = $fleets['attacker'];
 
             // Start tracking metrics
             $this->startTime = microtime(true);
@@ -101,7 +104,7 @@ class TestBattleEnginePerformance extends TestCommand
 
             // Get the appropriate peak memory value based on engine
             if ($engine === 'rust') {
-                $peakMemoryDuringExecution = $battleResult->getMemoryUsagePeak() * 1024; // Convert KB to bytes
+                $peakMemoryDuringExecution = $battleResult->memoryUsagePeak * 1024; // Convert KB to bytes
             } else {
                 $peakMemoryDuringExecution = memory_get_peak_usage(true);
             }
@@ -128,6 +131,8 @@ class TestBattleEnginePerformance extends TestCommand
 
     /**
      * Display the comparison results between PHP and Rust battle engines.
+     *
+     * @param array<string, array<string, mixed>> $results The results to display.
      */
     private function displayComparisonResults(array $results): void
     {
@@ -213,6 +218,10 @@ class TestBattleEnginePerformance extends TestCommand
 
     /**
      * Run a single engine test with specified fleets.
+     *
+     * @param string $engine The engine to test.
+     * @param array<string, UnitCollection> $fleets The fleets to test.
+     * @return int The exit code.
      */
     private function runSingleEngineTest(string $engine, array $fleets): int
     {
@@ -235,8 +244,6 @@ class TestBattleEnginePerformance extends TestCommand
 
         // Start tracking metrics
         $this->startTime = microtime(true);
-        $this->startMemory = memory_get_usage(true);
-        $this->peakMemory = $this->startMemory;
 
         // Create attacker fleet
         $attackerFleet = $fleets['attacker'];
@@ -281,6 +288,10 @@ class TestBattleEnginePerformance extends TestCommand
 
     /**
      * Create a battle engine instance.
+     *
+     * @param string $engine The engine to test.
+     * @param UnitCollection $attackerFleet The attacker fleet.
+     * @return BattleEngine The battle engine instance.
      */
     private function createBattleEngine(string $engine, UnitCollection $attackerFleet)
     {
@@ -321,8 +332,8 @@ class TestBattleEnginePerformance extends TestCommand
         $this->info("Execution time: " . number_format($executionTime, 2) . "ms");
         $this->info("Peak PHP memory usage: " . number_format($peakMemoryUsage, 2) . "MB");
 
-        if ($battleResult->getMemoryUsagePeak() > 0) {
-            $this->info("Peak Rust (FFI) memory usage: " . number_format($battleResult->getMemoryUsagePeak() / 1024, 2) . "MB");
+        if ($battleResult->memoryUsagePeak > 0) {
+            $this->info("Peak Rust (FFI) memory usage: " . number_format($battleResult->memoryUsagePeak / 1024, 2) . "MB");
         }
 
         $this->info("\n");
@@ -330,6 +341,9 @@ class TestBattleEnginePerformance extends TestCommand
 
     /**
      * Parse the fleet JSON string into an array of fleets.
+     *
+     * @param string $fleetJson The fleet JSON string.
+     * @return array<string, UnitCollection>|null The fleets.
      */
     private function parseFleets(string $fleetJson): ?array
     {
@@ -341,8 +355,8 @@ class TestBattleEnginePerformance extends TestCommand
             }
 
             return [
-                'attacker' => $this->createPresetFleet($fleets['attacker']),
-                'defender' => $this->createPresetFleet($fleets['defender'])
+                'attacker' => $this->createUnitCollection($fleets['attacker']),
+                'defender' => $this->createUnitCollection($fleets['defender'])
             ];
         } catch (Exception $e) {
             $this->error('Invalid fleet JSON: ' . $e->getMessage());
@@ -351,19 +365,18 @@ class TestBattleEnginePerformance extends TestCommand
     }
 
     /**
-     * Create a preset fleet from an array of units.
+     * Create a unit collection from an array of units.
+     *
+     * @param array<string, int> $units The units to create the fleet from.
+     * @return UnitCollection The created fleet.
      */
-    private function createPresetFleet(array $units): UnitCollection
+    private function createUnitCollection(array $units): UnitCollection
     {
         $fleet = new UnitCollection();
 
         foreach ($units as $unitType => $amount) {
             $unit = ObjectService::getUnitObjectByMachineName($unitType);
-            if ($unit) {
-                $fleet->addUnit($unit, $amount);
-            } else {
-                $this->warn("Unknown unit type: $unitType");
-            }
+            $fleet->addUnit($unit, $amount);
         }
 
         return $fleet;

@@ -120,21 +120,5 @@ class BattleResult
     /**
      * @var float The peak memory usage during the battle.
      */
-    private float $memoryUsagePeak = 0;
-
-    /**
-     * @var float The peak memory usage during the battle in kilobytes.
-     */
-    public function getMemoryUsagePeak(): float
-    {
-        return $this->memoryUsagePeak;
-    }
-
-    /**
-     * Set the peak memory usage in kilobytes for the battle.
-     */
-    public function setPeakMemory(float $peak): void
-    {
-        $this->memoryUsagePeak = $peak;
-    }
+    public float $memoryUsagePeak = 0;
 }

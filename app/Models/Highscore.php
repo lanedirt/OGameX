@@ -21,6 +21,24 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int $research_rank
  * @property int $military_rank
  * @property-read User $player
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static Builder<static>|Highscore newModelQuery()
+ * @method static Builder<static>|Highscore newQuery()
+ * @method static Builder<static>|Highscore query()
+ * @method static Builder<static>|Highscore validRanks()
+ * @method static Builder<static>|Highscore whereCreatedAt($value)
+ * @method static Builder<static>|Highscore whereEconomy($value)
+ * @method static Builder<static>|Highscore whereEconomyRank($value)
+ * @method static Builder<static>|Highscore whereGeneral($value)
+ * @method static Builder<static>|Highscore whereGeneralRank($value)
+ * @method static Builder<static>|Highscore whereId($value)
+ * @method static Builder<static>|Highscore whereMilitary($value)
+ * @method static Builder<static>|Highscore whereMilitaryRank($value)
+ * @method static Builder<static>|Highscore wherePlayerId($value)
+ * @method static Builder<static>|Highscore whereResearch($value)
+ * @method static Builder<static>|Highscore whereResearchRank($value)
+ * @method static Builder<static>|Highscore whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Highscore extends Model

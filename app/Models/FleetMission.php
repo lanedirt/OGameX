@@ -86,6 +86,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $type_to
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereTypeFrom($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereTypeTo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FleetMission whereDeuteriumConsumption($value)
  * @mixin \Eloquent
  */
 class FleetMission extends Model

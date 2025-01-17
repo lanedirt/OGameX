@@ -621,6 +621,10 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
 
     /**
      * Test that a larger battle with 50.000 units on each side (100k total) works correctly.
+     */
+    public function testBattleEngineLargeBattle(): void
+    {
+        $start_rocket_launcher = 50000;
         $start_light_fighter = 50000;
         $this->createAndSetPlanetModel([
             'rocket_launcher' => $start_rocket_launcher,

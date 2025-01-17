@@ -5,6 +5,8 @@ namespace OGame\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ *
+ *
  * @property int $id
  * @property int $galaxy
  * @property int $system

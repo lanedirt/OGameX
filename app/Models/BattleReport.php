@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
+ *
+ *
  * @property int $id
  * @property int $planet_galaxy
  * @property int $planet_system
  * @property int $planet_position
- * @property int $planet_user_id
+ * @property int|null $planet_user_id
  * @property array<string, mixed>|null $general
  * @property array<string, mixed>|null $attacker
  * @property array<string, mixed>|null $defender
