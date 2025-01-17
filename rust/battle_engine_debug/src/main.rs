@@ -67,8 +67,7 @@ fn main() -> Result<()> {
 
 
     let json_input = r#"
-    {"attacker_units":[{"unit_id":204,"amount":5000,"shield_points":10,"attack_power":50,"hull_plating":400,"rapidfire":{"210":5,"212":5}}],"defender_units":[{"unit_id":408,"amount":1,"shield_points":10000,"attack_power":1,"hull_plating":10000,"rapidfire":{}}]}
-"#;
+{"attacker_units":[{"unit_id":206,"amount":700000,"shield_points":100,"attack_power":800,"hull_plating":5400,"rapidfire":{"210":5,"212":5,"204":6,"401":10}},{"unit_id":207,"amount":100000,"shield_points":400,"attack_power":2000,"hull_plating":12000,"rapidfire":{"210":5,"212":5}}],"defender_units":[{"unit_id":401,"amount":100000,"shield_points":40,"attack_power":160,"hull_plating":400,"rapidfire":{}},{"unit_id":406,"amount":20000,"shield_points":600,"attack_power":6000,"hull_plating":20000,"rapidfire":{}}]}"#;
 
     let input: battle_engine_ffi::BattleInput = serde_json::from_str(json_input)?;
     let output = battle_engine_ffi::process_battle_rounds(input);

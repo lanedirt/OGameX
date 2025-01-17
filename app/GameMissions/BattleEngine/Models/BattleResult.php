@@ -116,9 +116,4 @@ class BattleResult
      * @var array<BattleResultRound> The rounds of the battle.
      */
     public array $rounds;
-
-    /**
-     * @var float The peak memory usage during the battle.
-     */
-    public float $memoryUsagePeak = 0;
 }

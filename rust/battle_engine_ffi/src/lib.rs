@@ -3,7 +3,7 @@ use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use rand::Rng;
 use std::collections::HashMap;
-use std::mem;
+use memory_stats::memory_stats;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct BattleUnitMetadata {
@@ -171,99 +171,79 @@ fn compress_units(units: &Vec<BattleUnit>) -> Vec<BattleUnit> {
 /**
  * Get the current memory usage in kilobytes.
  */
-fn get_memory_usage() -> u64 {
-    // Get the current memory usage using proc self status
-    if let Ok(status) = std::fs::read_to_string("/proc/self/status") {
-        for line in status.lines() {
-            if line.starts_with("VmRSS:") {
-                if let Some(kb) = line.split_whitespace().nth(1) {
-                    if let Ok(kb) = kb.parse::<u64>() {
-                        return kb;
-                    }
-                }
-            }
-        }
+fn get_process_memory_usage() -> u64 {
+    if let Some(usage) = memory_stats() {
+        usage.physical_mem as u64 / 1024
+    } else {
+        0
     }
-    0
-}
-
-fn track_battle_memory(f: impl FnOnce(&mut u64) -> Vec<BattleRound>) -> (Vec<BattleRound>, MemoryMetrics) {
-    let mut peak_memory = get_memory_usage();
-
-    // Run the battle simulation, passing peak_memory by reference
-    let result = f(&mut peak_memory);
-
-    // Update peak one last time
-    peak_memory = peak_memory.max(get_memory_usage());
-
-    (result, MemoryMetrics {
-        peak_memory,
-    })
 }
 
 pub fn process_battle_rounds(input: BattleInput) -> BattleOutput {
-    let (rounds, memory_metrics) = track_battle_memory(|peak_memory| {
-        let mut rounds = Vec::new();
+    let mut peak_memory = 0;
+    let mut rounds = Vec::new();
 
-        // Expand units into individual ships
-        let mut attacker_units = expand_units(&input.attacker_units);
-        let mut defender_units = expand_units(&input.defender_units);
+    // Expand units into individual ships
+    let mut attacker_units = expand_units(&input.attacker_units);
+    let mut defender_units = expand_units(&input.defender_units);
 
-        // Convert unit metadata from vector to hashmap so they can be accessed via index of unit id.
-        let attacker_metadata = convert_unit_metadata_to_hashmap(&input.attacker_units);
-        let defender_metadata = convert_unit_metadata_to_hashmap(&input.defender_units);
+    // Track memory usage
+    let current_memory = get_process_memory_usage();
+    peak_memory = peak_memory.max(current_memory);
+    // ---
 
-        let mut attacker_remaining_ships = convert_unit_metadata_to_hashmap(&input.attacker_units);
-        let mut defender_remaining_ships = convert_unit_metadata_to_hashmap(&input.defender_units);
+    // Convert unit metadata from vector to hashmap so they can be accessed via index of unit id.
+    let attacker_metadata = convert_unit_metadata_to_hashmap(&input.attacker_units);
+    let defender_metadata = convert_unit_metadata_to_hashmap(&input.defender_units);
 
-        // Fight up to 6 rounds
-        for _ in 0..6 {
-            if attacker_units.is_empty() || defender_units.is_empty() {
-                break;
-            }
-
-            let mut round = BattleRound {
-                attacker_ships: HashMap::new(),
-                defender_ships: HashMap::new(),
-                attacker_losses: HashMap::new(),
-                defender_losses: HashMap::new(),
-                attacker_losses_in_round: HashMap::new(),
-                defender_losses_in_round: HashMap::new(),
-                absorbed_damage_attacker: 0.0,
-                absorbed_damage_defender: 0.0,
-                full_strength_attacker: 0.0,
-                full_strength_defender: 0.0,
-                hits_attacker: 0,
-                hits_defender: 0,
-            };
-
-            // Process combat
-            process_combat(&mut attacker_units, &mut defender_units, &mut round, &attacker_metadata, true);
-            process_combat(&mut defender_units, &mut attacker_units, &mut round, &defender_metadata, false);
-
-            // Cleanup round
-            cleanup_round(&mut round, &mut attacker_units, &mut defender_units, &attacker_metadata, &defender_metadata);
-
-            // Update round statistics
-            round.attacker_ships = compress_units(&attacker_units);
-            round.defender_ships = compress_units(&defender_units);
-
-            // Calculate accumulated losses
-            calculate_losses(&mut round, &attacker_metadata, &defender_metadata);
-
-            rounds.push(round);
-
-            // Check memory usage after each round
-            let current = get_memory_usage();
-            *peak_memory = (*peak_memory).max(current);
+    // Fight up to 6 rounds
+    for _ in 0..6 {
+        if attacker_units.is_empty() || defender_units.is_empty() {
+            break;
         }
 
-        rounds
-    });
+        let mut round = BattleRound {
+            attacker_ships: HashMap::new(),
+            defender_ships: HashMap::new(),
+            attacker_losses: HashMap::new(),
+            defender_losses: HashMap::new(),
+            attacker_losses_in_round: HashMap::new(),
+            defender_losses_in_round: HashMap::new(),
+            absorbed_damage_attacker: 0.0,
+            absorbed_damage_defender: 0.0,
+            full_strength_attacker: 0.0,
+            full_strength_defender: 0.0,
+            hits_attacker: 0,
+            hits_defender: 0,
+        };
+
+        // Process combat
+        process_combat(&mut attacker_units, &mut defender_units, &mut round, &attacker_metadata, true);
+        process_combat(&mut defender_units, &mut attacker_units, &mut round, &defender_metadata, false);
+
+        // Cleanup round
+        cleanup_round(&mut round, &mut attacker_units, &mut defender_units, &attacker_metadata, &defender_metadata);
+
+        // Update round statistics
+        round.attacker_ships = compress_units(&attacker_units);
+        round.defender_ships = compress_units(&defender_units);
+
+        // Calculate accumulated losses
+        calculate_losses(&mut round, &attacker_metadata, &defender_metadata);
+
+        rounds.push(round);
+
+        // Track memory usage
+        let current_memory = get_process_memory_usage();
+        peak_memory = peak_memory.max(current_memory);
+        // ---
+    }
 
     BattleOutput {
         rounds,
-        memory_metrics
+        memory_metrics: MemoryMetrics {
+            peak_memory,
+        },
     }
 }
 
@@ -403,7 +383,6 @@ fn cleanup_round(
     // -------
 
     // First remove destroyed units.
-    let metadata = round.defender_ships.clone();
     defenders.retain(|unit| {
         // 1. Check if unit is fully destroyed.
         if unit.current_hull_plating <= 0.0 {
