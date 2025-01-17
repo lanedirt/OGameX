@@ -20,7 +20,7 @@ return new class extends Migration
 
                 foreach ($foreignKeys as $foreignKey) {
                     if (in_array('planet_user_id', $foreignKey['columns'])) {
-                        $table->dropForeign('battle_reports_planet_user_id_foreign');
+                        $table->dropForeign(['planet_user_id']);
                         break;
                     }
                 }
