@@ -294,4 +294,40 @@ class MessagesTest extends MoonTestCase
 
         return $espionageReport->id;
     }
+
+    /**
+     * Test BattleReport with deleted players.
+     */
+    public function testBattleReportWithDeletedPlayers(): void
+    {
+        // Get a random planet to create the battle report for.
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+
+        // Create battle report with deleted players
+        $battleReport = new BattleReport();
+        $battleReport->planet_galaxy = $foreignPlanet->getPlanetCoordinates()->galaxy;
+        $battleReport->planet_system = $foreignPlanet->getPlanetCoordinates()->system;
+        $battleReport->planet_position = $foreignPlanet->getPlanetCoordinates()->position;
+        $battleReport->planet_user_id = null; // Simulate deleted defender
+        $battleReport->attacker = [
+            'player_id' => 99999999, // Non-existent player ID
+            'resource_loss' => 20000,
+            'units' => [],
+            'weapon_technology' => 0,
+            'shielding_technology' => 0,
+            'armor_technology' => 0,
+        ];
+        // ... rest of battle report setup ...
+
+        // Create message with this battle report
+        $message = new Message();
+        $message->user_id = $this->currentUserId;
+        $message->key = 'battle_report';
+        $message->battle_report_id = $battleReport->id;
+        $message->save();
+
+        // Assert the message shows "Unknown" for both players
+        $response = $this->get('/ajax/messages/' . $message->id);
+        $response->assertSee('Unknown');
+    }
 }

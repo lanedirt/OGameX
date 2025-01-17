@@ -618,4 +618,31 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
             $this->assertEquals($expectedDeuterium, $battleResult->debris->deuterium->get(), "Deuterium debris doesn't match for deuterium_on={$setting}");
         }
     }
+
+    /**
+     * Test that a larger battle with 50.000 units on each side (100k total) works correctly.
+        $start_light_fighter = 50000;
+        $this->createAndSetPlanetModel([
+            'rocket_launcher' => $start_rocket_launcher,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
+        $attackerFleet->addUnit($lightFighter, $start_light_fighter);
+
+        // Simulate battle.
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
+
+        // Assert that there is more than 1 round in the battle.
+        $this->assertGreaterThan(1, count($battleResult->rounds));
+
+        // Get last round.
+        $lastRound = end($battleResult->rounds);
+        $this->assertNotEmpty($lastRound);
+        // Assert that attacker lost some light fighters.
+        $this->assertLessThan($start_light_fighter, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
+        // Assert that defender has lost some rocket launchers.
+        $this->assertLessThan($start_rocket_launcher, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
+    }
 }
