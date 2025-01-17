@@ -70,7 +70,7 @@ class RustBattleEngine extends BattleEngine
         // Add memory metrics if available for debugging purposes
         if (isset($battleOutput['memory_metrics'])) {
             $result->setPeakMemory(
-                $battleOutput['memory_metrics']['peak_memory'] / 1024 / 1024 // Convert to MB
+                $battleOutput['memory_metrics']['peak_memory']
             );
         }
 

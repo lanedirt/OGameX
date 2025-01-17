@@ -81,15 +81,16 @@ class TestBattleEnginePerformance extends TestCommand
         $engines = ['php', 'rust'];
         $results = [];
 
-        // Create fleet based on input
-        $this->setupBattle($units['defender']);
-        $attackerFleet = $units['attacker'];
-
         foreach ($engines as $engine) {
+            // Force garbage collection before each test
+            gc_collect_cycles();
+
+            // Create fleet based on input
+            $this->setupBattle($units['defender']);
+            $attackerFleet = $units['attacker'];
+
             // Start tracking metrics
             $this->startTime = microtime(true);
-            $this->startMemory = memory_get_usage(true);
-            $this->peakMemory = $this->startMemory;
 
             // Run battle simulation
             $battleEngine = $this->createBattleEngine($engine, $attackerFleet);
@@ -97,18 +98,17 @@ class TestBattleEnginePerformance extends TestCommand
 
             // Calculate metrics
             $endTime = microtime(true);
-            $endMemory = memory_get_usage(true);
-            $peakMemoryDuringExecution = memory_get_peak_usage(true);
 
-            // Show Rust FFI  peakmemory instead of PHP peak memory if Rust FFI is used
-            if ($engine === 'rust' && $battleResult->getMemoryUsagePeak() > 0) {
-                $peakMemoryDuringExecution = ($battleResult->getMemoryUsagePeak() * 1024 * 1024); // Convert MB to bytes
+            // Get the appropriate peak memory value based on engine
+            if ($engine === 'rust') {
+                $peakMemoryDuringExecution = $battleResult->getMemoryUsagePeak() * 1024; // Convert KB to bytes
+            } else {
+                $peakMemoryDuringExecution = memory_get_peak_usage(true);
             }
 
             $results[$engine] = [
                 'time' => ($endTime - $this->startTime) * 1000,
-                'memory' => ($endMemory - $this->startMemory) / 1024,
-                'peak_memory' => ($peakMemoryDuringExecution) / 1024,
+                'peak_memory' => $peakMemoryDuringExecution,
                 'rounds' => count($battleResult->rounds),
                 'units' => [
                     'attacker_start' => $battleResult->attackerUnitsStart->getAmount(),
@@ -117,6 +117,9 @@ class TestBattleEnginePerformance extends TestCommand
                     'defender_end' => $battleResult->defenderUnitsResult->getAmount(),
                 ]
             ];
+
+            // Reset PHP's peak memory tracking
+            gc_collect_cycles();
         }
 
         $this->displayComparisonResults($results);
@@ -149,26 +152,15 @@ class TestBattleEnginePerformance extends TestCommand
             $this->formatDifference($timeDiff, "ms", true)
         );
 
-        // Format memory usage
-        $memDiff = isset($phpMetrics['memory'], $rustMetrics['memory'])
-            ? $rustMetrics['memory'] - $phpMetrics['memory']
-            : 0;
-        $this->printTableRow(
-            "Memory Usage",
-            number_format($phpMetrics['memory'] / 1024, 2) . "MB",
-            number_format($rustMetrics['memory'] / 1024, 2) . "MB",
-            $this->formatDifference($memDiff / 1024, "MB", true)
-        );
-
         // Format peak memory
         $peakMemDiff = isset($phpMetrics['peak_memory'], $rustMetrics['peak_memory'])
             ? $rustMetrics['peak_memory'] - $phpMetrics['peak_memory']
             : 0;
         $this->printTableRow(
             "Peak Memory",
-            number_format($phpMetrics['peak_memory'] / 1024, 2) . "MB",
-            number_format($rustMetrics['peak_memory'] / 1024, 2) . "MB",
-            $this->formatDifference($peakMemDiff / 1024, "MB", true)
+            number_format($phpMetrics['peak_memory'] / 1024 / 1024, 2) . "MB",
+            number_format($rustMetrics['peak_memory'] / 1024 / 1024, 2) . "MB",
+            $this->formatDifference($peakMemDiff / 1024 / 1024, "MB", true)
         );
 
         // Format battle rounds
@@ -277,6 +269,10 @@ class TestBattleEnginePerformance extends TestCommand
         $this->playerService->setResearchLevel('shielding_technology', 10);
         $this->playerService->setResearchLevel('armor_technology', 10);
 
+        // Remove all units from the planet
+        $this->currentPlanetService->removeUnits($this->currentPlanetService->getShipUnits(), true);
+        $this->currentPlanetService->removeUnits($this->currentPlanetService->getDefenseUnits(), true);
+
         // Set up defender planet with provided units
         foreach ($defenderFleet->units as $unit) {
             $this->currentPlanetService->addUnit($unit->unitObject->machine_name, $unit->amount);
@@ -308,7 +304,7 @@ class TestBattleEnginePerformance extends TestCommand
         $peakMemoryDuringExecution = memory_get_peak_usage(true);
 
         $executionTime = ($endTime - $this->startTime) * 1000; // Convert to milliseconds
-        $peakMemoryUsage = ($peakMemoryDuringExecution) / 1024 / 1024; // Convert to MB
+        $peakMemoryUsage = $peakMemoryDuringExecution / 1024 / 1024; // Convert bytes to MB
 
         $this->info("\n========================================================");
         $this->info("Battle Statistics:");
@@ -326,7 +322,7 @@ class TestBattleEnginePerformance extends TestCommand
         $this->info("Peak PHP memory usage: " . number_format($peakMemoryUsage, 2) . "MB");
 
         if ($battleResult->getMemoryUsagePeak() > 0) {
-            $this->info("Peak Rust (FFI) memory usage: " . number_format($battleResult->getMemoryUsagePeak(), 2) . "MB");
+            $this->info("Peak Rust (FFI) memory usage: " . number_format($battleResult->getMemoryUsagePeak() / 1024, 2) . "MB");
         }
 
         $this->info("\n");

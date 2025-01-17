@@ -60,7 +60,7 @@ pub struct BattleInput {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct MemoryMetrics {
-    peak_memory: u64,
+    peak_memory: u64, // in kilobytes
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -168,6 +168,9 @@ fn compress_units(units: &Vec<BattleUnit>) -> Vec<BattleUnit> {
         .collect()
 }*/
 
+/**
+ * Get the current memory usage in kilobytes.
+ */
 fn get_memory_usage() -> u64 {
     // Get the current memory usage using proc self status
     if let Ok(status) = std::fs::read_to_string("/proc/self/status") {
@@ -175,7 +178,7 @@ fn get_memory_usage() -> u64 {
             if line.starts_with("VmRSS:") {
                 if let Some(kb) = line.split_whitespace().nth(1) {
                     if let Ok(kb) = kb.parse::<u64>() {
-                        return kb * 1024; // Convert KB to bytes
+                        return kb;
                     }
                 }
             }
