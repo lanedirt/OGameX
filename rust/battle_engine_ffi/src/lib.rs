@@ -8,48 +8,48 @@ use memory_stats::memory_stats;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct BattleUnitMetadata {
     // TODO: optimize field types to make them as lean as possible.
-    unit_id: i32,
-    amount: i32,
-    attack_power: f64,
-    shield_points: f64,
-    hull_plating: f64,
-    rapidfire: HashMap<i32, i32>,
+    unit_id: i16,
+    amount: u32,
+    attack_power: f32,
+    shield_points: f32,
+    hull_plating: f32,
+    rapidfire: HashMap<i16, u16>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct BattleUnitCount {
     // TODO: optimize field types to make them as lean as possible.
-    unit_id: i32,
-    amount: i32,
+    unit_id: i16,
+    amount: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct BattleUnitInstance {
     // TODO: optimize field types to make them as lean as possible.
-    unit_id: i32,
-    current_shield_points: f64,
-    current_hull_plating: f64,
+    unit_id: i16,
+    current_shield_points: f32,
+    current_hull_plating: f32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct BattleRound {
     // Attacker and defender ships arrays are used by the battle logic to retrieve the metadata from
     // such as attack power, shield etc. So these need stay with metadata.
-    attacker_ships: HashMap<i32, BattleUnitCount>,
-    defender_ships: HashMap<i32, BattleUnitCount>,
+    attacker_ships: HashMap<i16, BattleUnitCount>,
+    defender_ships: HashMap<i16, BattleUnitCount>,
     // TODO: the losses properties are just for keeping track of amount of units per type, so they
     // don't need to contain the full metadata. Check if we want to reduce amount of memory by using
     // more lean objects for this or if its negligible.
-    attacker_losses: HashMap<i32, BattleUnitCount>,
-    defender_losses: HashMap<i32, BattleUnitCount>,
-    attacker_losses_in_round: HashMap<i32, BattleUnitCount>,
-    defender_losses_in_round: HashMap<i32, BattleUnitCount>,
+    attacker_losses: HashMap<i16, BattleUnitCount>,
+    defender_losses: HashMap<i16, BattleUnitCount>,
+    attacker_losses_in_round: HashMap<i16, BattleUnitCount>,
+    defender_losses_in_round: HashMap<i16, BattleUnitCount>,
     absorbed_damage_attacker: f64,
     absorbed_damage_defender: f64,
     full_strength_attacker: f64,
     full_strength_defender: f64,
-    hits_attacker: i32,
-    hits_defender: i32,
+    hits_attacker: u32,
+    hits_defender: u32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -102,8 +102,8 @@ fn expand_units(units: &Vec<BattleUnitMetadata>) -> Vec<BattleUnitInstance> {
  * Compress hashmap of unit instances into a single unit metadata object which stores the amount of units
  * instead of having a separate object for each unit.
  */
-fn compress_units(units: &Vec<BattleUnitInstance>) -> HashMap<i32, BattleUnitCount> {
-    let mut unit_counts: HashMap<i32, i32> = HashMap::new();
+fn compress_units(units: &Vec<BattleUnitInstance>) -> HashMap<i16, BattleUnitCount> {
+    let mut unit_counts: HashMap<i16, u32> = HashMap::new();
 
     // Count occurrences of each unit_id.
     for unit in units {
@@ -126,7 +126,7 @@ fn compress_units(units: &Vec<BattleUnitInstance>) -> HashMap<i32, BattleUnitCou
 /**
  * Convert unit metadata vector to hashmap for quicker lookups via unit id as index.
  */
-fn convert_unit_metadata_to_hashmap(units: &Vec<BattleUnitMetadata>) -> HashMap<i32, BattleUnitMetadata> {
+fn convert_unit_metadata_to_hashmap(units: &Vec<BattleUnitMetadata>) -> HashMap<i16, BattleUnitMetadata> {
     let mut expanded = HashMap::new();
     for unit in units {
         for _ in 0..unit.amount {
@@ -255,7 +255,7 @@ fn process_combat(
     attackers: &mut Vec<BattleUnitInstance>,
     defenders: &mut Vec<BattleUnitInstance>,
     round: &mut BattleRound,
-    units_metadata: &HashMap<i32, BattleUnitMetadata>,
+    units_metadata: &HashMap<i16, BattleUnitMetadata>,
     is_attacker: bool,
 ) {
     let mut rng = rand::thread_rng();
@@ -298,12 +298,12 @@ fn process_combat(
             // Update statistics
             if is_attacker {
                 round.hits_attacker += 1;
-                round.full_strength_attacker += damage;
-                round.absorbed_damage_defender += shield_absorption;
+                round.full_strength_attacker += damage as f64;
+                round.absorbed_damage_defender += shield_absorption as f64;
             } else {
                 round.hits_defender += 1;
-                round.full_strength_defender += damage;
-                round.absorbed_damage_attacker += shield_absorption;
+                round.full_strength_defender += damage as f64;
+                round.absorbed_damage_attacker += shield_absorption as f64;
             }
 
             // Calculate rapidfire against the target unit which determines if this unit can attack again
@@ -343,8 +343,8 @@ fn cleanup_round(
     round: &mut BattleRound,
     attackers: &mut Vec<BattleUnitInstance>,
     defenders: &mut Vec<BattleUnitInstance>,
-    units_metadata_attacker: &HashMap<i32, BattleUnitMetadata>,
-    units_metadata_defender: &HashMap<i32, BattleUnitMetadata>,
+    units_metadata_attacker: &HashMap<i16, BattleUnitMetadata>,
+    units_metadata_defender: &HashMap<i16, BattleUnitMetadata>,
 ) {
     let mut rng = rand::thread_rng();
 
@@ -409,76 +409,14 @@ fn cleanup_round(
         let unit_metadata = units_metadata_defender.get(&unit.unit_id).unwrap();
         unit.current_shield_points = unit_metadata.shield_points;
     }
-
-    // Cleanup defender units.
-    /*let metadata = round.attacker_ships.clone();
-    defenders.retain(|unit| {
-        // 1. Check if unit is fully destroyed.
-        if unit.current_hull_plating <= 0.0 {
-            // Current unit is destroyed because hull plating reached 0.
-            // Add unit to attacker losses hashmap.
-            increment_unit_metadata_amount(&mut round.defender_losses_in_round, unit.unit_id, 1);
-            // Remove unit from attacker units in this round by returning false to this parent retain.
-            return false
-        }
-
-        // 2. Check if unit hull integrity is < 70% of original. If so, roll a dice to determine
-        // if it's destroyed as well.
-        let unit_metadata = metadata.get(&unit.unit_id).unwrap();
-        if unit.current_hull_plating / unit_metadata.hull_plating < 0.7 {
-            // When the hull plating of the unit is < 70% of original, the unit has 1 - currentHullPlating/originalHullPlating chance of exploding.
-            // This method rolls a dice and returns TRUE if the unit explodes, FALSE otherwise.
-            // TODO: implement rng, for now we return false (i.e. unit is considered destroyed)
-            return false;
-        }
-
-        // Apply shield generation to the unit.
-        unit.current_shield_points = unit_metadata.shield_points;
-
-        true
-    });*/
-
-    /*
-    // Cleanup attacker units.
-        foreach ($attackerUnits as $key => $unit) {
-            if ($unit->currentHullPlating <= 0) {
-                // Remove destroyed units from the array.
-                $round->attackerLossesInThisRound->addUnit($unit->unitObject, 1);
-                unset($attackerUnits[$key]);
-            } elseif ($unit->damagedHullExplosion()) {
-                // Hull was damaged and dice roll was successful, destroy the unit.
-                $round->attackerLossesInThisRound->addUnit($unit->unitObject, 1);
-                unset($attackerUnits[$key]);
-            } else {
-                // Apply shield regeneration.
-                $unit->currentShieldPoints = $unit->originalShieldPoints;
-            }
-        }
-
-        // Cleanup defender units.
-        foreach ($defenderUnits as $key => $unit) {
-            if ($unit->currentHullPlating <= 0) {
-                // Remove destroyed units from the array.
-                $round->defenderLossesInThisRound->addUnit($unit->unitObject, 1);
-                unset($defenderUnits[$key]);
-            } elseif ($unit->damagedHullExplosion()) {
-                // Hull was damaged and dice roll was successful, destroy the unit.
-                $round->defenderLossesInThisRound->addUnit($unit->unitObject, 1);
-                unset($defenderUnits[$key]);
-            } else {
-                // Apply shield regeneration.
-                $unit->currentShieldPoints = $unit->originalShieldPoints;
-            }
-        }
-     */
 }
 
 /**
  * Helper method to increment the amount property of a unit metadata struct.
  */
-fn increment_unit_metadata_amount(hash_map: &mut HashMap<i32, BattleUnitCount>, unit_id: i32, amount_to_increment: i32) {
+fn increment_unit_metadata_amount(hash_map: &mut HashMap<i16, BattleUnitCount>, unit_id: i16, amount_to_increment: u32) {
     let count = hash_map.entry(unit_id).or_insert(BattleUnitCount {
-        unit_id: unit_id,
+        unit_id,
         amount: 0,
     });
     count.amount += amount_to_increment;
@@ -486,8 +424,8 @@ fn increment_unit_metadata_amount(hash_map: &mut HashMap<i32, BattleUnitCount>, 
 
 fn calculate_losses(
     round: &mut BattleRound,
-    initial_attacker: &HashMap<i32, BattleUnitMetadata>,
-    initial_defender: &HashMap<i32, BattleUnitMetadata>,
+    initial_attacker: &HashMap<i16, BattleUnitMetadata>,
+    initial_defender: &HashMap<i16, BattleUnitMetadata>,
 ) {
     // TODO: is it correct that we're using the initial metadata to calculate losses for every round?
     // So the attacker and defender losses for each round are accumulative?
