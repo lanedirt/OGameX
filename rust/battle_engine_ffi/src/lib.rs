@@ -7,7 +7,6 @@ use memory_stats::memory_stats;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct BattleUnitMetadata {
-    // TODO: optimize field types to make them as lean as possible.
     unit_id: i16,
     amount: u32,
     attack_power: f32,
@@ -18,14 +17,12 @@ struct BattleUnitMetadata {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct BattleUnitCount {
-    // TODO: optimize field types to make them as lean as possible.
     unit_id: i16,
     amount: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct BattleUnitInstance {
-    // TODO: optimize field types to make them as lean as possible.
     unit_id: i16,
     current_shield_points: f32,
     current_hull_plating: f32,
@@ -37,9 +34,6 @@ struct BattleRound {
     // such as attack power, shield etc. So these need stay with metadata.
     attacker_ships: HashMap<i16, BattleUnitCount>,
     defender_ships: HashMap<i16, BattleUnitCount>,
-    // TODO: the losses properties are just for keeping track of amount of units per type, so they
-    // don't need to contain the full metadata. Check if we want to reduce amount of memory by using
-    // more lean objects for this or if its negligible.
     attacker_losses: HashMap<i16, BattleUnitCount>,
     defender_losses: HashMap<i16, BattleUnitCount>,
     attacker_losses_in_round: HashMap<i16, BattleUnitCount>,
@@ -143,30 +137,6 @@ fn convert_unit_metadata_to_hashmap(units: &Vec<BattleUnitMetadata>) -> HashMap<
 
     expanded
 }
-
-/*
-fn compress_units(units: &Vec<BattleUnit>) -> Vec<BattleUnit> {
-    let mut unit_counts: HashMap<String, (BattleUnit, i32)> = HashMap::new();
-
-    for unit in units {
-        if unit.current_hull_plating > 0.0 {
-            unit_counts.entry(unit.unit_id.clone())
-                .and_modify(|(_, count)| *count += 1)
-                .or_insert((unit.clone(), 1));
-        } else {
-            // Ensure destroyed units are included with count 0
-            unit_counts.entry(unit.unit_id.clone())
-                .or_insert((unit.clone(), 0));
-        }
-    }
-
-    unit_counts.into_iter()
-        .map(|(_, (mut unit, count))| {
-            unit.structural_integrity = count as f64;
-            unit
-        })
-        .collect()
-}*/
 
 /**
  * Get the current memory usage in kilobytes.
