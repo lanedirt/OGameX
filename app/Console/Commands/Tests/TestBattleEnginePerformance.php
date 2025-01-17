@@ -15,6 +15,21 @@ use InvalidArgumentException;
 /**
  * This command is used to test the performance of the battle engine with specified fleets.
  * It can be used to test the performance of a single engine or to compare the performance of multiple engines.
+ *
+ * Use like this to test a single engine (PHP):
+ * ---
+ * php artisan test:battle-engine-performance php --fleet='{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}'
+ * ---
+ *
+ * Use like this to test a single engine (Rust):
+ * ---
+ * php artisan test:battle-engine-performance rust --fleet='{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}'
+ * ---
+ *
+ * Use like this to test all engines:
+ * ---
+ * php artisan test:battle-engine-performance --fleet='{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}'
+ * ---
  */
 class TestBattleEnginePerformance extends TestCommand
 {
@@ -71,9 +86,6 @@ class TestBattleEnginePerformance extends TestCommand
         $attackerFleet = $units['attacker'];
 
         foreach ($engines as $engine) {
-            // Force garbage collection before starting
-            gc_collect_cycles();
-
             // Start tracking metrics
             $this->startTime = microtime(true);
             $this->startMemory = memory_get_usage(true);
@@ -88,7 +100,7 @@ class TestBattleEnginePerformance extends TestCommand
             $endMemory = memory_get_usage(true);
             $peakMemoryDuringExecution = memory_get_peak_usage(true);
 
-            // Show Rust FFI memory as peak memory if available
+            // Show Rust FFI  peakmemory instead of PHP peak memory if Rust FFI is used
             if ($engine === 'rust' && $battleResult->getMemoryUsagePeak() > 0) {
                 $peakMemoryDuringExecution = ($battleResult->getMemoryUsagePeak() * 1024 * 1024); // Convert MB to bytes
             }
@@ -96,7 +108,7 @@ class TestBattleEnginePerformance extends TestCommand
             $results[$engine] = [
                 'time' => ($endTime - $this->startTime) * 1000,
                 'memory' => ($endMemory - $this->startMemory) / 1024,
-                'peak_memory' => ($peakMemoryDuringExecution - $this->startMemory) / 1024,
+                'peak_memory' => ($peakMemoryDuringExecution) / 1024,
                 'rounds' => count($battleResult->rounds),
                 'units' => [
                     'attacker_start' => $battleResult->attackerUnitsStart->getAmount(),
@@ -296,7 +308,7 @@ class TestBattleEnginePerformance extends TestCommand
         $peakMemoryDuringExecution = memory_get_peak_usage(true);
 
         $executionTime = ($endTime - $this->startTime) * 1000; // Convert to milliseconds
-        $peakMemoryUsage = ($peakMemoryDuringExecution - $this->startMemory) / 1024 / 1024; // Convert to MB
+        $peakMemoryUsage = ($peakMemoryDuringExecution) / 1024 / 1024; // Convert to MB
 
         $this->info("\n========================================================");
         $this->info("Battle Statistics:");
