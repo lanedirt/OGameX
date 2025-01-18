@@ -9,7 +9,6 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use stdClass;
 
 /**
  * Class RustBattleEngine.

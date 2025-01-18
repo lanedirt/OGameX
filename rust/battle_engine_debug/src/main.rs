@@ -55,7 +55,7 @@ fn main() -> Result<()> {
      */
 
     let json_input = r#"
-    {"attacker_units":{"204": {"unit_id":204,"amount":5000000,"shield_points":10,"attack_power":50,"hull_plating":400,"rapidfire":{"210":5,"212":5}}},"defender_units":{"401": {"unit_id":401,"amount":5000000,"shield_points":20,"attack_power":80,"hull_plating":200,"rapidfire":{}}}}
+    {"attacker_units":{"204": {"unit_id":204,"amount":100000,"shield_points":10,"attack_power":50,"hull_plating":400,"rapidfire":{"210":5,"212":5}}},"defender_units":{"401": {"unit_id":401,"amount":100000,"shield_points":20,"attack_power":80,"hull_plating":200,"rapidfire":{}}}}
 "#;
 
     // Convert input string to CString for FFI call

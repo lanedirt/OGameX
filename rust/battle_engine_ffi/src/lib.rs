@@ -120,8 +120,7 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
     let mut defender_units = expand_units(&input.defender_units);
 
     // Track peak memory usage for debugging purposes
-    peak_memory = peak_memory.max(get_process_memory_usage());
-    // ---
+    update_peak_memory(&mut peak_memory);
 
     // Fight up to 6 rounds
     for _ in 0..6 {
@@ -160,9 +159,8 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
 
         rounds.push(round);
 
-        // Track peak memory usage for debugging purposes
-        peak_memory = peak_memory.max(get_process_memory_usage());
-        // ---
+         // Track peak memory usage for debugging purposes
+        update_peak_memory(&mut peak_memory);
     }
 
     BattleOutput {
@@ -173,8 +171,8 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
     }
 }
 
-/// Expand unit information into separate unit objects as for every unit in the battle we need to
-/// keep track of its own shield and hull plating information.
+/// Expands unit information into individual unit objects, allowing the engine to track the state
+/// of each unit (e.g., shields and hull points) independently during combat.
 fn expand_units(units: &HashMap<i16, BattleUnitInfo>) -> Vec<BattleUnitInstance> {
     let mut expanded = Vec::new();
     for (_, unit) in units {
@@ -194,28 +192,37 @@ fn expand_units(units: &HashMap<i16, BattleUnitInfo>) -> Vec<BattleUnitInstance>
 /// instead of having a separate object for each unit. This is for only passing data about total amount
 /// of units per type.
 fn compress_units(units: &Vec<BattleUnitInstance>) -> HashMap<i16, BattleUnitCount> {
-    let mut unit_counts: HashMap<i16, u32> = HashMap::new();
-
-    // Count occurrences of each unit_id.
-    for unit in units {
-        *unit_counts.entry(unit.unit_id).or_insert(0) += 1;
-    }
-
-    // Convert counts to metadata objects and return it.
-    let compressed = unit_counts.into_iter()
+    units.iter()
+        // Loop over all units and count the amount of units per unit_id.
+        .fold(HashMap::new(), |mut counts, unit| {
+            // Increment count for each unit_id
+            *counts.entry(unit.unit_id).or_insert(0) += 1;
+            counts
+        })
+        .into_iter()
+        // Convert counts hashmap to expected BattleUnitCount hashmap
         .map(|(unit_id, count)| {
             (unit_id, BattleUnitCount {
                 unit_id,
                 amount: count,
             })
         })
-        .collect();
-
-    compressed
+        .collect()
 }
 
-/// Process combat for a single round between attacker and defender.
-/// This method is called twice, once for [attacker --> defender] and once for [defender --> attacker].
+/// Simulates combat for a single round between two groups of units.
+///
+/// # Why:
+/// This function handles the core mechanics of combat by calculating damage, updating
+/// unit health, and determining if a unit can attack again (via rapidfire). It also
+/// updates statistics for the battle round to reflect the results.
+///
+/// # Parameters:
+/// - `attackers`: Units attacking in this phase.
+/// - `defenders`: Units being attacked in this phase.
+/// - `round`: Stores round statistics, such as hits and absorbed damage.
+/// - `units_metadata`: Metadata for units to determine damage, rapidfire, etc.
+/// - `is_attacker`: Whether the current phase is attacker-to-defender or vice versa.
 fn process_combat(
     attackers: &mut Vec<BattleUnitInstance>,
     defenders: &mut Vec<BattleUnitInstance>,
@@ -226,27 +233,27 @@ fn process_combat(
     let mut rng = rand::thread_rng();
 
     for attacker in attackers.iter() {
-        let mut should_continue = true;
+        let mut continue_attacking = true;
 
         // Get metadata of this unit.
         let unit_metadata = units_metadata.get(&attacker.unit_id).unwrap();
         let damage = unit_metadata.attack_power;
 
-        while should_continue {
-            // Set should continue to false in case of early continue.
-            should_continue = false;
+        while continue_attacking {
+            continue_attacking = false;
 
-            // Pick a random target from defenders.
+            // Select a random defender as a target
             let target_idx = rng.gen_range(0..defenders.len());
             let target = &mut defenders[target_idx];
 
-            // Check if the damage is less than 1% of the target's shield points. If so, attack is negated.
+            // Check if the damage is less than 1% of the target's shield points. If so,
+            // attack is negated.
             if damage < (0.01 * target.current_shield_points) {
                 continue
             }
 
+            // Apply damage to shields first, then hull plating
             let mut shield_absorption = 0.0;
-
             if target.current_shield_points > 0.0 {
                 if damage <= target.current_shield_points {
                     shield_absorption = damage;
@@ -260,7 +267,7 @@ fn process_combat(
                 target.current_hull_plating -= damage;
             }
 
-            // Update statistics
+            // Update round statistics for hits and damage absorbed
             if is_attacker {
                 round.hits_attacker += 1;
                 round.full_strength_attacker += damage as f64;
@@ -271,9 +278,9 @@ fn process_combat(
                 round.absorbed_damage_attacker += shield_absorption as f64;
             }
 
-            // Calculate rapidfire against the target unit which determines if this unit can attack again
-            // and loop should continue.
-            should_continue = if let Some(rapidfire_amount) = unit_metadata.rapidfire.get(&target.unit_id) {
+            // Check if the current unit has rapidfire against the target unit. If so, then
+            // roll dice to see if the current unit can attack again.
+            continue_attacking = if let Some(rapidfire_amount) = unit_metadata.rapidfire.get(&target.unit_id) {
                 // Rapidfire chance is calculated as 100 - (100 / amount). For example:
                 // - rapidfire amount of 4 means 100 - (100 / 4) = 75% chance.
                 // - rapidfire amount of 10 means 100 - (100 / 10) = 90% chance.
@@ -286,7 +293,7 @@ fn process_combat(
                 let roll = rng.gen_range(0.0..100.0);
 
                 // If the roll is less than or equal to the rapidfire chance, the unit can attack again
-                // and rapidfire is set to true which will cause the loop to continue.
+                // and continue_attacking is set to true which will cause the loop to continue.
                 roll <= rapidfire_chance
             } else {
                 false
@@ -413,11 +420,9 @@ fn increment_battle_unit_count_amount(hash_map: &mut HashMap<i16, BattleUnitCoun
     count.amount += amount_to_increment;
 }
 
-/// Get the current memory usage in kilobytes. Only used for debugging purposes.
-fn get_process_memory_usage() -> u64 {
+/// Update the peak memory usage statistics. Only used for debugging purposes.
+fn update_peak_memory(current_peak: &mut u64) {
     if let Some(usage) = memory_stats() {
-        usage.physical_mem as u64 / 1024
-    } else {
-        0
+        *current_peak = (*current_peak).max(usage.physical_mem as u64 / 1024);
     }
 }
