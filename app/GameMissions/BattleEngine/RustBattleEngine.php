@@ -56,8 +56,8 @@ class RustBattleEngine extends BattleEngine
         // Convert PHP battle units to format expected by Rust
         $input = $this->prepareBattleInput($result);
 
-        // Convert to JSON
-        $inputJson = json_encode($input);
+        // Convert to JSON, forcing object notation
+        $inputJson = json_encode($input, JSON_FORCE_OBJECT);
 
         // Call Rust function
         // @phpstan-ignore-next-line
@@ -76,21 +76,21 @@ class RustBattleEngine extends BattleEngine
      *
      * @param BattleResult $result
      * @return array{
-     *     attacker_units: list<array{
+     *     attacker_units: array<int, array{
      *         unit_id: int,
      *         amount: int,
      *         shield_points: int,
      *         attack_power: int,
      *         hull_plating: float,
-     *         rapidfire: non-empty-array<int, int>|stdClass
+     *         rapidfire: array<int, int>
      *     }>,
-     *     defender_units: list<array{
+     *     defender_units: array<int, array{
      *         unit_id: int,
      *         amount: int,
      *         shield_points: int,
      *         attack_power: int,
      *         hull_plating: float,
-     *         rapidfire: non-empty-array<int, int>|stdClass
+     *         rapidfire: array<int, int>
      *     }>
      * }
      */
@@ -105,13 +105,13 @@ class RustBattleEngine extends BattleEngine
                 $rapidfire[$targetUnit->id] = $rapidfireObject->amount;
             }
 
-            $attackerUnits[] = [
+            $attackerUnits[$unit->unitObject->id] = [
                 'unit_id' => $unit->unitObject->id,
                 'amount' => $unit->amount,
                 'shield_points' => $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue,
                 'attack_power' => $unit->unitObject->properties->attack->calculate($this->attackerPlayer)->totalValue,
                 'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue / 10),
-                'rapidfire' => $rapidfire ?: new stdClass(), // Convert empty array to object to adhere to format that Rust expects.
+                'rapidfire' => $rapidfire,
             ];
         }
 
@@ -124,13 +124,13 @@ class RustBattleEngine extends BattleEngine
                 $rapidfire[$targetUnit->id] = $rapidfireObject->amount;
             }
 
-            $defenderUnits[] = [
+            $defenderUnits[$unit->unitObject->id] = [
                 'unit_id' => $unit->unitObject->id,
                 'amount' => $unit->amount,
                 'shield_points' => $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue,
                 'attack_power' => $unit->unitObject->properties->attack->calculate($this->defenderPlanet->getPlayer())->totalValue,
                 'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue / 10),
-                'rapidfire' => $rapidfire ?: new stdClass(), // Convert empty array to object adhere to format that Rust expects.
+                'rapidfire' => $rapidfire,
             ];
         }
 

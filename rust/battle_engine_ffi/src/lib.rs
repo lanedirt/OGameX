@@ -18,8 +18,8 @@ use memory_stats::memory_stats;
 /// Battle input which is provided by the PHP client.
 #[derive(Serialize, Deserialize)]
 pub struct BattleInput {
-    attacker_units: Vec<BattleUnitInfo>,
-    defender_units: Vec<BattleUnitInfo>,
+    attacker_units: HashMap<i16, BattleUnitInfo>,
+    defender_units: HashMap<i16, BattleUnitInfo>,
 }
 
 /// Battle unit info which is provided by the PHP client.
@@ -112,8 +112,8 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
     // ---
 
     // Convert unit metadata from vector to hashmap so they can be accessed via index of unit id.
-    let attacker_metadata = convert_unit_metadata_to_hashmap(&input.attacker_units);
-    let defender_metadata = convert_unit_metadata_to_hashmap(&input.defender_units);
+    let attacker_metadata = &input.attacker_units;
+    let defender_metadata = &input.defender_units;
 
     // Fight up to 6 rounds
     for _ in 0..6 {
@@ -167,9 +167,9 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
 
 /// Expand unit information into separate unit objects as for every unit in the battle we need to
 /// keep track of its own shield and hull plating information.
-fn expand_units(units: &Vec<BattleUnitInfo>) -> Vec<BattleUnitInstance> {
+fn expand_units(units: &HashMap<i16, BattleUnitInfo>) -> Vec<BattleUnitInstance> {
     let mut expanded = Vec::new();
-    for unit in units {
+    for (_, unit) in units {
         for _ in 0..unit.amount {
             expanded.push(BattleUnitInstance {
                 unit_id: unit.unit_id.clone(),
@@ -205,26 +205,6 @@ fn compress_units(units: &Vec<BattleUnitInstance>) -> HashMap<i16, BattleUnitCou
 
     compressed
 }
-
-/// Convert unit metadata vector to hashmap for quicker lookups via index which is the unit id.
-fn convert_unit_metadata_to_hashmap(units: &Vec<BattleUnitInfo>) -> HashMap<i16, BattleUnitInfo> {
-    let mut expanded = HashMap::new();
-    for unit in units {
-        for _ in 0..unit.amount {
-            expanded.insert(unit.unit_id.clone(), BattleUnitInfo {
-                unit_id: unit.unit_id,
-                amount: unit.amount,
-                attack_power: unit.attack_power,
-                shield_points: unit.shield_points,
-                hull_plating: unit.hull_plating,
-                rapidfire: unit.rapidfire.clone(),
-            });
-        }
-    }
-
-    expanded
-}
-
 
 /// Get the current memory usage in kilobytes. Only used for debugging purposes.
 fn get_process_memory_usage() -> u64 {
