@@ -19,4 +19,4 @@ yarn-error.log
 # Rust compilation dirs
 rust/*/target
 # Compiled rust apps (rust modules are recompiled during container start)
-storage/ffi-libs/*.so
+storage/rust-libs/*.so

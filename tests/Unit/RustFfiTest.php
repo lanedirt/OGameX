@@ -12,7 +12,7 @@ class RustFfiTest extends UnitTestCase
     public function testRustFfiInterface(): void
     {
         // Path to your .so file
-        $libPath = base_path('storage/ffi-libs/libtest_ffi.so');
+        $libPath = base_path('storage/rust-libs/libtest_ffi.so');
 
         // Define the function signature in C syntax
         $ffi = \FFI::cdef("

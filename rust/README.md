@@ -20,9 +20,9 @@ Alternatively, you can compile the Rust code manually by running the following c
 cd rust
 # Compile the rust packages
 cargo build --release
-# Copy the compiled rust package to the ffi-libs storage directory.
+# Copy the compiled rust package to the storage/rust-libs directory.
 # These .so files are called by Laravel.
-cp target/release/lib*_ffi.so ../../storage/ffi-libs
+cp target/release/lib*_ffi.so ../../storage/rust-libs
 ```
 
 ## Debugging Rust code

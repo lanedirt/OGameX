@@ -40,7 +40,7 @@ class RustBattleEngine extends BattleEngine
 
         $this->ffi = \FFI::cdef(
             "char* fight_battle_rounds(const char* input_json);",
-            base_path('storage/ffi-libs/libbattle_engine_ffi.so')
+            base_path('storage/rust-libs/libbattle_engine_ffi.so')
         );
     }
 
