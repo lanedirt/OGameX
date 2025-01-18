@@ -25,7 +25,7 @@ pub struct BattleInput {
 /// Battle unit info which is provided by the PHP client.
 ///
 /// This contains static information about the input units and their amount.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 struct BattleUnitInfo {
     unit_id: i16,
     amount: u32,
@@ -36,14 +36,14 @@ struct BattleUnitInfo {
 }
 
 /// Battle unit count to keep track of the amount of units of a certain type.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 struct BattleUnitCount {
     unit_id: i16,
     amount: u32,
 }
 
 /// Battle unit instance which is used to keep track of indidivual units and their current health during battle.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 struct BattleUnitInstance {
     unit_id: i16,
     current_shield_points: f32,
@@ -51,26 +51,38 @@ struct BattleUnitInstance {
 }
 
 /// Battle round which is used to keep track of the battle statistics for a single round.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct BattleRound {
+    /// The units of the attacker remaining at the end of the round.
     attacker_ships: HashMap<i16, BattleUnitCount>,
+    /// The units of the defender remaining at the end of the round.
     defender_ships: HashMap<i16, BattleUnitCount>,
+    /// Unit losses of the attacker until now which includes previous rounds.
     attacker_losses: HashMap<i16, BattleUnitCount>,
+    /// Unit losses of the defender until now which includes previous rounds.
     defender_losses: HashMap<i16, BattleUnitCount>,
+    /// Unit losses of the attacker in this round.
     attacker_losses_in_round: HashMap<i16, BattleUnitCount>,
+    /// Unit losses of the defender in this round.
     defender_losses_in_round: HashMap<i16, BattleUnitCount>,
+    /// Total amount of damage absorbed by the attacker this round.
     absorbed_damage_attacker: f64,
+    /// Total amount of damage absorbed by the defender this round.
     absorbed_damage_defender: f64,
+    /// Total amount of full strength of the attacker at the start of the round.
     full_strength_attacker: f64,
+    /// Total amount of full strength of the defender at the start of the round.
     full_strength_defender: f64,
+    /// Total amount of hits the attacker made this round.
     hits_attacker: u32,
+    /// Total amount of hits the defender made this round.
     hits_defender: u32,
 }
 
 /// Memory metrics which is used to keep track of the peak memory usage during the battle.
 ///
 /// This is only used for debugging purposes and not actually consumed by the PHP client.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct MemoryMetrics {
     peak_memory: u64, // in kilobytes
 }
@@ -79,7 +91,7 @@ struct MemoryMetrics {
 ///
 /// This contains the battle statistics and memory metrics. Memory metrics are only used
 /// for debugging purposes when called from battle_engine_debug Rust project.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct BattleOutput {
     rounds: Vec<BattleRound>,
     memory_metrics: MemoryMetrics,
@@ -103,17 +115,13 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
     let mut peak_memory = 0;
     let mut rounds = Vec::new();
 
-    // Expand units into individual ships
+    // Create individual ships from provided battle unit info which contains the amount
     let mut attacker_units = expand_units(&input.attacker_units);
     let mut defender_units = expand_units(&input.defender_units);
 
     // Track peak memory usage for debugging purposes
     peak_memory = peak_memory.max(get_process_memory_usage());
     // ---
-
-    // Convert unit metadata from vector to hashmap so they can be accessed via index of unit id.
-    let attacker_metadata = &input.attacker_units;
-    let defender_metadata = &input.defender_units;
 
     // Fight up to 6 rounds
     for _ in 0..6 {
@@ -137,18 +145,18 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
         };
 
         // Process combat
-        process_combat(&mut attacker_units, &mut defender_units, &mut round, &attacker_metadata, true);
-        process_combat(&mut defender_units, &mut attacker_units, &mut round, &defender_metadata, false);
+        process_combat(&mut attacker_units, &mut defender_units, &mut round, &input.attacker_units, true);
+        process_combat(&mut defender_units, &mut attacker_units, &mut round, &input.defender_units, false);
 
         // Cleanup round
-        cleanup_round(&mut round, &mut attacker_units, &mut defender_units, &attacker_metadata, &defender_metadata);
+        cleanup_round(&mut round, &mut attacker_units, &mut defender_units, &input.attacker_units, &input.defender_units);
 
         // Update round statistics
         round.attacker_ships = compress_units(&attacker_units);
         round.defender_ships = compress_units(&defender_units);
 
         // Calculate accumulated losses
-        calculate_losses(&mut round, &attacker_metadata, &defender_metadata);
+        calculate_losses(&mut round, &input.attacker_units, &input.defender_units);
 
         rounds.push(round);
 
@@ -204,15 +212,6 @@ fn compress_units(units: &Vec<BattleUnitInstance>) -> HashMap<i16, BattleUnitCou
         .collect();
 
     compressed
-}
-
-/// Get the current memory usage in kilobytes. Only used for debugging purposes.
-fn get_process_memory_usage() -> u64 {
-    if let Some(usage) = memory_stats() {
-        usage.physical_mem as u64 / 1024
-    } else {
-        0
-    }
 }
 
 /// Process combat for a single round between attacker and defender.
@@ -300,7 +299,7 @@ fn process_combat(
 ///
 /// This method handles:
 /// - Removing destroyed units from the attacker and defender unit arrays.
-/// - Rolling a dice for hull integrity < 70% of original if the unit is also destroyed.
+/// - Rolling dice for hull integrity < 70% of original if the unit is also destroyed.
 /// - Applying shield regeneration.
 /// - Calculate the total damage dealt by the attacker and defender and calculate shield absorption stats.
 fn cleanup_round(
@@ -319,7 +318,7 @@ fn cleanup_round(
     attackers.retain(|unit| {
         // 1. Check if unit is fully destroyed.
         if unit.current_hull_plating <= 0.0 {
-            increment_unit_metadata_amount(&mut round.attacker_losses_in_round, unit.unit_id, 1);
+            increment_battle_unit_count_amount(&mut round.attacker_losses_in_round, unit.unit_id, 1);
             return false;
         }
 
@@ -329,7 +328,7 @@ fn cleanup_round(
             let explosion_chance = 100.0 - ((unit.current_hull_plating / unit_metadata.hull_plating) * 100.0);
             let roll = rng.gen_range(0..=100);
             if roll < explosion_chance as i32 {
-                increment_unit_metadata_amount(&mut round.attacker_losses_in_round, unit.unit_id, 1);
+                increment_battle_unit_count_amount(&mut round.attacker_losses_in_round, unit.unit_id, 1);
                 return false;
             }
         }
@@ -350,7 +349,7 @@ fn cleanup_round(
     defenders.retain(|unit| {
         // 1. Check if unit is fully destroyed.
         if unit.current_hull_plating <= 0.0 {
-            increment_unit_metadata_amount(&mut round.defender_losses_in_round, unit.unit_id, 1);
+            increment_battle_unit_count_amount(&mut round.defender_losses_in_round, unit.unit_id, 1);
             return false;
         }
 
@@ -360,7 +359,7 @@ fn cleanup_round(
             let explosion_chance = 100.0 - ((unit.current_hull_plating / unit_metadata.hull_plating) * 100.0);
             let roll = rng.gen_range(0..=100);
             if roll < explosion_chance as i32 {
-                increment_unit_metadata_amount(&mut round.defender_losses_in_round, unit.unit_id, 1);
+                increment_battle_unit_count_amount(&mut round.defender_losses_in_round, unit.unit_id, 1);
                 return false;
             }
         }
@@ -375,29 +374,13 @@ fn cleanup_round(
     }
 }
 
-/// Helper method to increment the amount property of a unit metadata struct.
-fn increment_unit_metadata_amount(hash_map: &mut HashMap<i16, BattleUnitCount>, unit_id: i16, amount_to_increment: u32) {
-    let count = hash_map.entry(unit_id).or_insert(BattleUnitCount {
-        unit_id,
-        amount: 0,
-    });
-    count.amount += amount_to_increment;
-}
-
-/// Calculate the losses for the attacker and defender.
+/// Calculate the losses for the attacker and defender in this round compared to the starting
+/// units before the battle.
 fn calculate_losses(
     round: &mut BattleRound,
     initial_attacker: &HashMap<i16, BattleUnitInfo>,
     initial_defender: &HashMap<i16, BattleUnitInfo>,
 ) {
-    // TODO: is it correct that we're using the initial metadata to calculate losses for every round?
-    // So the attacker and defender losses for each round are accumulative?
-    // E.g. round 1 loses 10 units = 10 units. Round 2 loses 10 units = 20 units. etc. Shouldn't
-    // we be using the current round's metadata to calculate losses?
-    // EDIT: should be okay now as the attacker_losses and defender_losses should be accumulative
-    // and it is reset/recalculated for every round and does not get added to the previous or next round's losses.
-    // Double check this though with PHP implementation.
-
     // Calculate losses by comparing current counts with initial counts
     for (_, unit) in initial_attacker {
         let initial_count = unit.amount;
@@ -405,7 +388,7 @@ fn calculate_losses(
 
         if current_count < initial_count {
             let loss_amount = initial_count - current_count;
-            increment_unit_metadata_amount(&mut round.attacker_losses, unit.unit_id, loss_amount);
+            increment_battle_unit_count_amount(&mut round.attacker_losses, unit.unit_id, loss_amount);
         }
     }
 
@@ -416,7 +399,25 @@ fn calculate_losses(
 
         if current_count < initial_count {
             let loss_amount = initial_count - current_count;
-            increment_unit_metadata_amount(&mut round.defender_losses, unit.unit_id, loss_amount);
+            increment_battle_unit_count_amount(&mut round.defender_losses, unit.unit_id, loss_amount);
         }
+    }
+}
+
+/// Helper method to increment the amount property of a BattleUnitCount struct.
+fn increment_battle_unit_count_amount(hash_map: &mut HashMap<i16, BattleUnitCount>, unit_id: i16, amount_to_increment: u32) {
+    let count = hash_map.entry(unit_id).or_insert(BattleUnitCount {
+        unit_id,
+        amount: 0,
+    });
+    count.amount += amount_to_increment;
+}
+
+/// Get the current memory usage in kilobytes. Only used for debugging purposes.
+fn get_process_memory_usage() -> u64 {
+    if let Some(usage) = memory_stats() {
+        usage.physical_mem as u64 / 1024
+    } else {
+        0
     }
 }
