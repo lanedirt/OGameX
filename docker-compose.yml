@@ -12,8 +12,8 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: toor
+      MARIADB_DATABASE: laravel
+      MARIADB_ROOT_PASSWORD: toor
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     networks:
