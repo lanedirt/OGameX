@@ -8,24 +8,46 @@ on:
 
 jobs:
   test-docker:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest] # Matrix for running on both Ubuntu and Windows
+    runs-on: ${{ matrix.os }}
+
     services:
       docker:
         image: docker:26.0.0
         options: --privileged
+
     steps:
       - uses: actions/checkout@v2
       - name: Modify Dockerfile to disable USER www (which is not supported by GitHub Actions, as it runs as root)
         run: |
-          sed -i '/USER www/s/^/#/' ./Dockerfile
+          if [[ $RUNNER_OS == 'Linux' ]]; then
+            sed -i '/USER www/s/^/#/' ./Dockerfile
+          elif [[ $RUNNER_OS == 'Windows' ]]; then
+            powershell -Command "(Get-Content Dockerfile) -replace 'USER www', '#USER www' | Set-Content Dockerfile"
+          fi
       - name: Set Permissions
+        if: runner.os == 'Linux'
         run: sudo chmod -R 777 /var/www
+      - name: Set Permissions (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          icacls "C:\path\to\your\project\folder" /grant Everyone:F /T
       - name: Copy .env
-        run: sudo cp .env.example-prod .env
+        run: |
+          if [[ $RUNNER_OS == 'Linux' ]]; then
+            sudo cp .env.example-prod .env
+          elif [[ $RUNNER_OS == 'Windows' ]]; then
+            Copy-Item .env.example-prod -Destination .env
+          fi
       - name: Build and start the services
         run: |
-          # Build the images and start the services
-          docker compose -f docker-compose.prod.yml up -d
+          if [[ $RUNNER_OS == 'Linux' ]]; then
+            docker compose -f docker-compose.prod.yml up -d
+          elif [[ $RUNNER_OS == 'Windows' ]]; then
+            docker-compose -f docker-compose.prod.yml up -d
+          fi
       - name: Test if the services are running
         uses: nick-fields/retry@v3
         with:
@@ -35,9 +57,7 @@ jobs:
             sleep 15
 
             # Array of endpoints to test
-            declare -A endpoints=(
-              ["Web"]="https://localhost:443/login"
-            )
+            declare -A endpoints=(["Web"]="https://localhost:443/login")
 
             failed=false
 
