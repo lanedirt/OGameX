@@ -1,5 +1,6 @@
 use battle_engine_ffi;
 use serde_json::Result;
+use libc;
 
 fn main() -> Result<()> {
 
@@ -57,11 +58,22 @@ fn main() -> Result<()> {
     {"attacker_units":[{"unit_id":204,"amount":4500000,"shield_points":10,"attack_power":50,"hull_plating":400,"rapidfire":{"210":5,"212":5}}],"defender_units":[{"unit_id":401,"amount":1,"shield_points":20,"attack_power":80,"hull_plating":200,"rapidfire":{}}]}
 "#;
 
-    let input: battle_engine_ffi::BattleInput = serde_json::from_str(json_input)?;
-    let output = battle_engine_ffi::process_battle_rounds(input);
+    // Convert input string to CString for FFI call
+    let c_input = std::ffi::CString::new(json_input).unwrap();
 
-    // Print the output as pretty JSON
-    println!("{}", serde_json::to_string_pretty(&output).unwrap());
+    // Call the FFI interface directly
+    let output_ptr = battle_engine_ffi::fight_battle_rounds(c_input.as_ptr());
+
+    // Convert output back to string and free memory
+    let output = unsafe {
+        let output_str = std::ffi::CStr::from_ptr(output_ptr).to_string_lossy().into_owned();
+        libc::free(output_ptr as *mut libc::c_void);
+        output_str
+    };
+
+    // Pretty print the JSON output
+    let json: serde_json::Value = serde_json::from_str(&output)?;
+    println!("{}", serde_json::to_string_pretty(&json).unwrap());
 
     Ok(())
 }
