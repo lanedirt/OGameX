@@ -131,9 +131,9 @@ class DebrisFieldService
             $this->debrisField = new DebrisField();
         }
 
-        $this->debrisField->metal += (int)$resources->metal->get();
-        $this->debrisField->crystal += (int)$resources->crystal->get();
-        $this->debrisField->deuterium += (int)$resources->deuterium->get();
+        $this->debrisField->metal += $resources->metal->get();
+        $this->debrisField->crystal += $resources->crystal->get();
+        $this->debrisField->deuterium += $resources->deuterium->get();
     }
 
     /**
@@ -149,9 +149,9 @@ class DebrisFieldService
             $this->debrisField = new DebrisField();
         }
 
-        $metalToDeduct = (int)$resources->metal->get();
-        $crystalToDeduct = (int)$resources->crystal->get();
-        $deuteriumToDeduct = (int)$resources->deuterium->get();
+        $metalToDeduct = $resources->metal->get();
+        $crystalToDeduct = $resources->crystal->get();
+        $deuteriumToDeduct = $resources->deuterium->get();
 
         if ($this->debrisField->metal < $metalToDeduct ||
             $this->debrisField->crystal < $crystalToDeduct ||
