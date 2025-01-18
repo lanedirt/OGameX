@@ -5,6 +5,7 @@ namespace OGame\GameMissions;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
+use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
@@ -63,8 +64,18 @@ class AttackMission extends GameMission
         $attackerPlayer = $origin_planet->getPlayer();
         $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
 
-        // Execute the battle logic.
-        $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
+        // Execute the battle logic using configured battle engine
+        switch ($this->settings->battleEngine()) {
+            case 'php':
+                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
+                break;
+            case 'rust':
+            default:
+                // Default to RustBattleEngine if no specific engine is configured
+                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
+                break;
+        }
+
         $battleResult = $battleEngine->simulateBattle();
 
         // Deduct loot from the target planet.
