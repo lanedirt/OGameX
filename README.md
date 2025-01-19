@@ -46,7 +46,7 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 - [1. Example screenshots](#screenshots)
 - [2. About the author](#author)
 - [3. Goal](#goal)
-- [4. Current State of the Project](#current-state)
+- [4. Roadmap](#roadmap)
   - [a) Upcoming Features](#upcoming-features)
 - [5. Contributing](#contributing)
 - [6. Disclaimer](#disclaimer)
@@ -75,27 +75,19 @@ My ([@lanedirt](https://github.com/lanedirt)) journey into software development 
 
 The primary goal of this fan-based project is to engineer a faithful rendition of OGame, specifically reflecting its state prior to the Lifeforms update introduced in 2020. This initiative, purely fan-based and non-commercial, is pursued strictly for educational purposes.
 
-## <a name="current-state"></a> 🖥️ 4. Current State of the Project
+## <a name="roadmap"></a> 🖥️ 4. Roadmap
 
 OGameX is under active development with a lot of core features already implemented and working:
 
-- Planets and resource management (metal, crystal, deuterium, energy)
-- Building and research queue system
-- Galaxy overview
-- Highscores
-- Messages
+- Planets / buildings / research / shipyard / defense / galaxy / highscores / messages
+- Fleet dispatch missions (transport, deployment, colonisation, espionage, attack, recycle)
 - Battle engine
-- Admin panel
-- Fleet dispatch missions
-  - Transport
-  - Deployment
-  - Colonisation
-  - Espionage
-  - Attack
-  - Recycle
+  - Rust version for high performance via PHP FFI (up to 200x faster compared to PHP)
+  - PHP version as fall-back
 - Moon
   - Moon creation through debris field after battle
   - Moon buildings
+- Admin panel
 
 ### <a name="upcoming-features"></a> Upcoming Features
 
@@ -105,6 +97,7 @@ The next major upcoming features that are being worked on:
   - Phalanx feature
   - Jump Gate feature
   - Moon destruction fleet dispatch mission
+- Improved fleet mission processing via worker queue
 - Missile attacks
 - Alliances
 - ACS fleet dispatch missions
@@ -149,9 +142,13 @@ For local development use the default docker-compose file that is included in th
   $ docker compose up -d
   ```
 
-  > Note: The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080.
+  > The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080.
 
-After the docker containers have started, visit http://localhost to access OGameX. Note that it might take a few seconds for the application to start. Create a new account and login using that account. The first account created will be automatically assigned the admin role.
+Note that it can take up to 30 seconds for the `ogamex-app` container to start, this is expected because of composer initialization and Rust compiling. 
+
+After the docker containers have started, visit http://localhost to access OGameX. 
+
+Create a new account to start using OGameX. The first account created will be automatically assigned the admin role.
 
 > Note: if you need to run manual `php artisan` commands, you can SSH into the `ogamex-app` container with the `docker compose exec -it ogamex-app bash` command.
 
@@ -161,7 +158,7 @@ several performance optimizations and security settings that are not present in 
 
 ***Caution:*** the production configuration is not yet fully optimized and should be used with caution. As an example, the database root user uses a default password which should be changed to something unique. You should review all settings before deploying this project to a publicly accessible server.
 
-**Note:** The instructions below are for Linux. OGameX should also work under Docker for Windows but the steps might be a little bit different.
+The instructions below are for Linux. OGameX should also work under Docker for Windows but the steps might be a little bit different.
 
 1. The OGameX docker containers are expected to be run under a separate (non-root) user. Create a new user (e.g., ogamex) and add it to the Docker group:
   ```
@@ -190,9 +187,13 @@ several performance optimizations and security settings that are not present in 
   $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
   ```
 
-  > Note: The default setup binds to ports 80/443, to change it modify `docker-compose.yml`. PhpMyAdmin is also included for database management and is bound to port 8080, however to access it you need to explicitly specify your IP addresses via `./docker/phpmyadmin/.htaccess` for safety purposes.
+  > The default setup binds to ports 80/443, to change it modify `docker-compose.yml`. PhpMyAdmin is also included for database management and is bound to port 8080, however to access it you need to explicitly specify your IP addresses via `./docker/phpmyadmin/.htaccess` for safety purposes.
 
-After the docker containers have started, visit https://localhost to access OGameX. Note that it might take a few seconds for the application to start. Create a new account and login using that account. The first account created will be automatically assigned the admin role.
+Note that it can take up to 30 seconds for the `ogamex-app` container to start, this is expected because of composer initialization and Rust compiling. 
+
+After the docker containers have started, visit https://localhost to access OGameX. 
+
+Create a new account to start using OGameX. The first account created will be automatically assigned the admin role.
 
 > Note: The production version runs in forced-HTTPS (redirect) mode by default using a self-signed SSL certificate. If you want to access the application via HTTP, open `.env` and change `APP_ENV` from `production` to `local`.
 
