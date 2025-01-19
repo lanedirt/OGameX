@@ -1,0 +1,10 @@
+[package]
+name = "battle_engine_debug"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+battle_engine_ffi = { path = "../battle_engine_ffi" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+libc = "0.2"

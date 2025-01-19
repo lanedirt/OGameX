@@ -117,6 +117,16 @@
 
                         <div class="group bborder" style="display: block;">
                             <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Battle Engine:')</label>
+                                <div class="thefield">
+                                <select name="battle_engine" class="w130" data-value="{{ $battle_engine }}">
+                                    <option value="rust"{{ $battle_engine == 'rust' ? ' selected' : '' }}>Rust</option>
+                                        <option value="php"{{ $battle_engine == 'php' ? ' selected' : '' }}>PHP</option>
+                                    </select>
+                                </div>
+                                <div class="smallFont">@lang('The Rust battle engine is up to 200x more performant than PHP. Only switch to PHP if Rust cannot be run on your server.')</div>
+                            </div>
+                            <div class="fieldwrapper">
                                 <label class="styled textBeefy">@lang('Alliance Combat System:')</label>
                                 <div class="thefield">
                                     <square-checkbox class="square-checkbox">

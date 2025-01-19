@@ -4,13 +4,14 @@ namespace OGame\GameMessages;
 
 use OGame\Facades\AppUtil;
 use OGame\GameMessages\Abstracts\GameMessage;
-use OGame\GameMissions\BattleEngine\BattleResultRound;
+use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\ObjectService;
+use Throwable;
 
 class BattleReport extends GameMessage
 {
@@ -115,21 +116,37 @@ class BattleReport extends GameMessage
         $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
         $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
 
-        // If planet owner is the same as the player, we load the player by planet owner which is already loaded.
-        if ($this->battleReportModel->planet_user_id === $planet->getPlayer()->getId()) {
-            $defender = $this->playerServiceFactory->make($planet->getPlayer()->getId());
+        // Handle defender
+        if ($this->battleReportModel->planet_user_id === null) {
+            $defender_name = __('Unknown');
+            $defender = null;
         } else {
-            // It is theoretically possible that the original player has deleted their planet and another user has
-            // colonized the same position of the original planet. In that case, we should load the player by user_id
-            // from the espionage report.
-            $defender = $this->playerServiceFactory->make($this->battleReportModel->planet_user_id);
+            // If planet owner is the same as the player, we load the player by planet owner which is already loaded.
+            if ($this->battleReportModel->planet_user_id === $planet->getPlayer()->getId()) {
+                $defender = $this->playerServiceFactory->make($planet->getPlayer()->getId());
+            } else {
+                // Load player by user_id from the battle report
+                $defender = $this->playerServiceFactory->make($this->battleReportModel->planet_user_id);
+            }
+            $defender_name = $defender->getUsername(false);
         }
+
+        // Handle attacker
+        $attackerPlayerId = $this->battleReportModel->attacker['player_id'];
+        try {
+            $attacker = $this->playerServiceFactory->make($attackerPlayerId, true);
+            $attacker_name = $attacker->getUsername(false);
+        } catch (Throwable $e) {
+            // If attacker can't be loaded (e.g., user deleted), use "Unknown"
+            $attacker = null;
+            $attacker_name = __('Unknown');
+        }
+
         $defender_weapons = $this->battleReportModel->defender['weapon_technology'] * 10;
         $defender_shields = $this->battleReportModel->defender['shielding_technology'] * 10;
         $defender_armor = $this->battleReportModel->defender['armor_technology'] * 10;
 
         // Extract params from the battle report model.
-        $attackerPlayerId = $this->battleReportModel->attacker['player_id'];
         $attackerLosses = $this->battleReportModel->attacker['resource_loss'];
         $defenderLosses = $this->battleReportModel->defender['resource_loss'];
 
@@ -172,7 +189,6 @@ class BattleReport extends GameMessage
 
         // Load attacker player
         // TODO: add unit test for attacker/defender research levels.
-        $attacker = $this->playerServiceFactory->make($attackerPlayerId, true);
         $attacker_weapons = $this->battleReportModel->attacker['weapon_technology'] * 10;
         $attacker_shields = $this->battleReportModel->attacker['shielding_technology'] * 10;
         $attacker_armor = $this->battleReportModel->attacker['armor_technology'] * 10;
@@ -218,15 +234,15 @@ class BattleReport extends GameMessage
                     $unit = ObjectService::getUnitObjectByMachineName($machine_name);
                     $obj->attackerLosses->addUnit($unit, $amount);
                 }
-                $obj->defenderLossesInThisRound = new UnitCollection();
+                $obj->defenderLossesInRound = new UnitCollection();
                 foreach ($round['defender_losses_in_this_round'] as $machine_name => $amount) {
                     $unit = ObjectService::getUnitObjectByMachineName($machine_name);
-                    $obj->defenderLossesInThisRound->addUnit($unit, $amount);
+                    $obj->defenderLossesInRound->addUnit($unit, $amount);
                 }
-                $obj->attackerLossesInThisRound = new UnitCollection();
+                $obj->attackerLossesInRound = new UnitCollection();
                 foreach ($round['attacker_losses_in_this_round'] as $machine_name => $amount) {
                     $unit = ObjectService::getUnitObjectByMachineName($machine_name);
-                    $obj->attackerLossesInThisRound->addUnit($unit, $amount);
+                    $obj->attackerLossesInRound->addUnit($unit, $amount);
                 }
                 $rounds[] = $obj;
             }
@@ -254,8 +270,8 @@ class BattleReport extends GameMessage
         return [
             'subject' => $this->getSubject(),
             'from' => $this->getFrom(),
-            'attacker_name' => $attacker->getUsername(false),
-            'defender_name' => $defender->getUsername(false),
+            'attacker_name' => $attacker_name,
+            'defender_name' => $defender_name,
             'attacker_class' => ($winner === 'attacker') ? 'undermark' : (($winner === 'draw') ? 'middlemark' : 'overmark'),
             'defender_class' => ($winner === 'defender') ? 'undermark' : (($winner === 'draw') ? 'middlemark' : 'overmark'),
             'defender_planet_name' => $planet->getPlanetName(),

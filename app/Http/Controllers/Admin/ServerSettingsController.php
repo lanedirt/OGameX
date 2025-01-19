@@ -39,6 +39,7 @@ class ServerSettingsController extends OGameController
             'ignore_empty_systems_on' => $settingsService->ignoreEmptySystemsOn(),
             'ignore_inactive_systems_on' => $settingsService->ignoreInactiveSystemsOn(),
             'number_of_galaxies' => $settingsService->numberOfGalaxies(),
+            'battle_engine' => $settingsService->battleEngine(),
         ]);
     }
 
@@ -72,6 +73,8 @@ class ServerSettingsController extends OGameController
         $settingsService->set('ignore_empty_systems_on', request('ignore_empty_systems_on', 0));
         $settingsService->set('ignore_inactive_systems_on', request('ignore_inactive_systems_on', 0));
         $settingsService->set('number_of_galaxies', request('number_of_galaxies'));
+
+        $settingsService->set('battle_engine', request('battle_engine'));
 
         return redirect()->route('admin.serversettings.index')->with('success', __('Changes saved!'));
     }

@@ -283,4 +283,14 @@ class SettingsService
     {
         return $this->get('universe_name', "Universe");
     }
+
+    /**
+     * Returns the battle engine setting.
+     *
+     * @return string
+     */
+    public function battleEngine(): string
+    {
+        return $this->get('battle_engine', 'rust');
+    }
 }

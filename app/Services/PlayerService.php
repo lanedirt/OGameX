@@ -90,7 +90,9 @@ class PlayerService
         /** @var UserTech $tech */
         $tech = $this->user->tech()->first();
         if (!$tech) {
-            throw new RuntimeException('User tech record not found.');
+            $tech = new UserTech();
+            $tech->user_id = $user->id;
+            $tech->save();
         }
         $this->setUserTech($tech);
 
@@ -562,7 +564,6 @@ class PlayerService
             \OGame\Models\ResearchQueue::where('planet_id', $planet->getPlanetId())->delete();
             \OGame\Models\BuildingQueue::where('planet_id', $planet->getPlanetId())->delete();
             \OGame\Models\UnitQueue::where('planet_id', $planet->getPlanetId())->delete();
-            \OGame\Models\BattleReport::where('planet_user_id', $planet->getPlanetId())->delete();
             // Delete all fleet missions.
             // Get all fleet missions for this planet then loop through them and delete them.
             // TODO: this might be a performance bottleneck if there are many missions. Consider using a bulk delete compatible

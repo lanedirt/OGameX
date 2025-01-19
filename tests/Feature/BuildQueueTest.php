@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Exception;
+use OGame\Models\BuildingQueue;
 use OGame\Models\Resources;
 use OGame\Services\SettingsService;
 use Tests\AccountTestCase;
@@ -279,5 +280,20 @@ class BuildQueueTest extends AccountTestCase
         $response = $this->get('/facilities');
         $response->assertStatus(200);
         $this->assertObjectNotInQueue($response, 'research_lab', 'Research lab is in build queue but should not be added.');
+    }
+
+    /**
+     * Tests object building queue status.
+     */
+    public function testIsBuildingObject(): void
+    {
+        // Add level 3 shipyard to building queue
+        $queue = new BuildingQueue();
+        $queue->planet_id = $this->planetService->getPlanetId();
+        $queue->object_id = 21;
+        $queue->object_level_target = 3;
+        $queue->save();
+
+        $this->assertTrue($this->planetService->isBuildingObject('shipyard', 3));
     }
 }

@@ -3,7 +3,7 @@
 @php /** @var array<OGame\GameObjects\Models\DefenseObject> $defense_objects */ @endphp
 @php /** @var array<OGame\GameObjects\Models\Units\UnitCollection> $attacker_units_start */ @endphp
 @php /** @var array<OGame\GameObjects\Models\Units\UnitCollection> $defender_units_start */ @endphp
-@php /** @var array<OGame\GameMissions\BattleEngine\BattleResultRound> $rounds */ @endphp
+@php /** @var array<OGame\GameMissions\BattleEngine\Models\BattleResultRound> $rounds */ @endphp
 
 <div id="messagedetails">
 <div class="detail_msg_head">
@@ -419,7 +419,7 @@
                     },
                     "attackerLossesInThisRound": {
                         "4492924": [
-@foreach ($round->attackerLossesInThisRound->units as $unit)
+@foreach ($round->attackerLossesInRound->units as $unit)
                         {
                             "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
                         },
@@ -434,7 +434,7 @@
 @endforeach
                     ],
                     "defenderLossesInThisRound": [
-@foreach ($round->defenderLossesInThisRound->units as $unit)
+@foreach ($round->defenderLossesInRound->units as $unit)
                         {
                             "{{ $unit->unitObject->id }}": "{{ $unit->amount }}"
                         },
@@ -511,7 +511,7 @@
                     {
                         "lossesInThisRound": {
                             "4492924": {
-@foreach ($round->attackerLossesInThisRound->units as $unit)
+@foreach ($round->attackerLossesInRound->units as $unit)
                                 "{{ $unit->unitObject->id }}": {{ $unit->amount }},
 @endforeach
                             }
@@ -575,7 +575,7 @@
 @foreach ($rounds as $round)
                     {
                         "lossesInThisRound": [{
-@foreach ($round->defenderLossesInThisRound->units as $unit)
+@foreach ($round->defenderLossesInRound->units as $unit)
                                 "{{ $unit->unitObject->id }}": "{{ $unit->amount }}",
 @endforeach
                         }],

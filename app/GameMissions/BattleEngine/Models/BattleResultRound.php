@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\GameMissions\BattleEngine;
+namespace OGame\GameMissions\BattleEngine\Models;
 
 use OGame\GameObjects\Models\Units\UnitCollection;
 
@@ -18,20 +18,20 @@ class BattleResultRound
     public UnitCollection $attackerLosses;
 
     /**
-     * @var UnitCollection Unit losses of the attacker player in this round.
+     * @var UnitCollection Unit losses of the player in this round.
      *  TODO: now this only works for a single attacker. Support for multiple attackers should be added later.
      */
-    public UnitCollection $attackerLossesInThisRound;
+    public UnitCollection $attackerLossesInRound;
 
     /**
-     * @var UnitCollection Unit losses of the defender player until now which includes previous rounds.
+     * @var UnitCollection Unit losses of the defender until now which includes previous rounds.
      */
     public UnitCollection $defenderLosses;
 
     /**
      * @var UnitCollection Unit losses of the defender player in this round.
      */
-    public UnitCollection $defenderLossesInThisRound;
+    public UnitCollection $defenderLossesInRound;
 
     /**
      * @var int Total amount of hits the attacker made this round.
@@ -64,12 +64,12 @@ class BattleResultRound
     public int $fullStrengthDefender = 0;
 
     /**
-     * @var UnitCollection The units of attacker player remaining at the end of the round.
+     * @var UnitCollection The units of the attacker remaining at the end of the round.
      */
     public UnitCollection $attackerShips;
 
     /**
-     * @var UnitCollection The units of defender player remaining at the end of the round.
+     * @var UnitCollection The units of the defender remaining at the end of the round.
      */
     public UnitCollection $defenderShips;
 }

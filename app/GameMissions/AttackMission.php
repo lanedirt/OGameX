@@ -3,17 +3,18 @@
 namespace OGame\GameMissions;
 
 use OGame\GameMissions\Abstracts\GameMission;
-use OGame\GameMissions\BattleEngine\BattleEngine;
-use OGame\GameMissions\BattleEngine\BattleResult;
+use OGame\GameMissions\BattleEngine\Models\BattleResult;
+use OGame\GameMissions\BattleEngine\PhpBattleEngine;
+use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
-use OGame\Services\DebrisFieldService;
 use Throwable;
 
 class AttackMission extends GameMission
@@ -63,8 +64,18 @@ class AttackMission extends GameMission
         $attackerPlayer = $origin_planet->getPlayer();
         $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
 
-        // Execute the battle logic.
-        $battleEngine = new BattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
+        // Execute the battle logic using configured battle engine
+        switch ($this->settings->battleEngine()) {
+            case 'php':
+                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
+                break;
+            case 'rust':
+            default:
+                // Default to RustBattleEngine if no specific engine is configured
+                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
+                break;
+        }
+
         $battleResult = $battleEngine->simulateBattle();
 
         // Deduct loot from the target planet.
@@ -200,8 +211,8 @@ class AttackMission extends GameMission
                 'defender_ships' => $round->defenderShips->toArray(),
                 'attacker_losses' => $round->attackerLosses->toArray(),
                 'defender_losses' => $round->defenderLosses->toArray(),
-                'attacker_losses_in_this_round' => $round->attackerLossesInThisRound->toArray(),
-                'defender_losses_in_this_round' => $round->defenderLossesInThisRound->toArray(),
+                'attacker_losses_in_this_round' => $round->attackerLossesInRound->toArray(),
+                'defender_losses_in_this_round' => $round->defenderLossesInRound->toArray(),
                 'absorbed_damage_attacker' => $round->absorbedDamageAttacker,
                 'absorbed_damage_defender' => $round->absorbedDamageDefender,
                 'full_strength_attacker' => $round->fullStrengthAttacker,
