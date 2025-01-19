@@ -40,7 +40,7 @@ elif [[ "$role" == "app" ]]; then
     fi
 
     # Source cargo environment before compiling rust modules to ensure cargo is available
-    source $HOME/.cargo/env
+    . $HOME/.cargo/env
 
     # Compile rust modules
     chmod +x ./rust/compile.sh

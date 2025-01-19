@@ -1,3 +1,3 @@
 This folder contains the compiled Rust modules that are called from the PHP code.
 
-If the Rust source code changes, the modules will need to be recompiled manually. For instructions on how to do this, see the [Rust README](../../rust/README.md).
+Rust libraries are compiled automatically during the Docker container startup, so no Rust compiled code is committed to the repository. If you want to compile the Rust code manually during development and testing, see the [Rust README](../../rust/README.md).

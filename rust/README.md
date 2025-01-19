@@ -8,6 +8,8 @@ All rust source code is stored in the `./rust/` folder.
 ## Making changes
 If you want to make changes to the Rust code, you can do so by editing the files in the `./rust/` folder. E.g. the Rust BattleEngine logic is located in `./rust/battle_engine_ffi/src/lib.rs`. After making changes to this file you can compile the Rust code by running the `compile.sh` script inside the rust directory.
 
+> Note: The Rust code is compiled automatically during the Docker container startup, so no Rust compiled code is committed to the repository. You only have to run the `compile.sh` script if you want to compile the Rust code manually during development and testing. Checking in the new Rust source code is enough.
+
 ```bash
 # Execute compile.sh (from app root) within ogamex-app Docker container.
 ./rust/compile.sh
