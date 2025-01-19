@@ -212,7 +212,7 @@ abstract class AccountTestCase extends TestCase
             ->limit(1)
             ->pluck('id');
 
-        if ($planet_id == null) {
+        if ($planet_id === null) {
             // No planets found, attempt to create a new user to see if this fixes it.
             $this->createAndLoginUser();
             $planet_id = \DB::table('planets')
@@ -225,7 +225,7 @@ abstract class AccountTestCase extends TestCase
                 ->pluck('id');
         }
 
-        if ($planet_id == null) {
+        if ($planet_id === null || count($planet_id) === 0) {
             $this->fail('Failed to find a nearby foreign planet for testing.');
         } else {
             // Create and return a new PlanetService instance for the found planet.
