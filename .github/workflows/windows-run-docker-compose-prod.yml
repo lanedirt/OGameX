@@ -1,0 +1,85 @@
+name: Docker Compose Production Build (Windows)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-docker-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Modify Dockerfile to disable USER www (which is not supported by GitHub Actions, as it runs as root)
+        run: |
+          powershell -Command "(Get-Content Dockerfile) -replace 'USER www', '#USER www' | Set-Content Dockerfile"
+
+      - name: Set Permissions (Windows)
+        run: |
+          icacls "C:\path\to\your\project\folder" /grant Everyone:F /T
+
+      - name: Copy .env
+        run: |
+          Copy-Item .env.example-prod -Destination .env
+
+      - name: Build and start the services (Windows)
+        run: |
+          echo "Docker Compose is not natively supported on Windows runners for container operations"
+          echo "Please use Docker Desktop for local testing on Windows."
+
+      - name: Test if the services are running
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 5
+          command: |
+            sleep 15
+
+            # Array of endpoints to test
+            declare -A endpoints=(["Web"]="https://localhost:443/login")
+
+            failed=false
+
+            # Test HTTP endpoints
+            for name in "${!endpoints[@]}"; do
+              url="${endpoints[$name]}"
+              echo "Testing $name at $url"
+
+              # Store both response body and HTTP code
+              response=$(curl -k -s -w "\nHTTP_CODE=%{http_code}" "$url")
+              http_code=$(echo "$response" | grep "HTTP_CODE=" | cut -d= -f2)
+              body=$(echo "$response" | sed '$d')  # Remove the last line (HTTP_CODE)
+
+              if [ "$http_code" -ne 200 ]; then
+                echo "❌ $name failed with HTTP $http_code at $url"
+                echo "Response body:"
+                echo "$body"
+                failed=true
+              else
+                echo "✅ $name responded with HTTP 200"
+              fi
+            done
+
+            # Exit with error if any service failed
+            if [ "$failed" = true ]; then
+              # Get container logs
+              echo "Container Logs ogamex-app:"
+              docker compose logs ogamex-app
+              echo "Container Logs ogamex-db:"
+              docker compose logs ogamex-db
+              echo "Container Logs ogamex-webserver:"
+              docker compose logs ogamex-webserver
+              echo "Container Logs ogamex-scheduler:"
+              docker compose logs ogamex-scheduler
+
+              # Restart containers for next test in case of failure
+              docker compose restart
+              exit 1
+            fi
