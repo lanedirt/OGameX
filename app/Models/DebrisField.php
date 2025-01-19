@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $galaxy
  * @property int $system
  * @property int $planet
- * @property int $metal
- * @property int $crystal
- * @property int $deuterium
+ * @property float $metal
+ * @property float $crystal
+ * @property float $deuterium
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|DebrisField newModelQuery()

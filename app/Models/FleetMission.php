@@ -17,9 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $mission_type
  * @property int $time_departure
  * @property int $time_arrival
- * @property int $metal
- * @property int $crystal
- * @property int $deuterium
+ * @property float $metal
+ * @property float $crystal
+ * @property float $deuterium
  * @property float $deuterium_consumption
  * @property int $light_fighter
  * @property int $heavy_fighter

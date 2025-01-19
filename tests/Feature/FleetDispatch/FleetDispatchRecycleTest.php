@@ -170,11 +170,10 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Assert that a return trip has been launched by checking the active missions for the current planet.
         $this->assertCount(1, $activeMissions, 'No return trip launched after fleet has arrived at destination.');
         $returnMission = $activeMissions->first();
-
         // Assert that the return mission contains the correct resources.
-        $this->assertTrue($returnMission->metal === 5000, 'Metal resources are not correct in return trip.');
-        $this->assertTrue($returnMission->crystal === 4000, 'Crystal resources are not correct in return trip.');
-        $this->assertTrue($returnMission->deuterium === 3000, 'Deuterium resources are not correct in return trip.');
+        $this->assertTrue($returnMission->metal === 5000.0, 'Metal resources are not correct in return trip.');
+        $this->assertTrue($returnMission->crystal === 4000.0, 'Crystal resources are not correct in return trip.');
+        $this->assertTrue($returnMission->deuterium === 3000.0, 'Deuterium resources are not correct in return trip.');
 
         // Advance time to the return trip arrival.
         $returnTripDuration = $returnMission->time_arrival - $returnMission->time_departure;
@@ -269,9 +268,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
 
-        $this->assertEquals($beforeDebrisFieldResources->metal->get() - 33333, $debrisFieldService->getResources()->metal->get(), 'Metal resources are not correct in debris field after recyclers have harvested it.');
-        $this->assertEquals($beforeDebrisFieldResources->crystal->get() - 33333, $debrisFieldService->getResources()->crystal->get(), 'Crystal resources are not correct in debris field after recyclers have harvested it.');
-        $this->assertEquals($beforeDebrisFieldResources->deuterium->get() - 33333, $debrisFieldService->getResources()->deuterium->get(), 'Deuterium resources are not correct in debris field after recyclers have harvested it.');
+        $this->assertEquals($beforeDebrisFieldResources->metal->get() - 33333.33333333, $debrisFieldService->getResources()->metal->get(), 'Metal resources are not correct in debris field after recyclers have harvested it.');
+        $this->assertEquals($beforeDebrisFieldResources->crystal->get() - 33333.33333333, $debrisFieldService->getResources()->crystal->get(), 'Crystal resources are not correct in debris field after recyclers have harvested it.');
+        $this->assertEquals($beforeDebrisFieldResources->deuterium->get() - 33333.33333333, $debrisFieldService->getResources()->deuterium->get(), 'Deuterium resources are not correct in debris field after recyclers have harvested it.');
 
         // Expecting a return trip that will contain the extracted resources.
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
@@ -279,9 +278,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Assert that the return mission contains the correct resources
         // which should be the same as the total capacity of the recyclers.
-        $this->assertEquals(33333, $returnMission->metal, 'Metal resources are not correct in return trip.');
-        $this->assertEquals(33333, $returnMission->crystal, 'Crystal resources are not correct in return trip.');
-        $this->assertEquals(33333, $returnMission->deuterium, 'Deuterium resources are not correct in return trip.');
+        $this->assertEquals(33333.0, $returnMission->metal, 'Metal resources are not correct in return trip.');
+        $this->assertEquals(33333.0, $returnMission->crystal, 'Crystal resources are not correct in return trip.');
+        $this->assertEquals(33333.0, $returnMission->deuterium, 'Deuterium resources are not correct in return trip.');
     }
 
     /**
