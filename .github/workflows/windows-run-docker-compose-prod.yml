@@ -23,7 +23,7 @@ jobs:
 
       - name: Set Permissions (Windows)
         run: |
-          icacls "C:\path\to\your\project\folder" /grant Everyone:F /T
+          icacls "C:\github\workspace" /grant Everyone:F /T
 
       - name: Copy .env
         run: |

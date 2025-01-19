@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
   
 jobs:
-  test-docker:
+  test-docker-linux:
     runs-on: ubuntu-latest
     services:
       docker:
