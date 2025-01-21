@@ -131,35 +131,36 @@ class HighscoreService
     public function getHighscorePlayers(int $perPage = 100, int $pageOn = 1): array
     {
         // Get all player highscores
-        $parsedHighscores = [];
+        return Cache::remember('highscores'.'-'.$this->highscoreType->name.'-'.$pageOn, now()->addMinutes(5), function () use ($perPage, $pageOn) {
+            $parsedHighscores = [];
 
-        $highscores = Highscore::whereHas('player.tech')
-        ->with('player')
-        ->validRanks()
-        ->orderBy($this->highscoreType->name.'_rank')
-        ->paginate(perPage: $perPage, page: $pageOn);
-        foreach ($highscores as $playerScore) {
-            // Load player object
-            // TODO we only use this for the planet details now-- could we perhaps store the planet details in the highscore table too?.
-            $playerService = $this->playerServiceFactory->make($playerScore->player_id);
+            $highscores = Highscore::query()
+                ->whereHas('player.tech')
+                ->with('player')
+                ->validRanks()
+                ->orderBy($this->highscoreType->name.'_rank')
+                ->paginate(perPage: $perPage, page: $pageOn);
 
-            // Get player main planet coords
-            $mainPlanet = $playerService->planets->first();
+            foreach ($highscores as $playerScore) {
+                // Load player object
+                // TODO we only use this for the planet details now-- could we perhaps store the planet details in the highscore table too?.
+                $playerService = $this->playerServiceFactory->make($playerScore->player_id);
 
-            $score = $playerScore->{$this->highscoreType->name} ?? 0;
-            $score_formatted = AppUtil::formatNumber($score);
+                // Get player main planet coords
+                $mainPlanet = $playerService->planets->first();
 
-            $parsedHighscores[] = [
-                'id' => $playerScore->player_id,
-                'name' => $playerScore->player->username,
-                'points' => $score,
-                'points_formatted' => $score_formatted,
-                'planet_coords' => $mainPlanet->getPlanetCoordinates(),
-                'rank' => $playerScore->{$this->highscoreType->name.'_rank'}
-            ];
-        }
+                $score = $playerScore->{$this->highscoreType->name} ?? 0;
+                $score_formatted = AppUtil::formatNumber($score);
 
-        return Cache::remember('highscores'.'-'.$this->highscoreType->name.'-'.$pageOn, now()->addMinutes(5), function () use ($parsedHighscores) {
+                $parsedHighscores[] = [
+                    'id' => $playerScore->player_id,
+                    'name' => $playerScore->player->username,
+                    'points' => $score,
+                    'points_formatted' => $score_formatted,
+                    'planet_coords' => $mainPlanet->getPlanetCoordinates(),
+                    'rank' => $playerScore->{$this->highscoreType->name.'_rank'}
+                ];
+            }
             return $parsedHighscores;
         });
     }
