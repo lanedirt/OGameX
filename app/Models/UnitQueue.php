@@ -17,9 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $time_end
  * @property int $time_progress
  * @property int $object_amount_progress
- * @property int $metal
- * @property int $crystal
- * @property int $deuterium
+ * @property float $metal
+ * @property float $crystal
+ * @property float $deuterium
  * @property int $processed
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

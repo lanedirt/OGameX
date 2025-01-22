@@ -312,9 +312,9 @@ class ResearchQueueService
             $queue_item->time_start = $time_start;
             $queue_item->time_end = $queue_item->time_start + $queue_item->time_duration;
             $queue_item->building = 1;
-            $queue_item->metal = (int)$price->metal->get();
-            $queue_item->crystal = (int)$price->crystal->get();
-            $queue_item->deuterium = (int)$price->deuterium->get();
+            $queue_item->metal = $price->metal->get();
+            $queue_item->crystal = $price->crystal->get();
+            $queue_item->deuterium = $price->deuterium->get();
             $queue_item->save();
 
             // If the calculated end time is lower than the current time,

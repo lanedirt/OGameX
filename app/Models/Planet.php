@@ -24,13 +24,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $temp_max
  * @property float $metal
  * @property int $metal_production
- * @property int $metal_max
+ * @property float $metal_max
  * @property float $crystal
  * @property int $crystal_production
- * @property int $crystal_max
+ * @property float $crystal_max
  * @property float $deuterium
  * @property int $deuterium_production
- * @property int $deuterium_max
+ * @property float $deuterium_max
  * @property int $energy_used
  * @property int $energy_max
  * @property int $time_last_update

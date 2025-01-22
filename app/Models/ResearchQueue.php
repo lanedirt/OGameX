@@ -15,9 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $time_duration
  * @property int $time_start
  * @property int $time_end
- * @property int $metal
- * @property int $crystal
- * @property int $deuterium
+ * @property float $metal
+ * @property float $crystal
+ * @property float $deuterium
  * @property int $building
  * @property int $processed
  * @property int $canceled

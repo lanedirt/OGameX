@@ -196,9 +196,9 @@ class UnitQueueService
         $queue->time_duration = $build_time_total;
         $queue->time_start = $time_start;
         $queue->time_end = $queue->time_start + $queue->time_duration;
-        $queue->metal = (int)$total_price->metal->get();
-        $queue->crystal = (int)$total_price->crystal->get();
-        $queue->deuterium = (int)$total_price->deuterium->get();
+        $queue->metal = $total_price->metal->get();
+        $queue->crystal = $total_price->crystal->get();
+        $queue->deuterium = $total_price->deuterium->get();
 
         // All OK, deduct resources.
         $planet->deductResources($total_price);
