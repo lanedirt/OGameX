@@ -1791,9 +1791,9 @@ class PlanetService
         }
 
         // Write values to planet
-        $this->planet->metal_max = (int)$storage_sum->metal->get();
-        $this->planet->crystal_max = (int)$storage_sum->crystal->get();
-        $this->planet->deuterium_max = (int)$storage_sum->deuterium->get();
+        $this->planet->metal_max = $storage_sum->metal->get();
+        $this->planet->crystal_max = $storage_sum->crystal->get();
+        $this->planet->deuterium_max = $storage_sum->deuterium->get();
         if ($save_planet) {
             $this->save();
         }
