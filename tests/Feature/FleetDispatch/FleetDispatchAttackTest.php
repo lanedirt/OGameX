@@ -940,4 +940,38 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Output the number of attempts it took to create the moon
         dump("Moon was created after amount of attempts: " . $attempts);
     }
+
+    /**
+     * Assert that a debris field can contain large numbers (billions) of resources.
+     */
+    public function testLargeDebrisFieldCreation(): void
+    {
+        // Create coordinates for debris field.
+        $coordinates = $this->planetService->getPlanetCoordinates();
+
+        // Create large resource amounts (10 billion each).
+        $metal = 10000000000;
+        $crystal = 10000000000;
+        $deuterium = 10000000000;
+
+        // Create debris field with large numbers.
+        $debrisFieldService = resolve(DebrisFieldService::class);
+
+        // Load or create debris field.
+        $debrisFieldService->loadOrCreateForCoordinates($coordinates);
+
+        // Add resources to debris field.
+        $debrisFieldService->appendResources(new Resources($metal, $crystal, $deuterium, 0));
+        $debrisFieldService->save();
+
+        // Try to load the debris field again.
+        $exists = $debrisFieldService->loadForCoordinates($coordinates);
+        $this->assertTrue($exists, 'Large debris field was not created successfully.');
+
+        // Verify that debris field contains at least the amount of resources we added.
+        $resources = $debrisFieldService->getResources();
+        $this->assertGreaterThanOrEqual($metal, $resources->metal->get(), 'Debris field metal amount does not match expected large value.');
+        $this->assertGreaterThanOrEqual($crystal, $resources->crystal->get(), 'Debris field crystal amount does not match expected large value.');
+        $this->assertGreaterThanOrEqual($deuterium, $resources->deuterium->get(), 'Debris field deuterium amount does not match expected large value.');
+    }
 }

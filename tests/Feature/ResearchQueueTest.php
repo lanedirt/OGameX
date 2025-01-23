@@ -287,4 +287,47 @@ class ResearchQueueTest extends AccountTestCase
         $response->assertStatus(200);
         $this->assertObjectNotInQueue($response, 'energy_technology', 'Energy Technology is in research queue but should not be added.');
     }
+
+    /**
+     * Verify that researching a high level hyperspace drive technology works.
+     * @throws Exception
+     */
+    public function testResearchQueueHighLevelHyperspaceDrive(): void
+    {
+        // Set the universe speed to 8x and research speed to 2x for this test.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+        $settingsService->set('research_speed', 2);
+
+        // Set up prerequisites
+        $this->planetSetObjectLevel('research_lab', 10);
+        $this->playerSetResearchLevel('energy_technology', 5);
+        $this->playerSetResearchLevel('hyperspace_technology', 8);
+        $this->playerSetResearchLevel('hyperspace_drive', 20);
+
+        // Add massive amount of resources for the upgrade
+        $this->planetAddResources(new Resources(11000000000, 25000000000, 7000000000, 0));
+
+        // ---
+        // Step 1: Issue a request to research hyperspace drive to level 21.
+        // ---
+        $this->addResearchBuildRequest('hyperspace_drive');
+
+        // ---
+        // Step 2: Verify the technology is in the research queue.
+        // ---
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'hyperspace_drive', 20, 'Hyperspace Drive is not at level 20 directly after build request issued.');
+        $this->assertObjectInQueue($response, 'hyperspace_drive', 21, 'Hyperspace Drive level 21 is not in research queue.');
+
+        // ---
+        // Step 3: Verify the research is finished after sufficient time.
+        // ---
+        $this->travel(2000)->weeks();
+
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'hyperspace_drive', 21, 'Hyperspace Drive is not at level 21 after research time has passed.');
+    }
 }

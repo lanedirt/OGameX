@@ -296,4 +296,42 @@ class BuildQueueTest extends AccountTestCase
 
         $this->assertTrue($this->planetService->isBuildingObject('shipyard', 3));
     }
+
+    /**
+     * Verify that building a high level metal mine with very long construction time works.
+     * This is to test that the database can handle very large numbers for resources and construction time.
+     */
+    public function testBuildQueueHighLevelMetalMine(): void
+    {
+        // Set the universe speed to 8x for this test.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
+        // Set metal mine to level 50
+        $this->planetSetObjectLevel('metal_mine', 50);
+
+        // Add massive amount of resources to planet for the upgrade
+        $this->planetAddResources(new Resources(40000000000, 10000000000, 0, 0));
+
+        // ---
+        // Step 1: Issue a request to upgrade metal mine to level 51
+        // ---
+        $this->addResourceBuildRequest('metal_mine');
+
+        // ---
+        // Step 2: Verify the building is in the build queue
+        // ---
+        $response = $this->get('/resources');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 50, 'Metal mine is not at level 50 directly after build request issued.');
+        $this->assertObjectInQueue($response, 'metal_mine', 51, 'Metal mine level 51 is not in build queue.');
+
+        // ---
+        // Step 3: Verify the building is finished after 15,000 weeks
+        // ---
+        $this->travel(15000)->weeks();
+
+        // Check if the building is finished and is now level 51
+        $response = $this->get('/resources');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 51, 'Metal mine is not at level 51 after construction time has passed.');
+    }
 }
