@@ -39,9 +39,6 @@ elif [ "$role" = "app" ]; then
         php artisan key:generate --force
     fi
 
-    # Source cargo environment before compiling rust modules to ensure cargo is available
-    . $HOME/.cargo/env
-
     # Compile rust modules
     chmod +x ./rust/compile.sh
     ./rust/compile.sh
