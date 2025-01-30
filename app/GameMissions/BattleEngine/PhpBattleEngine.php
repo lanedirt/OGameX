@@ -139,7 +139,7 @@ class PhpBattleEngine extends BattleEngine
         $damage = $attacker->attackPower;
         $shieldAbsorption = 0;
 
-        if ($damage < (0.01 * $defender->currentShieldPoints)) {
+        if ($damage < (0.01 * $defender->originalShieldPoints)) {
             // If the damage is less than 1% of the shield points, the attack is bounced and no damage is dealt.
             return false;
         }
@@ -156,6 +156,13 @@ class PhpBattleEngine extends BattleEngine
         } else {
             // No shield, apply damage directly to the hull plating.
             $defender->currentHullPlating -= $damage;
+        }
+
+        // If the defender's hull integrity is less than 70%, the unit can explode randomly.
+        if ($defender->damagedHullExplosion()) {
+            // Hull was damaged and dice roll was successful, destroy the unit.
+            $defender->currentShieldPoints = 0;
+            $defender->currentHullPlating = 0;
         }
 
         if ($isAttacker) {
@@ -200,10 +207,6 @@ class PhpBattleEngine extends BattleEngine
                 // Remove destroyed units from the array.
                 $round->attackerLossesInRound->addUnit($unit->unitObject, 1);
                 unset($attackerUnits[$key]);
-            } elseif ($unit->damagedHullExplosion()) {
-                // Hull was damaged and dice roll was successful, destroy the unit.
-                $round->attackerLossesInRound->addUnit($unit->unitObject, 1);
-                unset($attackerUnits[$key]);
             } else {
                 // Apply shield regeneration.
                 $unit->currentShieldPoints = $unit->originalShieldPoints;
@@ -214,10 +217,6 @@ class PhpBattleEngine extends BattleEngine
         foreach ($defenderUnits as $key => $unit) {
             if ($unit->currentHullPlating <= 0) {
                 // Remove destroyed units from the array.
-                $round->defenderLossesInRound->addUnit($unit->unitObject, 1);
-                unset($defenderUnits[$key]);
-            } elseif ($unit->damagedHullExplosion()) {
-                // Hull was damaged and dice roll was successful, destroy the unit.
                 $round->defenderLossesInRound->addUnit($unit->unitObject, 1);
                 unset($defenderUnits[$key]);
             } else {
