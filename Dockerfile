@@ -56,9 +56,14 @@ RUN if [ $OPCACHE_ENABLE = "1" ]; then \
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy existing application directory contents and set permissions
+# Copy existing application directory contents
 COPY . /var/www/
-RUN chown -R www-data:www-data /var/www
+
+# Set write permissions for required directories
+RUN chown -R www-data:www-data \
+    /var/www/storage \
+    /var/www/bootstrap/cache \
+    /var/www/rust
 
 # Copy entry point, convert line endings and set permissions
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
