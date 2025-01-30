@@ -26,21 +26,14 @@ elif [ "$role" = "app" ]; then
         composer install
     fi
 
-    # Generate APP_KEY if not set in the .env file
-    if grep -q "^APP_KEY=" .env; then
-        if [ -z "$(grep "^APP_KEY=" .env | cut -d '=' -f2)" ]; then
-            echo "APP_KEY is empty. Generating a new key..."
-            php artisan key:generate --force
-        else
-            echo "APP_KEY already set. Skipping key generation."
-        fi
-    else
-        echo "APP_KEY not found in .env. Generating a new key..."
+    # Generate APP_KEY if not set or empty in the .env file
+    app_key=$(grep -E "^APP_KEY=" .env | cut -d '=' -f2 | tr -d '[:space:]' | tr -d '\r')
+    if [ -z "$app_key" ]; then
+        echo "APP_KEY is empty or not set. Generating a new key..."
         php artisan key:generate --force
+    else
+        echo "APP_KEY is set to: $app_key"
     fi
-
-    # Source cargo environment before compiling rust modules to ensure cargo is available
-    . $HOME/.cargo/env
 
     # Compile rust modules
     chmod +x ./rust/compile.sh

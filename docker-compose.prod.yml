@@ -23,7 +23,7 @@ services:
   # PHP Service
   ogamex-app:
     volumes:
-      - ./:/var/www
+      - ./:/var/www:cached
       - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
     build:
       context: .
@@ -38,6 +38,11 @@ services:
       SERVICE_NAME: app
       SERVICE_TAGS: dev
     working_dir: /var/www
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000 || [ $? -eq 56 ]"]
+      interval: 10s
+      timeout: 6s
+      retries: 60
     networks:
       - app-network
     depends_on:
@@ -58,6 +63,9 @@ services:
       - "443:443"
     networks:
       - app-network
+    depends_on:
+      ogamex-app:
+        condition: service_healthy
 
   # Scheduler
   ogamex-scheduler:
@@ -65,16 +73,17 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: ogamex-scheduler
-    depends_on:
-      - ogamex-webserver
     volumes:
       - .:/var/www/html
     environment:
       CONTAINER_ROLE: scheduler
     networks:
       - app-network
+    depends_on:
+      ogamex-app:
+        condition: service_healthy
 
-  #PHPMYADMIN
+  # PhpMyAdmin
   ogamex-phpmyadmin:
     image: phpmyadmin
     container_name: ogamex-phpmyadmin

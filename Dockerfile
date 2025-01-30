@@ -53,38 +53,32 @@ RUN if [ $OPCACHE_ENABLE = "1" ]; then \
     } > /usr/local/etc/php/conf.d/opcache-recommended.ini \
 ;fi
 
-
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Add user for laravel application
-RUN groupadd -g 1000 www
-RUN useradd -u 1000 -ms /bin/bash -g www www
-
 # Copy existing application directory contents
-COPY . /var/www
+COPY . /var/www/
 
-# Copy existing application directory permissions
-COPY --chown=www:www . /var/www
+# Check if .env file exists, fail if it doesn't
+RUN if [ ! -f /var/www/.env ]; then \
+    echo "Error: .env file not found. Please create .env file before building." && \
+    exit 1; \
+fi
 
-# Switch to root to copy entry point scripts
-USER root
+# Set write permissions for required directories
+RUN chown -R www-data:www-data \
+    /var/www/storage \
+    /var/www/bootstrap/cache \
+    /var/www/rust
 
-# Copy entry point and set permissions for www user
+# Copy entry point, convert line endings and set permissions
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
+RUN dos2unix /usr/local/bin/entrypoint && \
+    chmod +x /usr/local/bin/entrypoint
 
-# Convert line endings from CRLF to LF
-RUN dos2unix /usr/local/bin/entrypoint
-
-RUN chmod +x /usr/local/bin/entrypoint && \
-    chown www:www /usr/local/bin/entrypoint
-
-# Switch to www user
-USER www
-
-# Setup Rust/Cargo for www user
+# Setup Rust/Cargo
+ENV PATH="/root/.cargo/bin:${PATH}"
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
-    . "$HOME/.cargo/env" && \
     echo 'source $HOME/.cargo/env' >> ~/.bashrc
 
 # Run entrypoint
