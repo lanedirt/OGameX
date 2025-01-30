@@ -126,7 +126,7 @@ If you instead wish to install OGameX manually, see the list of requirements for
 ### <a name="development"></a> a) Install for local development
 For local development use the default docker-compose file that is included in this repository. This configuration is optimized for development and includes several tools that are useful for debugging and testing.
 
-The instructions below are for Linux. OGameX should also work under Docker for Windows but the steps might be a little bit different. Also please note that performance of the development mode is not good on Windows due to overhead of running Docker on Windows. Loading pages with development mode enabled can take multiple seconds on Windows.
+Please note that performance of the development mode is bad on Windows (compared to MacOS/Linux) due to overhead of running Docker on Windows. Loading pages with development mode enabled can take multiple seconds on Windows. If you want to run OGameX on Windows, I advise to use the production mode instead. One of the main differences is that the production configuration enables PHP OPcache which speeds up the application, but this also means that the PHP files are not updated (instantly) when you change them. This makes it less suitable for development.
 
 1. Clone the repository.
   ```
@@ -144,7 +144,7 @@ The instructions below are for Linux. OGameX should also work under Docker for W
   $ docker compose up -d
   ```
 
-  > **Important:** it can take up to a few minutes for the `ogamex-app` container to fully start, this is expected because of composer installation and Rust compiling that happens on the first run. Please be patient and wait for all containers to have fully started.
+  > **Important:** it can take up to a few minutes for the `ogamex-app` container to fully start, this is expected because of composer installation and Rust compiling that happens on the first run. Please be patient and wait for all containers to have fully started. Especially on Windows it can take up to 10 minutes.
 
   > The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080.
 
@@ -162,29 +162,18 @@ several performance optimizations and security settings that are not present in 
 
 The instructions below are for Linux. OGameX should also work under Docker for Windows but the steps might be a little bit different.
 
-1. The OGameX docker containers are expected to be run under a separate (non-root) user. Create a new user (e.g., ogamex) and add it to the Docker group:
-  ```
-  $ sudo useradd -m ogamex
-  $ sudo usermod -aG docker ogamex
-  ```
-
-2. Switch to the new user (ogamex):
-  ```
-  $ sudo su ogamex
-  ```
-
-3. Clone the git repo and run the Docker commands as the ogamex user to ensure all files are created with the correct permissions.
+1. Clone the git repo.
   ```
   $ git clone https://github.com/lanedirt/OGameX.git
   $ cd OGameX
   ```
 
-4. Copy `.env.example-prod` to `.env`.
+2. Copy `.env.example-prod` to `.env`.
   ```
   $ cp .env.example-prod .env
   ```
 
-5. Launch the project using Docker Compose:
+3. Launch the project using Docker Compose:
   ```
   $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
   ```
