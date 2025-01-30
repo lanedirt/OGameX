@@ -42,10 +42,9 @@ services:
     working_dir: /var/www
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9000 || [ $? -eq 56 ]"]
-      interval: 6s
+      interval: 10s
       timeout: 6s
-      retries: 10
-      start_period: 60s
+      retries: 30
     networks:
       - app-network
     depends_on:
