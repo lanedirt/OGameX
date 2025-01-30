@@ -44,7 +44,7 @@ services:
       test: ["CMD-SHELL", "curl -f http://localhost:9000 || [ $? -eq 56 ]"]
       interval: 10s
       timeout: 6s
-      retries: 30
+      retries: 60
     networks:
       - app-network
     depends_on:
