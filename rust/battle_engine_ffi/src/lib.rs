@@ -144,8 +144,8 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
         };
 
         // Process combat
-        process_combat(&mut attacker_units, &mut defender_units, &mut round, &input.attacker_units, true);
-        process_combat(&mut defender_units, &mut attacker_units, &mut round, &input.defender_units, false);
+        process_combat(&mut attacker_units, &mut defender_units, &mut round, &input.attacker_units, &input.defender_units, true);
+        process_combat(&mut defender_units, &mut attacker_units, &mut round, &input.defender_units, &input.attacker_units, false);
 
         // Cleanup round
         cleanup_round(&mut round, &mut attacker_units, &mut defender_units, &input.attacker_units, &input.defender_units);
@@ -221,13 +221,15 @@ fn compress_units(units: &Vec<BattleUnitInstance>) -> HashMap<i16, BattleUnitCou
 /// - `attackers`: Units attacking in this phase.
 /// - `defenders`: Units being attacked in this phase.
 /// - `round`: Stores round statistics, such as hits and absorbed damage.
-/// - `units_metadata`: Metadata for units to determine damage, rapidfire, etc.
+/// - `attacker_unit_metadata`: Metadata for attacker units to determine damage, rapidfire, etc.
+/// - `defender_unit_metadata`: Metadata for defender units to determine max shield points etc.
 /// - `is_attacker`: Whether the current phase is attacker-to-defender or vice versa.
 fn process_combat(
     attackers: &mut Vec<BattleUnitInstance>,
     defenders: &mut Vec<BattleUnitInstance>,
     round: &mut BattleRound,
-    units_metadata: &HashMap<i16, BattleUnitInfo>,
+    attacker_unit_metadata: &HashMap<i16, BattleUnitInfo>,
+    defender_unit_metadata: &HashMap<i16, BattleUnitInfo>,
     is_attacker: bool,
 ) {
     let mut rng = rand::thread_rng();
@@ -235,9 +237,9 @@ fn process_combat(
     for attacker in attackers.iter() {
         let mut continue_attacking = true;
 
-        // Get metadata of this unit.
-        let unit_metadata = units_metadata.get(&attacker.unit_id).unwrap();
-        let damage = unit_metadata.attack_power;
+        // Get metadata of the attacking unit.
+        let attacker_metadata = attacker_unit_metadata.get(&attacker.unit_id).unwrap();
+        let damage = attacker_metadata.attack_power;
 
         while continue_attacking {
             continue_attacking = false;
@@ -246,9 +248,12 @@ fn process_combat(
             let target_idx = rng.gen_range(0..defenders.len());
             let target = &mut defenders[target_idx];
 
+            // Get metadata of the defending unit.
+            let target_metadata = defender_unit_metadata.get(&target.unit_id).unwrap();
+
             // Check if the damage is less than 1% of the target's shield points. If so,
             // attack is negated.
-            if damage < (0.01 * target.current_shield_points) {
+            if damage < (0.01 * target_metadata.shield_points) {
                 continue
             }
 
@@ -267,6 +272,17 @@ fn process_combat(
                 target.current_hull_plating -= damage;
             }
 
+            // If hull integrity < 70%, then unit can explode randomly. Roll dice to see if it does.
+            if target.current_hull_plating / target_metadata.hull_plating < 0.7 {
+                let explosion_chance = 100.0 - ((target.current_hull_plating / target_metadata.hull_plating) * 100.0);
+                let roll = rng.gen_range(0..=100);
+                if roll < explosion_chance as i32 {
+                    // Unit explodes, set current hull plating and shield points to 0.
+                    target.current_hull_plating = 0.0;
+                    target.current_shield_points = 0.0;
+                }
+            }
+
             // Update round statistics for hits and damage absorbed
             if is_attacker {
                 round.hits_attacker += 1;
@@ -280,7 +296,7 @@ fn process_combat(
 
             // Check if the current unit has rapidfire against the target unit. If so, then
             // roll dice to see if the current unit can attack again.
-            continue_attacking = if let Some(rapidfire_amount) = unit_metadata.rapidfire.get(&target.unit_id) {
+            continue_attacking = if let Some(rapidfire_amount) = attacker_metadata.rapidfire.get(&target.unit_id) {
                 // Rapidfire chance is calculated as 100 - (100 / amount). For example:
                 // - rapidfire amount of 4 means 100 - (100 / 4) = 75% chance.
                 // - rapidfire amount of 10 means 100 - (100 / 10) = 90% chance.
@@ -316,28 +332,15 @@ fn cleanup_round(
     units_metadata_attacker: &HashMap<i16, BattleUnitInfo>,
     units_metadata_defender: &HashMap<i16, BattleUnitInfo>,
 ) {
-    let mut rng = rand::thread_rng();
-
     // -------
     // Cleanup attacker units.
     // -------
     // First remove destroyed units.
     attackers.retain(|unit| {
-        // 1. Check if unit is fully destroyed.
+        // Check if unit is fully destroyed.
         if unit.current_hull_plating <= 0.0 {
             increment_battle_unit_count_amount(&mut round.attacker_losses_in_round, unit.unit_id, 1);
             return false;
-        }
-
-        // 2. Check hull integrity < 70%
-        let unit_metadata = units_metadata_attacker.get(&unit.unit_id).unwrap();
-        if unit.current_hull_plating / unit_metadata.hull_plating < 0.7 {
-            let explosion_chance = 100.0 - ((unit.current_hull_plating / unit_metadata.hull_plating) * 100.0);
-            let roll = rng.gen_range(0..=100);
-            if roll < explosion_chance as i32 {
-                increment_battle_unit_count_amount(&mut round.attacker_losses_in_round, unit.unit_id, 1);
-                return false;
-            }
         }
 
         true
@@ -354,21 +357,10 @@ fn cleanup_round(
     // -------
     // First remove destroyed units.
     defenders.retain(|unit| {
-        // 1. Check if unit is fully destroyed.
+        // Check if unit is fully destroyed.
         if unit.current_hull_plating <= 0.0 {
             increment_battle_unit_count_amount(&mut round.defender_losses_in_round, unit.unit_id, 1);
             return false;
-        }
-
-        // 2. Check hull integrity < 70%
-        let unit_metadata = units_metadata_defender.get(&unit.unit_id).unwrap();
-        if unit.current_hull_plating / unit_metadata.hull_plating < 0.7 {
-            let explosion_chance = 100.0 - ((unit.current_hull_plating / unit_metadata.hull_plating) * 100.0);
-            let roll = rng.gen_range(0..=100);
-            if roll < explosion_chance as i32 {
-                increment_battle_unit_count_amount(&mut round.defender_losses_in_round, unit.unit_id, 1);
-                return false;
-            }
         }
 
         true
