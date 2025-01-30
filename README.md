@@ -126,7 +126,7 @@ If you instead wish to install OGameX manually, see the list of requirements for
 ### <a name="development"></a> a) Install for local development
 For local development use the default docker-compose file that is included in this repository. This configuration is optimized for development and includes several tools that are useful for debugging and testing.
 
-Please note that performance of the development mode is bad on Windows (compared to MacOS/Linux) due to overhead of running Docker on Windows. Loading pages with development mode enabled can take multiple seconds on Windows. If you want to run OGameX on Windows, I advise to use the production mode instead. One of the main differences is that the production configuration enables PHP OPcache which speeds up the application, but this also means that the PHP files are not updated (instantly) when you change them. This makes it less suitable for development.
+Please note that performance of the development mode is slow on Windows (compared to MacOS/Linux) due to overhead of running Docker on Windows. Loading pages with development mode enabled can take multiple seconds on Windows. If you want to run OGameX on Windows, I advise to use the production mode instead. One of the main differences is that the production configuration enables PHP OPcache which speeds up the application, but this also means that the PHP files are not updated (instantly) when you change them. This makes it less suitable for development.
 
 1. Clone the repository.
   ```
