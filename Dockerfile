@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
-    dos2unix \
+    dos2unix
 
 # Install PHP FFI development files required to interface with Rust for BattleEngine
 RUN apt-get update && apt-get install -y \
