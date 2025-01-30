@@ -144,9 +144,9 @@ Please note that performance of the development mode is bad on Windows (compared
   $ docker compose up -d
   ```
 
-  > **Important:** it can take up to a few minutes for the `ogamex-app` container to fully start, this is expected because of composer installation and Rust compiling that happens on the first run. Please be patient and wait for all containers to have fully started. Especially on Windows it can take up to 10 minutes.
-
   > The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080.
+
+**Important:** it can take up to 10 minutes for the `ogamex-app` container to start, this is because of composer initialization and Rust compiling that happens on the first run. Please be patient and wait for all containers to have fully started.
 
 After the docker containers have started, visit http://localhost to access OGameX.
 
@@ -180,7 +180,7 @@ The instructions below are for Linux. OGameX should also work under Docker for W
 
   > The default setup binds to ports 80/443, to change it modify `docker-compose.yml`. PhpMyAdmin is also included for database management and is bound to port 8080, however to access it you need to explicitly specify your IP addresses via `./docker/phpmyadmin/.htaccess` for safety purposes.
 
-**Important:** it can take up to a few minutes for the `ogamex-app` container to start, this is expected because of composer initialization and Rust compiling that happens on the first run. Please be patient and wait for all containers to have fully started.
+**Important:** it can take up to 10 minutes for the `ogamex-app` container to start, this is because of composer initialization and Rust compiling that happens on the first run. Please be patient and wait for all containers to have fully started.
 
 After the docker containers have started, visit https://localhost to access OGameX.
 
