@@ -63,6 +63,9 @@ services:
       - "443:443"
     networks:
       - app-network
+    depends_on:
+      ogamex-app:
+        condition: service_healthy
 
   # Scheduler
   ogamex-scheduler:
@@ -70,16 +73,17 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: ogamex-scheduler
-    depends_on:
-      - ogamex-webserver
     volumes:
       - .:/var/www/html
     environment:
       CONTAINER_ROLE: scheduler
     networks:
       - app-network
+    depends_on:
+      ogamex-app:
+        condition: service_healthy
 
-  #PHPMYADMIN
+  # PhpMyAdmin
   ogamex-phpmyadmin:
     image: phpmyadmin
     container_name: ogamex-phpmyadmin
