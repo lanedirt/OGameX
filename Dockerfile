@@ -21,7 +21,8 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     unzip \
     git \
-    curl
+    curl \
+    dos2unix \
 
 # Install PHP FFI development files required to interface with Rust for BattleEngine
 RUN apt-get update && apt-get install -y \
@@ -71,6 +72,10 @@ USER root
 
 # Copy entry point and set permissions for www user
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
+
+# Convert line endings from CRLF to LF
+RUN dos2unix /usr/local/bin/entrypoint
+
 RUN chmod +x /usr/local/bin/entrypoint && \
     chown www:www /usr/local/bin/entrypoint
 
