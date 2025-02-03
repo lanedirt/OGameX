@@ -49,12 +49,13 @@ class LootService
      */
     public function calculateLootCapacityConstrained(): Resources
     {
-        // Determine loot: 50% of the resources are stolen.
+        // Determine loot: max 50% of the resources are stolen.
+        // Add sanity check to prevent negative values.
         $resources = $this->defenderPlanet->getResources();
         $loot = new Resources(
-            $resources->metal->get() * ($this->lootPercentage / 100),
-            $resources->crystal->get() * ($this->lootPercentage / 100),
-            $resources->deuterium->get() * ($this->lootPercentage / 100),
+            max(0, $resources->metal->get()) * ($this->lootPercentage / 100),
+            max(0, $resources->crystal->get()) * ($this->lootPercentage / 100),
+            max(0, $resources->deuterium->get()) * ($this->lootPercentage / 100),
             0
         );
 
