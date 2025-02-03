@@ -85,4 +85,22 @@ class ResourceProductionTest extends UnitTestCase
         // is added and the energy production formula is updated.
         $this->assertEquals(4000, $this->planetService->energyProduction()->get());
     }
+
+    /**
+     * Test that deuterium production cannot go negative even with high fusion reactor consumption.
+     */
+    public function testDeuteriumProductionCannotGoNegative(): void
+    {
+        $this->createAndSetPlanetModel([
+            'deuterium_synthesizer' => 5,
+            'deuterium_synthesizer_percent' => 10,
+            'fusion_plant' => 20,
+            'fusion_plant_percent' => 10,
+            'solar_plant' => 20,
+            'solar_plant_percent' => 10,
+        ]);
+
+        // Deuterium production should be clamped to 0 when consumption exceeds production.
+        $this->assertEquals(0, $this->planetService->getDeuteriumProductionPerHour());
+    }
 }
