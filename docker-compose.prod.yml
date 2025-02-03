@@ -93,6 +93,7 @@ services:
     environment:
       - PMA_ARBITRARY=1
       - PMA_HOST=ogame-db
+      - UPLOAD_LIMIT=1G
     networks:
       - app-network
     volumes:
