@@ -974,4 +974,39 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertGreaterThanOrEqual($crystal, $resources->crystal->get(), 'Debris field crystal amount does not match expected large value.');
         $this->assertGreaterThanOrEqual($deuterium, $resources->deuterium->get(), 'Debris field deuterium amount does not match expected large value.');
     }
+
+    /**
+     * Assert that attacking a planet with negative deuterium still processes correctly.
+     */
+    public function testDispatchFleetNegativeDeuteriumPlanet(): void
+    {
+        $this->basicSetup();
+        $this->planetAddUnit('light_fighter', 500);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 500);
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+        $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
+        $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
+
+        // Add negative deuterium to the planet.
+        $foreignPlanet->addResources(new Resources(0, 0, -1000000, 0));
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+
+        // Set time to fleet mission duration + 1 second.
+        $this->travel($fleetMissionDuration + 1)->seconds();
+        $this->reloadApplication();
+
+        // Trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the fleet mission is processed.
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMission->id, false);
+        $this->assertTrue($fleetMission->processed == 1);
+    }
 }
