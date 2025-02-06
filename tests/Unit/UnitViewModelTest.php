@@ -7,7 +7,7 @@ use Tests\UnitTestCase;
 
 class UnitViewModelTest extends UnitTestCase
 {
-    public function testFormattedAmount()
+    public function test_formatted_amount(): void
     {
         // Create an instance of UnitViewModel
         $unitViewModel = new UnitViewModel();
@@ -19,7 +19,7 @@ class UnitViewModelTest extends UnitTestCase
         $this->assertEquals('12K', $unitViewModel->getFormatted());
     }
 
-    public function testFormattedFullAmount()
+    public function test_formatted_full_amount(): void
     {
         // Create an instance of UnitViewModel
         $unitViewModel = new UnitViewModel();
@@ -31,7 +31,7 @@ class UnitViewModelTest extends UnitTestCase
         $this->assertEquals('12,345', $unitViewModel->getFormattedFull());
     }
 
-    public function testFormattedLongAmount()
+    public function test_formatted_long_amount(): void
     {
         // Create an instance of UnitViewModel
         $unitViewModel = new UnitViewModel();
