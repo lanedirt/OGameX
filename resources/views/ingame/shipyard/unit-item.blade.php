@@ -41,7 +41,7 @@
             <time-counter><time class="countdown unitCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>
         @endif
             <span class="amount" data-value="{{ $building->amount }}" data-bonus="0">
-            <span class="stockAmount">{{ $building->amount }}</span>
+            <span class="stockAmount">{{ $building->getFormattedFull() }}</span>
             <span class="bonus"></span>
         </span>
     </span>
