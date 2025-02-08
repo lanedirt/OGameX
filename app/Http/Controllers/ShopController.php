@@ -13,6 +13,8 @@ class ShopController extends OGameController
      */
     public function index(): View
     {
+        $this->setBodyId('shop');
+
         return view('ingame.shop.index');
     }
 }
