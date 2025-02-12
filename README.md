@@ -57,6 +57,7 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 - [9. Support](#support)
 - [10. Sponsorship](#sponsorship)
 - [11. License](#license)
+- [12. OGameX related projects](#related-projects)
 
 ## <a name="screenshots"></a> 🖥️ 1. Example screenshots
 
@@ -259,3 +260,15 @@ Interested in supporting OGameX? We welcome sponsorships of all sizes! Your supp
 ## <a name="license"></a> 📰 11. License
 
 The OGameX Laravel source code is open-source software licensed under the MIT license. See the LICENSE file for more details. All rights and concepts related to OGame are owned by GameForge GmbH.
+
+## <a name="related-projects"></a> 🌍 12. OGameX related projects
+
+The following projects either host OGameX servers or are based on the OGameX core. 
+
+*Note: these projects are maintained independently and are not affiliated with the OGameX project or its maintainers in any way.*
+
+| Project Name | Description | Link | Type |
+|-------------|-------------|------|------|
+| Space Rivals | Built on top of the OGameX core with many different customizations and features. | [Visit](https://space-rivals.net/) | Not Open Source |
+
+Do you want your own OGameX-related project to be listed here? Create an issue in the [GitHub issues page](https://github.com/lanedirt/OGameX/issues) and provide details about your project.
