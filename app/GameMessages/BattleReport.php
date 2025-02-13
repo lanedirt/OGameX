@@ -74,6 +74,14 @@ class BattleReport extends GameMessage
      */
     public function getBody(): string
     {
+        // Load planet by coordinate.
+        $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
+
+        if ($planet === null) {
+            return __('Planet has been deleted and battle report is no longer available.');
+        }
+
         $params = $this->getBattleReportParams();
         return view('ingame.messages.templates.battle_report', $params)->render();
     }
@@ -83,6 +91,17 @@ class BattleReport extends GameMessage
      */
     public function getBodyFull(): string
     {
+        // Load planet by coordinate.
+        $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
+
+        if ($planet === null) {
+            // TODO: add feature test for this behavior to make sure deleting a planet
+            // properly handles any existing battle reports by either deleting them or making
+            // them unavailable. This also affects other messages that use the planet name.
+            return __('Planet has been deleted and battle report is no longer available.');
+        }
+
         $params = $this->getBattleReportParams();
         return view('ingame.messages.templates.battle_report_full', $params)->render();
     }
