@@ -70,6 +70,14 @@ class EspionageReport extends GameMessage
      */
     public function getBody(): string
     {
+        // Load planet by coordinate.
+        $coordinate = new Coordinate($this->espionageReportModel->planet_galaxy, $this->espionageReportModel->planet_system, $this->espionageReportModel->planet_position);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->espionageReportModel->planet_type));
+
+        if ($planet === null) {
+            return __('Planet has been deleted and espionage report is no longer available.');
+        }
+
         $params = $this->getEspionageReportParams();
         return view('ingame.messages.templates.espionage_report', $params)->render();
     }
@@ -79,6 +87,14 @@ class EspionageReport extends GameMessage
      */
     public function getBodyFull(): string
     {
+        // Load planet by coordinate.
+        $coordinate = new Coordinate($this->espionageReportModel->planet_galaxy, $this->espionageReportModel->planet_system, $this->espionageReportModel->planet_position);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->espionageReportModel->planet_type));
+
+        if ($planet === null) {
+            return __('Planet has been deleted and espionage report is no longer available.');
+        }
+
         $params = $this->getEspionageReportParams();
         return view('ingame.messages.templates.espionage_report_full', $params)->render();
     }
