@@ -437,7 +437,7 @@ class PlayerService
             if ($planetMissionUpdateLock->count() === count($planetIds)) {
                 try {
                     $fleetMissionService = resolve(FleetMissionService::class);
-                    $missions = $fleetMissionService->getMissionsByPlanetIds($planetIds);
+                    $missions = $fleetMissionService->getArrivedMissionsByPlanetIds($planetIds);
 
                     foreach ($missions as $mission) {
                         // Attempt to acquire a lock on the row for this fleet mission. This is to prevent

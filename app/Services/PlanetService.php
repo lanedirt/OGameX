@@ -16,6 +16,8 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
 use OGame\Models\BuildingQueue;
+use OGame\Models\ResearchQueue;
+use OGame\Models\UnitQueue;
 use RuntimeException;
 use Throwable;
 
@@ -94,6 +96,10 @@ class PlanetService
     {
         // Fetch planet model
         $planet = Planet::where('id', $id)->first();
+
+        if ($planet === null) {
+            throw new RuntimeException('Planet not found.');
+        }
 
         $this->planet = $planet;
     }
@@ -177,6 +183,13 @@ class PlanetService
             throw new RuntimeException('Cannot abandon only remaining planet.');
         }
 
+        // Sanity check: disallow abandoning a planet with active fleet missions.
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $activeMissions = $fleetMissionService->getActiveMissionsByPlanetIds([$this->planet->id]);
+        if ($activeMissions->count() > 0) {
+            throw new RuntimeException('Cannot abandon planet with active fleet missions.');
+        }
+
         // If this is a planet and has a moon, delete the moon first
         if ($this->isPlanet() && $this->hasMoon()) {
             $this->moon()->abandonPlanet();
@@ -192,12 +205,17 @@ class PlanetService
         // Building queues
         BuildingQueue::where('planet_id', $this->planet->id)->delete();
 
+        // Research queues
+        ResearchQueue::where('planet_id', $this->planet->id)->delete();
+
+        // Unit queues
+        UnitQueue::where('planet_id', $this->planet->id)->delete();
+
         // Update the player's current planet if it is the planet being abandoned.
         if ($this->getPlayer()->getCurrentPlanetId() === $this->planet->id) {
             $this->getPlayer()->setCurrentPlanetId(0);
         }
 
-        // TODO: add sanity check that a planet can only be abandoned if it has no active fleet missions going to or from it.
         // TODO: add feature test to check that abandoning a planet works correctly in various scenarios.
 
         // Delete the planet from the database

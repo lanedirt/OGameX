@@ -342,7 +342,7 @@ class FleetMissionService
      * @param int[] $planetIds
      * @return Collection
      */
-    public function getMissionsByPlanetIds(array $planetIds): Collection
+    public function getArrivedMissionsByPlanetIds(array $planetIds): Collection
     {
         return $this->model
             ->where(function ($query) use ($planetIds) {
@@ -350,6 +350,24 @@ class FleetMissionService
                     ->orWhereIn('planet_id_to', $planetIds);
             })
             ->where('time_arrival', '<=', Carbon::now()->timestamp)
+            ->where('processed', 0)
+            ->get();
+    }
+
+    /**
+     * Get missions that are either from or to the given planets that are currently
+     * underway and have not been processed yet.
+     *
+     * @param int[] $planetIds
+     * @return Collection
+     */
+    public function getActiveMissionsByPlanetIds(array $planetIds): Collection
+    {
+        return $this->model
+            ->where(function ($query) use ($planetIds) {
+                $query->whereIn('planet_id_from', $planetIds)
+                    ->orWhereIn('planet_id_to', $planetIds);
+            })
             ->where('processed', 0)
             ->get();
     }
