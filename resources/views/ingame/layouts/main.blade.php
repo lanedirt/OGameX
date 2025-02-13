@@ -65,7 +65,7 @@
 </head>
 <body id="{{ !empty($body_id) ? $body_id : 'ingamepage' }}" class="ogame lang-en default no-touch">
 <div id="initial_welcome_dialog" title="Welcome to OGame!" style="display: none;">
-    To help your game start get moving quickly, we’ve assigned you the name Commodore Nebula. You can change this at any
+    To help your game start get moving quickly, we've assigned you the name Commodore Nebula. You can change this at any
     time by clicking on the username.<br/>
     Fleet Command has left you information on your first steps in your inbox, to help you be well-equipped for your
     start.<br/>
@@ -1074,31 +1074,32 @@ Combat simulation save slots +20">
     <div id="right">
         <div id="planetbarcomponent" class="">
             <div id="rechts">
-                <div id="norm">
-                    <div id="myWorlds">
+                @php
+                    // Get all current query parameters
+                    $currentQueryParams = request()->query();
+                    $totalPlanets = $currentPlayer->planets->planetCount();
+                    $useCompactLayout = $totalPlanets >= 6;
+                @endphp
+                <div id="{{ $useCompactLayout ? 'cutty' : 'norm' }}">
+                    <div id="{{ $useCompactLayout ? 'myPlanets' : 'myWorlds' }}">
                         <div id="countColonies">
                             <p class="textCenter">
                                 <span>{{ $currentPlayer->planets->planetCount() }}/{{ $currentPlayer->getMaxPlanetAmount() }}</span> @lang('Planets')
                             </p>
                         </div>
                         <div id="planetList">
-                            @php
-                                // Get all current query parameters
-                                $currentQueryParams = request()->query();
-                            @endphp
-
-                            @php /** @var OGame\Services\PlanetService $planet */ @endphp
                             @foreach ($planets->allPlanets() as $key => $planet)
                                 @php
                                     // Set or replace the 'cp' parameter
-                                   $currentQueryParams['cp'] = $planet->getPlanetId();
-                                   // Generate the URL to the current route with the updated query parameters
-                                   $urlToPlanetWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
+                                    $currentQueryParams['cp'] = $planet->getPlanetId();
+                                    // Generate the URL to the current route with the updated query parameters
+                                    $urlToPlanetWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
                                 @endphp
-                                <div class="smallplanet {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'hightlightPlanet' : '' }}"
+                                <div class="smallplanet {{ $useCompactLayout ? 'smaller' : '' }} {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'hightlightPlanet' : '' }}"
                                      data-planet-id="{{ $planet->getPlanetId() }}" id="planet-{{ $key + 1 }}">
                                     <a href="{{ $urlToPlanetWithUpdatedParam }}"
-                                       data-link="{{ $urlToPlanetWithUpdatedParam }}" title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>
+                                       data-link="{{ $urlToPlanetWithUpdatedParam }}"
+                                       title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>
                                         @lang('Lifeform'): Humans<br/>
                                         {{ OGame\Facades\AppUtil::formatNumber($planet->getPlanetDiameter()) }}km ({{ $planet->getBuildingCount() }}/{{ $planet->getPlanetFieldMax() }})<br>
                                         {{ $planet->getPlanetTempMin() }} to {{ $planet->getPlanetTempMax() }}°C<br/>
@@ -1112,27 +1113,39 @@ Combat simulation save slots +20">
                                         <a href=&quot;{{ route('galaxy.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Galaxy')</a><br/>"
                                        class="planetlink {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable"
                                        data-ipi-hint="ipiPlanetHomeplanet">
-                                        <img class="planetPic js_replace2x" alt="{{ $planet->getPlanetName() }}"
-                                             src="{!! asset('img/planets/medium/' . $planet->getPlanetBiomeType() . '_' . $planet->getPlanetImageType() . '.png') !!}"
-                                             width="48" height="48">
+                                        @if ($useCompactLayout)
+                                            <div class="planetBarSpaceObjectContainer" style="height: 33px">
+                                                <div class="planetBarSpaceObjectHighlightContainer" style="width: 25px; height: 25px;"></div>
+                                                <img id="planetBarSpaceObjectImg_{{ $planet->getPlanetId() }}"
+                                                     class="planetPic js_replace2x"
+                                                     alt="{{ $planet->getPlanetName() }}"
+                                                     src="{!! asset('img/planets/medium/' . $planet->getPlanetBiomeType() . '_' . $planet->getPlanetImageType() . '.png') !!}"
+                                                     width="30" height="30">
+                                            </div>
+                                        @else
+                                            <img class="planetPic js_replace2x"
+                                                 alt="{{ $planet->getPlanetName() }}"
+                                                 src="{!! asset('img/planets/medium/' . $planet->getPlanetBiomeType() . '_' . $planet->getPlanetImageType() . '.png') !!}"
+                                                 width="48" height="48">
+                                        @endif
                                         <span class="planet-name ">{!! $planet->getPlanetName() !!}</span>
                                         <span class="planet-koords ">[{!! $planet->getPlanetCoordinates()->asString() !!}]</span>
                                     </a>
+
                                     @if ($planet->isBuilding())
                                         <a class="constructionIcon tooltip js_hideTipOnMobile tpd-hideOnClickOutside"
                                            data-link="{{ $urlToPlanetWithUpdatedParam }}"
-                                           href="{{ $urlToPlanetWithUpdatedParam }}" title=""
-                                        >
+                                           href="{{ $urlToPlanetWithUpdatedParam }}"
+                                           title="">
                                             <span class="icon12px icon_wrench"></span>
                                         </a>
                                     @endif
+
                                     @if ($planet->hasMoon())
                                         @php
-                                           // Set or replace the 'cp' parameter
-                                           $moon = $planet->moon();
-                                           $currentQueryParams['cp'] = $moon->getPlanetId();
-                                           // Generate the URL to the current route with the updated query parameters
-                                           $urlToMoonWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
+                                            $moon = $planet->moon();
+                                            $currentQueryParams['cp'] = $moon->getPlanetId();
+                                            $urlToMoonWithUpdatedParam = request()->url() . '?' . http_build_query($currentQueryParams);
                                         @endphp
                                         <a class="moonlink {{ ($moon->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'active' : '' }} tooltipLeft tooltipClose js_hideTipOnMobile"
                                            title="<b>{{ $moon->getPlanetName() }} [{{ $moon->getPlanetCoordinates()->asString() }}]</b><br>
@@ -1146,8 +1159,21 @@ Combat simulation save slots +20">
                                            href="{{ $urlToMoonWithUpdatedParam }}"
                                            data-link="{{ $urlToMoonWithUpdatedParam }}"
                                            data-jumpgatelevel="0">
-                                            <img src="/img/moons/small/{{ $moon->getPlanetImageType() }}.gif" width="16" height="16" alt="Moon"
-                                                 class="icon-moon">
+                                            @if ($useCompactLayout)
+                                                <div class="planetBarSpaceObjectContainer" style="height: 20px">
+                                                    <div class="planetBarSpaceObjectHighlightContainer" style="width: 16px; height: 16px;"></div>
+                                                    <img id="planetBarSpaceObjectImg_{{ $moon->getPlanetId() }}"
+                                                         src="/img/moons/small/{{ $moon->getPlanetImageType() }}.gif"
+                                                         width="16" height="16"
+                                                         alt="Moon"
+                                                         class="icon-moon">
+                                                </div>
+                                            @else
+                                                <img src="/img/moons/small/{{ $moon->getPlanetImageType() }}.gif"
+                                                     width="16" height="16"
+                                                     alt="Moon"
+                                                     class="icon-moon">
+                                            @endif
                                         </a>
                                     @endif
                                 </div>
