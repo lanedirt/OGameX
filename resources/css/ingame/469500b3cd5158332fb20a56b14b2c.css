@@ -8406,7 +8406,7 @@ div.anythingSlider .back a.hover { background-position: 0 0; }
 .no-touch .active_item_slider div.anythingSlider .back a:hover,
 .active_item_slider div.anythingSlider .back a.hover { background-position: 0 -310px; }
 
-div.anythingSlider .disabled a { cursor: default; } 
+div.anythingSlider .disabled a { cursor: default; }
 div.anythingSlider .forward.disabled a,
 .no-touch div.anythingSlider .forward.disabled a:hover,
 div.anythingSlider .forward.disabled a.hover { background-position: -90px 0; }
@@ -8427,9 +8427,9 @@ div.anythingSlider .back.disabled a.hover { background-position: -60px 0; }
 .active_item_slider div.anythingSlider .back.disabled a.hover { background-position: -60px -310px; }
 
 /* Navigation Links */
-div.anythingSlider .anythingControls { 
-    outline: 0; 
-    display: none; 
+div.anythingSlider .anythingControls {
+    outline: 0;
+    display: none;
     top: 0;
 }
 
@@ -21415,24 +21415,24 @@ yx-axis
 /*.ui-widget { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 11px; }
 .ui-widget .ui-widget { font-size: 1em; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 1em; }*/
-/*.ui-widget-content { 
-    border: 1px solid #1F2833; 
-    background: #000000; 
+/*.ui-widget-content {
+    border: 1px solid #1F2833;
+    background: #000000;
     color: #848484;
     font-size: 11px;
     line-height: 14px;
 }*/
 /*.ui-widget-content a { color: #ffffff; }*/
-/*.ui-widget-header { 
+/*.ui-widget-header {
     background: #3d4b5b url("/cdn/img/shop/ie-grad-sprite.png") 0 -990px repeat-x;  Old browsers
-    background: -moz-linear-gradient(top,  #3d4b5b 0%, #2b343f 49%, #1f262d 50%, #1f2934 100%);  FF3.6+ 
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3d4b5b), color-stop(49%,#2b343f), color-stop(50%,#1f262d), color-stop(100%,#1f2934));  Chrome,Safari4+ 
-    background: -webkit-linear-gradient(top,  #3d4b5b 0%,#2b343f 49%,#1f262d 50%,#1f2934 100%);  Chrome10+,Safari5.1+ 
-    background: -o-linear-gradient(top,  #3d4b5b 0%,#2b343f 49%,#1f262d 50%,#1f2934 100%);  Opera 11.10+ 
-    background: -ms-linear-gradient(top,  #3d4b5b 0%,#2b343f 49%,#1f262d 50%,#1f2934 100%);  IE10+ 
-    background: linear-gradient(top,  #3d4b5b 0%,#2b343f 49%,#1f262d 50%,#1f2934 100%);  W3C 
+    background: -moz-linear-gradient(top,  #3d4b5b 0%, #2b343f 49%, #1f262d 50%, #1f2934 100%);  FF3.6+
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3d4b5b), color-stop(49%,#2b343f), color-stop(50%,#1f262d), color-stop(100%,#1f2934));  Chrome,Safari4+
+    background: -webkit-linear-gradient(top,  #3d4b5b 0%,#2b343f 49%,#1f262d 50%,#1f2934 100%);  Chrome10+,Safari5.1+
+    background: -o-linear-gradient(top,  #3d4b5b 0%,#2b343f 49%,#1f262d 50%,#1f2934 100%);  Opera 11.10+
+    background: -ms-linear-gradient(top,  #3d4b5b 0%,#2b343f 49%,#1f262d 50%,#1f2934 100%);  IE10+
+    background: linear-gradient(top,  #3d4b5b 0%,#2b343f 49%,#1f262d 50%,#1f2934 100%);  W3C
     border: 1px solid #111a22;
-    color: #6F9FC8; 
+    color: #6F9FC8;
     font-weight: 700;
 }*/
 /*.ui-widget-header a { color: #ffffff; }*/
@@ -21441,13 +21441,13 @@ yx-axis
 ----------------------------------*/
 /*.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { border: 1px solid #666666; background: #555555 url("/img/icons/0c3ec3ee54a9faec0e79ac152ab6a3.png") 50% 50% repeat-x; font-weight: bold; color: #eeeeee; }
 .ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: #eeeeee; text-decoration: none; }*/
-/*.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { 
-    background: -moz-linear-gradient(top,  #4c5d70 0%, #3c4856 49%, #313c47 50%, #303e4e 100%);  FF3.6+ 
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4c5d70), color-stop(49%,#3c4856), color-stop(50%,#313c47), color-stop(100%,#303e4e));  Chrome,Safari4+ 
-    background: -webkit-linear-gradient(top,  #4c5d70 0%,#3c4856 49%,#313c47 50%,#303e4e 100%);  Chrome10+,Safari5.1+ 
-    background: -o-linear-gradient(top,  #4c5d70 0%,#3c4856 49%,#313c47 50%,#303e4e 100%);  Opera 11.10+ 
-    background: -ms-linear-gradient(top,  #4c5d70 0%,#3c4856 49%,#313c47 50%,#303e4e 100%);  IE10+ 
-    background: linear-gradient(top,  #4c5d70 0%,#3c4856 49%,#313c47 50%,#303e4e 100%);  W3C 
+/*.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus {
+    background: -moz-linear-gradient(top,  #4c5d70 0%, #3c4856 49%, #313c47 50%, #303e4e 100%);  FF3.6+
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4c5d70), color-stop(49%,#3c4856), color-stop(50%,#313c47), color-stop(100%,#303e4e));  Chrome,Safari4+
+    background: -webkit-linear-gradient(top,  #4c5d70 0%,#3c4856 49%,#313c47 50%,#303e4e 100%);  Chrome10+,Safari5.1+
+    background: -o-linear-gradient(top,  #4c5d70 0%,#3c4856 49%,#313c47 50%,#303e4e 100%);  Opera 11.10+
+    background: -ms-linear-gradient(top,  #4c5d70 0%,#3c4856 49%,#313c47 50%,#303e4e 100%);  IE10+
+    background: linear-gradient(top,  #4c5d70 0%,#3c4856 49%,#313c47 50%,#303e4e 100%);  W3C
     border: 1px solid #111a22;
     font-weight: bold; color: #ffffff;
 }*/
@@ -21721,20 +21721,20 @@ yx-axis
 
 .ui-accordion .ui-accordion-header:after,
 .ui-accordion .ui-accordion-header,
-.ui-accordion .ui-accordion-header .ui-icon { 
+.ui-accordion .ui-accordion-header .ui-icon {
     background-image:url(/img/icons/d03835718066a5a592a6426736e019.png);
     background-repeat: repeat-x;
 }
 
-.ui-accordion .ui-accordion-header { 
+.ui-accordion .ui-accordion-header {
     color: #576472;
     cursor: pointer;
     font-weight: bold;
     height: 28px;
     line-height: 28px;
     padding: 0 0 0 35px;
-    position: relative; 
-    zoom: 1; 
+    position: relative;
+    zoom: 1;
 }
 .ui-accordion .ui-accordion-header:after {
     content: '';
@@ -21746,7 +21746,7 @@ yx-axis
     width: 10px;
     height: 26px;
 }
-.ui-accordion .ui-accordion-header.ui-state-hover { 
+.ui-accordion .ui-accordion-header.ui-state-hover {
     background-position: 0 -28px;
     color: #6f9fc8;
 }
@@ -21763,21 +21763,21 @@ yx-axis
 .ui-accordion .ui-state-hover .ui-icon-triangle-1-e { background-position: 0 -85px; }
 .ui-accordion .ui-icon-triangle-1-s { background-position: 0 -113px; }
 .ui-accordion .ui-state-hover .ui-icon-triangle-1-s { background-position: 0 -141px; }
- 
+
 .ui-accordion .ui-accordion-li-fix { display: inline; }
 .ui-accordion .ui-accordion-header-active { border-bottom: 0 !important; }
 .ui-accordion .ui-accordion-header a { display: block; font-size: 1em; padding: .5em .5em .5em .7em; }
 .ui-accordion-icons .ui-accordion-header a { padding-left: 2.2em; }
-.ui-accordion .ui-accordion-content { 
+.ui-accordion .ui-accordion-content {
     background-color: #0d1014;
-    border: 2px solid #000; 
-    display: none; 
-    margin: -2px 0 2px 0; 
-    overflow: auto; 
-    padding: 10px; 
-    position: relative; 
-    top: 1px; 
-    zoom: 1; 
+    border: 2px solid #000;
+    display: none;
+    margin: -2px 0 2px 0;
+    overflow: auto;
+    padding: 10px;
+    position: relative;
+    top: 1px;
+    zoom: 1;
 }
 .ui-accordion .ui-accordion-content-active { display: block; }
 
@@ -21983,13 +21983,13 @@ button.ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra pad
  *
  * http://docs.jquery.com/UI/Tabs#theming
  */
-/*.ui-tabs { position: relative; padding: .2em; zoom: 1; }   position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") 
+/*.ui-tabs { position: relative; padding: .2em; zoom: 1; }   position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed")
 .ui-tabs .ui-tabs-nav { margin: 0; padding: .2em .2em 0; }
 .ui-tabs .ui-tabs-nav li { list-style: none; float: left; position: relative; top: 1px; margin: 0 .2em 1px 0; border-bottom: 0 !important; padding: 0; white-space: nowrap; }
 .ui-tabs .ui-tabs-nav li a { float: left; padding: .5em 1em; text-decoration: none; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active { margin-bottom: 0; padding-bottom: 1px; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-tabs-loading a { cursor: text; }
-.ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-active a { cursor: pointer; }  first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... 
+.ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-active a { cursor: pointer; }  first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere...
 .ui-tabs .ui-tabs-panel { display: block; border-width: 0; padding: 1em 1.4em; background: none; }*/
 
 
@@ -26296,7 +26296,7 @@ LifeformIcon .lifeformSelectedIcon {
 
 #mainmenucomponent ul li.premium a {
     color: yellow;
-} 
+}
 
 #mainmenucomponent ul li.mainmenucurrent a {
     color: #8FbFE8;
@@ -31355,12 +31355,8 @@ a.refreshPhalanxLink span {
 
 #planetbarcomponent #rechts #cutty  .smallplanet a.moonlink {
     left: 14px;
-    top: 34px;
+    top: 2px !important;
 }
-
-#planetbarcomponent #rechts #cutty .smallplanet a.moonlink {
-    top: 14px;
-} /* 19px */
 
 #planetbarcomponent #rechts #myPlanets .smallplanet a.moonlink {
     left: -5px;
@@ -36868,8 +36864,8 @@ wreckfields
 
 .infohead table th,
 .infohead table td,
-.messagebox td.pages {	
-    font: 100 11px Verdana, Arial, Helvetica, sans-serif; 
+.messagebox td.pages {
+    font: 100 11px Verdana, Arial, Helvetica, sans-serif;
 }
 
 .infohead table th {
@@ -36928,7 +36924,7 @@ wreckfields
 
 
 .textWrapperSmall li,
-.textWrapper ul li { 
+.textWrapper ul li {
     list-style-type: square;
     list-style-position: inside;
 }
@@ -36989,7 +36985,7 @@ div.test {
 	height:300px !important;  /* für moderne Browser */
 	height:300px;  /*für den IE */
 }
-.submit_answer { 
+.submit_answer {
     margin: 3px 0 0 25px;
     width: 702px;
 }
@@ -37093,7 +37089,7 @@ table#shortreport { border-collapse:collapse;}
     line-height: 24px;
 }
 .contentPageNavi .icon_link {
-    margin: 3px 5px 0 5px; 
+    margin: 3px 5px 0 5px;
     text-decoration: none;
 }
 .contentPageNavi .pagination_txt {
@@ -37229,7 +37225,7 @@ tr.over td {background: #212a33;}
 }
 .messagebox .newMessage { margin: 0; }
 
-.messagebox .info { 
+.messagebox .info {
     font-size:10px;
     margin: 15px 0 5px 0;
 }
@@ -41039,7 +41035,7 @@ div.values .equipment .item_img a.timeLink span.time {left: 1px;}
 
 #validate {
 	background: transparent;
-	color:#848484;	
+	color:#848484;
 	font-family: Verdana, Arial, SunSans-Regular, sans-serif;
 	font-size:12px;
 	width:405px;
@@ -41111,7 +41107,7 @@ a container that should fully contain a float */
 }
 
 #validateButton span{
-	color:#1E3310; 
+	color:#1E3310;
 	cursor:pointer;
 	display:block;
 	font-size:14px;
@@ -41123,7 +41119,7 @@ a container that should fully contain a float */
 
 #validate a.goto {
 	color:#848484;
-	display:block; 
+	display:block;
 	margin:10px;
 	text-align:center;
 	text-decoration:underline;
