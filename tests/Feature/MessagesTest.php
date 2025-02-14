@@ -317,7 +317,6 @@ class MessagesTest extends MoonTestCase
             'shielding_technology' => 0,
             'armor_technology' => 0,
         ];
-        // ... rest of battle report setup ...
 
         // Create message with this battle report
         $message = new Message();

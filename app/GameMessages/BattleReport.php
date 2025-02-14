@@ -74,6 +74,8 @@ class BattleReport extends GameMessage
      */
     public function getBody(): string
     {
+        $this->loadBattleReportModel();
+
         // Load planet by coordinate.
         $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
         $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
@@ -91,6 +93,8 @@ class BattleReport extends GameMessage
      */
     public function getBodyFull(): string
     {
+        $this->loadBattleReportModel();
+
         // Load planet by coordinate.
         $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
         $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
@@ -126,6 +130,7 @@ class BattleReport extends GameMessage
      */
     private function getBattleReportParams(): array
     {
+        // Sanity check to make sure the battle report model is loaded.
         $this->loadBattleReportModel();
 
         // TODO: add feature test for code below and check edgecases, such as when the planet has been deleted and

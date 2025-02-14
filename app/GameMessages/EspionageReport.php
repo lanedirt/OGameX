@@ -70,6 +70,8 @@ class EspionageReport extends GameMessage
      */
     public function getBody(): string
     {
+        $this->loadEspionageReportModel();
+
         // Load planet by coordinate.
         $coordinate = new Coordinate($this->espionageReportModel->planet_galaxy, $this->espionageReportModel->planet_system, $this->espionageReportModel->planet_position);
         $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->espionageReportModel->planet_type));
@@ -87,6 +89,8 @@ class EspionageReport extends GameMessage
      */
     public function getBodyFull(): string
     {
+        $this->loadEspionageReportModel();
+
         // Load planet by coordinate.
         $coordinate = new Coordinate($this->espionageReportModel->planet_galaxy, $this->espionageReportModel->planet_system, $this->espionageReportModel->planet_position);
         $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->espionageReportModel->planet_type));
@@ -119,6 +123,7 @@ class EspionageReport extends GameMessage
      */
     private function getEspionageReportParams(): array
     {
+        // Sanity check to make sure the espionage report model is loaded.
         $this->loadEspionageReportModel();
 
         // TODO: add feature test for code below and check edgecases, such as when the planet has been deleted and
