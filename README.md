@@ -40,7 +40,7 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 
 ## 🖥️ Live demo
 - Main branch (nightly builds): [https://main.ogamex.dev](https://main.ogamex.dev)
-- Latest stable release **(0.9.1)**: [https://release.ogamex.dev](https://release.ogamex.dev)
+- Latest stable release **(0.10.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
 
 ## 📝 Table of Contents
 - [1. Example screenshots](#screenshots)
@@ -204,7 +204,7 @@ If you want to upgrade an existing installation of OGameX to a new version, foll
   ```
   -- or --
   ```
-  $ git checkout 0.9.1 # replace with the latest release tag
+  $ git checkout 0.10.0 # replace with the latest release tag
   ```
   3. Rebuild and start the containers:
 
@@ -263,7 +263,7 @@ The OGameX Laravel source code is open-source software licensed under the MIT li
 
 ## <a name="related-projects"></a> 🌍 12. OGameX related projects
 
-The following projects either host OGameX servers or are based on the OGameX core. 
+The following projects either host OGameX servers or are based on the OGameX core.
 
 *Note: these projects are maintained independently and are not affiliated with the OGameX project or its maintainers in any way.*
 
