@@ -23,11 +23,13 @@ class GlobalGame
         if (Auth::check()) {
             // Load current player and make it available as a request singleton via PlayerService.
             $player = resolve(PlayerService::class, ['player_id' => $request->user()->id]);
+
+            /** @var PlayerService $player */
             app()->instance(PlayerService::class, $player);
 
             // Check if current planet change querystring parameter exists, if so, change current planet.
             if (!empty($request->query('cp'))) {
-                $player->setCurrentPlanetId($request->query('cp'));
+                $player->setCurrentPlanetId((int)$request->query('cp'));
             }
 
             // Update player.
