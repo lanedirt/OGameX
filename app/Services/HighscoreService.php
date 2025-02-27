@@ -131,7 +131,7 @@ class HighscoreService
     public function getHighscorePlayers(int $perPage = 100, int $pageOn = 1): array
     {
         // Get all player highscores
-        return Cache::remember(sprintf('highscores-%s-%d',$this->highscoreType->name,$pageOn), now()->addMinutes(5), function () use ($perPage, $pageOn) {
+        return Cache::remember(sprintf('highscores-%s-%d', $this->highscoreType->name, $pageOn), now()->addMinutes(5), function () use ($perPage, $pageOn) {
             $parsedHighscores = [];
 
             $highscores = Highscore::query()
