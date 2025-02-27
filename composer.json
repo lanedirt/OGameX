@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.2",
         "laravel/fortify": "^1.21",
-        "laravel/framework": "^11.0",
+        "laravel/framework": "^12.0",
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.5",
         "spatie/laravel-permission": "^6.7"

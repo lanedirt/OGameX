@@ -32,7 +32,7 @@
 </div>
 
 
-OGameX is an open-source OGame redesign clone. This clone is built fully from scratch using the Laravel 11.x framework and uses modern PHP practices. All major functionality is covered by unit and feature tests which automatically run on every build.
+OGameX is an open-source OGame redesign clone. This clone is built fully from scratch using the Laravel 12.x framework and uses modern PHP practices. All major functionality is covered by unit and feature tests which automatically run on every build.
 
 We welcome any and all contributions to this project! If you want to help out, please read the [contributing](#contributing) section. If you have any questions you can [join the OGameX discord](https://discord.com/invite/HJ4QRxxB5N) to get in touch with the maintainers and other contributors.
 
