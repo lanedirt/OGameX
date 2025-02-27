@@ -1,5 +1,19 @@
-services:
+x-ogamex-base: &x-ogamex-base
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      OPCACHE_ENABLE: "1" # Enable opcache in production
+  volumes:
+    - ./:/var/www:cached
+    - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+  environment:
+    SERVICE_TAGS: dev
+    SERVICE_NAME: app
+  networks:
+    - app-network
 
+services:
   # MariaDB Service
   ogamex-db:
     image: mariadb:11.3.2-jammy
@@ -16,35 +30,22 @@ services:
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     networks:
-      app-network:
-        aliases:
-          - ogame-db
+      - app-network
 
   # PHP Service
   ogamex-app:
-    volumes:
-      - ./:/var/www:cached
-      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        OPCACHE_ENABLE: "1" # Enable opcache in production
+    <<: *x-ogamex-base
     container_name: ogamex-app
     restart: unless-stopped
     tty: true
     environment:
       CONTAINER_ROLE: app
-      SERVICE_NAME: app
-      SERVICE_TAGS: dev
     working_dir: /var/www
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9000 || [ $? -eq 56 ]"]
       interval: 10s
       timeout: 6s
       retries: 60
-    networks:
-      - app-network
     depends_on:
       - ogamex-db
 
@@ -69,9 +70,7 @@ services:
 
   # Scheduler
   ogamex-scheduler:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    <<: *x-ogamex-base
     container_name: ogamex-scheduler
     volumes:
       - .:/var/www/html
