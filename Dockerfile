@@ -1,42 +1,42 @@
-FROM php:8.4-fpm-alpine
+FROM php:8.4-fpm
 
-# Copy existing application directory contents
-COPY . /var/www/
+# Copy composer.lock and composer.json
+COPY composer.lock composer.json /var/www/
 
 # Set working directory
 WORKDIR /var/www
 
 # Install dependencies
-RUN apk update && apk add --no-cache \
-    build-base \
-    oniguruma-dev \
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libonig-dev \
     mariadb-client \
     libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libzip-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    locales \
     zip \
+    jpegoptim optipng pngquant gifsicle \
+    vim \
+    libzip-dev \
     unzip \
     git \
     curl \
-    vim \
-    jpegoptim \
-    optipng \
-    pngquant \
-    gifsicle \
-    dos2unix \
-    musl-dev
+    dos2unix
 
 # Install PHP FFI development files required to interface with Rust for BattleEngine
-RUN apk add --no-cache \
-    pkgconf \
-    libffi-dev \
-    && docker-php-ext-install ffi
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libffi-dev
+RUN docker-php-ext-install ffi
+
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install extensions
-RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl \
-    && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
-    && docker-php-ext-install gd
+RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
+RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
+RUN docker-php-ext-install gd
 
 # Enable and configure opcache only if OPCACHE_ENABLE is set to "1"
 ARG OPCACHE_ENABLE=0
@@ -56,6 +56,9 @@ RUN if [ $OPCACHE_ENABLE = "1" ]; then \
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Copy existing application directory contents
+COPY . /var/www/
+
 # Check if .env file exists, fail if it doesn't
 RUN if [ ! -f /var/www/.env ]; then \
     echo "Error: .env file not found. Please create .env file before building." && \
@@ -63,8 +66,10 @@ RUN if [ ! -f /var/www/.env ]; then \
 fi
 
 # Set write permissions for required directories
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/rust \
-    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache /var/www/rust
+RUN chown -R www-data:www-data \
+    /var/www/storage \
+    /var/www/bootstrap/cache \
+    /var/www/rust
 
 # Copy entry point, convert line endings and set permissions
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint

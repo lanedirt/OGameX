@@ -5,4 +5,4 @@ edition = "2021"
 
 [lib]
 # Build a C-compatible dynamic library
-crate-type = ["staticlib"]
+crate-type = ["cdylib"]
