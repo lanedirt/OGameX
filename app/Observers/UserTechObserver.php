@@ -32,7 +32,7 @@ class UserTechObserver
         foreach (HighscoreTypeEnum::cases() as $type) {
             $pages = floor(Highscore::count() / 100) + 1;
             for ($page = 1; $page <= $pages; $page++) {
-                Cache::forget('highscores'.'-'.$type->name.'-'.$page);
+                Cache::forget(sprintf('highscores-%s-%d', $type->name, $page));
             }
         }
     }
