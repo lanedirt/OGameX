@@ -4,9 +4,10 @@ namespace OGame\Observers;
 
 use Cache;
 use OGame\Enums\HighscoreTypeEnum;
+use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Highscore;
-use OGame\Models\User;
 use OGame\Models\UserTech;
+use OGame\Services\HighscoreService;
 
 class UserTechObserver
 {
@@ -29,11 +30,20 @@ class UserTechObserver
         // Clear highscore caches.
         Cache::forget('highscore-player-count');
 
+        // Clear specific page cache where the new user score will be.
+        $highscoreService = resolve(HighscoreService::class);
+        $playerServiceFactory = resolve(PlayerServiceFactory::class);
+
+        $playerService = $playerServiceFactory->make($userTech->user->id);
+
         foreach (HighscoreTypeEnum::cases() as $type) {
-            $pages = floor(Highscore::count() / 100) + 1;
-            for ($page = 1; $page <= $pages; $page++) {
-                Cache::forget(sprintf('highscores-%s-%d', $type->name, $page));
-            }
+            $highscoreService->setHighscoreType($type->value);
+
+            $currentPlayerRank = $highscoreService->getHighscorePlayerRank($playerService);
+
+            $page = floor($currentPlayerRank / 100) + 1;
+
+            Cache::forget(sprintf('highscores-%s-%d', $type->name, $page));
         }
     }
 }

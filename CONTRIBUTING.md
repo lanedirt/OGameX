@@ -27,25 +27,31 @@ The easiest way to check if your contributed code adheres to the conventions is 
 $ ./vendor/bin/pint --test
 ```
 
-Tip: it's possible to let Laravel Pint attempt to fix the code for you by running it without the --test flag:
+Tip: it's possible to let Laravel Pint attempt to fix the code for you by running the following composer script:
 
 ```
-$ ./vendor/bin/pint
+$ composer run cs
 ```
 
 ### 2. PHPStan static code analysis
-Make sure that your code passes the PHPStan static code analysis. You can run PHPStan locally using the following command:
+Make sure that your code passes the PHPStan static code analysis. You can run PHPStan locally using the following composer script:
 
 ```
-$ ./vendor/bin/phpstan analyse --memory-limit=384M
+$ composer run stan
 ```
 
 ### 3. Laravel unit and feature tests
-Your PR should include feature or unittests where possible to cover the changes you made. OGameX uses the default Laravel testing framework which covers feature and unittests by default.
+Your PR should include feature or unit tests where possible to cover the changes you made. OGameX uses the default Laravel testing framework which covers feature and unit tests by default.
 To run the tests locally, you can use the following command:
 
 ```
 $ php artisan test
+```
+
+You are also able to apply the `--filter` parameter to run a specific class or method such as :
+
+```
+$ php artisan test --filter PlanetServiceTest
 ```
 
 ### 4. Custom race condition tests
