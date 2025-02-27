@@ -69,7 +69,7 @@ class OverviewController extends OGameController
 
         $highscoreService = resolve(HighscoreService::class);
 
-        $user_rank = Cache::remember('player-rank-'.$player->getId(), now()->addMinutes(5), function () use ($highscoreService, $player) {
+        $user_rank = Cache::remember(sprintf('player-rank-%d', $player->getId()), now()->addMinutes(5), function () use ($highscoreService, $player) {
             return $highscoreService->getHighscorePlayerRank($player);
         });
 
@@ -77,7 +77,7 @@ class OverviewController extends OGameController
             return Highscore::query()->validRanks()->count();
         });
 
-        $user_score =  Cache::remember('player-score-'.$player->getId(), now()->addMinutes(5), function () use ($player) {
+        $user_score =  Cache::remember(sprintf('player-score-%d', $player->getId()), now()->addMinutes(5), function () use ($player) {
             return AppUtil::formatNumber(Highscore::where('player_id', $player->getId())->first()->general ?? 0);
         });
 
