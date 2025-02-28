@@ -56,7 +56,12 @@ RUN if [ $OPCACHE_ENABLE = "1" ]; then \
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy existing application directory contents
+# Copy only necessary files first with correct permissions
+COPY --chown=www-data:www-data storage /var/www/storage
+COPY --chown=www-data:www-data bootstrap/cache /var/www/bootstrap/cache
+COPY --chown=www-data:www-data rust /var/www/rust
+
+# Then copy remaining files
 COPY . /var/www/
 
 # Check if .env file exists, fail if it doesn't
@@ -64,12 +69,6 @@ RUN if [ ! -f /var/www/.env ]; then \
     echo "Error: .env file not found. Please create .env file before building." && \
     exit 1; \
 fi
-
-# Set write permissions for required directories
-RUN chown -R www-data:www-data \
-    /var/www/storage \
-    /var/www/bootstrap/cache \
-    /var/www/rust
 
 # Copy entry point, convert line endings and set permissions
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
