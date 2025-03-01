@@ -88,8 +88,7 @@ Once a sufficient level of Hyperspace Technology is researched, the Hyperspace D
         $hyperspaceTechnology->requirements = [
             new GameObjectRequirement('research_lab', 7),
             new GameObjectRequirement('energy_technology', 5),
-            new GameObjectRequirement('laser_technology', 7),
-            new GameObjectRequirement('ion_technology', 5),
+            new GameObjectRequirement('shielding_technology', 5),
         ];
         $hyperspaceTechnology->price = new GameObjectPrice(4000, 0, 2000, 0, 2);
         $hyperspaceTechnology->assets = new GameObjectAssets();
@@ -174,7 +173,6 @@ With each level of the Combustion Drive developed, the speed of small and large 
         $hyperspaceDrive->description_long = 'In the immediate vicinity of the ship, the space is warped so that long distances can be covered very quickly. The more the Hyperspace Drive is developed, the stronger the warped nature of the space, whereby the speed of the ships equipped with it (Battlecruisers, Battleships, Destroyers, Deathstars, Pathfinders and Reapers) increase by 30% per level. Additionally, the bomber is built with a Hyperspace Drive as soon as research reaches level 8. As soon as Hyperspace Drive research reaches level 15, the Recycler is refitted with a Hyperspace Drive.';
         $hyperspaceDrive->requirements = [
             new GameObjectRequirement('research_lab', 7),
-            new GameObjectRequirement('energy_technology', 1),
             new GameObjectRequirement('hyperspace_technology', 3),
         ];
         $hyperspaceDrive->price = new GameObjectPrice(10000, 20000, 6000, 0, 2);

@@ -76,8 +76,8 @@ class TechtreeTest extends AccountTestCase
         $metCount = substr_count($content, 'data-prerequisites-met="true"');
         $notMetCount = substr_count($content, 'data-prerequisites-met="false"');
 
-        // Assert that 5 applications are met and 1 is not.
-        $this->assertEquals(5, $metCount);
+        // Assert that 4 applications are met and 1 is not.
+        $this->assertEquals(4, $metCount);
         $this->assertEquals(1, $notMetCount);
 
         // Set hyperspace drive to level 5 so the battlecruiser application is also met.
