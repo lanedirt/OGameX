@@ -66,21 +66,6 @@ services:
       ogamex-app:
         condition: service_healthy
 
-  ogamex-queue-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: ogamex-queue-worker
-    volumes:
-      - .:/var/www/html
-    environment:
-      CONTAINER_ROLE: queue
-    networks:
-      - app-network
-    depends_on:
-      ogamex-app:
-        condition: service_healthy
-
   # Nginx Service
   ogamex-webserver:
     image: nginx:alpine
