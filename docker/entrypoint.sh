@@ -13,14 +13,11 @@ git config --global --add safe.directory /var/www
 
 if [ "$role" = "scheduler" ]; then
     while true; do
-        php /var/www/html/artisan schedule:run --verbose --no-interaction &
+        php /var/www/html/artisan schedule:run --verbose --no-interaction
         sleep 60
     done
 elif [ "$role" = "queue" ]; then
-      while true; do
-          php /var/www/html/artisan queue:work --verbose --no-interaction &
-          sleep 60
-      done
+      php /var/www/html/artisan queue:work --verbose --no-interaction
 elif [ "$role" = "app" ]; then
     # Check APP_ENV and run appropriate composer install
     if [ "$is_production" = true ]; then
