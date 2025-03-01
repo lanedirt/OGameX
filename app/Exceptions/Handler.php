@@ -29,7 +29,7 @@ class Handler extends ExceptionHandler
      */
     protected function sendToDiscord(Throwable $e): void
     {
-        if (config('DISCORD_ALERT_WEBHOOK') && $this->shouldReport($e)) {
+        if (config('app.discord_alert_webhook') && $this->shouldReport($e)) {
             $stackTrace = explode("\n", $e->getTraceAsString());
 
             // Limit to the first two stack trace lines
