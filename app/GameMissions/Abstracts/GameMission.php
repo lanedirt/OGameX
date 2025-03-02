@@ -126,6 +126,7 @@ abstract class GameMission
         if (!$planet->hasResources($resources)) {
             throw new Exception('Not enough resources on the planet to send the fleet.');
         }
+
         if (!$planet->hasUnits($units)) {
             $unitNames = [];
             foreach ($units->units as $unit) {
@@ -162,6 +163,7 @@ abstract class GameMission
      * @param PlanetType $targetType
      * @param UnitCollection $units
      * @param Resources $resources
+     * @param float $speed_percent
      * @param int $parent_id
      * @return FleetMission
      * @throws Exception

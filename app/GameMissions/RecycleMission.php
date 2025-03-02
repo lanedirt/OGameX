@@ -31,6 +31,11 @@ class RecycleMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
+        // The recycle mission has to contain at least one recycler.
+        if ($units->getAmountByMachineName('recycler') === 0) {
+            return new MissionPossibleStatus(false);
+        }
+
         // Check if debris field exists on the target coordinate.
         $debrisField = app(DebrisFieldService::class);
         $debrisFieldExists = $debrisField->loadForCoordinates($targetCoordinate);

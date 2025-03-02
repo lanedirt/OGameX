@@ -36,6 +36,11 @@ class TransportMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
+        // If mission from and to coordinates and types are the same, the mission is not possible.
+        if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
+            return new MissionPossibleStatus(false);
+        }
+
         // If all checks pass, the mission is possible.
         return new MissionPossibleStatus(true);
     }

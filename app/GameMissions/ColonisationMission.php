@@ -42,6 +42,11 @@ class ColonisationMission extends GameMission
             return new MissionPossibleStatus(false, __('You need a colony ship to colonize a planet.'));
         }
 
+        // If mission from and to coordinates and types are the same, the mission is not possible.
+        if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
+            return new MissionPossibleStatus(false);
+        }
+
         // If all checks pass, the mission is possible.
         return new MissionPossibleStatus(true);
     }
