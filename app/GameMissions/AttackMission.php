@@ -33,9 +33,8 @@ class AttackMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
-
-        // If planet does not exist, the mission is not possible.
+        // If target planet does not exist, the mission is not possible.
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetType);
         if ($targetPlanet === null) {
             return new MissionPossibleStatus(false);
         }

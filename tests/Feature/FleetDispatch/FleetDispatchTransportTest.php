@@ -9,6 +9,7 @@ use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use Tests\FleetDispatchTestCase;
+use OGame\Models\Enums\PlanetType;
 
 /**
  * Test that fleet dispatch works as expected for transport missions.
@@ -65,7 +66,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
     }
 
     /**
-     * Assert that check request to dispatch fleet to empty position succeeds with colony ship.
+     * Assert that trying to dispatch a fleet to own second planet succeeds.
      */
     public function testFleetCheckToOwnPlanetSuccess(): void
     {
@@ -76,7 +77,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
     }
 
     /**
-     * Assert that check request to dispatch fleet to foreign planet position fails without colony ship.
+     * Assert that trying to dispatch a fleet to foreign planet position fails.
      */
     public function testFleetCheckToForeignPlanetError(): void
     {
@@ -87,7 +88,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
     }
 
     /**
-     * Assert that check request to dispatch fleet to empty position fails without colony ship.
+     * Assert that trying to dispatch a fleet to empty position fails.
      */
     public function testFleetCheckToEmptyPlanetError(): void
     {
@@ -97,6 +98,9 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->fleetCheckToEmptyPosition($unitCollection, false);
     }
 
+    /**
+     * Assert that trying to dispatch a fleet to a planet of another player succeeds.
+     */
     public function testDispatchFleetToOtherPlayer(): void
     {
         $this->basicSetup();
@@ -509,5 +513,32 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response->assertStatus(200);
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
+    }
+
+    /**
+     * Verify that sending a mission towards a non-existent moon returns an error.
+     */
+    public function testDispatchFleetToNonExistentMoonError(): void
+    {
+        $this->basicSetup();
+
+        // Send fleet to a non-existent moon at the second planet coordinates
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
+        // Use second planet coordinates but specify it's a (non existent) moon target
+        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+
+        // Dispatch fleet to the non-existent moon and expect a 500 error.
+        $this->dispatchFleet($coordinates, $unitCollection, new Resources(100, 100, 0, 0), PlanetType::Moon, 500);
+
+        // Verify no fleet mission was created
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(0, $activeMissions, 'Fleet mission was created despite non-existent moon target.');
+
+        // Verify resources and units were not deducted
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships were deducted despite failed mission.');
     }
 }

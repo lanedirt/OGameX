@@ -28,9 +28,8 @@ class DeploymentMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
-
         // If target planet does not exist, the mission is not possible.
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetType);
         if ($targetPlanet === null) {
             return new MissionPossibleStatus(false);
         }
