@@ -56,6 +56,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: ogamex-scheduler
+    restart: unless-stopped
     volumes:
       - .:/var/www/html
     environment:
@@ -66,11 +67,13 @@ services:
       ogamex-app:
         condition: service_healthy
 
+  # Queue
   ogamex-queue-worker:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: ogamex-queue-worker
+    restart: unless-stopped
     volumes:
       - .:/var/www/html
     environment:
