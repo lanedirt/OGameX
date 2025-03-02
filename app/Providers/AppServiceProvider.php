@@ -4,9 +4,11 @@ namespace OGame\Providers;
 
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use OGame\Exceptions\Handler;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Services\SettingsService;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -43,5 +45,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(PlanetServiceFactory::class, function ($app) {
             return new PlanetServiceFactory($app->make(SettingsService::class));
         });
+
+        $this->app->singleton(ExceptionHandler::class, Handler::class);
     }
 }

@@ -1,10 +1,8 @@
 <?php
 
-use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use OGame\Exceptions\Handler;
 use OGame\Http\Middleware\Admin;
 use OGame\Http\Middleware\GlobalGame;
 use OGame\Http\Middleware\Locale;
@@ -24,6 +22,5 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        app()->singleton(ExceptionHandlerContract::class, Handler::class);
     })
     ->create();
