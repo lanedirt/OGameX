@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use OGame\Http\Middleware\Admin;
 use OGame\Http\Middleware\GlobalGame;
@@ -19,5 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'locale' => Locale::class,
             'admin' => Admin::class,
         ]);
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
     })
     ->create();

@@ -8,7 +8,7 @@ use OGame\Exceptions\Handler;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Services\SettingsService;
-use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,6 +46,6 @@ class AppServiceProvider extends ServiceProvider
             return new PlanetServiceFactory($app->make(SettingsService::class));
         });
 
-        $this->app->singleton(ExceptionHandlerContract::class, Handler::class);
+        $this->app->singleton(ExceptionHandler::class, Handler::class);
     }
 }
