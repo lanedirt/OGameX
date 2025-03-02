@@ -223,7 +223,7 @@
                 "galaxy": {{ $planet->getPlanetCoordinates()->galaxy }},
                 "system": {{ $planet->getPlanetCoordinates()->system }},
                 "position": {{ $planet->getPlanetCoordinates()->position }},
-                "type": 1,
+                "type": {{ $planet->getPlanetType() }},
                 "name": "{{ $planet->getPlanetName() }}"
             };
             var targetPlanet = {
@@ -231,7 +231,7 @@
                 "system": {{ $system ?? $planet->getPlanetCoordinates()->system }},
                 "position": {{ $position ?? $planet->getPlanetCoordinates()->position }},
                 "type": {{ $type ?? 1 }},
-                "name": "{{ $planet->getPlanetName() }}"
+                "name": "Target"
             };
             var shipsOnPlanet = [@foreach ($units as $unitGroup)@foreach ($unitGroup as $unit)@if($unit->amount > 0){
                 "id": {{ $unit->object->id }},
@@ -243,7 +243,7 @@
                 "galaxy": {{ $planet->getPlanetCoordinates()->galaxy }},
                 "system": {{ $planet->getPlanetCoordinates()->system }},
                 "position": {{ $planet->getPlanetCoordinates()->position }},
-                "type": 1,
+                "type": {{ $planet->getPlanetType() }},
                 "name": "{{ $planet->getPlanetName() }}"
             }];
             var standardFleets = [];

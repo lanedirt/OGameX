@@ -115,6 +115,20 @@ abstract class FleetDispatchTestCase extends MoonTestCase
     }
 
     /**
+     * Send a fleet to the first planet debris field of the test user.
+     *
+     * @param UnitCollection $units
+     * @param Resources $resources
+     * @param int $assertStatus
+     * @return void
+     */
+    protected function sendMissionToFirstPlanetDebrisField(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    {
+        $coordinates = $this->planetService->getPlanetCoordinates();
+        $this->dispatchFleet($coordinates, $units, $resources, PlanetType::DebrisField, $assertStatus);
+    }
+
+    /**
      * Send a fleet to the second planet debris field of the test user.
      *
      * @param UnitCollection $units

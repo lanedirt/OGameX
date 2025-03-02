@@ -450,4 +450,41 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $response->assertJsonFragment(['friendly' => 1]);
         $response->assertJsonFragment(['eventText' => $this->missionName . ' (R)']);
     }
+
+    /**
+     * Verify that recycling debris field at current planet coordinates works to make sure
+     * that mission from and to with same coordinates is allowed.
+     */
+    public function testDispatchFleetToCurrentPlanetDebrisField(): void
+    {
+        $this->basicSetup();
+
+        // Add debris field to the current planet coordinates
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($this->planetService->getPlanetCoordinates());
+        $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
+        $debrisFieldService->save();
+
+        // Send fleet to the debris field at current planet coordinates
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 1);
+        $this->sendMissionToFirstPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Get mission duration and advance time
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration(
+            $this->planetService,
+            $this->planetService->getPlanetCoordinates(),
+            $unitCollection
+        );
+
+        // Advance time and trigger update
+        $this->travel($fleetMissionDuration + 1)->seconds();
+        $this->get('/overview');
+
+        // Assert debris field is empty after harvesting
+        $debrisFieldService->loadForCoordinates($this->planetService->getPlanetCoordinates());
+        $this->assertFalse($debrisFieldService->getResources()->any(), 'Debris field still has resources after recyclers have harvested it.');
+    }
 }

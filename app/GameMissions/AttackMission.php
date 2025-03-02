@@ -33,15 +33,19 @@ class AttackMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
-
-        // If planet does not exist, the mission is not possible.
+        // If target planet does not exist, the mission is not possible.
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetType);
         if ($targetPlanet === null) {
             return new MissionPossibleStatus(false);
         }
 
         // If planet belongs to current player, the mission is not possible.
         if ($planet->getPlayer()->equals($targetPlanet->getPlayer())) {
+            return new MissionPossibleStatus(false);
+        }
+
+        // If mission from and to coordinates and types are the same, the mission is not possible.
+        if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
             return new MissionPossibleStatus(false);
         }
 

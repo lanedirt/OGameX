@@ -30,9 +30,8 @@ class ColonisationMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate);
-
-        // If planet already exists, the mission is not possible.
+        // If target planet already exists, the mission is not possible.
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetType);
         if ($targetPlanet !== null) {
             return new MissionPossibleStatus(false);
         }
@@ -40,6 +39,11 @@ class ColonisationMission extends GameMission
         // If no colony ships are present in the fleet, the mission is not possible.
         if ($units->getAmountByMachineName('colony_ship') === 0) {
             return new MissionPossibleStatus(false, __('You need a colony ship to colonize a planet.'));
+        }
+
+        // If mission from and to coordinates and types are the same, the mission is not possible.
+        if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
+            return new MissionPossibleStatus(false);
         }
 
         // If all checks pass, the mission is possible.

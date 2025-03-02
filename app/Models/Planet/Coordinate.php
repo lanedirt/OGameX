@@ -27,4 +27,15 @@ class Coordinate
     {
         return $this->galaxy . ':' . $this->system . ':' . $this->position;
     }
+
+    /**
+     * Returns true if the coordinate is equal to another coordinate.
+     *
+     * @param Coordinate $coordinate
+     * @return bool
+     */
+    public function equals(Coordinate $coordinate): bool
+    {
+        return $this->galaxy === $coordinate->galaxy && $this->system === $coordinate->system && $this->position === $coordinate->position;
+    }
 }
