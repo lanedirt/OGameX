@@ -72,6 +72,8 @@ jobs:
               docker compose logs ogamex-webserver
               echo "Container Logs ogamex-scheduler:"
               docker compose logs ogamex-scheduler
+              echo "Container Logs ogamex-queue-worker:"
+              docker compose logs ogamex-queue-worker
 
               # Restart containers for next test in case of failure
               docker compose restart
