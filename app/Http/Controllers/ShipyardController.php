@@ -7,6 +7,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractUnitsController;
+use OGame\Models\BuildingQueue;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\UnitQueueService;
 
@@ -57,5 +59,33 @@ class ShipyardController extends AbstractUnitsController
     public function ajax(Request $request, PlayerService $player): JsonResponse
     {
         return $this->ajaxHandler($request, $player);
+    }
+
+    /**
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
+    {
+        $shipyardUpgrading = BuildingQueue::where('planet_id', $player->getCurrentPlanetId())
+            ->where('time_end', '>', time())
+            ->where('object_id', '=', ObjectService::getObjectByMachineName('shipyard')->id)
+            ->where('processed', '=', 0)
+            ->where('canceled', '=', 0)
+            ->where('building', '=', 1)
+            ->exists();
+
+        // If the shipyard isn't upgrading, we can continue to process the request.
+        if (! $shipyardUpgrading) {
+            return parent::addBuildRequest($request, $player);
+        } else {
+            // Otherwise, it shouldn't be allowed.
+            return response()->json([
+                'success' => false,
+                'errors' => [['message' => 'Shipyard is currently upgrading.']],
+            ]);
+        }
     }
 }
