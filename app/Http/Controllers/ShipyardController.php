@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -70,7 +71,7 @@ class ShipyardController extends AbstractUnitsController
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
         $shipyardUpgrading = BuildingQueue::where('planet_id', $player->getCurrentPlanetId())
-            ->where('time_end', '>', time())
+            ->where('time_end', '>', (int)Carbon::now()->timestamp)
             ->where('object_id', '=', ObjectService::getObjectByMachineName('shipyard')->id)
             ->where('processed', '=', 0)
             ->where('canceled', '=', 0)
