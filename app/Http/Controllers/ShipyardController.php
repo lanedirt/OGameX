@@ -2,14 +2,11 @@
 
 namespace OGame\Http\Controllers;
 
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractUnitsController;
-use OGame\Models\BuildingQueue;
-use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\UnitQueueService;
 
@@ -45,7 +42,10 @@ class ShipyardController extends AbstractUnitsController
         ];
 
         return view(view: 'ingame.shipyard.index')->with(
-            parent::indexPage($request, $player)
+            array_merge(
+                ['shipyard_upgrading' => $player->isBuildingObject('shipyard')],
+                parent::indexPage($request, $player)
+            )
         );
     }
 
@@ -70,22 +70,14 @@ class ShipyardController extends AbstractUnitsController
      */
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
-        $shipyardUpgrading = BuildingQueue::where('planet_id', $player->getCurrentPlanetId())
-            ->where('time_end', '>', (int)Carbon::now()->timestamp)
-            ->where('object_id', '=', ObjectService::getObjectByMachineName('shipyard')->id)
-            ->where('processed', '=', 0)
-            ->where('canceled', '=', 0)
-            ->where('building', '=', 1)
-            ->exists();
-
         // If the shipyard isn't upgrading, we can continue to process the request.
-        if (! $shipyardUpgrading) {
+        if (! $player->isBuildingObject('shipyard')) {
             return parent::addBuildRequest($request, $player);
         } else {
             // Otherwise, it shouldn't be allowed.
             return response()->json([
                 'success' => false,
-                'errors' => [['message' => 'Shipyard is currently upgrading.']],
+                'errors' => [['message' => __('Shipyard is being upgraded.')]],
             ]);
         }
     }

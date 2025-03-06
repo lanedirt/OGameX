@@ -67,6 +67,8 @@ trait ObjectAjaxTrait
                 $research_in_progress = $player->isResearching();
                 break;
             case GameObjectType::Ship:
+                $shipyard_upgrading = $player->isBuildingObject('shipyard');
+                break;
             case GameObjectType::Defense:
                 $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
@@ -167,6 +169,7 @@ trait ObjectAjaxTrait
             'current_amount' => $current_amount,
             'research_lab_upgrading' => $research_lab_upgrading,
             'research_in_progress' => $research_in_progress,
+            'shipyard_upgrading' => $shipyard_upgrading ?? false,
         ]);
 
         return response()->json([

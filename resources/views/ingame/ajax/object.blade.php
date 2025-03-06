@@ -184,12 +184,15 @@
             <div class="build-it_wrap">
                 <div class="ipiHintable" data-ipi-hint="ipiTechnologyUpgradedeuteriumSynthesizer">
                     <button class="upgrade"
-                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress))
+                            @php
+                                $disabled_shipyard_upgrading = ($object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship && $shipyard_upgrading)
+                            @endphp
+                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading))
                                 disabled
                             @else
                             @endif
                             data-technology="{{ $object->id }}">
-                        <span class="tooltip" title="">
+                        <span class="tooltip" title="{{ $disabled_shipyard_upgrading ? 'Shipyard is being upgrading' : '' }}">
                             @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                                 Build
                             @elseif (!empty($build_active->id))
