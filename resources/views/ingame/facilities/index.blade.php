@@ -69,6 +69,7 @@
                             @elseif (!$building->enough_resources)
                             @elseif ($build_queue_max)
                             @elseif ($building->research_in_progress && $building->object->machine_name == 'research_lab')
+                            @elseif ($building->ship_in_progress  && $building->object->machine_name == 'shipyard')
                             @else
                                 <button
                                         class="upgrade tooltip hideOthers js_hideTipOnMobile"
