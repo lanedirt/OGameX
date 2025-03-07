@@ -192,7 +192,7 @@
                             @else
                             @endif
                             data-technology="{{ $object->id }}">
-                        <span class="tooltip" title="{{ $disabled_shipyard_upgrading ? 'Shipyard is being upgrading' : '' }}">
+                        <span class="tooltip" title="{{ $disabled_shipyard_upgrading ? __('Shipyard is being upgraded') : '' }}">
                             @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                                 Build
                             @elseif (!empty($build_active->id))
