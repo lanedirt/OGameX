@@ -185,14 +185,20 @@
                 <div class="ipiHintable" data-ipi-hint="ipiTechnologyUpgradedeuteriumSynthesizer">
                     <button class="upgrade"
                             @php
-                                $disabled_shipyard_upgrading = ($object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship && $shipyard_upgrading)
+                                $disabled_shipyard_upgrading = $object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship && $shipyard_upgrading;
+                                $ships_being_built = $object->machine_name == 'shipyard' && $ship_in_progress;
                             @endphp
-                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading))
+                                    
+                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading || $ships_being_built))
                                 disabled
                             @else
                             @endif
                             data-technology="{{ $object->id }}">
-                        <span class="tooltip" title="{{ $disabled_shipyard_upgrading ? __('Shipyard is being upgraded') : '' }}">
+                            @php
+                                $tooltip = $disabled_shipyard_upgrading ?  __('Shipyard is being upgraded') : false;
+                                $tooltip = $ships_being_built ?  __('The Shipyard is still busy') : false;
+                            @endphp
+                        <span class="tooltip" title="{{ isset($tooltip) ? $tooltip : '' }}">
                             @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                                 Build
                             @elseif (!empty($build_active->id))

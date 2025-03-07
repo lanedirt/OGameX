@@ -55,8 +55,6 @@ trait ObjectAjaxTrait
         // Switch
         $production_time = '';
         $production_datetime = '';
-        $research_lab_upgrading = false;
-        $research_in_progress = false;
         switch ($object->type) {
             case GameObjectType::Building:
             case GameObjectType::Station:
@@ -65,6 +63,9 @@ trait ObjectAjaxTrait
 
                 // Research Lab upgrading is disallowed when research is in progress
                 $research_in_progress = $player->isResearching();
+
+                // Shipyard upgrading is now allowed when ship/s in progress.
+                $ship_in_progress = $player->isBuildingShips();
                 break;
             case GameObjectType::Ship:
                 $shipyard_upgrading = $player->isBuildingObject('shipyard');
@@ -167,9 +168,10 @@ trait ObjectAjaxTrait
             'max_storage' => $max_storage,
             'max_build_amount' => $max_build_amount,
             'current_amount' => $current_amount,
-            'research_lab_upgrading' => $research_lab_upgrading,
-            'research_in_progress' => $research_in_progress,
+            'research_lab_upgrading' => $research_lab_upgrading ?? false,
+            'research_in_progress' => $research_in_progress ?? false,
             'shipyard_upgrading' => $shipyard_upgrading ?? false,
+            'ship_in_progress' => $ship_in_progress ?? false,
         ]);
 
         return response()->json([

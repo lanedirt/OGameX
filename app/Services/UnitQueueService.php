@@ -5,6 +5,7 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use OGame\Models\UnitQueue;
 use OGame\ViewModels\Queue\UnitQueueListViewModel;
 use OGame\ViewModels\Queue\UnitQueueViewModel;
@@ -124,6 +125,21 @@ class UnitQueueService
             ['object_id', $building_id],
             ['processed', 0],
         ])
+            ->count();
+    }
+
+    public function isBuildingShips(int $planet_id): bool
+    {
+        $shipObjectIds = Cache::rememberForever('ship-object-ids', function () {
+            return array_column(ObjectService::getShipObjects(), 'id');
+        });
+
+        return (bool)$this->model
+            ->where([
+                ['planet_id', $planet_id],
+                ['processed', 0],
+            ])
+            ->whereIn('object_id', $shipObjectIds)
             ->count();
     }
 

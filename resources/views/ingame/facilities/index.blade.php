@@ -44,6 +44,9 @@
                             @elseif (!$building->valid_planet_type)
                                 data-status="disabled"
                                 title="{{ $building->object->title }}<br/>@lang('You can\'t construct that building on a moon!')"
+                            @elseif ($building->ship_in_progress && $building->object->machine_name == 'shipyard')
+                                data-status="disabled"
+                            title="{{ $building->object->title }}<br/>@lang('The shipyard is still busy')"
                             @elseif ($building->research_in_progress && $building->object->machine_name == 'research_lab')
                                 data-status="disabled"
                                 title="{{ $building->object->title }}<br/>@lang('Research is currently being carried out!')"
