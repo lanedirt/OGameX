@@ -180,6 +180,13 @@ abstract class AbstractBuildingsController extends OGameController
      */
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
+        // If the technology is a shipyard, it shouldn't be able to upgrade while ships are built.
+        if ($request->input('technologyId') === '21' && $player->isBuildingShips()) {
+            return response()->json([
+                'success' => false,
+                'errors' => [['message' => __('The Shipyard is still busy.')]],
+            ]);
+        }
         // If the technology is a solar satellite, execute the addBuildRequest method in ShipyardController.
         if ($request->input('technologyId') === '212') {
             return resolve(ShipyardController::class)->addBuildRequest($request, $player);
