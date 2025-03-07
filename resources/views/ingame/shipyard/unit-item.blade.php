@@ -23,7 +23,7 @@
     @elseif (!$building->max_build_amount)
         data-status="disabled"
     title="{{ $building->object->title }}<br/>@lang('Maximum number reached!')"
-    @elseif ($shipyard_upgrading)
+    @elseif ($shipyard_upgrading ?? false)
         data-status="disabled"
     title="{{ $building->object->title }}<br/>@lang('Shipyard is being upgraded.')"
     @else
