@@ -64,8 +64,8 @@ trait ObjectAjaxTrait
                 // Research Lab upgrading is disallowed when research is in progress
                 $research_in_progress = $player->isResearching();
 
-                // Shipyard upgrading is now allowed when ship/s in progress.
-                $ship_in_progress = $player->isBuildingShips();
+                // Shipyard upgrading is not allowed when ships or defense units are in progress.
+                $ship_or_defense_in_progress = $player->isBuildingShipsOrDefense();
                 break;
             case GameObjectType::Ship:
                 $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
@@ -76,6 +76,8 @@ trait ObjectAjaxTrait
             case GameObjectType::Defense:
                 $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
+
+                $shipyard_upgrading = $player->isBuildingObject('shipyard');
                 break;
             case GameObjectType::Research:
                 $production_time = AppUtil::formatTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
@@ -174,7 +176,7 @@ trait ObjectAjaxTrait
             'research_lab_upgrading' => $research_lab_upgrading ?? false,
             'research_in_progress' => $research_in_progress ?? false,
             'shipyard_upgrading' => $shipyard_upgrading ?? false,
-            'ship_in_progress' => $ship_in_progress ?? false,
+            'ship_or_defense_in_progress' => $ship_or_defense_in_progress ?? false,
         ]);
 
         return response()->json([

@@ -524,11 +524,11 @@ class PlayerService
         return (bool) $research_queue->activeResearchQueueItemCount($this);
     }
 
-    public function isBuildingShips(): bool
+    public function isBuildingShipsOrDefense(): bool
     {
         $unit_queue = resolve(UnitQueueService::class);
 
-        return $unit_queue->isBuildingShips($this->getCurrentPlanetId());
+        return $unit_queue->isBuildingShipsOrDefense($this->getCurrentPlanetId());
     }
 
     /**

@@ -128,10 +128,10 @@ class UnitQueueService
             ->count();
     }
 
-    public function isBuildingShips(int $planet_id): bool
+    public function isBuildingShipsOrDefense(int $planet_id): bool
     {
-        $shipObjectIds = Cache::rememberForever('ship-object-ids', function () {
-            return array_column(ObjectService::getShipObjects(), 'id');
+        $shipObjectIds = Cache::rememberForever('ship-and-defense-object-ids', function () {
+            return array_column([...ObjectService::getShipObjects(),...ObjectService::getDefenseObjects()], 'id');
         });
 
         return (bool)$this->model
