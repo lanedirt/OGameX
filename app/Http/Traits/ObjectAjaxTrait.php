@@ -55,8 +55,6 @@ trait ObjectAjaxTrait
         // Switch
         $production_time = '';
         $production_datetime = '';
-        $research_lab_upgrading = false;
-        $research_in_progress = false;
         switch ($object->type) {
             case GameObjectType::Building:
             case GameObjectType::Station:
@@ -65,11 +63,21 @@ trait ObjectAjaxTrait
 
                 // Research Lab upgrading is disallowed when research is in progress
                 $research_in_progress = $player->isResearching();
+
+                // Shipyard upgrading is not allowed when ships or defense units are in progress.
+                $ship_or_defense_in_progress = $player->isBuildingShipsOrDefense();
                 break;
             case GameObjectType::Ship:
+                $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
+                $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
+
+                $shipyard_upgrading = $player->isBuildingObject('shipyard');
+                break;
             case GameObjectType::Defense:
                 $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
+
+                $shipyard_upgrading = $player->isBuildingObject('shipyard');
                 break;
             case GameObjectType::Research:
                 $production_time = AppUtil::formatTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
@@ -165,8 +173,10 @@ trait ObjectAjaxTrait
             'max_storage' => $max_storage,
             'max_build_amount' => $max_build_amount,
             'current_amount' => $current_amount,
-            'research_lab_upgrading' => $research_lab_upgrading,
-            'research_in_progress' => $research_in_progress,
+            'research_lab_upgrading' => $research_lab_upgrading ?? false,
+            'research_in_progress' => $research_in_progress ?? false,
+            'shipyard_upgrading' => $shipyard_upgrading ?? false,
+            'ship_or_defense_in_progress' => $ship_or_defense_in_progress ?? false,
         ]);
 
         return response()->json([

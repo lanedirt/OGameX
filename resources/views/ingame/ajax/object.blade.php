@@ -184,12 +184,21 @@
             <div class="build-it_wrap">
                 <div class="ipiHintable" data-ipi-hint="ipiTechnologyUpgradedeuteriumSynthesizer">
                     <button class="upgrade"
-                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress))
+                            @php
+                                $disabled_shipyard_upgrading = $object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense  && $shipyard_upgrading;
+                                $ships_being_built = $object->machine_name == 'shipyard' && $ship_or_defense_in_progress;
+                            @endphp
+                                    
+                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading || $ships_being_built))
                                 disabled
                             @else
                             @endif
                             data-technology="{{ $object->id }}">
-                        <span class="tooltip" title="">
+                            @php
+                                $tooltip = $disabled_shipyard_upgrading ? __('Shipyard is being upgraded') :
+                                   ($ships_being_built ? __('The Shipyard is still busy') : false);
+                            @endphp
+                        <span class="tooltip" title="{{ is_string($tooltip) ? $tooltip : '' }}">
                             @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                                 Build
                             @elseif (!empty($build_active->id))

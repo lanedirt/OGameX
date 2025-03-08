@@ -77,6 +77,7 @@ abstract class AbstractBuildingsController extends OGameController
 
         // Research Lab upgrading is disallowed when researching is ongoing
         $research_in_progress = $player->isResearching();
+        $ship_or_defense_in_progress = $player->isBuildingShipsOrDefense();
 
         $buildings = [];
         foreach ($this->objects as $key_row => $objects_row) {
@@ -108,6 +109,7 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
                 $view_model->research_in_progress = $research_in_progress;
+                $view_model->ship_or_defense_in_progress = $ship_or_defense_in_progress;
 
                 $buildings[$key_row][$object->id] = $view_model;
             }
@@ -178,6 +180,13 @@ abstract class AbstractBuildingsController extends OGameController
      */
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
+        // If the technology is a shipyard, it shouldn't be able to upgrade while ships are built.
+        if ($request->input('technologyId') === '21' && $player->isBuildingShipsOrDefense()) {
+            return response()->json([
+                'success' => false,
+                'errors' => [['message' => __('The Shipyard is still busy.')]],
+            ]);
+        }
         // If the technology is a solar satellite, execute the addBuildRequest method in ShipyardController.
         if ($request->input('technologyId') === '212') {
             return resolve(ShipyardController::class)->addBuildRequest($request, $player);

@@ -42,7 +42,10 @@ class ShipyardController extends AbstractUnitsController
         ];
 
         return view(view: 'ingame.shipyard.index')->with(
-            parent::indexPage($request, $player)
+            array_merge(
+                ['shipyard_upgrading' => $player->isBuildingObject('shipyard')],
+                parent::indexPage($request, $player)
+            )
         );
     }
 
@@ -57,5 +60,25 @@ class ShipyardController extends AbstractUnitsController
     public function ajax(Request $request, PlayerService $player): JsonResponse
     {
         return $this->ajaxHandler($request, $player);
+    }
+
+    /**
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
+    {
+        // If the shipyard isn't upgrading, we can continue to process the request.
+        if (! $player->isBuildingObject('shipyard')) {
+            return parent::addBuildRequest($request, $player);
+        } else {
+            // Otherwise, it shouldn't be allowed.
+            return response()->json([
+                'success' => false,
+                'errors' => [['message' => __('Shipyard is being upgraded.')]],
+            ]);
+        }
     }
 }

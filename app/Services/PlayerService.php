@@ -524,6 +524,13 @@ class PlayerService
         return (bool) $research_queue->activeResearchQueueItemCount($this);
     }
 
+    public function isBuildingShipsOrDefense(): bool
+    {
+        $unit_queue = resolve(UnitQueueService::class);
+
+        return $unit_queue->isBuildingShipsOrDefense($this->getCurrentPlanetId());
+    }
+
     /**
      * Get is the player researching the tech or not
      *
