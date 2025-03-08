@@ -68,6 +68,9 @@ trait ObjectAjaxTrait
                 $ship_in_progress = $player->isBuildingShips();
                 break;
             case GameObjectType::Ship:
+                $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
+                $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
+
                 $shipyard_upgrading = $player->isBuildingObject('shipyard');
                 break;
             case GameObjectType::Defense:
