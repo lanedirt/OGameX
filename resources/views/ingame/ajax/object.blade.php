@@ -185,7 +185,7 @@
                 <div class="ipiHintable" data-ipi-hint="ipiTechnologyUpgradedeuteriumSynthesizer">
                     <button class="upgrade"
                             @php
-                                $disabled_shipyard_upgrading = $object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense  && $shipyard_upgrading;
+                                $disabled_shipyard_upgrading = ($object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense) && $shipyard_upgrading;
                                 $ships_being_built = $object->machine_name == 'shipyard' && $ship_or_defense_in_progress;
                             @endphp
                                     
