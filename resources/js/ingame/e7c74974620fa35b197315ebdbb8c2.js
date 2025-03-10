@@ -47062,6 +47062,12 @@ FleetDispatcher.prototype.fetchTargetPlayerData = function () {
     params.recycler = 1;
   }
 
+    // Ensure all our params are existent, otherwise no point posting the data.
+    if (!params.galaxy || !params.system || !params.position || !params.type) {
+        this.stopLoading();
+        return;
+    }
+
   $.post(this.checkTargetUrl, params, function (data) {
     let status = data.status || 'failure';
     $("#additionalFleetSpeedInfo").html(data.additionalFlightSpeedinfo);
