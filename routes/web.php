@@ -17,6 +17,7 @@ use OGame\Http\Controllers\MerchantController;
 use OGame\Http\Controllers\MessagesController;
 use OGame\Http\Controllers\NotesController;
 use OGame\Http\Controllers\OptionsController;
+use OGame\Http\Controllers\OverviewController;
 use OGame\Http\Controllers\PaymentController;
 use OGame\Http\Controllers\PlanetAbandonController;
 use OGame\Http\Controllers\PlanetMoveController;
@@ -46,7 +47,7 @@ Route::redirect('/', '/overview', 301);
 // Group: all logged in pages:
 Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     // Overview
-    Route::get('/overview', 'OverviewController@index')->name('overview.index');
+    Route::get('/overview', [OverviewController::class, 'index'])->name('overview.index');
 
     // Resources
     Route::get('/resources', [ResourcesController::class, 'index'])->name('resources.index');
