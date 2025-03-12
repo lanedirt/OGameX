@@ -59,6 +59,9 @@
         ],
         "stan": [
             "./vendor/bin/phpstan analyse --memory-limit=384M"
+        ],
+        "tests": [
+            "@php artisan test"
         ]
     },
     "extra": {
