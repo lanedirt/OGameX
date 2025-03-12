@@ -88,12 +88,14 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     // Fleet
     Route::get('/fleet', [FleetController::class, 'index'])->name('fleet.index');
     Route::get('/fleet/movement', [FleetController::class, 'movement'])->name('fleet.movement');
-    Route::get('/ajax/fleet/eventbox/fetch', [FleetEventsController::class, 'fetchEventBox'])->name('fleet.eventbox.fetch');
-    Route::get('/ajax/fleet/eventlist/fetch', [FleetEventsController::class, 'fetchEventList'])->name('fleet.eventlist.fetch');
+
     Route::post('/ajax/fleet/dispatch/check-target', [FleetController::class, 'dispatchCheckTarget'])->name('fleet.dispatch.checktarget');
     Route::post('/ajax/fleet/dispatch/send-fleet', [FleetController::class, 'dispatchSendFleet'])->name('fleet.dispatch.sendfleet');
     Route::post('/ajax/fleet/dispatch/send-mini-fleet', [FleetController::class, 'dispatchSendMiniFleet'])->name('fleet.dispatch.sendminifleet');
     Route::post('/ajax/fleet/dispatch/recall-fleet', [FleetController::class, 'dispatchRecallFleet'])->name('fleet.dispatch.recallfleet');
+
+    Route::get('/ajax/fleet/eventbox/fetch', [FleetEventsController::class, 'fetchEventBox'])->name('fleet.eventbox.fetch');
+    Route::get('/ajax/fleet/eventlist/fetch', [FleetEventsController::class, 'fetchEventList'])->name('fleet.eventlist.fetch');
 
     // Galaxy
     Route::get('/galaxy', [GalaxyController::class, 'index'])->name('galaxy.index');
