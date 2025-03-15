@@ -61,8 +61,12 @@ COPY . /var/www/
 
 # Check if .env file exists, fail if it doesn't
 RUN if [ ! -f /var/www/.env ]; then \
-    echo "Error: .env file not found. Please create .env file before building." && \
-    exit 1; \
+    if [ -f /var/www/.env.example ]; then \
+        cp /var/www/.env.example /var/www/.env; \
+        echo ".env file not found, copied .env.example to .env"; \
+    else \
+        echo "Error: .env and .env.example files not found. Please create an .env file before building." && exit 1; \
+    fi \
 fi
 
 # Set write permissions for required directories
