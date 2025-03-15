@@ -69,7 +69,8 @@ fi
 RUN chown -R www-data:www-data \
     /var/www/storage \
     /var/www/bootstrap/cache \
-    /var/www/rust
+    /var/www/rust && \
+    chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # Copy entry point, convert line endings and set permissions
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
