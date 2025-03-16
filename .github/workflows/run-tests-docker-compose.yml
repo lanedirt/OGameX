@@ -21,8 +21,6 @@ jobs:
       - name: Set Permissions
         run: |
           sudo chmod -R 777 /var/www
-      - name: Copy .env
-        run: sudo cp .env.example .env
       - name: Set up Docker Compose
         run: |
           # Build the images and start the services

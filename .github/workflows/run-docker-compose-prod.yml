@@ -20,8 +20,6 @@ jobs:
           sed -i '/USER www/s/^/#/' ./Dockerfile
       - name: Set Permissions
         run: sudo chmod -R 777 /var/www
-      - name: Copy .env
-        run: sudo cp .env.example-prod .env
       - name: Build and start the services
         run: |
           # Build the images and start the services
