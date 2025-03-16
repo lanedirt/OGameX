@@ -148,7 +148,6 @@ trait ObjectAjaxTrait
         }
 
         $view_html = view('ingame.ajax.object')->with([
-            'id' => $object_id,
             'object' => $object,
             'object_type' => $object->type,
             'planet_id' => $planet->getPlanetId(),
@@ -163,6 +162,7 @@ trait ObjectAjaxTrait
             'production_next' => $production_next,
             'energy_difference' => $energy_difference,
             'enough_resources' => $enough_resources,
+            'has_requirements' => $object->hasRequirements(),
             'requirements_met' => $requirements_met,
             'valid_planet_type' => $valid_planet_type,
             'build_active' => $build_queue->count(),
