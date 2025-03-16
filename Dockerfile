@@ -63,6 +63,7 @@ COPY . /var/www/
 RUN if [ ! -f .env ]; then \
     if [ -f .env.example ]; then \
         cp .env.example .env; \
+        chmod 644 .env; \
         echo ".env file not found, copied .env.example to .env"; \
     else \
         echo "Error: .env and .env.example files not found. Please create an .env file before building." && exit 1; \
