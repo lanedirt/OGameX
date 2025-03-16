@@ -61,6 +61,7 @@ COPY . /var/www/
 
 # Check if .env file exists, fail if it doesn't
 RUN if [ ! -f /var/www/.env ]; then \
+    echo 'no .env...'  \
     if [ -f /var/www/.env.example ]; then \
         cp /var/www/.env.example /var/www/.env; \
         echo ".env file not found, copied .env.example to .env"; \
