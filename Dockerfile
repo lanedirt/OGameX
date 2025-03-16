@@ -59,17 +59,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Copy existing application directory contents
 COPY . /var/www/
 
-# Check if .env file exists, fail if it doesn't
-RUN if [ ! -f /var/www/.env ]; then \
-    echo 'no .env...'  \
-    if [ -f /var/www/.env.example ]; then \
-        cp /var/www/.env.example /var/www/.env; \
-        echo ".env file not found, copied .env.example to .env"; \
-    else \
-        echo "Error: .env and .env.example files not found. Please create an .env file before building." && exit 1; \
-    fi \
-fi
-
 # Set write permissions for required directories
 RUN chown -R www-data:www-data \
     /var/www/storage \

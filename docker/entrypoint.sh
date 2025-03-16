@@ -2,6 +2,15 @@
 
 role=${CONTAINER_ROLE:-none}
 
+if [ ! -f /var/www/.env ]; then
+    if [ -f /var/www/.env.example ]; then
+        cp /var/www/.env.example /var/www/.env
+        echo ".env file not found, copied .env.example to .env"
+    else
+        echo "Error: .env and .env.example files not found. Please create an .env file." >&2
+    fi
+fi
+
 # Extract environment information
 is_production=false
 if grep -q "^APP_ENV=production" .env; then
