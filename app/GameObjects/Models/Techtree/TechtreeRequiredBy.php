@@ -7,7 +7,7 @@ use OGame\GameObjects\Models\Abstracts\GameObject;
 /**
  * Class TechtreeRequiredBy
  *
- * Represents a requirement for a GameObject.
+ * Represents a requirement for a GameObject. Use to render applications GUI.
  *
  * @package OGame\GameObjects\Models
  */

@@ -9,6 +9,7 @@ use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Techtree\TechtreeRequiredBy;
+use OGame\GameObjects\Models\Techtree\TechtreeRequirement;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -34,12 +35,11 @@ class TechtreeController extends OGameController
         if ($tab === 1) {
             return view('ingame.techtree.techtree')->with([
                 'object' => $object,
-                'object_id' => $object_id,
+                'requirement_graph' => $this->getRequirementsGraph($object, $player->planets->current()),
             ]);
         } elseif ($tab === 2) {
             return view('ingame.techtree.techinfo')->with([
                 'object' => $object,
-                'object_id' => $object_id,
                 'production_table' => $this->getProductionTable($object, $player),
                 'storage_table' => $this->getStorageTable($object, $player),
                 'rapidfire_table' => $this->getRapidfireTable($object),
@@ -50,12 +50,10 @@ class TechtreeController extends OGameController
         } elseif ($tab === 3) {
             return view('ingame.techtree.technology')->with([
                 'object' => $object,
-                'object_id' => $object_id,
             ]);
         } elseif ($tab === 4) {
             return view('ingame.techtree.applications')->with([
                 'object' => $object,
-                'object_id' => $object_id,
                 'required_by' => $this->getRequiredBy($object, $player->planets->current())
             ]);
         }
@@ -395,5 +393,37 @@ class TechtreeController extends OGameController
         }
 
         return $required_by;
+    }
+
+    /**
+     * Returns requirement graph array which is used to render the tech tree.
+     *
+     * @param GameObject $object
+     * @param PlanetService $planet
+     * @return array<TechtreeRequirement>
+     */
+    private function getRequirementsGraph(GameObject $object, PlanetService $planet): array {
+        $requirement_array = [];
+
+        // The tech tree GUI expects requirements in a graph with depth and column levels.
+        foreach ($object->requirements as $requirement) {
+            // Level 1 direct requirement
+            $object = ObjectService::getObjectByMachineName($requirement->object_machine_name);
+
+            // Get object level
+            // TODO: can we refactor the get research vs get object level for player object
+            // current planet/current player? As this is called in many places that we can probably
+            // simplify for player/current planet combination.
+            if ($object->type === GameObjectType::Research) {
+                $object_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+            }
+            else {
+                $object_level = $planet->getObjectLevel($object->machine_name);
+            }
+
+            $requirement_array[] = new TechtreeRequirement($object, $requirement->level, $object_level);
+        }
+
+        return $requirement_array;
     }
 }
