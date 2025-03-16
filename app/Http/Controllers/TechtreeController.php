@@ -27,8 +27,6 @@ class TechtreeController extends OGameController
     {
         $object_id = (int)$request->input('object_id');
         $tab = (int)$request->input('tab');
-        // TODO: is this planet still needed?
-        $planet = $player->planets->current();
 
         // Load object
         $object = ObjectService::getObjectById($object_id);
@@ -37,13 +35,11 @@ class TechtreeController extends OGameController
             return view('ingame.techtree.techtree')->with([
                 'object' => $object,
                 'object_id' => $object_id,
-                'planet' => $planet,
             ]);
         } elseif ($tab === 2) {
             return view('ingame.techtree.techinfo')->with([
                 'object' => $object,
                 'object_id' => $object_id,
-                'planet' => $planet,
                 'production_table' => $this->getProductionTable($object, $player),
                 'storage_table' => $this->getStorageTable($object, $player),
                 'rapidfire_table' => $this->getRapidfireTable($object),
@@ -55,14 +51,12 @@ class TechtreeController extends OGameController
             return view('ingame.techtree.technology')->with([
                 'object' => $object,
                 'object_id' => $object_id,
-                'planet' => $planet,
             ]);
         } elseif ($tab === 4) {
             return view('ingame.techtree.applications')->with([
                 'object' => $object,
                 'object_id' => $object_id,
-                'planet' => $planet,
-                'required_by' => $this->getRequiredBy($object, $player, $planet)
+                'required_by' => $this->getRequiredBy($object, $player->planets->current())
             ]);
         }
 
@@ -373,12 +367,14 @@ class TechtreeController extends OGameController
     }
 
     /**
+     * Returns the objects that require the given object including status if requirements have been met for current
+     * player and planet.
+     *
      * @param GameObject $object
-     * @param PlayerService $player
      * @param PlanetService $planet
      * @return array<TechtreeRequiredBy>
      */
-    private function getRequiredBy(GameObject $object, PlayerService $player, PlanetService $planet): array
+    private function getRequiredBy(GameObject $object, PlanetService $planet): array
     {
         $all_objects = ObjectService::getObjects();
         $required_by = [];
@@ -395,7 +391,7 @@ class TechtreeController extends OGameController
         });
 
         foreach ($require_objects as $r_object) {
-            $required_by[] = new TechtreeRequiredBy($r_object, ObjectService::objectRequirementsMet($r_object->machine_name, $planet, $player));
+            $required_by[] = new TechtreeRequiredBy($r_object, ObjectService::objectRequirementsMet($r_object->machine_name, $planet));
         }
 
         return $required_by;
