@@ -135,17 +135,11 @@ Please note that performance of the development mode is slow on Windows (compare
   $ cd OGameX
   ```
 
-2. Copy `.env.example` to `.env`.
-  ```
-  $ cp .env.example .env
-  ```
-
-3. Launch the project using Docker Compose:
+2. Launch the project using Docker Compose:
   ```
   $ docker compose up -d
   ```
-
-  > The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080.
+  > The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080. If you don't create a .env, the default .env.example will be copied to create it.
 
 **Important:** it can take up to 10 minutes for the `ogamex-app` container to start, this is because of composer initialization and Rust compiling that happens on the first run. Please be patient and wait for all containers to have fully started.
 
