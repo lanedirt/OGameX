@@ -35,7 +35,7 @@ class TechtreeController extends OGameController
         if ($tab === 1) {
             return view('ingame.techtree.techtree')->with([
                 'object' => $object,
-                'requirement_graph' => $this->getRequirementsGraph($object, $player->planets->current()),
+                'requirement_graph' => $this->getRequirementGraph($object, $player->planets->current()),
             ]);
         } elseif ($tab === 2) {
             return view('ingame.techtree.techinfo')->with([
@@ -402,8 +402,20 @@ class TechtreeController extends OGameController
      * @param PlanetService $planet
      * @return array<TechtreeRequirement>
      */
-    private function getRequirementsGraph(GameObject $object, PlanetService $planet): array {
+    private function getRequirementGraph(GameObject $object, PlanetService $planet, int $depth = 1): array {
         $requirement_array = [];
+
+        // If we're at the beginning, add current object to requirement array as depth 0 (root) before
+        // we start looping through its requirements.
+        if ($depth === 1) {
+            if ($object->type === GameObjectType::Research) {
+                $object_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+            }
+            else {
+                $object_level = $planet->getObjectLevel($object->machine_name);
+            }
+            $requirement_array[] = new TechtreeRequirement(0, $object, 1, $object_level);
+        }
 
         // The tech tree GUI expects requirements in a graph with depth and column levels.
         foreach ($object->requirements as $requirement) {
@@ -421,7 +433,13 @@ class TechtreeController extends OGameController
                 $object_level = $planet->getObjectLevel($object->machine_name);
             }
 
-            $requirement_array[] = new TechtreeRequirement($object, $requirement->level, $object_level);
+            $requirement_array[] = new TechtreeRequirement($depth, $object, $requirement->level, $object_level);
+
+            // Get requirements for this object too recursively
+            $child_requirements = $this->getRequirementGraph($object, $planet, $depth + 1);
+
+            // Merge child requirements into requirement array
+            $requirement_array = array_merge($requirement_array, $child_requirements);
         }
 
         return $requirement_array;

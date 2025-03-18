@@ -14,6 +14,11 @@ use OGame\GameObjects\Models\Abstracts\GameObject;
 class TechtreeRequirement
 {
     /**
+     * @var int The depth of the requirement.
+     */
+    public int $depth;
+
+    /**
      * @var GameObject The GameObject that is required.
      */
     public GameObject $gameObject;
@@ -21,12 +26,12 @@ class TechtreeRequirement
     /**
      * @var int The level that is required by the parent object.
      */
-    public int $level_required;
+    public int $levelRequired;
 
     /**
      * @var int The level that this current object is at.
      */
-    public int $level_current;
+    public int $levelCurrent;
 
     /**
      * GameObjectRequirement constructor.
@@ -35,10 +40,11 @@ class TechtreeRequirement
      * @param int $levelRequired
      * @param int $levelCurrent
      */
-    public function __construct(GameObject $gameObject, int $levelRequired, int $levelCurrent)
+    public function __construct(int $depth, GameObject $gameObject, int $levelRequired, int $levelCurrent)
     {
+        $this->depth = $depth;
         $this->gameObject = $gameObject;
-        $this->level_required = $levelRequired;
-        $this->level_current = $levelCurrent;
+        $this->levelRequired = $levelRequired;
+        $this->levelCurrent = $levelCurrent;
     }
 }

@@ -1,6 +1,9 @@
 @php
     use OGame\GameObjects\Models\Abstracts\GameObject;
+    use OGame\GameObjects\Models\Techtree\TechtreeRequirement;
+    use OGame\Services\ObjectService;
     /** @var GameObject $object */
+    /** @var array<TechtreeRequirement> $requirement_graph */
 @endphp
 
 <div id="technologytree" data-title="@lang('Technology') - {{ $object->title }}">
@@ -9,25 +12,32 @@
     <div class="content technologytree">
         @if ($object->hasRequirements())
             <div class="graph columns_1" data-id="67d6cebc93399">
-                <div class="techWrapper depth0 clearfix">
-                    {{-- The depth0 represents the current object which is always displayed on the first row --}}
-                    <div class="techtreeNode">
-                        @include('ingame.techtree.partials.techtree_node', ['object' => $object, 'required_level' => 1])
-                    </div>
-                </div>
-                <div class="techWrapper depth1 clearfix">
-                  <div class="techtreeNode">
-                    <div class="techImage js_hideTipOnMobile tooltipHTML tech14 techt14l2 built" title="Robotics Factory Level (2)|Robotic factories provide construction robots to aid in the construction of buildings. Each level increases the speed of the upgrade of buildings.">
-                        <a href="https://s256-en.ogame.gameforge.com/game/index.php?page=ajax&amp;component=technologytree&amp;technologyId=14&amp;ajax=1"
-                        class="sprite sprite_small small overlay roboticsFactory hasRequirements"
-                        data-overlay-same="true"
-                        data-tech-id="14"
-                        data-tech-name="Robotics Factory"
-                        data-tech-type="Type Buildings">
-                        </a>
-                    </div>
-                </div>
-                </div>
+                @php
+                    $depth = 0;
+                    $nextDepthFound = true;
+                @endphp
+                @while ($nextDepthFound)
+                    @php
+                        // Keep track if we have found a new depth with this iteration.
+                        $nextDepthFound = false;
+                    @endphp
+                    {{-- Print all objects per depth together, so loop through all objects and print expected depth until there is no next depth found --}}
+                    @foreach ($requirement_graph as $requirement)
+                        @if ($requirement->depth === $depth)
+                            <div class="techWrapper depth{{ $requirement->depth }} clearfix">
+                                @include('ingame.techtree.partials.techtree_node', ['object' => $requirement->gameObject, 'required_level' => $requirement->levelRequired])
+                            </div>
+                        @elseif ($requirement->depth > $depth)
+                            @php
+                                // If we have found a new depth, we need to mark it so loop will continue for next interation.
+                                $nextDepthFound = true;
+                            @endphp
+                        @endif
+                    @endforeach
+                    @php
+                        $depth++;
+                    @endphp
+                @endwhile
             </div>
         @else
             <p class="hint">
@@ -36,8 +46,23 @@
         @endif
     </div>
     <script>
-        var endpoints = ["t21l1","t14l2"];
-        var connections = [{"source":"t14l2","target":"t21l1","label":"2","paintStyle":"hasRequirements"}];
+        var endpoints = [
+            {{-- Create list of all requirements with level required --}}
+            @foreach ($requirement_graph as $requirement)
+                "t{{ $requirement->gameObject->id }}l{{ $requirement->levelRequired }}",
+            @endforeach
+        ];
+        var connections = [
+            @foreach ($requirement_graph as $requirement)
+                {{-- Create connections from child to parent --}}
+                @foreach ($requirement->gameObject->requirements as $requirement_dependency)
+                    @php
+                        $object_dependency = ObjectService::getObjectByMachineName($requirement_dependency->object_machine_name);
+                    @endphp
+                    {"source":"t{{ $object_dependency->id }}l{{ $requirement_dependency->level }}","target":"t{{ $requirement->gameObject->id }}l{{ $requirement->levelRequired }}","label":"{{ $requirement_dependency->level }}","paintStyle":"hasRequirements"},
+                @endforeach
+            @endforeach
+        ];
         (function($){
           initTechtree("67d6cebc93399")
         })(jQuery);
