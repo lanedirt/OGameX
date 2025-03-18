@@ -42,7 +42,7 @@ trait ObjectAjaxTrait
         $next_level = $current_level + 1;
 
         // Check requirements of this object
-        $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet, $player);
+        $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet);
 
         // Check if the current planet has the right type to build this object.
         $valid_planet_type = ObjectService::objectValidPlanetType($object->machine_name, $planet);

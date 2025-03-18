@@ -402,7 +402,8 @@ class TechtreeController extends OGameController
      * @param PlanetService $planet
      * @return array<TechtreeRequirement>
      */
-    private function getRequirementGraph(GameObject $object, PlanetService $planet, int $depth = 1): array {
+    private function getRequirementGraph(GameObject $object, PlanetService $planet, int $depth = 1): array
+    {
         $requirement_array = [];
 
         // If we're at the beginning, add current object to requirement array as depth 0 (root) before
@@ -410,8 +411,7 @@ class TechtreeController extends OGameController
         if ($depth === 1) {
             if ($object->type === GameObjectType::Research) {
                 $object_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
-            }
-            else {
+            } else {
                 $object_level = $planet->getObjectLevel($object->machine_name);
             }
             $requirement_array[] = new TechtreeRequirement(0, $object, 1, $object_level);
@@ -428,8 +428,7 @@ class TechtreeController extends OGameController
             // simplify for player/current planet combination.
             if ($object->type === GameObjectType::Research) {
                 $object_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
-            }
-            else {
+            } else {
                 $object_level = $planet->getObjectLevel($object->machine_name);
             }
 
