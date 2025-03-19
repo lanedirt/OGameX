@@ -36,29 +36,42 @@ class TechtreeController extends OGameController
             $requirement_graph = $this->getRequirementGraph($object, $player->planets->current());
 
             // Get the amount of columns in the requirement graph by getting the highest column number
-            $amount_of_columns = max(array_map(function ($requirement) {
-                // +1 because columns are 0-based
-                return $requirement->column + 1;
-            }, $requirement_graph));
-
-            // Restructure requirement graph into an array with all items for a specific depth as a sub-array.
-            // This makes it easier to render the tech tree in the frontend.
-            $requirement_graph_by_depth = [];
+            $max_column = 0;
             foreach ($requirement_graph as $requirement) {
-                $requirement_graph_by_depth[$requirement->depth][] = $requirement;
+                if ($requirement->column > $max_column) {
+                    $max_column = $requirement->column;
+                }
             }
 
-            // Place all items in each depth sub-array by column index.
-            foreach ($requirement_graph_by_depth as $depth => $depth_items) {
-                $requirement_graph_by_depth[$depth] = [];
-                foreach ($depth_items as $requirement) {
-                    $requirement_graph_by_depth[$depth][$requirement->column] = $requirement;
+            // +1 because columns are 0-based
+            $amount_of_columns = $max_column + 1;
+
+            // Restructure requirement graph into an array with all unique items for a specific depth as a sub-array.
+            // This makes it easier to render the tech tree in the frontend.
+            $requirement_graph_by_depth = [];
+            $items_added = [];
+
+            foreach ($requirement_graph as $requirement) {
+                $key = $requirement->gameObject->id . $requirement->levelRequired;
+                if (!isset($items_added[$key])) {
+                    $items_added[$key] = true;
+                    $requirement_graph_by_depth[$requirement->depth][$requirement->column] = $requirement;
+                }
+            }
+
+            // Create new unique requirements array where every requirement with a specific level
+            // only appears once.
+            $requirement_graph_unique = [];
+            foreach ($requirement_graph as $requirement) {
+                if (!isset($requirement_graph_unique[$requirement->gameObject->id . $requirement->levelRequired])) {
+                    $requirement_graph_unique[$requirement->gameObject->id . $requirement->levelRequired] = $requirement;
                 }
             }
 
             return view('ingame.techtree.techtree')->with([
                 'object' => $object,
                 'requirement_graph' => $requirement_graph,
+                'requirement_graph_unique' => $requirement_graph_unique,
                 'requirement_graph_by_depth' => $requirement_graph_by_depth,
                 'amount_of_columns' => $amount_of_columns,
             ]);

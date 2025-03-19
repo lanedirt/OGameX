@@ -32,7 +32,7 @@
     <script>
         var endpoints = [
             {{-- Create list of all requirements with level required --}}
-            @foreach ($requirement_graph as $requirement)
+            @foreach ($requirement_graph_unique as $requirement)
                 "t{{ $requirement->gameObject->id }}l{{ $requirement->levelRequired }}",
             @endforeach
         ];
