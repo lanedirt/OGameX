@@ -11,34 +11,18 @@
 
     <div class="content technologytree">
         @if ($object->hasRequirements())
-            <div class="graph columns_1" data-id="67d6cebc93399">
-                @php
-                    $depth = 0;
-                    $nextDepthFound = true;
-                @endphp
-                @while ($nextDepthFound)
-                    @php
-                        // Keep track if we have found a new depth with this iteration.
-                        $nextDepthFound = false;
-                    @endphp
-                    {{-- Print all objects per depth together, so loop through all objects and print expected depth until there is no next depth found --}}
-                    @foreach ($requirement_graph as $requirement)
-                        @if ($requirement->depth === $depth)
-                            <div class="techWrapper depth{{ $requirement->depth }} clearfix">
-                                @include('ingame.techtree.partials.techtree_node', ['object' => $requirement->gameObject, 'required_level' => $requirement->levelRequired])
-                            </div>
-                        @elseif ($requirement->depth > $depth)
-                            @php
-                                // If we have found a new depth, we need to mark it so loop will continue for next interation.
-                                $nextDepthFound = true;
-                            @endphp
+        <div class="graph columns_{{ $amount_of_columns }}" data-id="67d6cebc93399">
+            @foreach ($requirement_graph_by_depth as $depth => $depth_items)
+                <div class="techWrapper depth{{ $depth }} clearfix">
+                    @for ($column = 0; $column < $amount_of_columns; $column++)
+                        @if (isset($depth_items[$column]))
+                            @include('ingame.techtree.partials.techtree_node', ['object' => $depth_items[$column]->gameObject, 'required_level' => $depth_items[$column]->levelRequired, 'current_level' => $depth_items[$column]->levelCurrent])
+                        @else
+                            <div class="techtreeNode empty">&nbsp;</div>
                         @endif
-                    @endforeach
-                    @php
-                        $depth++;
-                    @endphp
-                @endwhile
-            </div>
+                    @endfor
+                </div>
+            @endforeach
         @else
             <p class="hint">
                 No requirements available
@@ -59,7 +43,11 @@
                     @php
                         $object_dependency = ObjectService::getObjectByMachineName($requirement_dependency->object_machine_name);
                     @endphp
-                    {"source":"t{{ $object_dependency->id }}l{{ $requirement_dependency->level }}","target":"t{{ $requirement->gameObject->id }}l{{ $requirement->levelRequired }}","label":"{{ $requirement_dependency->level }}","paintStyle":"hasRequirements"},
+                    @if ($requirement_dependency->level >= $requirement->levelRequired)
+                        {"source":"t{{ $object_dependency->id }}l{{ $requirement_dependency->level }}","target":"t{{ $requirement->gameObject->id }}l{{ $requirement->levelRequired }}","label":"{{ $requirement_dependency->level }}","paintStyle":"hasRequirements"},
+                    @else
+                        {"source":"t{{ $object_dependency->id }}l{{ $requirement_dependency->level }}","target":"t{{ $requirement->gameObject->id }}l{{ $requirement->levelRequired }}","label":"{{ $requirement_dependency->level }}/{{ $requirement->levelRequired }}","paintStyle":"hasNotRequirements"},
+                    @endif
                 @endforeach
             @endforeach
         ];

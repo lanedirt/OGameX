@@ -19,6 +19,11 @@ class TechtreeRequirement
     public int $depth;
 
     /**
+     * @var int The column of the requirement. All requirements that lead to the same parent should have the same column.
+     */
+    public int $column;
+
+    /**
      * @var GameObject The GameObject that is required.
      */
     public GameObject $gameObject;
@@ -36,13 +41,16 @@ class TechtreeRequirement
     /**
      * GameObjectRequirement constructor.
      *
+     * @param int $depth
+     * @param int $column
      * @param GameObject $gameObject
      * @param int $levelRequired
      * @param int $levelCurrent
      */
-    public function __construct(int $depth, GameObject $gameObject, int $levelRequired, int $levelCurrent)
+    public function __construct(int $depth, int $column, GameObject $gameObject, int $levelRequired, int $levelCurrent)
     {
         $this->depth = $depth;
+        $this->column = $column;
         $this->gameObject = $gameObject;
         $this->levelRequired = $levelRequired;
         $this->levelCurrent = $levelCurrent;

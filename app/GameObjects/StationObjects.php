@@ -111,8 +111,8 @@ class StationObjects
         $naniteFactory->description = 'This is the ultimate in robotics technology. Each level cuts the construction time for buildings, ships, and defenses.';
         $naniteFactory->description_long = 'A nanomachine, also called a nanite, is a mechanical or electromechanical device whose dimensions are measured in nanometers (millionths of a millimeter, or units of 10^-9 meter). The microscopic size of nanomachines translates into higher operational speed. This factory produces nanomachines that are the ultimate evolution in robotics technology. Once constructed, each upgrade significantly decreases production time for buildings, ships, and defensive structures.';
         $naniteFactory->requirements = [
-            new GameObjectRequirement('robot_factory', 10),
             new GameObjectRequirement('computer_technology', 10),
+            new GameObjectRequirement('robot_factory', 10),
         ];
         $naniteFactory->price = new GameObjectPrice(1000000, 500000, 100000, 0, 2);
         $naniteFactory->valid_planet_types = [PlanetType::Planet];
