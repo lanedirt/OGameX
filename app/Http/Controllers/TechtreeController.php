@@ -52,7 +52,7 @@ class TechtreeController extends OGameController
             $items_added = [];
 
             foreach ($requirement_graph as $requirement) {
-                $key = $requirement->gameObject->id . $requirement->levelRequired;
+                $key = 't' . $requirement->gameObject->id . 'l' . $requirement->levelRequired;
                 if (!isset($items_added[$key])) {
                     $items_added[$key] = true;
                     $requirement_graph_by_depth[$requirement->depth][$requirement->column] = $requirement;
@@ -440,12 +440,11 @@ class TechtreeController extends OGameController
      * @param PlanetService $planet
      * @return array<TechtreeRequirement>
      */
-    private function getRequirementGraph(GameObject $object, PlanetService $planet, int $depth = 1, int $column = 0): array
+    private function getRequirementGraph(GameObject $object, PlanetService $planet, int $depth = 1, int &$column = 0): array
     {
         $requirement_array = [];
 
-        // If we're at the beginning, add current object to requirement array as depth 0 (root) before
-        // we start looping through its requirements.
+        // If we're at the beginning, add current object to requirement array as depth 0 (root)
         if ($depth === 1) {
             if ($object->type === GameObjectType::Research) {
                 $object_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
@@ -455,31 +454,21 @@ class TechtreeController extends OGameController
             $requirement_array[] = new TechtreeRequirement(0, 0, $object, 1, $object_level);
         }
 
-        // The tech tree GUI expects requirements in a graph with depth and column levels.
         foreach ($object->requirements as $requirement) {
-            // Level 1 direct requirement
+            $current_column = $column++;  // Increment column for each requirement
             $object = ObjectService::getObjectByMachineName($requirement->object_machine_name);
 
-            // Get object level
-            // TODO: can we refactor the get research vs get object level for player object
-            // current planet/current player? As this is called in many places that we can probably
-            // simplify for player/current planet combination.
             if ($object->type === GameObjectType::Research) {
                 $object_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
             } else {
                 $object_level = $planet->getObjectLevel($object->machine_name);
             }
 
-            $requirement_array[] = new TechtreeRequirement($depth, $column, $object, $requirement->level, $object_level);
+            $requirement_array[] = new TechtreeRequirement($depth, $current_column, $object, $requirement->level, $object_level);
 
-            // Get requirements for this object too recursively
+            // Get requirements for this object recursively
             $child_requirements = $this->getRequirementGraph($object, $planet, $depth + 1, $column);
-
-            // Merge child requirements into requirement array
             $requirement_array = array_merge($requirement_array, $child_requirements);
-
-            // Increment column so each top level child requirement "chain" will have its own column in the tech tree.
-            $column++;
         }
 
         return $requirement_array;
