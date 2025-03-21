@@ -36,21 +36,13 @@ class TechtreeController extends OGameController
             $requirement_graph = $this->getRequirementGraph($object, $player->planets->current());
 
             // Get the amount of columns in the requirement graph by getting the highest column number
-            $max_column = 0;
-            foreach ($requirement_graph as $requirement) {
-                if ($requirement->column > $max_column) {
-                    $max_column = $requirement->column;
-                }
-            }
-
-            // +1 because columns are 0-based
-            $amount_of_columns = $max_column + 1;
+            $columns = array_column($requirement_graph, 'column');
+            $amount_of_columns = !empty($columns) ? max($columns) + 1 : 1;
 
             // Restructure requirement graph into an array with all unique items for a specific depth as a sub-array.
             // This makes it easier to render the tech tree in the frontend.
             $requirement_graph_by_depth = [];
             $items_added = [];
-
             foreach ($requirement_graph as $requirement) {
                 $key = 't' . $requirement->gameObject->id . 'l' . $requirement->levelRequired;
                 if (!isset($items_added[$key])) {
@@ -70,10 +62,10 @@ class TechtreeController extends OGameController
 
             return view('ingame.techtree.techtree')->with([
                 'object' => $object,
+                'amount_of_columns' => $amount_of_columns,
                 'requirement_graph' => $requirement_graph,
                 'requirement_graph_unique' => $requirement_graph_unique,
                 'requirement_graph_by_depth' => $requirement_graph_by_depth,
-                'amount_of_columns' => $amount_of_columns,
             ]);
         } elseif ($tab === 2) {
             return view('ingame.techtree.techinfo')->with([
