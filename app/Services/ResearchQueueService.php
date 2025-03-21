@@ -127,7 +127,7 @@ class ResearchQueueService
 
         // Check if user satisifes requirements to research this object.
         // TODO: refactor throw exception into a more user-friendly message.
-        $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet, $planet->getPlayer());
+        $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet);
         if (!$requirements_met) {
             throw new Exception('Requirements not met to build this object.');
         }
@@ -295,7 +295,7 @@ class ResearchQueueService
 
             // Sanity check: check if the researching requirements are still met. If not,
             // then cancel research request.
-            if (!ObjectService::objectRequirementsWithLevelsMet($object->machine_name, $queue_item->object_level_target, $planet, $player)) {
+            if (!ObjectService::objectRequirementsWithLevelsMet($object->machine_name, $queue_item->object_level_target, $planet)) {
                 $this->cancel($player, $queue_item->id, $queue_item->object_id);
 
                 continue;
@@ -440,7 +440,7 @@ class ResearchQueueService
         foreach ($research_queue_items as $research_queue_item) {
             $object = ObjectService::getObjectById($research_queue_item->object_id);
 
-            if (!ObjectService::objectRequirementsMetWithQueue($object->machine_name, $research_queue_item->object_level_target, $planet, $player)) {
+            if (!ObjectService::objectRequirementsMetWithQueue($object->machine_name, $research_queue_item->object_level_target, $planet)) {
                 $this->cancel($player, $research_queue_item->id, $object->id);
                 break;
             }

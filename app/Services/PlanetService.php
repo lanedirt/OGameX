@@ -864,7 +864,7 @@ class PlanetService
             foreach ($this->getPlayer()->planets->allPlanets() as $planet) {
                 // Check if the object's requirements are met on the planet;
                 // otherwise, the planet's research lab cannot be included in the research network.
-                if (!ObjectService::objectRequirementsMet($machine_name, $planet, $this->getPlayer())) {
+                if (!ObjectService::objectRequirementsMet($machine_name, $planet)) {
                     continue;
                 }
 

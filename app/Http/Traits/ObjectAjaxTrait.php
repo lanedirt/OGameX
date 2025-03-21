@@ -42,7 +42,7 @@ trait ObjectAjaxTrait
         $next_level = $current_level + 1;
 
         // Check requirements of this object
-        $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet, $player);
+        $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet);
 
         // Check if the current planet has the right type to build this object.
         $valid_planet_type = ObjectService::objectValidPlanetType($object->machine_name, $planet);
@@ -148,7 +148,6 @@ trait ObjectAjaxTrait
         }
 
         $view_html = view('ingame.ajax.object')->with([
-            'id' => $object_id,
             'object' => $object,
             'object_type' => $object->type,
             'planet_id' => $planet->getPlanetId(),
@@ -163,6 +162,7 @@ trait ObjectAjaxTrait
             'production_next' => $production_next,
             'energy_difference' => $energy_difference,
             'enough_resources' => $enough_resources,
+            'has_requirements' => $object->hasRequirements(),
             'requirements_met' => $requirements_met,
             'valid_planet_type' => $valid_planet_type,
             'build_active' => $build_queue->count(),

@@ -71599,9 +71599,17 @@ function drawArrows(id) {
   $.each(endpoints, function () {
     var $elem = $techtree.find(".tech" + this.toString());
     newTree.addEndpoint($elem);
-    var elemLeft = Math.floor($elem.find('a').offset().left);
-    var elemTop = Math.floor($elem.find('a').offset().top);
-    coordinates[this] = [elemLeft, elemTop];
+
+    // TODO OGAMEX: without this additional if check, the techtree throws errors.
+    var elemOffset = $elem.find('a').offset();
+    if (elemOffset) {
+      var elemLeft = Math.floor(elemOffset.left);
+      var elemTop = Math.floor(elemOffset.top);
+      coordinates[this] = [elemLeft, elemTop];
+    }
+    else {
+      coordinates[this] = [0, 0];
+    }
   });
   var changedSomething;
 
@@ -71613,13 +71621,24 @@ function drawArrows(id) {
       var $source = $techtree.find(".tech" + this.source + " a");
       var $target = $techtree.find(".tech" + this.target + " a");
 
-      if ($source.offset().top >= $target.offset().top - 10 && $source.offset().top <= $target.offset().top + 10) {
+      // TODO OGAMEX: without this additional if check, the techtree throws errors.
+      var sourceOffset = $source.offset();
+      var targetOffset = $target.offset();
+
+      if (sourceOffset == undefined || targetOffset == undefined) {
+        return;
+      }
+
+      if (sourceOffset.top >= targetOffset.top - 10 && sourceOffset.top <= targetOffset.top + 10) {
         $source.parent().css('margin-top', parseInt($source.parent().css('margin-top').replace(/px/, '')) + rowHeight); // we just moved a tech downwards... we have to adjust all corresponding coordinates
         // the surrounding div with class depth* is the second parent
 
         $source.parent().parent().find('a[data-tech-id]').each(function () {
-          coordinates[$(this).attr('data-tech-id')][1] += rowHeight; // 1 == top
-          //console.log("RESET "+$(this).attr('data-tech-id') + " "+(coordinates[$(this).attr('data-tech-id')][1]));
+          // TODO OGAMEX: without this additional if check, the techtree throws errors.
+          if (coordinates[$(this).attr('data-tech-id')]) {
+            coordinates[$(this).attr('data-tech-id')][1] += rowHeight; // 1 == top
+            //console.log("RESET "+$(this).attr('data-tech-id') + " "+(coordinates[$(this).attr('data-tech-id')][1]));
+          }
         });
         changedSomething = true;
       }
@@ -71740,24 +71759,30 @@ function drawArrows(id) {
 
     if (translated[this.target].left < translated[this.source].left) {
       // target is left of the source
-      if (!lineInCoordinatesBlocked(translated, translated[this.source].left, translated[this.source].top, translated[this.source].left, translated[this.target].top) && !positionInCoordinatesBlocked(translated, translated[this.source].left, translated[this.target].top) && !lineInCoordinatesBlocked(translated, translated[this.source].left, translated[this.target].top, translated[this.target].left, translated[this.target].top)) {
+      // TODO OGAMEX: uncommented this because it throws errors while drawing the techtree.
+      // Even with identical HTML to the original game, it still doesn't work for certain
+      // complicated tech trees.
+      /*if (!lineInCoordinatesBlocked(translated, translated[this.source].left, translated[this.source].top, translated[this.source].left, translated[this.target].top) && !positionInCoordinatesBlocked(translated, translated[this.source].left, translated[this.target].top) && !lineInCoordinatesBlocked(translated, translated[this.source].left, translated[this.target].top, translated[this.target].left, translated[this.target].top)) {
         // vertical, horizontal
         connectOptions.anchors = [chooseAnchor(this.source, 'top', topAnchors, alreadyUsedAnchors), chooseAnchor(this.target, 'right', rightAnchors, alreadyUsedAnchors)]; //console.log("chose top right");
       } else {
         // horizontal, vertical
         connectOptions.anchors = [chooseAnchor(this.source, 'left', leftAnchors, alreadyUsedAnchors), chooseAnchor(this.target, 'bottom', bottomAnchors, alreadyUsedAnchors)];
         connectOptions.overlays[1][1] = readableVersionOfLabel(connectOptions.overlays[1][1], alreadyUsedAnchors[this.target].bottom); //console.log("chose left bottom");
-      }
+      }*/
     } else if (translated[this.target].left > translated[this.source].left) {
       // target is right of the source
-      if (!lineInCoordinatesBlocked(translated, translated[this.source].left, translated[this.source].top, translated[this.source].left, translated[this.target].top) && !positionInCoordinatesBlocked(translated, translated[this.source].left, translated[this.target].top) && !lineInCoordinatesBlocked(translated, translated[this.source].left, translated[this.target].top, translated[this.target].left, translated[this.target].top)) {
+      // TODO OGAMEX: uncommented this because it throws errors while drawing the techtree.
+      // Even with identical HTML to the original game, it still doesn't work for certain
+      // complicated tech trees.
+      /*if (!lineInCoordinatesBlocked(translated, translated[this.source].left, translated[this.source].top, translated[this.source].left, translated[this.target].top) && !positionInCoordinatesBlocked(translated, translated[this.source].left, translated[this.target].top) && !lineInCoordinatesBlocked(translated, translated[this.source].left, translated[this.target].top, translated[this.target].left, translated[this.target].top)) {
         // vertical, horizontal
         connectOptions.anchors = [chooseAnchor(this.source, 'top', topAnchors, alreadyUsedAnchors), chooseAnchor(this.target, 'left', leftAnchors, alreadyUsedAnchors)]; //console.log("chose top left");
       } else {
         // horizontal, vertical
         connectOptions.anchors = [chooseAnchor(this.source, 'right', rightAnchors, alreadyUsedAnchors), chooseAnchor(this.target, 'bottom', bottomAnchors, alreadyUsedAnchors)];
         connectOptions.overlays[1][1] = readableVersionOfLabel(connectOptions.overlays[1][1], alreadyUsedAnchors[this.target].bottom); //console.log("chose right bottom");
-      }
+      }*/
     } else {
       // target is above the source
       if (translated[this.target].top < translated[this.source].top - 1 && lineInCoordinatesBlocked(translated, translated[this.source].left, translated[this.source].top, translated[this.target].left, translated[this.target].top)) {
@@ -71772,7 +71797,6 @@ function drawArrows(id) {
         connectOptions.overlays[1][1] = readableVersionOfLabel(connectOptions.overlays[1][1], alreadyUsedAnchors[this.target].bottom); //console.log("chose top bottom");
       }
     } // else: default.
-
 
     newTree.connect(connectOptions);
   });
@@ -78322,20 +78346,20 @@ function getActivityStar(data) {
   }
 
   if (data.showMinutes && data.showActivity === 60) {
-    return `<div class="activity showMinutes tooltip js_hideTipOnMobile hideTooltipOnMouseenter" 
+    return `<div class="activity showMinutes tooltip js_hideTipOnMobile hideTooltipOnMouseenter"
                 title="${loca.LOCA_ALL_ACTIVITY}">
                 ${data.idleTime}
             </div>`;
   }
 
-  return `<div class="activity minute${data.showActivity} tooltip js_hideTipOnMobile hideTooltipOnMouseenter" 
+  return `<div class="activity minute${data.showActivity} tooltip js_hideTipOnMobile hideTooltipOnMouseenter"
             title="${loca.LOCA_ALL_ACTIVITY}">
         </div>`;
 }
 
 function addFleetContainer(planetPosition, planetType) {
-  return `<div id="ownFleetStatus_${planetPosition}_${planetType}" 
-            class="fleetAction js_hideTipOnMobile hideTooltipOnMouseenter" 
+  return `<div id="ownFleetStatus_${planetPosition}_${planetType}"
+            class="fleetAction js_hideTipOnMobile hideTooltipOnMouseenter"
             title="">
         </div>`;
 }
@@ -78431,7 +78455,7 @@ function getPlanetOrMoonTooltipLinks(planet, galaxyContentObject, systemData) {
           let espionageMissionFunction = getEspionageMission(galaxyContentObject, planet, systemData);
 
           if (espionageMissionFunction) {
-            linkHTML += `<li><a href="#" 
+            linkHTML += `<li><a href="#"
                                 onClick="${espionageMissionFunction}">
                                 ${mission.name}
                             </a></li>`;
@@ -78450,7 +78474,7 @@ function getPlanetOrMoonTooltipLinks(planet, galaxyContentObject, systemData) {
       let holdMissionAvailable = planet.availableMissions.find(availMission => availMission.missionType === 5);
 
       if (systemData.showOutlawWarning && !systemData.isOutlaw && player.isStrong && !holdMissionAvailable) {
-        linkHTML += `<li><a href="#" 
+        linkHTML += `<li><a href="#"
                             onClick="outlawWarning(${constants.missleattack}, ${galaxy}, ${system}, ${position}, ${planet.planetType}, ${systemData.availableMissiles});return false;">
                             ${loca.LOCA_FLEET_MISSILEATTACK}
                         </a></li>`;
@@ -78510,7 +78534,7 @@ function getDebrisTooltip(planet, galaxyContentObject, systemData) {
       linkHTML += `<li><a href="${premiumLink}">${loca.LOCA_HEADER_GETADMIRAL}</a></li>`;
     }
   } else if (recyclersToSend && (position === 16 ? systemData.availablePathfinders : systemData.availableRecyclers) && planet.recyclePossible) {
-    linkHTML = `<li><a href="#" 
+    linkHTML = `<li><a href="#"
             onClick="sendShips(${8}, ${galaxyContentObject.galaxy}, ${galaxyContentObject.system}, ${galaxyContentObject.position}, ${planet.planetType}, ${recyclersToSend});return false;">
                 ${loca.LOCA_GALAXY_DEBRIS_REDUCE}
             </a></li>`;
@@ -78569,9 +78593,9 @@ function getPlayerTooltip(galaxyContentObject) {
     if (player.isAdmin) {
       buddyLink = `
                 <li>
-                    <a style="margin-top: 4px;" 
-                    href="${actions.buddies.link}" 
-                    target="_blank" title="${actions.buddies.title}" 
+                    <a style="margin-top: 4px;"
+                    href="${actions.buddies.link}"
+                    target="_blank" title="${actions.buddies.title}"
                     class="js_hideTipOnMobile no_decoration">
                         <span class="support_icon icon icon_mail" style="margin-top: 5px;"></span> &nbsp;
                         <div style="position:absolute; top: 32px;left:30px">${actions.buddies.title}</div>
@@ -78717,7 +78741,7 @@ function getEventPlanetTooltip(planet, galaxyContentObject, systemData) {
           let espionageMissionFunction = getEspionageMission(galaxyContentObject, planet, systemData);
 
           if (espionageMissionFunction) {
-            linkHTML += `<li><a href="#" 
+            linkHTML += `<li><a href="#"
                                 onClick="${espionageMissionFunction}">
                                 ${mission.name}
                             </a></li>`;
@@ -78850,8 +78874,8 @@ function getActions(galaxyContentObject, systemData) {
   } else {
     if (player.isAdmin) {
       messageLink = `
-                <a href="${actions.buddies.link}" 
-                    target="_blank" title="${actions.buddies.title}" 
+                <a href="${actions.buddies.link}"
+                    target="_blank" title="${actions.buddies.title}"
                     class="tooltip js_hideTipOnMobile icon">
                         <span class="support_icon icon icon_mail"></span>
                 </a>
@@ -78954,8 +78978,8 @@ function getEmptySlotActions(galaxyContentObject, systemData) {
                href="javascript: void(0);"
                onClick="movePlanet(
                        '${planetMove.moveLink}',
-                       {'position':${galaxyContentObject.position}, 
-                       'galaxy': ${galaxyContentObject.galaxy}, 
+                       {'position':${galaxyContentObject.position},
+                       'galaxy': ${galaxyContentObject.galaxy},
                        'system': ${galaxyContentObject.system}},
                        '${planetMove.galaxyLink}'
                        ); return false;"
@@ -78986,7 +79010,7 @@ function getDiscoveryLinkIcon(galaxyContentObject) {
     if (typeof discoverMission !== 'undefined') {
       if (discoverMission.canSend === true) {
         const titleText = galaxyLoca.discoverySend + " " + discoverMission.discoveryCount;
-        discoverLink = `<div class="planetDiscoverIcons planetDiscoverDefault icon"><a href="#" 
+        discoverLink = `<div class="planetDiscoverIcons planetDiscoverDefault icon"><a href="#"
                     class="tooltip js_hideTipOnMobile ipiHintable planetDiscover position${galaxyContentObject.position}"
                     data-ipi-hint="ipiDiscoverLifeform"
                     onClick="discoverPlanet(

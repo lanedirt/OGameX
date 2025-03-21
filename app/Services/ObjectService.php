@@ -169,6 +169,7 @@ class ObjectService
     {
         $allObjects = [...BuildingObjects::get(), ...StationObjects::get(), ...ResearchObjects::get(),
                        ...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
+
         // Loop through all buildings and return the one with the matching UID
         foreach ($allObjects as $object) {
             if ($object->id == $object_id) {
@@ -189,6 +190,7 @@ class ObjectService
     {
         $allObjects = [...BuildingObjects::get(), ...StationObjects::get(), ...ResearchObjects::get(),
                        ...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
+
         // Loop through all buildings and return the one with the matching UID
         foreach ($allObjects as $object) {
             if ($object->machine_name == $machine_name) {
@@ -264,6 +266,7 @@ class ObjectService
     public static function getUnitObjectByMachineName(string $machine_name): UnitObject
     {
         $allObjects = [...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
+
         // Loop through all buildings and return the one with the matching UID
         foreach ($allObjects as $object) {
             if ($object->machine_name === $machine_name) {
@@ -332,13 +335,12 @@ class ObjectService
      *
      * @param string $machine_name
      * @param PlanetService $planet
-     * @param PlayerService $player
      * @return bool
      */
-    public static function objectRequirementsMet(string $machine_name, PlanetService $planet, PlayerService $player): bool
+    public static function objectRequirementsMet(string $machine_name, PlanetService $planet): bool
     {
         $object = self::getObjectByMachineName($machine_name);
-        return count(self::filterCompletedRequirements($object->requirements, $planet, $player)) === 0;
+        return count(self::filterCompletedRequirements($object->requirements, $planet)) === 0;
     }
 
     /**
@@ -346,18 +348,17 @@ class ObjectService
      *
      * @param string $machine_name
      * @param PlanetService $planet
-     * @param PlayerService $player
      * @param int $target_level
      * @return bool
      */
-    public static function objectRequirementsWithLevelsMet(string $machine_name, int $target_level, PlanetService $planet, PlayerService $player): bool
+    public static function objectRequirementsWithLevelsMet(string $machine_name, int $target_level, PlanetService $planet): bool
     {
         try {
             $object = self::getObjectByMachineName($machine_name);
 
             // Check that the object's previous level exists.
             if ($target_level) {
-                if (!self::hasPreviousLevels($target_level, $object, $planet, $player)) {
+                if (!self::hasPreviousLevels($target_level, $object, $planet)) {
                     return false;
                 }
             }
@@ -365,7 +366,7 @@ class ObjectService
             return false;
         }
 
-        return count(self::filterCompletedRequirements($object->requirements, $planet, $player)) === 0;
+        return count(self::filterCompletedRequirements($object->requirements, $planet)) === 0;
     }
 
     /**
@@ -373,28 +374,27 @@ class ObjectService
      *
      * @param string $machine_name
      * @param PlanetService $planet
-     * @param PlayerService $player
      * @param int $target_level
      * @return bool
      */
-    public static function objectRequirementsMetWithQueue(string $machine_name, int $target_level, PlanetService $planet, PlayerService $player): bool
+    public static function objectRequirementsMetWithQueue(string $machine_name, int $target_level, PlanetService $planet): bool
     {
         $object = self::getObjectByMachineName($machine_name);
 
         // Check object's previous levels against queued objects
-        if (!self::hasPreviousLevelsInQueue($target_level, $object, $planet, $player)) {
+        if (!self::hasPreviousLevelsInQueue($target_level, $object, $planet)) {
             return false;
         }
 
         // Check object's requirements against built objects
-        $missingRequirements = self::filterCompletedRequirements($object->requirements, $planet, $player);
+        $missingRequirements = self::filterCompletedRequirements($object->requirements, $planet);
 
         if (count($missingRequirements) === 0) {
             return true;
         }
 
         // Check object's requirements against queued objects
-        return count(self::filterQueuedRequirements($missingRequirements, $planet, $player)) === 0;
+        return count(self::filterQueuedRequirements($missingRequirements, $planet)) === 0;
     }
 
     /**
@@ -477,14 +477,13 @@ class ObjectService
     public static function getObjectPrice(string $machine_name, PlanetService $planet): Resources
     {
         $object = self::getObjectByMachineName($machine_name);
-        $player = $planet->getPlayer();
 
         // Price calculation for buildings or research (price depends on level)
         if ($object->type === GameObjectType::Building || $object->type === GameObjectType::Station || $object->type === GameObjectType::Research) {
             if ($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) {
                 $current_level = $planet->getObjectLevel($object->machine_name);
             } else {
-                $current_level = $player?->getResearchLevel($object->machine_name);
+                $current_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
             }
 
             $price = self::getObjectRawPrice($machine_name, $current_level + 1);
@@ -556,18 +555,17 @@ class ObjectService
      *
      * @param array<GameObjectRequirement> $requirements
      * @param PlanetService $planet
-     * @param PlayerService $player
      * @return array<GameObjectRequirement>
      */
-    private static function filterCompletedRequirements(array $requirements, PlanetService $planet, PlayerService $player): array
+    private static function filterCompletedRequirements(array $requirements, PlanetService $planet): array
     {
-        return array_filter($requirements, function ($requirement) use ($planet, $player) {
+        return array_filter($requirements, function ($requirement) use ($planet) {
             try {
                 $object = self::getObjectByMachineName($requirement->object_machine_name);
 
                 if ($object->type === GameObjectType::Research) {
                     // Check if requirements are met with existing technology.
-                    if ($player->getResearchLevel($requirement->object_machine_name) < $requirement->level) {
+                    if ($planet->getPlayer()->getResearchLevel($requirement->object_machine_name) < $requirement->level) {
                         return true;
                     }
                 } else {
@@ -589,12 +587,11 @@ class ObjectService
      *
      * @param array<GameObjectRequirement> $requirements
      * @param PlanetService $planet
-     * @param PlayerService $player
      * @return array<GameObjectRequirement>
      */
-    private static function filterQueuedRequirements(array $requirements, PlanetService $planet, PlayerService $player): array
+    private static function filterQueuedRequirements(array $requirements, PlanetService $planet): array
     {
-        return array_filter($requirements, function ($requirement) use ($planet, $player) {
+        return array_filter($requirements, function ($requirement) use ($planet) {
             try {
                 $object = self::getObjectByMachineName($requirement->object_machine_name);
 
@@ -605,7 +602,7 @@ class ObjectService
 
                 if ($object->type === GameObjectType::Research) {
                     // Check if the requirements are met by the items in the research queue.
-                    if (!$player->isResearchingTech($requirement->object_machine_name, $requirement->level)) {
+                    if (!$planet->getPlayer()->isResearchingTech($requirement->object_machine_name, $requirement->level)) {
                         return true;
                     }
                 } else {
@@ -629,10 +626,9 @@ class ObjectService
      * @param int $target_level
      * @param GameObject $object
      * @param PlanetService $planet
-     * @param PlayerService $player
      * @return bool
      */
-    private static function hasPreviousLevels(int $target_level, GameObject $object, PlanetService $planet, PlayerService $player): bool
+    private static function hasPreviousLevels(int $target_level, GameObject $object, PlanetService $planet): bool
     {
         $current_level = 0;
 
@@ -656,14 +652,11 @@ class ObjectService
      * @param int $target_level
      * @param GameObject $object
      * @param PlanetService $planet
-     * @param PlayerService $player
      * @return bool
      */
-    private static function hasPreviousLevelsInQueue(int $target_level, GameObject $object, PlanetService $planet, PlayerService $player): bool
+    private static function hasPreviousLevelsInQueue(int $target_level, GameObject $object, PlanetService $planet): bool
     {
-        // Check prior levels from queues
-        $current_level = 0;
-
+        // Check prior levels from queues.
         if ($object->type === GameObjectType::Research) {
             $current_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
         } else {
@@ -671,7 +664,7 @@ class ObjectService
         }
 
         for ($i = $current_level + 1; $i < $target_level; $i++) {
-            if (!$planet->isBuildingObject($object->machine_name, $i) && !$player->isResearchingTech($object->machine_name, $i)) {
+            if (!$planet->isBuildingObject($object->machine_name, $i) && !$planet->getPlayer()->isResearchingTech($object->machine_name, $i)) {
                 return false;
             }
         }

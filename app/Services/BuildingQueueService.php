@@ -94,7 +94,7 @@ class BuildingQueueService
 
         // Check if user satisfies requirements to build this object.
         // TODO: refactor throw exception into a more user-friendly message.
-        $requirements_met = ObjectService::objectRequirementsMetWithQueue($building->machine_name, $next_level, $planet, $planet->getPlayer());
+        $requirements_met = ObjectService::objectRequirementsMetWithQueue($building->machine_name, $next_level, $planet);
         if (!$requirements_met) {
             throw new Exception('Requirements not met to build this object.');
         }
@@ -241,7 +241,7 @@ class BuildingQueueService
 
             // Sanity check: check if the building requirements are still met. If not,
             // then cancel build request.
-            if (!ObjectService::objectRequirementsWithLevelsMet($object->machine_name, $queue_item->object_level_target, $planet, $planet->getPlayer())) {
+            if (!ObjectService::objectRequirementsWithLevelsMet($object->machine_name, $queue_item->object_level_target, $planet)) {
                 $this->cancel($planet, $queue_item->id, $queue_item->object_id);
 
                 continue;
@@ -355,7 +355,7 @@ class BuildingQueueService
         foreach ($build_queue_items as $build_queue_item) {
             $object = ObjectService::getObjectById($build_queue_item->object_id);
 
-            if (!ObjectService::objectRequirementsMetWithQueue($object->machine_name, $build_queue_item->object_level_target, $planet, $planet->getPlayer())) {
+            if (!ObjectService::objectRequirementsMetWithQueue($object->machine_name, $build_queue_item->object_level_target, $planet)) {
                 $this->cancel($planet, $build_queue_item->id, $object->id);
                 break;
             }

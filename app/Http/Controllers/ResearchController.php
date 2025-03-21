@@ -85,7 +85,7 @@ class ResearchController extends OGameController
                 $next_level = $current_level + 1;
 
                 // Check requirements of this technology
-                $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet, $player);
+                $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet);
 
                 // Check if the current planet has enough resources to research this technology.
                 $enough_resources = $planet->hasResources(ObjectService::getObjectPrice($object->machine_name, $planet));

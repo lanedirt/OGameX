@@ -93,7 +93,7 @@ abstract class AbstractBuildingsController extends OGameController
                 $next_level = $current_level + 1;
 
                 // Check requirements of this building
-                $requirements_met = ObjectService::objectRequirementsMetWithQueue($object_machine_name, $next_level, $this->planet, $player);
+                $requirements_met = ObjectService::objectRequirementsMetWithQueue($object_machine_name, $next_level, $this->planet);
 
                 $valid_planet_type = ObjectService::objectValidPlanetType($object_machine_name, $this->planet);
 
