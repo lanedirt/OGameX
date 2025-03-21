@@ -438,9 +438,10 @@ class TechtreeController extends OGameController
      *
      * @param GameObject $object
      * @param PlanetService $planet
+     * @param TechtreeRequirement|null $parent
      * @return array<TechtreeRequirement>
      */
-    private function getRequirementGraph(GameObject $object, PlanetService $planet, int $depth = 1, int &$column = 0): array
+    private function getRequirementGraph(GameObject $object, PlanetService $planet, int $depth = 1, int &$column = 0, TechtreeRequirement|null $parent = null): array
     {
         $requirement_array = [];
 
@@ -451,7 +452,11 @@ class TechtreeController extends OGameController
             } else {
                 $object_level = $planet->getObjectLevel($object->machine_name);
             }
-            $requirement_array[] = new TechtreeRequirement(0, 0, $object, 1, $object_level);
+            $requirement = new TechtreeRequirement(0, 0, null, $object, 1, $object_level);
+            $requirement_array[] = $requirement;
+
+            // Set current object as parent for the loop below.
+            $parent = $requirement;
         }
 
         foreach ($object->requirements as $requirement) {
@@ -464,10 +469,11 @@ class TechtreeController extends OGameController
                 $object_level = $planet->getObjectLevel($object->machine_name);
             }
 
-            $requirement_array[] = new TechtreeRequirement($depth, $current_column, $object, $requirement->level, $object_level);
+            $requirement = new TechtreeRequirement($depth, $current_column, $parent, $object, $requirement->level, $object_level);
+            $requirement_array[] = $requirement;
 
             // Get requirements for this object recursively
-            $child_requirements = $this->getRequirementGraph($object, $planet, $depth + 1, $column);
+            $child_requirements = $this->getRequirementGraph($object, $planet, $depth + 1, $column, $requirement);
             $requirement_array = array_merge($requirement_array, $child_requirements);
         }
 

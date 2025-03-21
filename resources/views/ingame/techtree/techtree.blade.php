@@ -1,7 +1,6 @@
 @php
     use OGame\GameObjects\Models\Abstracts\GameObject;
     use OGame\GameObjects\Models\Techtree\TechtreeRequirement;
-    use OGame\Services\ObjectService;
     /** @var GameObject $object */
     /** @var array<TechtreeRequirement> $requirement_graph */
 @endphp
@@ -38,17 +37,11 @@
         ];
         var connections = [
             @foreach ($requirement_graph as $requirement)
-                {{-- Create connections from child to parent --}}
-                @foreach ($requirement->gameObject->requirements as $requirement_dependency)
-                    @php
-                        $object_dependency = ObjectService::getObjectByMachineName($requirement_dependency->object_machine_name);
-                    @endphp
-                    @if ($requirement_dependency->level >= $requirement->levelRequired)
-                        {"source":"t{{ $object_dependency->id }}l{{ $requirement_dependency->level }}","target":"t{{ $requirement->gameObject->id }}l{{ $requirement->levelRequired }}","label":"{{ $requirement_dependency->level }}","paintStyle":"hasRequirements"},
-                    @else
-                        {"source":"t{{ $object_dependency->id }}l{{ $requirement_dependency->level }}","target":"t{{ $requirement->gameObject->id }}l{{ $requirement->levelRequired }}","label":"{{ $requirement_dependency->level }}/{{ $requirement->levelRequired }}","paintStyle":"hasNotRequirements"},
-                    @endif
-                @endforeach
+                @if ($requirement->parent !== null && $requirement->levelCurrent >= $requirement->levelRequired)
+                    {"source":"t{{ $requirement->gameObject->id }}l{{ $requirement->levelRequired }}","target":"t{{ $requirement->parent->gameObject->id }}l{{ $requirement->parent->levelRequired }}","label":"{{ $requirement->levelRequired }}","paintStyle":"hasRequirements"},
+                @elseif ($requirement->parent !== null)
+                    {"source":"t{{ $requirement->gameObject->id }}l{{ $requirement->levelRequired }}","target":"t{{ $requirement->parent->gameObject->id }}l{{ $requirement->parent->levelRequired }}","label":"{{ $requirement->levelCurrent }}/{{ $requirement->levelRequired }}","paintStyle":"hasNotRequirements"},
+                @endif
             @endforeach
         ];
         (function($){

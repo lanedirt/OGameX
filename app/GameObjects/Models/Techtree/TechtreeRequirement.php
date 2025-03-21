@@ -24,6 +24,11 @@ class TechtreeRequirement
     public int $column;
 
     /**
+     * @var TechtreeRequirement The parent requirement that this requirement belongs to.
+     */
+    public TechtreeRequirement|null $parent;
+
+    /**
      * @var GameObject The GameObject that is required.
      */
     public GameObject $gameObject;
@@ -43,14 +48,16 @@ class TechtreeRequirement
      *
      * @param int $depth
      * @param int $column
+     * @param TechtreeRequirement|null $parent
      * @param GameObject $gameObject
      * @param int $levelRequired
      * @param int $levelCurrent
      */
-    public function __construct(int $depth, int $column, GameObject $gameObject, int $levelRequired, int $levelCurrent)
+    public function __construct(int $depth, int $column, TechtreeRequirement|null $parent, GameObject $gameObject, int $levelRequired, int $levelCurrent)
     {
         $this->depth = $depth;
         $this->column = $column;
+        $this->parent = $parent;
         $this->gameObject = $gameObject;
         $this->levelRequired = $levelRequired;
         $this->levelCurrent = $levelCurrent;
