@@ -24,15 +24,13 @@ RUN apt-get update && apt-get install -y \
     curl \
     dos2unix \
     pkg-config \
-    libffi-dev # Install PHP FFI development files required to interface with Rust for BattleEngine \
-    
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+    libffi-dev  # Install PHP FFI development files required to interface with Rust for BattleEngine  \
+    && \ apt-get clean && rm -rf /var/lib/apt/lists/ # Clear cache
 
 # Install extensions
-RUN docker-php-ext-install ffi pdo_mysql mbstring zip exif pcntl
-RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
-RUN docker-php-ext-install gd
+RUN docker-php-ext-install ffi pdo_mysql mbstring zip exif pcntl && \
+    docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ && \
+    docker-php-ext-install gd
 
 # Enable and configure opcache only if OPCACHE_ENABLE is set to "1"
 ARG OPCACHE_ENABLE=0
