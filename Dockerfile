@@ -22,19 +22,15 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
-    dos2unix
-
-# Install PHP FFI development files required to interface with Rust for BattleEngine
-RUN apt-get update && apt-get install -y \
+    dos2unix \
     pkg-config \
-    libffi-dev
-RUN docker-php-ext-install ffi
-
+    libffi-dev # Install PHP FFI development files required to interface with Rust for BattleEngine \
+    
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install extensions
-RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
+RUN docker-php-ext-install ffi pdo_mysql mbstring zip exif pcntl
 RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
 RUN docker-php-ext-install gd
 
