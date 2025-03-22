@@ -8,7 +8,7 @@ if [ ! -f /var/www/.env ]; then
         echo ".env file not found, copied .env.example to .env"
     else
         echo "Error: .env and .env.example files not found. Please create an .env file." >&2
-        exit 1 
+        exit 1
     fi
 fi
 
