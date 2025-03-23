@@ -4,7 +4,7 @@
     <div class="sprite sprite_large building {{ $object->class_name }}">
         @if ($has_requirements)
             <button class="technology_tree  tooltip js_hideTipOnMobile overlay ipiHintable"
-                    aria-label="Open techtree"
+                    aria-label="@lang('Open techtree')"
                     data-target="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->id]) }}"
                     data-ipi-hint="ipiTechnologyTreefusionPlant"
                     data-tooltip-title="Open techtree">
@@ -12,9 +12,9 @@
             </button>
         @else
             <button class="technology_tree no_prerequisites tooltip js_hideTipOnMobile overlay ipiHintable"
-                    aria-label="Open techtree" title="No requirements available"
+                    aria-label="@lang('Open techtree')" title="@lang('No requirements available')"
                     data-target="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->id]) }}"
-                    data-ipi-hint="ipiTechnologyTreedeuteriumSynthesizer"> Techtree
+                    data-ipi-hint="ipiTechnologyTreedeuteriumSynthesizer"> @lang('Techtree')
             </button>
         @endif
 
@@ -32,7 +32,7 @@
         <div class="information">
             <span class="level"
                   data-value="{{ $next_level }}">
-                Level {!! $current_level !!}
+                @lang('Level') {!! $current_level !!}
             </span>
             <ul class="narrow">
 

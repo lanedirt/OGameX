@@ -2,7 +2,7 @@
     @include('ingame.techtree.partials.nav', ['currentAction' => 'applications', 'objectId' => $object->id])
 
     <div class="content applications">
-        <p class="hint">{{$object->title}} is a requirement for:</p>
+        <p class="hint">{{$object->title}} @lang('is a requirement for'):</p>
         <ul class="applications">
             @php /** @var OGame\GameObjects\Models\Techtree\TechtreeRequiredBy $required */ @endphp
             @foreach ($required_by as $required)
@@ -13,8 +13,6 @@
             @endforeach
         </ul>
     </div>
-    <script>
-    </script>
 </div>
 
 <script type="text/javascript">

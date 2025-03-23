@@ -3,7 +3,7 @@
 
     <div class="content technology">
         <p class="hint">
-            No requirements available
+            @lang('No requirements available')
         </p>
     </div>
 </div>

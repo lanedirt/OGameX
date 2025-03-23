@@ -9,7 +9,6 @@
 
 <div id="technologytree" data-title="@lang('Technology') - {{ $object->title }}">
     @include('ingame.techtree.partials.nav', ['currentAction' => 'technologytree', 'objectId' => $object->id])
-
     <div class="content technologytree">
         @if ($object->hasRequirements())
         <div class="graph columns_{{ $amount_of_columns }}" data-id="67d6cebc93399">
@@ -24,9 +23,10 @@
                     @endfor
                 </div>
             @endforeach
+        </div>
         @else
             <p class="hint">
-                No requirements available
+                @lang('No requirements available')
             </p>
         @endif
     </div>
