@@ -144,4 +144,76 @@ class Http200Test extends AccountTestCase
             }
         }
     }
+
+    /**
+     * Verify that all AJAX techtree pages return HTTP 200.
+     */
+    public function testAjaxTechtree(): void
+    {
+        foreach (ObjectService::getObjects() as $object) {
+            $response = $this->get('ajax/techtree?tab=1&object_id=' . $object->id);
+
+            try {
+                $response->assertStatus(200);
+            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+                $customMessage = 'AJAX techtree popup for "' . $object->title . '" does not return HTTP 200.';
+                // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
+                $this->fail($customMessage);
+            }
+        }
+    }
+
+    /**
+     * Verify that all AJAX applications pages return HTTP 200.
+     */
+    public function testAjaxApplications(): void
+    {
+        foreach (ObjectService::getObjects() as $object) {
+            $response = $this->get('ajax/techtree?tab=2&object_id=' . $object->id);
+
+            try {
+                $response->assertStatus(200);
+            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+                $customMessage = 'AJAX techtree popup applications tab for "' . $object->title . '" does not return HTTP 200.';
+                // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
+                $this->fail($customMessage);
+            }
+        }
+    }
+
+    /**
+     * Verify that all AJAX techinfo pages return HTTP 200.
+     */
+    public function testAjaxTechinfo(): void
+    {
+        foreach (ObjectService::getObjects() as $object) {
+            $response = $this->get('ajax/techtree?tab=3&object_id=' . $object->id);
+
+            try {
+                $response->assertStatus(200);
+            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+                $customMessage = 'AJAX techtree popup techinfo tab for "' . $object->title . '" does not return HTTP 200.';
+                // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
+                $this->fail($customMessage);
+            }
+        }
+    }
+
+    /**
+     * Verify that all AJAX technology pages return HTTP 200.
+     */
+    public function testAjaxTechnology(): void
+    {
+        foreach (ObjectService::getObjects() as $object) {
+            $response = $this->get('ajax/techtree?tab=4&object_id=' . $object->id);
+
+            try {
+                $response->assertStatus(200);
+            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+                $customMessage = 'AJAX techtree popup technology tab for "' . $object->title . '" does not return HTTP 200.';
+                // Optionally, include original message: $customMessage .= "\nOriginal assertion failure: " . $e->getMessage();
+                $this->fail($customMessage);
+            }
+        }
+    }
 }
