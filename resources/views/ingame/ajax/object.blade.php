@@ -2,11 +2,22 @@
 
 <div id="technologydetails" data-technology-id="3">
     <div class="sprite sprite_large building {{ $object->class_name }}">
-        <button class="technology_tree no_prerequisites tooltip js_hideTipOnMobile overlay ipiHintable"
-                aria-label="open techtree" title="No requirements available"
-                data-target="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $id]) }}"
-                data-ipi-hint="ipiTechnologyTreedeuteriumSynthesizer"> techtree
-        </button>
+        @if ($has_requirements)
+            <button class="technology_tree  tooltip js_hideTipOnMobile overlay ipiHintable"
+                    aria-label="@lang('Open techtree')"
+                    data-target="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->id]) }}"
+                    data-ipi-hint="ipiTechnologyTreefusionPlant"
+                    data-tooltip-title="Open techtree">
+                Techtree
+            </button>
+        @else
+            <button class="technology_tree no_prerequisites tooltip js_hideTipOnMobile overlay ipiHintable"
+                    aria-label="@lang('Open techtree')" title="@lang('No requirements available')"
+                    data-target="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->id]) }}"
+                    data-ipi-hint="ipiTechnologyTreedeuteriumSynthesizer"> @lang('Techtree')
+            </button>
+        @endif
+
         @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Research)
             @if (!empty($build_active_current) && $build_active_current->object->id == $object->id)
                 <a role="button" href="javascript:void(0);" class="tooltip abort_link js_hideTipOnMobile" title="" onclick="cancelbuilding({{ $object->id }},{{ $build_active_current->id }},'Cancel expansion of {{ $object->title }} to level {{ $build_active_current->level_target }}?'); return false;"></a>
@@ -21,7 +32,7 @@
         <div class="information">
             <span class="level"
                   data-value="{{ $next_level }}">
-                Level {!! $current_level !!}
+                @lang('Level') {!! $current_level !!}
             </span>
             <ul class="narrow">
 
@@ -188,7 +199,7 @@
                                 $disabled_shipyard_upgrading = ($object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense) && $shipyard_upgrading;
                                 $ships_being_built = $object->machine_name == 'shipyard' && $ship_or_defense_in_progress;
                             @endphp
-                                    
+
                             @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading || $ships_being_built))
                                 disabled
                             @else
@@ -238,7 +249,7 @@
         @endif
         <div class="txt_box">
             <button class="details tooltip js_hideTipOnMobile overlay" aria-label="@lang('More details')" title="@lang('More details')"
-                    data-target="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $id]) }}"
+                    data-target="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->id]) }}"
                     data-overlay-title="{{ $title }}"> ?
             </button>
             <span class="text">

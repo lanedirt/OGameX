@@ -106,4 +106,14 @@ abstract class GameObject
         }
         throw new InvalidArgumentException("Calculation method '$calculationName->value' not found.");
     }
+
+    /**
+     * Check if the object has any requirements.
+     *
+     * @return bool
+     */
+    public function hasRequirements(): bool
+    {
+        return count($this->requirements) > 0;
+    }
 }

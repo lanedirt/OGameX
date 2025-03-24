@@ -1,32 +1,8 @@
-
 <div id="technologytree" data-title="@lang('Technology') - {{ $object->title }}">
-    <nav data-current-action="applications">
-        <ul>
-            <li>
-                <a class="overlay" data-action="technologytree" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->id]) }}">
-                    @lang('Techtree')
-                </a>
-            </li>
-            <li>
-                <a class="overlay" data-action="applications" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $object->id]) }}">
-                    @lang('Applications')
-                </a>
-            </li>
-            <li>
-                <a class="overlay" data-action="technologyinformation" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->id]) }}">
-                    @lang('Techinfo')
-                </a>
-            </li>
-            <li>
-                <a class="overlay" data-action="technologies" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => $object->id]) }}">
-                    @lang('Technology')
-                </a>
-            </li>
-        </ul>
-    </nav>
+    @include('ingame.techtree.partials.nav', ['currentAction' => 'applications', 'objectId' => $object->id])
 
     <div class="content applications">
-        <p class="hint">{{$object->title}} is a requirement for:</p>
+        <p class="hint">{{$object->title}} @lang('is a requirement for'):</p>
         <ul class="applications">
             @php /** @var OGame\GameObjects\Models\Techtree\TechtreeRequiredBy $required */ @endphp
             @foreach ($required_by as $required)
@@ -37,8 +13,6 @@
             @endforeach
         </ul>
     </div>
-    <script>
-    </script>
 </div>
 
 <script type="text/javascript">

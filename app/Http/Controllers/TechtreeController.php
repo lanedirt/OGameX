@@ -9,6 +9,7 @@ use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Techtree\TechtreeRequiredBy;
+use OGame\GameObjects\Models\Techtree\TechtreeRequirement;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -27,23 +28,48 @@ class TechtreeController extends OGameController
     {
         $object_id = (int)$request->input('object_id');
         $tab = (int)$request->input('tab');
-        // TODO: is this planet still needed?
-        $planet = $player->planets->current();
 
         // Load object
         $object = ObjectService::getObjectById($object_id);
 
         if ($tab === 1) {
+            $techtree = $this->getTechtreeArray($object, $player->planets->current());
+
+            // Get the amount of columns in the techtree by getting the highest column number.
+            $columns = array_column($techtree, 'column');
+            $amount_of_columns = !empty($columns) ? max($columns) + 1 : 1;
+
+            // Create techtree array with all unique items for a specific depth as a sub-array.
+            // This makes it easier to render the tech tree in the template.
+            $techtree_by_depth = [];
+            $items_added = [];
+            foreach ($techtree as $requirement) {
+                $unique_key = $requirement->gameObject->id . '|' . $requirement->levelRequired;
+                if (!isset($items_added[$unique_key])) {
+                    $items_added[$unique_key] = true;
+                    $techtree_by_depth[$requirement->depth][$requirement->column] = $requirement;
+                }
+            }
+
+            // Create unique requirements array where every requirement with a specific level
+            // only appears once. This is used to create the endpoints list.
+            $techtree_unique = [];
+            foreach ($techtree as $requirement) {
+                if (!isset($techtree_unique[$requirement->gameObject->id . $requirement->levelRequired])) {
+                    $techtree_unique[$requirement->gameObject->id . $requirement->levelRequired] = $requirement;
+                }
+            }
+
             return view('ingame.techtree.techtree')->with([
                 'object' => $object,
-                'object_id' => $object_id,
-                'planet' => $planet,
+                'amount_of_columns' => $amount_of_columns,
+                'techtree' => $techtree,
+                'techtree_unique' => $techtree_unique,
+                'techtree_by_depth' => $techtree_by_depth,
             ]);
         } elseif ($tab === 2) {
             return view('ingame.techtree.techinfo')->with([
                 'object' => $object,
-                'object_id' => $object_id,
-                'planet' => $planet,
                 'production_table' => $this->getProductionTable($object, $player),
                 'storage_table' => $this->getStorageTable($object, $player),
                 'rapidfire_table' => $this->getRapidfireTable($object),
@@ -54,15 +80,11 @@ class TechtreeController extends OGameController
         } elseif ($tab === 3) {
             return view('ingame.techtree.technology')->with([
                 'object' => $object,
-                'object_id' => $object_id,
-                'planet' => $planet,
             ]);
         } elseif ($tab === 4) {
             return view('ingame.techtree.applications')->with([
                 'object' => $object,
-                'object_id' => $object_id,
-                'planet' => $planet,
-                'required_by' => $this->getRequiredBy($object, $player, $planet)
+                'required_by' => $this->getRequiredBy($object, $player->planets->current())
             ]);
         }
 
@@ -373,12 +395,14 @@ class TechtreeController extends OGameController
     }
 
     /**
+     * Returns the objects that require the given object including status if requirements have been met for current
+     * player and planet.
+     *
      * @param GameObject $object
-     * @param PlayerService $player
      * @param PlanetService $planet
      * @return array<TechtreeRequiredBy>
      */
-    private function getRequiredBy(GameObject $object, PlayerService $player, PlanetService $planet): array
+    private function getRequiredBy(GameObject $object, PlanetService $planet): array
     {
         $all_objects = ObjectService::getObjects();
         $required_by = [];
@@ -395,9 +419,59 @@ class TechtreeController extends OGameController
         });
 
         foreach ($require_objects as $r_object) {
-            $required_by[] = new TechtreeRequiredBy($r_object, ObjectService::objectRequirementsMet($r_object->machine_name, $planet, $player));
+            $required_by[] = new TechtreeRequiredBy($r_object, ObjectService::objectRequirementsMet($r_object->machine_name, $planet));
         }
 
         return $required_by;
+    }
+
+    /**
+     * Returns techtree array which includes all (recursive) objects that the given object depends on.
+     * This resulting array is used to render the full tech tree.
+     *
+     * @param GameObject $object
+     * @param PlanetService $planet
+     * @param int $depth
+     * @param int $column
+     * @param TechtreeRequirement|null $parent
+     * @return array<TechtreeRequirement>
+     */
+    private function getTechtreeArray(GameObject $object, PlanetService $planet, int $depth = 1, int &$column = 0, TechtreeRequirement|null $parent = null): array
+    {
+        $techtree_array = [];
+
+        // If we're at the beginning, add current object to requirement array as depth 0 (root)
+        if ($depth === 1) {
+            if ($object->type === GameObjectType::Research) {
+                $object_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+            } else {
+                $object_level = $planet->getObjectLevel($object->machine_name);
+            }
+            $requirement = new TechtreeRequirement(0, 0, null, $object, 0, $object_level);
+            $techtree_array[] = $requirement;
+
+            // Set current object as parent for the loop below.
+            $parent = $requirement;
+        }
+
+        foreach ($object->requirements as $requirement) {
+            $current_column = $column++;  // Increment column for each requirement
+            $object = ObjectService::getObjectByMachineName($requirement->object_machine_name);
+
+            if ($object->type === GameObjectType::Research) {
+                $object_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+            } else {
+                $object_level = $planet->getObjectLevel($object->machine_name);
+            }
+
+            $requirement = new TechtreeRequirement($depth, $current_column, $parent, $object, $requirement->level, $object_level);
+            $techtree_array[] = $requirement;
+
+            // Get requirements for this object recursively
+            $child_requirements = $this->getTechtreeArray($object, $planet, $depth + 1, $column, $requirement);
+            $techtree_array = array_merge($techtree_array, $child_requirements);
+        }
+
+        return $techtree_array;
     }
 }
