@@ -1459,7 +1459,6 @@ class PlanetService
         // 1. First time in order to ensure the energy production is up-to-date.
         // 2. Second time for the mine production to be updated according to the up-to-date (actual) energy production.
         $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
-        $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
 
         if ($save_planet) {
             $this->save();

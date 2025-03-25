@@ -57,41 +57,35 @@ class Resource
 
     /**
      * Get the formatted value of the resource as string (short, e.g. 5M).
-     * If a multiplier is provided, the value will be multiplied by it before formatting.
      *
-     * @param float|null $multiplier
+     * @param float|1 $multiplier
      * @return string
      */
-    public function getFormatted(?float $multiplier = null): string
+    public function getFormatted(?float $multiplier = 1): string
     {
-        $value = $multiplier !== null ? $this->rawValue * $multiplier : $this->rawValue;
-        return AppUtil::formatNumberShort($value);
+        return AppUtil::formatNumberShort($this->rawValue * $multiplier);
     }
 
     /**
      * Get the formatted value of the resource as string (longer, e.g. 5.33M).
-     * If a multiplier is provided, the value will be multiplied by it before formatting.
-     *
-     * @param float|null $multiplier
+     * 
+     * @param float|1 $multiplier
      * @return string
      */
-    public function getFormattedLong(?float $multiplier = null): string
+    public function getFormattedLong(?float $multiplier = 1): string
     {
-        $value = $multiplier !== null ? $this->rawValue * $multiplier : $this->rawValue;
-        return AppUtil::formatNumberLong($value);
+        return AppUtil::formatNumberLong($this->rawValue * $multiplier);
     }
 
     /**
      * Get the formatted value of the resource as string (all digits, no shortening e.g. 5,000,000).
-     * If a multiplier is provided, the value will be multiplied by it before formatting.
-     *
-     * @param float|null $multiplier
+     * 
+     * @param float|1 $multiplier
      * @return string
      */
-    public function getFormattedFull(?float $multiplier = null): string
+    public function getFormattedFull(?float $multiplier = 1): string
     {
-        $value = $multiplier !== null ? $this->rawValue * $multiplier : $this->rawValue;
-        return AppUtil::formatNumber($value);
+        return AppUtil::formatNumber($this->rawValue * $multiplier);
     }
 
     /**
