@@ -57,32 +57,41 @@ class Resource
 
     /**
      * Get the formatted value of the resource as string (short, e.g. 5M).
+     * If a multiplier is provided, the value will be multiplied by it before formatting.
      *
+     * @param float|null $multiplier
      * @return string
      */
-    public function getFormatted(): string
+    public function getFormatted(?float $multiplier = null): string
     {
-        return AppUtil::formatNumberShort($this->rawValue);
+        $value = $multiplier !== null ? $this->rawValue * $multiplier : $this->rawValue;
+        return AppUtil::formatNumberShort($value);
     }
 
     /**
      * Get the formatted value of the resource as string (longer, e.g. 5.33M).
+     * If a multiplier is provided, the value will be multiplied by it before formatting.
      *
+     * @param float|null $multiplier
      * @return string
      */
-    public function getFormattedLong(): string
+    public function getFormattedLong(?float $multiplier = null): string
     {
-        return AppUtil::formatNumberLong($this->rawValue);
+        $value = $multiplier !== null ? $this->rawValue * $multiplier : $this->rawValue;
+        return AppUtil::formatNumberLong($value);
     }
 
     /**
      * Get the formatted value of the resource as string (all digits, no shortening e.g. 5,000,000).
+     * If a multiplier is provided, the value will be multiplied by it before formatting.
      *
+     * @param float|null $multiplier
      * @return string
      */
-    public function getFormattedFull(): string
+    public function getFormattedFull(?float $multiplier = null): string
     {
-        return AppUtil::formatNumber($this->rawValue);
+        $value = $multiplier !== null ? $this->rawValue * $multiplier : $this->rawValue;
+        return AppUtil::formatNumber($value);
     }
 
     /**
