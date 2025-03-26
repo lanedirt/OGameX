@@ -58,7 +58,7 @@ class Resource
     /**
      * Get the formatted value of the resource as string (short, e.g. 5M).
      *
-     * @param float|1 $multiplier
+     * @param float|null $multiplier
      * @return string
      */
     public function getFormatted(?float $multiplier = 1): string
@@ -68,8 +68,8 @@ class Resource
 
     /**
      * Get the formatted value of the resource as string (longer, e.g. 5.33M).
-     * 
-     * @param float|1 $multiplier
+     *
+     * @param float|null $multiplier
      * @return string
      */
     public function getFormattedLong(?float $multiplier = 1): string
@@ -79,8 +79,8 @@ class Resource
 
     /**
      * Get the formatted value of the resource as string (all digits, no shortening e.g. 5,000,000).
-     * 
-     * @param float|1 $multiplier
+     *
+     * @param float|null $multiplier
      * @return string
      */
     public function getFormattedFull(?float $multiplier = 1): string
