@@ -105,6 +105,8 @@ class TechtreeController extends OGameController
             return view('empty');
         }
 
+        $energy_building = ($object->id === 4 || $object->id === 12) ? true : false;
+
         // Reload object to get the BuildingObject
         $object = ObjectService::getBuildingObjectByMachineName($object->machine_name);
 
@@ -113,14 +115,23 @@ class TechtreeController extends OGameController
 
         $production_table = [];
         if (!empty($object->production)) {
-            $production_amount_current_level = $planet->getObjectProduction($object->machine_name, $current_level, true)->sum();
+            if ($energy_building) {
+                $production_amount_current_level = $planet->getObjectProduction($object->machine_name, $current_level, true)->energy->get();
+            } else {
+                $production_amount_current_level = $planet->getObjectProduction($object->machine_name, $current_level, true)->sum();
+            }
 
             // Create production table array value
             // TODO: add unittest to verify that production calculation is correctly for various buildings.
             $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
             for ($i = $min_level; $i < $min_level + 15; $i++) {
-                $production_amount_previous_level = $planet->getObjectProduction($object->machine_name, $i - 1, true)->sum();
-                $production_amount = $planet->getObjectProduction($object->machine_name, $i, true)->sum();
+                if ($energy_building) {
+                    $production_amount_previous_level = $planet->getObjectProduction($object->machine_name, $i - 1, true)->energy->get();
+                    $production_amount = $planet->getObjectProduction($object->machine_name, $i, true)->energy->get();
+                } else {
+                    $production_amount_previous_level = $planet->getObjectProduction($object->machine_name, $i - 1, true)->sum();
+                    $production_amount = $planet->getObjectProduction($object->machine_name, $i, true)->sum();
+                }
 
                 $production_table[] = [
                     'level' => $i,

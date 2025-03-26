@@ -170,6 +170,8 @@ class ResourcesController extends AbstractBuildingsController
             'deuterium' => $this->planet->deuterium()->get(),
             'deuterium_storage' => $this->planet->deuteriumStorage()->get(),
             'deuterium_storage_formatted' => $this->planet->deuteriumStorage()->getFormatted(),
+            'energy_used' => $this->planet->getEnergyUsed(),
+            'energy_max' => $this->planet->getEnergyMax(),
         ]);
     }
 

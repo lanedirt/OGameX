@@ -38,7 +38,7 @@ class Resources
      */
     public function sum(): float
     {
-        return $this->metal->get() + $this->crystal->get() + $this->deuterium->get() + $this->energy->get();
+        return $this->metal->get() + $this->crystal->get() + $this->deuterium->get();
     }
 
     /**
