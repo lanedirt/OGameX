@@ -116,9 +116,9 @@ class TechtreeController extends OGameController
         $production_table = [];
         if (!empty($object->production)) {
             if($energy_building) {
-                $production_amount_current_level = $planet->getObjectProduction($object->machine_name, $current_level)->energy->get();
+                $production_amount_current_level = $planet->getObjectProduction($object->machine_name, $current_level, true)->energy->get();
             } else {
-                $production_amount_current_level = $planet->getObjectProduction($object->machine_name, $current_level)->sum();
+                $production_amount_current_level = $planet->getObjectProduction($object->machine_name, $current_level, true)->sum();
             }
 
             // Create production table array value
@@ -126,11 +126,11 @@ class TechtreeController extends OGameController
             $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
             for ($i = $min_level; $i < $min_level + 15; $i++) {
                 if($energy_building) {
-                    $production_amount_previous_level = $planet->getObjectProduction($object->machine_name, $i - 1)->energy->get();
-                    $production_amount = $planet->getObjectProduction($object->machine_name, $i)->energy->get();
+                    $production_amount_previous_level = $planet->getObjectProduction($object->machine_name, $i - 1, true)->energy->get();
+                    $production_amount = $planet->getObjectProduction($object->machine_name, $i, true)->energy->get();
                 } else {
-                    $production_amount_previous_level = $planet->getObjectProduction($object->machine_name, $i - 1)->sum();
-                    $production_amount = $planet->getObjectProduction($object->machine_name, $i)->sum();
+                    $production_amount_previous_level = $planet->getObjectProduction($object->machine_name, $i - 1, true)->sum();
+                    $production_amount = $planet->getObjectProduction($object->machine_name, $i, true)->sum();
                 }
                 
                 $production_table[] = [

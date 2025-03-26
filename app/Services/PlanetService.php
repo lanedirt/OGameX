@@ -510,6 +510,28 @@ class PlanetService
     }
 
     /**
+     * Get planet energy used.
+     *
+     * @return int
+     * Energy amount.
+     */
+    public function getEnergyUsed(): int
+    {
+        return $this->planet->energy_used;
+    }
+
+    /**
+     * Get planet energy generated.
+     *
+     * @return int
+     * Energy amount.
+     */
+    public function getEnergyMax(): int
+    {
+        return $this->planet->energy_max;
+    }
+
+    /**
      * Removes resources from planet.
      *
      * @param Resources $resources
@@ -1642,7 +1664,7 @@ class PlanetService
             $resource_production_factor = $this->getResourceProductionFactor();
         }
 
-        $building_percentage = !$force_factor ? $this->getBuildingPercent($machine_name) : 100;
+        $building_percentage = !$force_factor ? $this->getBuildingPercent($machine_name) : 10;
         $planet_temperature = $this->getPlanetTempAvg();
         $planet_max_temperature = $this->getPlanetTempMax();
         $energy_technology_level = 0; // Implement energy technology level getter.

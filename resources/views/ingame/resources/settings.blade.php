@@ -358,19 +358,19 @@
                         <tr class="">
                             <td colspan="2" class="label">@lang('Storage capacity')</td>
                             <td class="{{ $metal >= $metal_storage ? 'overmark' : 'normalmark' }} left2">
-                            <span class="tooltipCustom" title="{{ $metal_storage_formatted }}">
-                                {{ $metal_storage_formatted }}
-                            </span>
+                                <span class="tooltipCustom" title="{{ $metal_storage_formatted }}">
+                                    {{ $metal_storage_formatted }}
+                                </span>
                             </td>
                             <td class="{{ $crystal >= $crystal_storage ? 'overmark' : 'normalmark' }} left2">
-                            <span class="tooltipCustom" title="{{ $crystal_storage_formatted }}">
-                                {{ $crystal_storage_formatted }}
-                            </span>
+                                <span class="tooltipCustom" title="{{ $crystal_storage_formatted }}">
+                                    {{ $crystal_storage_formatted }}
+                                </span>
                             </td>
                             <td class="{{ $deuterium >= $deuterium_storage ? 'overmark' : 'normalmark' }} left2">
-                            <span class="tooltipCustom" title="{{ $deuterium_storage_formatted }}">
-                                {{ $deuterium_storage_formatted }}
-                            </span>
+                                <span class="tooltipCustom" title="{{ $deuterium_storage_formatted }}">
+                                    {{ $deuterium_storage_formatted }}
+                                </span>
                             </td>
                             <td>-</td>
                             <td></td>
@@ -378,47 +378,47 @@
                         <tr class="summary alt">
                             <td colspan="2" class="label"><em>@lang('Total per hour:')</em></td>
                             <td class="undermark">
-                            <span class="tooltipCustom" title="{{ $production_total->metal->getFormatted() }}">
-                                {{ $production_total->metal->getFormatted() }}
-                            </span>
+                                <span class="tooltipCustom" title="{{ $production_total->metal->getFormatted() }}">
+                                    {{ $production_total->metal->getFormatted() }}
+                                </span>
                             </td>
                             <td class="undermark">
-                            <span class="tooltipCustom" title="{{ $production_total->crystal->getFormatted() }}">
-                                {{ $production_total->crystal->getFormatted() }}
-                            </span>
+                                <span class="tooltipCustom" title="{{ $production_total->crystal->getFormatted() }}">
+                                    {{ $production_total->crystal->getFormatted() }}
+                                </span>
                             </td>
                             <td class="undermark">
-                            <span class="tooltipCustom" title="{{ $production_total->deuterium->getFormatted() }}">
-                                {{ $production_total->deuterium->getFormatted() }}
-                            </span>
+                                <span class="tooltipCustom" title="{{ $production_total->deuterium->getFormatted() }}">
+                                    {{ $production_total->deuterium->getFormatted() }}
+                                </span>
                             </td>
-                            <td class="{{ ($production_total->energy->getFormatted() > 0) ? 'undermark' : 'overmark' }}">
-                            <span class="tooltipCustom" title="{{ $production_total->energy->getFormattedLong() }}">
-                                {{ $production_total->energy->getFormattedLong() }}
-                            </span>
+                            <td class="{{ ($energy_used < $energy_max) ? 'undermark' : 'overmark' }}">
+                                <span class="tooltipCustom" title="{{ $energy_used }}/{{ $energy_max }}">
+                                    {{ $energy_used }}/{{ $energy_max }}
+                                </span>
                             </td>
                             <td></td>
                         </tr>
                         <tr class="">
                             <td colspan="2" class="label"><em>@lang('Total per day'):</em></td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->metal->getFormatted(24) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->metal->get() * 24 }}">
                                     {{ $production_total->metal->getFormatted(24) }}
                                 </span>
                             </td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->crystal->getFormatted(24) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->crystal->get() * 24 }}">
                                     {{ $production_total->crystal->getFormatted(24) }}
                                 </span>
                             </td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->deuterium->getFormatted(24) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->deuterium->get() * 24 }}">
                                     {{ $production_total->deuterium->getFormatted(24) }}
                                 </span>
                             </td>
-                            <td class="{{ ($production_total->energy->getFormatted(24) > 0) ? 'undermark' : 'overmark' }}">
-                                <span class="tooltipCustom" title="{{ $production_total->energy->getFormattedLong(24) }}">
-                                    {{ $production_total->energy->getFormattedLong(24) }}
+                            <td class="{{ ($energy_used < $energy_max) ? 'undermark' : 'overmark' }}">
+                                <span class="tooltipCustom" title="{{ $energy_used }}/{{ $energy_max }}">
+                                    {{ $energy_used }}/{{ $energy_max }}
                                 </span>
                             </td>
                             <td></td>
@@ -426,25 +426,24 @@
                         <tr class="alt">
                             <td colspan="2" class="label"><em>@lang('Total per week'):</em></td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->metal->getFormatted(168) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->metal->get() * 168 }}">
                                     {{ $production_total->metal->getFormatted(168) }}
                                 </span>
                             </td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->crystal->getFormatted(168) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->crystal->get() * 168 }}">
                                     {{ $production_total->crystal->getFormatted(168) }}
                                 </span>
                             </td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->deuterium->getFormatted(168) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->deuterium->get() * 168 }}">
                                     {{ $production_total->deuterium->getFormatted(168) }}
                                 </span>
                             </td>
-                            <td class="{{ ($production_total->energy->getFormatted(168) > 0) ? 'undermark' : 'overmark' }}">
-                                <span class="tooltipCustom" title="{{ $production_total->energy->getFormattedLong(168) }}">
-                                    {{ $production_total->energy->getFormattedLong(168) }}
+                            <td class="{{ ($energy_used < $energy_max) ? 'undermark' : 'overmark' }}">
+                                <span class="tooltipCustom" title="{{ $energy_used }}/{{ $energy_max }}">
+                                    {{ $energy_used }}/{{ $energy_max }}
                                 </span>
-                            </td>
                             <td></td>
                         </tr>
 
