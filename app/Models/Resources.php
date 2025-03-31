@@ -32,13 +32,13 @@ class Resources
     }
 
     /**
-     * Returns sum of all resources.
+     * Returns sum of all resources (except energy)
      *
      * @return float
      */
     public function sum(): float
     {
-        return $this->metal->get() + $this->crystal->get() + $this->deuterium->get() + $this->energy->get();
+        return $this->metal->get() + $this->crystal->get() + $this->deuterium->get();
     }
 
     /**
