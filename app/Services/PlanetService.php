@@ -1666,7 +1666,7 @@ class PlanetService
         $building_percentage = !$force_factor ? $this->getBuildingPercent($machine_name) : 10;
         $planet_temperature = $this->getPlanetTempAvg();
         $planet_max_temperature = $this->getPlanetTempMax();
-        $energy_technology_level = 0; // Implement energy technology level getter.
+        $energy_technology_level = $this->player->getResearchLevel('energy_technology');
         $universe_resource_multiplier = $this->settingsService->economySpeed();
 
         $production = new Resources(0, 0, 0, 0);
@@ -1676,6 +1676,7 @@ class PlanetService
         // Fusion plant does not require energy tu consume deuterium so it should not be impacted by resource_production_factor
         if ($machine_name === 'fusion_plant') {
             $production->deuterium->set((eval($gameObject->production->deuterium) * $universe_resource_multiplier));
+            // Fusion Reactor is powered by deuterium which is not impacted by universe resource multiplier
         } else {
             $production->deuterium->set((eval($gameObject->production->deuterium) * $universe_resource_multiplier) * ($resource_production_factor / 100));
         }
