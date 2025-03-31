@@ -122,6 +122,10 @@ class ResourcesController extends AbstractBuildingsController
                 $percentage = $this->planet->getBuildingPercent($building->machine_name);
             }
 
+            if ($building->machine_name === 'fusion_plant' && $this->planet->getDeuteriumProductionPerHour() <= 0 && $this->planet->deuterium()->get() <= 0) {
+                $production->energy->set(0);
+            }
+
             if ($production->energy->get() < 0) {
                 // Building consumes energy (resource building)
                 $building_resource_rows[] = [
@@ -160,7 +164,7 @@ class ResourcesController extends AbstractBuildingsController
             'building_resource_rows' => $building_resource_rows,
             'building_energy_rows' => $building_energy_rows,
             'production_total' => $production_total,
-            'production_factor' => $production_factor,
+            'production_factor' => (int)$production_factor,
             'metal' => $this->planet->metal()->get(),
             'metal_storage' => $this->planet->metalStorage()->get(),
             'metal_storage_formatted' => $this->planet->metalStorage()->getFormatted(),
@@ -170,8 +174,8 @@ class ResourcesController extends AbstractBuildingsController
             'deuterium' => $this->planet->deuterium()->get(),
             'deuterium_storage' => $this->planet->deuteriumStorage()->get(),
             'deuterium_storage_formatted' => $this->planet->deuteriumStorage()->getFormatted(),
-            'energy_used' => $this->planet->getEnergyUsed(),
-            'energy_max' => $this->planet->getEnergyMax(),
+            'energy_used' => $this->planet->energyConsumption()->get(),
+            'energy_max' => $this->planet->energyProduction()->get(),
         ]);
     }
 

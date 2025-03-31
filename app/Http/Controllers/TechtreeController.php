@@ -105,7 +105,7 @@ class TechtreeController extends OGameController
             return view('empty');
         }
 
-        $energy_building = ($object->id === 4 || $object->id === 12) ? true : false;
+        $energy_building = ($object->machine_name === 'solar_plant' || $object->machine_name === 'fusion_plant') ? true : false;
 
         // Reload object to get the BuildingObject
         $object = ObjectService::getBuildingObjectByMachineName($object->machine_name);

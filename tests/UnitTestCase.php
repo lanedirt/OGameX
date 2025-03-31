@@ -53,7 +53,6 @@ abstract class UnitTestCase extends TestCase
 
         // Update resource production stats
         $this->planetService->updateResourceProductionStats(false);
-        $this->planetService->updateResourceProductionStats(false);
     }
 
     /**

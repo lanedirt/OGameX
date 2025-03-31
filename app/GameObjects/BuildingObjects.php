@@ -130,7 +130,7 @@ class BuildingObjects
             new GameObjectRequirement('energy_technology', 3),
         ];
         $fusionReactor->production = new GameObjectProduction();
-        $fusionReactor->production->deuterium = 'return - (10 * $object_level * pow(1.1, $object_level));';
+        $fusionReactor->production->deuterium = 'return - (10 * $object_level * pow(1.1, $object_level)) * (0.1 * $building_percentage);';
         $fusionReactor->production->energy = 'return (30 * $object_level * pow((1.05 + $energy_technology_level * 0.01), $object_level)) * (0.1 * $building_percentage);';
 
         $fusionReactor->assets = new GameObjectAssets();

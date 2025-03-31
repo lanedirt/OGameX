@@ -32,7 +32,7 @@ class Resources
     }
 
     /**
-     * Returns sum of all resources.
+     * Returns sum of all resources (except energy)
      *
      * @return float
      */
