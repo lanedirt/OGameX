@@ -1,3 +1,4 @@
+@php use OGame\Models\Enums\PlanetType; @endphp
 @php /** @var OGame\Services\PlayerService $player */ @endphp
 @php /** @var OGame\Services\PlanetService $planet */ @endphp
 @php /** @var OGame\Services\SettingsService $settings */ @endphp
@@ -880,7 +881,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                             <li><span class="title">Target:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
                                             class="planetIcon planet tooltip js_hideTipOnMobile"
                                             title="Planet"></figure>MyBaseYo</span></li>
-                            <li><span class="title">Player’s Name:</span> <span
+                            <li><span class="title">Player's Name:</span> <span
                                         class="targetPlayerName">President Hati</span></li>
                         </ul>
                     </div>
@@ -1010,7 +1011,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                         <li><span class="title">Target:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
                                         class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>MyBaseYo</span>
                         </li>
-                        <li><span class="title">Player’s Name:</span> <span
+                        <li><span class="title">Player's Name:</span> <span
                                     class="targetPlayerName">President Hati</span></li>
                     </ul>
                 </div>
@@ -1103,13 +1104,19 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         <div>
                                             <span id="shortlinks tips">Shortcuts:</span>
                                             <div class="glow">
-                                                <select size="1" class="planets dropdownInitialized" id="slbox"
-                                                        style="display: none;">
+                                                <select size="1" class="planets" id="slbox">
                                                     <option value="-">-</option>
-                                                </select><span class="dropdown currentlySelected planets"
-                                                               rel="dropdown711" style="width: 144px;"><a
-                                                            class="undefined" data-value="-" rel="dropdown711"
-                                                            href="javascript:void(0);">-</a></span>
+                                                    @foreach ($player->planets->all() as $planet_record)
+                                                        @if ($planet_record->getPlanetId() !== $planet->getPlanetId())
+                                                        <option 
+                                                            value="{{ $planet_record->getPlanetCoordinates()->galaxy }}#{{ $planet_record->getPlanetCoordinates()->system }}#{{ $planet_record->getPlanetCoordinates()->position }}#{{ $planet_record->getPlanetType() }}#{{ $planet_record->getPlanetName() }}" 
+                                                            data-html-prepend="<figure class=&quot;planetIcon {{ $planet_record->getPlanetType() === PlanetType::Planet ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile&quot; title=&quot;{{ $planet_record->getPlanetType() === PlanetType::Planet ? 'Planet' : 'Moon' }}&quot;></figure>"
+                                                            >
+                                                            {{ $planet_record->getPlanetName() }} [{{ $planet_record->getPlanetCoordinates()->asString() }}]
+                                                        </option>
+                                                        @endif
+                                                    @endforeach
+                                                </select>
                                             </div>
                                         </div>
                                         <div style="padding-top: 12px;">

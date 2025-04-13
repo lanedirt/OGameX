@@ -174,13 +174,28 @@ class PlanetListService
     }
 
     /**
-     * Return array of all planet and moon objects.
+     * Return array of all planet and moon objects, ordered so that each planet is followed by its moon (if it exists).
      *
      * @return array<PlanetService>
      */
     public function all(): array
     {
-        return [...$this->planets, ...$this->moons];
+        $result = [];
+
+        // First add all planets
+        foreach ($this->planets as $planet) {
+            $result[] = $planet;
+
+            // Check if this planet has a moon
+            if ($planet->hasMoon()) {
+                $moon = $this->getMoonByCoordinates($planet->getPlanetCoordinates());
+                if ($moon !== null) {
+                    $result[] = $moon;
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**
