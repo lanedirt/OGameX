@@ -6,10 +6,10 @@ use OGame\Services\PlanetService;
 
 class GalaxyRowViewModel
 {
-    public ?PlanetService $planet;
+    public PlanetService|null $planet;
     public int $position;
 
-    public function __construct(int $position, ?PlanetService $planet)
+    public function __construct(int $position, PlanetService|null $planet)
     {
         $this->planet = $planet;
         $this->position = $position;

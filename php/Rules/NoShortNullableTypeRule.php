@@ -14,7 +14,7 @@ use PHPStan\Rules\IdentifierRuleError;
 
 /**
  * Custom PHPStan rule that checks for short nullable type syntax, enforcing the use of `|null` instead of `?`.
- * 
+ *
  * @implements Rule<FunctionLike>
  */
 final class NoShortNullableTypeRule implements Rule

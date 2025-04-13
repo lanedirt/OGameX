@@ -164,9 +164,9 @@ class PlanetServiceFactory
      * @param bool $useCache Whether to use the cache or not. Defaults to true.
      * @param PlanetType $type The type of planet object to look for. Can be PlanetType::Planet or PlanetType::Moon. Defaults to Planet.
      *
-     * @return ?PlanetService
+     * @return PlanetService|null
      */
-    public function makeForCoordinate(Coordinate $coordinate, bool $useCache = true, PlanetType $type = PlanetType::Planet): ?PlanetService
+    public function makeForCoordinate(Coordinate $coordinate, bool $useCache = true, PlanetType $type = PlanetType::Planet): PlanetService|null
     {
         $instancesArray = $type === PlanetType::Planet ?
             $this->planetInstancesByCoordinate :
@@ -211,9 +211,9 @@ class PlanetServiceFactory
      *
      * @param Coordinate $coordinate
      * @param bool $useCache
-     * @return ?PlanetService
+     * @return PlanetService|null
      */
-    public function makePlanetForCoordinate(Coordinate $coordinate, bool $useCache = true): ?PlanetService
+    public function makePlanetForCoordinate(Coordinate $coordinate, bool $useCache = true): PlanetService|null
     {
         return $this->makeForCoordinate($coordinate, $useCache, PlanetType::Planet);
     }
@@ -223,9 +223,9 @@ class PlanetServiceFactory
      *
      * @param Coordinate $coordinate
      * @param bool $useCache
-     * @return ?PlanetService
+     * @return PlanetService|null
      */
-    public function makeMoonForCoordinate(Coordinate $coordinate, bool $useCache = true): ?PlanetService
+    public function makeMoonForCoordinate(Coordinate $coordinate, bool $useCache = true): PlanetService|null
     {
         return $this->makeForCoordinate($coordinate, $useCache, PlanetType::Moon);
     }

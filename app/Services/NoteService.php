@@ -65,7 +65,7 @@ class NoteService
      * @param int $noteId
      * @return Note|null
      */
-    public function getNoteById(int $noteId): ?Note
+    public function getNoteById(int $noteId): Note|null
     {
         return Note::where('id', $noteId)
             ->where('user_id', $this->player->getId())

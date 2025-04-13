@@ -16,9 +16,9 @@ class UnitQueueListViewModel extends QueueListViewModel
     /**
      * Returns the item in the queue that is currently building.
      *
-     * @return ?UnitQueueViewModel
+     * @return UnitQueueViewModel|null
      */
-    public function getCurrentlyBuildingFromQueue(): ?UnitQueueViewModel
+    public function getCurrentlyBuildingFromQueue(): UnitQueueViewModel|null
     {
         // Return the first item in the queue if exists.
         if (count($this->queue) > 0) {
