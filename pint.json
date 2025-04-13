@@ -30,6 +30,7 @@
     "control_structure_continuation_position": {
       "position": "same_line"
     },
-    "no_whitespace_in_blank_line": true
+    "no_whitespace_in_blank_line": true,
+    "unary_operator_spaces": true
   }
 }
