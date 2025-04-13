@@ -171,7 +171,7 @@ class TestBattleEnginePerformance extends TestCommand
      * @param string $fleetJson The fleet JSON string.
      * @return array<string, UnitCollection>|null The fleets.
      */
-    private function parseFleets(string $fleetJson): ?array
+    private function parseFleets(string $fleetJson): array|null
     {
         try {
             $fleets = json_decode($fleetJson, true, 512, JSON_THROW_ON_ERROR);

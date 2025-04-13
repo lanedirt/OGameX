@@ -117,9 +117,9 @@ class PlanetService
     /**
      * Get the player object who owns this planet.
      *
-     * @return ?PlayerService
+     * @return PlayerService|null
      */
-    public function getPlayer(): ?PlayerService
+    public function getPlayer(): PlayerService|null
     {
         return $this->player;
     }

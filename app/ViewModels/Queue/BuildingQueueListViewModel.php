@@ -16,9 +16,9 @@ class BuildingQueueListViewModel extends QueueListViewModel
     /**
      * Returns the item in the queue that is currently building.
      *
-     * @return ?BuildingQueueViewModel
+     * @return BuildingQueueViewModel|null
      */
-    public function getCurrentlyBuildingFromQueue(): ?BuildingQueueViewModel
+    public function getCurrentlyBuildingFromQueue(): BuildingQueueViewModel|null
     {
         foreach ($this->queue as $record) {
             if ((int)$record->building === 1) {

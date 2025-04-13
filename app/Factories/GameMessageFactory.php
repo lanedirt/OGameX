@@ -83,7 +83,7 @@ class GameMessageFactory
      * @param string|null $subtab
      * @return array<int, string>
      */
-    public static function GetGameMessageKeysByTab(string $tab, ?string $subtab = null): array
+    public static function GetGameMessageKeysByTab(string $tab, string|null $subtab = null): array
     {
         $matchingKeys = [];
 
