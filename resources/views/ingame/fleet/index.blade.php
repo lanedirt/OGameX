@@ -26,6 +26,9 @@
 
             var FLEET_DEUTERIUM_SAVE_FACTOR = 0.5;
             var maxNumberOfPlanets = 2;
+
+            // TODO: make ships data dynamic based on GameObject data for proper
+            // fuel consumption and cargo capacity value calculations.
             var shipsData = {
                 "204": {
                     "id": 204,
@@ -231,9 +234,13 @@
                 "galaxy": {{ $galaxy ?? $planet->getPlanetCoordinates()->galaxy }},
                 "system": {{ $system ?? $planet->getPlanetCoordinates()->system }},
                 "position": {{ $position ?? $planet->getPlanetCoordinates()->position }},
-                "type": {{ $type ?? 1 }},
-                "name": "Target"
+                "type": {{ $type ?? $planet->getPlanetType() }},
+                "name": "{{ $targetPlanetName ?? $planet->getPlanetName() }}"
             };
+
+            var targetPlayerId = "{{ $targetPlayerId ?? $player->getId() }}";
+            var targetPlayerName = "{{ $targetPlayerName ?? $player->getUsername(false) }}";
+
             var shipsOnPlanet = [@foreach ($units as $unitGroup)@foreach ($unitGroup as $unit)@if($unit->amount > 0){
                 "id": {{ $unit->object->id }},
                 "number": {{ $unit->amount }}
@@ -879,10 +886,10 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                             <li><span class="title">Mission:</span> <span
                                         class="missionName">Nothing has been selected</span></li>
                             <li><span class="title">Target:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
-                                            class="planetIcon planet tooltip js_hideTipOnMobile"
-                                            title="Planet"></figure>MyBaseYo</span></li>
+                                            class="planetIcon {{ $planet->isPlanet() ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile"
+                                            title="{{ $planet->isPlanet() ? 'Planet' : 'Moon' }}"></figure>{{ $planet->getPlanetName() }}</span></li>
                             <li><span class="title">Player's Name:</span> <span
-                                        class="targetPlayerName">President Hati</span></li>
+                                        class="targetPlayerName">{{ $player->getUsername() }}</span></li>
                         </ul>
                     </div>
                     <div id="buttonz">
@@ -893,7 +900,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                     <div id="battleships">
                                         <div class="header"><h2>Combat ships</h2></div>
                                         <ul id="military" class="iconsUNUSED">
-                                            @php /** @var OGame\ViewModels\QueueUnitViewModel $object */ @endphp
+                                            @php /** @var OGame\ViewModels\UnitViewModel $object */ @endphp
                                             @foreach ($units[0] as $object)
                                                 <li class="technology {{ $object->object->class_name }} interactive hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable"
                                                     data-technology="{{ $object->object->id }}"
@@ -997,7 +1004,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
 
             <div id="inhalt">
                 <div id="planet" class="planet-header ">
-                    <h2>Fleet Dispatch II - MyBaseYo</h2>
+                    <h2>Fleet Dispatch II - {{ $planet->getPlanetName() }}</h2>
                     <a class="toggleHeader" data-name="fleet2">
                         <img alt="" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22">
                     </a>
@@ -1009,10 +1016,10 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                         <li><span class="title">Mission:</span> <span
                                     class="missionName">Nothing has been selected</span></li>
                         <li><span class="title">Target:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
-                                        class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>MyBaseYo</span>
+                                        class="planetIcon {{ $planet->isPlanet() ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile" title="{{ $planet->isPlanet() ? 'Planet' : 'Moon' }}"></figure>{{ $planet->getPlanetName() }}</span>
                         </li>
                         <li><span class="title">Player's Name:</span> <span
-                                    class="targetPlayerName">President Hati</span></li>
+                                    class="targetPlayerName">{{ $player->getUsername() }}</span></li>
                     </ul>
                 </div>
                 <div id="buttonz" class="sortable ui-sortable">
@@ -1046,12 +1053,12 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                 </tr>
                                 <tr>
                                     <td id="start" class="border5px">
-                                        <div class="planetname">MyBaseYo</div>
+                                        <div class="planetname">{{ $planet->getPlanetName() }}</div>
                                         <div class="target">
-                                            <a class="planet_source_selected">
+                                            <a class="planet_source{{ $planet->isPlanet() ? '_selected' : '' }}">
                                                 <span class="textlabel">Planet</span>
                                             </a>
-                                            <a class="moon_source">
+                                            <a class="moon_source{{ $planet->isMoon() ? '_selected' : '' }}">
                                                 <span class="textlabel">Moon</span>
                                             </a>
                                             <br class="clearfloat">
@@ -1066,12 +1073,12 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         <div class="coords">Distance</div>
                                     </td>
                                     <td id="target" class="border5px">
-                                        <div class="planetname" id="targetPlanetName">MyBaseYo</div>
+                                        <div class="planetname" id="targetPlanetName">{{ $planet->getPlanetName() }}</div>
                                         <div class="target">
-                                            <a class="planet_selected" href="" id="pbutton">
+                                            <a class="planet{{ $planet->isPlanet() ? '_selected' : '' }}" href="" id="pbutton">
                                                 <span class="textlabel">Planet</span>
                                             </a>
-                                            <a class="moon" href="" id="mbutton">
+                                            <a class="moon{{ $planet->isMoon() ? '_selected' : '' }}" href="" id="mbutton">
                                                 <span class="textlabel">Moon</span>
                                             </a>
                                             <a class="debris" href="" id="dbutton">
@@ -1108,8 +1115,8 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                     <option value="-">-</option>
                                                     @foreach ($player->planets->all() as $planet_record)
                                                         @if ($planet_record->getPlanetId() !== $planet->getPlanetId())
-                                                        <option 
-                                                            value="{{ $planet_record->getPlanetCoordinates()->galaxy }}#{{ $planet_record->getPlanetCoordinates()->system }}#{{ $planet_record->getPlanetCoordinates()->position }}#{{ $planet_record->getPlanetType() }}#{{ $planet_record->getPlanetName() }}" 
+                                                        <option
+                                                            value="{{ $planet_record->getPlanetCoordinates()->galaxy }}#{{ $planet_record->getPlanetCoordinates()->system }}#{{ $planet_record->getPlanetCoordinates()->position }}#{{ $planet_record->getPlanetType() }}#{{ $planet_record->getPlanetName() }}"
                                                             data-html-prepend="<figure class=&quot;planetIcon {{ $planet_record->getPlanetType() === PlanetType::Planet ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile&quot; title=&quot;{{ $planet_record->getPlanetType() === PlanetType::Planet ? 'Planet' : 'Moon' }}&quot;></figure>"
                                                             >
                                                             {{ $planet_record->getPlanetName() }} [{{ $planet_record->getPlanetCoordinates()->asString() }}]
