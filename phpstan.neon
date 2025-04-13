@@ -1,5 +1,11 @@
 # Run PHPStan code analysis with `clear && ./vendor/bin/phpstan analyse --memory-limit=384M` command
 
+# Add custom PHPStan rules
+services:
+    -
+        class: Php\Rules\NoShortNullableTypeRule
+        tags: [phpstan.rules.rule]
+
 includes:
     - vendor/larastan/larastan/extension.neon
 
@@ -8,6 +14,7 @@ parameters:
     paths:
         - app/
         - database/
+        - php/Rules
         - tests/
         - resources/
 
