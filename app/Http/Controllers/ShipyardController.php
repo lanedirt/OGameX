@@ -71,7 +71,7 @@ class ShipyardController extends AbstractUnitsController
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
         // If the shipyard isn't upgrading, we can continue to process the request.
-        if (! $player->isBuildingObject('shipyard')) {
+        if (!$player->isBuildingObject('shipyard')) {
             return parent::addBuildRequest($request, $player);
         } else {
             // Otherwise, it shouldn't be allowed.
