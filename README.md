@@ -94,6 +94,7 @@ OGameX is under active development with a lot of core features already implement
 
 The next major upcoming features that are being worked on:
 
+- Expedition mission (and all associated features such as game units and logic)
 - Moon
   - Phalanx feature
   - Jump Gate feature
