@@ -29,6 +29,7 @@
     "autoload": {
         "psr-4": {
             "OGame\\": "app/",
+            "Php\\Rules\\": "php/Rules/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
