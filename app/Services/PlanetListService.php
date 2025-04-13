@@ -188,10 +188,7 @@ class PlanetListService
 
             // Check if this planet has a moon
             if ($planet->hasMoon()) {
-                $moon = $this->getMoonByCoordinates($planet->getPlanetCoordinates());
-                if ($moon !== null) {
-                    $result[] = $moon;
-                }
+                $result[] = $planet->moon();
             }
         }
 
