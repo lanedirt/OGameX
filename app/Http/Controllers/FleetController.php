@@ -122,13 +122,13 @@ class FleetController extends OGameController
 
         // Load the target planet
         $targetCoordinates = new Coordinate($galaxy, $system, $position);
-        $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinates);
+        $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinates, true, $planetType);
         if ($targetPlanet !== null) {
             $targetPlayer = $targetPlanet->getPlayer();
 
             $targetPlayerId = $targetPlayer->getId();
             $targetPlanetName = $targetPlanet->getPlanetName();
-            $targetPlayerName = $targetPlayer->getUsername();
+            $targetPlayerName = $targetPlayer->getUsername(false);
             $targetCoordinates = $targetPlanet->getPlanetCoordinates();
         } else {
             $targetPlayerId = 99999;
