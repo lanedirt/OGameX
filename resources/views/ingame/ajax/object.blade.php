@@ -30,10 +30,15 @@
         <h3>{!! $title !!}</h3>
 
         <div class="information">
-            <span class="level"
-                  data-value="{{ $next_level }}">
-                @lang('Level') {!! $current_level !!}
-            </span>
+            @if ($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
+                <span class="amount" data-value="{{ $next_level }}">
+                     @lang('Number'): {!! $current_level !!}
+                </span>
+            @else
+                <span class="level" data-value="{{ $next_level }}">
+                    @lang('Level') {!! $current_level !!}
+                </span>
+            @endif
             <ul class="narrow">
 
                 <li class="build_duration"><strong>@lang('Production duration:')</strong>
