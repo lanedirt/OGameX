@@ -118,11 +118,25 @@ class ResourceProductionTest extends UnitTestCase
             'deuterium_synthesizer_percent' => 10,
             'fusion_plant' => 20,
             'fusion_plant_percent' => 10,
+            'solar_plant' => 30,
+            'solar_plant_percent' => 10,
             'deuterium' => 0, // No deuterium in storage
         ]);
 
         $noStorageEnergy = $this->planetService->energyProduction()->get();
         $this->assertGreaterThan(0, $noStorageEnergy, 'Fusion plant should produce energy when deuterium production is positive but deuterium storage is 0');
+
+        // Test with deuterium production but with only energy fusion plant as energy source and no deuterium in storage
+        $this->createAndSetPlanetModel([
+            'deuterium_synthesizer' => 30,
+            'deuterium_synthesizer_percent' => 10,
+            'fusion_plant' => 20,
+            'fusion_plant_percent' => 10,
+            'deuterium' => 0, // No deuterium in storage
+        ]);
+
+        $noStorageEnergy = $this->planetService->energyProduction()->get();
+        $this->assertEquals(0, $noStorageEnergy, 'Fusion plant should not produce energy when the deuterium synthesizer has no other energy source to produce deuterium.');
 
         // Test with negative deuterium production and no deuterium in storage
         $this->createAndSetPlanetModel([
