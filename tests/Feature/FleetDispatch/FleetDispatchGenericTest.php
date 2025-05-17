@@ -145,7 +145,7 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 1 after first mission');
 
         // Second mission should fail due to max fleet slots restriction
-        $this->sendTestMission();
+        $this->sendTestMission(false);
         $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet mission has been created but should have been rejected due to max fleet slots restriction (computer technology level 0)');
 
         // Upgrade computer technology to level 1
@@ -192,13 +192,14 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
     /**
      * Send a transport mission to the second planet of the test user.
      *
+     * @param bool $assertStatus
      * @return void
      */
-    protected function sendTestMission(): void
+    protected function sendTestMission(bool $assertStatus = true): void
     {
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(1, 1, 0, 0));
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(1, 1, 0, 0), $assertStatus);
     }
 }
