@@ -30,6 +30,7 @@ class DeveloperShortcutsController extends OGameController
         return view('ingame.admin.developershortcuts')->with([
             'units' => $units,
             'buildings' => [...ObjectService::getBuildingObjects(), ...ObjectService::getStationObjects()],
+            'research' => ObjectService::getResearchObjects(),
             'currentPlanet' => $playerService->planets->current(),
         ]);
     }
@@ -117,6 +118,27 @@ class DeveloperShortcutsController extends OGameController
 
                 if ($building) {
                     $playerService->planets->current()->setObjectLevel($building->id, $level);
+                }
+            }
+        }
+
+        // Handle research level setting
+        foreach ($request->all() as $key => $value) {
+            if (str_starts_with($key, 'research_')) {
+                $researchId = (int)substr($key, 9); // Remove 'research_' prefix
+                $level = (int)$request->input('research_level', 1);
+
+                // Find the research object
+                $research = null;
+                foreach (ObjectService::getResearchObjects() as $obj) {
+                    if ($obj->id === $researchId) {
+                        $research = $obj;
+                        break;
+                    }
+                }
+
+                if ($research) {
+                    $playerService->setResearchLevel($research->machine_name, $level);
                 }
             }
         }
