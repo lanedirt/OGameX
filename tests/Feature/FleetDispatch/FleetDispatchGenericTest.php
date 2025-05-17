@@ -177,6 +177,16 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         // Send third mission
         $this->sendTestMission();
         $this->assertEquals(3, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 3 after third mission');
+
+        // Increase time by 10 hours to ensure all missions are done.
+        $this->travel(10)->hours();
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Ensure that the fleet slots in use are updated correctly.
+        $this->assertEquals(0, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 0 after all missions are done');
     }
 
     /**

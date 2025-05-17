@@ -239,7 +239,7 @@ class FleetMissionService
     {
         // Note: this only includes missions that the current player has sent themselves
         // so it does not include any incoming missions by other players (e.g. hostile attacks, espionage, transports etc.)
-        $query = $this->model->where('user_id', $this->player->getId());
+        $query = $this->model->where('user_id', $this->player->getId())->where('processed', 0);
         return $query->orderBy('time_arrival')->get();
     }
 
