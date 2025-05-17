@@ -272,8 +272,8 @@
             var deuteriumOnPlanet = {{ $planet->deuterium()->getRounded() }};
             var foodOnPlanet = 0;
 
-            var fleetCount = 3;
-            var maxFleetCount = 4;
+            var fleetCount = {{ $fleetSlotsInUse }};
+            var maxFleetCount = {{ $fleetSlotsMax }};
             var expeditionCount = 0;
             var maxExpeditionCount = 1;
 
@@ -796,7 +796,7 @@
                 <div class="fleetStatus">
                     <div id="slots" class="fleft">
                         <div class="fleft">
-                            <span class="tooltip advice " title="Used/Total fleet slots"><span>Fleets:</span>{{ $fleetSlotsInUse }}/{{ $fleetSlotsMax }}</span>
+                            <span class="tooltip advice {{ $fleetSlotsInUse >= $fleetSlotsMax ? 'overmark' : '' }}" title="Used/Total fleet slots"><span>Fleets:</span>{{ $fleetSlotsInUse }}/{{ $fleetSlotsMax }}</span>
                             <div class="tooltip bonus dark_highlight_tablet" title="+ 2 Fleet slots because of General">
                                 <span class="sprite characterclass small warrior"></span>
                             </div>
