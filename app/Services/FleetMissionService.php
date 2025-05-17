@@ -231,7 +231,21 @@ class FleetMissionService
     }
 
     /**
+     * Get all missions that the current player has sent themselves (excluding incoming missions by other players).
+     *
+     * @return Collection<int, FleetMission>
+     */
+    public function getActiveFleetMissionsSentByCurrentPlayer(): Collection
+    {
+        // Note: this only includes missions that the current player has sent themselves
+        // so it does not include any incoming missions by other players (e.g. hostile attacks, espionage, transports etc.)
+        $query = $this->model->where('user_id', $this->player->getId());
+        return $query->orderBy('time_arrival')->get();
+    }
+
+    /**
      * Get all active fleet missions for the current user.
+     * This includes both hostile/friendly incoming missions and all player outgoing missions.
      *
      * @return Collection<int, FleetMission>
      */
@@ -239,10 +253,10 @@ class FleetMissionService
     {
         $query = $this->model;
 
-        // Add where clauses:
-        // 1. All from current user.
+        // Query returns:
+        // 1. All missions sent by current user.
         // - AND -
-        // 2. All against any of current users planets.
+        // 2. All missions against any of current users planets (by other players).
         $planetIds = [];
         foreach ($this->player->planets->all() as $planet) {
             $planetIds[] = $planet->getPlanetId();

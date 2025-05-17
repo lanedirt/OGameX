@@ -353,7 +353,10 @@ class PlayerService
      */
     public function getFleetSlotsInUse(): int
     {
-        return 0;
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
+
+        return $activeMissions->count();
     }
 
     /**

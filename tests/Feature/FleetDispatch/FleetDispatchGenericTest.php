@@ -146,7 +146,7 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
 
         // Second mission should fail due to max fleet slots restriction
         $this->sendTestMission();
-        $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 1 after first mission');
+        $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet mission has been created but should have been rejected due to max fleet slots restriction (computer technology level 0)');
 
         // Upgrade computer technology to level 1
         $this->playerSetResearchLevel('computer_technology', 1);
