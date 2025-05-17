@@ -91,10 +91,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      *
      * @param UnitCollection $units
      * @param Resources $resources
-     * @param int $assertStatus
+     * @param bool $assertStatus
      * @return void
      */
-    protected function sendMissionToFirstPlanetMoon(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    protected function sendMissionToFirstPlanetMoon(UnitCollection $units, Resources $resources, bool $assertStatus = true): void
     {
         $coordinates = $this->moonService->getPlanetCoordinates();
         $this->dispatchFleet($coordinates, $units, $resources, PlanetType::Moon, $assertStatus);
@@ -105,10 +105,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      *
      * @param UnitCollection $units
      * @param Resources $resources
-     * @param int $assertStatus
+     * @param bool $assertStatus
      * @return void
      */
-    protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, bool $assertStatus = true): void
     {
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
         $this->dispatchFleet($coordinates, $units, $resources, PlanetType::Planet, $assertStatus);
@@ -119,10 +119,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      *
      * @param UnitCollection $units
      * @param Resources $resources
-     * @param int $assertStatus
+     * @param bool $assertStatus
      * @return void
      */
-    protected function sendMissionToFirstPlanetDebrisField(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    protected function sendMissionToFirstPlanetDebrisField(UnitCollection $units, Resources $resources, bool $assertStatus = true): void
     {
         $coordinates = $this->planetService->getPlanetCoordinates();
         $this->dispatchFleet($coordinates, $units, $resources, PlanetType::DebrisField, $assertStatus);
@@ -133,10 +133,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      *
      * @param UnitCollection $units
      * @param Resources $resources
-     * @param int $assertStatus
+     * @param bool $assertStatus
      * @return void
      */
-    protected function sendMissionToSecondPlanetDebrisField(UnitCollection $units, Resources $resources, int $assertStatus = 200): void
+    protected function sendMissionToSecondPlanetDebrisField(UnitCollection $units, Resources $resources, bool $assertStatus = true): void
     {
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
         $this->dispatchFleet($coordinates, $units, $resources, PlanetType::DebrisField, $assertStatus);
@@ -147,10 +147,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      *
      * @param UnitCollection $units
      * @param Resources $resources
-     * @param int $assertStatus
+     * @param bool $assertStatus
      * @return PlanetService
      */
-    protected function sendMissionToOtherPlayerPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService
+    protected function sendMissionToOtherPlayerPlanet(UnitCollection $units, Resources $resources, bool $assertStatus = true): PlanetService
     {
         $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
 
@@ -163,10 +163,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      *
      * @param UnitCollection $units
      * @param Resources $resources
-     * @param int $assertStatus
+     * @param bool $assertStatus
      * @return PlanetService
      */
-    protected function sendMissionToOtherPlayerCleanPlanet(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService
+    protected function sendMissionToOtherPlayerCleanPlanet(UnitCollection $units, Resources $resources, bool $assertStatus = true): PlanetService
     {
         $nearbyForeignCleanPlanet = $this->getNearbyForeignCleanPlanet();
 
@@ -179,10 +179,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      *
      * @param UnitCollection $units
      * @param Resources $resources
-     * @param int $assertStatus
+     * @param bool $assertStatus
      * @return PlanetService
      */
-    protected function sendMissionToOtherPlayerMoon(UnitCollection $units, Resources $resources, int $assertStatus = 200): PlanetService
+    protected function sendMissionToOtherPlayerMoon(UnitCollection $units, Resources $resources, bool $assertStatus = true): PlanetService
     {
         $nearbyForeignMoon = $this->getNearbyForeignMoon();
 
@@ -195,10 +195,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      *
      * @param UnitCollection $units
      * @param Resources $resources
-     * @param int $assertStatus
+     * @param bool $assertStatus
      * @return Coordinate
      */
-    protected function sendMissionToEmptyPosition(UnitCollection $units, Resources $resources, int $assertStatus = 200): Coordinate
+    protected function sendMissionToEmptyPosition(UnitCollection $units, Resources $resources, bool $assertStatus = true): Coordinate
     {
         $coordinates = $this->getNearbyEmptyCoordinate();
         $this->dispatchFleet($coordinates, $units, $resources, PlanetType::Planet, $assertStatus);
@@ -252,10 +252,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      * @param UnitCollection $units
      * @param Resources $resources
      * @param PlanetType $planetType The type of the target planet.
-     * @param int $assertStatus
+     * @param bool $assertStatus
      * @return void
      */
-    protected function dispatchFleet(Coordinate $coordinates, UnitCollection $units, Resources $resources, PlanetType $planetType, int $assertStatus = 200): void
+    protected function dispatchFleet(Coordinate $coordinates, UnitCollection $units, Resources $resources, PlanetType $planetType, bool $assertStatus = true): void
     {
         $unitsArray = $this->convertUnitsToArray($units);
 
@@ -273,7 +273,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
             ...$unitsArray
         ]);
 
-        $post->assertStatus($assertStatus);
+        $post->assertStatus(200);
+        $post->assertJson([
+            'success' => $assertStatus,
+        ]);
 
         $this->reloadApplication();
 

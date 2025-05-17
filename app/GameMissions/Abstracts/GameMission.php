@@ -137,6 +137,10 @@ abstract class GameMission
             throw new Exception('Not enough units on the planet to send the fleet. Units required: ' . $unitNames);
         }
 
+        if ($planet->getPlayer()->getFleetSlotsInUse() >= $planet->getPlayer()->getFleetSlotsMax()) {
+            throw new Exception('Maximum number of fleets reached.');
+        }
+
         $missionPossibleStatus = $this->isMissionPossible($planet, $targetCoordinate, $targetType, $units);
         if (!$missionPossibleStatus->possible) {
             throw new Exception($missionPossibleStatus->reason ?? __('This mission is not possible.'));

@@ -129,4 +129,77 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         // Verify that multiple ships count up to the sum of the ships.
         $this->assertEquals(23959, $consumption);
     }
+
+    /**
+     * Test that max fleet slots restriction works correctly.
+     */
+    public function testMaxFleetSlotsRestriction(): void
+    {
+        $this->basicSetup();
+
+        // Set computer technology to 0 (default)
+        $this->playerSetResearchLevel('computer_technology', 0);
+
+        // First mission should succeed
+        $this->sendTestMission();
+        $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 1 after first mission');
+
+        // Second mission should fail due to max fleet slots restriction
+        $this->sendTestMission(false);
+        $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet mission has been created but should have been rejected due to max fleet slots restriction (computer technology level 0)');
+
+        // Upgrade computer technology to level 1
+        $this->playerSetResearchLevel('computer_technology', 1);
+
+        // Now second mission should succeed
+        $this->sendTestMission();
+        $this->assertEquals(2, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 2 after second mission');
+    }
+
+    /**
+     * Test that current fleet slots in use is calculated correctly.
+     */
+    public function testCurrentFleetSlotsInUse(): void
+    {
+        $this->basicSetup();
+
+        // Set computer technology to level 3 to allow 4 fleet slots (1 base + 3 from research)
+        $this->playerSetResearchLevel('computer_technology', 3);
+
+        // Send first mission
+        $this->sendTestMission();
+        $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 1 after first mission');
+
+        // Send second mission
+        $this->sendTestMission();
+        $this->assertEquals(2, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 2 after second mission');
+
+        // Send third mission
+        $this->sendTestMission();
+        $this->assertEquals(3, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 3 after third mission');
+
+        // Increase time by 10 hours to ensure all missions are done.
+        $this->travel(10)->hours();
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Ensure that the fleet slots in use are updated correctly.
+        $this->assertEquals(0, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 0 after all missions are done');
+    }
+
+    /**
+     * Send a transport mission to the second planet of the test user.
+     *
+     * @param bool $assertStatus
+     * @return void
+     */
+    protected function sendTestMission(bool $assertStatus = true): void
+    {
+        // Send fleet to the second planet of the test user.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(1, 1, 0, 0), $assertStatus);
+    }
 }

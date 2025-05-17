@@ -36,6 +36,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->planetSetObjectLevel('robot_factory', 2);
         $this->planetSetObjectLevel('shipyard', 1);
         $this->planetSetObjectLevel('research_lab', 1);
+        $this->playerSetResearchLevel('computer_technology', 2);
         $this->playerSetResearchLevel('energy_technology', 1);
         $this->playerSetResearchLevel('combustion_drive', 1);
         $this->planetAddUnit('small_cargo', 5);
@@ -189,7 +190,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(4500, 100, 0, 0), 500);
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(4500, 100, 0, 0), false);
     }
 
     /**
@@ -203,7 +204,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 10);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0), 500);
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0), false);
     }
 
     /**

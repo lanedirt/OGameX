@@ -35,6 +35,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     protected function basicSetup(): void
     {
         $this->planetSetObjectLevel('research_lab', 3);
+        $this->playerSetResearchLevel('computer_technology', 5);
         $this->playerSetResearchLevel('energy_technology', 1);
         $this->playerSetResearchLevel('impulse_drive', 3);
         $this->playerSetResearchLevel('espionage_technology', 4);
@@ -75,8 +76,8 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->basicSetup();
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
-        // Expecting 500 error.
-        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0), 500);
+        // Expecting mission to fail (assertStatus is false)
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0), false);
     }
 
     /**
@@ -87,8 +88,8 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->basicSetup();
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
-        // Expecting 500 error.
-        $this->sendMissionToEmptyPosition($unitCollection, new Resources(0, 0, 0, 0), 500);
+        // Expecting mission to fail (assertStatus is false)
+        $this->sendMissionToEmptyPosition($unitCollection, new Resources(0, 0, 0, 0), false);
     }
 
     /**
@@ -143,6 +144,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
             // Send fleet to an empty planet.
             $unitCollection = new UnitCollection();
             $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
+
             $newPlanetCoordinates = $this->sendMissionToEmptyPosition($unitCollection, new Resources(10, 0, 0, 0));
 
             // Increase time by 10 hours to ensure the mission is done.

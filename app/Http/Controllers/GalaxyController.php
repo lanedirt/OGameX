@@ -310,7 +310,9 @@ class GalaxyController extends OGameController
      */
     private function getPlanetActions(PlanetService $planet): array
     {
-        $canEspionage = $planet->getObjectAmount('espionage_probe') > 0 && $planet->getPlayer()->getResearchLevel('espionage_technology') > 0;
+        // Check if the current planet of the player has enough espionage probes and research level
+        // to be able to spy on the target planet.
+        $canEspionage = $this->playerService->planets->current()->getObjectAmount('espionage_probe') > 0 && $this->playerService->getResearchLevel('espionage_technology') > 0;
 
         return [
             'canBeIgnored' => false,

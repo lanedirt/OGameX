@@ -179,7 +179,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100000, 50000, 0, 0), 500);
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100000, 50000, 0, 0), false);
     }
 
     /**
@@ -193,7 +193,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Send fleet to the second planet of the test user.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 10);
-        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0), 500);
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0), false);
     }
 
     /**
@@ -529,8 +529,8 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Use second planet coordinates but specify it's a (non existent) moon target
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
 
-        // Dispatch fleet to the non-existent moon and expect a 500 error.
-        $this->dispatchFleet($coordinates, $unitCollection, new Resources(100, 100, 0, 0), PlanetType::Moon, 500);
+        // Dispatch fleet to the non-existent moon and expect mission to fail (assertStatus is false)
+        $this->dispatchFleet($coordinates, $unitCollection, new Resources(100, 100, 0, 0), PlanetType::Moon, false);
 
         // Verify no fleet mission was created
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);

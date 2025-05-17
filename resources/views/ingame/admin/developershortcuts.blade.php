@@ -65,6 +65,21 @@
                                     </div>
                                 </div>
 
+                                <p class="box_highlight textCenter no_buddies">@lang('Set research level for current player:')</p>
+                                <div class="group bborder" style="display: block;">
+                                    <div class="fieldwrapper">
+                                        <label class="styled textBeefy">@lang('Level to set:')</label>
+                                        <div class="thefield">
+                                            <input type="text" pattern="^[0-9]+$" placeholder="0" class="textInput w50 textCenter textBeefy" size="2" name="research_level">
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper">
+                                        @foreach ($research as $tech)
+                                            <input type="submit" name="research_{{ $tech->id }}" class="btn_blue" value="{{ $tech->title }}">
+                                        @endforeach
+                                    </div>
+                                </div>
+
                                 <p class="box_highlight textCenter no_buddies">@lang('Reset planet')</p>
                                 <div class="group bborder" style="display: block;">
                                     <div class="fieldwrapper">
