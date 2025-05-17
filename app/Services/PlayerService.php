@@ -345,6 +345,35 @@ class PlayerService
     }
 
     /**
+     * Get the amount of fleet slots that the player is currently using.
+     *
+     * This corresponds to the amount of fleet missions that are currently active for this player.
+     *
+     * @return int
+     */
+    public function getFleetSlotsInUse(): int
+    {
+        return 0;
+    }
+
+    /**
+     * Get the (maximum) amount of fleet slots that the player has available.
+     *
+     * This is calculated based on the player's research level and optional bonuses that may apply.
+     *
+     * @return int
+     */
+    public function getFleetSlotsMax(): int
+    {
+        // Calculate max fleet slots based on the user's computer research level.
+        // Starts with 1, and every level of computer research adds 1 more slot.
+        $starting_fleet_slots = 1;
+        $fleet_slots_from_research = $this->getResearchLevel('computer_technology');
+
+        return $starting_fleet_slots + $fleet_slots_from_research;
+    }
+
+    /**
      * Update the player entity.
      *
      * This method is called every time the player logs in.

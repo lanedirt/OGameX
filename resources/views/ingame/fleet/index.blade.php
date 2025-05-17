@@ -796,7 +796,7 @@
                 <div class="fleetStatus">
                     <div id="slots" class="fleft">
                         <div class="fleft">
-                            <span class="tooltip advice " title="Used/Total fleet slots"><span>Fleets:</span>3/4</span>
+                            <span class="tooltip advice " title="Used/Total fleet slots"><span>Fleets:</span>{{ $fleetSlotsInUse }}/{{ $fleetSlotsMax }}</span>
                             <div class="tooltip bonus dark_highlight_tablet" title="+ 2 Fleet slots because of General">
                                 <span class="sprite characterclass small warrior"></span>
                             </div>
