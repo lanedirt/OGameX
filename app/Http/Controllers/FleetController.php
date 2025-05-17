@@ -270,15 +270,26 @@ class FleetController extends OGameController
 
         // Create a new fleet mission
         $planetType = PlanetType::from($target_type);
-        $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent);
 
-        return response()->json([
-            'components' => [],
-            'message' => 'Your fleet has been successfully sent.',
-            'newAjaxToken' => csrf_token(),
-            'redirectUrl' => route('fleet.index'),
-            'success' => true,
-        ]);
+        try {
+            $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Your fleet has been successfully sent.',
+                'components' => [],
+                'newAjaxToken' => csrf_token(),
+                'redirectUrl' => route('fleet.index'),
+            ]);
+        } catch (Exception $e) {
+            // This can happen if the user tries to send a fleet when there are no free fleet slots.
+            return response()->json([
+                'success' => false,
+                'message' => 'Fleet launch failure: The fleet could not be launched. Please try again later.',
+                'components' => [],
+                'newAjaxToken' => csrf_token(),
+            ]);
+        }
     }
 
     /**
@@ -339,33 +350,50 @@ class FleetController extends OGameController
 
         // Create a new fleet mission
         $planetType = PlanetType::from($targetType);
+        $planetType = PlanetType::from($targetType);
 
-        $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $planetType, $mission_type, $units, $resources, 10);
+        try {
+            $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $planetType, $mission_type, $units, $resources, 100);
 
-        // Calculate the actual amount of units sent.
-        $fleetUnitCount = $fleetMissionService->getFleetUnitCount($fleetMission);
+            // Calculate the actual amount of units sent.
+            $fleetUnitCount = $fleetMissionService->getFleetUnitCount($fleetMission);
 
-        return response()->json([
-            'response' => [
-                'message' => $responseMessage,
-                'type' => 1,
-                'slots' => 1,
-                'probes' => 11,
-                'recyclers' => 0,
-                'explorers' => 9,
-                'missiles' => 0,
-                'shipsSent' => $fleetUnitCount,
-                'coordinates' => [
-                    'galaxy' => $galaxy,
-                    'system' => $system,
-                    'position' => $position,
+            return response()->json([
+                'response' => [
+                    'message' => $responseMessage,
+                    'type' => 1,
+                    'slots' => 1,
+                    'probes' => 11,
+                    'recyclers' => 0,
+                    'explorers' => 9,
+                    'missiles' => 0,
+                    'shipsSent' => $fleetUnitCount,
+                    'coordinates' => [
+                        'galaxy' => $galaxy,
+                        'system' => $system,
+                        'position' => $position,
+                    ],
+                    'planetType' => 1,
+                    'success' => true,
                 ],
-                'planetType' => 1,
-                'success' => true,
-            ],
-            'newAjaxToken' => csrf_token(),
-            'components' => [],
-        ]);
+                'newAjaxToken' => csrf_token(),
+                'components' => [],
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'response' => [
+                    'message' => $e->getMessage(),
+                    'coordinates' => [
+                        'galaxy' => $galaxy,
+                        'system' => $system,
+                        'position' => $position,
+                    ],
+                    'success' => false,
+                ],
+                'newAjaxToken' => csrf_token(),
+                'components' => [],
+            ]);
+        }
     }
 
     /**

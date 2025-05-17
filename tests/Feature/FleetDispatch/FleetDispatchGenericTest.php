@@ -3,12 +3,12 @@
 namespace Tests\Feature\FleetDispatch;
 
 use OGame\GameObjects\Models\Units\UnitCollection;
-use OGame\Models\Enums\PlanetType;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
+
 /**
  * Test that fleet dispatch works as expected.
  */
