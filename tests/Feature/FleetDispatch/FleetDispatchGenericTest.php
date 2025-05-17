@@ -3,12 +3,12 @@
 namespace Tests\Feature\FleetDispatch;
 
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
-
 /**
  * Test that fleet dispatch works as expected.
  */
@@ -128,5 +128,67 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
 
         // Verify that multiple ships count up to the sum of the ships.
         $this->assertEquals(23959, $consumption);
+    }
+
+    /**
+     * Test that max fleet slots restriction works correctly.
+     */
+    public function testMaxFleetSlotsRestriction(): void
+    {
+        $this->basicSetup();
+
+        // Set computer technology to 0 (default)
+        $this->playerSetResearchLevel('computer_technology', 0);
+
+        // First mission should succeed
+        $this->sendTestMission();
+        $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 1 after first mission');
+
+        // Second mission should fail due to max fleet slots restriction
+        $this->sendTestMission();
+        $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 1 after first mission');
+
+        // Upgrade computer technology to level 1
+        $this->playerSetResearchLevel('computer_technology', 1);
+
+        // Now second mission should succeed
+        $this->sendTestMission();
+        $this->assertEquals(2, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 2 after second mission');
+    }
+
+    /**
+     * Test that current fleet slots in use is calculated correctly.
+     */
+    public function testCurrentFleetSlotsInUse(): void
+    {
+        $this->basicSetup();
+
+        // Set computer technology to level 3 to allow 4 fleet slots (1 base + 3 from research)
+        $this->playerSetResearchLevel('computer_technology', 3);
+
+        // Send first mission
+        $this->sendTestMission();
+        $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 1 after first mission');
+
+        // Send second mission
+        $this->sendTestMission();
+        $this->assertEquals(2, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 2 after second mission');
+
+        // Send third mission
+        $this->sendTestMission();
+        $this->assertEquals(3, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 3 after third mission');
+    }
+
+    /**
+     * Send a transport mission to the second planet of the test user.
+     *
+     * @return void
+     */
+    protected function sendTestMission(): void
+    {
+        // Send fleet to the second planet of the test user.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(1, 1, 0, 0));
     }
 }
