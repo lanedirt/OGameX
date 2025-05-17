@@ -74,7 +74,9 @@ class FleetController extends OGameController
             'position' => $request->get('position'),
             'type' => $request->get('type'),
             'mission' => $request->get('mission'),
-            'settings' => $settings
+            'settings' => $settings,
+            'fleetSlotsInUse' => $player->getFleetSlotsInUse(),
+            'fleetSlotsMax' => $player->getFleetSlotsMax(),
         ]);
     }
 
