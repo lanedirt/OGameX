@@ -119,9 +119,9 @@
 
             function doExpedition()
             {
-                let expeditionLink = "#?page=ingame&component=fleetdispatch&mission=15&position=16&type=1";
+                let expeditionLink = "{{ route('fleet.index') }}";
 
-                location.href = expeditionLink + "&galaxy=" + galaxy + "&system=" + system + "&type=1";
+                location.href = expeditionLink + "?mission=15&galaxy=" + galaxy + "&system=" + system + "&position=16&type=1";
             }
 
         </script>
