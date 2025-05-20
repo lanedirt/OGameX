@@ -369,11 +369,46 @@ class PlayerService
     public function getFleetSlotsMax(): int
     {
         // Calculate max fleet slots based on the user's computer research level.
-        // Starts with 1, and every level of computer research adds 1 more slot.
-        $starting_fleet_slots = 1;
-        $fleet_slots_from_research = $this->getResearchLevel('computer_technology');
+        $object = ObjectService::getResearchObjectByMachineName('computer_technology');
+        $fleet_slots_from_research = $object->performCalculation(CalculationType::MAX_FLEET_SLOTS, $this->getResearchLevel('computer_technology'));
 
-        return $starting_fleet_slots + $fleet_slots_from_research;
+        return $fleet_slots_from_research;
+    }
+
+    /**
+     * Get the amount of expedition slots that the player is currently using.
+     *
+     * This corresponds to the amount of expedition missions that are currently active for this player.
+     *
+     * @return int
+     */
+    public function getExpeditionSlotsInUse(): int
+    {
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
+
+        // Count only missions that are of type 15 (expedition)
+        $expeditionMissions = $activeMissions->filter(function ($mission) {
+            return $mission->mission_type === 15;
+        });
+
+        return $expeditionMissions->count();
+    }
+
+    /**
+     * Get the (maximum) amount of expedition slots that the player has available.
+     *
+     * This is calculated based on the player's research level and optional bonuses that may apply.
+     *
+     * @return int
+     */
+    public function getExpeditionSlotsMax(): int
+    {
+        // Calculate max expedition slots based on the user's astrophysics research level.
+        $object = ObjectService::getResearchObjectByMachineName('astrophysics');
+        $expedition_slots_from_research = $object->performCalculation(CalculationType::MAX_EXPEDITION_SLOTS, $this->getResearchLevel('astrophysics'));
+
+        return $expedition_slots_from_research;
     }
 
     /**

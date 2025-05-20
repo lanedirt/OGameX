@@ -802,9 +802,9 @@
                             </div>
                         </div>
                         <div class="fleft">
-                                        <span class="tooltip advice " title="Used/Total expedition slots">
+                                        <span class="tooltip advice {{ $expeditionSlotsInUse >= $expeditionSlotsMax ? 'overmark' : '' }}" title="Used/Total expedition slots">
                             <span>Expeditions:</span>
-                            0/1
+                            {{ $expeditionSlotsInUse }}/{{ $expeditionSlotsMax }}
                         </span>
                         </div>
                     </div>
