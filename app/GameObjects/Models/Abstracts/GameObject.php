@@ -102,7 +102,7 @@ abstract class GameObject
     public function performCalculation(CalculationType $calculationName, ...$args): int
     {
         if (isset($this->calculations[$calculationName->value])) {
-            return ($this->calculations[$calculationName->value])(...$args);
+            return $this->calculations[$calculationName->value](...$args);
         }
         throw new InvalidArgumentException("Calculation method '$calculationName->value' not found.");
     }

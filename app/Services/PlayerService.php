@@ -50,7 +50,7 @@ class PlayerService
      *
      * @param int $player_id
      */
-    public function __construct(int $player_id)
+    public function __construct(int $player_id = 0)
     {
         // Load the player object if a positive player ID is given.
         if ($player_id !== 0) {
@@ -353,7 +353,7 @@ class PlayerService
      */
     public function getFleetSlotsInUse(): int
     {
-        $fleetMissionService = resolve(FleetMissionService::class);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this]);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
 
         return $activeMissions->count();
@@ -384,7 +384,7 @@ class PlayerService
      */
     public function getExpeditionSlotsInUse(): int
     {
-        $fleetMissionService = resolve(FleetMissionService::class);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this]);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
 
         // Count only missions that are of type 15 (expedition)
@@ -503,7 +503,7 @@ class PlayerService
 
             if ($planetMissionUpdateLock->count() === count($planetIds)) {
                 try {
-                    $fleetMissionService = resolve(FleetMissionService::class);
+                    $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this]);
                     $missions = $fleetMissionService->getArrivedMissionsByPlanetIds($planetIds);
 
                     foreach ($missions as $mission) {

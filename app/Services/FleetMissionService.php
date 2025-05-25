@@ -354,7 +354,7 @@ class FleetMissionService
      * but are not processed yet.
      *
      * @param int[] $planetIds
-     * @return Collection
+     * @return Collection<int, FleetMission>
      */
     public function getArrivedMissionsByPlanetIds(array $planetIds): Collection
     {
@@ -373,7 +373,7 @@ class FleetMissionService
      * underway and have not been processed yet.
      *
      * @param int[] $planetIds
-     * @return Collection
+     * @return Collection<int, FleetMission>
      */
     public function getActiveMissionsByPlanetIds(array $planetIds): Collection
     {
