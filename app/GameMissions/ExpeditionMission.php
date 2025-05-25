@@ -17,6 +17,31 @@ class ExpeditionMission extends GameMission
     protected static int $typeId = 15;
     protected static bool $hasReturnMission = false;
 
+    protected static array $outcomes = [
+        [
+            'success' => true,
+            'message' => 'On an isolated planetoid we found some easily accessible resources fields and harvested some successfully.',
+            'resources' => new Resources(1, 1, 0, 0),
+        ],
+        [
+            'success' => true,
+            'message' => 'Our expedition found a planet which was almost destroyed during a certain chain of wars. There are different ships floating around in the orbit. The technicians are trying to repair some of them. Maybe we will also get information about what happened here.',
+            'units' => new UnitCollection(),
+        ],
+        [
+            'success' => false,
+            'message' => 'Due to a failure in the central computers of the flagship, the expedition mission had to be aborted. Unfortunately as a result of the computer malfunction, the fleet returns home empty handed.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Your expedition nearly ran into a neutron stars gravitation field and needed some time to free itself. Because of that a lot of Deuterium was consumed and the expedition fleet had to come back without any results.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Your expedition went into a sector full of particle storms. This set the energy stores to overload and most of the ships` main systems crashed. Your mechanics were able to avoid the worst, but the expedition is going to return with a big delay.',
+        ],
+    ];
+
     /**
      * @inheritdoc
      */
