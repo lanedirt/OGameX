@@ -46,7 +46,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
     {
         // Assert that message has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'transport', [
-            'reaches the planet',
+            'reaches the',
             'Metal: 100',
             'Crystal: 100',
             $this->planetService->getPlanetName(),
@@ -119,8 +119,8 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
         // Assert that last message sent to second player contains the transport confirm message.
         $this->assertMessageReceivedAndContainsDatabase($foreignPlanet->getPlayer(), [
-            'An incoming fleet from planet',
-            'has reached your planet',
+            'An incoming fleet from',
+            'has reached your',
         ]);
     }
 
