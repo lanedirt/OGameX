@@ -32,6 +32,11 @@ class ExpeditionMission extends GameMission
             return new MissionPossibleStatus(false, __('Error, there is no moon'));
         }
 
+        // Only possible if player has astrophysics research level 1 or higher.
+        if ($planet->getPlayer()->getResearchLevel('astrophysics') <= 0) {
+            return new MissionPossibleStatus(false, __('Fleets cannot be sent to this target. You have to research Astrophysics first.'));
+        }
+
         if ($targetType === PlanetType::DebrisField) {
             // TODO: this logic should check if there are actually pathfinders in the units collection
             // once the pathfinder unit has been added to the game.

@@ -1189,7 +1189,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         <span class="textlabel">Transport</span>
                                     </a>
                                 </li>
-                                <li id="button4" class="ipiHintable on" data-ipi-hint="ipiFleetMission4">
+                                <li id="button4" class="off ipiHintable" data-ipi-hint="ipiFleetMission4">
                                     <a id="missionButton4" href="" data-mission="4"
                                        data-ipi-highlight-step="ipiFleetMission4">
                                         <span class="textlabel">Deployment</span>
