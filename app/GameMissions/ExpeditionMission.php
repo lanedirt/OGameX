@@ -18,6 +18,7 @@ class ExpeditionMission extends GameMission
     protected static bool $hasReturnMission = false;
 
     protected static array $outcomes = [
+        // Resources found:
         [
             'success' => true,
             'message' => 'On an isolated planetoid we found some easily accessible resources fields and harvested some successfully.',
@@ -26,8 +27,25 @@ class ExpeditionMission extends GameMission
         [
             'success' => true,
             'message' => 'Your expedition discovered a small asteroid from which some resources could be harvested.',
-            'units' => new UnitCollection(),
+            'resources' => new Resources(1, 1, 0, 0),
         ],
+        [
+            'success' => true,
+            'message' => 'Your expedition found an ancient, fully loaded but deserted freighter convoy. Some of the resources could be rescued.',
+            'resources' => new Resources(1, 1, 0, 0),
+        ],
+        // Dark Matter found:
+        [
+            'success' => true,
+            'message' => 'The expedition followed some odd signals to an asteroid. In the asteroids core a small amount of Dark Matter was found. The asteroid was taken and the explorers are attempting to extract the Dark Matter.',
+            'resources' => new Resources(0, 0, 0, 0),
+        ],
+        [
+            'success' => true,
+            'message' => 'The expedition was able to capture and store some Dark Matter.',
+            'resources' => new Resources(0, 0, 0, 0),
+        ],
+        // Units found:
         [
             'success' => true,
             'message' => 'Our expedition found a planet which was almost destroyed during a certain chain of wars. There are different ships floating around in the orbit. The technicians are trying to repair some of them. Maybe we will also get information about what happened here.',
@@ -43,6 +61,12 @@ class ExpeditionMission extends GameMission
             'message' => 'Your expedition ran into the shipyards of a colony that was deserted eons ago. In the shipyards hangar they discover some ships that could be salvaged. The technicians are trying to get some of them to fly again.',
             'units' => new UnitCollection(),
         ],
+        [
+            'success' => true,
+            'message' => 'We came across the remains of a previous expedition! Our technicians will try to get some of the ships to work again.',
+            'units' => new UnitCollection(),
+        ],
+        // Failures:
         [
             'success' => false,
             'message' => 'Due to a failure in the central computers of the flagship, the expedition mission had to be aborted. Unfortunately as a result of the computer malfunction, the fleet returns home empty handed.',
@@ -62,6 +86,32 @@ class ExpeditionMission extends GameMission
         [
             'success' => false,
             'message' => 'A failure in the flagships reactor core nearly destroys the entire expedition fleet. Fortunately the technicians were more than competent and could avoid the worst. The repairs took quite some time and forced the expedition to return without having accomplished its goal.',
+        ],
+        [
+            'success' => false,
+            'message' => 'A living being made out of pure energy came aboard and induced all the expedition members into some strange trance, causing them to only gazed at the hypnotizing patterns on the computer screens. When most of them finally snapped out of the hypnotic-like state, the expedition mission needed to be aborted as they had way too little Deuterium.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Your expeditions doesn`t report any anomalies in the explored sector. But the fleet ran into some solar wind while returning. This resulted in the return trip being expedited. Your expedition returns home a bit earlier.',
+        ],
+        [
+            'success' => false,
+            'message' => 'The new navigation module is still buggy. The expeditions jump not only lead them in the wrong direction, but it used all the Deuterium fuel. Fortunately the fleets jump got them close to the departure planets moon. A bit disappointed the expedition now returns without impulse power. The return trip will take longer than expected.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Your expedition has learnt about the extensive emptiness of space. There was not even one small asteroid or radiation or particle that could have made this expedition interesting.',
+        ],
+        // Failure and battle triggered:
+        [
+            'success' => false,
+            'message' => 'Some primitive barbarians are attacking us with spaceships that can`t even be named as such. If the fire gets serious we will be forced to fire back.',
+        ],
+        // Failure and fleet destroyed:
+        [
+            'success' => false,
+            'message' => 'A core meltdown of the lead ship leads to a chain reaction, which destroys the entire expedition fleet in a spectacular explosion.',
         ],
     ];
 
