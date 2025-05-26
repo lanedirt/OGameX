@@ -25,7 +25,22 @@ class ExpeditionMission extends GameMission
         ],
         [
             'success' => true,
+            'message' => 'Your expedition discovered a small asteroid from which some resources could be harvested.',
+            'units' => new UnitCollection(),
+        ],
+        [
+            'success' => true,
             'message' => 'Our expedition found a planet which was almost destroyed during a certain chain of wars. There are different ships floating around in the orbit. The technicians are trying to repair some of them. Maybe we will also get information about what happened here.',
+            'units' => new UnitCollection(),
+        ],
+        [
+            'success' => true,
+            'message' => 'We found a deserted pirate station. There are some old ships lying in the hangar. Our technicians are figuring out whether some of them are still useful or not.',
+            'units' => new UnitCollection(),
+        ],
+        [
+            'success' => true,
+            'message' => 'Your expedition ran into the shipyards of a colony that was deserted eons ago. In the shipyards hangar they discover some ships that could be salvaged. The technicians are trying to get some of them to fly again.',
             'units' => new UnitCollection(),
         ],
         [
@@ -39,6 +54,14 @@ class ExpeditionMission extends GameMission
         [
             'success' => false,
             'message' => 'Your expedition went into a sector full of particle storms. This set the energy stores to overload and most of the ships` main systems crashed. Your mechanics were able to avoid the worst, but the expedition is going to return with a big delay.',
+        ],
+        [
+            'success' => false,
+            'message' => 'For unknown reasons the expeditions jump went totally wrong. It nearly landed in the heart of a sun. Fortunately it landed in a known system, but the jump back is going to take longer than thought.',
+        ],
+        [
+            'success' => false,
+            'message' => 'A failure in the flagships reactor core nearly destroys the entire expedition fleet. Fortunately the technicians were more than competent and could avoid the worst. The repairs took quite some time and forced the expedition to return without having accomplished its goal.',
         ],
     ];
 
