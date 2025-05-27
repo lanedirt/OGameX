@@ -22,6 +22,8 @@ class ExpeditionMission extends GameMission
         [
             'success' => true,
             'message' => 'On an isolated planetoid we found some easily accessible resources fields and harvested some successfully.',
+            // TODO: some messages have "Entry from the communications officers logbook: It seems that this part of the universe has not been explored yet." appended to it, this one too.
+            // TODO2: "Entry from the communications officers logbook: It feels great to be the first ones traveling through an unexplored sector."
             'resources' => new Resources(1, 1, 0, 0),
         ],
         [
@@ -34,6 +36,11 @@ class ExpeditionMission extends GameMission
             'message' => 'Your expedition found an ancient, fully loaded but deserted freighter convoy. Some of the resources could be rescued.',
             'resources' => new Resources(1, 1, 0, 0),
         ],
+        [
+            'success' => true,
+            'message' => 'Your expedition fleet reports the discovery of a giant alien ship wreck. They were not able to learn from their technologies but they were able to divide the ship into its main components and made some useful resources out of it.',
+            'resources' => new Resources(1, 1, 0, 0),
+        ],
         // Dark Matter found:
         [
             'success' => true,
@@ -43,6 +50,21 @@ class ExpeditionMission extends GameMission
         [
             'success' => true,
             'message' => 'The expedition was able to capture and store some Dark Matter.',
+            'resources' => new Resources(0, 0, 0, 0),
+        ],
+        [
+            'success' => true,
+            'message' => 'We met an odd alien on the shelf of a small ship who gave us a case with Dark Matter in exchange for some simple mathematical calculations.',
+            'resources' => new Resources(0, 0, 0, 0),
+        ],
+        [
+            'success' => true,
+            'message' => 'We found the remains of an alien ship. We found a little container with some Dark Matter on a shelf in the cargo hold!',
+            'resources' => new Resources(0, 0, 0, 0),
+        ],
+        [
+            'success' => true,
+            'message' => 'Our expedition made first contact with a special race. It looks as though a creature made of pure energy, who named himself Legorian, flew through the expedition ships and then decided to help our underdeveloped species. A case containing Dark Matter materialized at the bridge of the ship!',
             'resources' => new Resources(0, 0, 0, 0),
         ],
         // Units found:
@@ -93,20 +115,68 @@ class ExpeditionMission extends GameMission
         ],
         [
             'success' => false,
-            'message' => 'Your expeditions doesn`t report any anomalies in the explored sector. But the fleet ran into some solar wind while returning. This resulted in the return trip being expedited. Your expedition returns home a bit earlier.',
-        ],
-        [
-            'success' => false,
             'message' => 'The new navigation module is still buggy. The expeditions jump not only lead them in the wrong direction, but it used all the Deuterium fuel. Fortunately the fleets jump got them close to the departure planets moon. A bit disappointed the expedition now returns without impulse power. The return trip will take longer than expected.',
         ],
         [
             'success' => false,
             'message' => 'Your expedition has learnt about the extensive emptiness of space. There was not even one small asteroid or radiation or particle that could have made this expedition interesting.',
         ],
+        [
+            'success' => false,
+            'message' => 'Well, now we know that those red, class 5 anomalies do not only have chaotic effects on the ships navigation systems but also generate massive hallucination on the crew. The expedition didn`t bring anything back.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Your expedition fleet made contact with a friendly alien race. They announced that they would send a representative with goods to trade to your worlds.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Your expedition took gorgeous pictures of a super nova. Nothing new could be obtained from the expedition, but at least there is good chance to win that "Best Picture Of The Universe" competition in next months issue of OGame magazine.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Your expedition fleet followed odd signals for some time. At the end they noticed that those signals where being sent from an old probe which was sent out generations ago to greet foreign species. The probe was saved and some museums of your home planet already voiced their interest.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Despite the first, very promising scans of this sector, we unfortunately returned empty handed.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Besides some quaint, small pets from a unknown marsh planet, this expedition brings nothing thrilling back from the trip.',
+        ],
+        // Failure (and speed up?)
+        [
+            'success' => false,
+            'message' => 'Your expeditions doesn`t report any anomalies in the explored sector. But the fleet ran into some solar wind while returning. This resulted in the return trip being expedited. Your expedition returns home a bit earlier.',
+        ],
+        [
+            'success' => false,
+            'message' => 'The new and daring commander successfully traveled through an unstable wormhole to shorten the flight back! However, the expedition itself didn`t bring anything new.',
+        ],
+        // Failure (and delay?)
+        [
+            'success' => false,
+            'message' => 'Your expedition went into a sector full of particle storms. This set the energy stores to overload and most of the ships` main systems crashed. Your mechanics were able to avoid the worst, but the expedition is going to return with a big delay.
+
+Entry from the communications officers logbook: It feels great to be the first ones traveling through an unexplored sector.',
+        ],
         // Failure and battle triggered:
         [
             'success' => false,
             'message' => 'Some primitive barbarians are attacking us with spaceships that can`t even be named as such. If the fire gets serious we will be forced to fire back.',
+        ],
+        [
+            'success' => false,
+            'message' => 'We needed to fight some pirates which were, fortunately, only a few.',
+        ],
+        [
+            'success' => false,
+            'message' => 'We caught some radio transmissions from some drunk pirates. Seems like we will be under attack soon.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Our expedition was attacked by a small group of unknown ships!',
         ],
         // Failure and fleet destroyed:
         [
