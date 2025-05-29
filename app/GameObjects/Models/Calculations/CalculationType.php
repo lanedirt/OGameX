@@ -10,5 +10,6 @@ namespace OGame\GameObjects\Models\Calculations;
 enum CalculationType: string
 {
     case MAX_COLONIES = 'maxColonies';
-    case MAX_EXPEDITIONS = 'maxExpeditions';
+    case MAX_EXPEDITION_SLOTS = 'maxExpeditionSlots';
+    case MAX_FLEET_SLOTS = 'maxFleetSlots';
 }
