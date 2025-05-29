@@ -41,6 +41,16 @@ class ExpeditionMission extends GameMission
             'message' => 'Your expedition fleet reports the discovery of a giant alien ship wreck. They were not able to learn from their technologies but they were able to divide the ship into its main components and made some useful resources out of it.',
             'resources' => new Resources(1, 1, 0, 0),
         ],
+        [
+            'success' => true,
+            'message' => 'On a tiny moon with its own atmosphere your expedition found some huge raw resources storage. The crew on the ground is trying to lift and load that natural treasure.',
+            'resources' => new Resources(1, 1, 0, 0),
+        ],
+        [
+            'success' => true,
+            'message' => 'Mineral belts around an unknown planet contained countless resources. The expedition ships are coming back and their storages are full!',
+            'resources' => new Resources(1, 1, 0, 0),
+        ],
         // Dark Matter found:
         [
             'success' => true,
@@ -67,6 +77,11 @@ class ExpeditionMission extends GameMission
             'message' => 'Our expedition made first contact with a special race. It looks as though a creature made of pure energy, who named himself Legorian, flew through the expedition ships and then decided to help our underdeveloped species. A case containing Dark Matter materialized at the bridge of the ship!',
             'resources' => new Resources(0, 0, 0, 0),
         ],
+        [
+            'success' => true,
+            'message' => 'Our expedition took over a ghost ship which was transporting a small amount of Dark Matter. We didn`t find any hints of what happened to the original crew of the ship, but our technicians where able to rescue the Dark Matter.',
+            'resources' => new Resources(0, 0, 0, 0),
+        ],
         // Units found:
         [
             'success' => true,
@@ -88,6 +103,27 @@ class ExpeditionMission extends GameMission
             'message' => 'We came across the remains of a previous expedition! Our technicians will try to get some of the ships to work again.',
             'units' => new UnitCollection(),
         ],
+        [
+            'success' => true,
+            'message' => 'Our expedition ran into an old automatic shipyard. Some of the ships are still in the production phase and our technicians are currently trying to reactivate the yards energy generators.',
+            'units' => new UnitCollection(),
+        ],
+        [
+            'success' => true,
+            'message' => 'We found the remains of an armada. The technicians directly went to the almost intact ships to try to get them to work again.',
+            'units' => new UnitCollection(),
+        ],
+        [
+            'success' => true,
+            'message' => 'We found the planet of an extinct civilization. We are able to see a giant intact space station, orbiting. Some of your technicians and pilots went to the surface looking for some ships which could still be used.',
+            'units' => new UnitCollection(),
+        ],
+        // Items found (TODO: add items to the game)
+        [
+            'success' => true,
+            'message' => 'A fleeing fleet left an item behind, in order to distract us in aid of their escape.',
+            //'items' => new ItemCollection(),
+        ],
         // Failures:
         [
             'success' => false,
@@ -96,10 +132,6 @@ class ExpeditionMission extends GameMission
         [
             'success' => false,
             'message' => 'Your expedition nearly ran into a neutron stars gravitation field and needed some time to free itself. Because of that a lot of Deuterium was consumed and the expedition fleet had to come back without any results.',
-        ],
-        [
-            'success' => false,
-            'message' => 'Your expedition went into a sector full of particle storms. This set the energy stores to overload and most of the ships` main systems crashed. Your mechanics were able to avoid the worst, but the expedition is going to return with a big delay.',
         ],
         [
             'success' => false,
@@ -145,6 +177,22 @@ class ExpeditionMission extends GameMission
             'success' => false,
             'message' => 'Besides some quaint, small pets from a unknown marsh planet, this expedition brings nothing thrilling back from the trip.',
         ],
+        [
+            'success' => false,
+            'message' => 'The expedition`s flagship collided with a foreign ship when it jumped into the fleet without any warning. The foreign ship exploded and the damage to the flagship was substantial. The expedition cannot continue in these conditions, and so the fleet will begin to make its way back once the needed repairs have been carried out.',
+        ],
+        [
+            'success' => false,
+            'message' => 'We found the remains of an alien ship. We found a little container with some Dark Matter on a shelf in the cargo hold!',
+        ],
+        [
+            'success' => false,
+            'message' => 'Our expedition team came across a strange colony that had been abandoned eons ago. After landing, our crew started to suffer from a high fever caused by an alien virus. It has been learned that this virus wiped out the entire civilization on the planet. Our expedition team is heading home to treat the sickened crew members. Unfortunately we had to abort the mission and we come home empty handed.',
+        ],
+        [
+            'success' => false,
+            'message' => 'A strange computer virus attacked the navigation system shortly after parting our home system. This caused the expedition fleet to fly in circles. Needless to say that the expedition wasn`t really successful.',
+        ],
         // Failure (and speed up?)
         [
             'success' => false,
@@ -157,9 +205,19 @@ class ExpeditionMission extends GameMission
         // Failure (and delay?)
         [
             'success' => false,
-            'message' => 'Your expedition went into a sector full of particle storms. This set the energy stores to overload and most of the ships` main systems crashed. Your mechanics were able to avoid the worst, but the expedition is going to return with a big delay.
-
-Entry from the communications officers logbook: It feels great to be the first ones traveling through an unexplored sector.',
+            'message' => 'Your expedition went into a sector full of particle storms. This set the energy stores to overload and most of the ships` main systems crashed. Your mechanics were able to avoid the worst, but the expedition is going to return with a big delay.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Your navigator made a grave error in his computations that caused the expeditions jump to be miscalculated. Not only did the fleet miss the target completely, but the return trip will take a lot more time than originally planned.',
+        ],
+        [
+            'success' => false,
+            'message' => 'The solar wind of a red giant ruined the expeditions jump and it will take quite some time to calculate the return jump. There was nothing besides the emptiness of space between the stars in that sector. The fleet will return later than expected.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Your expedition went into a sector full of particle storms. This set the energy stores to overload and most of the ships` main systems crashed. Your mechanics were able to avoid the worst, but the expedition is going to return with a big delay.',
         ],
         // Failure and battle triggered:
         [
@@ -177,6 +235,14 @@ Entry from the communications officers logbook: It feels great to be the first o
         [
             'success' => false,
             'message' => 'Our expedition was attacked by a small group of unknown ships!',
+        ],
+        [
+            'success' => false,
+            'message' => 'Some really desperate space pirates tried to capture our expedition fleet.',
+        ],
+        [
+            'success' => false,
+            'message' => 'Some exotic looking ships attacked the expedition fleet without warning!',
         ],
         // Failure and fleet destroyed:
         [
