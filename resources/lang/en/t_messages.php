@@ -44,7 +44,7 @@ Deuterium: :deuterium',
     'return_of_fleet' => [
         'from' => 'Fleet Command',
         'subject' => 'Return of a fleet',
-        'body' => 'Your fleet is returning from planet :from to planet :to.
+        'body' => 'Your fleet is returning from :from to :to.
 
 The fleet doesn\'t deliver goods.',
         ],
@@ -53,7 +53,7 @@ The fleet doesn\'t deliver goods.',
     'fleet_deployment_with_resources' => [
         'from' => 'Fleet Command',
         'subject' => 'Return of a fleet',
-        'body' => 'One of your fleets from planet :from has reached planet :to and delivered its goods:
+        'body' => 'One of your fleets from :from has reached :to and delivered its goods:
 
 Metal: :metal
 Crystal: :crystal
@@ -71,7 +71,7 @@ Deuterium: :deuterium',
     'transport_arrived' => [
         'from' => 'Fleet Command',
         'subject' => 'Reaching a planet',
-        'body' => 'Your fleet from planet :from reaches the planet :to and delivers its goods:
+        'body' => 'Your fleet from :from reaches :to and delivers its goods:
 Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         ],
 
@@ -79,7 +79,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     'transport_received' => [
         'from' => 'Fleet Command',
         'subject' => 'Incoming fleet',
-        'body' => 'An incoming fleet from planet :from has reached your planet :to and delivered its goods:
+        'body' => 'An incoming fleet from :from has reached your planet :to and delivered its goods:
 Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
