@@ -16,8 +16,8 @@
             <td class="max_colonies" data-value="{{ $record['max_colonies'] }}">
                 {{ $record['max_colonies'] }}
             </td>
-            <td class="max_expedition" data-value="{{ $record['max_expedition'] }}">
-                {{ $record['max_expedition'] }}
+            <td class="max_expedition" data-value="{{ $record['max_expedition_slots'] }}">
+                {{ $record['max_expedition_slots'] }}
             </td>
         </tr>
     @endforeach
