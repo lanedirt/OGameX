@@ -77,6 +77,8 @@ class FleetController extends OGameController
             'settings' => $settings,
             'fleetSlotsInUse' => $player->getFleetSlotsInUse(),
             'fleetSlotsMax' => $player->getFleetSlotsMax(),
+            'expeditionSlotsInUse' => $player->getExpeditionSlotsInUse(),
+            'expeditionSlotsMax' => $player->getExpeditionSlotsMax(),
         ]);
     }
 
@@ -169,7 +171,9 @@ class FleetController extends OGameController
         }
 
         $status = 'success';
-        if (count($errors) > 0) {
+
+        // If there are errors and no possible missions, set status to failure.
+        if (count($errors) > 0 && count($enabledMissions) === 0) {
             $status = 'failure';
         }
 
