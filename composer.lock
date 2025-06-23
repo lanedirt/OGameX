@@ -1160,16 +1160,16 @@
         },
         {
             "name": "laravel/fortify",
-            "version": "v1.26.0",
+            "version": "v1.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/fortify.git",
-                "reference": "2b3f76ba2fef31713d80bdfee66d0d36e6fc5d04"
+                "reference": "0fb2ec99dfee77ed66884668fc06683acca91ebd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/fortify/zipball/2b3f76ba2fef31713d80bdfee66d0d36e6fc5d04",
-                "reference": "2b3f76ba2fef31713d80bdfee66d0d36e6fc5d04",
+                "url": "https://api.github.com/repos/laravel/fortify/zipball/0fb2ec99dfee77ed66884668fc06683acca91ebd",
+                "reference": "0fb2ec99dfee77ed66884668fc06683acca91ebd",
                 "shasum": ""
             },
             "require": {
@@ -1221,7 +1221,7 @@
                 "issues": "https://github.com/laravel/fortify/issues",
                 "source": "https://github.com/laravel/fortify"
             },
-            "time": "2025-06-05T16:18:11+00:00"
+            "time": "2025-06-11T14:30:52+00:00"
         },
         {
             "name": "laravel/framework",
