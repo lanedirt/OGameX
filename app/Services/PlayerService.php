@@ -469,6 +469,7 @@ class PlayerService
             if ($planetMissionUpdateLock->count() === count($planetIds)) {
                 try {
                     $fleetMissionService = resolve(FleetMissionService::class);
+                    /** @var \Illuminate\Support\Collection<int, FleetMission> $missions */
                     $missions = $fleetMissionService->getArrivedMissionsByPlanetIds($planetIds);
 
                     foreach ($missions as $mission) {
