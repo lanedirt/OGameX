@@ -301,7 +301,7 @@ With each level of the Combustion Drive developed, the speed of small and large 
         $weaponTechnology->requirements = [
             new GameObjectRequirement('research_lab', 4),
         ];
-        $weaponTechnology->price = new GameObjectPrice(800, 200, 000, 0, 2);
+        $weaponTechnology->price = new GameObjectPrice(800, 200, 0, 0, 2);
         $weaponTechnology->assets = new GameObjectAssets();
         $weaponTechnology->assets->imgMicro = 'weapons_technology_micro.jpg';
         $weaponTechnology->assets->imgSmall = 'weapons_technology_small.jpg';
