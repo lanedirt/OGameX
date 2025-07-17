@@ -24,7 +24,7 @@ When submitting a pull request, please make sure to follow these guidelines:
 The easiest way to check if your contributed code adheres to the conventions is to run the Laravel Pint script which is auto installed via Composer:
 
 ```
-$ ./vendor/bin/pint --test
+$ composer run cs -- --test
 ```
 
 Tip: it's possible to let Laravel Pint attempt to fix the code for you by running the following composer script:
