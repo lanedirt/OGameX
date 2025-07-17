@@ -61,10 +61,10 @@ COPY --chown=www-data:www-data \
     rust \
     /var/www/
 
-RUN npm install && npm run build
-
 # Then copy remaining files with default permissions
 COPY . /var/www/
+
+RUN npm install && npm run build
 
 # Copy entry point, convert line endings and set permissions
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
