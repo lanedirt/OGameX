@@ -25,7 +25,11 @@ RUN apt-get update && apt-get install -y \
     dos2unix \
     pkg-config \
     libffi-dev  # Install PHP FFI development files required to interface with Rust for BattleEngine  \
-    && \ apt-get clean && rm -rf /var/lib/apt/lists/ # Clear cache
+    && \ apt-get clean && rm -rf /var/lib/apt/lists/ # Clear cache 
+
+# Add NodeSource repo for Node.js 22
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs
 
 # Install extensions
 RUN docker-php-ext-install ffi pdo_mysql mbstring zip exif pcntl && \
@@ -59,6 +63,8 @@ COPY --chown=www-data:www-data \
 
 # Then copy remaining files with default permissions
 COPY . /var/www/
+
+RUN npm install && npm run build
 
 # Copy entry point, convert line endings and set permissions
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
