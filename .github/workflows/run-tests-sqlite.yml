@@ -40,7 +40,9 @@ jobs:
     - name: Composer update
       run: composer update --lock
     - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      run: |
+        composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        npm install
     - name: Build assets
       run: npm run build
     - name: Generate key
