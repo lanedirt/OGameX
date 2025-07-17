@@ -95,7 +95,7 @@
         {
             "label": "Build CSS (watch)",
             "type": "shell",
-            "command": "npm install && npm run dev watch",
+            "command": "npm install && npm run watch",
             "group": {
                 "kind": "build",
                 "isDefault": true
