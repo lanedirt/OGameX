@@ -1,0 +1,11 @@
+import './ingame/jquery-1.12.4.min';
+import './ingame/jquery.js';
+import './ingame/chat.js';
+import './ingame/inventory.js';
+import './ingame/jquery-spinners.js';
+import './ingame/messages.js';
+import './ingame/tooltips.js';
+import './ingame/trader.js';
+// import 'resources/js/./ingame/percentagebar.js';
+import './ingame/timerhandler.js';
+import './ingame/e7c74974620fa35b197315ebdbb8c2.js';
