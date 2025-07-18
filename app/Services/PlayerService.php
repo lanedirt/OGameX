@@ -445,7 +445,7 @@ class PlayerService
 
                 $this->user->save();
             } else {
-                throw new \Exception('Could not acquire player update lock.');
+                throw new Exception('Could not acquire player update lock.');
             }
         });
     }
@@ -517,7 +517,7 @@ class PlayerService
                         if ($fleetMissionLock) {
                             $fleetMissionService->updateMission($mission);
                         } else {
-                            throw new \Exception('Could not acquire update fleet mission update lock.');
+                            throw new Exception('Could not acquire update fleet mission update lock.');
                         }
                     }
 
@@ -530,7 +530,7 @@ class PlayerService
                     throw new RuntimeException('Fleet mission service process error: ' . $e->getMessage());
                 }
             } else {
-                throw new \Exception('Could not acquire update fleet mission planet lock.');
+                throw new Exception('Could not acquire update fleet mission planet lock.');
             }
         });
     }
