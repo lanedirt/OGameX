@@ -10,6 +10,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
+use Exception;
 
 class ExpeditionMission extends GameMission
 {
@@ -273,6 +274,27 @@ class ExpeditionMission extends GameMission
     }
 
     /**
+     * Override the parent method to add expedition-specific mission sanity checks that run just before a mission is started.
+     *
+     * @param PlanetService $planet
+     * @param Coordinate $targetCoordinate
+     * @param PlanetType $targetType
+     * @param UnitCollection $units
+     * @param Resources $resources
+     * @return void
+     * @throws Exception
+     */
+    public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources): void
+    {
+        parent::startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $resources);
+
+        // Check if there are enough expedition slots available.
+        if ($planet->getPlayer()->getExpeditionSlotsInUse() >= $planet->getPlayer()->getExpeditionSlotsMax()) {
+            throw new Exception('You are conducting too many expeditions at the same time.');
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
@@ -282,20 +304,9 @@ class ExpeditionMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        // Mission is only possible towards a planet.
-        if ($targetType === PlanetType::Moon) {
-            return new MissionPossibleStatus(false, __('Error, there is no moon'));
-        }
-
         // Only possible if player has astrophysics research level 1 or higher.
         if ($planet->getPlayer()->getResearchLevel('astrophysics') <= 0) {
             return new MissionPossibleStatus(false, __('Fleets cannot be sent to this target. You have to research Astrophysics first.'));
-        }
-
-        if ($targetType === PlanetType::DebrisField) {
-            // TODO: this logic should check if there are actually pathfinders in the units collection
-            // once the pathfinder unit has been added to the game.
-            return new MissionPossibleStatus(false, __('Pathfinders must be sent for recycling!'));
         }
 
         // If all checks pass, the mission is possible.

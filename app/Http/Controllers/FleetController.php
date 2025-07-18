@@ -289,7 +289,12 @@ class FleetController extends OGameController
             // This can happen if the user tries to send a fleet when there are no free fleet slots.
             return response()->json([
                 'success' => false,
-                'message' => 'Fleet launch failure: The fleet could not be launched. Please try again later.',
+                'errors' => [
+                    [
+                        'message' => $e->getMessage(),
+                        'error' => 140019
+                    ]
+                ],
                 'components' => [],
                 'newAjaxToken' => csrf_token(),
             ]);
