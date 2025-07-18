@@ -82,6 +82,16 @@ class ExpeditionMission extends GameMission
             'message' => 'Our expedition took over a ghost ship which was transporting a small amount of Dark Matter. We didn`t find any hints of what happened to the original crew of the ship, but our technicians where able to rescue the Dark Matter.',
             'resources' => new Resources(0, 0, 0, 0),
         ],
+        [
+            'success' => true,
+            'message' => 'Our expedition accomplished a unique experiment. They were able to harvest Dark Matter from a dying star.',
+            'resources' => new Resources(0, 0, 0, 0),
+        ],
+        [
+            'success' => true,
+            'message' => 'Our Expedition located a rusty space station, which seemed to have been floating uncontrolled through outer space for a long time. The station itself was totally useless, however, it was discovered that some Dark Matter is stored in the reactor. Our technicians are trying to save as much as they can.',
+            'resources' => new Resources(1, 1, 0, 0),
+        ],
         // Units found:
         [
             'success' => true,
@@ -193,14 +203,18 @@ class ExpeditionMission extends GameMission
             'success' => false,
             'message' => 'A strange computer virus attacked the navigation system shortly after parting our home system. This caused the expedition fleet to fly in circles. Needless to say that the expedition wasn`t really successful.',
         ],
-        // Failure (and speed up?)
         [
+        // Failure (and speed up?)
             'success' => false,
             'message' => 'Your expeditions doesn`t report any anomalies in the explored sector. But the fleet ran into some solar wind while returning. This resulted in the return trip being expedited. Your expedition returns home a bit earlier.',
         ],
         [
             'success' => false,
             'message' => 'The new and daring commander successfully traveled through an unstable wormhole to shorten the flight back! However, the expedition itself didn`t bring anything new.',
+        ],
+        [
+            'success' => false,
+            'message' => 'An unexpected back coupling in the energy spools of the engines hastened the expeditions return, it returns home earlier than expected. First reports tell they do not have anything thrilling to account for.',
         ],
         // Failure (and delay?)
         [
@@ -214,10 +228,6 @@ class ExpeditionMission extends GameMission
         [
             'success' => false,
             'message' => 'The solar wind of a red giant ruined the expeditions jump and it will take quite some time to calculate the return jump. There was nothing besides the emptiness of space between the stars in that sector. The fleet will return later than expected.',
-        ],
-        [
-            'success' => false,
-            'message' => 'Your expedition went into a sector full of particle storms. This set the energy stores to overload and most of the ships` main systems crashed. Your mechanics were able to avoid the worst, but the expedition is going to return with a big delay.',
         ],
         // Failure and battle triggered:
         [
@@ -243,6 +253,10 @@ class ExpeditionMission extends GameMission
         [
             'success' => false,
             'message' => 'Some exotic looking ships attacked the expedition fleet without warning!',
+        ],
+        [
+            'success' => false,
+            'message' => 'Your expedition fleet had an unfriendly first contact with an unknown species.',
         ],
         // Failure and fleet destroyed:
         [
