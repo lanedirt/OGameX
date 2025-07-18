@@ -292,6 +292,11 @@ class ExpeditionMission extends GameMission
         if ($planet->getPlayer()->getExpeditionSlotsInUse() >= $planet->getPlayer()->getExpeditionSlotsMax()) {
             throw new Exception('You are conducting too many expeditions at the same time.');
         }
+
+        // Check if there is at least one non-espionage unit in the fleet.
+        if (!$units->hasNonEspionageUnit()) {
+            throw new Exception('An expedition must consist of at least one ship.');
+        }
     }
 
     /**

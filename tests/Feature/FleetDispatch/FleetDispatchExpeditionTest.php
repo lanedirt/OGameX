@@ -31,6 +31,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     protected function basicSetup(): void
     {
         $this->planetAddUnit('light_fighter', 5);
+        $this->planetAddUnit('espionage_probe', 1);
 
         // Set astrophysics research level to 1 to allow expeditions.
         $this->playerSetResearchLevel('astrophysics', 1);
@@ -166,6 +167,24 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Ensure that the expedition slots in use are updated correctly
         $this->assertEquals(0, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 0 after all expeditions are done');
+    }
+
+    /**
+     * Send an expedition mission to position 16 with only espionage units.
+     *
+     * @return void
+     */
+    public function testExpeditionWithOnlyEspionageUnits(): void
+    {
+        $this->basicSetup();
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
+
+        // The fleet check should succeed
+        $this->fleetCheckToPosition16($unitCollection, true);
+
+        // But the fleet dispatch should fail
+        $this->sendMissionToPosition16($unitCollection, new Resources(1, 1, 0, 0), false);
     }
 
     /**

@@ -145,6 +145,21 @@ class UnitCollection
     }
 
     /**
+     * Check if the collection has a non-espionage unit. This is used to check if e.g. an expedition mission is possible.
+     *
+     * @return bool
+     */
+    public function hasNonEspionageUnit(): bool
+    {
+        foreach ($this->units as $entry) {
+            if ($entry->unitObject->machine_name !== 'espionage_probe') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Converts the unit collection to an associative array where key is machine name and value is amount.
      *
      * @return array<string, int>
