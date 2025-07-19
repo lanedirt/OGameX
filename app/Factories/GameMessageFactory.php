@@ -4,18 +4,6 @@ namespace OGame\Factories;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMessages\Abstracts\GameMessage;
-use OGame\GameMessages\BattleReport;
-use OGame\GameMessages\ColonyEstablished;
-use OGame\GameMessages\ColonyEstablishFailAstrophysics;
-use OGame\GameMessages\DebrisFieldHarvest;
-use OGame\GameMessages\EspionageReport;
-use OGame\GameMessages\FleetDeployment;
-use OGame\GameMessages\FleetDeploymentWithResources;
-use OGame\GameMessages\ReturnOfFleet;
-use OGame\GameMessages\ReturnOfFleetWithResources;
-use OGame\GameMessages\TransportArrived;
-use OGame\GameMessages\TransportReceived;
-use OGame\GameMessages\WelcomeMessage;
 use OGame\Models\Message;
 
 class GameMessageFactory
@@ -29,18 +17,19 @@ class GameMessageFactory
      * @var array<string ,string>
      */
     private static array $gameMessageClasses = [
-        'welcome_message' => WelcomeMessage::class,
-        'return_of_fleet_with_resources' => ReturnOfFleetWithResources::class,
-        'return_of_fleet' => ReturnOfFleet::class,
-        'transport_arrived' => TransportArrived::class,
-        'transport_received' => TransportReceived::class,
-        'colony_established' => ColonyEstablished::class,
-        'colony_establish_fail_astrophysics' => ColonyEstablishFailAstrophysics::class,
-        'fleet_deployment' => FleetDeployment::class,
-        'fleet_deployment_with_resources' => FleetDeploymentWithResources::class,
-        'espionage_report' => EspionageReport::class,
-        'battle_report' => BattleReport::class,
-        'debris_field_harvest' => DebrisFieldHarvest::class,
+        'welcome_message' => \OGame\GameMessages\WelcomeMessage::class,
+        'return_of_fleet_with_resources' => \OGame\GameMessages\ReturnOfFleetWithResources::class,
+        'return_of_fleet' => \OGame\GameMessages\ReturnOfFleet::class,
+        'transport_arrived' => \OGame\GameMessages\TransportArrived::class,
+        'transport_received' => \OGame\GameMessages\TransportReceived::class,
+        'colony_established' => \OGame\GameMessages\ColonyEstablished::class,
+        'colony_establish_fail_astrophysics' => \OGame\GameMessages\ColonyEstablishFailAstrophysics::class,
+        'fleet_deployment' => \OGame\GameMessages\FleetDeployment::class,
+        'fleet_deployment_with_resources' => \OGame\GameMessages\FleetDeploymentWithResources::class,
+        'espionage_report' => \OGame\GameMessages\EspionageReport::class,
+        'battle_report' => \OGame\GameMessages\BattleReport::class,
+        'debris_field_harvest' => \OGame\GameMessages\DebrisFieldHarvest::class,
+        'expedition_failed_1' => \OGame\GameMessages\Expeditions\ExpeditionFailed1::class,
     ];
 
     /**

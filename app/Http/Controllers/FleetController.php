@@ -77,6 +77,8 @@ class FleetController extends OGameController
             'settings' => $settings,
             'fleetSlotsInUse' => $player->getFleetSlotsInUse(),
             'fleetSlotsMax' => $player->getFleetSlotsMax(),
+            'expeditionSlotsInUse' => $player->getExpeditionSlotsInUse(),
+            'expeditionSlotsMax' => $player->getExpeditionSlotsMax(),
         ]);
     }
 
@@ -169,7 +171,9 @@ class FleetController extends OGameController
         }
 
         $status = 'success';
-        if (count($errors) > 0) {
+
+        // If there are errors and no possible missions, set status to failure.
+        if (count($errors) > 0 && count($enabledMissions) === 0) {
             $status = 'failure';
         }
 
@@ -285,7 +289,12 @@ class FleetController extends OGameController
             // This can happen if the user tries to send a fleet when there are no free fleet slots.
             return response()->json([
                 'success' => false,
-                'message' => 'Fleet launch failure: The fleet could not be launched. Please try again later.',
+                'errors' => [
+                    [
+                        'message' => $e->getMessage(),
+                        'error' => 140019
+                    ]
+                ],
                 'components' => [],
                 'newAjaxToken' => csrf_token(),
             ]);
