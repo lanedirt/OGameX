@@ -117,4 +117,9 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // ------------------------
+    'expedition_failed_1' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Expedition Result',
+        'body' => 'Due to a failure in the central computers of the flagship, the expedition mission had to be aborted. Unfortunately as a result of the computer malfunction, the fleet returns home empty handed.',
+    ],
 ];
