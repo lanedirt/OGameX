@@ -26,10 +26,12 @@ jobs:
         run: sudo chmod -R 777 /var/www
       - name: Copy .env
         run: sudo cp .env.example-prod .env
+      - name: Build images without cache
+        run: docker compose -f docker-compose.prod.yml build --no-cache      
       - name: Build and start the services
         run: |
-          # Build the images and start the services
-          docker compose -f docker-compose.prod.yml up -d
+          # Build the images and start the services ensure a fresh build each time
+          docker compose -f docker-compose.prod.yml up --no-deps --force-recreate --remove-orphans -d
       - name: Test if the services are running
         uses: nick-fields/retry@v3
         with:
