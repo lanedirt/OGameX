@@ -33,8 +33,10 @@ jobs:
         run: |
           # Wait for the application to be ready (max 60 seconds)
           timeout 60 bash -c 'until docker compose exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do echo "Waiting for application to be ready..." && sleep 2; done'
-      - name: Build assets & run tests
-        run: docker compose exec -T ogamex-app npm install && npm run build && php artisan test
+      - name: Build assets
+        run: npm install && npm run build
+      - name: Run tests
+        run: docker compose exec -T ogamex-app php artisan test
       - name: Run custom Race Condition Tests
         run: |
           docker compose exec -T ogamex-app php artisan test:race-condition-unitqueue
