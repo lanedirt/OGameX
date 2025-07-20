@@ -30,8 +30,7 @@ jobs:
         run: |
           # Build the images and start the services
           docker compose -f docker-compose.prod.yml up -d
-      - name: Build assets
-        run: docker compose exec -T ogamex-app npm install && npm run build
+        
       - name: Test if the services are running
         uses: nick-fields/retry@v3
         with:
