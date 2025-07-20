@@ -64,9 +64,6 @@ COPY --chown=www-data:www-data \
 # Then copy remaining files with default permissions
 COPY . /var/www/
 
-# Build assets
-RUN npm install && npm run build
-
 # Ensure build files go to the correct place.
 COPY --chown=www-data:www-data \
 public /var/www/public
