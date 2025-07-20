@@ -29,8 +29,6 @@ if [ "$role" = "scheduler" ]; then
 elif [ "$role" = "queue" ]; then
       php /var/www/html/artisan queue:work --verbose --no-interaction
 elif [ "$role" = "app" ]; then
-    echo "Build assets"
-    npm run build
     # Check APP_ENV and run appropriate composer install
     if [ "$is_production" = true ]; then
         echo "Production environment detected. Running composer install --no-dev..."

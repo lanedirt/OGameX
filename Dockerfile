@@ -64,8 +64,10 @@ COPY --chown=www-data:www-data \
 # Then copy remaining files with default permissions
 COPY . /var/www/
 
-RUN npm install
-
+# Build assets
+RUN npm install && npm run build && \
+    chown -R www-data:www-data /var/www/public/build \
+    
 # Copy entry point, convert line endings and set permissions
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 RUN dos2unix /usr/local/bin/entrypoint && \
