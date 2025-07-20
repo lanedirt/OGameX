@@ -4,10 +4,10 @@ namespace OGame\GameMessages\Expeditions;
 
 use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
 
-class ExpeditionFailed1 extends ExpeditionGameMessage
+class ExpeditionFailureAndDelay3 extends ExpeditionGameMessage
 {
     protected function initialize(): void
     {
-        $this->key = 'expedition_failed_1';
+        $this->key = 'expedition_failure_and_delay_3';
     }
 }

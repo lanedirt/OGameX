@@ -14,7 +14,7 @@ class GameMessageFactory
      *
      * When adding a new game message class, make sure to add it here.
      *
-     * @var array<string ,string>
+     * @var array<string, class-string<GameMessage>>
      */
     private static array $gameMessageClasses = [
         'welcome_message' => \OGame\GameMessages\WelcomeMessage::class,
@@ -29,8 +29,68 @@ class GameMessageFactory
         'espionage_report' => \OGame\GameMessages\EspionageReport::class,
         'battle_report' => \OGame\GameMessages\BattleReport::class,
         'debris_field_harvest' => \OGame\GameMessages\DebrisFieldHarvest::class,
+
+        'expedition_battle_1' => \OGame\GameMessages\Expeditions\ExpeditionBattle1::class,
+        'expedition_battle_2' => \OGame\GameMessages\Expeditions\ExpeditionBattle2::class,
+        'expedition_battle_3' => \OGame\GameMessages\Expeditions\ExpeditionBattle3::class,
+        'expedition_battle_4' => \OGame\GameMessages\Expeditions\ExpeditionBattle4::class,
+        'expedition_battle_5' => \OGame\GameMessages\Expeditions\ExpeditionBattle5::class,
+        'expedition_battle_6' => \OGame\GameMessages\Expeditions\ExpeditionBattle6::class,
+        'expedition_battle_7' => \OGame\GameMessages\Expeditions\ExpeditionBattle7::class,
+
+        'expedition_dark_matter_found_1' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound1::class,
+        'expedition_dark_matter_found_2' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound2::class,
+        'expedition_dark_matter_found_3' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound3::class,
+        'expedition_dark_matter_found_4' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound4::class,
+        'expedition_dark_matter_found_5' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound5::class,
+        'expedition_dark_matter_found_6' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound6::class,
+        'expedition_dark_matter_found_7' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound7::class,
+        'expedition_dark_matter_found_8' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound8::class,
+
         'expedition_failed_1' => \OGame\GameMessages\Expeditions\ExpeditionFailed1::class,
-    ];
+        'expedition_failed_2' => \OGame\GameMessages\Expeditions\ExpeditionFailed2::class,
+        'expedition_failed_3' => \OGame\GameMessages\Expeditions\ExpeditionFailed3::class,
+        'expedition_failed_4' => \OGame\GameMessages\Expeditions\ExpeditionFailed4::class,
+        'expedition_failed_5' => \OGame\GameMessages\Expeditions\ExpeditionFailed5::class,
+        'expedition_failed_6' => \OGame\GameMessages\Expeditions\ExpeditionFailed6::class,
+        'expedition_failed_7' => \OGame\GameMessages\Expeditions\ExpeditionFailed7::class,
+        'expedition_failed_8' => \OGame\GameMessages\Expeditions\ExpeditionFailed8::class,
+        'expedition_failed_9' => \OGame\GameMessages\Expeditions\ExpeditionFailed9::class,
+        'expedition_failed_10' => \OGame\GameMessages\Expeditions\ExpeditionFailed10::class,
+        'expedition_failed_11' => \OGame\GameMessages\Expeditions\ExpeditionFailed11::class,
+        'expedition_failed_12' => \OGame\GameMessages\Expeditions\ExpeditionFailed12::class,
+        'expedition_failed_13' => \OGame\GameMessages\Expeditions\ExpeditionFailed13::class,
+        'expedition_failed_14' => \OGame\GameMessages\Expeditions\ExpeditionFailed14::class,
+        'expedition_failed_15' => \OGame\GameMessages\Expeditions\ExpeditionFailed15::class,
+        'expedition_failed_16' => \OGame\GameMessages\Expeditions\ExpeditionFailed16::class,
+
+        'expedition_failure_and_delay_1' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay1::class,
+        'expedition_failure_and_delay_2' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay2::class,
+        'expedition_failure_and_delay_3' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay3::class,
+
+        'expedition_failure_and_fleet_destroyed_1' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndFleetDestroyed1::class,
+
+        'expedition_failure_and_speed_up_1' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndSpeedUp1::class,
+        'expedition_failure_and_speed_up_2' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndSpeedUp2::class,
+        'expedition_failure_and_speed_up_3' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndSpeedUp3::class,
+
+        'expedition_items_found_1' => \OGame\GameMessages\Expeditions\ExpeditionItemsFound1::class,
+
+        'expedition_resources_found_1' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound1::class,
+        'expedition_resources_found_2' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound2::class,
+        'expedition_resources_found_3' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound3::class,
+        'expedition_resources_found_4' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound4::class,
+        'expedition_resources_found_5' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound5::class,
+        'expedition_resources_found_6' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound6::class,
+
+        'expedition_units_found_1' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound1::class,
+        'expedition_units_found_2' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound2::class,
+        'expedition_units_found_3' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound3::class,
+        'expedition_units_found_4' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound4::class,
+        'expedition_units_found_5' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound5::class,
+        'expedition_units_found_6' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound6::class,
+        'expedition_units_found_7' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound7::class,
+        ];
 
     /**
      * @return array<GameMessage>
