@@ -29,12 +29,12 @@ jobs:
         run: |
           # Build the images and start the services
           docker compose -f docker-compose.yml up -d
-      - name: Wait for application to be ready up to 60 seconds
+      - name: Wait for application to be ready up to 120 seconds
         run: |
-          # Wait for the application to be ready (max 60 seconds)
-          timeout 60 bash -c 'until docker compose exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do echo "Waiting for application to be ready..." && sleep 2; done'
+          # Wait for the application to be ready (max 120 seconds)
+          timeout 120 bash -c 'until docker compose exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do echo "Waiting for application to be ready..." && sleep 2; done'
       - name: Run Tests
-        run: docker compose exec -T ogamex-app php artisan test
+        run: docker compose exec -T ogamex-app php artisan test --debug
       - name: Run custom Race Condition Tests
         run: |
           docker compose exec -T ogamex-app php artisan test:race-condition-unitqueue
