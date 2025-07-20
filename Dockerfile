@@ -68,7 +68,8 @@ COPY . /var/www/
 RUN npm install && npm run build
 
 # Ensure build files go to the correct place.
-COPY public /var/www/public
+COPY --chown=www-data:www-data \
+public /var/www/public
 
 # Copy entry point, convert line endings and set permissions
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
