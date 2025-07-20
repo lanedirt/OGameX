@@ -35,8 +35,7 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <link rel="apple-touch-icon" href="/img/outgame/20da7e6c416e6cd5f8544a73f588e5.png"/>
-    <link rel="stylesheet" href="{{ mix('css/outgame.css') }}">
-    <script type="text/javascript" src="{{ mix('js/outgame.min.js') }}"></script>
+    @vite(['resources/css/outgame.css', 'resources/js/outgame.js'])
 
     <script type="text/javascript">
         // <![CDATA[

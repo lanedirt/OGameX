@@ -21677,7 +21677,8 @@ yx-axis
     background: transparent url("/img/icons/e5e55ee761820a45c11bbce63a8170.png") repeat;
     background: rgba(20, 26, 30,0.8);
 }
-.ui-widget-shadow { margin: -7px 0 0 -7px; padding: 7px; background: #cccccc url("/img/icons/8f9d4d9f79fff1a4bf39b593f36255.png) 50% 50% repeat-x; opacity: .60;filter:Alpha(Opacity=60"); -moz-border-radius: 8px; -khtml-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px; }/*!
+.ui-widget-shadow { margin: -7px 0 0 -7px; padding: 7px; background: #cccccc url("/img/icons/8f9d4d9f79fff1a4bf39b593f36255.png") 50% 50% repeat-x; opacity: .60;filter:Alpha("Opacity=60"); -moz-border-radius: 8px; -khtml-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px; }
+/*!
  * jQuery UI Resizable 1.8.21
  *
  * Copyright 2012, AUTHORS.txt (http://jqueryui.com/about)
