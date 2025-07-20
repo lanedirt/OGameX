@@ -18,7 +18,7 @@ jobs:
         image: docker:26.0.0
         options: --privileged
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Modify Dockerfile to disable USER www (which is not supported by GitHub Actions, as it runs as root)
         run: |
           sed -i '/USER www/s/^/#/' ./Dockerfile
@@ -30,6 +30,8 @@ jobs:
         run: |
           # Build the images and start the services
           docker compose -f docker-compose.prod.yml up -d
+      - name: Build assets
+        run: docker compose exec -T ogamex-app npm run build
       - name: Test if the services are running
         uses: nick-fields/retry@v3
         with:
