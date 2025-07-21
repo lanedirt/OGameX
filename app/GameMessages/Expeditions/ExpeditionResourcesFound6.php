@@ -2,9 +2,9 @@
 
 namespace OGame\GameMessages\Expeditions;
 
-use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
+use OGame\GameMessages\Expeditions\Abstracts\ExpeditionResourcesFoundGameMessage;
 
-class ExpeditionResourcesFound6 extends ExpeditionGameMessage
+class ExpeditionResourcesFound6 extends ExpeditionResourcesFoundGameMessage
 {
     protected function initialize(): void
     {

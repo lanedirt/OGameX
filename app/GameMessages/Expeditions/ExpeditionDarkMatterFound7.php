@@ -2,7 +2,7 @@
 
 namespace OGame\GameMessages\Expeditions;
 
-use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
+use OGame\GameMessages\Expeditions\Abstracts\ExpeditionGameMessage;
 
 class ExpeditionDarkMatterFound7 extends ExpeditionGameMessage
 {

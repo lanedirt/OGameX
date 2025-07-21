@@ -1,6 +1,8 @@
 <?php
 
-namespace OGame\GameMessages\Abstracts;
+namespace OGame\GameMessages\Expeditions\Abstracts;
+
+use OGame\GameMessages\Abstracts\GameMessage;
 
 abstract class ExpeditionGameMessage extends GameMessage
 {

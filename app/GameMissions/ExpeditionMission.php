@@ -319,8 +319,8 @@ class ExpeditionMission extends GameMission
         // TODO: add logic to send confirmation message to player with the results of the expedition.
 
         // Process the failure outcome.
-        // TODO: we should add logic to determine random outcome type, for now we just trigger a failure to test the flow.
-        $this->processFailureOutcome($mission);
+        // TODO: we should add logic to determine random outcome type, for now we just trigger a specific outcome to test the flow.
+        $returnResources = $this->processResourcesFoundOutcome($mission);
 
         // Get a random success outcome.
         // Mark the arrival mission as processed
@@ -330,7 +330,9 @@ class ExpeditionMission extends GameMission
         $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
 
         // Create and start the return mission.
-        $this->startReturn($mission, new Resources(0, 0, 0, 0), $units);
+        // TODO: make sure the gained resources are appended to any resources the mission started with?
+        // Check the startReturn generic logic for how this should work, as this is not accounted for yet at time of writing.
+        $this->startReturn($mission, $returnResources, $units);
     }
 
     /**
@@ -362,9 +364,9 @@ class ExpeditionMission extends GameMission
     /**
      * Process the resources found outcome.
      * @param FleetMission $mission
-     * @return void
+     * @return Resources
      */
-    protected function processResourcesFoundOutcome(FleetMission $mission): void
+    protected function processResourcesFoundOutcome(FleetMission $mission): Resources
     {
         // Get a random failure outcome.
         // TODO: refactor outcome structure to make it easier to process.
@@ -402,13 +404,12 @@ class ExpeditionMission extends GameMission
                 break;
         }
 
-        // Add resources to the fleet mission.
-        $mission->addResources($resourcesFound);
-
         // Send a message to the player with the resources found outcome.
         // TODO: refactor outcome structure to be statically typed object instead of array.
         // TODO2: each outcome type will probably have its own processing logic too, so might be able to refactor that into the structure as well.
         $this->messageService->sendSystemMessageToPlayer($player, $resourcesFoundOutcome['message'], ['resource_type' => $resource_type->value, 'resource_amount' => $resourceAmount]);
+
+        return $resourcesFound;
     }
 
     /**

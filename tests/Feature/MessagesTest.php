@@ -35,7 +35,9 @@ class MessagesTest extends MoonTestCase
     {
         $gameMessages = GameMessageFactory::getAllGameMessages();
         foreach ($gameMessages as $gameMessage) {
-            // Skip espionage report as it requires special handling and is tested separately by testEspionageReport().
+            // Skip:
+            // - espionage_report as it requires special handling and is tested separately by testEspionageReport().
+            // - battle_report as it requires special handling and is tested separately by testBattleReport().
             if ($gameMessage->getKey() === 'espionage_report' || $gameMessage->getKey() === 'battle_report') {
                 continue;
             }

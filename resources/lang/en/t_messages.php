@@ -117,6 +117,11 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // ------------------------
+    // Expedition generic message parts
+    'expedition_resources_captured' => ':resource_type :resource_amount have been captured.',
+    'expedition_unexplored_statement' => 'Entry from the communication officers logbook: It seems that this part of the universe has not been explored yet.',
+
+    // Expedition Failed
     'expedition_failed_1' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
