@@ -11,8 +11,9 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
-use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
+use OGame\GameMessages\Expeditions\Abstracts\ExpeditionGameMessage;
 use OGame\Services\PlanetService;
+use OGame\Services\ObjectService;
 use Exception;
 
 class ExpeditionMission extends GameMission
@@ -317,10 +318,13 @@ class ExpeditionMission extends GameMission
     {
         // TODO: Implement processArrival() method with expedition random events, loot gained etc.
         // TODO: add logic to send confirmation message to player with the results of the expedition.
+        $returnResources = new Resources(0, 0, 0, 0);
+        $returnUnits = new UnitCollection();
 
         // Process the failure outcome.
         // TODO: we should add logic to determine random outcome type, for now we just trigger a specific outcome to test the flow.
-        $returnResources = $this->processResourcesFoundOutcome($mission);
+        //$returnResources = $this->processResourcesFoundOutcome($mission);
+        $returnUnits = $this->processUnitsFoundOutcome($mission);
 
         // Get a random success outcome.
         // Mark the arrival mission as processed
@@ -328,6 +332,11 @@ class ExpeditionMission extends GameMission
         $mission->save();
 
         $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
+
+        // Append return units if any.
+        if ($returnUnits->getAmount() > 0) {
+            $units->addCollection($returnUnits);
+        }
 
         // Create and start the return mission.
         // TODO: make sure the gained resources are appended to any resources the mission started with?
@@ -410,6 +419,53 @@ class ExpeditionMission extends GameMission
         $this->messageService->sendSystemMessageToPlayer($player, $resourcesFoundOutcome['message'], ['resource_type' => $resource_type->value, 'resource_amount' => $resourceAmount]);
 
         return $resourcesFound;
+    }
+
+    /**
+     * Process the units found outcome.
+     * @param FleetMission $mission
+     * @return UnitCollection
+     */
+    protected function processUnitsFoundOutcome(FleetMission $mission): UnitCollection
+    {
+        // Get a random failure outcome.
+        // TODO: refactor outcome structure to make it easier to process.
+        $outcomes = self::getOutcomes();
+
+        // Get all units found outcomes.
+        $unitsFoundOutcomes = array_filter($outcomes, fn ($outcome) => $outcome['type'] === ExpeditionOutcomeType::UnitsFound);
+
+        // Get a random units found outcome.
+        $unitsFoundOutcome = $unitsFoundOutcomes[array_rand($unitsFoundOutcomes)];
+
+        // Load the mission owner user
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+
+        // Make random array of units with random amount.
+        $possible_units = ['light_fighter', 'heavy_fighter', 'espionage_probe', 'small_cargo', 'large_cargo'];
+
+        // Get 1-3 random unit types
+        $num_units = random_int(1, 3);
+        shuffle($possible_units);
+        $random_unit_types = array_slice($possible_units, 0, $num_units);
+
+        // Create a random amount of units for each unit type.
+        $units = new UnitCollection();
+        $objectService = app(ObjectService::class);
+        foreach ($random_unit_types as $unit_type) {
+            $units->addUnit($objectService->getShipObjectByMachineName($unit_type), random_int(1, 100));
+        }
+
+        // Convert units to array with key "unit_<unit_id>" and value as amount.
+        $message_params = [];
+        foreach ($units->units as $unit) {
+            $message_params['unit_' . $unit->unitObject->id] = $unit->amount;
+        }
+
+        // Send a message to the player with the units found outcome.
+        $this->messageService->sendSystemMessageToPlayer($player, $unitsFoundOutcome['message'], $message_params);
+
+        return $units;
     }
 
     /**
