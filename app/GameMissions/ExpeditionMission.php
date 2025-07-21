@@ -6,6 +6,7 @@ use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\ResourceType;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
@@ -356,6 +357,58 @@ class ExpeditionMission extends GameMission
         // TODO: refactor outcome structure to be statically typed object instead of array.
         // TODO2: each outcome type will probably have its own processing logic too, so might be able to refactor that into the structure as well.
         $this->messageService->sendSystemMessageToPlayer($player, $failureOutcome['message'], []);
+    }
+
+    /**
+     * Process the resources found outcome.
+     * @param FleetMission $mission
+     * @return void
+     */
+    protected function processResourcesFoundOutcome(FleetMission $mission): void
+    {
+        // Get a random failure outcome.
+        // TODO: refactor outcome structure to make it easier to process.
+        $outcomes = self::getOutcomes();
+
+        // Get all resources found outcomes.
+        $resourcesFoundOutcomes = array_filter($outcomes, fn ($outcome) => $outcome['type'] === ExpeditionOutcomeType::ResourcesFound);
+
+        // Get a random resources found outcome.
+        $resourcesFoundOutcome = $resourcesFoundOutcomes[array_rand($resourcesFoundOutcomes)];
+
+        // Load the mission owner user
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+
+        // TODO: Determine the resources found at random based on max cargo capacity of the fleet.
+        $resourcesFound = new Resources(0, 0, 0, 0);
+
+        // A expedition always returns a single resource unit, so first determine which resource unit is returned.
+        $resourceAmount = random_int(1, 100);
+
+        // Pick random number between 0 and 2 to determine the resource type.
+        $resource_type_int = random_int(0, 2);
+        switch ($resource_type_int) {
+            case 0:
+                $resource_type = ResourceType::Metal;
+                $resourcesFound->metal->set($resourceAmount);
+                break;
+            case 1:
+                $resource_type = ResourceType::Crystal;
+                $resourcesFound->crystal->set($resourceAmount);
+                break;
+            case 2:
+                $resource_type = ResourceType::Deuterium;
+                $resourcesFound->deuterium->set($resourceAmount);
+                break;
+        }
+
+        // Add resources to the fleet mission.
+        $mission->addResources($resourcesFound);
+
+        // Send a message to the player with the resources found outcome.
+        // TODO: refactor outcome structure to be statically typed object instead of array.
+        // TODO2: each outcome type will probably have its own processing logic too, so might be able to refactor that into the structure as well.
+        $this->messageService->sendSystemMessageToPlayer($player, $resourcesFoundOutcome['message'], ['resource_type' => $resource_type->value, 'resource_amount' => $resourceAmount]);
     }
 
     /**
