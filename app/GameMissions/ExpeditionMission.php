@@ -121,10 +121,10 @@ class ExpeditionMission extends GameMission
         $mission->save();
     }
 
-     /**
-     * Returns a list of possible outcomes for an expedition.
-     * @return array<array{type: ExpeditionOutcomeType, message: class-string<ExpeditionGameMessage>, resources?: Resources, units?: UnitCollection}>
-     */
+    /**
+    * Returns a list of possible outcomes for an expedition.
+    * @return array<array{type: ExpeditionOutcomeType, message: class-string<ExpeditionGameMessage>, resources?: Resources, units?: UnitCollection}>
+    */
     private static function getOutcomes(): array
     {
         return [
