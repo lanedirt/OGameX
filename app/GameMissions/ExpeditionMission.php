@@ -23,10 +23,109 @@ class ExpeditionMission extends GameMission
     protected static bool $hasReturnMission = false;
 
     /**
+     * @inheritdoc
+     */
+    public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources): void
+    {
+        parent::startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $resources);
+
+        // Check if there are enough expedition slots available.
+        if ($planet->getPlayer()->getExpeditionSlotsInUse() >= $planet->getPlayer()->getExpeditionSlotsMax()) {
+            throw new Exception('You are conducting too many expeditions at the same time.');
+        }
+
+        // Check if there is at least one non-espionage unit in the fleet.
+        if (!$units->hasNonEspionageUnit()) {
+            throw new Exception('An expedition must consist of at least one ship.');
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
+    {
+        // Expedition mission is only possible for position 16.
+        if ($targetCoordinate->position !== 16) {
+            return new MissionPossibleStatus(false);
+        }
+
+        // Only possible if player has astrophysics research level 1 or higher.
+        if ($planet->getPlayer()->getResearchLevel('astrophysics') <= 0) {
+            return new MissionPossibleStatus(false, __('Fleets cannot be sent to this target. You have to research Astrophysics first.'));
+        }
+
+        // If all checks pass, the mission is possible.
+        return new MissionPossibleStatus(true);
+    }
+
+    /**
+     * @inheritdoc
+     * @throws \Exception
+     */
+    protected function processArrival(FleetMission $mission): void
+    {
+        // Get the units of the mission.
+        $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
+
+        // TODO: Implement processArrival() method with expedition random events, loot gained etc.
+        // TODO: add logic to send confirmation message to player with the results of the expedition.
+        $returnResources = new Resources(0, 0, 0, 0);
+        $returnUnits = new UnitCollection();
+
+        // Process the failure outcome.
+        // TODO: we should add logic to determine random outcome type, for now we just trigger a specific outcome to test the flow.
+
+        // Resources found outcome:
+        //$returnResources = $this->processResourcesFoundOutcome($mission);
+
+        // Units found outcome:
+        //$foundUnits = $this->processUnitsFoundOutcome($mission);
+        //$units->addCollection($foundUnits);
+
+        // Fleet destroyed outcome:
+        $units = $this->processFleetDestroyedOutcome($mission);
+
+        // Get a random success outcome.
+        // Mark the arrival mission as processed
+        $mission->processed = 1;
+        $mission->save();
+
+        // Create and start the return mission.
+        // TODO: make sure the gained resources are appended to any resources the mission started with?
+        // Check the startReturn generic logic for how this should work, as this is not accounted for yet at time of writing.
+        $this->startReturn($mission, $returnResources, $units);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function processReturn(FleetMission $mission): void
+    {
+        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+
+        // Expedition mission: add back the units to the source planet.
+        $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
+
+        // Add resources to the origin planet (if any).
+        $return_resources = $this->fleetMissionService->getResources($mission);
+        if ($return_resources->any()) {
+            $target_planet->addResources($return_resources);
+        }
+
+        // Send message to player that the return mission has arrived.
+        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
+
+        // Mark the return mission as processed
+        $mission->processed = 1;
+        $mission->save();
+    }
+
+     /**
      * Returns a list of possible outcomes for an expedition.
      * @return array<array{type: ExpeditionOutcomeType, message: class-string<ExpeditionGameMessage>, resources?: Resources, units?: UnitCollection}>
      */
-    protected static function getOutcomes(): array
+    private static function getOutcomes(): array
     {
         return [
             // Resources found:
@@ -274,86 +373,11 @@ class ExpeditionMission extends GameMission
     }
 
     /**
-     * @inheritdoc
-     */
-    public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources): void
-    {
-        parent::startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $resources);
-
-        // Check if there are enough expedition slots available.
-        if ($planet->getPlayer()->getExpeditionSlotsInUse() >= $planet->getPlayer()->getExpeditionSlotsMax()) {
-            throw new Exception('You are conducting too many expeditions at the same time.');
-        }
-
-        // Check if there is at least one non-espionage unit in the fleet.
-        if (!$units->hasNonEspionageUnit()) {
-            throw new Exception('An expedition must consist of at least one ship.');
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
-    {
-        // Expedition mission is only possible for position 16.
-        if ($targetCoordinate->position !== 16) {
-            return new MissionPossibleStatus(false);
-        }
-
-        // Only possible if player has astrophysics research level 1 or higher.
-        if ($planet->getPlayer()->getResearchLevel('astrophysics') <= 0) {
-            return new MissionPossibleStatus(false, __('Fleets cannot be sent to this target. You have to research Astrophysics first.'));
-        }
-
-        // If all checks pass, the mission is possible.
-        return new MissionPossibleStatus(true);
-    }
-
-    /**
-     * @inheritdoc
-     * @throws \Exception
-     */
-    protected function processArrival(FleetMission $mission): void
-    {
-        // Get the units of the mission.
-        $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
-
-        // TODO: Implement processArrival() method with expedition random events, loot gained etc.
-        // TODO: add logic to send confirmation message to player with the results of the expedition.
-        $returnResources = new Resources(0, 0, 0, 0);
-        $returnUnits = new UnitCollection();
-
-        // Process the failure outcome.
-        // TODO: we should add logic to determine random outcome type, for now we just trigger a specific outcome to test the flow.
-
-        // Resources found outcome:
-        //$returnResources = $this->processResourcesFoundOutcome($mission);
-
-        // Units found outcome:
-        //$foundUnits = $this->processUnitsFoundOutcome($mission);
-        //$units->addCollection($foundUnits);
-
-        // Fleet destroyed outcome:
-        $units = $this->processFleetDestroyedOutcome($mission);
-
-        // Get a random success outcome.
-        // Mark the arrival mission as processed
-        $mission->processed = 1;
-        $mission->save();
-
-        // Create and start the return mission.
-        // TODO: make sure the gained resources are appended to any resources the mission started with?
-        // Check the startReturn generic logic for how this should work, as this is not accounted for yet at time of writing.
-        $this->startReturn($mission, $returnResources, $units);
-    }
-
-    /**
      * Process the failure outcome.
      * @param FleetMission $mission
      * @return void
      */
-    protected function processFailureOutcome(FleetMission $mission): void
+    private function processFailureOutcome(FleetMission $mission): void
     {
         // Get a random failure outcome.
         // TODO: refactor outcome structure to make it easier to process.
@@ -379,7 +403,7 @@ class ExpeditionMission extends GameMission
      * @param FleetMission $mission
      * @return Resources
      */
-    protected function processResourcesFoundOutcome(FleetMission $mission): Resources
+    private function processResourcesFoundOutcome(FleetMission $mission): Resources
     {
         // Get a random failure outcome.
         // TODO: refactor outcome structure to make it easier to process.
@@ -430,7 +454,7 @@ class ExpeditionMission extends GameMission
      * @param FleetMission $mission
      * @return UnitCollection
      */
-    protected function processUnitsFoundOutcome(FleetMission $mission): UnitCollection
+    private function processUnitsFoundOutcome(FleetMission $mission): UnitCollection
     {
         // Get a random failure outcome.
         // TODO: refactor outcome structure to make it easier to process.
@@ -477,7 +501,7 @@ class ExpeditionMission extends GameMission
      * @param FleetMission $mission
      * @return UnitCollection
      */
-    protected function processFleetDestroyedOutcome(FleetMission $mission): UnitCollection
+    private function processFleetDestroyedOutcome(FleetMission $mission): UnitCollection
     {
         // Get a random failure outcome.
         // TODO: refactor outcome structure to make it easier to process.
@@ -497,29 +521,5 @@ class ExpeditionMission extends GameMission
 
         // Return empty unit collection as the whole fleet is destroyed.
         return new UnitCollection();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function processReturn(FleetMission $mission): void
-    {
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
-
-        // Expedition mission: add back the units to the source planet.
-        $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
-
-        // Add resources to the origin planet (if any).
-        $return_resources = $this->fleetMissionService->getResources($mission);
-        if ($return_resources->any()) {
-            $target_planet->addResources($return_resources);
-        }
-
-        // Send message to player that the return mission has arrived.
-        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
-
-        // Mark the return mission as processed
-        $mission->processed = 1;
-        $mission->save();
     }
 }
