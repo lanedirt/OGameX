@@ -316,6 +316,9 @@ class ExpeditionMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
+        // Get the units of the mission.
+        $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
+
         // TODO: Implement processArrival() method with expedition random events, loot gained etc.
         // TODO: add logic to send confirmation message to player with the results of the expedition.
         $returnResources = new Resources(0, 0, 0, 0);
@@ -323,20 +326,21 @@ class ExpeditionMission extends GameMission
 
         // Process the failure outcome.
         // TODO: we should add logic to determine random outcome type, for now we just trigger a specific outcome to test the flow.
+
+        // Resources found outcome:
         //$returnResources = $this->processResourcesFoundOutcome($mission);
-        $returnUnits = $this->processUnitsFoundOutcome($mission);
+
+        // Units found outcome:
+        //$foundUnits = $this->processUnitsFoundOutcome($mission);
+        //$units->addCollection($foundUnits);
+
+        // Fleet destroyed outcome:
+        $units = $this->processFleetDestroyedOutcome($mission);
 
         // Get a random success outcome.
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();
-
-        $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
-
-        // Append return units if any.
-        if ($returnUnits->getAmount() > 0) {
-            $units->addCollection($returnUnits);
-        }
 
         // Create and start the return mission.
         // TODO: make sure the gained resources are appended to any resources the mission started with?
@@ -466,6 +470,33 @@ class ExpeditionMission extends GameMission
         $this->messageService->sendSystemMessageToPlayer($player, $unitsFoundOutcome['message'], $message_params);
 
         return $units;
+    }
+
+    /**
+     * Process the fleet destroyed outcome and return the units that are left (which is empty as the fleet is destroyed).
+     * @param FleetMission $mission
+     * @return UnitCollection
+     */
+    protected function processFleetDestroyedOutcome(FleetMission $mission): UnitCollection
+    {
+        // Get a random failure outcome.
+        // TODO: refactor outcome structure to make it easier to process.
+        $outcomes = self::getOutcomes();
+
+        // Get all fleet destroyed outcomes.
+        $fleetDestroyedOutcomes = array_filter($outcomes, fn ($outcome) => $outcome['type'] === ExpeditionOutcomeType::FailureAndFleetDestroyed);
+
+        // Get a random fleet destroyed outcome.
+        $fleetDestroyedOutcome = $fleetDestroyedOutcomes[array_rand($fleetDestroyedOutcomes)];
+
+        // Load the mission owner user
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+
+        // Send a message to the player with the fleet destroyed outcome.
+        $this->messageService->sendSystemMessageToPlayer($player, $fleetDestroyedOutcome['message'], []);
+
+        // Return empty unit collection as the whole fleet is destroyed.
+        return new UnitCollection();
     }
 
     /**
