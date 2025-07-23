@@ -131,35 +131,18 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // Resources Found
-    'expedition_resources_found_1' => [
+    'expedition_resources_found' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        'body' => 'On an isolated planetoid we found some easily accessible resources fields and harvested some successfully.',
-    ],
-    'expedition_resources_found_2' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Your expedition discovered a small asteroid from which some resources could be harvested.',
-    ],
-    'expedition_resources_found_3' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Your expedition found an ancient, fully loaded but deserted freighter convoy. Some of the resources could be rescued.',
-    ],
-    'expedition_resources_found_4' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Your expedition fleet reports the discovery of a giant alien ship wreck. They were not able to learn from their technologies but they were able to divide the ship into its main components and made some useful resources out of it.',
-    ],
-    'expedition_resources_found_5' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'On a tiny moon with its own atmosphere your expedition found some huge raw resources storage. The crew on the ground is trying to lift and load that natural treasure.',
-    ],
-    'expedition_resources_found_6' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Mineral belts around an unknown planet contained countless resources. The expedition ships are coming back and their storages are full!',
+        // An expedition message can have different variations which are parsed by the ExpeditionResourcesFound class.
+        'body' => [
+            '1' => 'On an isolated planetoid we found some easily accessible resources fields and harvested some successfully.',
+            '2' => 'Your expedition discovered a small asteroid from which some resources could be harvested.',
+            '3' => 'Your expedition found an ancient, fully loaded but deserted freighter convoy. Some of the resources could be rescued.',
+            '4' => 'Your expedition fleet reports the discovery of a giant alien ship wreck. They were not able to learn from their technologies but they were able to divide the ship into its main components and made some useful resources out of it.',
+            '5' => 'On a tiny moon with its own atmosphere your expedition found some huge raw resources storage. The crew on the ground is trying to lift and load that natural treasure.',
+            '6' => 'Mineral belts around an unknown planet contained countless resources. The expedition ships are coming back and their storages are full!',
+        ],
     ],
 
     // Dark Matter Found

@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\GameMessages\ExpeditionResourcesFound;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameMissions\Models\MissionPossibleStatus;
@@ -77,14 +78,14 @@ class ExpeditionMission extends GameMission
         // TODO: we should add logic to determine random outcome type, for now we just trigger a specific outcome to test the flow.
 
         // Resources found outcome:
-        //$returnResources = $this->processResourcesFoundOutcome($mission);
+        $returnResources = $this->processResourcesFoundOutcome($mission);
 
         // Units found outcome:
         //$foundUnits = $this->processUnitsFoundOutcome($mission);
         //$units->addCollection($foundUnits);
 
         // Fleet destroyed outcome:
-        $units = $this->processFleetDestroyedOutcome($mission);
+        //$units = $this->processFleetDestroyedOutcome($mission);
 
         // Get a random success outcome.
         // Mark the arrival mission as processed
@@ -128,33 +129,6 @@ class ExpeditionMission extends GameMission
     private static function getOutcomes(): array
     {
         return [
-            // Resources found:
-            [
-                'type' => ExpeditionOutcomeType::ResourcesFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound1::class,
-                // TODO: some messages have "Entry from the communications officers logbook: It seems that this part of the universe has not been explored yet." appended to it, this one too.
-                // TODO2: "Entry from the communications officers logbook: It feels great to be the first ones traveling through an unexplored sector."
-            ],
-            [
-                'type' => ExpeditionOutcomeType::ResourcesFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound2::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::ResourcesFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound3::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::ResourcesFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound4::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::ResourcesFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound5::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::ResourcesFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound6::class,
-            ],
             // Dark Matter found:
             [
                 'type' => ExpeditionOutcomeType::DarkMatterFound,
@@ -383,16 +357,6 @@ class ExpeditionMission extends GameMission
      */
     private function processResourcesFoundOutcome(FleetMission $mission): Resources
     {
-        // Get a random failure outcome.
-        // TODO: refactor outcome structure to make it easier to process.
-        $outcomes = self::getOutcomes();
-
-        // Get all resources found outcomes.
-        $resourcesFoundOutcomes = array_filter($outcomes, fn ($outcome) => $outcome['type'] === ExpeditionOutcomeType::ResourcesFound);
-
-        // Get a random resources found outcome.
-        $resourcesFoundOutcome = $resourcesFoundOutcomes[array_rand($resourcesFoundOutcomes)];
-
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
@@ -420,9 +384,9 @@ class ExpeditionMission extends GameMission
         }
 
         // Send a message to the player with the resources found outcome.
-        // TODO: refactor outcome structure to be statically typed object instead of array.
-        // TODO2: each outcome type will probably have its own processing logic too, so might be able to refactor that into the structure as well.
-        $this->messageService->sendSystemMessageToPlayer($player, $resourcesFoundOutcome['message'], ['resource_type' => $resource_type->value, 'resource_amount' => $resourceAmount]);
+        // Choose a random message variation id based on the number of available outcomes.
+        $message_variation_id = ExpeditionResourcesFound::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionResourcesFound::class, ['message_variation_id' => $message_variation_id, 'resource_type' => $resource_type->value, 'resource_amount' => $resourceAmount]);
 
         return $resourcesFound;
     }

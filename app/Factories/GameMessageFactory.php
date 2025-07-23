@@ -76,12 +76,7 @@ class GameMessageFactory
 
         'expedition_items_found_1' => \OGame\GameMessages\Expeditions\ExpeditionItemsFound1::class,
 
-        'expedition_resources_found_1' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound1::class,
-        'expedition_resources_found_2' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound2::class,
-        'expedition_resources_found_3' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound3::class,
-        'expedition_resources_found_4' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound4::class,
-        'expedition_resources_found_5' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound5::class,
-        'expedition_resources_found_6' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound6::class,
+        'expedition_resources_found' => \OGame\GameMessages\ExpeditionResourcesFound::class,
 
         'expedition_units_found_1' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound1::class,
         'expedition_units_found_2' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound2::class,
