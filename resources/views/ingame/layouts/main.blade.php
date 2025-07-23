@@ -47,7 +47,9 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    @vite(['resources/css/ingame.css', 'resources/js/ingame.js'])
+    <script src="{{ asset('build/js/ingame.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('build/css/ingameStyle.css') }}">
+
 
     <script type="text/javascript">
         window.token = "{{ csrf_token() }}";
