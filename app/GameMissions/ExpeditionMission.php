@@ -134,115 +134,93 @@ class ExpeditionMission extends GameMission
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound1::class,
                 // TODO: some messages have "Entry from the communications officers logbook: It seems that this part of the universe has not been explored yet." appended to it, this one too.
                 // TODO2: "Entry from the communications officers logbook: It feels great to be the first ones traveling through an unexplored sector."
-                'resources' => new Resources(1, 1, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::ResourcesFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound2::class,
-                'resources' => new Resources(1, 1, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::ResourcesFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound3::class,
-                'resources' => new Resources(1, 1, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::ResourcesFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound4::class,
-                'resources' => new Resources(1, 1, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::ResourcesFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound5::class,
-                'resources' => new Resources(1, 1, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::ResourcesFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionResourcesFound6::class,
-                'resources' => new Resources(1, 1, 0, 0),
             ],
             // Dark Matter found:
             [
                 'type' => ExpeditionOutcomeType::DarkMatterFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound1::class,
-                'resources' => new Resources(0, 0, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::DarkMatterFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound2::class,
-                'resources' => new Resources(0, 0, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::DarkMatterFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound3::class,
-                'resources' => new Resources(0, 0, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::DarkMatterFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound4::class,
-                'resources' => new Resources(0, 0, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::DarkMatterFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound5::class,
-                'resources' => new Resources(0, 0, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::DarkMatterFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound6::class,
-                'resources' => new Resources(0, 0, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::DarkMatterFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound7::class,
-                'resources' => new Resources(0, 0, 0, 0),
             ],
             [
                 'type' => ExpeditionOutcomeType::DarkMatterFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound8::class,
-                'resources' => new Resources(1, 1, 0, 0),
             ],
             // Units found:
             [
                 'type' => ExpeditionOutcomeType::UnitsFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound1::class,
-                'units' => new UnitCollection(),
             ],
             [
                 'type' => ExpeditionOutcomeType::UnitsFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound2::class,
-                'units' => new UnitCollection(),
             ],
             [
                 'type' => ExpeditionOutcomeType::UnitsFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound3::class,
-                'units' => new UnitCollection(),
             ],
             [
                 'type' => ExpeditionOutcomeType::UnitsFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound4::class,
-                'units' => new UnitCollection(),
             ],
             [
                 'type' => ExpeditionOutcomeType::UnitsFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound5::class,
-                'units' => new UnitCollection(),
             ],
             [
                 'type' => ExpeditionOutcomeType::UnitsFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound6::class,
-                'units' => new UnitCollection(),
             ],
             [
                 'type' => ExpeditionOutcomeType::UnitsFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound7::class,
-                'units' => new UnitCollection(),
             ],
             // Items found (TODO: add items to the game)
             [
                 'type' => ExpeditionOutcomeType::ItemsFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionItemsFound1::class,
-                //'items' => new ItemCollection(),
             ],
             // Failures:
             [
