@@ -200,21 +200,15 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         'body' => 'A fleeing fleet left an item behind, in order to distract us in aid of their escape.',
     ],
 
-    // Failure and Speed Up
-    'expedition_failure_and_speed_up_1' => [
+    // Failure and Speedup
+    'expedition_failure_and_speedup' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        'body' => 'Your expeditions doesn`t report any anomalies in the explored sector. But the fleet ran into some solar wind while returning. This resulted in the return trip being expedited. Your expedition returns home a bit earlier.',
-    ],
-    'expedition_failure_and_speed_up_2' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'The new and daring commander successfully traveled through an unstable wormhole to shorten the flight back! However, the expedition itself didn`t bring anything new.',
-    ],
-    'expedition_failure_and_speed_up_3' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'An unexpected back coupling in the energy spools of the engines hastened the expeditions return, it returns home earlier than expected. First reports tell they do not have anything thrilling to account for.',
+        'body' => [
+            '1' => 'Your expeditions doesn`t report any anomalies in the explored sector. But the fleet ran into some solar wind while returning. This resulted in the return trip being expedited. Your expedition returns home a bit earlier.',
+            '2' => 'The new and daring commander successfully traveled through an unstable wormhole to shorten the flight back! However, the expedition itself didn`t bring anything new.',
+            '3' => 'An unexpected back coupling in the energy spools of the engines hastened the expeditions return, it returns home earlier than expected. First reports tell they do not have anything thrilling to account for.',
+        ],
     ],
 
     // Failure and Delay
