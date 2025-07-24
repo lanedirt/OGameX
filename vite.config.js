@@ -38,7 +38,7 @@ export default defineConfig({
                 outgameStyle: path.resolve(__dirname, 'resources/css/outgame.css'),
             },
             output: {
-                format: 'es',
+                format: 'commonjs',
                 entryFileNames: 'build/js/[name].js',
                 assetFileNames: assetInfo => {
                     if (assetInfo.name?.endsWith('.css')) {
