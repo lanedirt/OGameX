@@ -132,39 +132,6 @@ class ExpeditionMission extends GameMission
     private static function getOutcomes(): array
     {
         return [
-            // Dark Matter found:
-            [
-                'type' => ExpeditionOutcomeType::DarkMatterFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound1::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::DarkMatterFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound2::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::DarkMatterFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound3::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::DarkMatterFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound4::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::DarkMatterFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound5::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::DarkMatterFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound6::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::DarkMatterFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound7::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::DarkMatterFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound8::class,
-            ],
             // Items found (TODO: add items to the game)
             [
                 'type' => ExpeditionOutcomeType::ItemsFound,

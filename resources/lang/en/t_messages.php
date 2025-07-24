@@ -163,45 +163,19 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // Dark Matter Found
-    'expedition_dark_matter_found_1' => [
+    'expedition_dark_matter_found' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        'body' => 'The expedition followed some odd signals to an asteroid. In the asteroids core a small amount of Dark Matter was found. The asteroid was taken and the explorers are attempting to extract the Dark Matter.',
-    ],
-    'expedition_dark_matter_found_2' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'The expedition was able to capture and store some Dark Matter.',
-    ],
-    'expedition_dark_matter_found_3' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'We met an odd alien on the shelf of a small ship who gave us a case with Dark Matter in exchange for some simple mathematical calculations.',
-    ],
-    'expedition_dark_matter_found_4' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'We found the remains of an alien ship. We found a little container with some Dark Matter on a shelf in the cargo hold!',
-    ],
-    'expedition_dark_matter_found_5' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Our expedition made first contact with a special race. It looks as though a creature made of pure energy, who named himself Legorian, flew through the expedition ships and then decided to help our underdeveloped species. A case containing Dark Matter materialized at the bridge of the ship!',
-    ],
-    'expedition_dark_matter_found_6' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Our expedition took over a ghost ship which was transporting a small amount of Dark Matter. We didn`t find any hints of what happened to the original crew of the ship, but our technicians where able to rescue the Dark Matter.',
-    ],
-    'expedition_dark_matter_found_7' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Our expedition accomplished a unique experiment. They were able to harvest Dark Matter from a dying star.',
-    ],
-    'expedition_dark_matter_found_8' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Our Expedition located a rusty space station, which seemed to have been floating uncontrolled through outer space for a long time. The station itself was totally useless, however, it was discovered that some Dark Matter is stored in the reactor. Our technicians are trying to save as much as they can.',
+        'body' => [
+            '1' => 'The expedition followed some odd signals to an asteroid. In the asteroids core a small amount of Dark Matter was found. The asteroid was taken and the explorers are attempting to extract the Dark Matter.',
+            '2' => 'The expedition was able to capture and store some Dark Matter.',
+            '3' => 'We met an odd alien on the shelf of a small ship who gave us a case with Dark Matter in exchange for some simple mathematical calculations.',
+            '4' => 'We found the remains of an alien ship. We found a little container with some Dark Matter on a shelf in the cargo hold!',
+            '5' => 'Our expedition made first contact with a special race. It looks as though a creature made of pure energy, who named himself Legorian, flew through the expedition ships and then decided to help our underdeveloped species. A case containing Dark Matter materialized at the bridge of the ship!',
+            '6' => 'Our expedition took over a ghost ship which was transporting a small amount of Dark Matter. We didn`t find any hints of what happened to the original crew of the ship, but our technicians where able to rescue the Dark Matter.',
+            '7' => 'Our expedition accomplished a unique experiment. They were able to harvest Dark Matter from a dying star.',
+            '8' => 'Our expedition located a rusty space station, which seemed to have been floating uncontrolled through outer space for a long time. The station itself was totally useless, however, it was discovered that some Dark Matter is stored in the reactor. Our technicians are trying to save as much as they can.',
+        ],
     ],
 
     // Units Found

@@ -30,15 +30,6 @@ class GameMessageFactory
         'battle_report' => \OGame\GameMessages\BattleReport::class,
         'debris_field_harvest' => \OGame\GameMessages\DebrisFieldHarvest::class,
 
-        'expedition_dark_matter_found_1' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound1::class,
-        'expedition_dark_matter_found_2' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound2::class,
-        'expedition_dark_matter_found_3' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound3::class,
-        'expedition_dark_matter_found_4' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound4::class,
-        'expedition_dark_matter_found_5' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound5::class,
-        'expedition_dark_matter_found_6' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound6::class,
-        'expedition_dark_matter_found_7' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound7::class,
-        'expedition_dark_matter_found_8' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound8::class,
-
         'expedition_failure_and_delay_1' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay1::class,
         'expedition_failure_and_delay_2' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay2::class,
         'expedition_failure_and_delay_3' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay3::class,
@@ -52,6 +43,7 @@ class GameMessageFactory
         'expedition_items_found_1' => \OGame\GameMessages\Expeditions\ExpeditionItemsFound1::class,
 
         'expedition_battle' => \OGame\GameMessages\ExpeditionBattle::class,
+        'expedition_dark_matter_found' => \OGame\GameMessages\ExpeditionDarkMatterFound::class,
         'expedition_failed' => \OGame\GameMessages\ExpeditionFailed::class,
         'expedition_resources_found' => \OGame\GameMessages\ExpeditionResourcesFound::class,
         'expedition_units_found' => \OGame\GameMessages\ExpeditionUnitsFound::class,
