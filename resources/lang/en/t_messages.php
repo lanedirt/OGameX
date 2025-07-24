@@ -261,40 +261,18 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // Battle
-    'expedition_battle_1' => [
+    'expedition_battle' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        'body' => 'Some primitive barbarians are attacking us with spaceships that can`t even be named as such. If the fire gets serious we will be forced to fire back.',
-    ],
-    'expedition_battle_2' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'We needed to fight some pirates which were, fortunately, only a few.',
-    ],
-    'expedition_battle_3' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'We caught some radio transmissions from some drunk pirates. Seems like we will be under attack soon.',
-    ],
-    'expedition_battle_4' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Our expedition was attacked by a small group of unknown ships!',
-    ],
-    'expedition_battle_5' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Some really desperate space pirates tried to capture our expedition fleet.',
-    ],
-    'expedition_battle_6' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Some exotic looking ships attacked the expedition fleet without warning!',
-    ],
-    'expedition_battle_7' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Your expedition fleet had an unfriendly first contact with an unknown species.',
+        'body' => [
+            '1' => 'Some primitive barbarians are attacking us with spaceships that can`t even be named as such. If the fire gets serious we will be forced to fire back.',
+            '2' => 'We needed to fight some pirates which were, fortunately, only a few.',
+            '3' => 'We caught some radio transmissions from some drunk pirates. Seems like we will be under attack soon.',
+            '4' => 'Our expedition was attacked by a small group of unknown ships!',
+            '5' => 'Some really desperate space pirates tried to capture our expedition fleet.',
+            '6' => 'Some exotic looking ships attacked the expedition fleet without warning!',
+            '7' => 'Your expedition fleet had an unfriendly first contact with an unknown species.',
+        ],
     ],
 
     // Failure and Fleet Destroyed

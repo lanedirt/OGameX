@@ -196,35 +196,6 @@ class ExpeditionMission extends GameMission
                 'type' => ExpeditionOutcomeType::FailureAndDelay,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay3::class,
             ],
-            // Failure and battle triggered:
-            [
-                'type' => ExpeditionOutcomeType::Battle,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionBattle1::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Battle,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionBattle2::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Battle,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionBattle3::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Battle,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionBattle4::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Battle,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionBattle5::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Battle,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionBattle6::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Battle,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionBattle7::class,
-            ],
             // Failure and fleet destroyed:
             [
                 'type' => ExpeditionOutcomeType::FailureAndFleetDestroyed,
