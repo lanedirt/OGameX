@@ -127,6 +127,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     'expedition_failed' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
+        // An expedition message can have different variations which are parsed by the ExpeditionFailed class.
         'body' => [
             '1' => 'Due to a failure in the central computers of the flagship, the expedition mission had to be aborted. Unfortunately as a result of the computer malfunction, the fleet returns home empty handed.',
             '2' => 'Your expedition nearly ran into a neutron stars gravitation field and needed some time to free itself. Because of that a lot of Deuterium was consumed and the expedition fleet had to come back without any results.',
@@ -166,6 +167,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     'expedition_dark_matter_found' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
+        // An expedition message can have different variations which are parsed by the ExpeditionDarkMatterFound class.
         'body' => [
             '1' => 'The expedition followed some odd signals to an asteroid. In the asteroids core a small amount of Dark Matter was found. The asteroid was taken and the explorers are attempting to extract the Dark Matter.',
             '2' => 'The expedition was able to capture and store some Dark Matter.',
@@ -182,6 +184,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     'expedition_units_found' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
+        // An expedition message can have different variations which are parsed by the ExpeditionUnitsFound class.
         'body' => [
             '1' => 'Our expedition found a planet which was almost destroyed during a certain chain of wars. There are different ships floating around in the orbit. The technicians are trying to repair some of them. Maybe we will also get information about what happened here.',
             '2' => 'We found a deserted pirate station. There are some old ships lying in the hangar. Our technicians are figuring out whether some of them are still useful or not.',
@@ -194,16 +197,20 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // Items Found
-    'expedition_items_found_1' => [
+    'expedition_items_found' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        'body' => 'A fleeing fleet left an item behind, in order to distract us in aid of their escape.',
+        // An expedition message can have different variations which are parsed by the ExpeditionItemsFound class.
+        'body' => [
+            '1' => 'A fleeing fleet left an item behind, in order to distract us in aid of their escape.',
+        ],
     ],
 
     // Failure and Speedup
     'expedition_failure_and_speedup' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
+        // An expedition message can have different variations which are parsed by the ExpeditionSpeedup class.
         'body' => [
             '1' => 'Your expeditions doesn`t report any anomalies in the explored sector. But the fleet ran into some solar wind while returning. This resulted in the return trip being expedited. Your expedition returns home a bit earlier.',
             '2' => 'The new and daring commander successfully traveled through an unstable wormhole to shorten the flight back! However, the expedition itself didn`t bring anything new.',
@@ -215,6 +222,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     'expedition_failure_and_delay' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
+        // An expedition message can have different variations which are parsed by the ExpeditionDelay class.
         'body' => [
             '1' => 'Your expedition went into a sector full of particle storms. This set the energy stores to overload and most of the ships` main systems crashed. Your mechanics were able to avoid the worst, but the expedition is going to return with a big delay.',
             '2' => 'Your navigator made a grave error in his computations that caused the expeditions jump to be miscalculated. Not only did the fleet miss the target completely, but the return trip will take a lot more time than originally planned.',
@@ -226,6 +234,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     'expedition_battle' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
+        // An expedition message can have different variations which are parsed by the ExpeditionBattle class.
         'body' => [
             '1' => 'Some primitive barbarians are attacking us with spaceships that can`t even be named as such. If the fire gets serious we will be forced to fire back.',
             '2' => 'We needed to fight some pirates which were, fortunately, only a few.',
@@ -238,9 +247,12 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // Failure and Fleet Destroyed
-    'expedition_failure_and_fleet_destroyed_1' => [
+    'expedition_failure_and_fleet_destroyed' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        'body' => 'A core meltdown of the lead ship leads to a chain reaction, which destroys the entire expedition fleet in a spectacular explosion.',
+        // An expedition message can have different variations which are parsed by the ExpeditionFleetDestroyed class.
+        'body' => [
+            '1' => 'A core meltdown of the lead ship leads to a chain reaction, which destroys the entire expedition fleet in a spectacular explosion.',
+        ],
     ],
 ];

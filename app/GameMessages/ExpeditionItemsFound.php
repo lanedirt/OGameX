@@ -4,25 +4,25 @@ namespace OGame\GameMessages;
 
 use OGame\GameMessages\Abstracts\GameMessage;
 
-class ExpeditionFailureAndDelay extends GameMessage
+class ExpeditionItemsFound extends GameMessage
 {
     /**
      * This controls the number of possible message variations. These should be added to the language files.
      * E.g. if this is 2, then the following message keys should be added to the language files:
-     * - t_messages.expedition_failure_and_delay.body.1
-     * - t_messages.expedition_failure_and_delay.body.2
+     * - t_messages.expedition_items_found.body.1
+     * - t_messages.expedition_items_found.body.2
      *
      * When increasing this number, make sure to add the english translations for the new message keys.
      *
      * @var int
      */
-    private static int $numberOfVariations = 3;
+    private static int $numberOfVariations = 1;
 
     /**
      * The base key for the message.
      * @var string
      */
-    private static string $baseKey = 'expedition_failure_and_delay';
+    private static string $baseKey = 'expedition_items_found';
 
     protected function initialize(): void
     {

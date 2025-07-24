@@ -3,10 +3,10 @@
 namespace OGame\GameMissions;
 
 use OGame\GameMessages\ExpeditionFailed;
+use OGame\GameMessages\ExpeditionFailedAndFleetDestroyed;
 use OGame\GameMessages\ExpeditionResourcesFound;
 use OGame\GameMessages\ExpeditionUnitsFound;
 use OGame\GameMissions\Abstracts\GameMission;
-use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\ResourceType;
@@ -14,7 +14,6 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
-use OGame\GameMessages\Expeditions\Abstracts\ExpeditionGameMessage;
 use OGame\Services\PlanetService;
 use OGame\Services\ObjectService;
 use Exception;
@@ -126,26 +125,6 @@ class ExpeditionMission extends GameMission
     }
 
     /**
-    * Returns a list of possible outcomes for an expedition.
-    * @return array<array{type: ExpeditionOutcomeType, message: class-string<ExpeditionGameMessage>, resources?: Resources, units?: UnitCollection}>
-    */
-    private static function getOutcomes(): array
-    {
-        return [
-            // Items found (TODO: add items to the game)
-            [
-                'type' => ExpeditionOutcomeType::ItemsFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionItemsFound1::class,
-            ],
-            // Failure and fleet destroyed:
-            [
-                'type' => ExpeditionOutcomeType::FailureAndFleetDestroyed,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndFleetDestroyed1::class,
-            ],
-        ];
-    }
-
-    /**
      * Process the failure outcome.
      * @param FleetMission $mission
      * @return void
@@ -247,21 +226,12 @@ class ExpeditionMission extends GameMission
      */
     private function processFleetDestroyedOutcome(FleetMission $mission): UnitCollection
     {
-        // Get a random failure outcome.
-        // TODO: refactor outcome structure to make it easier to process.
-        $outcomes = self::getOutcomes();
-
-        // Get all fleet destroyed outcomes.
-        $fleetDestroyedOutcomes = array_filter($outcomes, fn ($outcome) => $outcome['type'] === ExpeditionOutcomeType::FailureAndFleetDestroyed);
-
-        // Get a random fleet destroyed outcome.
-        $fleetDestroyedOutcome = $fleetDestroyedOutcomes[array_rand($fleetDestroyedOutcomes)];
-
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
         // Send a message to the player with the fleet destroyed outcome.
-        $this->messageService->sendSystemMessageToPlayer($player, $fleetDestroyedOutcome['message'], []);
+        $message_variation_id = ExpeditionFailedAndFleetDestroyed::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailedAndFleetDestroyed::class, ['message_variation_id' => $message_variation_id]);
 
         // Return empty unit collection as the whole fleet is destroyed.
         return new UnitCollection();
