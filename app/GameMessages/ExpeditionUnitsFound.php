@@ -3,27 +3,27 @@
 namespace OGame\GameMessages;
 
 use OGame\GameMessages\Abstracts\GameMessage;
-use OGame\Models\Enums\ResourceType;
+use OGame\Services\ObjectService;
 
-class ExpeditionResourcesFound extends GameMessage
+class ExpeditionUnitsFound extends GameMessage
 {
     /**
      * This controls the number of possible message variations. These should be added to the language files.
      * E.g. if this is 2, then the following message keys should be added to the language files:
-     * - t_messages.expedition_resources_found.body.1
-     * - t_messages.expedition_resources_found.body.2
+     * - t_messages.expedition_units_found.body.1
+     * - t_messages.expedition_units_found.body.2
      *
      * When increasing this number, make sure to add the english translations for the new message keys.
      *
      * @var int
      */
-    private static int $numberOfVariations = 6;
+    private static int $numberOfVariations = 7;
 
     /**
      * The base key for the message.
      * @var string
      */
-    private static string $baseKey = 'expedition_resources_found';
+    private static string $baseKey = 'expedition_units_found';
 
     protected function initialize(): void
     {
@@ -48,11 +48,23 @@ class ExpeditionResourcesFound extends GameMessage
         // Replace placeholders in translated body with actual values.
         $translatedBody = $this->replacePlaceholders($translatedBody);
 
-        // Append the captured resource type and amount to the body if the params are set.
-        if (!empty($params['resource_type']) && !empty($params['resource_amount'])) {
-            // Convert resource type to human readable string.
-            $resourceTypeLabel = ResourceType::from($params['resource_type'])->getTranslation();
-            $translatedBody .= '<br /><br />' . __('t_messages.expedition_resources_captured', ['resource_type' => $resourceTypeLabel, 'resource_amount' => $params['resource_amount']]);
+        // Append the captured units to the body if the params are set.
+        if (!empty($params)) {
+            $translatedBody .= '<br /><br />' . __('t_messages.expedition_units_captured');
+
+            // Get object service
+            $objectService = app(ObjectService::class);
+
+            // Append the units to the body by looping through all params that start with 'unit_'.
+            foreach ($params as $key => $value) {
+                if (str_starts_with($key, 'unit_')) {
+                    // Get unit based on the unit id.
+                    $unit_id = (int)str_replace('unit_', '', $key);
+                    // Load gameobject based on the unit id.
+                    $unit = $objectService->getUnitObjectById($unit_id);
+                    $translatedBody .= '<br />' . $unit->title . ': ' . $value;
+                }
+            }
         }
 
         return $translatedBody;

@@ -188,40 +188,18 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // Units Found
-    'expedition_units_found_1' => [
+    'expedition_units_found' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        'body' => 'Our expedition found a planet which was almost destroyed during a certain chain of wars. There are different ships floating around in the orbit. The technicians are trying to repair some of them. Maybe we will also get information about what happened here.',
-    ],
-    'expedition_units_found_2' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'We found a deserted pirate station. There are some old ships lying in the hangar. Our technicians are figuring out whether some of them are still useful or not.',
-    ],
-    'expedition_units_found_3' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Your expedition ran into the shipyards of a colony that was deserted eons ago. In the shipyards hangar they discover some ships that could be salvaged. The technicians are trying to get some of them to fly again.',
-    ],
-    'expedition_units_found_4' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'We came across the remains of a previous expedition! Our technicians will try to get some of the ships to work again.',
-    ],
-    'expedition_units_found_5' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Our expedition ran into an old automatic shipyard. Some of the ships are still in the production phase and our technicians are currently trying to reactivate the yards energy generators.',
-    ],
-    'expedition_units_found_6' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'We found the remains of an armada. The technicians directly went to the almost intact ships to try to get them to work again.',
-    ],
-    'expedition_units_found_7' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'We found the planet of an extinct civilization. We are able to see a giant intact space station, orbiting. Some of your technicians and pilots went to the surface looking for some ships which could still be used.',
+        'body' => [
+            '1' => 'Our expedition found a planet which was almost destroyed during a certain chain of wars. There are different ships floating around in the orbit. The technicians are trying to repair some of them. Maybe we will also get information about what happened here.',
+            '2' => 'We found a deserted pirate station. There are some old ships lying in the hangar. Our technicians are figuring out whether some of them are still useful or not.',
+            '3' => 'Your expedition ran into the shipyards of a colony that was deserted eons ago. In the shipyards hangar they discover some ships that could be salvaged. The technicians are trying to get some of them to fly again.',
+            '4' => 'We came across the remains of a previous expedition! Our technicians will try to get some of the ships to work again.',
+            '5' => 'Our expedition ran into an old automatic shipyard. Some of the ships are still in the production phase and our technicians are currently trying to reactivate the yards energy generators.',
+            '6' => 'We found the remains of an armada. The technicians directly went to the almost intact ships to try to get them to work again.',
+            '7' => 'We found the planet of an extinct civilization. We are able to see a giant intact space station, orbiting. Some of your technicians and pilots went to the surface looking for some ships which could still be used.',
+        ],
     ],
 
     // Items Found

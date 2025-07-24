@@ -3,6 +3,7 @@
 namespace OGame\GameMissions;
 
 use OGame\GameMessages\ExpeditionResourcesFound;
+use OGame\GameMessages\ExpeditionUnitsFound;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameMissions\Models\MissionPossibleStatus;
@@ -78,11 +79,11 @@ class ExpeditionMission extends GameMission
         // TODO: we should add logic to determine random outcome type, for now we just trigger a specific outcome to test the flow.
 
         // Resources found outcome:
-        $returnResources = $this->processResourcesFoundOutcome($mission);
+        //$returnResources = $this->processResourcesFoundOutcome($mission);
 
         // Units found outcome:
-        //$foundUnits = $this->processUnitsFoundOutcome($mission);
-        //$units->addCollection($foundUnits);
+        $foundUnits = $this->processUnitsFoundOutcome($mission);
+        $units->addCollection($foundUnits);
 
         // Fleet destroyed outcome:
         //$units = $this->processFleetDestroyedOutcome($mission);
@@ -161,35 +162,6 @@ class ExpeditionMission extends GameMission
             [
                 'type' => ExpeditionOutcomeType::DarkMatterFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound8::class,
-            ],
-            // Units found:
-            [
-                'type' => ExpeditionOutcomeType::UnitsFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound1::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::UnitsFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound2::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::UnitsFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound3::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::UnitsFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound4::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::UnitsFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound5::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::UnitsFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound6::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::UnitsFound,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionUnitsFound7::class,
             ],
             // Items found (TODO: add items to the game)
             [
@@ -398,16 +370,6 @@ class ExpeditionMission extends GameMission
      */
     private function processUnitsFoundOutcome(FleetMission $mission): UnitCollection
     {
-        // Get a random failure outcome.
-        // TODO: refactor outcome structure to make it easier to process.
-        $outcomes = self::getOutcomes();
-
-        // Get all units found outcomes.
-        $unitsFoundOutcomes = array_filter($outcomes, fn ($outcome) => $outcome['type'] === ExpeditionOutcomeType::UnitsFound);
-
-        // Get a random units found outcome.
-        $unitsFoundOutcome = $unitsFoundOutcomes[array_rand($unitsFoundOutcomes)];
-
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
@@ -433,7 +395,9 @@ class ExpeditionMission extends GameMission
         }
 
         // Send a message to the player with the units found outcome.
-        $this->messageService->sendSystemMessageToPlayer($player, $unitsFoundOutcome['message'], $message_params);
+        // Choose a random message variation id based on the number of available outcomes.
+        $message_variation_id = ExpeditionUnitsFound::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionUnitsFound::class, ['message_variation_id' => $message_variation_id] + $message_params);
 
         return $units;
     }
