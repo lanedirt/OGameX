@@ -150,19 +150,6 @@ class ExpeditionMission extends GameMission
                 'type' => ExpeditionOutcomeType::FailureAndSpeedUp,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndSpeedUp3::class,
             ],
-            // Failure (and delay?)
-            [
-                'type' => ExpeditionOutcomeType::FailureAndDelay,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay1::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::FailureAndDelay,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay2::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::FailureAndDelay,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay3::class,
-            ],
             // Failure and fleet destroyed:
             [
                 'type' => ExpeditionOutcomeType::FailureAndFleetDestroyed,

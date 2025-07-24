@@ -218,20 +218,14 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // Failure and Delay
-    'expedition_failure_and_delay_1' => [
+    'expedition_failure_and_delay' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        'body' => 'Your expedition went into a sector full of particle storms. This set the energy stores to overload and most of the ships` main systems crashed. Your mechanics were able to avoid the worst, but the expedition is going to return with a big delay.',
-    ],
-    'expedition_failure_and_delay_2' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Your navigator made a grave error in his computations that caused the expeditions jump to be miscalculated. Not only did the fleet miss the target completely, but the return trip will take a lot more time than originally planned.',
-    ],
-    'expedition_failure_and_delay_3' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'The solar wind of a red giant ruined the expeditions jump and it will take quite some time to calculate the return jump. There was nothing besides the emptiness of space between the stars in that sector. The fleet will return later than expected.',
+        'body' => [
+            '1' => 'Your expedition went into a sector full of particle storms. This set the energy stores to overload and most of the ships` main systems crashed. Your mechanics were able to avoid the worst, but the expedition is going to return with a big delay.',
+            '2' => 'Your navigator made a grave error in his computations that caused the expeditions jump to be miscalculated. Not only did the fleet miss the target completely, but the return trip will take a lot more time than originally planned.',
+            '3' => 'The solar wind of a red giant ruined the expeditions jump and it will take quite some time to calculate the return jump. There was nothing besides the emptiness of space between the stars in that sector. The fleet will return later than expected.',
+        ],
     ],
 
     // Battle

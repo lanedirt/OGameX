@@ -30,10 +30,6 @@ class GameMessageFactory
         'battle_report' => \OGame\GameMessages\BattleReport::class,
         'debris_field_harvest' => \OGame\GameMessages\DebrisFieldHarvest::class,
 
-        'expedition_failure_and_delay_1' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay1::class,
-        'expedition_failure_and_delay_2' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay2::class,
-        'expedition_failure_and_delay_3' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay3::class,
-
         'expedition_failure_and_fleet_destroyed_1' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndFleetDestroyed1::class,
 
         'expedition_failure_and_speed_up_1' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndSpeedUp1::class,
@@ -45,6 +41,7 @@ class GameMessageFactory
         'expedition_battle' => \OGame\GameMessages\ExpeditionBattle::class,
         'expedition_dark_matter_found' => \OGame\GameMessages\ExpeditionDarkMatterFound::class,
         'expedition_failed' => \OGame\GameMessages\ExpeditionFailed::class,
+        'expedition_failure_and_delay' => \OGame\GameMessages\ExpeditionFailureAndDelay::class,
         'expedition_resources_found' => \OGame\GameMessages\ExpeditionResourcesFound::class,
         'expedition_units_found' => \OGame\GameMessages\ExpeditionUnitsFound::class,
         ];
