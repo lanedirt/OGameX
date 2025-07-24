@@ -124,10 +124,27 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     'expedition_unexplored_statement' => 'Entry from the communication officers logbook: It seems that this part of the universe has not been explored yet.',
 
     // Expedition Failed
-    'expedition_failed_1' => [
+    'expedition_failed' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        'body' => 'Due to a failure in the central computers of the flagship, the expedition mission had to be aborted. Unfortunately as a result of the computer malfunction, the fleet returns home empty handed.',
+        'body' => [
+            '1' => 'Due to a failure in the central computers of the flagship, the expedition mission had to be aborted. Unfortunately as a result of the computer malfunction, the fleet returns home empty handed.',
+            '2' => 'Your expedition nearly ran into a neutron stars gravitation field and needed some time to free itself. Because of that a lot of Deuterium was consumed and the expedition fleet had to come back without any results.',
+            '3' => 'For unknown reasons the expeditions jump went totally wrong. It nearly landed in the heart of a sun. Fortunately it landed in a known system, but the jump back is going to take longer than thought.',
+            '4' => 'A failure in the flagships reactor core nearly destroys the entire expedition fleet. Fortunately the technicians were more than competent and could avoid the worst. The repairs took quite some time and forced the expedition to return without having accomplished its goal.',
+            '5' => 'A living being made out of pure energy came aboard and induced all the expedition members into some strange trance, causing them to only gazed at the hypnotizing patterns on the computer screens. When most of them finally snapped out of the hypnotic-like state, the expedition mission needed to be aborted as they had way too little Deuterium.',
+            '6' => 'The new navigation module is still buggy. The expeditions jump not only lead them in the wrong direction, but it used all the Deuterium fuel. Fortunately the fleets jump got them close to the departure planets moon. A bit disappointed the expedition now returns without impulse power. The return trip will take longer than expected.',
+            '7' => 'Your expedition has learnt about the extensive emptiness of space. There was not even one small asteroid or radiation or particle that could have made this expedition interesting.',
+            '8' => 'Well, now we know that those red, class 5 anomalies do not only have chaotic effects on the ships navigation systems but also generate massive hallucination on the crew. The expedition didn`t bring anything back.',
+            '9' => 'Your expedition fleet made contact with a friendly alien race. They announced that they would send a representative with goods to trade to your worlds.',
+            '10' => 'Your expedition took gorgeous pictures of a super nova. Nothing new could be obtained from the expedition, but at least there is good chance to win that "Best Picture Of The Universe" competition in next months issue of OGame magazine.',
+            '11' => 'Your expedition fleet followed odd signals for some time. At the end they noticed that those signals where being sent from an old probe which was sent out generations ago to greet foreign species. The probe was saved and some museums of your home planet already voiced their interest.',
+            '12' => 'Despite the first, very promising scans of this sector, we unfortunately returned empty handed.',
+            '13' => 'Besides some quaint, small pets from a unknown marsh planet, this expedition brings nothing thrilling back from the trip.',
+            '14' => 'The expedition`s flagship collided with a foreign ship when it jumped into the fleet without any warning. The foreign ship exploded and the damage to the flagship was substantial. The expedition cannot continue in these conditions, and so the fleet will begin to make its way back once the needed repairs have been carried out.',
+            '15' => 'Our expedition team came across a strange colony that had been abandoned eons ago. After landing, our crew started to suffer from a high fever caused by an alien virus. It has been learned that this virus wiped out the entire civilization on the planet. Our expedition team is heading home to treat the sickened crew members. Unfortunately we had to abort the mission and we come home empty handed.',
+            '16' => 'A strange computer virus attacked the navigation system shortly after parting our home system. This caused the expedition fleet to fly in circles. Needless to say that the expedition wasn`t really successful.',
+        ],
     ],
 
     // Resources Found
@@ -207,83 +224,6 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
         'body' => 'A fleeing fleet left an item behind, in order to distract us in aid of their escape.',
-    ],
-
-    // Additional Failures
-    'expedition_failed_2' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Your expedition nearly ran into a neutron stars gravitation field and needed some time to free itself. Because of that a lot of Deuterium was consumed and the expedition fleet had to come back without any results.',
-    ],
-    'expedition_failed_3' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'For unknown reasons the expeditions jump went totally wrong. It nearly landed in the heart of a sun. Fortunately it landed in a known system, but the jump back is going to take longer than thought.',
-    ],
-    'expedition_failed_4' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'A failure in the flagships reactor core nearly destroys the entire expedition fleet. Fortunately the technicians were more than competent and could avoid the worst. The repairs took quite some time and forced the expedition to return without having accomplished its goal.',
-    ],
-    'expedition_failed_5' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'A living being made out of pure energy came aboard and induced all the expedition members into some strange trance, causing them to only gazed at the hypnotizing patterns on the computer screens. When most of them finally snapped out of the hypnotic-like state, the expedition mission needed to be aborted as they had way too little Deuterium.',
-    ],
-    'expedition_failed_6' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'The new navigation module is still buggy. The expeditions jump not only lead them in the wrong direction, but it used all the Deuterium fuel. Fortunately the fleets jump got them close to the departure planets moon. A bit disappointed the expedition now returns without impulse power. The return trip will take longer than expected.',
-    ],
-    'expedition_failed_7' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Your expedition has learnt about the extensive emptiness of space. There was not even one small asteroid or radiation or particle that could have made this expedition interesting.',
-    ],
-    'expedition_failed_8' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Well, now we know that those red, class 5 anomalies do not only have chaotic effects on the ships navigation systems but also generate massive hallucination on the crew. The expedition didn`t bring anything back.',
-    ],
-    'expedition_failed_9' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Your expedition fleet made contact with a friendly alien race. They announced that they would send a representative with goods to trade to your worlds.',
-    ],
-    'expedition_failed_10' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Your expedition took gorgeous pictures of a super nova. Nothing new could be obtained from the expedition, but at least there is good chance to win that "Best Picture Of The Universe" competition in next months issue of OGame magazine.',
-    ],
-    'expedition_failed_11' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Your expedition fleet followed odd signals for some time. At the end they noticed that those signals where being sent from an old probe which was sent out generations ago to greet foreign species. The probe was saved and some museums of your home planet already voiced their interest.',
-    ],
-    'expedition_failed_12' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Despite the first, very promising scans of this sector, we unfortunately returned empty handed.',
-    ],
-    'expedition_failed_13' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Besides some quaint, small pets from a unknown marsh planet, this expedition brings nothing thrilling back from the trip.',
-    ],
-    'expedition_failed_14' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'The expedition`s flagship collided with a foreign ship when it jumped into the fleet without any warning. The foreign ship exploded and the damage to the flagship was substantial. The expedition cannot continue in these conditions, and so the fleet will begin to make its way back once the needed repairs have been carried out.',
-    ],
-    'expedition_failed_15' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'Our expedition team came across a strange colony that had been abandoned eons ago. After landing, our crew started to suffer from a high fever caused by an alien virus. It has been learned that this virus wiped out the entire civilization on the planet. Our expedition team is heading home to treat the sickened crew members. Unfortunately we had to abort the mission and we come home empty handed.',
-    ],
-    'expedition_failed_16' => [
-        'from' => 'Fleet Command',
-        'subject' => 'Expedition Result',
-        'body' => 'A strange computer virus attacked the navigation system shortly after parting our home system. This caused the expedition fleet to fly in circles. Needless to say that the expedition wasn`t really successful.',
     ],
 
     // Failure and Speed Up

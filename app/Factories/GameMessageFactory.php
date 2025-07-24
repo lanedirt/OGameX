@@ -47,23 +47,6 @@ class GameMessageFactory
         'expedition_dark_matter_found_7' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound7::class,
         'expedition_dark_matter_found_8' => \OGame\GameMessages\Expeditions\ExpeditionDarkMatterFound8::class,
 
-        'expedition_failed_1' => \OGame\GameMessages\Expeditions\ExpeditionFailed1::class,
-        'expedition_failed_2' => \OGame\GameMessages\Expeditions\ExpeditionFailed2::class,
-        'expedition_failed_3' => \OGame\GameMessages\Expeditions\ExpeditionFailed3::class,
-        'expedition_failed_4' => \OGame\GameMessages\Expeditions\ExpeditionFailed4::class,
-        'expedition_failed_5' => \OGame\GameMessages\Expeditions\ExpeditionFailed5::class,
-        'expedition_failed_6' => \OGame\GameMessages\Expeditions\ExpeditionFailed6::class,
-        'expedition_failed_7' => \OGame\GameMessages\Expeditions\ExpeditionFailed7::class,
-        'expedition_failed_8' => \OGame\GameMessages\Expeditions\ExpeditionFailed8::class,
-        'expedition_failed_9' => \OGame\GameMessages\Expeditions\ExpeditionFailed9::class,
-        'expedition_failed_10' => \OGame\GameMessages\Expeditions\ExpeditionFailed10::class,
-        'expedition_failed_11' => \OGame\GameMessages\Expeditions\ExpeditionFailed11::class,
-        'expedition_failed_12' => \OGame\GameMessages\Expeditions\ExpeditionFailed12::class,
-        'expedition_failed_13' => \OGame\GameMessages\Expeditions\ExpeditionFailed13::class,
-        'expedition_failed_14' => \OGame\GameMessages\Expeditions\ExpeditionFailed14::class,
-        'expedition_failed_15' => \OGame\GameMessages\Expeditions\ExpeditionFailed15::class,
-        'expedition_failed_16' => \OGame\GameMessages\Expeditions\ExpeditionFailed16::class,
-
         'expedition_failure_and_delay_1' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay1::class,
         'expedition_failure_and_delay_2' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay2::class,
         'expedition_failure_and_delay_3' => \OGame\GameMessages\Expeditions\ExpeditionFailureAndDelay3::class,
@@ -76,6 +59,7 @@ class GameMessageFactory
 
         'expedition_items_found_1' => \OGame\GameMessages\Expeditions\ExpeditionItemsFound1::class,
 
+        'expedition_failed' => \OGame\GameMessages\ExpeditionFailed::class,
         'expedition_resources_found' => \OGame\GameMessages\ExpeditionResourcesFound::class,
         'expedition_units_found' => \OGame\GameMessages\ExpeditionUnitsFound::class,
         ];

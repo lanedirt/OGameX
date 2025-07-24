@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\GameMessages\ExpeditionFailed;
 use OGame\GameMessages\ExpeditionResourcesFound;
 use OGame\GameMessages\ExpeditionUnitsFound;
 use OGame\GameMissions\Abstracts\GameMission;
@@ -77,13 +78,14 @@ class ExpeditionMission extends GameMission
 
         // Process the failure outcome.
         // TODO: we should add logic to determine random outcome type, for now we just trigger a specific outcome to test the flow.
+        $this->processFailureOutcome($mission);
 
         // Resources found outcome:
         //$returnResources = $this->processResourcesFoundOutcome($mission);
 
         // Units found outcome:
-        $foundUnits = $this->processUnitsFoundOutcome($mission);
-        $units->addCollection($foundUnits);
+        //$foundUnits = $this->processUnitsFoundOutcome($mission);
+        //$units->addCollection($foundUnits);
 
         // Fleet destroyed outcome:
         //$units = $this->processFleetDestroyedOutcome($mission);
@@ -168,71 +170,6 @@ class ExpeditionMission extends GameMission
                 'type' => ExpeditionOutcomeType::ItemsFound,
                 'message' => \OGame\GameMessages\Expeditions\ExpeditionItemsFound1::class,
             ],
-            // Failures:
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed1::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed2::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed3::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed4::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed5::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed6::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed7::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed8::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed9::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed10::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed11::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed12::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed13::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed14::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed15::class,
-            ],
-            [
-                'type' => ExpeditionOutcomeType::Failure,
-                'message' => \OGame\GameMessages\Expeditions\ExpeditionFailed16::class,
-            ],
             // Failure (and speed up?)
             [
                 'type' => ExpeditionOutcomeType::FailureAndSpeedUp,
@@ -303,23 +240,12 @@ class ExpeditionMission extends GameMission
      */
     private function processFailureOutcome(FleetMission $mission): void
     {
-        // Get a random failure outcome.
-        // TODO: refactor outcome structure to make it easier to process.
-        $outcomes = self::getOutcomes();
-
-        // Get all failure outcomes.
-        $failureOutcomes = array_filter($outcomes, fn ($outcome) => $outcome['type'] === ExpeditionOutcomeType::Failure);
-
-        // Get a random failure outcome.
-        $failureOutcome = $failureOutcomes[array_rand($failureOutcomes)];
-
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
         // Send a message to the player with the failure outcome.
-        // TODO: refactor outcome structure to be statically typed object instead of array.
-        // TODO2: each outcome type will probably have its own processing logic too, so might be able to refactor that into the structure as well.
-        $this->messageService->sendSystemMessageToPlayer($player, $failureOutcome['message'], []);
+        $message_variation_id = ExpeditionFailed::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailed::class, ['message_variation_id' => $message_variation_id]);
     }
 
     /**
