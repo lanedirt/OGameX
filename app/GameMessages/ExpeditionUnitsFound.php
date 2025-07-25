@@ -2,11 +2,17 @@
 
 namespace OGame\GameMessages;
 
-use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\Services\ObjectService;
+use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
 
-class ExpeditionUnitsFound extends GameMessage
+class ExpeditionUnitsFound extends ExpeditionGameMessage
 {
+    /**
+     * The base key for the message.
+     * @var string
+     */
+    protected static string $baseKey = 'expedition_units_found';
+
     /**
      * This controls the number of possible message variations. These should be added to the language files.
      * E.g. if this is 2, then the following message keys should be added to the language files:
@@ -17,21 +23,7 @@ class ExpeditionUnitsFound extends GameMessage
      *
      * @var int
      */
-    private static int $numberOfVariations = 7;
-
-    /**
-     * The base key for the message.
-     * @var string
-     */
-    private static string $baseKey = 'expedition_units_found';
-
-    protected function initialize(): void
-    {
-        $this->key = self::$baseKey;
-        $this->params = [];
-        $this->tab = 'fleets';
-        $this->subtab = 'expeditions';
-    }
+    protected static int $numberOfVariations = 7;
 
     /**
      * Overides the body of the message to append the captured resource type and amount based on the params.
@@ -42,11 +34,8 @@ class ExpeditionUnitsFound extends GameMessage
         $params = parent::checkParams($this->message->params);
         $params = parent::formatReservedParams($params);
 
-        // Get the message body from the language files with the correct variation number.
-        $translatedBody = nl2br(__('t_messages.' . self::$baseKey . '.body.' . $params['message_variation_id'], $params));
-
-        // Replace placeholders in translated body with actual values.
-        $translatedBody = $this->replacePlaceholders($translatedBody);
+        // Get the base body.
+        $translatedBody = parent::getBody();
 
         // Append the captured units to the body if the params are set.
         if (!empty($params)) {
@@ -68,16 +57,5 @@ class ExpeditionUnitsFound extends GameMessage
         }
 
         return $translatedBody;
-    }
-
-    /**
-     * Get a random message variation id based on the number of possible message variations.
-     * This is called by the expedition mission logic to set the message variation id for the to be sent message on mission processing.
-     *
-     * @return int
-     */
-    public static function getRandomMessageVariationId(): int
-    {
-        return random_int(1, self::$numberOfVariations);
     }
 }
