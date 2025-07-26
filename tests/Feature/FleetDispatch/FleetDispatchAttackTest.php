@@ -40,6 +40,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     protected function basicSetup(): void
     {
         $this->planetAddUnit('light_fighter', 5);
+        $this->playerSetResearchLevel('computer_technology', object_level: 1);
 
         // Set the fleet speed to 1x for this test.
         $settingsService = resolve(SettingsService::class);

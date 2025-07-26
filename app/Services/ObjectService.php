@@ -156,7 +156,7 @@ class ObjectService
             }
         }
 
-        throw new RuntimeException('Ship not found');
+        throw new RuntimeException('Ship object not found with machine name: ' . $machine_name);
     }
 
     /**

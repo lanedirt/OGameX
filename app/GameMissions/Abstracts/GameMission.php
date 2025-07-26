@@ -327,6 +327,8 @@ abstract class GameMission
         // Set amount of resources to return based on provided resources in parameter.
         // This is the amount of resources that were gained and/or not used during the mission.
         // The logic is different for each mission type.
+        // TODO: make this more smart: what if mission started with resources already, e.g. sending attack mission with resources?
+        // With the current logic the resources from origin mission are lost, which is probably not correct?
         $mission->metal = (int)$resources->metal->get();
         $mission->crystal = (int)$resources->crystal->get();
         $mission->deuterium = (int)$resources->deuterium->get();
