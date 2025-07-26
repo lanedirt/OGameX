@@ -15,8 +15,8 @@ class ExpeditionFailedAndSpeedup extends ExpeditionGameMessage
     /**
      * This controls the number of possible message variations. These should be added to the language files.
      * E.g. if this is 2, then the following message keys should be added to the language files:
-     * - t_messages.expedition_failed.body.1
-     * - t_messages.expedition_failed.body.2
+     * - t_messages.expedition_failed_and_speedup.body.1
+     * - t_messages.expedition_failed_and_speedup.body.2
      *
      * When increasing this number, make sure to add the english translations for the new message keys.
      *

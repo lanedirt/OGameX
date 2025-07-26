@@ -66,4 +66,26 @@ abstract class ExpeditionGameMessage extends GameMessage
     {
         return random_int(1, static::$numberOfVariations);
     }
+
+    /**
+     * Get the number of variations for this expedition message.
+     * This is used for testing to verify that all translation variations exist.
+     *
+     * @return int
+     */
+    public function getNumberOfVariations(): int
+    {
+        return static::$numberOfVariations;
+    }
+
+    /**
+     * Get the base key for this expedition message.
+     * This is used for testing to verify that the correct translation keys exist.
+     *
+     * @return string
+     */
+    public function getBaseKey(): string
+    {
+        return static::$baseKey;
+    }
 }

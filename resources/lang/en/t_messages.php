@@ -206,8 +206,8 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         ],
     ],
 
-    // Failure and Speedup
-    'expedition_failure_and_speedup' => [
+    // Failed and Speedup
+    'expedition_failed_and_speedup' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
         // An expedition message can have different variations which are parsed by the ExpeditionSpeedup class.
@@ -219,7 +219,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // Failure and Delay
-    'expedition_failure_and_delay' => [
+    'expedition_failed_and_delay' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
         // An expedition message can have different variations which are parsed by the ExpeditionDelay class.
@@ -246,8 +246,8 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         ],
     ],
 
-    // Failure and Fleet Destroyed
-    'expedition_failure_and_fleet_destroyed' => [
+    // Failed and Fleet Destroyed
+    'expedition_failed_and_fleet_destroyed' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
         // An expedition message can have different variations which are parsed by the ExpeditionFleetDestroyed class.
