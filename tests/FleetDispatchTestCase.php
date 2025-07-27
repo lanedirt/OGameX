@@ -56,33 +56,82 @@ abstract class FleetDispatchTestCase extends MoonTestCase
         $this->switchToFirstPlanet();
     }
 
+    /**
+     * Check that fleet can be dispatched to the second planet of the test user.
+     *
+     * @param UnitCollection $units
+     * @param bool $assertSuccess
+     * @return void
+     */
     protected function fleetCheckToSecondPlanet(UnitCollection $units, bool $assertSuccess): void
     {
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
         $this->checkTargetFleet($coordinates, $units, PlanetType::Planet, $assertSuccess);
     }
 
+    /**
+     * Check that fleet can be dispatched to the first planet debris field of the test user.
+     *
+     * @param UnitCollection $units
+     * @param bool $assertSuccess
+     * @return void
+     */
     protected function fleetCheckToFirstPlanetDebrisField(UnitCollection $units, bool $assertSuccess): void
     {
         $coordinates = $this->planetService->getPlanetCoordinates();
         $this->checkTargetFleet($coordinates, $units, PlanetType::DebrisField, $assertSuccess);
     }
 
+    /**
+     * Check that fleet can be dispatched to the second planet debris field of the test user.
+     *
+     * @param UnitCollection $units
+     * @param bool $assertSuccess
+     * @return void
+     */
     protected function fleetCheckToSecondPlanetDebrisField(UnitCollection $units, bool $assertSuccess): void
     {
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
         $this->checkTargetFleet($coordinates, $units, PlanetType::DebrisField, $assertSuccess);
     }
 
+    /**
+     * Check that fleet can be dispatched to a planet of another player.
+     *
+     * @param UnitCollection $units
+     * @param bool $assertSuccess
+     * @return void
+     */
     protected function fleetCheckToOtherPlayer(UnitCollection $units, bool $assertSuccess): void
     {
         $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
         $this->checkTargetFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, PlanetType::Planet, $assertSuccess);
     }
 
+    /**
+     * Check that fleet can be dispatched to an empty position.
+     *
+     * @param UnitCollection $units
+     * @param bool $assertSuccess
+     * @return void
+     */
     protected function fleetCheckToEmptyPosition(UnitCollection $units, bool $assertSuccess): void
     {
         $coordinates = $this->getNearbyEmptyCoordinate();
+        $this->checkTargetFleet($coordinates, $units, PlanetType::Planet, $assertSuccess);
+    }
+
+    /**
+     * Check that fleet can be dispatched to position 16.
+     *
+     * @param UnitCollection $units
+     * @param bool $assertSuccess
+     * @return void
+     */
+    protected function fleetCheckToPosition16(UnitCollection $units, bool $assertSuccess): void
+    {
+        $currentPlanetCoords = $this->planetService->getPlanetCoordinates();
+        $coordinates = new Coordinate($currentPlanetCoords->galaxy, $currentPlanetCoords->system, 16);
         $this->checkTargetFleet($coordinates, $units, PlanetType::Planet, $assertSuccess);
     }
 
@@ -140,6 +189,22 @@ abstract class FleetDispatchTestCase extends MoonTestCase
     {
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
         $this->dispatchFleet($coordinates, $units, $resources, PlanetType::DebrisField, $assertStatus);
+    }
+
+    /**
+     * Send a fleet to position 16.
+     *
+     * @param UnitCollection $units
+     * @param Resources $resources
+     * @param bool $assertStatus
+     * @return void
+     */
+    protected function sendMissionToPosition16(UnitCollection $units, Resources $resources, bool $assertStatus = true): void
+    {
+        $planetCoords = $this->planetService->getPlanetCoordinates();
+        $coordinates = new Coordinate($planetCoords->galaxy, $planetCoords->system, 16);
+
+        $this->dispatchFleet($coordinates, $units, $resources, PlanetType::Planet, $assertStatus);
     }
 
     /**
