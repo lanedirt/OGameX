@@ -148,11 +148,11 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         ],
     ],
 
-    // Resources Found
-    'expedition_resources_found' => [
+    // Gain Resources
+    'expedition_gain_resources' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        // An expedition message can have different variations which are parsed by the ExpeditionResourcesFound class.
+        // An expedition message can have different variations which are parsed by the ExpeditionGainResources class.
         'body' => [
             '1' => 'On an isolated planetoid we found some easily accessible resources fields and harvested some successfully.',
             '2' => 'Your expedition discovered a small asteroid from which some resources could be harvested.',
@@ -163,11 +163,11 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         ],
     ],
 
-    // Dark Matter Found
-    'expedition_dark_matter_found' => [
+    // Gain Dark Matter
+    'expedition_gain_dark_matter' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        // An expedition message can have different variations which are parsed by the ExpeditionDarkMatterFound class.
+        // An expedition message can have different variations which are parsed by the ExpeditionGainDarkMatter class.
         'body' => [
             '1' => 'The expedition followed some odd signals to an asteroid. In the asteroids core a small amount of Dark Matter was found. The asteroid was taken and the explorers are attempting to extract the Dark Matter.',
             '2' => 'The expedition was able to capture and store some Dark Matter.',
@@ -180,11 +180,11 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         ],
     ],
 
-    // Units Found
-    'expedition_units_found' => [
+    // Gain Ships
+    'expedition_gain_ships' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        // An expedition message can have different variations which are parsed by the ExpeditionUnitsFound class.
+        // An expedition message can have different variations which are parsed by the ExpeditionGainShips class.
         'body' => [
             '1' => 'Our expedition found a planet which was almost destroyed during a certain chain of wars. There are different ships floating around in the orbit. The technicians are trying to repair some of them. Maybe we will also get information about what happened here.',
             '2' => 'We found a deserted pirate station. There are some old ships lying in the hangar. Our technicians are figuring out whether some of them are still useful or not.',
@@ -196,11 +196,11 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         ],
     ],
 
-    // Items Found
-    'expedition_items_found' => [
+    // Gain Item
+    'expedition_gain_item' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        // An expedition message can have different variations which are parsed by the ExpeditionItemsFound class.
+        // An expedition message can have different variations which are parsed by the ExpeditionGainItem class.
         'body' => [
             '1' => 'A fleeing fleet left an item behind, in order to distract us in aid of their escape.',
         ],
@@ -246,11 +246,11 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         ],
     ],
 
-    // Failed and Fleet Destroyed
-    'expedition_failed_and_fleet_destroyed' => [
+    // Loss of Fleet
+    'expedition_loss_of_fleet' => [
         'from' => 'Fleet Command',
         'subject' => 'Expedition Result',
-        // An expedition message can have different variations which are parsed by the ExpeditionFleetDestroyed class.
+        // An expedition message can have different variations which are parsed by the ExpeditionLossOfFleet class.
         'body' => [
             '1' => 'A core meltdown of the lead ship leads to a chain reaction, which destroys the entire expedition fleet in a spectacular explosion.',
         ],

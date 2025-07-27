@@ -3,9 +3,13 @@
 namespace OGame\GameMissions;
 
 use OGame\GameMessages\ExpeditionFailed;
-use OGame\GameMessages\ExpeditionFailedAndFleetDestroyed;
-use OGame\GameMessages\ExpeditionResourcesFound;
-use OGame\GameMessages\ExpeditionUnitsFound;
+use OGame\GameMessages\ExpeditionFailedAndDelay;
+use OGame\GameMessages\ExpeditionFailedAndSpeedup;
+use OGame\GameMessages\ExpeditionGainResources;
+use OGame\GameMessages\ExpeditionGainShips;
+use OGame\GameMessages\ExpeditionGainDarkMatter;
+use OGame\GameMessages\ExpeditionGainItem;
+use OGame\GameMessages\ExpeditionLossOfFleet;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -16,6 +20,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
 use OGame\Services\ObjectService;
+use OGame\Services\SettingsService;
 use Exception;
 
 class ExpeditionMission extends GameMission
@@ -70,33 +75,47 @@ class ExpeditionMission extends GameMission
         // Get the units of the mission.
         $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
 
-        // TODO: Implement processArrival() method with expedition random events, loot gained etc.
-        // TODO: add logic to send confirmation message to player with the results of the expedition.
         $returnResources = new Resources(0, 0, 0, 0);
-        $returnUnits = new UnitCollection();
 
-        // Process the failure outcome.
-        // TODO: we should add logic to determine random outcome type, for now we just trigger a specific outcome to test the flow.
-        $this->processFailureOutcome($mission);
+        // Select a random outcome based on configuration and weights
+        $outcome = $this->selectRandomOutcome();
 
-        // Resources found outcome:
-        //$returnResources = $this->processResourcesFoundOutcome($mission);
+        switch ($outcome) {
+            case 'expedition_failed':
+                $this->processExpeditionFailedOutcome($mission);
+                break;
+            case 'expedition_failed_and_delay':
+                $this->processExpeditionFailedAndDelayOutcome($mission);
+                break;
+            case 'expedition_failed_and_speedup':
+                $this->processExpeditionFailedAndSpeedupOutcome($mission);
+                break;
+            case 'expedition_gain_ships':
+                $foundUnits = $this->processExpeditionGainShipsOutcome($mission);
+                $units->addCollection($foundUnits);
+                break;
+            case 'expedition_gain_dark_matter':
+                $this->processExpeditionGainDarkMatterOutcome($mission);
+                break;
+            case 'expedition_gain_resources':
+                $returnResources = $this->processExpeditionGainResourcesOutcome($mission);
+                break;
+            case 'expedition_gain_merchant_trade':
+                $returnResources = $this->processExpeditionGainMerchantTradeOutcome($mission);
+                break;
+            case 'expedition_gain_item':
+                $this->processExpeditionGainItemOutcome($mission);
+                break;
+            case 'expedition_loss_of_fleet':
+                $units = $this->processExpeditionLossOfFleetOutcome($mission);
+                break;
+        }
 
-        // Units found outcome:
-        //$foundUnits = $this->processUnitsFoundOutcome($mission);
-        //$units->addCollection($foundUnits);
-
-        // Fleet destroyed outcome:
-        //$units = $this->processFleetDestroyedOutcome($mission);
-
-        // Get a random success outcome.
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();
 
         // Create and start the return mission.
-        // TODO: make sure the gained resources are appended to any resources the mission started with?
-        // Check the startReturn generic logic for how this should work, as this is not accounted for yet at time of writing.
         $this->startReturn($mission, $returnResources, $units);
     }
 
@@ -125,11 +144,85 @@ class ExpeditionMission extends GameMission
     }
 
     /**
-     * Process the failure outcome.
+     * Select a random expedition outcome based on server settings and weights.
+     * Fleet destroyed outcomes have 2% chance each, others are equally distributed.
+     *
+     * @return string
+     */
+    private function selectRandomOutcome(): string
+    {
+        $settingsService = app(SettingsService::class);
+
+        // Build array of enabled outcomes
+        $enabledOutcomes = [];
+
+        if ($settingsService->expeditionFailedEnabled()) {
+            $enabledOutcomes[] = 'expedition_failed';
+        }
+
+        if ($settingsService->expeditionFailedAndDelayEnabled()) {
+            $enabledOutcomes[] = 'expedition_failed_and_delay';
+        }
+
+        if ($settingsService->expeditionFailedAndSpeedupEnabled()) {
+            $enabledOutcomes[] = 'expedition_failed_and_speedup';
+        }
+
+        if ($settingsService->expeditionGainShipsEnabled()) {
+            $enabledOutcomes[] = 'expedition_gain_ships';
+        }
+
+        if ($settingsService->expeditionGainResourcesEnabled()) {
+            $enabledOutcomes[] = 'expedition_gain_resources';
+        }
+
+        if ($settingsService->expeditionLossOfFleetEnabled()) {
+            $enabledOutcomes[] = 'expedition_loss_of_fleet';
+        }
+
+        // TODO: Implement merchant trade, dark matter and item outcomes.
+        /*if ($settingsService->expeditionGainMerchantTradeEnabled()) {
+            $enabledOutcomes[] = 'expedition_gain_merchant_trade';
+        }
+
+        if ($settingsService->expeditionGainDarkMatterEnabled()) {
+            $enabledOutcomes[] = 'expedition_gain_dark_matter';
+        }
+
+        if ($settingsService->expeditionGainItemEnabled()) {
+            $enabledOutcomes[] = 'expedition_gain_item';
+        }*/
+
+        // If no outcomes are enabled, default to failure
+        if (empty($enabledOutcomes)) {
+            return 'expedition_failed';
+        }
+
+        // If only one outcome is enabled, return it
+        if (count($enabledOutcomes) === 1) {
+            return $enabledOutcomes[0];
+        }
+
+        // If loss of fleet is enabled, give it 2% chance, rest split evenly
+        if (in_array('expedition_loss_of_fleet', $enabledOutcomes)) {
+            if (random_int(1, 100) <= 2) {
+                return 'expedition_loss_of_fleet';
+            }
+
+            // Remove loss of fleet from outcomes for even distribution
+            $enabledOutcomes = array_diff($enabledOutcomes, ['expedition_loss_of_fleet']);
+        }
+
+        // Pick random outcome from remaining enabled outcomes
+        return $enabledOutcomes[array_rand($enabledOutcomes)];
+    }
+
+    /**
+     * Process the expedition failed outcome.
      * @param FleetMission $mission
      * @return void
      */
-    private function processFailureOutcome(FleetMission $mission): void
+    private function processExpeditionFailedOutcome(FleetMission $mission): void
     {
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
@@ -140,11 +233,41 @@ class ExpeditionMission extends GameMission
     }
 
     /**
-     * Process the resources found outcome.
+     * Process the expedition failed and delay outcome.
+     * @param FleetMission $mission
+     * @return void
+     */
+    private function processExpeditionFailedAndDelayOutcome(FleetMission $mission): void
+    {
+        // Load the mission owner user
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+
+        // Send a message to the player with the failure and delay outcome.
+        $message_variation_id = ExpeditionFailedAndDelay::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailedAndDelay::class, ['message_variation_id' => $message_variation_id]);
+    }
+
+    /**
+     * Process the expedition failed and speedup outcome.
+     * @param FleetMission $mission
+     * @return void
+     */
+    private function processExpeditionFailedAndSpeedupOutcome(FleetMission $mission): void
+    {
+        // Load the mission owner user
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+
+        // Send a message to the player with the failure and speedup outcome.
+        $message_variation_id = ExpeditionFailedAndSpeedup::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailedAndSpeedup::class, ['message_variation_id' => $message_variation_id]);
+    }
+
+    /**
+     * Process the expedition gain resources outcome.
      * @param FleetMission $mission
      * @return Resources
      */
-    private function processResourcesFoundOutcome(FleetMission $mission): Resources
+    private function processExpeditionGainResourcesOutcome(FleetMission $mission): Resources
     {
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
@@ -174,18 +297,18 @@ class ExpeditionMission extends GameMission
 
         // Send a message to the player with the resources found outcome.
         // Choose a random message variation id based on the number of available outcomes.
-        $message_variation_id = ExpeditionResourcesFound::getRandomMessageVariationId();
-        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionResourcesFound::class, ['message_variation_id' => $message_variation_id, 'resource_type' => $resource_type->value, 'resource_amount' => $resourceAmount]);
+        $message_variation_id = ExpeditionGainResources::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainResources::class, ['message_variation_id' => $message_variation_id, 'resource_type' => $resource_type->value, 'resource_amount' => $resourceAmount]);
 
         return $resourcesFound;
     }
 
     /**
-     * Process the units found outcome.
+     * Process the expedition gain ships outcome.
      * @param FleetMission $mission
      * @return UnitCollection
      */
-    private function processUnitsFoundOutcome(FleetMission $mission): UnitCollection
+    private function processExpeditionGainShipsOutcome(FleetMission $mission): UnitCollection
     {
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
@@ -213,25 +336,78 @@ class ExpeditionMission extends GameMission
 
         // Send a message to the player with the units found outcome.
         // Choose a random message variation id based on the number of available outcomes.
-        $message_variation_id = ExpeditionUnitsFound::getRandomMessageVariationId();
-        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionUnitsFound::class, ['message_variation_id' => $message_variation_id] + $message_params);
+        $message_variation_id = ExpeditionGainShips::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainShips::class, ['message_variation_id' => $message_variation_id] + $message_params);
 
         return $units;
     }
 
     /**
-     * Process the fleet destroyed outcome and return the units that are left (which is empty as the fleet is destroyed).
+     * Process the expedition gain dark matter outcome.
+     * @param FleetMission $mission
+     * @return void
+     */
+    private function processExpeditionGainDarkMatterOutcome(FleetMission $mission): void
+    {
+        // Load the mission owner user
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+
+        // TODO: Implement dark matter giving logic
+        // For now, just send the message
+        $message_variation_id = ExpeditionGainDarkMatter::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainDarkMatter::class, ['message_variation_id' => $message_variation_id]);
+
+        // TODO: Add actual dark matter to player when dark matter itself is implemented.
+    }
+
+    /**
+     * Process the expedition gain merchant trade outcome.
+     * @param FleetMission $mission
+     * @return Resources
+     */
+    private function processExpeditionGainMerchantTradeOutcome(FleetMission $mission): Resources
+    {
+        // TODO: Implement merchant trade logic
+        // For now, return no resources but this should implement trading logic
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+
+        // TODO: Send appropriate message once ExpeditionMerchantTrade message class exists
+        // $message_variation_id = ExpeditionMerchantTrade::getRandomMessageVariationId();
+        // $this->messageService->sendSystemMessageToPlayer($player, ExpeditionMerchantTrade::class, ['message_variation_id' => $message_variation_id]);
+
+        return new Resources(0, 0, 0, 0);
+    }
+
+    /**
+     * Process the expedition gain item outcome.
+     * @param FleetMission $mission
+     * @return void
+     */
+    private function processExpeditionGainItemOutcome(FleetMission $mission): void
+    {
+        // Load the mission owner user
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+
+        // Send a message to the player with the item found outcome.
+        $message_variation_id = ExpeditionGainItem::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainItem::class, ['message_variation_id' => $message_variation_id]);
+
+        // TODO: Implement actual item giving logic when items themselves are implemented.
+    }
+
+    /**
+     * Process the expedition loss of fleet outcome.
      * @param FleetMission $mission
      * @return UnitCollection
      */
-    private function processFleetDestroyedOutcome(FleetMission $mission): UnitCollection
+    private function processExpeditionLossOfFleetOutcome(FleetMission $mission): UnitCollection
     {
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
         // Send a message to the player with the fleet destroyed outcome.
-        $message_variation_id = ExpeditionFailedAndFleetDestroyed::getRandomMessageVariationId();
-        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailedAndFleetDestroyed::class, ['message_variation_id' => $message_variation_id]);
+        $message_variation_id = ExpeditionLossOfFleet::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionLossOfFleet::class, ['message_variation_id' => $message_variation_id]);
 
         // Return empty unit collection as the whole fleet is destroyed.
         return new UnitCollection();

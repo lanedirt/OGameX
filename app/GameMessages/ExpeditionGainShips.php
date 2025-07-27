@@ -5,19 +5,19 @@ namespace OGame\GameMessages;
 use OGame\Services\ObjectService;
 use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
 
-class ExpeditionUnitsFound extends ExpeditionGameMessage
+class ExpeditionGainShips extends ExpeditionGameMessage
 {
     /**
      * The base key for the message.
      * @var string
      */
-    protected static string $baseKey = 'expedition_units_found';
+    protected static string $baseKey = 'expedition_gain_ships';
 
     /**
      * This controls the number of possible message variations. These should be added to the language files.
      * E.g. if this is 2, then the following message keys should be added to the language files:
-     * - t_messages.expedition_units_found.body.1
-     * - t_messages.expedition_units_found.body.2
+     * - t_messages.expedition_gain_ships.body.1
+     * - t_messages.expedition_gain_ships.body.2
      *
      * When increasing this number, make sure to add the english translations for the new message keys.
      *

@@ -5,19 +5,19 @@ namespace OGame\GameMessages;
 use OGame\Models\Enums\ResourceType;
 use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
 
-class ExpeditionResourcesFound extends ExpeditionGameMessage
+class ExpeditionGainResources extends ExpeditionGameMessage
 {
     /**
      * The base key for the message.
      * @var string
      */
-    protected static string $baseKey = 'expedition_resources_found';
+    protected static string $baseKey = 'expedition_gain_resources';
 
     /**
      * This controls the number of possible message variations. These should be added to the language files.
      * E.g. if this is 2, then the following message keys should be added to the language files:
-     * - t_messages.expedition_resources_found.body.1
-     * - t_messages.expedition_resources_found.body.2
+     * - t_messages.expedition_gain_resources.body.1
+     * - t_messages.expedition_gain_resources.body.2
      *
      * When increasing this number, make sure to add the english translations for the new message keys.
      *
