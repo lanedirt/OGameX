@@ -2,11 +2,10 @@ import { defineConfig } from 'vite';
 import path from 'path';
 import fs from 'fs';
 
-// We control the vite options rather than using the Laravel plugin, due to the fact we have a range scripts
+// We control the vite options rather than using the Laravel plugin, due to the fact we have a range of scripts
 // within the blade files themselves, and using the Laravel plugin / directives mean the scripts become deferred
 // when we need them to load instantly (so the other blade scripts etc, can access the bits they need)
-// its very much anti how its designed, but prevents a re-write of everything. 
-// If you see a better way, feel free to PR!
+// this prevents a re-write of everything. If you see a better way, feel free to PR!
 
 const outputPaths = [
     'public/build/js/ingame.js',
