@@ -528,7 +528,7 @@
 </script>
 <script type="text/javascript">
     $(document).ready(function () {
-        ogame.characteristics.init({
+        window.ogame.characteristics.init({
             "speed_fleet": {
                 "css": "speed_fleet",
                 "text": "Fleet Speed: the higher the value, the less time you have left to react to an attack.",
