@@ -5,50 +5,65 @@ namespace OGame\GameMissions\Models;
 /**
  * Expedition mission outcome types.
  */
-enum ExpeditionOutcomeType: int
+enum ExpeditionOutcomeType: string
 {
     /**
      * The expedition mission found resources.
      */
-    case ResourcesFound = 1;
+    case GainResources = 'expedition_gain_resources';
 
     /**
      * The expedition mission found dark matter.
      */
-    case DarkMatterFound = 2;
+    case GainDarkMatter = 'expedition_gain_dark_matter';
 
     /**
      * The expedition mission found units.
      */
-    case UnitsFound = 3;
+    case GainShips = 'expedition_gain_ships';
 
     /**
      * The expedition mission found items.
      */
-    case ItemsFound = 4;
+    case GainItems = 'expedition_gain_item';
+
+    /**
+     * The expedition mission found merchant trade.
+     */
+    case GainMerchantTrade = 'expedition_gain_merchant_trade';
 
     /**
      * The expedition mission failed.
      */
-    case Failure = 5;
+    case Failed = 'expedition_failed';
 
     /**
      * The expedition mission failed and the return trip was speeded up.
      */
-    case FailureAndSpeedUp = 6;
+    case FailedAndSpeedup = 'expedition_failed_and_speedup';
 
     /**
      * The expedition mission failed and the return trip was delayed.
      */
-    case FailureAndDelay = 7;
+    case FailedAndDelay = 'expedition_failed_and_delay';
 
     /**
-     * The expedition mission failed and the fleet was destroyed.
+     * The expedition mission lost the fleet.
      */
-    case FailureAndFleetDestroyed = 8;
+    case LossOfFleet = 'expedition_loss_of_fleet';
 
     /**
      * The expedition mission encountered a hostile fleet and a battle ensued.
      */
-    case Battle = 9;
+    case Battle = 'expedition_battle';
+
+    /**
+     * Get the setting key for the expedition outcome type.
+     *
+     * @return string
+     */
+    public function getSettingKey(): string
+    {
+        return $this->value;
+    }
 }

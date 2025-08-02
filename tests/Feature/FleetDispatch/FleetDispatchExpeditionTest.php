@@ -3,6 +3,7 @@
 namespace Tests\Feature\FleetDispatch;
 
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
@@ -188,6 +189,30 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     }
 
     /**
+     * Send an expedition mission expecting failed mission result.
+     *
+     * @return void
+     */
+    public function testExpeditionWithFailedMissionResult(): void
+    {
+        $this->basicSetup();
+
+        // Enable only the "failed" expedition outcome.
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::Failed]);
+
+        // Send the expedition mission.
+        $this->sendTestExpedition(true);
+
+        // Wait for the mission to complete.
+        $this->travel(10)->hours();
+
+        // Assert that the mission failed.
+        $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
+            'Expedition Result',
+        ]);
+    }
+
+    /**
      * Send an expedition mission to position 16.
      *
      * @param bool $assertStatus
@@ -199,5 +224,26 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $this->sendMissionToPosition16($unitCollection, new Resources(1, 1, 0, 0), $assertStatus);
+    }
+
+    /**
+     * Set the expedition outcomes in the settings service.
+     *
+     * @param array<ExpeditionOutcomeType> $outcomes
+     * @return void
+     */
+    private function settingsEnableExpeditionOutcomes(array $outcomes): void
+    {
+        $settingsService = resolve(SettingsService::class);
+
+        // Disable all expedition outcomes.
+        foreach (ExpeditionOutcomeType::cases() as $outcome) {
+            $settingsService->set($outcome->getSettingKey(), 0);
+        }
+
+        // Enable the specified outcomes.
+        foreach ($outcomes as $outcome) {
+            $settingsService->set($outcome->getSettingKey(), 1);
+        }
     }
 }

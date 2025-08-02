@@ -325,16 +325,6 @@ class SettingsService
     }
 
     /**
-     * Returns if expedition failed and fleet destroyed outcome is enabled.
-     *
-     * @return bool
-     */
-    public function expeditionFailedAndFleetDestroyedEnabled(): bool
-    {
-        return (bool)$this->get('expedition_failed_and_fleet_destroyed', 1);
-    }
-
-    /**
      * Returns if expedition gain ships outcome is enabled.
      *
      * @return bool
@@ -392,5 +382,15 @@ class SettingsService
     public function expeditionLossOfFleetEnabled(): bool
     {
         return (bool)$this->get('expedition_loss_of_fleet', 1);
+    }
+
+    /**
+     * Returns if expedition battle outcome is enabled.
+     *
+     * @return bool
+     */
+    public function expeditionBattleEnabled(): bool
+    {
+        return (bool)$this->get('expedition_battle', 1);
     }
 }

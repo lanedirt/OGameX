@@ -11,6 +11,7 @@ use OGame\GameMessages\ExpeditionGainDarkMatter;
 use OGame\GameMessages\ExpeditionGainItem;
 use OGame\GameMessages\ExpeditionLossOfFleet;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\ResourceType;
@@ -81,32 +82,32 @@ class ExpeditionMission extends GameMission
         $outcome = $this->selectRandomOutcome();
 
         switch ($outcome) {
-            case 'expedition_failed':
+            case ExpeditionOutcomeType::Failed:
                 $this->processExpeditionFailedOutcome($mission);
                 break;
-            case 'expedition_failed_and_delay':
+            case ExpeditionOutcomeType::FailedAndDelay:
                 $this->processExpeditionFailedAndDelayOutcome($mission);
                 break;
-            case 'expedition_failed_and_speedup':
+            case ExpeditionOutcomeType::FailedAndSpeedup:
                 $this->processExpeditionFailedAndSpeedupOutcome($mission);
                 break;
-            case 'expedition_gain_ships':
+            case ExpeditionOutcomeType::GainShips:
                 $foundUnits = $this->processExpeditionGainShipsOutcome($mission);
                 $units->addCollection($foundUnits);
                 break;
-            case 'expedition_gain_dark_matter':
+            case ExpeditionOutcomeType::GainDarkMatter:
                 $this->processExpeditionGainDarkMatterOutcome($mission);
                 break;
-            case 'expedition_gain_resources':
+            case ExpeditionOutcomeType::GainResources:
                 $returnResources = $this->processExpeditionGainResourcesOutcome($mission);
                 break;
-            case 'expedition_gain_merchant_trade':
+            case ExpeditionOutcomeType::GainMerchantTrade:
                 $returnResources = $this->processExpeditionGainMerchantTradeOutcome($mission);
                 break;
-            case 'expedition_gain_item':
+            case ExpeditionOutcomeType::GainItems:
                 $this->processExpeditionGainItemOutcome($mission);
                 break;
-            case 'expedition_loss_of_fleet':
+            case ExpeditionOutcomeType::LossOfFleet:
                 $units = $this->processExpeditionLossOfFleetOutcome($mission);
                 break;
         }
@@ -141,80 +142,6 @@ class ExpeditionMission extends GameMission
         // Mark the return mission as processed
         $mission->processed = 1;
         $mission->save();
-    }
-
-    /**
-     * Select a random expedition outcome based on server settings and weights.
-     * Fleet destroyed outcomes have 2% chance each, others are equally distributed.
-     *
-     * @return string
-     */
-    private function selectRandomOutcome(): string
-    {
-        $settingsService = app(SettingsService::class);
-
-        // Build array of enabled outcomes
-        $enabledOutcomes = [];
-
-        if ($settingsService->expeditionFailedEnabled()) {
-            $enabledOutcomes[] = 'expedition_failed';
-        }
-
-        if ($settingsService->expeditionFailedAndDelayEnabled()) {
-            $enabledOutcomes[] = 'expedition_failed_and_delay';
-        }
-
-        if ($settingsService->expeditionFailedAndSpeedupEnabled()) {
-            $enabledOutcomes[] = 'expedition_failed_and_speedup';
-        }
-
-        if ($settingsService->expeditionGainShipsEnabled()) {
-            $enabledOutcomes[] = 'expedition_gain_ships';
-        }
-
-        if ($settingsService->expeditionGainResourcesEnabled()) {
-            $enabledOutcomes[] = 'expedition_gain_resources';
-        }
-
-        if ($settingsService->expeditionLossOfFleetEnabled()) {
-            $enabledOutcomes[] = 'expedition_loss_of_fleet';
-        }
-
-        // TODO: Implement merchant trade, dark matter and item outcomes.
-        /*if ($settingsService->expeditionGainMerchantTradeEnabled()) {
-            $enabledOutcomes[] = 'expedition_gain_merchant_trade';
-        }
-
-        if ($settingsService->expeditionGainDarkMatterEnabled()) {
-            $enabledOutcomes[] = 'expedition_gain_dark_matter';
-        }
-
-        if ($settingsService->expeditionGainItemEnabled()) {
-            $enabledOutcomes[] = 'expedition_gain_item';
-        }*/
-
-        // If no outcomes are enabled, default to failure
-        if (empty($enabledOutcomes)) {
-            return 'expedition_failed';
-        }
-
-        // If only one outcome is enabled, return it
-        if (count($enabledOutcomes) === 1) {
-            return $enabledOutcomes[0];
-        }
-
-        // If loss of fleet is enabled, give it 2% chance, rest split evenly
-        if (in_array('expedition_loss_of_fleet', $enabledOutcomes)) {
-            if (random_int(1, 100) <= 2) {
-                return 'expedition_loss_of_fleet';
-            }
-
-            // Remove loss of fleet from outcomes for even distribution
-            $enabledOutcomes = array_diff($enabledOutcomes, ['expedition_loss_of_fleet']);
-        }
-
-        // Pick random outcome from remaining enabled outcomes
-        return $enabledOutcomes[array_rand($enabledOutcomes)];
     }
 
     /**
@@ -411,5 +338,57 @@ class ExpeditionMission extends GameMission
 
         // Return empty unit collection as the whole fleet is destroyed.
         return new UnitCollection();
+    }
+
+    /**
+     * Select a random expedition outcome based on server settings and weights.
+     * Fleet destroyed outcomes have 2% chance each, others are equally distributed.
+     *
+     * @return ExpeditionOutcomeType
+     */
+    private function selectRandomOutcome(): ExpeditionOutcomeType
+    {
+        $settingsService = app(SettingsService::class);
+
+        // Build array of enabled outcomes
+        $enabledOutcomes = [];
+
+        // Create array of all outcomes that are enabled in the settings.
+        foreach (ExpeditionOutcomeType::cases() as $outcome) {
+            if ($settingsService->get($outcome->getSettingKey()) === '1') {
+                $enabledOutcomes[] = $outcome;
+            }
+        }
+
+        // Remove expedition outcomes that are not fully implemented yet to avoid them from being selected.
+        // TODO: remove the filter once the outcomes below are fully implemented.
+        $enabledOutcomes = array_filter($enabledOutcomes, function ($outcome) {
+            return $outcome !== ExpeditionOutcomeType::GainDarkMatter && $outcome !== ExpeditionOutcomeType::GainItems && $outcome !== ExpeditionOutcomeType::GainMerchantTrade;
+        });
+
+        // If no outcomes are enabled, default to failure
+        if (empty($enabledOutcomes)) {
+            return ExpeditionOutcomeType::Failed;
+        }
+
+        // If only one outcome is enabled, return it
+        if (count($enabledOutcomes) === 1) {
+            return $enabledOutcomes[0];
+        }
+
+        // If loss of fleet is enabled, give it 2% chance, rest split evenly
+        if (in_array(ExpeditionOutcomeType::LossOfFleet, $enabledOutcomes)) {
+            if (random_int(1, 100) <= 2) {
+                return ExpeditionOutcomeType::LossOfFleet;
+            }
+
+            // Remove loss of fleet from outcomes for even distribution
+            $enabledOutcomes = array_values(array_filter($enabledOutcomes, function ($outcome) {
+                return $outcome !== ExpeditionOutcomeType::LossOfFleet;
+            }));
+        }
+
+        // Pick random outcome from remaining enabled outcomes
+        return $enabledOutcomes[array_rand($enabledOutcomes)];
     }
 }
