@@ -102,7 +102,7 @@ class ExpeditionMission extends GameMission
                 $returnResources = $this->processExpeditionGainResourcesOutcome($mission);
                 break;
             case ExpeditionOutcomeType::GainMerchantTrade:
-                $returnResources = $this->processExpeditionGainMerchantTradeOutcome($mission);
+                $this->processExpeditionGainMerchantTradeOutcome($mission);
                 break;
             case ExpeditionOutcomeType::GainItems:
                 $this->processExpeditionGainItemOutcome($mission);
@@ -169,6 +169,8 @@ class ExpeditionMission extends GameMission
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
+        // TODO: Implement delay logic.
+
         // Send a message to the player with the failure and delay outcome.
         $message_variation_id = ExpeditionFailedAndDelay::getRandomMessageVariationId();
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailedAndDelay::class, ['message_variation_id' => $message_variation_id]);
@@ -183,6 +185,8 @@ class ExpeditionMission extends GameMission
     {
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
+
+        // TODO: Implement speedup logic.
 
         // Send a message to the player with the failure and speedup outcome.
         $message_variation_id = ExpeditionFailedAndSpeedup::getRandomMessageVariationId();
@@ -279,30 +283,25 @@ class ExpeditionMission extends GameMission
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
-        // TODO: Implement dark matter giving logic
-        // For now, just send the message
+        // TODO: Add actual dark matter to player when dark matter itself is implemented.
+
         $message_variation_id = ExpeditionGainDarkMatter::getRandomMessageVariationId();
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainDarkMatter::class, ['message_variation_id' => $message_variation_id]);
-
-        // TODO: Add actual dark matter to player when dark matter itself is implemented.
     }
 
     /**
      * Process the expedition gain merchant trade outcome.
      * @param FleetMission $mission
-     * @return Resources
+     * @return void
      */
-    private function processExpeditionGainMerchantTradeOutcome(FleetMission $mission): Resources
+    private function processExpeditionGainMerchantTradeOutcome(FleetMission $mission): void
     {
         // TODO: Implement merchant trade logic
-        // For now, return no resources but this should implement trading logic
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
         // TODO: Send appropriate message once ExpeditionMerchantTrade message class exists
         // $message_variation_id = ExpeditionMerchantTrade::getRandomMessageVariationId();
         // $this->messageService->sendSystemMessageToPlayer($player, ExpeditionMerchantTrade::class, ['message_variation_id' => $message_variation_id]);
-
-        return new Resources(0, 0, 0, 0);
     }
 
     /**

@@ -193,9 +193,12 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
      *
      * @return void
      */
-    public function testExpeditionWithFailedMissionResult(): void
+    public function testExpeditionWithFailedResult(): void
     {
         $this->basicSetup();
+
+        // Get the number of ships before the expedition.
+        $initialShipCount = $this->planetService->getShipUnits()->getAmount();
 
         // Enable only the "failed" expedition outcome.
         $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::Failed]);
@@ -206,7 +209,108 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Wait for the mission to complete.
         $this->travel(10)->hours();
 
+        // Load the planet again to get the latest state.
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Assert that we still have the same number of ships on the planet as before we started the expedition.
+        $this->assertEquals($initialShipCount, $this->planetService->getShipUnits()->getAmount());
+
         // Assert that the mission failed.
+        $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
+            'Expedition Result',
+        ]);
+    }
+
+    /**
+     * Send an expedition mission expecting failed mission result.
+     *
+     * @return void
+     */
+    public function testExpeditionWithGainResourcesResult(): void
+    {
+        $this->basicSetup();
+
+        // Enable only the "gain resources" expedition outcome.
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
+
+        // Send the expedition mission.
+        $this->sendTestExpedition(true);
+
+        // Wait for the mission to complete.
+        $this->travel(10)->hours();
+
+        // Assert that the expedition message contains the correct information.
+        $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
+            'Expedition Result',
+            'have been captured',
+        ]);
+    }
+
+    /**
+     * Send an expedition mission expecting failed mission result.
+     *
+     * @return void
+     */
+    public function testExpeditionWithGainShipsResult(): void
+    {
+        $this->basicSetup();
+
+        // Get the number of ships before the expedition.
+        $initialShipCount = $this->planetService->getShipUnits()->getAmount();
+
+        // Enable only the "gain ships" expedition outcome.
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainShips]);
+
+        // Send the expedition mission.
+        $this->sendTestExpedition(true);
+
+        // Wait for the mission to complete.
+        $this->travel(10)->hours();
+
+        // Load the planet again to get the latest state.
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Assert that we now have more ships on the planet than before we started the expedition.
+        $this->assertGreaterThan($initialShipCount, $this->planetService->getShipUnits()->getAmount());
+
+        // Assert that the expedition message contains the correct information.
+        $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
+            'Expedition Result',
+            'The following ships are now part of the fleet',
+        ]);
+    }
+
+    /**
+     * Send an expedition mission expecting failed mission result.
+     *
+     * @return void
+     */
+    public function testExpeditionWithLossOfFleetResult(): void
+    {
+        $this->basicSetup();
+
+        // Get the number of ships before the expedition.
+        $initialShipCount = $this->planetService->getShipUnits()->getAmount();
+
+        // Enable only the "loss of fleet" expedition outcome.
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::LossOfFleet]);
+
+        // Send the expedition mission.
+        $this->sendTestExpedition(true);
+
+        // Wait for the mission to complete.
+        $this->travel(10)->hours();
+
+        // Load the planet again to get the latest state.
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Assert that we now have less ships on the planet than before we started the expedition.
+        $this->assertLessThan($initialShipCount, $this->planetService->getShipUnits()->getAmount());
+
+        // Assert that the expedition message contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
             'Expedition Result',
         ]);
