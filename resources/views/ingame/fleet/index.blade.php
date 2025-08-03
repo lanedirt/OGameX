@@ -1308,7 +1308,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             </li>
                                             <li id="holdtimeline" style="display: none;">
                                                 @lang('Hold time:')
-                                                <select name="holdingtime" id="holdingtime" class="dropdownInitialized"
+                                                <select name="holdingtime" id="holdingtime"
                                                         style="display: none;">
                                                     <option value="0">0</option>
                                                     <option value="1" selected="'selected'">1</option>
