@@ -255,8 +255,10 @@ class FleetController extends OGameController
         // Create the target coordinate
         $target_coordinate = new Coordinate($galaxy, $system, $position);
 
-        // Extract speed and holding time from the request
+        // Get speed percent from the request.
         $speed_percent = (float)request()->input('speed');
+
+        // Holding time is the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
         $holding_time = (int)request()->input('holdingtime');
 
         // Extract units from the request and create a unit collection.
@@ -276,7 +278,7 @@ class FleetController extends OGameController
         $planetType = PlanetType::from($target_type);
 
         try {
-            $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent);
+            $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent, $holding_time);
 
             return response()->json([
                 'success' => true,

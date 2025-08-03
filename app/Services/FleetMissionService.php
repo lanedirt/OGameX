@@ -160,21 +160,21 @@ class FleetMissionService
 
     /**
      * Calculate the consumption of a fleet mission based on the current planet, target coordinates and fleet.
-     * @param PlanetService $fromPlanet
-     * @param UnitCollection $ships
-     * @param Coordinate $target_coordinate
-     * @param int $holdingTime
-     * @param float $speed_percent
-     * @param $mission
-     * @return float|mixed
+     *
+     * @param PlanetService $fromPlanet The planet where the fleet is sent from.
+     * @param UnitCollection $ships The units that are sent on the mission.
+     * @param Coordinate $targetCoordinate The target coordinate of the mission.
+     * @param int $holdingTime The holding time of the fleet. The number represents the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
+     * @param float $speedPercent The speed percent of the fleet.
+     * @return float|mixed The consumption of the fleet mission.
      */
-    public function calculateConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $target_coordinate, int $holdingTime, float $speed_percent)
+    public function calculateConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $targetCoordinate, int $holdingTime, float $speedPercent)
     {
         $consumption = 0;
         $holdingCosts = 0;
 
-        $distance = $this->calculateFleetMissionDistance($fromPlanet, $target_coordinate);
-        $duration = $this->calculateFleetMissionDuration($fromPlanet, $target_coordinate, $ships, $speed_percent);
+        $distance = $this->calculateFleetMissionDistance($fromPlanet, $targetCoordinate);
+        $duration = $this->calculateFleetMissionDuration($fromPlanet, $targetCoordinate, $ships, $speedPercent);
 
         $speedValue = max(0.5, $duration * $this->settingsService->fleetSpeed() - 10);
         foreach ($ships->units as $shipEntry) {
@@ -416,17 +416,19 @@ class FleetMissionService
      * @param int $missionType The type of the mission.
      * @param UnitCollection $units The units that are sent.
      * @param Resources $resources The resources that are sent.
+     * @param float $speedPercent The speed percent of the fleet.
+     * @param int $holdingTime The holding time of the fleet.
      * @param int $parent_id Optionally the parent mission ID if this is a follow-up mission.
      * @return FleetMission
      * @throws Exception
      */
-    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, float $speed_percent, int $parent_id = 0): FleetMission
+    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingTime = 0, int $parent_id = 0): FleetMission
     {
         $missionObject = $this->gameMissionFactory->getMissionById($missionType, [
             'fleetMissionService' => $this,
             'messageService' => $this->messageService,
         ]);
-        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $speed_percent, $parent_id);
+        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $speedPercent, $holdingTime, $parent_id);
     }
 
     /**
