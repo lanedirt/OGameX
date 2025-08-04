@@ -8,20 +8,11 @@ import fs from 'fs';
 // this prevents a re-write of everything. If you see a better way, feel free to PR!
 
 const outputPaths = [
-    'public/build/js/ingame.js',
-    'public/build/js/outgame.js',
     'public/build/css/ingame.css',
     'public/build/css/outgame.css',
 ];
 
 // Pre-delete target files manually before build
-outputPaths.forEach(file => {
-    const fullPath = path.resolve(__dirname, file);
-    if (fs.existsSync(fullPath)) {
-        fs.unlinkSync(fullPath); // delete existing file
-    }
-});
-
 export default defineConfig({
     build: {
         minify: false,
@@ -31,8 +22,6 @@ export default defineConfig({
         rollupOptions: {
             treeshake: false,
             input: {
-                ingame: path.resolve(__dirname, 'resources/js/ingame.js'),
-                outgame: path.resolve(__dirname, 'resources/js/outgame.js'),
                 ingameStyle: path.resolve(__dirname, 'resources/css/ingame.css'),
                 outgameStyle: path.resolve(__dirname, 'resources/css/outgame.css'),
             },
@@ -40,10 +29,8 @@ export default defineConfig({
                 format: 'commonjs',
                 entryFileNames: 'build/js/[name].js',
                 assetFileNames: assetInfo => {
-                    if (assetInfo.name?.endsWith('.css')) {
-                        return 'build/css/[name][extname]';
-                    }
-                    return 'build/assets/[name][extname]';
+                    return 'build/css/[name][extname]';
+
                 },
             },
             

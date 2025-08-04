@@ -1,5 +1,5 @@
 import './ingame/jquery-1.12.4.min';
-import './ingame/jquery.js';
+// import './ingame/jquery.js';
 import './ingame/chat.js';
 import './ingame/inventory.js';
 import './ingame/jquery-spinners.js';

@@ -2,9 +2,8 @@
     "private": true,
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
-        "watch": "vite build --watch"
-    },
+        "build": "vite build -c vite.config.js && vite build -c vite.config-ingame.js && vite build -c vite.config-outgame.js",
+        "watch": "npx concurrently \"vite build --watch -c vite.config.js\" \"vite build --watch -c vite.config-ingame.js\" \"vite build --watch -c vite.config-outgame.js\""    },
     "devDependencies": {
         "axios": "^1.10.0",
         "laravel-vite-plugin": "^2.0.0",
