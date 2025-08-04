@@ -56,7 +56,7 @@
             "@php artisan migrate --graceful --ansi"
         ],
         "cs": [
-            "./vendor/bin/pint --parallel --preset psr12"
+            "./vendor/bin/pint --parallel"
         ],
         "stan": [
             "./vendor/bin/phpstan analyse --memory-limit=384M"
