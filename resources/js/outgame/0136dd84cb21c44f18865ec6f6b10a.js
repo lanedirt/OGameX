@@ -1,30 +1,30 @@
-window.ogame.characteristics = {
+ogame.characteristics = {
     characteristicsMapping: null,
     activeFilters: [],
 
     init: function(characteristicsMapping){
-        window.ogame.characteristics.characteristicsMapping = characteristicsMapping;
+        ogame.characteristics.characteristicsMapping = characteristicsMapping;
 
         $('body').on('mouseenter', '#characteristicsTooltip', function(){
-            window.ogame.characteristics.cancelFadeOutCharacteristics();
+            ogame.characteristics.cancelFadeOutCharacteristics();
         });
 
         $('body').on('mouseleave', '#characteristicsTooltip', function(){
-            window.ogame.characteristics.fadeOutCharacteristics();
+            ogame.characteristics.fadeOutCharacteristics();
         });
 
         $("#uni_selection > div").mouseenter(function(){
             var tooltip = $(this).data('tooltip');
 
             if ((tooltip !== null) && (tooltip instanceof Object)) {
-                window.ogame.characteristics.showTooltip(tooltip);
+                ogame.characteristics.showTooltip(tooltip);
             } else {
                 $('#characteristicsTooltip').remove();
             }
         });
 
         $("#uni_selection").mouseleave(function(){
-            window.ogame.characteristics.fadeOutCharacteristics();
+            ogame.characteristics.fadeOutCharacteristics();
         });
 
         $('body').on('click', '.tabContent .filter .characteristic', function(){
@@ -32,20 +32,20 @@ window.ogame.characteristics = {
             var state = !$(this).hasClass('filter_off');
 
             if (state) {
-                window.ogame.characteristics.activeFilters.push('filter_' + $(this).data('filter'));
+                ogame.characteristics.activeFilters.push('filter_' + $(this).data('filter'));
                 $(this).children().show();
             } else {
-                var index = window.ogame.characteristics.activeFilters.indexOf('filter_' + $(this).data('filter'));
-                window.ogame.characteristics.activeFilters.splice(index, 1);
+                var index = ogame.characteristics.activeFilters.indexOf('filter_' + $(this).data('filter'));
+                ogame.characteristics.activeFilters.splice(index, 1);
                 $(this).children().hide();
             }
 
-            window.ogame.characteristics.updateFilteredServers();
+            ogame.characteristics.updateFilteredServers();
         });
     },
 
     intersection: function() {
-        return window.ogame.characteristics.toArray(arguments).reduce(function(previous, current) {
+        return ogame.characteristics.toArray(arguments).reduce(function(previous, current) {
             return previous.filter(function(element) {
                 return current.indexOf(element) > -1;
             });
@@ -54,9 +54,9 @@ window.ogame.characteristics = {
 
     updateFilteredServers: function() {
         $('li.server').each(function() {
-            var activeFilters = (window.ogame.characteristics.activeFilters).slice(0);
-            var classList     = (window.ogame.characteristics.toArray(this.classList)).slice(0);
-            var filterCheck   = window.ogame.characteristics.intersection(activeFilters, classList);
+            var activeFilters = (ogame.characteristics.activeFilters).slice(0);
+            var classList     = (ogame.characteristics.toArray(this.classList)).slice(0);
+            var filterCheck   = ogame.characteristics.intersection(activeFilters, classList);
 
             if (filterCheck.length == activeFilters.length) {
                 $(this).removeClass('hidden');
@@ -111,7 +111,7 @@ window.ogame.characteristics = {
     },
 
     showTooltip: function(tooltip) {
-        window.ogame.characteristics.cancelFadeOutCharacteristics();
+        ogame.characteristics.cancelFadeOutCharacteristics();
         var container = $('#characteristicsTooltip');
         container.remove();
 
@@ -134,10 +134,10 @@ window.ogame.characteristics = {
             class: 'indented'
         });
 
-        for (var e in window.ogame.characteristics.characteristicsMapping) {
-            var newElem = window.ogame.characteristics.getTooltipLi(
+        for (var e in ogame.characteristics.characteristicsMapping) {
+            var newElem = ogame.characteristics.getTooltipLi(
                 tooltip,
-                window.ogame.characteristics.characteristicsMapping[e]
+                ogame.characteristics.characteristicsMapping[e]
             );
 
             if (newElem) {
@@ -175,6 +175,6 @@ window.ogame.characteristics = {
             }
         });
 
-        window.ogame.characteristics.updateFilteredServers();
+        ogame.characteristics.updateFilteredServers();
     }
 };
