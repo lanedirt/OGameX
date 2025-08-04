@@ -30,7 +30,7 @@
         {
             "label": "Run Laravel Pint (Code Style)",
             "type": "shell",
-            "command": "docker exec ogamex-app ./vendor/bin/pint --test",
+            "command": "docker exec ogamex-app composer run cs -- --test",
             "group": {
                 "kind": "build",
                 "isDefault": true
