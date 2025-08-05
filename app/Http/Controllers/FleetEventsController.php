@@ -133,7 +133,7 @@ class FleetEventsController extends OGameController
             if ($friendlyStatus === 'friendly' && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
                 $returnTripRow = new FleetEventRowViewModel();
                 $returnTripRow->is_return_trip = true;
-                $returnTripRow->id = $row->parent_id + 999999; // Add a large number to avoid id conflicts
+                $returnTripRow->id = $row->id + 999999; // Add a large number to avoid id conflicts
                 $returnTripRow->mission_type = $eventRowViewModel->mission_type;
                 $returnTripRow->mission_label = $fleetMissionService->missionTypeToLabel($eventRowViewModel->mission_type);
                 $returnTripRow->mission_time_arrival = $row->time_arrival + ($row->time_arrival - $row->time_departure); // Round trip arrival time is double the time of the first trip
