@@ -44,6 +44,9 @@ class TransportMission extends GameMission
         return new MissionPossibleStatus(true);
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function processArrival(FleetMission $mission): void
     {
         $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);

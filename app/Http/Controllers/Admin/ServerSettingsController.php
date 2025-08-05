@@ -40,6 +40,15 @@ class ServerSettingsController extends OGameController
             'ignore_inactive_systems_on' => $settingsService->ignoreInactiveSystemsOn(),
             'number_of_galaxies' => $settingsService->numberOfGalaxies(),
             'battle_engine' => $settingsService->battleEngine(),
+            'expedition_failed' => $settingsService->expeditionFailedEnabled(),
+            'expedition_failed_and_delay' => $settingsService->expeditionFailedAndDelayEnabled(),
+            'expedition_failed_and_speedup' => $settingsService->expeditionFailedAndSpeedupEnabled(),
+            'expedition_gain_ships' => $settingsService->expeditionGainShipsEnabled(),
+            'expedition_gain_dark_matter' => $settingsService->expeditionGainDarkMatterEnabled(),
+            'expedition_gain_resources' => $settingsService->expeditionGainResourcesEnabled(),
+            'expedition_gain_merchant_trade' => $settingsService->expeditionGainMerchantTradeEnabled(),
+            'expedition_gain_item' => $settingsService->expeditionGainItemEnabled(),
+            'expedition_loss_of_fleet' => $settingsService->expeditionLossOfFleetEnabled(),
         ]);
     }
 
@@ -75,6 +84,16 @@ class ServerSettingsController extends OGameController
         $settingsService->set('number_of_galaxies', request('number_of_galaxies'));
 
         $settingsService->set('battle_engine', request('battle_engine'));
+
+        $settingsService->set('expedition_failed', request('expedition_failed', 0));
+        $settingsService->set('expedition_failed_and_delay', request('expedition_failed_and_delay', 0));
+        $settingsService->set('expedition_failed_and_speedup', request('expedition_failed_and_speedup', 0));
+        $settingsService->set('expedition_gain_ships', request('expedition_gain_ships', 0));
+        $settingsService->set('expedition_gain_dark_matter', request('expedition_gain_dark_matter', 0));
+        $settingsService->set('expedition_gain_resources', request('expedition_gain_resources', 0));
+        $settingsService->set('expedition_gain_merchant_trade', request('expedition_gain_merchant_trade', 0));
+        $settingsService->set('expedition_gain_item', request('expedition_gain_item', 0));
+        $settingsService->set('expedition_loss_of_fleet', request('expedition_loss_of_fleet', 0));
 
         return redirect()->route('admin.serversettings.index')->with('success', __('Changes saved!'));
     }
