@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('fleet_missions', function (Blueprint $table) {
-            $table->integer('time_wait')->nullable()->after('time_arrival');
+            $table->integer('time_holding')->nullable()->after('time_arrival');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('fleet_missions', function (Blueprint $table) {
-            $table->dropColumn('time_wait');
+            $table->dropColumn('time_holding');
         });
     }
 };

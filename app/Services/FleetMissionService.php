@@ -164,11 +164,11 @@ class FleetMissionService
      * @param PlanetService $fromPlanet The planet where the fleet is sent from.
      * @param UnitCollection $ships The units that are sent on the mission.
      * @param Coordinate $targetCoordinate The target coordinate of the mission.
-     * @param int $holdingTime The holding time of the fleet. The number represents the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
+     * @param int $holdingHours The holding time of the fleet. The number represents the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
      * @param float $speedPercent The speed percent of the fleet.
      * @return float|mixed The consumption of the fleet mission.
      */
-    public function calculateConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $targetCoordinate, int $holdingTime, float $speedPercent)
+    public function calculateConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $targetCoordinate, int $holdingHours, float $speedPercent)
     {
         $consumption = 0;
         $holdingCosts = 0;
@@ -187,7 +187,7 @@ class FleetMissionService
 
             if (!empty($shipAmount)) {
                 $shipSpeedValue = 35000 / $speedValue * sqrt($distance * 10 / $ship_speed);
-                $holdingCosts += $ship->properties->fuel->rawValue * $shipAmount * $holdingTime;
+                $holdingCosts += $ship->properties->fuel->rawValue * $shipAmount * $holdingHours;
 
                 $consumption += max(
                     $ship->properties->fuel->rawValue * $shipAmount * $distance / 35000 *
@@ -201,7 +201,7 @@ class FleetMissionService
         $consumption = round($consumption);
 
         // Holding costs
-        if ($holdingTime > 0) {
+        if ($holdingHours > 0) {
             $consumption += max(floor($holdingCosts / 10), 1);
         }
 
@@ -269,7 +269,7 @@ class FleetMissionService
             ->where('processed', 0)
             ->get();
 
-        // Order the list taking into account the time_wait. This ensures that the order of missions is correct
+        // Order the list taking into account the time_holding. This ensures that the order of missions is correct
         // for the event list that assumes the first mission is the next mission to arrive.
         $missions = $missions->sortBy(function ($mission) {
             // If the mission has not arrived yet, return the time_arrival.
@@ -277,8 +277,8 @@ class FleetMissionService
                 return $mission->time_arrival;
             }
 
-            // If the mission has arrived AND has a waiting time, return the time_arrival + time_wait.
-            return $mission->time_arrival + ($mission->time_wait ?? 0);
+            // If the mission has arrived AND has a waiting time, return the time_arrival + time_holding.
+            return $mission->time_arrival + ($mission->time_holding ?? 0);
         });
 
         return $missions;
@@ -377,7 +377,7 @@ class FleetMissionService
                     ->orWhereIn('planet_id_to', $planetIds);
             })
             ->where(function ($query) {
-                $query->whereRaw('time_arrival + COALESCE(time_wait, 0) <= ?', [Carbon::now()->timestamp]);
+                $query->whereRaw('time_arrival + COALESCE(time_holding, 0) <= ?', [Carbon::now()->timestamp]);
             })
             ->where('processed', 0)
             ->get();
@@ -458,7 +458,7 @@ class FleetMissionService
         $mission = $this->getFleetMissionById($mission->id, false);
 
         // Sanity check: only process missions that have arrived AND potential waiting time has passed.
-        $arrivalTimeWithWaitingTime = $mission->time_arrival + ($mission->time_wait ?? 0);
+        $arrivalTimeWithWaitingTime = $mission->time_arrival + ($mission->time_holding ?? 0);
         if ($arrivalTimeWithWaitingTime > Carbon::now()->timestamp) {
             return;
         }

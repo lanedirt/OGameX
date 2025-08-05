@@ -530,7 +530,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
 
         // Dispatch fleet to the non-existent moon and expect mission to fail (assertStatus is false)
-        $this->dispatchFleet($coordinates, $unitCollection, new Resources(100, 100, 0, 0), PlanetType::Moon, false);
+        $this->dispatchFleet($coordinates, $unitCollection, new Resources(100, 100, 0, 0), PlanetType::Moon, 0, false);
 
         // Verify no fleet mission was created
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);

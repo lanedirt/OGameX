@@ -43,8 +43,8 @@ class FleetEventsController extends OGameController
             if ($firstMission->time_arrival >= Carbon::now()->timestamp) {
                 $timeNextMission = $firstMission->time_arrival - (int)Carbon::now()->timestamp;
             } else {
-                // If the mission has arrived AND has a waiting time, return the time_arrival + time_wait.
-                $timeNextMission = $firstMission->time_arrival + ($firstMission->time_wait ?? 0) - (int)Carbon::now()->timestamp;
+                // If the mission has arrived AND has a waiting time, return the time_arrival + time_holding.
+                $timeNextMission = $firstMission->time_arrival + ($firstMission->time_holding ?? 0) - (int)Carbon::now()->timestamp;
             }
 
             $eventType = $this->determineFriendly($firstMission, $player);
@@ -134,24 +134,24 @@ class FleetEventsController extends OGameController
                 $eventRowViewModel->is_recallable = true;
             }
 
-            if ($row->time_wait > 0 && $row->time_arrival <= Carbon::now()->timestamp && $row->time_arrival + $row->time_wait > Carbon::now()->timestamp) {
-                // Do not include this parent mission in the list if the "main mission" has already arrived but the time_wait is still active.
+            if ($row->time_holding > 0 && $row->time_arrival <= Carbon::now()->timestamp && $row->time_arrival + $row->time_holding > Carbon::now()->timestamp) {
+                // Do not include this parent mission in the list if the "main mission" has already arrived but the time_holding is still active.
                 // This applies to e.g. expedition mission that shows two rows:
                 // 1. The main mission that shows the fleet arriving.
-                // 2. A second main mission that shows the fleet arriving again after the time_wait --> this is the point at which the mission is actually processed.
+                // 2. A second main mission that shows the fleet arriving again after the time_holding --> this is the point at which the mission is actually processed.
             } else {
                 $fleet_events[] = $eventRowViewModel;
             }
 
             // For missions with waiting time, add an additional row showing when the fleet will start its return journey
-            if ($friendlyStatus === 'friendly' && $row->time_wait > 0 && !$eventRowViewModel->is_return_trip) {
+            if ($friendlyStatus === 'friendly' && $row->time_holding > 0 && !$eventRowViewModel->is_return_trip) {
                 $waitEndRow = new FleetEventRowViewModel();
                 $waitEndRow->is_return_trip = false;
                 $waitEndRow->is_recallable = false;
                 $waitEndRow->id = $row->id + 888888; // Add large number to avoid conflicts
                 $waitEndRow->mission_type = $eventRowViewModel->mission_type;
                 $waitEndRow->mission_label = $fleetMissionService->missionTypeToLabel($eventRowViewModel->mission_type);
-                $waitEndRow->mission_time_arrival = $row->time_arrival + $row->time_wait;
+                $waitEndRow->mission_time_arrival = $row->time_arrival + $row->time_holding;
                 $waitEndRow->origin_planet_name = $eventRowViewModel->origin_planet_name;
                 $waitEndRow->origin_planet_coords = $eventRowViewModel->origin_planet_coords;
                 $waitEndRow->origin_planet_type = $eventRowViewModel->origin_planet_type;
@@ -172,7 +172,7 @@ class FleetEventsController extends OGameController
                 $returnTripRow->id = $row->id + 999999; // Add a large number to avoid id conflicts
                 $returnTripRow->mission_type = $eventRowViewModel->mission_type;
                 $returnTripRow->mission_label = $fleetMissionService->missionTypeToLabel($eventRowViewModel->mission_type);
-                $returnTripRow->mission_time_arrival = $row->time_arrival + ($row->time_arrival - $row->time_departure) + ($row->time_wait ?? 0);
+                $returnTripRow->mission_time_arrival = $row->time_arrival + ($row->time_arrival - $row->time_departure) + ($row->time_holding ?? 0);
                 $returnTripRow->origin_planet_name = $eventRowViewModel->destination_planet_name;
                 $returnTripRow->origin_planet_coords = $eventRowViewModel->destination_planet_coords;
                 $returnTripRow->origin_planet_type = $eventRowViewModel->destination_planet_type;

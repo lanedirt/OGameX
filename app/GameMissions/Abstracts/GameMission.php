@@ -169,14 +169,14 @@ abstract class GameMission
      * @param UnitCollection $units The units that are sent on the mission.
      * @param Resources $resources The resources that are sent on the mission.
      * @param float $speedPercent The speed percent of the fleet.
-     * @param int $holdingTime The holding time of the fleet. The number represents the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
+     * @param int $holdingHours The holding time of the fleet. The number represents the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
      * @param int $parentId The parent mission ID if this is a follow-up mission.
      * @return FleetMission The created fleet mission.
      * @throws Exception
      */
-    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingTime = 0, int $parentId = 0): FleetMission
+    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingHours = 0, int $parentId = 0): FleetMission
     {
-        $consumption = $this->fleetMissionService->calculateConsumption($planet, $units, $targetCoordinate, $holdingTime, $speedPercent);
+        $consumption = $this->fleetMissionService->calculateConsumption($planet, $units, $targetCoordinate, $holdingHours, $speedPercent);
         $consumption_resources = new Resources(0, 0, $consumption, 0);
 
         $total_deuterium = $resources->deuterium->get() + $consumption_resources->deuterium->get();
@@ -212,11 +212,11 @@ abstract class GameMission
         $mission->time_departure = $time_start;
         $mission->time_arrival = $time_end;
 
-        // Holding time is the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
-        // The $holdingTime is in hours, so we convert it to seconds.
+        // Holding time is the amount of time the fleet will wait at the target planet and/or how long expedition will last.
+        // The $holdingHours is in hours, so we convert it to seconds.
         // Only applies to expeditions (and ACS missions, but those are not implemented yet).
         if (static::class === ExpeditionMission::class) {
-            $mission->time_wait = $holdingTime * 3600;
+            $mission->time_holding = $holdingHours * 3600;
         }
 
         $mission->type_to = $targetType->value;

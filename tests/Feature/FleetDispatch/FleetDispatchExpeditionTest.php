@@ -5,9 +5,11 @@ namespace Tests\Feature\FleetDispatch;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\Models\Resources;
+use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
+use Exception;
 
 /**
  * Test that fleet dispatch works as expected for expedition missions.
@@ -168,6 +170,41 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Ensure that the expedition slots in use are updated correctly
         $this->assertEquals(0, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 0 after all expeditions are done');
+    }
+
+    /**
+     * Verify that an active mission also shows the (not yet existing) return trip in the fleet event list.
+     * @throws Exception
+     */
+    public function testDispatchFleetReturnShown(): void
+    {
+        $this->basicSetup();
+
+        // Send the expedition mission.
+        $this->sendTestExpedition(true);
+
+        // The eventbox should show 1 mission.
+        $response = $this->get('/ajax/fleet/eventbox/fetch');
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['friendly' => 1]);
+        // The event list should show 3 missions (the parent, the parent + arrival time, and the to-be-created return trip)
+        $response = $this->get('/ajax/fleet/eventlist/fetch');
+        $response->assertStatus(200);
+
+        // We should see the mission name and the return mission name in the event list.
+        $response->assertSee($this->missionName);
+        $response->assertSee($this->missionName .  ' (R)');
+
+        // Assert that we see two arrival missions (initial arrival and time_holding) and one return mission
+        $content = (string)$response->getContent();
+        $this->assertNotEmpty($content, 'Fleet event list content is null');
+        $this->assertEquals(2, substr_count($content, 'data-return-flight="false"'), 'Should see two parent mission rows');
+        $this->assertEquals(1, substr_count($content, 'data-return-flight="true"'), 'Should see one return mission row');
+
+        // Cancel the fleet mission, so it doesn't interfere with other tests.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionService->cancelMission($fleetMission);
     }
 
     /**
