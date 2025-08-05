@@ -262,13 +262,26 @@ class FleetMissionService
             $planetIds[] = $planet->getPlanetId();
         }
 
-        $query = $query->where(function ($query) use ($planetIds) {
+        $missions = $query->where(function ($query) use ($planetIds) {
             $query->where('user_id', $this->player->getId())
                 ->orWhereIn('planet_id_to', $planetIds);
         })
-            ->where('processed', 0);
+            ->where('processed', 0)
+            ->get();
 
-        return $query->orderBy('time_arrival')->get();
+        // Order the list taking into account the time_wait. This ensures that the order of missions is correct
+        // for the event list that assumes the first mission is the next mission to arrive.
+        $missions = $missions->sortBy(function ($mission) {
+            // If the mission has not arrived yet, return the time_arrival.
+            if ($mission->time_arrival >= Carbon::now()->timestamp) {
+                return $mission->time_arrival;
+            }
+
+            // If the mission has arrived AND has a waiting time, return the time_arrival + time_wait.
+            return $mission->time_arrival + ($mission->time_wait ?? 0);
+        });
+
+        return $missions;
     }
 
     /**
@@ -350,7 +363,7 @@ class FleetMissionService
     }
 
     /**
-     * Get missions that are either from or to the given planets that have reached the arrival time
+     * Get missions that are either from or to the given planets that have reached the arrival + waiting time
      * but are not processed yet.
      *
      * @param int[] $planetIds
@@ -363,7 +376,9 @@ class FleetMissionService
                 $query->whereIn('planet_id_from', $planetIds)
                     ->orWhereIn('planet_id_to', $planetIds);
             })
-            ->where('time_arrival', '<=', Carbon::now()->timestamp)
+            ->where(function ($query) {
+                $query->whereRaw('time_arrival + COALESCE(time_wait, 0) <= ?', [Carbon::now()->timestamp]);
+            })
             ->where('processed', 0)
             ->get();
     }
@@ -442,8 +457,9 @@ class FleetMissionService
         // Load the mission object again from database to ensure we have the latest data.
         $mission = $this->getFleetMissionById($mission->id, false);
 
-        // Sanity check: only process missions that have arrived.
-        if ($mission->time_arrival > Carbon::now()->timestamp) {
+        // Sanity check: only process missions that have arrived AND potential waiting time has passed.
+        $arrivalTimeWithWaitingTime = $mission->time_arrival + ($mission->time_wait ?? 0);
+        if ($arrivalTimeWithWaitingTime > Carbon::now()->timestamp) {
             return;
         }
 

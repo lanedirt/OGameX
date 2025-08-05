@@ -28,7 +28,7 @@ class ExpeditionMission extends GameMission
 {
     protected static string $name = 'Expedition';
     protected static int $typeId = 15;
-    protected static bool $hasReturnMission = false;
+    protected static bool $hasReturnMission = true;
 
     /**
      * @inheritdoc
@@ -314,11 +314,11 @@ class ExpeditionMission extends GameMission
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
+        // TODO: Implement actual item giving logic when items themselves are implemented.
+
         // Send a message to the player with the item found outcome.
         $message_variation_id = ExpeditionGainItem::getRandomMessageVariationId();
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainItem::class, ['message_variation_id' => $message_variation_id]);
-
-        // TODO: Implement actual item giving logic when items themselves are implemented.
     }
 
     /**
