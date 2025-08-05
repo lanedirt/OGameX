@@ -432,18 +432,18 @@ class FleetMissionService
      * @param UnitCollection $units The units that are sent.
      * @param Resources $resources The resources that are sent.
      * @param float $speedPercent The speed percent of the fleet.
-     * @param int $holdingTime The holding time of the fleet.
+     * @param int $holdingHours The holding time of the fleet.
      * @param int $parent_id Optionally the parent mission ID if this is a follow-up mission.
      * @return FleetMission
      * @throws Exception
      */
-    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingTime = 0, int $parent_id = 0): FleetMission
+    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingHours = 0, int $parent_id = 0): FleetMission
     {
         $missionObject = $this->gameMissionFactory->getMissionById($missionType, [
             'fleetMissionService' => $this,
             'messageService' => $this->messageService,
         ]);
-        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $speedPercent, $holdingTime, $parent_id);
+        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $speedPercent, $holdingHours, $parent_id);
     }
 
     /**
@@ -483,7 +483,15 @@ class FleetMissionService
      */
     public function cancelMission(FleetMission $mission): void
     {
-        // Sanity check: only process missions that have not been processed yet.
+        // Sanity check: only allow cancelling missions that have not yet arrived.
+        // This applies to especially missions that have a time_holding (e.g. expeditions) where the main mission arrives first
+        // but the mission itself is not processed before the time_holding has passed as well. However after the main mission
+        // has arrived (even though it's not processed yet), canceling should no longer be allowed.
+        if ($mission->time_arrival < Carbon::now()->timestamp) {
+            return;
+        }
+
+        // Sanity check: only allow canceling missions that have not been processed yet.
         if ($mission->processed) {
             return;
         }
