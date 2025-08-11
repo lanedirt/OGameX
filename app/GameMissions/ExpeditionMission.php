@@ -78,6 +78,11 @@ class ExpeditionMission extends GameMission
 
         $returnResources = new Resources(0, 0, 0, 0);
 
+        // This is the additional time that is added to the return mission's arrival time.
+        // This can be either a positive number (delay) or a negative number (speedup).
+        $additionalReturnTripTime = 0;
+
+        // If the mission is not processed yet, we need to process the outcome.
         // Select a random outcome based on configuration and weights
         $outcome = $this->selectRandomOutcome();
 
@@ -86,7 +91,7 @@ class ExpeditionMission extends GameMission
                 $this->processExpeditionFailedOutcome($mission);
                 break;
             case ExpeditionOutcomeType::FailedAndDelay:
-                $this->processExpeditionFailedAndDelayOutcome($mission);
+                $additionalReturnTripTime = $this->processExpeditionFailedAndDelayOutcome($mission);
                 break;
             case ExpeditionOutcomeType::FailedAndSpeedup:
                 $this->processExpeditionFailedAndSpeedupOutcome($mission);
@@ -117,7 +122,7 @@ class ExpeditionMission extends GameMission
         $mission->save();
 
         // Create and start the return mission.
-        $this->startReturn($mission, $returnResources, $units);
+        $this->startReturn($mission, $returnResources, $units, $additionalReturnTripTime);
     }
 
     /**
@@ -162,18 +167,27 @@ class ExpeditionMission extends GameMission
     /**
      * Process the expedition failed and delay outcome.
      * @param FleetMission $mission
-     * @return void
+     * @return int
      */
-    private function processExpeditionFailedAndDelayOutcome(FleetMission $mission): void
+    private function processExpeditionFailedAndDelayOutcome(FleetMission $mission): int
     {
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
-        // TODO: Implement delay logic.
+        // Pick a random delay percentage between 5% and 30%.
+        $additionalReturnTripTimePercentage = random_int(5, 10);
+
+        // Calculate one way mission duration.
+        $onewayMissionDuration = ($mission->time_arrival - $mission->time_departure) + $mission->time_holding;
+
+        // Calculate the additional return trip time in seconds based on the mission's original duration + holding time.
+        $additionalReturnTripTime = intval($onewayMissionDuration * ($additionalReturnTripTimePercentage / 100));
 
         // Send a message to the player with the failure and delay outcome.
         $message_variation_id = ExpeditionFailedAndDelay::getRandomMessageVariationId();
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailedAndDelay::class, ['message_variation_id' => $message_variation_id]);
+
+        return $additionalReturnTripTime;
     }
 
     /**

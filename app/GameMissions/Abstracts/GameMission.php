@@ -269,9 +269,10 @@ abstract class GameMission
      * @param FleetMission $parentMission The parent mission that the return mission is linked to.
      * @param Resources $resources The resources that are to be returned.
      * @param UnitCollection $units The units that are to be returned.
+     * @param int $additionalReturnTripTime Time in seconds to add to the return trip duration (optional, used by expeditions). Can be positive or negative.
      * @return void
      */
-    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units): void
+    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0): void
     {
         if ($units->getAmount() === 0) {
             // No units to return, no need to create a return mission.
@@ -287,7 +288,7 @@ abstract class GameMission
 
         // Time fleet mission will arrive (arrival time of the parent mission + duration of the parent mission)
         // Return mission duration is always the same as the parent mission duration.
-        $time_end = $time_start + ($parentMission->time_arrival - $parentMission->time_departure);
+        $time_end = $time_start + ($parentMission->time_arrival - $parentMission->time_departure) + $additionalReturnTripTime;
 
         // Create new return mission object
         $mission = new FleetMission();

@@ -423,6 +423,27 @@ class FleetMissionService
     }
 
     /**
+     * Get a fleet mission by its parent ID. E.g. this can be used to find the return trip mission launched for a given parent mission ID.
+     *
+     * @param int $parent_id
+     * @param bool $only_active
+     * @return FleetMission
+     */
+    public function getFleetMissionByParentId(int $parent_id, bool $only_active = true): FleetMission
+    {
+        if ($only_active) {
+            return $this->model
+                ->where('parent_id', $parent_id)
+                ->where('processed', 0)
+                ->first();
+        } else {
+            return $this->model
+                ->where('parent_id', $parent_id)
+                ->first();
+        }
+    }
+
+    /**
      * Creates a new fleet mission for the current planet.
      *
      * @param PlanetService $planet The planet where the fleet is sent from.

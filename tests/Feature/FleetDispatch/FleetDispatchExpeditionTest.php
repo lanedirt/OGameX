@@ -354,6 +354,43 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     }
 
     /**
+     * Send an expedition mission expecting failed and delay result.
+     *
+     * @return void
+     */
+    public function testExpeditionWithFailedAndDelayResult(): void
+    {
+        $this->basicSetup();
+
+        // Enable only the "failed and delay" expedition outcome.
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::FailedAndDelay]);
+
+        // Send the expedition mission.
+        $this->sendTestExpedition(true);
+
+        // Get the mission ID.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Wait for the mission to complete.
+        $this->travel(10)->hours();
+
+        // Load the planet again to get the latest state.
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Get the return trip mission for the original mission
+        // and assert that the return trip took longer than the original mission.
+        $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
+        $this->assertGreaterThan(($originalMission->time_arrival - $originalMission->time_departure), $returnTripMission->time_arrival - $returnTripMission->time_departure);
+
+        // Assert that the expedition message contains the correct information.
+        $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
+            'Expedition Result',
+        ]);
+    }
+
+    /**
      * Send an expedition mission to position 16.
      *
      * @param bool $assertStatus
