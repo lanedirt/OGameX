@@ -94,7 +94,7 @@ class ExpeditionMission extends GameMission
                 $additionalReturnTripTime = $this->processExpeditionFailedAndDelayOutcome($mission);
                 break;
             case ExpeditionOutcomeType::FailedAndSpeedup:
-                $this->processExpeditionFailedAndSpeedupOutcome($mission);
+                $additionalReturnTripTime = $this->processExpeditionFailedAndSpeedupOutcome($mission);
                 break;
             case ExpeditionOutcomeType::GainShips:
                 $foundUnits = $this->processExpeditionGainShipsOutcome($mission);
@@ -193,18 +193,28 @@ class ExpeditionMission extends GameMission
     /**
      * Process the expedition failed and speedup outcome.
      * @param FleetMission $mission
-     * @return void
+     * @return int
      */
-    private function processExpeditionFailedAndSpeedupOutcome(FleetMission $mission): void
+    private function processExpeditionFailedAndSpeedupOutcome(FleetMission $mission): int
     {
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
-        // TODO: Implement speedup logic.
+        // Pick a random speedup percentage between 5% and 30%.
+        $additionalReturnTripTimePercentage = random_int(5, 10);
+
+        // Calculate one way mission duration.
+        $onewayMissionDuration = ($mission->time_arrival - $mission->time_departure) + $mission->time_holding;
+
+        // Calculate the subtraction from the return trip time in seconds based on the mission's original duration + holding time.
+        // Note: this value is negative on purpose, so it will be subtracted from the default return trip time.
+        $additionalReturnTripTime = -intval($onewayMissionDuration * ($additionalReturnTripTimePercentage / 100));
 
         // Send a message to the player with the failure and speedup outcome.
         $message_variation_id = ExpeditionFailedAndSpeedup::getRandomMessageVariationId();
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailedAndSpeedup::class, ['message_variation_id' => $message_variation_id]);
+
+        return $additionalReturnTripTime;
     }
 
     /**
