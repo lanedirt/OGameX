@@ -35,7 +35,7 @@ class GenerateHighscoreRanks extends Command
     private function updateTypeRank(HighscoreTypeEnum $type): void
     {
         $rank = 1;
-        $this->info("Updating highscore ranks for $type->name...");
+        $this->info("\nUpdating highscore ranks for $type->name...");
 
         // Order by the highscore value in descending order, and by the player creation date in ascending order.
         // This ensures that:
@@ -43,10 +43,9 @@ class GenerateHighscoreRanks extends Command
         // - If two players have the same highscore value, the player who joined the game first will be ranked higher.
         $query = Highscore::query()
             ->join('users', 'highscores.player_id', '=', 'users.id')
-            ->whereHas('player.tech')
-            ->where($type->name, '!=', null);
-        $query->orderBy($type->name, 'DESC')
-              ->orderBy('users.created_at', 'ASC');
+            ->select('highscores.*')
+            ->orderByDesc($type->name)
+            ->orderBy('users.created_at');
 
         $bar = $this->output->createProgressBar();
         $bar->start($query->count());
@@ -60,6 +59,6 @@ class GenerateHighscoreRanks extends Command
                 $rank++;
             }
         });
-        $this->info("All highscores for type $type->name completed!");
+        $this->info("\nAll highscores for type $type->name completed!\n");
     }
 }
