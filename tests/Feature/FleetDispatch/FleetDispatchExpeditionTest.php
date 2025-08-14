@@ -5,6 +5,7 @@ namespace Tests\Feature\FleetDispatch;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\Models\Resources;
+use OGame\Models\Highscore;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
@@ -33,7 +34,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
      */
     protected function basicSetup(): void
     {
-        $this->planetAddUnit('light_fighter', 5);
+        $this->planetAddUnit('large_cargo', 5000);
         $this->planetAddUnit('espionage_probe', 1);
 
         // Set astrophysics research level to 1 to allow expeditions.
@@ -41,9 +42,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Set computer technology to a high enough level to allow enough concurrent fleets.
         $this->playerSetResearchLevel('computer_technology', 10);
 
-        // Set the fleet speed to 1x for this test.
+        // Set the fleet and economy speed to 1x for this test.
         $settingsService = resolve(SettingsService::class);
-        $settingsService->set('economy_speed', 8);
+        $settingsService->set('economy_speed', 1);
         $settingsService->set('fleet_speed', 1);
         $this->planetAddResources(new Resources(0, 0, 100000, 0));
     }
@@ -72,7 +73,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 1);
         $this->fleetCheckToSecondPlanet($unitCollection, false);
     }
 
@@ -83,7 +84,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 1);
         $this->fleetCheckToOtherPlayer($unitCollection, false);
     }
 
@@ -98,7 +99,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->playerSetResearchLevel('astrophysics', 0);
 
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 1);
         $this->fleetCheckToPosition16($unitCollection, false);
     }
 
@@ -109,7 +110,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 1);
         $this->fleetCheckToPosition16($unitCollection, true);
     }
 
@@ -260,28 +261,161 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     }
 
     /**
-     * Send an expedition mission expecting failed mission result.
+     * Send an expedition mission with high player points expecting large resource gain.
      *
      * @return void
      */
-    public function testExpeditionWithGainResourcesResult(): void
+    public function testExpeditionWithGainResourcesResultHighPoints(): void
     {
         $this->basicSetup();
 
         // Enable only the "gain resources" expedition outcome.
         $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
 
-        // Send the expedition mission.
+        // Set all existing highscores to 0 for this test.
+        Highscore::query()->update(['general' => 0]);
+
+        // Create a highscore record with 100.000.000 points to test max resource find.
+        $highscore = Highscore::create([
+            'player_id' => $this->planetService->getPlayer()->getId(),
+            'general' => 100000000,
+        ]);
+        $highscore->save();
+
+        // Send the expedition mission with 1000 large cargos.
         $this->sendTestExpedition(true);
+
+        // Get the mission ID.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
+
+        // Load the planet again to get the latest state.
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Delete the highscore record to not interfere with other tests.
+        $highscore->delete();
+
+        // Get the return trip mission for the original mission
+        // and assert that at least one resource type is >= 500000 (large gain with high points)
+        $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
+        $this->assertTrue(
+            $returnTripMission->metal >= 500000 ||
+            $returnTripMission->crystal >= 500000 ||
+            $returnTripMission->deuterium >= 500000,
+            'At least one of metal, crystal, or deuterium should be >= 500000 with 100M player points'
+        );
 
         // Assert that the expedition message contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
             'Expedition Result',
             'have been captured',
         ]);
+    }
+
+    /**
+     * Send an expedition mission with 4 large cargos and high player points expecting exactly 100k resources.
+     *
+     * @return void
+     */
+    public function testExpeditionWithGainResourcesResultSmallFleet(): void
+    {
+        $this->basicSetup();
+
+        // Enable only the "gain resources" expedition outcome.
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
+
+        // Set all existing highscores to 0 for this test.
+        Highscore::query()->update(['general' => 0]);
+
+        // Create a highscore record with 100.000.000 points.
+        $highscore = Highscore::create([
+            'player_id' => $this->planetService->getPlayer()->getId(),
+            'general' => 100000000,
+        ]);
+        $highscore->save();
+
+        // Send the expedition mission with only 4 large cargos.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 4);
+        $this->sendMissionToPosition16($unitCollection, new Resources(1, 1, 0, 0), true);
+
+        // Get the mission ID.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Wait for the mission to complete.
+        $this->travel(10)->hours();
+
+        // Load the planet again to get the latest state.
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Delete the highscore record to not interfere with other tests.
+        $highscore->delete();
+
+        // Get the return trip mission for the original mission
+        // and assert that total resources is exactly 100k (limited by cargo capacity)
+        $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
+        $totalResources = $returnTripMission->metal + $returnTripMission->crystal + $returnTripMission->deuterium;
+        $this->assertEquals(
+            100000,
+            $totalResources,
+            'Total resources should be exactly 100k when sending 4 large cargos (cargo capacity limit)'
+        );
+    }
+
+    /**
+     * Send an expedition mission with low player points expecting less than 100k resources.
+     *
+     * @return void
+     */
+    public function testExpeditionWithGainResourcesResultLowPoints(): void
+    {
+        $this->basicSetup();
+
+        // Enable only the "gain resources" expedition outcome.
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
+
+        // Set all existing highscores to 0 for this test.
+        Highscore::query()->update(['general' => 0]);
+
+        // Create a highscore record with only 1 point.
+        $highscore = Highscore::create([
+            'player_id' => $this->planetService->getPlayer()->getId(),
+            'general' => 1,
+        ]);
+        $highscore->save();
+
+        // Send the expedition mission with 1000 large cargos.
+        $this->sendTestExpedition(true);
+
+        // Get the mission ID.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Wait for the mission to complete.
+        $this->travel(10)->hours();
+
+        // Load the planet again to get the latest state.
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Delete the highscore record to not interfere with other tests.
+        $highscore->delete();
+
+        // Get the return trip mission for the original mission
+        // and assert that total resources is less than 100k (limited by low player points)
+        $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
+        $totalResources = $returnTripMission->metal + $returnTripMission->crystal + $returnTripMission->deuterium;
+        $this->assertLessThan(
+            100000,
+            $totalResources,
+            'Total resources should be less than 100k with only 1 player point'
+        );
     }
 
     /**
@@ -437,7 +571,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     {
         // Send fleet to position 16 for expedition
         $unitCollection = new UnitCollection();
-        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 1000);
         $this->sendMissionToPosition16($unitCollection, new Resources(1, 1, 0, 0), $assertStatus);
     }
 

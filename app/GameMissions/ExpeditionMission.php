@@ -19,6 +19,8 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Models\Highscore;
+use OGame\Enums\HighscoreTypeEnum;
 use OGame\Services\PlanetService;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
@@ -230,30 +232,90 @@ class ExpeditionMission extends GameMission
         // TODO: Determine the resources found at random based on max cargo capacity of the fleet.
         $resourcesFound = new Resources(0, 0, 0, 0);
 
-        // A expedition always returns a single resource unit, so first determine which resource unit is returned.
-        $resourceAmount = random_int(1, 100);
+        // Max resources found is according to these params:
+        // Number 1 player highscore "general" points determines the max resources found:
+        // < 10.000 points: 40.000 metal
+        // < 100.000 points: 500.000 metal
+        // < 1.000.000 points: 1.200.000 metal
+        // < 5.000.000 points: 1.800.000 metal
+        // < 25.000.000 points: 2.400.000 metal
+        // < 50.000.000 points: 3.000.000 metal
+        // < 75.000.000 points: 3.600.000 metal
+        // < 100.000.000 points: 4.200.000 metal
+        // > 100.000.000 points: 5.000.000 metal
+        // When discoverer class is active, the following modifier applies: economy speed * 1.5.
+        // E.g. with discoverer class and economy speed 5x, the modifier is 7.5.
+        // so the >100m points max find would be 7.5 * 5m = 37.5m
+        // Crystal is 2/3 of the metal find.
+        // Deuterium is 1/3 of the metal find.
+        $rank_1_highscore_points = Highscore::orderByDesc(HighscoreTypeEnum::general->name)->first()->general;
 
-        // Pick random number between 0 and 2 to determine the resource type.
+        if ($rank_1_highscore_points < 10000) {
+            $max = 40000;
+        } elseif ($rank_1_highscore_points < 100000) {
+            $max = 500000;
+        } elseif ($rank_1_highscore_points < 1000000) {
+            $max = 1200000;
+        } elseif ($rank_1_highscore_points < 5000000) {
+            $max = 1800000;
+        } elseif ($rank_1_highscore_points < 25000000) {
+            $max = 2400000;
+        } elseif ($rank_1_highscore_points < 50000000) {
+            $max = 3000000;
+        } elseif ($rank_1_highscore_points < 75000000) {
+            $max = 3600000;
+        } elseif ($rank_1_highscore_points < 100000000) {
+            $max = 4200000;
+        } else {
+            $max = 5000000;
+        }
+
+        // Set min to at least 10% of the max.
+        $min = max(1, (int)floor($max * 0.1));
+
+        // Pick a random amount between min and max.
+        $resourceAmount = random_int($min, $max);
+
+        // TODO: when actual player classes such as discoverer, collector etc. are implemented, make this modifier apply only if class is "discoverer".
+        // For now we apply it anyway so the economy speed is applied to the resource find.
+        $economySpeed = $this->settings->economySpeed();
+        $resourceAmount = $resourceAmount * ($economySpeed * 1.5);
+
+        // Get max cargo capacity of the fleet.
+        // TODO: also implement check how much resources the fleet is already carrying, to not exceed the max cargo capacity that way?
+        $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
+        $maxCargoCapacity = $units->getTotalCargoCapacity($player);
+
+        // Determine the resource type: metal, crystal or deuterium.
+        $cargoCapacityConstrainedAmount = 0;
         $resource_type_int = random_int(0, 2);
         switch ($resource_type_int) {
             case 0:
                 $resource_type = ResourceType::Metal;
-                $resourcesFound->metal->set($resourceAmount);
+
+                $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $resourceAmount);
+                $resourcesFound->metal->set($cargoCapacityConstrainedAmount);
                 break;
             case 1:
                 $resource_type = ResourceType::Crystal;
-                $resourcesFound->crystal->set($resourceAmount);
+
+                $adjustedResourceAmount = $resourceAmount * (2 / 3);
+                $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $adjustedResourceAmount);
+                $resourcesFound->crystal->set($cargoCapacityConstrainedAmount);
                 break;
             case 2:
                 $resource_type = ResourceType::Deuterium;
-                $resourcesFound->deuterium->set($resourceAmount);
+
+                $adjustedResourceAmount = $resourceAmount * (1 / 3);
+                $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $adjustedResourceAmount);
+                $resourcesFound->deuterium->set($cargoCapacityConstrainedAmount);
                 break;
         }
 
         // Send a message to the player with the resources found outcome.
         // Choose a random message variation id based on the number of available outcomes.
         $message_variation_id = ExpeditionGainResources::getRandomMessageVariationId();
-        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainResources::class, ['message_variation_id' => $message_variation_id, 'resource_type' => $resource_type->value, 'resource_amount' => $resourceAmount]);
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainResources::class, ['message_variation_id' => $message_variation_id, 'resource_type' => $resource_type->value, 'resource_amount' => $cargoCapacityConstrainedAmount]);
 
         return $resourcesFound;
     }

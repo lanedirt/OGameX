@@ -231,4 +231,19 @@ class UnitCollection
 
         return $resources;
     }
+
+    /**
+     * Get the total cargo capacity of the units in the collection.
+     *
+     * @param PlayerService $player
+     * @return int
+     */
+    public function getTotalCargoCapacity(PlayerService $player): int
+    {
+        $total = 0;
+        foreach ($this->units as $entry) {
+            $total += $entry->unitObject->properties->capacity->calculate($player)->totalValue * $entry->amount;
+        }
+        return $total;
+    }
 }

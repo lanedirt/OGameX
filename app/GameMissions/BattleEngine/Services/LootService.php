@@ -59,10 +59,7 @@ class LootService
             0
         );
 
-        $total_cargo_capacity = 0;
-        foreach ($this->attackerFleet->units as $unit) {
-            $total_cargo_capacity += $unit->unitObject->properties->capacity->calculate($this->attackerPlayer)->totalValue * $unit->amount;
-        }
+        $total_cargo_capacity = $this->attackerFleet->getTotalCargoCapacity($this->attackerPlayer);
 
         // If the loot is greater than the cargo capacity, reduce the loot to the cargo capacity
         // in even parts so that the attacker gets a fair share of the available loot.
