@@ -12,4 +12,17 @@ enum ResourceType: string
     case Crystal = 'crystal';
 
     case Deuterium = 'deuterium';
+
+    /**
+     * Get the translation of the resource type.
+     * @return string
+     */
+    public function getTranslation(): string
+    {
+        return match ($this) {
+            self::Metal => 'Metal',
+            self::Crystal => 'Crystal',
+            self::Deuterium => 'Deuterium',
+        };
+    }
 }
