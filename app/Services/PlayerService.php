@@ -631,7 +631,7 @@ class PlayerService
     }
 
     /**
-     * Players current planet building the object?
+     * Is the players current planet building the object
      *
      * @return bool
      */
