@@ -637,9 +637,13 @@ class PlayerService
      */
     public function isBuildingObject(string $machine_name): bool
     {
-        $planet = $this->planets->current();
-        $object_level = $planet->getObjectLevel($machine_name);
+        foreach ($this->planets->all() as $planet) {
+            $object_level = $planet->getObjectLevel($machine_name);
+            if ($planet->isBuildingObject($machine_name, $object_level + 1)) {
+                return true;
+            }
+        }
 
-        return $planet->isBuildingObject($machine_name, $object_level + 1);
+        return false;
     }
 }
