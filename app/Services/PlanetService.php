@@ -1759,8 +1759,8 @@ class PlanetService
     public function isBuildingObject(string $machine_name, int|null $level = null): bool
     {
         $object = ObjectService::getObjectByMachineName($machine_name);
-        
-        if($level === null) {
+
+        if ($level === null) {
             $level = $this->getObjectLevel($machine_name) + 1;
         }
 
