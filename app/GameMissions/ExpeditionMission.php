@@ -13,6 +13,7 @@ use OGame\GameMessages\ExpeditionLossOfFleet;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameMissions\Models\MissionPossibleStatus;
+use OGame\GameObjects\Models\ShipObject;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\ResourceType;
 use OGame\Models\Enums\PlanetType;
@@ -330,19 +331,93 @@ class ExpeditionMission extends GameMission
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
-        // Make random array of units with random amount.
-        $possible_units = ['light_fighter', 'heavy_fighter', 'espionage_probe', 'small_cargo', 'large_cargo'];
-
-        // Get 1-3 random unit types
-        $num_units = random_int(1, 3);
-        shuffle($possible_units);
-        $random_unit_types = array_slice($possible_units, 0, $num_units);
-
-        // Create a random amount of units for each unit type.
-        $units = new UnitCollection();
+        // Get the expedition fleet units to determine what ships can be found
+        $fleetUnits = $this->fleetMissionService->getFleetUnits(mission: $mission);
         $objectService = app(ObjectService::class);
-        foreach ($random_unit_types as $unit_type) {
-            $units->addUnit($objectService->getShipObjectByMachineName($unit_type), random_int(1, 100));
+
+        // Define expedition hierarchy levels - each level can find ships at that level and all lower levels.
+        // TODO: when implementing pathfinder and reaper units, add them to the levels array.
+        // Pathfinder = between cruiser and battle_ship, Reaper = after destroyer.
+        // NOTE: some ships are not able to be found on expeditions on purpose: deathstar, colony ship, recycler, solar satellite.
+        $expeditionLevels = [
+            1 => ['small_cargo', 'light_fighter', 'espionage_probe'],
+            2 => ['large_cargo'],
+            3 => ['heavy_fighter'],
+            4 => ['cruiser'],
+            5 => ['battle_ship'],
+            6 => ['battlecruiser'],
+            7 => ['bomber'],
+            8 => ['destroyer'],
+        ];
+
+        // Helper function to find which level a ship belongs to
+        $getShipLevel = function($shipMachineName) use ($expeditionLevels) {
+            foreach ($expeditionLevels as $level => $ships) {
+                if (in_array($shipMachineName, $ships)) {
+                    return $level;
+                }
+            }
+            return 0;
+        };
+
+        // Find the highest expedition level in the fleet
+        $maxExpeditionLevel = 0;
+        foreach ($fleetUnits->units as $unit) {
+            if ($unit->unitObject instanceof ShipObject) {
+                $shipMachineName = $unit->unitObject->machine_name;
+                $shipLevel = $getShipLevel($shipMachineName);
+                if ($shipLevel > 0) {
+                    $maxExpeditionLevel = max($maxExpeditionLevel, $shipLevel);
+                }
+            }
+        }
+
+        // If no expedition-capable ships found, default to level 1
+        if ($maxExpeditionLevel === 0) {
+            $maxExpeditionLevel = 1;
+        }
+
+        // Collect all ships that can be found at this level and below
+        $possibleShipMachineNames = [];
+        for ($level = 1; $level <= $maxExpeditionLevel; $level++) {
+            if (isset($expeditionLevels[$level])) {
+                $possibleShipMachineNames = array_merge($possibleShipMachineNames, $expeditionLevels[$level]);
+            }
+        }
+
+        // Get ship objects for the possible ships
+        $possibleShips = [];
+        foreach ($possibleShipMachineNames as $machineName) {
+            try {
+                $ship = $objectService->getShipObjectByMachineName($machineName);
+                $possibleShips[] = $ship;
+            } catch (Exception $e) {
+                // Ship not found. Skip it.
+                continue;
+            }
+        }
+
+        // If no ships can be found, return empty collection
+        if (empty($possibleShips)) {
+            return new UnitCollection();
+        }
+
+        // Select 1-3 random ship types from possible ships
+        $num_ship_types = min(random_int(1, 3), count($possibleShips));
+        shuffle($possibleShips);
+        $selectedShips = array_slice($possibleShips, 0, $num_ship_types);
+
+        // Create a random amount of units for each selected ship type
+        $units = new UnitCollection();
+        foreach ($selectedShips as $ship) {
+            // TODO: Implement proper amount calculation based on:
+            // - Server top player points
+            // - Economy speed
+            // - Discoverer class bonus
+            // - Max unit value of 500,000-600,000
+            // For now, using a simple random amount
+            $amount = random_int(1, 100);
+            $units->addUnit($ship, $amount);
         }
 
         // Convert units to array with key "unit_<unit_id>" and value as amount.
