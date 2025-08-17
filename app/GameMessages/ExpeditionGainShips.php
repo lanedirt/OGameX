@@ -4,6 +4,7 @@ namespace OGame\GameMessages;
 
 use OGame\Services\ObjectService;
 use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
+use OGame\Facades\AppUtil;
 
 class ExpeditionGainShips extends ExpeditionGameMessage
 {
@@ -51,7 +52,7 @@ class ExpeditionGainShips extends ExpeditionGameMessage
                     $unit_id = (int)str_replace('unit_', '', $key);
                     // Load gameobject based on the unit id.
                     $unit = $objectService->getUnitObjectById($unit_id);
-                    $translatedBody .= '<br />' . $unit->title . ': ' . $value;
+                    $translatedBody .= '<br />' . $unit->title . ': ' . AppUtil::formatNumber((int)$value);
                 }
             }
         }
