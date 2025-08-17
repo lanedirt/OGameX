@@ -300,12 +300,10 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $highscore->delete();
 
         // Get the return trip mission for the original mission
-        // and assert that at least one resource type is >= 500000 (large gain with high points)
+        // and assert that at least one resource type is >= 500000 (adjusted for crystal and deut ratio)
         $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
         $this->assertTrue(
-            $returnTripMission->metal >= 500000 ||
-            $returnTripMission->crystal >= 500000 ||
-            $returnTripMission->deuterium >= 500000,
+            $returnTripMission->metal >= 500000 || $returnTripMission->crystal >= 333000 || $returnTripMission->deuterium >= 166000,
             'At least one of metal, crystal, or deuterium should be >= 500000 with 100M player points'
         );
 
