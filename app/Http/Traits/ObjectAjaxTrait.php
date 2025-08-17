@@ -71,13 +71,13 @@ trait ObjectAjaxTrait
                 $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
 
-                $shipyard_upgrading = $player->isBuildingObject('shipyard');
+                $shipyard_upgrading = $player->planets->current()->isBuildingObject('shipyard');
                 break;
             case GameObjectType::Defense:
                 $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
 
-                $shipyard_upgrading = $player->isBuildingObject('shipyard');
+                $shipyard_upgrading = $player->planets->current()->isBuildingObject('shipyard');
                 break;
             case GameObjectType::Research:
                 $production_time = AppUtil::formatTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
