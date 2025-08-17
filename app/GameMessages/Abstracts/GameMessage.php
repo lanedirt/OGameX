@@ -199,52 +199,6 @@ abstract class GameMessage
     }
 
     /**
-     * Check the provided params and fill in missing ones with "?undefined?".
-     *
-     * @param array<string, string> $params
-     * @return array<string, string>
-     */
-    private function checkParams(array $params): array
-    {
-        // Check if all the params are provided by checking all individual param names.
-        foreach ($this->params as $param) {
-            if (!array_key_exists($param, $params)) {
-                // Replace param in message with "?undefined?" to indicate that the param is missing.
-                $params[$param] = '?undefined?';
-            }
-        }
-
-        return $params;
-    }
-
-    /**
-     * Format reserved params such as resources.
-     *
-     * @param array<string, string> $params
-     * @return array<string, string>
-     */
-    private function formatReservedParams(array $params): array
-    {
-        // Certain reserved params such as resources should be formatted with number_format.
-        foreach ($params as $key => $value) {
-            if (in_array($key, [
-                'metal',
-                'crystal',
-                'deuterium',
-                'harvested_metal',
-                'harvested_crystal',
-                'harvested_deuterium',
-                'storage_capacity',
-                'ship_amount',
-            ])) {
-                $params[$key] = AppUtil::formatNumber((int)$value);
-            }
-        }
-
-        return $params;
-    }
-
-    /**
      * Get the params that the message requires to be filled.
      *
      * @return array<int, string>
@@ -272,6 +226,53 @@ abstract class GameMessage
     public function getSubtab(): string
     {
         return $this->subtab;
+    }
+
+    /**
+     * Check the provided params and fill in missing ones with "?undefined?".
+     *
+     * @param array<string, string> $params
+     * @return array<string, string>
+     */
+    protected function checkParams(array $params): array
+    {
+        // Check if all the params are provided by checking all individual param names.
+        foreach ($this->params as $param) {
+            if (!array_key_exists($param, $params)) {
+                // Replace param in message with "?undefined?" to indicate that the param is missing.
+                $params[$param] = '?undefined?';
+            }
+        }
+
+        return $params;
+    }
+
+    /**
+     * Format reserved params such as resources.
+     *
+     * @param array<string, string> $params
+     * @return array<string, string>
+     */
+    protected function formatReservedParams(array $params): array
+    {
+        // Certain reserved params such as resources should be formatted with number_format.
+        foreach ($params as $key => $value) {
+            if (in_array($key, [
+                'metal',
+                'crystal',
+                'deuterium',
+                'harvested_metal',
+                'harvested_crystal',
+                'harvested_deuterium',
+                'storage_capacity',
+                'ship_amount',
+                'resource_amount',
+            ])) {
+                $params[$key] = AppUtil::formatNumber((int)$value);
+            }
+        }
+
+        return $params;
     }
 
     /**

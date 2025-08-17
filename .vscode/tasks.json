@@ -104,6 +104,24 @@
                 "reveal": "always",
                 "panel": "new"
             }
+        },
+        {
+            "label": "Open Docker App Container Terminal",
+            "type": "shell",
+            "command": "docker compose exec ogamex-app bash",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "focus": true,
+                "echo": true,
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "isBackground": true
         }
     ]
 }

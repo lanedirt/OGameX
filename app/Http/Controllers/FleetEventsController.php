@@ -37,9 +37,16 @@ class FleetEventsController extends OGameController
 
         if ($activeMissionRows->isNotEmpty()) {
             $firstMission = $activeMissionRows->first();
-            $missionCount = $activeMissionRows->count();
             $typeNextMission = $fleetMissionService->missionTypeToLabel($firstMission->mission_type) . ($firstMission->parent_id ? ' (R)' : '');
-            $timeNextMission = $firstMission->time_arrival - (int)Carbon::now()->timestamp;
+
+            // If the mission has not arrived yet, return the time_arrival.
+            if ($firstMission->time_arrival >= Carbon::now()->timestamp) {
+                $timeNextMission = $firstMission->time_arrival - (int)Carbon::now()->timestamp;
+            } else {
+                // If the mission has arrived AND has a waiting time, return the time_arrival + time_holding.
+                $timeNextMission = $firstMission->time_arrival + ($firstMission->time_holding ?? 0) - (int)Carbon::now()->timestamp;
+            }
+
             $eventType = $this->determineFriendly($firstMission, $player);
 
             // Loop through all missions to calculate all mission counts.
@@ -127,16 +134,45 @@ class FleetEventsController extends OGameController
                 $eventRowViewModel->is_recallable = true;
             }
 
-            $fleet_events[] = $eventRowViewModel;
+            if ($row->time_holding > 0 && $row->time_arrival <= Carbon::now()->timestamp && $row->time_arrival + $row->time_holding > Carbon::now()->timestamp) {
+                // Do not include this parent mission in the list if the "main mission" has already arrived but the time_holding is still active.
+                // This applies to e.g. expedition mission that shows two rows:
+                // 1. The main mission that shows the fleet arriving.
+                // 2. A second main mission that shows the fleet arriving again after the time_holding --> this is the point at which the mission is actually processed.
+            } else {
+                $fleet_events[] = $eventRowViewModel;
+            }
+
+            // For missions with waiting time, add an additional row showing when the fleet will start its return journey
+            if ($friendlyStatus === 'friendly' && $row->time_holding > 0 && !$eventRowViewModel->is_return_trip) {
+                $waitEndRow = new FleetEventRowViewModel();
+                $waitEndRow->is_return_trip = false;
+                $waitEndRow->is_recallable = false;
+                $waitEndRow->id = $row->id + 888888; // Add large number to avoid conflicts
+                $waitEndRow->mission_type = $eventRowViewModel->mission_type;
+                $waitEndRow->mission_label = $fleetMissionService->missionTypeToLabel($eventRowViewModel->mission_type);
+                $waitEndRow->mission_time_arrival = $row->time_arrival + $row->time_holding;
+                $waitEndRow->origin_planet_name = $eventRowViewModel->origin_planet_name;
+                $waitEndRow->origin_planet_coords = $eventRowViewModel->origin_planet_coords;
+                $waitEndRow->origin_planet_type = $eventRowViewModel->origin_planet_type;
+                $waitEndRow->destination_planet_name = $eventRowViewModel->destination_planet_name;
+                $waitEndRow->destination_planet_coords = $eventRowViewModel->destination_planet_coords;
+                $waitEndRow->destination_planet_type = $eventRowViewModel->destination_planet_type;
+                $waitEndRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
+                $waitEndRow->fleet_units = $eventRowViewModel->fleet_units;
+                $waitEndRow->resources = $eventRowViewModel->resources;
+                $fleet_events[] = $waitEndRow;
+            }
 
             // Add return trip row if the mission has a return mission, even though the return mission does not exist yet in the database.
             if ($friendlyStatus === 'friendly' && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
                 $returnTripRow = new FleetEventRowViewModel();
                 $returnTripRow->is_return_trip = true;
-                $returnTripRow->id = $row->parent_id + 999999; // Add a large number to avoid id conflicts
+                $returnTripRow->is_recallable = false;
+                $returnTripRow->id = $row->id + 999999; // Add a large number to avoid id conflicts
                 $returnTripRow->mission_type = $eventRowViewModel->mission_type;
                 $returnTripRow->mission_label = $fleetMissionService->missionTypeToLabel($eventRowViewModel->mission_type);
-                $returnTripRow->mission_time_arrival = $row->time_arrival + ($row->time_arrival - $row->time_departure); // Round trip arrival time is double the time of the first trip
+                $returnTripRow->mission_time_arrival = $row->time_arrival + ($row->time_arrival - $row->time_departure) + ($row->time_holding ?? 0);
                 $returnTripRow->origin_planet_name = $eventRowViewModel->destination_planet_name;
                 $returnTripRow->origin_planet_coords = $eventRowViewModel->destination_planet_coords;
                 $returnTripRow->origin_planet_type = $eventRowViewModel->destination_planet_type;
@@ -149,6 +185,11 @@ class FleetEventsController extends OGameController
                 $fleet_events[] = $returnTripRow;
             }
         }
+
+        // Order the fleet events by mission time arrival.
+        usort($fleet_events, function ($a, $b) {
+            return $a->mission_time_arrival - $b->mission_time_arrival;
+        });
 
         return view('ingame.fleetevents.eventlist')->with(
             [
