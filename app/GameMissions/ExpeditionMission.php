@@ -229,63 +229,14 @@ class ExpeditionMission extends GameMission
     {
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
-
-        // TODO: Determine the resources found at random based on max cargo capacity of the fleet.
         $resourcesFound = new Resources(0, 0, 0, 0);
 
-        // Max resources found is according to these params:
-        // Number 1 player highscore "general" points determines the max resources found:
-        // < 10.000 points: 40.000 metal
-        // < 100.000 points: 500.000 metal
-        // < 1.000.000 points: 1.200.000 metal
-        // < 5.000.000 points: 1.800.000 metal
-        // < 25.000.000 points: 2.400.000 metal
-        // < 50.000.000 points: 3.000.000 metal
-        // < 75.000.000 points: 3.600.000 metal
-        // < 100.000.000 points: 4.200.000 metal
-        // > 100.000.000 points: 5.000.000 metal
-        // When discoverer class is active, the following modifier applies: economy speed * 1.5.
-        // E.g. with discoverer class and economy speed 5x, the modifier is 7.5.
-        // so the >100m points max find would be 7.5 * 5m = 37.5m
-        // Crystal is 2/3 of the metal find.
-        // Deuterium is 1/3 of the metal find.
-        $rank_1_highscore_points = Highscore::orderByDesc(HighscoreTypeEnum::general->name)->first()->general;
-
-        if ($rank_1_highscore_points < 10000) {
-            $max = 40000;
-        } elseif ($rank_1_highscore_points < 100000) {
-            $max = 500000;
-        } elseif ($rank_1_highscore_points < 1000000) {
-            $max = 1200000;
-        } elseif ($rank_1_highscore_points < 5000000) {
-            $max = 1800000;
-        } elseif ($rank_1_highscore_points < 25000000) {
-            $max = 2400000;
-        } elseif ($rank_1_highscore_points < 50000000) {
-            $max = 3000000;
-        } elseif ($rank_1_highscore_points < 75000000) {
-            $max = 3600000;
-        } elseif ($rank_1_highscore_points < 100000000) {
-            $max = 4200000;
-        } else {
-            $max = 5000000;
-        }
-
-        // Set min to at least 10% of the max.
-        $min = max(1, (int)floor($max * 0.1));
-
-        // Pick a random amount between min and max.
-        $resourceAmount = random_int($min, $max);
-
-        // TODO: when actual player classes such as discoverer, collector etc. are implemented, make this modifier apply only if class is "discoverer".
-        // For now we apply it anyway so the economy speed is applied to the resource find.
-        $economySpeed = $this->settings->economySpeed();
-        $resourceAmount = $resourceAmount * ($economySpeed * 1.5);
-
         // Get max cargo capacity of the fleet.
-        // TODO: also implement check how much resources the fleet is already carrying, to not exceed the max cargo capacity that way?
         $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
         $maxCargoCapacity = $units->getTotalCargoCapacity($player);
+
+        // Determine the max resource find.
+        $maxResourceFind = $this->determineMaxResourceFind();
 
         // Determine the resource type: metal, crystal or deuterium.
         $cargoCapacityConstrainedAmount = 0;
@@ -294,21 +245,21 @@ class ExpeditionMission extends GameMission
             case 0:
                 $resource_type = ResourceType::Metal;
 
-                $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $resourceAmount);
+                $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $maxResourceFind);
                 $resourcesFound->metal->set($cargoCapacityConstrainedAmount);
                 break;
             case 1:
                 $resource_type = ResourceType::Crystal;
 
-                $adjustedResourceAmount = $resourceAmount * (2 / 3);
-                $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $adjustedResourceAmount);
+                $adjustedMaxResourceFind = $maxResourceFind * (2 / 3);
+                $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $adjustedMaxResourceFind);
                 $resourcesFound->crystal->set($cargoCapacityConstrainedAmount);
                 break;
             case 2:
                 $resource_type = ResourceType::Deuterium;
 
-                $adjustedResourceAmount = $resourceAmount * (1 / 3);
-                $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $adjustedResourceAmount);
+                $adjustedMaxResourceFind = $maxResourceFind * (1 / 3);
+                $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $adjustedMaxResourceFind);
                 $resourcesFound->deuterium->set($cargoCapacityConstrainedAmount);
                 break;
         }
@@ -351,7 +302,7 @@ class ExpeditionMission extends GameMission
         ];
 
         // Helper function to find which level a ship belongs to
-        $getShipLevel = function($shipMachineName) use ($expeditionLevels) {
+        $getShipLevel = function ($shipMachineName) use ($expeditionLevels) {
             foreach ($expeditionLevels as $level => $ships) {
                 if (in_array($shipMachineName, $ships)) {
                     return $level;
@@ -380,9 +331,7 @@ class ExpeditionMission extends GameMission
         // Collect all ships that can be found at this level and below
         $possibleShipMachineNames = [];
         for ($level = 1; $level <= $maxExpeditionLevel; $level++) {
-            if (isset($expeditionLevels[$level])) {
-                $possibleShipMachineNames = array_merge($possibleShipMachineNames, $expeditionLevels[$level]);
-            }
+            $possibleShipMachineNames = array_merge($possibleShipMachineNames, $expeditionLevels[$level]);
         }
 
         // Get ship objects for the possible ships
@@ -402,22 +351,55 @@ class ExpeditionMission extends GameMission
             return new UnitCollection();
         }
 
-        // Select 1-3 random ship types from possible ships
-        $num_ship_types = min(random_int(1, 3), count($possibleShips));
+        // Get max cargo capacity of the fleet.
+        $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
+        $maxCargoCapacity = $units->getTotalCargoCapacity($player);
+
+        // Determine the max resource find.
+        $maxResourceFind = $this->determineMaxResourceFind();
+        $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $maxResourceFind);
+
+        // Select 1-6 random ship types from possible ships.
+        $num_ship_types = min(random_int(1, 6), count($possibleShips));
         shuffle($possibleShips);
         $selectedShips = array_slice($possibleShips, 0, $num_ship_types);
 
-        // Create a random amount of units for each selected ship type
+        // Distribute resources per ship type with randomness (up to 75% variance), last ship gets the remainder.
+        // E.g. if there are 500k resources to find and 3 ship types, the actual ship amount found might look like this:
+        // Ship type 1: 150k / 4k cost per ship = 37 ships (rounded down)
+        // Ship type 2: 250k / 10k cost per ship = 25 ships
+        // Ship type 3: 100k / 20k cost per ship = 5 ships
+        // The distribution is random, so it will look different each time.
+        $remainingResources = $cargoCapacityConstrainedAmount;
+        $numShips = count($selectedShips);
+        $averageResourcePerShip = $cargoCapacityConstrainedAmount / $numShips;
+
         $units = new UnitCollection();
-        foreach ($selectedShips as $ship) {
-            // TODO: Implement proper amount calculation based on:
-            // - Server top player points
-            // - Economy speed
-            // - Discoverer class bonus
-            // - Max unit value of 500,000-600,000
-            // For now, using a simple random amount
-            $amount = random_int(1, 100);
-            $units->addUnit($ship, $amount);
+        foreach ($selectedShips as $i => $ship) {
+            $shipPrice = $ship->price->resources->sum();
+
+            if ($i < $numShips - 1) {
+                // For all but the last ship, allocate a random portion (25% to 175%) of the average share
+                $minResources = $averageResourcePerShip * 0.25;
+                $maxResources = $averageResourcePerShip * 1.75;
+                $randomResources = min(
+                    $remainingResources,
+                    random_int((int)round($minResources), (int)round($maxResources))
+                );
+            } else {
+                // Last ship gets all remaining resources
+                $randomResources = $remainingResources;
+            }
+
+            $amount = (int)floor($randomResources / $shipPrice);
+            if ($amount > 0) {
+                $units->addUnit($ship, $amount);
+            }
+
+            $remainingResources -= $randomResources;
+            if ($remainingResources < 0) {
+                $remainingResources = 0;
+            }
         }
 
         // Convert units to array with key "unit_<unit_id>" and value as amount.
@@ -550,5 +532,69 @@ class ExpeditionMission extends GameMission
 
         // Pick random outcome from remaining enabled outcomes
         return $enabledOutcomes[array_rand($enabledOutcomes)];
+    }
+
+    /**
+     * Get the max resource find based on the rank 1 highscore points and by returning a random
+     * value between 10% and 100% of the actual max resource find for variance.
+     *
+     * This method is used by both gainResources and gainShips outcome.
+     *
+     * @return int
+     */
+    private function determineMaxResourceFind(): int
+    {
+        // Max resources found is according to these params:
+        // Number 1 player highscore "general" points determines the max resources found:
+        // < 10.000 points: 40.000 metal
+        // < 100.000 points: 500.000 metal
+        // < 1.000.000 points: 1.200.000 metal
+        // < 5.000.000 points: 1.800.000 metal
+        // < 25.000.000 points: 2.400.000 metal
+        // < 50.000.000 points: 3.000.000 metal
+        // < 75.000.000 points: 3.600.000 metal
+        // < 100.000.000 points: 4.200.000 metal
+        // > 100.000.000 points: 5.000.000 metal
+        // When discoverer class is active, the following modifier applies: economy speed * 1.5.
+        // E.g. with discoverer class and economy speed 5x, the modifier is 7.5.
+        // so the >100m points max find would be 7.5 * 5m = 37.5m
+        // Crystal is 2/3 of the metal find.
+        // Deuterium is 1/3 of the metal find.
+        $rank_1_highscore_points = Highscore::orderByDesc(HighscoreTypeEnum::general->name)->first()->general;
+
+        if ($rank_1_highscore_points < 10000) {
+            $max = 40000;
+        } elseif ($rank_1_highscore_points < 100000) {
+            $max = 500000;
+        } elseif ($rank_1_highscore_points < 1000000) {
+            $max = 1200000;
+        } elseif ($rank_1_highscore_points < 5000000) {
+            $max = 1800000;
+        } elseif ($rank_1_highscore_points < 25000000) {
+            $max = 2400000;
+        } elseif ($rank_1_highscore_points < 50000000) {
+            $max = 3000000;
+        } elseif ($rank_1_highscore_points < 75000000) {
+            $max = 3600000;
+        } elseif ($rank_1_highscore_points < 100000000) {
+            $max = 4200000;
+        } else {
+            $max = 5000000;
+        }
+
+        // Set min to at least 10% of the max.
+        $min = max(1, (int)floor($max * 0.1));
+
+        // Pick a random amount between min and max.
+        $resourceAmount = random_int($min, $max);
+
+        // TODO: when actual player classes such as discoverer, collector etc. are implemented, make this modifier apply only if class is "discoverer".
+        // For now we apply it anyway so the economy speed is applied to the resource find.
+        $economySpeed = $this->settings->economySpeed();
+        $resourceAmount = $resourceAmount * ($economySpeed * 1.5);
+
+        // TODO: when pathfinder unit is added to the game and included in the fleet, the max find should be doubled.
+
+        return (int)$resourceAmount;
     }
 }
