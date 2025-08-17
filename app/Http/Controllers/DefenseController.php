@@ -51,7 +51,7 @@ class DefenseController extends AbstractUnitsController
 
         return view(view: 'ingame.defense.index')->with(
             array_merge(
-                ['shipyard_upgrading' => $player->isBuildingObject('shipyard')],
+                ['shipyard_upgrading' => $player->planets->current()->isBuildingObject('shipyard')],
                 parent::indexPage($request, $player)
             )
         );
@@ -68,7 +68,7 @@ class DefenseController extends AbstractUnitsController
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
         // If the shipyard isn't upgrading, we can continue to process the request.
-        if (!$player->isBuildingObject('shipyard')) {
+        if (!$player->planets->current()->isBuildingObject('shipyard')) {
             return parent::addBuildRequest($request, $player);
         } else {
             // Otherwise, it shouldn't be allowed.
