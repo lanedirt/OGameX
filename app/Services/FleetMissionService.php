@@ -160,21 +160,21 @@ class FleetMissionService
 
     /**
      * Calculate the consumption of a fleet mission based on the current planet, target coordinates and fleet.
-     * @param PlanetService $fromPlanet
-     * @param UnitCollection $ships
-     * @param Coordinate $target_coordinate
-     * @param int $holdingTime
-     * @param float $speed_percent
-     * @param $mission
-     * @return float|mixed
+     *
+     * @param PlanetService $fromPlanet The planet where the fleet is sent from.
+     * @param UnitCollection $ships The units that are sent on the mission.
+     * @param Coordinate $targetCoordinate The target coordinate of the mission.
+     * @param int $holdingHours The holding time of the fleet. The number represents the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
+     * @param float $speedPercent The speed percent of the fleet.
+     * @return float|mixed The consumption of the fleet mission.
      */
-    public function calculateConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $target_coordinate, int $holdingTime, float $speed_percent)
+    public function calculateConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $targetCoordinate, int $holdingHours, float $speedPercent)
     {
         $consumption = 0;
         $holdingCosts = 0;
 
-        $distance = $this->calculateFleetMissionDistance($fromPlanet, $target_coordinate);
-        $duration = $this->calculateFleetMissionDuration($fromPlanet, $target_coordinate, $ships, $speed_percent);
+        $distance = $this->calculateFleetMissionDistance($fromPlanet, $targetCoordinate);
+        $duration = $this->calculateFleetMissionDuration($fromPlanet, $targetCoordinate, $ships, $speedPercent);
 
         $speedValue = max(0.5, $duration * $this->settingsService->fleetSpeed() - 10);
         foreach ($ships->units as $shipEntry) {
@@ -187,7 +187,7 @@ class FleetMissionService
 
             if (!empty($shipAmount)) {
                 $shipSpeedValue = 35000 / $speedValue * sqrt($distance * 10 / $ship_speed);
-                $holdingCosts += $ship->properties->fuel->rawValue * $shipAmount * $holdingTime;
+                $holdingCosts += $ship->properties->fuel->rawValue * $shipAmount * $holdingHours;
 
                 $consumption += max(
                     $ship->properties->fuel->rawValue * $shipAmount * $distance / 35000 *
@@ -201,7 +201,7 @@ class FleetMissionService
         $consumption = round($consumption);
 
         // Holding costs
-        if ($holdingTime > 0) {
+        if ($holdingHours > 0) {
             $consumption += max(floor($holdingCosts / 10), 1);
         }
 
@@ -262,13 +262,26 @@ class FleetMissionService
             $planetIds[] = $planet->getPlanetId();
         }
 
-        $query = $query->where(function ($query) use ($planetIds) {
+        $missions = $query->where(function ($query) use ($planetIds) {
             $query->where('user_id', $this->player->getId())
                 ->orWhereIn('planet_id_to', $planetIds);
         })
-            ->where('processed', 0);
+            ->where('processed', 0)
+            ->get();
 
-        return $query->orderBy('time_arrival')->get();
+        // Order the list taking into account the time_holding. This ensures that the order of missions is correct
+        // for the event list that assumes the first mission is the next mission to arrive.
+        $missions = $missions->sortBy(function ($mission) {
+            // If the mission has not arrived yet, return the time_arrival.
+            if ($mission->time_arrival >= Carbon::now()->timestamp) {
+                return $mission->time_arrival;
+            }
+
+            // If the mission has arrived AND has a waiting time, return the time_arrival + time_holding.
+            return $mission->time_arrival + ($mission->time_holding ?? 0);
+        });
+
+        return $missions;
     }
 
     /**
@@ -350,11 +363,11 @@ class FleetMissionService
     }
 
     /**
-     * Get missions that are either from or to the given planets that have reached the arrival time
+     * Get missions that are either from or to the given planets that have reached the arrival + waiting time
      * but are not processed yet.
      *
      * @param int[] $planetIds
-     * @return Collection
+     * @return Collection<int, FleetMission>
      */
     public function getArrivedMissionsByPlanetIds(array $planetIds): Collection
     {
@@ -363,7 +376,9 @@ class FleetMissionService
                 $query->whereIn('planet_id_from', $planetIds)
                     ->orWhereIn('planet_id_to', $planetIds);
             })
-            ->where('time_arrival', '<=', Carbon::now()->timestamp)
+            ->where(function ($query) {
+                $query->whereRaw('time_arrival + COALESCE(time_holding, 0) <= ?', [Carbon::now()->timestamp]);
+            })
             ->where('processed', 0)
             ->get();
     }
@@ -373,7 +388,7 @@ class FleetMissionService
      * underway and have not been processed yet.
      *
      * @param int[] $planetIds
-     * @return Collection
+     * @return Collection<int, FleetMission>
      */
     public function getActiveMissionsByPlanetIds(array $planetIds): Collection
     {
@@ -408,6 +423,27 @@ class FleetMissionService
     }
 
     /**
+     * Get a fleet mission by its parent ID. E.g. this can be used to find the return trip mission launched for a given parent mission ID.
+     *
+     * @param int $parent_id
+     * @param bool $only_active
+     * @return FleetMission
+     */
+    public function getFleetMissionByParentId(int $parent_id, bool $only_active = true): FleetMission
+    {
+        if ($only_active) {
+            return $this->model
+                ->where('parent_id', $parent_id)
+                ->where('processed', 0)
+                ->first();
+        } else {
+            return $this->model
+                ->where('parent_id', $parent_id)
+                ->first();
+        }
+    }
+
+    /**
      * Creates a new fleet mission for the current planet.
      *
      * @param PlanetService $planet The planet where the fleet is sent from.
@@ -416,17 +452,19 @@ class FleetMissionService
      * @param int $missionType The type of the mission.
      * @param UnitCollection $units The units that are sent.
      * @param Resources $resources The resources that are sent.
+     * @param float $speedPercent The speed percent of the fleet.
+     * @param int $holdingHours The holding time of the fleet.
      * @param int $parent_id Optionally the parent mission ID if this is a follow-up mission.
      * @return FleetMission
      * @throws Exception
      */
-    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, float $speed_percent, int $parent_id = 0): FleetMission
+    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingHours = 0, int $parent_id = 0): FleetMission
     {
         $missionObject = $this->gameMissionFactory->getMissionById($missionType, [
             'fleetMissionService' => $this,
             'messageService' => $this->messageService,
         ]);
-        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $speed_percent, $parent_id);
+        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $speedPercent, $holdingHours, $parent_id);
     }
 
     /**
@@ -440,8 +478,9 @@ class FleetMissionService
         // Load the mission object again from database to ensure we have the latest data.
         $mission = $this->getFleetMissionById($mission->id, false);
 
-        // Sanity check: only process missions that have arrived.
-        if ($mission->time_arrival > Carbon::now()->timestamp) {
+        // Sanity check: only process missions that have arrived AND potential waiting time has passed.
+        $arrivalTimeWithWaitingTime = $mission->time_arrival + ($mission->time_holding ?? 0);
+        if ($arrivalTimeWithWaitingTime > Carbon::now()->timestamp) {
             return;
         }
 
@@ -465,7 +504,15 @@ class FleetMissionService
      */
     public function cancelMission(FleetMission $mission): void
     {
-        // Sanity check: only process missions that have not been processed yet.
+        // Sanity check: only allow cancelling missions that have not yet arrived.
+        // This applies to especially missions that have a time_holding (e.g. expeditions) where the main mission arrives first
+        // but the mission itself is not processed before the time_holding has passed as well. However after the main mission
+        // has arrived (even though it's not processed yet), canceling should no longer be allowed.
+        if ($mission->time_arrival < Carbon::now()->timestamp) {
+            return;
+        }
+
+        // Sanity check: only allow canceling missions that have not been processed yet.
         if ($mission->processed) {
             return;
         }

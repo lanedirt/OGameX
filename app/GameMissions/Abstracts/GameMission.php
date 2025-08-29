@@ -10,6 +10,7 @@ use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\GameMissions\ExpeditionMission;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
@@ -162,19 +163,20 @@ abstract class GameMission
     /**
      * Start a new mission.
      *
-     * @param PlanetService $planet
-     * @param Coordinate $targetCoordinate
-     * @param PlanetType $targetType
-     * @param UnitCollection $units
-     * @param Resources $resources
-     * @param float $speed_percent
-     * @param int $parent_id
-     * @return FleetMission
+     * @param PlanetService $planet The planet where the fleet is sent from.
+     * @param Coordinate $targetCoordinate The target coordinate of the mission.
+     * @param PlanetType $targetType The type of the target.
+     * @param UnitCollection $units The units that are sent on the mission.
+     * @param Resources $resources The resources that are sent on the mission.
+     * @param float $speedPercent The speed percent of the fleet.
+     * @param int $holdingHours The holding time of the fleet. The number represents the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
+     * @param int $parentId The parent mission ID if this is a follow-up mission.
+     * @return FleetMission The created fleet mission.
      * @throws Exception
      */
-    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, float $speed_percent, int $parent_id = 0): FleetMission
+    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingHours = 0, int $parentId = 0): FleetMission
     {
-        $consumption = $this->fleetMissionService->calculateConsumption($planet, $units, $targetCoordinate, 0, $speed_percent);
+        $consumption = $this->fleetMissionService->calculateConsumption($planet, $units, $targetCoordinate, $holdingHours, $speedPercent);
         $consumption_resources = new Resources(0, 0, $consumption, 0);
 
         $total_deuterium = $resources->deuterium->get() + $consumption_resources->deuterium->get();
@@ -187,14 +189,14 @@ abstract class GameMission
 
         // Time fleet mission will arrive.
         // TODO: refactor calculate to gamemission base class?
-        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $speed_percent);
+        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $speedPercent);
 
         $mission = new FleetMission();
 
         // Set the parent mission if it exists. This indicates that this mission is a follow-up (return)
         // mission linked to a previous mission.
-        if (!empty($parent_id)) {
-            $parentMission = $this->fleetMissionService->getFleetMissionById($parent_id);
+        if (!empty($parentId)) {
+            $parentMission = $this->fleetMissionService->getFleetMissionById($parentId);
             $mission->parent_id = $parentMission->id;
         }
 
@@ -209,6 +211,13 @@ abstract class GameMission
         $mission->mission_type = static::$typeId;
         $mission->time_departure = $time_start;
         $mission->time_arrival = $time_end;
+
+        // Holding time is the amount of time the fleet will wait at the target planet and/or how long expedition will last.
+        // The $holdingHours is in hours, so we convert it to seconds.
+        // Only applies to expeditions (and ACS missions, but those are not implemented yet).
+        if (static::class === ExpeditionMission::class) {
+            $mission->time_holding = $holdingHours * 3600;
+        }
 
         $mission->type_to = $targetType->value;
         $mission->deuterium_consumption = $consumption_resources->deuterium->get();
@@ -260,9 +269,10 @@ abstract class GameMission
      * @param FleetMission $parentMission The parent mission that the return mission is linked to.
      * @param Resources $resources The resources that are to be returned.
      * @param UnitCollection $units The units that are to be returned.
+     * @param int $additionalReturnTripTime Time in seconds to add to the return trip duration (optional, used by expeditions). Can be positive or negative.
      * @return void
      */
-    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units): void
+    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0): void
     {
         if ($units->getAmount() === 0) {
             // No units to return, no need to create a return mission.
@@ -278,7 +288,7 @@ abstract class GameMission
 
         // Time fleet mission will arrive (arrival time of the parent mission + duration of the parent mission)
         // Return mission duration is always the same as the parent mission duration.
-        $time_end = $time_start + ($parentMission->time_arrival - $parentMission->time_departure);
+        $time_end = $time_start + ($parentMission->time_arrival - $parentMission->time_departure) + $additionalReturnTripTime;
 
         // Create new return mission object
         $mission = new FleetMission();
@@ -327,6 +337,8 @@ abstract class GameMission
         // Set amount of resources to return based on provided resources in parameter.
         // This is the amount of resources that were gained and/or not used during the mission.
         // The logic is different for each mission type.
+        // TODO: make this more smart: what if mission started with resources already, e.g. sending attack mission with resources?
+        // With the current logic the resources from origin mission are lost, which is probably not correct?
         $mission->metal = (int)$resources->metal->get();
         $mission->crystal = (int)$resources->crystal->get();
         $mission->deuterium = (int)$resources->deuterium->get();

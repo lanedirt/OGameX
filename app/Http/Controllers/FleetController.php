@@ -77,6 +77,8 @@ class FleetController extends OGameController
             'settings' => $settings,
             'fleetSlotsInUse' => $player->getFleetSlotsInUse(),
             'fleetSlotsMax' => $player->getFleetSlotsMax(),
+            'expeditionSlotsInUse' => $player->getExpeditionSlotsInUse(),
+            'expeditionSlotsMax' => $player->getExpeditionSlotsMax(),
         ]);
     }
 
@@ -169,7 +171,9 @@ class FleetController extends OGameController
         }
 
         $status = 'success';
-        if (count($errors) > 0) {
+
+        // If there are errors and no possible missions, set status to failure.
+        if (count($errors) > 0 && count($enabledMissions) === 0) {
             $status = 'failure';
         }
 
@@ -251,9 +255,11 @@ class FleetController extends OGameController
         // Create the target coordinate
         $target_coordinate = new Coordinate($galaxy, $system, $position);
 
-        // Extract speed and holding time from the request
+        // Get speed percent from the request.
         $speed_percent = (float)request()->input('speed');
-        $holding_time = (int)request()->input('holdingtime');
+
+        // Holding hours is the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
+        $holding_hours = (int)request()->input('holdingtime');
 
         // Extract units from the request and create a unit collection.
         // Loop through all input fields and get all units prefixed with "am".
@@ -272,7 +278,7 @@ class FleetController extends OGameController
         $planetType = PlanetType::from($target_type);
 
         try {
-            $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent);
+            $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent, $holding_hours);
 
             return response()->json([
                 'success' => true,
@@ -285,7 +291,12 @@ class FleetController extends OGameController
             // This can happen if the user tries to send a fleet when there are no free fleet slots.
             return response()->json([
                 'success' => false,
-                'message' => 'Fleet launch failure: The fleet could not be launched. Please try again later.',
+                'errors' => [
+                    [
+                        'message' => $e->getMessage(),
+                        'error' => 140019
+                    ]
+                ],
                 'components' => [],
                 'newAjaxToken' => csrf_token(),
             ]);

@@ -46,7 +46,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
     {
         // Assert that message has been sent to player and contains the correct information.
         $this->assertMessageReceivedAndContains('fleets', 'transport', [
-            'reaches the planet',
+            'reaches',
             'Metal: 100',
             'Crystal: 100',
             $this->planetService->getPlanetName(),
@@ -119,8 +119,8 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
         // Assert that last message sent to second player contains the transport confirm message.
         $this->assertMessageReceivedAndContainsDatabase($foreignPlanet->getPlayer(), [
-            'An incoming fleet from planet',
-            'has reached your planet',
+            'An incoming fleet from',
+            'has reached your',
         ]);
     }
 
@@ -530,7 +530,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $coordinates = $this->secondPlanetService->getPlanetCoordinates();
 
         // Dispatch fleet to the non-existent moon and expect mission to fail (assertStatus is false)
-        $this->dispatchFleet($coordinates, $unitCollection, new Resources(100, 100, 0, 0), PlanetType::Moon, false);
+        $this->dispatchFleet($coordinates, $unitCollection, new Resources(100, 100, 0, 0), PlanetType::Moon, 0, false);
 
         // Verify no fleet mission was created
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);

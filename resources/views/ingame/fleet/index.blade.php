@@ -802,9 +802,9 @@
                             </div>
                         </div>
                         <div class="fleft">
-                                        <span class="tooltip advice " title="Used/Total expedition slots">
+                                        <span class="tooltip advice {{ $expeditionSlotsInUse >= $expeditionSlotsMax ? 'overmark' : '' }}" title="Used/Total expedition slots">
                             <span>Expeditions:</span>
-                            0/1
+                            {{ $expeditionSlotsInUse }}/{{ $expeditionSlotsMax }}
                         </span>
                         </div>
                     </div>
@@ -874,21 +874,21 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 <div class="c-right"></div>
                 @if ($shipAmount == 0)
                     <div id="warning">
-                        <h3>Fleet dispatch impossible</h3>
+                        <h3>@lang('Fleet dispatch impossible')</h3>
                         <p>
                             <span class="icon icon_warning"></span>
-                            There are no ships on this planet.
+                            @lang('There are no ships on this planet.')
                         </p>
                     </div>
                 @else
                     <div class="fleetStatus" id="statusBarFleet">
                         <ul>
-                            <li><span class="title">Mission:</span> <span
-                                        class="missionName">Nothing has been selected</span></li>
-                            <li><span class="title">Target:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
+                            <li><span class="title">@lang('Mission:')</span> <span
+                                        class="missionName">@lang('Nothing has been selected')</span></li>
+                            <li><span class="title">@lang('Target:')</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
                                             class="planetIcon {{ $planet->isPlanet() ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile"
                                             title="{{ $planet->isPlanet() ? 'Planet' : 'Moon' }}"></figure>{{ $planet->getPlanetName() }}</span></li>
-                            <li><span class="title">Player's Name:</span> <span
+                            <li><span class="title">@lang('Player\'s Name:')</span> <span
                                         class="targetPlayerName">{{ $player->getUsername() }}</span></li>
                         </ul>
                     </div>
@@ -898,7 +898,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                   action="{{ route('overview.index') }}#TODO_page=fleet2">
                                 <div id="technologies">
                                     <div id="battleships">
-                                        <div class="header"><h2>Combat ships</h2></div>
+                                        <div class="header"><h2>@lang('Combat ships')</h2></div>
                                         <ul id="military" class="iconsUNUSED">
                                             @php /** @var OGame\ViewModels\UnitViewModel $object */ @endphp
                                             @foreach ($units[0] as $object)
@@ -922,7 +922,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         </ul>
                                     </div>
                                     <div id="civilships">
-                                        <div class="header"><h2>Civil ships</h2></div>
+                                        <div class="header"><h2>@lang('Civil ships')</h2></div>
                                         <ul id="civil" class="iconsUNUSED">
                                             @php /** @var OGame\ViewModels\QueueUnitViewModel $object */ @endphp
                                             @foreach ($units[1] as $object)
@@ -970,7 +970,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         <a id="combatunits" class="overlay dark_highlight_tablet"
                                            data-overlay-inline="#zeuch666" data-overlay-title="Edit standard fleets">
                                             <span class="icon icon_combatunits"></span>
-                                            Standard fleets
+                                            @lang('Standard fleets')
                                         </a>
                                         <select class="combatunits dropdownInitialized" size="1" id="standardfleet"
                                                 style="display: none;">
@@ -985,10 +985,10 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                             </span>
                                     <a id="continueToFleet2" class="continue off" href="">
                                         <span class="ipiHintable" data-ipi-hint="ipiFleetContinueToPage2"
-                                              data-ipi-highlight-step="ipiFleetContinueToPage2">Continue</span>
+                                              data-ipi-highlight-step="ipiFleetContinueToPage2">@lang('Continue')</span>
                                     </a>
                                     <div class="clearfloat"></div>
-                                    <p class="info">Nothing has been selected</p>
+                                    <p class="info">@lang('Nothing has been selected')</p>
                                 </div>
                             </div>
                             <div class="footer"></div>
@@ -1004,7 +1004,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
 
             <div id="inhalt">
                 <div id="planet" class="planet-header ">
-                    <h2>Fleet Dispatch II - {{ $planet->getPlanetName() }}</h2>
+                    <h2>@lang('Fleet Dispatch II') - {{ $planet->getPlanetName() }}</h2>
                     <a class="toggleHeader" data-name="fleet2">
                         <img alt="" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22">
                     </a>
@@ -1013,12 +1013,12 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 <div class="c-right shortCorner"></div>
                 <div class="fleetStatus" id="statusBarFleet">
                     <ul>
-                        <li><span class="title">Mission:</span> <span
-                                    class="missionName">Nothing has been selected</span></li>
-                        <li><span class="title">Target:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
+                        <li><span class="title">@lang('Mission:')</span> <span
+                                    class="missionName">@lang('Nothing has been selected')</span></li>
+                        <li><span class="title">@lang('Target:')</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
                                         class="planetIcon {{ $planet->isPlanet() ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile" title="{{ $planet->isPlanet() ? 'Planet' : 'Moon' }}"></figure>{{ $planet->getPlanetName() }}</span>
                         </li>
-                        <li><span class="title">Player's Name:</span> <span
+                        <li><span class="title">@lang('Player\'s Name:')</span> <span
                                     class="targetPlayerName">{{ $player->getUsername() }}</span></li>
                     </ul>
                 </div>
@@ -1046,9 +1046,9 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                             <table cellpadding="0" cellspacing="0" id="mission">
                                 <tbody>
                                 <tr>
-                                    <th><h2>Origin:</h2></th>
+                                    <th><h2>@lang('Origin:')</h2></th>
                                     <th></th>
-                                    <th><h2>Destination:</h2></th>
+                                    <th><h2>@lang('Destination:')</h2></th>
                                     <th></th>
                                 </tr>
                                 <tr>
@@ -1056,38 +1056,38 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         <div class="planetname">{{ $planet->getPlanetName() }}</div>
                                         <div class="target">
                                             <a class="planet_source{{ $planet->isPlanet() ? '_selected' : '' }}">
-                                                <span class="textlabel">Planet</span>
+                                                <span class="textlabel">@lang('Planet')</span>
                                             </a>
                                             <a class="moon_source{{ $planet->isMoon() ? '_selected' : '' }}">
-                                                <span class="textlabel">Moon</span>
+                                                <span class="textlabel">@lang('Moon')</span>
                                             </a>
                                             <br class="clearfloat">
                                         </div>
                                         <div class="coords">
-                                            Coordinates:
+                                            @lang('Coordinates:')
                                             <span style="color: #ffffff; font-weight: bold;">{{ $planet->getPlanetCoordinates()->asString() }}</span>
                                         </div>
                                     </td>
                                     <td id="distance">
                                         <div id="distanceValue">5</div>
-                                        <div class="coords">Distance</div>
+                                        <div class="coords">@lang('Distance')</div>
                                     </td>
                                     <td id="target" class="border5px">
                                         <div class="planetname" id="targetPlanetName">{{ $planet->getPlanetName() }}</div>
                                         <div class="target">
                                             <a class="planet{{ $planet->isPlanet() ? '_selected' : '' }}" href="" id="pbutton">
-                                                <span class="textlabel">Planet</span>
+                                                <span class="textlabel">@lang('Planet')</span>
                                             </a>
                                             <a class="moon{{ $planet->isMoon() ? '_selected' : '' }}" href="" id="mbutton">
-                                                <span class="textlabel">Moon</span>
+                                                <span class="textlabel">@lang('Moon')</span>
                                             </a>
                                             <a class="debris" href="" id="dbutton">
-                                                <span class="textlabel">debris field</span>
+                                                <span class="textlabel">@lang('debris field')</span>
                                             </a>
                                             <br class="clearfloat">
                                         </div>
                                         <div class="coords">
-                                            Coordinates:
+                                            @lang('Coordinates:')
                                             <br>
                                             <div class="coordsSection ipiHintable"
                                                  data-ipi-hint="ipiFleetDestinationCoordsSystem">
@@ -1109,7 +1109,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                     </td>
                                     <td id="shortcuts">
                                         <div>
-                                            <span id="shortlinks tips">Shortcuts:</span>
+                                            <span id="shortlinks tips">@lang('Shortcuts:')</span>
                                             <div class="glow">
                                                 <select size="1" class="planets" id="slbox">
                                                     <option value="-">-</option>
@@ -1127,7 +1127,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             </div>
                                         </div>
                                         <div style="padding-top: 12px;">
-                                            <span id="combatunits tips">Combat forces:</span>
+                                            <span id="combatunits tips">@lang('Combat forces:')</span>
                                             <div class="glow">
                                                 <select size="1" class="combatunits dropdownInitialized" id="aksbox"
                                                         name="acsValues" style="display: none;">
@@ -1152,7 +1152,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                             <div class="move-box ui-sortable-handle"></div>
                         </div>
                         <div class="header">
-                            <h2>Select mission for target:</h2>
+                            <h2>@lang('Select mission for target:')</h2>
                         </div>
                         <div class="content">
                             <div class="ajax_loading" style="display: none;">
@@ -1161,75 +1161,74 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                 </div>
                             </div>
                             <div id="attackMissionsDisabledBashingLimit" style="display: none;"><span
-                                        class="icon icon_warning"></span> Attack missions have been deactivated as a
-                                result of too many attacks on the target.
+                                        class="icon icon_warning"></span> @lang('Attack missions have been deactivated as a result of too many attacks on the target.')
                             </div>
                             <ul id="missions">
                                 <li id="button15" class="off ipiHintable" data-ipi-hint="ipiFleetMission15">
                                     <a id="missionButton15" href="" data-mission="15"
                                        data-ipi-highlight-step="ipiFleetMission15">
-                                        <span class="textlabel">Expedition</span>
+                                        <span class="textlabel">@lang('Expedition')</span>
                                     </a>
                                 </li>
                                 <li id="button7" class="off ipiHintable" data-ipi-hint="ipiFleetMission7">
                                     <a id="missionButton7" href="" data-mission="7"
                                        data-ipi-highlight-step="ipiFleetMission7">
-                                        <span class="textlabel">Colonisation</span>
+                                        <span class="textlabel">@lang('Colonisation')</span>
                                     </a>
                                 </li>
                                 <li id="button8" class="off ipiHintable" data-ipi-hint="ipiFleetMission8">
                                     <a id="missionButton8" href="" data-mission="8"
                                        data-ipi-highlight-step="ipiFleetMission8">
-                                        <span class="textlabel">Recycle Debris Field</span>
+                                        <span class="textlabel">@lang('Recycle Debris Field')</span>
                                     </a>
                                 </li>
                                 <li id="button3" class="off ipiHintable" data-ipi-hint="ipiFleetMission3">
                                     <a id="missionButton3" href="" data-mission="3"
                                        data-ipi-highlight-step="ipiFleetMission3">
-                                        <span class="textlabel">Transport</span>
+                                        <span class="textlabel">@lang('Transport')</span>
                                     </a>
                                 </li>
-                                <li id="button4" class="ipiHintable on" data-ipi-hint="ipiFleetMission4">
+                                <li id="button4" class="off ipiHintable" data-ipi-hint="ipiFleetMission4">
                                     <a id="missionButton4" href="" data-mission="4"
                                        data-ipi-highlight-step="ipiFleetMission4">
-                                        <span class="textlabel">Deployment</span>
+                                        <span class="textlabel">@lang('Deployment')</span>
                                     </a>
                                 </li>
                                 <li id="button6" class="off ipiHintable" data-ipi-hint="ipiFleetMission6">
                                     <a id="missionButton6" href="" data-mission="6"
                                        data-ipi-highlight-step="ipiFleetMission6">
-                                        <span class="textlabel">Espionage</span>
+                                        <span class="textlabel">@lang('Espionage')</span>
                                     </a>
                                 </li>
                                 <li id="button5" class="off ipiHintable" data-ipi-hint="ipiFleetMission5">
                                     <a id="missionButton5" href="" data-mission="5"
                                        data-ipi-highlight-step="ipiFleetMission5">
-                                        <span class="textlabel">ACS Defend</span>
+                                        <span class="textlabel">@lang('ACS Defend')</span>
                                     </a>
                                 </li>
                                 <li id="button1" class="off ipiHintable" data-ipi-hint="ipiFleetMission1">
                                     <a id="missionButton1" href="" data-mission="1"
                                        data-ipi-highlight-step="ipiFleetMission1">
-                                        <span class="textlabel">Attack</span>
+                                        <span class="textlabel">@lang('Attack')</span>
                                     </a>
                                 </li>
                                 <li id="button2" class="off ipiHintable" data-ipi-hint="ipiFleetMission2">
                                     <a id="missionButton2" href="" data-mission="2"
                                        data-ipi-highlight-step="ipiFleetMission2">
-                                        <span class="textlabel">ACS Attack</span>
+                                        <span class="textlabel">@lang('ACS Attack')</span>
                                     </a>
                                 </li>
                                 <li id="button9" class="off ipiHintable" data-ipi-hint="ipiFleetMission9">
                                     <a id="missionButton9" href="" data-mission="9"
                                        data-ipi-highlight-step="ipiFleetMission9">
-                                        <span class="textlabel">Moon Destruction</span>
+                                        <span class="textlabel">@lang('Moon Destruction')</span>
                                     </a>
                                 </li>
                             </ul>
                             <br class="clearfloat">
                             <div id="missionNameWrapper" class="off">
-                                Mission:
-                                <span id="missionName" class="missionName">Nothing has been selected</span>
+                                @lang('Mission:')
+                                <span id="missionName" class="missionName">@lang('Nothing has been selected')</span>
                                 <p class="mission_description"></p>
                             </div>
                             <div class="footer"></div>
@@ -1249,7 +1248,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                             <form name="sendForm" method="post"
                                   action="{{ route('overview.index') }}#TODO_page=ingame&amp;component=movement">
                                 <div id="mission">
-                                    <div class="briefing_overlay">You cannot start this mission.</div>
+                                    <div class="briefing_overlay">@lang('You cannot start this mission.')</div>
                                     <div style="display:none">
                                         <input name="galaxy" type="hidden" value="7">
                                         <input name="system" type="hidden" value="158">
@@ -1266,8 +1265,8 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         <input name="prioFood" type="hidden" value="1">
 
                                     </div>
-                                    <div class="missionHeader">Briefing:</div>
-                                    <div class="missionHeader">Load resources:</div>
+                                    <div class="missionHeader">@lang('Briefing:')</div>
+                                    <div class="missionHeader">@lang('Load resources:')</div>
                                     <!-- START: Briefing -->
                                     <div id="start" class="border5px">
                                         <ul id="fleetBriefingPart1" class="fleetBriefing">
@@ -1283,33 +1282,33 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                         </span>
                                             </li>
                                             <li>
-                                                Target:
+                                                @lang('Target:')
                                                 <span class="value tooltip active tpd-hideOnClickOutside"
                                                       id="targetPlanet" title="">[{{ $planet->getPlanetCoordinates()->asString() }}] {{ $planet->getPlanetName() }}</span>
                                             </li>
                                             <li>
-                                                Duration of flight (one way):
+                                                @lang('Duration of flight (one way):')
                                                 <span class="value" id="duration">0:00:00 h</span>
                                             </li>
                                             <li>
-                                                Arrival: <span class="value"><span
-                                                            id="arrivalTime">18.03.24 23:16:15</span> Clock</span>
+                                                @lang('Arrival:') <span class="value"><span
+                                                            id="arrivalTime">18.03.24 23:16:15</span> @lang('Clock')</span>
                                             </li>
                                             <li>
-                                                Return: <span class="value"><span
-                                                            id="returnTime">18.03.24 23:16:15</span> Clock</span>
+                                                @lang('Return:') <span class="value"><span
+                                                            id="returnTime">18.03.24 23:16:15</span> @lang('Clock')</span>
                                             </li>
                                             <li>
-                                                Deuterium consumption:
+                                                @lang('Deuterium consumption:')
                                                 <span class="value"><span id="consumption"><span class="undermark">0 (NaN%)</span></span></span>
                                             </li>
                                             <li>
-                                                Empty cargobays: <span class="value" id="storage"><span
+                                                @lang('Empty cargobays:') <span class="value" id="storage"><span
                                                             class="undermark">0</span></span>
                                             </li>
                                             <li id="holdtimeline" style="display: none;">
-                                                Hold time:
-                                                <select name="holdingtime" id="holdingtime" class="dropdownInitialized"
+                                                @lang('Hold time:')
+                                                <select name="holdingtime" id="holdingtime"
                                                         style="display: none;">
                                                     <option value="0">0</option>
                                                     <option value="1" selected="'selected'">1</option>
@@ -1323,20 +1322,21 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                             class="undefined" data-value="1" rel="dropdown284"
                                                             href="javascript:void(0);">1</a></span>
                                             </li>
-                                            <li id="expeditiontimeline" style="display: none;">
-                                                Duration of expedition:
-                                                <select name="expeditiontime" id="expeditiontime"
-                                                        class="dropdownInitialized" style="display: none;">
-                                                    <option value="1">1</option>
-                                                </select><span class="dropdown currentlySelected undefined"
-                                                               rel="dropdown599" style="width: 45px;"><a
-                                                            class="undefined" data-value="1" rel="dropdown599"
-                                                            href="javascript:void(0);">1</a></span>
+                                            <li id="expeditiontimeline">
+                                                @lang('Duration of expedition:')
+                                                <select name="expeditiontime" id="expeditiontime">
+                                                    <option value="1" >1</option>
+                                                    <option value="2" >2</option>
+                                                    <option value="3" >3</option>
+                                                    <option value="4" >4</option>
+                                                    <option value="5" >5</option>
+                                                    <option value="6" >6</option>
+                                                </select>
                                                 <span class="value">h</span>
                                             </li>
                                             <li>
                                                 <input type="hidden" name="speed" id="speed" value="10">
-                                                Speed: (max. <span id="maxspeed">1,000,000,000</span>)
+                                                @lang('Speed:') (@lang('max.') <span id="maxspeed">1,000,000,000</span>)
                                             </li>
                                         </ul>
                                     </div>
@@ -1405,7 +1405,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                 </div>
                                             </div>
                                             <div class="fleet_dispatch_toggle_wrap" style="display: none;">
-                                                <span>Plunder food:</span>
+                                                <span>@lang('Plunder food:')</span>
                                                 <toggle-switch>
                                                     <input type="checkbox" value="None" id="lootFoodInput"
                                                            name="lootFoodOnAttack">
@@ -1424,10 +1424,10 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                              data-ipi-highlight-step="ipiFleetCargoLoadAll">
                                                     </a>
                                                 </div>
-                                                all resources
+                                                @lang('all resources')
                                             </div>
                                             <div id="loadRoom">
-                                                cargo bay:
+                                                @lang('cargo bay:')
                                                 <div class="fleft bar_container" data-current-amount="0"
                                                      data-capacity="0">
                                                     <div class="filllevel_bar filllevel_overmark"></div>
@@ -1462,10 +1462,10 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                 <div id="naviActions">
                                     <a id="sendFleet" class="start ipiHintable off" href=""
                                        data-ipi-hint="ipiFleetSend">
-                                        <span style="padding-top:9px;">Send fleet</span>
+                                        <span style="padding-top:9px;">@lang('Send fleet')</span>
                                     </a>
                                     <a id="backToFleet1" class="back" href="">
-                                        <span style="font-size:12px; text-transform:uppercase;">Back</span>
+                                        <span style="font-size:12px; text-transform:uppercase;">@lang('Back')</span>
                                     </a>
                                     <br class="clearfloat">
                                 </div>

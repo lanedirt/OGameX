@@ -105,7 +105,7 @@ Once a sufficient level of Hyperspace Technology is researched, the Hyperspace D
         $plasmaTechnology->class_name = 'plasmaTechnology';
         $plasmaTechnology->description = 'A further development of ion technology which accelerates high-energy plasma, which then inflicts devastating damage and additionally optimises the production of metal, crystal and deuterium (1%/0.66%/0.33% per level).';
         $plasmaTechnology->description_long = 'A further development of ion technology that doesn`t speed up ions but high-energy plasma instead, which can then inflict devastating damage on impact with an object. Our scientists have also found a way to noticeably improve the mining of metal and crystal using this technology.
-        
+
 Metal production increases by 1%, crystal production by 0.66% and deuterium production by 0.33% per construction level of the plasma technology.';
         $plasmaTechnology->requirements = [
             new GameObjectRequirement('research_lab', 4),
@@ -128,7 +128,7 @@ Metal production increases by 1%, crystal production by 0.66% and deuterium prod
         $combustionDrive->class_name = 'combustionDriveTechnology';
         $combustionDrive->description = 'The development of this drive makes some ships faster, although each level increases speed by only 10 % of the base value.';
         $combustionDrive->description_long = 'The Combustion Drive is the oldest of technologies, but is still in use. With the Combustion Drive, exhaust is formed from propellants carried within the ship prior to use. In a closed chamber, the pressures are equal in each direction and no acceleration occurs. If an opening is provided at the bottom of the chamber then the pressure is no longer opposed on that side. The remaining pressure gives a resultant thrust in the side opposite the opening, which propels the ship forward by expelling the exhaust rearwards at extreme high speed.
-        
+
 With each level of the Combustion Drive developed, the speed of small and large cargo ships, light fighters, recyclers, and espionage probes are increased by 10%.';
         $combustionDrive->requirements = [
             new GameObjectRequirement('energy_technology', 1),
@@ -149,7 +149,7 @@ With each level of the Combustion Drive developed, the speed of small and large 
         $impulseDrive->class_name = 'impulseDriveTechnology';
         $impulseDrive->description = 'The impulse drive is based on the reaction principle. Further development of this drive makes some ships faster, although each level increases speed by only 20 % of the base value.';
         $impulseDrive->description_long = 'The impulse drive is based on the recoil principle, by which the stimulated emission of radiation is mainly produced as a waste product from the core fusion to gain energy. Additionally, other masses can be injected. With each level of the Impulse Drive developed, the speed of bombers, cruisers, heavy fighters, and colony ships are increased by 20% of the base value. Additionally, the small transporters are fitted with impulse drives as soon as their research level reaches 5. As soon as Impulse Drive research has reached level 17, Recyclers are refitted with Impulse Drives.
-        
+
         Interplanetary missiles also travel farther with each level.';
 
         $impulseDrive->requirements = [
@@ -220,6 +220,12 @@ With each level of the Combustion Drive developed, the speed of small and large 
         $computerTechnology->assets->imgMicro = 'computer_technology_micro.jpg';
         $computerTechnology->assets->imgSmall = 'computer_technology_small.jpg';
 
+        // Add custom calculation formulas for max fleet slots.
+        $computerTechnology->addCalculation(CalculationType::MAX_FLEET_SLOTS, function (int $level) {
+            // Starts with 1, and every level of computer research adds 1 more slot.
+            return 1 + $level;
+        });
+
         $buildingObjectsNew[] = $computerTechnology;
 
         // --- Astrophysics ---
@@ -244,7 +250,7 @@ With each level of the Combustion Drive developed, the speed of small and large 
         $astrophysics->addCalculation(CalculationType::MAX_COLONIES, function (int $level) {
             return round($level / 2);
         });
-        $astrophysics->addCalculation(CalculationType::MAX_EXPEDITIONS, function (int $level) {
+        $astrophysics->addCalculation(CalculationType::MAX_EXPEDITION_SLOTS, function (int $level) {
             return floor(sqrt($level));
         });
 
@@ -316,7 +322,7 @@ With each level of the Combustion Drive developed, the speed of small and large 
         $shieldingTechnology->class_name = 'shieldingTechnology';
         $shieldingTechnology->description = 'Shield technology makes the shields on ships and defensive facilities more efficient. Each level of shield technology increases the strength of the shields by 10 % of the base value.';
         $shieldingTechnology->description_long = 'With the invention of the magnetosphere generator, scientists learned that an artificial shield could be produced to protect the crew in space ships not only from the harsh solar radiation environment in deep space, but also provide protection from enemy fire during an attack. Once scientists finally perfected the technology, a magnetosphere generator was installed on all ships and defense systems.
-        
+
         As the technology is advanced to each level, the magnetosphere generator is upgraded which provides an additional 10% strength to the shields base value.';
         $shieldingTechnology->requirements = [
             new GameObjectRequirement('research_lab', 6),

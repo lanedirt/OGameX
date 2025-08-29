@@ -192,6 +192,100 @@
                             </div>
                         </div>
 
+                        <p class="box_highlight textCenter no_buddies">@lang('Expedition settings.')</p>
+
+                        <div class="group bborder" style="display: block;">
+                            <div class="fieldwrapper">
+                                <div class="smallFont" style="margin-bottom: 15px; padding: 10px; background-color: #1e2328; border: 1px solid #4a5568; border-radius: 4px;">
+                                    @lang('Configure which expedition outcomes can occur during expeditions. Unchecked outcomes will never happen. Use these settings to customize your server or isolate specific outcomes for testing.')
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="group bborder" style="display: block;">
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Expedition failed:')</label>
+                                <div class="thefield">
+                                    <square-checkbox class="square-checkbox">
+                                        <input type="checkbox" id="square-checkExpeditionFailed" name="expedition_failed" value="1" {{ $expedition_failed ? 'checked' : '' }}>
+                                        <label for="square-checkExpeditionFailed"></label>
+                                    </square-checkbox>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Expedition failed and delay:')</label>
+                                <div class="thefield">
+                                    <square-checkbox class="square-checkbox">
+                                        <input type="checkbox" id="square-checkExpeditionFailedAndDelay" name="expedition_failed_and_delay" value="1" {{ $expedition_failed_and_delay ? 'checked' : '' }}>
+                                        <label for="square-checkExpeditionFailedAndDelay"></label>
+                                    </square-checkbox>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Expedition failed and speedup:')</label>
+                                <div class="thefield">
+                                    <square-checkbox class="square-checkbox">
+                                        <input type="checkbox" id="square-checkExpeditionFailedAndSpeedup" name="expedition_failed_and_speedup" value="1" {{ $expedition_failed_and_speedup ? 'checked' : '' }}>
+                                        <label for="square-checkExpeditionFailedAndSpeedup"></label>
+                                    </square-checkbox>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Expedition gain ships:')</label>
+                                <div class="thefield">
+                                    <square-checkbox class="square-checkbox">
+                                        <input type="checkbox" id="square-checkExpeditionGainShips" name="expedition_gain_ships" value="1" {{ $expedition_gain_ships ? 'checked' : '' }}>
+                                        <label for="square-checkExpeditionGainShips"></label>
+                                    </square-checkbox>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Expedition gain dark matter:')</label>
+                                <div class="thefield">
+                                    <square-checkbox class="square-checkbox">
+                                        <input type="checkbox" id="square-checkExpeditionGainDarkMatter" name="expedition_gain_dark_matter" value="1" {{ $expedition_gain_dark_matter ? 'checked' : '' }}>
+                                        <label for="square-checkExpeditionGainDarkMatter"></label>
+                                    </square-checkbox>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Expedition gain resources:')</label>
+                                <div class="thefield">
+                                    <square-checkbox class="square-checkbox">
+                                        <input type="checkbox" id="square-checkExpeditionGainResources" name="expedition_gain_resources" value="1" {{ $expedition_gain_resources ? 'checked' : '' }}>
+                                        <label for="square-checkExpeditionGainResources"></label>
+                                    </square-checkbox>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Expedition gain merchant trade:')</label>
+                                <div class="thefield">
+                                    <square-checkbox class="square-checkbox">
+                                        <input type="checkbox" id="square-checkExpeditionGainMerchantTrade" name="expedition_gain_merchant_trade" value="1" {{ $expedition_gain_merchant_trade ? 'checked' : '' }}>
+                                        <label for="square-checkExpeditionGainMerchantTrade"></label>
+                                    </square-checkbox>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Expedition gain item:')</label>
+                                <div class="thefield">
+                                    <square-checkbox class="square-checkbox">
+                                        <input type="checkbox" id="square-checkExpeditionGainItem" name="expedition_gain_item" value="1" {{ $expedition_gain_item ? 'checked' : '' }}>
+                                        <label for="square-checkExpeditionGainItem"></label>
+                                    </square-checkbox>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Expedition loss of fleet:')</label>
+                                <div class="thefield">
+                                    <square-checkbox class="square-checkbox">
+                                        <input type="checkbox" id="square-checkExpeditionLossOfFleet" name="expedition_loss_of_fleet" value="1" {{ $expedition_loss_of_fleet ? 'checked' : '' }}>
+                                        <label for="square-checkExpeditionLossOfFleet"></label>
+                                    </square-checkbox>
+                                </div>
+                            </div>
+                        </div>
+
                         <p class="box_highlight textCenter no_buddies">@lang('Galaxy settings.')</p>
 
                         <div class="group bborder" style="display: block;">

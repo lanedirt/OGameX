@@ -138,7 +138,7 @@ class MessageService
     {
         // Ensure the provided class is a subclass of GameMessage
         if (!is_subclass_of($gameMessageClass, GameMessage::class)) {
-            throw new \InvalidArgumentException('Invalid game message class.');
+            throw new \InvalidArgumentException('Invalid game message class: ' . $gameMessageClass);
         }
 
         try {

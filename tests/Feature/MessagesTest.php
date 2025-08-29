@@ -35,8 +35,11 @@ class MessagesTest extends MoonTestCase
     {
         $gameMessages = GameMessageFactory::getAllGameMessages();
         foreach ($gameMessages as $gameMessage) {
-            // Skip espionage report as it requires special handling and is tested separately by testEspionageReport().
-            if ($gameMessage->getKey() === 'espionage_report' || $gameMessage->getKey() === 'battle_report') {
+            // Skip:
+            // - espionage_report as it requires special handling and is tested separately by testEspionageReport().
+            // - battle_report as it requires special handling and is tested separately by testBattleReport().
+            // - expedition game messages as they require special handling and are tested separately by testExpeditionGameMessageTranslationVariations().
+            if ($gameMessage->getKey() === 'espionage_report' || $gameMessage->getKey() === 'battle_report' || $gameMessage instanceof \OGame\GameMessages\Abstracts\ExpeditionGameMessage) {
                 continue;
             }
 
@@ -225,6 +228,66 @@ class MessagesTest extends MoonTestCase
         $response->assertSee('Combat Report');
 
         // TODO: add more assertions here to check the content of the battle report.
+    }
+
+    /**
+     * Test that all ExpeditionGameMessage implementations have their translation variations properly defined.
+     */
+    public function testExpeditionGameMessageTranslationVariations(): void
+    {
+        // Get all ExpeditionGameMessage implementations from the GameMessageFactory
+        $gameMessages = GameMessageFactory::getAllGameMessages();
+        $expeditionMessages = [];
+
+        foreach ($gameMessages as $key => $gameMessage) {
+            if ($gameMessage instanceof \OGame\GameMessages\Abstracts\ExpeditionGameMessage) {
+                $expeditionMessages[$key] = $gameMessage;
+            }
+        }
+
+        // Assert that we found expedition messages
+        $this->assertNotEmpty($expeditionMessages, 'No ExpeditionGameMessage implementations found');
+
+        // Test each expedition message
+        foreach ($expeditionMessages as $key => $expeditionMessage) {
+            $baseKey = $expeditionMessage->getBaseKey();
+            $numberOfVariations = $expeditionMessage->getNumberOfVariations();
+
+            // Check that the base translation key exists
+            $this->assertTrue(
+                \Lang::has('t_messages.' . $baseKey),
+                "Base translation key 't_messages.{$baseKey}' does not exist for {$key}"
+            );
+
+            // Check that the subject translation exists
+            $this->assertTrue(
+                \Lang::has('t_messages.' . $baseKey . '.subject'),
+                "Subject translation key 't_messages.{$baseKey}.subject' does not exist for {$key}"
+            );
+
+            // Check that each variation exists
+            for ($i = 1; $i <= $numberOfVariations; $i++) {
+                $variationKey = 't_messages.' . $baseKey . '.body.' . $i;
+                $this->assertTrue(
+                    \Lang::has($variationKey),
+                    "Translation variation key '{$variationKey}' does not exist for {$key} (variation {$i} of {$numberOfVariations})"
+                );
+
+                // Also check that the translation is not empty
+                $translation = __($variationKey);
+                $this->assertNotEmpty(
+                    $translation,
+                    "Translation for '{$variationKey}' is empty for {$key}"
+                );
+            }
+
+            // Check that there are no extra variations beyond what's declared
+            $extraVariationKey = 't_messages.' . $baseKey . '.body.' . ($numberOfVariations + 1);
+            $this->assertFalse(
+                \Lang::has($extraVariationKey),
+                "Extra translation variation '{$extraVariationKey}' exists but is not declared in {$key} (should only have {$numberOfVariations} variations)"
+            );
+        }
     }
 
     /**

@@ -36,6 +36,11 @@ class ColonisationMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
+        // Only possible for slots 1-15.
+        if ($targetCoordinate->position < 1 || $targetCoordinate->position > 15) {
+            return new MissionPossibleStatus(false);
+        }
+
         // If no colony ships are present in the fleet, the mission is not possible.
         if ($units->getAmountByMachineName('colony_ship') === 0) {
             return new MissionPossibleStatus(false, __('You need a colony ship to colonize a planet.'));

@@ -293,4 +293,104 @@ class SettingsService
     {
         return $this->get('battle_engine', 'rust');
     }
+
+    /**
+     * Returns if expedition failed outcome is enabled.
+     *
+     * @return bool
+     */
+    public function expeditionFailedEnabled(): bool
+    {
+        return (bool)$this->get('expedition_failed', 1);
+    }
+
+    /**
+     * Returns if expedition failed and delay outcome is enabled.
+     *
+     * @return bool
+     */
+    public function expeditionFailedAndDelayEnabled(): bool
+    {
+        return (bool)$this->get('expedition_failed_and_delay', 1);
+    }
+
+    /**
+     * Returns if expedition failed and speedup outcome is enabled.
+     *
+     * @return bool
+     */
+    public function expeditionFailedAndSpeedupEnabled(): bool
+    {
+        return (bool)$this->get('expedition_failed_and_speedup', 1);
+    }
+
+    /**
+     * Returns if expedition gain ships outcome is enabled.
+     *
+     * @return bool
+     */
+    public function expeditionGainShipsEnabled(): bool
+    {
+        return (bool)$this->get('expedition_gain_ships', 1);
+    }
+
+    /**
+     * Returns if expedition gain dark matter outcome is enabled.
+     *
+     * @return bool
+     */
+    public function expeditionGainDarkMatterEnabled(): bool
+    {
+        return (bool)$this->get('expedition_gain_dark_matter', 1);
+    }
+
+    /**
+     * Returns if expedition gain resources outcome is enabled.
+     *
+     * @return bool
+     */
+    public function expeditionGainResourcesEnabled(): bool
+    {
+        return (bool)$this->get('expedition_gain_resources', 1);
+    }
+
+    /**
+     * Returns if expedition gain merchant trade outcome is enabled.
+     *
+     * @return bool
+     */
+    public function expeditionGainMerchantTradeEnabled(): bool
+    {
+        return (bool)$this->get('expedition_gain_merchant_trade', 1);
+    }
+
+    /**
+     * Returns if expedition gain item outcome is enabled.
+     *
+     * @return bool
+     */
+    public function expeditionGainItemEnabled(): bool
+    {
+        return (bool)$this->get('expedition_gain_item', 1);
+    }
+
+    /**
+     * Returns if expedition loss of fleet outcome is enabled.
+     *
+     * @return bool
+     */
+    public function expeditionLossOfFleetEnabled(): bool
+    {
+        return (bool)$this->get('expedition_loss_of_fleet', 1);
+    }
+
+    /**
+     * Returns if expedition battle outcome is enabled.
+     *
+     * @return bool
+     */
+    public function expeditionBattleEnabled(): bool
+    {
+        return (bool)$this->get('expedition_battle', 1);
+    }
 }
