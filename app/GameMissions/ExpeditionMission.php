@@ -196,14 +196,15 @@ class ExpeditionMission extends GameMission
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
-        // Pick a random delay percentage between 5% and 30%.
-        $additionalReturnTripTimePercentage = random_int(5, 10);
+        // Delays can be 50%, 60%, 70%, 80%, 90%, 100%, 200%, 300%, or 500% of holding time
+        $delayMultipliers = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 2.0, 3.0, 5.0];
 
-        // Calculate one way mission duration.
-        $onewayMissionDuration = ($mission->time_arrival - $mission->time_departure) + $mission->time_holding;
+        // Pick a random delay multiplier
+        $selectedMultiplier = $delayMultipliers[array_rand($delayMultipliers)];
 
-        // Calculate the additional return trip time in seconds based on the mission's original duration + holding time.
-        $additionalReturnTripTime = intval($onewayMissionDuration * ($additionalReturnTripTimePercentage / 100));
+        // Calculate the additional return trip time based on holding time only
+        // The delay is added to the return trip, not the holding time itself
+        $additionalReturnTripTime = intval($mission->time_holding * $selectedMultiplier);
 
         // Send a message to the player with the failure and delay outcome.
         $message_variation_id = ExpeditionFailedAndDelay::getRandomMessageVariationId();
