@@ -89,12 +89,13 @@ OGameX is under active development with a lot of core features already implement
   - Moon creation through debris field after battle
   - Moon buildings
 - Admin panel
+- Expedition mission with various outcomes
 
 ### <a name="upcoming-features"></a> Upcoming Features
 
 The next major upcoming features that are being worked on:
 
-- Expedition mission (and all associated features such as game units and logic)
+- Expedition mission combat outcomes (attacked by pirates)
 - Moon
   - Phalanx feature
   - Jump Gate feature
