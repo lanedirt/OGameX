@@ -34,6 +34,25 @@ class ExpeditionMission extends GameMission
     protected static bool $hasReturnMission = true;
 
     /**
+     * Configurable outcome weights based on community research.
+     * Each outcome has a weight out of 1000 (representing 0.1% precision).
+     * Total should add up to 1000 for 100%.
+     * @var array<string, int>
+     */
+    protected array $outcomeWeights = [
+        'dark_matter' => 90,      // 9.0% - Find Dark Matter
+        'ships' => 220,           // 22.0% - Find abandoned ships
+        'resources' => 325,       // 32.5% - Find resources
+        // 'pirates' => 58,       // 5.8% - Find pirates (combat) - TODO: implement combat
+        // 'aliens' => 26,        // 2.6% - Find aliens (combat) - TODO: implement combat
+        'delay' => 70,            // 7.0% - Fleet has delay
+        'speedup' => 20,          // 2.0% - Fleet returns early
+        'nothing' => 270,         // 27.0% - Find nothing (includes pirates/aliens weight for now)
+        'black_hole' => 3,        // 0.33% - Black hole (fleet loss)
+        'merchant' => 7,          // 0.7% - Find merchant
+    ];
+
+    /**
      * @inheritdoc
      */
     public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources): void
@@ -483,8 +502,9 @@ class ExpeditionMission extends GameMission
     }
 
     /**
-     * Select a random expedition outcome based on server settings and weights.
-     * Fleet destroyed outcomes have 2% chance each, others are equally distributed.
+     * Select a random expedition outcome based on configured weights. Higher weight
+     * for a particular outcome means more chance of that outcome being selected
+     * relative to the other outcomes.
      *
      * @return ExpeditionOutcomeType
      */
@@ -492,46 +512,69 @@ class ExpeditionMission extends GameMission
     {
         $settingsService = app(SettingsService::class);
 
-        // Build array of enabled outcomes
-        $enabledOutcomes = [];
+        // Map outcome types to their weights
+        $outcomeMapping = [
+            'dark_matter' => ExpeditionOutcomeType::GainDarkMatter,
+            'ships' => ExpeditionOutcomeType::GainShips,
+            'resources' => ExpeditionOutcomeType::GainResources,
+            'delay' => ExpeditionOutcomeType::FailedAndDelay,
+            'speedup' => ExpeditionOutcomeType::FailedAndSpeedup,
+            'nothing' => ExpeditionOutcomeType::Failed,
+            'black_hole' => ExpeditionOutcomeType::LossOfFleet,
+            'merchant' => ExpeditionOutcomeType::GainMerchantTrade,
+        ];
 
-        // Create array of all outcomes that are enabled in the settings.
-        foreach (ExpeditionOutcomeType::cases() as $outcome) {
+        // Build weighted array of enabled outcomes
+        $weightedOutcomes = [];
+        $totalWeight = 0;
+
+        foreach ($this->outcomeWeights as $key => $weight) {
+            if (!isset($outcomeMapping[$key])) {
+                continue;
+            }
+
+            $outcome = $outcomeMapping[$key];
+
+            // Check if outcome is enabled in settings
             if ($settingsService->get($outcome->getSettingKey()) === '1') {
-                $enabledOutcomes[] = $outcome;
+                // TODO: Remove this filter once outcomes are fully implemented
+                // For now, skip unimplemented outcomes
+                if (in_array($outcome, [
+                    ExpeditionOutcomeType::GainDarkMatter,
+                    ExpeditionOutcomeType::GainItems,
+                    ExpeditionOutcomeType::GainMerchantTrade,
+                    ExpeditionOutcomeType::Battle,
+                ])) {
+                    continue;
+                }
+
+                $weightedOutcomes[] = [
+                    'outcome' => $outcome,
+                    'weight' => $weight,
+                ];
+                $totalWeight += $weight;
             }
         }
 
-        // Remove expedition outcomes that are not fully implemented yet to avoid them from being selected.
-        // TODO: remove the filter once the outcomes below are fully implemented.
-        $enabledOutcomes = array_filter($enabledOutcomes, function ($outcome) {
-            return $outcome !== ExpeditionOutcomeType::GainDarkMatter && $outcome !== ExpeditionOutcomeType::GainItems && $outcome !== ExpeditionOutcomeType::GainMerchantTrade;
-        });
-
         // If no outcomes are enabled, default to failure
-        if (empty($enabledOutcomes)) {
+        if (empty($weightedOutcomes)) {
             return ExpeditionOutcomeType::Failed;
         }
 
-        // If only one outcome is enabled, return it
-        if (count($enabledOutcomes) === 1) {
-            return $enabledOutcomes[0];
-        }
+        // Pick a random number between 1 and total weight
+        $random = random_int(1, $totalWeight);
 
-        // If loss of fleet is enabled, give it 2% chance, rest split evenly
-        if (in_array(ExpeditionOutcomeType::LossOfFleet, $enabledOutcomes)) {
-            if (random_int(1, 100) <= 2) {
-                return ExpeditionOutcomeType::LossOfFleet;
+        // Find which outcome was selected
+        $currentWeight = 0;
+        foreach ($weightedOutcomes as $weighted) {
+            $currentWeight += $weighted['weight'];
+            if ($random <= $currentWeight) {
+                return $weighted['outcome'];
             }
-
-            // Remove loss of fleet from outcomes for even distribution
-            $enabledOutcomes = array_values(array_filter($enabledOutcomes, function ($outcome) {
-                return $outcome !== ExpeditionOutcomeType::LossOfFleet;
-            }));
         }
 
-        // Pick random outcome from remaining enabled outcomes
-        return $enabledOutcomes[array_rand($enabledOutcomes)];
+        // Fallback (should never reach here)
+        return ExpeditionOutcomeType::Failed;
     }
 
     /**
