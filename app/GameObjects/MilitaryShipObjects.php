@@ -213,7 +213,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('light_laser', 10),
             new GameObjectRapidfire('battlecruiser', 2),
         ];
-        $destroyer->properties = new GameObjectProperties($destroyer, 110000, 500, 200, 5000, 2000, 1000);
+        $destroyer->properties = new GameObjectProperties($destroyer, 110000, 500, 2000, 5000, 2000, 1000);
         $destroyer->assets = new GameObjectAssets();
         $destroyer->assets->imgSmall = 'destroyer_small.jpg';
         $destroyer->assets->imgMicro = 'destroyer_small.jpg';
