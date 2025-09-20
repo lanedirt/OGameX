@@ -52,7 +52,7 @@ class MilitaryShipObjects
         $heavyFighter->class_name = 'fighterHeavy';
         $heavyFighter->description = 'This fighter is better armoured and has a higher attack strength than the light fighter.';
         $heavyFighter->description_long = 'In developing the heavy fighter, researchers reached a point at which conventional drives no longer provided sufficient performance. In order to move the ship optimally, the impulse drive was used for the first time. This increased the costs, but also opened new possibilities. By using this drive, there was more energy left for weapons and shields; in addition, high-quality materials were used for this new family of fighters. With these changes, the heavy fighter represents a new era in ship technology and is the basis for cruiser technology.
-            
+
         Slightly larger than the light fighter, the heavy fighter has thicker hulls, providing more protection, and stronger weaponry.';
         $heavyFighter->requirements = [
             new GameObjectRequirement('shipyard', 3),
@@ -79,7 +79,7 @@ class MilitaryShipObjects
         $cruiser->class_name = 'cruiser';
         $cruiser->description = 'Cruisers are armoured almost three times as heavily as heavy fighters and have more than twice the firepower. In addition, they are very fast.';
         $cruiser->description_long = 'With the development of the heavy laser and the ion cannon, light and heavy fighters encountered an alarmingly high number of defeats that increased with each raid. Despite many modifications, weapons strength and armour changes, it could not be increased fast enough to effectively counter these new defensive measures. Therefore, it was decided to build a new class of ship that combined more armor and more firepower. As a result of years of research and development, the Cruiser was born.
-        
+
         Cruisers are armored almost three times of that of the heavy fighters, and possess more than twice the firepower of any combat ship in existence. They also possess speeds that far surpassed any spacecraft ever made. For almost a century, cruisers dominated the universe. However, with the development of Gauss cannons and plasma turrets, their predominance ended. They are still used today against fighter groups, but not as predominantly as before.';
 
         $cruiser->requirements = [
@@ -144,7 +144,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('solar_satellite', 5),
             new GameObjectRapidfire('heavy_fighter', 4),
             new GameObjectRapidfire('cruiser', 4),
-            new GameObjectRapidfire('battle_ship', 87),
+            new GameObjectRapidfire('battle_ship', 7),
             new GameObjectRapidfire('small_cargo', 3),
             new GameObjectRapidfire('large_cargo', 3),
         ];
@@ -162,7 +162,7 @@ class MilitaryShipObjects
         $bomber->class_name = 'bomber';
         $bomber->description = 'The bomber was developed especially to destroy the planetary defenses of a world.';
         $bomber->description_long = 'Over the centuries, as defenses were starting to get larger and more sophisticated, fleets were starting to be destroyed at an alarming rate. It was decided that a new ship was needed to break defenses to ensure maximum results. After years of research and development, the Bomber was created.
-        
+
         Using laser-guided targeting equipment and Plasma Bombs, the Bomber seeks out and destroys any defense mechanism it can find. As soon as the hyperspace drive is developed to Level 8, the Bomber is retrofitted with the hyperspace engine and can fly at higher speeds.';
         $bomber->requirements = [
             new GameObjectRequirement('shipyard', 8),
@@ -178,7 +178,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('light_laser', 20),
             new GameObjectRapidfire('heavy_laser', 10),
             new GameObjectRapidfire('ion_cannon', 10),
-            new GameObjectRapidfire('gauss_cannon', 85),
+            new GameObjectRapidfire('gauss_cannon', 5),
             new GameObjectRapidfire('plasma_turret', 5),
         ];
         $bomber->properties = new GameObjectProperties($bomber, 75000, 500, 1000, 4000, 500, 700);
@@ -199,7 +199,7 @@ class MilitaryShipObjects
         $destroyer->description = 'The destroyer is the king of the warships.';
         $destroyer->description_long = 'The Destroyer is the result of years of work and development. With the development of Deathstars, it was decided that a class of ship was needed to defend against such a massive weapon. Thanks to its improved homing sensors, multi-phalanx Ion cannons, Gauss Cannons and Plasma Turrets, the Destroyer
         turned out to be one of the most fearsome ships created.
-        
+
         Because the destroyer is very large, its manoeuvrability is severely limited, which makes it more of a battle station than a fighting ship. The lack of manoeuvrability is made up for by its sheer firepower, but it also costs significant amounts of deuterium to build and operate.';
         $destroyer->requirements = [
             new GameObjectRequirement('shipyard', 9),
@@ -227,7 +227,7 @@ class MilitaryShipObjects
         $deathstar->class_name = 'deathstar';
         $deathstar->description = 'The destructive power of the deathstar is unsurpassed.';
         $deathstar->description_long = 'The Deathstar is the most powerful ship ever created. This moon sized ship is the only ship that can be seen with the naked eye on the ground. By the time you spot it, unfortunately, it is too late to do anything.
-        
+
         Armed with a gigantic graviton cannon, the most advanced weapons system ever created in the Universe, this massive ship has not only the capability of destroying entire fleets and defenses, but also has the capability of destroying entire moons. Only the most advanced empires have the capability to build a ship of this mammoth size.';
 
         $deathstar->requirements = [
