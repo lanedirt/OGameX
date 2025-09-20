@@ -202,7 +202,7 @@ abstract class GameMission
 
         $mission->user_id = $planet->getPlayer()->getId();
 
-        $mission->type_from = PlanetType::Planet->value;
+        $mission->type_from = $planet->getPlanetType()->value;
         $mission->planet_id_from = $planet->getPlanetId();
         $mission->galaxy_from = $planet->getPlanetCoordinates()->galaxy;
         $mission->system_from = $planet->getPlanetCoordinates()->system;
