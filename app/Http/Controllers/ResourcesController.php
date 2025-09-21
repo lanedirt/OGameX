@@ -44,7 +44,7 @@ class ResourcesController extends AbstractBuildingsController
         // Header filename objects are the building IDs that make up the header filename
         // to be used in the background image of the page header.
         if ($this->planet->isPlanet()) {
-            $this->header_filename_objects = [1, 2, 3, 4];
+            $this->header_filename_objects = [1, 2, 3, 4, 212];
         } elseif ($this->planet->isMoon()) {
             $this->header_filename_objects = [41, 42, 43];
         }
