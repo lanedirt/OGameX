@@ -355,8 +355,17 @@ class GalaxyController extends OGameController
             ],
             'playerId' => $player->getId(),
             'playerName' => $player->getUsername(),
-            'nameAbbreviations' => $player->isAdmin() ? ['admin'] : [],
             'isAdmin' => $player->isAdmin(),
+            'isInactive' => $player->isInactive(),
+            'isLongInactive' => $player->isLongInactive(),
+            'isNewbie' => $player->isNewbie($this->playerService),
+            'isStrong' => $player->isStrong($this->playerService),
+
+            // Not implemented yet:
+            //'isHonorableTarget' => $player->isHonorableTarget(),
+            //'isOutlaw' => $player->isOutlaw(),
+            //'isBanned' => $player->isBanned(),
+            //'isOnVacation' => $player->isOnVacation(),
         ];
     }
 
