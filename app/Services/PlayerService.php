@@ -45,7 +45,6 @@ class PlayerService
      */
     private UserTech $user_tech;
 
-
     /**
      * Private local cached general score for this player.
      *
@@ -159,30 +158,34 @@ class PlayerService
     }
 
     /**
-     * Checks if the player is inactive (no login in the last 7 days).
+     * Checks if the player is inactive.
      *
      * @return bool
      */
     public function isInactive(): bool
     {
         $lastActivity = Carbon::createFromTimestamp((int)$this->user->time);
-        if ($lastActivity) {
-            return $lastActivity->diffInDays(now()) >= 7;
+
+        // If the player has not logged in in the last 7 days, then they are considered inactive.
+        if ($lastActivity->diffInDays(now()) >= 7) {
+            return true;
         }
 
         return false;
     }
 
     /**
-     * Checks if the player is long inactive (no login in the last 28 days).
+     * Checks if the player is long inactive.
      *
      * @return bool
      */
     public function isLongInactive(): bool
     {
         $lastActivity = Carbon::createFromTimestamp((int)$this->user->time);
-        if ($lastActivity) {
-            return $lastActivity->diffInDays(now()) >= 28;
+
+        // If the player has not logged in in the last 28 days, then they are considered long inactive.
+        if ($lastActivity->diffInDays(now()) >= 28) {
+            return true;
         }
 
         return false;
