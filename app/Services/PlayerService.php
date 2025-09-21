@@ -45,6 +45,14 @@ class PlayerService
      */
     private UserTech $user_tech;
 
+
+    /**
+     * Private local cached general score for this player.
+     *
+     * @var int|null
+     */
+    private int|null $cachedGeneralScore = null;
+
     /**
      * Player constructor.
      *
@@ -148,6 +156,84 @@ class PlayerService
     public function isAdmin(): bool
     {
         return $this->user->hasRole('admin');
+    }
+
+    /**
+     * Checks if the player is inactive (no login in the last 7 days).
+     *
+     * @return bool
+     */
+    public function isInactive(): bool
+    {
+        $lastActivity = Carbon::createFromTimestamp((int)$this->user->time);
+        if ($lastActivity) {
+            return $lastActivity->diffInDays(now()) >= 7;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the player is long inactive (no login in the last 28 days).
+     *
+     * @return bool
+     */
+    public function isLongInactive(): bool
+    {
+        $lastActivity = Carbon::createFromTimestamp((int)$this->user->time);
+        if ($lastActivity) {
+            return $lastActivity->diffInDays(now()) >= 28;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the player is a newbie.
+     *
+     * @param PlayerService $comparedTo
+     * @return bool
+     */
+    public function isNewbie(PlayerService $comparedTo): bool
+    {
+        // Sanity check: if player is inactive, then they cannot have the newbie status.
+        if ($this->isInactive()) {
+            return false;
+        }
+
+        $currentPlayerPoints = $this->getCachedGeneralScore();
+        $comparedToPoints = $comparedTo->getCachedGeneralScore();
+
+        // If the current player has less than 20% of points compared to the provided player, then they are considered weak / newbie.
+        if ($currentPlayerPoints < ($comparedToPoints * 0.2)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the player is strong.
+     *
+     * @param PlayerService $comparedTo
+     * @return bool
+     */
+    public function isStrong(PlayerService $comparedTo): bool
+    {
+        // Sanity check: if player is inactive, then they cannot have the newbie status.
+        if ($this->isInactive()) {
+            return false;
+        }
+
+        $currentPlayerPoints = $this->getCachedGeneralScore();
+        $comparedToPoints = $comparedTo->getCachedGeneralScore();
+
+        // If the current player has more than 500% of points compared to the provided player, then they are considered strong.
+        if ($currentPlayerPoints > ($comparedToPoints * 5)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -533,6 +619,19 @@ class PlayerService
                 throw new Exception('Could not acquire update fleet mission planet lock.');
             }
         });
+    }
+
+    /**
+     * Get the cached general score for this player from the database.
+     *
+     * @return int
+     */
+    public function getCachedGeneralScore(): int
+    {
+        if ($this->cachedGeneralScore === null) {
+            $this->cachedGeneralScore = \OGame\Models\Highscore::where('player_id', $this->getId())->first()->general ?? 0;
+        }
+        return $this->cachedGeneralScore;
     }
 
     /**
