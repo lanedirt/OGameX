@@ -781,4 +781,47 @@ class PlayerService
 
         return false;
     }
+
+    public function hasCommander(): bool
+    {
+        // TODO: add logic
+        return true;
+    }
+
+    public function hasAdmiral(): bool
+    {
+        // TODO: add logic
+        return true;
+    }
+
+    public function hasEngineer(): bool
+    {
+        // TODO: add logic
+        return true;
+    }
+
+    public function hasGeologist(): bool
+    {
+        // TODO: add logic
+        return true;
+    }
+
+    public function hasTechnocrat(): bool
+    {
+        // TODO: add logic
+        return true;
+    }
+    
+    public function hasCommandingStaff(): bool
+    {
+        // TODO: don't know if this is correct logic
+        //       like if this has to be purchased specifically
+        //       and buying all officers individually won't work
+        //       I don't know
+        return $this->hasCommander()
+            && $this->hasAdmiral()
+            && $this->hasEngineer()
+            && $this->hasGeologist()
+            && $this->hasTechnocrat();
+    }
 }

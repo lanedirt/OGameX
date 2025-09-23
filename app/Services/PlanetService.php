@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
@@ -13,6 +14,7 @@ use OGame\Models\Enums\ResourceType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\ProductionIndex;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
 use OGame\Models\BuildingQueue;
@@ -1459,7 +1461,6 @@ class PlanetService
         // 1. First time in order to ensure the energy production is up-to-date.
         // 2. Second time for the mine production to be updated according to the up-to-date (actual) energy production.
         $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
-        $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
 
         if ($save_planet) {
             $this->save();
@@ -1599,13 +1600,42 @@ class PlanetService
             }
         }
 
-        // Write values to planet.
-        $this->planet->metal_production = (int)$production_total->metal->get();
-        $this->planet->crystal_production = (int)$production_total->crystal->get();
-        $this->planet->deuterium_production = (int)$production_total->deuterium->get();
+        $this->planet->energy_used = (int) $energy_consumption_total;
+        $this->planet->energy_max  = (int) $energy_production_total;
 
-        $this->planet->energy_used = (int)$energy_consumption_total;
-        $this->planet->energy_max = (int)$energy_production_total;
+        $production_factor = min(1, $this->planet->energy_used === 0 ? 0 : $this->planet->energy_max / $this->planet->energy_used);
+
+        // Write values to planet.
+        // -- could potentially use $production_total->multiply($production_factor)
+        //    but that applies to energy as well, and I will not bother with potential nuances with that
+        $this->planet->metal_production     = (int) ($production_total->metal->get()     * $production_factor);
+        $this->planet->crystal_production   = (int) ($production_total->crystal->get()   * $production_factor);
+        $this->planet->deuterium_production = (int) ($production_total->deuterium->get() * $production_factor);
+    }
+
+    public function getObjectProductionIndex(GameObject $object, int $object_level = 0, bool $force_factor = false): ProductionIndex
+    {
+        // Set default to 1, only override
+        // when the building level is not set (which means current output is
+        // asked for).
+        $resource_production_factor = 1;
+
+        if ($object_level === 0) {
+            if ($object->type === GameObjectType::Ship || $object->type == GameObjectType::Defense)
+                $object_level = $this->getObjectAmount($object->machine_name);
+            else
+                $object_level = $this->getObjectLevel($object->machine_name);
+
+            $resource_production_factor = $this->getResourceProductionFactor() / 100;
+        }
+
+        $building_percentage = !$force_factor ? $this->getBuildingPercent($object->machine_name) / 10 : 1;
+
+        $object->production->planetService = $this;
+        $object->production->playerService = $this->player;
+        $object->production->universe_speed = $this->settingsService->economySpeed();
+
+        return $object->production->calculate($object_level, $resource_production_factor * $building_percentage);
     }
 
     /**
@@ -1628,43 +1658,19 @@ class PlanetService
     {
         $gameObject = ObjectService::getGameObjectsWithProductionByMachineName($machine_name);
 
-        $resource_production_factor = 100; // Set default to 100, only override
-        // when the building level is not set (which means current output is
-        // asked for).
-
-        // NOTE: object_level is used by eval() function in the formula.
         $object_level = $object_level ?? 0;
-        if (!$object_level) {
-            if ($gameObject->type === GameObjectType::Ship || $gameObject->type == GameObjectType::Defense) {
-                $object_level = $this->getObjectAmount($machine_name);
-            } else {
-                $object_level = $this->getObjectLevel($machine_name);
-            }
-            $resource_production_factor = $this->getResourceProductionFactor();
-        }
 
-        $building_percentage = !$force_factor ? $this->getBuildingPercent($machine_name) : 100;
-        $planet_temperature = $this->getPlanetTempAvg();
-        $planet_max_temperature = $this->getPlanetTempMax();
-        $energy_technology_level = 0; // Implement energy technology level getter.
-        $universe_resource_multiplier = $this->settingsService->economySpeed();
-
-        $production = new Resources(0, 0, 0, 0);
-
-        $production->metal->set((eval($gameObject->production->metal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
-        $production->crystal->set((eval($gameObject->production->crystal) * $universe_resource_multiplier) * ($resource_production_factor / 100));
-        $production->deuterium->set((eval($gameObject->production->deuterium) * $universe_resource_multiplier) * ($resource_production_factor / 100));
-        $production->energy->set((eval($gameObject->production->energy))); // Energy is not affected by production factor or universe economy speed.
+        $productionIndex = $this->getObjectProductionIndex($gameObject, $object_level, $force_factor);
 
         // Round down for energy.
         // Round up for positive resources, round down for negative resources.
         // This makes resource production better, and energy consumption worse.
-        $production->metal->set(ceil($production->metal->get()));
-        $production->crystal->set(ceil($production->crystal->get()));
-        $production->deuterium->set(ceil($production->deuterium->get()));
-        $production->energy->set(floor($production->energy->get()));
+        $productionIndex->total->metal->set(ceil($productionIndex->total->metal->get()));
+        $productionIndex->total->crystal->set(ceil($productionIndex->total->crystal->get()));
+        $productionIndex->total->deuterium->set(ceil($productionIndex->total->deuterium->get()));
+        $productionIndex->total->energy->set(floor($productionIndex->total->energy->get()));
 
-        return $production;
+        return $productionIndex->total;
     }
 
     /**

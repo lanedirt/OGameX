@@ -9,7 +9,7 @@ class Resources
     public Resource $deuterium;
     public Resource $energy;
 
-    public function __construct(int|float $metal, int|float $crystal, int|float $deuterium, int|float $energy)
+    public function __construct(int|float $metal = 0, int|float $crystal = 0, int|float $deuterium = 0, int|float $energy = 0)
     {
         $this->metal = new Resource($metal);
         $this->crystal = new Resource($crystal);
