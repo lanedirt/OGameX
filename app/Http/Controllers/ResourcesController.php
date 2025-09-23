@@ -110,7 +110,7 @@ class ResourcesController extends AbstractBuildingsController
         $building_energy_rows = [];
 
         $productionIndexTotal = new ProductionIndex();
-        $productionIndexTotal->basic = $this->planet->getPlanetBasicIncome();
+        $productionIndexTotal->total->add($this->planet->getPlanetBasicIncome());
 
         // Buildings that provide resource income
         // Get all buildings that have production values.
@@ -120,6 +120,8 @@ class ResourcesController extends AbstractBuildingsController
             $productionIndexTotal->add($productionIndex);
 
             $percentage = $this->planet->getBuildingPercent($building->machine_name);
+
+            $productionIndex->mine->add($productionIndex->planet_slot);
 
             if ($productionIndex->mine->energy->get() < 0) {
                 // Building consumes energy (resource building)
