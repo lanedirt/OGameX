@@ -34,8 +34,10 @@ class BuildingObjects
         $metalMine->valid_planet_types = [PlanetType::Planet];
 
         $metalMine->production = new GameObjectProduction();
-        $metalMine->production->metal = 'return (30 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
-        $metalMine->production->energy = 'return - (10 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
+        $metalMine->production->metal_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+            30 * (1 + 0.01 * $gameObjectProduction->plasma_technology_level) * $level * 1.1 ** $level;
+        $metalMine->production->energy_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+            -10 * $level * 1.1 ** $level;
 
         $metalMine->assets = new GameObjectAssets();
         $metalMine->assets->imgMicro = 'metal_mine_micro.jpg';
@@ -56,8 +58,10 @@ class BuildingObjects
         $crystalMine->valid_planet_types = [PlanetType::Planet];
 
         $crystalMine->production = new GameObjectProduction();
-        $crystalMine->production->crystal = 'return (20 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
-        $crystalMine->production->energy = 'return - (10 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
+        $crystalMine->production->crystal_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+            20 * (1 + 0.0066 * $gameObjectProduction->plasma_technology_level) * $level * 1.1 ** $level;
+        $crystalMine->production->energy_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+            -10 * $level * 1.1 ** $level;
 
         $crystalMine->assets = new GameObjectAssets();
         $crystalMine->assets->imgMicro = 'crystal_mine_micro.jpg';
@@ -78,8 +82,10 @@ class BuildingObjects
         $deuteriumSynthesizer->valid_planet_types = [PlanetType::Planet];
 
         $deuteriumSynthesizer->production = new GameObjectProduction();
-        $deuteriumSynthesizer->production->deuterium = 'return ((10 * $object_level * pow((1.1), $object_level)) * (1.44 - 0.004 * $planet_max_temperature) ) * (0.1 * $building_percentage);';
-        $deuteriumSynthesizer->production->energy = 'return - (20 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
+        $deuteriumSynthesizer->production->deuterium_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+            10 * (1 + 0.0033 * $gameObjectProduction->plasma_technology_level) * $level * 1.1 ** $level * (1.44 - 0.004 * $gameObjectProduction->planetService->getPlanetTempAvg());
+        $deuteriumSynthesizer->production->energy_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+            -20 * $level * 1.1 ** $level;
 
         $deuteriumSynthesizer->assets = new GameObjectAssets();
         $deuteriumSynthesizer->assets->imgMicro = 'deuterium_synthesizer_micro.jpg';
@@ -100,7 +106,8 @@ class BuildingObjects
         $solarPlant->valid_planet_types = [PlanetType::Planet];
 
         $solarPlant->production = new GameObjectProduction();
-        $solarPlant->production->energy = 'return (20 * $object_level * pow((1.1), $object_level)) * (0.1 * $building_percentage);';
+        $solarPlant->production->energy_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+            20 * $level * 1.1 ** $level;
 
         $solarPlant->assets = new GameObjectAssets();
         $solarPlant->assets->imgMicro = 'solar_plant_micro.jpg';
@@ -130,8 +137,10 @@ class BuildingObjects
             new GameObjectRequirement('energy_technology', 3),
         ];
         $fusionReactor->production = new GameObjectProduction();
-        $fusionReactor->production->deuterium = 'return - (10 * $object_level * pow(1.1, $object_level));';
-        $fusionReactor->production->energy = 'return (30 * $object_level * pow((1.05 + $energy_technology_level * 0.01), $object_level)) * (0.1 * $building_percentage);';
+        $fusionReactor->production->deuterium_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+            -10 * $level * 1.1 ** $level;
+        $fusionReactor->production->energy_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+            30 * $level * (1.05 + $gameObjectProduction->playerService->getResearchLevel('energy_technology') * 0.01) ** $level;
 
         $fusionReactor->assets = new GameObjectAssets();
         $fusionReactor->assets->imgMicro = 'fusion_plant_micro.jpg';

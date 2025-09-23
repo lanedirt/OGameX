@@ -9,7 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
-use OGame\Models\Resources;
+use OGame\Models\{
+    ProductionIndex,
+    Resources,
+};
 use OGame\Services\BuildingQueueService;
 use OGame\Services\UnitQueueService;
 use OGame\Services\ObjectService;
@@ -105,32 +108,28 @@ class ResourcesController extends AbstractBuildingsController
 
         $building_resource_rows = [];
         $building_energy_rows = [];
-        $production_total = new Resources(0, 0, 0, 0);
 
-        // Get basic income resource values.
-        $production_total->add($this->planet->getPlanetBasicIncome());
+        $productionIndexTotal = new ProductionIndex();
+        $productionIndexTotal->basic = $this->planet->getPlanetBasicIncome();
 
         // Buildings that provide resource income
         // Get all buildings that have production values.
         foreach (ObjectService::getGameObjectsWithProduction() as $building) {
-            // Retrieve all buildings that have production values.
-            $production = $this->planet->getObjectProduction($building->machine_name);
-            $production_total->add($production);
+            $level = $this->planet->getObjectLevel($building->machine_name);
+            $productionIndex = $this->planet->getObjectProductionIndex($building, $level);
+            $productionIndexTotal->add($productionIndex);
 
-            $percentage = 10;
-            if ($building->type === GameObjectType::Building) {
-                $percentage = $this->planet->getBuildingPercent($building->machine_name);
-            }
+            $percentage = $this->planet->getBuildingPercent($building->machine_name);
 
-            if ($production->energy->get() < 0) {
+            if ($productionIndex->mine->energy->get() < 0) {
                 // Building consumes energy (resource building)
                 $building_resource_rows[] = [
                     'id' => $building->id,
                     'title' => $building->title,
-                    'level' => $this->planet->getObjectLevel($building->machine_name),
-                    'production' => $production,
-                    'actual_energy_use' => floor($production->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
-                    'percentage' => $this->planet->getBuildingPercent($building->machine_name),
+                    'level' => $level,
+                    'production' => $productionIndex->mine,
+                    'actual_energy_use' => floor($productionIndex->mine->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
+                    'percentage' => $percentage,
                 ];
             } else {
                 // Building produces energy (energy building)
@@ -138,19 +137,14 @@ class ResourcesController extends AbstractBuildingsController
                     'id' => $building->id,
                     'type' => $building->type,
                     'title' => $building->title,
-                    'level' => $this->planet->getObjectLevel($building->machine_name),
-                    'production' => $production,
-                    'percentage' => $this->planet->getBuildingPercent($building->machine_name),
+                    'level' => $level,
+                    'production' => $productionIndex->mine,
+                    'percentage' => $percentage,
                 ];
             }
         }
 
-        // Research that provide resource income
-        // @TODO: add plasma research as resource income (bonus to all)
-
         // @TODO: add item bonuses.
-
-        // @TODO: add premium bonuses.
 
         $production_factor = $this->planet->getResourceProductionFactor();
 
@@ -159,7 +153,7 @@ class ResourcesController extends AbstractBuildingsController
             'planet_name' => $this->planet->getPlanetName(),
             'building_resource_rows' => $building_resource_rows,
             'building_energy_rows' => $building_energy_rows,
-            'production_total' => $production_total,
+            'production_total' => $productionIndexTotal,
             'production_factor' => $production_factor,
             'metal' => $this->planet->metal()->get(),
             'metal_storage' => $this->planet->metalStorage()->get(),
@@ -170,6 +164,12 @@ class ResourcesController extends AbstractBuildingsController
             'deuterium' => $this->planet->deuterium()->get(),
             'deuterium_storage' => $this->planet->deuteriumStorage()->get(),
             'deuterium_storage_formatted' => $this->planet->deuteriumStorage()->getFormatted(),
+            'plasma_technology_level' => $player->getResearchLevel('plasma_technology'),
+            'officers' => [
+                'commanding_staff' => $player->hasCommandingStaff(),
+                'engineer'  => $player->hasEngineer(),
+                'geologist' => $player->hasGeologist(),
+            ]
         ]);
     }
 
