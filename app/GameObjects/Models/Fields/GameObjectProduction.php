@@ -8,7 +8,6 @@ use OGame\Models\{
 use OGame\Services\{
     PlanetService,
     PlayerService,
-    SettingsService,
 };
 
 class GameObjectProduction
@@ -21,22 +20,17 @@ class GameObjectProduction
 
     public PlanetService $planetService;
     public PlayerService $playerService;
-    public SettingsService $settingsService;
 
     public int $universe_speed = 1;
     public int $plasma_technology_level = 0;
 
-    public function __construct()
-    {
-        // sane defaults, but can be overridden after
-        $this->playerService = app(PlayerService::class);
-        $this->planetService = $this->playerService->planets->current();
-        $this->settingsService = app(SettingsService::class);
-    }
-
     public function calculate(int $level, float $building_percentage = 1): ProductionIndex
     {
         $productionIndex = new ProductionIndex();
+
+        if (empty($this->planetService) || empty($this->playerService)) {
+            return $productionIndex;
+        }
 
         $this->calculateMine($productionIndex, $level, $building_percentage);
         $this->calculatePlasmaTech($productionIndex, $level, $building_percentage);
