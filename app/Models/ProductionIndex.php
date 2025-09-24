@@ -4,28 +4,61 @@ namespace OGame\Models;
 
 class ProductionIndex
 {
-    // basic income
+    /**
+     * Basic income
+     *
+     * @var Resources
+     */
     public Resources $basic;
 
-    // mine only, includes solar satellite
+    /**
+     * Mine only, includes solar satellite
+     *
+     * @var Resources
+     */
     public Resources $mine;
 
-    // basic + mine + all bonuses
+    /**
+     * Basic + mine + all bonuses
+     *
+     * @var Resources
+     */
     public Resources $total;
 
-    // plasma technology bonus amount
+    /**
+     * Plasma Technology bonus amount
+     *
+     * @var Resources
+     */
     public Resources $plasma_technology;
 
-    // planet slot bonus amount
+    /**
+     * Planet slot bonus amount
+     *
+     * @var Resources
+     */
     public Resources $planet_slot;
 
-    // Engineer bonus amount, for energy
+    /**
+     * Engineer bonus amount (energy)
+     *
+     * @var Resources
+     */
     public Resources $engineer;
 
-    // Geologist bonus amount
+    /**
+     * Geologist bonus amount (mine only)
+     *
+     * @var Resources
+     */
     public Resources $geologist;
 
-    // Commanding Staff bonus amount
+    /**
+     * Commanding Staff bonus amount
+     * - additional bonuses when all officers are active
+     *
+     * @var Resources
+     */
     public Resources $commanding_staff;
 
     public function __construct()
