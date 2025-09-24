@@ -28,7 +28,8 @@ class ProductionIndex
     // Commanding Staff bonus amount
     public Resources $commanding_staff;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->basic = new Resources();
         $this->mine = new Resources();
         $this->total = new Resources();
@@ -39,7 +40,8 @@ class ProductionIndex
         $this->commanding_staff = new Resources();
     }
 
-    public function add(ProductionIndex $productionIndex): void {
+    public function add(ProductionIndex $productionIndex): void
+    {
         $this->basic->add($productionIndex->basic);
         $this->mine->add($productionIndex->mine);
         $this->total->add($productionIndex->total);

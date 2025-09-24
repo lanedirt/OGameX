@@ -5,7 +5,6 @@ namespace OGame\GameObjects\Models\Fields;
 use OGame\Models\{
     ProductionIndex,
 };
-
 use OGame\Services\{
     PlanetService,
     PlayerService,
@@ -27,14 +26,16 @@ class GameObjectProduction
     public int $universe_speed = 1;
     public int $plasma_technology_level = 0;
 
-    public function __construct() {
+    public function __construct()
+    {
         // sane defaults, but can be overridden after
         $this->playerService = app(PlayerService::class);
         $this->planetService = $this->playerService->planets->current();
         $this->settingsService = app(SettingsService::class);
     }
 
-    public function calculate(int $level, float $building_percentage = 1): ProductionIndex {
+    public function calculate(int $level, float $building_percentage = 1): ProductionIndex
+    {
         $productionIndex = new ProductionIndex();
 
         $this->calculateMine($productionIndex, $level, $building_percentage);
@@ -48,64 +49,74 @@ class GameObjectProduction
         return $productionIndex;
     }
 
-    private function calculateMine(ProductionIndex $productionIndex, int $level, float $building_percentage = 1): void {
-        if ($this->metal_formula)
+    private function calculateMine(ProductionIndex $productionIndex, int $level, float $building_percentage = 1): void
+    {
+        if ($this->metal_formula) {
             $productionIndex->mine->metal->set(
                 $this->metal_formula->__invoke($this, $level)
                 * $building_percentage
                 * $this->universe_speed
             );
+        }
 
-        if ($this->crystal_formula)
+        if ($this->crystal_formula) {
             $productionIndex->mine->crystal->set(
                 $this->crystal_formula->__invoke($this, $level)
                 * $building_percentage
                 * $this->universe_speed
             );
+        }
 
-        if ($this->deuterium_formula)
+        if ($this->deuterium_formula) {
             $productionIndex->mine->deuterium->set(
                 $this->deuterium_formula->__invoke($this, $level)
                 * $building_percentage
                 * $this->universe_speed
             );
+        }
 
-        if ($this->energy_formula)
+        if ($this->energy_formula) {
             $productionIndex->mine->energy->set(
                 $this->energy_formula->__invoke($this, $level)
                 * $building_percentage
             );
+        }
     }
 
-    private function calculatePlasmaTech(ProductionIndex $productionIndex, int $level, float $building_percentage = 1): void {
+    private function calculatePlasmaTech(ProductionIndex $productionIndex, int $level, float $building_percentage = 1): void
+    {
         $this->plasma_technology_level = $this->playerService->getResearchLevel('plasma_technology');
 
-        if ($this->metal_formula && $productionIndex->mine->metal->get() > 0)
+        if ($this->metal_formula && $productionIndex->mine->metal->get() > 0) {
             $productionIndex->plasma_technology->metal->set(
                 $this->metal_formula->__invoke($this, $level)
                 * $building_percentage
                 * $this->universe_speed
                 - $productionIndex->mine->metal->get()
             );
+        }
 
-        if ($this->crystal_formula && $productionIndex->mine->crystal->get() > 0)
+        if ($this->crystal_formula && $productionIndex->mine->crystal->get() > 0) {
             $productionIndex->plasma_technology->crystal->set(
                 $this->crystal_formula->__invoke($this, $level)
                 * $building_percentage
                 * $this->universe_speed
                 - $productionIndex->mine->crystal->get()
             );
+        }
 
-        if ($this->deuterium_formula && $productionIndex->mine->deuterium->get() > 0)
+        if ($this->deuterium_formula && $productionIndex->mine->deuterium->get() > 0) {
             $productionIndex->plasma_technology->deuterium->set(
                 $this->deuterium_formula->__invoke($this, $level)
                 * $building_percentage
                 * $this->universe_speed
                 - $productionIndex->mine->deuterium->get()
             );
+        }
     }
 
-    private function calculatePlanetSlot(ProductionIndex $productionIndex): void {
+    private function calculatePlanetSlot(ProductionIndex $productionIndex): void
+    {
         $coordinates = $this->planetService->getPlanetCoordinates();
         $bonus = $this->planetService->getProductionForPositionBonuses($coordinates->position);
 
@@ -122,63 +133,78 @@ class GameObjectProduction
         );
     }
 
-    private function calculateEngineer(ProductionIndex $productionIndex): void {
-        if (!$this->playerService->hasEngineer())
+    private function calculateEngineer(ProductionIndex $productionIndex): void
+    {
+        if (!$this->playerService->hasEngineer()) {
             return;
+        }
 
         // do not apply bonus to consumption
-        if ($productionIndex->mine->energy->get() > 0)
+        if ($productionIndex->mine->energy->get() > 0) {
             $productionIndex->engineer->energy->set(
                 floor($productionIndex->mine->energy->get() * 0.1)
             );
+        }
     }
 
-    private function calculateGeologist(ProductionIndex $productionIndex): void {
-        if (!$this->playerService->hasGeologist())
+    private function calculateGeologist(ProductionIndex $productionIndex): void
+    {
+        if (!$this->playerService->hasGeologist()) {
             return;
+        }
 
-        if ($productionIndex->mine->metal->get() > 0)
+        if ($productionIndex->mine->metal->get() > 0) {
             $productionIndex->geologist->metal->set(
                 floor($productionIndex->mine->metal->get() * 0.1)
             );
+        }
 
-        if ($productionIndex->mine->crystal->get() > 0)
+        if ($productionIndex->mine->crystal->get() > 0) {
             $productionIndex->geologist->crystal->set(
                 floor($productionIndex->mine->crystal->get() * 0.1)
             );
+        }
 
-        if ($productionIndex->mine->deuterium->get() > 0)
+        if ($productionIndex->mine->deuterium->get() > 0) {
             $productionIndex->geologist->deuterium->set(
                 floor($productionIndex->mine->deuterium->get() * 0.1)
             );
+        }
     }
 
-    private function calculateCommandingStaff(ProductionIndex $productionIndex): void {
-        if (!$this->playerService->hasCommandingStaff())
+    private function calculateCommandingStaff(ProductionIndex $productionIndex): void
+    {
+        if (!$this->playerService->hasCommandingStaff()) {
             return;
+        }
 
-        if ($productionIndex->mine->metal->get() > 0)
+        if ($productionIndex->mine->metal->get() > 0) {
             $productionIndex->commanding_staff->metal->set(
                 floor($productionIndex->mine->metal->get() * 0.02)
             );
+        }
 
-        if ($productionIndex->mine->crystal->get() > 0)
+        if ($productionIndex->mine->crystal->get() > 0) {
             $productionIndex->commanding_staff->crystal->set(
                 floor($productionIndex->mine->crystal->get() * 0.02)
             );
+        }
 
-        if ($productionIndex->mine->deuterium->get() > 0)
+        if ($productionIndex->mine->deuterium->get() > 0) {
             $productionIndex->commanding_staff->deuterium->set(
                 floor($productionIndex->mine->deuterium->get() * 0.02)
             );
-        
-        if ($productionIndex->mine->energy->get() > 0)
+        }
+
+        if ($productionIndex->mine->energy->get() > 0) {
             $productionIndex->commanding_staff->energy->set(
                 floor($productionIndex->mine->energy->get() * 0.02)
             );
+        }
     }
 
-    private function calculateTotal(ProductionIndex $productionIndex): void {
+    private function calculateTotal(ProductionIndex $productionIndex): void
+    {
         $productionIndex->total->add($productionIndex->basic);
         $productionIndex->total->add($productionIndex->mine);
         $productionIndex->total->add($productionIndex->plasma_technology);

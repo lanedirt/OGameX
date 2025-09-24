@@ -1621,10 +1621,11 @@ class PlanetService
         $resource_production_factor = 1;
 
         if ($object_level === 0) {
-            if ($object->type === GameObjectType::Ship || $object->type == GameObjectType::Defense)
+            if ($object->type === GameObjectType::Ship || $object->type == GameObjectType::Defense) {
                 $object_level = $this->getObjectAmount($object->machine_name);
-            else
+            } else {
                 $object_level = $this->getObjectLevel($object->machine_name);
+            }
 
             $resource_production_factor = $this->getResourceProductionFactor() / 100;
         }

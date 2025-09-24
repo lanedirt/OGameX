@@ -34,9 +34,9 @@ class BuildingObjects
         $metalMine->valid_planet_types = [PlanetType::Planet];
 
         $metalMine->production = new GameObjectProduction();
-        $metalMine->production->metal_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+        $metalMine->production->metal_formula = fn (GameObjectProduction $gameObjectProduction, int $level) =>
             30 * (1 + 0.01 * $gameObjectProduction->plasma_technology_level) * $level * 1.1 ** $level;
-        $metalMine->production->energy_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+        $metalMine->production->energy_formula = fn (GameObjectProduction $gameObjectProduction, int $level) =>
             -10 * $level * 1.1 ** $level;
 
         $metalMine->assets = new GameObjectAssets();
@@ -58,9 +58,9 @@ class BuildingObjects
         $crystalMine->valid_planet_types = [PlanetType::Planet];
 
         $crystalMine->production = new GameObjectProduction();
-        $crystalMine->production->crystal_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+        $crystalMine->production->crystal_formula = fn (GameObjectProduction $gameObjectProduction, int $level) =>
             20 * (1 + 0.0066 * $gameObjectProduction->plasma_technology_level) * $level * 1.1 ** $level;
-        $crystalMine->production->energy_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+        $crystalMine->production->energy_formula = fn (GameObjectProduction $gameObjectProduction, int $level) =>
             -10 * $level * 1.1 ** $level;
 
         $crystalMine->assets = new GameObjectAssets();
@@ -82,9 +82,9 @@ class BuildingObjects
         $deuteriumSynthesizer->valid_planet_types = [PlanetType::Planet];
 
         $deuteriumSynthesizer->production = new GameObjectProduction();
-        $deuteriumSynthesizer->production->deuterium_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+        $deuteriumSynthesizer->production->deuterium_formula = fn (GameObjectProduction $gameObjectProduction, int $level) =>
             10 * (1 + 0.0033 * $gameObjectProduction->plasma_technology_level) * $level * 1.1 ** $level * (1.44 - 0.004 * $gameObjectProduction->planetService->getPlanetTempAvg());
-        $deuteriumSynthesizer->production->energy_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+        $deuteriumSynthesizer->production->energy_formula = fn (GameObjectProduction $gameObjectProduction, int $level) =>
             -20 * $level * 1.1 ** $level;
 
         $deuteriumSynthesizer->assets = new GameObjectAssets();
@@ -106,7 +106,7 @@ class BuildingObjects
         $solarPlant->valid_planet_types = [PlanetType::Planet];
 
         $solarPlant->production = new GameObjectProduction();
-        $solarPlant->production->energy_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+        $solarPlant->production->energy_formula = fn (GameObjectProduction $gameObjectProduction, int $level) =>
             20 * $level * 1.1 ** $level;
 
         $solarPlant->assets = new GameObjectAssets();
@@ -137,9 +137,9 @@ class BuildingObjects
             new GameObjectRequirement('energy_technology', 3),
         ];
         $fusionReactor->production = new GameObjectProduction();
-        $fusionReactor->production->deuterium_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+        $fusionReactor->production->deuterium_formula = fn (GameObjectProduction $gameObjectProduction, int $level) =>
             -10 * $level * 1.1 ** $level;
-        $fusionReactor->production->energy_formula = fn(GameObjectProduction $gameObjectProduction, int $level) =>
+        $fusionReactor->production->energy_formula = fn (GameObjectProduction $gameObjectProduction, int $level) =>
             30 * $level * (1.05 + $gameObjectProduction->playerService->getResearchLevel('energy_technology') * 0.01) ** $level;
 
         $fusionReactor->assets = new GameObjectAssets();
