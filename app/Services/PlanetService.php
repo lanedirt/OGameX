@@ -1566,7 +1566,7 @@ class PlanetService
     {
         foreach (ObjectService::getGameObjectsWithProduction() as $object) {
             // Retrieve all game objects that have production values.
-            $production = $this->getObjectProduction($object->machine_name);
+            $production = $this->getObjectProduction($object->machine_name, null, true);
 
             if ($production->energy->get() > 0) {
                 $energy_production_total += $production->energy->get();
@@ -1588,7 +1588,7 @@ class PlanetService
         foreach (ObjectService::getGameObjectsWithProduction() as $object) {
             if ($object->machine_name === 'fusion_plant') {
                 // Retrieve the fusion plant production.
-                $production = $this->getObjectProduction($object->machine_name);
+                $production = $this->getObjectProduction($object->machine_name, null, true);
 
                 // If fusion plant deuterium production is negative (consumption)
                 // and there is no deuterium in storage, we need to set the energy production to 0.
@@ -1619,6 +1619,9 @@ class PlanetService
         // when the building level is not set (which means current output is
         // asked for).
         $resource_production_factor = 1;
+        if (!$force_factor) {
+            $resource_production_factor = $this->getResourceProductionFactor() / 100;
+        }
 
         if ($object_level === 0) {
             if ($object->type === GameObjectType::Ship || $object->type == GameObjectType::Defense) {
@@ -1626,11 +1629,9 @@ class PlanetService
             } else {
                 $object_level = $this->getObjectLevel($object->machine_name);
             }
-
-            $resource_production_factor = $this->getResourceProductionFactor() / 100;
         }
 
-        $building_percentage = !$force_factor ? $this->getBuildingPercent($object->machine_name) / 10 : 1;
+        $building_percentage = $this->getBuildingPercent($object->machine_name) / 10;
 
         $object->production->planetService = $this;
         $object->production->playerService = $this->player;
