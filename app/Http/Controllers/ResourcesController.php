@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Models\{
     ProductionIndex,

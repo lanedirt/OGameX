@@ -811,7 +811,7 @@ class PlayerService
         // TODO: add logic
         return true;
     }
-    
+
     public function hasCommandingStaff(): bool
     {
         // TODO: don't know if this is correct logic
