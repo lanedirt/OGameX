@@ -1603,7 +1603,7 @@ class PlanetService
         $this->planet->energy_used = (int) $energy_consumption_total;
         $this->planet->energy_max  = (int) $energy_production_total;
 
-        $production_factor = min(1, $this->planet->energy_used === 0 ? 0 : $this->planet->energy_max / $this->planet->energy_used);
+        $production_factor = min(1, $this->planet->energy_used === 0 ? 1 : $this->planet->energy_max / $this->planet->energy_used);
 
         // Write values to planet.
         // -- could potentially use $production_total->multiply($production_factor)
