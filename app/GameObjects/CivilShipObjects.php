@@ -173,7 +173,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $solarSatellite->production = new GameObjectProduction();
         // TODO: solar satellite production formula should be dependent on the planet position: proximity to sun.
         $solarSatellite->production->energy_formula = fn (GameObjectProduction $gameObjectProduction, int $level) =>
-            floor(($gameObjectProduction->planetService->getPlanetTempAvg() + 160) / 6) * $level;
+            floor(($gameObjectProduction->planetService->getPlanetTempMax() + 140) / 6) * $level;
 
         $solarSatellite->properties = new GameObjectProperties($solarSatellite, 2000, 1, 0, 0, 0, 1);
 
