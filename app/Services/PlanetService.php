@@ -1616,7 +1616,7 @@ class PlanetService
 
         // add to $total_production, which contains the basic income
         $production_total->add($building_production_total);
-        
+
         // Write values to planet.
         // -- could potentially use $production_total->multiply($production_factor)
         //    but that applies to energy as well, and I will not bother with potential nuances with that
