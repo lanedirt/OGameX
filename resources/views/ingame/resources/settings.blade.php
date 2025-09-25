@@ -72,20 +72,20 @@
                                 </td>
                                 <td>
                                 </td>
-                                <td class="{{ $row['production']->metal->get() > 0 ? 'overmark' : ($row['production']->metal->get() < 0 ? 'undermark' : 'normalmark') }}">
-                                <span class="tooltipCustom " title="{{ $row['production']->metal->getFormattedLong() }}">
-                                    {{ $row['production']->metal->getFormatted() }}
+                                <td class="{{ $row['production']->metal->get() > 0 ? 'undermark' : ($row['production']->metal->get() < 0 ? 'overmark' : 'normalmark') }}">
+                                <span class="tooltipCustom " title="{{ $row['production']->metal->getFormattedFull() }}">
+                                    {{ $row['production']->metal->getFormattedLong() }}
                                 </span>
                                 </td>
-                                <td class="{{ $row['production']->crystal->get() > 0 ? 'overmark' : ($row['production']->crystal->get() < 0 ? 'undermark' : 'normalmark') }}">
-                                <span class="tooltipCustom " title="{{ $row['production']->crystal->getFormattedLong() }}">
-                                    {{ $row['production']->crystal->getFormatted() }}
+                                <td class="{{ $row['production']->crystal->get() > 0 ? 'undermark' : ($row['production']->crystal->get() < 0 ? 'overmark' : 'normalmark') }}">
+                                <span class="tooltipCustom " title="{{ $row['production']->crystal->getFormattedFull() }}">
+                                    {{ $row['production']->crystal->getFormattedLong() }}
                                 </span>
                                 </td>
                                 <td class="{{ $row['production']->deuterium->get() > 0 ? 'overmark' : ($row['production']->deuterium->get() < 0 ? 'undermark' : 'normalmark') }}">
                                 <span class="tooltipCustom "
-                                      title="{{ $row['production']->deuterium->getFormattedLong() }}">
-                                    {{ $row['production']->deuterium->getFormatted() }}
+                                      title="{{ $row['production']->deuterium->getFormattedFull() }}">
+                                    {{ $row['production']->deuterium->getFormattedLong() }}
                                 </span>
                                 </td>
                                 <td class="{{ ($row['production']->energy->get() * -1) > 0 ? 'undermark' : (($row['production']->energy->get() * -1) < 0 ? 'overmark' : 'normalmark') }}">
@@ -141,23 +141,23 @@
                                 <td>
                                 </td>
                                 <td class="{{ $row['production']->metal->get() > 0 ? 'overmark' : ($row['production']->metal->get() < 0 ? 'undermark' : 'normalmark') }}">
-                                <span class="tooltipCustom " title="{{ $row['production']->metal->getFormatted() }}">
+                                <span class="tooltipCustom " title="{{ $row['production']->metal->getFormattedFull() }}">
                                     {{ $row['production']->metal->getFormatted() }}
                                 </span>
                                 </td>
                                 <td class="{{ $row['production']->crystal->get() > 0 ? 'overmark' : ($row['production']->crystal->get() < 0 ? 'undermark' : 'normalmark') }}">
-                                <span class="tooltipCustom " title="{{ $row['production']->crystal->getFormatted() }}">
+                                <span class="tooltipCustom " title="{{ $row['production']->crystal->getFormattedFull() }}">
                                     {{ $row['production']->crystal->getFormatted() }}
                                 </span>
                                 </td>
                                 <td class="{{ $row['production']->deuterium->get() > 0 ? 'overmark' : ($row['production']->deuterium->get() < 0 ? 'undermark' : 'normalmark') }}">
                                 <span class="tooltipCustom "
-                                      title="{{ $row['production']->deuterium->getFormatted() }}">
-                                    {{ $row['production']->deuterium->getFormatted() }}
+                                      title="{{ $row['production']->deuterium->getFormattedFull() }}">
+                                    {{ $row['production']->deuterium->getFormattedLong() }}
                                 </span>
                                 </td>
                                 <td class="{{ ($row['production']->energy->get()) > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom " title=" {{ $row['production']->energy->getFormattedLong() }}">
+                                <span class="tooltipCustom " title=" {{ $row['production']->energy->getFormattedFull() }}">
                                     {{ $row['production']->energy->getFormattedLong() }}
                                 </span>
                                 </td>
@@ -206,23 +206,23 @@
                             <td>
                             </td>
                             <td class="{{ $production_total->plasma_technology->metal->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom " title="{{ $production_total->plasma_technology->metal->getFormatted() }}">
-                                    {{ $production_total->plasma_technology->metal->getFormatted() }}
+                                <span class="tooltipCustom " title="{{ $production_total->plasma_technology->metal->getFormattedFull() }}">
+                                    {{ $production_total->plasma_technology->metal->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->plasma_technology->crystal->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom " title="{{ $production_total->plasma_technology->crystal->getFormatted() }}">
-                                    {{ $production_total->plasma_technology->crystal->getFormatted() }}
+                                <span class="tooltipCustom " title="{{ $production_total->plasma_technology->crystal->getFormattedFull() }}">
+                                    {{ $production_total->plasma_technology->crystal->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->plasma_technology->deuterium->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom " title="{{ $production_total->plasma_technology->deuterium->getFormatted() }}">
-                                    {{ $production_total->plasma_technology->deuterium->getFormatted() }}
+                                <span class="tooltipCustom " title="{{ $production_total->plasma_technology->deuterium->getFormattedFull() }}">
+                                    {{ $production_total->plasma_technology->deuterium->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->plasma_technology->energy->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom " title="{{ $production_total->plasma_technology->energy->getFormatted() }}">
-                                    {{ $production_total->plasma_technology->energy->getFormatted() }}
+                                <span class="tooltipCustom " title="{{ $production_total->plasma_technology->energy->getFormattedFull() }}">
+                                    {{ $production_total->plasma_technology->energy->getFormattedLong() }}
                                 </span>
                             </td>
                             <td>
@@ -267,23 +267,23 @@
                                 </div>
                             </td>
                             <td class="{{ $production_total->geologist->metal->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['geologist'] ? '' : 'disabled' }}" title="{{ $production_total->geologist->metal->getFormatted() }}">
-                                    {{ $production_total->geologist->metal->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['geologist'] ? '' : 'disabled' }}" title="{{ $production_total->geologist->metal->getFormattedFull() }}">
+                                    {{ $production_total->geologist->metal->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->geologist->crystal->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['geologist'] ? '' : 'disabled' }}" title="{{ $production_total->geologist->crystal->getFormatted() }}">
-                                    {{ $production_total->geologist->crystal->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['geologist'] ? '' : 'disabled' }}" title="{{ $production_total->geologist->crystal->getFormattedFull() }}">
+                                    {{ $production_total->geologist->crystal->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->geologist->deuterium->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['geologist'] ? '' : 'disabled' }}" title="{{ $production_total->geologist->deuterium->getFormatted() }}">
-                                    {{ $production_total->geologist->deuterium->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['geologist'] ? '' : 'disabled' }}" title="{{ $production_total->geologist->deuterium->getFormattedFull() }}">
+                                    {{ $production_total->geologist->deuterium->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->geologist->energy->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['geologist'] ? '' : 'disabled' }}" title="{{ $production_total->geologist->energy->getFormatted() }}">
-                                    {{ $production_total->geologist->energy->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['geologist'] ? '' : 'disabled' }}" title="{{ $production_total->geologist->energy->getFormattedFull() }}">
+                                    {{ $production_total->geologist->energy->getFormattedLong() }}
                                 </span>
                             </td>
                             <td>
@@ -300,23 +300,23 @@
                                 </div>
                             </td>
                             <td class="{{ $production_total->engineer->metal->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['engineer'] ? '' : 'disabled' }}" title="{{ $production_total->engineer->metal->getFormatted() }}">
-                                    {{ $production_total->engineer->metal->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['engineer'] ? '' : 'disabled' }}" title="{{ $production_total->engineer->metal->getFormattedFull() }}">
+                                    {{ $production_total->engineer->metal->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->engineer->crystal ->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['engineer'] ? '' : 'disabled' }}" title="{{ $production_total->engineer->crystal->getFormatted() }}">
-                                    {{ $production_total->engineer->crystal->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['engineer'] ? '' : 'disabled' }}" title="{{ $production_total->engineer->crystal->getFormattedFull() }}">
+                                    {{ $production_total->engineer->crystal->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->engineer->deuterium->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['engineer'] ? '' : 'disabled' }}" title="{{ $production_total->engineer->deuterium->getFormatted() }}">
-                                    {{ $production_total->engineer->deuterium->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['engineer'] ? '' : 'disabled' }}" title="{{ $production_total->engineer->deuterium->getFormattedFull() }}">
+                                    {{ $production_total->engineer->deuterium->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->engineer->energy->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['engineer'] ? '' : 'disabled' }}" title="{{ $production_total->engineer->energy->getFormatted() }}">
-                                    {{ $production_total->engineer->energy->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['engineer'] ? '' : 'disabled' }}" title="{{ $production_total->engineer->energy->getFormattedFull() }}">
+                                    {{ $production_total->engineer->energy->getFormattedLong() }}
                                 </span>
                             </td>
                             <td>
@@ -333,23 +333,23 @@
                                 </div>
                             </td>
                             <td class="{{ $production_total->commanding_staff->metal->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['commanding_staff'] ? '' : 'disabled' }}" title="{{ $production_total->commanding_staff->metal->getFormatted() }}">
-                                    {{ $production_total->commanding_staff->metal->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['commanding_staff'] ? '' : 'disabled' }}" title="{{ $production_total->commanding_staff->metal->getFormattedFull() }}">
+                                    {{ $production_total->commanding_staff->metal->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->commanding_staff->crystal->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['commanding_staff'] ? '' : 'disabled' }}" title="{{ $production_total->commanding_staff->crystal->getFormatted() }}">
-                                    {{ $production_total->commanding_staff->crystal->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['commanding_staff'] ? '' : 'disabled' }}" title="{{ $production_total->commanding_staff->crystal->getFormattedFull() }}">
+                                    {{ $production_total->commanding_staff->crystal->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->commanding_staff->deuterium->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['commanding_staff'] ? '' : 'disabled' }}" title="{{ $production_total->commanding_staff->deuterium->getFormatted() }}">
-                                    {{ $production_total->commanding_staff->deuterium->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['commanding_staff'] ? '' : 'disabled' }}" title="{{ $production_total->commanding_staff->deuterium->getFormattedFull() }}">
+                                    {{ $production_total->commanding_staff->deuterium->getFormattedLong() }}
                                 </span>
                             </td>
                             <td class="{{ $production_total->commanding_staff->energy->get() > 0 ? 'undermark' : 'normalmark' }}">
-                                <span class="tooltipCustom {{ $officers['commanding_staff'] ? '' : 'disabled' }}" title="{{ $production_total->commanding_staff->energy->getFormatted() }}">
-                                    {{ $production_total->commanding_staff->energy->getFormatted() }}
+                                <span class="tooltipCustom {{ $officers['commanding_staff'] ? '' : 'disabled' }}" title="{{ $production_total->commanding_staff->energy->getFormattedFull() }}">
+                                    {{ $production_total->commanding_staff->energy->getFormattedLong() }}
                                 </span>
                             </td>
                             <td>
@@ -378,22 +378,22 @@
                         <tr class="summary alt">
                             <td colspan="2" class="label"><em>@lang('Total per hour:')</em></td>
                             <td class="undermark">
-                            <span class="tooltipCustom" title="{{ $production_total->total->metal->getFormattedLong() }}">
+                            <span class="tooltipCustom" title="{{ $production_total->total->metal->getFormattedFull() }}">
                                 {{ $production_total->total->metal->getFormattedLong() }}
                             </span>
                             </td>
                             <td class="undermark">
-                            <span class="tooltipCustom" title="{{ $production_total->total->crystal->getFormattedLong() }}">
+                            <span class="tooltipCustom" title="{{ $production_total->total->crystal->getFormattedFull() }}">
                                 {{ $production_total->total->crystal->getFormattedLong() }}
                             </span>
                             </td>
                             <td class="undermark">
-                            <span class="tooltipCustom" title="{{ $production_total->total->deuterium->getFormattedLong() }}">
+                            <span class="tooltipCustom" title="{{ $production_total->total->deuterium->getFormattedFull() }}">
                                 {{ $production_total->total->deuterium->getFormattedLong() }}
                             </span>
                             </td>
                             <td class="{{ ($production_total->total->energy->getFormatted() > 0) ? 'undermark' : 'overmark' }}">
-                            <span class="tooltipCustom" title="{{ $production_total->total->energy->getFormattedLong() }}">
+                            <span class="tooltipCustom" title="{{ $production_total->total->energy->getFormattedFull() }}">
                                 {{ $production_total->total->energy->getFormattedLong() }}
                             </span>
                             </td>
@@ -402,22 +402,22 @@
                         <tr class="">
                             <td colspan="2" class="label"><em>@lang('Total per day'):</em></td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->metal->getFormattedLong(24) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->total->metal->getFormattedFull(24) }}">
                                     {{ $production_total->total->metal->getFormattedLong(24) }}
                                 </span>
                             </td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->crystal->getFormattedLong(24) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->total->crystal->getFormattedFull(24) }}">
                                     {{ $production_total->total->crystal->getFormattedLong(24) }}
                                 </span>
                             </td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->deuterium->getFormattedLong(24) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->total->deuterium->getFormattedFull(24) }}">
                                     {{ $production_total->total->deuterium->getFormattedLong(24) }}
                                 </span>
                             </td>
                             <td class="{{ ($production_total->total->energy->getFormatted() > 0) ? 'undermark' : 'overmark' }}">
-                                <span class="tooltipCustom" title="{{ $production_total->total->energy->getFormattedLong() }}">
+                                <span class="tooltipCustom" title="{{ $production_total->total->energy->getFormattedFull() }}">
                                     {{ $production_total->total->energy->getFormattedLong() }}
                                 </span>
                             </td>
@@ -426,22 +426,22 @@
                         <tr class="alt">
                             <td colspan="2" class="label"><em>@lang('Total per week'):</em></td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->metal->getFormattedLong(168) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->total->metal->getFormattedFull(168) }}">
                                     {{ $production_total->total->metal->getFormattedLong(168) }}
                                 </span>
                             </td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->crystal->getFormattedLong(168) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->total->crystal->getFormattedFull(168) }}">
                                     {{ $production_total->total->crystal->getFormattedLong(168) }}
                                 </span>
                             </td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->deuterium->getFormattedLong(168) }}">
+                                <span class="tooltipCustom" title="{{ $production_total->total->deuterium->getFormattedFull(168) }}">
                                     {{ $production_total->total->deuterium->getFormattedLong(168) }}
                                 </span>
                             </td>
                             <td class="{{ ($production_total->total->energy->getFormatted() > 0) ? 'undermark' : 'overmark' }}">
-                                <span class="tooltipCustom" title="{{ $production_total->total->energy->getFormattedLong() }}">
+                                <span class="tooltipCustom" title="{{ $production_total->total->energy->getFormattedFull() }}">
                                     {{ $production_total->total->energy->getFormattedLong() }}
                                 </span>
                             </td>
