@@ -1455,9 +1455,7 @@ class PlanetService
             $energy_consumption_total += abs($production_total->energy->get());
         }
 
-        // Calculate the production values twice:
-        // 1. First time in order to ensure the energy production is up-to-date.
-        // 2. Second time for the mine production to be updated according to the up-to-date (actual) energy production.
+        // Calculate building energy consumption and adjust production by the energy consumption ratio
         $this->updateResourceProductionStatsInner($production_total, $energy_production_total, $energy_consumption_total);
 
         if ($save_planet) {
@@ -1618,8 +1616,6 @@ class PlanetService
         $production_total->add($building_production_total);
 
         // Write values to planet.
-        // -- could potentially use $production_total->multiply($production_factor)
-        //    but that applies to energy as well, and I will not bother with potential nuances with that
         $this->planet->metal_production     = (int) $production_total->metal->get();
         $this->planet->crystal_production   = (int) $production_total->crystal->get();
         $this->planet->deuterium_production = (int) $production_total->deuterium->get();
