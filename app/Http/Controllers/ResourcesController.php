@@ -108,15 +108,15 @@ class ResourcesController extends AbstractBuildingsController
         $building_resource_rows = [];
         $building_energy_rows = [];
 
-        $productionIndexTotal = new ProductionIndex();
-        $productionIndexTotal->total->add($this->planet->getPlanetBasicIncome());
+        $productionindex_total = new ProductionIndex();
+        $productionindex_total->total->add($this->planet->getPlanetBasicIncome());
 
         // Buildings that provide resource income
         // Get all buildings that have production values.
         foreach (ObjectService::getGameObjectsWithProduction() as $building) {
             $level = $this->planet->getObjectLevel($building->machine_name);
             $productionIndex = $this->planet->getObjectProductionIndex($building, $level);
-            $productionIndexTotal->add($productionIndex);
+            $productionindex_total->add($productionIndex);
 
             $percentage = $this->planet->getBuildingPercent($building->machine_name);
 
@@ -154,7 +154,7 @@ class ResourcesController extends AbstractBuildingsController
             'planet_name' => $this->planet->getPlanetName(),
             'building_resource_rows' => $building_resource_rows,
             'building_energy_rows' => $building_energy_rows,
-            'production_total' => $productionIndexTotal,
+            'production_total' => $productionindex_total,
             'production_factor' => $production_factor,
             'metal' => $this->planet->metal()->get(),
             'metal_storage' => $this->planet->metalStorage()->get(),
