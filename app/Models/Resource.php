@@ -27,10 +27,10 @@ class Resource
     /**
      * Multiply resource by a factor.
      *
-     * @param int $factor
+     * @param float $factor
      * @return void
      */
-    public function multiply(int $factor): void
+    public function multiply(float $factor): void
     {
         $this->rawValue = $this->rawValue * $factor;
     }
