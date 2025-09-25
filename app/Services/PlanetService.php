@@ -1442,12 +1442,10 @@ class PlanetService
      */
     public function updateResourceProductionStats(bool $save_planet = true): void
     {
-        $production_total = new Resources(0, 0, 0, 0);
+        $production_total = $this->getPlanetBasicIncome();
+
         $energy_production_total = 0;
         $energy_consumption_total = 0;
-
-        // Get basic income resource values.
-        $production_total->add($this->getPlanetBasicIncome());
 
         // Calculate energy production and consumption from the basic income.
         if ($production_total->energy->get() > 0) {
@@ -1564,6 +1562,12 @@ class PlanetService
      */
     private function updateResourceProductionStatsInner(Resources $production_total, int|float $energy_production_total, int|float $energy_consumption_total, bool $save_planet = true): void
     {
+        // create a separate variable for building production
+        // $production_total includes basic income, and we need
+        // to multiply building production by a production factor later
+        // and basic income is unaffected by production factor
+        $building_production_total = new Resources();
+
         foreach (ObjectService::getGameObjectsWithProduction() as $object) {
             // Retrieve all game objects that have production values.
             $production = $this->getObjectProduction($object->machine_name, null, true);
@@ -1574,12 +1578,12 @@ class PlanetService
                 // Convert negative production to positive consumption, same value.
                 $energy_consumption = abs($production->energy->get());
 
-                $production_total->energy->add(new Resource($energy_consumption));
+                $building_production_total->energy->add(new Resource($energy_consumption));
                 $energy_consumption_total += $energy_consumption;
             }
 
             // Combine values to one array, so we have the total production.
-            $production_total->add($production);
+            $building_production_total->add($production);
         }
 
         // After all production values are calculated, we need to calculate the actual fusion plant energy production.
@@ -1592,7 +1596,7 @@ class PlanetService
 
                 // If fusion plant deuterium production is negative (consumption)
                 // and there is no deuterium in storage, we need to set the energy production to 0.
-                $consumption_higher_than_production = abs($production->deuterium->get()) > $production_total->deuterium->get();
+                $consumption_higher_than_production = abs($production->deuterium->get()) > $production_total->deuterium->get() + $building_production_total->deuterium->get();
                 if ($consumption_higher_than_production && $this->planet->deuterium == 0) {
                     // Remove energy production from previously calculated total.
                     $energy_production_total -= $production->energy->get();
@@ -1603,14 +1607,22 @@ class PlanetService
         $this->planet->energy_used = (int) $energy_consumption_total;
         $this->planet->energy_max  = (int) $energy_production_total;
 
-        $production_factor = min(1, $this->planet->energy_used === 0 ? 1 : $this->planet->energy_max / $this->planet->energy_used);
+        $production_factor = $this->getResourceProductionFactor() / 100;
 
+        // i don't know if modifying energy will affect anything, but to be safe
+        $total_energy = $building_production_total->energy->get();
+        $building_production_total->multiply($production_factor);
+        $building_production_total->energy->set($total_energy);
+
+        // add to $total_production, which contains the basic income
+        $production_total->add($building_production_total);
+        
         // Write values to planet.
         // -- could potentially use $production_total->multiply($production_factor)
         //    but that applies to energy as well, and I will not bother with potential nuances with that
-        $this->planet->metal_production     = (int) ($production_total->metal->get()     * $production_factor);
-        $this->planet->crystal_production   = (int) ($production_total->crystal->get()   * $production_factor);
-        $this->planet->deuterium_production = (int) ($production_total->deuterium->get() * $production_factor);
+        $this->planet->metal_production     = (int) $production_total->metal->get();
+        $this->planet->crystal_production   = (int) $production_total->crystal->get();
+        $this->planet->deuterium_production = (int) $production_total->deuterium->get();
     }
 
     public function getObjectProductionIndex(GameObject $object, int $object_level = 0, bool $force_factor = false): ProductionIndex
@@ -1686,11 +1698,15 @@ class PlanetService
      */
     public function getResourceProductionFactor(): int
     {
-        if (empty($this->energyProduction()->get()) || empty($this->energyConsumption()->get())) {
+        if (empty($this->energyConsumption()->get())) {
+            return 100;
+        }
+
+        if (empty($this->energyProduction()->get())) {
             return 0;
         }
 
-        $production_factor = $this->energyConsumption()->get() ? floor($this->energyProduction()->get() / $this->energyConsumption()->get() * 100) : 0;
+        $production_factor = floor($this->energyProduction()->get() / $this->energyConsumption()->get() * 100);
 
         // Force min 0, max 100.
         if ($production_factor > 100) {
