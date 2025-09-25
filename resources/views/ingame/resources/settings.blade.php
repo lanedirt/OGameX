@@ -402,21 +402,21 @@
                         <tr class="">
                             <td colspan="2" class="label"><em>@lang('Total per day'):</em></td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->metal->getFormattedFull(24) }}">
-                                    {{ $production_total->total->metal->getFormattedLong(24) }}
+                                <span class="tooltipCustom" title="{{ \OGame\Facades\AppUtil::formatNumber($production_total->total->metal->get() * 24) }}">
+                                    {{ \OGame\Facades\AppUtil::formatNumberLong($production_total->total->metal->get() * 24) }}
                                 </span>
                             </td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->crystal->getFormattedFull(24) }}">
-                                    {{ $production_total->total->crystal->getFormattedLong(24) }}
+                                <span class="tooltipCustom" title="{{ \OGame\Facades\AppUtil::formatNumber($production_total->total->crystal->get() * 24) }}">
+                                    {{ \OGame\Facades\AppUtil::formatNumberLong($production_total->total->crystal->get() * 24) }}
                                 </span>
                             </td>
-                            <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->deuterium->getFormattedFull(24) }}">
-                                    {{ $production_total->total->deuterium->getFormattedLong(24) }}
+                            <td class="{{ $production_total->total->deuterium->get() > 0 ? 'undermark' : 'overmark' }}">
+                                <span class="tooltipCustom" title="{{ \OGame\Facades\AppUtil::formatNumber($production_total->total->deuterium->get() * 24) }}">
+                                    {{ \OGame\Facades\AppUtil::formatNumberLong($production_total->total->deuterium->get() * 24) }}
                                 </span>
                             </td>
-                            <td class="{{ ($production_total->total->energy->getFormatted() > 0) ? 'undermark' : 'overmark' }}">
+                            <td class="{{ ($production_total->total->energy->get() > 0) ? 'undermark' : 'overmark' }}">
                                 <span class="tooltipCustom" title="{{ $production_total->total->energy->getFormattedFull() }}">
                                     {{ $production_total->total->energy->getFormattedLong() }}
                                 </span>
@@ -426,18 +426,18 @@
                         <tr class="alt">
                             <td colspan="2" class="label"><em>@lang('Total per week'):</em></td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->metal->getFormattedFull(168) }}">
-                                    {{ $production_total->total->metal->getFormattedLong(168) }}
+                                <span class="tooltipCustom" title="{{ \OGame\Facades\AppUtil::formatNumber($production_total->total->metal->get() * 168) }}">
+                                    {{ \OGame\Facades\AppUtil::formatNumberLong($production_total->total->metal->get() * 168) }}
                                 </span>
                             </td>
                             <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->crystal->getFormattedFull(168) }}">
-                                    {{ $production_total->total->crystal->getFormattedLong(168) }}
+                                <span class="tooltipCustom" title="{{ \OGame\Facades\AppUtil::formatNumber($production_total->total->crystal->get() * 168) }}">
+                                    {{ \OGame\Facades\AppUtil::formatNumberLong($production_total->total->crystal->get() * 168) }}
                                 </span>
                             </td>
-                            <td class="undermark">
-                                <span class="tooltipCustom" title="{{ $production_total->total->deuterium->getFormattedFull(168) }}">
-                                    {{ $production_total->total->deuterium->getFormattedLong(168) }}
+                            <td class="{{ $production_total->total->deuterium->get() > 0 ? 'undermark' : 'overmark' }}">
+                                <span class="tooltipCustom" title="{{ \OGame\Facades\AppUtil::formatNumber($production_total->total->deuterium->get() * 168) }}">
+                                    {{ \OGame\Facades\AppUtil::formatNumberLong($production_total->total->deuterium->get() * 168) }}
                                 </span>
                             </td>
                             <td class="{{ ($production_total->total->energy->getFormatted() > 0) ? 'undermark' : 'overmark' }}">

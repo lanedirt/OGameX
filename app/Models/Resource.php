@@ -58,23 +58,21 @@ class Resource
     /**
      * Get the formatted value of the resource as string (short, e.g. 5M).
      *
-     * @param int $multiplier
      * @return string
      */
-    public function getFormatted(int $multiplier = 1): string
+    public function getFormatted(): string
     {
-        return AppUtil::formatNumberShort($this->rawValue * $multiplier);
+        return AppUtil::formatNumberShort($this->rawValue);
     }
 
     /**
      * Get the formatted value of the resource as string (longer, e.g. 5.33M).
      *
-     * @param int $multiplier
      * @return string
      */
-    public function getFormattedLong(int $multiplier = 1): string
+    public function getFormattedLong(): string
     {
-        return AppUtil::formatNumberLong($this->rawValue * $multiplier);
+        return AppUtil::formatNumberLong($this->rawValue);
     }
 
     /**
