@@ -78,12 +78,11 @@ class Resource
     /**
      * Get the formatted value of the resource as string (all digits, no shortening e.g. 5,000,000).
      *
-     * @param int $multiplier
      * @return string
      */
-    public function getFormattedFull(int $multiplier = 1): string
+    public function getFormattedFull(): string
     {
-        return AppUtil::formatNumber($this->rawValue * $multiplier);
+        return AppUtil::formatNumber($this->rawValue);
     }
 
     /**
