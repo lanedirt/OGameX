@@ -785,31 +785,31 @@ class PlayerService
     public function hasCommander(): bool
     {
         // TODO: add logic
-        return true;
+        return false;
     }
 
     public function hasAdmiral(): bool
     {
         // TODO: add logic
-        return true;
+        return false;
     }
 
     public function hasEngineer(): bool
     {
         // TODO: add logic
-        return true;
+        return false;
     }
 
     public function hasGeologist(): bool
     {
         // TODO: add logic
-        return true;
+        return false;
     }
 
     public function hasTechnocrat(): bool
     {
         // TODO: add logic
-        return true;
+        return false;
     }
 
     public function hasCommandingStaff(): bool
