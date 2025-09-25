@@ -54,10 +54,10 @@ class Resources
     /**
      * Multiply all resources by a factor.
      *
-     * @param int $factor
+     * @param float $factor
      * @return Resources
      */
-    public function multiply(int $factor): Resources
+    public function multiply(float $factor): Resources
     {
         $this->metal->multiply($factor);
         $this->crystal->multiply($factor);
