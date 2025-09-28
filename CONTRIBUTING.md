@@ -20,8 +20,27 @@ Refer to the [Installation section](https://github.com/lanedirt/OGameX#installat
 
 When submitting a pull request, please make sure to follow these guidelines:
 
-### 1. PSR-12 Coding Standard
-The easiest way to check if your contributed code adheres to the conventions is to run the Laravel Pint script which is auto installed via Composer:
+### 1. Follow existing conventions in the code you're working with
+When making changes to an existing class, method, or file, **use the same code and naming conventions that are already established in that scope**.
+
+The goal is consistency and readability. Even if the overall codebase isn’t fully standardized yet, new code should blend in with the style of the surrounding code.
+
+Example for naming convention:
+
+```php
+// Existing code in the method uses snake_case
+$unit_queue = new UnitQueue();
+$unit_amount = $unit_queue->amount();
+
+// ❌ Wrong (introduces camelCase into snake_case method)
+$unitAttackPower = $unit_queue->attackPower();
+
+// ✅ Correct (matches existing snake_case convention)
+$unit_attack_power = $unit_queue->attackPower();
+```
+
+### 2. PSR-12 Coding Standard
+The easiest way to check if your contributed code adheres to the PSR-12 conventions is to run the Laravel Pint script which is auto installed via Composer:
 
 ```
 $ composer run cs -- --test
@@ -33,14 +52,14 @@ Tip: it's possible to let Laravel Pint attempt to fix the code for you by runnin
 $ composer run cs
 ```
 
-### 2. PHPStan static code analysis
+### 3. PHPStan static code analysis
 Make sure that your code passes the PHPStan static code analysis. You can run PHPStan locally using the following composer script:
 
 ```
 $ composer run stan
 ```
 
-### 3. Laravel unit and feature tests
+### 4. Laravel unit and feature tests
 Your PR should include feature or unit tests where possible to cover the changes you made. OGameX uses the default Laravel testing framework which covers feature and unit tests by default.
 To run the tests locally, you can use the following command:
 
@@ -54,7 +73,7 @@ You are also able to apply the `--filter` parameter to run a specific class or m
 $ php artisan test --filter PlanetServiceTest
 ```
 
-### 4. Custom race condition tests
+### 5. Custom race condition tests
 If you are working on a feature that might introduce race conditions, please include tests that cover these scenarios. OGameX already contains some custom tests that can be run via php artisan commands. These tests support running multiple requests in parallel and in multiple iterations in order to simulate conditions that could cause race conditions.
 
 These tests are located in the `console/Commands/Tests` directory and can be run using the following command:
@@ -64,7 +83,7 @@ $ php artisan test:race-condition-unitqueue
 $ php artisan test:race-condition-game-mission
 ```
 
-### 5. Run CSS and JS build
+### 6. Run CSS and JS build
 OGameX uses Laravel Mix to compile the CSS and JS assets. Before submitting a PR, make sure to run the following command to compile the assets.
 This command can be run in watch mode to automatically recompile the assets when changes are made which is useful during development.
 
