@@ -228,6 +228,39 @@
                             <td>
                             </td>
                         </tr>
+                        <tr class="">
+                            <td class="label">
+                                @if ($planet_type === \OGame\Models\Enums\PlanetType::Planet)
+                                    @lang('Planet Position')
+                                @else
+                                    @lang('Moon Position')
+                                @endif
+                            </td>
+                            <td>
+                            </td>
+                            <td class="{{ $production_total->planet_slot->metal->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom " title="{{ $production_total->planet_slot->metal->getFormattedFull() }}">
+                                    {{ $production_total->planet_slot->metal->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->planet_slot->crystal->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom " title="{{ $production_total->planet_slot->crystal->getFormattedFull() }}">
+                                    {{ $production_total->planet_slot->crystal->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->planet_slot->deuterium->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom " title="{{ $production_total->planet_slot->deuterium->getFormattedFull() }}">
+                                    {{ $production_total->planet_slot->deuterium->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->planet_slot->energy->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom " title="{{ $production_total->planet_slot->energy->getFormattedFull() }}">
+                                    {{ $production_total->planet_slot->energy->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
                         <tr class="alt">
                             <td class="label">
                                 @lang('Items')
