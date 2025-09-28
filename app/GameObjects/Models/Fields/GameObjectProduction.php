@@ -33,8 +33,11 @@ class GameObjectProduction
         }
 
         $this->calculateMine($productionIndex, $level, $building_percentage);
-        $this->calculatePlasmaTech($productionIndex, $level, $building_percentage);
+        // planet slot bonus is counted toward the mine's income
+        //    all other multiplier (plasma, officers) applies on top of planet slot bonus
+        //    therefore, this value needs to be calculated right before other bonuses
         $this->calculatePlanetSlot($productionIndex);
+        $this->calculatePlasmaTech($productionIndex, $level, $building_percentage);
         $this->calculateEngineer($productionIndex);
         $this->calculateGeologist($productionIndex);
         $this->calculateCommandingStaff($productionIndex);
@@ -83,28 +86,28 @@ class GameObjectProduction
 
         if ($this->metal_formula && $productionIndex->mine->metal->get() > 0) {
             $productionIndex->plasma_technology->metal->set(
-                $this->metal_formula->__invoke($this, $level)
-                * $building_percentage
-                * $this->universe_speed
-                - $productionIndex->mine->metal->get()
+                floor(
+                    ($productionIndex->mine->metal->get() + $productionIndex->planet_slot->metal->get())
+                    * 0.01 * $this->plasma_technology_level
+                )
             );
         }
 
         if ($this->crystal_formula && $productionIndex->mine->crystal->get() > 0) {
             $productionIndex->plasma_technology->crystal->set(
-                $this->crystal_formula->__invoke($this, $level)
-                * $building_percentage
-                * $this->universe_speed
-                - $productionIndex->mine->crystal->get()
+                floor(
+                    ($productionIndex->mine->crystal->get() + $productionIndex->planet_slot->crystal->get())
+                    * 0.0066 * $this->plasma_technology_level
+                )
             );
         }
 
         if ($this->deuterium_formula && $productionIndex->mine->deuterium->get() > 0) {
             $productionIndex->plasma_technology->deuterium->set(
-                $this->deuterium_formula->__invoke($this, $level)
-                * $building_percentage
-                * $this->universe_speed
-                - $productionIndex->mine->deuterium->get()
+                floor(
+                    ($productionIndex->mine->deuterium->get() + $productionIndex->planet_slot->deuterium->get())
+                    * 0.0033 * $this->plasma_technology_level
+                )
             );
         }
     }
@@ -149,19 +152,28 @@ class GameObjectProduction
 
         if ($productionIndex->mine->metal->get() > 0) {
             $productionIndex->geologist->metal->set(
-                floor($productionIndex->mine->metal->get() * 0.1)
+                floor(
+                    ($productionIndex->mine->metal->get() + $productionIndex->planet_slot->metal->get())
+                    * 0.1
+                )
             );
         }
 
         if ($productionIndex->mine->crystal->get() > 0) {
             $productionIndex->geologist->crystal->set(
-                floor($productionIndex->mine->crystal->get() * 0.1)
+                floor(
+                    ($productionIndex->mine->crystal->get() + $productionIndex->planet_slot->crystal->get())
+                    * 0.1
+                )
             );
         }
 
         if ($productionIndex->mine->deuterium->get() > 0) {
             $productionIndex->geologist->deuterium->set(
-                floor($productionIndex->mine->deuterium->get() * 0.1)
+                floor(
+                    ($productionIndex->mine->deuterium->get() + $productionIndex->planet_slot->deuterium->get())
+                    * 0.1
+                )
             );
         }
     }
@@ -174,19 +186,28 @@ class GameObjectProduction
 
         if ($productionIndex->mine->metal->get() > 0) {
             $productionIndex->commanding_staff->metal->set(
-                floor($productionIndex->mine->metal->get() * 0.02)
+                floor(
+                    ($productionIndex->mine->metal->get() + $productionIndex->planet_slot->metal->get())
+                    * 0.02
+                )
             );
         }
 
         if ($productionIndex->mine->crystal->get() > 0) {
             $productionIndex->commanding_staff->crystal->set(
-                floor($productionIndex->mine->crystal->get() * 0.02)
+                floor(
+                    ($productionIndex->mine->crystal->get() + $productionIndex->planet_slot->crystal->get())
+                    * 0.02
+                )
             );
         }
 
         if ($productionIndex->mine->deuterium->get() > 0) {
             $productionIndex->commanding_staff->deuterium->set(
-                floor($productionIndex->mine->deuterium->get() * 0.02)
+                floor(
+                    ($productionIndex->mine->deuterium->get() + $productionIndex->planet_slot->deuterium->get())
+                    * 0.02
+                )
             );
         }
 
