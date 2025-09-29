@@ -1607,7 +1607,7 @@ class PlanetService
 
         $production_factor = $this->getResourceProductionFactor() / 100;
 
-        // i don't know if modifying energy will affect anything, but to be safe
+        // multiply() applies the multiplier to energy, which should not be altered
         $total_energy = $building_production_total->energy->get();
         $building_production_total->multiply($production_factor);
         $building_production_total->energy->set($total_energy);
@@ -1621,6 +1621,20 @@ class PlanetService
         $this->planet->deuterium_production = (int) $production_total->deuterium->get();
     }
 
+    /**
+     * Calculates the ProductionIndex for a building on this planet.
+     *
+     * @param GameObject $object
+     *  The building object to calculate for
+     *
+     * @param int $object_level
+     *  The building level
+     *
+     * @param bool $force_factor
+     *  Optional parameter to force production factor to 100%
+     *
+     * @return ProductionIndex
+     */
     public function getObjectProductionIndex(GameObject $object, int $object_level = 0, bool $force_factor = false): ProductionIndex
     {
         // Set default to 1, only override
@@ -1694,10 +1708,12 @@ class PlanetService
      */
     public function getResourceProductionFactor(): int
     {
+        // if no consumption, then there should be no impact to production factor
         if (empty($this->energyConsumption()->get())) {
             return 100;
         }
 
+        // if there is consumption, but energy production is 0, then production factor = 0
         if (empty($this->energyProduction()->get())) {
             return 0;
         }

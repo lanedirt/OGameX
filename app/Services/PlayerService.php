@@ -814,10 +814,6 @@ class PlayerService
 
     public function hasCommandingStaff(): bool
     {
-        // TODO: don't know if this is correct logic
-        //       like if this has to be purchased specifically
-        //       and buying all officers individually won't work
-        //       I don't know
         return $this->hasCommander()
             && $this->hasAdmiral()
             && $this->hasEngineer()

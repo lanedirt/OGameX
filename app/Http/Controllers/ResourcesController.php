@@ -115,19 +115,19 @@ class ResourcesController extends AbstractBuildingsController
         // Get all buildings that have production values.
         foreach (ObjectService::getGameObjectsWithProduction() as $building) {
             $level = $this->planet->getObjectLevel($building->machine_name);
-            $productionIndex = $this->planet->getObjectProductionIndex($building, $level);
-            $productionindex_total->add($productionIndex);
+            $productionindex = $this->planet->getObjectProductionIndex($building, $level);
+            $productionindex_total->add($productionindex);
 
             $percentage = $this->planet->getBuildingPercent($building->machine_name);
 
-            if ($productionIndex->mine->energy->get() < 0) {
+            if ($productionindex->mine->energy->get() < 0) {
                 // Building consumes energy (resource building)
                 $building_resource_rows[] = [
                     'id' => $building->id,
                     'title' => $building->title,
                     'level' => $level,
-                    'production' => $productionIndex->mine,
-                    'actual_energy_use' => floor($productionIndex->mine->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
+                    'production' => $productionindex->mine,
+                    'actual_energy_use' => floor($productionindex->mine->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
                     'percentage' => $percentage,
                 ];
             } else {
@@ -137,13 +137,11 @@ class ResourcesController extends AbstractBuildingsController
                     'type' => $building->type,
                     'title' => $building->title,
                     'level' => $level,
-                    'production' => $productionIndex->mine,
+                    'production' => $productionindex->mine,
                     'percentage' => $percentage,
                 ];
             }
         }
-
-        // @TODO: add item bonuses.
 
         $production_factor = $this->planet->getResourceProductionFactor();
 
