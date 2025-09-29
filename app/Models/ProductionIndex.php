@@ -61,6 +61,13 @@ class ProductionIndex
      */
     public Resources $commanding_staff;
 
+    /**
+     * Active item bonuses
+     *
+     * @var Resources
+     */
+    public Resources $items;
+
     public function __construct()
     {
         $this->basic = new Resources();
@@ -71,8 +78,15 @@ class ProductionIndex
         $this->engineer = new Resources();
         $this->geologist = new Resources();
         $this->commanding_staff = new Resources();
+        $this->items = new Resources();
     }
 
+    /**
+     * Adds the provided ProductionIndex values to this one.
+     *
+     * @param ProductionIndex $productionIndex
+     * @return void
+     */
     public function add(ProductionIndex $productionIndex): void
     {
         $this->basic->add($productionIndex->basic);
@@ -83,5 +97,6 @@ class ProductionIndex
         $this->engineer->add($productionIndex->engineer);
         $this->geologist->add($productionIndex->geologist);
         $this->commanding_staff->add($productionIndex->commanding_staff);
+        $this->items->add($productionIndex->items);
     }
 }
