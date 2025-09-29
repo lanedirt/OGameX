@@ -136,4 +136,60 @@ class ResourceProductionTest extends UnitTestCase
         $noStorageEnergy = $this->planetService->energyProduction()->get();
         $this->assertEquals(0, $noStorageEnergy, 'Fusion plant should produce no energy when deuterium storage is 0');
     }
+
+    /**
+     * Test Planet Position and Plasma Technology bonus application to both mine and planet position bonus
+     * Note: Plasma Technology does not apply to basic income, but Planet Slot does apply to basic income
+     */
+    public function testPlanetSlotAndPlasmaProductionBonus(): void
+    {
+        $this->createAndSetUserTechModel([
+            'plasma_technology' => 12,
+        ]);
+
+        // base values breakdown (8x speed)
+        // basic: metal = 30 * 8 = 240, crystal = 15 * 8 = 120, deuterium = 0
+        // metal mine lv 20 = 30 * 8 * 20 * 1.1 ** 20 = 32_292
+        // crystal mine lv 20 = 20 * 8 * 20 * 1.1 ** 20 = 21_528
+        // deuterium mine lv 20 = 8 * 10 * 20 * 1.1 ** 20 * (1.44 - 0.004 * 47) = 13_477
+        //      planet avg temp = (27 + 67) / 2 = 47
+
+        // +35% metal production (basic + mine), +12% plasma tech
+        $this->createAndSetPlanetModel([
+            'planet' => 8,
+            'metal_mine_percent' => 10,
+            'metal_mine' => 20,
+            'crystal_mine_percent' => 10,
+            'crystal_mine' => 20,
+            'deuterium_synthesizer_percent' => 10,
+            'deuterium_synthesizer' => 20,
+            'solar_plant' => 50, // ensures 100% production factor
+            'solar_plant_percent' => 10,
+            'temp_min' => 27,
+            'temp_max' => 67,
+        ]);
+
+        $this->assertEquals(49_149, $this->planetService->getMetalProductionPerHour());
+        $this->assertEquals(23_353, $this->planetService->getCrystalProductionPerHour());
+        $this->assertEquals(14_010, $this->planetService->getDeuteriumProductionPerHour());
+
+        // +40% crystal production, +7.92% (1+0.0066*12) plasma tech
+        $this->createAndSetPlanetModel([
+            'planet' => 1,
+            'metal_mine_percent' => 10,
+            'metal_mine' => 20,
+            'crystal_mine_percent' => 10,
+            'crystal_mine' => 20,
+            'deuterium_synthesizer_percent' => 10,
+            'deuterium_synthesizer' => 20,
+            'solar_plant' => 50, // ensures 100% production factor
+            'solar_plant_percent' => 10,
+            'temp_min' => 27,
+            'temp_max' => 67,
+        ]);
+
+        $this->assertEquals(36_407, $this->planetService->getMetalProductionPerHour());
+        $this->assertEquals(32_694, $this->planetService->getCrystalProductionPerHour());
+        $this->assertEquals(14_010, $this->planetService->getDeuteriumProductionPerHour());
+    }
 }
