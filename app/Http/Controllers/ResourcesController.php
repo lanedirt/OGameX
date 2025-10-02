@@ -118,6 +118,8 @@ class ResourcesController extends AbstractBuildingsController
             $productionindex = $this->planet->getObjectProductionIndex($building, $level);
             $productionindex_total->add($productionindex);
 
+            $productionindex->mine->add($productionindex->planet_slot);
+
             $percentage = $this->planet->getBuildingPercent($building->machine_name);
 
             if ($productionindex->mine->energy->get() < 0) {
@@ -148,7 +150,6 @@ class ResourcesController extends AbstractBuildingsController
         return view('ingame.resources.settings')->with([
             'basic_income' => $this->planet->getPlanetBasicIncome(),
             'planet_name' => $this->planet->getPlanetName(),
-            'planet_type' => $this->planet->getPlanetType(),
             'building_resource_rows' => $building_resource_rows,
             'building_energy_rows' => $building_energy_rows,
             'production_total' => $productionindex_total,
