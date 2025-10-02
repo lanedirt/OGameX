@@ -82,7 +82,7 @@
                                     {{ $row['production']->crystal->getFormattedLong() }}
                                 </span>
                                 </td>
-                                <td class="{{ $row['production']->deuterium->get() > 0 ? 'overmark' : ($row['production']->deuterium->get() < 0 ? 'undermark' : 'normalmark') }}">
+                                <td class="{{ $row['production']->deuterium->get() > 0 ? 'undermark' : ($row['production']->deuterium->get() < 0 ? 'overmark' : 'normalmark') }}">
                                 <span class="tooltipCustom "
                                       title="{{ $row['production']->deuterium->getFormattedFull() }}">
                                     {{ $row['production']->deuterium->getFormattedLong() }}
@@ -140,17 +140,17 @@
                                 </td>
                                 <td>
                                 </td>
-                                <td class="{{ $row['production']->metal->get() > 0 ? 'overmark' : ($row['production']->metal->get() < 0 ? 'undermark' : 'normalmark') }}">
+                                <td class="{{ $row['production']->metal->get() > 0 ? 'undermark' : ($row['production']->metal->get() < 0 ? 'overmark' : 'normalmark') }}">
                                 <span class="tooltipCustom " title="{{ $row['production']->metal->getFormattedFull() }}">
                                     {{ $row['production']->metal->getFormatted() }}
                                 </span>
                                 </td>
-                                <td class="{{ $row['production']->crystal->get() > 0 ? 'overmark' : ($row['production']->crystal->get() < 0 ? 'undermark' : 'normalmark') }}">
+                                <td class="{{ $row['production']->crystal->get() > 0 ? 'undermark' : ($row['production']->crystal->get() < 0 ? 'overmark' : 'normalmark') }}">
                                 <span class="tooltipCustom " title="{{ $row['production']->crystal->getFormattedFull() }}">
                                     {{ $row['production']->crystal->getFormatted() }}
                                 </span>
                                 </td>
-                                <td class="{{ $row['production']->deuterium->get() > 0 ? 'overmark' : ($row['production']->deuterium->get() < 0 ? 'undermark' : 'normalmark') }}">
+                                <td class="{{ $row['production']->deuterium->get() > 0 ? 'undermark' : ($row['production']->deuterium->get() < 0 ? 'overmark' : 'normalmark') }}">
                                 <span class="tooltipCustom "
                                       title="{{ $row['production']->deuterium->getFormattedFull() }}">
                                     {{ $row['production']->deuterium->getFormattedLong() }}
