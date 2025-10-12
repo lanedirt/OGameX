@@ -257,8 +257,26 @@
                     data-target="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->id]) }}"
                     data-overlay-title="{{ $title }}"> ?
             </button>
+
+            @php
+                // Start from what the controller built
+                $desc = is_string($description ?? null) ? $description : '';
+
+                // If the description contains our :energy token, evaluate the same energy_formula used by production
+                if (
+                    $desc !== '' &&
+                    str_contains($desc, ':energy') &&
+                    isset($object?->production?->energy_formula) &&
+                    is_callable($object->production->energy_formula)
+                ) {
+                    // level = 1 because the copy says “A solar satellite produces …”
+                    $perUnit = (int) call_user_func($object->production->energy_formula, $object->production, 1);
+                    $desc = strtr($desc, [':energy' => number_format($perUnit)]);
+                }
+            @endphp
+
             <span class="text">
-                {!! $description !!}
+                {!! $desc !!}
             </span>
         </div>
 
@@ -342,6 +360,3 @@
     //var showCommanderHint = (!buttonState && !hasCommander && isBuildlistNeeded && couldBeBuild && (isShip || isRocket));
     var showNoPremiumError = 0;
     var pageToReload = "{{ route('resources.index') }}";
-    var isBusy = 0;
-
-</script>
