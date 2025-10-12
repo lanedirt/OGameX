@@ -18,9 +18,9 @@ class GameObjectSpeedUpgrade
      * Optional override for the ship's base speed once this upgrade applies.
      * If null, the object's original base speed is used.
      */
-    public ?int $base_speed;
+    public int|null $base_speed;
 
-    public function __construct(string $object_machine_name, int $level, ?int $base_speed = null)
+    public function __construct(string $object_machine_name, int $level, int|null $base_speed = null)
     {
         $this->object_machine_name = $object_machine_name;
         $this->level = $level;
