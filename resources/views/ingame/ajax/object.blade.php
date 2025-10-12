@@ -43,12 +43,6 @@
 
                 <li class="build_duration"><strong>@lang('Production duration:')</strong>
                     <time class="value tooltip" datetime="{{ $production_datetime }}" title="">{!! $production_time !!}
-                        <!--
-                        For event discounts
-                        <span class="bonus" data-value="0">
-                            -0%)
-                        </span>
-                        -->
                     </time>
                 </li>
 
@@ -67,7 +61,6 @@
                                 (+{{ \OGame\Facades\AppUtil::formatNumberLong($energy_difference * -1) }})
                             </span>
                         </span>
-
                     </li>
                 @endif
             </ul>
@@ -125,39 +118,10 @@
                             </li>
                     @endif
                 </ul>
-
             </div>
 
             <div id="demolition_costs_tooltip" class="htmlTooltip">
                 <h1>Deconstruction costs</h1>
-
-                <div class="splitLine"></div>
-
-                <table class="demolition_costs">
-
-                    <tr class="demolition_costs_bonus">
-                        <th>Ion technology bonus:</th>
-                        <td data-value="24">-24%</td>
-                    </tr>
-                    <tr class="metal">
-                        <th>Metal:</th>
-                        <td class="sufficient" data-value="33279">33,279</td>
-                    </tr>
-                    <tr class="crystal">
-                        <th>Crystal:</th>
-                        <td class="sufficient" data-value="11092">11,092</td>
-                    </tr>
-                    <tr class="demolition_duration">
-                        <th>Duration:</th>
-                        <td>
-                            <time datetime="PT6M22S"></time>6m 22s
-                        </td>
-                    </tr>
-                </table>
-            </div>
-
-            <div id="demolition_costs_tooltip_oneTimeelement" class="htmlTooltip" style="display: none">
-                <h1>Deconstruction costs</h1>
                 <div class="splitLine"></div>
                 <table class="demolition_costs">
                     <tr class="demolition_costs_bonus">
@@ -174,12 +138,9 @@
                     </tr>
                     <tr class="demolition_duration">
                         <th>Duration:</th>
-                        <td>
-                            <time datetime="PT6M22S"></time>6m 22s
-                        </td>
+                        <td><time datetime="PT6M22S"></time>6m 22s</td>
                     </tr>
                 </table>
-
             </div>
 
             @if ($max_build_amount && ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense))
@@ -188,13 +149,6 @@
                     <input type="text" name="build_amount" id="build_amount" min="0" max="{{ $max_build_amount }}" onfocus="clearInput(this);" onkeyup="checkIntInput(this, 1, {{ $max_build_amount }});event.stopPropagation();">
                     <button class="maximum">[max. {{ $max_build_amount }}]</button>
                 </div>
-            @elseif ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station)
-                <!-- TODO: implement downgrade feature -->
-                <!--<button class="downgrade" data-technology="3" data-name="{{ $title }}">
-                    <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
-                         data-ipi-hint="ipiTechnologyTearDowndeuteriumSynthesizer"></div>
-                    <span class="label">tear down</span>
-                </button>-->
             @endif
 
             <div class="build-it_wrap">
@@ -207,7 +161,6 @@
 
                             @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading || $ships_being_built))
                                 disabled
-                            @else
                             @endif
                             data-technology="{{ $object->id }}">
                             @php
@@ -225,33 +178,11 @@
                         </span>
                     </button>
                 </div>
-                <!--
-                <a class="build-it_premium" href="javascript:void(0);" data-title="" data-url="#TODO_page=premium&amp;openDetail=2" data-question="You need a Commander to be able to use the building queue. Would you like to learn more about the advantages of a Commander?">
-                    <span class="tooltip tpd-hideOnClickOutside" title="">Hire Commander</span>
-                </a>
-                -->
             </div>
         </div>
     </div>
 
     <div class="description">
-        @if ($storage)
-            <div class="capacity">
-                <span class="label">@lang('Storage capacity:')</span>
-                <meter min="0" max="{{ $max_storage }}" low="{{ (int)($max_storage * 0.9) }}" high="{{ $max_storage }}" optimum="0" value="{{ $current_storage }}"></meter>
-                <span class="description">
-                        <span class="good">{{ number_format($current_storage, 0, ',', '.') }}</span> / {{ number_format($max_storage, 0, ',', '.') }}
-                    </span>
-            </div>
-
-            <div class="fill_capacity_info">
-                <div class="arrow_description"></div>
-                <div class="action">
-                    <div class="description">@lang('Gain resources to immediately refill your storage')</div>
-                    <a class="offers btn btn_confirm fright" href="{{ route('merchant.index') }}#animation=false&page=traderResources">@lang('View offers')</a>
-                </div>
-            </div>
-        @endif
         <div class="txt_box">
             <button class="details tooltip js_hideTipOnMobile overlay" aria-label="@lang('More details')" title="@lang('More details')"
                     data-target="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->id]) }}"
@@ -259,19 +190,30 @@
             </button>
 
             @php
-                // Start from what the controller built
                 $desc = is_string($description ?? null) ? $description : '';
 
-                // If the description contains our :energy token, evaluate the same energy_formula used by production
-                if (
-                    $desc !== '' &&
-                    str_contains($desc, ':energy') &&
-                    isset($object?->production?->energy_formula) &&
-                    is_callable($object->production->energy_formula)
-                ) {
-                    // level = 1 because the copy says “A solar satellite produces …”
-                    $perUnit = (int) call_user_func($object->production->energy_formula, $object->production, 1);
-                    $desc = strtr($desc, [':energy' => number_format($perUnit)]);
+                if ($desc !== '' && str_contains($desc, ':energy')) {
+                    $perUnit = null;
+
+                    // 1) Preferred: reuse already computed delta (green (+X))
+                    if (isset($energy_difference) && is_numeric($energy_difference) && $energy_difference < 0) {
+                        $perUnit = (int) abs($energy_difference);
+                    }
+                    // 2) Fallback: safe energy_formula evaluation
+                    elseif (
+                        isset($object?->production?->energy_formula) &&
+                        is_callable($object->production->energy_formula) &&
+                        isset($object->production->planetService)
+                    ) {
+                        $perUnit = (int) call_user_func($object->production->energy_formula, $object->production, 1);
+                    }
+                    // 3) Final fallback
+                    if ($perUnit === null) {
+                        $perUnit = 25;
+                    }
+
+                    $formatted = \OGame\Facades\AppUtil::formatNumberLong($perUnit);
+                    $desc = strtr($desc, [':energy' => $formatted]);
                 }
             @endphp
 
@@ -279,10 +221,9 @@
                 {!! $desc !!}
             </span>
         </div>
-
     </div>
-
 </div>
+
 <script type="text/javascript">
     if (document.getElementById("build_amount") !== null) {
         document.getElementById("build_amount").focus();
@@ -305,58 +246,3 @@
         };
     </script>
 @endif
-<script>
-    $(document).ready(function () {
-        $("#number").focus();
-        initOverlays();
-    });
-
-    $(".build-it_disabled:not(.isWorking)")
-        .click(function () {
-            errorBoxDecision('Error', 'You need a Commander to be able to use the building queue. Would you like to learn more about the advantages of a Commander?', 'yes', 'No', function () {
-                window.location.href = '{{ route('premium.index', ['openDetail' => 2]) }}'
-            });
-        });
-
-    var loca = loca || {};
-    loca = $.extend({},
-        loca,
-        {
-            'allError': 'Error',
-            'infoBuildlist': 'You need a Commander to be able to use the building queue. Would you like to learn more about the advantages of a Commander?',
-            'allYes': 'yes',
-            'allNo': 'No',
-            'allOk': 'Ok',
-            'noRocketsiloCapacity': 'Not enough capacity. Upgrade missile silo.',
-            'allDetailNow': 'now'
-        }
-    );
-
-    var buttonClass = "build-it";
-    var overlayTitle = 'Start with DM';
-    var showSlotWarning = 1;
-    var buttonState = 1;
-    var techID = 1;
-    var isRocketAndStorageNotFree = 0;
-    var couldBeBuild = 1;
-    var isShip = 0;
-    var isRocket = 0;
-    var hasCommander = 0;
-    var buildableAt = null;
-    var error = 2000;
-    var premiumerror = 0;
-    var showErrorOnPremiumbutton = 0;
-
-    var errorlist = {
-        '2000': 'With a price of 0 DM the profit margin is too low for the merchant!',
-        '100': 'The merchant can only deliver resources to an amount totalling 10.000.000 to you',
-        '10': 'Not enough storage capacity. - Would you like to expand your storage?',
-        '20': 'Not enough storage capacity. - Would you like to expand your storage?',
-        '30': 'Not enough storage capacity. - Would you like to expand your storage?',
-        '1000': 'Not enough Dark Matter available! Do you want to buy some now?'
-    };
-
-    var isBuildlistNeeded = 0;
-    //var showCommanderHint = (!buttonState && !hasCommander && isBuildlistNeeded && couldBeBuild && (isShip || isRocket));
-    var showNoPremiumError = 0;
-    var pageToReload = "{{ route('resources.index') }}";
