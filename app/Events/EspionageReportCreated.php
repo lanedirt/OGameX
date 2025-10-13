@@ -7,7 +7,8 @@ use Illuminate\Queue\SerializesModels;
 
 final class EspionageReportCreated
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable;
+    use SerializesModels;
 
     public function __construct(public int $espionageReportId)
     {
