@@ -188,7 +188,11 @@
                     data-target="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->id]) }}"
                     data-overlay-title="{{ $title }}"> ?
             </button>
-
+            
+            <span class="text">
+                {!! $description !!}
+            </span>
+    </div>
             @php
                 $desc = is_string($description ?? null) ? $description : '';
 
