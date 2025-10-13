@@ -110,10 +110,9 @@ trait ObjectAjaxTrait
         }
 
         // Build the final description string to send to the view.
-        // Base description (no numbers)
         $finalDescription = (string) ($object->description ?? '');
 
-        // Append “production” sentence only in this build overlay, mirroring the official game.
+        // Append “production” sentence only in this build overlay.
         if (
             $object->machine_name === 'solar_satellite' &&
             !empty($object->description_production ?? null) &&
@@ -121,15 +120,35 @@ trait ObjectAjaxTrait
             is_callable($object->production->energy_formula)
         ) {
             // level = 1 (per satellite)
-            $perUnitEnergy = (int) call_user_func($object->production->energy_formula, $object->production, 1);
+            $perUnitEnergy   = (int) call_user_func($object->production->energy_formula, $object->production, 1);
+            $formattedEnergy = AppUtil::formatNumberLong($perUnitEnergy);
 
-            // Render the small append sentence using Blade so we stay Laravel-idiomatic
-            $append = Blade::render($object->description_production, [
-                    'energy' => AppUtil::formatNumberLong($perUnitEnergy),
-            ]);
+            $template = (string) $object->description_production;
+
+            // Prefer Blade::render when available; otherwise fall back to simple replacement.
+            $append = null;
+            if (method_exists(Blade::class, 'render')) {
+                try {
+                    $append = Blade::render($template, [
+                        'energy' => $formattedEnergy,
+                    ]);
+                } catch (\Throwable $e) {
+                    // Fall through to plain replacement below.
+                }
+            }
+
+            if ($append === null) {
+                // Very conservative replacements so older Laravel won’t 500.
+                $append = strtr($template, [
+                    '{{ $energy }}' => $formattedEnergy,
+                    '{{$energy}}'   => $formattedEnergy,
+                    ':energy'       => $formattedEnergy, // legacy token safety
+                ]);
+            }
 
             $finalDescription .= $append;
         }
+        
         $enough_resources = $planet->hasResources($price);
 
         // Storage capacity bar
