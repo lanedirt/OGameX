@@ -36,6 +36,13 @@ abstract class GameObject
     public string $description_long;
 
     /**
+    * Extra sentence appended on build/shipyard overlays (not shown on tech tabs).
+    * Can contain Blade variables (e.g. "A solar satellite produces {{ $energy }} energy…").
+    * Null by default so static analysis recognizes presence but nothing is appended unless set.
+    */
+    public ?string $description_production = null;
+
+    /**
      * Objects that this object requires on with required level.
      *
      * @var array<GameObjectRequirement>
