@@ -5,6 +5,7 @@ namespace OGame\Http\Traits;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
 use OGame\Facades\AppUtil;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Services\ObjectService;
@@ -108,6 +109,27 @@ trait ObjectAjaxTrait
             }
         }
 
+        // Build the final description string to send to the view.
+        // Base description (no numbers)
+        $finalDescription = (string) ($object->description ?? '');
+
+        // Append “production” sentence only in this build overlay, mirroring the official game.
+        if (
+            $object->machine_name === 'solar_satellite' &&
+            !empty($object->description_production ?? null) &&
+            isset($object->production, $object->production->energy_formula) &&
+            is_callable($object->production->energy_formula)
+        ) {
+            // level = 1 (per satellite)
+            $perUnitEnergy = (int) call_user_func($object->production->energy_formula, $object->production, 1);
+
+            // Render the small append sentence using Blade so we stay Laravel-idiomatic
+            $append = Blade::render($object->description_production, [
+                    'energy' => AppUtil::formatNumberLong($perUnitEnergy),
+            ]);
+
+            $finalDescription .= $append;
+        }
         $enough_resources = $planet->hasResources($price);
 
         // Storage capacity bar
@@ -153,7 +175,7 @@ trait ObjectAjaxTrait
             'planet_id' => $planet->getPlanetId(),
             'current_level' => $current_level,
             'next_level' => $next_level,
-            'description' => $object->description,
+            'description' => $finalDescription,
             'title' => $object->title,
             'price' => $price,
             'planet' => $planet,
