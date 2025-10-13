@@ -98,6 +98,7 @@ trait ObjectAjaxTrait
             $current_amount = $planet->getObjectAmount($object->machine_name);
         }
 
+        $production_current = null;
         $production_next = [];
         $energy_difference = 0;
         if (!empty($object->production)) {
@@ -112,43 +113,45 @@ trait ObjectAjaxTrait
         // Build the final description string to send to the view.
         $finalDescription = (string) ($object->description ?? '');
 
-        // Append “production” sentence only in this build overlay.
+        // Append “production” sentence only in this build overlay for Solar Satellite.
         if (
             $object->machine_name === 'solar_satellite' &&
             !empty($object->description_production ?? null) &&
             isset($object->production, $object->production->energy_formula) &&
             is_callable($object->production->energy_formula)
         ) {
-            // level = 1 (per satellite)
-            $perUnitEnergy   = (int) call_user_func($object->production->energy_formula, $object->production, 1);
-            $formattedEnergy = AppUtil::formatNumberLong($perUnitEnergy);
+            // Use a production context that has planetService set
+            $prodCtx = $production_current ?: $production_next;
 
-            $template = (string) $object->description_production;
+            if ($prodCtx && isset($prodCtx->energy_formula) && is_callable($prodCtx->energy_formula)) {
+                // level = 1 (per satellite)
+                $perUnitEnergy   = (int) call_user_func($prodCtx->energy_formula, $prodCtx, 1);
+                $formattedEnergy = AppUtil::formatNumberLong($perUnitEnergy);
 
-            // Prefer Blade::render when available; otherwise fall back to simple replacement.
-            $append = null;
-            if (method_exists(Blade::class, 'render')) {
+                $template = (string) $object->description_production;
+
+                // Try Blade::render; fall back to safe replacement if it throws
+                $append = null;
                 try {
                     $append = Blade::render($template, [
                         'energy' => $formattedEnergy,
                     ]);
                 } catch (\Throwable $e) {
-                    // Fall through to plain replacement below.
+                    // leave $append = null; fallback below
                 }
-            }
 
-            if ($append === null) {
-                // Very conservative replacements so older Laravel won’t 500.
-                $append = strtr($template, [
-                    '{{ $energy }}' => $formattedEnergy,
-                    '{{$energy}}'   => $formattedEnergy,
-                    ':energy'       => $formattedEnergy, // legacy token safety
-                ]);
-            }
+                if ($append === null) {
+                    $append = strtr($template, [
+                        '{{ $energy }}' => $formattedEnergy,
+                        '{{$energy}}'   => $formattedEnergy,
+                        ':energy'       => $formattedEnergy, // legacy token safety
+                    ]);
+                }
 
-            $finalDescription .= $append;
+                $finalDescription .= $append;
+            }
         }
-        
+
         $enough_resources = $planet->hasResources($price);
 
         // Storage capacity bar
