@@ -106,7 +106,6 @@ class EspionageMission extends GameMission
                 );
         }
 
-
         // Send a message to the player with a reference to the espionage report.
         $this->messageService->sendEspionageReportMessageToPlayer(
             $origin_planet->getPlayer(),
