@@ -102,7 +102,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         'from' => 'Fleet Command',
         'subject' => 'Espionage report from :planet',
     ],
-    
+
     // ------------------------
     'espionage_detected' => [
         'from'    => 'Fleet Command',
