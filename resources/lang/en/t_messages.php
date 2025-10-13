@@ -105,9 +105,9 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     
     // ------------------------
     'espionage_detected' => [
-    'from'    => 'Fleet Command',
-    'subject' => 'Enemy espionage probe detected',
-    'body'    => 'An enemy espionage probe was detected on your planet. Attacker: :attacker. Coordinates: :coords.',
+        'from'    => 'Fleet Command',
+        'subject' => 'Enemy espionage probe detected',
+        'body'    => 'An enemy espionage probe was detected on your planet. Attacker: :attacker. Coordinates: :coords.',
     ],
 
     // ------------------------
