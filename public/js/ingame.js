@@ -64346,9 +64346,9 @@ function initHighscore() {
     ajaxSubmit(url, '#send', '#stat_list_content', initHighscoreContent);
 
     if ($('.navButton.active').attr('rel') == 1) {
-      $('#highscoreContent .header h2').text(highscoreLocal.playerHighscore);
+      $('#highscoreContent .header h2').text(highscoreLoca.playerHighscore);
     } else {
-      $('#highscoreContent .header h2').text(highscoreLocal.allianceHighscore);
+      $('#highscoreContent .header h2').text(highscoreLoca.allianceHighscore);
     }
   });
   $(".stat_filter").click(function () {
