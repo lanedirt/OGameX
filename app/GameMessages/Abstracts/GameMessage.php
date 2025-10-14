@@ -305,7 +305,7 @@ abstract class GameMessage
             try {
                 $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
                 $planetService = $planetServiceFactory->make((int) $matches[1]);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // ignore
             }
 
@@ -313,17 +313,34 @@ abstract class GameMessage
                 return 'Unknown Planet';
             }
 
+            // Decide icon + tooltip by planet type
+            $iconClass = 'planet';
+            $iconTitle = 'Planet';
+            switch ($planetService->getPlanetType()) {
+                case \OGame\Models\Enums\PlanetType::Moon:
+                    $iconClass = 'moon';
+                    $iconTitle = 'Moon';
+                    break;
+                case \OGame\Models\Enums\PlanetType::DebrisField:
+                    $iconClass = 'tf';
+                    $iconTitle = 'Debris Field';
+                    break;
+                default:
+                    // Planet (default)
+                    break;
+            }
+
             $coords = $planetService->getPlanetCoordinates()->asString();
             $name   = $planetService->getPlanetName();
 
-            // IMPORTANT: return anchor text WITHOUT any "planet " prefix.
+            // IMPORTANT: no literal "Planet " prefix in the anchor text.
             return '<a href="' . route('galaxy.index', [
-                    'galaxy'  => $planetService->getPlanetCoordinates()->galaxy,
-                    'system'  => $planetService->getPlanetCoordinates()->system,
+                    'galaxy'   => $planetService->getPlanetCoordinates()->galaxy,
+                    'system'   => $planetService->getPlanetCoordinates()->system,
                     'position' => $planetService->getPlanetCoordinates()->position,
-                ]) . '" class="txt_link">' .
-                $name . ' [' . $coords . ']' .
-                '</a>';
+                ]) . '" class="txt_link">'
+                . '<figure class="planetIcon ' . $iconClass . ' tooltip js_hideTipOnMobile" title="' . $iconTitle . '"></figure>'
+                . $name . ' [' . $coords . ']</a>';
         }, $body);
 
         $body = preg_replace_callback('/\[coordinates\](\d+):(\d+):(\d+)\[\/coordinates\]/', function ($matches) {
