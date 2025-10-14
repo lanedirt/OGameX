@@ -47,7 +47,7 @@ class ExpeditionMission extends GameMission
         // 'aliens' => 26,        // 2.6% - Find aliens (combat) - TODO: implement combat
         'delay' => 70,            // 7.0% - Fleet has delay
         'speedup' => 20,          // 2.0% - Fleet returns early
-        'nothing' => 270,         // 27.0% - Find nothing (includes pirates/aliens weight for now)
+        'nothing' => 265,         // 26.5% - Find nothing (includes pirates/aliens weight for now)
         'black_hole' => 3,        // 0.33% - Black hole (fleet loss)
         'merchant' => 7,          // 0.7% - Find merchant
     ];
@@ -306,7 +306,8 @@ class ExpeditionMission extends GameMission
         $fleetUnits = $this->fleetMissionService->getFleetUnits(mission: $mission);
         $objectService = app(ObjectService::class);
 
-        // Define expedition hierarchy levels - each level can find ships at that level and all lower levels.
+        // Define expedition hierarchy levels. These determine the *ceiling* for findable ships.
+        // Some ships (e.g. deathstar, colony/recycler/solar) are included for hierarchy but excluded from finds below.
         // TODO: when implementing pathfinder and reaper units, add them to the levels array.
         // Pathfinder = between cruiser and battle_ship, Reaper = after destroyer.
         // NOTE: some ships are not able to be found on expeditions on purpose: deathstar, colony ship, recycler, solar satellite.
@@ -319,6 +320,7 @@ class ExpeditionMission extends GameMission
             6 => ['battlecruiser'],
             7 => ['bomber'],
             8 => ['destroyer'],
+            9 => ['deathstar'], // participates in hierarchy, but excluded from finds
         ];
 
         // Helper function to find which level a ship belongs to
@@ -348,11 +350,23 @@ class ExpeditionMission extends GameMission
             $maxExpeditionLevel = 1;
         }
 
-        // Collect all ships that can be found at this level and below
+        // Collect all ships that can be found up to one tier above the highest tier present,
+        // capped at the highest defined tier.
+        $highestDefinedLevel = max(array_keys($expeditionLevels));
+        $maxFindLevel = min($maxExpeditionLevel + 1, $highestDefinedLevel);
+
         $possibleShipMachineNames = [];
-        for ($level = 1; $level <= $maxExpeditionLevel; $level++) {
+        for ($level = 1; $level <= $maxFindLevel; $level++) {
             $possibleShipMachineNames = array_merge($possibleShipMachineNames, $expeditionLevels[$level]);
         }
+
+        // Exclude ships that should never be found (even if they affect hierarchy)
+        // IMPORTANT: These ships can affect the hierarchy ceiling but MUST never be found as expedition rewards.
+        $nonFindableShips = ['deathstar', 'colony_ship', 'recycler', 'solar_satellite'];
+        $possibleShipMachineNames = array_values(array_filter(
+            $possibleShipMachineNames,
+            fn ($mn) => !in_array($mn, $nonFindableShips, true)
+        ));
 
         // Get ship objects for the possible ships
         $possibleShips = [];
