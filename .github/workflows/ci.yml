@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  pint:
+    name: PSR-12 (Laravel Pint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+      - run: composer install --no-interaction --prefer-dist
+      - run: vendor/bin/pint --test
+
+  phpstan:
+    name: Static Analysis (PHPStan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+      - run: composer install --no-interaction --prefer-dist
+      # If your repo uses Larastan (phpstan.neon), this will Just Work
+      - run: |
+          if [ -f vendor/bin/phpstan ]; then
+            vendor/bin/phpstan analyse --memory-limit=1G
+          else
+            echo "PHPStan not installed; install larastan/phpstan if required." && exit 1
+          fi
+
+  tests:
+    name: Tests (PHPUnit / artisan test)
+    runs-on: ubuntu-latest
+    services:
+      # If you need MySQL instead of SQLite, define it here and set env accordingly.
+      # mysql:
+      #   image: mysql:8
+      #   env:
+      #     MYSQL_DATABASE: ogamex
+      #     MYSQL_USER: ogamex
+      #     MYSQL_PASSWORD: ogamex
+      #     MYSQL_ROOT_PASSWORD: root
+      #   ports: [ "3306:3306" ]
+      #   options: >-
+      #     --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -proot"
+      #     --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_sqlite
+          coverage: none
+      - uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+      - run: composer install --no-interaction --prefer-dist
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php -r "file_put_contents('.env', preg_replace('/^DB_CONNECTION=.*/m','DB_CONNECTION=sqlite', file_get_contents('.env')));"
+          mkdir -p database
+          : > database/database.sqlite
+          php artisan key:generate
+          # Uncomment if your tests need database schema:
+          # php artisan migrate --force
+      - name: Run tests
+        run: |
+          if [ -f vendor/bin/phpunit ]; then
+            vendor/bin/phpunit
+          else
+            php artisan test
+          fi
+
+  build-assets:
+    name: Build Assets (Mix)
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event_name, 'pull_request') ||
+      contains(github.event_name, 'push')
+    # Only run when frontend files changed (saves time)
+    # Remove "paths-ignore" if you want it always.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Detect changes
+        id: changes
+        run: |
+          echo "changed=$(git diff --name-only ${{ github.sha }}~1 ${{ github.sha }} | grep -E '^(resources/|package(-lock)?\.json|webpack\.mix\.js)$' || true)" >> $GITHUB_OUTPUT
+      - name: Skip if no frontend changes
+        if: steps.changes.outputs.changed == ''
+        run: echo "No frontend changes detected; skipping build."
+      - name: Install & build
+        if: steps.changes.outputs.changed != ''
+        run: |
+          npm ci
+          npm run production
