@@ -5,7 +5,6 @@ namespace OGame\GameMessages\Abstracts;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
-use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
 
@@ -289,57 +288,42 @@ abstract class GameMessage
         // [coordinates]{galaxy}:{system}:{position}[/coordinates] with coordinates.
         // [debrisfield]{galaxy}:{system}:{position}[/debrisfield] with coordinates.
         $body = preg_replace_callback('/\[player\](\d+)\[\/player\]/', function ($matches) {
-            $playerService = null;
             try {
-                $playerServiceFactory =  resolve(PlayerServiceFactory::class);
-                $playerService = $playerServiceFactory->make((int)$matches[1]);
-            } catch (\Exception $e) {
-                // Do nothing
+                $playerServiceFactory = resolve(PlayerServiceFactory::class);
+                $playerService = $playerServiceFactory->make((int) $matches[1]);
+                if ($playerService && $playerService->getId() > 0) {
+                    return $playerService->getUsername();
+                }
+            } catch (\Throwable $e) {
+                // ignore
             }
-
-            if ($playerService->getId() > 0) {
-                $playerName = $playerService->getUsername();
-            } else {
-                $playerName = 'Unknown Player';
-            }
-
-            return $playerName;
+            return 'Unknown Player';
         }, $body);
 
         $body = preg_replace_callback('/\[planet\](\d+)\[\/planet\]/', function ($matches) {
             $planetService = null;
             try {
-                $planetServiceFactory = resolve(PlanetServiceFactory::class);
-                $planetService = $planetServiceFactory->make((int)$matches[1]);
+                $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+                $planetService = $planetServiceFactory->make((int) $matches[1]);
             } catch (\Exception $e) {
-                // Do nothing
+                // ignore
             }
 
-            if ($planetService !== null) {
-                $planetIcon = '';
-                $planetIconTitle = '';
-                switch ($planetService->getPlanetType()) {
-                    case PlanetType::Planet:
-                        $planetIcon = 'planet';
-                        $planetIconTitle = 'Planet';
-                        break;
-                    case PlanetType::Moon:
-                        $planetIcon = 'moon';
-                        $planetIconTitle = 'Moon';
-                        break;
-                    case PlanetType::DebrisField:
-                        $planetIcon = 'tf';
-                        $planetIcon = 'Debris Field';
-                        break;
-                }
-                $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
-                                    <figure class="planetIcon ' . $planetIcon . ' tooltip js_hideTipOnMobile" title="' . $planetIconTitle . '"></figure>
-                                ' . $planetService->getPlanetName() . ' [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
-            } else {
-                $planetName = 'Unknown Planet';
+            if ($planetService === null) {
+                return 'Unknown Planet';
             }
 
-            return $planetName;
+            $coords = $planetService->getPlanetCoordinates()->asString();
+            $name   = $planetService->getPlanetName();
+
+            // IMPORTANT: return anchor text WITHOUT any "planet " prefix.
+            return '<a href="' . route('galaxy.index', [
+                    'galaxy'  => $planetService->getPlanetCoordinates()->galaxy,
+                    'system'  => $planetService->getPlanetCoordinates()->system,
+                    'position' => $planetService->getPlanetCoordinates()->position,
+                ]) . '" class="txt_link">' .
+                $name . ' [' . $coords . ']' .
+                '</a>';
         }, $body);
 
         $body = preg_replace_callback('/\[coordinates\](\d+):(\d+):(\d+)\[\/coordinates\]/', function ($matches) {

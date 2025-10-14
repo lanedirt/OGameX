@@ -76,23 +76,16 @@ class EspionageMission extends GameMission
             // Params expected by t_messages.espionage_detected.*
             $attackerName = $origin_planet->getPlayer()->getUsername();
 
-            $coords = sprintf(
-                '%d:%d:%d',
-                $target_planet->getPlanetCoordinates()->galaxy,
-                $target_planet->getPlanetCoordinates()->system,
-                $target_planet->getPlanetCoordinates()->position
-            );
-
-            // Use origin planet name if available; otherwise fall back to a generic label
-            $attackerPlanetName = (method_exists($origin_planet, 'getName') && $origin_planet->getName())
-                ? $origin_planet->getName()
-                : 'Planet';
-
             $params = [
-                'planet'        => $attackerPlanetName,
-                'coords'        => $coords,
+// IMPORTANT: pass the raw mission planet id inside [planet]...[/planet]
+                'planet'        => '[planet]' . $mission->planet_id_from . '[/planet]',
                 'attacker_name' => $attackerName,
-                'chance'        => 0, // TODO: compute based on espionage tech
+
+// NEW:
+    'defender'       => '[planet]' . $mission->planet_id_to . '[/planet]',   // defender planet
+    'defender_name'  => $target_planet->getPlayer()->getUsername(),          // defender player name
+
+                'chance'        => 0, // TODO: compute real chance later
             ];
 
             $playerServiceFactory = resolve(\OGame\Factories\PlayerServiceFactory::class);
@@ -109,7 +102,7 @@ class EspionageMission extends GameMission
         // Send a message to the player with a reference to the espionage report.
         $this->messageService->sendEspionageReportMessageToPlayer(
             $origin_planet->getPlayer(),
-            $reportId,
+            $reportId
         );
 
         // Mark the arrival mission as processed
