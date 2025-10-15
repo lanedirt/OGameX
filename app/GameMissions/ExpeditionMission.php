@@ -320,7 +320,6 @@ class ExpeditionMission extends GameMission
             6 => ['battlecruiser'],
             7 => ['bomber'],
             8 => ['destroyer'],
-            9 => ['deathstar'], // participates in hierarchy, but excluded from finds
         ];
 
         // Helper function to find which level a ship belongs to
