@@ -361,7 +361,7 @@ class ExpeditionMission extends GameMission
 
         // Exclude ships that should never be found (even if they affect hierarchy)
         // IMPORTANT: These ships can affect the hierarchy ceiling but MUST never be found as expedition rewards.
-        $nonFindableShips = ['deathstar', 'colony_ship', 'recycler', 'solar_satellite'];
+        $nonFindableShips = ['deathstar', 'colony_ship', 'recycler'];
         $possibleShipMachineNames = array_values(array_diff($possibleShipMachineNames, $nonFindableShips));
 
         // Get ship objects for the possible ships
