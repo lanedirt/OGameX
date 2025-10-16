@@ -306,11 +306,9 @@ class ExpeditionMission extends GameMission
         $fleetUnits = $this->fleetMissionService->getFleetUnits(mission: $mission);
         $objectService = app(ObjectService::class);
 
-        // Define expedition hierarchy levels. These determine the *ceiling* for findable ships.
-        // Some ships (e.g. deathstar, colony/recycler/solar) are included for hierarchy but excluded from finds below.
+        // Define expedition hierarchy levels (eligibility + ceiling).
         // TODO: when implementing pathfinder and reaper units, add them to the levels array.
         // Pathfinder = between cruiser and battle_ship, Reaper = after destroyer.
-        // NOTE: some ships are not able to be found on expeditions on purpose: deathstar, colony ship, recycler, solar satellite.
         $expeditionLevels = [
             1 => ['small_cargo', 'light_fighter', 'espionage_probe'],
             2 => ['large_cargo'],
@@ -320,7 +318,6 @@ class ExpeditionMission extends GameMission
             6 => ['battlecruiser'],
             7 => ['bomber'],
             8 => ['destroyer'],
-            9 => ['deathstar'], // participates in hierarchy, but excluded from finds
         ];
 
         // Helper function to find which level a ship belongs to
@@ -359,11 +356,6 @@ class ExpeditionMission extends GameMission
         for ($level = 1; $level <= $maxFindLevel; $level++) {
             $possibleShipMachineNames = array_merge($possibleShipMachineNames, $expeditionLevels[$level]);
         }
-
-        // Exclude ships that should never be found (even if they affect hierarchy)
-        // IMPORTANT: These ships can affect the hierarchy ceiling but MUST never be found as expedition rewards.
-        $nonFindableShips = ['deathstar', 'colony_ship', 'recycler', 'solar_satellite'];
-        $possibleShipMachineNames = array_values(array_diff($possibleShipMachineNames, $nonFindableShips));
 
         // Get ship objects for the possible ships
         $possibleShips = [];
