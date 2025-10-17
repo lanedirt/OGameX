@@ -130,15 +130,15 @@ class UnitCollection
     }
 
     /**
-     * Get the cheapest ship from the given list.
+     * Get the cheapest ship from a given list of ship objects.
      *
-     * @param array<int, UnitObject> $ships
-     * @return ?UnitObject
+     * @param UnitObject[] $candidateShipObjects
+     * @return UnitObject|null
      */
-    public function findCheapestShip(array $ships): ?UnitObject
+    public function findCheapestShip(array $candidateShipObjects): UnitObject|null
     {
         $cheapest = null;
-        foreach ($ships as $ship) {
+        foreach ($candidateShipObjects as $ship) {
             if ($cheapest === null || $ship->price->resources->sum() < $cheapest->price->resources->sum()) {
                 $cheapest = $ship;
             }
