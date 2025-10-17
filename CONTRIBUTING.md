@@ -20,24 +20,22 @@ Refer to the [Installation section](https://github.com/lanedirt/OGameX#installat
 
 When submitting a pull request, please make sure to follow these guidelines:
 
-### 1. Follow existing conventions in the code you're working with
-When making changes to an existing class, method, or file, **use the same code and naming conventions that are already established in that scope**.
+### 1. General code style guidelines
+In general: when making changes to an existing class, method, or file, **use the same code and naming conventions that are already established in that scope**.
 
-The goal is consistency and readability. Even if the overall codebase isn’t fully standardized yet, new code should blend in with the style of the surrounding code.
+1. **Adhere to existing styles**
+   - Match the formatting, naming, and structural conventions already used in the project or the file you are modifying. Consistency takes priority over personal preference. For example, if a certain function uses `$snake_case`, do not add variables with `$camelCase`.
 
-Example for naming convention:
+2. **Prioritize clarity over compactness**
+   - Avoid code golfing (trying to minimize amount of lines of code) or overly clever constructs that are hard to read. Code should be easy to read and understand at a glance for all levels of programmers.
 
-```php
-// Existing code in the method uses snake_case
-$unit_queue = new UnitQueue();
-$unit_amount = $unit_queue->amount();
+3. **Avoid duplication**
+   - Reuse existing functions or extract common logic into helper methods or utilities instead of repeating code.
 
-// ❌ Wrong (introduces camelCase into snake_case method)
-$unitAttackPower = $unit_queue->attackPower();
+4. **Use helper methods instead of inline anonymous functions**
+   - Encapsulate meaningful or reusable logic in named methods to improve clarity, maintainability, and discoverability.
 
-// ✅ Correct (matches existing snake_case convention)
-$unit_attack_power = $unit_queue->attackPower();
-```
+> ⚠️ Important: Pull requests that do not follow the established conventions and practices outlined above will not be merged until they are updated to comply.
 
 ### 2. PSR-12 Coding Standard
 The easiest way to check if your contributed code adheres to the PSR-12 conventions is to run the Laravel Pint script which is auto installed via Composer:
