@@ -369,8 +369,10 @@ class ExpeditionMission extends GameMission
             }
         }
 
-        // If no ships can be found, return empty collection
+        // If no ships can be found at all for this fleet composition, fallback to a failure-style outcome
         if (empty($possibleShips)) {
+            $message_variation_id = ExpeditionFailed::getRandomMessageVariationId();
+            $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailed::class, ['message_variation_id' => $message_variation_id]);
             return new UnitCollection();
         }
 
@@ -423,6 +425,29 @@ class ExpeditionMission extends GameMission
             if ($remainingResources < 0) {
                 $remainingResources = 0;
             }
+        }
+
+        // --- Armada fix: Guarantee at least one ship if possible (before building $message_params) ---
+        if (empty($units->units)) {
+            // Find the cheapest ship among the candidates
+            $cheapest = array_reduce(
+                $possibleShips,
+                fn ($carry, $s) => $carry === null || $s->price->resources->sum() < $carry->price->resources->sum()
+                    ? $s
+                    : $carry,
+                null
+            );
+
+            if ($cheapest !== null && $cargoCapacityConstrainedAmount >= $cheapest->price->resources->sum()) {
+                $units->addUnit($cheapest, 1);
+            }
+        }
+
+        // If still empty here (no eligible or affordable ships), fallback to a failure-style message
+        if (empty($units->units)) {
+            $message_variation_id = ExpeditionFailed::getRandomMessageVariationId();
+            $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailed::class, ['message_variation_id' => $message_variation_id]);
+            return new UnitCollection();
         }
 
         // Convert units to array with key "unit_<unit_id>" and value as amount.
