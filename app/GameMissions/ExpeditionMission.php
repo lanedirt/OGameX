@@ -120,7 +120,12 @@ class ExpeditionMission extends GameMission
                 break;
             case ExpeditionOutcomeType::GainShips:
                 $foundUnits = $this->processExpeditionGainShipsOutcome($mission);
-                $units->addCollection($foundUnits);
+                if ($foundUnits->getAmount() > 0) {
+                    $units->addCollection($foundUnits);
+                } else {
+                    // No ships could be granted for this fleet -> treat as Failed (per maintainer review)
+                    $this->processExpeditionFailedOutcome($mission);
+                }
                 break;
             case ExpeditionOutcomeType::GainDarkMatter:
                 $this->processExpeditionGainDarkMatterOutcome($mission);
@@ -369,10 +374,9 @@ class ExpeditionMission extends GameMission
             }
         }
 
-        // If no ships can be found at all for this fleet composition, fallback to a failure-style outcome
+        // If no ships can be found at all for this fleet composition, just return empty.
+        // The caller will decide how to message (fallback to Failed).
         if (empty($possibleShips)) {
-            $message_variation_id = ExpeditionFailed::getRandomMessageVariationId();
-            $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailed::class, ['message_variation_id' => $message_variation_id]);
             return new UnitCollection();
         }
 
@@ -429,24 +433,17 @@ class ExpeditionMission extends GameMission
 
         // --- Armada fix: Guarantee at least one ship if possible (before building $message_params) ---
         if (empty($units->units)) {
-            // Find the cheapest ship among the candidates
-            $cheapest = array_reduce(
-                $possibleShips,
-                fn ($carry, $s) => $carry === null || $s->price->resources->sum() < $carry->price->resources->sum()
-                    ? $s
-                    : $carry,
-                null
-            );
+            // Switch to UnitCollection helper
+            $cheapest = $units->findCheapestShip($possibleShips);
 
             if ($cheapest !== null && $cargoCapacityConstrainedAmount >= $cheapest->price->resources->sum()) {
                 $units->addUnit($cheapest, 1);
             }
         }
 
-        // If still empty here (no eligible or affordable ships), fallback to a failure-style message
+        // If still empty here (no eligible or affordable ships), return empty.
+        // Caller will handle fallback messaging.
         if (empty($units->units)) {
-            $message_variation_id = ExpeditionFailed::getRandomMessageVariationId();
-            $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailed::class, ['message_variation_id' => $message_variation_id]);
             return new UnitCollection();
         }
 
