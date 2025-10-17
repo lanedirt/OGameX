@@ -123,7 +123,7 @@ class ExpeditionMission extends GameMission
                 if ($foundUnits->getAmount() > 0) {
                     $units->addCollection($foundUnits);
                 } else {
-                    // No ships could be granted for this fleet -> treat as Failed (per maintainer review)
+                    // No ships could be granted for this fleet -> treat as Failed
                     $this->processExpeditionFailedOutcome($mission);
                 }
                 break;
@@ -431,9 +431,7 @@ class ExpeditionMission extends GameMission
             }
         }
 
-        // --- Armada fix: Guarantee at least one ship if possible (before building $message_params) ---
         if (empty($units->units)) {
-            // Switch to UnitCollection helper
             $cheapest = $units->findCheapestShip($possibleShips);
 
             if ($cheapest !== null && $cargoCapacityConstrainedAmount >= $cheapest->price->resources->sum()) {
