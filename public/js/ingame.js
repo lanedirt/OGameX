@@ -64892,7 +64892,7 @@ function createHeaderHtml(data) {
   } // Add the outer div to the output
 
 
-  content = '<div id="empireTab">' + '<div class="wrapTab">' + '<div class="tab-part01"></div>' + '<h2>' + data.translations.header + '</h2>' + '<span class="reset"><img src="/img/icon/f805c477d15ae3131b7c39c7d70e48.gif" width="16" height="16"><a href="javascript:void(0);" onClick="clearImperiumOrder(); return false;">' + data.translations.reset + '</a></span>' + '<div class="wrapCorner"></div>' + '<br class="clearfloat"/>' + '</div>' + '</div>' + '<div class="header">' + content + '</div>'; // Return the content
+  content = '<div id="empireTab">' + '<div class="wrapTab">' + '<div class="tab-part01"></div>' + '<h2>' + data.translations.header + '</h2>' + '<span class="reset"><img src="/img/icons/f805c477d15ae3131b7c39c7d70e48.gif" width="16" height="16"><a href="javascript:void(0);" onClick="clearImperiumOrder(); return false;">' + data.translations.reset + '</a></span>' + '<div class="wrapCorner"></div>' + '<br class="clearfloat"/>' + '</div>' + '</div>' + '<div class="header">' + content + '</div>'; // Return the content
 
   return content;
 }
@@ -79263,7 +79263,7 @@ function initPhalanx() {
     } else {
       $(this).addClass("infosOpen");
       $(this).removeClass("infosClosed");
-        $(this).children().attr("src", '/img/icons/577565fadab7780b0997a76d0dca9b.gif');
+      $(this).children().attr("src", '/img/icons/577565fadab7780b0997a76d0dca9b.gif');
       $("." + id).attr("style", "display: block;");
     }
   });

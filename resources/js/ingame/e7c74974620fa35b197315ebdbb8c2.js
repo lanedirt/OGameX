@@ -42950,7 +42950,7 @@ function initTrader() {
         $(traderObj.traderId + ' .selectWrapper .source').removeClass('selected');
         $(traderObj.traderId + ' .js_honor').addClass('selected');
         $(traderObj.traderId + ' .toggleLink').addClass('honor');
-        var selectedContent = '<img height="18" src="//gf1.geo.gfsrv.net/cdnfc/f35675179214f8f6f0f8d75740d7db.png" alt="' + loca.honorPoints + '"/>' + '<span class="option_source">' + loca.honorPoints + '</span>';
+        var selectedContent = '<img height="18" src="/img/icons/f35675179214f8f6f0f8d75740d7db.png" alt="' + loca.honorPoints + '"/>' + '<span class="option_source">' + loca.honorPoints + '</span>';
         $(traderObj.traderId + ' .js_valSourcePlanet').html(selectedContent);
         $(traderObj.traderId + ' .normalResource').hide();
         $(traderObj.traderId + ' .honorResource').show();
@@ -48229,7 +48229,7 @@ function renderContentGalaxy(json) {
       $("#expeditionDebrisSlotDebrisContainer").append(`
                 <div id="expeditionDebris" class="name float_left tooltipRel tooltipClose tooltipRight js_hideTipOnMobile js_bday_debris tpd-hideOnClickOutside" rel="debris16">
                     <div style="position: relative;width: 30px;height: 30px;display: inline-block;">
-                        <img class="float_left" src="//gf1.geo.gfsrv.net/cdnc5/fa3e396b8af2ae31e28ef3b44eca91.gif" width="30" height="30"/>
+                        <img class="float_left" src="/img/icons/fa3e396b8af2ae31e28ef3b44eca91.gif" width="30" height="30"/>
                         ${addFleetContainer(galaxyContentObject.position, galaxyContentObject.planets.planetType)}
                     </div>
                 </div>
