@@ -15,11 +15,11 @@ class CapacityPropertyService extends ObjectPropertyService
     protected string $propertyName = 'capacity';
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     protected function getBonusPercentage(PlayerService $player): int
     {
-        // TODO: implement capacity bonus calculation per object id.
-        return 0;
+        $hyperspace_technology_level = $player->getResearchLevel('hyperspace_technology');
+        return 5 * $hyperspace_technology_level;
     }
 }
