@@ -68,10 +68,41 @@ class EspionageMission extends GameMission
 
         $reportId = $this->createEspionageReport($mission, $origin_planet, $target_planet);
 
+        // --- Defender notification (mirror official OGame “you were spied” message)
+        // Defender is the owner of the target planet
+        $defenderUserId = $target_planet->getPlayer()->getId();
+
+        if ($defenderUserId) {
+            // Params expected by t_messages.espionage_detected.*
+            $attackerName = $origin_planet->getPlayer()->getUsername();
+
+            $params = [
+// IMPORTANT: pass the raw mission planet id inside [planet]...[/planet]
+                'planet'        => '[planet]' . $mission->planet_id_from . '[/planet]',
+                'attacker_name' => $attackerName,
+
+// NEW:
+    'defender'       => '[planet]' . $mission->planet_id_to . '[/planet]',   // defender planet
+    'defender_name'  => $target_planet->getPlayer()->getUsername(),          // defender player name
+
+                'chance'        => 0, // TODO: compute real chance later
+            ];
+
+            $playerServiceFactory = resolve(\OGame\Factories\PlayerServiceFactory::class);
+            $defenderService      = $playerServiceFactory->make($defenderUserId);
+
+            (new \OGame\Services\MessageService($defenderService))
+                ->sendSystemMessageToPlayer(
+                    $defenderService,
+                    \OGame\GameMessages\DefenderEspionageDetected::class,
+                    $params
+                );
+        }
+
         // Send a message to the player with a reference to the espionage report.
         $this->messageService->sendEspionageReportMessageToPlayer(
             $origin_planet->getPlayer(),
-            $reportId,
+            $reportId
         );
 
         // Mark the arrival mission as processed
