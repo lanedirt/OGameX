@@ -63242,7 +63242,7 @@ function refreshFleetEvents(force) {
   }
 
   if (!$("#eventboxContent").is(":hidden") || force === true) {
-    $("#eventboxContent").html('<img height="16" width="16" src="//gf3.geo.gfsrv.net/cdne3/3f9884806436537bdec305aa26fc60.gif" />');
+    $("#eventboxContent").html('<img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif" />');
     $.ajax({
       url: eventlistLink,
       success: function (response) {
@@ -64787,7 +64787,7 @@ function createSummaryHtml(data) {
   var value = 0;
   var i = 0;
   var key = '';
-  content = content + '<div class="planetHead">' + '<div class="planetname">' + data.translations.summary + '</div>' + '<div class="planetImg"><img src="//gf3.geo.gfsrv.net/cdn8a/7efb2e73ca11d2344bbed43668da10.jpg"/></div>' + '<div class="planetData">' + '<ul>' + '<li class="coords textLeft"></li>' + '<li class="fields textRight"></li>' + '</ul>' + '</div>' + '<div class="clearfloat"></div>' + '</div>'; // Generate the content
+  content = content + '<div class="planetHead">' + '<div class="planetname">' + data.translations.summary + '</div>' + '<div class="planetImg"><img src="/img/icons/7efb2e73ca11d2344bbed43668da10.jpg"/></div>' + '<div class="planetData">' + '<ul>' + '<li class="coords textLeft"></li>' + '<li class="fields textRight"></li>' + '</ul>' + '</div>' + '<div class="clearfloat"></div>' + '</div>'; // Generate the content
 
   for (group in data.groups) {
     content = content + '<div class="row"></div>' + '<div class="values ' + group + ' group' + group + '">';
@@ -64892,7 +64892,7 @@ function createHeaderHtml(data) {
   } // Add the outer div to the output
 
 
-  content = '<div id="empireTab">' + '<div class="wrapTab">' + '<div class="tab-part01"></div>' + '<h2>' + data.translations.header + '</h2>' + '<span class="reset"><img src="//gf2.geo.gfsrv.net/cdnab/f805c477d15ae3131b7c39c7d70e48.gif" width="16" height="16"><a href="javascript:void(0);" onClick="clearImperiumOrder(); return false;">' + data.translations.reset + '</a></span>' + '<div class="wrapCorner"></div>' + '<br class="clearfloat"/>' + '</div>' + '</div>' + '<div class="header">' + content + '</div>'; // Return the content
+  content = '<div id="empireTab">' + '<div class="wrapTab">' + '<div class="tab-part01"></div>' + '<h2>' + data.translations.header + '</h2>' + '<span class="reset"><img src="/img/icons/f805c477d15ae3131b7c39c7d70e48.gif" width="16" height="16"><a href="javascript:void(0);" onClick="clearImperiumOrder(); return false;">' + data.translations.reset + '</a></span>' + '<div class="wrapCorner"></div>' + '<br class="clearfloat"/>' + '</div>' + '</div>' + '<div class="header">' + content + '</div>'; // Return the content
 
   return content;
 }
@@ -68721,7 +68721,7 @@ ogame.messages.combatreport = {
 };
 function closeDetails(id, expireTime) {
   var elem = $("#fleet" + id);
-  elem.children(".openDetails").children().children().attr("src", "//gf2.geo.gfsrv.net/cdn10/de1e5f629d9e47d283488eee0c0ede.gif");
+  elem.children(".openDetails").children().children().attr("src", "/img/icons/de1e5f629d9e47d283488eee0c0ede.gif");
   elem.children(".quantity").show();
   elem.removeClass("detailsOpened");
   elem.addClass("detailsClosed");
@@ -68732,7 +68732,7 @@ function closeDetails(id, expireTime) {
 
 function openDetails(id, expireTime) {
   var elem = $("#fleet" + id);
-  elem.children(".openDetails").children().children().attr("src", "//gf3.geo.gfsrv.net/cdnb6/577565fadab7780b0997a76d0dca9b.gif");
+  elem.children(".openDetails").children().children().attr("src", "/img/icons/577565fadab7780b0997a76d0dca9b.gif");
   elem.children(".quantity").hide();
   elem.removeClass("detailsClosed");
   elem.addClass("detailsOpened");
@@ -72791,7 +72791,7 @@ function initTrader() {
         $(traderObj.traderId + ' .selectWrapper .source').removeClass('selected');
         $(traderObj.traderId + ' .js_honor').addClass('selected');
         $(traderObj.traderId + ' .toggleLink').addClass('honor');
-        var selectedContent = '<img height="18" src="//gf1.geo.gfsrv.net/cdnfc/f35675179214f8f6f0f8d75740d7db.png" alt="' + loca.honorPoints + '"/>' + '<span class="option_source">' + loca.honorPoints + '</span>';
+        var selectedContent = '<img height="18" src="/img/icons/f35675179214f8f6f0f8d75740d7db.png" alt="' + loca.honorPoints + '"/>' + '<span class="option_source">' + loca.honorPoints + '</span>';
         $(traderObj.traderId + ' .js_valSourcePlanet').html(selectedContent);
         $(traderObj.traderId + ' .normalResource').hide();
         $(traderObj.traderId + ' .honorResource').show();
@@ -78070,7 +78070,7 @@ function renderContentGalaxy(json) {
       $("#expeditionDebrisSlotDebrisContainer").append(`
                 <div id="expeditionDebris" class="name float_left tooltipRel tooltipClose tooltipRight js_hideTipOnMobile js_bday_debris tpd-hideOnClickOutside" rel="debris16">
                     <div style="position: relative;width: 30px;height: 30px;display: inline-block;">
-                        <img class="float_left" src="//gf1.geo.gfsrv.net/cdnc5/fa3e396b8af2ae31e28ef3b44eca91.gif" width="30" height="30"/>
+                        <img class="float_left" src="/img/icons/fa3e396b8af2ae31e28ef3b44eca91.gif" width="30" height="30"/>
                         ${addFleetContainer(galaxyContentObject.position, galaxyContentObject.planets.planetType)}
                     </div>
                 </div>
@@ -78708,7 +78708,7 @@ function renderEventDebris(planet, galaxyContentObject, systemData) {
                        rel="debris17"
                     >
                         <div style="position: relative;width: 30px;height: 30px;display: inline-block;">
-                            <img class="float_left" src="//gf3.geo.gfsrv.net/cdn88/e1b6654d1b29bc65aea0b8fc79be80.png" width="30" height="30"/>
+                            <img class="float_left" src="/img/icons/e1b6654d1b29bc65aea0b8fc79be80.png" width="30" height="30"/>
                             ${addFleetContainer(galaxyContentObject.position, planet.planetType)}
                         </div>${planet.planetName}
                         ${getEventDebrisTooltip(planet, galaxyContentObject, systemData)}
@@ -78803,7 +78803,7 @@ function getEventDebrisTooltip(planet, galaxyContentObject, systemData) {
             <div class="splitLine"></div>
             <ul class="ListImage">
                 <li><span id="pos-debris">[${galaxy}:${system}:${position}]</span></li>
-                <li><img class="float_left" src="//gf3.geo.gfsrv.net/cdn88/e1b6654d1b29bc65aea0b8fc79be80.png" width="30" height="30" alt="${headline}"/></li>
+                <li><img class="float_left" src="/img/icons/e1b6654d1b29bc65aea0b8fc79be80.png" width="30" height="30" alt="${headline}"/></li>
             </ul>
             <ul class="ListLinks">
                 <li class="debris-content">${loca.LOCA_ALL_DARKMATTER}: ${darkmatter}</li>
@@ -79106,7 +79106,7 @@ function getActivityElement(activityObject) {
     if (showActivity === 60) {
       idle = loca.LOCA_ALL_ACTIVITY + ": " + idleTime + loca.LOCA_ALL_TIME_MINUTE;
     } else {
-      idle = loca.LOCA_ALL_ACTIVITY + ":<div class=\"alert_triangle\"><img src='//gf2.geo.gfsrv.net/cdn12/b4c8503dd1f37dc9924909d28f3b26.gif'/></div>";
+      idle = loca.LOCA_ALL_ACTIVITY + ":<div class=\"alert_triangle\"><img src='/img/icons/b4c8503dd1f37dc9924909d28f3b26.gif'/></div>";
     }
 
     return `<li>${idle}</li>`;
@@ -79258,12 +79258,12 @@ function initPhalanx() {
     if ($(this).attr("class") == "toggleInfos infosOpen") {
       $(this).removeClass("infosOpen");
       $(this).addClass("infosClosed");
-      $(this).children().attr("src", '//gf2.geo.gfsrv.net/cdn10/de1e5f629d9e47d283488eee0c0ede.gif');
+      $(this).children().attr("src", '/img/icons/de1e5f629d9e47d283488eee0c0ede.gif');
       $("." + id).attr("style", "display: none;");
     } else {
       $(this).addClass("infosOpen");
       $(this).removeClass("infosClosed");
-      $(this).children().attr("src", '//gf3.geo.gfsrv.net/cdnb6/577565fadab7780b0997a76d0dca9b.gif');
+      $(this).children().attr("src", '/img/icons/577565fadab7780b0997a76d0dca9b.gif');
       $("." + id).attr("style", "display: block;");
     }
   });

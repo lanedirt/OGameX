@@ -230,7 +230,7 @@
                 <span class="reversal reversal_time" ref="{{ $fleet_event_row->id }}">
                     <a class="icon_link tooltipHTML recallFleet" data-fleet-id="{{ $fleet_event_row->id }}"
                        title="Recall:| 22.04.2024<br>15:28:45">
-                        <img src="https://gf2.geo.gfsrv.net/cdna2/89624964d4b06356842188dba05b1b.gif" height="16" width="16"/>
+                        <img src="/img/icons/89624964d4b06356842188dba05b1b.gif" height="16" width="16"/>
                     </a>
                 </span>
             @endif
