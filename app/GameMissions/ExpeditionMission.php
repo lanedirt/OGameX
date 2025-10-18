@@ -120,7 +120,12 @@ class ExpeditionMission extends GameMission
                 break;
             case ExpeditionOutcomeType::GainShips:
                 $foundUnits = $this->processExpeditionGainShipsOutcome($mission);
-                $units->addCollection($foundUnits);
+                if ($foundUnits->getAmount() > 0) {
+                    $units->addCollection($foundUnits);
+                } else {
+                    // No ships could be granted for this fleet -> treat as Failed
+                    $this->processExpeditionFailedOutcome($mission);
+                }
                 break;
             case ExpeditionOutcomeType::GainDarkMatter:
                 $this->processExpeditionGainDarkMatterOutcome($mission);
@@ -369,7 +374,8 @@ class ExpeditionMission extends GameMission
             }
         }
 
-        // If no ships can be found, return empty collection
+        // If no ships can be found at all for this fleet composition, just return empty.
+        // The caller will decide how to message (fallback to Failed).
         if (empty($possibleShips)) {
             return new UnitCollection();
         }
@@ -423,6 +429,20 @@ class ExpeditionMission extends GameMission
             if ($remainingResources < 0) {
                 $remainingResources = 0;
             }
+        }
+
+        if (empty($units->units)) {
+            $cheapest = $units->findCheapestShip($possibleShips);
+
+            if ($cheapest !== null && $cargoCapacityConstrainedAmount >= $cheapest->price->resources->sum()) {
+                $units->addUnit($cheapest, 1);
+            }
+        }
+
+        // If still empty here (no eligible or affordable ships), return empty.
+        // Caller will handle fallback messaging.
+        if (empty($units->units)) {
+            return new UnitCollection();
         }
 
         // Convert units to array with key "unit_<unit_id>" and value as amount.
