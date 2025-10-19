@@ -90,7 +90,7 @@ Once a sufficient level of Hyperspace Technology is researched, the Hyperspace D
             new GameObjectRequirement('energy_technology', 5),
             new GameObjectRequirement('shielding_technology', 5),
         ];
-        $hyperspaceTechnology->price = new GameObjectPrice(4000, 0, 2000, 0, 2);
+        $hyperspaceTechnology->price = new GameObjectPrice(0, 4000, 2000, 0, 2);
         $hyperspaceTechnology->assets = new GameObjectAssets();
         $hyperspaceTechnology->assets->imgMicro = 'hyperspace_technology_micro.jpg';
         $hyperspaceTechnology->assets->imgSmall = 'hyperspace_technology_small.jpg';
