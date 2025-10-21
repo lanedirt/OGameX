@@ -329,32 +329,31 @@
                     </li>
                 @endforeach
             </ul>
-        </div>
-        <!-- END Defender -->
-        <br class="clearfloat">
+            <br class="clearfloat">
 
 @if ($repaired_defenses_count > 0)
-        <br class="clearfloat">
-        <div class="section_title">
-            <div class="c-left"></div>
-            <div class="c-right"></div>
-            <span class="title_txt textCenter">
-                <span class="h_civilships">@lang('Repaired defences'):</span>
-            </span>
-        </div>
+            <div class="section_title">
+                <div class="c-left"></div>
+                <div class="c-right"></div>
+                <span class="title_txt textCenter">
+                    <span class="h_civilships">@lang('Repaired defences'):</span>
+                </span>
+            </div>
 
-        <ul class="ship_list_28 military_ships fleft">
+            <ul class="ship_list_28 military_ships fleft">
 @foreach ($repaired_defenses->units as $unit)
-            <li class="{{ $loop->even ? 'odd' : '' }}">
-                <div class="defenseimg defense{{ $unit->unitObject->id }} on">
-                    <span class="detail_shipname">{{ $unit->unitObject->title }}</span>
-                    <span class="detail_shipsleft ecke">{{ $unit->amount }}</span>
-                </div>
-            </li>
+                <li class="{{ $loop->even ? 'odd' : '' }}">
+                    <div class="defenseimg defense{{ $unit->unitObject->id }} on">
+                        <span class="detail_shipname">{{ $unit->unitObject->title }}</span>
+                        <span class="detail_shipsleft ecke">{{ $unit->amount }}</span>
+                    </div>
+                </li>
 @endforeach
-        </ul>
-        <br class="clearfloat">
+            </ul>
+            <br class="clearfloat">
 @endif
+        </div>
+        <!-- END Defender -->
 
         <br class="clearfloat">
 
