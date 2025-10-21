@@ -208,7 +208,7 @@ trait ObjectAjaxTrait
     private function getObjectDescription($object, $planet): string
     {
         $description = $object->description;
-        
+
         // Special handling for Solar Satellite to show correct energy production
         if ($object->machine_name === 'solar_satellite') {
             // Get the actual energy production per satellite considering production factor
@@ -216,10 +216,10 @@ trait ObjectAjaxTrait
             $current_amount = $planet->getObjectAmount('solar_satellite');
             $production_current = $planet->getObjectProduction('solar_satellite', $current_amount);
             $production_next = $planet->getObjectProduction('solar_satellite', $current_amount + 1);
-            
+
             // Calculate energy per single satellite (the difference between current and next level)
             $energyPerUnit = abs($production_next->energy->get() - $production_current->energy->get());
-            
+
             // Replace any occurrence of "produces [number] energy" with the calculated value
             $description = preg_replace(
                 '/produces \d+ energy/',
@@ -227,7 +227,7 @@ trait ObjectAjaxTrait
                 $description
             );
         }
-        
+
         return $description;
     }
 }
