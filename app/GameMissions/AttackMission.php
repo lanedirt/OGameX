@@ -248,6 +248,7 @@ class AttackMission extends GameMission
      *
      * @param UnitCollection $defenderUnitsLost The units lost by the defender during battle.
      * @return UnitCollection Collection of repaired defensive structures.
+     * @throws \Exception
      */
     private function calculateRepairedDefenses(UnitCollection $defenderUnitsLost): UnitCollection
     {
@@ -259,12 +260,14 @@ class AttackMission extends GameMission
 
         // Process each lost unit
         foreach ($defenderUnitsLost->units as $unit) {
-            // Check if this unit is a defensive structure
+            // Check if this unit is a defensive structure (ships are not repaired)
             if (in_array($unit->unitObject->machine_name, $defenseObjectMachineNames)) {
                 // Roll 70% chance for each individual defensive structure
+                // Using random_int() for better randomness than rand()
                 $repairedCount = 0;
                 for ($i = 0; $i < $unit->amount; $i++) {
-                    if (rand(1, 100) <= 70) {
+                    // Generate random number 1-100, if <= 70 then repair this unit (70% chance)
+                    if (random_int(1, 100) <= 70) {
                         $repairedCount++;
                     }
                 }

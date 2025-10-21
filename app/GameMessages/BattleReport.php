@@ -192,7 +192,9 @@ class BattleReport extends GameMessage
 
         $repairedDefensesCount = 0;
         $repaired_defenses = new UnitCollection();
-        if (!empty($this->battleReportModel->repaired_defenses)) {
+        // Only show repaired defenses to the defender, not the attacker
+        $isDefender = ($this->message->user_id === $this->battleReportModel->planet_user_id);
+        if ($isDefender && !empty($this->battleReportModel->repaired_defenses)) {
             foreach ($this->battleReportModel->repaired_defenses as $defense_key => $defense_count) {
                 $repairedDefensesCount += $defense_count;
                 $repaired_defenses->addUnit(ObjectService::getUnitObjectByMachineName($defense_key), $defense_count);

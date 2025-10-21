@@ -338,18 +338,21 @@
         <div class="section_title">
             <div class="c-left"></div>
             <div class="c-right"></div>
-            <span class="title_txt">@lang('Repaired defences'):</span>
+            <span class="title_txt textCenter">
+                <span class="h_civilships">@lang('Repaired defences'):</span>
+            </span>
         </div>
-        <ul class="detail_list clearfix">
+        <ul class="ship_list_28 military_ships fleft">
 @foreach ($repaired_defenses->units as $unit)
-            <li class="detail_list_el">
-                <div class="buildingimg defense{{ $unit->unitObject->id }} on">
+            <li class="{{ $loop->even ? 'odd' : '' }}">
+                <div class="defenseimg defense{{ $unit->unitObject->id }} on">
                     <span class="detail_shipname">{{ $unit->unitObject->title }}</span>
-                    <span class="fright" style="margin-right: 10px">{{ $unit->amount }}</span>
+                    <span class="detail_shipsleft ecke">{{ $unit->amount }}</span>
                 </div>
             </li>
 @endforeach
         </ul>
+        <br class="clearfloat">
 @endif
 
         <!-- WF information -->
