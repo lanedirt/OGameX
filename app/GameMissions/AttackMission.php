@@ -242,7 +242,14 @@ class AttackMission extends GameMission
             'deuterium' => $battleResult->debris->deuterium->get(),
         ];
 
-        $report->repaired_defenses = $repairedDefenses->toArray();
+        $repairedDefensesArray = $repairedDefenses->toArray();
+
+        // DEBUG: Log what we're saving to database
+        $debugInfo = "=== BATTLE REPORT SAVE ===\n";
+        $debugInfo .= "Repaired defenses being saved to DB: " . json_encode($repairedDefensesArray) . "\n";
+        file_put_contents('/tmp/battle_debug.txt', $debugInfo, FILE_APPEND);
+
+        $report->repaired_defenses = $repairedDefensesArray;
 
         $rounds = [];
         foreach ($battleResult->rounds as $round) {

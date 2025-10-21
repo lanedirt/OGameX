@@ -194,6 +194,12 @@ class BattleReport extends GameMessage
         $repaired_defenses = new UnitCollection();
         // Only show repaired defenses to the defender, not the attacker
         $isDefender = ($this->message->user_id === $this->battleReportModel->planet_user_id);
+
+        // DEBUG: Log what we're reading from database
+        file_put_contents('/tmp/battle_debug.txt', "=== BATTLE REPORT READ ===\n", FILE_APPEND);
+        file_put_contents('/tmp/battle_debug.txt', "Is defender: " . ($isDefender ? 'yes' : 'no') . "\n", FILE_APPEND);
+        file_put_contents('/tmp/battle_debug.txt', "Repaired defenses from DB: " . json_encode($this->battleReportModel->repaired_defenses) . "\n", FILE_APPEND);
+
         if ($isDefender && !empty($this->battleReportModel->repaired_defenses)) {
             foreach ($this->battleReportModel->repaired_defenses as $defense_key => $defense_count) {
                 $repairedDefensesCount += $defense_count;
