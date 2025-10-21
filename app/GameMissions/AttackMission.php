@@ -90,47 +90,40 @@ class AttackMission extends GameMission
         $defenderUnitsLost = clone $battleResult->defenderUnitsStart;
         $defenderUnitsLost->subtractCollection($battleResult->defenderUnitsResult);
 
-        // DEBUG: Log what we're about to do
-        \Log::info('Battle aftermath debug', [
-            'defender_units_start' => $battleResult->defenderUnitsStart->toArray(),
-            'defender_units_result' => $battleResult->defenderUnitsResult->toArray(),
-            'defender_units_lost' => $defenderUnitsLost->toArray(),
-            'planet_before_remove' => [
-                'ships' => $defenderPlanet->getShipUnits()->toArray(),
-                'defenses' => $defenderPlanet->getDefenseUnits()->toArray(),
-            ],
-        ]);
+        // DEBUG: Write to a simple text file that we know will exist
+        $debugFile = '/tmp/battle_debug.txt';
+        $debugInfo = "=== BATTLE DEBUG " . date('Y-m-d H:i:s') . " ===\n";
+        $debugInfo .= "Defender units START: " . json_encode($battleResult->defenderUnitsStart->toArray()) . "\n";
+        $debugInfo .= "Defender units RESULT: " . json_encode($battleResult->defenderUnitsResult->toArray()) . "\n";
+        $debugInfo .= "Defender units LOST: " . json_encode($defenderUnitsLost->toArray()) . "\n";
+        $debugInfo .= "Planet BEFORE remove - Ships: " . json_encode($defenderPlanet->getShipUnits()->toArray()) . "\n";
+        $debugInfo .= "Planet BEFORE remove - Defenses: " . json_encode($defenderPlanet->getDefenseUnits()->toArray()) . "\n";
+        file_put_contents($debugFile, $debugInfo, FILE_APPEND);
 
         $defenderPlanet->removeUnits($defenderUnitsLost, false);
 
-        // DEBUG: Log after removal
-        \Log::info('After removeUnits', [
-            'planet_after_remove' => [
-                'ships' => $defenderPlanet->getShipUnits()->toArray(),
-                'defenses' => $defenderPlanet->getDefenseUnits()->toArray(),
-            ],
-        ]);
+        // DEBUG: After removal
+        $debugInfo = "Planet AFTER remove - Ships: " . json_encode($defenderPlanet->getShipUnits()->toArray()) . "\n";
+        $debugInfo .= "Planet AFTER remove - Defenses: " . json_encode($defenderPlanet->getDefenseUnits()->toArray()) . "\n";
+        file_put_contents($debugFile, $debugInfo, FILE_APPEND);
 
         // Calculate repaired defenses (70% chance for each destroyed defense structure)
         $repairedDefenses = $this->calculateRepairedDefenses($defenderUnitsLost);
 
-        // DEBUG: Log repairs
-        \Log::info('Repaired defenses calculated', [
-            'repaired' => $repairedDefenses->toArray(),
-        ]);
+        // DEBUG: Repairs
+        $debugInfo = "Repaired defenses: " . json_encode($repairedDefenses->toArray()) . "\n";
+        file_put_contents($debugFile, $debugInfo, FILE_APPEND);
 
         // Add repaired defenses back to the planet
         if ($repairedDefenses->getAmount() > 0) {
             $defenderPlanet->addUnits($repairedDefenses, false);
         }
 
-        // DEBUG: Log final state
-        \Log::info('After adding repairs', [
-            'planet_final' => [
-                'ships' => $defenderPlanet->getShipUnits()->toArray(),
-                'defenses' => $defenderPlanet->getDefenseUnits()->toArray(),
-            ],
-        ]);
+        // DEBUG: Final state
+        $debugInfo = "Planet FINAL - Ships: " . json_encode($defenderPlanet->getShipUnits()->toArray()) . "\n";
+        $debugInfo .= "Planet FINAL - Defenses: " . json_encode($defenderPlanet->getDefenseUnits()->toArray()) . "\n";
+        $debugInfo .= "=================================\n\n";
+        file_put_contents($debugFile, $debugInfo, FILE_APPEND);
 
         // Save defenders planet
         $defenderPlanet->save();
