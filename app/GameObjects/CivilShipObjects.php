@@ -163,7 +163,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $solarSatellite->title = 'Solar Satellite';
         $solarSatellite->machine_name = 'solar_satellite';
         $solarSatellite->class_name = 'solarSatellite';
-        $solarSatellite->description = 'Solar satellites are simple platforms of solar cells, located in a high, stationary orbit. They gather sunlight and transmit it to the ground station via laser. Solar satellites produce energy based on the planet\'s solar conditions.';
+        $solarSatellite->description = 'Solar satellites are simple platforms of solar cells, located in a high, stationary orbit. They gather sunlight and transmit it to the ground station via laser.';
 
         $solarSatellite->description_long = 'Scientists discovered a method of transmitting electrical energy to the colony using specially designed satellites in a geosynchronous orbit. Solar Satellites gather solar energy and transmit it to a ground station using advanced laser technology. The efficiency of a solar satellite depends on the strength of the solar radiation it receives. In principle, energy production in orbits closer to the sun is greater than for planets in orbits distant from the sun.
         Due to their good cost/performance ratio solar satellites can solve a lot of energy problems. But beware: Solar satellites can be easily destroyed in battle.';
