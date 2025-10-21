@@ -153,7 +153,7 @@ trait ObjectAjaxTrait
             'planet_id' => $planet->getPlanetId(),
             'current_level' => $current_level,
             'next_level' => $next_level,
-            'description' => $object->description,
+            'description' => $this->getObjectDescription($object, $planet),
             'title' => $object->title,
             'price' => $price,
             'planet' => $planet,
@@ -196,5 +196,33 @@ trait ObjectAjaxTrait
             ],
             'serverTime' => time(),
         ]);
+    }
+
+    /**
+     * Get the description for an object, with dynamic values for special cases.
+     *
+     * @param \OGame\GameObjects\Models\Abstracts\GameObject $object
+     * @param \OGame\Services\PlanetService $planet
+     * @return string
+     */
+    private function getObjectDescription($object, $planet): string
+    {
+        $description = $object->description;
+        
+        // Special handling for Solar Satellite to show correct energy production
+        if ($object->machine_name === 'solar_satellite') {
+            // Calculate energy per unit using the same formula as in production
+            // Formula: floor((planetTempMax + 140) / 6)
+            $energyPerUnit = floor(($planet->getPlanetTempMax() + 140) / 6);
+            
+            // Replace any occurrence of "produces [number] energy" with the calculated value
+            $description = preg_replace(
+                '/produces \d+ energy/',
+                "produces {$energyPerUnit} energy",
+                $description
+            );
+        }
+        
+        return $description;
     }
 }
