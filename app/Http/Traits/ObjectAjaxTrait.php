@@ -220,10 +220,10 @@ trait ObjectAjaxTrait
             // Calculate energy per single satellite (the difference between current and next level)
             $energyPerUnit = abs($production_next->energy->get() - $production_current->energy->get());
 
-            // Replace any occurrence of "produces [number] energy" with the calculated value
-            $description = preg_replace(
-                '/produces \d+ energy/',
-                "produces {$energyPerUnit} energy",
+            // Replace the generic description with the specific energy value
+            $description = str_replace(
+                'Solar satellites produce energy based on the planet\'s solar conditions.',
+                "A solar satellite produces {$energyPerUnit} energy on this planet.",
                 $description
             );
         }

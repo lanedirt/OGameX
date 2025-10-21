@@ -50,27 +50,8 @@ class UnitViewModel
      */
     public function getDescription(PlanetService $planet): string
     {
-        $description = $this->object->description;
-
-        // Special handling for Solar Satellite to show correct energy production
-        if ($this->object->machine_name === 'solar_satellite') {
-            // Get the actual energy production per satellite considering production factor
-            // This matches what the green (+X) number shows in the UI
-            $current_amount = $planet->getObjectAmount('solar_satellite');
-            $production_current = $planet->getObjectProduction('solar_satellite', $current_amount);
-            $production_next = $planet->getObjectProduction('solar_satellite', $current_amount + 1);
-
-            // Calculate energy per single satellite (the difference)
-            $energyPerUnit = abs($production_next->energy->get() - $production_current->energy->get());
-
-            // Replace any occurrence of "produces [number] energy" with the calculated value
-            $description = preg_replace(
-                '/produces \d+ energy/',
-                "produces {$energyPerUnit} energy",
-                $description
-            );
-        }
-
-        return $description;
+        // Return the original description without modifications
+        // Dynamic descriptions should only be shown in specific contexts (like AJAX object details)
+        return $this->object->description;
     }
 }
