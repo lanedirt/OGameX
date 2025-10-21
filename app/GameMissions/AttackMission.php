@@ -13,6 +13,7 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\DebrisFieldService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use Throwable;
@@ -90,6 +91,14 @@ class AttackMission extends GameMission
         $defenderUnitsLost->subtractCollection($battleResult->defenderUnitsResult);
         $defenderPlanet->removeUnits($defenderUnitsLost, false);
 
+        // Calculate repaired defenses (70% chance for each destroyed defense structure)
+        $repairedDefenses = $this->calculateRepairedDefenses($defenderUnitsLost);
+
+        // Add repaired defenses back to the planet
+        if ($repairedDefenses->getAmount() > 0) {
+            $defenderPlanet->addUnits($repairedDefenses, false);
+        }
+
         // Save defenders planet
         $defenderPlanet->save();
 
@@ -111,7 +120,7 @@ class AttackMission extends GameMission
         }
 
         // Send a message to both attacker and defender with a reference to the same battle report.
-        $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
+        $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult, $repairedDefenses);
         // Send to attacker.
         $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
         // Send to defender.
@@ -156,9 +165,10 @@ class AttackMission extends GameMission
      * @param PlayerService $attackPlayer The player who initiated the attack.
      * @param PlanetService $defenderPlanet The planet that was attacked.
      * @param BattleResult $battleResult The result of the battle.
+     * @param UnitCollection $repairedDefenses The defensive structures that were repaired after the battle.
      * @return int
      */
-    private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet, BattleResult $battleResult): int
+    private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet, BattleResult $battleResult, UnitCollection $repairedDefenses): int
     {
         // Create new battle report record.
         $report = new BattleReport();
@@ -206,7 +216,7 @@ class AttackMission extends GameMission
             'deuterium' => $battleResult->debris->deuterium->get(),
         ];
 
-        $report->repaired_defenses = [];
+        $report->repaired_defenses = $repairedDefenses->toArray();
 
         $rounds = [];
         foreach ($battleResult->rounds as $round) {
@@ -230,5 +240,42 @@ class AttackMission extends GameMission
         $report->save();
 
         return $report->id;
+    }
+
+    /**
+     * Calculate which defensive structures are repaired after battle.
+     * In OGame, each destroyed defensive structure has a 70% chance to be rebuilt.
+     *
+     * @param UnitCollection $defenderUnitsLost The units lost by the defender during battle.
+     * @return UnitCollection Collection of repaired defensive structures.
+     */
+    private function calculateRepairedDefenses(UnitCollection $defenderUnitsLost): UnitCollection
+    {
+        $repairedDefenses = new UnitCollection();
+
+        // Get all defense objects to identify which lost units are defensive structures
+        $defenseObjects = ObjectService::getDefenseObjects();
+        $defenseObjectMachineNames = array_column($defenseObjects, 'machine_name');
+
+        // Process each lost unit
+        foreach ($defenderUnitsLost->units as $unit) {
+            // Check if this unit is a defensive structure
+            if (in_array($unit->unitObject->machine_name, $defenseObjectMachineNames)) {
+                // Roll 70% chance for each individual defensive structure
+                $repairedCount = 0;
+                for ($i = 0; $i < $unit->amount; $i++) {
+                    if (rand(1, 100) <= 70) {
+                        $repairedCount++;
+                    }
+                }
+
+                // Add repaired defenses to the collection
+                if ($repairedCount > 0) {
+                    $repairedDefenses->addUnit($unit->unitObject, $repairedCount);
+                }
+            }
+        }
+
+        return $repairedDefenses;
     }
 }
