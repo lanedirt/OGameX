@@ -211,9 +211,14 @@ trait ObjectAjaxTrait
         
         // Special handling for Solar Satellite to show correct energy production
         if ($object->machine_name === 'solar_satellite') {
-            // Calculate energy per unit using the same formula as in production
-            // Formula: floor((planetTempMax + 140) / 6)
-            $energyPerUnit = floor(($planet->getPlanetTempMax() + 140) / 6);
+            // Get the actual energy production per satellite considering production factor
+            // This matches what the green (+X) number shows in the UI
+            $current_amount = $planet->getObjectAmount('solar_satellite');
+            $production_current = $planet->getObjectProduction('solar_satellite', $current_amount);
+            $production_next = $planet->getObjectProduction('solar_satellite', $current_amount + 1);
+            
+            // Calculate energy per single satellite (the difference between current and next level)
+            $energyPerUnit = abs($production_next->energy->get() - $production_current->energy->get());
             
             // Replace any occurrence of "produces [number] energy" with the calculated value
             $description = preg_replace(
