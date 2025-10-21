@@ -89,15 +89,48 @@ class AttackMission extends GameMission
         // Deduct defender's lost units from the defenders planet.
         $defenderUnitsLost = clone $battleResult->defenderUnitsStart;
         $defenderUnitsLost->subtractCollection($battleResult->defenderUnitsResult);
+
+        // DEBUG: Log what we're about to do
+        \Log::info('Battle aftermath debug', [
+            'defender_units_start' => $battleResult->defenderUnitsStart->toArray(),
+            'defender_units_result' => $battleResult->defenderUnitsResult->toArray(),
+            'defender_units_lost' => $defenderUnitsLost->toArray(),
+            'planet_before_remove' => [
+                'ships' => $defenderPlanet->getShipUnits()->toArray(),
+                'defenses' => $defenderPlanet->getDefenseUnits()->toArray(),
+            ],
+        ]);
+
         $defenderPlanet->removeUnits($defenderUnitsLost, false);
+
+        // DEBUG: Log after removal
+        \Log::info('After removeUnits', [
+            'planet_after_remove' => [
+                'ships' => $defenderPlanet->getShipUnits()->toArray(),
+                'defenses' => $defenderPlanet->getDefenseUnits()->toArray(),
+            ],
+        ]);
 
         // Calculate repaired defenses (70% chance for each destroyed defense structure)
         $repairedDefenses = $this->calculateRepairedDefenses($defenderUnitsLost);
+
+        // DEBUG: Log repairs
+        \Log::info('Repaired defenses calculated', [
+            'repaired' => $repairedDefenses->toArray(),
+        ]);
 
         // Add repaired defenses back to the planet
         if ($repairedDefenses->getAmount() > 0) {
             $defenderPlanet->addUnits($repairedDefenses, false);
         }
+
+        // DEBUG: Log final state
+        \Log::info('After adding repairs', [
+            'planet_final' => [
+                'ships' => $defenderPlanet->getShipUnits()->toArray(),
+                'defenses' => $defenderPlanet->getDefenseUnits()->toArray(),
+            ],
+        ]);
 
         // Save defenders planet
         $defenderPlanet->save();
