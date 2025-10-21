@@ -83,6 +83,12 @@ class AttackMission extends GameMission
 
         $battleResult = $battleEngine->simulateBattle();
 
+        // Clone the defender start units to preserve them for the battle report.
+        // This is necessary because defenderUnitsStart contains references to the planet's
+        // unit objects, and we'll be modifying the planet's units below (removing losses,
+        // adding repairs). Without cloning, these modifications would affect the battle report data.
+        $battleResult->defenderUnitsStart = clone $battleResult->defenderUnitsStart;
+
         // Deduct loot from the target planet.
         $defenderPlanet->deductResources($battleResult->loot);
 

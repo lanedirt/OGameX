@@ -333,25 +333,30 @@
         <!-- END Defender -->
         <br class="clearfloat">
 
-        <br class="clearfloat">
 @if ($repaired_defenses_count > 0)
+        <br class="clearfloat">
         <div class="section_title">
             <div class="c-left"></div>
             <div class="c-right"></div>
-            <span class="title_txt">@lang('Repaired defences'):</span>
+            <span class="title_txt textCenter">
+                <span class="h_civilships">@lang('Repaired defences'):</span>
+            </span>
         </div>
-        <ul class="detail_list clearfix">
+
+        <ul class="ship_list_28 military_ships fleft">
 @foreach ($repaired_defenses->units as $unit)
-            <li class="detail_list_el">
-                <div class="defense_image float_left">
-                    <img class="defense{{ $unit->unitObject->id }}" width="28" height="28" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
+            <li class="{{ $loop->even ? 'odd' : '' }}">
+                <div class="defenseimg defense{{ $unit->unitObject->id }} on">
+                    <span class="detail_shipname">{{ $unit->unitObject->title }}</span>
+                    <span class="detail_shipsleft ecke">{{ $unit->amount }}</span>
                 </div>
-                <span class="detail_list_txt">{{ $unit->unitObject->title }}</span>
-                <span class="fright" style="margin-right: 10px;">{{ $unit->amount }}</span>
             </li>
 @endforeach
         </ul>
+        <br class="clearfloat">
 @endif
+
+        <br class="clearfloat">
 
         <!-- WF information -->
         <!-- attacker WF information -->
