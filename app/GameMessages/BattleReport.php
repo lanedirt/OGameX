@@ -191,9 +191,11 @@ class BattleReport extends GameMessage
         $debrisRecyclersNeeded = $debrisFieldService->calculateRequiredRecyclers();
 
         $repairedDefensesCount = 0;
+        $repaired_defenses = new UnitCollection();
         if (!empty($this->battleReportModel->repaired_defenses)) {
             foreach ($this->battleReportModel->repaired_defenses as $defense_key => $defense_count) {
                 $repairedDefensesCount += $defense_count;
+                $repaired_defenses->addUnit(ObjectService::getUnitObjectByMachineName($defense_key), $defense_count);
             }
         }
 
@@ -310,6 +312,7 @@ class BattleReport extends GameMessage
             'debris_resources' => $debrisResources,
             'debris_recyclers_needed' => $debrisRecyclersNeeded,
             'repaired_defenses_count' => $repairedDefensesCount,
+            'repaired_defenses' => $repaired_defenses,
             'moon_existed' => $moonExisted,
             'moon_chance' => $moonChance,
             'moon_created' => $moonCreated,
