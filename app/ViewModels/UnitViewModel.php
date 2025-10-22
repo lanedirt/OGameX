@@ -4,6 +4,7 @@ namespace OGame\ViewModels;
 
 use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\Models\Resource;
+use OGame\Services\PlanetService;
 
 class UnitViewModel
 {
@@ -37,5 +38,39 @@ class UnitViewModel
     public function getFormattedLong(): string
     {
         return $this->getResource()->getFormattedLong();
+    }
+
+    /**
+     * Get the description with dynamic values replaced based on planet context.
+     * This method handles special cases like Solar Satellite where the description
+     * needs to show planet-specific energy production values.
+     *
+     * @param PlanetService $planet
+     * @return string
+     */
+    public function getDescription(PlanetService $planet): string
+    {
+        $description = $this->object->description;
+
+        // Special handling for Solar Satellite to show correct energy production
+        if ($this->object->machine_name === 'solar_satellite') {
+            // Get the actual energy production per satellite considering production factor
+            // This matches what the green (+X) number shows in the UI
+            $current_amount = $planet->getObjectAmount('solar_satellite');
+            $production_current = $planet->getObjectProduction('solar_satellite', $current_amount);
+            $production_next = $planet->getObjectProduction('solar_satellite', $current_amount + 1);
+
+            // Calculate energy per single satellite (the difference)
+            $energyPerUnit = abs($production_next->energy->get() - $production_current->energy->get());
+
+            // Replace any occurrence of "produces [number] energy" with the calculated value
+            $description = preg_replace(
+                '/produces \d+ energy/',
+                "produces {$energyPerUnit} energy",
+                $description
+            );
+        }
+
+        return $description;
     }
 }
