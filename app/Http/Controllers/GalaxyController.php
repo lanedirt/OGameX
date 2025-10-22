@@ -686,7 +686,6 @@ class GalaxyController extends OGameController
             $currentPlanet->removeUnit('interplanetary_missile', $missileCount);
 
             // Create the missile mission
-            $fleetMissionService = app(\OGame\Services\FleetMissionService::class);
             $settingsService = app(SettingsService::class);
 
             // Calculate flight time using OGame formula: (30 + 60 * systems) / universe_speed
@@ -705,11 +704,12 @@ class GalaxyController extends OGameController
             $mission->galaxy_to = $targetCoordinate->galaxy;
             $mission->system_to = $targetCoordinate->system;
             $mission->position_to = $targetCoordinate->position;
-            $mission->planet_type_from = $currentPlanet->getPlanetType()->value;
-            $mission->planet_type_to = $targetType->value;
+            $mission->type_from = $currentPlanet->getPlanetType()->value;
+            $mission->type_to = $targetType->value;
             $mission->time_departure = (int)Carbon::now()->timestamp;
             $mission->time_arrival = (int)Carbon::now()->addSeconds($flightTime)->timestamp;
-            $mission->interplanetary_missile = $missileCount;
+            // Store missile count in metal field (no dedicated column exists)
+            $mission->metal = $missileCount;
             $mission->parent_id = 0;
             $mission->canceled = 0;
             $mission->processed = 0;

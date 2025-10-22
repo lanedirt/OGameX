@@ -98,8 +98,8 @@ class MissileMission extends GameMission
         // Trigger defender planet update
         $defenderPlanet->update();
 
-        // Get number of missiles sent
-        $missileCount = $mission->interplanetary_missile ?? 0;
+        // Get number of missiles sent (stored in metal field as no dedicated column exists)
+        $missileCount = (int)$mission->metal;
 
         // Get defender's ABM count
         $abmCount = $defenderPlanet->getObjectAmount('anti_ballistic_missile');
