@@ -327,6 +327,15 @@ class GalaxyController extends OGameController
         // Can only attack other players' planets
         $canMissileAttack = $hasMissiles && $inRange && !$planet->getPlayer()->equals($this->playerService);
 
+        // Build missile attack link with all necessary parameters
+        $coords = $planet->getPlanetCoordinates();
+        $missileAttackLink = route('galaxy.missile-attack', [
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'position' => $coords->position,
+            'planetType' => $planet->getPlanetType()->value,
+        ]);
+
         return [
             'canBeIgnored' => false,
             'canBuddyRequests' => false,
@@ -336,7 +345,7 @@ class GalaxyController extends OGameController
             'canSendProbes' => $canEspionage,
             'canWrite' => false,
             'discoveryUnlocked' => 'You haven\'t unlocked the research to discover new lifeforms yet.\n',
-            'missileAttackLink' => route('galaxy.missile-attack'),
+            'missileAttackLink' => $missileAttackLink,
         ];
     }
 
