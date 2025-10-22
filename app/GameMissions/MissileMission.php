@@ -177,7 +177,7 @@ class MissileMission extends GameMission
             }
 
             // Calculate how many of this defense can be destroyed
-            $defenseHullStrength = $defense->properties->hull;
+            $defenseHullStrength = $defense->properties->structural_integrity->rawValue;
             $maxDestroyable = (int)($totalDestructionPower / $defenseHullStrength);
             $actualDestroyed = min($maxDestroyable, $defenseCount);
 
