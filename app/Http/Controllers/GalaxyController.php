@@ -613,9 +613,11 @@ class GalaxyController extends OGameController
 
             // Create the missile mission
             $fleetMissionService = app(\OGame\Services\FleetMissionService::class);
+            $settingsService = app(SettingsService::class);
 
-            // Calculate flight time (missiles are very fast - 1 second per system)
-            $flightTime = $distance > 0 ? $distance : 1; // Minimum 1 second
+            // Calculate flight time using OGame formula: (30 + 60 * systems) / universe_speed
+            $universeSpeed = $settingsService->fleetSpeed();
+            $flightTime = (int)ceil((30 + 60 * $distance) / $universeSpeed);
 
             // Create mission
             $mission = new \OGame\Models\FleetMission();

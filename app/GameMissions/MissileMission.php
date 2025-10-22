@@ -11,6 +11,12 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 
+/**
+ * Interplanetary Ballistic Missile (IBM) Attack Mission
+ *
+ * Flight time formula: (30 + 60 × distance_in_systems) / universe_speed seconds
+ * Example: At 1x speed, same-system = 30s, 10 systems = 630s (10min 30s)
+ */
 class MissileMission extends GameMission
 {
     protected static string $name = 'Missile Attack';
