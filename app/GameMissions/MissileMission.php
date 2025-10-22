@@ -123,8 +123,9 @@ class MissileMission extends GameMission
 
         $defenderPlanet->save();
 
-        // Send messages to both players
-        $this->sendMissileAttackMessages($attackerPlanet, $defenderPlanet, $missileCount, $interceptedMissiles, $effectiveMissiles, $destroyedDefenses);
+        // TODO: Send messages to both players about missile attack
+        // This requires creating proper GameMessage classes with language file entries
+        // $this->sendMissileAttackMessages($attackerPlanet, $defenderPlanet, $missileCount, $interceptedMissiles, $effectiveMissiles, $destroyedDefenses);
 
         // Mark mission as processed
         $mission->processed = 1;
@@ -188,66 +189,6 @@ class MissileMission extends GameMission
         }
 
         return $destroyedDefenses;
-    }
-
-    /**
-     * Send messages about the missile attack to both players.
-     *
-     * @param PlanetService $attackerPlanet
-     * @param PlanetService $defenderPlanet
-     * @param int $missileCount
-     * @param int $interceptedMissiles
-     * @param int $effectiveMissiles
-     * @param UnitCollection $destroyedDefenses
-     * @return void
-     */
-    private function sendMissileAttackMessages(PlanetService $attackerPlanet, PlanetService $defenderPlanet, int $missileCount, int $interceptedMissiles, int $effectiveMissiles, UnitCollection $destroyedDefenses): void
-    {
-        // Build message content
-        $defenderCoords = $defenderPlanet->getPlanetCoordinates();
-        $attackerCoords = $attackerPlanet->getPlanetCoordinates();
-
-        // Message to attacker
-        $attackerMessage = "Missile attack on [{$defenderCoords->galaxy}:{$defenderCoords->system}:{$defenderCoords->position}]\n\n";
-        $attackerMessage .= "Missiles launched: {$missileCount}\n";
-        $attackerMessage .= "Missiles intercepted: {$interceptedMissiles}\n";
-        $attackerMessage .= "Missiles hit: {$effectiveMissiles}\n\n";
-
-        if ($destroyedDefenses->getAmount() > 0) {
-            $attackerMessage .= "Destroyed defenses:\n";
-            foreach ($destroyedDefenses->units as $unit) {
-                $attackerMessage .= "- {$unit->unitObject->title}: {$unit->amount}\n";
-            }
-        } else {
-            $attackerMessage .= "No defenses were destroyed.\n";
-        }
-
-        $this->messageService->sendSystemMessageToPlayer(
-            $attackerPlanet->getPlayer(),
-            'Missile Attack Report',
-            $attackerMessage
-        );
-
-        // Message to defender
-        $defenderMessage = "Missile attack from [{$attackerCoords->galaxy}:{$attackerCoords->system}:{$attackerCoords->position}]\n\n";
-        $defenderMessage .= "Incoming missiles: {$missileCount}\n";
-        $defenderMessage .= "Missiles intercepted by ABMs: {$interceptedMissiles}\n";
-        $defenderMessage .= "Missiles that hit: {$effectiveMissiles}\n\n";
-
-        if ($destroyedDefenses->getAmount() > 0) {
-            $defenderMessage .= "Lost defenses:\n";
-            foreach ($destroyedDefenses->units as $unit) {
-                $defenderMessage .= "- {$unit->unitObject->title}: {$unit->amount}\n";
-            }
-        } else {
-            $defenderMessage .= "All missiles were intercepted or missed.\n";
-        }
-
-        $this->messageService->sendSystemMessageToPlayer(
-            $defenderPlanet->getPlayer(),
-            'Missile Attack Report',
-            $defenderMessage
-        );
     }
 
     /**
