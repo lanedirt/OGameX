@@ -216,6 +216,7 @@ class FleetEventsController extends OGameController
                 case 2:
                 case 6:
                 case 9:
+                case 10: // Missile Attack
                     // Hostile
                     return 'hostile';
                 case 3:

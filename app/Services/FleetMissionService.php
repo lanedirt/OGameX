@@ -239,7 +239,11 @@ class FleetMissionService
     {
         // Note: this only includes missions that the current player has sent themselves
         // so it does not include any incoming missions by other players (e.g. hostile attacks, espionage, transports etc.)
-        $query = $this->model->where('user_id', $this->player->getId())->where('processed', 0);
+        // Exclude missile missions (type 10) as they don't consume fleet slots
+        $query = $this->model
+            ->where('user_id', $this->player->getId())
+            ->where('processed', 0)
+            ->where('mission_type', '!=', 10);
         return $query->orderBy('time_arrival')->get();
     }
 
@@ -316,6 +320,12 @@ class FleetMissionService
      */
     public function getFleetUnitCount(FleetMission $mission): int
     {
+        // Special handling for missile attacks (mission type 10)
+        // Missiles are stored in the metal field, not as a dedicated column
+        if ($mission->mission_type === 10) {
+            return (int)$mission->metal;
+        }
+
         // Loop through all known unit types and sum them up.
         $unit_count = 0;
 
@@ -335,6 +345,17 @@ class FleetMissionService
     public function getFleetUnits(FleetMission $mission): UnitCollection
     {
         $units = new UnitCollection();
+
+        // Special handling for missile attacks (mission type 10)
+        // Missiles are stored in the metal field, not as a dedicated column
+        if ($mission->mission_type === 10) {
+            $missileCount = (int)$mission->metal;
+            if ($missileCount > 0) {
+                $missileObject = ObjectService::getUnitObjectByMachineName('interplanetary_missile');
+                $units->addUnit($missileObject, $missileCount);
+            }
+            return $units;
+        }
 
         foreach (ObjectService::getShipObjects() as $ship) {
             $amount = $mission->{$ship->machine_name};

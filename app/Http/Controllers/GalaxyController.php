@@ -632,6 +632,7 @@ class GalaxyController extends OGameController
             $position = $request->input('position');
             $type = $request->input('type', PlanetType::Planet->value);
             $missileCount = (int)$request->input('missiles', 1);
+            $targetPriority = $request->input('target_priority', 'cheapest');
 
             // Validate missile count
             $availableMissiles = $currentPlanet->getObjectAmount('interplanetary_missile');
@@ -710,6 +711,8 @@ class GalaxyController extends OGameController
             $mission->time_arrival = (int)Carbon::now()->addSeconds($flightTime)->timestamp;
             // Store missile count in metal field (no dedicated column exists)
             $mission->metal = $missileCount;
+            // Store target priority in crystal field
+            $mission->crystal = $this->encodePriority($targetPriority);
             $mission->parent_id = null; // No parent mission for missile attacks
             $mission->canceled = 0;
             $mission->processed = 0;
@@ -727,5 +730,27 @@ class GalaxyController extends OGameController
                 'message' => 'An error occurred: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Encode target priority string to a numeric value for storage.
+     *
+     * @param string $priority
+     * @return int
+     */
+    private function encodePriority(string $priority): int
+    {
+        $priorityMap = [
+            'cheapest' => 0,
+            'expensive' => 1,
+            'rocket_launcher' => 2,
+            'light_laser' => 3,
+            'heavy_laser' => 4,
+            'gauss_cannon' => 5,
+            'ion_cannon' => 6,
+            'plasma_turret' => 7,
+        ];
+
+        return $priorityMap[$priority] ?? 0; // Default to cheapest if unknown
     }
 }

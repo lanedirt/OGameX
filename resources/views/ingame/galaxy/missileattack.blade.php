@@ -54,7 +54,20 @@
                                                            min="1"
                                                            max="{{ $availableMissiles }}"
                                                            style="width: 100px; margin: 10px;">
-                                                    <br>
+                                                    <br><br>
+
+                                                    <label for="targetPriority">Target Priority:</label><br>
+                                                    <select id="targetPriority" name="target_priority" class="textInput" style="width: 200px; margin: 10px;">
+                                                        <option value="cheapest">Cheapest First (Default)</option>
+                                                        <option value="expensive">Most Expensive First</option>
+                                                        <option value="rocket_launcher">Rocket Launchers</option>
+                                                        <option value="light_laser">Light Lasers</option>
+                                                        <option value="heavy_laser">Heavy Lasers</option>
+                                                        <option value="gauss_cannon">Gauss Cannons</option>
+                                                        <option value="ion_cannon">Ion Cannons</option>
+                                                        <option value="plasma_turret">Plasma Turrets</option>
+                                                    </select>
+                                                    <br><br>
                                                     <button type="submit" class="btn_blue buttonSave">Launch Missiles</button>
                                                 </form>
                                             </td>
