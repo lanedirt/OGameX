@@ -98,6 +98,10 @@ class MissileMission extends GameMission
         // Trigger defender planet update
         $defenderPlanet->update();
 
+        // Get attacker and defender players for technology levels
+        $attackerPlayer = $attackerPlanet->getPlayer();
+        $defenderPlayer = $defenderPlanet->getPlayer();
+
         // Get number of missiles sent (stored in metal field as no dedicated column exists)
         $missileCount = (int)$mission->metal;
 
@@ -113,8 +117,8 @@ class MissileMission extends GameMission
             $defenderPlanet->removeUnit('anti_ballistic_missile', $interceptedMissiles);
         }
 
-        // Calculate defense destruction
-        $destroyedDefenses = $this->calculateDefenseDestruction($defenderPlanet, $effectiveMissiles);
+        // Calculate defense destruction with proper OGame formula
+        $destroyedDefenses = $this->calculateDefenseDestruction($defenderPlanet, $defenderPlayer, $effectiveMissiles, $attackerPlayer);
 
         // Remove destroyed defenses
         if ($destroyedDefenses->getAmount() > 0) {
@@ -123,9 +127,8 @@ class MissileMission extends GameMission
 
         $defenderPlanet->save();
 
-        // TODO: Send messages to both players about missile attack
-        // This requires creating proper GameMessage classes with language file entries
-        // $this->sendMissileAttackMessages($attackerPlanet, $defenderPlanet, $missileCount, $interceptedMissiles, $effectiveMissiles, $destroyedDefenses);
+        // Send battle reports to both players
+        $this->sendMissileAttackMessages($attackerPlanet, $attackerPlayer, $defenderPlanet, $defenderPlayer, $missileCount, $interceptedMissiles, $effectiveMissiles, $destroyedDefenses);
 
         // Mark mission as processed
         $mission->processed = 1;
@@ -133,14 +136,20 @@ class MissileMission extends GameMission
     }
 
     /**
-     * Calculate which defenses are destroyed by missiles.
-     * Each missile destroys defenses worth up to its attack power (12,000).
+     * Calculate which defenses are destroyed by missiles using proper OGame formula.
+     *
+     * OGame Formula:
+     * - Missile Damage = Number of IPMs × 12,000 × (1 + 0.1 × Attacker's Weapon Technology)
+     * - Defense Armor = Defense Structure × (1 + 0.1 × Defender's Armor Technology) / 10
+     * - Defenses Destroyed = floor(Missile Damage / Defense Armor)
      *
      * @param PlanetService $defenderPlanet
+     * @param \OGame\Services\PlayerService $defenderPlayer
      * @param int $missileCount
+     * @param \OGame\Services\PlayerService $attackerPlayer
      * @return UnitCollection
      */
-    private function calculateDefenseDestruction(PlanetService $defenderPlanet, int $missileCount): UnitCollection
+    private function calculateDefenseDestruction(PlanetService $defenderPlanet, $defenderPlayer, int $missileCount, $attackerPlayer): UnitCollection
     {
         $destroyedDefenses = new UnitCollection();
 
@@ -148,8 +157,13 @@ class MissileMission extends GameMission
             return $destroyedDefenses;
         }
 
-        // Each missile has 12,000 attack power
-        $totalDestructionPower = $missileCount * 12000;
+        // Get technology levels
+        $weaponTech = $attackerPlayer->getResearchLevel('weapon_technology');
+        $armorTech = $defenderPlayer->getResearchLevel('armor_technology');
+
+        // Calculate total missile damage with weapon technology bonus
+        // Formula: Number of IPMs × 12,000 × (1 + 0.1 × Weapon Tech)
+        $totalDestructionPower = $missileCount * 12000 * (1 + 0.1 * $weaponTech);
 
         // Get all defense objects sorted by value (destroy cheapest first)
         $defenseObjects = ObjectService::getDefenseObjects();
@@ -167,7 +181,7 @@ class MissileMission extends GameMission
                 break;
             }
 
-            // Don't target missiles or shield domes
+            // Don't target missiles or shield domes (IPMs ignore shields)
             if (in_array($defense->machine_name, ['interplanetary_missile', 'anti_ballistic_missile', 'small_shield_dome', 'large_shield_dome'])) {
                 continue;
             }
@@ -177,18 +191,83 @@ class MissileMission extends GameMission
                 continue;
             }
 
+            // Calculate defense armor with armor technology bonus
+            // Formula: Defense Structure × (1 + 0.1 × Armor Tech) / 10
+            $defenseStructure = $defense->properties->structural_integrity->rawValue;
+            $defenseArmor = $defenseStructure * (1 + 0.1 * $armorTech) / 10;
+
             // Calculate how many of this defense can be destroyed
-            $defenseHullStrength = $defense->properties->structural_integrity->rawValue;
-            $maxDestroyable = (int)($totalDestructionPower / $defenseHullStrength);
+            $maxDestroyable = (int)floor($totalDestructionPower / $defenseArmor);
             $actualDestroyed = min($maxDestroyable, $defenseCount);
 
             if ($actualDestroyed > 0) {
                 $destroyedDefenses->addUnit($defense, $actualDestroyed);
-                $totalDestructionPower -= $actualDestroyed * $defenseHullStrength;
+                $totalDestructionPower -= $actualDestroyed * $defenseArmor;
             }
         }
 
         return $destroyedDefenses;
+    }
+
+    /**
+     * Send battle reports to both attacker and defender.
+     *
+     * @param PlanetService $attackerPlanet
+     * @param \OGame\Services\PlayerService $attackerPlayer
+     * @param PlanetService $defenderPlanet
+     * @param \OGame\Services\PlayerService $defenderPlayer
+     * @param int $missileCount
+     * @param int $interceptedMissiles
+     * @param int $effectiveMissiles
+     * @param UnitCollection $destroyedDefenses
+     * @return void
+     */
+    private function sendMissileAttackMessages(PlanetService $attackerPlanet, $attackerPlayer, PlanetService $defenderPlanet, $defenderPlayer, int $missileCount, int $interceptedMissiles, int $effectiveMissiles, UnitCollection $destroyedDefenses): void
+    {
+        // Format destroyed defenses list
+        $defensesDestroyedText = '';
+        if ($destroyedDefenses->getAmount() > 0) {
+            $defensesList = [];
+            foreach ($destroyedDefenses->units as $unit) {
+                $defensesList[] = $unit->unitObject->title . ': ' . $unit->amount;
+            }
+            $defensesDestroyedText = implode(', ', $defensesList);
+        } else {
+            $defensesDestroyedText = 'None';
+        }
+
+        // Get coordinates as strings
+        $targetCoords = $defenderPlanet->getPlanetCoordinates()->asString();
+        $attackerName = $attackerPlayer->getUsername();
+
+        // Send message to attacker
+        $messageService = resolve(\OGame\Services\MessageService::class, ['player' => $attackerPlayer]);
+        $messageService->sendSystemMessageToPlayer(
+            $attackerPlayer,
+            \OGame\GameMessages\MissileAttackReport::class,
+            [
+                'target_coords' => $targetCoords,
+                'missiles_sent' => $missileCount,
+                'missiles_intercepted' => $interceptedMissiles,
+                'missiles_hit' => $effectiveMissiles,
+                'defenses_destroyed' => $defensesDestroyedText,
+            ]
+        );
+
+        // Send message to defender
+        $messageService = resolve(\OGame\Services\MessageService::class, ['player' => $defenderPlayer]);
+        $messageService->sendSystemMessageToPlayer(
+            $defenderPlayer,
+            \OGame\GameMessages\MissileDefenseReport::class,
+            [
+                'attacker_name' => $attackerName,
+                'planet_coords' => $targetCoords,
+                'missiles_incoming' => $missileCount,
+                'missiles_intercepted' => $interceptedMissiles,
+                'missiles_hit' => $effectiveMissiles,
+                'defenses_destroyed' => $defensesDestroyedText,
+            ]
+        );
     }
 
     /**

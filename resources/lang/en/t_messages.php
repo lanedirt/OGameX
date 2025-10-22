@@ -262,4 +262,32 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
             '1' => 'A core meltdown of the lead ship leads to a chain reaction, which destroys the entire expedition fleet in a spectacular explosion.',
         ],
     ],
+
+    // ------------------------
+    // Missile Attack Report (Attacker)
+    'missile_attack_report' => [
+        'from' => 'Missile Command',
+        'subject' => 'Missile attack on :target_coords',
+        'body' => 'Your interplanetary missiles have reached their target at :target_coords.
+
+Missiles launched: :missiles_sent
+Missiles intercepted: :missiles_intercepted
+Missiles hit: :missiles_hit
+
+Defenses destroyed: :defenses_destroyed',
+    ],
+
+    // ------------------------
+    // Missile Defense Report (Defender)
+    'missile_defense_report' => [
+        'from' => 'Defense Command',
+        'subject' => 'Missile attack on :planet_coords',
+        'body' => 'Your planet at :planet_coords has been attacked by interplanetary missiles from :attacker_name!
+
+Incoming missiles: :missiles_incoming
+Missiles intercepted: :missiles_intercepted
+Missiles hit: :missiles_hit
+
+Defenses destroyed: :defenses_destroyed',
+    ],
 ];
