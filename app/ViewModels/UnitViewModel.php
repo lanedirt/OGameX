@@ -4,7 +4,6 @@ namespace OGame\ViewModels;
 
 use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\Models\Resource;
-use OGame\Services\PlanetService;
 
 class UnitViewModel
 {
@@ -38,20 +37,5 @@ class UnitViewModel
     public function getFormattedLong(): string
     {
         return $this->getResource()->getFormattedLong();
-    }
-
-    /**
-     * Get the description with dynamic values replaced based on planet context.
-     * This method handles special cases like Solar Satellite where the description
-     * needs to show planet-specific energy production values.
-     *
-     * @param PlanetService $planet
-     * @return string
-     */
-    public function getDescription(PlanetService $planet): string
-    {
-        // Return the original description without modifications
-        // Dynamic descriptions should only be shown in specific contexts (like AJAX object details)
-        return $this->object->description;
     }
 }
