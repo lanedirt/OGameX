@@ -14,6 +14,6 @@ class MissileDefenseReport extends GameMessage
         $this->key = 'missile_defense_report';
         $this->params = ['attacker_name', 'planet_coords', 'missiles_incoming', 'missiles_intercepted', 'missiles_hit', 'defenses_destroyed'];
         $this->tab = 'fleets';
-        $this->subtab = 'other';
+        $this->subtab = 'combat_reports';
     }
 }
