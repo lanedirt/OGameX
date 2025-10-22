@@ -155,8 +155,8 @@ class MissileMission extends GameMission
 
         // Sort by price (metal + crystal + deuterium)
         usort($defenseObjects, function($a, $b) {
-            $priceA = $a->price->metal + $a->price->crystal + $a->price->deuterium;
-            $priceB = $b->price->metal + $b->price->crystal + $b->price->deuterium;
+            $priceA = $a->price->resources->metal->get() + $a->price->resources->crystal->get() + $a->price->resources->deuterium->get();
+            $priceB = $b->price->resources->metal->get() + $b->price->resources->crystal->get() + $b->price->resources->deuterium->get();
             return $priceA <=> $priceB;
         });
 
