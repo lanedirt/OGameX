@@ -153,7 +153,7 @@ trait ObjectAjaxTrait
             'planet_id' => $planet->getPlanetId(),
             'current_level' => $current_level,
             'next_level' => $next_level,
-            'description' => $object->description,
+            'description' => $this->getObjectDescription($object, $planet),
             'title' => $object->title,
             'price' => $price,
             'planet' => $planet,
@@ -196,5 +196,34 @@ trait ObjectAjaxTrait
             ],
             'serverTime' => time(),
         ]);
+    }
+
+    /**
+     * Get the description for an object, with dynamic values for special cases.
+     *
+     * @param \OGame\GameObjects\Models\Abstracts\GameObject $object
+     * @param \OGame\Services\PlanetService $planet
+     * @return string
+     */
+    private function getObjectDescription($object, $planet): string
+    {
+        $description = $object->description;
+
+        // Special handling for Solar Satellite to show correct energy production
+        if ($object->machine_name === 'solar_satellite') {
+            // Get the actual energy production per satellite considering production factor
+            // This matches what the green (+X) number shows in the UI
+            $current_amount = $planet->getObjectAmount('solar_satellite');
+            $production_current = $planet->getObjectProduction('solar_satellite', $current_amount);
+            $production_next = $planet->getObjectProduction('solar_satellite', $current_amount + 1);
+
+            // Calculate energy per single satellite (the difference between current and next level)
+            $energyPerUnit = abs($production_next->energy->get() - $production_current->energy->get());
+
+            // Append the specific energy value to the description
+            $description .= " A solar satellite produces {$energyPerUnit} energy on this planet.";
+        }
+
+        return $description;
     }
 }
