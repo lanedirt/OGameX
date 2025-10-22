@@ -1,0 +1,256 @@
+<?php
+
+namespace OGame\GameMissions;
+
+use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\Models\MissionPossibleStatus;
+use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
+use OGame\Models\Planet\Coordinate;
+use OGame\Services\ObjectService;
+use OGame\Services\PlanetService;
+
+class MissileMission extends GameMission
+{
+    protected static string $name = 'Missile Attack';
+    protected static int $typeId = 10;
+    protected static bool $hasReturnMission = false;
+
+    /**
+     * @inheritdoc
+     */
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
+    {
+        // Missile attack is only possible for planets and moons.
+        if (!in_array($targetType, [PlanetType::Planet, PlanetType::Moon])) {
+            return new MissionPossibleStatus(false);
+        }
+
+        // If target planet does not exist, the mission is not possible.
+        $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetType);
+        if ($targetPlanet === null) {
+            return new MissionPossibleStatus(false);
+        }
+
+        // If planet belongs to current player, the mission is not possible.
+        if ($planet->getPlayer()->equals($targetPlanet->getPlayer())) {
+            return new MissionPossibleStatus(false);
+        }
+
+        // Check if target is within missile range
+        $attackerPlayer = $planet->getPlayer();
+        $missileRange = $attackerPlayer->getMissileRange();
+
+        // Calculate distance in systems
+        $distance = $this->calculateSystemDistance($planet->getPlanetCoordinates(), $targetCoordinate);
+
+        if ($distance > $missileRange) {
+            return new MissionPossibleStatus(false, 'Target is out of missile range');
+        }
+
+        // Check if attacker has missiles
+        $missileCount = $planet->getObjectAmount('interplanetary_missile');
+        if ($missileCount <= 0) {
+            return new MissionPossibleStatus(false, 'No missiles available');
+        }
+
+        return new MissionPossibleStatus(true);
+    }
+
+    /**
+     * Calculate distance in systems between two coordinates.
+     *
+     * @param Coordinate $from
+     * @param Coordinate $to
+     * @return int
+     */
+    private function calculateSystemDistance(Coordinate $from, Coordinate $to): int
+    {
+        // In the same galaxy and system = 0 distance
+        if ($from->galaxy === $to->galaxy && $from->system === $to->system) {
+            return 0;
+        }
+
+        // Different galaxy = not allowed (missiles can't cross galaxies)
+        if ($from->galaxy !== $to->galaxy) {
+            return PHP_INT_MAX; // Return very large number to make it out of range
+        }
+
+        // Same galaxy, different system
+        return abs($from->system - $to->system);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function processArrival(FleetMission $mission): void
+    {
+        $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        $attackerPlanet = $this->planetServiceFactory->make($mission->planet_id_from, true);
+
+        // Trigger defender planet update
+        $defenderPlanet->update();
+
+        // Get number of missiles sent
+        $missileCount = $mission->interplanetary_missile ?? 0;
+
+        // Get defender's ABM count
+        $abmCount = $defenderPlanet->getObjectAmount('anti_ballistic_missile');
+
+        // Calculate how many missiles get through
+        $interceptedMissiles = min($missileCount, $abmCount);
+        $effectiveMissiles = $missileCount - $interceptedMissiles;
+
+        // Remove intercepted ABMs from defender
+        if ($interceptedMissiles > 0) {
+            $defenderPlanet->removeUnit('anti_ballistic_missile', $interceptedMissiles);
+        }
+
+        // Calculate defense destruction
+        $destroyedDefenses = $this->calculateDefenseDestruction($defenderPlanet, $effectiveMissiles);
+
+        // Remove destroyed defenses
+        if ($destroyedDefenses->getAmount() > 0) {
+            $defenderPlanet->removeUnits($destroyedDefenses, false);
+        }
+
+        $defenderPlanet->save();
+
+        // Send messages to both players
+        $this->sendMissileAttackMessages($attackerPlanet, $defenderPlanet, $missileCount, $interceptedMissiles, $effectiveMissiles, $destroyedDefenses);
+
+        // Mark mission as processed
+        $mission->processed = 1;
+        $mission->save();
+    }
+
+    /**
+     * Calculate which defenses are destroyed by missiles.
+     * Each missile destroys defenses worth up to its attack power (12,000).
+     *
+     * @param PlanetService $defenderPlanet
+     * @param int $missileCount
+     * @return UnitCollection
+     */
+    private function calculateDefenseDestruction(PlanetService $defenderPlanet, int $missileCount): UnitCollection
+    {
+        $destroyedDefenses = new UnitCollection();
+
+        if ($missileCount <= 0) {
+            return $destroyedDefenses;
+        }
+
+        // Each missile has 12,000 attack power
+        $totalDestructionPower = $missileCount * 12000;
+
+        // Get all defense objects sorted by value (destroy cheapest first)
+        $defenseObjects = ObjectService::getDefenseObjects();
+
+        // Sort by price (metal + crystal + deuterium)
+        usort($defenseObjects, function($a, $b) {
+            $priceA = $a->price->metal + $a->price->crystal + $a->price->deuterium;
+            $priceB = $b->price->metal + $b->price->crystal + $b->price->deuterium;
+            return $priceA <=> $priceB;
+        });
+
+        // Destroy defenses starting with cheapest
+        foreach ($defenseObjects as $defense) {
+            if ($totalDestructionPower <= 0) {
+                break;
+            }
+
+            // Don't target missiles or shield domes
+            if (in_array($defense->machine_name, ['interplanetary_missile', 'anti_ballistic_missile', 'small_shield_dome', 'large_shield_dome'])) {
+                continue;
+            }
+
+            $defenseCount = $defenderPlanet->getObjectAmount($defense->machine_name);
+            if ($defenseCount <= 0) {
+                continue;
+            }
+
+            // Calculate how many of this defense can be destroyed
+            $defenseHullStrength = $defense->properties->hull;
+            $maxDestroyable = (int)($totalDestructionPower / $defenseHullStrength);
+            $actualDestroyed = min($maxDestroyable, $defenseCount);
+
+            if ($actualDestroyed > 0) {
+                $destroyedDefenses->addUnit($defense, $actualDestroyed);
+                $totalDestructionPower -= $actualDestroyed * $defenseHullStrength;
+            }
+        }
+
+        return $destroyedDefenses;
+    }
+
+    /**
+     * Send messages about the missile attack to both players.
+     *
+     * @param PlanetService $attackerPlanet
+     * @param PlanetService $defenderPlanet
+     * @param int $missileCount
+     * @param int $interceptedMissiles
+     * @param int $effectiveMissiles
+     * @param UnitCollection $destroyedDefenses
+     * @return void
+     */
+    private function sendMissileAttackMessages(PlanetService $attackerPlanet, PlanetService $defenderPlanet, int $missileCount, int $interceptedMissiles, int $effectiveMissiles, UnitCollection $destroyedDefenses): void
+    {
+        // Build message content
+        $defenderCoords = $defenderPlanet->getPlanetCoordinates();
+        $attackerCoords = $attackerPlanet->getPlanetCoordinates();
+
+        // Message to attacker
+        $attackerMessage = "Missile attack on [{$defenderCoords->galaxy}:{$defenderCoords->system}:{$defenderCoords->position}]\n\n";
+        $attackerMessage .= "Missiles launched: {$missileCount}\n";
+        $attackerMessage .= "Missiles intercepted: {$interceptedMissiles}\n";
+        $attackerMessage .= "Missiles hit: {$effectiveMissiles}\n\n";
+
+        if ($destroyedDefenses->getAmount() > 0) {
+            $attackerMessage .= "Destroyed defenses:\n";
+            foreach ($destroyedDefenses->units as $unit) {
+                $attackerMessage .= "- {$unit->unitObject->title}: {$unit->amount}\n";
+            }
+        } else {
+            $attackerMessage .= "No defenses were destroyed.\n";
+        }
+
+        $this->messageService->sendSystemMessageToPlayer(
+            $attackerPlanet->getPlayer(),
+            'Missile Attack Report',
+            $attackerMessage
+        );
+
+        // Message to defender
+        $defenderMessage = "Missile attack from [{$attackerCoords->galaxy}:{$attackerCoords->system}:{$attackerCoords->position}]\n\n";
+        $defenderMessage .= "Incoming missiles: {$missileCount}\n";
+        $defenderMessage .= "Missiles intercepted by ABMs: {$interceptedMissiles}\n";
+        $defenderMessage .= "Missiles that hit: {$effectiveMissiles}\n\n";
+
+        if ($destroyedDefenses->getAmount() > 0) {
+            $defenderMessage .= "Lost defenses:\n";
+            foreach ($destroyedDefenses->units as $unit) {
+                $defenderMessage .= "- {$unit->unitObject->title}: {$unit->amount}\n";
+            }
+        } else {
+            $defenderMessage .= "All missiles were intercepted or missed.\n";
+        }
+
+        $this->messageService->sendSystemMessageToPlayer(
+            $defenderPlanet->getPlayer(),
+            'Missile Attack Report',
+            $defenderMessage
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function processReturn(FleetMission $mission): void
+    {
+        // Missile missions don't have a return trip
+        $mission->processed = 1;
+        $mission->save();
+    }
+}

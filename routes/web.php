@@ -100,6 +100,7 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     // Galaxy
     Route::get('/galaxy', [GalaxyController::class, 'index'])->name('galaxy.index');
     Route::post('/ajax/galaxy', [GalaxyController::class, 'ajax'])->name('galaxy.ajax');
+    Route::post('/galaxy/missile-attack', [GalaxyController::class, 'missileAttack'])->name('galaxy.missile-attack');
 
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');
