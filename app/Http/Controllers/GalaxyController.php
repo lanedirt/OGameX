@@ -540,6 +540,71 @@ class GalaxyController extends OGameController
     }
 
     /**
+     * Show the missile attack overlay.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @return View
+     */
+    public function missileAttackOverlay(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): View
+    {
+        $currentPlanet = $player->planets->current();
+
+        // Get request parameters
+        $galaxy = $request->input('galaxy');
+        $system = $request->input('system');
+        $position = $request->input('position');
+        $type = $request->input('planetType', PlanetType::Planet->value);
+
+        // Create target coordinate
+        $targetCoordinate = new Planet\Coordinate($galaxy, $system, $position);
+
+        // Get target planet
+        $targetType = PlanetType::from($type);
+        $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetType);
+
+        // Calculate missile info
+        $availableMissiles = $currentPlanet->getObjectAmount('interplanetary_missile');
+        $missileRange = $player->getMissileRange();
+        $distance = abs($currentPlanet->getPlanetCoordinates()->system - $targetCoordinate->system);
+
+        // Check if attack is possible
+        $canAttack = true;
+        $errorMessage = '';
+
+        if ($targetPlanet === null) {
+            $canAttack = false;
+            $errorMessage = 'Target planet does not exist';
+        } elseif ($targetPlanet->getPlayer()->equals($player)) {
+            $canAttack = false;
+            $errorMessage = 'Cannot attack own planet';
+        } elseif ($currentPlanet->getPlanetCoordinates()->galaxy !== $targetCoordinate->galaxy) {
+            $canAttack = false;
+            $errorMessage = 'Missiles cannot cross galaxies';
+        } elseif ($distance > $missileRange) {
+            $canAttack = false;
+            $errorMessage = "Target is out of range (max: {$missileRange} systems)";
+        } elseif ($availableMissiles <= 0) {
+            $canAttack = false;
+            $errorMessage = 'No missiles available';
+        }
+
+        return view('ingame.galaxy.missileattack')->with([
+            'galaxy' => $galaxy,
+            'system' => $system,
+            'position' => $position,
+            'planetType' => $type,
+            'availableMissiles' => $availableMissiles,
+            'missileRange' => $missileRange,
+            'distance' => $distance,
+            'canAttack' => $canAttack,
+            'errorMessage' => $errorMessage,
+            'targetPlanet' => $targetPlanet,
+        ]);
+    }
+
+    /**
      * Handle missile attack from galaxy view.
      *
      * @param Request $request
