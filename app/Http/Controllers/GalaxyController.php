@@ -710,7 +710,7 @@ class GalaxyController extends OGameController
             $mission->time_arrival = (int)Carbon::now()->addSeconds($flightTime)->timestamp;
             // Store missile count in metal field (no dedicated column exists)
             $mission->metal = $missileCount;
-            $mission->parent_id = 0;
+            $mission->parent_id = null; // No parent mission for missile attacks
             $mission->canceled = 0;
             $mission->processed = 0;
             $mission->save();
