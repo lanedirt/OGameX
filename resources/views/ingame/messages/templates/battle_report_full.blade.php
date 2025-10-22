@@ -336,8 +336,8 @@
         <br class="clearfloat">
 
 @if ($repaired_defenses_count > 0)
-        <!-- Repaired Defenses (outside combat_participant to avoid JavaScript updates) -->
-        <div class="combat_participant defender">
+        <!-- Repaired Defenses (static section, not updated by combat round JavaScript) -->
+        <div class="repaired_defenses_section">
             <div class="section_title">
                 <div class="c-left"></div>
                 <div class="c-right"></div>
@@ -351,7 +351,7 @@
                 <li class="{{ $loop->even ? 'odd' : '' }}">
                     <div class="defenseimg defense{{ $unit->unitObject->id }} on">
                         <span class="detail_shipname">{{ $unit->unitObject->title }}</span>
-                        <span class="detail_shipsleft ecke repaired_defense_count">{{ $unit->amount }}</span>
+                        <span class="repaired_count" style="float:right; line-height:28px; font-weight:bold; text-align:right;">{{ $unit->amount }}</span>
                     </div>
                 </li>
 @endforeach
