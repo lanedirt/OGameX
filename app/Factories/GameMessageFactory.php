@@ -29,6 +29,8 @@ class GameMessageFactory
     'espionage_report' => \OGame\GameMessages\EspionageReport::class,
     'espionage_detected' => \OGame\GameMessages\DefenderEspionageDetected::class,
         'battle_report' => \OGame\GameMessages\BattleReport::class,
+        'missile_attack_report' => \OGame\GameMessages\MissileAttackReport::class,
+        'missile_defense_report' => \OGame\GameMessages\MissileDefenseReport::class,
         'debris_field_harvest' => \OGame\GameMessages\DebrisFieldHarvest::class,
 
         'expedition_battle' => \OGame\GameMessages\ExpeditionBattle::class,
