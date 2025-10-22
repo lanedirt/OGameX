@@ -62,6 +62,7 @@
             }
         }, 1);
     </script>
+<script defer src="https://umami.mierau-kiss.de/script.js" data-website-id="78f0acb4-da82-4de8-b6bd-bcad6a566d17"></script>
 </head>
 <body id="{{ !empty($body_id) ? $body_id : 'ingamepage' }}" class="ogame lang-en default no-touch">
 <div id="initial_welcome_dialog" title="Welcome to OGame!" style="display: none;">
@@ -193,7 +194,7 @@
                     </span>
                     </div>
                 </div>
-                <div class="resource_tile population">
+                <!--<div class="resource_tile population">
                     <div id="population_box" class="population tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
                          title="Population|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>100</span></td></tr><tr><th>Living Space
 </th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Satisfied</th><td><span class=&quot;undermark&quot;>0</span></td></tr><tr><th>Hungry</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Growth rate</th><td><span class=&quot;&quot;>±0</span></td></tr><tr><th>Bunker Space
@@ -226,7 +227,7 @@
                         <span id="resources_darkmatter" data-raw="19890" class="overlay">19,890</span>
                     </span>
                     </div>
-                </div>
+                </div>-->
             </div>
         </div>
         <div id="commandercomponent" class="">
@@ -318,22 +319,28 @@ Combat simulation save slots +20">
 
     </div>
     <div id="left">
-        <div id="ipimenucomponent" class="">
-            <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable " title="" data-ipi-hint="ipiMenu">
-                <div id="ipimenucontent"><a
-                            href="#TODO_page=ajax&amp;component=ipioverview&amp;action=overviewLayer&amp;ajax=1"
-                            class="overlay textBeefy" data-overlay-title="" id="ipiInnerMenuContentHolder">
-                        <div class="ipiMenuHead">
-                            Directives
-                        </div>
-
-                        <div class="ipiMenuBody hidden"></div>
-                        <div class="ipiMenuFooter hidden"></div>
-                    </a>
+        <div id="<div id="toolbarcomponent" class="">
+<div id="ipimenucomponent" class="">
+    <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable" title="" data-ipi-hint="ipiMenu">
+        <div id="ipimenucontent">
+            <a href="https://discord.gg/n9uCcjQ7Xj"
+               class="textBeefy"
+               id="ipiInnerMenuContentHolder"
+               target="_blank"
+               rel="noopener"
+               title="Galaktischer Senat (Discord)"
+style="display: block; text-align: center; font-size: 12px; line-height: 1.1; padding: 4px 0;">
+                <div class="ipiMenuHead" style="line-height: 1.1; margin: 0; padding: 0;" >
+                    Galaktischer Senat (Discord)
                 </div>
-            </div>
+
+                <!-- keep placeholders so styling remains intact -->
+                <div class="ipiMenuBody hidden"></div>
+                <div class="ipiMenuFooter hidden"></div>
+            </a>
         </div>
-        <div id="toolbarcomponent" class="">
+    </div>
+</div>
             <div id="links">
                 <ul id="menuTable" class="leftmenu">
 
@@ -386,7 +393,7 @@ Combat simulation save slots +20">
                         </a>
                     </li>
 
-                    <li>
+                    <!--<li>
                         <span class="menu_icon">
                             <a href="{{ route('merchant.index') }}#page=traderResources&amp;animation=false"
                                class="trader tooltipRight js_hideTipOnMobile "
@@ -403,8 +410,7 @@ Combat simulation save slots +20">
                         >
                             <span class="textlabel">@lang('Merchant')</span>
                         </a>
-                    </li>
-
+                    </li>-->
                     <li>
                         <span class="menu_icon">
                             <a href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => 1, 'open' => 'all']) }}"
@@ -481,7 +487,7 @@ Combat simulation save slots +20">
                             <span class="textlabel">@lang('Galaxy')</span>
                         </a>
                     </li>
-
+                    <!--
                     <li>
                         <span class="menu_icon">
                             <div class="menuImage alliance {{(Request::is('alliance') ? 'highlighted' : '') }}"></div>
@@ -524,7 +530,7 @@ Combat simulation save slots +20">
                         >
                             <span class="textlabel">@lang('Shop')</span>
                         </a>
-                    </li>
+                    </li>-->
                 </ul>
 
                 <div id="toolLinksWrapper">
