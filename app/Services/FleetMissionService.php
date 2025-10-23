@@ -305,9 +305,10 @@ class FleetMissionService
         // 2: ACS Attack
         // 6: Espionage
         // 9: Moon Destruction
+        // 10: Missile Attack
         return $this->model->whereIn('planet_id_to', $planetIds)
             ->where('user_id', '!=', $this->player->getId())
-            ->whereIn('mission_type', [1, 2, 6, 9])
+            ->whereIn('mission_type', [1, 2, 6, 9, 10])
             ->where('processed', 0)
             ->exists();
     }
