@@ -723,7 +723,6 @@ class GalaxyController extends OGameController
                 'message' => "{$missileCount} missile(s) launched successfully",
                 'arrival_time' => $mission->time_arrival,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

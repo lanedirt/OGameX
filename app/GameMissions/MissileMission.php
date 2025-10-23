@@ -302,21 +302,21 @@ class MissileMission extends GameMission
     {
         if ($priority === 'cheapest') {
             // Sort by price ascending (cheapest first)
-            usort($defenseObjects, function($a, $b) {
+            usort($defenseObjects, function ($a, $b) {
                 $priceA = $a->price->resources->metal->get() + $a->price->resources->crystal->get() + $a->price->resources->deuterium->get();
                 $priceB = $b->price->resources->metal->get() + $b->price->resources->crystal->get() + $b->price->resources->deuterium->get();
                 return $priceA <=> $priceB;
             });
         } elseif ($priority === 'expensive') {
             // Sort by price descending (most expensive first)
-            usort($defenseObjects, function($a, $b) {
+            usort($defenseObjects, function ($a, $b) {
                 $priceA = $a->price->resources->metal->get() + $a->price->resources->crystal->get() + $a->price->resources->deuterium->get();
                 $priceB = $b->price->resources->metal->get() + $b->price->resources->crystal->get() + $b->price->resources->deuterium->get();
                 return $priceB <=> $priceA;
             });
         } else {
             // Specific defense type priority: put that type first, then sort rest by price ascending
-            usort($defenseObjects, function($a, $b) use ($priority) {
+            usort($defenseObjects, function ($a, $b) use ($priority) {
                 $aIsPriority = $a->machine_name === $priority;
                 $bIsPriority = $b->machine_name === $priority;
 
