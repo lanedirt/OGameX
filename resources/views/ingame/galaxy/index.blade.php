@@ -513,7 +513,8 @@
                                         overlayHtml += '<p class="textCenter" style="margin: 10px 0;">Target: <strong>[' + response.scanned_coordinates.galaxy + ':' +
                                                       response.scanned_coordinates.system + ':' +
                                                       response.scanned_coordinates.position + ']</strong></p>';
-                                        overlayHtml += '<p class="textCenter" style="margin-bottom: 15px;">Deuterium Cost: <strong>' + response.deuterium_cost.toLocaleString() + '</strong></p>';
+                                        overlayHtml += '<p class="textCenter" style="margin-bottom: 5px;">Deuterium Cost: <strong>' + response.deuterium_cost.toLocaleString() + '</strong></p>';
+                                        overlayHtml += '<p class="textCenter" style="margin-bottom: 15px; font-size: 11px; color: #848484; font-style: italic;">Note: Resources carried by fleets are not visible</p>';
 
                                         if (response.fleets.length > 0) {
                                             // Create fleet table similar to fleet events
@@ -559,10 +560,26 @@
                                                 overlayHtml += '<span>[' + fleet.origin.galaxy + ':' + fleet.origin.system + ':' + fleet.origin.position + ']</span>';
                                                 overlayHtml += '</td>';
 
-                                                // Ships
+                                                // Ships (with tooltip showing composition)
+                                                var shipTooltip = '<div class="htmlTooltip">';
+                                                shipTooltip += '<h1>Fleet Composition:</h1>';
+                                                shipTooltip += '<div class="splitLine"></div>';
+                                                shipTooltip += '<table cellpadding="0" cellspacing="0" class="fleetinfo">';
+                                                shipTooltip += '<tr><th colspan="3">Ships:</th></tr>';
+                                                fleet.ship_details.forEach(function(ship) {
+                                                    shipTooltip += '<tr>';
+                                                    shipTooltip += '<td colspan="2">' + ship.name + ':</td>';
+                                                    shipTooltip += '<td class="value">' + ship.count.toLocaleString() + '</td>';
+                                                    shipTooltip += '</tr>';
+                                                });
+                                                shipTooltip += '</table>';
+                                                shipTooltip += '</div>';
+
                                                 overlayHtml += '<td style="padding: 10px; text-align: center; vertical-align: middle;">';
-                                                overlayHtml += '<div style="font-weight: bold; font-size: 14px;">' + fleet.total_ships.toLocaleString() + '</div>';
-                                                overlayHtml += '<div style="font-size: 11px; color: #848484;">ships</div>';
+                                                overlayHtml += '<span class="tooltip tooltipRight tooltipClose" title="' + shipTooltip.replace(/"/g, '&quot;') + '">';
+                                                overlayHtml += '<div style="font-weight: bold; font-size: 14px; cursor: help;">' + fleet.total_ships.toLocaleString() + '</div>';
+                                                overlayHtml += '<div style="font-size: 11px; color: #848484; cursor: help;">ships</div>';
+                                                overlayHtml += '</span>';
                                                 overlayHtml += '</td>';
 
                                                 // Destination

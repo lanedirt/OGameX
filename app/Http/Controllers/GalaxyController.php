@@ -805,6 +805,12 @@ class GalaxyController extends OGameController
                 ]);
             }
 
+            // Moons cannot be scanned with sensor phalanx (per game rules)
+            // Position 16 would be expedition, which also can't be scanned
+            // For now, we only allow scanning regular planet positions (1-15)
+            // Note: We don't have a way to check if it's a moon vs planet without loading it
+            // The scan will simply show no fleets if scanning a moon
+
             // Check if player has a moon with phalanx in range
             $moon = $player->getMoonWithPhalanxInRange($galaxy, $system, $position);
             if ($moon === null) {
@@ -867,6 +873,23 @@ class GalaxyController extends OGameController
                 15 => 'Expedition',
             ];
 
+            // Ship names for display
+            $shipNames = [
+                'small_cargo' => 'Small Cargo',
+                'large_cargo' => 'Large Cargo',
+                'light_fighter' => 'Light Fighter',
+                'heavy_fighter' => 'Heavy Fighter',
+                'cruiser' => 'Cruiser',
+                'battle_ship' => 'Battleship',
+                'battlecruiser' => 'Battlecruiser',
+                'bomber' => 'Bomber',
+                'destroyer' => 'Destroyer',
+                'deathstar' => 'Deathstar',
+                'colony_ship' => 'Colony Ship',
+                'recycler' => 'Recycler',
+                'espionage_probe' => 'Espionage Probe',
+            ];
+
             // Format fleet information for response
             $fleetData = [];
             foreach ($fleets as $fleet) {
@@ -885,6 +908,18 @@ class GalaxyController extends OGameController
                 // Determine if fleet is incoming or outgoing
                 $isIncoming = ($fleet->galaxy_to == $galaxy && $fleet->system_to == $system && $fleet->position_to == $position);
 
+                // Build detailed ship composition
+                $shipDetails = [];
+                foreach ($shipNames as $shipKey => $shipLabel) {
+                    $count = $fleet->{$shipKey};
+                    if ($count > 0) {
+                        $shipDetails[] = [
+                            'name' => $shipLabel,
+                            'count' => $count,
+                        ];
+                    }
+                }
+
                 $fleetData[] = [
                     'mission_type' => $fleet->mission_type,
                     'mission_name' => $missionNames[$fleet->mission_type] ?? 'Unknown',
@@ -893,6 +928,7 @@ class GalaxyController extends OGameController
                     'time_arrival' => $fleet->time_arrival,
                     'time_departure' => $fleet->time_departure,
                     'total_ships' => $totalShips,
+                    'ship_details' => $shipDetails,
                     'origin' => [
                         'galaxy' => $fleet->galaxy_from,
                         'system' => $fleet->system_from,
@@ -902,21 +938,6 @@ class GalaxyController extends OGameController
                         'galaxy' => $fleet->galaxy_to,
                         'system' => $fleet->system_to,
                         'position' => $fleet->position_to,
-                    ],
-                    'ships' => [
-                        'small_cargo' => $fleet->small_cargo,
-                        'large_cargo' => $fleet->large_cargo,
-                        'light_fighter' => $fleet->light_fighter,
-                        'heavy_fighter' => $fleet->heavy_fighter,
-                        'cruiser' => $fleet->cruiser,
-                        'battle_ship' => $fleet->battle_ship,
-                        'battlecruiser' => $fleet->battlecruiser,
-                        'bomber' => $fleet->bomber,
-                        'destroyer' => $fleet->destroyer,
-                        'deathstar' => $fleet->deathstar,
-                        'colony_ship' => $fleet->colony_ship,
-                        'recycler' => $fleet->recycler,
-                        'espionage_probe' => $fleet->espionage_probe,
                     ],
                 ];
             }
