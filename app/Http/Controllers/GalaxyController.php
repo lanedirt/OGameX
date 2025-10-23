@@ -122,13 +122,21 @@ class GalaxyController extends OGameController
     {
         $availableMissions = $this->getAvailableMissions($galaxy, $system, $position, $planet);
         $planets_array = $this->createPlanetsArray($planet, $availableMissions);
+        $actions = $this->getPlanetActions($planet);
+        $playerInfo = $this->getPlayerInfo($planet->getPlayer());
+
+        // Add phalanx data to player info (expected by JavaScript)
+        if (isset($actions['phalanx'])) {
+            $playerInfo['phalanx'] = $actions['phalanx'];
+            unset($actions['phalanx']); // Remove from actions as it's now in player
+        }
 
         return [
-            'actions' => $this->getPlanetActions($planet),
+            'actions' => $actions,
             'availableMissions' => [],
             'galaxy' => $galaxy,
             'planets' => $planets_array,
-            'player' => $this->getPlayerInfo($planet->getPlayer()),
+            'player' => $playerInfo,
             'position' => $position,
             'positionFilters' => '',
             'system' => $system,
@@ -350,6 +358,9 @@ class GalaxyController extends OGameController
             );
 
             if ($phalanxMoon !== null) {
+                // We have a phalanx in range
+                $canPhalanx = true;
+
                 // Calculate deuterium cost
                 $moonCoords = $phalanxMoon->getPlanetCoordinates();
                 $deuteriumCost = $this->playerService->calculatePhalanxCost(
@@ -360,9 +371,7 @@ class GalaxyController extends OGameController
                 );
 
                 // Check if moon has enough deuterium
-                if ($phalanxMoon->deuterium()->get() >= $deuteriumCost) {
-                    $canPhalanx = true;
-                } else {
+                if ($phalanxMoon->deuterium()->get() < $deuteriumCost) {
                     $phalanxInactive = true;
                 }
 
