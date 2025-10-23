@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\FleetMission;
 use OGame\Models\Planet;
+use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -375,8 +377,9 @@ class GalaxyController extends OGameController
                     $phalanxInactive = true;
                 }
 
-                // Build phalanx link (will be used by JavaScript)
-                $phalanxLink = '#';
+                // Build phalanx link with coordinates as data attributes
+                // Using javascript:void(0) to prevent navigation
+                $phalanxLink = 'javascript:void(0);';
             }
         }
 
@@ -394,6 +397,9 @@ class GalaxyController extends OGameController
                 'inactive' => $phalanxInactive,
                 'link' => $phalanxLink,
                 'title' => 'Sensor Phalanx',
+                'galaxy' => $coords->galaxy,
+                'system' => $coords->system,
+                'position' => $coords->position,
             ],
         ];
     }
@@ -826,7 +832,7 @@ class GalaxyController extends OGameController
             }
 
             // Deduct deuterium
-            $moon->deductResources(new \OGame\Models\Resources(0, 0, $deuteriumCost, 0));
+            $moon->deductResources(new Resources(0, 0, $deuteriumCost, 0));
 
             // Find all fleet missions to or from the target coordinates
             $fleets = FleetMission::where(function ($query) use ($galaxy, $system, $position) {

@@ -448,14 +448,31 @@
                 // Handle phalanx link clicks
                 $(document).on('click', 'a.phalanxlink', function(e) {
                     e.preventDefault();
+                    e.stopPropagation();
 
-                    // Get the row element to extract coordinates
-                    var $row = $(this).closest('.galaxyRow');
-                    var position = $row.attr('id').replace('galaxyRow', '');
+                    // Get coordinates from data attributes (set by the existing JS)
+                    var galaxy = $(this).data('galaxy');
+                    var system = $(this).data('system');
+                    var position = $(this).data('position');
 
-                    // Get current galaxy and system from the inputs
-                    var galaxy = parseInt($('#galaxy_input').val());
-                    var system = parseInt($('#system_input').val());
+                    // If coordinates aren't in data attributes, try to get from row context
+                    if (!galaxy || !system || !position) {
+                        var $row = $(this).closest('.galaxyRow');
+                        if ($row.length) {
+                            var rowId = $row.attr('id');
+                            if (rowId) {
+                                position = parseInt(rowId.replace('galaxyRow', ''));
+                            }
+                        }
+                        galaxy = parseInt($('#galaxy_input').val());
+                        system = parseInt($('#system_input').val());
+                    }
+
+                    // Validate coordinates
+                    if (!galaxy || !system || !position) {
+                        alert('Could not determine target coordinates');
+                        return false;
+                    }
 
                     // Get CSRF token
                     var csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -494,14 +511,25 @@
                                 }
 
                                 alert(message);
+
+                                // Reload galaxy to update deuterium display
+                                loadContentNew(galaxy, system);
                             } else {
                                 alert('Phalanx scan failed: ' + response.message);
                             }
                         },
                         error: function(xhr) {
-                            alert('Error performing phalanx scan: ' + (xhr.responseJSON?.message || 'Unknown error'));
+                            var errorMsg = 'Unknown error';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                errorMsg = xhr.responseText;
+                            }
+                            alert('Error performing phalanx scan: ' + errorMsg);
                         }
                     });
+
+                    return false;
                 });
             })(jQuery)
         </script>
