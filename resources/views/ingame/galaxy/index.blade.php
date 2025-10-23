@@ -444,6 +444,65 @@
                 initGalaxyNew();
                 $(document.documentElement).off( "keyup" );
                 $(document.documentElement).on( "keyup", keyevent );
+
+                // Handle phalanx link clicks
+                $(document).on('click', 'a.phalanxlink', function(e) {
+                    e.preventDefault();
+
+                    // Get the row element to extract coordinates
+                    var $row = $(this).closest('.galaxyRow');
+                    var position = $row.attr('id').replace('galaxyRow', '');
+
+                    // Get current galaxy and system from the inputs
+                    var galaxy = parseInt($('#galaxy_input').val());
+                    var system = parseInt($('#system_input').val());
+
+                    // Get CSRF token
+                    var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                    // Make AJAX request to phalanx scan endpoint
+                    $.ajax({
+                        url: '{{ route('galaxy.phalanx-scan') }}',
+                        type: 'POST',
+                        data: {
+                            _token: csrfToken,
+                            galaxy: galaxy,
+                            system: system,
+                            position: position
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                // Display results in a simple alert for now
+                                var message = 'Phalanx Scan Results:\n\n';
+                                message += 'Scanned: ' + response.scanned_coordinates.galaxy + ':' +
+                                          response.scanned_coordinates.system + ':' +
+                                          response.scanned_coordinates.position + '\n';
+                                message += 'Deuterium Cost: ' + response.deuterium_cost + '\n';
+                                message += 'Fleets Detected: ' + response.fleets.length + '\n\n';
+
+                                if (response.fleets.length > 0) {
+                                    response.fleets.forEach(function(fleet, index) {
+                                        message += 'Fleet ' + (index + 1) + ':\n';
+                                        message += '  Mission: ' + fleet.mission_type + '\n';
+                                        message += '  Direction: ' + fleet.direction + '\n';
+                                        message += '  Arrival: ' + new Date(fleet.time_arrival * 1000).toLocaleString() + '\n';
+                                        message += '  From: ' + fleet.origin.galaxy + ':' + fleet.origin.system + ':' + fleet.origin.position + '\n';
+                                        message += '  To: ' + fleet.destination.galaxy + ':' + fleet.destination.system + ':' + fleet.destination.position + '\n\n';
+                                    });
+                                } else {
+                                    message += 'No fleet movements detected.';
+                                }
+
+                                alert(message);
+                            } else {
+                                alert('Phalanx scan failed: ' + response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            alert('Error performing phalanx scan: ' + (xhr.responseJSON?.message || 'Unknown error'));
+                        }
+                    });
+                });
             })(jQuery)
         </script>
     </div>
