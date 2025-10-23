@@ -502,29 +502,27 @@
                                 },
                                 success: function(response) {
                                     if (response.success) {
-                                        // Create styled overlay for results
-                                        var overlayHtml = '<div class="phalanxResultsOverlay" style="display:none;">';
-                                        overlayHtml += '<div class="messagebox">';
-                                        overlayHtml += '<div id="message"><div id="inhalt"><div class="contentz">';
+                                        // Create styled overlay using original phalanx CSS
+                                        var overlayHtml = '<div id="phalanx" class="phalanxResultsOverlay" style="display:none; width:600px; background:#000 url(/img/icons/93b7d15b076b7ce5ba8e81f6249ec9.jpg) repeat-y 0; color:#848484; font-size:11px; padding:20px 25px; overflow-x:hidden;">';
 
                                         // Header
-                                        overlayHtml += '<h2 style="margin-bottom: 10px;">Sensor Phalanx Scan Results</h2>';
+                                        overlayHtml += '<h2 style="margin:0 0 15px 0; text-align:center; color:#fff; font-size:16px; font-weight:700;">Sensor Phalanx</h2>';
                                         overlayHtml += '<div class="splitLine"></div>';
-                                        overlayHtml += '<p class="textCenter" style="margin: 10px 0;">Target: <strong>[' + response.scanned_coordinates.galaxy + ':' +
+                                        overlayHtml += '<p style="text-align:center; margin:10px 0; color:#6f9fc8; font-size:12px;">Target: <strong style="color:#fff;">[' + response.scanned_coordinates.galaxy + ':' +
                                                       response.scanned_coordinates.system + ':' +
                                                       response.scanned_coordinates.position + ']</strong></p>';
-                                        overlayHtml += '<p class="textCenter" style="margin-bottom: 5px;">Deuterium Cost: <strong>' + response.deuterium_cost.toLocaleString() + '</strong></p>';
-                                        overlayHtml += '<p class="textCenter" style="margin-bottom: 15px; font-size: 11px; color: #848484; font-style: italic;">Note: Resources carried by fleets are not visible</p>';
+                                        overlayHtml += '<p style="text-align:center; margin:5px 0 15px; font-size:10px; color:#848484;">Deuterium: <strong style="color:#6f9fc8;">' + response.deuterium_cost.toLocaleString() + '</strong> | <em style="font-style:italic;">Resources not visible</em></p>';
+                                        overlayHtml += '<div class="splitLine" style="margin-bottom:15px;"></div>';
 
                                         if (response.fleets.length > 0) {
-                                            // Create fleet table similar to fleet events
-                                            overlayHtml += '<table cellpadding="0" cellspacing="0" style="width: 100%; margin: 10px 0;">';
+                                            // Use original phalanx table styling
+                                            overlayHtml += '<table cellpadding="0" cellspacing="0" style="margin:0 auto 15px; width:550px; border-collapse:collapse;">';
                                             overlayHtml += '<thead><tr>';
-                                            overlayHtml += '<th style="padding: 8px; text-align: left;">Time</th>';
-                                            overlayHtml += '<th style="padding: 8px; text-align: center;">Mission</th>';
-                                            overlayHtml += '<th style="padding: 8px; text-align: left;">Origin</th>';
-                                            overlayHtml += '<th style="padding: 8px; text-align: center;">Ships</th>';
-                                            overlayHtml += '<th style="padding: 8px; text-align: left;">Destination</th>';
+                                            overlayHtml += '<th style="font-weight:700; text-align:center; color:#fff; background:transparent url(/img/icons/4656f6475859e05f618e81c8d31bee.gif) repeat-x; height:20px; border:1px solid #161A20; padding:5px; font-size:11px;">Countdown</th>';
+                                            overlayHtml += '<th style="font-weight:700; text-align:center; color:#fff; background:transparent url(/img/icons/4656f6475859e05f618e81c8d31bee.gif) repeat-x; height:20px; border:1px solid #161A20; padding:5px; font-size:11px;">Mission</th>';
+                                            overlayHtml += '<th style="font-weight:700; text-align:center; color:#fff; background:transparent url(/img/icons/4656f6475859e05f618e81c8d31bee.gif) repeat-x; height:20px; border:1px solid #161A20; padding:5px; font-size:11px;">From</th>';
+                                            overlayHtml += '<th style="font-weight:700; text-align:center; color:#fff; background:transparent url(/img/icons/4656f6475859e05f618e81c8d31bee.gif) repeat-x; height:20px; border:1px solid #161A20; padding:5px; font-size:11px;">Fleet</th>';
+                                            overlayHtml += '<th style="font-weight:700; text-align:center; color:#fff; background:transparent url(/img/icons/4656f6475859e05f618e81c8d31bee.gif) repeat-x; height:20px; border:1px solid #161A20; padding:5px; font-size:11px;">To</th>';
                                             overlayHtml += '</tr></thead>';
                                             overlayHtml += '<tbody>';
 
@@ -537,30 +535,31 @@
                                                 var seconds = timeUntilArrival % 60;
                                                 var timeRemaining = hours + 'h ' + minutes + 'm ' + seconds + 's';
 
+                                                // Use original phalanx row classes: friendly (green), neutral (yellow), hostile (red)
                                                 var rowClass = fleet.direction === 'incoming' ? 'hostile' : 'neutral';
                                                 var missionIcon = '/img/fleet/' + fleet.mission_type + '.gif';
 
-                                                overlayHtml += '<tr class="eventFleet" style="border-bottom: 1px solid #0d1014;">';
+                                                overlayHtml += '<tr class="' + rowClass + '">';
 
-                                                // Time
-                                                overlayHtml += '<td style="padding: 10px; vertical-align: middle;">';
-                                                overlayHtml += '<div style="font-weight: bold; color: #6f9fc8;">' + timeRemaining + '</div>';
-                                                overlayHtml += '<div style="font-size: 11px; color: #848484;">' + arrivalDate.toLocaleTimeString() + '</div>';
+                                                // Countdown
+                                                overlayHtml += '<td class="countdown" style="background-color:#23212D; border:1px solid #161A20; vertical-align:middle; padding:8px 10px; text-align:center; font-weight:700;">';
+                                                overlayHtml += '<div>' + timeRemaining + '</div>';
+                                                overlayHtml += '<div style="font-size:10px; font-weight:normal; opacity:0.8;">' + arrivalDate.toLocaleTimeString() + '</div>';
                                                 overlayHtml += '</td>';
 
                                                 // Mission
-                                                overlayHtml += '<td style="padding: 10px; text-align: center; vertical-align: middle;">';
-                                                overlayHtml += '<img src="' + missionIcon + '" alt="' + fleet.mission_name + '" title="' + fleet.mission_name + '" style="display: block; margin: 0 auto 5px;"/>';
-                                                overlayHtml += '<div style="font-size: 11px; color: ' + (fleet.direction === 'incoming' ? '#d43635' : '#848484') + ';">' + fleet.direction.toUpperCase() + '</div>';
+                                                overlayHtml += '<td class="text" style="background-color:#23212D; border:1px solid #161A20; padding:5px; text-align:center;">';
+                                                overlayHtml += '<img src="' + missionIcon + '" alt="' + fleet.mission_name + '" title="' + fleet.mission_name + '" style="display:block; margin:0 auto 3px;"/>';
+                                                overlayHtml += '<div style="font-size:10px; text-transform:uppercase; font-weight:700;">' + fleet.direction + '</div>';
                                                 overlayHtml += '</td>';
 
                                                 // Origin
-                                                overlayHtml += '<td style="padding: 10px; vertical-align: middle;">';
-                                                overlayHtml += '<figure class="planetIcon planet" style="display: inline-block; margin-right: 5px;"></figure>';
-                                                overlayHtml += '<span>[' + fleet.origin.galaxy + ':' + fleet.origin.system + ':' + fleet.origin.position + ']</span>';
+                                                overlayHtml += '<td class="text" style="background-color:#23212D; border:1px solid #161A20; padding:5px; text-align:center;">';
+                                                overlayHtml += '<figure class="planetIcon planet" style="display:inline-block; margin:0 3px 0 0;"></figure>';
+                                                overlayHtml += '<a href="/galaxy?galaxy=' + fleet.origin.galaxy + '&system=' + fleet.origin.system + '" style="color:#fff; text-decoration:none;">[' + fleet.origin.galaxy + ':' + fleet.origin.system + ':' + fleet.origin.position + ']</a>';
                                                 overlayHtml += '</td>';
 
-                                                // Ships (with tooltip showing composition)
+                                                // Ships (with tooltip)
                                                 var shipTooltip = '<div class="htmlTooltip">';
                                                 shipTooltip += '<h1>Fleet Composition:</h1>';
                                                 shipTooltip += '<div class="splitLine"></div>';
@@ -572,20 +571,19 @@
                                                     shipTooltip += '<td class="value">' + ship.count.toLocaleString() + '</td>';
                                                     shipTooltip += '</tr>';
                                                 });
-                                                shipTooltip += '</table>';
-                                                shipTooltip += '</div>';
+                                                shipTooltip += '</table></div>';
 
-                                                overlayHtml += '<td style="padding: 10px; text-align: center; vertical-align: middle;">';
+                                                overlayHtml += '<td class="text" style="background-color:#23212D; border:1px solid #161A20; padding:5px; text-align:center;">';
                                                 overlayHtml += '<span class="tooltip tooltipRight tooltipClose" title="' + shipTooltip.replace(/"/g, '&quot;') + '">';
-                                                overlayHtml += '<div style="font-weight: bold; font-size: 14px; cursor: help;">' + fleet.total_ships.toLocaleString() + '</div>';
-                                                overlayHtml += '<div style="font-size: 11px; color: #848484; cursor: help;">ships</div>';
+                                                overlayHtml += '<div style="font-weight:700; font-size:13px; cursor:help;">' + fleet.total_ships.toLocaleString() + '</div>';
+                                                overlayHtml += '<div style="font-size:10px; opacity:0.8; cursor:help;">ships</div>';
                                                 overlayHtml += '</span>';
                                                 overlayHtml += '</td>';
 
                                                 // Destination
-                                                overlayHtml += '<td style="padding: 10px; vertical-align: middle;">';
-                                                overlayHtml += '<figure class="planetIcon planet" style="display: inline-block; margin-right: 5px;"></figure>';
-                                                overlayHtml += '<span>[' + fleet.destination.galaxy + ':' + fleet.destination.system + ':' + fleet.destination.position + ']</span>';
+                                                overlayHtml += '<td class="text" style="background-color:#23212D; border:1px solid #161A20; padding:5px; text-align:center;">';
+                                                overlayHtml += '<figure class="planetIcon planet" style="display:inline-block; margin:0 3px 0 0;"></figure>';
+                                                overlayHtml += '<a href="/galaxy?galaxy=' + fleet.destination.galaxy + '&system=' + fleet.destination.system + '" style="color:#fff; text-decoration:none;">[' + fleet.destination.galaxy + ':' + fleet.destination.system + ':' + fleet.destination.position + ']</a>';
                                                 overlayHtml += '</td>';
 
                                                 overlayHtml += '</tr>';
@@ -593,16 +591,15 @@
 
                                             overlayHtml += '</tbody></table>';
                                         } else {
-                                            overlayHtml += '<div class="splitLine"></div>';
-                                            overlayHtml += '<p class="textCenter" style="padding: 30px; font-size: 14px; color: #848484;">No fleet movements detected at this location.</p>';
+                                            overlayHtml += '<p style="text-align:center; padding:30px 20px; font-size:12px; color:#848484;">No fleet movements detected at this location.</p>';
                                             overlayHtml += '<div class="splitLine"></div>';
                                         }
 
-                                        overlayHtml += '<div class="textCenter" style="padding: 15px 0 10px;">';
-                                        overlayHtml += '<button class="btn_blue closePhalanxOverlay">Close</button>';
+                                        overlayHtml += '<div style="text-align:center; padding:15px 0 5px;">';
+                                        overlayHtml += '<button class="btn_blue closePhalanxOverlay" style="min-width:120px;">Close</button>';
                                         overlayHtml += '</div>';
 
-                                        overlayHtml += '</div></div></div></div></div>';
+                                        overlayHtml += '</div>';
 
                                         // Remove any existing overlay
                                         $('.phalanxResultsOverlay').remove();
@@ -612,10 +609,10 @@
 
                                         $('.phalanxResultsOverlay').dialog({
                                             modal: true,
-                                            width: 850,
+                                            width: 620,
                                             height: 'auto',
-                                            maxHeight: 650,
-                                            title: 'Sensor Phalanx',
+                                            maxHeight: 700,
+                                            title: false,
                                             dialogClass: 'phalanx-dialog',
                                             close: function() {
                                                 $(this).dialog('destroy').remove();
