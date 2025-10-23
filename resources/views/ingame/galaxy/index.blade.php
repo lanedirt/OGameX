@@ -502,41 +502,113 @@
                                 },
                                 success: function(response) {
                                     if (response.success) {
-                                        // Display results in a simple alert for now
-                                        var message = 'Phalanx Scan Results:\n\n';
-                                        message += 'Scanned: ' + response.scanned_coordinates.galaxy + ':' +
-                                                  response.scanned_coordinates.system + ':' +
-                                                  response.scanned_coordinates.position + '\n';
-                                        message += 'Deuterium Cost: ' + response.deuterium_cost + '\n';
-                                        message += 'Fleets Detected: ' + response.fleets.length + '\n\n';
+                                        // Create styled overlay for results
+                                        var overlayHtml = '<div class="phalanxResultsOverlay" style="display:none;">';
+                                        overlayHtml += '<div class="messagebox">';
+                                        overlayHtml += '<div id="message"><div id="inhalt"><div class="contentz">';
+
+                                        // Header
+                                        overlayHtml += '<h2 style="margin-bottom: 10px;">Sensor Phalanx Scan Results</h2>';
+                                        overlayHtml += '<div class="splitLine"></div>';
+                                        overlayHtml += '<p class="textCenter" style="margin: 10px 0;">Target: <strong>[' + response.scanned_coordinates.galaxy + ':' +
+                                                      response.scanned_coordinates.system + ':' +
+                                                      response.scanned_coordinates.position + ']</strong></p>';
+                                        overlayHtml += '<p class="textCenter" style="margin-bottom: 15px;">Deuterium Cost: <strong>' + response.deuterium_cost.toLocaleString() + '</strong></p>';
 
                                         if (response.fleets.length > 0) {
-                                            response.fleets.forEach(function(fleet, index) {
+                                            // Create fleet table similar to fleet events
+                                            overlayHtml += '<table cellpadding="0" cellspacing="0" style="width: 100%; margin: 10px 0;">';
+                                            overlayHtml += '<thead><tr>';
+                                            overlayHtml += '<th style="padding: 8px; text-align: left;">Time</th>';
+                                            overlayHtml += '<th style="padding: 8px; text-align: center;">Mission</th>';
+                                            overlayHtml += '<th style="padding: 8px; text-align: left;">Origin</th>';
+                                            overlayHtml += '<th style="padding: 8px; text-align: center;">Ships</th>';
+                                            overlayHtml += '<th style="padding: 8px; text-align: left;">Destination</th>';
+                                            overlayHtml += '</tr></thead>';
+                                            overlayHtml += '<tbody>';
+
+                                            response.fleets.forEach(function(fleet) {
                                                 var arrivalDate = new Date(fleet.time_arrival * 1000);
                                                 var now = new Date();
                                                 var timeUntilArrival = Math.floor((arrivalDate - now) / 1000);
                                                 var hours = Math.floor(timeUntilArrival / 3600);
                                                 var minutes = Math.floor((timeUntilArrival % 3600) / 60);
                                                 var seconds = timeUntilArrival % 60;
+                                                var timeRemaining = hours + 'h ' + minutes + 'm ' + seconds + 's';
 
-                                                message += '═══════════════════════════════\n';
-                                                message += 'Fleet #' + (index + 1) + '\n';
-                                                message += '═══════════════════════════════\n';
-                                                message += 'Mission: ' + fleet.mission_name + ' (' + fleet.direction.toUpperCase() + ')\n';
-                                                message += 'Ships: ' + fleet.total_ships + '\n';
-                                                message += 'From: [' + fleet.origin.galaxy + ':' + fleet.origin.system + ':' + fleet.origin.position + ']\n';
-                                                message += 'To: [' + fleet.destination.galaxy + ':' + fleet.destination.system + ':' + fleet.destination.position + ']\n';
-                                                message += 'Arrival: ' + arrivalDate.toLocaleString() + '\n';
-                                                if (timeUntilArrival > 0) {
-                                                    message += 'Time remaining: ' + hours + 'h ' + minutes + 'm ' + seconds + 's\n';
-                                                }
-                                                message += '\n';
+                                                var rowClass = fleet.direction === 'incoming' ? 'hostile' : 'neutral';
+                                                var missionIcon = '/img/fleet/' + fleet.mission_type + '.gif';
+
+                                                overlayHtml += '<tr class="eventFleet" style="border-bottom: 1px solid #0d1014;">';
+
+                                                // Time
+                                                overlayHtml += '<td style="padding: 10px; vertical-align: middle;">';
+                                                overlayHtml += '<div style="font-weight: bold; color: #6f9fc8;">' + timeRemaining + '</div>';
+                                                overlayHtml += '<div style="font-size: 11px; color: #848484;">' + arrivalDate.toLocaleTimeString() + '</div>';
+                                                overlayHtml += '</td>';
+
+                                                // Mission
+                                                overlayHtml += '<td style="padding: 10px; text-align: center; vertical-align: middle;">';
+                                                overlayHtml += '<img src="' + missionIcon + '" alt="' + fleet.mission_name + '" title="' + fleet.mission_name + '" style="display: block; margin: 0 auto 5px;"/>';
+                                                overlayHtml += '<div style="font-size: 11px; color: ' + (fleet.direction === 'incoming' ? '#d43635' : '#848484') + ';">' + fleet.direction.toUpperCase() + '</div>';
+                                                overlayHtml += '</td>';
+
+                                                // Origin
+                                                overlayHtml += '<td style="padding: 10px; vertical-align: middle;">';
+                                                overlayHtml += '<figure class="planetIcon planet" style="display: inline-block; margin-right: 5px;"></figure>';
+                                                overlayHtml += '<span>[' + fleet.origin.galaxy + ':' + fleet.origin.system + ':' + fleet.origin.position + ']</span>';
+                                                overlayHtml += '</td>';
+
+                                                // Ships
+                                                overlayHtml += '<td style="padding: 10px; text-align: center; vertical-align: middle;">';
+                                                overlayHtml += '<div style="font-weight: bold; font-size: 14px;">' + fleet.total_ships.toLocaleString() + '</div>';
+                                                overlayHtml += '<div style="font-size: 11px; color: #848484;">ships</div>';
+                                                overlayHtml += '</td>';
+
+                                                // Destination
+                                                overlayHtml += '<td style="padding: 10px; vertical-align: middle;">';
+                                                overlayHtml += '<figure class="planetIcon planet" style="display: inline-block; margin-right: 5px;"></figure>';
+                                                overlayHtml += '<span>[' + fleet.destination.galaxy + ':' + fleet.destination.system + ':' + fleet.destination.position + ']</span>';
+                                                overlayHtml += '</td>';
+
+                                                overlayHtml += '</tr>';
                                             });
+
+                                            overlayHtml += '</tbody></table>';
                                         } else {
-                                            message += 'No fleet movements detected.';
+                                            overlayHtml += '<div class="splitLine"></div>';
+                                            overlayHtml += '<p class="textCenter" style="padding: 30px; font-size: 14px; color: #848484;">No fleet movements detected at this location.</p>';
+                                            overlayHtml += '<div class="splitLine"></div>';
                                         }
 
-                                        alert(message);
+                                        overlayHtml += '<div class="textCenter" style="padding: 15px 0 10px;">';
+                                        overlayHtml += '<button class="btn_blue closePhalanxOverlay">Close</button>';
+                                        overlayHtml += '</div>';
+
+                                        overlayHtml += '</div></div></div></div></div>';
+
+                                        // Remove any existing overlay
+                                        $('.phalanxResultsOverlay').remove();
+
+                                        // Add to body and show with jQuery UI dialog
+                                        $('body').append(overlayHtml);
+
+                                        $('.phalanxResultsOverlay').dialog({
+                                            modal: true,
+                                            width: 850,
+                                            height: 'auto',
+                                            maxHeight: 650,
+                                            title: 'Sensor Phalanx',
+                                            dialogClass: 'phalanx-dialog',
+                                            close: function() {
+                                                $(this).dialog('destroy').remove();
+                                            }
+                                        });
+
+                                        // Close button handler
+                                        $('.closePhalanxOverlay').on('click', function() {
+                                            $('.phalanxResultsOverlay').dialog('close');
+                                        });
 
                                         // Reload galaxy to update deuterium display
                                         loadContentNew(galaxy, system);
