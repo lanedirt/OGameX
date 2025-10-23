@@ -54,7 +54,20 @@
                                                            min="1"
                                                            max="{{ $availableMissiles }}"
                                                            style="width: 100px; margin: 10px;">
-                                                    <br>
+                                                    <br><br>
+
+                                                    <label for="targetPriority">Target Priority:</label><br>
+                                                    <select id="targetPriority" name="target_priority" style="width: 200px; height: 25px; margin: 10px; padding: 3px; font-size: 11px; background: #0d1014; color: #6f9fc8; border: 1px solid #4a5968; visibility: visible !important; display: inline-block !important;">
+                                                        <option value="cheapest">Cheapest First (Default)</option>
+                                                        <option value="expensive">Most Expensive First</option>
+                                                        <option value="rocket_launcher">Rocket Launchers</option>
+                                                        <option value="light_laser">Light Lasers</option>
+                                                        <option value="heavy_laser">Heavy Lasers</option>
+                                                        <option value="gauss_cannon">Gauss Cannons</option>
+                                                        <option value="ion_cannon">Ion Cannons</option>
+                                                        <option value="plasma_turret">Plasma Turrets</option>
+                                                    </select>
+                                                    <br><br>
                                                     <button type="submit" class="btn_blue buttonSave">Launch Missiles</button>
                                                 </form>
                                             </td>
@@ -95,11 +108,11 @@ $(document).ready(function() {
                 if (response.success) {
                     // Show success message
                     fadeBox(response.message, false);
-                    // Close the overlay
-                    closeOverlay();
+                    // Close the overlay using jQuery dialog
+                    $('.missile_attack_layer').closest('.ui-dialog-content').dialog('close');
                     // Refresh the galaxy view to show updated missile count
-                    if (typeof reloadGalaxy === 'function') {
-                        reloadGalaxy();
+                    if (typeof submitForm === 'function') {
+                        submitForm();
                     }
                 } else {
                     fadeBox(response.message || 'An error occurred', true);

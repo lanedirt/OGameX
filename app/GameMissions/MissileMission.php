@@ -117,8 +117,8 @@ class MissileMission extends GameMission
             $defenderPlanet->removeUnit('anti_ballistic_missile', $interceptedMissiles);
         }
 
-        // Calculate defense destruction with proper OGame formula
-        $destroyedDefenses = $this->calculateDefenseDestruction($defenderPlanet, $defenderPlayer, $effectiveMissiles, $attackerPlayer);
+        // Calculate defense destruction with proper OGame formula and target priority
+        $destroyedDefenses = $this->calculateDefenseDestruction($defenderPlanet, $defenderPlayer, $effectiveMissiles, $attackerPlayer, $mission);
 
         // Remove destroyed defenses
         if ($destroyedDefenses->getAmount() > 0) {
@@ -147,9 +147,10 @@ class MissileMission extends GameMission
      * @param \OGame\Services\PlayerService $defenderPlayer
      * @param int $missileCount
      * @param \OGame\Services\PlayerService $attackerPlayer
+     * @param FleetMission $mission
      * @return UnitCollection
      */
-    private function calculateDefenseDestruction(PlanetService $defenderPlanet, $defenderPlayer, int $missileCount, $attackerPlayer): UnitCollection
+    private function calculateDefenseDestruction(PlanetService $defenderPlanet, $defenderPlayer, int $missileCount, $attackerPlayer, FleetMission $mission): UnitCollection
     {
         $destroyedDefenses = new UnitCollection();
 
@@ -165,17 +166,15 @@ class MissileMission extends GameMission
         // Formula: Number of IPMs × 12,000 × (1 + 0.1 × Weapon Tech)
         $totalDestructionPower = $missileCount * 12000 * (1 + 0.1 * $weaponTech);
 
-        // Get all defense objects sorted by value (destroy cheapest first)
+        // Get target priority from mission (stored in crystal field)
+        $priorityCode = (int)$mission->crystal;
+        $targetPriority = $this->decodePriority($priorityCode);
+
+        // Get all defense objects and sort by priority
         $defenseObjects = ObjectService::getDefenseObjects();
+        $this->sortDefensesByPriority($defenseObjects, $targetPriority);
 
-        // Sort by price (metal + crystal + deuterium)
-        usort($defenseObjects, function($a, $b) {
-            $priceA = $a->price->resources->metal->get() + $a->price->resources->crystal->get() + $a->price->resources->deuterium->get();
-            $priceB = $b->price->resources->metal->get() + $b->price->resources->crystal->get() + $b->price->resources->deuterium->get();
-            return $priceA <=> $priceB;
-        });
-
-        // Destroy defenses starting with cheapest
+        // Destroy defenses based on target priority
         foreach ($defenseObjects as $defense) {
             if ($totalDestructionPower <= 0) {
                 break;
@@ -268,6 +267,73 @@ class MissileMission extends GameMission
                 'defenses_destroyed' => $defensesDestroyedText,
             ]
         );
+    }
+
+    /**
+     * Decode numeric priority code to string.
+     *
+     * @param int $code
+     * @return string
+     */
+    private function decodePriority(int $code): string
+    {
+        $priorityMap = [
+            0 => 'cheapest',
+            1 => 'expensive',
+            2 => 'rocket_launcher',
+            3 => 'light_laser',
+            4 => 'heavy_laser',
+            5 => 'gauss_cannon',
+            6 => 'ion_cannon',
+            7 => 'plasma_turret',
+        ];
+
+        return $priorityMap[$code] ?? 'cheapest';
+    }
+
+    /**
+     * Sort defenses array by the given priority strategy.
+     *
+     * @param array $defenseObjects
+     * @param string $priority
+     * @return void
+     */
+    private function sortDefensesByPriority(array &$defenseObjects, string $priority): void
+    {
+        if ($priority === 'cheapest') {
+            // Sort by price ascending (cheapest first)
+            usort($defenseObjects, function($a, $b) {
+                $priceA = $a->price->resources->metal->get() + $a->price->resources->crystal->get() + $a->price->resources->deuterium->get();
+                $priceB = $b->price->resources->metal->get() + $b->price->resources->crystal->get() + $b->price->resources->deuterium->get();
+                return $priceA <=> $priceB;
+            });
+        } elseif ($priority === 'expensive') {
+            // Sort by price descending (most expensive first)
+            usort($defenseObjects, function($a, $b) {
+                $priceA = $a->price->resources->metal->get() + $a->price->resources->crystal->get() + $a->price->resources->deuterium->get();
+                $priceB = $b->price->resources->metal->get() + $b->price->resources->crystal->get() + $b->price->resources->deuterium->get();
+                return $priceB <=> $priceA;
+            });
+        } else {
+            // Specific defense type priority: put that type first, then sort rest by price ascending
+            usort($defenseObjects, function($a, $b) use ($priority) {
+                $aIsPriority = $a->machine_name === $priority;
+                $bIsPriority = $b->machine_name === $priority;
+
+                // Priority items come first
+                if ($aIsPriority && !$bIsPriority) {
+                    return -1;
+                }
+                if (!$aIsPriority && $bIsPriority) {
+                    return 1;
+                }
+
+                // Both are priority or both are not, sort by price
+                $priceA = $a->price->resources->metal->get() + $a->price->resources->crystal->get() + $a->price->resources->deuterium->get();
+                $priceB = $b->price->resources->metal->get() + $b->price->resources->crystal->get() + $b->price->resources->deuterium->get();
+                return $priceA <=> $priceB;
+            });
+        }
     }
 
     /**
