@@ -512,12 +512,25 @@
 
                                         if (response.fleets.length > 0) {
                                             response.fleets.forEach(function(fleet, index) {
-                                                message += 'Fleet ' + (index + 1) + ':\n';
-                                                message += '  Mission: ' + fleet.mission_type + '\n';
-                                                message += '  Direction: ' + fleet.direction + '\n';
-                                                message += '  Arrival: ' + new Date(fleet.time_arrival * 1000).toLocaleString() + '\n';
-                                                message += '  From: ' + fleet.origin.galaxy + ':' + fleet.origin.system + ':' + fleet.origin.position + '\n';
-                                                message += '  To: ' + fleet.destination.galaxy + ':' + fleet.destination.system + ':' + fleet.destination.position + '\n\n';
+                                                var arrivalDate = new Date(fleet.time_arrival * 1000);
+                                                var now = new Date();
+                                                var timeUntilArrival = Math.floor((arrivalDate - now) / 1000);
+                                                var hours = Math.floor(timeUntilArrival / 3600);
+                                                var minutes = Math.floor((timeUntilArrival % 3600) / 60);
+                                                var seconds = timeUntilArrival % 60;
+
+                                                message += '═══════════════════════════════\n';
+                                                message += 'Fleet #' + (index + 1) + '\n';
+                                                message += '═══════════════════════════════\n';
+                                                message += 'Mission: ' + fleet.mission_name + ' (' + fleet.direction.toUpperCase() + ')\n';
+                                                message += 'Ships: ' + fleet.total_ships + '\n';
+                                                message += 'From: [' + fleet.origin.galaxy + ':' + fleet.origin.system + ':' + fleet.origin.position + ']\n';
+                                                message += 'To: [' + fleet.destination.galaxy + ':' + fleet.destination.system + ':' + fleet.destination.position + ']\n';
+                                                message += 'Arrival: ' + arrivalDate.toLocaleString() + '\n';
+                                                if (timeUntilArrival > 0) {
+                                                    message += 'Time remaining: ' + hours + 'h ' + minutes + 'm ' + seconds + 's\n';
+                                                }
+                                                message += '\n';
                                             });
                                         } else {
                                             message += 'No fleet movements detected.';

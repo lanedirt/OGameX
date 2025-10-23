@@ -834,7 +834,9 @@ class GalaxyController extends OGameController
             // Deduct deuterium
             $moon->deductResources(new Resources(0, 0, $deuteriumCost, 0));
 
-            // Find all fleet missions to or from the target coordinates
+            // Find all active fleet missions to or from the target coordinates
+            // Only show fleets that haven't arrived yet (future fleets in transit)
+            $currentTime = time();
             $fleets = FleetMission::where(function ($query) use ($galaxy, $system, $position) {
                 $query->where([
                     'galaxy_to' => $galaxy,
@@ -848,21 +850,49 @@ class GalaxyController extends OGameController
             })
                 ->where('processed', 0)
                 ->where('canceled', 0)
+                ->where('time_departure', '<=', $currentTime) // Fleet has departed
+                ->where('time_arrival', '>', $currentTime)    // Fleet hasn't arrived yet
                 ->orderBy('time_arrival', 'asc')
                 ->get();
+
+            // Mission type names for better display
+            $missionNames = [
+                1 => 'Attack',
+                3 => 'Transport',
+                4 => 'Deployment',
+                6 => 'Espionage',
+                7 => 'Colonization',
+                8 => 'Recycle',
+                10 => 'Missile Attack',
+                15 => 'Expedition',
+            ];
 
             // Format fleet information for response
             $fleetData = [];
             foreach ($fleets as $fleet) {
+                // Calculate total ships in fleet
+                $totalShips = $fleet->small_cargo + $fleet->large_cargo + $fleet->light_fighter +
+                             $fleet->heavy_fighter + $fleet->cruiser + $fleet->battle_ship +
+                             $fleet->battlecruiser + $fleet->bomber + $fleet->destroyer +
+                             $fleet->deathstar + $fleet->colony_ship + $fleet->recycler +
+                             $fleet->espionage_probe;
+
+                // Skip fleets with no ships (shouldn't happen, but just in case)
+                if ($totalShips == 0) {
+                    continue;
+                }
+
                 // Determine if fleet is incoming or outgoing
                 $isIncoming = ($fleet->galaxy_to == $galaxy && $fleet->system_to == $system && $fleet->position_to == $position);
 
                 $fleetData[] = [
                     'mission_type' => $fleet->mission_type,
+                    'mission_name' => $missionNames[$fleet->mission_type] ?? 'Unknown',
                     'direction' => $isIncoming ? 'incoming' : 'outgoing',
                     'fleet_id' => $fleet->id,
                     'time_arrival' => $fleet->time_arrival,
                     'time_departure' => $fleet->time_departure,
+                    'total_ships' => $totalShips,
                     'origin' => [
                         'galaxy' => $fleet->galaxy_from,
                         'system' => $fleet->system_from,
