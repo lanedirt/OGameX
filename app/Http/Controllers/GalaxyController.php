@@ -377,9 +377,9 @@ class GalaxyController extends OGameController
                     $phalanxInactive = true;
                 }
 
-                // Build phalanx link with coordinates as data attributes
-                // Using javascript:void(0) to prevent navigation
-                $phalanxLink = 'javascript:void(0);';
+                // Don't set a link - we'll handle clicks via JavaScript
+                // Any href value triggers redirect interception
+                $phalanxLink = '';
             }
         }
 
