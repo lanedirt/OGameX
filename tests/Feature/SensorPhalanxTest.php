@@ -6,7 +6,6 @@ use Tests\AccountTestCase;
 use OGame\Models\Resources;
 use OGame\Models\FleetMission;
 use OGame\Factories\PlanetServiceFactory;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Test that the sensor phalanx functionality works as expected.

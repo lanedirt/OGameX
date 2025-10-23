@@ -4,7 +4,6 @@ namespace OGame\GameMessages;
 
 use OGame\Models\Enums\ResourceType;
 use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
-use OGame\Facades\AppUtil;
 
 class ExpeditionGainResources extends ExpeditionGameMessage
 {
