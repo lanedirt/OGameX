@@ -108,11 +108,11 @@ $(document).ready(function() {
                 if (response.success) {
                     // Show success message
                     fadeBox(response.message, false);
-                    // Close the overlay
-                    closeOverlay();
+                    // Close the overlay using jQuery dialog
+                    $('.missile_attack_layer').closest('.ui-dialog-content').dialog('close');
                     // Refresh the galaxy view to show updated missile count
-                    if (typeof reloadGalaxy === 'function') {
-                        reloadGalaxy();
+                    if (typeof submitForm === 'function') {
+                        submitForm();
                     }
                 } else {
                     fadeBox(response.message || 'An error occurred', true);
