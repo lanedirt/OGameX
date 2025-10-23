@@ -42,7 +42,7 @@ class ExpeditionGainResources extends ExpeditionGameMessage
         if (!empty($params['resource_type']) && !empty($params['resource_amount'])) {
             // Convert resource type to human readable string.
             $resourceTypeLabel = ResourceType::from($params['resource_type'])->getTranslation();
-            $translatedBody .= '<br /><br />' . __('t_messages.expedition_resources_captured', ['resource_type' => $resourceTypeLabel, 'resource_amount' => AppUtil::formatNumber((int)$params['resource_amount'])]);
+            $translatedBody .= '<br /><br />' . __('t_messages.expedition_resources_captured', ['resource_type' => $resourceTypeLabel, 'resource_amount' => $params['resource_amount']]);
         }
 
         return $translatedBody;
