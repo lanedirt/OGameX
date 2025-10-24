@@ -364,7 +364,7 @@ class FleetController extends OGameController
         $planetType = PlanetType::from($targetType);
 
         try {
-            $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $planetType, $mission_type, $units, $resources, 100);
+            $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $targetCoordinate, $planetType, $mission_type, $units, $resources, 10);
 
             // Calculate the actual amount of units sent.
             $fleetUnitCount = $fleetMissionService->getFleetUnitCount($fleetMission);
