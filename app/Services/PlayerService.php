@@ -738,6 +738,25 @@ class PlayerService
     }
 
     /**
+     * Get the missile range in systems based on Impulse Drive level.
+     * Formula: (Impulse Drive Level - 1) × 5 + 5 systems
+     *
+     * @return int
+     */
+    public function getMissileRange(): int
+    {
+        $impulseDriveLevel = $this->getResearchLevel('impulse_drive');
+
+        // If no Impulse Drive research, return 0
+        if ($impulseDriveLevel === 0) {
+            return 0;
+        }
+
+        // Calculate range: (level - 1) × 5 + 5
+        return ($impulseDriveLevel - 1) * 5 + 5;
+    }
+
+    /**
      * Delete the player and all associated records from the database.
      *
      * @return void

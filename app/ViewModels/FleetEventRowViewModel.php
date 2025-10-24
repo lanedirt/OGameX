@@ -19,6 +19,12 @@ class FleetEventRowViewModel
      * @var bool Whether the fleet can be recalled or not. E.g. enemy missions show up in the event box but can't be recalled.
      */
     public bool $is_recallable;
+
+    /**
+     * @var string Whether the mission is friendly, hostile, or neutral (friendly/hostile/neutral)
+     */
+    public string $mission_status;
+
     public string $origin_planet_name;
     public Coordinate $origin_planet_coords;
     public PlanetType $origin_planet_type;

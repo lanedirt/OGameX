@@ -40,16 +40,16 @@ class ExpeditionMission extends GameMission
      * @var array<string, int>
      */
     protected array $outcomeWeights = [
-        'dark_matter' => 90,      // 9.0% - Find Dark Matter
-        'ships' => 220,           // 22.0% - Find abandoned ships
-        'resources' => 325,       // 32.5% - Find resources
+        //'dark_matter' => 90,      // 9.0% - Find Dark Matter
+        'ships' => 239,           // 22.0% - Find abandoned ships
+        'resources' => 343,       // 32.5% - Find resources
         // 'pirates' => 58,       // 5.8% - Find pirates (combat) - TODO: implement combat
         // 'aliens' => 26,        // 2.6% - Find aliens (combat) - TODO: implement combat
-        'delay' => 70,            // 7.0% - Fleet has delay
-        'speedup' => 20,          // 2.0% - Fleet returns early
-        'nothing' => 265,         // 26.5% - Find nothing (includes pirates/aliens weight for now)
+        'delay' => 88,            // 7.0% - Fleet has delay
+        'speedup' => 38,          // 2.0% - Fleet returns early
+        'nothing' => 288,         // 26.5% - Find nothing (includes pirates/aliens weight for now)
         'black_hole' => 3,        // 0.33% - Black hole (fleet loss)
-        'merchant' => 7,          // 0.7% - Find merchant
+        //'merchant' => 7,          // 0.7% - Find merchant
     ];
 
     /**
@@ -658,7 +658,7 @@ class ExpeditionMission extends GameMission
         // TODO: when actual player classes such as discoverer, collector etc. are implemented, make this modifier apply only if class is "discoverer".
         // For now we apply it anyway so the economy speed is applied to the resource find.
         $economySpeed = $this->settings->economySpeed();
-        $resourceAmount = $resourceAmount * ($economySpeed * 1.5);
+        $resourceAmount = $resourceAmount * ($economySpeed * 1);
 
         // TODO: when pathfinder unit is added to the game and included in the fleet, the max find should be doubled.
 

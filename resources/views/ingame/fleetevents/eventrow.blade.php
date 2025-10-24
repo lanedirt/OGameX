@@ -7,7 +7,7 @@
         data-arrival-time="{{ $fleet_event_row->mission_time_arrival }}"
     >
         <td class="countDown">
-        <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="friendly textBeefy">
+        <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="{{ $fleet_event_row->mission_status }} textBeefy">
                     load...
         </span>
         </td>
@@ -127,7 +127,7 @@
         data-arrival-time="{{ $fleet_event_row->mission_time_arrival }}"
     >
         <td class="countDown">
-        <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="friendly textBeefy">
+        <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="{{ $fleet_event_row->mission_status }} textBeefy">
                     load...
         </span>
         </td>

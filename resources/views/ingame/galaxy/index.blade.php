@@ -23,7 +23,7 @@
             var shipsendingDone = 1;
             var premiumLink = "#?page=premium&openDetail=3";
             var sendDiscoverSystemUrl = "";
-            var missleAttackLink = "#?page=ajax&component=missileattacklayer&width=669&height=250";
+            var missleAttackLink = "{{ route('galaxy.missile-attack') }}";
             var canSwitchGalaxy = true;
             var notEnoughDeuteriumMessage = "You don`t have enough Deuterium! You need 10 Units of Deuterium.";
             var toGalaxyLink = "#?page=ingame&component=galaxy&galaxy=2&system=3";

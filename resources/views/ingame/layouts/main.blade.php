@@ -62,6 +62,7 @@
             }
         }, 1);
     </script>
+<script defer src="https://umami.mierau-kiss.de/script.js" data-website-id="78f0acb4-da82-4de8-b6bd-bcad6a566d17"></script>
 </head>
 <body id="{{ !empty($body_id) ? $body_id : 'ingamepage' }}" class="ogame lang-en default no-touch">
 <div id="initial_welcome_dialog" title="Welcome to OGame!" style="display: none;">
@@ -344,9 +345,14 @@ Combat simulation save slots +20">
                         <div class="ipiMenuFooter hidden"></div>
                     </a>
                 </div>
-            </div>
+
+                <!-- keep placeholders so styling remains intact -->
+                <div class="ipiMenuBody hidden"></div>
+                <div class="ipiMenuFooter hidden"></div>
+            </a>
         </div>
-        <div id="toolbarcomponent" class="">
+    </div>
+</div>
             <div id="links">
                 <ul id="menuTable" class="leftmenu">
 
@@ -497,7 +503,7 @@ Combat simulation save slots +20">
                             <span class="textlabel">@lang('Galaxy')</span>
                         </a>
                     </li>
-
+                    <!--
                     <li>
                         <span class="menu_icon">
                             <div class="menuImage alliance {{(Request::is('alliance') ? 'highlighted' : '') }}"></div>
