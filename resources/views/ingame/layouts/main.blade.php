@@ -193,6 +193,8 @@
                     </span>
                     </div>
                 </div>
+                {{-- Population resource commented out --}}
+                {{--
                 <div class="resource_tile population">
                     <div id="population_box" class="population tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
                          title="Population|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>100</span></td></tr><tr><th>Living Space
@@ -204,6 +206,9 @@
                     </span>
                     </div>
                 </div>
+                --}}
+                {{-- Food resource commented out --}}
+                {{--
                 <div class="resource_tile food">
                     <div id="food_box" class="food tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
                          title="Food|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Storage capacity</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Overproduction</th><td><span class=&quot;undermark&quot;>0</span></td></tr><tr><th>Consumption</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Consumed in</th><td><span class=&quot;overmark timeTillFoodRunsOut&quot;>~</span></td></tr></table>"
@@ -214,6 +219,9 @@
                     </span>
                     </div>
                 </div>
+                --}}
+                {{-- Dark Matter resource commented out --}}
+                {{--
                 <div class="resource_tile darkmatter">
                     <div id="darkmatter_box" class="darkmatter tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
                          title="@lang('Dark Matter')|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;&quot;>19,890</span></td></tr><tr><th>Purchased</th><td><span class=&quot;&quot;>225</span></td></tr><tr><th>Found</th><td><span class=&quot;&quot;>19,665</span></td></tr></table>"
@@ -227,6 +235,7 @@
                     </span>
                     </div>
                 </div>
+                --}}
             </div>
         </div>
         <div id="commandercomponent" class="">
@@ -321,10 +330,10 @@ Combat simulation save slots +20">
         <div id="ipimenucomponent" class="">
             <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable " title="" data-ipi-hint="ipiMenu">
                 <div id="ipimenucontent"><a
-                            href="#TODO_page=ajax&amp;component=ipioverview&amp;action=overviewLayer&amp;ajax=1"
-                            class="overlay textBeefy" data-overlay-title="" id="ipiInnerMenuContentHolder">
+                            href="https://discord.gg/n9uCcjQ7Xj"
+                            class="textBeefy" target="_blank" rel="noopener" id="ipiInnerMenuContentHolder">
                         <div class="ipiMenuHead">
-                            Directives
+                            Galaktischer Senat (Discord)
                         </div>
 
                         <div class="ipiMenuBody hidden"></div>
@@ -386,6 +395,8 @@ Combat simulation save slots +20">
                         </a>
                     </li>
 
+                    {{-- Merchant button commented out --}}
+                    {{--
                     <li>
                         <span class="menu_icon">
                             <a href="{{ route('merchant.index') }}#page=traderResources&amp;animation=false"
@@ -404,6 +415,7 @@ Combat simulation save slots +20">
                             <span class="textlabel">@lang('Merchant')</span>
                         </a>
                     </li>
+                    --}}
 
                     <li>
                         <span class="menu_icon">
@@ -495,6 +507,8 @@ Combat simulation save slots +20">
                         </a>
                     </li>
 
+                    {{-- Recruit Officers button commented out --}}
+                    {{--
                     <li>
                         <span class="menu_icon">
                             <div class="menuImage premium {{(Request::is('premium') ? 'highlighted' : '') }}"></div>
@@ -507,6 +521,9 @@ Combat simulation save slots +20">
                             <span class="textlabel">@lang('Recruit Officers')</span>
                         </a>
                     </li>
+                    --}}
+                    {{-- Shop button commented out --}}
+                    {{--
                     <li>
                         <span class="menu_icon">
                             <a href="{{ route('shop.index') }}#page=inventory"
@@ -525,6 +542,7 @@ Combat simulation save slots +20">
                             <span class="textlabel">@lang('Shop')</span>
                         </a>
                     </li>
+                    --}}
                 </ul>
 
                 <div id="toolLinksWrapper">
