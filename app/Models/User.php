@@ -29,6 +29,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read \OGame\Models\UserTech|null $tech
+ * @property-read \OGame\Models\AllianceMember|null $allianceMembership
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
@@ -98,5 +99,15 @@ class User extends Authenticatable
     public function tech(): HasOne
     {
         return $this->hasOne(UserTech::class);
+    }
+
+    /**
+     * Get the user's alliance membership.
+     *
+     * @return HasOne
+     */
+    public function allianceMembership(): HasOne
+    {
+        return $this->hasOne(AllianceMember::class);
     }
 }

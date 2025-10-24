@@ -113,7 +113,20 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     // Misc
     Route::get('/merchant', [MerchantController::class, 'index'])->name('merchant.index');
 
+    // Alliance routes
     Route::get('/alliance', [AllianceController::class, 'index'])->name('alliance.index');
+    Route::get('/alliance/create', [AllianceController::class, 'create'])->name('alliance.create');
+    Route::post('/alliance/create', [AllianceController::class, 'store'])->name('alliance.store');
+    Route::get('/alliance/search', [AllianceController::class, 'search'])->name('alliance.search');
+    Route::get('/alliance/manage', [AllianceController::class, 'manage'])->name('alliance.manage');
+    Route::post('/alliance/update', [AllianceController::class, 'update'])->name('alliance.update');
+    Route::get('/alliance/{id}', [AllianceController::class, 'show'])->name('alliance.show');
+    Route::post('/alliance/{id}/apply', [AllianceController::class, 'apply'])->name('alliance.apply');
+    Route::post('/alliance/application/{applicationId}/accept', [AllianceController::class, 'acceptApplication'])->name('alliance.application.accept');
+    Route::post('/alliance/application/{applicationId}/reject', [AllianceController::class, 'rejectApplication'])->name('alliance.application.reject');
+    Route::post('/alliance/member/{memberId}/kick', [AllianceController::class, 'kickMember'])->name('alliance.member.kick');
+    Route::post('/alliance/leave', [AllianceController::class, 'leave'])->name('alliance.leave');
+    Route::post('/alliance/disband', [AllianceController::class, 'disband'])->name('alliance.disband');
     Route::get('/ajax/alliance/create', [AllianceController::class, 'ajaxCreate'])->name('alliance.ajax.create');
 
     Route::get('/premium', [PremiumController::class, 'index'])->name('premium.index');
