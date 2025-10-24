@@ -345,14 +345,9 @@ Combat simulation save slots +20">
                         <div class="ipiMenuFooter hidden"></div>
                     </a>
                 </div>
-
-                <!-- keep placeholders so styling remains intact -->
-                <div class="ipiMenuBody hidden"></div>
-                <div class="ipiMenuFooter hidden"></div>
-            </a>
+            </div>
         </div>
-    </div>
-</div>
+        <div id="toolbarcomponent" class="">
             <div id="links">
                 <ul id="menuTable" class="leftmenu">
 
@@ -503,7 +498,7 @@ Combat simulation save slots +20">
                             <span class="textlabel">@lang('Galaxy')</span>
                         </a>
                     </li>
-                    <!--
+
                     <li>
                         <span class="menu_icon">
                             <div class="menuImage alliance {{(Request::is('alliance') ? 'highlighted' : '') }}"></div>
