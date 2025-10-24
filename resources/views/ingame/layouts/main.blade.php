@@ -334,8 +334,9 @@ Combat simulation save slots +20">
                        class="textBeefy"
                        target="_blank"
                        rel="noopener"
-                       id="ipiInnerMenuContentHolder">
-                        <div class="ipiMenuHead">
+                       id="ipiInnerMenuContentHolder"
+                       style="line-height: 1.1; display: block;">
+                        <div class="ipiMenuHead" style="line-height: 1.1;">
                             Galaktischer Senat (Discord)
                         </div>
 
