@@ -11,6 +11,10 @@
     <script type="text/javascript">
         highscoreContentUrl = '{{ route('highscore.ajax') }}';
         var userWantsFocus = true;
+        var highscoreLoca = {
+            "playerHighscore": "Player highscore",
+            "allianceHighscore": "Alliance highscore"
+        };
     </script>
 
     <div id="inhalt">

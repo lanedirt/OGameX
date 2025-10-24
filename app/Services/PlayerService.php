@@ -140,6 +140,16 @@ class PlayerService
     }
 
     /**
+     * Get the user model instance.
+     *
+     * @return User
+     */
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    /**
      * Saves current player object to DB.
      */
     public function save(): void

@@ -357,11 +357,32 @@ class GalaxyController extends OGameController
      */
     private function getPlayerInfo(PlayerService $player): array
     {
+        // Get player's alliance if they have one
+        $alliance = \OGame\Services\AllianceMemberService::getUserAlliance($player->getUser());
+        $allianceId = $alliance ? $alliance->id : null;
+        $allianceTag = $alliance ? $alliance->tag : null;
+
+        // Check if the viewing player is in the same alliance
+        $viewerAlliance = \OGame\Services\AllianceMemberService::getUserAlliance($this->playerService->getUser());
+        $isAllianceMember = $viewerAlliance && $alliance && $viewerAlliance->id === $alliance->id;
+
+        // Build alliance action data for tooltip
+        $allianceAction = ['available' => false];
+        if ($alliance) {
+            $allianceAction = [
+                'available' => true,
+                'infoPageLink' => route('alliance.show', $alliance->id),
+                'infoPageTitle' => 'Alliance Info',
+                'applicationLink' => $alliance->open_for_applications ? route('alliance.show', $alliance->id) : null,
+                'applicationTitle' => $alliance->open_for_applications ? 'Apply' : null,
+                'allianceClassName' => null,
+                'allianceClassCss' => null,
+            ];
+        }
+
         return [
             'actions' => [
-                'alliance' => [
-                    'available' => false,
-                ],
+                'alliance' => $allianceAction,
                 'buddies' => [
                     'available' => false,
                 ],
@@ -377,6 +398,9 @@ class GalaxyController extends OGameController
             ],
             'playerId' => $player->getId(),
             'playerName' => $player->getUsername(),
+            'allianceId' => $allianceId,
+            'allianceTag' => $allianceTag,
+            'isAllianceMember' => $isAllianceMember,
             'isAdmin' => $player->isAdmin(),
             'isInactive' => $player->isInactive(),
             'isLongInactive' => $player->isLongInactive(),

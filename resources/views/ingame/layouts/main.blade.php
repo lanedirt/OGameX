@@ -194,7 +194,9 @@
                     </span>
                     </div>
                 </div>
-                <!--<div class="resource_tile population">
+                {{-- Population resource commented out --}}
+                {{--
+                <div class="resource_tile population">
                     <div id="population_box" class="population tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
                          title="Population|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>100</span></td></tr><tr><th>Living Space
 </th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Satisfied</th><td><span class=&quot;undermark&quot;>0</span></td></tr><tr><th>Hungry</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Growth rate</th><td><span class=&quot;&quot;>±0</span></td></tr><tr><th>Bunker Space
@@ -205,6 +207,9 @@
                     </span>
                     </div>
                 </div>
+                --}}
+                {{-- Food resource commented out --}}
+                {{--
                 <div class="resource_tile food">
                     <div id="food_box" class="food tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
                          title="Food|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Storage capacity</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Overproduction</th><td><span class=&quot;undermark&quot;>0</span></td></tr><tr><th>Consumption</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Consumed in</th><td><span class=&quot;overmark timeTillFoodRunsOut&quot;>~</span></td></tr></table>"
@@ -215,6 +220,9 @@
                     </span>
                     </div>
                 </div>
+                --}}
+                {{-- Dark Matter resource commented out --}}
+                {{--
                 <div class="resource_tile darkmatter">
                     <div id="darkmatter_box" class="darkmatter tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
                          title="@lang('Dark Matter')|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;&quot;>19,890</span></td></tr><tr><th>Purchased</th><td><span class=&quot;&quot;>225</span></td></tr><tr><th>Found</th><td><span class=&quot;&quot;>19,665</span></td></tr></table>"
@@ -227,7 +235,8 @@
                         <span id="resources_darkmatter" data-raw="19890" class="overlay">19,890</span>
                     </span>
                     </div>
-                </div>-->
+                </div>
+                --}}
             </div>
         </div>
         <div id="commandercomponent" class="">
@@ -319,19 +328,22 @@ Combat simulation save slots +20">
 
     </div>
     <div id="left">
-        <div id="<div id="toolbarcomponent" class="">
-<div id="ipimenucomponent" class="">
-    <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable" title="" data-ipi-hint="ipiMenu">
-        <div id="ipimenucontent">
-            <a href="https://discord.gg/n9uCcjQ7Xj"
-               class="textBeefy"
-               id="ipiInnerMenuContentHolder"
-               target="_blank"
-               rel="noopener"
-               title="Galaktischer Senat (Discord)"
-style="display: block; text-align: center; font-size: 12px; line-height: 1.1; padding: 4px 0;">
-                <div class="ipiMenuHead" style="line-height: 1.1; margin: 0; padding: 0;" >
-                    Galaktischer Senat (Discord)
+        <div id="ipimenucomponent" class="">
+            <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable" title="" data-ipi-hint="ipiMenu">
+                <div id="ipimenucontent">
+                    <a href="https://discord.gg/n9uCcjQ7Xj"
+                       class="textBeefy"
+                       target="_blank"
+                       rel="noopener"
+                       id="ipiInnerMenuContentHolder"
+                       style="line-height: 1.1; display: block;">
+                        <div class="ipiMenuHead" style="line-height: 1.1;">
+                            Galaktischer Senat (Discord)
+                        </div>
+
+                        <div class="ipiMenuBody hidden"></div>
+                        <div class="ipiMenuFooter hidden"></div>
+                    </a>
                 </div>
 
                 <!-- keep placeholders so styling remains intact -->
@@ -393,7 +405,9 @@ style="display: block; text-align: center; font-size: 12px; line-height: 1.1; pa
                         </a>
                     </li>
 
-                    <!--<li>
+                    {{-- Merchant button commented out --}}
+                    {{--
+                    <li>
                         <span class="menu_icon">
                             <a href="{{ route('merchant.index') }}#page=traderResources&amp;animation=false"
                                class="trader tooltipRight js_hideTipOnMobile "
@@ -410,7 +424,9 @@ style="display: block; text-align: center; font-size: 12px; line-height: 1.1; pa
                         >
                             <span class="textlabel">@lang('Merchant')</span>
                         </a>
-                    </li>-->
+                    </li>
+                    --}}
+
                     <li>
                         <span class="menu_icon">
                             <a href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => 1, 'open' => 'all']) }}"
@@ -501,6 +517,8 @@ style="display: block; text-align: center; font-size: 12px; line-height: 1.1; pa
                         </a>
                     </li>
 
+                    {{-- Recruit Officers button commented out --}}
+                    {{--
                     <li>
                         <span class="menu_icon">
                             <div class="menuImage premium {{(Request::is('premium') ? 'highlighted' : '') }}"></div>
@@ -513,6 +531,9 @@ style="display: block; text-align: center; font-size: 12px; line-height: 1.1; pa
                             <span class="textlabel">@lang('Recruit Officers')</span>
                         </a>
                     </li>
+                    --}}
+                    {{-- Shop button commented out --}}
+                    {{--
                     <li>
                         <span class="menu_icon">
                             <a href="{{ route('shop.index') }}#page=inventory"
@@ -530,7 +551,8 @@ style="display: block; text-align: center; font-size: 12px; line-height: 1.1; pa
                         >
                             <span class="textlabel">@lang('Shop')</span>
                         </a>
-                    </li>-->
+                    </li>
+                    --}}
                 </ul>
 
                 <div id="toolLinksWrapper">

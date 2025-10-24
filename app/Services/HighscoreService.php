@@ -189,4 +189,100 @@ class HighscoreService
             return Highscore::query()->validRanks()->count();
         });
     }
+
+    /**
+     * Get alliance highscores.
+     *
+     * @param int $perPage
+     * @param int $pageOn
+     * @return array<int, array<string,mixed>>
+     */
+    public function getHighscoreAlliances(int $perPage = 100, int $pageOn = 1): array
+    {
+        // Get all alliance highscores
+        return Cache::remember(sprintf('alliance-highscores-%s-%d', $this->highscoreType->name, $pageOn), now()->addMinutes(5), function () use ($perPage, $pageOn) {
+            $parsedHighscores = [];
+
+            // Get alliances with their members
+            $alliances = \OGame\Models\Alliance::with(['members.user', 'founder'])
+                ->withCount('members')
+                ->get();
+
+            // Calculate scores for each alliance
+            $allianceScores = [];
+            foreach ($alliances as $alliance) {
+                $totalScore = 0;
+                $memberCount = 0;
+
+                foreach ($alliance->members as $member) {
+                    $highscore = Highscore::where('player_id', $member->user_id)->first();
+                    if ($highscore) {
+                        $score = $highscore->{$this->highscoreType->name} ?? 0;
+                        $totalScore += $score;
+                        $memberCount++;
+                    }
+                }
+
+                if ($memberCount > 0) {
+                    $allianceScores[] = [
+                        'id' => $alliance->id,
+                        'tag' => $alliance->tag,
+                        'name' => $alliance->name,
+                        'points' => $totalScore,
+                        'points_formatted' => AppUtil::formatNumber($totalScore),
+                        'member_count' => $memberCount,
+                        'average_points' => $memberCount > 0 ? round($totalScore / $memberCount) : 0,
+                    ];
+                }
+            }
+
+            // Sort by total points (descending)
+            usort($allianceScores, function ($a, $b) {
+                return $b['points'] <=> $a['points'];
+            });
+
+            // Add ranks
+            $rank = 1;
+            foreach ($allianceScores as &$alliance) {
+                $alliance['rank'] = $rank++;
+            }
+
+            // Paginate manually
+            $offset = ($pageOn - 1) * $perPage;
+            $parsedHighscores = array_slice($allianceScores, $offset, $perPage);
+
+            return $parsedHighscores;
+        });
+    }
+
+    /**
+     * Return rank of alliance.
+     *
+     * @param int $allianceId
+     * @return int
+     */
+    public function getHighscoreAllianceRank(int $allianceId): int
+    {
+        $alliances = $this->getHighscoreAlliances(perPage: 9999, pageOn: 1);
+        foreach ($alliances as $alliance) {
+            if ($alliance['id'] === $allianceId) {
+                return $alliance['rank'];
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Returns the amount of alliances in the game to determine paging for highscore page.
+     *
+     * @return int
+     */
+    public function getHighscoreAllianceAmount(): int
+    {
+        return Cache::remember('highscore-alliance-count', now()->addMinutes(5), function () {
+            return \OGame\Models\Alliance::withCount('members')
+                ->having('members_count', '>', 0)
+                ->count();
+        });
+    }
 }
