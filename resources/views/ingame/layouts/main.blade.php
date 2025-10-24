@@ -325,21 +325,19 @@ Combat simulation save slots +20">
             </div>
         </div>
 
+    </div>
     <div id="left">
-        <div id="<div id="toolbarcomponent" class="">
-<div id="ipimenucomponent" class="">
-    <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable" title="" data-ipi-hint="ipiMenu">
-        <div id="ipimenucontent">
-            <a href="https://discord.gg/n9uCcjQ7Xj"
-               class="textBeefy"
-               id="ipiInnerMenuContentHolder"
-               target="_blank"
-               rel="noopener"
-               title="Galaktischer Senat (Discord)"
-style="display: block; text-align: center; font-size: 12px; line-height: 1.1; padding: 4px 0;">
-                <div class="ipiMenuHead" style="line-height: 1.1; margin: 0; padding: 0;" >
-                    Galaktischer Senat (Discord)
-                </div>
+        <div id="ipimenucomponent" class="">
+            <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable" title="" data-ipi-hint="ipiMenu">
+                <div id="ipimenucontent">
+                    <a href="https://discord.gg/n9uCcjQ7Xj"
+                       class="textBeefy"
+                       target="_blank"
+                       rel="noopener"
+                       id="ipiInnerMenuContentHolder">
+                        <div class="ipiMenuHead">
+                            Galaktischer Senat (Discord)
+                        </div>
 
                         <div class="ipiMenuBody hidden"></div>
                         <div class="ipiMenuFooter hidden"></div>

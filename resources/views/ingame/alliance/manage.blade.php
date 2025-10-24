@@ -35,46 +35,44 @@
                                     </div>
                                 @endif
 
-                                <h3>Manage [{{ $alliance->tag }}] {{ $alliance->name }}</h3>
-
                                 <form action="{{ route('alliance.update') }}" method="POST">
                                     @csrf
-                                    <table class="createnote" style="margin: 20px auto;">
+                                    <table class="createnote createALLY">
                                         <tbody>
                                             <tr>
-                                                <td class="desc"><strong>Alliance Name:</strong></td>
-                                                <td class="value"><input type="text" name="name" class="text w290" value="{{ old('name', $alliance->name) }}" required></td>
+                                                <td class="desc">Alliance Name</td>
+                                                <td class="value"><input type="text" name="name" class="text w200" value="{{ old('name', $alliance->name) }}" required></td>
                                             </tr>
                                             <tr>
-                                                <td class="desc"><strong>Description:</strong></td>
-                                                <td class="value"><textarea name="description" class="alliancetexts" rows="5">{{ old('description', $alliance->description) }}</textarea></td>
+                                                <td class="desc">Description</td>
+                                                <td class="value"><textarea name="description" rows="5" cols="50">{{ old('description', $alliance->description) }}</textarea></td>
                                             </tr>
                                             <tr>
-                                                <td class="desc"><strong>Logo URL:</strong></td>
-                                                <td class="value"><input type="url" name="logo" class="text w290" value="{{ old('logo', $alliance->logo) }}"></td>
+                                                <td class="desc">Logo URL</td>
+                                                <td class="value"><input type="url" name="logo" class="text w200" value="{{ old('logo', $alliance->logo) }}"></td>
                                             </tr>
                                             <tr>
-                                                <td class="desc"><strong>Website URL:</strong></td>
-                                                <td class="value"><input type="url" name="external_url" class="text w290" value="{{ old('external_url', $alliance->external_url) }}"></td>
+                                                <td class="desc">Website URL</td>
+                                                <td class="value"><input type="url" name="external_url" class="text w200" value="{{ old('external_url', $alliance->external_url) }}"></td>
                                             </tr>
                                             <tr>
-                                                <td class="desc"><strong>Internal Text:</strong></td>
-                                                <td class="value"><textarea name="internal_text" class="alliancetexts" rows="5">{{ old('internal_text', $alliance->internal_text) }}</textarea></td>
+                                                <td class="desc">Internal Text</td>
+                                                <td class="value"><textarea name="internal_text" rows="5" cols="50">{{ old('internal_text', $alliance->internal_text) }}</textarea></td>
                                             </tr>
                                             <tr>
-                                                <td class="desc"><strong>Application Text:</strong></td>
-                                                <td class="value"><textarea name="application_text" class="alliancetexts" rows="5">{{ old('application_text', $alliance->application_text) }}</textarea></td>
+                                                <td class="desc">Application Text</td>
+                                                <td class="value"><textarea name="application_text" rows="3" cols="50">{{ old('application_text', $alliance->application_text) }}</textarea></td>
                                             </tr>
                                             <tr>
-                                                <td class="desc"><strong>Open for Applications:</strong></td>
+                                                <td class="desc">Open for Applications</td>
                                                 <td class="value">
                                                     <input type="checkbox" name="open_for_applications" value="1" {{ old('open_for_applications', $alliance->open_for_applications) ? 'checked' : '' }}>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="2" align="center" style="padding-top: 15px;">
-                                                    <button type="submit" class="btn_blue">Update Alliance</button>
-                                                    <a href="{{ route('alliance.index') }}" class="btn_blue">Back to Alliance</a>
+                                                <td colspan="2" align="center">
+                                                    <button type="submit" class="action btn_blue">Update Alliance</button>
+                                                    <a href="{{ route('alliance.index') }}" class="action btn_grey">Back to Alliance</a>
                                                 </td>
                                             </tr>
                                         </tbody>

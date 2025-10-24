@@ -204,7 +204,11 @@
                                                 </table>
                                             </div>
                                         @else
-                                            <p>No pending applications.</p>
+                                            <table class="members" width="100%" cellpadding="0" cellspacing="1">
+                                                <tr>
+                                                    <td>No pending applications.</td>
+                                                </tr>
+                                            </table>
                                         @endif
                                     </div>
                                 @endif
