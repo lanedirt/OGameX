@@ -35,15 +35,15 @@
                         {{-- User is in an alliance --}}
                         <div id="tabs">
                             <ul class="tabsbelow" id="tab-ally">
-                                <li class="aktiv">
-                                    <a href="#alliance-info"><span>Alliance Info</span></a>
+                                <li class="aktiv" data-tab="alliance-info">
+                                    <a href="javascript:void(0);"><span>Alliance Info</span></a>
                                 </li>
-                                <li>
-                                    <a href="#members"><span>Members ({{ $members->count() }})</span></a>
+                                <li data-tab="members">
+                                    <a href="javascript:void(0);"><span>Members ({{ $members->count() }})</span></a>
                                 </li>
                                 @if($allianceService && $allianceService->hasPermission(Auth::id(), 'can_see_applications'))
-                                    <li>
-                                        <a href="#applications"><span>Applications ({{ $pendingApplications->count() }})</span></a>
+                                    <li data-tab="applications">
+                                        <a href="javascript:void(0);"><span>Applications ({{ $pendingApplications->count() }})</span></a>
                                     </li>
                                 @endif
                                 @if($allianceService && $allianceService->hasPermission(Auth::id(), 'can_edit_alliance'))
@@ -57,11 +57,12 @@
                         <div class="clearfloat"></div>
                         <div class="alliance_wrapper">
                             <div class="allianceContent">
-                                <div class="contentz">
+                                {{-- Alliance Info Tab --}}
+                                <div id="alliance-info" class="tab-content contentz" style="display: block;">
                                     <h3>[{{ $alliance->tag }}] {{ $alliance->name }}</h3>
 
                                     @if($alliance->logo)
-                                        <div class="alliance-logo" style="margin: 10px 0;">
+                                        <div style="margin: 10px 0;">
                                             <img src="{{ $alliance->logo }}" alt="{{ $alliance->name }} Logo" style="max-width: 200px;">
                                         </div>
                                     @endif
@@ -90,9 +91,26 @@
                                         <p><strong>Your Rank:</strong> {{ $userRank->name ?? 'No rank assigned' }}</p>
                                     </div>
 
+                                    <div style="margin-top: 20px; text-align: center;">
+                                        <form method="POST" action="{{ route('alliance.leave') }}" style="display: inline; margin-right: 10px;">
+                                            @csrf
+                                            <button type="submit" class="btn_blue" onclick="return confirm('Are you sure you want to leave this alliance?')">Leave Alliance</button>
+                                        </form>
+
+                                        @if($alliance->founder_id === Auth::id())
+                                            <form method="POST" action="{{ route('alliance.disband') }}" style="display: inline;">
+                                                @csrf
+                                                <button type="submit" class="btn_blue" onclick="return confirm('Are you sure you want to disband this alliance? This action cannot be undone!')">Disband Alliance</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- Members Tab --}}
+                                <div id="members" class="tab-content contentz" style="display: none;">
+                                    <h3>Member List</h3>
                                     @if($members->isNotEmpty())
                                         <div id="section12" style="margin: 20px 0;">
-                                            <h4>Member List</h4>
                                             <table class="members" width="100%" cellpadding="0" cellspacing="1">
                                                 <tr>
                                                     <th>Username</th>
@@ -121,57 +139,52 @@
                                                 @endforeach
                                             </table>
                                         </div>
+                                    @else
+                                        <p>No members found.</p>
                                     @endif
+                                </div>
 
-                                    @if($allianceService && $allianceService->hasPermission(Auth::id(), 'can_see_applications') && $pendingApplications->isNotEmpty())
-                                        <div id="section22" style="margin: 20px 0;">
-                                            <h4>Pending Applications</h4>
-                                            <table class="members" width="100%" cellpadding="0" cellspacing="1">
-                                                <tr>
-                                                    <th>Username</th>
-                                                    <th>Application Text</th>
-                                                    <th>Date</th>
-                                                    @if($allianceService->hasPermission(Auth::id(), 'can_accept_applications'))
-                                                        <th>Actions</th>
-                                                    @endif
-                                                </tr>
-                                                @foreach($pendingApplications as $index => $application)
-                                                    <tr class="{{ $index % 2 == 1 ? 'alt' : '' }}">
-                                                        <td>{{ $application->user->username }}</td>
-                                                        <td>{{ $application->application_text ?? 'No message' }}</td>
-                                                        <td>{{ $application->created_at->format('Y-m-d H:i') }}</td>
+                                {{-- Applications Tab --}}
+                                @if($allianceService && $allianceService->hasPermission(Auth::id(), 'can_see_applications'))
+                                    <div id="applications" class="tab-content contentz" style="display: none;">
+                                        <h3>Pending Applications</h3>
+                                        @if($pendingApplications->isNotEmpty())
+                                            <div id="section22" style="margin: 20px 0;">
+                                                <table class="members" width="100%" cellpadding="0" cellspacing="1">
+                                                    <tr>
+                                                        <th>Username</th>
+                                                        <th>Application Text</th>
+                                                        <th>Date</th>
                                                         @if($allianceService->hasPermission(Auth::id(), 'can_accept_applications'))
-                                                            <td>
-                                                                <form method="POST" action="{{ route('alliance.application.accept', $application->id) }}" style="display: inline; margin-right: 5px;">
-                                                                    @csrf
-                                                                    <button type="submit" class="btn_blue" style="padding: 2px 8px;">Accept</button>
-                                                                </form>
-                                                                <form method="POST" action="{{ route('alliance.application.reject', $application->id) }}" style="display: inline;">
-                                                                    @csrf
-                                                                    <button type="submit" class="btn_blue" style="padding: 2px 8px;">Reject</button>
-                                                                </form>
-                                                            </td>
+                                                            <th>Actions</th>
                                                         @endif
                                                     </tr>
-                                                @endforeach
-                                            </table>
-                                        </div>
-                                    @endif
-
-                                    <div style="margin-top: 20px; text-align: center;">
-                                        <form method="POST" action="{{ route('alliance.leave') }}" style="display: inline; margin-right: 10px;">
-                                            @csrf
-                                            <button type="submit" class="btn_blue" onclick="return confirm('Are you sure you want to leave this alliance?')">Leave Alliance</button>
-                                        </form>
-
-                                        @if($alliance->founder_id === Auth::id())
-                                            <form method="POST" action="{{ route('alliance.disband') }}" style="display: inline;">
-                                                @csrf
-                                                <button type="submit" class="btn_blue" onclick="return confirm('Are you sure you want to disband this alliance? This action cannot be undone!')">Disband Alliance</button>
-                                            </form>
+                                                    @foreach($pendingApplications as $index => $application)
+                                                        <tr class="{{ $index % 2 == 1 ? 'alt' : '' }}">
+                                                            <td>{{ $application->user->username }}</td>
+                                                            <td>{{ $application->application_text ?? 'No message' }}</td>
+                                                            <td>{{ $application->created_at->format('Y-m-d H:i') }}</td>
+                                                            @if($allianceService->hasPermission(Auth::id(), 'can_accept_applications'))
+                                                                <td>
+                                                                    <form method="POST" action="{{ route('alliance.application.accept', $application->id) }}" style="display: inline; margin-right: 5px;">
+                                                                        @csrf
+                                                                        <button type="submit" class="btn_blue" style="padding: 2px 8px;">Accept</button>
+                                                                    </form>
+                                                                    <form method="POST" action="{{ route('alliance.application.reject', $application->id) }}" style="display: inline;">
+                                                                        @csrf
+                                                                        <button type="submit" class="btn_blue" style="padding: 2px 8px;">Reject</button>
+                                                                    </form>
+                                                                </td>
+                                                            @endif
+                                                        </tr>
+                                                    @endforeach
+                                                </table>
+                                            </div>
+                                        @else
+                                            <p>No pending applications.</p>
                                         @endif
                                     </div>
-                                </div>
+                                @endif
                             </div>
                         </div>
 
@@ -204,4 +217,47 @@
             </div>
         </div>
     </div>
+
+    <script type="text/javascript">
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('#tab-ally li[data-tab]');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('aktiv'));
+                    // Add active class to clicked tab
+                    this.classList.add('aktiv');
+
+                    // Hide all tab contents
+                    tabContents.forEach(content => content.style.display = 'none');
+                    // Show target tab content
+                    const targetContent = document.getElementById(targetTab);
+                    if (targetContent) {
+                        targetContent.style.display = 'block';
+                    }
+
+                    // Update URL hash without scrolling
+                    if (history.pushState) {
+                        history.pushState(null, null, '#' + targetTab);
+                    } else {
+                        location.hash = '#' + targetTab;
+                    }
+                });
+            });
+
+            // Handle initial hash on page load
+            if (window.location.hash) {
+                const hash = window.location.hash.substring(1);
+                const tabToActivate = document.querySelector(`#tab-ally li[data-tab="${hash}"]`);
+                if (tabToActivate) {
+                    tabToActivate.click();
+                }
+            }
+        });
+    </script>
 @endsection
