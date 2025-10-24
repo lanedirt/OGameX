@@ -344,11 +344,23 @@ class GalaxyController extends OGameController
         $viewerAlliance = \OGame\Services\AllianceMemberService::getUserAlliance($this->playerService->getUser());
         $isAllianceMember = $viewerAlliance && $alliance && $viewerAlliance->id === $alliance->id;
 
+        // Build alliance action data for tooltip
+        $allianceAction = ['available' => false];
+        if ($alliance) {
+            $allianceAction = [
+                'available' => true,
+                'infoPageLink' => route('alliance.show', $alliance->id),
+                'infoPageTitle' => 'Alliance Info',
+                'applicationLink' => $alliance->open_for_applications ? route('alliance.show', $alliance->id) : null,
+                'applicationTitle' => $alliance->open_for_applications ? 'Apply' : null,
+                'allianceClassName' => null,
+                'allianceClassCss' => null,
+            ];
+        }
+
         return [
             'actions' => [
-                'alliance' => [
-                    'available' => false,
-                ],
+                'alliance' => $allianceAction,
                 'buddies' => [
                     'available' => false,
                 ],
