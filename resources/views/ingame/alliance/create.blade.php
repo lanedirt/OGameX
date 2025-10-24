@@ -13,65 +13,59 @@
 
                     <div class="alliance_wrapper">
                         <div class="allianceContent">
-                            @if ($errors->any())
-                                <div class="alert alert-danger">
-                                    <ul>
+                            <div class="contentz">
+                                @if ($errors->any())
+                                    <table class="members" width="100%" cellpadding="0" cellspacing="1" style="margin-bottom: 10px;">
+                                        <tr>
+                                            <th>Validation Errors</th>
+                                        </tr>
                                         @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
+                                            <tr>
+                                                <td style="color: #f66;">{{ $error }}</td>
+                                            </tr>
                                         @endforeach
-                                    </ul>
-                                </div>
-                            @endif
+                                    </table>
+                                @endif
 
-                            <form action="{{ route('alliance.store') }}" method="POST">
-                                @csrf
-                                <table class="createnote createALLY">
-                                    <tbody>
+                                <form action="{{ route('alliance.store') }}" method="POST">
+                                    @csrf
+                                    <table class="members" width="100%" cellpadding="0" cellspacing="1">
                                         <tr>
-                                            <td class="desc">Alliance Tag (3-8 characters)</td>
-                                            <td class="value">
-                                                <input class="text w200" type="text" name="tag" id="allyTagField" maxlength="8" value="{{ old('tag') }}" required>
-                                            </td>
+                                            <th colspan="2">Create New Alliance</th>
                                         </tr>
                                         <tr>
-                                            <td class="desc">Alliance Name (3-64 characters)</td>
-                                            <td class="value">
-                                                <input class="text w200" type="text" name="name" id="allyNameField" maxlength="64" value="{{ old('name') }}" required>
-                                            </td>
+                                            <td style="width: 200px;">Alliance Tag (3-8 characters)</td>
+                                            <td><input class="text w200" type="text" name="tag" id="allyTagField" maxlength="8" value="{{ old('tag') }}" required></td>
+                                        </tr>
+                                        <tr class="alt">
+                                            <td>Alliance Name (3-64 characters)</td>
+                                            <td><input class="text w200" type="text" name="name" id="allyNameField" maxlength="64" value="{{ old('name') }}" required></td>
                                         </tr>
                                         <tr>
-                                            <td class="desc">Description (optional)</td>
-                                            <td class="value">
-                                                <textarea name="description" rows="5" cols="50">{{ old('description') }}</textarea>
-                                            </td>
+                                            <td>Description (optional)</td>
+                                            <td><textarea name="description" rows="5" cols="50">{{ old('description') }}</textarea></td>
+                                        </tr>
+                                        <tr class="alt">
+                                            <td>Logo URL (optional)</td>
+                                            <td><input class="text w200" type="url" name="logo" value="{{ old('logo') }}"></td>
                                         </tr>
                                         <tr>
-                                            <td class="desc">Logo URL (optional)</td>
-                                            <td class="value">
-                                                <input class="text w200" type="url" name="logo" value="{{ old('logo') }}">
-                                            </td>
+                                            <td>Website URL (optional)</td>
+                                            <td><input class="text w200" type="url" name="external_url" value="{{ old('external_url') }}"></td>
+                                        </tr>
+                                        <tr class="alt">
+                                            <td>Application Text (optional)</td>
+                                            <td><textarea name="application_text" rows="3" cols="50">{{ old('application_text') }}</textarea></td>
                                         </tr>
                                         <tr>
-                                            <td class="desc">Website URL (optional)</td>
-                                            <td class="value">
-                                                <input class="text w200" type="url" name="external_url" value="{{ old('external_url') }}">
+                                            <td colspan="2" style="text-align: center; padding: 15px;">
+                                                <button type="submit" class="btn_blue">Create Alliance</button>
+                                                <a href="{{ route('alliance.index') }}" class="btn_blue">Cancel</a>
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td class="desc">Application Text (optional)</td>
-                                            <td class="value">
-                                                <textarea name="application_text" rows="3" cols="50">{{ old('application_text') }}</textarea>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2" align="center">
-                                                <button type="submit" class="action btn_blue">Create Alliance</button>
-                                                <a href="{{ route('alliance.index') }}" class="action btn_grey">Cancel</a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </form>
+                                    </table>
+                                </form>
+                            </div>
                         </div>
                     </div>
                     <div class="new_footer"></div>
