@@ -335,6 +335,15 @@ class GalaxyController extends OGameController
      */
     private function getPlayerInfo(PlayerService $player): array
     {
+        // Get player's alliance if they have one
+        $alliance = \OGame\Services\AllianceMemberService::getUserAlliance($player->getUser());
+        $allianceId = $alliance ? $alliance->id : null;
+        $allianceTag = $alliance ? $alliance->tag : null;
+
+        // Check if the viewing player is in the same alliance
+        $viewerAlliance = \OGame\Services\AllianceMemberService::getUserAlliance($this->playerService->getUser());
+        $isAllianceMember = $viewerAlliance && $alliance && $viewerAlliance->id === $alliance->id;
+
         return [
             'actions' => [
                 'alliance' => [
@@ -355,6 +364,9 @@ class GalaxyController extends OGameController
             ],
             'playerId' => $player->getId(),
             'playerName' => $player->getUsername(),
+            'allianceId' => $allianceId,
+            'allianceTag' => $allianceTag,
+            'isAllianceMember' => $isAllianceMember,
             'isAdmin' => $player->isAdmin(),
             'isInactive' => $player->isInactive(),
             'isLongInactive' => $player->isLongInactive(),

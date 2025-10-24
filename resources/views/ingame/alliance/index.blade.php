@@ -59,7 +59,7 @@
                             <div class="allianceContent">
                                 {{-- Alliance Info Tab --}}
                                 <div id="alliance-info" class="tab-content contentz" style="display: block;">
-                                    <h3>[{{ $alliance->tag }}] {{ $alliance->name }}</h3>
+                                    <p style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">[{{ $alliance->tag }}] {{ $alliance->name }}</p>
 
                                     @if($alliance->logo)
                                         <div style="margin: 10px 0;">
@@ -69,7 +69,7 @@
 
                                     @if($alliance->description)
                                         <div style="margin: 15px 0;">
-                                            <h4>Description</h4>
+                                            <p style="font-weight: bold; margin-bottom: 5px;">Description</p>
                                             <div id="allyText">{{ $alliance->description }}</div>
                                         </div>
                                     @endif
@@ -80,7 +80,7 @@
 
                                     @if($alliance->internal_text && $membership)
                                         <div style="margin: 15px 0;">
-                                            <h4>Internal Area</h4>
+                                            <p style="font-weight: bold; margin-bottom: 5px;">Internal Area</p>
                                             <div id="allyText">{{ $alliance->internal_text }}</div>
                                         </div>
                                     @endif
@@ -108,7 +108,6 @@
 
                                 {{-- Members Tab --}}
                                 <div id="members" class="tab-content contentz" style="display: none;">
-                                    <h3>Member List</h3>
                                     @if($members->isNotEmpty())
                                         <div id="section12" style="margin: 20px 0;">
                                             <table class="members" width="100%" cellpadding="0" cellspacing="1">
@@ -147,7 +146,6 @@
                                 {{-- Applications Tab --}}
                                 @if($allianceService && $allianceService->hasPermission(Auth::id(), 'can_see_applications'))
                                     <div id="applications" class="tab-content contentz" style="display: none;">
-                                        <h3>Pending Applications</h3>
                                         @if($pendingApplications->isNotEmpty())
                                             <div id="section22" style="margin: 20px 0;">
                                                 <table class="members" width="100%" cellpadding="0" cellspacing="1">
