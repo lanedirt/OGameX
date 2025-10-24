@@ -44,15 +44,27 @@
 
                                 @if($alliance->description)
                                     <div style="margin: 20px 0;">
-                                        <h4>Description</h4>
-                                        <div id="allyText">{{ $alliance->description }}</div>
+                                        <table class="members" width="100%" cellpadding="0" cellspacing="1">
+                                            <tr>
+                                                <th>Description</th>
+                                            </tr>
+                                            <tr>
+                                                <td><div id="allyText">{{ $alliance->description }}</div></td>
+                                            </tr>
+                                        </table>
                                     </div>
                                 @endif
 
                                 @if($alliance->application_text && !$isMember)
                                     <div style="margin: 20px 0;">
-                                        <h4>Application Information</h4>
-                                        <div id="allyText">{{ $alliance->application_text }}</div>
+                                        <table class="members" width="100%" cellpadding="0" cellspacing="1">
+                                            <tr>
+                                                <th>Application Information</th>
+                                            </tr>
+                                            <tr>
+                                                <td><div id="allyText">{{ $alliance->application_text }}</div></td>
+                                            </tr>
+                                        </table>
                                     </div>
                                 @endif
 
@@ -62,15 +74,23 @@
                                     @elseif($hasPendingApplication)
                                         <p class="alert alert-info">You have a pending application to this alliance.</p>
                                     @elseif($canApply)
-                                        <h4>Apply to this Alliance</h4>
-                                        <form action="{{ route('alliance.apply', $alliance->id) }}" method="POST" style="margin: 15px 0;">
-                                            @csrf
-                                            <div style="margin-bottom: 10px;">
-                                                <label>Application Message (optional):</label><br>
-                                                <textarea name="application_text" class="alliancetexts" rows="5"></textarea>
-                                            </div>
-                                            <button type="submit" class="btn_blue">Submit Application</button>
-                                        </form>
+                                        <table class="members" width="100%" cellpadding="0" cellspacing="1">
+                                            <tr>
+                                                <th>Apply to this Alliance</th>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <form action="{{ route('alliance.apply', $alliance->id) }}" method="POST" style="margin: 15px 0;">
+                                                        @csrf
+                                                        <div style="margin-bottom: 10px;">
+                                                            <label>Application Message (optional):</label><br>
+                                                            <textarea name="application_text" class="alliancetexts" rows="5"></textarea>
+                                                        </div>
+                                                        <button type="submit" class="btn_blue">Submit Application</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     @else
                                         <p class="alert alert-warning">This alliance is not currently accepting applications.</p>
                                     @endif

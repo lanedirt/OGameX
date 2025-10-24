@@ -59,37 +59,62 @@
                             <div class="allianceContent">
                                 {{-- Alliance Info Tab --}}
                                 <div id="alliance-info" class="tab-content contentz" style="display: block;">
-                                    <p style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">[{{ $alliance->tag }}] {{ $alliance->name }}</p>
-
-                                    @if($alliance->logo)
-                                        <div style="margin: 10px 0;">
-                                            <img src="{{ $alliance->logo }}" alt="{{ $alliance->name }} Logo" style="max-width: 200px;">
-                                        </div>
-                                    @endif
+                                    <table class="members" width="100%" cellpadding="0" cellspacing="1">
+                                        <tr>
+                                            <th colspan="2">[{{ $alliance->tag }}] {{ $alliance->name }}</th>
+                                        </tr>
+                                        @if($alliance->logo)
+                                        <tr>
+                                            <td colspan="2" style="text-align: center; padding: 10px;">
+                                                <img src="{{ $alliance->logo }}" alt="{{ $alliance->name }} Logo" style="max-width: 200px;">
+                                            </td>
+                                        </tr>
+                                        @endif
+                                        <tr>
+                                            <td class="desc">Founded by:</td>
+                                            <td class="value">{{ $alliance->founder->username }}</td>
+                                        </tr>
+                                        <tr class="alt">
+                                            <td class="desc">Members:</td>
+                                            <td class="value">{{ $members->count() }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="desc">Your Rank:</td>
+                                            <td class="value">{{ $userRank->name ?? 'No rank assigned' }}</td>
+                                        </tr>
+                                        @if($alliance->external_url)
+                                        <tr class="alt">
+                                            <td class="desc">Homepage:</td>
+                                            <td class="value"><a href="{{ $alliance->external_url }}" target="_blank" rel="noopener">{{ $alliance->external_url }}</a></td>
+                                        </tr>
+                                        @endif
+                                    </table>
 
                                     @if($alliance->description)
-                                        <div style="margin: 15px 0;">
-                                            <p style="font-weight: bold; margin-bottom: 5px;">Description</p>
-                                            <div id="allyText">{{ $alliance->description }}</div>
+                                        <div style="margin: 20px 0;">
+                                            <table class="members" width="100%" cellpadding="0" cellspacing="1">
+                                                <tr>
+                                                    <th>Description</th>
+                                                </tr>
+                                                <tr>
+                                                    <td><div id="allyText">{{ $alliance->description }}</div></td>
+                                                </tr>
+                                            </table>
                                         </div>
-                                    @endif
-
-                                    @if($alliance->external_url)
-                                        <p><strong>Homepage:</strong> <a href="{{ $alliance->external_url }}" target="_blank" rel="noopener">{{ $alliance->external_url }}</a></p>
                                     @endif
 
                                     @if($alliance->internal_text && $membership)
-                                        <div style="margin: 15px 0;">
-                                            <p style="font-weight: bold; margin-bottom: 5px;">Internal Area</p>
-                                            <div id="allyText">{{ $alliance->internal_text }}</div>
+                                        <div style="margin: 20px 0;">
+                                            <table class="members" width="100%" cellpadding="0" cellspacing="1">
+                                                <tr>
+                                                    <th>Internal Area</th>
+                                                </tr>
+                                                <tr>
+                                                    <td><div id="allyText">{{ $alliance->internal_text }}</div></td>
+                                                </tr>
+                                            </table>
                                         </div>
                                     @endif
-
-                                    <div style="margin: 15px 0;">
-                                        <p><strong>Founded by:</strong> {{ $alliance->founder->username }}</p>
-                                        <p><strong>Members:</strong> {{ $members->count() }}</p>
-                                        <p><strong>Your Rank:</strong> {{ $userRank->name ?? 'No rank assigned' }}</p>
-                                    </div>
 
                                     <div style="margin-top: 20px; text-align: center;">
                                         <form method="POST" action="{{ route('alliance.leave') }}" style="display: inline; margin-right: 10px;">
