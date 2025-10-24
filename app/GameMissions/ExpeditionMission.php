@@ -658,7 +658,7 @@ class ExpeditionMission extends GameMission
         // TODO: when actual player classes such as discoverer, collector etc. are implemented, make this modifier apply only if class is "discoverer".
         // For now we apply it anyway so the economy speed is applied to the resource find.
         $economySpeed = $this->settings->economySpeed();
-        $resourceAmount = $resourceAmount * ($economySpeed * 1);
+        $resourceAmount = $resourceAmount * ($economySpeed * 1.1);
 
         // TODO: when pathfinder unit is added to the game and included in the fleet, the max find should be doubled.
 
