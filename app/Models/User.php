@@ -4,6 +4,7 @@ namespace OGame\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -109,5 +110,35 @@ class User extends Authenticatable
     public function allianceMembership(): HasOne
     {
         return $this->hasOne(AllianceMember::class);
+    }
+
+    /**
+     * Get all buddy relationships where this user is the owner.
+     *
+     * @return HasMany
+     */
+    public function buddies(): HasMany
+    {
+        return $this->hasMany(Buddy::class, 'user_id');
+    }
+
+    /**
+     * Get all buddy requests sent by this user.
+     *
+     * @return HasMany
+     */
+    public function sentBuddyRequests(): HasMany
+    {
+        return $this->hasMany(BuddyRequest::class, 'sender_id');
+    }
+
+    /**
+     * Get all buddy requests received by this user.
+     *
+     * @return HasMany
+     */
+    public function receivedBuddyRequests(): HasMany
+    {
+        return $this->hasMany(BuddyRequest::class, 'receiver_id');
     }
 }

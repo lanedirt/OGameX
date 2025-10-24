@@ -141,6 +141,11 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::post('/ajax/highscore', [HighscoreController::class, 'ajax'])->name('highscore.ajax');
 
     Route::get('/buddies', [BuddiesController::class, 'index'])->name('buddies.index');
+    Route::post('/buddies/send-request', [BuddiesController::class, 'sendRequest'])->name('buddies.sendRequest');
+    Route::post('/buddies/accept/{requestId}', [BuddiesController::class, 'acceptRequest'])->name('buddies.acceptRequest');
+    Route::post('/buddies/reject/{requestId}', [BuddiesController::class, 'rejectRequest'])->name('buddies.rejectRequest');
+    Route::post('/buddies/cancel/{requestId}', [BuddiesController::class, 'cancelRequest'])->name('buddies.cancelRequest');
+    Route::post('/buddies/remove/{buddyId}', [BuddiesController::class, 'removeBuddy'])->name('buddies.removeBuddy');
     Route::get('/rewards', [RewardsController::class, 'index'])->name('rewards.index');
     Route::get('/planet-move', [PlanetMoveController::class, 'index'])->name('planetMove.index');
 
