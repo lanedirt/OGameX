@@ -2,18 +2,6 @@
 
 @section('content')
 
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <div id="eventboxContent" style="display: none">
         <img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif">
     </div>
@@ -59,6 +47,22 @@
                             <div class="allianceContent">
                                 {{-- Alliance Info Tab --}}
                                 <div id="alliance-info" class="tab-content contentz" style="display: block;">
+                                    @if (session('success'))
+                                        <table class="members" width="100%" cellpadding="0" cellspacing="1" style="margin-bottom: 10px;">
+                                            <tr>
+                                                <td style="color: #6f9;">{{ session('success') }}</td>
+                                            </tr>
+                                        </table>
+                                    @endif
+
+                                    @if (session('error'))
+                                        <table class="members" width="100%" cellpadding="0" cellspacing="1" style="margin-bottom: 10px;">
+                                            <tr>
+                                                <td style="color: #f66;">{{ session('error') }}</td>
+                                            </tr>
+                                        </table>
+                                    @endif
+
                                     <table class="members" width="100%" cellpadding="0" cellspacing="1">
                                         <tr>
                                             <th colspan="2">[{{ $alliance->tag }}] {{ $alliance->name }}</th>
@@ -232,8 +236,33 @@
                         <div class="alliance_wrapper">
                             <div class="allianceContent">
                                 <div class="contentz">
-                                    <p>You are not currently a member of any alliance.</p>
-                                    <p>You can either <a href="{{ route('alliance.create') }}">create your own alliance</a> or <a href="{{ route('alliance.search') }}">search for an existing alliance</a> to join.</p>
+                                    @if (session('success'))
+                                        <table class="members" width="100%" cellpadding="0" cellspacing="1" style="margin-bottom: 10px;">
+                                            <tr>
+                                                <td style="color: #6f9;">{{ session('success') }}</td>
+                                            </tr>
+                                        </table>
+                                    @endif
+
+                                    @if (session('error'))
+                                        <table class="members" width="100%" cellpadding="0" cellspacing="1" style="margin-bottom: 10px;">
+                                            <tr>
+                                                <td style="color: #f66;">{{ session('error') }}</td>
+                                            </tr>
+                                        </table>
+                                    @endif
+
+                                    <table class="members" width="100%" cellpadding="0" cellspacing="1">
+                                        <tr>
+                                            <th>Alliance Information</th>
+                                        </tr>
+                                        <tr>
+                                            <td>You are not currently a member of any alliance.</td>
+                                        </tr>
+                                        <tr class="alt">
+                                            <td>You can either <a href="{{ route('alliance.create') }}">create your own alliance</a> or <a href="{{ route('alliance.search') }}">search for an existing alliance</a> to join.</td>
+                                        </tr>
+                                    </table>
                                 </div>
                             </div>
                         </div>
