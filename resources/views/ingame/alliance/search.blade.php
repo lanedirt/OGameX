@@ -18,40 +18,53 @@
                         <div class="allianceContent">
                             <div class="contentz">
                                 <form action="{{ route('alliance.search') }}" method="GET">
-                                    <div style="margin-bottom: 20px;">
-                                        <input type="text" name="query" class="text w290" placeholder="Search by tag or name..." value="{{ $query }}">
-                                        <button type="submit" class="btn_blue">Search</button>
-                                    </div>
+                                    <table class="members" width="100%" cellpadding="0" cellspacing="1">
+                                        <tr>
+                                            <th colspan="2">Search for Alliance</th>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" style="text-align: center; padding: 15px;">
+                                                <input type="text" name="query" class="text w290" placeholder="Search by tag or name..." value="{{ $query }}">
+                                                <button type="submit" class="btn_blue">Search</button>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </form>
 
                                 @if($query)
-                                    <h3>Search Results for "{{ $query }}"</h3>
-
                                     @if($results->isEmpty())
-                                        <p>No alliances found matching your search.</p>
+                                        <table class="members" width="100%" cellpadding="0" cellspacing="1" style="margin-top: 10px;">
+                                            <tr>
+                                                <th>Search Results for "{{ $query }}"</th>
+                                            </tr>
+                                            <tr>
+                                                <td>No alliances found matching your search.</td>
+                                            </tr>
+                                        </table>
                                     @else
-                                        <div id="section12" style="margin: 20px 0;">
-                                            <table class="members" width="100%" cellpadding="0" cellspacing="1">
-                                                <tr>
-                                                    <th>Tag</th>
-                                                    <th>Name</th>
-                                                    <th>Founder</th>
-                                                    <th>Members</th>
-                                                    <th>Actions</th>
+                                        <table class="members" width="100%" cellpadding="0" cellspacing="1" style="margin-top: 10px;">
+                                            <tr>
+                                                <th colspan="5">Search Results for "{{ $query }}"</th>
+                                            </tr>
+                                            <tr>
+                                                <th>Tag</th>
+                                                <th>Name</th>
+                                                <th>Founder</th>
+                                                <th>Members</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                            @foreach($results as $index => $alliance)
+                                                <tr class="{{ $index % 2 == 1 ? 'alt' : '' }}">
+                                                    <td>[{{ $alliance->tag }}]</td>
+                                                    <td>{{ $alliance->name }}</td>
+                                                    <td>{{ $alliance->founder->username }}</td>
+                                                    <td>{{ $alliance->members_count }}</td>
+                                                    <td>
+                                                        <a href="{{ route('alliance.show', $alliance->id) }}" class="btn_blue" style="padding: 2px 8px;">View</a>
+                                                    </td>
                                                 </tr>
-                                                @foreach($results as $index => $alliance)
-                                                    <tr class="{{ $index % 2 == 1 ? 'alt' : '' }}">
-                                                        <td>[{{ $alliance->tag }}]</td>
-                                                        <td>{{ $alliance->name }}</td>
-                                                        <td>{{ $alliance->founder->username }}</td>
-                                                        <td>{{ $alliance->members_count }}</td>
-                                                        <td>
-                                                            <a href="{{ route('alliance.show', $alliance->id) }}" class="btn_blue" style="padding: 2px 8px;">View</a>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </table>
-                                        </div>
+                                            @endforeach
+                                        </table>
                                     @endif
                                 @endif
                             </div>
