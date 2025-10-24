@@ -57,41 +57,43 @@
                         <div class="clearfloat"></div>
                         <div class="alliance_wrapper">
                             <div class="allianceContent">
-                                <h3>[{{ $alliance->tag }}] {{ $alliance->name }}</h3>
+                                <div class="contentz">
+                                    <h3>[{{ $alliance->tag }}] {{ $alliance->name }}</h3>
 
-                                @if($alliance->logo)
-                                    <div class="alliance-logo">
-                                        <img src="{{ $alliance->logo }}" alt="{{ $alliance->name }} Logo" style="max-width: 200px;">
+                                    @if($alliance->logo)
+                                        <div class="alliance-logo" style="margin: 10px 0;">
+                                            <img src="{{ $alliance->logo }}" alt="{{ $alliance->name }} Logo" style="max-width: 200px;">
+                                        </div>
+                                    @endif
+
+                                    @if($alliance->description)
+                                        <div style="margin: 15px 0;">
+                                            <h4>Description</h4>
+                                            <div id="allyText">{{ $alliance->description }}</div>
+                                        </div>
+                                    @endif
+
+                                    @if($alliance->external_url)
+                                        <p><strong>Homepage:</strong> <a href="{{ $alliance->external_url }}" target="_blank" rel="noopener">{{ $alliance->external_url }}</a></p>
+                                    @endif
+
+                                    @if($alliance->internal_text && $membership)
+                                        <div style="margin: 15px 0;">
+                                            <h4>Internal Area</h4>
+                                            <div id="allyText">{{ $alliance->internal_text }}</div>
+                                        </div>
+                                    @endif
+
+                                    <div style="margin: 15px 0;">
+                                        <p><strong>Founded by:</strong> {{ $alliance->founder->username }}</p>
+                                        <p><strong>Members:</strong> {{ $members->count() }}</p>
+                                        <p><strong>Your Rank:</strong> {{ $userRank->name ?? 'No rank assigned' }}</p>
                                     </div>
-                                @endif
 
-                                <div class="alliance-description">
-                                    <h4>Description</h4>
-                                    <p>{{ $alliance->description ?? 'No description available.' }}</p>
-                                </div>
-
-                                @if($alliance->external_url)
-                                    <p><strong>Website:</strong> <a href="{{ $alliance->external_url }}" target="_blank">{{ $alliance->external_url }}</a></p>
-                                @endif
-
-                                @if($alliance->internal_text && $membership)
-                                    <div class="alliance-internal">
-                                        <h4>Internal Text</h4>
-                                        <p>{{ $alliance->internal_text }}</p>
-                                    </div>
-                                @endif
-
-                                <div class="alliance-stats">
-                                    <p><strong>Founded by:</strong> {{ $alliance->founder->username }}</p>
-                                    <p><strong>Members:</strong> {{ $members->count() }}</p>
-                                    <p><strong>Your Rank:</strong> {{ $userRank->name ?? 'No rank assigned' }}</p>
-                                </div>
-
-                                @if($members->isNotEmpty())
-                                    <div class="alliance-members">
-                                        <h4>Member List</h4>
-                                        <table class="table">
-                                            <thead>
+                                    @if($members->isNotEmpty())
+                                        <div id="section12" style="margin: 20px 0;">
+                                            <h4>Member List</h4>
+                                            <table class="members" width="100%" cellpadding="0" cellspacing="1">
                                                 <tr>
                                                     <th>Username</th>
                                                     <th>Rank</th>
@@ -100,10 +102,8 @@
                                                         <th>Actions</th>
                                                     @endif
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($members as $member)
-                                                    <tr>
+                                                @foreach($members as $index => $member)
+                                                    <tr class="{{ $index % 2 == 1 ? 'alt' : '' }}">
                                                         <td>{{ $member->user->username }}</td>
                                                         <td>{{ $member->rank->name ?? 'No rank' }}</td>
                                                         <td>{{ $member->joined_at ? $member->joined_at->format('Y-m-d') : 'N/A' }}</td>
@@ -112,23 +112,21 @@
                                                                 @if($member->user_id !== $alliance->founder_id && $member->user_id !== Auth::id())
                                                                     <form method="POST" action="{{ route('alliance.member.kick', $member->id) }}" style="display: inline;">
                                                                         @csrf
-                                                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to kick this member?')">Kick</button>
+                                                                        <button type="submit" class="btn_blue" onclick="return confirm('Are you sure you want to kick this member?')" style="padding: 2px 8px;">Kick</button>
                                                                     </form>
                                                                 @endif
                                                             </td>
                                                         @endif
                                                     </tr>
                                                 @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @endif
+                                            </table>
+                                        </div>
+                                    @endif
 
-                                @if($allianceService && $allianceService->hasPermission(Auth::id(), 'can_see_applications') && $pendingApplications->isNotEmpty())
-                                    <div class="alliance-applications">
-                                        <h4>Pending Applications</h4>
-                                        <table class="table">
-                                            <thead>
+                                    @if($allianceService && $allianceService->hasPermission(Auth::id(), 'can_see_applications') && $pendingApplications->isNotEmpty())
+                                        <div id="section22" style="margin: 20px 0;">
+                                            <h4>Pending Applications</h4>
+                                            <table class="members" width="100%" cellpadding="0" cellspacing="1">
                                                 <tr>
                                                     <th>Username</th>
                                                     <th>Application Text</th>
@@ -137,44 +135,42 @@
                                                         <th>Actions</th>
                                                     @endif
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($pendingApplications as $application)
-                                                    <tr>
+                                                @foreach($pendingApplications as $index => $application)
+                                                    <tr class="{{ $index % 2 == 1 ? 'alt' : '' }}">
                                                         <td>{{ $application->user->username }}</td>
                                                         <td>{{ $application->application_text ?? 'No message' }}</td>
                                                         <td>{{ $application->created_at->format('Y-m-d H:i') }}</td>
                                                         @if($allianceService->hasPermission(Auth::id(), 'can_accept_applications'))
                                                             <td>
-                                                                <form method="POST" action="{{ route('alliance.application.accept', $application->id) }}" style="display: inline;">
+                                                                <form method="POST" action="{{ route('alliance.application.accept', $application->id) }}" style="display: inline; margin-right: 5px;">
                                                                     @csrf
-                                                                    <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                                                                    <button type="submit" class="btn_blue" style="padding: 2px 8px;">Accept</button>
                                                                 </form>
                                                                 <form method="POST" action="{{ route('alliance.application.reject', $application->id) }}" style="display: inline;">
                                                                     @csrf
-                                                                    <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                                                    <button type="submit" class="btn_blue" style="padding: 2px 8px;">Reject</button>
                                                                 </form>
                                                             </td>
                                                         @endif
                                                     </tr>
                                                 @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @endif
-
-                                <div class="alliance-actions" style="margin-top: 20px;">
-                                    <form method="POST" action="{{ route('alliance.leave') }}" style="display: inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to leave this alliance?')">Leave Alliance</button>
-                                    </form>
-
-                                    @if($alliance->founder_id === Auth::id())
-                                        <form method="POST" action="{{ route('alliance.disband') }}" style="display: inline;">
-                                            @csrf
-                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to disband this alliance? This action cannot be undone!')">Disband Alliance</button>
-                                        </form>
+                                            </table>
+                                        </div>
                                     @endif
+
+                                    <div style="margin-top: 20px; text-align: center;">
+                                        <form method="POST" action="{{ route('alliance.leave') }}" style="display: inline; margin-right: 10px;">
+                                            @csrf
+                                            <button type="submit" class="btn_blue" onclick="return confirm('Are you sure you want to leave this alliance?')">Leave Alliance</button>
+                                        </form>
+
+                                        @if($alliance->founder_id === Auth::id())
+                                            <form method="POST" action="{{ route('alliance.disband') }}" style="display: inline;">
+                                                @csrf
+                                                <button type="submit" class="btn_blue" onclick="return confirm('Are you sure you want to disband this alliance? This action cannot be undone!')">Disband Alliance</button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -195,8 +191,10 @@
                         <div class="clearfloat"></div>
                         <div class="alliance_wrapper">
                             <div class="allianceContent">
-                                <p>You are not currently a member of any alliance.</p>
-                                <p>You can either <a href="{{ route('alliance.create') }}">create your own alliance</a> or <a href="{{ route('alliance.search') }}">search for an existing alliance</a> to join.</p>
+                                <div class="contentz">
+                                    <p>You are not currently a member of any alliance.</p>
+                                    <p>You can either <a href="{{ route('alliance.create') }}">create your own alliance</a> or <a href="{{ route('alliance.search') }}">search for an existing alliance</a> to join.</p>
+                                </div>
                             </div>
                         </div>
                     @endif
