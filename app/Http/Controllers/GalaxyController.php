@@ -361,6 +361,7 @@ class GalaxyController extends OGameController
         $alliance = \OGame\Services\AllianceMemberService::getUserAlliance($player->getUser());
         $allianceId = $alliance ? $alliance->id : null;
         $allianceTag = $alliance ? $alliance->tag : null;
+        $allianceName = $alliance ? $alliance->name : null;
 
         // Check if the viewing player is in the same alliance
         $viewerAlliance = \OGame\Services\AllianceMemberService::getUserAlliance($this->playerService->getUser());
@@ -369,12 +370,16 @@ class GalaxyController extends OGameController
         // Build alliance action data for tooltip
         $allianceAction = ['available' => false];
         if ($alliance) {
+            $memberCount = $alliance->members()->count();
             $allianceAction = [
                 'available' => true,
                 'infoPageLink' => route('alliance.show', $alliance->id),
                 'infoPageTitle' => 'Alliance Info',
                 'applicationLink' => $alliance->open_for_applications ? route('alliance.show', $alliance->id) : null,
                 'applicationTitle' => $alliance->open_for_applications ? 'Apply' : null,
+                'highscoreLink' => route('highscore.index', ['type' => 1, 'category' => 2, 'searchRelId' => $alliance->id]),
+                'highscoreTitle' => '#' . ($alliance->id ?? 'N/A'), // Placeholder rank, would need actual calculation
+                'memberCount' => $memberCount,
                 'allianceClassName' => null,
                 'allianceClassCss' => null,
             ];
@@ -400,6 +405,7 @@ class GalaxyController extends OGameController
             'playerName' => $player->getUsername(),
             'allianceId' => $allianceId,
             'allianceTag' => $allianceTag,
+            'allianceName' => $allianceName,
             'isAllianceMember' => $isAllianceMember,
             'isAdmin' => $player->isAdmin(),
             'isInactive' => $player->isInactive(),
