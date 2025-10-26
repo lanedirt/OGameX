@@ -253,7 +253,7 @@ class ResearchQueueService
 
             // See if the planet has enough resources for this research attempt.
             $price = ObjectService::getObjectPrice($object->machine_name, $planet);
-            $research_time = $player->planets->current()->getTechnologyResearchTime($object->machine_name);
+            $research_time = $planet->getTechnologyResearchTime($object->machine_name);
 
             // Only start the queue item if there are no other queue items researching
             // for this planet.

@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use OGame\Factories\AllianceServiceFactory;
 use OGame\Models\Alliance;
 use OGame\Models\AllianceApplication;
 use OGame\Models\AllianceMember;

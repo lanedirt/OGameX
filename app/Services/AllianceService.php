@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Models\Alliance;
-use OGame\Models\AllianceApplication;
 use OGame\Models\AllianceMember;
 use OGame\Models\AllianceRank;
 use OGame\Models\User;
