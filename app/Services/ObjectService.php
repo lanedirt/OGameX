@@ -483,7 +483,7 @@ class ObjectService
             $max_build_amount[] = floor($planet->energy()->get() / $price->energy->get());
         }
 
-        // NEW: Add silo capacity limit to the array for missiles
+        // Add silo capacity limit to the array for missiles
         if (($machine_name === 'interplanetary_missile' || $machine_name === 'anti_ballistic_missile') && isset($max_from_silo)) {
             $max_build_amount[] = $max_from_silo;
         }
