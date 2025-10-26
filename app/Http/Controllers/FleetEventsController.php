@@ -116,7 +116,7 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->destination_planet_type = PlanetType::from($row->type_to);
 
             if ($row->mission_type == 15) {
-                $eventRowViewModel->destination_planet_name = 'Deep space';
+                $eventRowViewModel->destination_planet_name = __('Deep space');
             } elseif ($row->planet_id_to !== null) {
                 $planetToService = $planetServiceFactory->make($row->planet_id_to);
                 if ($planetToService !== null) {
