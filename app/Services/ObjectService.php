@@ -437,7 +437,7 @@ class ObjectService
             return $planet->getObjectAmount($machine_name) ? 0 : 1;
         }
 
-        // NEW: Check missile silo capacity for IPM and ABM
+        // Check missile silo capacity for IPM and ABM
         if ($machine_name === 'interplanetary_missile' || $machine_name === 'anti_ballistic_missile') {
             $silo_level = $planet->getObjectLevel('missile_silo');
             $total_capacity = $silo_level * 10; // Each silo level provides 10 slots
