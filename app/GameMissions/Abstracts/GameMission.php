@@ -219,7 +219,12 @@ abstract class GameMission
             $mission->time_holding = $holdingHours * 3600;
         }
 
-        $mission->type_to = $targetType->value;
+        // For expeditions, set type_to to DeepSpace
+        if (static::class === ExpeditionMission::class) {
+            $mission->type_to = PlanetType::DeepSpace->value;
+        } else {
+            $mission->type_to = $targetType->value;
+        }
         $mission->deuterium_consumption = $consumption_resources->deuterium->get();
 
         // Only set the target planet ID if the target is a planet or moon.
@@ -283,10 +288,11 @@ abstract class GameMission
 
         // No need to check for resources and units, as the return mission takes the units from the original
         // mission and the resources are already delivered. Nothing is deducted from the planet.
-        // Time this fleet mission will depart (arrival time of the parent mission)
-        $time_start = $parentMission->time_arrival;
+        // Time this fleet mission will depart (arrival time of the parent mission + holding time)
+        // For expeditions, the holding time represents how long the fleet stays at the destination before returning.
+        $time_start = $parentMission->time_arrival + ($parentMission->time_holding ?? 0);
 
-        // Time fleet mission will arrive (arrival time of the parent mission + duration of the parent mission)
+        // Time fleet mission will arrive (departure time + duration of the parent mission)
         // Return mission duration is always the same as the parent mission duration.
         $time_end = $time_start + ($parentMission->time_arrival - $parentMission->time_departure) + $additionalReturnTripTime;
 

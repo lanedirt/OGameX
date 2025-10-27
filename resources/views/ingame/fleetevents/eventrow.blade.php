@@ -28,8 +28,14 @@
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>
                     @break
+                @case (OGame\Models\Enums\PlanetType::DeepSpace)
+                    @break
             @endswitch
-            {{ $fleet_event_row->destination_planet_name }}
+            @if ($fleet_event_row->destination_planet_type === OGame\Models\Enums\PlanetType::DeepSpace)
+                {{ __('Deep space') }}
+            @else
+                {{ $fleet_event_row->destination_planet_name }}
+            @endif
         </td>
         <td class="coordsOrigin">
             <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->destination_planet_coords->galaxy, 'system' => $fleet_event_row->destination_planet_coords->system]) }}"
@@ -86,13 +92,6 @@
             </span>
         </td>
 
-        <!--
-           &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Food'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
-                    &lt;/tr&gt;
-        -->
-
         <td class="destFleet">
             @switch ($fleet_event_row->origin_planet_type)
                 @case (OGame\Models\Enums\PlanetType::Planet)
@@ -103,6 +102,9 @@
                     @break
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
+                    @break
+                @case (OGame\Models\Enums\PlanetType::DeepSpace)
+                    {{ __('Deep space') }}
                     @break
             @endswitch
         </td>
@@ -147,6 +149,9 @@
                     @break
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
+                    @break
+                @case (OGame\Models\Enums\PlanetType::DeepSpace)
+                    {{ __('Deep space') }}
                     @break
             @endswitch
         </td>
@@ -216,6 +221,9 @@
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
+                @case (OGame\Models\Enums\PlanetType::DeepSpace)
+                    {{ __('Deep space') }}
+                    @break
             @endswitch
         </td>
         <td class="destCoords">
@@ -253,3 +261,4 @@
         );
     })(jQuery);
 </script>
+

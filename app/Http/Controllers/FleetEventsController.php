@@ -115,9 +115,13 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->destination_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
             $eventRowViewModel->destination_planet_type = PlanetType::from($row->type_to);
 
+<<<<<<< HEAD
             if ($row->mission_type == 15) {
                 $eventRowViewModel->destination_planet_name = __('Deep space');
             } elseif ($row->planet_id_to !== null) {
+=======
+            if ($row->planet_id_to !== null) {
+>>>>>>> 0b12f2d (display expedition dstination as Deep space and fix return timing)
                 $planetToService = $planetServiceFactory->make($row->planet_id_to);
                 if ($planetToService !== null) {
                     $eventRowViewModel->destination_planet_name = $planetToService->getPlanetName();
