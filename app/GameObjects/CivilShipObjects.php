@@ -71,7 +71,7 @@ To maximize the resources that can be stored in the holds, this ship has little 
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
         ];
-        $largeCargo->properties = new GameObjectProperties($largeCargo, 12000, 25, 5, 15000, 25000, 50);
+        $largeCargo->properties = new GameObjectProperties($largeCargo, 12000, 25, 5, 7500, 25000, 50);
 
         $largeCargo->assets = new GameObjectAssets();
         $largeCargo->assets->imgSmall = 'large_cargo_small.jpg';
