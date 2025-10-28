@@ -219,7 +219,13 @@ abstract class GameMission
             $mission->time_holding = $holdingHours * 3600;
         }
 
-        $mission->type_to = $targetType->value;
+        // For expedition missions, always set type_to as DeepSpace regardless of target
+        if (static::class === ExpeditionMission::class) {
+            $mission->type_to = PlanetType::DeepSpace->value;
+        } else {
+            $mission->type_to = $targetType->value;
+        }
+
         $mission->deuterium_consumption = $consumption_resources->deuterium->get();
 
         // Only set the target planet ID if the target is a planet or moon.

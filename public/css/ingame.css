@@ -9477,6 +9477,9 @@ figure.planetIcon.tf {
 figure.planetIcon.planet {
     display: none;
 }
+figure.planetIcon.deep-space {
+    display: none;
+}
 
 /* ****************** Small Officer and Ressource Images ************************** */
 .smallOfficer,
