@@ -7,9 +7,9 @@
         data-arrival-time="{{ $fleet_event_row->mission_time_arrival }}"
     >
         <td class="countDown">
-        <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="friendly textBeefy">
-                    load...
-        </span>
+            <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="friendly textBeefy">
+                load...
+            </span>
         </td>
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
@@ -20,22 +20,18 @@
         <td class="originFleet">
             @switch ($fleet_event_row->destination_planet_type)
                 @case (OGame\Models\Enums\PlanetType::Planet)
-                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>
+                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>{{ $fleet_event_row->destination_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::Moon)
-                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>
+                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>{{ $fleet_event_row->destination_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
-                    <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>
+                    <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
+                    <figure class="planetIcon deep-space js_hideTipOnMobile" title="Deep space"></figure>{{ __('Deep space') }}
                     @break
             @endswitch
-            @if ($fleet_event_row->destination_planet_type === OGame\Models\Enums\PlanetType::DeepSpace)
-                {{ __('Deep space') }}
-            @else
-                {{ $fleet_event_row->destination_planet_name }}
-            @endif
         </td>
         <td class="coordsOrigin">
             <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->destination_planet_coords->galaxy, 'system' => $fleet_event_row->destination_planet_coords->system]) }}"
@@ -104,7 +100,7 @@
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
-                    {{ __('Deep space') }}
+                    <figure class="planetIcon deep-space js_hideTipOnMobile" title="Deep space"></figure>{{ __('Deep space') }}
                     @break
             @endswitch
         </td>
@@ -151,7 +147,7 @@
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
-                    {{ __('Deep space') }}
+                    <figure class="planetIcon deep-space js_hideTipOnMobile" title="Deep space"></figure>{{ __('Deep space') }}
                     @break
             @endswitch
         </td>
@@ -222,7 +218,7 @@
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
-                    {{ __('Deep space') }}
+                    <figure class="planetIcon deep-space js_hideTipOnMobile" title="Deep space"></figure>{{ __('Deep space') }}
                     @break
             @endswitch
         </td>
