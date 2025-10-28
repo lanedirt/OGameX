@@ -217,14 +217,10 @@ abstract class GameMission
         // Only applies to expeditions (and ACS missions, but those are not implemented yet).
         if (static::class === ExpeditionMission::class) {
             $mission->time_holding = $holdingHours * 3600;
+            $targetType = PlanetType::DeepSpace;
         }
 
-        // For expedition missions, always set type_to as DeepSpace regardless of target
-        if (static::class === ExpeditionMission::class) {
-            $mission->type_to = PlanetType::DeepSpace->value;
-        } else {
-            $mission->type_to = $targetType->value;
-        }
+        $mission->type_to = $targetType->value;
 
         $mission->deuterium_consumption = $consumption_resources->deuterium->get();
 
