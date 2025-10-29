@@ -216,4 +216,21 @@ class BuddyService
             ->where('status', 'pending')
             ->count();
     }
+
+    /**
+     * Check if there's a pending buddy request between two users
+     *
+     * @param int $userId1
+     * @param int $userId2
+     * @return bool
+     */
+    public static function hasPendingRequest(int $userId1, int $userId2): bool
+    {
+        return BuddyRequest::where(function ($query) use ($userId1, $userId2) {
+            $query->where('sender_id', $userId1)->where('receiver_id', $userId2);
+        })->orWhere(function ($query) use ($userId1, $userId2) {
+            $query->where('sender_id', $userId2)->where('receiver_id', $userId1);
+        })->where('status', 'pending')
+        ->exists();
+    }
 }
