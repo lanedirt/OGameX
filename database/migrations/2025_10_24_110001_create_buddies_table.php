@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('buddies', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('buddy_id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('buddy_id');
             $table->timestamp('created_at');
 
             // Foreign keys

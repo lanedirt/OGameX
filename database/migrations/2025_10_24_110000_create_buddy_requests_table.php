@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('buddy_requests', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('sender_id');
-            $table->unsignedBigInteger('receiver_id');
+            $table->unsignedInteger('sender_id');
+            $table->unsignedInteger('receiver_id');
             $table->text('message')->nullable();
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
             $table->timestamps();
