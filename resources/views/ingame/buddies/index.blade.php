@@ -190,40 +190,32 @@
 
                             {{-- Add Buddy Tab --}}
                             <div id="add-buddy" class="tab-content contentz" style="display: none;">
-                                <table class="members" width="100%" cellpadding="0" cellspacing="1">
-                                    <tr>
-                                        <th colspan="2">Send Buddy Request</th>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2">
-                                            <form method="POST" action="{{ route('buddies.sendRequest') }}">
-                                                @csrf
-                                                <table width="100%" cellpadding="4" cellspacing="0">
-                                                    <tr>
-                                                        <td class="desc" style="width: 150px;">Player ID:</td>
-                                                        <td class="value">
-                                                            <input type="number" name="receiver_id" id="receiver_id" required
-                                                                   value="{{ request()->get('add', '') }}"
-                                                                   style="width: 200px;">
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="alt">
-                                                        <td class="desc">Message (optional):</td>
-                                                        <td class="value">
-                                                            <textarea name="message" id="message" rows="4" maxlength="500"
-                                                                      style="width: 100%; max-width: 500px;"></textarea>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan="2" style="text-align: center; padding-top: 10px;">
-                                                            <button type="submit" class="btn_blue">Send Buddy Request</button>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                </table>
+                                <form method="POST" action="{{ route('buddies.sendRequest') }}">
+                                    @csrf
+                                    <table class="members" width="100%" cellpadding="0" cellspacing="1">
+                                        <tr>
+                                            <th colspan="2">Send Buddy Request</th>
+                                        </tr>
+                                        <tr>
+                                            <td style="width: 200px;">Player ID:</td>
+                                            <td>
+                                                <input class="text w200" type="number" name="receiver_id" id="receiver_id" required
+                                                       value="{{ request()->get('add', '') }}">
+                                            </td>
+                                        </tr>
+                                        <tr class="alt">
+                                            <td>Message (optional):</td>
+                                            <td>
+                                                <textarea name="message" id="message" rows="5" cols="50" maxlength="500"></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" style="text-align: center; padding: 15px;">
+                                                <button type="submit" class="btn_blue">Send Buddy Request</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
                             </div>
 
                         </div>
