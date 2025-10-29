@@ -393,15 +393,20 @@ class GalaxyController extends OGameController
 
         // Check if viewer can send a buddy request to this player
         if ($viewerId !== $targetPlayerId) {
-            $areBuddies = BuddyService::areBuddies($viewerId, $targetPlayerId);
-            $hasPendingRequest = BuddyService::hasPendingRequest($viewerId, $targetPlayerId);
+            try {
+                $areBuddies = BuddyService::areBuddies($viewerId, $targetPlayerId);
+                $hasPendingRequest = BuddyService::hasPendingRequest($viewerId, $targetPlayerId);
 
-            if (!$areBuddies && !$hasPendingRequest) {
-                $buddyAction = [
-                    'available' => true,
-                    'link' => route('buddies.index') . '?add=' . $targetPlayerId,
-                    'title' => 'Add Buddy',
-                ];
+                if (!$areBuddies && !$hasPendingRequest) {
+                    $buddyAction = [
+                        'available' => true,
+                        'link' => route('buddies.index') . '?add=' . $targetPlayerId,
+                        'title' => 'Add Buddy',
+                    ];
+                }
+            } catch (\Exception $e) {
+                // If buddy system is not yet set up, silently fail and leave buddy action unavailable
+                $buddyAction = ['available' => false];
             }
         }
 
