@@ -407,7 +407,7 @@ class GalaxyController extends OGameController
                 if (!$areBuddies && !$hasPendingRequest) {
                     $buddyAction = [
                         'available' => true,
-                        'link' => route('buddies.index') . '?add=' . $targetPlayerId,
+                        'link' => route('buddies.overlay') . '?add=' . $targetPlayerId,
                         'title' => 'Add Buddy',
                     ];
                     \Log::info('Buddy action set to available', $buddyAction);

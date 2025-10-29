@@ -150,6 +150,7 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::get('/planet-move', [PlanetMoveController::class, 'index'])->name('planetMove.index');
 
     Route::get('/overlay/search', [SearchController::class, 'overlay'])->name('search.overlay');
+    Route::get('/overlay/buddies', [BuddiesController::class, 'overlay'])->name('buddies.overlay');
 
     Route::match(['get', 'post'], '/overlay/notes', [NotesController::class, 'overlay'])->name('notes.overlay');
     Route::get('/overlay/notes/view', [NotesController::class, 'view'])->name('notes.view');

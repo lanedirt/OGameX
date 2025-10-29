@@ -143,4 +143,31 @@ class BuddiesController extends OGameController
 
         return redirect()->route('buddies.index')->with('error', 'Could not remove buddy.');
     }
+
+    /**
+     * Show the overlay for sending a buddy request
+     *
+     * @param PlayerService $player
+     * @return View
+     */
+    public function overlay(PlayerService $player): View
+    {
+        $playerId = request()->get('add');
+        $playerName = null;
+
+        if ($playerId) {
+            try {
+                $targetUser = \OGame\Models\User::find($playerId);
+                if ($targetUser) {
+                    $playerName = $targetUser->username;
+                }
+            } catch (\Exception $e) {
+                // Ignore errors
+            }
+        }
+
+        return view('ingame.buddies.overlay', [
+            'playerName' => $playerName,
+        ]);
+    }
 }
