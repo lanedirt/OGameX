@@ -42,7 +42,9 @@
                                     <tr>
                                         <td style="width: 200px;">Player ID:</td>
                                         <td>
-                                            <input class="text w200" type="number" name="receiver_id" id="receiver_id" required
+                                            <input class="text w200" type="text" name="receiver_id" id="receiver_id" required
+                                                   pattern="[0-9]+"
+                                                   title="Please enter a valid player ID"
                                                    value="{{ request()->get('add', '') }}">
                                         </td>
                                     </tr>
