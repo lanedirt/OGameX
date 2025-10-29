@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
+use OGame\Services\BuddyService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -385,12 +386,29 @@ class GalaxyController extends OGameController
             ];
         }
 
+        // Build buddy action data for tooltip
+        $buddyAction = ['available' => false];
+        $viewerId = $this->playerService->getId();
+        $targetPlayerId = $player->getId();
+
+        // Check if viewer can send a buddy request to this player
+        if ($viewerId !== $targetPlayerId) {
+            $areBuddies = BuddyService::areBuddies($viewerId, $targetPlayerId);
+            $hasPendingRequest = BuddyService::hasPendingRequest($viewerId, $targetPlayerId);
+
+            if (!$areBuddies && !$hasPendingRequest) {
+                $buddyAction = [
+                    'available' => true,
+                    'link' => route('buddies.index') . '?add=' . $targetPlayerId,
+                    'title' => 'Add Buddy',
+                ];
+            }
+        }
+
         return [
             'actions' => [
                 'alliance' => $allianceAction,
-                'buddies' => [
-                    'available' => false,
-                ],
+                'buddies' => $buddyAction,
                 'highscore' => [
                     'available' => false,
                 ],
