@@ -208,7 +208,7 @@
                                         <tr class="alt">
                                             <td>Message (optional):</td>
                                             <td>
-                                                <textarea name="message" id="message" rows="5" cols="50" maxlength="500"></textarea>
+                                                <textarea name="message" id="message" rows="5" maxlength="500" style="width: 400px;"></textarea>
                                             </td>
                                         </tr>
                                         <tr>
