@@ -20,10 +20,18 @@ class BuddiesController extends OGameController
     {
         $userId = $player->getId();
 
-        $buddies = BuddyService::getBuddies($userId);
-        $receivedRequests = BuddyService::getPendingReceivedRequests($userId);
-        $sentRequests = BuddyService::getPendingSentRequests($userId);
-        $newRequestCount = BuddyService::getNewRequestCount($userId);
+        try {
+            $buddies = BuddyService::getBuddies($userId);
+            $receivedRequests = BuddyService::getPendingReceivedRequests($userId);
+            $sentRequests = BuddyService::getPendingSentRequests($userId);
+            $newRequestCount = BuddyService::getNewRequestCount($userId);
+        } catch (\Exception $e) {
+            // If buddy tables don't exist yet, return empty data
+            $buddies = collect([]);
+            $receivedRequests = collect([]);
+            $sentRequests = collect([]);
+            $newRequestCount = 0;
+        }
 
         return view('ingame.buddies.index', [
             'buddies' => $buddies,
@@ -47,17 +55,21 @@ class BuddiesController extends OGameController
             'message' => 'nullable|string|max:500',
         ]);
 
-        $senderId = $player->getId();
-        $receiverId = $request->input('receiver_id');
-        $message = $request->input('message');
+        try {
+            $senderId = $player->getId();
+            $receiverId = $request->input('receiver_id');
+            $message = $request->input('message');
 
-        $buddyRequest = BuddyService::sendRequest($senderId, $receiverId, $message);
+            $buddyRequest = BuddyService::sendRequest($senderId, $receiverId, $message);
 
-        if ($buddyRequest) {
-            return redirect()->route('buddies.index')->with('success', 'Buddy request sent successfully!');
+            if ($buddyRequest) {
+                return redirect()->route('buddies.index')->with('success', 'Buddy request sent successfully!');
+            }
+
+            return redirect()->route('buddies.index')->with('error', 'Could not send buddy request. You may already be buddies or have a pending request.');
+        } catch (\Exception $e) {
+            return redirect()->route('buddies.index')->with('error', 'Buddy system is not yet available. Please run migrations.');
         }
-
-        return redirect()->route('buddies.index')->with('error', 'Could not send buddy request. You may already be buddies or have a pending request.');
     }
 
     /**
