@@ -29,7 +29,7 @@
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
-                    <figure class="planetIcon deep-space js_hideTipOnMobile" title="Deep space"></figure>{{ __('Deep space') }}
+                    <span class="deep-space-text">{{ __('Deep space') }}</span>
                     @break
             @endswitch
         </td>
@@ -100,7 +100,7 @@
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
-                    <figure class="planetIcon deep-space js_hideTipOnMobile" title="Deep space"></figure>{{ __('Deep space') }}
+                    <span class="deep-space-text">{{ __('Deep space') }}</span>
                     @break
             @endswitch
         </td>
@@ -147,7 +147,7 @@
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
-                    <figure class="planetIcon deep-space js_hideTipOnMobile" title="Deep space"></figure>{{ __('Deep space') }}
+                    <span class="deep-space-text">{{ __('Deep space') }}</span>
                     @break
             @endswitch
         </td>
@@ -218,7 +218,7 @@
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
-                    <figure class="planetIcon deep-space js_hideTipOnMobile" title="Deep space"></figure>{{ __('Deep space') }}
+                    <span class="deep-space-text">{{ __('Deep space') }}</span>
                     @break
             @endswitch
         </td>

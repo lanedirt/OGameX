@@ -6418,6 +6418,14 @@ figure.planetIcon.planet {
     display: none
 }
 
+figure.planetIcon.deep-space {
+    display: none;
+}
+
+.deep-space-text {
+    margin-left: 21px;
+}
+
 .smallOfficer,.officer20,.officer32 {
     display: inline-block;
     float: left
