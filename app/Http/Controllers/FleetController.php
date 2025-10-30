@@ -417,15 +417,17 @@ class FleetController extends OGameController
 
             // Apply departure delay if needed for ACS synchronization
             if (isset($departureDelay) && $departureDelay > 0) {
-                $fleetMission->time_start = $fleetMission->time_start + $departureDelay;
+                $fleetMission->time_departure = $fleetMission->time_departure + $departureDelay;
                 $fleetMission->time_arrival = $fleetMission->time_arrival + $departureDelay;
                 $fleetMission->save();
 
                 \Log::debug('Applied departure delay to fleet mission', [
                     'mission_id' => $fleetMission->id,
                     'departure_delay' => $departureDelay,
-                    'new_start_time' => $fleetMission->time_start,
+                    'new_departure_time' => $fleetMission->time_departure,
+                    'new_departure_formatted' => date('Y-m-d H:i:s', $fleetMission->time_departure),
                     'new_arrival_time' => $fleetMission->time_arrival,
+                    'new_arrival_formatted' => date('Y-m-d H:i:s', $fleetMission->time_arrival),
                 ]);
             }
 
