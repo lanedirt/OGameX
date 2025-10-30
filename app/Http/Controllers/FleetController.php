@@ -282,7 +282,47 @@ class FleetController extends OGameController
         $planetType = PlanetType::from($target_type);
 
         try {
-            $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent, $holding_hours);
+            // For ACS missions, check if we need to adjust speed to match group arrival time
+            $adjustedSpeed = $speed_percent;
+            $targetArrivalTime = null;
+
+            if ($mission_type === 2 && $union > 0) {
+                // Joining existing ACS group - need to sync arrival time
+                $acsGroup = ACSService::findGroup($union);
+                if (!$acsGroup) {
+                    throw new Exception('ACS group not found.');
+                }
+
+                // Verify target matches
+                if ($acsGroup->galaxy_to !== $target_coordinate->galaxy ||
+                    $acsGroup->system_to !== $target_coordinate->system ||
+                    $acsGroup->position_to !== $target_coordinate->position ||
+                    $acsGroup->type_to !== $planetType->value) {
+                    throw new Exception('ACS group target does not match your fleet target.');
+                }
+
+                // Verify player can join
+                if (!ACSService::canJoinGroup($acsGroup, $player->getId())) {
+                    throw new Exception('You cannot join this ACS group.');
+                }
+
+                $targetArrivalTime = $acsGroup->arrival_time;
+
+                // Calculate required speed to match arrival time
+                $adjustedSpeed = $this->calculateRequiredSpeed(
+                    $fleetMissionService,
+                    $planet,
+                    $target_coordinate,
+                    $units,
+                    $targetArrivalTime
+                );
+
+                if ($adjustedSpeed === null) {
+                    throw new Exception('Cannot synchronize with ACS group - target too far or fleet too slow.');
+                }
+            }
+
+            $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $adjustedSpeed, $holding_hours);
 
             // Handle ACS group creation/joining for ACS Attack (type 2) missions
             if ($mission_type === 2) {
@@ -488,57 +528,95 @@ class FleetController extends OGameController
         $acsGroup = null;
 
         if ($union === 0) {
-            // Create a new ACS group
-            // Check if there's already an active ACS group for this target that this player created
-            $existingGroup = \OGame\Models\AcsGroup::where('creator_id', $player->getId())
-                ->where('galaxy_to', $targetCoordinate->galaxy)
-                ->where('system_to', $targetCoordinate->system)
-                ->where('position_to', $targetCoordinate->position)
-                ->where('type_to', $targetType->value)
-                ->where('arrival_time', $fleetMission->time_arrival)
-                ->whereIn('status', ['pending', 'active'])
-                ->first();
-
-            if ($existingGroup) {
-                // Use existing group if one matches
-                $acsGroup = $existingGroup;
-            } else {
-                // Create new ACS group
-                $acsGroup = ACSService::createGroup(
-                    $player->getId(),
-                    'ACS Attack ' . $targetCoordinate->galaxy . ':' . $targetCoordinate->system . ':' . $targetCoordinate->position,
-                    $targetCoordinate->galaxy,
-                    $targetCoordinate->system,
-                    $targetCoordinate->position,
-                    $targetType->value,
-                    $fleetMission->time_arrival
-                );
-            }
+            // Create a new ACS group with this fleet's arrival time
+            $acsGroup = ACSService::createGroup(
+                $player->getId(),
+                'ACS Attack ' . $targetCoordinate->galaxy . ':' . $targetCoordinate->system . ':' . $targetCoordinate->position,
+                $targetCoordinate->galaxy,
+                $targetCoordinate->system,
+                $targetCoordinate->position,
+                $targetType->value,
+                $fleetMission->time_arrival
+            );
         } else {
-            // Join existing ACS group
+            // Join existing ACS group (validation already done earlier)
             $acsGroup = ACSService::findGroup($union);
 
             if (!$acsGroup) {
                 throw new Exception('ACS group not found.');
             }
-
-            // Verify player can join this group
-            if (!ACSService::canJoinGroup($acsGroup, $player->getId())) {
-                throw new Exception('You cannot join this ACS group.');
-            }
-
-            // Verify the target matches
-            if ($acsGroup->galaxy_to !== $targetCoordinate->galaxy ||
-                $acsGroup->system_to !== $targetCoordinate->system ||
-                $acsGroup->position_to !== $targetCoordinate->position ||
-                $acsGroup->type_to !== $targetType->value) {
-                throw new Exception('ACS group target does not match your fleet target.');
-            }
         }
 
-        // Link the fleet mission to the ACS group
+        // Link the fleet mission to the ACS group (passing FleetMission object, not ID)
         if ($acsGroup) {
-            ACSService::addFleetToGroup($acsGroup, $fleetMission->id, $player->getId());
+            ACSService::addFleetToGroup($acsGroup, $fleetMission, $player->getId());
         }
+    }
+
+    /**
+     * Calculate the required speed percentage to arrive at a specific time.
+     *
+     * @param FleetMissionService $fleetMissionService
+     * @param PlanetService $planet
+     * @param Coordinate $targetCoordinate
+     * @param UnitCollection $units
+     * @param int $targetArrivalTime
+     * @return float|null The required speed percentage (10-100), or null if impossible
+     */
+    private function calculateRequiredSpeed(
+        FleetMissionService $fleetMissionService,
+        PlanetService $planet,
+        Coordinate $targetCoordinate,
+        UnitCollection $units,
+        int $targetArrivalTime
+    ): ?float {
+        $currentTime = time();
+        $requiredDuration = $targetArrivalTime - $currentTime;
+
+        // If arrival time is in the past or too soon, it's impossible
+        if ($requiredDuration <= 0) {
+            return null;
+        }
+
+        // Calculate duration at 100% speed
+        $durationAt100 = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, 100);
+
+        // If even at 100% speed we can't arrive in time, it's impossible
+        if ($durationAt100 > $requiredDuration) {
+            return null;
+        }
+
+        // Calculate duration at 10% speed (slowest)
+        $durationAt10 = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, 10);
+
+        // If even at 10% speed we arrive too soon, it's impossible
+        if ($durationAt10 < $requiredDuration) {
+            return null;
+        }
+
+        // Binary search to find the right speed percentage
+        $minSpeed = 10.0;
+        $maxSpeed = 100.0;
+        $tolerance = 1; // 1 second tolerance
+
+        for ($i = 0; $i < 20; $i++) { // Max 20 iterations for binary search
+            $midSpeed = ($minSpeed + $maxSpeed) / 2;
+            $duration = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $midSpeed);
+
+            if (abs($duration - $requiredDuration) <= $tolerance) {
+                return round($midSpeed);
+            }
+
+            if ($duration > $requiredDuration) {
+                // Too slow, need to go faster
+                $minSpeed = $midSpeed;
+            } else {
+                // Too fast, need to slow down
+                $maxSpeed = $midSpeed;
+            }
+        }
+
+        // Return the closest speed we found
+        return round(($minSpeed + $maxSpeed) / 2);
     }
 }
