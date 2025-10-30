@@ -255,7 +255,7 @@
                 "name": "{{ $planet->getPlanetName() }}"
             }];
             var standardFleets = [];
-            var unions = [];
+            var unions = @json($acsGroups ?? []);
 
             var mission = {{ $mission ?? 0}};
             var unionID = 0;
@@ -1334,6 +1334,13 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                 </select>
                                                 <span class="value">h</span>
                                             </li>
+                                            <li id="acsGroupSelection" style="display: none;">
+                                                @lang('ACS Group:')
+                                                <select name="union" id="acsGroupSelect">
+                                                    <option value="0">@lang('Create new ACS group')</option>
+                                                </select>
+                                                <div id="acsGroupInfo" style="margin-top: 5px; font-size: 11px; color: #6f9fc8;"></div>
+                                            </li>
                                             <li>
                                                 <input type="hidden" name="speed" id="speed" value="10">
                                                 @lang('Speed:') (@lang('max.') <span id="maxspeed">1,000,000,000</span>)
@@ -1480,5 +1487,100 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
             </div>
         </div>
     </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Populate ACS groups dropdown
+        function populateACSGroups() {
+            const select = document.getElementById('acsGroupSelect');
+            if (!select) return;
+
+            // Clear existing options except the first one
+            select.innerHTML = '<option value="0">Create new ACS group</option>';
+
+            // Add available ACS groups
+            if (unions && unions.length > 0) {
+                unions.forEach(function(group) {
+                    const option = document.createElement('option');
+                    option.value = group.id;
+                    option.textContent = group.name + ' (Arrival: ' + group.arrival_time_formatted + ', Fleets: ' + group.fleet_count + ')';
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        // Show/hide ACS group selection based on mission type
+        function updateACSGroupVisibility() {
+            const missionInput = document.querySelector('input[name="mission"]');
+            const acsGroupSelection = document.getElementById('acsGroupSelection');
+
+            if (!missionInput || !acsGroupSelection) return;
+
+            const selectedMission = parseInt(missionInput.value);
+
+            if (selectedMission === 2) {
+                // Show ACS group selection for ACS Attack mission
+                acsGroupSelection.style.display = '';
+                populateACSGroups();
+            } else {
+                // Hide for other missions
+                acsGroupSelection.style.display = 'none';
+            }
+        }
+
+        // Update ACS group info when selection changes
+        function updateACSGroupInfo() {
+            const select = document.getElementById('acsGroupSelect');
+            const info = document.getElementById('acsGroupInfo');
+
+            if (!select || !info) return;
+
+            const selectedValue = parseInt(select.value);
+
+            if (selectedValue === 0) {
+                info.innerHTML = 'You will create a new ACS group. Other players can join your attack.';
+            } else {
+                const group = unions.find(g => g.id === selectedValue);
+                if (group) {
+                    info.innerHTML = 'Joining ACS group. Your fleet will automatically synchronize to arrive at <strong>' +
+                        group.arrival_time_formatted + '</strong> with ' + group.fleet_count + ' other fleet(s).';
+                }
+            }
+        }
+
+        // Initialize
+        populateACSGroups();
+        updateACSGroupVisibility();
+
+        // Listen for mission changes
+        const observer = new MutationObserver(function(mutations) {
+            updateACSGroupVisibility();
+        });
+
+        const missionInput = document.querySelector('input[name="mission"]');
+        if (missionInput) {
+            observer.observe(missionInput, {
+                attributes: true,
+                attributeFilter: ['value']
+            });
+        }
+
+        // Listen for mission button clicks
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('[data-mission]')) {
+                setTimeout(updateACSGroupVisibility, 100);
+            }
+        });
+
+        // Listen for ACS group selection changes
+        const acsGroupSelect = document.getElementById('acsGroupSelect');
+        if (acsGroupSelect) {
+            acsGroupSelect.addEventListener('change', updateACSGroupInfo);
+            updateACSGroupInfo(); // Initial update
+        }
+    });
+</script>
+@endpush
 
 @endsection

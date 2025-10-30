@@ -117,7 +117,7 @@ class ACSAttackMission extends GameMission
         $defenderPlanet->update();
 
         // Get all fleet missions in this ACS group
-        $fleetMembers = ACSService::getGroupFleets($acsGroup->id);
+        $fleetMembers = ACSService::getGroupFleets($acsGroup);
 
         // Combine all attacker units
         $combinedAttackerUnits = new UnitCollection();

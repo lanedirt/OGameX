@@ -64,6 +64,36 @@ class FleetController extends OGameController
             }
         }
 
+        // Get available ACS groups for the target (if target is specified)
+        $acsGroups = [];
+        $targetGalaxy = $request->get('galaxy');
+        $targetSystem = $request->get('system');
+        $targetPosition = $request->get('position');
+        $targetType = $request->get('type');
+
+        if ($targetGalaxy && $targetSystem && $targetPosition) {
+            // Find active ACS groups targeting this coordinate
+            $acsGroups = \OGame\Models\AcsGroup::where('galaxy_to', $targetGalaxy)
+                ->where('system_to', $targetSystem)
+                ->where('position_to', $targetPosition)
+                ->where('type_to', $targetType ?? 1)
+                ->whereIn('status', ['pending', 'active'])
+                ->where('arrival_time', '>', time())
+                ->get()
+                ->map(function ($group) use ($player) {
+                    return [
+                        'id' => $group->id,
+                        'name' => $group->name,
+                        'target' => $group->galaxy_to . ':' . $group->system_to . ':' . $group->position_to,
+                        'arrival_time' => $group->arrival_time,
+                        'arrival_time_formatted' => date('Y-m-d H:i:s', $group->arrival_time),
+                        'fleet_count' => $group->fleetMembers()->count(),
+                        'is_creator' => $group->creator_id === $player->getId(),
+                    ];
+                })
+                ->toArray();
+        }
+
         return view('ingame.fleet.index')->with([
             'player' => $player,
             'planet' => $planet,
@@ -80,6 +110,7 @@ class FleetController extends OGameController
             'fleetSlotsMax' => $player->getFleetSlotsMax(),
             'expeditionSlotsInUse' => $player->getExpeditionSlotsInUse(),
             'expeditionSlotsMax' => $player->getExpeditionSlotsMax(),
+            'acsGroups' => $acsGroups,
         ]);
     }
 
