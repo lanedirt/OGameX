@@ -1352,7 +1352,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             </li>
                                             <li id="acsGroupSelection" style="display: none;">
                                                 @lang('ACS Group:')
-                                                <select name="union" id="acsGroupSelect">
+                                                <select name="union" id="acsGroupSelect" style="display: inline-block; width: auto; min-width: 200px; padding: 2px 5px; font-size: 11px;">
                                                     <option value="0">@lang('Create new ACS group')</option>
                                                 </select>
                                                 <div id="acsGroupInfo" style="margin-top: 5px; font-size: 11px; color: #6f9fc8;"></div>
@@ -1572,6 +1572,21 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 }
 
                 console.log('Select now has', select.options.length, 'options');
+
+                // Ensure select is visible (force it in case game CSS tries to hide it)
+                select.style.display = 'inline-block';
+                select.style.visibility = 'visible';
+                select.style.opacity = '1';
+
+                // Log visibility for debugging
+                const computedStyle = window.getComputedStyle(select);
+                console.log('Select visibility:', {
+                    display: computedStyle.display,
+                    visibility: computedStyle.visibility,
+                    opacity: computedStyle.opacity,
+                    width: computedStyle.width,
+                    height: computedStyle.height
+                });
 
                 // Update the info text
                 updateACSGroupInfo();
