@@ -60,9 +60,11 @@ class ACSService
     public static function allFleetsArrived(AcsGroup $group): bool
     {
         $fleets = self::getGroupFleets($group);
+        $currentTime = time();
 
         foreach ($fleets as $member) {
-            if ($member->fleetMission->processed == 0) {
+            // Check if this fleet's arrival time has passed
+            if ($member->fleetMission->time_arrival > $currentTime) {
                 return false;
             }
         }
