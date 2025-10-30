@@ -1490,23 +1490,33 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    (function() {
+        'use strict';
+
+        console.log('ACS UI Script loaded');
+
         // Populate ACS groups dropdown
         function populateACSGroups() {
             const select = document.getElementById('acsGroupSelect');
-            if (!select) return;
+            if (!select) {
+                console.log('ACS select not found');
+                return;
+            }
+
+            console.log('Populating ACS groups, count:', unions ? unions.length : 0);
 
             // Clear existing options except the first one
             select.innerHTML = '<option value="0">Create new ACS group</option>';
 
             // Add available ACS groups
-            if (unions && unions.length > 0) {
+            if (typeof unions !== 'undefined' && unions && unions.length > 0) {
                 unions.forEach(function(group) {
                     const option = document.createElement('option');
                     option.value = group.id;
                     option.textContent = group.name + ' (Arrival: ' + group.arrival_time_formatted + ', Fleets: ' + group.fleet_count + ')';
                     select.appendChild(option);
                 });
+                console.log('Added', unions.length, 'ACS groups to dropdown');
             }
         }
 
@@ -1515,16 +1525,22 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
             const missionInput = document.querySelector('input[name="mission"]');
             const acsGroupSelection = document.getElementById('acsGroupSelection');
 
-            if (!missionInput || !acsGroupSelection) return;
+            if (!missionInput || !acsGroupSelection) {
+                console.log('Mission input or ACS selection not found');
+                return;
+            }
 
             const selectedMission = parseInt(missionInput.value);
+            console.log('Mission selected:', selectedMission);
 
             if (selectedMission === 2) {
                 // Show ACS group selection for ACS Attack mission
+                console.log('Showing ACS group selection');
                 acsGroupSelection.style.display = '';
                 populateACSGroups();
             } else {
                 // Hide for other missions
+                console.log('Hiding ACS group selection');
                 acsGroupSelection.style.display = 'none';
             }
         }
@@ -1539,47 +1555,86 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
             const selectedValue = parseInt(select.value);
 
             if (selectedValue === 0) {
-                info.innerHTML = 'You will create a new ACS group. Other players can join your attack.';
+                info.innerHTML = '✓ You will create a new ACS group. Other players can join your attack.';
             } else {
-                const group = unions.find(g => g.id === selectedValue);
-                if (group) {
-                    info.innerHTML = 'Joining ACS group. Your fleet will automatically synchronize to arrive at <strong>' +
-                        group.arrival_time_formatted + '</strong> with ' + group.fleet_count + ' other fleet(s).';
+                if (typeof unions !== 'undefined' && unions) {
+                    const group = unions.find(g => g.id === selectedValue);
+                    if (group) {
+                        info.innerHTML = '✓ Joining ACS group. Your fleet will automatically synchronize to arrive at <strong>' +
+                            group.arrival_time_formatted + '</strong> with ' + group.fleet_count + ' other fleet(s).';
+                    }
                 }
             }
         }
 
-        // Initialize
-        populateACSGroups();
-        updateACSGroupVisibility();
+        // Initialize on DOM ready
+        function init() {
+            console.log('Initializing ACS UI');
 
-        // Listen for mission changes
-        const observer = new MutationObserver(function(mutations) {
+            populateACSGroups();
             updateACSGroupVisibility();
-        });
+            updateACSGroupInfo();
 
-        const missionInput = document.querySelector('input[name="mission"]');
-        if (missionInput) {
-            observer.observe(missionInput, {
-                attributes: true,
-                attributeFilter: ['value']
+            // Listen for mission button clicks directly
+            document.addEventListener('click', function(e) {
+                const missionButton = e.target.closest('[data-mission]');
+                if (missionButton) {
+                    const missionType = parseInt(missionButton.getAttribute('data-mission'));
+                    console.log('Mission button clicked:', missionType);
+
+                    // Small delay to let the game update the mission input
+                    setTimeout(function() {
+                        updateACSGroupVisibility();
+                    }, 100);
+                }
             });
-        }
 
-        // Listen for mission button clicks
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('[data-mission]')) {
-                setTimeout(updateACSGroupVisibility, 100);
+            // Also watch for changes to the mission input
+            const missionInput = document.querySelector('input[name="mission"]');
+            if (missionInput) {
+                // Use MutationObserver to detect value changes
+                const observer = new MutationObserver(function(mutations) {
+                    console.log('Mission input changed via mutation');
+                    updateACSGroupVisibility();
+                });
+
+                observer.observe(missionInput, {
+                    attributes: true,
+                    attributeFilter: ['value']
+                });
+
+                // Also listen for direct value changes
+                Object.defineProperty(missionInput, 'value', {
+                    set: function(val) {
+                        this.setAttribute('value', val);
+                        console.log('Mission value set to:', val);
+                        setTimeout(updateACSGroupVisibility, 50);
+                    },
+                    get: function() {
+                        return this.getAttribute('value');
+                    }
+                });
             }
-        });
 
-        // Listen for ACS group selection changes
-        const acsGroupSelect = document.getElementById('acsGroupSelect');
-        if (acsGroupSelect) {
-            acsGroupSelect.addEventListener('change', updateACSGroupInfo);
-            updateACSGroupInfo(); // Initial update
+            // Listen for ACS group selection changes
+            const acsGroupSelect = document.getElementById('acsGroupSelect');
+            if (acsGroupSelect) {
+                acsGroupSelect.addEventListener('change', function() {
+                    console.log('ACS group changed to:', this.value);
+                    updateACSGroupInfo();
+                });
+            }
+
+            console.log('ACS UI initialization complete');
         }
-    });
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
 </script>
 @endpush
 
