@@ -1510,7 +1510,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
 
         console.log('ACS UI Script loaded');
 
-        // Populate ACS groups dropdown
+        // Populate ACS groups dropdown (dynamically fetches from server)
         function populateACSGroups() {
             const select = document.getElementById('acsGroupSelect');
             if (!select) {
@@ -1518,89 +1518,68 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 return;
             }
 
-            console.log('Populating ACS groups, count:', unions ? unions.length : 0);
+            // Get target coordinates from form inputs
+            const galaxy = document.getElementById('galaxy')?.value;
+            const system = document.getElementById('system')?.value;
+            const position = document.getElementById('position')?.value;
+            const type = document.getElementById('type')?.value || 1;
 
-            // Log available global functions for debugging
-            console.log('Available functions:', {
-                initDropDown: typeof initDropDown !== 'undefined',
-                initCustomDropdowns: typeof initCustomDropdowns !== 'undefined',
-                initAllDropdowns: typeof initAllDropdowns !== 'undefined',
-                jQuery: typeof $ !== 'undefined'
+            console.log('Fetching ACS groups for coordinates:', {galaxy, system, position, type});
+
+            if (!galaxy || !system || !position) {
+                console.log('Missing target coordinates - cannot load ACS groups');
+                select.innerHTML = '<option value="0">Select target coordinates first</option>';
+                return;
+            }
+
+            // Show loading state
+            select.innerHTML = '<option value="0">Loading ACS groups...</option>';
+
+            // Fetch ACS groups via AJAX
+            fetch('{{ route('fleet.acs.groups') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    galaxy: galaxy,
+                    system: system,
+                    position: position,
+                    type: type
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('ACS groups response:', data);
+
+                // Update global unions variable for other functions
+                unions = data.groups || [];
+
+                // Clear and repopulate options
+                select.innerHTML = '<option value="0">Create new ACS group</option>';
+
+                if (data.success && data.groups && data.groups.length > 0) {
+                    data.groups.forEach(function(group) {
+                        const option = document.createElement('option');
+                        option.value = group.id;
+                        option.textContent = group.name + ' (Arrival: ' + group.arrival_time_formatted + ', Fleets: ' + group.fleet_count + ')';
+                        select.appendChild(option);
+                    });
+                    console.log('✓ Added', data.groups.length, 'ACS groups to dropdown');
+                } else {
+                    console.log('No ACS groups available for this target');
+                }
+
+                console.log('Select now has', select.options.length, 'options');
+
+                // Update the info text
+                updateACSGroupInfo();
+            })
+            .catch(error => {
+                console.error('Error fetching ACS groups:', error);
+                select.innerHTML = '<option value="0">Create new ACS group</option>';
             });
-
-            // STEP 1: Completely destroy existing custom dropdown widget
-            let nextSibling = select.nextElementSibling;
-            while (nextSibling) {
-                if (nextSibling.classList && (nextSibling.classList.contains('dropdown') ||
-                    nextSibling.classList.contains('dropdownInitialized'))) {
-                    console.log('Removing custom dropdown widget:', nextSibling.className);
-                    const toRemove = nextSibling;
-                    nextSibling = nextSibling.nextElementSibling;
-                    toRemove.remove();
-                } else {
-                    break;
-                }
-            }
-
-            // STEP 2: Remove initialization flags from select
-            select.classList.remove('dropdownInitialized');
-            select.removeAttribute('data-dropdown-initialized');
-            select.style.display = ''; // Show the select temporarily
-
-            // STEP 3: Clear and repopulate options
-            select.innerHTML = '<option value="0">Create new ACS group</option>';
-
-            // Add available ACS groups
-            if (typeof unions !== 'undefined' && unions && unions.length > 0) {
-                unions.forEach(function(group) {
-                    const option = document.createElement('option');
-                    option.value = group.id;
-                    option.textContent = group.name + ' (Arrival: ' + group.arrival_time_formatted + ', Fleets: ' + group.fleet_count + ')';
-                    select.appendChild(option);
-                });
-                console.log('Added', unions.length, 'ACS groups to dropdown');
-            }
-
-            console.log('Select now has', select.options.length, 'options:');
-            for (let i = 0; i < select.options.length; i++) {
-                console.log('  Option', i, ':', select.options[i].value, '-', select.options[i].text);
-            }
-
-            // STEP 4: Reinitialize the custom dropdown widget
-            try {
-                // Try the game's initialization functions
-                if (typeof initDropDown === 'function') {
-                    console.log('Calling initDropDown()');
-                    initDropDown(select);
-                    console.log('initDropDown() completed');
-                } else if (typeof initCustomDropdowns === 'function') {
-                    console.log('Calling initCustomDropdowns()');
-                    initCustomDropdowns();
-                } else if (typeof initAllDropdowns === 'function') {
-                    console.log('Calling initAllDropdowns()');
-                    initAllDropdowns();
-                } else if (typeof $ !== 'undefined' && typeof $.fn.dropdown === 'function') {
-                    console.log('Calling jQuery dropdown()');
-                    $(select).dropdown();
-                } else {
-                    console.log('WARNING: No dropdown initialization function found!');
-                    console.log('Select will remain visible as plain HTML select');
-                }
-
-                // Verify the custom dropdown was created
-                setTimeout(function() {
-                    const newCustomDropdown = select.nextElementSibling;
-                    if (newCustomDropdown && newCustomDropdown.classList.contains('dropdown')) {
-                        console.log('✓ Custom dropdown widget successfully recreated');
-                        console.log('Custom dropdown HTML:', newCustomDropdown.outerHTML.substring(0, 200));
-                    } else {
-                        console.log('✗ Custom dropdown widget NOT created - select remains visible');
-                    }
-                }, 100);
-
-            } catch (e) {
-                console.log('ERROR reinitializing dropdown:', e);
-            }
         }
 
         // Show/hide ACS group selection based on mission type

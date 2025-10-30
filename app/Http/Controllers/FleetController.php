@@ -669,4 +669,67 @@ class FleetController extends OGameController
         // Return the closest speed we found
         return round(($minSpeed + $maxSpeed) / 2);
     }
+
+    /**
+     * Get available ACS groups for specific coordinates (AJAX endpoint)
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function getACSGroups(Request $request, PlayerService $player): JsonResponse
+    {
+        $targetGalaxy = $request->input('galaxy');
+        $targetSystem = $request->input('system');
+        $targetPosition = $request->input('position');
+        $targetType = $request->input('type', 1);
+
+        \Log::debug('AJAX ACS Groups Query', [
+            'galaxy' => $targetGalaxy,
+            'system' => $targetSystem,
+            'position' => $targetPosition,
+            'type' => $targetType,
+        ]);
+
+        if (!$targetGalaxy || !$targetSystem || !$targetPosition) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Missing target coordinates',
+                'groups' => []
+            ]);
+        }
+
+        $currentTime = time();
+
+        // Find active ACS groups targeting this coordinate
+        $acsGroups = \OGame\Models\AcsGroup::where('galaxy_to', $targetGalaxy)
+            ->where('system_to', $targetSystem)
+            ->where('position_to', $targetPosition)
+            ->where('type_to', $targetType)
+            ->whereIn('status', ['pending', 'active'])
+            ->where('arrival_time', '>', $currentTime)
+            ->get()
+            ->map(function ($group) use ($player) {
+                return [
+                    'id' => $group->id,
+                    'name' => $group->name,
+                    'target' => $group->galaxy_to . ':' . $group->system_to . ':' . $group->position_to,
+                    'arrival_time' => $group->arrival_time,
+                    'arrival_time_formatted' => date('Y-m-d H:i:s', $group->arrival_time),
+                    'fleet_count' => $group->fleetMembers()->count(),
+                    'is_creator' => $group->creator_id === $player->getId(),
+                ];
+            })
+            ->values()
+            ->toArray();
+
+        \Log::debug('AJAX ACS Groups found: ' . count($acsGroups), [
+            'groups' => $acsGroups,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'groups' => $acsGroups
+        ]);
+    }
 }
