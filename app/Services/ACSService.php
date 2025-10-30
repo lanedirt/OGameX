@@ -141,12 +141,14 @@ class ACSService
             return false;
         }
 
-        // Player must not already be in this group
-        $existingMember = AcsFleetMember::where('acs_group_id', $group->id)
-            ->where('player_id', $playerId)
-            ->exists();
+        // Allow the same player to join multiple times from different planets
+        // This is valid in OGame - a player can coordinate attacks from multiple planets
+        // The only restriction is that arrival time hasn't passed
+        if ($group->arrival_time <= time()) {
+            return false;
+        }
 
-        return !$existingMember;
+        return true;
     }
 
     /**
