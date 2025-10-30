@@ -1517,6 +1517,36 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 });
                 console.log('Added', unions.length, 'ACS groups to dropdown');
             }
+
+            // Trigger custom dropdown refresh
+            // The game uses a custom dropdown widget that needs to be refreshed
+            try {
+                // Try jQuery trigger if available
+                if (typeof $ !== 'undefined') {
+                    $(select).trigger('change');
+                    $(select).trigger('chosen:updated');
+                    console.log('Triggered jQuery dropdown refresh');
+                }
+
+                // Try dispatching change event
+                const event = new Event('change', { bubbles: true });
+                select.dispatchEvent(event);
+
+                // Try to find and reinitialize the custom dropdown
+                const customDropdown = select.nextElementSibling;
+                if (customDropdown && customDropdown.classList.contains('dropdown')) {
+                    console.log('Found custom dropdown, attempting manual refresh');
+                    // Remove and reinit the dropdown
+                    if (typeof initDropDown === 'function') {
+                        initDropDown(select);
+                        console.log('Re-initialized dropdown');
+                    }
+                }
+
+                console.log('Dropdown refresh attempted');
+            } catch (e) {
+                console.log('Error refreshing dropdown:', e);
+            }
         }
 
         // Show/hide ACS group selection based on mission type
@@ -1594,30 +1624,10 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                         acsGroupSelection.style.visibility = 'visible';
                         acsGroupSelection.style.opacity = '1';
 
-                        // Make it IMPOSSIBLE to miss
-                        acsGroupSelection.style.backgroundColor = 'red';
-                        acsGroupSelection.style.border = '5px solid yellow';
-                        acsGroupSelection.style.padding = '20px';
-                        acsGroupSelection.style.margin = '20px 0';
-                        acsGroupSelection.style.zIndex = '99999';
-                        acsGroupSelection.style.position = 'relative';
-
                         populateACSGroups();
                         updateACSGroupInfo();
 
-                        // Debug: check computed styles and what's covering it
-                        const computed = window.getComputedStyle(acsGroupSelection);
-                        const rect = acsGroupSelection.getBoundingClientRect();
-                        console.log('After show - display:', computed.display, 'visibility:', computed.visibility, 'opacity:', computed.opacity);
-                        console.log('Element position:', rect);
-                        console.log('Element at that point:', document.elementFromPoint(rect.x + 10, rect.y + 10));
-                        console.log('Element HTML (first 200 chars):', acsGroupSelection.innerHTML.substring(0, 200));
-
-                        // Scroll to it
-                        setTimeout(() => {
-                            acsGroupSelection.scrollIntoView({behavior: 'smooth', block: 'center'});
-                            console.log('Scrolled to element');
-                        }, 100);
+                        console.log('ACS UI shown and populated');
                     } else {
                         console.log('Hiding ACS group selection for mission type', missionType);
                         acsGroupSelection.style.display = 'none';
