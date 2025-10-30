@@ -1581,22 +1581,22 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                     const missionType = parseInt(missionButton.getAttribute('data-mission'));
                     console.log('Mission button clicked:', missionType);
 
-                    // Poll until mission input is updated (max 2 seconds)
-                    let attempts = 0;
-                    const maxAttempts = 20;
-                    const pollInterval = setInterval(function() {
-                        attempts++;
-                        const missionInput = document.querySelector('input[name="mission"]');
-                        const currentValue = missionInput ? parseInt(missionInput.value) : 0;
+                    const acsGroupSelection = document.getElementById('acsGroupSelection');
+                    if (!acsGroupSelection) {
+                        console.log('ACS selection element not found');
+                        return;
+                    }
 
-                        console.log('Polling attempt', attempts, 'mission value:', currentValue, 'expected:', missionType);
-
-                        if (currentValue === missionType || attempts >= maxAttempts) {
-                            clearInterval(pollInterval);
-                            console.log('Mission value confirmed, updating UI');
-                            updateACSGroupVisibility();
-                        }
-                    }, 100);
+                    // Show/hide based on mission type directly
+                    if (missionType === 2) {
+                        console.log('Showing ACS group selection for ACS Attack');
+                        acsGroupSelection.style.display = '';
+                        populateACSGroups();
+                        updateACSGroupInfo();
+                    } else {
+                        console.log('Hiding ACS group selection for mission type', missionType);
+                        acsGroupSelection.style.display = 'none';
+                    }
                 }
             });
 
