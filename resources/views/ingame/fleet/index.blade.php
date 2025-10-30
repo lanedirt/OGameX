@@ -1577,6 +1577,19 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 select.style.display = 'inline-block';
                 select.style.visibility = 'visible';
                 select.style.opacity = '1';
+                select.style.position = 'relative';
+                select.style.zIndex = '9999';
+                // Add temporary debug styling to make it impossible to miss
+                select.style.border = '3px solid red';
+                select.style.backgroundColor = 'yellow';
+
+                // Check if a custom dropdown widget exists
+                const nextSibling = select.nextElementSibling;
+                console.log('Next sibling after select:', nextSibling);
+                if (nextSibling && nextSibling.classList && nextSibling.classList.contains('dropdown')) {
+                    console.log('⚠️ Custom dropdown widget found! Removing it...');
+                    nextSibling.remove();
+                }
 
                 // Log visibility for debugging
                 const computedStyle = window.getComputedStyle(select);
@@ -1587,6 +1600,18 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                     width: computedStyle.width,
                     height: computedStyle.height
                 });
+
+                // Get the position on screen
+                const rect = select.getBoundingClientRect();
+                console.log('Select position on screen:', {
+                    top: rect.top,
+                    left: rect.left,
+                    width: rect.width,
+                    height: rect.height
+                });
+
+                // Scroll into view
+                select.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
                 // Update the info text
                 updateACSGroupInfo();
