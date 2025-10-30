@@ -343,6 +343,14 @@ class FleetController extends OGameController
                     throw new Exception('ACS group not found.');
                 }
 
+                \Log::debug('Joining ACS group', [
+                    'group_id' => $acsGroup->id,
+                    'group_arrival_time' => $acsGroup->arrival_time,
+                    'group_arrival_formatted' => date('Y-m-d H:i:s', $acsGroup->arrival_time),
+                    'current_time' => time(),
+                    'time_until_arrival' => $acsGroup->arrival_time - time(),
+                ]);
+
                 // Verify target matches
                 if ($acsGroup->galaxy_to !== $target_coordinate->galaxy ||
                     $acsGroup->system_to !== $target_coordinate->system ||
@@ -367,12 +375,28 @@ class FleetController extends OGameController
                     $targetArrivalTime
                 );
 
+                \Log::debug('Speed adjustment calculated', [
+                    'original_speed' => $speed_percent,
+                    'adjusted_speed' => $adjustedSpeed,
+                    'target_arrival_time' => $targetArrivalTime,
+                ]);
+
                 if ($adjustedSpeed === null) {
                     throw new Exception('Cannot synchronize with ACS group - target too far or fleet too slow.');
                 }
             }
 
             $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $adjustedSpeed, $holding_hours);
+
+            \Log::debug('Fleet mission created', [
+                'mission_id' => $fleetMission->id,
+                'mission_type' => $mission_type,
+                'time_arrival' => $fleetMission->time_arrival,
+                'time_arrival_formatted' => date('Y-m-d H:i:s', $fleetMission->time_arrival),
+                'speed_used' => $adjustedSpeed,
+                'target_arrival_time' => $targetArrivalTime,
+                'arrival_matches' => $targetArrivalTime ? (abs($fleetMission->time_arrival - $targetArrivalTime) <= 1) : 'N/A',
+            ]);
 
             // Handle ACS group creation/joining for ACS Attack (type 2) missions
             if ($mission_type === 2) {

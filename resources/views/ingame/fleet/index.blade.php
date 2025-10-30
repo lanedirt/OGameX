@@ -1578,10 +1578,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 select.style.visibility = 'visible';
                 select.style.opacity = '1';
                 select.style.position = 'relative';
-                select.style.zIndex = '9999';
-                // Add temporary debug styling to make it impossible to miss
-                select.style.border = '3px solid red';
-                select.style.backgroundColor = 'yellow';
+                select.style.zIndex = '100';
 
                 // Check if a custom dropdown widget exists
                 const nextSibling = select.nextElementSibling;

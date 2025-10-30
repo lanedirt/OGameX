@@ -88,11 +88,29 @@ class ACSAttackMission extends GameMission
         }
 
         // Check if all fleets in the group have arrived
-        if (!ACSService::allFleetsArrived($acsGroup)) {
+        $allArrived = ACSService::allFleetsArrived($acsGroup);
+        \Log::debug('ACS Group arrival check', [
+            'acs_group_id' => $acsGroup->id,
+            'mission_id' => $mission->id,
+            'all_fleets_arrived' => $allArrived,
+            'current_time' => time(),
+            'group_arrival_time' => $acsGroup->arrival_time,
+        ]);
+
+        if (!$allArrived) {
             // Not all fleets have arrived yet, don't process yet
             // The mission will be processed when the update cycle runs again
+            \Log::debug('Not all fleets arrived yet, waiting...', [
+                'acs_group_id' => $acsGroup->id,
+                'fleet_count' => ACSService::getGroupFleets($acsGroup)->count(),
+            ]);
             return;
         }
+
+        \Log::debug('All fleets arrived! Processing combined attack', [
+            'acs_group_id' => $acsGroup->id,
+            'status' => $acsGroup->status,
+        ]);
 
         // All fleets have arrived, process the combined attack
         // Only process if group is still pending/active
