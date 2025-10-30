@@ -373,7 +373,7 @@ class FleetController extends OGameController
                 $targetArrivalTime = $acsGroup->arrival_time;
 
                 // Calculate required speed to match arrival time
-                $adjustedSpeed = $this->calculateRequiredSpeed(
+                $speedResult = $this->calculateRequiredSpeed(
                     $fleetMissionService,
                     $planet,
                     $target_coordinate,
@@ -381,18 +381,53 @@ class FleetController extends OGameController
                     $targetArrivalTime
                 );
 
-                \Log::debug('Speed adjustment calculated', [
-                    'original_speed' => $speed_percent,
-                    'adjusted_speed' => $adjustedSpeed,
-                    'target_arrival_time' => $targetArrivalTime,
-                ]);
+                $departureDelay = 0;
 
-                if ($adjustedSpeed === null) {
-                    throw new Exception('Cannot synchronize with ACS group - target too far or fleet too slow.');
+                if ($speedResult === null) {
+                    // Speed adjustment failed - check if we can use delayed departure
+                    $currentTime = time();
+                    $requiredDuration = $targetArrivalTime - $currentTime;
+                    $durationAt10 = $fleetMissionService->calculateFleetMissionDuration($planet, $target_coordinate, $units, 10);
+
+                    if ($durationAt10 < $requiredDuration && $durationAt10 > 0) {
+                        // Too close - use delayed departure (OGame standard behavior)
+                        $departureDelay = $requiredDuration - $durationAt10;
+                        $adjustedSpeed = 10; // Use slowest speed
+
+                        \Log::debug('Using delayed departure for ACS sync', [
+                            'required_duration' => $requiredDuration,
+                            'flight_duration_at_10' => $durationAt10,
+                            'departure_delay_seconds' => $departureDelay,
+                        ]);
+                    } else {
+                        // Too far - genuinely impossible
+                        throw new Exception('Cannot synchronize with ACS group - target too far or arrival time already passed.');
+                    }
+                } else {
+                    $adjustedSpeed = $speedResult;
+                    \Log::debug('Speed adjustment calculated', [
+                        'original_speed' => $speed_percent,
+                        'adjusted_speed' => $adjustedSpeed,
+                        'target_arrival_time' => $targetArrivalTime,
+                    ]);
                 }
             }
 
             $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $adjustedSpeed, $holding_hours);
+
+            // Apply departure delay if needed for ACS synchronization
+            if (isset($departureDelay) && $departureDelay > 0) {
+                $fleetMission->time_start = $fleetMission->time_start + $departureDelay;
+                $fleetMission->time_arrival = $fleetMission->time_arrival + $departureDelay;
+                $fleetMission->save();
+
+                \Log::debug('Applied departure delay to fleet mission', [
+                    'mission_id' => $fleetMission->id,
+                    'departure_delay' => $departureDelay,
+                    'new_start_time' => $fleetMission->time_start,
+                    'new_arrival_time' => $fleetMission->time_arrival,
+                ]);
+            }
 
             \Log::debug('Fleet mission created', [
                 'mission_id' => $fleetMission->id,
