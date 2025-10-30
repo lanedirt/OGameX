@@ -1504,7 +1504,34 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
 
             console.log('Populating ACS groups, count:', unions ? unions.length : 0);
 
-            // Clear existing options except the first one
+            // Log available global functions for debugging
+            console.log('Available functions:', {
+                initDropDown: typeof initDropDown !== 'undefined',
+                initCustomDropdowns: typeof initCustomDropdowns !== 'undefined',
+                initAllDropdowns: typeof initAllDropdowns !== 'undefined',
+                jQuery: typeof $ !== 'undefined'
+            });
+
+            // STEP 1: Completely destroy existing custom dropdown widget
+            let nextSibling = select.nextElementSibling;
+            while (nextSibling) {
+                if (nextSibling.classList && (nextSibling.classList.contains('dropdown') ||
+                    nextSibling.classList.contains('dropdownInitialized'))) {
+                    console.log('Removing custom dropdown widget:', nextSibling.className);
+                    const toRemove = nextSibling;
+                    nextSibling = nextSibling.nextElementSibling;
+                    toRemove.remove();
+                } else {
+                    break;
+                }
+            }
+
+            // STEP 2: Remove initialization flags from select
+            select.classList.remove('dropdownInitialized');
+            select.removeAttribute('data-dropdown-initialized');
+            select.style.display = ''; // Show the select temporarily
+
+            // STEP 3: Clear and repopulate options
             select.innerHTML = '<option value="0">Create new ACS group</option>';
 
             // Add available ACS groups
@@ -1518,34 +1545,45 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 console.log('Added', unions.length, 'ACS groups to dropdown');
             }
 
-            // Trigger custom dropdown refresh
-            // The game uses a custom dropdown widget that needs to be refreshed
+            console.log('Select now has', select.options.length, 'options:');
+            for (let i = 0; i < select.options.length; i++) {
+                console.log('  Option', i, ':', select.options[i].value, '-', select.options[i].text);
+            }
+
+            // STEP 4: Reinitialize the custom dropdown widget
             try {
-                // Try jQuery trigger if available
-                if (typeof $ !== 'undefined') {
-                    $(select).trigger('change');
-                    $(select).trigger('chosen:updated');
-                    console.log('Triggered jQuery dropdown refresh');
+                // Try the game's initialization functions
+                if (typeof initDropDown === 'function') {
+                    console.log('Calling initDropDown()');
+                    initDropDown(select);
+                    console.log('initDropDown() completed');
+                } else if (typeof initCustomDropdowns === 'function') {
+                    console.log('Calling initCustomDropdowns()');
+                    initCustomDropdowns();
+                } else if (typeof initAllDropdowns === 'function') {
+                    console.log('Calling initAllDropdowns()');
+                    initAllDropdowns();
+                } else if (typeof $ !== 'undefined' && typeof $.fn.dropdown === 'function') {
+                    console.log('Calling jQuery dropdown()');
+                    $(select).dropdown();
+                } else {
+                    console.log('WARNING: No dropdown initialization function found!');
+                    console.log('Select will remain visible as plain HTML select');
                 }
 
-                // Try dispatching change event
-                const event = new Event('change', { bubbles: true });
-                select.dispatchEvent(event);
-
-                // Try to find and reinitialize the custom dropdown
-                const customDropdown = select.nextElementSibling;
-                if (customDropdown && customDropdown.classList.contains('dropdown')) {
-                    console.log('Found custom dropdown, attempting manual refresh');
-                    // Remove and reinit the dropdown
-                    if (typeof initDropDown === 'function') {
-                        initDropDown(select);
-                        console.log('Re-initialized dropdown');
+                // Verify the custom dropdown was created
+                setTimeout(function() {
+                    const newCustomDropdown = select.nextElementSibling;
+                    if (newCustomDropdown && newCustomDropdown.classList.contains('dropdown')) {
+                        console.log('✓ Custom dropdown widget successfully recreated');
+                        console.log('Custom dropdown HTML:', newCustomDropdown.outerHTML.substring(0, 200));
+                    } else {
+                        console.log('✗ Custom dropdown widget NOT created - select remains visible');
                     }
-                }
+                }, 100);
 
-                console.log('Dropdown refresh attempted');
             } catch (e) {
-                console.log('Error refreshing dropdown:', e);
+                console.log('ERROR reinitializing dropdown:', e);
             }
         }
 
