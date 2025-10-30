@@ -1593,13 +1593,31 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                         acsGroupSelection.style.display = 'list-item';
                         acsGroupSelection.style.visibility = 'visible';
                         acsGroupSelection.style.opacity = '1';
+
+                        // Make it IMPOSSIBLE to miss
+                        acsGroupSelection.style.backgroundColor = 'red';
+                        acsGroupSelection.style.border = '5px solid yellow';
+                        acsGroupSelection.style.padding = '20px';
+                        acsGroupSelection.style.margin = '20px 0';
+                        acsGroupSelection.style.zIndex = '99999';
+                        acsGroupSelection.style.position = 'relative';
+
                         populateACSGroups();
                         updateACSGroupInfo();
 
-                        // Debug: check computed styles
+                        // Debug: check computed styles and what's covering it
                         const computed = window.getComputedStyle(acsGroupSelection);
+                        const rect = acsGroupSelection.getBoundingClientRect();
                         console.log('After show - display:', computed.display, 'visibility:', computed.visibility, 'opacity:', computed.opacity);
-                        console.log('Element position:', acsGroupSelection.getBoundingClientRect());
+                        console.log('Element position:', rect);
+                        console.log('Element at that point:', document.elementFromPoint(rect.x + 10, rect.y + 10));
+                        console.log('Element HTML (first 200 chars):', acsGroupSelection.innerHTML.substring(0, 200));
+
+                        // Scroll to it
+                        setTimeout(() => {
+                            acsGroupSelection.scrollIntoView({behavior: 'smooth', block: 'center'});
+                            console.log('Scrolled to element');
+                        }, 100);
                     } else {
                         console.log('Hiding ACS group selection for mission type', missionType);
                         acsGroupSelection.style.display = 'none';
