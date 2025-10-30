@@ -132,11 +132,12 @@ class ACSAttackMission extends GameMission
 
             // Store fleet info for later processing
             $originPlanet = $this->planetServiceFactory->make($fleetMission->planet_id_from, true);
+            $fleetPlayer = $originPlanet->getPlayer();
             $attackerFleets[] = [
                 'mission' => $fleetMission,
-                'player' => $originPlanet->getPlayer(),
+                'player' => $fleetPlayer,
                 'units' => $fleetUnits,
-                'cargo_capacity' => $this->calculateCargoCapacity($fleetUnits),
+                'cargo_capacity' => $fleetUnits->getTotalCargoCapacity($fleetPlayer),
             ];
         }
 
@@ -251,24 +252,6 @@ class ACSAttackMission extends GameMission
     }
 
     /**
-     * Calculate cargo capacity of a unit collection.
-     *
-     * @param UnitCollection $units
-     * @return int
-     */
-    private function calculateCargoCapacity(UnitCollection $units): int
-    {
-        $totalCapacity = 0;
-
-        foreach ($units->units as $unit) {
-            $cargoCapacity = $unit->unitObject->properties->get('capacity')->get();
-            $totalCapacity += $cargoCapacity * $unit->amount;
-        }
-
-        return $totalCapacity;
-    }
-
-    /**
      * Calculate the percentage of losses for a specific fleet.
      *
      * @param UnitCollection $fleetUnits
@@ -282,12 +265,12 @@ class ACSAttackMission extends GameMission
         $totalStartValue = 0;
 
         foreach ($fleetUnits->units as $unit) {
-            $unitValue = $unit->amount * $unit->unitObject->properties->get('metal')->get();
+            $unitValue = $unit->amount * $unit->unitObject->price->resources->metal->get();
             $fleetValue += $unitValue;
         }
 
         foreach ($battleResult->attackerUnitsStart->units as $unit) {
-            $unitValue = $unit->amount * $unit->unitObject->properties->get('metal')->get();
+            $unitValue = $unit->amount * $unit->unitObject->price->resources->metal->get();
             $totalStartValue += $unitValue;
         }
 
@@ -299,7 +282,7 @@ class ACSAttackMission extends GameMission
 
         $lossValue = 0;
         foreach ($totalLosses->units as $unit) {
-            $unitValue = $unit->amount * $unit->unitObject->properties->get('metal')->get();
+            $unitValue = $unit->amount * $unit->unitObject->price->resources->metal->get();
             $lossValue += $unitValue;
         }
 
