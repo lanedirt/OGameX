@@ -1488,7 +1488,6 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
         </div>
     </div>
 
-@push('scripts')
 <script>
     (function() {
         'use strict';
@@ -1636,6 +1635,5 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
         }
     })();
 </script>
-@endpush
 
 @endsection
