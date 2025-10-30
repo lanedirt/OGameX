@@ -71,14 +71,28 @@ class FleetController extends OGameController
         $targetPosition = $request->get('position');
         $targetType = $request->get('type');
 
+        \Log::debug('ACS Groups Query', [
+            'galaxy' => $targetGalaxy,
+            'system' => $targetSystem,
+            'position' => $targetPosition,
+            'type' => $targetType,
+            'has_coordinates' => (bool)($targetGalaxy && $targetSystem && $targetPosition),
+        ]);
+
         if ($targetGalaxy && $targetSystem && $targetPosition) {
             // Find active ACS groups targeting this coordinate
+            $currentTime = time();
+
+            // First, get ALL ACS groups to debug
+            $allGroups = \OGame\Models\AcsGroup::all();
+            \Log::debug('Total ACS groups in database: ' . $allGroups->count());
+
             $acsGroups = \OGame\Models\AcsGroup::where('galaxy_to', $targetGalaxy)
                 ->where('system_to', $targetSystem)
                 ->where('position_to', $targetPosition)
                 ->where('type_to', $targetType ?? 1)
                 ->whereIn('status', ['pending', 'active'])
-                ->where('arrival_time', '>', time())
+                ->where('arrival_time', '>', $currentTime)
                 ->get()
                 ->map(function ($group) use ($player) {
                     return [
@@ -92,6 +106,11 @@ class FleetController extends OGameController
                     ];
                 })
                 ->toArray();
+
+            \Log::debug('ACS Groups found: ' . count($acsGroups), [
+                'current_time' => $currentTime,
+                'groups' => $acsGroups,
+            ]);
         }
 
         return view('ingame.fleet.index')->with([

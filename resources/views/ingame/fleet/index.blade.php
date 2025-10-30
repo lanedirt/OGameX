@@ -257,6 +257,22 @@
             var standardFleets = [];
             var unions = @json($acsGroups ?? []);
 
+            // Debug: Log target coordinates and ACS query info
+            console.log('=== ACS Groups Debug ===');
+            console.log('Target coordinates from URL:', {
+                galaxy: {{ $galaxy ?? 'null' }},
+                system: {{ $system ?? 'null' }},
+                position: {{ $position ?? 'null' }},
+                type: {{ $type ?? 'null' }}
+            });
+            console.log('ACS groups loaded:', unions.length);
+            if (unions.length > 0) {
+                console.log('Available ACS groups:', unions);
+            } else {
+                console.log('No ACS groups found for this target');
+            }
+            console.log('======================');
+
             var mission = {{ $mission ?? 0}};
             var unionID = 0;
             var speed = 10;
