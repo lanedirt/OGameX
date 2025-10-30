@@ -1590,9 +1590,16 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                     // Show/hide based on mission type directly
                     if (missionType === 2) {
                         console.log('Showing ACS group selection for ACS Attack');
-                        acsGroupSelection.style.display = '';
+                        acsGroupSelection.style.display = 'list-item';
+                        acsGroupSelection.style.visibility = 'visible';
+                        acsGroupSelection.style.opacity = '1';
                         populateACSGroups();
                         updateACSGroupInfo();
+
+                        // Debug: check computed styles
+                        const computed = window.getComputedStyle(acsGroupSelection);
+                        console.log('After show - display:', computed.display, 'visibility:', computed.visibility, 'opacity:', computed.opacity);
+                        console.log('Element position:', acsGroupSelection.getBoundingClientRect());
                     } else {
                         console.log('Hiding ACS group selection for mission type', missionType);
                         acsGroupSelection.style.display = 'none';
