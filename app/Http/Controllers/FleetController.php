@@ -12,6 +12,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Services\ACSService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
@@ -274,11 +275,19 @@ class FleetController extends OGameController
         // Extract mission type from the request
         $mission_type = (int)request()->input('mission');
 
+        // Extract ACS union parameter (0 = create new group, >0 = join existing group)
+        $union = (int)request()->input('union', 0);
+
         // Create a new fleet mission
         $planetType = PlanetType::from($target_type);
 
         try {
-            $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent, $holding_hours);
+            $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent, $holding_hours);
+
+            // Handle ACS group creation/joining for ACS Attack (type 2) missions
+            if ($mission_type === 2) {
+                $this->handleACSGroupForMission($fleetMission, $union, $player, $target_coordinate, $planetType);
+            }
 
             return response()->json([
                 'success' => true,
@@ -461,5 +470,75 @@ class FleetController extends OGameController
         }
 
         return $units;
+    }
+
+    /**
+     * Handle ACS group creation or joining for a fleet mission.
+     *
+     * @param \OGame\Models\FleetMission $fleetMission
+     * @param int $union The union/ACS group ID (0 = create new, >0 = join existing)
+     * @param PlayerService $player
+     * @param Coordinate $targetCoordinate
+     * @param PlanetType $targetType
+     * @return void
+     * @throws Exception
+     */
+    private function handleACSGroupForMission(\OGame\Models\FleetMission $fleetMission, int $union, PlayerService $player, Coordinate $targetCoordinate, PlanetType $targetType): void
+    {
+        $acsGroup = null;
+
+        if ($union === 0) {
+            // Create a new ACS group
+            // Check if there's already an active ACS group for this target that this player created
+            $existingGroup = \OGame\Models\AcsGroup::where('creator_id', $player->getId())
+                ->where('galaxy_to', $targetCoordinate->galaxy)
+                ->where('system_to', $targetCoordinate->system)
+                ->where('position_to', $targetCoordinate->position)
+                ->where('type_to', $targetType->value)
+                ->where('arrival_time', $fleetMission->time_arrival)
+                ->whereIn('status', ['pending', 'active'])
+                ->first();
+
+            if ($existingGroup) {
+                // Use existing group if one matches
+                $acsGroup = $existingGroup;
+            } else {
+                // Create new ACS group
+                $acsGroup = ACSService::createGroup(
+                    $player->getId(),
+                    'ACS Attack ' . $targetCoordinate->galaxy . ':' . $targetCoordinate->system . ':' . $targetCoordinate->position,
+                    $targetCoordinate->galaxy,
+                    $targetCoordinate->system,
+                    $targetCoordinate->position,
+                    $targetType->value,
+                    $fleetMission->time_arrival
+                );
+            }
+        } else {
+            // Join existing ACS group
+            $acsGroup = ACSService::findGroup($union);
+
+            if (!$acsGroup) {
+                throw new Exception('ACS group not found.');
+            }
+
+            // Verify player can join this group
+            if (!ACSService::canJoinGroup($acsGroup, $player->getId())) {
+                throw new Exception('You cannot join this ACS group.');
+            }
+
+            // Verify the target matches
+            if ($acsGroup->galaxy_to !== $targetCoordinate->galaxy ||
+                $acsGroup->system_to !== $targetCoordinate->system ||
+                $acsGroup->position_to !== $targetCoordinate->position ||
+                $acsGroup->type_to !== $targetType->value) {
+                throw new Exception('ACS group target does not match your fleet target.');
+            }
+        }
+
+        // Link the fleet mission to the ACS group
+        if ($acsGroup) {
+            ACSService::addFleetToGroup($acsGroup, $fleetMission->id, $player->getId());
+        }
     }
 }
