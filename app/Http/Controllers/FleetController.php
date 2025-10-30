@@ -653,24 +653,45 @@ class FleetController extends OGameController
         $currentTime = time();
         $requiredDuration = $targetArrivalTime - $currentTime;
 
+        \Log::debug('Calculating required speed for ACS sync', [
+            'current_time' => $currentTime,
+            'target_arrival_time' => $targetArrivalTime,
+            'required_duration' => $requiredDuration,
+        ]);
+
         // If arrival time is in the past or too soon, it's impossible
         if ($requiredDuration <= 0) {
+            \Log::debug('Required duration <= 0, impossible to sync');
             return null;
         }
 
         // Calculate duration at 100% speed
         $durationAt100 = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, 100);
 
+        \Log::debug('Duration at 100% speed', [
+            'duration_at_100' => $durationAt100,
+            'required_duration' => $requiredDuration,
+            'can_arrive_in_time' => $durationAt100 <= $requiredDuration,
+        ]);
+
         // If even at 100% speed we can't arrive in time, it's impossible
         if ($durationAt100 > $requiredDuration) {
+            \Log::debug('Too far - even at 100% speed cannot arrive in time');
             return null;
         }
 
         // Calculate duration at 10% speed (slowest)
         $durationAt10 = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, 10);
 
+        \Log::debug('Duration at 10% speed', [
+            'duration_at_10' => $durationAt10,
+            'required_duration' => $requiredDuration,
+            'arrives_too_soon' => $durationAt10 < $requiredDuration,
+        ]);
+
         // If even at 10% speed we arrive too soon, it's impossible
         if ($durationAt10 < $requiredDuration) {
+            \Log::debug('Too close - even at 10% speed arrives too soon');
             return null;
         }
 
