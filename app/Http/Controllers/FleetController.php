@@ -328,6 +328,12 @@ class FleetController extends OGameController
         // Extract ACS union parameter (0 = create new group, >0 = join existing group)
         $union = (int)request()->input('union', 0);
 
+        \Log::debug('Fleet dispatch request', [
+            'mission_type' => $mission_type,
+            'union_param' => $union,
+            'all_inputs' => request()->all(),
+        ]);
+
         // Create a new fleet mission
         $planetType = PlanetType::from($target_type);
 

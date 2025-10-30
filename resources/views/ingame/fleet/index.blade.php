@@ -1610,6 +1610,12 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 // Scroll into view
                 select.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
+                // Initialize FleetDispatcher union to current selection (default 0)
+                if (typeof fleetDispatcher !== 'undefined') {
+                    fleetDispatcher.union = parseInt(select.value);
+                    console.log('Initialized fleetDispatcher.union to:', fleetDispatcher.union);
+                }
+
                 // Update the info text
                 updateACSGroupInfo();
             })
@@ -1736,7 +1742,17 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
             const acsGroupSelect = document.getElementById('acsGroupSelect');
             if (acsGroupSelect) {
                 acsGroupSelect.addEventListener('change', function() {
-                    console.log('ACS group changed to:', this.value);
+                    const selectedValue = parseInt(this.value);
+                    console.log('ACS group changed to:', selectedValue);
+
+                    // Update the FleetDispatcher union property so it gets sent with the form
+                    if (typeof fleetDispatcher !== 'undefined') {
+                        fleetDispatcher.union = selectedValue;
+                        console.log('Updated fleetDispatcher.union to:', selectedValue);
+                    } else {
+                        console.warn('fleetDispatcher not found - union value may not be sent');
+                    }
+
                     updateACSGroupInfo();
                 });
             }
