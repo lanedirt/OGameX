@@ -79,6 +79,31 @@
                     &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
+                @if($fleet_event_row->acs_group_id)
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot;&gt;&nbsp;&lt;/th&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot; style=&quot;color: #6f9fc8;&quot;&gt;@lang('ACS Attack Group'):&lt;/th&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;@lang('Group Name'):&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_group_name }}&lt;/td&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;@lang('Fleets in Group'):&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_fleet_count }}&lt;/td&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot;&gt;@lang('Participants'):&lt;/th&gt;
+                    &lt;/tr&gt;
+                    @foreach($fleet_event_row->acs_participants as $participant)
+                        &lt;tr&gt;
+                            &lt;td colspan=&quot;2&quot; style=&quot;font-size: 10px;&quot;&gt;{{ $participant['planet_name'] }} [{{ $participant['coordinates'] }}]:&lt;/td&gt;
+                            &lt;td class=&quot;value&quot;&gt;{{ $participant['unit_count'] }} @lang('ships')&lt;/td&gt;
+                        &lt;/tr&gt;
+                    @endforeach
+                @endif
             &lt;/table&gt;
     &lt;/div&gt;
 ">
@@ -198,6 +223,31 @@
                     &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
+                @if($fleet_event_row->acs_group_id)
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot;&gt;&nbsp;&lt;/th&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot; style=&quot;color: #6f9fc8;&quot;&gt;@lang('ACS Attack Group'):&lt;/th&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;@lang('Group Name'):&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_group_name }}&lt;/td&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;@lang('Fleets in Group'):&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_fleet_count }}&lt;/td&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot;&gt;@lang('Participants'):&lt;/th&gt;
+                    &lt;/tr&gt;
+                    @foreach($fleet_event_row->acs_participants as $participant)
+                        &lt;tr&gt;
+                            &lt;td colspan=&quot;2&quot; style=&quot;font-size: 10px;&quot;&gt;{{ $participant['planet_name'] }} [{{ $participant['coordinates'] }}]:&lt;/td&gt;
+                            &lt;td class=&quot;value&quot;&gt;{{ $participant['unit_count'] }} @lang('ships')&lt;/td&gt;
+                        &lt;/tr&gt;
+                    @endforeach
+                @endif
             &lt;/table&gt;
     &lt;/div&gt;
 ">

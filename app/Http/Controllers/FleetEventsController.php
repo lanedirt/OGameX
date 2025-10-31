@@ -127,6 +127,33 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
             $eventRowViewModel->resources = $fleetMissionService->getResources($row);
 
+            // Check if this fleet is part of an ACS group
+            $acsFleetMember = \OGame\Models\AcsFleetMember::where('fleet_mission_id', $row->id)->first();
+            if ($acsFleetMember) {
+                $acsGroup = $acsFleetMember->acsGroup;
+                $eventRowViewModel->acs_group_id = $acsGroup->id;
+                $eventRowViewModel->acs_group_name = $acsGroup->name;
+                $eventRowViewModel->acs_fleet_count = $acsGroup->fleetMembers()->count();
+
+                // Get all participants in the ACS group
+                $participants = [];
+                $allFleetMembers = $acsGroup->fleetMembers()->with('fleetMission')->get();
+                foreach ($allFleetMembers as $member) {
+                    $fleetMission = $member->fleetMission;
+                    $originPlanet = $planetServiceFactory->make($fleetMission->planet_id_from);
+                    $fleetUnits = $fleetMissionService->getFleetUnits($fleetMission);
+
+                    $participants[] = [
+                        'planet_name' => $originPlanet ? $originPlanet->getPlanetName() : 'Unknown',
+                        'coordinates' => $originPlanet ? $originPlanet->getPlanetCoordinates()->asString() : '',
+                        'player_id' => $fleetMission->user_id,
+                        'fleet_units' => $fleetUnits,
+                        'unit_count' => $fleetMissionService->getFleetUnitCount($fleetMission),
+                    ];
+                }
+                $eventRowViewModel->acs_participants = $participants;
+            }
+
             $friendlyStatus = $this->determineFriendly($row, $player);
 
             $eventRowViewModel->mission_status = $friendlyStatus;
