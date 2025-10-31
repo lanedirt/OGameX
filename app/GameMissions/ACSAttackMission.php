@@ -231,12 +231,22 @@ class ACSAttackMission extends GameMission
             $totalCargoCapacity += $fleet['cargo_capacity'];
         }
 
-        // Calculate how much loot each attacker gets based on their cargo capacity
-        $totalLoot = $battleResult->loot;
+        // Distribute loot and losses among all participating attackers.
+        // Create ONE combined battle report for ACS attack (sent to all attackers)
+        $reportId = $this->createBattleReport($attackerFleets[0]['player'], $defenderPlanet, $battleResult, $repairedDefenses, true);
+
+        // Track unique players to avoid sending duplicate reports to same player
+        $reportedPlayers = [];
 
         foreach ($attackerFleets as $fleet) {
             $mission = $fleet['mission'];
             $player = $fleet['player'];
+
+            // Send battle report to this attacker (only once per player)
+            if (!in_array($player->getId(), $reportedPlayers)) {
+                $this->messageService->sendBattleReportMessageToPlayer($player, $reportId);
+                $reportedPlayers[] = $player->getId();
+            }
 
             // Calculate this fleet's share of losses
             $initialUnits = $fleet['units'];
@@ -252,10 +262,6 @@ class ACSAttackMission extends GameMission
                 0
             );
 
-            // Create battle report for this attacker
-            $reportId = $this->createBattleReport($player, $defenderPlanet, $battleResult, $repairedDefenses, true);
-            $this->messageService->sendBattleReportMessageToPlayer($player, $reportId);
-
             // Mark mission as processed
             $mission->processed = 1;
             $mission->save();
@@ -265,8 +271,8 @@ class ACSAttackMission extends GameMission
         }
 
         // Send battle report to defender
-        $reportId = $this->createBattleReport($attackerFleets[0]['player'], $defenderPlanet, $battleResult, $repairedDefenses, false);
-        $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
+        $defenderReportId = $this->createBattleReport($attackerFleets[0]['player'], $defenderPlanet, $battleResult, $repairedDefenses, false);
+        $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $defenderReportId);
     }
 
     /**

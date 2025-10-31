@@ -597,6 +597,34 @@ class FleetController extends OGameController
             ]);
         }
 
+        // Check if this fleet is part of an ACS group
+        $acsFleetMember = \OGame\Models\AcsFleetMember::where('fleet_mission_id', $fleet_mission_id)->first();
+
+        if ($acsFleetMember) {
+            $acsGroup = $acsFleetMember->acsGroup;
+
+            // Remove this fleet from the ACS group
+            $acsFleetMember->delete();
+
+            \Log::debug('Fleet removed from ACS group', [
+                'fleet_mission_id' => $fleet_mission_id,
+                'acs_group_id' => $acsGroup->id,
+            ]);
+
+            // Check if the ACS group is now empty
+            $remainingFleets = \OGame\Models\AcsFleetMember::where('acs_group_id', $acsGroup->id)->count();
+
+            if ($remainingFleets === 0) {
+                // Cancel the ACS group if no fleets remain
+                $acsGroup->status = 'cancelled';
+                $acsGroup->save();
+
+                \Log::debug('ACS group cancelled - no fleets remaining', [
+                    'acs_group_id' => $acsGroup->id,
+                ]);
+            }
+        }
+
         // Recall the fleet mission
         $fleetMissionService->cancelMission($fleetMission);
 
