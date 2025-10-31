@@ -231,6 +231,9 @@ class ACSAttackMission extends GameMission
             $totalCargoCapacity += $fleet['cargo_capacity'];
         }
 
+        // Get total loot from battle result
+        $totalLoot = $battleResult->loot;
+
         // Distribute loot and losses among all participating attackers.
         // Create ONE combined battle report for ACS attack (sent to all attackers)
         $reportId = $this->createBattleReport($attackerFleets[0]['player'], $defenderPlanet, $battleResult, $repairedDefenses, true);
