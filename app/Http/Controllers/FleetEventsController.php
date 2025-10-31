@@ -135,23 +135,30 @@ class FleetEventsController extends OGameController
                 $eventRowViewModel->acs_group_name = $acsGroup->name;
                 $eventRowViewModel->acs_fleet_count = $acsGroup->fleetMembers()->count();
 
-                // Get all participants in the ACS group
+                // Get all participants in the ACS group and calculate total ship count
                 $participants = [];
+                $totalACSShipCount = 0;
                 $allFleetMembers = $acsGroup->fleetMembers()->with('fleetMission')->get();
                 foreach ($allFleetMembers as $member) {
                     $fleetMission = $member->fleetMission;
                     $originPlanet = $planetServiceFactory->make($fleetMission->planet_id_from);
                     $fleetUnits = $fleetMissionService->getFleetUnits($fleetMission);
+                    $unitCount = $fleetMissionService->getFleetUnitCount($fleetMission);
 
                     $participants[] = [
                         'planet_name' => $originPlanet ? $originPlanet->getPlanetName() : 'Unknown',
                         'coordinates' => $originPlanet ? $originPlanet->getPlanetCoordinates()->asString() : '',
                         'player_id' => $fleetMission->user_id,
                         'fleet_units' => $fleetUnits,
-                        'unit_count' => $fleetMissionService->getFleetUnitCount($fleetMission),
+                        'unit_count' => $unitCount,
                     ];
+
+                    $totalACSShipCount += $unitCount;
                 }
                 $eventRowViewModel->acs_participants = $participants;
+
+                // Override fleet_unit_count with total ACS ship count for display
+                $eventRowViewModel->fleet_unit_count = $totalACSShipCount;
             }
 
             $friendlyStatus = $this->determineFriendly($row, $player);

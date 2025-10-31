@@ -148,7 +148,44 @@ class ACSService
             return false;
         }
 
+        // Check if player is the creator (always allowed)
+        if ($group->creator_id === $playerId) {
+            return true;
+        }
+
+        // Check if player is buddy or alliance member of the creator
+        if (!self::isBuddyOrAllianceMember($group->creator_id, $playerId)) {
+            return false;
+        }
+
         return true;
+    }
+
+    /**
+     * Check if two players are buddies or in the same alliance
+     */
+    public static function isBuddyOrAllianceMember(int $player1Id, int $player2Id): bool
+    {
+        // Check if they are buddies (bidirectional check)
+        $areBuddies = \OGame\Models\Buddy::where(function ($query) use ($player1Id, $player2Id) {
+            $query->where('user_id', $player1Id)->where('buddy_id', $player2Id);
+        })->orWhere(function ($query) use ($player1Id, $player2Id) {
+            $query->where('user_id', $player2Id)->where('buddy_id', $player1Id);
+        })->exists();
+
+        if ($areBuddies) {
+            return true;
+        }
+
+        // Check if they are in the same alliance
+        $player1Alliance = \OGame\Models\AllianceMember::where('user_id', $player1Id)->first();
+        $player2Alliance = \OGame\Models\AllianceMember::where('user_id', $player2Id)->first();
+
+        if ($player1Alliance && $player2Alliance && $player1Alliance->alliance_id === $player2Alliance->alliance_id) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

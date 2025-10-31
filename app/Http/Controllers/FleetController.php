@@ -94,6 +94,11 @@ class FleetController extends OGameController
                 ->whereIn('status', ['pending', 'active'])
                 ->where('arrival_time', '>', $currentTime)
                 ->get()
+                ->filter(function ($group) use ($player) {
+                    // Show own groups or groups from buddies/alliance members
+                    return $group->creator_id === $player->getId() ||
+                           \OGame\Services\ACSService::isBuddyOrAllianceMember($group->creator_id, $player->getId());
+                })
                 ->map(function ($group) use ($player) {
                     return [
                         'id' => $group->id,
@@ -105,6 +110,7 @@ class FleetController extends OGameController
                         'is_creator' => $group->creator_id === $player->getId(),
                     ];
                 })
+                ->values()
                 ->toArray();
 
             \Log::debug('ACS Groups found: ' . count($acsGroups), [
@@ -818,6 +824,7 @@ class FleetController extends OGameController
         $currentTime = time();
 
         // Find active ACS groups targeting this coordinate
+        // Only show groups from buddies, alliance members, or own groups
         $acsGroups = \OGame\Models\AcsGroup::where('galaxy_to', $targetGalaxy)
             ->where('system_to', $targetSystem)
             ->where('position_to', $targetPosition)
@@ -825,6 +832,11 @@ class FleetController extends OGameController
             ->whereIn('status', ['pending', 'active'])
             ->where('arrival_time', '>', $currentTime)
             ->get()
+            ->filter(function ($group) use ($player) {
+                // Show own groups or groups from buddies/alliance members
+                return $group->creator_id === $player->getId() ||
+                       \OGame\Services\ACSService::isBuddyOrAllianceMember($group->creator_id, $player->getId());
+            })
             ->map(function ($group) use ($player) {
                 return [
                     'id' => $group->id,
