@@ -21,4 +21,8 @@ enum PlanetType: int
      * Represents a moon.
      */
     case Moon = 3;
+    /**
+     * Represents expeditions.
+     */
+    case DeepSpace = 4;
 }
