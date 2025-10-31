@@ -106,7 +106,7 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         // With Impulse ≥5, Small Cargo switches to Impulse:
         // base speed becomes 10,000 and at Impulse 10 the bonus is +200% (20% × 10) → effective speed 20,000.
         // This reduces the duration to 56m 28s (3388 seconds) for a 1-system jump at fleet_speed=1.
-        $this->assertEquals(4788, $fleetMissionService->calculateFleetMissionDuration($this->planetService, $targetPlanetCoords, $units));
+        $this->assertEquals(3388, $fleetMissionService->calculateFleetMissionDuration($this->planetService, $targetPlanetCoords, $units));
     }
 
     public function testFleetDeuteriumConsumptionCalculation(): void

@@ -44,7 +44,7 @@ class CivilShipObjects
         $smallCargo->properties = new GameObjectProperties($smallCargo, 4000, 10, 5, 5000, 5000, 10);
         // Switch to Impulse at 5 and bump base speed to 10,000
         $smallCargo->properties->speed_upgrade = [
-            new GameObjectSpeedUpgrade('impulse_drive', 5),
+            new GameObjectSpeedUpgrade('impulse_drive', 5, 10000),
         ];
         $smallCargo->assets = new GameObjectAssets();
         $smallCargo->assets->imgSmall = 'small_cargo_small.jpg';
@@ -71,7 +71,7 @@ To maximize the resources that can be stored in the holds, this ship has little 
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
         ];
-        $largeCargo->properties = new GameObjectProperties($largeCargo, 12000, 25, 5, 15000, 25000, 50);
+        $largeCargo->properties = new GameObjectProperties($largeCargo, 12000, 25, 5, 7500, 25000, 50);
 
         $largeCargo->assets = new GameObjectAssets();
         $largeCargo->assets->imgSmall = 'large_cargo_small.jpg';
@@ -128,8 +128,8 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $recycler->properties = new GameObjectProperties($recycler, 16000, 10, 1, 2000, 20000, 300);
         // Switch to Impulse at 17 (base 4,000), then Hyperspace at 15 (base 6,000)
         $recycler->properties->speed_upgrade = [
-            new GameObjectSpeedUpgrade('impulse_drive', 17),
-            new GameObjectSpeedUpgrade('hyperspace_drive', 15),
+            new GameObjectSpeedUpgrade('impulse_drive', 17, 4000),
+            new GameObjectSpeedUpgrade('hyperspace_drive', 15, 6000),
         ];
         $recycler->assets = new GameObjectAssets();
         $recycler->assets->imgSmall = 'recycler_small.jpg';

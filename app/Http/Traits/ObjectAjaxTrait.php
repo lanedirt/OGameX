@@ -224,6 +224,15 @@ trait ObjectAjaxTrait
             $description .= " A solar satellite produces {$energyPerUnit} energy on this planet.";
         }
 
+        // Special handling for Interplanetary Missiles to show range
+        if ($object->machine_name === 'interplanetary_missile') {
+            $player = $planet->getPlayer();
+            $missileRange = $player->getMissileRange();
+
+            // Replace ?? with the calculated range
+            $description = str_replace('??', $missileRange, $description);
+        }
+
         return $description;
     }
 }

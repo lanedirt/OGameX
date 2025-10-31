@@ -115,7 +115,10 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->destination_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
             $eventRowViewModel->destination_planet_type = PlanetType::from($row->type_to);
 
-            if ($row->planet_id_to !== null) {
+            // Check if this is an expedition (mission type 15)
+            if ($row->mission_type == 15) {
+                $eventRowViewModel->destination_planet_name = __('Deep space');
+            } elseif ($row->planet_id_to !== null) {
                 $planetToService = $planetServiceFactory->make($row->planet_id_to);
                 if ($planetToService !== null) {
                     $eventRowViewModel->destination_planet_name = $planetToService->getPlanetName();
@@ -129,6 +132,7 @@ class FleetEventsController extends OGameController
 
             $friendlyStatus = $this->determineFriendly($row, $player);
 
+            $eventRowViewModel->mission_status = $friendlyStatus;
             $eventRowViewModel->is_recallable = false;
             if ($friendlyStatus === 'friendly') {
                 $eventRowViewModel->is_recallable = true;
@@ -161,6 +165,7 @@ class FleetEventsController extends OGameController
                 $waitEndRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
                 $waitEndRow->fleet_units = $eventRowViewModel->fleet_units;
                 $waitEndRow->resources = $eventRowViewModel->resources;
+                $waitEndRow->mission_status = 'friendly'; // Wait end is always friendly
                 $fleet_events[] = $waitEndRow;
             }
 
@@ -182,6 +187,7 @@ class FleetEventsController extends OGameController
                 $returnTripRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
                 $returnTripRow->fleet_units = $eventRowViewModel->fleet_units;
                 $returnTripRow->resources = new Resources(0, 0, 0, 0);
+                $returnTripRow->mission_status = 'friendly'; // Return trips are always friendly
                 $fleet_events[] = $returnTripRow;
             }
         }
@@ -216,6 +222,7 @@ class FleetEventsController extends OGameController
                 case 2:
                 case 6:
                 case 9:
+                case 10: // Missile Attack
                     // Hostile
                     return 'hostile';
                 case 3:
