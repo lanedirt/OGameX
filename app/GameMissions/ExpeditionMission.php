@@ -207,15 +207,9 @@ class ExpeditionMission extends GameMission
         $totalWeight = array_sum($delayFactors);
         $rand = mt_rand(1, $totalWeight);
 
-        // Pick a random delay multiplier
-        $selectedMultiplier = $delayMultipliers[array_rand($delayMultipliers)];
-
-        // Calculate total weight and generate random number
-        $totalWeight = array_sum($delayFactors);
-        $rand = mt_rand(1, $totalWeight);
-
         // Select multiplier based on cumulative weight
         $cumulativeWeight = 0;
+        $selectedMultiplier = 2; // fallback default
 
         foreach ($delayFactors as $factor => $weight) {
             $cumulativeWeight += $weight;
@@ -231,7 +225,7 @@ class ExpeditionMission extends GameMission
 
         // Apply universe fleet speed modifier
         // Formula: Actual Delay = Base Delay / Fleet Speed
-        $fleetSpeed = $this->settingsService->fleetSpeed();
+        $fleetSpeed = $this->settings->fleetSpeed();
         $additionalReturnTripTime = intval($baseAdditionalReturnTripTime / $fleetSpeed);
 
         // Send a message to the player with the failure and delay outcome
