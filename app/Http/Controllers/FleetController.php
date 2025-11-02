@@ -521,17 +521,19 @@ class FleetController extends OGameController
                 $arrivalDifference = abs($fleetMission->time_arrival - $targetArrivalTime);
                 if ($arrivalDifference > 2) {
                     // Synchronization failed - arrival time is more than 2 seconds off
-                    // Delete the fleet mission and reject the request
-                    $fleetMissionService->cancelFleetMission($fleetMission->id);
+                    // Cancel ONLY the newly created fleet (not the entire ACS group)
+                    // This returns the ships to the user's planet
+                    $fleetMissionService->cancelMission($fleetMission);
 
-                    \Log::error('ACS synchronization failed', [
+                    \Log::error('ACS synchronization failed - new fleet rejected', [
                         'mission_id' => $fleetMission->id,
                         'target_arrival' => $targetArrivalTime,
                         'actual_arrival' => $fleetMission->time_arrival,
                         'difference_seconds' => $arrivalDifference,
+                        'note' => 'Only the new joining fleet was canceled, existing ACS group is unaffected',
                     ]);
 
-                    throw new Exception('Cannot synchronize fleet arrival time with ACS group (off by ' . $arrivalDifference . ' seconds). Please try adjusting your fleet composition or speed.');
+                    throw new Exception('Cannot synchronize fleet arrival time with ACS group (off by ' . $arrivalDifference . ' seconds). Your ships have been returned. Please try adjusting your fleet composition or speed.');
                 }
             }
 
