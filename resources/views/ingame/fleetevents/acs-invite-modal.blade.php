@@ -178,40 +178,44 @@ function openACSInviteModal(acsGroupId) {
     }, 200);
 }
 
-$(document).ready(function() {
-    // Handle form submission
-    $('#acsInviteForm').on('submit', function(e) {
-        e.preventDefault();
+// Use event delegation since this modal is loaded via AJAX
+$(document).on('submit', '#acsInviteForm', function(e) {
+    e.preventDefault();
 
-        var playerId = $('#playerSelect').val();
-        var acsGroupId = $('#acs_group_id_input').val();
+    var playerId = $('#playerSelect').val();
+    var acsGroupId = $('#acs_group_id_input').val();
 
-        if (!playerId) {
-            errorBoxAsArray(['Please select a player to invite']);
-            return false;
-        }
+    console.log('Form submitted, playerId:', playerId, 'acsGroupId:', acsGroupId);
 
-        $.post("{{ route('fleet.acs.invite') }}", {
-            acs_group_id: acsGroupId,
-            player_id: playerId,
-            _token: '{{ csrf_token() }}'
-        }, function(data) {
-            if (data.success) {
-                errorBoxAsArray(['Player invited successfully! They will receive a message.']);
-                acsInviteDialog.dialog('close');
-            } else {
-                errorBoxAsArray([data.message || 'Failed to invite player']);
-            }
-        }).fail(function() {
-            errorBoxAsArray(['An error occurred while inviting the player']);
-        });
-
+    if (!playerId) {
+        errorBoxAsArray(['Please select a player to invite']);
         return false;
+    }
+
+    $.post("{{ route('fleet.acs.invite') }}", {
+        acs_group_id: acsGroupId,
+        player_id: playerId,
+        _token: '{{ csrf_token() }}'
+    }, function(data) {
+        console.log('Invite response:', data);
+        if (data.success) {
+            errorBoxAsArray(['Player invited successfully! They will receive a message.']);
+            acsInviteDialog.dialog('close');
+        } else {
+            errorBoxAsArray([data.message || 'Failed to invite player']);
+        }
+    }).fail(function(xhr, status, error) {
+        console.error('Invite failed:', status, error, xhr.responseText);
+        errorBoxAsArray(['An error occurred while inviting the player']);
     });
 
-    // Handle cancel button
-    $('#cancelAcsInvite').on('click', function() {
+    return false;
+});
+
+// Handle cancel button with event delegation
+$(document).on('click', '#cancelAcsInvite', function() {
+    if (acsInviteDialog) {
         acsInviteDialog.dialog('close');
-    });
+    }
 });
 </script>
