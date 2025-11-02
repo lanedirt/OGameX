@@ -28,33 +28,56 @@ class ACSDefendMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        \Log::debug('ACS Defend mission check', [
+            'from_planet' => $planet->getPlanetCoordinates()->asString(),
+            'from_player' => $planet->getPlayer()->getId(),
+            'target_coords' => $targetCoordinate->asString(),
+            'target_type' => $targetType->value,
+        ]);
+
         // ACS Defend mission is only possible for planets and moons.
         if (!in_array($targetType, [PlanetType::Planet, PlanetType::Moon])) {
+            \Log::debug('ACS Defend failed: target type not planet/moon');
             return new MissionPossibleStatus(false);
         }
 
         // If target planet does not exist, the mission is not possible.
         $targetPlanet = $this->planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetType);
         if ($targetPlanet === null) {
+            \Log::debug('ACS Defend failed: target planet not found');
             return new MissionPossibleStatus(false);
         }
 
+        \Log::debug('ACS Defend target found', [
+            'target_player' => $targetPlanet->getPlayer()->getId(),
+            'target_planet_name' => $targetPlanet->getPlanetName(),
+        ]);
+
         // Cannot defend your own planet (use deployment for that)
         if ($planet->getPlayer()->equals($targetPlanet->getPlayer())) {
+            \Log::debug('ACS Defend failed: cannot defend own planet');
             return new MissionPossibleStatus(false);
         }
 
         // Check if target player is buddy or alliance member
-        if (!ACSService::isBuddyOrAllianceMember($planet->getPlayer()->getId(), $targetPlanet->getPlayer()->getId())) {
+        $isBuddyOrAlliance = ACSService::isBuddyOrAllianceMember($planet->getPlayer()->getId(), $targetPlanet->getPlayer()->getId());
+        \Log::debug('ACS Defend buddy check', [
+            'is_buddy_or_alliance' => $isBuddyOrAlliance,
+        ]);
+
+        if (!$isBuddyOrAlliance) {
+            \Log::debug('ACS Defend failed: not buddy or alliance member');
             return new MissionPossibleStatus(false);
         }
 
         // If mission from and to coordinates and types are the same, the mission is not possible.
         if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
+            \Log::debug('ACS Defend failed: same coordinates');
             return new MissionPossibleStatus(false);
         }
 
         // If all checks pass, the mission is possible.
+        \Log::debug('ACS Defend mission is POSSIBLE!');
         return new MissionPossibleStatus(true);
     }
 
@@ -80,8 +103,7 @@ class ACSDefendMission extends GameMission
         $totalConsumptionNeeded = $holdConsumptionService->calculateTotalConsumption($units, (int)$holdDurationHours);
 
         // Check if target planet has Alliance Depot
-        $allianceDepot = \OGame\Services\ObjectService::getObjectByMachineName('alliance_depot');
-        $depotLevel = $targetPlanet->getObjectLevel($allianceDepot->id);
+        $depotLevel = $targetPlanet->getObjectLevel('alliance_depot');
 
         // Calculate Alliance Depot supply (20,000 deut/hour per level)
         $depotSupplyRate = 20000; // per hour per level
