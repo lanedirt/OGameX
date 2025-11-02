@@ -875,4 +875,149 @@ class FleetController extends OGameController
             'groups' => $acsGroups
         ]);
     }
+
+    /**
+     * Get eligible players (buddies and alliance members) for ACS invitations
+     *
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function getEligiblePlayers(PlayerService $player): JsonResponse
+    {
+        $playerId = $player->getId();
+        $eligiblePlayers = [];
+
+        // Get all buddies (bidirectional check)
+        $buddies = \OGame\Models\Buddy::where('user_id', $playerId)
+            ->orWhere('buddy_id', $playerId)
+            ->get();
+
+        foreach ($buddies as $buddy) {
+            $buddyPlayerId = ($buddy->user_id === $playerId) ? $buddy->buddy_id : $buddy->user_id;
+            $buddyPlayer = \OGame\Models\User::find($buddyPlayerId);
+
+            if ($buddyPlayer) {
+                $eligiblePlayers[] = [
+                    'id' => $buddyPlayer->id,
+                    'username' => $buddyPlayer->username,
+                    'type' => 'buddy'
+                ];
+            }
+        }
+
+        // Get alliance members if player is in an alliance
+        $playerAlliance = \OGame\Models\AllianceMember::where('user_id', $playerId)->first();
+        if ($playerAlliance) {
+            $allianceMembers = \OGame\Models\AllianceMember::where('alliance_id', $playerAlliance->alliance_id)
+                ->where('user_id', '!=', $playerId)
+                ->get();
+
+            foreach ($allianceMembers as $member) {
+                // Skip if already added as buddy
+                $alreadyAdded = false;
+                foreach ($eligiblePlayers as $existing) {
+                    if ($existing['id'] === $member->user_id) {
+                        $alreadyAdded = true;
+                        break;
+                    }
+                }
+
+                if (!$alreadyAdded) {
+                    $allianceMemberPlayer = \OGame\Models\User::find($member->user_id);
+                    if ($allianceMemberPlayer) {
+                        $eligiblePlayers[] = [
+                            'id' => $allianceMemberPlayer->id,
+                            'username' => $allianceMemberPlayer->username,
+                            'type' => 'alliance'
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Sort by username
+        usort($eligiblePlayers, function($a, $b) {
+            return strcmp($a['username'], $b['username']);
+        });
+
+        return response()->json([
+            'success' => true,
+            'players' => $eligiblePlayers
+        ]);
+    }
+
+    /**
+     * Invite a player to an ACS group
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function invitePlayerToACS(Request $request, PlayerService $player): JsonResponse
+    {
+        $acsGroupId = $request->input('acs_group_id');
+        $invitedPlayerId = $request->input('player_id');
+
+        if (!$acsGroupId || !$invitedPlayerId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Missing required parameters'
+            ]);
+        }
+
+        // Find the ACS group
+        $acsGroup = ACSService::findGroup($acsGroupId);
+        if (!$acsGroup) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ACS group not found'
+            ]);
+        }
+
+        // Verify the requesting player is the creator
+        if ($acsGroup->creator_id !== $player->getId()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only the group creator can invite players'
+            ]);
+        }
+
+        // Verify the invited player is a buddy or alliance member
+        if (!ACSService::isBuddyOrAllianceMember($player->getId(), $invitedPlayerId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You can only invite buddies and alliance members'
+            ]);
+        }
+
+        // Create the invitation
+        $invitation = ACSService::invitePlayer($acsGroup, $invitedPlayerId);
+
+        if (!$invitation) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Player has already been invited'
+            ]);
+        }
+
+        // Send message to the invited player
+        $messageService = resolve(\OGame\Services\MessageService::class);
+        $invitedPlayer = resolve(\OGame\Services\PlayerService::class, ['player_id' => $invitedPlayerId]);
+
+        $messageService->sendSystemMessageToPlayer(
+            $invitedPlayer,
+            \OGame\GameMessages\ACSInvitation::class,
+            [
+                'group_name' => $acsGroup->name,
+                'inviter' => $player->getUsername(),
+                'target' => $acsGroup->galaxy_to . ':' . $acsGroup->system_to . ':' . $acsGroup->position_to,
+                'arrival_time' => date('Y-m-d H:i:s', $acsGroup->arrival_time),
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Player invited successfully'
+        ]);
+    }
 }
