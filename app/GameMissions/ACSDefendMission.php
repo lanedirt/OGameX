@@ -110,7 +110,7 @@ class ACSDefendMission extends GameMission
         $depotSupplyAvailable = $depotLevel * $depotSupplyRate * $holdDurationHours;
 
         // Check how much deuterium the planet actually has
-        $planetDeuterium = $targetPlanet->deuterium();
+        $planetDeuterium = $targetPlanet->deuterium()->get();
         $depotSupplyUsed = min($depotSupplyAvailable, $planetDeuterium, $totalConsumptionNeeded);
 
         // Deduct depot supply from planet storage
