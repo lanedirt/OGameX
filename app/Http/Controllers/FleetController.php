@@ -371,9 +371,26 @@ class FleetController extends OGameController
                     throw new Exception('ACS group target does not match your fleet target.');
                 }
 
-                // Verify player can join
+                // Check ACS limits and provide specific error messages
+                $existingFleets = ACSService::getGroupFleets($acsGroup);
+                $fleetCount = $existingFleets->count();
+                $uniquePlayers = $existingFleets->pluck('player_id')->unique()->toArray();
+                $playerCount = count($uniquePlayers);
+                $playerAlreadyInGroup = in_array($player->getId(), $uniquePlayers);
+
+                // OGame limit: 16 fleets max
+                if ($fleetCount >= 16) {
+                    throw new Exception('ACS group is full (maximum 16 fleets).');
+                }
+
+                // OGame limit: 5 unique players max
+                if (!$playerAlreadyInGroup && $playerCount >= 5) {
+                    throw new Exception('ACS group is full (maximum 5 players).');
+                }
+
+                // Verify player can join (buddy/alliance check)
                 if (!ACSService::canJoinGroup($acsGroup, $player->getId())) {
-                    throw new Exception('You cannot join this ACS group.');
+                    throw new Exception('You cannot join this ACS group. Only buddies and alliance members can join.');
                 }
 
                 // Calculate this fleet's natural arrival time at 100% speed
@@ -905,13 +922,19 @@ class FleetController extends OGameController
                        \OGame\Services\ACSService::isBuddyOrAllianceMember($group->creator_id, $player->getId());
             })
             ->map(function ($group) use ($player) {
+                $fleetCount = \OGame\Services\ACSService::getGroupFleetCount($group);
+                $playerCount = \OGame\Services\ACSService::getGroupPlayerCount($group);
+                $isFull = \OGame\Services\ACSService::isGroupFull($group, $player->getId());
+
                 return [
                     'id' => $group->id,
                     'name' => $group->name,
                     'target' => $group->galaxy_to . ':' . $group->system_to . ':' . $group->position_to,
                     'arrival_time' => $group->arrival_time,
                     'arrival_time_formatted' => date('Y-m-d H:i:s', $group->arrival_time),
-                    'fleet_count' => $group->fleetMembers()->count(),
+                    'fleet_count' => $fleetCount,
+                    'player_count' => $playerCount,
+                    'is_full' => $isFull,
                     'is_creator' => $group->creator_id === $player->getId(),
                 ];
             })

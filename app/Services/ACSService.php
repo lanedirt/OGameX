@@ -148,7 +148,23 @@ class ACSService
             return false;
         }
 
-        // Check if player is the creator (always allowed)
+        // Check ACS limits before allowing join
+        $fleetCount = self::getGroupFleets($group)->count();
+        $uniquePlayers = self::getGroupFleets($group)->pluck('player_id')->unique()->toArray();
+        $playerCount = count($uniquePlayers);
+        $playerAlreadyInGroup = in_array($playerId, $uniquePlayers);
+
+        // OGame limits: 16 fleets max
+        if ($fleetCount >= 16) {
+            return false;
+        }
+
+        // OGame limits: 5 unique players max (only count new players)
+        if (!$playerAlreadyInGroup && $playerCount >= 5) {
+            return false;
+        }
+
+        // Check if player is the creator (always allowed, assuming limits not exceeded)
         if ($group->creator_id === $playerId) {
             return true;
         }
@@ -248,5 +264,42 @@ class ACSService
         $invitation->save();
 
         return true;
+    }
+
+    /**
+     * Get the number of unique players in an ACS group
+     */
+    public static function getGroupPlayerCount(AcsGroup $group): int
+    {
+        return self::getGroupFleets($group)->pluck('player_id')->unique()->count();
+    }
+
+    /**
+     * Get the number of fleets in an ACS group
+     */
+    public static function getGroupFleetCount(AcsGroup $group): int
+    {
+        return self::getGroupFleets($group)->count();
+    }
+
+    /**
+     * Check if an ACS group is full (16 fleets or 5 players)
+     */
+    public static function isGroupFull(AcsGroup $group, int $newPlayerId): bool
+    {
+        $fleetCount = self::getGroupFleetCount($group);
+        if ($fleetCount >= 16) {
+            return true;
+        }
+
+        $uniquePlayers = self::getGroupFleets($group)->pluck('player_id')->unique()->toArray();
+        $playerAlreadyInGroup = in_array($newPlayerId, $uniquePlayers);
+
+        // If player is new and would exceed 5 players, group is full
+        if (!$playerAlreadyInGroup && count($uniquePlayers) >= 5) {
+            return true;
+        }
+
+        return false;
     }
 }
