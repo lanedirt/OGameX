@@ -107,4 +107,5 @@
     });
 </script>
 
-
+{{-- Include the ACS invite modal --}}
+@include('ingame.fleetevents.acs-invite-modal')
