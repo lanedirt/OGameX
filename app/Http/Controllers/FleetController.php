@@ -1001,19 +1001,39 @@ class FleetController extends OGameController
         }
 
         // Send message to the invited player
-        $messageService = resolve(\OGame\Services\MessageService::class);
-        $invitedPlayer = resolve(\OGame\Services\PlayerService::class, ['player_id' => $invitedPlayerId]);
+        try {
+            \Log::info('Attempting to send ACS invitation message', [
+                'inviter_id' => $player->getId(),
+                'invited_player_id' => $invitedPlayerId,
+                'acs_group_id' => $acsGroup->id,
+            ]);
 
-        $messageService->sendSystemMessageToPlayer(
-            $invitedPlayer,
-            \OGame\GameMessages\ACSInvitation::class,
-            [
-                'inviter' => $player->getUsername(),
-                'acs_group_name' => $acsGroup->name,
-                'target_coordinates' => $acsGroup->galaxy_to . ':' . $acsGroup->system_to . ':' . $acsGroup->position_to,
-                'arrival_time' => date('Y-m-d H:i:s', $acsGroup->arrival_time),
-            ]
-        );
+            $messageService = resolve(\OGame\Services\MessageService::class);
+            $invitedPlayer = resolve(\OGame\Services\PlayerService::class, ['player_id' => $invitedPlayerId]);
+
+            \Log::info('Resolved invited player', [
+                'player_id' => $invitedPlayer->getId(),
+                'username' => $invitedPlayer->getUsername(),
+            ]);
+
+            $messageService->sendSystemMessageToPlayer(
+                $invitedPlayer,
+                \OGame\GameMessages\ACSInvitation::class,
+                [
+                    'inviter' => $player->getUsername(),
+                    'acs_group_name' => $acsGroup->name,
+                    'target_coordinates' => $acsGroup->galaxy_to . ':' . $acsGroup->system_to . ':' . $acsGroup->position_to,
+                    'arrival_time' => date('Y-m-d H:i:s', $acsGroup->arrival_time),
+                ]
+            );
+
+            \Log::info('ACS invitation message sent successfully');
+        } catch (\Exception $e) {
+            \Log::error('Failed to send ACS invitation message', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
 
         return response()->json([
             'success' => true,
