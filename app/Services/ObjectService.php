@@ -558,10 +558,10 @@ class ObjectService
             $energy = $base_price->resources->energy->get() * ($base_price->factor ** ($level - 1));
 
             // Round price
-            $metal = round($metal);
-            $crystal = round($crystal);
-            $deuterium = round($deuterium);
-            $energy = round($energy);
+            $metal = floor($metal);
+            $crystal = floor($crystal);
+            $deuterium = floor($deuterium);
+            $energy = floor($energy);
 
             if (!empty($base_price->roundNearest100)) {
                 // Round resource cost to nearest 100.

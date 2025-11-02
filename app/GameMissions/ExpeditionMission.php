@@ -201,17 +201,39 @@ class ExpeditionMission extends GameMission
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
-        // Delays can be 50%, 60%, 70%, 80%, 90%, 100%, 200%, 300%, or 500% of holding time
-        $delayMultipliers = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 2.0, 3.0, 5.0];
+        // Define weighted delay factors 2,3,5 probability of 89%, 10%, 1%
+        $delayFactors = [
+            2 => 89,
+            3 => 10,
+            5 => 1
+        ];
 
-        // Pick a random delay multiplier
-        $selectedMultiplier = $delayMultipliers[array_rand($delayMultipliers)];
+        // Calculate total weight and generate random number
+        $totalWeight = array_sum($delayFactors);
+        $rand = mt_rand(1, $totalWeight);
 
-        // Calculate the additional return trip time based on holding time only
-        // The delay is added to the return trip, not the holding time itself
-        $additionalReturnTripTime = intval($mission->time_holding * $selectedMultiplier);
+        // Select multiplier based on cumulative weight
+        $cumulativeWeight = 0;
+        $selectedMultiplier = 2; // fallback default
 
-        // Send a message to the player with the failure and delay outcome.
+        foreach ($delayFactors as $factor => $weight) {
+            $cumulativeWeight += $weight;
+            if ($rand <= $cumulativeWeight) {
+                $selectedMultiplier = $factor;
+                break;
+            }
+        }
+
+        // Calculate base additional return trip time based on holding time
+        // Formula: Base Delay = Delay factor × Holding time
+        $baseAdditionalReturnTripTime = $mission->time_holding * $selectedMultiplier;
+
+        // Apply universe fleet speed modifier
+        // Formula: Actual Delay = Base Delay / Fleet Speed
+        $fleetSpeed = $this->settings->fleetSpeed();
+        $additionalReturnTripTime = intval($baseAdditionalReturnTripTime / $fleetSpeed);
+
+        // Send a message to the player with the failure and delay outcome
         $message_variation_id = ExpeditionFailedAndDelay::getRandomMessageVariationId();
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionFailedAndDelay::class, ['message_variation_id' => $message_variation_id]);
 
