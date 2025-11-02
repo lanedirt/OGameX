@@ -52,6 +52,7 @@ class FleetEventsController extends OGameController
             // Loop through all missions to calculate all mission counts.
             foreach ($activeMissionRows as $row) {
                 switch ($this->determineFriendly($row, $player)) {
+                    case 'own':
                     case 'friendly':
                         $friendlyMissionCount++;
                         break;
@@ -169,7 +170,7 @@ class FleetEventsController extends OGameController
 
             $eventRowViewModel->mission_status = $friendlyStatus;
             $eventRowViewModel->is_recallable = false;
-            if ($friendlyStatus === 'friendly') {
+            if ($friendlyStatus === 'own') {
                 $eventRowViewModel->is_recallable = true;
             }
 
@@ -183,7 +184,7 @@ class FleetEventsController extends OGameController
             }
 
             // For missions with waiting time, add an additional row showing when the fleet will start its return journey
-            if ($friendlyStatus === 'friendly' && $row->time_holding > 0 && !$eventRowViewModel->is_return_trip) {
+            if ($friendlyStatus === 'own' && $row->time_holding > 0 && !$eventRowViewModel->is_return_trip) {
                 $waitEndRow = new FleetEventRowViewModel();
                 $waitEndRow->is_return_trip = false;
                 $waitEndRow->is_recallable = false;
@@ -200,7 +201,7 @@ class FleetEventsController extends OGameController
                 $waitEndRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
                 $waitEndRow->fleet_units = $eventRowViewModel->fleet_units;
                 $waitEndRow->resources = $eventRowViewModel->resources;
-                $waitEndRow->mission_status = 'friendly'; // Wait end is always friendly
+                $waitEndRow->mission_status = 'own'; // Wait end is always own
                 // Copy ACS properties
                 $waitEndRow->acs_group_id = $eventRowViewModel->acs_group_id;
                 $waitEndRow->acs_group_name = $eventRowViewModel->acs_group_name;
@@ -211,7 +212,7 @@ class FleetEventsController extends OGameController
             }
 
             // Add return trip row if the mission has a return mission, even though the return mission does not exist yet in the database.
-            if ($friendlyStatus === 'friendly' && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
+            if ($friendlyStatus === 'own' && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
                 $returnTripRow = new FleetEventRowViewModel();
                 $returnTripRow->is_return_trip = true;
                 $returnTripRow->is_recallable = false;
@@ -228,7 +229,7 @@ class FleetEventsController extends OGameController
                 $returnTripRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
                 $returnTripRow->fleet_units = $eventRowViewModel->fleet_units;
                 $returnTripRow->resources = new Resources(0, 0, 0, 0);
-                $returnTripRow->mission_status = 'friendly'; // Return trips are always friendly
+                $returnTripRow->mission_status = 'own'; // Return trips are always own
                 // Copy ACS properties
                 $returnTripRow->acs_group_id = $eventRowViewModel->acs_group_id;
                 $returnTripRow->acs_group_name = $eventRowViewModel->acs_group_name;
@@ -252,33 +253,38 @@ class FleetEventsController extends OGameController
     }
 
     /**
-     * Returns whether the fleet mission is friendly, neutral or hostile.
+     * Returns whether the fleet mission is own, friendly, neutral or hostile.
      *
      * @param FleetMission $mission
      * @param PlayerService $player
      *
-     * @return string ('friendly', 'neutral' or 'hostile')
+     * @return string ('own', 'friendly', 'neutral' or 'hostile')
      */
     private function determineFriendly(FleetMission $mission, PlayerService $player): string
     {
-        // Determine if the next mission is a friendly, hostile or neutral mission
-        if ($mission->user_id != $player->getId()) {
-            // Not from the current player, check mission type.
-            switch ($mission->mission_type) {
-                case 1:
-                case 2:
-                case 6:
-                case 9:
-                case 10: // Missile Attack
-                    // Hostile
-                    return 'hostile';
-                case 3:
-                    // Neutral;
-                    return 'neutral';
-            }
+        // Check if mission belongs to current player
+        if ($mission->user_id == $player->getId()) {
+            return 'own';
         }
 
-        // From current player, it is a friendly mission.
-        return 'friendly';
+        // Not from the current player, check mission type.
+        switch ($mission->mission_type) {
+            case 1:
+            case 2:
+            case 6:
+            case 9:
+            case 10: // Missile Attack
+                // Hostile
+                return 'hostile';
+            case 3:
+                // Neutral
+                return 'neutral';
+            case 5: // ACS Defend
+                // Friendly - another player defending our planet
+                return 'friendly';
+            default:
+                // Default to friendly for transport and other peaceful missions
+                return 'friendly';
+        }
     }
 }

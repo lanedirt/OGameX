@@ -14,7 +14,7 @@
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
-                 title="Own fleet | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
+                 title="@if($fleet_event_row->mission_status === 'own')Own fleet@elseif($fleet_event_row->mission_status === 'friendly')Friendly fleet@elseif($fleet_event_row->mission_status === 'hostile')Hostile fleet@else{{ucfirst($fleet_event_row->mission_status)}} fleet@endif | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
         </td>
 
         <td class="originFleet">
@@ -159,7 +159,7 @@
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
-                 title="Own fleet | {{ $fleet_event_row->mission_label }}" alt=""/>
+                 title="@if($fleet_event_row->mission_status === 'own')Own fleet@elseif($fleet_event_row->mission_status === 'friendly')Friendly fleet@elseif($fleet_event_row->mission_status === 'hostile')Hostile fleet@else{{ucfirst($fleet_event_row->mission_status)}} fleet@endif | {{ $fleet_event_row->mission_label }}" alt=""/>
         </td>
 
         <td class="originFleet">

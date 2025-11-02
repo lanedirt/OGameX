@@ -103,30 +103,71 @@ class AttackMission extends GameMission
         $defenderPlanet->save();
 
         // Handle ACS Defend missions that participated in the battle
-        // These missions should end immediately as their fleets participated in combat
-        // TODO: Implement proper loss distribution among defending missions
-        // For now, all defending fleet units are considered lost when they participate in battle
+        // Calculate survival rate for each unit type and distribute survivors back to defending missions
+        $acsDefendTotalStart = new UnitCollection();
         foreach ($battleResult->defendingMissions as $defendingMission) {
+            $defendingUnits = $this->fleetMissionService->getFleetUnits($defendingMission);
+            $acsDefendTotalStart->addCollection($defendingUnits);
+        }
+
+        // Calculate the planet's units (ships + defenses) at start
+        $planetUnitsStart = clone $battleResult->defenderUnitsStart;
+        $planetUnitsStart->subtractCollection($acsDefendTotalStart);
+
+        // Calculate how many of the planet's units survived
+        // First, we need to figure out which survivors belong to the planet vs ACS Defend missions
+        // We'll use a proportional distribution based on each unit type
+        foreach ($battleResult->defendingMissions as $defendingMission) {
+            // Get the original units for this mission
+            $missionUnitsStart = $this->fleetMissionService->getFleetUnits($defendingMission);
+
+            // Calculate surviving units for this mission based on overall survival rates
+            $missionUnitsSurvived = new UnitCollection();
+
+            foreach ($missionUnitsStart->units as $unit) {
+                $unitMachineName = $unit->unitObject->machine_name;
+                $originalAmount = $unit->amount;
+
+                // Get the total amount of this unit type at battle start (planet + all ACS Defend)
+                $totalStartAmount = $battleResult->defenderUnitsStart->getAmountByMachineName($unitMachineName);
+
+                if ($totalStartAmount > 0) {
+                    // Get the total survivors of this unit type
+                    $totalSurvived = $battleResult->defenderUnitsResult->getAmountByMachineName($unitMachineName);
+
+                    // Calculate survival rate
+                    $survivalRate = $totalSurvived / $totalStartAmount;
+
+                    // Apply survival rate to this mission's original units (round down)
+                    $survivedAmount = (int)floor($originalAmount * $survivalRate);
+
+                    if ($survivedAmount > 0) {
+                        $missionUnitsSurvived->addUnit($unit->unitObject, $survivedAmount);
+                    }
+                }
+            }
+
             // Mark the mission as processed to end its hold period
             $defendingMission->processed = 1;
             $defendingMission->save();
 
-            \Log::info('ACS Defend mission ' . $defendingMission->id . ' participated in battle and has been ended');
+            \Log::info('ACS Defend mission ' . $defendingMission->id . ' participated in battle', [
+                'original_units' => $missionUnitsStart->toArray(),
+                'surviving_units' => $missionUnitsSurvived->toArray(),
+            ]);
 
-            // Create return mission with 0 units (all considered lost in battle)
-            // In the future, we should track which units belonged to which mission and distribute losses proportionally
+            // Create return mission with surviving units
             $gameMissionFactory = resolve(\OGame\Factories\GameMissionFactory::class);
             $missionObject = $gameMissionFactory->getMissionById(5, [
                 'fleetMissionService' => $this->fleetMissionService,
                 'messageService' => $this->messageService,
             ]);
 
-            // Return with remaining deuterium resources but no ships
+            // Return with remaining resources and surviving ships
             $remainingResources = $this->fleetMissionService->getResources($defendingMission);
-            $noUnits = new UnitCollection();
 
-            // Start the return trip immediately
-            $missionObject->startReturn($defendingMission, $remainingResources, $noUnits);
+            // Start the return trip immediately with surviving units
+            $missionObject->startReturn($defendingMission, $remainingResources, $missionUnitsSurvived);
         }
 
         // Create or append debris field.
