@@ -1008,9 +1008,9 @@ class FleetController extends OGameController
             $invitedPlayer,
             \OGame\GameMessages\ACSInvitation::class,
             [
-                'group_name' => $acsGroup->name,
                 'inviter' => $player->getUsername(),
-                'target' => $acsGroup->galaxy_to . ':' . $acsGroup->system_to . ':' . $acsGroup->position_to,
+                'acs_group_name' => $acsGroup->name,
+                'target_coordinates' => $acsGroup->galaxy_to . ':' . $acsGroup->system_to . ':' . $acsGroup->position_to,
                 'arrival_time' => date('Y-m-d H:i:s', $acsGroup->arrival_time),
             ]
         );
