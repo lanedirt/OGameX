@@ -516,6 +516,25 @@ class FleetController extends OGameController
                 'arrival_matches' => $targetArrivalTime ? (abs($fleetMission->time_arrival - $targetArrivalTime) <= 1) : 'N/A',
             ]);
 
+            // Validate ACS synchronization before adding to group
+            if ($mission_type === 2 && $union > 0 && $targetArrivalTime) {
+                $arrivalDifference = abs($fleetMission->time_arrival - $targetArrivalTime);
+                if ($arrivalDifference > 2) {
+                    // Synchronization failed - arrival time is more than 2 seconds off
+                    // Delete the fleet mission and reject the request
+                    $fleetMissionService->cancelFleetMission($fleetMission->id);
+
+                    \Log::error('ACS synchronization failed', [
+                        'mission_id' => $fleetMission->id,
+                        'target_arrival' => $targetArrivalTime,
+                        'actual_arrival' => $fleetMission->time_arrival,
+                        'difference_seconds' => $arrivalDifference,
+                    ]);
+
+                    throw new Exception('Cannot synchronize fleet arrival time with ACS group (off by ' . $arrivalDifference . ' seconds). Please try adjusting your fleet composition or speed.');
+                }
+            }
+
             // Handle ACS group creation/joining for ACS Attack (type 2) missions
             if ($mission_type === 2) {
                 $this->handleACSGroupForMission($fleetMission, $union, $player, $target_coordinate, $planetType);
@@ -853,14 +872,34 @@ class FleetController extends OGameController
         // Binary search to find the right speed percentage
         $minSpeed = 10.0;
         $maxSpeed = 100.0;
-        $tolerance = 1; // 1 second tolerance
 
-        for ($i = 0; $i < 20; $i++) { // Max 20 iterations for binary search
+        for ($i = 0; $i < 30; $i++) { // Max 30 iterations for more precision
             $midSpeed = ($minSpeed + $maxSpeed) / 2;
             $duration = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $midSpeed);
 
-            if (abs($duration - $requiredDuration) <= $tolerance) {
-                return round($midSpeed);
+            if (abs($duration - $requiredDuration) <= 0.5) {
+                // Found a good speed, but need to round to integer
+                $roundedSpeed = round($midSpeed);
+
+                // Verify rounded speed is still close enough (within 2 seconds)
+                $durationAtRounded = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $roundedSpeed);
+                if (abs($durationAtRounded - $requiredDuration) <= 2) {
+                    return $roundedSpeed;
+                }
+
+                // If rounding made it worse, try floor and ceil
+                $floorSpeed = floor($midSpeed);
+                $ceilSpeed = ceil($midSpeed);
+
+                $durationFloor = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $floorSpeed);
+                $durationCeil = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $ceilSpeed);
+
+                // Pick whichever is closer
+                if (abs($durationFloor - $requiredDuration) < abs($durationCeil - $requiredDuration)) {
+                    return max(10, $floorSpeed); // Ensure minimum 10%
+                } else {
+                    return min(100, $ceilSpeed); // Ensure maximum 100%
+                }
             }
 
             if ($duration > $requiredDuration) {
@@ -872,8 +911,14 @@ class FleetController extends OGameController
             }
         }
 
-        // Return the closest speed we found
-        return round(($minSpeed + $maxSpeed) / 2);
+        // If we exit the loop without finding a good speed, return null
+        // This will trigger the departure delay logic
+        \Log::warning('Binary search failed to find precise speed', [
+            'min_speed' => $minSpeed,
+            'max_speed' => $maxSpeed,
+            'required_duration' => $requiredDuration,
+        ]);
+        return null;
     }
 
     /**
