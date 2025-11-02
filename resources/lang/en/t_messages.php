@@ -299,7 +299,7 @@ Defenses destroyed: :defenses_destroyed',
         'body' => ':inviter has invited you to join an ACS (Alliance Combat System) attack!
 
 ACS Group: :acs_group_name
-Target: :target_coordinates
+Target: [coordinates]:target_coordinates[/coordinates]
 Arrival Time: :arrival_time
 
 You can join this attack by sending your fleet to the same coordinates with the ACS Attack mission and selecting this group.',
