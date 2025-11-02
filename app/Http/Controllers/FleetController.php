@@ -676,10 +676,18 @@ class FleetController extends OGameController
      */
     private function handleACSGroupForMission(\OGame\Models\FleetMission $fleetMission, int $union, PlayerService $player, Coordinate $targetCoordinate, PlanetType $targetType): void
     {
+        \Log::debug('handleACSGroupForMission called', [
+            'fleet_mission_id' => $fleetMission->id,
+            'union' => $union,
+            'player_id' => $player->getId(),
+            'target' => $targetCoordinate->asString(),
+        ]);
+
         $acsGroup = null;
 
         if ($union === 0) {
             // Create a new ACS group with this fleet's arrival time
+            \Log::debug('Creating new ACS group');
             $acsGroup = ACSService::createGroup(
                 $player->getId(),
                 'ACS Attack ' . $targetCoordinate->galaxy . ':' . $targetCoordinate->system . ':' . $targetCoordinate->position,
@@ -689,8 +697,10 @@ class FleetController extends OGameController
                 $targetType->value,
                 $fleetMission->time_arrival
             );
+            \Log::debug('ACS group created', ['acs_group_id' => $acsGroup->id]);
         } else {
             // Join existing ACS group (validation already done earlier)
+            \Log::debug('Joining existing ACS group', ['union' => $union]);
             $acsGroup = ACSService::findGroup($union);
 
             if (!$acsGroup) {
@@ -700,7 +710,12 @@ class FleetController extends OGameController
 
         // Link the fleet mission to the ACS group (passing FleetMission object, not ID)
         if ($acsGroup) {
+            \Log::debug('Adding fleet to ACS group', [
+                'acs_group_id' => $acsGroup->id,
+                'fleet_mission_id' => $fleetMission->id,
+            ]);
             ACSService::addFleetToGroup($acsGroup, $fleetMission, $player->getId());
+            \Log::debug('Fleet added to ACS group successfully');
         }
     }
 
