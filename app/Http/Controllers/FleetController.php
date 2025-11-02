@@ -886,6 +886,7 @@ class FleetController extends OGameController
     {
         $playerId = $player->getId();
         $eligiblePlayers = [];
+        $addedPlayerIds = []; // Track added player IDs to prevent duplicates
 
         // Get all buddies (bidirectional check)
         $buddies = \OGame\Models\Buddy::where('user_id', $playerId)
@@ -894,6 +895,12 @@ class FleetController extends OGameController
 
         foreach ($buddies as $buddy) {
             $buddyPlayerId = ($buddy->user_id === $playerId) ? $buddy->buddy_id : $buddy->user_id;
+
+            // Skip if already added
+            if (in_array($buddyPlayerId, $addedPlayerIds)) {
+                continue;
+            }
+
             $buddyPlayer = \OGame\Models\User::find($buddyPlayerId);
 
             if ($buddyPlayer) {
@@ -902,6 +909,7 @@ class FleetController extends OGameController
                     'username' => $buddyPlayer->username,
                     'type' => 'buddy'
                 ];
+                $addedPlayerIds[] = $buddyPlayerId;
             }
         }
 
@@ -913,24 +921,19 @@ class FleetController extends OGameController
                 ->get();
 
             foreach ($allianceMembers as $member) {
-                // Skip if already added as buddy
-                $alreadyAdded = false;
-                foreach ($eligiblePlayers as $existing) {
-                    if ($existing['id'] === $member->user_id) {
-                        $alreadyAdded = true;
-                        break;
-                    }
+                // Skip if already added (as buddy or duplicate)
+                if (in_array($member->user_id, $addedPlayerIds)) {
+                    continue;
                 }
 
-                if (!$alreadyAdded) {
-                    $allianceMemberPlayer = \OGame\Models\User::find($member->user_id);
-                    if ($allianceMemberPlayer) {
-                        $eligiblePlayers[] = [
-                            'id' => $allianceMemberPlayer->id,
-                            'username' => $allianceMemberPlayer->username,
-                            'type' => 'alliance'
-                        ];
-                    }
+                $allianceMemberPlayer = \OGame\Models\User::find($member->user_id);
+                if ($allianceMemberPlayer) {
+                    $eligiblePlayers[] = [
+                        'id' => $allianceMemberPlayer->id,
+                        'username' => $allianceMemberPlayer->username,
+                        'type' => 'alliance'
+                    ];
+                    $addedPlayerIds[] = $member->user_id;
                 }
             }
         }
