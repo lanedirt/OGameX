@@ -398,13 +398,43 @@ class FleetController extends OGameController
                 $durationAt100 = $fleetMissionService->calculateFleetMissionDuration($planet, $target_coordinate, $units, 100);
                 $naturalArrivalTime = $currentTime + $durationAt100;
 
-                \Log::debug('Checking if joining fleet is slower', [
+                // Calculate what speed this fleet would need to match the group
+                $requiredDuration = $acsGroup->arrival_time - $currentTime;
+                $requiredSpeed = ($durationAt100 / max($requiredDuration, 1)) * 100;
+                $requiredSpeed = max(10, min(100, $requiredSpeed)); // Clamp to 10-100%
+
+                // OGame Rule: Group speed cannot be lowered by more than 30 percentage points
+                // Calculate current group's slowest speed
+                $groupSlowestSpeed = 100; // Start with 100%
+                foreach ($existingFleets as $member) {
+                    $fleetMission = $member->fleetMission;
+                    $fleetDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
+                    $fleetDurationAt100 = $fleetMissionService->calculateFleetMissionDuration(
+                        $this->planetServiceFactory->make($fleetMission->planet_id_from),
+                        new Coordinate($fleetMission->galaxy_to, $fleetMission->system_to, $fleetMission->position_to),
+                        $this->fleetMissionService->getFleetUnits($fleetMission),
+                        100
+                    );
+                    $fleetSpeed = ($fleetDurationAt100 / max($fleetDuration, 1)) * 100;
+                    $fleetSpeed = max(10, min(100, $fleetSpeed));
+                    $groupSlowestSpeed = min($groupSlowestSpeed, $fleetSpeed);
+                }
+
+                // Check 30% rule: new fleet speed must be >= (group's slowest speed - 30)
+                $minimumAllowedSpeed = $groupSlowestSpeed - 30;
+
+                \Log::debug('Checking ACS 30% speed rule', [
                     'natural_arrival_at_100' => $naturalArrivalTime,
-                    'natural_arrival_formatted' => date('Y-m-d H:i:s', $naturalArrivalTime),
                     'group_current_arrival' => $acsGroup->arrival_time,
-                    'group_current_formatted' => date('Y-m-d H:i:s', $acsGroup->arrival_time),
-                    'is_slower' => $naturalArrivalTime > $acsGroup->arrival_time,
+                    'required_speed' => round($requiredSpeed, 1),
+                    'group_slowest_speed' => round($groupSlowestSpeed, 1),
+                    'minimum_allowed_speed' => round($minimumAllowedSpeed, 1),
+                    'is_within_30_percent' => $requiredSpeed >= $minimumAllowedSpeed,
                 ]);
+
+                if ($requiredSpeed < $minimumAllowedSpeed) {
+                    throw new Exception('Fleet is too slow to join this ACS group. OGame rules: group speed cannot be reduced by more than 30%. Your fleet would need ' . round($requiredSpeed, 1) . '% speed but minimum allowed is ' . round($minimumAllowedSpeed, 1) . '%.');
+                }
 
                 // OGame behavior: slowest ship determines arrival time
                 if ($naturalArrivalTime > $acsGroup->arrival_time) {
