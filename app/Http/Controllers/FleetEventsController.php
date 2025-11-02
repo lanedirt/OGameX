@@ -198,6 +198,12 @@ class FleetEventsController extends OGameController
                 $waitEndRow->fleet_units = $eventRowViewModel->fleet_units;
                 $waitEndRow->resources = $eventRowViewModel->resources;
                 $waitEndRow->mission_status = 'friendly'; // Wait end is always friendly
+                // Copy ACS properties
+                $waitEndRow->acs_group_id = $eventRowViewModel->acs_group_id;
+                $waitEndRow->acs_group_name = $eventRowViewModel->acs_group_name;
+                $waitEndRow->acs_fleet_count = $eventRowViewModel->acs_fleet_count;
+                $waitEndRow->acs_participants = $eventRowViewModel->acs_participants;
+                $waitEndRow->is_acs_group_creator = $eventRowViewModel->is_acs_group_creator;
                 $fleet_events[] = $waitEndRow;
             }
 
@@ -220,6 +226,12 @@ class FleetEventsController extends OGameController
                 $returnTripRow->fleet_units = $eventRowViewModel->fleet_units;
                 $returnTripRow->resources = new Resources(0, 0, 0, 0);
                 $returnTripRow->mission_status = 'friendly'; // Return trips are always friendly
+                // Copy ACS properties
+                $returnTripRow->acs_group_id = $eventRowViewModel->acs_group_id;
+                $returnTripRow->acs_group_name = $eventRowViewModel->acs_group_name;
+                $returnTripRow->acs_fleet_count = $eventRowViewModel->acs_fleet_count;
+                $returnTripRow->acs_participants = $eventRowViewModel->acs_participants;
+                $returnTripRow->is_acs_group_creator = $eventRowViewModel->is_acs_group_creator;
                 $fleet_events[] = $returnTripRow;
             }
         }
