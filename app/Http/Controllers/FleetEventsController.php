@@ -134,6 +134,7 @@ class FleetEventsController extends OGameController
                 $eventRowViewModel->acs_group_id = $acsGroup->id;
                 $eventRowViewModel->acs_group_name = $acsGroup->name;
                 $eventRowViewModel->acs_fleet_count = $acsGroup->fleetMembers()->count();
+                $eventRowViewModel->is_acs_group_creator = ($acsGroup->creator_id === $player->getId());
 
                 // Get all participants in the ACS group and calculate total ship count
                 $participants = [];

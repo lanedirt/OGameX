@@ -286,6 +286,27 @@
             @endif
         </td>
         <td class="sendProbe">
+            {{-- Convert regular attack to ACS attack - only show if mission is attack (type 1) and not in an ACS group yet --}}
+            @if ($fleet_event_row->mission_type === 1 && empty($fleet_event_row->acs_group_id))
+                <a href="javascript:void(0);"
+                   class="convertToACS"
+                   data-fleet-id="{{ $fleet_event_row->id }}"
+                   style="color: #6f9fc8; text-decoration: none; font-size: 11px;"
+                   title="Convert this attack to an ACS group">
+                    [ACS]
+                </a>
+            @endif
+
+            {{-- Invite button - only show if mission is ACS attack (type 2) or converted attack with ACS group, and player is group creator --}}
+            @if ($fleet_event_row->acs_group_id && $fleet_event_row->is_acs_group_creator)
+                <a href="javascript:void(0);"
+                   class="inviteToACS"
+                   data-acs-group-id="{{ $fleet_event_row->acs_group_id }}"
+                   style="color: #6f9fc8; text-decoration: none; font-size: 11px; margin-left: 5px;"
+                   title="Invite players to this ACS group">
+                    [Invite]
+                </a>
+            @endif
         </td>
         <td class="sendMail">
         </td>

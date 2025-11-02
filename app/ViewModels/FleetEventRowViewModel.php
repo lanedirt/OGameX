@@ -54,4 +54,9 @@ class FleetEventRowViewModel
      * @var array Fleet participants in the ACS group
      */
     public array $acs_participants = [];
+
+    /**
+     * @var bool Whether the current player is the creator of the ACS group
+     */
+    public bool $is_acs_group_creator = false;
 }

@@ -1020,4 +1020,104 @@ class FleetController extends OGameController
             'message' => 'Player invited successfully'
         ]);
     }
+
+    /**
+     * Convert a regular attack mission to an ACS attack
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function convertAttackToACS(Request $request, PlayerService $player): JsonResponse
+    {
+        $fleetMissionId = $request->input('fleet_mission_id');
+
+        if (!$fleetMissionId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Missing fleet mission ID'
+            ]);
+        }
+
+        // Get the fleet mission
+        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class);
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId);
+
+        if (!$fleetMission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Fleet mission not found'
+            ]);
+        }
+
+        // Verify the player owns this fleet
+        if ($fleetMission->user_id !== $player->getId()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not own this fleet'
+            ]);
+        }
+
+        // Verify it's an attack mission (type 1)
+        if ($fleetMission->mission_type !== 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only attack missions can be converted to ACS'
+            ]);
+        }
+
+        // Verify the mission hasn't arrived yet
+        if ($fleetMission->time_arrival <= time()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Mission has already arrived'
+            ]);
+        }
+
+        // Verify it's not already in an ACS group
+        $existingMember = \OGame\Models\AcsFleetMember::where('fleet_mission_id', $fleetMission->id)->first();
+        if ($existingMember) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This fleet is already in an ACS group'
+            ]);
+        }
+
+        // Change mission type from 1 (attack) to 2 (ACS attack)
+        $fleetMission->mission_type = 2;
+        $fleetMission->save();
+
+        // Create ACS group for this mission
+        $targetCoordinate = new \OGame\Models\Planet\Coordinate(
+            $fleetMission->galaxy_to,
+            $fleetMission->system_to,
+            $fleetMission->position_to
+        );
+        $targetType = \OGame\Models\Enums\PlanetType::from($fleetMission->type_to);
+
+        $acsGroup = ACSService::createGroup(
+            $player->getId(),
+            'ACS Attack ' . $targetCoordinate->asString(),
+            $targetCoordinate->galaxy,
+            $targetCoordinate->system,
+            $targetCoordinate->position,
+            $targetType->value,
+            $fleetMission->time_arrival
+        );
+
+        // Add fleet to the ACS group
+        ACSService::addFleetToGroup($acsGroup, $fleetMission, $player->getId());
+
+        \Log::info('Attack converted to ACS', [
+            'fleet_mission_id' => $fleetMission->id,
+            'acs_group_id' => $acsGroup->id,
+            'player_id' => $player->getId(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Attack converted to ACS group',
+            'acs_group_id' => $acsGroup->id
+        ]);
+    }
 }
