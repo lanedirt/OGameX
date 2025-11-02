@@ -209,20 +209,20 @@ class ACSService
      */
     public static function invitePlayer(AcsGroup $group, int $playerId): ?AcsInvitation
     {
-        // Check if already invited
-        $existing = AcsInvitation::where('acs_group_id', $group->id)
-            ->where('invited_player_id', $playerId)
-            ->first();
+        // Use firstOrCreate to handle race conditions gracefully
+        // This is atomic and won't throw duplicate key errors
+        $invitation = AcsInvitation::firstOrCreate(
+            [
+                'acs_group_id' => $group->id,
+                'invited_player_id' => $playerId,
+            ],
+            [
+                'status' => 'pending',
+            ]
+        );
 
-        if ($existing) {
-            return null;
-        }
-
-        return AcsInvitation::create([
-            'acs_group_id' => $group->id,
-            'invited_player_id' => $playerId,
-            'status' => 'pending',
-        ]);
+        // Return null if invitation already existed (wasRecentlyCreated will be false)
+        return $invitation->wasRecentlyCreated ? $invitation : null;
     }
 
     /**
