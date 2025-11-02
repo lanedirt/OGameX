@@ -205,6 +205,33 @@ class ACSAttackMission extends GameMission
             $this->planetServiceFactory->createMoonForPlanet($defenderPlanet);
         }
 
+        // Handle ACS Defend missions that participated in the battle
+        // These missions should end immediately as their fleets participated in combat
+        // TODO: Implement proper loss distribution among defending missions
+        // For now, all defending fleet units are considered lost when they participate in battle
+        foreach ($battleResult->defendingMissions as $defendingMission) {
+            // Mark the mission as processed to end its hold period
+            $defendingMission->processed = 1;
+            $defendingMission->save();
+
+            \Log::info('ACS Defend mission ' . $defendingMission->id . ' participated in battle against ACS group ' . $acsGroup->id);
+
+            // Create return mission with 0 units (all considered lost in battle)
+            // In the future, we should track which units belonged to which mission and distribute losses proportionally
+            $gameMissionFactory = resolve(\OGame\Factories\GameMissionFactory::class);
+            $missionObject = $gameMissionFactory->getMissionById(5, [
+                'fleetMissionService' => $this->fleetMissionService,
+                'messageService' => $this->messageService,
+            ]);
+
+            // Return with remaining deuterium resources but no ships
+            $remainingResources = $this->fleetMissionService->getResources($defendingMission);
+            $noUnits = new UnitCollection();
+
+            // Start the return trip immediately
+            $missionObject->startReturn($defendingMission, $remainingResources, $noUnits);
+        }
+
         // Distribute loot and losses among all attackers
         $this->distributeLootAndLosses($attackerFleets, $battleResult, $defenderPlanet, $repairedDefenses);
 
@@ -276,6 +303,18 @@ class ACSAttackMission extends GameMission
         // Send battle report to defender
         $defenderReportId = $this->createBattleReport($attackerFleets[0]['player'], $defenderPlanet, $battleResult, $repairedDefenses, false);
         $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $defenderReportId);
+
+        // Send battle report to all ACS Defend fleet owners (only once per player)
+        $reportedDefenders = [$defenderPlanet->getPlayer()->getId()]; // Planet owner already reported
+        foreach ($battleResult->defendingMissions as $defendingMission) {
+            $defendingPlayer = resolve(\OGame\Services\PlayerService::class, ['player_id' => $defendingMission->user_id]);
+
+            // Only send once per unique defending player
+            if (!in_array($defendingPlayer->getId(), $reportedDefenders)) {
+                $this->messageService->sendBattleReportMessageToPlayer($defendingPlayer, $defenderReportId);
+                $reportedDefenders[] = $defendingPlayer->getId();
+            }
+        }
     }
 
     /**

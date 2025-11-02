@@ -150,8 +150,20 @@ class AttackMission extends GameMission
         $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult, $repairedDefenses);
         // Send to attacker.
         $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
-        // Send to defender.
+        // Send to defender (planet owner).
         $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
+
+        // Send battle report to all ACS Defend fleet owners (only once per player)
+        $reportedDefenders = [$defenderPlanet->getPlayer()->getId()]; // Planet owner already reported
+        foreach ($battleResult->defendingMissions as $defendingMission) {
+            $defendingPlayer = resolve(\OGame\Services\PlayerService::class, ['player_id' => $defendingMission->user_id]);
+
+            // Only send once per unique defending player
+            if (!in_array($defendingPlayer->getId(), $reportedDefenders)) {
+                $this->messageService->sendBattleReportMessageToPlayer($defendingPlayer, $reportId);
+                $reportedDefenders[] = $defendingPlayer->getId();
+            }
+        }
 
         // Mark the arrival mission as processed
         $mission->processed = 1;
