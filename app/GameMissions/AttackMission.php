@@ -102,6 +102,33 @@ class AttackMission extends GameMission
         // Save defenders planet
         $defenderPlanet->save();
 
+        // Handle ACS Defend missions that participated in the battle
+        // These missions should end immediately as their fleets participated in combat
+        // TODO: Implement proper loss distribution among defending missions
+        // For now, all defending fleet units are considered lost when they participate in battle
+        foreach ($battleResult->defendingMissions as $defendingMission) {
+            // Mark the mission as processed to end its hold period
+            $defendingMission->processed = 1;
+            $defendingMission->save();
+
+            \Log::info('ACS Defend mission ' . $defendingMission->id . ' participated in battle and has been ended');
+
+            // Create return mission with 0 units (all considered lost in battle)
+            // In the future, we should track which units belonged to which mission and distribute losses proportionally
+            $gameMissionFactory = resolve(\OGame\Factories\GameMissionFactory::class);
+            $missionObject = $gameMissionFactory->getMissionById(5, [
+                'fleetMissionService' => $this->fleetMissionService,
+                'messageService' => $this->messageService,
+            ]);
+
+            // Return with remaining deuterium resources but no ships
+            $remainingResources = $this->fleetMissionService->getResources($defendingMission);
+            $noUnits = new UnitCollection();
+
+            // Start the return trip immediately
+            $missionObject->startReturn($defendingMission, $remainingResources, $noUnits);
+        }
+
         // Create or append debris field.
         // TODO: we could change this debris field append logic to do everything in a single query to
         // prevent race conditions. Check this later when looking into reducing chance of race conditions occurring.
