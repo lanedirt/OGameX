@@ -103,6 +103,7 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::post('/ajax/galaxy', [GalaxyController::class, 'ajax'])->name('galaxy.ajax');
     Route::get('/galaxy/missile-attack', [GalaxyController::class, 'missileAttackOverlay'])->name('galaxy.missile-attack');
     Route::post('/galaxy/missile-attack', [GalaxyController::class, 'missileAttack'])->name('galaxy.missile-attack.post');
+    Route::post('/ajax/galaxy/phalanx-scan', [GalaxyController::class, 'ajaxPhalanxScan'])->name('galaxy.phalanx-scan');
 
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');
