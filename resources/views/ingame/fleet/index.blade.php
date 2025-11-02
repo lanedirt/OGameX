@@ -1573,6 +1573,10 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
 
                 console.log('Select now has', select.options.length, 'options');
 
+                // Always default to "Create new ACS group" (value 0)
+                select.value = '0';
+                console.log('Reset select value to 0 (Create new group)');
+
                 // Ensure select is visible (force it in case game CSS tries to hide it)
                 select.style.display = 'inline-block';
                 select.style.visibility = 'visible';
@@ -1688,26 +1692,25 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                     console.log('Mission button clicked:', missionType);
 
                     const acsGroupSelection = document.getElementById('acsGroupSelection');
-                    if (!acsGroupSelection) {
-                        console.log('ACS selection element not found');
-                        return;
+
+                    // Show/hide ACS group selection for ACS Attack (mission 2)
+                    if (acsGroupSelection) {
+                        if (missionType === 2) {
+                            console.log('Showing ACS group selection for ACS Attack');
+                            acsGroupSelection.style.display = 'list-item';
+                            acsGroupSelection.style.visibility = 'visible';
+                            acsGroupSelection.style.opacity = '1';
+
+                            populateACSGroups();
+                            updateACSGroupInfo();
+
+                            console.log('ACS UI shown and populated');
+                        } else {
+                            console.log('Hiding ACS group selection for mission type', missionType);
+                            acsGroupSelection.style.display = 'none';
+                        }
                     }
-
-                    // Show/hide based on mission type directly
-                    if (missionType === 2) {
-                        console.log('Showing ACS group selection for ACS Attack');
-                        acsGroupSelection.style.display = 'list-item';
-                        acsGroupSelection.style.visibility = 'visible';
-                        acsGroupSelection.style.opacity = '1';
-
-                        populateACSGroups();
-                        updateACSGroupInfo();
-
-                        console.log('ACS UI shown and populated');
-                    } else {
-                        console.log('Hiding ACS group selection for mission type', missionType);
-                        acsGroupSelection.style.display = 'none';
-                    }
+                    // Note: Hold time and expedition time selectors are controlled by external ingame.js (FleetDispatcher)
                 }
             });
 
