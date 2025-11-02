@@ -412,7 +412,7 @@ class FleetController extends OGameController
                     $fleetDurationAt100 = $fleetMissionService->calculateFleetMissionDuration(
                         $this->planetServiceFactory->make($fleetMission->planet_id_from),
                         new Coordinate($fleetMission->galaxy_to, $fleetMission->system_to, $fleetMission->position_to),
-                        $this->fleetMissionService->getFleetUnits($fleetMission),
+                        $fleetMissionService->getFleetUnits($fleetMission),
                         100
                     );
                     $fleetSpeed = ($fleetDurationAt100 / max($fleetDuration, 1)) * 100;
