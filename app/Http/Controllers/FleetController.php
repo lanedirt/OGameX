@@ -270,10 +270,11 @@ class FleetController extends OGameController
      *
      * @param PlayerService $player
      * @param FleetMissionService $fleetMissionService
+     * @param PlanetServiceFactory $planetServiceFactory
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
+    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService, PlanetServiceFactory $planetServiceFactory): JsonResponse
     {
         $galaxy = request()->input('galaxy');
         $system = request()->input('system');
@@ -410,7 +411,7 @@ class FleetController extends OGameController
                     $fleetMission = $member->fleetMission;
                     $fleetDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
                     $fleetDurationAt100 = $fleetMissionService->calculateFleetMissionDuration(
-                        $this->planetServiceFactory->make($fleetMission->planet_id_from),
+                        $planetServiceFactory->make($fleetMission->planet_id_from),
                         new Coordinate($fleetMission->galaxy_to, $fleetMission->system_to, $fleetMission->position_to),
                         $fleetMissionService->getFleetUnits($fleetMission),
                         100
