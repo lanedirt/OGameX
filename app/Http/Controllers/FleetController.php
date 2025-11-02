@@ -376,46 +376,98 @@ class FleetController extends OGameController
                     throw new Exception('You cannot join this ACS group.');
                 }
 
-                $targetArrivalTime = $acsGroup->arrival_time;
+                // Calculate this fleet's natural arrival time at 100% speed
+                $currentTime = time();
+                $durationAt100 = $fleetMissionService->calculateFleetMissionDuration($planet, $target_coordinate, $units, 100);
+                $naturalArrivalTime = $currentTime + $durationAt100;
 
-                // Calculate required speed to match arrival time
-                $speedResult = $this->calculateRequiredSpeed(
-                    $fleetMissionService,
-                    $planet,
-                    $target_coordinate,
-                    $units,
-                    $targetArrivalTime
-                );
+                \Log::debug('Checking if joining fleet is slower', [
+                    'natural_arrival_at_100' => $naturalArrivalTime,
+                    'natural_arrival_formatted' => date('Y-m-d H:i:s', $naturalArrivalTime),
+                    'group_current_arrival' => $acsGroup->arrival_time,
+                    'group_current_formatted' => date('Y-m-d H:i:s', $acsGroup->arrival_time),
+                    'is_slower' => $naturalArrivalTime > $acsGroup->arrival_time,
+                ]);
 
-                $departureDelay = 0;
-
-                if ($speedResult === null) {
-                    // Speed adjustment failed - check if we can use delayed departure
-                    $currentTime = time();
-                    $requiredDuration = $targetArrivalTime - $currentTime;
-                    $durationAt10 = $fleetMissionService->calculateFleetMissionDuration($planet, $target_coordinate, $units, 10);
-
-                    if ($durationAt10 < $requiredDuration && $durationAt10 > 0) {
-                        // Too close - use delayed departure (OGame standard behavior)
-                        $departureDelay = $requiredDuration - $durationAt10;
-                        $adjustedSpeed = 10; // Use slowest speed
-
-                        \Log::debug('Using delayed departure for ACS sync', [
-                            'required_duration' => $requiredDuration,
-                            'flight_duration_at_10' => $durationAt10,
-                            'departure_delay_seconds' => $departureDelay,
-                        ]);
-                    } else {
-                        // Too far - genuinely impossible
-                        throw new Exception('Cannot synchronize with ACS group - target too far or arrival time already passed.');
-                    }
-                } else {
-                    $adjustedSpeed = $speedResult;
-                    \Log::debug('Speed adjustment calculated', [
-                        'original_speed' => $speed_percent,
-                        'adjusted_speed' => $adjustedSpeed,
-                        'target_arrival_time' => $targetArrivalTime,
+                // OGame behavior: slowest ship determines arrival time
+                if ($naturalArrivalTime > $acsGroup->arrival_time) {
+                    // This fleet is slower - delay the ENTIRE group
+                    \Log::info('Slower fleet joining ACS group - delaying all fleets', [
+                        'old_arrival' => $acsGroup->arrival_time,
+                        'new_arrival' => $naturalArrivalTime,
+                        'delay_seconds' => $naturalArrivalTime - $acsGroup->arrival_time,
                     ]);
+
+                    $delayAmount = $naturalArrivalTime - $acsGroup->arrival_time;
+
+                    // Update all existing fleet missions in the group
+                    $existingFleets = ACSService::getGroupFleets($acsGroup);
+                    foreach ($existingFleets as $member) {
+                        $existingMission = $member->fleetMission;
+                        $existingMission->time_arrival += $delayAmount;
+                        $existingMission->save();
+
+                        \Log::debug('Delayed existing fleet in ACS group', [
+                            'mission_id' => $existingMission->id,
+                            'old_arrival' => $existingMission->time_arrival - $delayAmount,
+                            'new_arrival' => $existingMission->time_arrival,
+                        ]);
+                    }
+
+                    // Update the group's arrival time
+                    $acsGroup->arrival_time = $naturalArrivalTime;
+                    $acsGroup->save();
+
+                    // New fleet uses 100% speed (its natural speed)
+                    $adjustedSpeed = 100;
+                    $targetArrivalTime = $naturalArrivalTime;
+
+                    \Log::debug('ACS group delayed to match slower fleet', [
+                        'new_group_arrival' => $naturalArrivalTime,
+                        'fleets_delayed' => $existingFleets->count(),
+                    ]);
+                } else {
+                    // This fleet is faster - adjust it to match the group
+                    $targetArrivalTime = $acsGroup->arrival_time;
+
+                    // Calculate required speed to match arrival time
+                    $speedResult = $this->calculateRequiredSpeed(
+                        $fleetMissionService,
+                        $planet,
+                        $target_coordinate,
+                        $units,
+                        $targetArrivalTime
+                    );
+
+                    $departureDelay = 0;
+
+                    if ($speedResult === null) {
+                        // Speed adjustment failed - check if we can use delayed departure
+                        $requiredDuration = $targetArrivalTime - $currentTime;
+                        $durationAt10 = $fleetMissionService->calculateFleetMissionDuration($planet, $target_coordinate, $units, 10);
+
+                        if ($durationAt10 < $requiredDuration && $durationAt10 > 0) {
+                            // Too close - use delayed departure (OGame standard behavior)
+                            $departureDelay = $requiredDuration - $durationAt10;
+                            $adjustedSpeed = 10; // Use slowest speed
+
+                            \Log::debug('Using delayed departure for ACS sync', [
+                                'required_duration' => $requiredDuration,
+                                'flight_duration_at_10' => $durationAt10,
+                                'departure_delay_seconds' => $departureDelay,
+                            ]);
+                        } else {
+                            // Too far - genuinely impossible
+                            throw new Exception('Cannot synchronize with ACS group - target too far or arrival time already passed.');
+                        }
+                    } else {
+                        $adjustedSpeed = $speedResult;
+                        \Log::debug('Speed adjustment calculated', [
+                            'original_speed' => $speed_percent,
+                            'adjusted_speed' => $adjustedSpeed,
+                            'target_arrival_time' => $targetArrivalTime,
+                        ]);
+                    }
                 }
             }
 
