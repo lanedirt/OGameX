@@ -127,6 +127,9 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
             $eventRowViewModel->resources = $fleetMissionService->getResources($row);
 
+            // Initialize ACS properties with defaults
+            $eventRowViewModel->is_acs_group_creator = false;
+
             // Check if this fleet is part of an ACS group
             $acsFleetMember = \OGame\Models\AcsFleetMember::where('fleet_mission_id', $row->id)->first();
             if ($acsFleetMember) {
