@@ -1333,10 +1333,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                     <option value="8">8</option>
                                                     <option value="16">16</option>
                                                     <option value="32">32</option>
-                                                </select><span class="dropdown currentlySelected undefined"
-                                                               rel="dropdown284" style="width: 45px;"><a
-                                                            class="undefined" data-value="1" rel="dropdown284"
-                                                            href="javascript:void(0);">1</a></span>
+                                                </select>
                                             </li>
                                             <li id="expeditiontimeline">
                                                 @lang('Duration of expedition:')
