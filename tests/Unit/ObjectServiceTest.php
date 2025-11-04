@@ -32,7 +32,8 @@ class ObjectServiceTest extends UnitTestCase
 
         $this->createAndSetPlanetModel([
             'metal' => 24000,
-            'crystal' => 6000
+            'crystal' => 6000,
+            'missile_silo' => 1,
         ]);
 
         // Test it calculates max amount correctly

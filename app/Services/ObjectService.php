@@ -437,6 +437,32 @@ class ObjectService
             return $planet->getObjectAmount($machine_name) ? 0 : 1;
         }
 
+        // Check missile silo capacity for IPM and ABM
+        if ($machine_name === 'interplanetary_missile' || $machine_name === 'anti_ballistic_missile') {
+            $silo_level = $planet->getObjectLevel('missile_silo');
+            $total_capacity = $silo_level * 10; // Each silo level provides 10 slots
+
+            // Calculate current silo usage
+            $current_ipm = $planet->getObjectAmount('interplanetary_missile');
+            $current_abm = $planet->getObjectAmount('anti_ballistic_missile');
+            $used_capacity = ($current_ipm * 2) + $current_abm; // IPM = 2 slots, ABM = 1 slot
+
+            $remaining_capacity = $total_capacity - $used_capacity;
+
+            // Calculate max build amount based on silo capacity
+            if ($machine_name === 'interplanetary_missile') {
+                // IPM takes 2 slots, so divide remaining capacity by 2
+                $max_from_silo = floor($remaining_capacity / 2);
+            } else {
+                // ABM takes 1 slot
+                $max_from_silo = $remaining_capacity;
+            }
+
+            // Make sure we don't return negative numbers
+            if ($max_from_silo <= 0) {
+                return 0;
+            }
+        }
         $price = self::getObjectPrice($machine_name, $planet);
 
         // Calculate max build amount based on price
@@ -455,6 +481,11 @@ class ObjectService
 
         if ($price->energy->get() > 0) {
             $max_build_amount[] = floor($planet->energy()->get() / $price->energy->get());
+        }
+
+        // Add silo capacity limit to the array for missiles
+        if (($machine_name === 'interplanetary_missile' || $machine_name === 'anti_ballistic_missile') && isset($max_from_silo)) {
+            $max_build_amount[] = $max_from_silo;
         }
 
         // Get the lowest divided value which is the maximum amount of times this ship
@@ -527,10 +558,10 @@ class ObjectService
             $energy = $base_price->resources->energy->get() * ($base_price->factor ** ($level - 1));
 
             // Round price
-            $metal = round($metal);
-            $crystal = round($crystal);
-            $deuterium = round($deuterium);
-            $energy = round($energy);
+            $metal = floor($metal);
+            $crystal = floor($crystal);
+            $deuterium = floor($deuterium);
+            $energy = floor($energy);
 
             if (!empty($base_price->roundNearest100)) {
                 // Round resource cost to nearest 100.
