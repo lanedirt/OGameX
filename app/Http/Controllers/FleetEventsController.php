@@ -146,6 +146,12 @@ class FleetEventsController extends OGameController
                 $allFleetMembers = $acsGroup->fleetMembers()->with('fleetMission')->get();
                 foreach ($allFleetMembers as $member) {
                     $fleetMission = $member->fleetMission;
+
+                    // Skip if fleet mission no longer exists (was recalled or deleted)
+                    if (!$fleetMission) {
+                        continue;
+                    }
+
                     $originPlanet = $planetServiceFactory->make($fleetMission->planet_id_from);
                     $fleetUnits = $fleetMissionService->getFleetUnits($fleetMission);
                     $unitCount = $fleetMissionService->getFleetUnitCount($fleetMission);
