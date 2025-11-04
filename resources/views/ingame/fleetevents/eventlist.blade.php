@@ -58,54 +58,6 @@
         );
         return false;
     });
-
-    // Convert regular attack to ACS attack
-    $(document).on('click', 'a.convertToACS', function (e) {
-        e.preventDefault();
-        console.log('Convert to ACS clicked');
-        var fleetId = $(this).attr("data-fleet-id");
-
-        errorBoxDecision(
-            "Convert to ACS",
-            "Convert this attack to an ACS group? This will allow other players to join your attack.",
-            "yes",
-            "No",
-            function() {
-                $.post("{{ route('fleet.acs.convert') }}", {
-                    fleet_mission_id: fleetId,
-                    _token: '{{ csrf_token() }}'
-                }, function(data) {
-                    if (data.success) {
-                        errorBoxAsArray(['Attack converted to ACS group successfully!']);
-                        getAjaxEventbox();
-                        refreshFleetEvents();
-                    } else {
-                        errorBoxAsArray([data.message || 'Failed to convert attack to ACS group']);
-                    }
-                }).fail(function() {
-                    errorBoxAsArray(['An error occurred while converting the attack']);
-                });
-            }
-        );
-        return false;
-    });
-
-    // Invite players to ACS group
-    $(document).on('click', 'a.inviteToACS', function (e) {
-        e.preventDefault();
-        console.log('Invite to ACS clicked');
-        var acsGroupId = $(this).attr("data-acs-group-id");
-
-        // Open the invite modal (defined in acs-invite-modal.blade.php)
-        if (typeof openACSInviteModal === 'function') {
-            openACSInviteModal(acsGroupId);
-        } else {
-            console.error('openACSInviteModal function not found');
-            errorBoxAsArray(['Invite modal not loaded. Please refresh the page.']);
-        }
-        return false;
-    });
 </script>
 
-{{-- Include the ACS invite modal --}}
-@include('ingame.fleetevents.acs-invite-modal')
+

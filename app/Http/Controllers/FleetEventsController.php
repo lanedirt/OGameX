@@ -52,7 +52,6 @@ class FleetEventsController extends OGameController
             // Loop through all missions to calculate all mission counts.
             foreach ($activeMissionRows as $row) {
                 switch ($this->determineFriendly($row, $player)) {
-                    case 'own':
                     case 'friendly':
                         $friendlyMissionCount++;
                         break;
@@ -131,49 +130,11 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
             $eventRowViewModel->resources = $fleetMissionService->getResources($row);
 
-            // Initialize ACS properties with defaults
-            $eventRowViewModel->is_acs_group_creator = false;
-
-            // Check if this fleet is part of an ACS group
-            $acsFleetMember = \OGame\Models\AcsFleetMember::where('fleet_mission_id', $row->id)->first();
-            if ($acsFleetMember) {
-                $acsGroup = $acsFleetMember->acsGroup;
-                $eventRowViewModel->acs_group_id = $acsGroup->id;
-                $eventRowViewModel->acs_group_name = $acsGroup->name;
-                $eventRowViewModel->acs_fleet_count = $acsGroup->fleetMembers()->count();
-                $eventRowViewModel->is_acs_group_creator = ($acsGroup->creator_id === $player->getId());
-
-                // Get all participants in the ACS group and calculate total ship count
-                $participants = [];
-                $totalACSShipCount = 0;
-                $allFleetMembers = $acsGroup->fleetMembers()->with('fleetMission')->get();
-                foreach ($allFleetMembers as $member) {
-                    $fleetMission = $member->fleetMission;
-                    $originPlanet = $planetServiceFactory->make($fleetMission->planet_id_from);
-                    $fleetUnits = $fleetMissionService->getFleetUnits($fleetMission);
-                    $unitCount = $fleetMissionService->getFleetUnitCount($fleetMission);
-
-                    $participants[] = [
-                        'planet_name' => $originPlanet ? $originPlanet->getPlanetName() : 'Unknown',
-                        'coordinates' => $originPlanet ? $originPlanet->getPlanetCoordinates()->asString() : '',
-                        'player_id' => $fleetMission->user_id,
-                        'fleet_units' => $fleetUnits,
-                        'unit_count' => $unitCount,
-                    ];
-
-                    $totalACSShipCount += $unitCount;
-                }
-                $eventRowViewModel->acs_participants = $participants;
-
-                // Override fleet_unit_count with total ACS ship count for display
-                $eventRowViewModel->fleet_unit_count = $totalACSShipCount;
-            }
-
             $friendlyStatus = $this->determineFriendly($row, $player);
 
             $eventRowViewModel->mission_status = $friendlyStatus;
             $eventRowViewModel->is_recallable = false;
-            if ($friendlyStatus === 'own') {
+            if ($friendlyStatus === 'friendly') {
                 $eventRowViewModel->is_recallable = true;
             }
 
@@ -205,12 +166,6 @@ class FleetEventsController extends OGameController
                 $waitEndRow->fleet_units = $eventRowViewModel->fleet_units;
                 $waitEndRow->resources = $eventRowViewModel->resources;
                 $waitEndRow->mission_status = 'friendly'; // Wait end is always friendly
-                // Copy ACS properties
-                $waitEndRow->acs_group_id = $eventRowViewModel->acs_group_id;
-                $waitEndRow->acs_group_name = $eventRowViewModel->acs_group_name;
-                $waitEndRow->acs_fleet_count = $eventRowViewModel->acs_fleet_count;
-                $waitEndRow->acs_participants = $eventRowViewModel->acs_participants;
-                $waitEndRow->is_acs_group_creator = $eventRowViewModel->is_acs_group_creator;
                 $fleet_events[] = $waitEndRow;
             }
 
@@ -233,12 +188,6 @@ class FleetEventsController extends OGameController
                 $returnTripRow->fleet_units = $eventRowViewModel->fleet_units;
                 $returnTripRow->resources = new Resources(0, 0, 0, 0);
                 $returnTripRow->mission_status = 'friendly'; // Return trips are always friendly
-                // Copy ACS properties
-                $returnTripRow->acs_group_id = $eventRowViewModel->acs_group_id;
-                $returnTripRow->acs_group_name = $eventRowViewModel->acs_group_name;
-                $returnTripRow->acs_fleet_count = $eventRowViewModel->acs_fleet_count;
-                $returnTripRow->acs_participants = $eventRowViewModel->acs_participants;
-                $returnTripRow->is_acs_group_creator = $eventRowViewModel->is_acs_group_creator;
                 $fleet_events[] = $returnTripRow;
             }
         }

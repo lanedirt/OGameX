@@ -93,10 +93,6 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::post('/ajax/fleet/dispatch/send-fleet', [FleetController::class, 'dispatchSendFleet'])->name('fleet.dispatch.sendfleet');
     Route::post('/ajax/fleet/dispatch/send-mini-fleet', [FleetController::class, 'dispatchSendMiniFleet'])->name('fleet.dispatch.sendminifleet');
     Route::post('/ajax/fleet/dispatch/recall-fleet', [FleetController::class, 'dispatchRecallFleet'])->name('fleet.dispatch.recallfleet');
-    Route::post('/ajax/fleet/acs-groups', [FleetController::class, 'getACSGroups'])->name('fleet.acs.groups');
-    Route::get('/ajax/fleet/acs-eligible-players', [FleetController::class, 'getEligiblePlayers'])->name('fleet.acs.eligible');
-    Route::post('/ajax/fleet/acs-invite', [FleetController::class, 'invitePlayerToACS'])->name('fleet.acs.invite');
-    Route::post('/ajax/fleet/acs-convert', [FleetController::class, 'convertAttackToACS'])->name('fleet.acs.convert');
 
     Route::get('/ajax/fleet/eventbox/fetch', [FleetEventsController::class, 'fetchEventBox'])->name('fleet.eventbox.fetch');
     Route::get('/ajax/fleet/eventlist/fetch', [FleetEventsController::class, 'fetchEventList'])->name('fleet.eventlist.fetch');
@@ -106,7 +102,6 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::post('/ajax/galaxy', [GalaxyController::class, 'ajax'])->name('galaxy.ajax');
     Route::get('/galaxy/missile-attack', [GalaxyController::class, 'missileAttackOverlay'])->name('galaxy.missile-attack');
     Route::post('/galaxy/missile-attack', [GalaxyController::class, 'missileAttack'])->name('galaxy.missile-attack.post');
-    Route::post('/ajax/galaxy/phalanx-scan', [GalaxyController::class, 'ajaxPhalanxScan'])->name('galaxy.phalanx-scan');
 
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');
@@ -146,16 +141,10 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::post('/ajax/highscore', [HighscoreController::class, 'ajax'])->name('highscore.ajax');
 
     Route::get('/buddies', [BuddiesController::class, 'index'])->name('buddies.index');
-    Route::post('/buddies/send-request', [BuddiesController::class, 'sendRequest'])->name('buddies.sendRequest');
-    Route::post('/buddies/accept/{requestId}', [BuddiesController::class, 'acceptRequest'])->name('buddies.acceptRequest');
-    Route::post('/buddies/reject/{requestId}', [BuddiesController::class, 'rejectRequest'])->name('buddies.rejectRequest');
-    Route::post('/buddies/cancel/{requestId}', [BuddiesController::class, 'cancelRequest'])->name('buddies.cancelRequest');
-    Route::post('/buddies/remove/{buddyId}', [BuddiesController::class, 'removeBuddy'])->name('buddies.removeBuddy');
     Route::get('/rewards', [RewardsController::class, 'index'])->name('rewards.index');
     Route::get('/planet-move', [PlanetMoveController::class, 'index'])->name('planetMove.index');
 
     Route::get('/overlay/search', [SearchController::class, 'overlay'])->name('search.overlay');
-    Route::get('/overlay/buddies', [BuddiesController::class, 'overlay'])->name('buddies.overlay');
 
     Route::match(['get', 'post'], '/overlay/notes', [NotesController::class, 'overlay'])->name('notes.overlay');
     Route::get('/overlay/notes/view', [NotesController::class, 'view'])->name('notes.view');

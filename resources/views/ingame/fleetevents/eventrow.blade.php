@@ -14,22 +14,24 @@
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
-                 title="@if($fleet_event_row->mission_status === 'own')Own fleet@elseif($fleet_event_row->mission_status === 'friendly')Friendly fleet@elseif($fleet_event_row->mission_status === 'hostile')Hostile fleet@else{{ucfirst($fleet_event_row->mission_status)}} fleet@endif | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
+                 title="Own fleet | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
         </td>
 
         <td class="originFleet">
             @switch ($fleet_event_row->destination_planet_type)
                 @case (OGame\Models\Enums\PlanetType::Planet)
-                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>
+                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>{{ $fleet_event_row->destination_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::Moon)
-                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>
+                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>{{ $fleet_event_row->destination_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
-                    <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>
+                    <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
+                    @break
+                @case (OGame\Models\Enums\PlanetType::DeepSpace)
+                    <span class="deep-space-text">{{ __('Deep space') }}</span>
                     @break
             @endswitch
-            {{ $fleet_event_row->destination_planet_name }}
         </td>
         <td class="coordsOrigin">
             <a href="{{ route('galaxy.index', ['galaxy' => $fleet_event_row->destination_planet_coords->galaxy, 'system' => $fleet_event_row->destination_planet_coords->system]) }}"
@@ -79,44 +81,12 @@
                     &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
-                @if($fleet_event_row->acs_group_id)
-                    &lt;tr&gt;
-                        &lt;th colspan=&quot;3&quot;&gt;&nbsp;&lt;/th&gt;
-                    &lt;/tr&gt;
-                    &lt;tr&gt;
-                        &lt;th colspan=&quot;3&quot; style=&quot;color: #6f9fc8;&quot;&gt;@lang('ACS Attack Group'):&lt;/th&gt;
-                    &lt;/tr&gt;
-                    &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Group Name'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_group_name }}&lt;/td&gt;
-                    &lt;/tr&gt;
-                    &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Fleets in Group'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_fleet_count }}&lt;/td&gt;
-                    &lt;/tr&gt;
-                    &lt;tr&gt;
-                        &lt;th colspan=&quot;3&quot;&gt;@lang('Participants'):&lt;/th&gt;
-                    &lt;/tr&gt;
-                    @foreach($fleet_event_row->acs_participants as $participant)
-                        &lt;tr&gt;
-                            &lt;td colspan=&quot;2&quot; style=&quot;font-size: 10px;&quot;&gt;{{ $participant['planet_name'] }} [{{ $participant['coordinates'] }}]:&lt;/td&gt;
-                            &lt;td class=&quot;value&quot;&gt;{{ $participant['unit_count'] }} @lang('ships')&lt;/td&gt;
-                        &lt;/tr&gt;
-                    @endforeach
-                @endif
             &lt;/table&gt;
     &lt;/div&gt;
 ">
                 &nbsp;
             </span>
         </td>
-
-        <!--
-           &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Food'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
-                    &lt;/tr&gt;
-        -->
 
         <td class="destFleet">
             @switch ($fleet_event_row->origin_planet_type)
@@ -128,6 +98,9 @@
                     @break
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
+                    @break
+                @case (OGame\Models\Enums\PlanetType::DeepSpace)
+                    <span class="deep-space-text">{{ __('Deep space') }}</span>
                     @break
             @endswitch
         </td>
@@ -159,7 +132,7 @@
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
-                 title="@if($fleet_event_row->mission_status === 'own')Own fleet@elseif($fleet_event_row->mission_status === 'friendly')Friendly fleet@elseif($fleet_event_row->mission_status === 'hostile')Hostile fleet@else{{ucfirst($fleet_event_row->mission_status)}} fleet@endif | {{ $fleet_event_row->mission_label }}" alt=""/>
+                 title="Own fleet | {{ $fleet_event_row->mission_label }}" alt=""/>
         </td>
 
         <td class="originFleet">
@@ -172,6 +145,9 @@
                     @break
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
+                    @break
+                @case (OGame\Models\Enums\PlanetType::DeepSpace)
+                    <span class="deep-space-text">{{ __('Deep space') }}</span>
                     @break
             @endswitch
         </td>
@@ -223,31 +199,6 @@
                     &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
-                @if($fleet_event_row->acs_group_id)
-                    &lt;tr&gt;
-                        &lt;th colspan=&quot;3&quot;&gt;&nbsp;&lt;/th&gt;
-                    &lt;/tr&gt;
-                    &lt;tr&gt;
-                        &lt;th colspan=&quot;3&quot; style=&quot;color: #6f9fc8;&quot;&gt;@lang('ACS Attack Group'):&lt;/th&gt;
-                    &lt;/tr&gt;
-                    &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Group Name'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_group_name }}&lt;/td&gt;
-                    &lt;/tr&gt;
-                    &lt;tr&gt;
-                        &lt;td colspan=&quot;2&quot;&gt;@lang('Fleets in Group'):&lt;/td&gt;
-                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_fleet_count }}&lt;/td&gt;
-                    &lt;/tr&gt;
-                    &lt;tr&gt;
-                        &lt;th colspan=&quot;3&quot;&gt;@lang('Participants'):&lt;/th&gt;
-                    &lt;/tr&gt;
-                    @foreach($fleet_event_row->acs_participants as $participant)
-                        &lt;tr&gt;
-                            &lt;td colspan=&quot;2&quot; style=&quot;font-size: 10px;&quot;&gt;{{ $participant['planet_name'] }} [{{ $participant['coordinates'] }}]:&lt;/td&gt;
-                            &lt;td class=&quot;value&quot;&gt;{{ $participant['unit_count'] }} @lang('ships')&lt;/td&gt;
-                        &lt;/tr&gt;
-                    @endforeach
-                @endif
             &lt;/table&gt;
     &lt;/div&gt;
 ">
@@ -265,6 +216,9 @@
                     @break
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
+                    @break
+                @case (OGame\Models\Enums\PlanetType::DeepSpace)
+                    <span class="deep-space-text">{{ __('Deep space') }}</span>
                     @break
             @endswitch
         </td>
@@ -286,27 +240,6 @@
             @endif
         </td>
         <td class="sendProbe">
-            {{-- Convert regular attack to ACS attack - only show if mission is attack (type 1) and not in an ACS group yet --}}
-            @if ($fleet_event_row->mission_type === 1 && empty($fleet_event_row->acs_group_id))
-                <a href="javascript:void(0);"
-                   class="convertToACS"
-                   data-fleet-id="{{ $fleet_event_row->id }}"
-                   style="color: #6f9fc8; text-decoration: none; font-size: 11px;"
-                   title="Convert this attack to an ACS group">
-                    [ACS]
-                </a>
-            @endif
-
-            {{-- Invite button - only show if mission is ACS attack (type 2) or converted attack with ACS group, and player is group creator --}}
-            @if ($fleet_event_row->acs_group_id && $fleet_event_row->is_acs_group_creator)
-                <a href="javascript:void(0);"
-                   class="inviteToACS"
-                   data-acs-group-id="{{ $fleet_event_row->acs_group_id }}"
-                   style="color: #6f9fc8; text-decoration: none; font-size: 11px; margin-left: 5px;"
-                   title="Invite players to this ACS group">
-                    [Invite]
-                </a>
-            @endif
         </td>
         <td class="sendMail">
         </td>
@@ -324,3 +257,4 @@
         );
     })(jQuery);
 </script>
+
