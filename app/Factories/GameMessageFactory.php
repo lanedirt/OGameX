@@ -32,7 +32,6 @@ class GameMessageFactory
         'missile_attack_report' => \OGame\GameMessages\MissileAttackReport::class,
         'missile_defense_report' => \OGame\GameMessages\MissileDefenseReport::class,
         'debris_field_harvest' => \OGame\GameMessages\DebrisFieldHarvest::class,
-        'acs_invitation' => \OGame\GameMessages\ACSInvitation::class,
 
         'expedition_battle' => \OGame\GameMessages\ExpeditionBattle::class,
         'expedition_gain_dark_matter' => \OGame\GameMessages\ExpeditionGainDarkMatter::class,
