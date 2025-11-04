@@ -23,7 +23,7 @@ class FleetEventRowViewModel
     /**
      * @var string Whether the mission is friendly, hostile, or neutral (friendly/hostile/neutral)
      */
-    public string $mission_status;
+    public string $mission_status = 'neutral';
 
     public string $origin_planet_name;
     public Coordinate $origin_planet_coords;
