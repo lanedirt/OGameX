@@ -19,6 +19,12 @@ class FleetEventRowViewModel
      * @var bool Whether the fleet can be recalled or not. E.g. enemy missions show up in the event box but can't be recalled.
      */
     public bool $is_recallable;
+
+    /**
+     * @var string Whether the mission is friendly, hostile, or neutral (friendly/hostile/neutral)
+     */
+    public string $mission_status;
+
     public string $origin_planet_name;
     public Coordinate $origin_planet_coords;
     public PlanetType $origin_planet_type;
@@ -28,4 +34,29 @@ class FleetEventRowViewModel
     public int $fleet_unit_count;
     public UnitCollection $fleet_units;
     public Resources $resources;
+
+    /**
+     * @var int|null ACS group ID if this fleet is part of an ACS attack
+     */
+    public ?int $acs_group_id = null;
+
+    /**
+     * @var string|null ACS group name
+     */
+    public ?string $acs_group_name = null;
+
+    /**
+     * @var int Number of fleets in the ACS group
+     */
+    public int $acs_fleet_count = 0;
+
+    /**
+     * @var array Fleet participants in the ACS group
+     */
+    public array $acs_participants = [];
+
+    /**
+     * @var bool Whether the current player is the creator of the ACS group
+     */
+    public bool $is_acs_group_creator = false;
 }
