@@ -102,6 +102,74 @@ class AttackMission extends GameMission
         // Save defenders planet
         $defenderPlanet->save();
 
+        // Handle ACS Defend missions that participated in the battle
+        // Calculate survival rate for each unit type and distribute survivors back to defending missions
+        $acsDefendTotalStart = new UnitCollection();
+        foreach ($battleResult->defendingMissions as $defendingMission) {
+            $defendingUnits = $this->fleetMissionService->getFleetUnits($defendingMission);
+            $acsDefendTotalStart->addCollection($defendingUnits);
+        }
+
+        // Calculate the planet's units (ships + defenses) at start
+        $planetUnitsStart = clone $battleResult->defenderUnitsStart;
+        $planetUnitsStart->subtractCollection($acsDefendTotalStart);
+
+        // Calculate how many of the planet's units survived
+        // First, we need to figure out which survivors belong to the planet vs ACS Defend missions
+        // We'll use a proportional distribution based on each unit type
+        foreach ($battleResult->defendingMissions as $defendingMission) {
+            // Get the original units for this mission
+            $missionUnitsStart = $this->fleetMissionService->getFleetUnits($defendingMission);
+
+            // Calculate surviving units for this mission based on overall survival rates
+            $missionUnitsSurvived = new UnitCollection();
+
+            foreach ($missionUnitsStart->units as $unit) {
+                $unitMachineName = $unit->unitObject->machine_name;
+                $originalAmount = $unit->amount;
+
+                // Get the total amount of this unit type at battle start (planet + all ACS Defend)
+                $totalStartAmount = $battleResult->defenderUnitsStart->getAmountByMachineName($unitMachineName);
+
+                if ($totalStartAmount > 0) {
+                    // Get the total survivors of this unit type
+                    $totalSurvived = $battleResult->defenderUnitsResult->getAmountByMachineName($unitMachineName);
+
+                    // Calculate survival rate
+                    $survivalRate = $totalSurvived / $totalStartAmount;
+
+                    // Apply survival rate to this mission's original units (round down)
+                    $survivedAmount = (int)floor($originalAmount * $survivalRate);
+
+                    if ($survivedAmount > 0) {
+                        $missionUnitsSurvived->addUnit($unit->unitObject, $survivedAmount);
+                    }
+                }
+            }
+
+            // Mark the mission as processed to end its hold period
+            $defendingMission->processed = 1;
+            $defendingMission->save();
+
+            \Log::info('ACS Defend mission ' . $defendingMission->id . ' participated in battle', [
+                'original_units' => $missionUnitsStart->toArray(),
+                'surviving_units' => $missionUnitsSurvived->toArray(),
+            ]);
+
+            // Create return mission with surviving units
+            $gameMissionFactory = resolve(\OGame\Factories\GameMissionFactory::class);
+            $missionObject = $gameMissionFactory->getMissionById(5, [
+                'fleetMissionService' => $this->fleetMissionService,
+                'messageService' => $this->messageService,
+            ]);
+
+            // Return with remaining resources and surviving ships
+            $remainingResources = $this->fleetMissionService->getResources($defendingMission);
+
+            // Start the return trip immediately with surviving units
+            $missionObject->startReturn($defendingMission, $remainingResources, $missionUnitsSurvived);
+        }
+
         // Create or append debris field.
         // TODO: we could change this debris field append logic to do everything in a single query to
         // prevent race conditions. Check this later when looking into reducing chance of race conditions occurring.
@@ -123,8 +191,20 @@ class AttackMission extends GameMission
         $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult, $repairedDefenses);
         // Send to attacker.
         $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
-        // Send to defender.
+        // Send to defender (planet owner).
         $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
+
+        // Send battle report to all ACS Defend fleet owners (only once per player)
+        $reportedDefenders = [$defenderPlanet->getPlayer()->getId()]; // Planet owner already reported
+        foreach ($battleResult->defendingMissions as $defendingMission) {
+            $defendingPlayer = resolve(\OGame\Services\PlayerService::class, ['player_id' => $defendingMission->user_id]);
+
+            // Only send once per unique defending player
+            if (!in_array($defendingPlayer->getId(), $reportedDefenders)) {
+                $this->messageService->sendBattleReportMessageToPlayer($defendingPlayer, $reportId);
+                $reportedDefenders[] = $defendingPlayer->getId();
+            }
+        }
 
         // Mark the arrival mission as processed
         $mission->processed = 1;

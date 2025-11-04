@@ -545,4 +545,30 @@ class FleetMissionService
         ]);
         $missionObject->cancel($mission);
     }
+
+    /**
+     * Get all active ACS Defend missions currently holding at a specific planet.
+     *
+     * @param int $planetId The planet ID to check for defending missions.
+     * @return \Illuminate\Support\Collection<FleetMission>
+     */
+    public function getDefendingMissionsAtPlanet(int $planetId): \Illuminate\Support\Collection
+    {
+        $currentTime = Carbon::now()->timestamp;
+
+        // Get ACS Defend missions (type 5) that:
+        // 1. Are targeted at this planet
+        // 2. Have arrived (time_arrival <= now)
+        // 3. Are still holding (time_arrival + time_holding > now)
+        // 4. Haven't been processed yet
+        // 5. Haven't been canceled
+        return $this->model
+            ->where('planet_id_to', $planetId)
+            ->where('mission_type', 5) // ACS Defend
+            ->where('time_arrival', '<=', $currentTime)
+            ->whereRaw('time_arrival + COALESCE(time_holding, 0) > ?', [$currentTime])
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->get();
+    }
 }

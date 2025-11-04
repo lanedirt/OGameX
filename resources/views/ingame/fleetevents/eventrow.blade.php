@@ -7,14 +7,20 @@
         data-arrival-time="{{ $fleet_event_row->mission_time_arrival }}"
     >
         <td class="countDown">
+<<<<<<< HEAD
         <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="{{ $fleet_event_row->mission_status }} textBeefy">
                     load...
         </span>
+=======
+            <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="{{ $fleet_event_row->mission_status }} textBeefy">
+                load...
+            </span>
+>>>>>>> origin/claude/ogmk-test-branch-011CURaUbU4YNR28dpHaRHGy
         </td>
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
-                 title="Own fleet | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
+                 title="@if($fleet_event_row->mission_status === 'own')Own fleet@elseif($fleet_event_row->mission_status === 'friendly')Friendly fleet@elseif($fleet_event_row->mission_status === 'hostile')Hostile fleet@else{{ucfirst($fleet_event_row->mission_status)}} fleet@endif | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
         </td>
 
         <td class="originFleet">
@@ -81,6 +87,31 @@
                     &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
+                @if($fleet_event_row->acs_group_id)
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot;&gt;&nbsp;&lt;/th&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot; style=&quot;color: #6f9fc8;&quot;&gt;@lang('ACS Attack Group'):&lt;/th&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;@lang('Group Name'):&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_group_name }}&lt;/td&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;@lang('Fleets in Group'):&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_fleet_count }}&lt;/td&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot;&gt;@lang('Participants'):&lt;/th&gt;
+                    &lt;/tr&gt;
+                    @foreach($fleet_event_row->acs_participants as $participant)
+                        &lt;tr&gt;
+                            &lt;td colspan=&quot;2&quot; style=&quot;font-size: 10px;&quot;&gt;{{ $participant['planet_name'] }} [{{ $participant['coordinates'] }}]:&lt;/td&gt;
+                            &lt;td class=&quot;value&quot;&gt;{{ $participant['unit_count'] }} @lang('ships')&lt;/td&gt;
+                        &lt;/tr&gt;
+                    @endforeach
+                @endif
             &lt;/table&gt;
     &lt;/div&gt;
 ">
@@ -132,7 +163,7 @@
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
-                 title="Own fleet | {{ $fleet_event_row->mission_label }}" alt=""/>
+                 title="@if($fleet_event_row->mission_status === 'own')Own fleet@elseif($fleet_event_row->mission_status === 'friendly')Friendly fleet@elseif($fleet_event_row->mission_status === 'hostile')Hostile fleet@else{{ucfirst($fleet_event_row->mission_status)}} fleet@endif | {{ $fleet_event_row->mission_label }}" alt=""/>
         </td>
 
         <td class="originFleet">
@@ -199,6 +230,31 @@
                     &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
+                @if($fleet_event_row->acs_group_id)
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot;&gt;&nbsp;&lt;/th&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot; style=&quot;color: #6f9fc8;&quot;&gt;@lang('ACS Attack Group'):&lt;/th&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;@lang('Group Name'):&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_group_name }}&lt;/td&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;@lang('Fleets in Group'):&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->acs_fleet_count }}&lt;/td&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;th colspan=&quot;3&quot;&gt;@lang('Participants'):&lt;/th&gt;
+                    &lt;/tr&gt;
+                    @foreach($fleet_event_row->acs_participants as $participant)
+                        &lt;tr&gt;
+                            &lt;td colspan=&quot;2&quot; style=&quot;font-size: 10px;&quot;&gt;{{ $participant['planet_name'] }} [{{ $participant['coordinates'] }}]:&lt;/td&gt;
+                            &lt;td class=&quot;value&quot;&gt;{{ $participant['unit_count'] }} @lang('ships')&lt;/td&gt;
+                        &lt;/tr&gt;
+                    @endforeach
+                @endif
             &lt;/table&gt;
     &lt;/div&gt;
 ">
@@ -240,6 +296,27 @@
             @endif
         </td>
         <td class="sendProbe">
+            {{-- Convert regular attack to ACS attack - only show if mission is attack (type 1) and not in an ACS group yet --}}
+            @if ($fleet_event_row->mission_type === 1 && empty($fleet_event_row->acs_group_id))
+                <a href="javascript:void(0);"
+                   class="convertToACS"
+                   data-fleet-id="{{ $fleet_event_row->id }}"
+                   style="color: #6f9fc8; text-decoration: none; font-size: 11px;"
+                   title="Convert this attack to an ACS group">
+                    [ACS]
+                </a>
+            @endif
+
+            {{-- Invite button - only show if mission is ACS attack (type 2) or converted attack with ACS group, and player is group creator --}}
+            @if ($fleet_event_row->acs_group_id && $fleet_event_row->is_acs_group_creator)
+                <a href="javascript:void(0);"
+                   class="inviteToACS"
+                   data-acs-group-id="{{ $fleet_event_row->acs_group_id }}"
+                   style="color: #6f9fc8; text-decoration: none; font-size: 11px; margin-left: 5px;"
+                   title="Invite players to this ACS group">
+                    [Invite]
+                </a>
+            @endif
         </td>
         <td class="sendMail">
         </td>

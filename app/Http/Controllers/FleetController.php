@@ -12,6 +12,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Services\ACSService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
@@ -63,6 +64,61 @@ class FleetController extends OGameController
             }
         }
 
+        // Get available ACS groups for the target (if target is specified)
+        $acsGroups = [];
+        $targetGalaxy = $request->get('galaxy');
+        $targetSystem = $request->get('system');
+        $targetPosition = $request->get('position');
+        $targetType = $request->get('type');
+
+        \Log::debug('ACS Groups Query', [
+            'galaxy' => $targetGalaxy,
+            'system' => $targetSystem,
+            'position' => $targetPosition,
+            'type' => $targetType,
+            'has_coordinates' => (bool)($targetGalaxy && $targetSystem && $targetPosition),
+        ]);
+
+        if ($targetGalaxy && $targetSystem && $targetPosition) {
+            // Find active ACS groups targeting this coordinate
+            $currentTime = time();
+
+            // First, get ALL ACS groups to debug
+            $allGroups = \OGame\Models\AcsGroup::all();
+            \Log::debug('Total ACS groups in database: ' . $allGroups->count());
+
+            $acsGroups = \OGame\Models\AcsGroup::where('galaxy_to', $targetGalaxy)
+                ->where('system_to', $targetSystem)
+                ->where('position_to', $targetPosition)
+                ->where('type_to', $targetType ?? 1)
+                ->whereIn('status', ['pending', 'active'])
+                ->where('arrival_time', '>', $currentTime)
+                ->get()
+                ->filter(function ($group) use ($player) {
+                    // Show own groups or groups from buddies/alliance members
+                    return $group->creator_id === $player->getId() ||
+                           \OGame\Services\ACSService::isBuddyOrAllianceMember($group->creator_id, $player->getId());
+                })
+                ->map(function ($group) use ($player) {
+                    return [
+                        'id' => $group->id,
+                        'name' => $group->name,
+                        'target' => $group->galaxy_to . ':' . $group->system_to . ':' . $group->position_to,
+                        'arrival_time' => $group->arrival_time,
+                        'arrival_time_formatted' => date('Y-m-d H:i:s', $group->arrival_time),
+                        'fleet_count' => $group->fleetMembers()->count(),
+                        'is_creator' => $group->creator_id === $player->getId(),
+                    ];
+                })
+                ->values()
+                ->toArray();
+
+            \Log::debug('ACS Groups found: ' . count($acsGroups), [
+                'current_time' => $currentTime,
+                'groups' => $acsGroups,
+            ]);
+        }
+
         return view('ingame.fleet.index')->with([
             'player' => $player,
             'planet' => $planet,
@@ -79,6 +135,7 @@ class FleetController extends OGameController
             'fleetSlotsMax' => $player->getFleetSlotsMax(),
             'expeditionSlotsInUse' => $player->getExpeditionSlotsInUse(),
             'expeditionSlotsMax' => $player->getExpeditionSlotsMax(),
+            'acsGroups' => $acsGroups,
         ]);
     }
 
@@ -213,10 +270,11 @@ class FleetController extends OGameController
      *
      * @param PlayerService $player
      * @param FleetMissionService $fleetMissionService
+     * @param PlanetServiceFactory $planetServiceFactory
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
+    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService, PlanetServiceFactory $planetServiceFactory): JsonResponse
     {
         $galaxy = request()->input('galaxy');
         $system = request()->input('system');
@@ -274,11 +332,246 @@ class FleetController extends OGameController
         // Extract mission type from the request
         $mission_type = (int)request()->input('mission');
 
+        // Extract ACS union parameter (0 = create new group, >0 = join existing group)
+        $union = (int)request()->input('union', 0);
+
+        \Log::debug('Fleet dispatch request', [
+            'mission_type' => $mission_type,
+            'union_param' => $union,
+            'all_inputs' => request()->all(),
+        ]);
+
         // Create a new fleet mission
         $planetType = PlanetType::from($target_type);
 
         try {
-            $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent, $holding_hours);
+            // For ACS missions, check if we need to adjust speed to match group arrival time
+            $adjustedSpeed = $speed_percent;
+            $targetArrivalTime = null;
+
+            if ($mission_type === 2 && $union > 0) {
+                // Joining existing ACS group - need to sync arrival time
+                $acsGroup = ACSService::findGroup($union);
+                if (!$acsGroup) {
+                    throw new Exception('ACS group not found.');
+                }
+
+                \Log::debug('Joining ACS group', [
+                    'group_id' => $acsGroup->id,
+                    'group_arrival_time' => $acsGroup->arrival_time,
+                    'group_arrival_formatted' => date('Y-m-d H:i:s', $acsGroup->arrival_time),
+                    'current_time' => time(),
+                    'time_until_arrival' => $acsGroup->arrival_time - time(),
+                ]);
+
+                // Verify target matches
+                if ($acsGroup->galaxy_to !== $target_coordinate->galaxy ||
+                    $acsGroup->system_to !== $target_coordinate->system ||
+                    $acsGroup->position_to !== $target_coordinate->position ||
+                    $acsGroup->type_to !== $planetType->value) {
+                    throw new Exception('ACS group target does not match your fleet target.');
+                }
+
+                // Check ACS limits and provide specific error messages
+                $existingFleets = ACSService::getGroupFleets($acsGroup);
+                $fleetCount = $existingFleets->count();
+                $uniquePlayers = $existingFleets->pluck('player_id')->unique()->toArray();
+                $playerCount = count($uniquePlayers);
+                $playerAlreadyInGroup = in_array($player->getId(), $uniquePlayers);
+
+                // OGame limit: 16 fleets max
+                if ($fleetCount >= 16) {
+                    throw new Exception('ACS group is full (maximum 16 fleets).');
+                }
+
+                // OGame limit: 5 unique players max
+                if (!$playerAlreadyInGroup && $playerCount >= 5) {
+                    throw new Exception('ACS group is full (maximum 5 players).');
+                }
+
+                // Verify player can join (buddy/alliance check)
+                if (!ACSService::canJoinGroup($acsGroup, $player->getId())) {
+                    throw new Exception('You cannot join this ACS group. Only buddies and alliance members can join.');
+                }
+
+                // Calculate this fleet's natural arrival time at 100% speed
+                $currentTime = time();
+                $durationAt100 = $fleetMissionService->calculateFleetMissionDuration($planet, $target_coordinate, $units, 100);
+                $naturalArrivalTime = $currentTime + $durationAt100;
+
+                // Calculate what speed this fleet would need to match the group
+                $requiredDuration = $acsGroup->arrival_time - $currentTime;
+                $requiredSpeed = ($durationAt100 / max($requiredDuration, 1)) * 100;
+                $requiredSpeed = max(10, min(100, $requiredSpeed)); // Clamp to 10-100%
+
+                // OGame Rule: Group speed cannot be lowered by more than 30 percentage points
+                // Calculate current group's slowest speed
+                $groupSlowestSpeed = 100; // Start with 100%
+                foreach ($existingFleets as $member) {
+                    $fleetMission = $member->fleetMission;
+                    $fleetDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
+                    $fleetDurationAt100 = $fleetMissionService->calculateFleetMissionDuration(
+                        $planetServiceFactory->make($fleetMission->planet_id_from),
+                        new Coordinate($fleetMission->galaxy_to, $fleetMission->system_to, $fleetMission->position_to),
+                        $fleetMissionService->getFleetUnits($fleetMission),
+                        100
+                    );
+                    $fleetSpeed = ($fleetDurationAt100 / max($fleetDuration, 1)) * 100;
+                    $fleetSpeed = max(10, min(100, $fleetSpeed));
+                    $groupSlowestSpeed = min($groupSlowestSpeed, $fleetSpeed);
+                }
+
+                // Check 30% rule: new fleet speed must be >= (group's slowest speed - 30)
+                $minimumAllowedSpeed = $groupSlowestSpeed - 30;
+
+                \Log::debug('Checking ACS 30% speed rule', [
+                    'natural_arrival_at_100' => $naturalArrivalTime,
+                    'group_current_arrival' => $acsGroup->arrival_time,
+                    'required_speed' => round($requiredSpeed, 1),
+                    'group_slowest_speed' => round($groupSlowestSpeed, 1),
+                    'minimum_allowed_speed' => round($minimumAllowedSpeed, 1),
+                    'is_within_30_percent' => $requiredSpeed >= $minimumAllowedSpeed,
+                ]);
+
+                if ($requiredSpeed < $minimumAllowedSpeed) {
+                    throw new Exception('Fleet is too slow to join this ACS group. OGame rules: group speed cannot be reduced by more than 30%. Your fleet would need ' . round($requiredSpeed, 1) . '% speed but minimum allowed is ' . round($minimumAllowedSpeed, 1) . '%.');
+                }
+
+                // OGame behavior: slowest ship determines arrival time
+                if ($naturalArrivalTime > $acsGroup->arrival_time) {
+                    // This fleet is slower - delay the ENTIRE group
+                    \Log::info('Slower fleet joining ACS group - delaying all fleets', [
+                        'old_arrival' => $acsGroup->arrival_time,
+                        'new_arrival' => $naturalArrivalTime,
+                        'delay_seconds' => $naturalArrivalTime - $acsGroup->arrival_time,
+                    ]);
+
+                    $delayAmount = $naturalArrivalTime - $acsGroup->arrival_time;
+
+                    // Update all existing fleet missions in the group
+                    $existingFleets = ACSService::getGroupFleets($acsGroup);
+                    foreach ($existingFleets as $member) {
+                        $existingMission = $member->fleetMission;
+                        $existingMission->time_arrival += $delayAmount;
+                        $existingMission->save();
+
+                        \Log::debug('Delayed existing fleet in ACS group', [
+                            'mission_id' => $existingMission->id,
+                            'old_arrival' => $existingMission->time_arrival - $delayAmount,
+                            'new_arrival' => $existingMission->time_arrival,
+                        ]);
+                    }
+
+                    // Update the group's arrival time
+                    $acsGroup->arrival_time = $naturalArrivalTime;
+                    $acsGroup->save();
+
+                    // New fleet uses 100% speed (its natural speed)
+                    $adjustedSpeed = 100;
+                    $targetArrivalTime = $naturalArrivalTime;
+
+                    \Log::debug('ACS group delayed to match slower fleet', [
+                        'new_group_arrival' => $naturalArrivalTime,
+                        'fleets_delayed' => $existingFleets->count(),
+                    ]);
+                } else {
+                    // This fleet is faster - adjust it to match the group
+                    $targetArrivalTime = $acsGroup->arrival_time;
+
+                    // Calculate required speed to match arrival time
+                    $speedResult = $this->calculateRequiredSpeed(
+                        $fleetMissionService,
+                        $planet,
+                        $target_coordinate,
+                        $units,
+                        $targetArrivalTime
+                    );
+
+                    $departureDelay = 0;
+
+                    if ($speedResult === null) {
+                        // Speed adjustment failed - check if we can use delayed departure
+                        $requiredDuration = $targetArrivalTime - $currentTime;
+                        $durationAt10 = $fleetMissionService->calculateFleetMissionDuration($planet, $target_coordinate, $units, 10);
+
+                        if ($durationAt10 < $requiredDuration && $durationAt10 > 0) {
+                            // Too close - use delayed departure (OGame standard behavior)
+                            $departureDelay = $requiredDuration - $durationAt10;
+                            $adjustedSpeed = 10; // Use slowest speed
+
+                            \Log::debug('Using delayed departure for ACS sync', [
+                                'required_duration' => $requiredDuration,
+                                'flight_duration_at_10' => $durationAt10,
+                                'departure_delay_seconds' => $departureDelay,
+                            ]);
+                        } else {
+                            // Too far - genuinely impossible
+                            throw new Exception('Cannot synchronize with ACS group - target too far or arrival time already passed.');
+                        }
+                    } else {
+                        $adjustedSpeed = $speedResult;
+                        \Log::debug('Speed adjustment calculated', [
+                            'original_speed' => $speed_percent,
+                            'adjusted_speed' => $adjustedSpeed,
+                            'target_arrival_time' => $targetArrivalTime,
+                        ]);
+                    }
+                }
+            }
+
+            $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $adjustedSpeed, $holding_hours);
+
+            // Apply departure delay if needed for ACS synchronization
+            if (isset($departureDelay) && $departureDelay > 0) {
+                $fleetMission->time_departure = $fleetMission->time_departure + $departureDelay;
+                $fleetMission->time_arrival = $fleetMission->time_arrival + $departureDelay;
+                $fleetMission->save();
+
+                \Log::debug('Applied departure delay to fleet mission', [
+                    'mission_id' => $fleetMission->id,
+                    'departure_delay' => $departureDelay,
+                    'new_departure_time' => $fleetMission->time_departure,
+                    'new_departure_formatted' => date('Y-m-d H:i:s', $fleetMission->time_departure),
+                    'new_arrival_time' => $fleetMission->time_arrival,
+                    'new_arrival_formatted' => date('Y-m-d H:i:s', $fleetMission->time_arrival),
+                ]);
+            }
+
+            \Log::debug('Fleet mission created', [
+                'mission_id' => $fleetMission->id,
+                'mission_type' => $mission_type,
+                'time_arrival' => $fleetMission->time_arrival,
+                'time_arrival_formatted' => date('Y-m-d H:i:s', $fleetMission->time_arrival),
+                'speed_used' => $adjustedSpeed,
+                'target_arrival_time' => $targetArrivalTime,
+                'arrival_matches' => $targetArrivalTime ? (abs($fleetMission->time_arrival - $targetArrivalTime) <= 1) : 'N/A',
+            ]);
+
+            // Validate ACS synchronization before adding to group
+            if ($mission_type === 2 && $union > 0 && $targetArrivalTime) {
+                $arrivalDifference = abs($fleetMission->time_arrival - $targetArrivalTime);
+                if ($arrivalDifference > 2) {
+                    // Synchronization failed - arrival time is more than 2 seconds off
+                    // Cancel ONLY the newly created fleet (not the entire ACS group)
+                    // This returns the ships to the user's planet
+                    $fleetMissionService->cancelMission($fleetMission);
+
+                    \Log::error('ACS synchronization failed - new fleet rejected', [
+                        'mission_id' => $fleetMission->id,
+                        'target_arrival' => $targetArrivalTime,
+                        'actual_arrival' => $fleetMission->time_arrival,
+                        'difference_seconds' => $arrivalDifference,
+                        'note' => 'Only the new joining fleet was canceled, existing ACS group is unaffected',
+                    ]);
+
+                    throw new Exception('Cannot synchronize fleet arrival time with ACS group (off by ' . $arrivalDifference . ' seconds). Your ships have been returned. Please try adjusting your fleet composition or speed.');
+                }
+            }
+
+            // Handle ACS group creation/joining for ACS Attack (type 2) missions
+            if ($mission_type === 2) {
+                $this->handleACSGroupForMission($fleetMission, $union, $player, $target_coordinate, $planetType);
+            }
 
             return response()->json([
                 'success' => true,
@@ -431,6 +724,34 @@ class FleetController extends OGameController
             ]);
         }
 
+        // Check if this fleet is part of an ACS group
+        $acsFleetMember = \OGame\Models\AcsFleetMember::where('fleet_mission_id', $fleet_mission_id)->first();
+
+        if ($acsFleetMember) {
+            $acsGroup = $acsFleetMember->acsGroup;
+
+            // Remove this fleet from the ACS group
+            $acsFleetMember->delete();
+
+            \Log::debug('Fleet removed from ACS group', [
+                'fleet_mission_id' => $fleet_mission_id,
+                'acs_group_id' => $acsGroup->id,
+            ]);
+
+            // Check if the ACS group is now empty
+            $remainingFleets = \OGame\Models\AcsFleetMember::where('acs_group_id', $acsGroup->id)->count();
+
+            if ($remainingFleets === 0) {
+                // Cancel the ACS group if no fleets remain
+                $acsGroup->status = 'cancelled';
+                $acsGroup->save();
+
+                \Log::debug('ACS group cancelled - no fleets remaining', [
+                    'acs_group_id' => $acsGroup->id,
+                ]);
+            }
+        }
+
         // Recall the fleet mission
         $fleetMissionService->cancelMission($fleetMission);
 
@@ -461,5 +782,518 @@ class FleetController extends OGameController
         }
 
         return $units;
+    }
+
+    /**
+     * Handle ACS group creation or joining for a fleet mission.
+     *
+     * @param \OGame\Models\FleetMission $fleetMission
+     * @param int $union The union/ACS group ID (0 = create new, >0 = join existing)
+     * @param PlayerService $player
+     * @param Coordinate $targetCoordinate
+     * @param PlanetType $targetType
+     * @return void
+     * @throws Exception
+     */
+    private function handleACSGroupForMission(\OGame\Models\FleetMission $fleetMission, int $union, PlayerService $player, Coordinate $targetCoordinate, PlanetType $targetType): void
+    {
+        \Log::debug('handleACSGroupForMission called', [
+            'fleet_mission_id' => $fleetMission->id,
+            'union' => $union,
+            'player_id' => $player->getId(),
+            'target' => $targetCoordinate->asString(),
+        ]);
+
+        $acsGroup = null;
+
+        if ($union === 0) {
+            // Create a new ACS group with this fleet's arrival time
+            \Log::debug('Creating new ACS group');
+            $acsGroup = ACSService::createGroup(
+                $player->getId(),
+                'ACS Attack ' . $targetCoordinate->galaxy . ':' . $targetCoordinate->system . ':' . $targetCoordinate->position,
+                $targetCoordinate->galaxy,
+                $targetCoordinate->system,
+                $targetCoordinate->position,
+                $targetType->value,
+                $fleetMission->time_arrival
+            );
+            \Log::debug('ACS group created', ['acs_group_id' => $acsGroup->id]);
+        } else {
+            // Join existing ACS group (validation already done earlier)
+            \Log::debug('Joining existing ACS group', ['union' => $union]);
+            $acsGroup = ACSService::findGroup($union);
+
+            if (!$acsGroup) {
+                throw new Exception('ACS group not found.');
+            }
+        }
+
+        // Link the fleet mission to the ACS group (passing FleetMission object, not ID)
+        if ($acsGroup) {
+            \Log::debug('Adding fleet to ACS group', [
+                'acs_group_id' => $acsGroup->id,
+                'fleet_mission_id' => $fleetMission->id,
+            ]);
+            ACSService::addFleetToGroup($acsGroup, $fleetMission, $player->getId());
+            \Log::debug('Fleet added to ACS group successfully');
+        }
+    }
+
+    /**
+     * Calculate the required speed percentage to arrive at a specific time.
+     *
+     * @param FleetMissionService $fleetMissionService
+     * @param PlanetService $planet
+     * @param Coordinate $targetCoordinate
+     * @param UnitCollection $units
+     * @param int $targetArrivalTime
+     * @return float|null The required speed percentage (10-100), or null if impossible
+     */
+    private function calculateRequiredSpeed(
+        FleetMissionService $fleetMissionService,
+        PlanetService $planet,
+        Coordinate $targetCoordinate,
+        UnitCollection $units,
+        int $targetArrivalTime
+    ): ?float {
+        $currentTime = time();
+        $requiredDuration = $targetArrivalTime - $currentTime;
+
+        \Log::debug('Calculating required speed for ACS sync', [
+            'current_time' => $currentTime,
+            'target_arrival_time' => $targetArrivalTime,
+            'required_duration' => $requiredDuration,
+        ]);
+
+        // If arrival time is in the past or too soon, it's impossible
+        if ($requiredDuration <= 0) {
+            \Log::debug('Required duration <= 0, impossible to sync');
+            return null;
+        }
+
+        // Calculate duration at 100% speed
+        $durationAt100 = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, 100);
+
+        \Log::debug('Duration at 100% speed', [
+            'duration_at_100' => $durationAt100,
+            'required_duration' => $requiredDuration,
+            'can_arrive_in_time' => $durationAt100 <= $requiredDuration,
+        ]);
+
+        // If even at 100% speed we can't arrive in time, it's impossible
+        if ($durationAt100 > $requiredDuration) {
+            \Log::debug('Too far - even at 100% speed cannot arrive in time');
+            return null;
+        }
+
+        // Calculate duration at 10% speed (slowest)
+        $durationAt10 = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, 10);
+
+        \Log::debug('Duration at 10% speed', [
+            'duration_at_10' => $durationAt10,
+            'required_duration' => $requiredDuration,
+            'arrives_too_soon' => $durationAt10 < $requiredDuration,
+        ]);
+
+        // If even at 10% speed we arrive too soon, it's impossible
+        if ($durationAt10 < $requiredDuration) {
+            \Log::debug('Too close - even at 10% speed arrives too soon');
+            return null;
+        }
+
+        // Binary search to find the right speed percentage
+        $minSpeed = 10.0;
+        $maxSpeed = 100.0;
+
+        for ($i = 0; $i < 30; $i++) { // Max 30 iterations for more precision
+            $midSpeed = ($minSpeed + $maxSpeed) / 2;
+            $duration = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $midSpeed);
+
+            if (abs($duration - $requiredDuration) <= 0.5) {
+                // Found a good speed, but need to round to integer
+                $roundedSpeed = round($midSpeed);
+
+                // Verify rounded speed is still close enough (within 2 seconds)
+                $durationAtRounded = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $roundedSpeed);
+                if (abs($durationAtRounded - $requiredDuration) <= 2) {
+                    return $roundedSpeed;
+                }
+
+                // If rounding made it worse, try floor and ceil
+                $floorSpeed = floor($midSpeed);
+                $ceilSpeed = ceil($midSpeed);
+
+                $durationFloor = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $floorSpeed);
+                $durationCeil = $fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $ceilSpeed);
+
+                // Pick whichever is closer
+                if (abs($durationFloor - $requiredDuration) < abs($durationCeil - $requiredDuration)) {
+                    return max(10, $floorSpeed); // Ensure minimum 10%
+                } else {
+                    return min(100, $ceilSpeed); // Ensure maximum 100%
+                }
+            }
+
+            if ($duration > $requiredDuration) {
+                // Too slow, need to go faster
+                $minSpeed = $midSpeed;
+            } else {
+                // Too fast, need to slow down
+                $maxSpeed = $midSpeed;
+            }
+        }
+
+        // If we exit the loop without finding a good speed, return null
+        // This will trigger the departure delay logic
+        \Log::warning('Binary search failed to find precise speed', [
+            'min_speed' => $minSpeed,
+            'max_speed' => $maxSpeed,
+            'required_duration' => $requiredDuration,
+        ]);
+        return null;
+    }
+
+    /**
+     * Get available ACS groups for specific coordinates (AJAX endpoint)
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function getACSGroups(Request $request, PlayerService $player): JsonResponse
+    {
+        $targetGalaxy = $request->input('galaxy');
+        $targetSystem = $request->input('system');
+        $targetPosition = $request->input('position');
+        $targetType = $request->input('type', 1);
+
+        \Log::debug('AJAX ACS Groups Query', [
+            'galaxy' => $targetGalaxy,
+            'system' => $targetSystem,
+            'position' => $targetPosition,
+            'type' => $targetType,
+        ]);
+
+        if (!$targetGalaxy || !$targetSystem || !$targetPosition) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Missing target coordinates',
+                'groups' => []
+            ]);
+        }
+
+        $currentTime = time();
+
+        // Find active ACS groups targeting this coordinate
+        // Only show groups from buddies, alliance members, or own groups
+        $acsGroups = \OGame\Models\AcsGroup::where('galaxy_to', $targetGalaxy)
+            ->where('system_to', $targetSystem)
+            ->where('position_to', $targetPosition)
+            ->where('type_to', $targetType)
+            ->whereIn('status', ['pending', 'active'])
+            ->where('arrival_time', '>', $currentTime)
+            ->get()
+            ->filter(function ($group) use ($player) {
+                // Show own groups or groups from buddies/alliance members
+                return $group->creator_id === $player->getId() ||
+                       \OGame\Services\ACSService::isBuddyOrAllianceMember($group->creator_id, $player->getId());
+            })
+            ->map(function ($group) use ($player) {
+                $fleetCount = \OGame\Services\ACSService::getGroupFleetCount($group);
+                $playerCount = \OGame\Services\ACSService::getGroupPlayerCount($group);
+                $isFull = \OGame\Services\ACSService::isGroupFull($group, $player->getId());
+
+                return [
+                    'id' => $group->id,
+                    'name' => $group->name,
+                    'target' => $group->galaxy_to . ':' . $group->system_to . ':' . $group->position_to,
+                    'arrival_time' => $group->arrival_time,
+                    'arrival_time_formatted' => date('Y-m-d H:i:s', $group->arrival_time),
+                    'fleet_count' => $fleetCount,
+                    'player_count' => $playerCount,
+                    'is_full' => $isFull,
+                    'is_creator' => $group->creator_id === $player->getId(),
+                ];
+            })
+            ->values()
+            ->toArray();
+
+        \Log::debug('AJAX ACS Groups found: ' . count($acsGroups), [
+            'groups' => $acsGroups,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'groups' => $acsGroups
+        ]);
+    }
+
+    /**
+     * Get eligible players (buddies and alliance members) for ACS invitations
+     *
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function getEligiblePlayers(PlayerService $player): JsonResponse
+    {
+        $playerId = $player->getId();
+        $eligiblePlayers = [];
+        $addedPlayerIds = []; // Track added player IDs to prevent duplicates
+
+        // Get all buddies (bidirectional check)
+        $buddies = \OGame\Models\Buddy::where('user_id', $playerId)
+            ->orWhere('buddy_id', $playerId)
+            ->get();
+
+        foreach ($buddies as $buddy) {
+            $buddyPlayerId = ($buddy->user_id === $playerId) ? $buddy->buddy_id : $buddy->user_id;
+
+            // Skip if already added
+            if (in_array($buddyPlayerId, $addedPlayerIds)) {
+                continue;
+            }
+
+            $buddyPlayer = \OGame\Models\User::find($buddyPlayerId);
+
+            if ($buddyPlayer) {
+                $eligiblePlayers[] = [
+                    'id' => $buddyPlayer->id,
+                    'username' => $buddyPlayer->username,
+                    'type' => 'buddy'
+                ];
+                $addedPlayerIds[] = $buddyPlayerId;
+            }
+        }
+
+        // Get alliance members if player is in an alliance
+        $playerAlliance = \OGame\Models\AllianceMember::where('user_id', $playerId)->first();
+        if ($playerAlliance) {
+            $allianceMembers = \OGame\Models\AllianceMember::where('alliance_id', $playerAlliance->alliance_id)
+                ->where('user_id', '!=', $playerId)
+                ->get();
+
+            foreach ($allianceMembers as $member) {
+                // Skip if already added (as buddy or duplicate)
+                if (in_array($member->user_id, $addedPlayerIds)) {
+                    continue;
+                }
+
+                $allianceMemberPlayer = \OGame\Models\User::find($member->user_id);
+                if ($allianceMemberPlayer) {
+                    $eligiblePlayers[] = [
+                        'id' => $allianceMemberPlayer->id,
+                        'username' => $allianceMemberPlayer->username,
+                        'type' => 'alliance'
+                    ];
+                    $addedPlayerIds[] = $member->user_id;
+                }
+            }
+        }
+
+        // Sort by username
+        usort($eligiblePlayers, function($a, $b) {
+            return strcmp($a['username'], $b['username']);
+        });
+
+        return response()->json([
+            'success' => true,
+            'players' => $eligiblePlayers
+        ]);
+    }
+
+    /**
+     * Invite a player to an ACS group
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function invitePlayerToACS(Request $request, PlayerService $player): JsonResponse
+    {
+        $acsGroupId = $request->input('acs_group_id');
+        $invitedPlayerId = $request->input('player_id');
+
+        if (!$acsGroupId || !$invitedPlayerId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Missing required parameters'
+            ]);
+        }
+
+        // Find the ACS group
+        $acsGroup = ACSService::findGroup($acsGroupId);
+        if (!$acsGroup) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ACS group not found'
+            ]);
+        }
+
+        // Verify the requesting player is the creator
+        if ($acsGroup->creator_id !== $player->getId()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only the group creator can invite players'
+            ]);
+        }
+
+        // Verify the invited player is a buddy or alliance member
+        if (!ACSService::isBuddyOrAllianceMember($player->getId(), $invitedPlayerId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You can only invite buddies and alliance members'
+            ]);
+        }
+
+        // Create the invitation
+        $invitation = ACSService::invitePlayer($acsGroup, $invitedPlayerId);
+
+        if (!$invitation) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Player has already been invited'
+            ]);
+        }
+
+        // Send message to the invited player
+        try {
+            \Log::info('Attempting to send ACS invitation message', [
+                'inviter_id' => $player->getId(),
+                'invited_player_id' => $invitedPlayerId,
+                'acs_group_id' => $acsGroup->id,
+            ]);
+
+            $messageService = resolve(\OGame\Services\MessageService::class);
+            $invitedPlayer = resolve(\OGame\Services\PlayerService::class, ['player_id' => $invitedPlayerId]);
+
+            \Log::info('Resolved invited player', [
+                'player_id' => $invitedPlayer->getId(),
+                'username' => $invitedPlayer->getUsername(),
+            ]);
+
+            $messageService->sendSystemMessageToPlayer(
+                $invitedPlayer,
+                \OGame\GameMessages\ACSInvitation::class,
+                [
+                    'inviter' => $player->getUsername(),
+                    'acs_group_name' => $acsGroup->name,
+                    'target_coordinates' => $acsGroup->galaxy_to . ':' . $acsGroup->system_to . ':' . $acsGroup->position_to,
+                    'arrival_time' => date('Y-m-d H:i:s', $acsGroup->arrival_time),
+                ]
+            );
+
+            \Log::info('ACS invitation message sent successfully');
+        } catch (\Exception $e) {
+            \Log::error('Failed to send ACS invitation message', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Player invited successfully'
+        ]);
+    }
+
+    /**
+     * Convert a regular attack mission to an ACS attack
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function convertAttackToACS(Request $request, PlayerService $player): JsonResponse
+    {
+        $fleetMissionId = $request->input('fleet_mission_id');
+
+        if (!$fleetMissionId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Missing fleet mission ID'
+            ]);
+        }
+
+        // Get the fleet mission
+        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class);
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId);
+
+        if (!$fleetMission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Fleet mission not found'
+            ]);
+        }
+
+        // Verify the player owns this fleet
+        if ($fleetMission->user_id !== $player->getId()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not own this fleet'
+            ]);
+        }
+
+        // Verify it's an attack mission (type 1)
+        if ($fleetMission->mission_type !== 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only attack missions can be converted to ACS'
+            ]);
+        }
+
+        // Verify the mission hasn't arrived yet
+        if ($fleetMission->time_arrival <= time()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Mission has already arrived'
+            ]);
+        }
+
+        // Verify it's not already in an ACS group
+        $existingMember = \OGame\Models\AcsFleetMember::where('fleet_mission_id', $fleetMission->id)->first();
+        if ($existingMember) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This fleet is already in an ACS group'
+            ]);
+        }
+
+        // Change mission type from 1 (attack) to 2 (ACS attack)
+        $fleetMission->mission_type = 2;
+        $fleetMission->save();
+
+        // Create ACS group for this mission
+        $targetCoordinate = new \OGame\Models\Planet\Coordinate(
+            $fleetMission->galaxy_to,
+            $fleetMission->system_to,
+            $fleetMission->position_to
+        );
+        $targetType = \OGame\Models\Enums\PlanetType::from($fleetMission->type_to);
+
+        $acsGroup = ACSService::createGroup(
+            $player->getId(),
+            'ACS Attack ' . $targetCoordinate->asString(),
+            $targetCoordinate->galaxy,
+            $targetCoordinate->system,
+            $targetCoordinate->position,
+            $targetType->value,
+            $fleetMission->time_arrival
+        );
+
+        // Add fleet to the ACS group
+        ACSService::addFleetToGroup($acsGroup, $fleetMission, $player->getId());
+
+        \Log::info('Attack converted to ACS', [
+            'fleet_mission_id' => $fleetMission->id,
+            'acs_group_id' => $acsGroup->id,
+            'player_id' => $player->getId(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Attack converted to ACS group',
+            'acs_group_id' => $acsGroup->id
+        ]);
     }
 }

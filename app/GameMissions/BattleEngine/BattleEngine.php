@@ -86,6 +86,19 @@ abstract class BattleEngine
         $result->defenderUnitsStart = new UnitCollection();
         $result->defenderUnitsStart->addCollection($this->defenderPlanet->getShipUnits());
         $result->defenderUnitsStart->addCollection($this->defenderPlanet->getDefenseUnits());
+
+        // Get ACS Defend missions currently holding at this planet and add their units to the battle
+        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class);
+        $result->defendingMissions = $fleetMissionService->getDefendingMissionsAtPlanet($this->defenderPlanet->getPlanetId());
+
+        \Log::debug('Battle: Found ' . $result->defendingMissions->count() . ' defending missions at planet ' . $this->defenderPlanet->getPlanetId());
+
+        foreach ($result->defendingMissions as $defendingMission) {
+            $defendingUnits = $fleetMissionService->getFleetUnits($defendingMission);
+            \Log::debug('Battle: Adding ' . $defendingUnits->getAmount() . ' units from ACS Defend mission ' . $defendingMission->id);
+            $result->defenderUnitsStart->addCollection($defendingUnits);
+        }
+
         $result->defenderUnitsResult = clone $result->defenderUnitsStart;
 
         // Execute the battle rounds, this will handle the actual combat logic.
