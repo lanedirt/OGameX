@@ -140,6 +140,16 @@ class PlayerService
     }
 
     /**
+     * Get the user model instance.
+     *
+     * @return User
+     */
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    /**
      * Saves current player object to DB.
      */
     public function save(): void
@@ -725,6 +735,25 @@ class PlayerService
 
         // +1 to max_colonies to get max_planets because the main planet is not included in the calculation above.
         return 1 + $astrophysicsObject->performCalculation(CalculationType::MAX_COLONIES, $astrophyicsLevel);
+    }
+
+    /**
+     * Get the missile range in systems based on Impulse Drive level.
+     * Formula: (Impulse Drive Level - 1) × 5 + 5 systems
+     *
+     * @return int
+     */
+    public function getMissileRange(): int
+    {
+        $impulseDriveLevel = $this->getResearchLevel('impulse_drive');
+
+        // If no Impulse Drive research, return 0
+        if ($impulseDriveLevel === 0) {
+            return 0;
+        }
+
+        // Calculate range: (level - 1) × 5 + 5
+        return ($impulseDriveLevel - 1) * 5 + 5;
     }
 
     /**

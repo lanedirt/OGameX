@@ -121,19 +121,19 @@ class ObjectPropertiesTest extends UnitTestCase
         ]);
 
         // Small cargo with impulse drive level 5 (upgrade)
-        // Base 5,000 + 5*20% = 10,000  (base speed NOT overridden yet)
+        // Base speed overridden to 10,000 at Impulse 5, then bonus: 10,000 + 5*20% = 20,000
         $smallCargo = ObjectService::getShipObjectByMachineName('small_cargo');
-        $this->assertEquals(10000, $smallCargo->properties->speed->calculate($this->playerService)->totalValue);
+        $this->assertEquals(20000, $smallCargo->properties->speed->calculate($this->playerService)->totalValue);
 
         // Recycler with hyperspace drive level 15
-        // Base 2.000 + 15*30% = 11.000
+        // Base speed overridden to 6,000 at Hyperspace 15, then bonus: 6,000 + 15*30% = 33,000
         $recycler = ObjectService::getShipObjectByMachineName('recycler');
-        $this->assertEquals(11000, $recycler->properties->speed->calculate($this->playerService)->totalValue);
+        $this->assertEquals(33000, $recycler->properties->speed->calculate($this->playerService)->totalValue);
 
         // Bomber with hyperspace drive level 15
-        // Base 4.000 + 15*30% = 22.000
+        // Base speed overridden to 5,000 at Hyperspace 8, then bonus: 5,000 + 15*30% = 27,500
         $recycler = ObjectService::getShipObjectByMachineName('bomber');
-        $this->assertEquals(22000, $recycler->properties->speed->calculate($this->playerService)->totalValue);
+        $this->assertEquals(27500, $recycler->properties->speed->calculate($this->playerService)->totalValue);
     }
 
     /**
