@@ -116,4 +116,9 @@ class BattleResult
      * @var array<BattleResultRound> The rounds of the battle.
      */
     public array $rounds;
+
+    /**
+     * @var \Illuminate\Support\Collection<\OGame\Models\FleetMission> ACS Defend missions that participated in the battle.
+     */
+    public \Illuminate\Support\Collection $defendingMissions;
 }
