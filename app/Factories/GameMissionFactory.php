@@ -3,6 +3,8 @@
 namespace OGame\Factories;
 
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\ACSAttackMission;
+use OGame\GameMissions\ACSDefendMission;
 use OGame\GameMissions\AttackMission;
 use OGame\GameMissions\ColonisationMission;
 use OGame\GameMissions\DeploymentMission;
@@ -36,8 +38,10 @@ class GameMissionFactory
         */
         return [
             1 => resolve(AttackMission::class),
+            2 => resolve(ACSAttackMission::class),
             3 => resolve(TransportMission::class),
             4 => resolve(DeploymentMission::class),
+            5 => resolve(ACSDefendMission::class),
             6 => resolve(EspionageMission::class),
             7 => resolve(ColonisationMission::class),
             8 => resolve(RecycleMission::class),
@@ -56,8 +60,10 @@ class GameMissionFactory
     {
         return match ($missionId) {
             1 => resolve(AttackMission::class, $dependencies),
+            2 => resolve(ACSAttackMission::class, $dependencies),
             3 => resolve(TransportMission::class, $dependencies),
             4 => resolve(DeploymentMission::class, $dependencies),
+            5 => resolve(ACSDefendMission::class, $dependencies),
             6 => resolve(EspionageMission::class, $dependencies),
             7 => resolve(ColonisationMission::class, $dependencies),
             8 => resolve(RecycleMission::class, $dependencies),
