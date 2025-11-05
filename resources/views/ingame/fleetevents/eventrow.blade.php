@@ -317,11 +317,14 @@
     </tr>
 @endif
 
+@php
+    $time_diff = $fleet_event_row->mission_time_arrival - time();
+@endphp
 <script type="text/javascript">
     (function ($) {
         new eventboxCountdown(
             $("#counter-eventlist-{{ $fleet_event_row->id }}"),
-                {{ $fleet_event_row->mission_time_arrival }} - {{ time() }},
+            {{ $time_diff }},
             $("#eventListWrap"),
             "#TODO_page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
             [0, 1]
