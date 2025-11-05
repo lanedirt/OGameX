@@ -1926,7 +1926,7 @@ class PlanetService
         $resources_spent = new Resources(0, 0, 0, 0);
 
         // Create object array
-        $building_objects = ObjectService::getBuildingObjects() + ObjectService::getStationObjects();
+        $building_objects = array_merge(ObjectService::getBuildingObjects(), ObjectService::getStationObjects());
         foreach ($building_objects as $object) {
             for ($i = 1; $i <= $this->getObjectLevel($object->machine_name); $i++) {
                 // Concatenate price which is array of metal, crystal and deuterium.
@@ -1934,7 +1934,7 @@ class PlanetService
                 $resources_spent->add($raw_price);
             }
         }
-        $unit_objects = ObjectService::getShipObjects() + ObjectService::getDefenseObjects();
+        $unit_objects = array_merge(ObjectService::getShipObjects(), ObjectService::getDefenseObjects());
         foreach ($unit_objects as $object) {
             $raw_price = ObjectService::getObjectRawPrice($object->machine_name);
             // Multiply raw_price by the amount of units.
