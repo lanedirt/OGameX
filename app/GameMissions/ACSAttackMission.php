@@ -276,7 +276,7 @@ class ACSAttackMission extends GameMission
         $totalLoot = $battleResult->loot;
 
         // Distribute loot and losses among all participating attackers.
-        // Create ONE combined battle report for ACS attack (sent to all attackers)
+        // Create ONE battle report for the ACS attack (sent to all players)
         $reportId = $this->createBattleReport($attackerFleets[0]['player'], $defenderPlanet, $battleResult, $repairedDefenses, true);
 
         // Track unique players to avoid sending duplicate reports to same player
@@ -312,9 +312,8 @@ class ACSAttackMission extends GameMission
             $this->startReturn($mission, $fleetLoot, $survivingUnits);
         }
 
-        // Send battle report to defender
-        $defenderReportId = $this->createBattleReport($attackerFleets[0]['player'], $defenderPlanet, $battleResult, $repairedDefenses, false);
-        $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $defenderReportId);
+        // Send battle report to defender (same report, not a duplicate)
+        $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
 
         // Send battle report to all ACS Defend fleet owners (only once per player)
         $reportedDefenders = [$defenderPlanet->getPlayer()->getId()]; // Planet owner already reported
@@ -323,7 +322,7 @@ class ACSAttackMission extends GameMission
 
             // Only send once per unique defending player
             if (!in_array($defendingPlayer->getId(), $reportedDefenders)) {
-                $this->messageService->sendBattleReportMessageToPlayer($defendingPlayer, $defenderReportId);
+                $this->messageService->sendBattleReportMessageToPlayer($defendingPlayer, $reportId);
                 $reportedDefenders[] = $defendingPlayer->getId();
             }
         }
