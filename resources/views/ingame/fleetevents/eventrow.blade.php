@@ -1,7 +1,7 @@
 @php /** @var \OGame\ViewModels\FleetEventRowViewModel $fleet_event_row */ @endphp
 
 @if ($fleet_event_row->is_return_trip)
-    <tr class="eventFleet {{ $fleet_event_row->mission_status }}" id="eventRow-{{ $fleet_event_row->id }}"
+    <tr class="eventFleet" id="eventRow-{{ $fleet_event_row->id }}"
         data-mission-type="{{ $fleet_event_row->mission_type }}"
         data-return-flight="true"
         data-arrival-time="{{ $fleet_event_row->mission_time_arrival }}"
@@ -149,7 +149,7 @@
         </td>
     </tr>
 @else
-    <tr class="eventFleet {{ $fleet_event_row->mission_status }}" id="eventRow-{{ $fleet_event_row->id }}"
+    <tr class="eventFleet" id="eventRow-{{ $fleet_event_row->id }}"
         data-mission-type="{{ $fleet_event_row->mission_type }}"
         data-return-flight="false"
         data-arrival-time="{{ $fleet_event_row->mission_time_arrival }}"
