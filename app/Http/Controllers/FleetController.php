@@ -335,6 +335,55 @@ class FleetController extends OGameController
         // Extract ACS union parameter (0 = create new group, >0 = join existing group)
         $union = (int)request()->input('union', 0);
 
+        // Validate deuterium for ACS Defend missions
+        if ($mission_type === 5 && $holding_hours > 0) {
+            $holdConsumptionService = new \OGame\Services\FleetHoldConsumptionService();
+            $totalConsumptionNeeded = $holdConsumptionService->calculateTotalConsumption($units, $holding_hours);
+
+            // Get target planet to check Alliance Depot
+            $targetPlanet = $planetServiceFactory->makeForCoordinates($target_coordinate, $planetType);
+            if ($targetPlanet === null) {
+                throw new \Exception('Target planet not found.');
+            }
+
+            // Calculate Alliance Depot supply
+            $depotLevel = $targetPlanet->getObjectLevel('alliance_depot');
+            $depotSupplyRate = 20000; // per hour per level
+            $depotSupplyAvailable = $depotLevel * $depotSupplyRate * $holding_hours;
+
+            // Check how much deuterium the target planet has
+            $planetDeuterium = $targetPlanet->deuterium()->get();
+            $depotSupplyUsable = min($depotSupplyAvailable, $planetDeuterium);
+
+            // Calculate how much fleet cargo needs to cover
+            $fleetCargoNeeded = max(0, $totalConsumptionNeeded - $depotSupplyUsable);
+
+            // Validate user loaded enough deuterium
+            if ($deuterium < $fleetCargoNeeded) {
+                $shortage = $fleetCargoNeeded - $deuterium;
+                throw new \Exception(sprintf(
+                    'Insufficient deuterium for ACS Defend mission. Fleet needs %s total consumption for %d hours. Alliance Depot (level %d) can supply %s. Fleet must carry at least %s but only has %s loaded. Shortage: %s',
+                    number_format($totalConsumptionNeeded),
+                    $holding_hours,
+                    $depotLevel,
+                    number_format($depotSupplyUsable),
+                    number_format($fleetCargoNeeded),
+                    number_format($deuterium),
+                    number_format($shortage)
+                ));
+            }
+
+            \Log::debug('ACS Defend deuterium validation passed', [
+                'total_consumption_needed' => $totalConsumptionNeeded,
+                'hold_hours' => $holding_hours,
+                'depot_level' => $depotLevel,
+                'depot_supply_available' => $depotSupplyAvailable,
+                'depot_supply_usable' => $depotSupplyUsable,
+                'fleet_cargo_needed' => $fleetCargoNeeded,
+                'fleet_cargo_loaded' => $deuterium,
+            ]);
+        }
+
         \Log::debug('Fleet dispatch request', [
             'mission_type' => $mission_type,
             'union_param' => $union,
