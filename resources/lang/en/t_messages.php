@@ -110,6 +110,13 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // ------------------------
+    'fleet_lost_contact' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Contact with the attacking fleet has been lost. :coordinates',
+        'body' => '(That means it was destroyed in the first round.)',
+    ],
+
+    // ------------------------
     'debris_field_harvest' => [
         'from' => 'Fleet',
         'subject' => 'Harvesting report from DF on :coordinates',
