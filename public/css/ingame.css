@@ -3667,6 +3667,7 @@ input[type="submit"] { border: none; }
 .friendly {color:#9c0;}
 .neutral {color:#D29D00;}
 .hostile {color:#D43635;}
+.own {color:#9c0;}
 .white { color:#ffffff;}
 
 div.alert_triangle {
@@ -7741,6 +7742,11 @@ a#message_alert_box_default,
 #eventboxContent .neutral {color:#D29D00;}
 #eventboxContent .hostile {color:#D43635;}
 #eventboxContent .own {color:#9c0;}
+
+#eventboxFilled .friendly {color:#9c0;}
+#eventboxFilled .neutral {color:#D29D00;}
+#eventboxFilled .hostile {color:#D43635;}
+#eventboxFilled .own {color:#9c0;}
 
 #eventz tr.neutral td,
 #phalanx tr.neutral td {color:#fcce00;}
