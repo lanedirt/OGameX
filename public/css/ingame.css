@@ -31773,6 +31773,11 @@ a#federation span {
 #movementcomponent .neutral {color:#D29D00;}
 #movementcomponent .hostile {color:#D43635;}
 
+#eventlistcomponent .friendly {color:#9c0;}
+#eventlistcomponent .neutral {color:#D29D00;}
+#eventlistcomponent .hostile {color:#D43635;}
+#eventlistcomponent .own {color:#9c0;}
+
 #movementcomponent table.fleetinfo td.value { padding-left:5px; text-align:right;}
 
 #movementcomponent div.fleetinfo {
