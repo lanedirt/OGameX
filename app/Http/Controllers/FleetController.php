@@ -739,9 +739,9 @@ class FleetController extends OGameController
             ]);
 
             // Check if the ACS group is now empty
-            $remainingFleets = \OGame\Models\AcsFleetMember::where('acs_group_id', $acsGroup->id)->count();
+            $remainingFleetMembers = \OGame\Models\AcsFleetMember::where('acs_group_id', $acsGroup->id)->with('fleetMission')->get();
 
-            if ($remainingFleets === 0) {
+            if ($remainingFleetMembers->isEmpty()) {
                 // Cancel the ACS group if no fleets remain
                 $acsGroup->status = 'cancelled';
                 $acsGroup->save();
@@ -749,6 +749,56 @@ class FleetController extends OGameController
                 \Log::debug('ACS group cancelled - no fleets remaining', [
                     'acs_group_id' => $acsGroup->id,
                 ]);
+            } else {
+                // Recalculate group arrival time based on remaining fleets
+                // Find the slowest remaining fleet (the one with the latest natural arrival time)
+                $currentTime = time();
+                $newGroupArrivalTime = 0;
+
+                foreach ($remainingFleetMembers as $member) {
+                    $mission = $member->fleetMission;
+
+                    // Calculate this fleet's natural arrival time at 100% speed
+                    $durationAt100 = $fleetMissionService->calculateFleetMissionDuration(
+                        $planetServiceFactory->make($mission->planet_id_from),
+                        new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to),
+                        $fleetMissionService->getFleetUnits($mission),
+                        100
+                    );
+
+                    $naturalArrivalTime = $mission->time_departure + $durationAt100;
+                    $newGroupArrivalTime = max($newGroupArrivalTime, $naturalArrivalTime);
+                }
+
+                // If the group can now arrive earlier, update all fleets
+                if ($newGroupArrivalTime < $acsGroup->arrival_time && $newGroupArrivalTime > $currentTime) {
+                    $speedUpAmount = $acsGroup->arrival_time - $newGroupArrivalTime;
+
+                    \Log::info('Fleet recalled from ACS - speeding up remaining fleets', [
+                        'acs_group_id' => $acsGroup->id,
+                        'old_arrival' => $acsGroup->arrival_time,
+                        'new_arrival' => $newGroupArrivalTime,
+                        'speedup_seconds' => $speedUpAmount,
+                        'remaining_fleets' => $remainingFleetMembers->count(),
+                    ]);
+
+                    // Update all remaining fleet missions
+                    foreach ($remainingFleetMembers as $member) {
+                        $mission = $member->fleetMission;
+                        $mission->time_arrival = $newGroupArrivalTime;
+                        $mission->save();
+
+                        \Log::debug('Sped up fleet in ACS group', [
+                            'mission_id' => $mission->id,
+                            'old_arrival' => $mission->time_arrival + $speedUpAmount,
+                            'new_arrival' => $mission->time_arrival,
+                        ]);
+                    }
+
+                    // Update the group's arrival time
+                    $acsGroup->arrival_time = $newGroupArrivalTime;
+                    $acsGroup->save();
+                }
             }
         }
 
