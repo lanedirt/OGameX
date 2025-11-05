@@ -801,9 +801,8 @@ class FleetController extends OGameController
             $remainingFleetMembers = \OGame\Models\AcsFleetMember::where('acs_group_id', $acsGroup->id)->with('fleetMission')->get();
 
             if ($remainingFleetMembers->isEmpty()) {
-                // Cancel the ACS group if no fleets remain
-                $acsGroup->status = 'cancelled';
-                $acsGroup->save();
+                // Cancel the ACS group if no fleets remain (also cleans up pending invitations)
+                ACSService::cancelGroup($acsGroup);
 
                 \Log::debug('ACS group cancelled - no fleets remaining', [
                     'acs_group_id' => $acsGroup->id,

@@ -88,6 +88,9 @@ class ACSService
     {
         $group->status = 'completed';
         $group->save();
+
+        // Clean up pending invitations for this group
+        self::cleanupInvitations($group);
     }
 
     /**
@@ -97,6 +100,21 @@ class ACSService
     {
         $group->status = 'cancelled';
         $group->save();
+
+        // Clean up pending invitations for this group
+        self::cleanupInvitations($group);
+    }
+
+    /**
+     * Clean up pending invitations when a group is completed or cancelled
+     */
+    private static function cleanupInvitations(AcsGroup $group): void
+    {
+        // Delete all pending invitations for this group
+        // (joined/declined invitations are kept for history)
+        AcsInvitation::where('acs_group_id', $group->id)
+            ->where('status', 'pending')
+            ->delete();
     }
 
     /**

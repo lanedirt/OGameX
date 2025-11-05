@@ -258,9 +258,8 @@ class ACSAttackMission extends GameMission
         // Distribute loot and losses among all attackers
         $this->distributeLootAndLosses($attackerFleets, $battleResult, $defenderPlanet, $repairedDefenses);
 
-        // Mark the ACS group as completed
-        $acsGroup->status = 'completed';
-        $acsGroup->save();
+        // Mark the ACS group as completed (also cleans up pending invitations)
+        ACSService::completeGroup($acsGroup);
     }
 
     /**
