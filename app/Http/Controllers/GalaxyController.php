@@ -900,15 +900,18 @@ class GalaxyController extends OGameController
             // Only show fleets that haven't arrived yet (future fleets in transit)
             $currentTime = time();
             $fleets = FleetMission::where(function ($query) use ($galaxy, $system, $position) {
-                $query->where([
-                    'galaxy_to' => $galaxy,
-                    'system_to' => $system,
-                    'position_to' => $position,
-                ])->orWhere([
-                    'galaxy_from' => $galaxy,
-                    'system_from' => $system,
-                    'position_from' => $position,
-                ]);
+                // Fleets TO the target
+                $query->where(function ($q) use ($galaxy, $system, $position) {
+                    $q->where('galaxy_to', $galaxy)
+                      ->where('system_to', $system)
+                      ->where('position_to', $position);
+                })
+                // OR fleets FROM the target
+                ->orWhere(function ($q) use ($galaxy, $system, $position) {
+                    $q->where('galaxy_from', $galaxy)
+                      ->where('system_from', $system)
+                      ->where('position_from', $position);
+                });
             })
                 ->where('processed', 0)
                 ->where('canceled', 0)
