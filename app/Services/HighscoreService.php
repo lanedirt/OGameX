@@ -71,11 +71,6 @@ class HighscoreService
                 continue;
             }
 
-            // Skip return missions - ships are already counted in the parent mission
-            if ($mission->parent_id !== null) {
-                continue;
-            }
-
             // Calculate score for all ships in this mission
             foreach (ObjectService::getShipObjects() as $ship) {
                 $amount = $mission->{$ship->machine_name} ?? 0;
@@ -109,11 +104,6 @@ class HighscoreService
         foreach ($activeMissions as $mission) {
             // Skip processed missions (already counted on planet)
             if ($mission->processed) {
-                continue;
-            }
-
-            // Skip return missions - ships are already counted in the parent mission
-            if ($mission->parent_id !== null) {
                 continue;
             }
 
@@ -158,11 +148,6 @@ class HighscoreService
         foreach ($activeMissions as $mission) {
             // Skip processed missions (already counted on planet)
             if ($mission->processed) {
-                continue;
-            }
-
-            // Skip return missions - ships are already counted in the parent mission
-            if ($mission->parent_id !== null) {
                 continue;
             }
 
