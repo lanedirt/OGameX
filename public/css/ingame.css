@@ -7737,6 +7737,11 @@ a#message_alert_box_default,
     width: 185px;
 }
 
+#eventboxContent .friendly {color:#9c0;}
+#eventboxContent .neutral {color:#D29D00;}
+#eventboxContent .hostile {color:#D43635;}
+#eventboxContent .own {color:#9c0;}
+
 #eventz tr.neutral td,
 #phalanx tr.neutral td {color:#fcce00;}
 
