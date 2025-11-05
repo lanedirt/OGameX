@@ -110,7 +110,7 @@ class AttackMission extends GameMission
             $this->planetServiceFactory->createMoonForPlanet($defenderPlanet);
         }
 
- // Check if attacker fleet was destroyed in first round
+        // Check if attacker fleet was destroyed in first round
         $attackerDestroyedFirstRound = false;
         if (count($battleResult->rounds) > 0) {
             $firstRound = $battleResult->rounds[0];

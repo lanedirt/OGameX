@@ -1010,7 +1010,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMission->id, false);
         $this->assertTrue($fleetMission->processed == 1);
     }
-    
+
     /**
      * Assert that when an attacker's fleet is destroyed in the first round, they receive a simplified
      * "fleet lost contact" message instead of a full battle report, while the defender still receives
