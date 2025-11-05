@@ -337,6 +337,16 @@ class FleetController extends OGameController
 
         // Validate deuterium for ACS Defend missions
         if ($mission_type === 5 && $holding_hours > 0) {
+            // Validate hold time limit (max 32 hours for ACS Defend)
+            $maxHoldHours = 32;
+            if ($holding_hours > $maxHoldHours) {
+                throw new \Exception(sprintf(
+                    'ACS Defend hold time cannot exceed %d hours. Requested: %d hours.',
+                    $maxHoldHours,
+                    $holding_hours
+                ));
+            }
+
             $holdConsumptionService = new \OGame\Services\FleetHoldConsumptionService();
             $totalConsumptionNeeded = $holdConsumptionService->calculateTotalConsumption($units, $holding_hours);
 
