@@ -1010,4 +1010,85 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMission->id, false);
         $this->assertTrue($fleetMission->processed == 1);
     }
+    
+    /**
+     * Assert that when an attacker's fleet is destroyed in the first round, they receive a simplified
+     * "fleet lost contact" message instead of a full battle report, while the defender still receives
+     * the full battle report.
+     */
+    public function testDispatchFleetAttackerDestroyedFirstRoundMessage(): void
+    {
+        // Send a very weak attacker fleet against a strong defender to ensure first-round destruction.
+        // Attack with 1 light fighter, defend with 500 plasma turrets.
+        // We expect the attacker to be destroyed in the first round.
+        $this->planetAddUnit('light_fighter', 1);
+        $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Give the foreign planet overwhelming defense to ensure first-round attacker destruction.
+        $foreignPlanet->addUnit('plasma_turret', 500);
+
+        // Get just dispatched fleet mission ID from database.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+
+        // Get time it takes for the fleet to travel to the second planet.
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+
+        // Set time to fleet mission duration + 1 second.
+        $this->travel($fleetMissionDuration + 1)->seconds();
+
+        // Reload application to make sure the planet is not cached.
+        $this->reloadApplication();
+
+        // Set all messages as read to avoid interference with message checks.
+        $this->playerSetAllMessagesRead();
+
+        // Do a request to trigger the update logic.
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the fleet mission is processed.
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
+
+        // Assert that attacker received a "fleet_lost_contact" message instead of battle report.
+        $attackerMessage = Message::where('user_id', $this->planetService->getPlayer()->getId())
+            ->where('key', 'fleet_lost_contact')
+            ->orderByDesc('id')
+            ->first();
+        $this->assertNotNull($attackerMessage, 'Attacker did not receive a fleet_lost_contact message after being destroyed in first round.');
+
+        // Assert that attacker did NOT receive a normal battle report.
+        $attackerBattleReport = Message::where('user_id', $this->planetService->getPlayer()->getId())
+            ->where('key', 'battle_report')
+            ->orderByDesc('id')
+            ->first();
+        $this->assertNull($attackerBattleReport, 'Attacker received a battle report when they should have received fleet_lost_contact message.');
+
+        // Assert that defender received the full battle report.
+        $defenderMessage = Message::where('user_id', $foreignPlanet->getPlayer()->getId())
+            ->where('key', 'battle_report')
+            ->orderByDesc('id')
+            ->first();
+        $this->assertNotNull($defenderMessage, 'Defender did not receive a battle report after destroying attacker in first round.');
+
+        // Verify that the battle report was actually created in the database.
+        $battleReport = BattleReport::orderBy('id', 'desc')->first();
+        $this->assertNotNull($battleReport, 'Battle report was not created in the database.');
+        $this->assertEquals($defenderMessage->battle_report_id, $battleReport->id, 'Defender message battle_report_id does not match the created battle report.');
+
+        // Verify that attacker fleet_lost_contact message contains coordinate information.
+        $messageParams = $attackerMessage->params;
+        $this->assertArrayHasKey('coordinates', $messageParams, 'fleet_lost_contact message does not contain coordinates parameter.');
+        $this->assertStringContainsString($foreignPlanet->getPlanetCoordinates()->asString(), $messageParams['coordinates'], 'fleet_lost_contact message coordinates do not match target planet coordinates.');
+
+        // Assert that NO return trip has been launched (attacker lost all units).
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(0, $activeMissions, 'A return trip is launched while attacker was destroyed in first round and should have no units left.');
+    }
 }
