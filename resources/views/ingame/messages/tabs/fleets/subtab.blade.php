@@ -25,7 +25,7 @@
             <li class="msg @if ($message->isUnread()) msg_new @endif" data-msg-id="{{ $message->getId() }}">
                 <div class="msg_status"></div>
                 <div class="msg_head">
-                    @if ($message->getSubtab() === 'combat_reports')
+                    @if ($message->getSubtab() === 'combat_reports' && $message->getKey() !== 'fleet_lost_contact')
                         <span class="msg_title middlemark">{!! $message->getSubject() !!}</span>
                     @else
                         <span class="msg_title blue_txt">{!! $message->getSubject() !!}</span>
