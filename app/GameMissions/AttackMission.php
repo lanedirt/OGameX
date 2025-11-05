@@ -110,12 +110,33 @@ class AttackMission extends GameMission
             $this->planetServiceFactory->createMoonForPlanet($defenderPlanet);
         }
 
-        // Send a message to both attacker and defender with a reference to the same battle report.
-        $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
-        // Send to attacker.
-        $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
-        // Send to defender.
-        $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
+        // Check if attacker fleet was destroyed in first round
+        $attackerDestroyedFirstRound = false;
+        if (count($battleResult->rounds) > 0) {
+            $firstRound = $battleResult->rounds[0];
+            if ($firstRound->attackerShips->getAmount() === 0) {
+                $attackerDestroyedFirstRound = true;
+            }
+        }
+
+        if ($attackerDestroyedFirstRound) {
+            // Send simplified "fleet lost contact" message to attacker (no fleet or tech info)
+            $coordinates = '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]';
+            $this->messageService->sendSystemMessageToPlayer($attackerPlayer, \OGame\GameMessages\FleetLostContact::class, [
+                'coordinates' => $coordinates,
+            ]);
+
+            // Send full battle report to defender
+            $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
+            $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
+        } else {
+            // Normal behavior: send battle report to both attacker and defender
+            $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult);
+            // Send to attacker.
+            $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
+            // Send to defender.
+            $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
+        }
 
         // Mark the arrival mission as processed
         $mission->processed = 1;
