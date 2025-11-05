@@ -13,6 +13,7 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\DebrisFieldService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use Throwable;
@@ -90,8 +91,84 @@ class AttackMission extends GameMission
         $defenderUnitsLost->subtractCollection($battleResult->defenderUnitsResult);
         $defenderPlanet->removeUnits($defenderUnitsLost, false);
 
+        // Calculate repaired defenses (70% chance for each destroyed defense structure)
+        $repairedDefenses = $this->calculateRepairedDefenses($defenderUnitsLost);
+
+        // Add repaired defenses back to the planet
+        if ($repairedDefenses->getAmount() > 0) {
+            $defenderPlanet->addUnits($repairedDefenses, false);
+        }
+
         // Save defenders planet
         $defenderPlanet->save();
+
+        // Handle ACS Defend missions that participated in the battle
+        // Calculate survival rate for each unit type and distribute survivors back to defending missions
+        $acsDefendTotalStart = new UnitCollection();
+        foreach ($battleResult->defendingMissions as $defendingMission) {
+            $defendingUnits = $this->fleetMissionService->getFleetUnits($defendingMission);
+            $acsDefendTotalStart->addCollection($defendingUnits);
+        }
+
+        // Calculate the planet's units (ships + defenses) at start
+        $planetUnitsStart = clone $battleResult->defenderUnitsStart;
+        $planetUnitsStart->subtractCollection($acsDefendTotalStart);
+
+        // Calculate how many of the planet's units survived
+        // First, we need to figure out which survivors belong to the planet vs ACS Defend missions
+        // We'll use a proportional distribution based on each unit type
+        foreach ($battleResult->defendingMissions as $defendingMission) {
+            // Get the original units for this mission
+            $missionUnitsStart = $this->fleetMissionService->getFleetUnits($defendingMission);
+
+            // Calculate surviving units for this mission based on overall survival rates
+            $missionUnitsSurvived = new UnitCollection();
+
+            foreach ($missionUnitsStart->units as $unit) {
+                $unitMachineName = $unit->unitObject->machine_name;
+                $originalAmount = $unit->amount;
+
+                // Get the total amount of this unit type at battle start (planet + all ACS Defend)
+                $totalStartAmount = $battleResult->defenderUnitsStart->getAmountByMachineName($unitMachineName);
+
+                if ($totalStartAmount > 0) {
+                    // Get the total survivors of this unit type
+                    $totalSurvived = $battleResult->defenderUnitsResult->getAmountByMachineName($unitMachineName);
+
+                    // Calculate survival rate
+                    $survivalRate = $totalSurvived / $totalStartAmount;
+
+                    // Apply survival rate to this mission's original units (round down)
+                    $survivedAmount = (int)floor($originalAmount * $survivalRate);
+
+                    if ($survivedAmount > 0) {
+                        $missionUnitsSurvived->addUnit($unit->unitObject, $survivedAmount);
+                    }
+                }
+            }
+
+            // Mark the mission as processed to end its hold period
+            $defendingMission->processed = 1;
+            $defendingMission->save();
+
+            \Log::info('ACS Defend mission ' . $defendingMission->id . ' participated in battle', [
+                'original_units' => $missionUnitsStart->toArray(),
+                'surviving_units' => $missionUnitsSurvived->toArray(),
+            ]);
+
+            // Create return mission with surviving units
+            $gameMissionFactory = resolve(\OGame\Factories\GameMissionFactory::class);
+            $missionObject = $gameMissionFactory->getMissionById(5, [
+                'fleetMissionService' => $this->fleetMissionService,
+                'messageService' => $this->messageService,
+            ]);
+
+            // Return with remaining resources and surviving ships
+            $remainingResources = $this->fleetMissionService->getResources($defendingMission);
+
+            // Start the return trip immediately with surviving units
+            $missionObject->startReturn($defendingMission, $remainingResources, $missionUnitsSurvived);
+        }
 
         // Create or append debris field.
         // TODO: we could change this debris field append logic to do everything in a single query to
@@ -137,6 +214,24 @@ class AttackMission extends GameMission
             // Send to defender.
             $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
         }
+        // Send a message to both attacker and defender with a reference to the same battle report.
+        $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult, $repairedDefenses);
+        // Send to attacker.
+        $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
+        // Send to defender (planet owner).
+        $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
+
+        // Send battle report to all ACS Defend fleet owners (only once per player)
+        $reportedDefenders = [$defenderPlanet->getPlayer()->getId()]; // Planet owner already reported
+        foreach ($battleResult->defendingMissions as $defendingMission) {
+            $defendingPlayer = resolve(\OGame\Services\PlayerService::class, ['player_id' => $defendingMission->user_id]);
+
+            // Only send once per unique defending player
+            if (!in_array($defendingPlayer->getId(), $reportedDefenders)) {
+                $this->messageService->sendBattleReportMessageToPlayer($defendingPlayer, $reportId);
+                $reportedDefenders[] = $defendingPlayer->getId();
+            }
+        }
 
         // Mark the arrival mission as processed
         $mission->processed = 1;
@@ -177,9 +272,10 @@ class AttackMission extends GameMission
      * @param PlayerService $attackPlayer The player who initiated the attack.
      * @param PlanetService $defenderPlanet The planet that was attacked.
      * @param BattleResult $battleResult The result of the battle.
+     * @param UnitCollection $repairedDefenses The defensive structures that were repaired after the battle.
      * @return int
      */
-    private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet, BattleResult $battleResult): int
+    private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet, BattleResult $battleResult, UnitCollection $repairedDefenses): int
     {
         // Create new battle report record.
         $report = new BattleReport();
@@ -227,7 +323,14 @@ class AttackMission extends GameMission
             'deuterium' => $battleResult->debris->deuterium->get(),
         ];
 
-        $report->repaired_defenses = [];
+        $repairedDefensesArray = $repairedDefenses->toArray();
+
+        // DEBUG: Log what we're saving to database
+        $debugInfo = "=== BATTLE REPORT SAVE ===\n";
+        $debugInfo .= "Repaired defenses being saved to DB: " . json_encode($repairedDefensesArray) . "\n";
+        file_put_contents('/tmp/battle_debug.txt', $debugInfo, FILE_APPEND);
+
+        $report->repaired_defenses = $repairedDefensesArray;
 
         $rounds = [];
         foreach ($battleResult->rounds as $round) {
@@ -251,5 +354,45 @@ class AttackMission extends GameMission
         $report->save();
 
         return $report->id;
+    }
+
+    /**
+     * Calculate which defensive structures are repaired after battle.
+     * In OGame, each destroyed defensive structure has a 70% chance to be rebuilt.
+     *
+     * @param UnitCollection $defenderUnitsLost The units lost by the defender during battle.
+     * @return UnitCollection Collection of repaired defensive structures.
+     * @throws \Exception
+     */
+    private function calculateRepairedDefenses(UnitCollection $defenderUnitsLost): UnitCollection
+    {
+        $repairedDefenses = new UnitCollection();
+
+        // Get all defense objects to identify which lost units are defensive structures
+        $defenseObjects = ObjectService::getDefenseObjects();
+        $defenseObjectMachineNames = array_column($defenseObjects, 'machine_name');
+
+        // Process each lost unit
+        foreach ($defenderUnitsLost->units as $unit) {
+            // Check if this unit is a defensive structure (ships are not repaired)
+            if (in_array($unit->unitObject->machine_name, $defenseObjectMachineNames)) {
+                // Roll 70% chance for each individual defensive structure
+                // Using random_int() for better randomness than rand()
+                $repairedCount = 0;
+                for ($i = 0; $i < $unit->amount; $i++) {
+                    // Generate random number 1-100, if <= 70 then repair this unit (70% chance)
+                    if (random_int(1, 100) <= 70) {
+                        $repairedCount++;
+                    }
+                }
+
+                // Add repaired defenses to the collection
+                if ($repairedCount > 0) {
+                    $repairedDefenses->addUnit($unit->unitObject, $repairedCount);
+                }
+            }
+        }
+
+        return $repairedDefenses;
     }
 }

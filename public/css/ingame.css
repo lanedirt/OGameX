@@ -3667,6 +3667,7 @@ input[type="submit"] { border: none; }
 .friendly {color:#9c0;}
 .neutral {color:#D29D00;}
 .hostile {color:#D43635;}
+.own {color:#9c0;}
 .white { color:#ffffff;}
 
 div.alert_triangle {
@@ -7736,6 +7737,16 @@ a#message_alert_box_default,
     display: inline-block;
     width: 185px;
 }
+
+#eventboxContent .friendly {color:#9c0;}
+#eventboxContent .neutral {color:#D29D00;}
+#eventboxContent .hostile {color:#D43635;}
+#eventboxContent .own {color:#9c0;}
+
+#eventboxFilled .friendly {color:#9c0;}
+#eventboxFilled .neutral {color:#D29D00;}
+#eventboxFilled .hostile {color:#D43635;}
+#eventboxFilled .own {color:#9c0;}
 
 #eventz tr.neutral td,
 #phalanx tr.neutral td {color:#fcce00;}
@@ -31772,6 +31783,11 @@ a#federation span {
 #movementcomponent .friendly {color:#9c0;}
 #movementcomponent .neutral {color:#D29D00;}
 #movementcomponent .hostile {color:#D43635;}
+
+#eventlistcomponent .friendly {color:#9c0;}
+#eventlistcomponent .neutral {color:#D29D00;}
+#eventlistcomponent .hostile {color:#D43635;}
+#eventlistcomponent .own {color:#9c0;}
 
 #movementcomponent table.fleetinfo td.value { padding-left:5px; text-align:right;}
 

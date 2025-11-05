@@ -140,6 +140,16 @@ class PlayerService
     }
 
     /**
+     * Get the user model instance.
+     *
+     * @return User
+     */
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    /**
      * Saves current player object to DB.
      */
     public function save(): void
@@ -728,6 +738,25 @@ class PlayerService
     }
 
     /**
+     * Get the missile range in systems based on Impulse Drive level.
+     * Formula: (Impulse Drive Level - 1) × 5 + 5 systems
+     *
+     * @return int
+     */
+    public function getMissileRange(): int
+    {
+        $impulseDriveLevel = $this->getResearchLevel('impulse_drive');
+
+        // If no Impulse Drive research, return 0
+        if ($impulseDriveLevel === 0) {
+            return 0;
+        }
+
+        // Calculate range: (level - 1) × 5 + 5
+        return ($impulseDriveLevel - 1) * 5 + 5;
+    }
+
+    /**
      * Delete the player and all associated records from the database.
      *
      * @return void
@@ -819,5 +848,102 @@ class PlayerService
             && $this->hasEngineer()
             && $this->hasGeologist()
             && $this->hasTechnocrat();
+    }
+
+    /**
+     * Check if the player has any moon with a sensor phalanx.
+     *
+     * @return bool
+     */
+    public function hasMoonWithPhalanx(): bool
+    {
+        foreach ($this->planets->allMoons() as $moon) {
+            if ($moon->getObjectLevel('sensor_phalanx') > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get the highest sensor phalanx level among all player's moons.
+     *
+     * @return int
+     */
+    public function getHighestPhalanxLevel(): int
+    {
+        $highestLevel = 0;
+        foreach ($this->planets->allMoons() as $moon) {
+            $level = $moon->getObjectLevel('sensor_phalanx');
+            if ($level > $highestLevel) {
+                $highestLevel = $level;
+            }
+        }
+        return $highestLevel;
+    }
+
+    /**
+     * Get the moon with the highest sensor phalanx level that can scan the target coordinates.
+     *
+     * @param int $targetGalaxy
+     * @param int $targetSystem
+     * @param int $targetPosition
+     * @return PlanetService|null
+     */
+    public function getMoonWithPhalanxInRange(int $targetGalaxy, int $targetSystem, int $targetPosition): ?PlanetService
+    {
+        $bestMoon = null;
+        $highestLevel = 0;
+
+        foreach ($this->planets->allMoons() as $moon) {
+            $phalanxLevel = $moon->getObjectLevel('sensor_phalanx');
+            if ($phalanxLevel > 0) {
+                // Calculate range
+                $moonCoords = $moon->getPlanetCoordinates();
+                $range = $this->calculatePhalanxRange($phalanxLevel);
+
+                // Check if target is in range (must be same galaxy)
+                if ($moonCoords->galaxy === $targetGalaxy) {
+                    $systemDistance = abs($moonCoords->system - $targetSystem);
+                    if ($systemDistance <= $range) {
+                        // Use the moon with highest phalanx level in range
+                        if ($phalanxLevel > $highestLevel) {
+                            $bestMoon = $moon;
+                            $highestLevel = $phalanxLevel;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $bestMoon;
+    }
+
+    /**
+     * Calculate the range of a sensor phalanx based on its level.
+     * Formula: range = (level ^ 2) - 1
+     *
+     * @param int $level
+     * @return int
+     */
+    public function calculatePhalanxRange(int $level): int
+    {
+        return ($level * $level) - 1;
+    }
+
+    /**
+     * Calculate deuterium cost for a phalanx scan.
+     *
+     * @param int $fromGalaxy
+     * @param int $fromSystem
+     * @param int $toGalaxy
+     * @param int $toSystem
+     * @return int
+     */
+    public function calculatePhalanxCost(int $fromGalaxy, int $fromSystem, int $toGalaxy, int $toSystem): int
+    {
+        // Cost is 5000 deuterium per system distance
+        $systemDistance = abs($fromSystem - $toSystem);
+        return 5000 * $systemDistance;
     }
 }

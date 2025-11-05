@@ -10,6 +10,7 @@ use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\GameMissions\ACSDefendMission;
 use OGame\GameMissions\ExpeditionMission;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
@@ -214,8 +215,8 @@ abstract class GameMission
 
         // Holding time is the amount of time the fleet will wait at the target planet and/or how long expedition will last.
         // The $holdingHours is in hours, so we convert it to seconds.
-        // Only applies to expeditions (and ACS missions, but those are not implemented yet).
-        if (static::class === ExpeditionMission::class) {
+        // Only applies to expeditions and ACS Defend missions.
+        if (static::class === ExpeditionMission::class || static::class === ACSDefendMission::class) {
             $mission->time_holding = $holdingHours * 3600;
             $targetType = PlanetType::DeepSpace;
         }
@@ -338,12 +339,11 @@ abstract class GameMission
 
         // Set amount of resources to return based on provided resources in parameter.
         // This is the amount of resources that were gained and/or not used during the mission.
-        // The logic is different for each mission type.
-        // TODO: make this more smart: what if mission started with resources already, e.g. sending attack mission with resources?
-        // With the current logic the resources from origin mission are lost, which is probably not correct?
-        $mission->metal = (int)$resources->metal->get();
-        $mission->crystal = (int)$resources->crystal->get();
-        $mission->deuterium = (int)$resources->deuterium->get();
+        // IMPORTANT: Add to existing resources from parent mission, don't replace them!
+        // This ensures resources loaded on departure are not lost.
+        $mission->metal = $parentMission->metal + (int)$resources->metal->get();
+        $mission->crystal = $parentMission->crystal + (int)$resources->crystal->get();
+        $mission->deuterium = $parentMission->deuterium + (int)$resources->deuterium->get();
 
         // Save the new fleet return mission.
         $mission->save();

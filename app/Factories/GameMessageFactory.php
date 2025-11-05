@@ -27,9 +27,13 @@ class GameMessageFactory
         'fleet_deployment' => \OGame\GameMessages\FleetDeployment::class,
         'fleet_deployment_with_resources' => \OGame\GameMessages\FleetDeploymentWithResources::class,
         'espionage_report' => \OGame\GameMessages\EspionageReport::class,
+        'espionage_detected' => \OGame\GameMessages\DefenderEspionageDetected::class,
         'battle_report' => \OGame\GameMessages\BattleReport::class,
         'fleet_lost_contact' => \OGame\GameMessages\FleetLostContact::class,
+        'missile_attack_report' => \OGame\GameMessages\MissileAttackReport::class,
+        'missile_defense_report' => \OGame\GameMessages\MissileDefenseReport::class,
         'debris_field_harvest' => \OGame\GameMessages\DebrisFieldHarvest::class,
+        'acs_invitation' => \OGame\GameMessages\ACSInvitation::class,
 
         'expedition_battle' => \OGame\GameMessages\ExpeditionBattle::class,
         'expedition_gain_dark_matter' => \OGame\GameMessages\ExpeditionGainDarkMatter::class,

@@ -239,7 +239,11 @@ class FleetMissionService
     {
         // Note: this only includes missions that the current player has sent themselves
         // so it does not include any incoming missions by other players (e.g. hostile attacks, espionage, transports etc.)
-        $query = $this->model->where('user_id', $this->player->getId())->where('processed', 0);
+        // Exclude missile missions (type 10) as they don't consume fleet slots
+        $query = $this->model
+            ->where('user_id', $this->player->getId())
+            ->where('processed', 0)
+            ->where('mission_type', '!=', 10);
         return $query->orderBy('time_arrival')->get();
     }
 
@@ -301,9 +305,10 @@ class FleetMissionService
         // 2: ACS Attack
         // 6: Espionage
         // 9: Moon Destruction
+        // 10: Missile Attack
         return $this->model->whereIn('planet_id_to', $planetIds)
             ->where('user_id', '!=', $this->player->getId())
-            ->whereIn('mission_type', [1, 2, 6, 9])
+            ->whereIn('mission_type', [1, 2, 6, 9, 10])
             ->where('processed', 0)
             ->exists();
     }
@@ -316,6 +321,12 @@ class FleetMissionService
      */
     public function getFleetUnitCount(FleetMission $mission): int
     {
+        // Special handling for missile attacks (mission type 10)
+        // Missiles are stored in the metal field, not as a dedicated column
+        if ($mission->mission_type === 10) {
+            return (int)$mission->metal;
+        }
+
         // Loop through all known unit types and sum them up.
         $unit_count = 0;
 
@@ -335,6 +346,17 @@ class FleetMissionService
     public function getFleetUnits(FleetMission $mission): UnitCollection
     {
         $units = new UnitCollection();
+
+        // Special handling for missile attacks (mission type 10)
+        // Missiles are stored in the metal field, not as a dedicated column
+        if ($mission->mission_type === 10) {
+            $missileCount = (int)$mission->metal;
+            if ($missileCount > 0) {
+                $missileObject = ObjectService::getUnitObjectByMachineName('interplanetary_missile');
+                $units->addUnit($missileObject, $missileCount);
+            }
+            return $units;
+        }
 
         foreach (ObjectService::getShipObjects() as $ship) {
             $amount = $mission->{$ship->machine_name};
@@ -522,5 +544,31 @@ class FleetMissionService
             'messageService' => $this->messageService,
         ]);
         $missionObject->cancel($mission);
+    }
+
+    /**
+     * Get all active ACS Defend missions currently holding at a specific planet.
+     *
+     * @param int $planetId The planet ID to check for defending missions.
+     * @return \Illuminate\Support\Collection<FleetMission>
+     */
+    public function getDefendingMissionsAtPlanet(int $planetId): \Illuminate\Support\Collection
+    {
+        $currentTime = Carbon::now()->timestamp;
+
+        // Get ACS Defend missions (type 5) that:
+        // 1. Are targeted at this planet
+        // 2. Have arrived (time_arrival <= now)
+        // 3. Are still holding (time_arrival + time_holding > now)
+        // 4. Haven't been processed yet
+        // 5. Haven't been canceled
+        return $this->model
+            ->where('planet_id_to', $planetId)
+            ->where('mission_type', 5) // ACS Defend
+            ->where('time_arrival', '<=', $currentTime)
+            ->whereRaw('time_arrival + COALESCE(time_holding, 0) > ?', [$currentTime])
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->get();
     }
 }

@@ -5,9 +5,13 @@ namespace OGame\Http\Controllers;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\FleetMission;
 use OGame\Models\Planet;
+use OGame\Models\Resources;
+use OGame\Services\BuddyService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -121,13 +125,21 @@ class GalaxyController extends OGameController
     {
         $availableMissions = $this->getAvailableMissions($galaxy, $system, $position, $planet);
         $planets_array = $this->createPlanetsArray($planet, $availableMissions);
+        $actions = $this->getPlanetActions($planet);
+        $playerInfo = $this->getPlayerInfo($planet->getPlayer());
+
+        // Add phalanx data to player info (expected by JavaScript)
+        if (isset($actions['phalanx'])) {
+            $playerInfo['phalanx'] = $actions['phalanx'];
+            unset($actions['phalanx']); // Remove from actions as it's now in player
+        }
 
         return [
-            'actions' => $this->getPlanetActions($planet),
+            'actions' => $actions,
             'availableMissions' => [],
             'galaxy' => $galaxy,
             'planets' => $planets_array,
-            'player' => $this->getPlayerInfo($planet->getPlayer()),
+            'player' => $playerInfo,
             'position' => $position,
             'positionFilters' => '',
             'system' => $system,
@@ -314,16 +326,82 @@ class GalaxyController extends OGameController
         // to be able to spy on the target planet.
         $canEspionage = $this->playerService->planets->current()->getObjectAmount('espionage_probe') > 0 && $this->playerService->getResearchLevel('espionage_technology') > 0;
 
+        // Check if player can launch missile attacks
+        $currentPlanet = $this->playerService->planets->current();
+        $hasMissiles = $currentPlanet->getObjectAmount('interplanetary_missile') > 0;
+        $missileRange = $this->playerService->getMissileRange();
+
+        // Calculate distance to target
+        $distance = abs($currentPlanet->getPlanetCoordinates()->system - $planet->getPlanetCoordinates()->system);
+        $inRange = ($currentPlanet->getPlanetCoordinates()->galaxy === $planet->getPlanetCoordinates()->galaxy) && ($distance <= $missileRange);
+
+        // Can only attack other players' planets
+        $canMissileAttack = $hasMissiles && $inRange && !$planet->getPlayer()->equals($this->playerService);
+
+        // Build missile attack link with all necessary parameters
+        $coords = $planet->getPlanetCoordinates();
+        $missileAttackLink = route('galaxy.missile-attack', [
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'position' => $coords->position,
+            'planetType' => $planet->getPlanetType()->value,
+        ]);
+
+        // Check if player can use sensor phalanx on this planet
+        $canPhalanx = false;
+        $phalanxLink = '';
+        $phalanxInactive = false;
+
+        // Can only phalanx planets (not own planets)
+        if (!$planet->getPlayer()->equals($this->playerService)) {
+            $phalanxMoon = $this->playerService->getMoonWithPhalanxInRange(
+                $coords->galaxy,
+                $coords->system,
+                $coords->position
+            );
+
+            if ($phalanxMoon !== null) {
+                // We have a phalanx in range
+                $canPhalanx = true;
+
+                // Calculate deuterium cost
+                $moonCoords = $phalanxMoon->getPlanetCoordinates();
+                $deuteriumCost = $this->playerService->calculatePhalanxCost(
+                    $moonCoords->galaxy,
+                    $moonCoords->system,
+                    $coords->galaxy,
+                    $coords->system
+                );
+
+                // Check if moon has enough deuterium
+                if ($phalanxMoon->deuterium()->get() < $deuteriumCost) {
+                    $phalanxInactive = true;
+                }
+
+                // Don't set a link - we'll handle clicks via JavaScript
+                // Any href value triggers redirect interception
+                $phalanxLink = '';
+            }
+        }
+
         return [
             'canBeIgnored' => false,
             'canBuddyRequests' => false,
             'canEspionage' => $canEspionage,
-            'canMissileAttack' => false,
-            'canPhalanx' => false,
+            'canMissileAttack' => $canMissileAttack,
+            'canPhalanx' => $canPhalanx,
             'canSendProbes' => $canEspionage,
             'canWrite' => false,
             'discoveryUnlocked' => 'You haven\'t unlocked the research to discover new lifeforms yet.\n',
-            'missileAttackLink' => route('galaxy.index'),
+            'missileAttackLink' => $missileAttackLink,
+            'phalanx' => [
+                'inactive' => $phalanxInactive,
+                'link' => $phalanxLink,
+                'title' => 'Sensor Phalanx',
+                'galaxy' => $coords->galaxy,
+                'system' => $coords->system,
+                'position' => $coords->position,
+            ],
         ];
     }
 
@@ -335,14 +413,62 @@ class GalaxyController extends OGameController
      */
     private function getPlayerInfo(PlayerService $player): array
     {
+        // Get player's alliance if they have one
+        $alliance = \OGame\Services\AllianceMemberService::getUserAlliance($player->getUser());
+        $allianceId = $alliance ? $alliance->id : null;
+        $allianceTag = $alliance ? $alliance->tag : null;
+        $allianceName = $alliance ? $alliance->name : null;
+
+        // Check if the viewing player is in the same alliance
+        $viewerAlliance = \OGame\Services\AllianceMemberService::getUserAlliance($this->playerService->getUser());
+        $isAllianceMember = $viewerAlliance && $alliance && $viewerAlliance->id === $alliance->id;
+
+        // Build alliance action data for tooltip
+        $allianceAction = ['available' => false];
+        if ($alliance) {
+            $memberCount = $alliance->members()->count();
+            $allianceAction = [
+                'available' => true,
+                'infoPageLink' => route('alliance.show', $alliance->id),
+                'infoPageTitle' => 'Alliance Info',
+                'applicationLink' => $alliance->open_for_applications ? route('alliance.show', $alliance->id) : null,
+                'applicationTitle' => $alliance->open_for_applications ? 'Apply' : null,
+                'highscoreLink' => route('highscore.index', ['type' => 1, 'category' => 2, 'searchRelId' => $alliance->id]),
+                'highscoreTitle' => '#' . ($alliance->id ?? 'N/A'), // Placeholder rank, would need actual calculation
+                'memberCount' => $memberCount,
+                'allianceClassName' => null,
+                'allianceClassCss' => null,
+            ];
+        }
+
+        // Build buddy action data for tooltip
+        $buddyAction = ['available' => false];
+        $viewerId = $this->playerService->getId();
+        $targetPlayerId = $player->getId();
+
+        // Check if viewer can send a buddy request to this player
+        if ($viewerId !== $targetPlayerId) {
+            try {
+                $areBuddies = BuddyService::areBuddies($viewerId, $targetPlayerId);
+                $hasPendingRequest = BuddyService::hasPendingRequest($viewerId, $targetPlayerId);
+
+                if (!$areBuddies && !$hasPendingRequest) {
+                    $buddyAction = [
+                        'available' => true,
+                        'link' => route('buddies.overlay') . '?add=' . $targetPlayerId,
+                        'title' => 'Add Buddy',
+                    ];
+                }
+            } catch (\Exception $e) {
+                // If buddy system is not yet set up, silently fail and leave buddy action unavailable
+                $buddyAction = ['available' => false];
+            }
+        }
+
         return [
             'actions' => [
-                'alliance' => [
-                    'available' => false,
-                ],
-                'buddies' => [
-                    'available' => false,
-                ],
+                'alliance' => $allianceAction,
+                'buddies' => $buddyAction,
                 'highscore' => [
                     'available' => false,
                 ],
@@ -355,6 +481,10 @@ class GalaxyController extends OGameController
             ],
             'playerId' => $player->getId(),
             'playerName' => $player->getUsername(),
+            'allianceId' => $allianceId,
+            'allianceTag' => $allianceTag,
+            'allianceName' => $allianceName,
+            'isAllianceMember' => $isAllianceMember,
             'isAdmin' => $player->isAdmin(),
             'isInactive' => $player->isInactive(),
             'isLongInactive' => $player->isLongInactive(),
@@ -524,5 +654,392 @@ class GalaxyController extends OGameController
         }
 
         return $slotsColonized;
+    }
+
+    /**
+     * Show the missile attack overlay.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @return View
+     */
+    public function missileAttackOverlay(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): View
+    {
+        $currentPlanet = $player->planets->current();
+
+        // Get request parameters
+        $galaxy = $request->input('galaxy');
+        $system = $request->input('system');
+        $position = $request->input('position');
+        $type = $request->input('planetType', PlanetType::Planet->value);
+
+        // Create target coordinate
+        $targetCoordinate = new Planet\Coordinate($galaxy, $system, $position);
+
+        // Get target planet
+        $targetType = PlanetType::from($type);
+        $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetType);
+
+        // Calculate missile info
+        $availableMissiles = $currentPlanet->getObjectAmount('interplanetary_missile');
+        $missileRange = $player->getMissileRange();
+        $distance = abs($currentPlanet->getPlanetCoordinates()->system - $targetCoordinate->system);
+
+        // Check if attack is possible
+        $canAttack = true;
+        $errorMessage = '';
+
+        if ($targetPlanet === null) {
+            $canAttack = false;
+            $errorMessage = 'Target planet does not exist';
+        } elseif ($targetPlanet->getPlayer()->equals($player)) {
+            $canAttack = false;
+            $errorMessage = 'Cannot attack own planet';
+        } elseif ($currentPlanet->getPlanetCoordinates()->galaxy !== $targetCoordinate->galaxy) {
+            $canAttack = false;
+            $errorMessage = 'Missiles cannot cross galaxies';
+        } elseif ($distance > $missileRange) {
+            $canAttack = false;
+            $errorMessage = "Target is out of range (max: {$missileRange} systems)";
+        } elseif ($availableMissiles <= 0) {
+            $canAttack = false;
+            $errorMessage = 'No missiles available';
+        }
+
+        return view('ingame.galaxy.missileattack')->with([
+            'galaxy' => $galaxy,
+            'system' => $system,
+            'position' => $position,
+            'planetType' => $type,
+            'availableMissiles' => $availableMissiles,
+            'missileRange' => $missileRange,
+            'distance' => $distance,
+            'canAttack' => $canAttack,
+            'errorMessage' => $errorMessage,
+            'targetPlanet' => $targetPlanet,
+        ]);
+    }
+
+    /**
+     * Handle missile attack from galaxy view.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @return JsonResponse
+     */
+    public function missileAttack(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): JsonResponse
+    {
+        try {
+            $currentPlanet = $player->planets->current();
+
+            // Get request parameters
+            $galaxy = $request->input('galaxy');
+            $system = $request->input('system');
+            $position = $request->input('position');
+            $type = $request->input('type', PlanetType::Planet->value);
+            $missileCount = (int)$request->input('missiles', 1);
+            $targetPriority = $request->input('target_priority', 'cheapest');
+
+            // Validate missile count
+            $availableMissiles = $currentPlanet->getObjectAmount('interplanetary_missile');
+            if ($missileCount <= 0 || $missileCount > $availableMissiles) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid missile count',
+                ], 400);
+            }
+
+            // Create target coordinate
+            $targetCoordinate = new Planet\Coordinate($galaxy, $system, $position);
+
+            // Get target planet
+            $targetType = PlanetType::from($type);
+            $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetType);
+
+            if ($targetPlanet === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Target planet does not exist',
+                ], 400);
+            }
+
+            // Check if target is own planet
+            if ($targetPlanet->getPlayer()->equals($player)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot attack own planet',
+                ], 400);
+            }
+
+            // Check range
+            $missileRange = $player->getMissileRange();
+            $distance = abs($currentPlanet->getPlanetCoordinates()->system - $targetCoordinate->system);
+
+            if ($currentPlanet->getPlanetCoordinates()->galaxy !== $targetCoordinate->galaxy) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Missiles cannot cross galaxies',
+                ], 400);
+            }
+
+            if ($distance > $missileRange) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Target is out of range. Maximum range: {$missileRange} systems",
+                ], 400);
+            }
+
+            // Remove missiles from planet
+            $currentPlanet->removeUnit('interplanetary_missile', $missileCount);
+
+            // Create the missile mission
+            $settingsService = app(SettingsService::class);
+
+            // Calculate flight time using OGame formula: (30 + 60 * systems) / universe_speed
+            $universeSpeed = $settingsService->fleetSpeed();
+            $flightTime = (int)ceil((30 + 60 * $distance) / $universeSpeed);
+
+            // Create mission
+            $mission = new \OGame\Models\FleetMission();
+            $mission->user_id = $player->getId();
+            $mission->mission_type = 10; // Missile Attack
+            $mission->planet_id_from = $currentPlanet->getPlanetId();
+            $mission->planet_id_to = $targetPlanet->getPlanetId();
+            $mission->galaxy_from = $currentPlanet->getPlanetCoordinates()->galaxy;
+            $mission->system_from = $currentPlanet->getPlanetCoordinates()->system;
+            $mission->position_from = $currentPlanet->getPlanetCoordinates()->position;
+            $mission->galaxy_to = $targetCoordinate->galaxy;
+            $mission->system_to = $targetCoordinate->system;
+            $mission->position_to = $targetCoordinate->position;
+            $mission->type_from = $currentPlanet->getPlanetType()->value;
+            $mission->type_to = $targetType->value;
+            $mission->time_departure = (int)Carbon::now()->timestamp;
+            $mission->time_arrival = (int)Carbon::now()->addSeconds($flightTime)->timestamp;
+            // Store missile count in metal field (no dedicated column exists)
+            $mission->metal = $missileCount;
+            // Store target priority in crystal field
+            $mission->crystal = $this->encodePriority($targetPriority);
+            $mission->parent_id = null; // No parent mission for missile attacks
+            $mission->canceled = 0;
+            $mission->processed = 0;
+            $mission->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$missileCount} missile(s) launched successfully",
+                'arrival_time' => $mission->time_arrival,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Perform a sensor phalanx scan on target coordinates.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function ajaxPhalanxScan(Request $request, PlayerService $player): JsonResponse
+    {
+        try {
+            // Validate input
+            $galaxy = (int)$request->input('galaxy', 0);
+            $system = (int)$request->input('system', 0);
+            $position = (int)$request->input('position', 0);
+
+            if ($galaxy < 1 || $system < 1 || $position < 1 || $position > 15) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid coordinates provided',
+                ]);
+            }
+
+            // Moons cannot be scanned with sensor phalanx (per game rules)
+            // Position 16 would be expedition, which also can't be scanned
+            // For now, we only allow scanning regular planet positions (1-15)
+            // Note: We don't have a way to check if it's a moon vs planet without loading it
+            // The scan will simply show no fleets if scanning a moon
+
+            // Check if player has a moon with phalanx in range
+            $moon = $player->getMoonWithPhalanxInRange($galaxy, $system, $position);
+            if ($moon === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No sensor phalanx in range of target coordinates',
+                ]);
+            }
+
+            // Calculate deuterium cost
+            $moonCoords = $moon->getPlanetCoordinates();
+            $deuteriumCost = $player->calculatePhalanxCost(
+                $moonCoords->galaxy,
+                $moonCoords->system,
+                $galaxy,
+                $system
+            );
+
+            // Check if moon has enough deuterium
+            if ($moon->deuterium()->get() < $deuteriumCost) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Not enough deuterium to deploy phalanx',
+                ]);
+            }
+
+            // Deduct deuterium
+            $moon->deductResources(new Resources(0, 0, $deuteriumCost, 0));
+
+            // Find all active fleet missions to or from the target coordinates
+            // Only show fleets that haven't arrived yet (future fleets in transit)
+            $currentTime = time();
+            $fleets = FleetMission::where(function ($query) use ($galaxy, $system, $position) {
+                // Fleets TO the target
+                $query->where(function ($q) use ($galaxy, $system, $position) {
+                    $q->where('galaxy_to', $galaxy)
+                      ->where('system_to', $system)
+                      ->where('position_to', $position);
+                })
+                // OR fleets FROM the target
+                ->orWhere(function ($q) use ($galaxy, $system, $position) {
+                    $q->where('galaxy_from', $galaxy)
+                      ->where('system_from', $system)
+                      ->where('position_from', $position);
+                });
+            })
+                ->where('processed', 0)
+                ->where('canceled', 0)
+                ->whereNull('parent_id') // Exclude return trips - only show outgoing missions
+                ->where('time_departure', '<=', $currentTime) // Fleet has departed
+                ->where('time_arrival', '>', $currentTime)    // Fleet hasn't arrived yet
+                ->orderBy('time_arrival', 'asc')
+                ->get();
+
+            // Mission type names for better display
+            $missionNames = [
+                1 => 'Attack',
+                3 => 'Transport',
+                4 => 'Deployment',
+                6 => 'Espionage',
+                7 => 'Colonization',
+                8 => 'Recycle',
+                10 => 'Missile Attack',
+                15 => 'Expedition',
+            ];
+
+            // Ship names for display
+            $shipNames = [
+                'small_cargo' => 'Small Cargo',
+                'large_cargo' => 'Large Cargo',
+                'light_fighter' => 'Light Fighter',
+                'heavy_fighter' => 'Heavy Fighter',
+                'cruiser' => 'Cruiser',
+                'battle_ship' => 'Battleship',
+                'battlecruiser' => 'Battlecruiser',
+                'bomber' => 'Bomber',
+                'destroyer' => 'Destroyer',
+                'deathstar' => 'Deathstar',
+                'colony_ship' => 'Colony Ship',
+                'recycler' => 'Recycler',
+                'espionage_probe' => 'Espionage Probe',
+            ];
+
+            // Format fleet information for response
+            $fleetData = [];
+            foreach ($fleets as $fleet) {
+                // Calculate total ships in fleet
+                $totalShips = $fleet->small_cargo + $fleet->large_cargo + $fleet->light_fighter +
+                             $fleet->heavy_fighter + $fleet->cruiser + $fleet->battle_ship +
+                             $fleet->battlecruiser + $fleet->bomber + $fleet->destroyer +
+                             $fleet->deathstar + $fleet->colony_ship + $fleet->recycler +
+                             $fleet->espionage_probe;
+
+                // Skip fleets with no ships (shouldn't happen, but just in case)
+                if ($totalShips == 0) {
+                    continue;
+                }
+
+                // Determine if fleet is incoming or outgoing
+                $isIncoming = ($fleet->galaxy_to == $galaxy && $fleet->system_to == $system && $fleet->position_to == $position);
+
+                // Build detailed ship composition
+                $shipDetails = [];
+                foreach ($shipNames as $shipKey => $shipLabel) {
+                    $count = $fleet->{$shipKey};
+                    if ($count > 0) {
+                        $shipDetails[] = [
+                            'name' => $shipLabel,
+                            'count' => $count,
+                        ];
+                    }
+                }
+
+                $fleetData[] = [
+                    'mission_type' => $fleet->mission_type,
+                    'mission_name' => $missionNames[$fleet->mission_type] ?? 'Unknown',
+                    'direction' => $isIncoming ? 'incoming' : 'outgoing',
+                    'fleet_id' => $fleet->id,
+                    'time_arrival' => $fleet->time_arrival,
+                    'time_departure' => $fleet->time_departure,
+                    'total_ships' => $totalShips,
+                    'ship_details' => $shipDetails,
+                    'origin' => [
+                        'galaxy' => $fleet->galaxy_from,
+                        'system' => $fleet->system_from,
+                        'position' => $fleet->position_from,
+                    ],
+                    'destination' => [
+                        'galaxy' => $fleet->galaxy_to,
+                        'system' => $fleet->system_to,
+                        'position' => $fleet->position_to,
+                    ],
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Phalanx scan completed',
+                'fleets' => $fleetData,
+                'deuterium_cost' => $deuteriumCost,
+                'scanned_coordinates' => [
+                    'galaxy' => $galaxy,
+                    'system' => $system,
+                    'position' => $position,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Encode target priority string to a numeric value for storage.
+     *
+     * @param string $priority
+     * @return int
+     */
+    private function encodePriority(string $priority): int
+    {
+        $priorityMap = [
+            'cheapest' => 0,
+            'expensive' => 1,
+            'rocket_launcher' => 2,
+            'light_laser' => 3,
+            'heavy_laser' => 4,
+            'gauss_cannon' => 5,
+            'ion_cannon' => 6,
+            'plasma_turret' => 7,
+        ];
+
+        return $priorityMap[$priority] ?? 0; // Default to cheapest if unknown
     }
 }

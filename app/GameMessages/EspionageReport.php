@@ -149,7 +149,7 @@ class EspionageReport extends GameMessage
         // Extract debris if available.
         $debris = new Resources(0, 0, 0, 0);
         if ($this->espionageReportModel->debris !== null) {
-            $debris = new Resources($this->espionageReportModel->debris['metal'], $this->espionageReportModel->debris['crystal'], $this->espionageReportModel->debris['deuterium'], 0);
+            $debris = new Resources($this->espionageReportModel->debris['metal'] ?? 0, $this->espionageReportModel->debris['crystal'] ?? 0, $this->espionageReportModel->debris['deuterium'] ?? 0, 0);
         }
 
         // Extract ships

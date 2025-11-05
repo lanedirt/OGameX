@@ -8,6 +8,7 @@ use OGame\Enums\HighscoreTypeEnum;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Highscore;
+use OGame\Models\Resources;
 
 /**
  * Class Highscore.
@@ -50,6 +51,135 @@ class HighscoreService
     }
 
     /**
+     * Get player fleet mission score for ships currently in transit.
+     * This calculates the general score of all ships that are on active fleet missions.
+     *
+     * @param PlayerService $player
+     * @return int
+     * @throws Exception
+     */
+    private function getPlayerFleetMissionScore(PlayerService $player): int
+    {
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $player]);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
+
+        $resources_spent = new Resources(0, 0, 0, 0);
+
+        foreach ($activeMissions as $mission) {
+            // Skip processed missions (already counted on planet)
+            if ($mission->processed) {
+                continue;
+            }
+
+            // Skip return missions - ships are already counted in the parent mission
+            if ($mission->parent_id !== null) {
+                continue;
+            }
+
+            // Calculate score for all ships in this mission
+            foreach (ObjectService::getShipObjects() as $ship) {
+                $amount = $mission->{$ship->machine_name} ?? 0;
+                if ($amount > 0) {
+                    $raw_price = ObjectService::getObjectRawPrice($ship->machine_name);
+                    $resources_spent->add($raw_price->multiply($amount));
+                }
+            }
+        }
+
+        return (int)floor($resources_spent->sum() / 1000);
+    }
+
+    /**
+     * Get player fleet mission military score for ships currently in transit.
+     * Military score includes:
+     * - 100% military ships
+     * - 50% civil ships
+     *
+     * @param PlayerService $player
+     * @return int
+     * @throws Exception
+     */
+    private function getPlayerFleetMissionScoreMilitary(PlayerService $player): int
+    {
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $player]);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
+
+        $resources_spent = 0;
+
+        foreach ($activeMissions as $mission) {
+            // Skip processed missions (already counted on planet)
+            if ($mission->processed) {
+                continue;
+            }
+
+            // Skip return missions - ships are already counted in the parent mission
+            if ($mission->parent_id !== null) {
+                continue;
+            }
+
+            // Military ships (100%)
+            foreach (ObjectService::getMilitaryShipObjects() as $ship) {
+                $amount = $mission->{$ship->machine_name} ?? 0;
+                if ($amount > 0) {
+                    $raw_price = ObjectService::getObjectRawPrice($ship->machine_name);
+                    $resources_spent += $raw_price->multiply($amount)->sum();
+                }
+            }
+
+            // Civil ships (50%)
+            foreach (ObjectService::getCivilShipObjects() as $ship) {
+                $amount = $mission->{$ship->machine_name} ?? 0;
+                if ($amount > 0) {
+                    $raw_price = ObjectService::getObjectRawPrice($ship->machine_name);
+                    $resources_spent += $raw_price->multiply($amount)->sum() * 0.5;
+                }
+            }
+        }
+
+        return (int)floor($resources_spent / 1000);
+    }
+
+    /**
+     * Get player fleet mission economy score for ships currently in transit.
+     * Economy score includes:
+     * - 50% civil ships
+     *
+     * @param PlayerService $player
+     * @return int
+     * @throws Exception
+     */
+    private function getPlayerFleetMissionScoreEconomy(PlayerService $player): int
+    {
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $player]);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
+
+        $resources_spent = 0;
+
+        foreach ($activeMissions as $mission) {
+            // Skip processed missions (already counted on planet)
+            if ($mission->processed) {
+                continue;
+            }
+
+            // Skip return missions - ships are already counted in the parent mission
+            if ($mission->parent_id !== null) {
+                continue;
+            }
+
+            // Civil ships (50%)
+            foreach (ObjectService::getCivilShipObjects() as $ship) {
+                $amount = $mission->{$ship->machine_name} ?? 0;
+                if ($amount > 0) {
+                    $raw_price = ObjectService::getObjectRawPrice($ship->machine_name);
+                    $resources_spent += $raw_price->multiply($amount)->sum() * 0.5;
+                }
+            }
+        }
+
+        return (int)floor($resources_spent / 1000);
+    }
+
+    /**
      * Get player score.
      *
      * @param PlayerService $player
@@ -67,7 +197,8 @@ class HighscoreService
         // Get score for research levels of player
         $score += $player->getResearchScore();
 
-        // TODO: add score for fleets that are not on a planet (flying missions).
+        // Get score for fleets that are on missions (in transit)
+        $score += $this->getPlayerFleetMissionScore($player);
 
         return $score;
     }
@@ -99,6 +230,9 @@ class HighscoreService
             $points += $planet->getPlanetMilitaryScore();
         }
 
+        // Get military score for fleets that are on missions (in transit)
+        $points += $this->getPlayerFleetMissionScoreMilitary($player);
+
         return $points;
     }
 
@@ -117,6 +251,9 @@ class HighscoreService
         foreach ($player->planets->all() as $planet) {
             $points += $planet->getPlanetScoreEconomy();
         }
+
+        // Get economy score for fleets that are on missions (in transit)
+        $points += $this->getPlayerFleetMissionScoreEconomy($player);
 
         return $points;
     }
@@ -187,6 +324,102 @@ class HighscoreService
     {
         return Cache::remember('highscore-player-count', now()->addMinutes(5), function () {
             return Highscore::query()->validRanks()->count();
+        });
+    }
+
+    /**
+     * Get alliance highscores.
+     *
+     * @param int $perPage
+     * @param int $pageOn
+     * @return array<int, array<string,mixed>>
+     */
+    public function getHighscoreAlliances(int $perPage = 100, int $pageOn = 1): array
+    {
+        // Get all alliance highscores
+        return Cache::remember(sprintf('alliance-highscores-%s-%d', $this->highscoreType->name, $pageOn), now()->addMinutes(5), function () use ($perPage, $pageOn) {
+            $parsedHighscores = [];
+
+            // Get alliances with their members
+            $alliances = \OGame\Models\Alliance::with(['members.user', 'founder'])
+                ->withCount('members')
+                ->get();
+
+            // Calculate scores for each alliance
+            $allianceScores = [];
+            foreach ($alliances as $alliance) {
+                $totalScore = 0;
+                $memberCount = 0;
+
+                foreach ($alliance->members as $member) {
+                    $highscore = Highscore::where('player_id', $member->user_id)->first();
+                    if ($highscore) {
+                        $score = $highscore->{$this->highscoreType->name} ?? 0;
+                        $totalScore += $score;
+                        $memberCount++;
+                    }
+                }
+
+                if ($memberCount > 0) {
+                    $allianceScores[] = [
+                        'id' => $alliance->id,
+                        'tag' => $alliance->tag,
+                        'name' => $alliance->name,
+                        'points' => $totalScore,
+                        'points_formatted' => AppUtil::formatNumber($totalScore),
+                        'member_count' => $memberCount,
+                        'average_points' => $memberCount > 0 ? round($totalScore / $memberCount) : 0,
+                    ];
+                }
+            }
+
+            // Sort by total points (descending)
+            usort($allianceScores, function ($a, $b) {
+                return $b['points'] <=> $a['points'];
+            });
+
+            // Add ranks
+            $rank = 1;
+            foreach ($allianceScores as &$alliance) {
+                $alliance['rank'] = $rank++;
+            }
+
+            // Paginate manually
+            $offset = ($pageOn - 1) * $perPage;
+            $parsedHighscores = array_slice($allianceScores, $offset, $perPage);
+
+            return $parsedHighscores;
+        });
+    }
+
+    /**
+     * Return rank of alliance.
+     *
+     * @param int $allianceId
+     * @return int
+     */
+    public function getHighscoreAllianceRank(int $allianceId): int
+    {
+        $alliances = $this->getHighscoreAlliances(perPage: 9999, pageOn: 1);
+        foreach ($alliances as $alliance) {
+            if ($alliance['id'] === $allianceId) {
+                return $alliance['rank'];
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Returns the amount of alliances in the game to determine paging for highscore page.
+     *
+     * @return int
+     */
+    public function getHighscoreAllianceAmount(): int
+    {
+        return Cache::remember('highscore-alliance-count', now()->addMinutes(5), function () {
+            return \OGame\Models\Alliance::withCount('members')
+                ->having('members_count', '>', 0)
+                ->count();
         });
     }
 }

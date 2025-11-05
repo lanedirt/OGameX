@@ -3,11 +3,14 @@
 namespace OGame\Factories;
 
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\ACSAttackMission;
+use OGame\GameMissions\ACSDefendMission;
 use OGame\GameMissions\AttackMission;
 use OGame\GameMissions\ColonisationMission;
 use OGame\GameMissions\DeploymentMission;
 use OGame\GameMissions\EspionageMission;
 use OGame\GameMissions\ExpeditionMission;
+use OGame\GameMissions\MissileMission;
 use OGame\GameMissions\RecycleMission;
 use OGame\GameMissions\TransportMission;
 
@@ -29,16 +32,20 @@ class GameMissionFactory
           "7": "Colonisation",
           "8": "Recycle Debris Field",
           "9": "Moon Destruction",
+          "10": "Missile Attack",
           "15": "Expedition"
         }
         */
         return [
             1 => resolve(AttackMission::class),
+            2 => resolve(ACSAttackMission::class),
             3 => resolve(TransportMission::class),
             4 => resolve(DeploymentMission::class),
+            5 => resolve(ACSDefendMission::class),
             6 => resolve(EspionageMission::class),
             7 => resolve(ColonisationMission::class),
             8 => resolve(RecycleMission::class),
+            10 => resolve(MissileMission::class),
             15 => resolve(ExpeditionMission::class),
         ];
     }
@@ -53,11 +60,14 @@ class GameMissionFactory
     {
         return match ($missionId) {
             1 => resolve(AttackMission::class, $dependencies),
+            2 => resolve(ACSAttackMission::class, $dependencies),
             3 => resolve(TransportMission::class, $dependencies),
             4 => resolve(DeploymentMission::class, $dependencies),
+            5 => resolve(ACSDefendMission::class, $dependencies),
             6 => resolve(EspionageMission::class, $dependencies),
             7 => resolve(ColonisationMission::class, $dependencies),
             8 => resolve(RecycleMission::class, $dependencies),
+            10 => resolve(MissileMission::class, $dependencies),
             15 => resolve(ExpeditionMission::class, $dependencies),
             default => throw new \RuntimeException('Mission not found: ' . $missionId),
         };
