@@ -8,6 +8,7 @@ use OGame\Enums\HighscoreTypeEnum;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Highscore;
+use OGame\Models\Resources;
 
 /**
  * Class Highscore.
@@ -50,6 +51,120 @@ class HighscoreService
     }
 
     /**
+     * Get player fleet mission score for ships currently in transit.
+     * This calculates the general score of all ships that are on active fleet missions.
+     *
+     * @param PlayerService $player
+     * @return int
+     * @throws Exception
+     */
+    private function getPlayerFleetMissionScore(PlayerService $player): int
+    {
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $player]);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
+
+        $resources_spent = new Resources(0, 0, 0, 0);
+
+        foreach ($activeMissions as $mission) {
+            // Skip processed missions (already counted on planet)
+            if ($mission->processed) {
+                continue;
+            }
+
+            // Calculate score for all ships in this mission
+            foreach (ObjectService::getShipObjects() as $ship) {
+                $amount = $mission->{$ship->machine_name} ?? 0;
+                if ($amount > 0) {
+                    $raw_price = ObjectService::getObjectRawPrice($ship->machine_name);
+                    $resources_spent->add($raw_price->multiply($amount));
+                }
+            }
+        }
+
+        return (int)floor($resources_spent->sum() / 1000);
+    }
+
+    /**
+     * Get player fleet mission military score for ships currently in transit.
+     * Military score includes:
+     * - 100% military ships
+     * - 50% civil ships
+     *
+     * @param PlayerService $player
+     * @return int
+     * @throws Exception
+     */
+    private function getPlayerFleetMissionScoreMilitary(PlayerService $player): int
+    {
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $player]);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
+
+        $resources_spent = 0;
+
+        foreach ($activeMissions as $mission) {
+            // Skip processed missions (already counted on planet)
+            if ($mission->processed) {
+                continue;
+            }
+
+            // Military ships (100%)
+            foreach (ObjectService::getMilitaryShipObjects() as $ship) {
+                $amount = $mission->{$ship->machine_name} ?? 0;
+                if ($amount > 0) {
+                    $raw_price = ObjectService::getObjectRawPrice($ship->machine_name);
+                    $resources_spent += $raw_price->multiply($amount)->sum();
+                }
+            }
+
+            // Civil ships (50%)
+            foreach (ObjectService::getCivilShipObjects() as $ship) {
+                $amount = $mission->{$ship->machine_name} ?? 0;
+                if ($amount > 0) {
+                    $raw_price = ObjectService::getObjectRawPrice($ship->machine_name);
+                    $resources_spent += $raw_price->multiply($amount)->sum() * 0.5;
+                }
+            }
+        }
+
+        return (int)floor($resources_spent / 1000);
+    }
+
+    /**
+     * Get player fleet mission economy score for ships currently in transit.
+     * Economy score includes:
+     * - 50% civil ships
+     *
+     * @param PlayerService $player
+     * @return int
+     * @throws Exception
+     */
+    private function getPlayerFleetMissionScoreEconomy(PlayerService $player): int
+    {
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $player]);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
+
+        $resources_spent = 0;
+
+        foreach ($activeMissions as $mission) {
+            // Skip processed missions (already counted on planet)
+            if ($mission->processed) {
+                continue;
+            }
+
+            // Civil ships (50%)
+            foreach (ObjectService::getCivilShipObjects() as $ship) {
+                $amount = $mission->{$ship->machine_name} ?? 0;
+                if ($amount > 0) {
+                    $raw_price = ObjectService::getObjectRawPrice($ship->machine_name);
+                    $resources_spent += $raw_price->multiply($amount)->sum() * 0.5;
+                }
+            }
+        }
+
+        return (int)floor($resources_spent / 1000);
+    }
+
+    /**
      * Get player score.
      *
      * @param PlayerService $player
@@ -67,7 +182,8 @@ class HighscoreService
         // Get score for research levels of player
         $score += $player->getResearchScore();
 
-        // TODO: add score for fleets that are not on a planet (flying missions).
+        // Get score for fleets that are on missions (in transit)
+        $score += $this->getPlayerFleetMissionScore($player);
 
         return $score;
     }
@@ -99,6 +215,9 @@ class HighscoreService
             $points += $planet->getPlanetMilitaryScore();
         }
 
+        // Get military score for fleets that are on missions (in transit)
+        $points += $this->getPlayerFleetMissionScoreMilitary($player);
+
         return $points;
     }
 
@@ -117,6 +236,9 @@ class HighscoreService
         foreach ($player->planets->all() as $planet) {
             $points += $planet->getPlanetScoreEconomy();
         }
+
+        // Get economy score for fleets that are on missions (in transit)
+        $points += $this->getPlayerFleetMissionScoreEconomy($player);
 
         return $points;
     }
