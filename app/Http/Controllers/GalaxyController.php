@@ -915,6 +915,7 @@ class GalaxyController extends OGameController
             })
                 ->where('processed', 0)
                 ->where('canceled', 0)
+                ->whereNull('parent_id') // Exclude return trips - only show outgoing missions
                 ->where('time_departure', '<=', $currentTime) // Fleet has departed
                 ->where('time_arrival', '>', $currentTime)    // Fleet hasn't arrived yet
                 ->orderBy('time_arrival', 'asc')
