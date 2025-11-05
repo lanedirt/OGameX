@@ -107,16 +107,39 @@ class ACSAttackMission extends GameMission
             return;
         }
 
-        \Log::debug('All fleets arrived! Processing combined attack', [
+        \Log::debug('All fleets arrived! Attempting to process combined attack', [
             'acs_group_id' => $acsGroup->id,
             'status' => $acsGroup->status,
         ]);
 
-        // All fleets have arrived, process the combined attack
-        // Only process if group is still pending/active
-        if ($acsGroup->status === 'pending' || $acsGroup->status === 'active') {
-            $this->processACSGroupAttack($acsGroup, $mission);
-        }
+        // Use database transaction with row locking to prevent race conditions
+        // If multiple fleets arrive simultaneously, only one will process the attack
+        \DB::transaction(function () use ($acsGroup, $mission) {
+            // Lock the ACS group row for update (prevents concurrent processing)
+            $lockedGroup = \OGame\Models\AcsGroup::where('id', $acsGroup->id)
+                ->lockForUpdate()
+                ->first();
+
+            // Double-check status after acquiring lock
+            if ($lockedGroup->status === 'pending' || $lockedGroup->status === 'active') {
+                \Log::info('Processing ACS group attack (lock acquired)', [
+                    'acs_group_id' => $lockedGroup->id,
+                    'mission_id' => $mission->id,
+                ]);
+
+                $this->processACSGroupAttack($lockedGroup, $mission);
+            } else {
+                \Log::debug('ACS group already processed by another fleet', [
+                    'acs_group_id' => $lockedGroup->id,
+                    'status' => $lockedGroup->status,
+                    'mission_id' => $mission->id,
+                ]);
+
+                // Mark this mission as processed since the group was already handled
+                $mission->processed = 1;
+                $mission->save();
+            }
+        });
     }
 
     /**
