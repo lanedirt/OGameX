@@ -36,6 +36,8 @@ return new class extends Migration
             // Indexes
             $table->index(['creator_id', 'status']);
             $table->index('arrival_time');
+            // Composite index for finding available ACS groups by target coordinates
+            $table->index(['galaxy_to', 'system_to', 'position_to', 'type_to', 'status'], 'idx_target_coords_status');
         });
     }
 
