@@ -1934,7 +1934,7 @@ class PlanetService
                 $resources_spent->add($raw_price);
             }
         }
-        $building_objects = array_merge(ObjectService::getBuildingObjects(), ObjectService::getStationObjects());
+        $unit_objects = array_merge(ObjectService::getShipObjects(), ObjectService::getDefenseObjects());
         foreach ($unit_objects as $object) {
             $raw_price = ObjectService::getObjectRawPrice($object->machine_name);
             // Multiply raw_price by the amount of units.
