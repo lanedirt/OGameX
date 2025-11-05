@@ -251,11 +251,25 @@ class ACSAttackMission extends GameMission
      */
     private function distributeLootAndLosses(array $attackerFleets, BattleResult $battleResult, PlanetService $defenderPlanet, UnitCollection $repairedDefenses): void
     {
-        // Calculate total cargo capacity of all surviving ships
-        $totalCargoCapacity = 0;
+        // First pass: Calculate surviving units and cargo capacity for each fleet
+        $fleetsWithSurvivors = [];
+        $totalSurvivingCargoCapacity = 0;
+
         foreach ($attackerFleets as $fleet) {
-            // We'll calculate surviving cargo capacity later
-            $totalCargoCapacity += $fleet['cargo_capacity'];
+            $initialUnits = $fleet['units'];
+            $fleetLossPercentage = $this->calculateFleetLossPercentage($initialUnits, $battleResult);
+            $survivingUnits = $this->calculateSurvivingUnits($initialUnits, $fleetLossPercentage);
+
+            // Calculate surviving cargo capacity
+            $survivingCargoCapacity = $survivingUnits->getTotalCargoCapacity($fleet['player']);
+            $totalSurvivingCargoCapacity += $survivingCargoCapacity;
+
+            $fleetsWithSurvivors[] = [
+                'mission' => $fleet['mission'],
+                'player' => $fleet['player'],
+                'surviving_units' => $survivingUnits,
+                'surviving_cargo_capacity' => $survivingCargoCapacity,
+            ];
         }
 
         // Get total loot from battle result
@@ -268,9 +282,12 @@ class ACSAttackMission extends GameMission
         // Track unique players to avoid sending duplicate reports to same player
         $reportedPlayers = [];
 
-        foreach ($attackerFleets as $fleet) {
-            $mission = $fleet['mission'];
-            $player = $fleet['player'];
+        // Second pass: Distribute loot based on surviving cargo capacity
+        foreach ($fleetsWithSurvivors as $fleetData) {
+            $mission = $fleetData['mission'];
+            $player = $fleetData['player'];
+            $survivingUnits = $fleetData['surviving_units'];
+            $survivingCargoCapacity = $fleetData['surviving_cargo_capacity'];
 
             // Send battle report to this attacker (only once per player)
             if (!in_array($player->getId(), $reportedPlayers)) {
@@ -278,13 +295,8 @@ class ACSAttackMission extends GameMission
                 $reportedPlayers[] = $player->getId();
             }
 
-            // Calculate this fleet's share of losses
-            $initialUnits = $fleet['units'];
-            $fleetLossPercentage = $this->calculateFleetLossPercentage($initialUnits, $battleResult);
-            $survivingUnits = $this->calculateSurvivingUnits($initialUnits, $fleetLossPercentage);
-
-            // Calculate this fleet's share of loot based on cargo capacity
-            $cargoShare = $totalCargoCapacity > 0 ? ($fleet['cargo_capacity'] / $totalCargoCapacity) : 0;
+            // Calculate this fleet's share of loot based on SURVIVING cargo capacity
+            $cargoShare = $totalSurvivingCargoCapacity > 0 ? ($survivingCargoCapacity / $totalSurvivingCargoCapacity) : 0;
             $fleetLoot = new Resources(
                 (int)($totalLoot->metal->get() * $cargoShare),
                 (int)($totalLoot->crystal->get() * $cargoShare),
