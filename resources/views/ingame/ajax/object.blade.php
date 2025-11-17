@@ -202,7 +202,7 @@
                     <button class="upgrade"
                             @php
                                 $disabled_shipyard_upgrading = ($object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object->type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense) && $shipyard_upgrading;
-                                $ships_being_built = $object->machine_name == 'shipyard' && $ship_or_defense_in_progress;
+                                $ships_being_built = ( $object->machine_name == 'shipyard' ||  $object->machine_name == 'nano_factory') && $ship_or_defense_in_progress;
                             @endphp
 
                             @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading || $ships_being_built))
