@@ -20,10 +20,12 @@
         <td class="originFleet">
             @switch ($fleet_event_row->destination_planet_type)
                 @case (OGame\Models\Enums\PlanetType::Planet)
-                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>{{ $fleet_event_row->destination_planet_name }}
+                    <figure class="planetIcon planet js_hideTipOnMobile"
+                            title="Planet"></figure>{{ $fleet_event_row->destination_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::Moon)
-                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>{{ $fleet_event_row->destination_planet_name }}
+                    <figure class="planetIcon moon js_hideTipOnMobile"
+                            title="Moon"></figure>{{ $fleet_event_row->destination_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
@@ -91,10 +93,12 @@
         <td class="destFleet">
             @switch ($fleet_event_row->origin_planet_type)
                 @case (OGame\Models\Enums\PlanetType::Planet)
-                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>{{ $fleet_event_row->origin_planet_name }}
+                    <figure class="planetIcon planet js_hideTipOnMobile"
+                            title="Planet"></figure>{{ $fleet_event_row->origin_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::Moon)
-                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>{{ $fleet_event_row->origin_planet_name }}
+                    <figure class="planetIcon moon js_hideTipOnMobile"
+                            title="Moon"></figure>{{ $fleet_event_row->origin_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
@@ -138,10 +142,12 @@
         <td class="originFleet">
             @switch ($fleet_event_row->origin_planet_type)
                 @case (OGame\Models\Enums\PlanetType::Planet)
-                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>{{ $fleet_event_row->origin_planet_name }}
+                    <figure class="planetIcon planet js_hideTipOnMobile"
+                            title="Planet"></figure>{{ $fleet_event_row->origin_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::Moon)
-                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>{{ $fleet_event_row->origin_planet_name }}
+                    <figure class="planetIcon moon js_hideTipOnMobile"
+                            title="Moon"></figure>{{ $fleet_event_row->origin_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
@@ -209,10 +215,12 @@
         <td class="destFleet">
             @switch ($fleet_event_row->destination_planet_type)
                 @case (OGame\Models\Enums\PlanetType::Planet)
-                    <figure class="planetIcon planet js_hideTipOnMobile" title="Planet"></figure>{{ $fleet_event_row->destination_planet_name }}
+                    <figure class="planetIcon planet js_hideTipOnMobile"
+                            title="Planet"></figure>{{ $fleet_event_row->destination_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::Moon)
-                    <figure class="planetIcon moon js_hideTipOnMobile" title="Moon"></figure>{{ $fleet_event_row->destination_planet_name }}
+                    <figure class="planetIcon moon js_hideTipOnMobile"
+                            title="Moon"></figure>{{ $fleet_event_row->destination_planet_name }}
                     @break
                 @case (OGame\Models\Enums\PlanetType::DebrisField)
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
@@ -228,12 +236,12 @@
                 [{{ $fleet_event_row->destination_planet_coords->asString() }}]
             </a>
         </td>
-
         <td class="sendMail">
             @if ($fleet_event_row->is_recallable)
                 <span class="reversal reversal_time" ref="{{ $fleet_event_row->id }}">
                     <a class="icon_link tooltipHTML recallFleet" data-fleet-id="{{ $fleet_event_row->id }}"
-                       title="Recall:| 22.04.2024<br>15:28:45">
+                       title="Recall:| {{ \Carbon\Carbon::parse($fleet_event_row->active_recall_time)->format('d.m.Y') }}<br>
+                                            {{ \Carbon\Carbon::parse($fleet_event_row->active_recall_time)->format('H:i:s') }}">
                         <img src="/img/icons/89624964d4b06356842188dba05b1b.gif" height="16" width="16"/>
                     </a>
                 </span>

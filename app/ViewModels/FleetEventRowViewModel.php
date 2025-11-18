@@ -14,6 +14,7 @@ class FleetEventRowViewModel
     public string $mission_label;
     public int $mission_time_arrival;
     public bool $is_return_trip;
+    public int $active_recall_time;
 
     /**
      * @var bool Whether the fleet can be recalled or not. E.g. enemy missions show up in the event box but can't be recalled.
