@@ -58,7 +58,6 @@ class ExpeditionMission extends GameMission
     public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources): void
     {
         parent::startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $resources);
-
         // Check if there are enough expedition slots available.
         if ($planet->getPlayer()->getExpeditionSlotsInUse() >= $planet->getPlayer()->getExpeditionSlotsMax()) {
             throw new Exception('You are conducting too many expeditions at the same time.');

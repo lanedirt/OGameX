@@ -184,6 +184,19 @@ abstract class GameMission
 
         $this->startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $deduct_resources);
 
+        $totalCargoCapacity = $units->getTotalCargoCapacity($planet->getPlayer());
+
+        // Check if the player has sufficient deuterium storage capacity for the fleet.
+        if ($totalCargoCapacity < $consumption) {
+            throw new Exception(__('You don\'t have sufficient storage capacity!'));
+        }
+
+        // Check if the fleet will exceed the fleet cargo capacity.
+        $total_resources = $resources->sum();
+        if ($total_resources > $totalCargoCapacity) {
+            throw new Exception('Resources exceed fleet cargo capacity.');
+        }
+
         // Time this fleet mission will depart (now).
         $time_start = (int)Carbon::now()->timestamp;
 

@@ -175,7 +175,6 @@ class FleetMissionService
 
         $distance = $this->calculateFleetMissionDistance($fromPlanet, $targetCoordinate);
         $duration = $this->calculateFleetMissionDuration($fromPlanet, $targetCoordinate, $ships, $speedPercent);
-
         $speedValue = max(0.5, $duration * $this->settingsService->fleetSpeed() - 10);
         foreach ($ships->units as $shipEntry) {
             // Get the ship object and amount
