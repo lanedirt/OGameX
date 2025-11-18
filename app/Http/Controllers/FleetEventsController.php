@@ -127,6 +127,8 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
             $eventRowViewModel->resources = $fleetMissionService->getResources($row);
 
+            $eventRowViewModel->active_recall_time = time() + (time() - $row->time_departure);
+
             $friendlyStatus = $this->determineFriendly($row, $player);
 
             $eventRowViewModel->is_recallable = false;

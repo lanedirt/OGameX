@@ -1,3 +1,4 @@
+
 @extends('ingame.layouts.main')
 
 @section('content')
