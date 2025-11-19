@@ -19,6 +19,7 @@ use OGame\Http\Controllers\NotesController;
 use OGame\Http\Controllers\OptionsController;
 use OGame\Http\Controllers\OverviewController;
 use OGame\Http\Controllers\PaymentController;
+use OGame\Http\Controllers\PhalanxController;
 use OGame\Http\Controllers\PlanetAbandonController;
 use OGame\Http\Controllers\PlanetMoveController;
 use OGame\Http\Controllers\PremiumController;
@@ -100,6 +101,9 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     // Galaxy
     Route::get('/galaxy', [GalaxyController::class, 'index'])->name('galaxy.index');
     Route::post('/ajax/galaxy', [GalaxyController::class, 'ajax'])->name('galaxy.ajax');
+
+    // Phalanx
+    Route::post('/ajax/phalanx/scan', [PhalanxController::class, 'scan'])->name('phalanx.scan');
 
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');

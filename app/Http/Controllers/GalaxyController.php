@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
+use OGame\Models\Planet\Coordinate;
 use OGame\Services\DebrisFieldService;
+use OGame\Services\PhalanxService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
@@ -73,11 +75,12 @@ class GalaxyController extends OGameController
      * @param int $system
      * @param PlayerService $player
      * @param PlanetServiceFactory $planetServiceFactory
+     * @param PhalanxService $phalanxService
      *
      * @return array<mixed>
      * @throws Exception
      */
-    public function getGalaxyArray(int $galaxy, int $system, PlayerService $player, PlanetServiceFactory $planetServiceFactory): array
+    public function getGalaxyArray(int $galaxy, int $system, PlayerService $player, PlanetServiceFactory $planetServiceFactory, PhalanxService $phalanxService): array
     {
         $this->playerService = $player;
         $this->planetServiceFactory = $planetServiceFactory;
@@ -99,7 +102,7 @@ class GalaxyController extends OGameController
         $galaxy_rows = [];
         for ($i = 1; $i <= 15; $i++) {
             if (!empty($planets[$i])) {
-                $galaxy_rows[] = $this->createPlanetRow($galaxy, $system, $i, $planets[$i]);
+                $galaxy_rows[] = $this->createPlanetRow($galaxy, $system, $i, $planets[$i], $phalanxService);
             } else {
                 $galaxy_rows[] = $this->createEmptySpaceRow($galaxy, $system, $i);
             }
@@ -115,15 +118,16 @@ class GalaxyController extends OGameController
      * @param int $system
      * @param int $position
      * @param PlanetService $planet
+     * @param PhalanxService $phalanxService
      * @return array<string, mixed>
      */
-    private function createPlanetRow(int $galaxy, int $system, int $position, PlanetService $planet): array
+    private function createPlanetRow(int $galaxy, int $system, int $position, PlanetService $planet, PhalanxService $phalanxService): array
     {
         $availableMissions = $this->getAvailableMissions($galaxy, $system, $position, $planet);
         $planets_array = $this->createPlanetsArray($planet, $availableMissions);
 
         return [
-            'actions' => $this->getPlanetActions($planet),
+            'actions' => $this->getPlanetActions($planet, $galaxy, $system, $position, $phalanxService),
             'availableMissions' => [],
             'galaxy' => $galaxy,
             'planets' => $planets_array,
@@ -306,20 +310,64 @@ class GalaxyController extends OGameController
      * Gets available actions for a planet.
      *
      * @param PlanetService $planet
+     * @param int $galaxy
+     * @param int $system
+     * @param int $position
+     * @param PhalanxService $phalanxService
      * @return array<string, bool|string>
      */
-    private function getPlanetActions(PlanetService $planet): array
+    private function getPlanetActions(PlanetService $planet, int $galaxy, int $system, int $position, PhalanxService $phalanxService): array
     {
         // Check if the current planet of the player has enough espionage probes and research level
         // to be able to spy on the target planet.
         $canEspionage = $this->playerService->planets->current()->getObjectAmount('espionage_probe') > 0 && $this->playerService->getResearchLevel('espionage_technology') > 0;
+
+        // Check if current planet is a moon with sensor phalanx and target is in range
+        // Note: Moons cannot be scanned (OGame rule)
+        // Note: Cannot scan own planets
+        // Note: Admin planets cannot be scanned
+        $can_phalanx = false;
+        $phalanx_inactive_reason = '';
+        $current_planet = $this->playerService->planets->current();
+
+        // Check if phalanx can be used: must be on moon, target must be planet, not own planet, not admin
+        if ($current_planet->isMoon()
+            && !$planet->isMoon()
+            && $planet->getPlayer()->getId() !== $this->playerService->getId()
+            && !$planet->getPlayer()->isAdmin()) {
+            // All basic checks passed, now check phalanx level and range
+            $phalanx_level = $current_planet->getObjectLevel('sensor_phalanx');
+            if ($phalanx_level > 0) {
+                $target_coordinate = new Coordinate($galaxy, $system, $position);
+                $moon_coordinates = $current_planet->getPlanetCoordinates();
+                $in_range = $phalanxService->canScanTarget(
+                    $moon_coordinates->galaxy,
+                    $moon_coordinates->system,
+                    $phalanx_level,
+                    $target_coordinate
+                );
+
+                if ($in_range) {
+                    // Check deuterium
+                    $has_deuterium = $phalanxService->hasEnoughDeuterium($current_planet->deuterium()->get());
+                    if ($has_deuterium) {
+                        $can_phalanx = true;
+                    } else {
+                        $phalanx_inactive_reason = 'Not enough deuterium to use phalanx';
+                    }
+                }
+            }
+        }
 
         return [
             'canBeIgnored' => false,
             'canBuddyRequests' => false,
             'canEspionage' => $canEspionage,
             'canMissileAttack' => false,
-            'canPhalanx' => false,
+            'canPhalanx' => $can_phalanx || !empty($phalanx_inactive_reason),
+            'phalanxActive' => $can_phalanx,
+            'phalanxInactive' => !empty($phalanx_inactive_reason),
+            'phalanxInactiveReason' => $phalanx_inactive_reason,
             'canSendProbes' => $canEspionage,
             'canWrite' => false,
             'discoveryUnlocked' => 'You haven\'t unlocked the research to discover new lifeforms yet.\n',
@@ -420,9 +468,10 @@ class GalaxyController extends OGameController
      * @param Request $request
      * @param PlayerService $player
      * @param PlanetServiceFactory $planetServiceFactory
+     * @param PhalanxService $phalanxService
      * @return JsonResponse
      */
-    public function ajax(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): JsonResponse
+    public function ajax(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory, PhalanxService $phalanxService): JsonResponse
     {
         $this->playerService = $player;
         $this->planetServiceFactory = $planetServiceFactory;
@@ -430,8 +479,15 @@ class GalaxyController extends OGameController
         $planet = $player->planets->current();
         $galaxy = $request->input('galaxy');
         $system = $request->input('system');
-        $galaxyContent = $this->getGalaxyArray($galaxy, $system, $player, $planetServiceFactory);
+        $galaxyContent = $this->getGalaxyArray($galaxy, $system, $player, $planetServiceFactory, $phalanxService);
         $slotsColonized = $this->calculateColonizedSlots($galaxyContent);
+
+        // Check if current planet is a moon with sensor phalanx
+        $can_system_phalanx = false;
+        if ($planet->isMoon()) {
+            $phalanx_level = $planet->getObjectLevel('sensor_phalanx');
+            $can_system_phalanx = $phalanx_level > 0;
+        }
 
         return response()->json([
             'components' => [],
@@ -451,7 +507,7 @@ class GalaxyController extends OGameController
                 'canSendSystemDiscovery' => true,
                 'canSwitchGalaxy' => true,
                 'canSystemEspionage' => false,
-                'canSystemPhalanx' => false,
+                'canSystemPhalanx' => $can_system_phalanx,
                 'currentPlanetId' => $planet->getPlanetId(),
                 'deuteriumInDebris' => true,
                 'galaxy' => $galaxy,
