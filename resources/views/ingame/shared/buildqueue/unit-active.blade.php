@@ -8,7 +8,10 @@
         <tr class="data">
             <td class="first" rowspan="5">
                 <div>
-                    <a href="{{ route('shipyard.index', ['openTech' => $build_active->object->id]) }}">
+                    <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile tpd-hideOnClickOutside"
+                       style="display: block;"
+                       onclick="cancelbuilding({!! $build_active->object->id !!},{!! $build_active->id !!},'Cancel production of {!! $build_active->object_amount_remaining !!}x {!! $build_active->object->title !!}?'); return false;"
+                       title="">
                         <img class="queuePic" width="40" height="40"
                              src="{!! asset('img/objects/units/' . $build_active->object->assets->imgSmall) !!}"
                              alt="{{ $build_active->object->title }}">

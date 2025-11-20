@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\ViewModels\Queue\UnitQueueListViewModel;
 use OGame\ViewModels\Queue\UnitQueueViewModel;
@@ -246,5 +247,49 @@ class UnitQueueService
         }
 
         return 0;
+    }
+
+    /**
+     * Cancels an active unit queue record.
+     *
+     * @param PlanetService $planet
+     * @param int $unit_queue_id
+     * @param int $unit_id
+     * @throws Exception
+     */
+    public function cancel(PlanetService $planet, int $unit_queue_id, int $unit_id): void
+    {
+        $queue_item = UnitQueue::where([
+            ['id', $unit_queue_id],
+            ['planet_id', $planet->getPlanetId()],
+            ['object_id', $unit_id],
+            ['processed', 0],
+        ])->first();
+
+        // If object is found: cancel and refund resources
+        if (!$queue_item) {
+            throw new Exception('Unit queue item not found or already processed');
+        }
+
+        // Calculate remaining units to refund
+        $remaining_amount = $queue_item->object_amount - ($queue_item->object_amount_progress ?? 0);
+
+        // Only refund if there are remaining units and object_amount is valid
+        if ($remaining_amount > 0 && $queue_item->object_amount > 0) {
+            // Calculate refund directly: refund = stored_resource * remaining_amount / object_amount
+            // This formula avoids float precision issues from dividing then multiplying
+            // Example: If 100 units cost 200,000 resources and 30 units are built,
+            // refund = 200,000 * 70 / 100 = 140,000 (for the remaining 70 units)
+            $refund_metal = ($queue_item->metal * $remaining_amount) / $queue_item->object_amount;
+            $refund_crystal = ($queue_item->crystal * $remaining_amount) / $queue_item->object_amount;
+            $refund_deuterium = ($queue_item->deuterium * $remaining_amount) / $queue_item->object_amount;
+
+            // Refund resources (keep as float for precision, database handles float)
+            $planet->addResources(new Resources($refund_metal, $refund_crystal, $refund_deuterium, 0));
+        }
+
+        // Mark as processed (canceled)
+        $queue_item->processed = 1;
+        $queue_item->save();
     }
 }

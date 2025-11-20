@@ -44,8 +44,19 @@
                     </div>
                     <script type="text/javascript">
                         var scheduleBuildListEntryUrl = '{{ route('shipyard.addbuildrequest') }}';
+                        var cancelBuildListEntryUrl = '{{ route('defense.cancelbuildrequest') }}';
                         var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
                         redirectPremiumLink = '#TODO_index.php?page=premium&showDarkMatter=1'
+
+                        function cancelbuilding(id, listId, question) {
+                            errorBoxDecision('Caution', "" + question + "", 'yes', 'No', function () {
+                                buildListActionCancel(id, listId)
+                            });
+                        }
+
+                        function buildListActionCancel(id, listId) {
+                            $('<form id="cancelProductionStart" action="' + cancelBuildListEntryUrl + '" method="POST" style="display: none;">{{ csrf_field() }}<input type="hidden" name="technologyId" value="' + id + '" /> <input type="hidden" name="listId" value="' + listId + '" /></form>').appendTo('body').submit();
+                        }
                     </script>
                 </div>
             </div>

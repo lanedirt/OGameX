@@ -155,4 +155,38 @@ abstract class AbstractUnitsController extends OGameController
             'message' => 'Added to build order.',
         ]);
     }
+
+    /**
+     * Handles an incoming cancel buildrequest.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws Exception
+     */
+    public function cancelBuildRequest(Request $request, PlayerService $player)
+    {
+        // Explicitly verify CSRF token
+        if (!hash_equals($request->session()->token(), $request->input('_token'))) {
+            return redirect()->route($this->route_view_index)
+                ->with('error', 'Invalid token.');
+        }
+
+        $unit_id = $request->input('technologyId');
+        $unit_queue_id = $request->input('listId');
+
+        if (!$unit_id || !$unit_queue_id) {
+            return redirect()->route($this->route_view_index)
+                ->with('error', 'Missing required parameters.');
+        }
+
+        try {
+            $this->queue->cancel($player->planets->current(), $unit_queue_id, $unit_id);
+
+            return redirect()->route($this->route_view_index);
+        } catch (Exception $e) {
+            return redirect()->route($this->route_view_index)
+                ->with('error', 'Failed to cancel: ' . $e->getMessage());
+        }
+    }
 }
