@@ -13,8 +13,6 @@ use Tests\AccountTestCase;
 
 class FleetSpeedTypeTest extends AccountTestCase
 {
-    use RefreshDatabase;
-
     /**
      * Test exact duration with war fleet speed.
      * Verifies that with specific settings and units, the duration is calculated correctly.
