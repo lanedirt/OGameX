@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\FleetDispatch;
 
-use OGame\GameMissions\ExpeditionMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\Models\Resources;

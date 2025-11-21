@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\GameMissions\AttackMission;
-use OGame\GameMissions\DeploymentMission;
 use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Services\FleetMissionService;
@@ -93,7 +92,6 @@ class FleetSpeedTypeTest extends AccountTestCase
             $transportMission,
             10
         );
-
 
         // With peaceful speed 3x, combustion 10, 1 system distance
         // Expected: 1954 seconds (32 minutes 34 seconds) (calculated from formula)
