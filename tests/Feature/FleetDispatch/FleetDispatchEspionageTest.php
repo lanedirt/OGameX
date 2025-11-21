@@ -4,6 +4,7 @@ namespace Tests\Feature\FleetDispatch;
 
 use Exception;
 use Illuminate\Support\Carbon;
+use OGame\GameMissions\EspionageMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\EspionageReport;
 use OGame\Models\Planet;
@@ -42,7 +43,9 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Set the fleet speed to 1x for this test.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
-        $settingsService->set('fleet_speed', 1);
+        $settingsService->set('fleet_speed_war', 1);
+        $settingsService->set('fleet_speed_holding', 1);
+        $settingsService->set('fleet_speed_peaceful', 1);
     }
 
     protected function messageCheckMissionArrival(): void
@@ -271,7 +274,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection, resolve(EspionageMission::class));
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();

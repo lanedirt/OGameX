@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\FleetDeployment;
 use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMissions\Abstracts\GameMission;
@@ -17,6 +18,14 @@ class DeploymentMission extends GameMission
     protected static string $name = 'Deployment';
     protected static int $typeId = 4;
     protected static bool $hasReturnMission = false;
+
+    /**
+     * @inheritdoc
+     */
+    public function getFleetSpeedType(): FleetSpeedType
+    {
+        return FleetSpeedType::peaceful;
+    }
 
     /**
      * @inheritdoc

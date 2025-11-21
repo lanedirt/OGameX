@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\FleetDispatch;
 
+use OGame\GameMissions\ExpeditionMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\Models\Resources;
@@ -45,7 +46,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Set the fleet and economy speed to 1x for this test.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 1);
-        $settingsService->set('fleet_speed', 1);
+        $settingsService->set('fleet_speed_war', 1);
+        $settingsService->set('fleet_speed_holding', 1);
+        $settingsService->set('fleet_speed_peaceful', 1);
         $this->planetAddResources(new Resources(0, 0, 100000, 0));
     }
 

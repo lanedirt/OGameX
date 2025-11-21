@@ -21,6 +21,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\Highscore;
+use OGame\Enums\FleetSpeedType;
 use OGame\Enums\HighscoreTypeEnum;
 use OGame\Services\PlanetService;
 use OGame\Services\ObjectService;
@@ -32,6 +33,14 @@ class ExpeditionMission extends GameMission
     protected static string $name = 'Expedition';
     protected static int $typeId = 15;
     protected static bool $hasReturnMission = true;
+
+    /**
+     * @inheritdoc
+     */
+    public function getFleetSpeedType(): FleetSpeedType
+    {
+        return FleetSpeedType::peaceful;
+    }
 
     /**
      * Configurable outcome weights based on community research.
@@ -229,7 +238,8 @@ class ExpeditionMission extends GameMission
 
         // Apply universe fleet speed modifier
         // Formula: Actual Delay = Base Delay / Fleet Speed
-        $fleetSpeed = $this->settings->fleetSpeed();
+        // Expeditions use peaceful fleet speed
+        $fleetSpeed = $this->settings->fleetSpeedPeaceful();
         $additionalReturnTripTime = intval($baseAdditionalReturnTripTime / $fleetSpeed);
 
         // Send a message to the player with the failure and delay outcome

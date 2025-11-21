@@ -5,7 +5,9 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use OGame\Enums\FleetSpeedType;
 use OGame\Factories\GameMissionFactory;
+use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
@@ -66,16 +68,30 @@ class FleetMissionService
      * @param PlanetService $fromPlanet
      * @param Coordinate $to
      * @param UnitCollection $units
+     * @param GameMission|null $mission
+     * @param float $speed_percent
      * @return int
      */
-    public function calculateFleetMissionDuration(PlanetService $fromPlanet, Coordinate $to, UnitCollection $units, float $speed_percent = 10): int
+    public function calculateFleetMissionDuration(PlanetService $fromPlanet, Coordinate $to, UnitCollection $units, GameMission|null $mission = null, float $speed_percent = 10): int
     {
         // Get slowest unit speed.
         $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet->getPlayer());
         $distance = $this->calculateFleetMissionDistance($fromPlanet, $to);
+
+        // Determine which fleet speed to use based on mission type.
+        // If no mission is provided, use the old fleet_speed for backward compatibility (e.g., for consumption calculations).
+        if ($mission === null) {
+            $fleetSpeed = $this->settingsService->fleetSpeed();
+        } else {
+            $fleetSpeed = match ($mission->getFleetSpeedType()) {
+                FleetSpeedType::war => $this->settingsService->fleetSpeedWar(),
+                FleetSpeedType::holding => $this->settingsService->fleetSpeedHolding(),
+                FleetSpeedType::peaceful => $this->settingsService->fleetSpeedPeaceful(),
+            };
+        }
         return (int) max(
             round(
-                (35000 / $speed_percent * sqrt($distance * 10 / $slowest_speed) + 10) / $this->settingsService->fleetSpeed()
+                (35000 / $speed_percent * sqrt($distance * 10 / $slowest_speed) + 10) / $fleetSpeed
             ),
             1
         );
@@ -174,7 +190,7 @@ class FleetMissionService
         $holdingCosts = 0;
 
         $distance = $this->calculateFleetMissionDistance($fromPlanet, $targetCoordinate);
-        $duration = $this->calculateFleetMissionDuration($fromPlanet, $targetCoordinate, $ships, $speedPercent);
+        $duration = $this->calculateFleetMissionDuration($fromPlanet, $targetCoordinate, $ships, null, $speedPercent);
         $speedValue = max(0.5, $duration * $this->settingsService->fleetSpeed() - 10);
         foreach ($ships->units as $shipEntry) {
             // Get the ship object and amount

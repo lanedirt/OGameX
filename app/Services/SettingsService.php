@@ -104,6 +104,36 @@ class SettingsService
     }
 
     /**
+     * Returns the war fleet speed setting.
+     *
+     * @return int
+     */
+    public function fleetSpeedWar(): int
+    {
+        return (int)$this->get('fleet_speed_war', 1);
+    }
+
+    /**
+     * Returns the holding fleet speed setting.
+     *
+     * @return int
+     */
+    public function fleetSpeedHolding(): int
+    {
+        return (int)$this->get('fleet_speed_holding', 1);
+    }
+
+    /**
+     * Returns the peaceful fleet speed setting.
+     *
+     * @return int
+     */
+    public function fleetSpeedPeaceful(): int
+    {
+        return (int)$this->get('fleet_speed_peaceful', 1);
+    }
+
+    /**
      * Returns the fleet speed setting.
      *
      * @return int
