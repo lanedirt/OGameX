@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use OGame\Factories\GameMissionFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
@@ -255,19 +256,12 @@ class PhalanxService
      */
     private function getMissionTypeName(int $mission_type): string
     {
-        return match($mission_type) {
-            1 => 'Attack',
-            2 => 'ACS Attack',
-            3 => 'Transport',
-            4 => 'Deployment',
-            5 => 'ACS Defend',
-            6 => 'Espionage',
-            7 => 'Colonization',
-            8 => 'Recycle',
-            9 => 'Moon Destruction',
-            15 => 'Expedition',
-            default => 'Unknown',
-        };
+        try {
+            // Use GameMissionFactory for centralized mission definitions
+            return GameMissionFactory::getMissionById($mission_type, [])->getName();
+        } catch (\RuntimeException $e) {
+            return 'Unknown';
+        }
     }
 
     /**
@@ -302,19 +296,13 @@ class PhalanxService
      */
     private function missionHasReturnTrip(int $mission_type): bool
     {
-        return match($mission_type) {
-            1 => true,  // Attack
-            2 => true,  // ACS Attack
-            3 => true,  // Transport
-            6 => true,  // Espionage
-            8 => true,  // Recycle
-            9 => true,  // Moon Destruction
-            15 => true, // Expedition
-            4 => false, // Deployment (stays at destination)
-            5 => true, // ACS Defend (stays at destination)
-            7 => true, // Colonization (colony ship is consumed)
-            default => false,
-        };
+        try {
+            // Use GameMissionFactory for centralized mission definitions
+            return GameMissionFactory::getMissionById($mission_type, [])->hasReturnMission();
+        } catch (\RuntimeException $e) {
+            // Fallback for unimplemented missions (2, 5, 9) - all have return trips
+            return true;
+        }
     }
 
     /**
@@ -325,25 +313,17 @@ class PhalanxService
      */
     private function getFleetShips(FleetMission $mission): array
     {
-        $ship_types = [
-            'small_cargo' => $mission->small_cargo ?? 0,
-            'large_cargo' => $mission->large_cargo ?? 0,
-            'light_fighter' => $mission->light_fighter ?? 0,
-            'heavy_fighter' => $mission->heavy_fighter ?? 0,
-            'cruiser' => $mission->cruiser ?? 0,
-            'battleship' => $mission->battleship ?? 0,
-            'colony_ship' => $mission->colony_ship ?? 0,
-            'recycler' => $mission->recycler ?? 0,
-            'espionage_probe' => $mission->espionage_probe ?? 0,
-            'bomber' => $mission->bomber ?? 0,
-            'solar_satellite' => $mission->solar_satellite ?? 0,
-            'destroyer' => $mission->destroyer ?? 0,
-            'deathstar' => $mission->deathstar ?? 0,
-            'battlecruiser' => $mission->battlecruiser ?? 0,
-        ];
+        $ship_types = [];
 
-        // Filter out ships with 0 count
-        return array_filter($ship_types, fn ($count) => $count > 0);
+        // Dynamically get all ship objects from the game system
+        foreach (ObjectService::getShipObjects() as $ship) {
+            $amount = $mission->{$ship->machine_name} ?? 0;
+            if ($amount > 0) {
+                $ship_types[$ship->machine_name] = $amount;
+            }
+        }
+
+        return $ship_types;
     }
 
     /**
