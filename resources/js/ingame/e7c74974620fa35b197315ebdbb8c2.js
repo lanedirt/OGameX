@@ -48349,15 +48349,20 @@ function renderPhalanx(galaxyContentObject) {
     player
   } = galaxyContentObject;
 
-  if (player) {
-    if (galaxyContentObject.actions.canPhalanx) {
-      if (player.phalanx.inactive) {
-        $("#galaxyRow" + galaxyContentObject.position + " .cellPlanetName").append(`<div class="tooltip js_hideTipOnMobile phalanxInctive" title="${loca.LOCA_PHALANX_ERROR_NOT_ENOUTH_DEUT}"></div>`);
-      } else {
-        $("#galaxyRow" + galaxyContentObject.position + " .cellPlanetName").append('<a class="overlay phalanxlink"></a>');
-        $("#galaxyRow" + galaxyContentObject.position + " .cellPlanetName .phalanxlink").attr('href', player.phalanx.link).append(`<div class="tooltip js_hideTipOnMobile phalanxActive"></div>`).attr("data-overlay-title", player.phalanx.title).attr("data-overlay-class", "phalanx").attr("data-overlay-token", token).attr("data-overlay-token-id", "phalanxDialog");
-        $("#galaxyRow" + galaxyContentObject.position + " .cellPlanetName .phalanxActive").attr('title', loca.LOCA_GALAXY_USE_PHALANX);
-      }
+  if (player && galaxyContentObject.actions.canPhalanx) {
+    if (galaxyContentObject.actions.phalanxInactive) {
+      // Show inactive phalanx with tooltip
+      $("#galaxyRow" + galaxyContentObject.position + " .cellPlanetName").append(`<div class="tooltip js_hideTipOnMobile phalanxInctive" title="${galaxyContentObject.actions.phalanxInactiveReason}"></div>`);
+    } else {
+      // Show active phalanx with click handler
+      $("#galaxyRow" + galaxyContentObject.position + " .cellPlanetName").append('<a class="phalanxlink" href="javascript:void(0);"></a>');
+      $("#galaxyRow" + galaxyContentObject.position + " .cellPlanetName .phalanxlink").append(`<div class="tooltip js_hideTipOnMobile phalanxActive"></div>`).attr('title', 'Use phalanx');
+
+      // Add onclick handler for phalanx scan
+      $("#galaxyRow" + galaxyContentObject.position + " .cellPlanetName .phalanxlink").on('click', function(e) {
+        e.preventDefault();
+        scanWithPhalanx(galaxyContentObject.galaxy, galaxyContentObject.system, galaxyContentObject.position);
+      });
     }
   }
 }

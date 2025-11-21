@@ -439,6 +439,196 @@
             var spaceObjectTypePlanet = 1
             var expeditionPosition = 16
 
+            // Update deuterium after phalanx scan
+            function updateDeuteriumAfterScan(scanCost) {
+                if (scanCost && typeof resourcesBar !== 'undefined') {
+                    var newDeuterium = resourcesBar.resources.deuterium.amount - scanCost;
+                    resourcesBar.resources.deuterium.amount = newDeuterium;
+                    var deuteriumElement = $('#resources_deuterium');
+                    deuteriumElement.attr('data-raw', newDeuterium);
+                    deuteriumElement.text(newDeuterium.toLocaleString('de-DE'));
+                }
+            }
+
+            // Phalanx scan functionality
+            function scanWithPhalanx(galaxy, system, position) {
+                var scan_url = "{{ route('phalanx.scan') }}";
+                var csrf_token = "{{ csrf_token() }}";
+
+                $.ajax({
+                    url: scan_url,
+                    type: 'POST',
+                    data: {
+                        _token: csrf_token,
+                        galaxy: galaxy,
+                        system: system,
+                        position: position
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            updateDeuteriumAfterScan(response.scan_cost);
+                            showPhalanxResults(response);
+                        } else {
+                            alert('Phalanx scan failed: ' + (response.error || 'Unknown error'));
+                        }
+                    },
+                    error: function(xhr) {
+                        var error_message = 'Phalanx scan failed';
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            error_message = xhr.responseJSON.error;
+                        }
+                        alert(error_message);
+                    }
+                });
+            }
+
+            function showPhalanxResults(data) {
+                // Build OGame-style phalanx dialog
+                var coords = data.target.galaxy + ':' + data.target.system + ':' + data.target.position;
+                var dialog_title = coords + ' sensor report';
+
+                if (data.target.planet_name && data.target.player_name) {
+                    dialog_title = data.target.planet_name + ' ' + coords + ' (' + data.target.player_name + ') sensor report';
+                }
+
+                // If error, wrap error_message in div
+                var content_html = data.content_html;
+                if (data.is_error) {
+                    content_html = '<div id="phalanxEventContent">' + data.error_message + '</div>';
+                }
+
+                var modal_html = '<div id="phalanx-dialog" tabindex="-1" role="dialog" class="ui-dialog ui-corner-all ui-widget ui-widget-content ui-front ui-draggable" style="display: none; height: auto; width: auto;" aria-describedby="phalanx-content" aria-labelledby="phalanx-title">';
+                modal_html += '<div class="ui-dialog-titlebar ui-corner-all ui-widget-header ui-helper-clearfix ui-draggable-handle">';
+                modal_html += '<span id="phalanx-title" class="ui-dialog-title">' + dialog_title;
+
+                // Refresh button inside title
+                modal_html += '<a class="refreshPhalanxLink tooltip js_hideTipOnMobile overlay fleft" data-overlay-same="true" ';
+                modal_html += 'href="javascript:void(0)" onclick="refreshPhalanxContent(' + data.target.galaxy + ',' + data.target.system + ',' + data.target.position + ')" ';
+                modal_html += 'data-tooltip-title="Refresh">';
+                modal_html += '<span class="icon icon_reload"></span>';
+                modal_html += '</a>';
+
+                modal_html += '</span>';
+                modal_html += '<button type="button" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" onclick="closePhalanxModal()" title="">';
+                modal_html += '<span class="ui-button-icon ui-icon ui-icon-closethick"></span>';
+                modal_html += '<span class="ui-button-icon-space"> </span>';
+                modal_html += '</button>';
+                modal_html += '</div>';
+
+                modal_html += '<div id="phalanx-content" class="overlayDiv phalanx ui-dialog-content ui-widget-content" style="width: auto; min-height: 112px; max-height: none; height: auto;" data-page="ajax">';
+                modal_html += '<div id="phalanxWrap">';
+                // Insert HTML from backend
+                modal_html += content_html;
+                modal_html += '</div>'; // End phalanxWrap
+                modal_html += '</div>'; // End dialog-content
+                modal_html += '</div>'; // End dialog
+
+                // Remove existing dialog if any
+                $('#phalanx-dialog').remove();
+
+                // Add dialog to body
+                $('body').append(modal_html);
+
+                // Show dialog and initialize
+                var dialog = $('#phalanx-dialog');
+                dialog.show();
+
+                // Calculate and set position (center on screen)
+                var windowWidth = $(window).width();
+                var windowHeight = $(window).height();
+                var dialogWidth = dialog.outerWidth();
+                var dialogHeight = dialog.outerHeight();
+
+                var left = Math.max(0, (windowWidth - dialogWidth) / 2);
+                var top = Math.max(50, (windowHeight - dialogHeight) / 2);
+
+                dialog.css({
+                    'left': left + 'px',
+                    'top': top + 'px',
+                    'width': 'auto',
+                    'height': 'auto'
+                });
+
+                // Make draggable if jQuery UI is available
+                if (typeof $.fn.draggable !== 'undefined') {
+                    dialog.draggable({
+                        handle: '.ui-dialog-titlebar',
+                        containment: 'window',
+                        cursor: 'move'
+                    });
+                }
+
+                // Fade in
+                dialog.hide().fadeIn(200);
+
+            }
+
+
+            function formatFleetTime(timestamp) {
+                var date = new Date(timestamp * 1000);
+                var now = new Date();
+                var diff = Math.floor((date - now) / 1000);
+
+                if (diff < 0) {
+                    return 'Arrived';
+                }
+
+                var hours = Math.floor(diff / 3600);
+                var minutes = Math.floor((diff % 3600) / 60);
+                var seconds = diff % 60;
+
+                return hours + 'h ' + minutes + 'm ' + seconds + 's';
+            }
+
+            function refreshPhalanxContent(galaxy, system, position) {
+                $.ajax({
+                    url: '{{ route('phalanx.scan') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        galaxy: galaxy,
+                        system: system,
+                        position: position
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            updateDeuteriumAfterScan(response.scan_cost);
+                            updatePhalanxContent(response);
+                        } else {
+                            alert('Phalanx refresh failed: ' + (response.error || 'Unknown error'));
+                        }
+                    },
+                    error: function(xhr) {
+                        var error_message = 'Phalanx refresh failed';
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            error_message = xhr.responseJSON.error;
+                        }
+                        alert(error_message);
+                    }
+                });
+            }
+
+            function updatePhalanxContent(data) {
+                // If error, wrap error_message in div
+                var content_html = data.content_html;
+                if (data.is_error) {
+                    content_html = '<div id="phalanxEventContent">' + data.error_message + '</div>';
+                }
+
+                // Update content with HTML from backend
+                $('#phalanxWrap').html(content_html);
+
+            }
+
+            function closePhalanxModal() {
+                $('#phalanx-dialog').fadeOut(200, function() {
+                    $(this).remove();
+                });
+            }
+        </script>
+
+
+        <script type="text/javascript">
             var buildListCountdowns = new Array();
             (function($){
                 initGalaxyNew();
