@@ -294,13 +294,13 @@ class TechtreeController extends OGameController
 
         $tooltips_array = [];
         $tooltips_array['structural_integrity'] = $this->getPropertyTooltip($properties->structural_integrity->name, $structural_integrity->breakdown, $structural_integrity->totalValue);
-        $tooltips_array['shield'] = $this->getPropertyTooltip($properties->shield->name, $shield->breakdown, $structural_integrity->totalValue);
-        $tooltips_array['attack'] = $this->getPropertyTooltip($properties->attack->name, $attack->breakdown, $structural_integrity->totalValue);
+        $tooltips_array['shield'] = $this->getPropertyTooltip($properties->shield->name, $shield->breakdown, $shield->totalValue);
+        $tooltips_array['attack'] = $this->getPropertyTooltip($properties->attack->name, $attack->breakdown, $attack->totalValue);
 
         if ($object->type !== GameObjectType::Defense) {
-            $tooltips_array['speed'] = $this->getPropertyTooltip($properties->speed->name, $speed->breakdown, $structural_integrity->totalValue);
-            $tooltips_array['capacity'] = $this->getPropertyTooltip($properties->capacity->name, $capacity->breakdown, $structural_integrity->totalValue);
-            $tooltips_array['fuel'] = $this->getPropertyTooltip($properties->fuel->name, $fuel->breakdown, $structural_integrity->totalValue);
+            $tooltips_array['speed'] = $this->getPropertyTooltip($properties->speed->name, $speed->breakdown, $speed->totalValue);
+            $tooltips_array['capacity'] = $this->getPropertyTooltip($properties->capacity->name, $capacity->breakdown, $capacity->totalValue);
+            $tooltips_array['fuel'] = $this->getPropertyTooltip($properties->fuel->name, $fuel->breakdown, $fuel->totalValue);
         }
 
         return view('ingame.techtree.info.properties')->with([
