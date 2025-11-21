@@ -33,14 +33,7 @@ class ExpeditionMission extends GameMission
     protected static string $name = 'Expedition';
     protected static int $typeId = 15;
     protected static bool $hasReturnMission = true;
-
-    /**
-     * @inheritdoc
-     */
-    public function getFleetSpeedType(): FleetSpeedType
-    {
-        return FleetSpeedType::peaceful;
-    }
+    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::peaceful;
 
     /**
      * Configurable outcome weights based on community research.

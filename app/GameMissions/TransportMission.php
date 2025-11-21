@@ -19,14 +19,7 @@ class TransportMission extends GameMission
     protected static string $name = 'Transport';
     protected static int $typeId = 3;
     protected static bool $hasReturnMission = true;
-
-    /**
-     * @inheritdoc
-     */
-    public function getFleetSpeedType(): FleetSpeedType
-    {
-        return FleetSpeedType::peaceful;
-    }
+    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::peaceful;
 
     /**
      * @inheritdoc

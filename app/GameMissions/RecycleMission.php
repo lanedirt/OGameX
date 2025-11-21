@@ -21,14 +21,7 @@ class RecycleMission extends GameMission
     protected static string $name = 'Harvest';
     protected static int $typeId = 8;
     protected static bool $hasReturnMission = true;
-
-    /**
-     * @inheritdoc
-     */
-    public function getFleetSpeedType(): FleetSpeedType
-    {
-        return FleetSpeedType::war;
-    }
+    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
 
     /**
      * @inheritdoc

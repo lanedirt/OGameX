@@ -19,14 +19,7 @@ class EspionageMission extends GameMission
     protected static string $name = 'Espionage';
     protected static int $typeId = 6;
     protected static bool $hasReturnMission = true;
-
-    /**
-     * @inheritdoc
-     */
-    public function getFleetSpeedType(): FleetSpeedType
-    {
-        return FleetSpeedType::war;
-    }
+    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
 
     /**
      * @inheritdoc

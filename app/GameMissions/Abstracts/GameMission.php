@@ -39,6 +39,11 @@ abstract class GameMission
      */
     protected static bool $hasReturnMission;
 
+    /**
+     * @var FleetSpeedType The fleet speed type for this mission.
+     */
+    protected static FleetSpeedType $fleetSpeedType;
+
     protected FleetMissionService $fleetMissionService;
 
     protected MessageService $messageService;
@@ -85,7 +90,10 @@ abstract class GameMission
      *
      * @return FleetSpeedType
      */
-    abstract public function getFleetSpeedType(): FleetSpeedType;
+    public static function getFleetSpeedType(): FleetSpeedType
+    {
+        return static::$fleetSpeedType;
+    }
 
     /**
      * Checks if the mission is possible under the given circumstances.
