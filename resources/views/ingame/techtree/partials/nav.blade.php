@@ -3,7 +3,7 @@
     <ul>
         <li>
             <a class="overlay" data-action="technologytree" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $objectId]) }}">
-                @lang('Techtree')
+                @lang('techtree')
             </a>
         </li>
         <li>
