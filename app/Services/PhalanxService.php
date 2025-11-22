@@ -137,7 +137,8 @@ class PhalanxService
             if (!$is_incoming) {
                 // This fleet is leaving the scanned planet, not arriving - skip it
                 // But we may need to show its return trip if it will come back to this planet
-                if ($this->missionHasReturnTrip($mission->mission_type)) {
+                // Skip return missions - they don't have their own return trips
+                if (empty($mission->parent_id) && $this->missionHasReturnTrip($mission->mission_type)) {
                     // Check if return trip will come back to the scanned planet
                     if ($mission->planet_id_from === $target_planet_id) {
                         // Yes! This fleet left from the scanned planet and will return to it
