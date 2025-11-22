@@ -129,6 +129,16 @@ class PhalanxService
         $scan_results = [];
 
         foreach ($fleet_missions as $mission) {
+            // Debug: Log mission details
+            \Log::debug('Phalanx scanning mission', [
+                'mission_id' => $mission->id,
+                'parent_id' => $mission->parent_id,
+                'mission_type' => $mission->mission_type,
+                'planet_id_from' => $mission->planet_id_from,
+                'planet_id_to' => $mission->planet_id_to,
+                'target_planet_id' => $target_planet_id,
+            ]);
+
             // Determine if this is incoming to the scanned planet
             $is_incoming = $mission->planet_id_to === $target_planet_id;
 
@@ -152,6 +162,7 @@ class PhalanxService
                         $mission_type_name = $this->getMissionTypeName($mission->mission_type);
                         $fleet_direction = $this->getFleetDirectionLabel($mission->user_id, $scanner_player_id, $mission->mission_type);
 
+                        \Log::debug('Phalanx adding PREDICTED return trip', ['mission_id' => $mission->id]);
                         $scan_results[] = [
                             'mission_id' => $mission->id + 999999,
                             'mission_type' => $mission->mission_type,
@@ -219,6 +230,10 @@ class PhalanxService
             $fleet_icon = $is_return_trip ? '014a5d88b102d4b47ab5146d4807c6.gif' : 'f9cb590cdf265f499b0e2e5d91fc75.gif'; // Left for return, right for incoming
 
             // Add the incoming mission to results
+            \Log::debug('Phalanx adding INCOMING mission', [
+                'mission_id' => $mission->id,
+                'is_return_trip' => $is_return_trip
+            ]);
             $scan_results[] = [
                 'mission_id' => $mission->id,
                 'mission_type' => $mission->mission_type,
