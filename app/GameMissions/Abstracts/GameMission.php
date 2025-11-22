@@ -314,9 +314,10 @@ abstract class GameMission
         $mission->type_from = $parentMission->type_to;
         $mission->type_to = $parentMission->type_from;
 
-        // If planet_id_to is not set, it can mean that the target planet was colonized or the mission was canceled.
-        // In this case, we keep planet_id_from as null.
-        if ($mission->type_to === PlanetType::Planet->value) {
+        // Set planet_id_from if the return mission is coming from a planet or moon.
+        // If planet_id_to is not set on the parent mission, it can mean that the target planet was colonized or the mission was canceled.
+        // In this case, we attempt to load the planet from the target coordinates.
+        if ($mission->type_from === PlanetType::Planet->value || $mission->type_from === PlanetType::Moon->value) {
             if ($parentMission->planet_id_to === null) {
                 // Attempt to load it from the target coordinates.
                 $targetPlanet = $this->planetServiceFactory->makeForCoordinate(new Coordinate($parentMission->galaxy_to, $parentMission->system_to, $parentMission->position_to));
