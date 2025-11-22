@@ -4,6 +4,7 @@ namespace OGame\GameMissions\Abstracts;
 
 use Exception;
 use Illuminate\Support\Carbon;
+use OGame\Enums\FleetSpeedType;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\ReturnOfFleet;
@@ -37,6 +38,11 @@ abstract class GameMission
      * @var bool Whether this mission has a return mission by default.
      */
     protected static bool $hasReturnMission;
+
+    /**
+     * @var FleetSpeedType The fleet speed type for this mission.
+     */
+    protected static FleetSpeedType $fleetSpeedType;
 
     protected FleetMissionService $fleetMissionService;
 
@@ -77,6 +83,16 @@ abstract class GameMission
     public static function getTypeId(): int
     {
         return static::$typeId;
+    }
+
+    /**
+     * Get the fleet speed type for this mission.
+     *
+     * @return FleetSpeedType
+     */
+    public static function getFleetSpeedType(): FleetSpeedType
+    {
+        return static::$fleetSpeedType;
     }
 
     /**
@@ -202,7 +218,7 @@ abstract class GameMission
 
         // Time fleet mission will arrive.
         // TODO: refactor calculate to gamemission base class?
-        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $speedPercent);
+        $time_end = $time_start + $this->fleetMissionService->calculateFleetMissionDuration($planet, $targetCoordinate, $units, $this, $speedPercent);
 
         $mission = new FleetMission();
 

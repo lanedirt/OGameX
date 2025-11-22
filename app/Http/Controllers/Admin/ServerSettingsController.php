@@ -20,7 +20,9 @@ class ServerSettingsController extends OGameController
     public function index(PlayerService $player, SettingsService $settingsService): View
     {
         return view('ingame.admin.serversettings')->with([
-            'fleet_speed' => $settingsService->fleetSpeed(),
+            'fleet_speed_war' => $settingsService->fleetSpeedWar(),
+            'fleet_speed_holding' => $settingsService->fleetSpeedHolding(),
+            'fleet_speed_peaceful' => $settingsService->fleetSpeedPeaceful(),
             'economy_speed' => $settingsService->economySpeed(),
             'research_speed' => $settingsService->researchSpeed(),
             'basic_income_metal' => $settingsService->basicIncomeMetal(),
@@ -60,7 +62,9 @@ class ServerSettingsController extends OGameController
      */
     public function update(SettingsService $settingsService): RedirectResponse
     {
-        $settingsService->set('fleet_speed', request('fleet_speed'));
+        $settingsService->set('fleet_speed_war', request('fleet_speed_war'));
+        $settingsService->set('fleet_speed_holding', request('fleet_speed_holding'));
+        $settingsService->set('fleet_speed_peaceful', request('fleet_speed_peaceful'));
         $settingsService->set('economy_speed', request('economy_speed'));
         $settingsService->set('research_speed', request('research_speed'));
 

@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameMissions\AttackMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
@@ -45,7 +46,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set the fleet speed to 1x for this test.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
-        $settingsService->set('fleet_speed', 1);
+        $settingsService->set('fleet_speed_war', 1);
+        $settingsService->set('fleet_speed_holding', 1);
+        $settingsService->set('fleet_speed_peaceful', 1);
         $this->planetAddResources(new Resources(0, 0, 100000, 0));
     }
 
@@ -212,7 +215,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
@@ -498,7 +501,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
@@ -624,7 +627,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
@@ -693,7 +696,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Calculate fleet mission duration
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
 
         // Set time to fleet mission duration + 1 second
         $this->travel($fleetMissionDuration + 1)->seconds();
@@ -759,7 +762,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Calculate fleet mission duration
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
 
         // Set time to fleet mission duration + 1 second
         $this->travel($fleetMissionDuration + 1)->seconds();
@@ -830,7 +833,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Calculate fleet mission duration
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
 
         // Set time to fleet mission duration + 1 second
         $this->travel($fleetMissionDuration + 1)->seconds();
@@ -899,7 +902,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
             $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration(
                 $this->planetService,
                 $foreignPlanet->getPlanetCoordinates(),
-                $unitCollection
+                $unitCollection,
+                resolve(AttackMission::class)
             );
 
             // Set time to fleet mission duration + 1 second
@@ -996,7 +1000,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
@@ -1037,7 +1041,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();

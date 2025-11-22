@@ -3,6 +3,7 @@
 namespace OGame\GameMissions;
 
 use Exception;
+use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\DebrisFieldHarvest;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\BattleEngine\Services\LootService;
@@ -20,6 +21,7 @@ class RecycleMission extends GameMission
     protected static string $name = 'Harvest';
     protected static int $typeId = 8;
     protected static bool $hasReturnMission = true;
+    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
 
     /**
      * @inheritdoc

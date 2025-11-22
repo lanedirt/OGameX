@@ -16,7 +16,9 @@ class ServerSettingsController extends OGameController
     {
         return view('ingame.serversettings.overlay')->with([
             'universe_name' => $settingsService->universeName(),
-            'fleet_speed' => $settingsService->fleetSpeed(),
+            'fleet_speed_war' => $settingsService->fleetSpeedWar(),
+            'fleet_speed_holding' => $settingsService->fleetSpeedHolding(),
+            'fleet_speed_peaceful' => $settingsService->fleetSpeedPeaceful(),
             'economy_speed' => $settingsService->economySpeed(),
             'research_speed' => $settingsService->researchSpeed(),
             'planet_fields_bonus' => $settingsService->planetFieldsBonus(),

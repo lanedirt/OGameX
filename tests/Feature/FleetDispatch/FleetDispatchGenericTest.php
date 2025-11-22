@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\FleetDispatch;
 
+use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
@@ -89,7 +90,9 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
 
         // Set the fleet speed to 1x for this test.
         $settingsService = resolve(SettingsService::class);
-        $settingsService->set('fleet_speed', 1);
+        $settingsService->set('fleet_speed_war', 1);
+        $settingsService->set('fleet_speed_holding', 1);
+        $settingsService->set('fleet_speed_peaceful', 1);
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
 
@@ -102,11 +105,14 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $units = new UnitCollection();
         $units->addUnit(ObjectService::getShipObjectByMachineName('small_cargo'), 5);
 
+        // Create a transport mission for duration calculation.
+        $mission = resolve(TransportMission::class);
+
         // Should take 1h:19m:48s to travel to the target planet 1 system away with base speed of 5000.
         // With Impulse ≥5, Small Cargo switches to Impulse:
         // base speed becomes 10,000 and at Impulse 10 the bonus is +200% (20% × 10) → effective speed 20,000.
         // This reduces the duration to 56m 28s (3388 seconds) for a 1-system jump at fleet_speed=1.
-        $this->assertEquals(4788, $fleetMissionService->calculateFleetMissionDuration($this->planetService, $targetPlanetCoords, $units));
+        $this->assertEquals(4788, $fleetMissionService->calculateFleetMissionDuration($this->planetService, $targetPlanetCoords, $units, $mission));
     }
 
     public function testFleetDeuteriumConsumptionCalculation(): void
@@ -115,7 +121,9 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
 
         // Set the fleet speed to 1x for this test.
         $settingsService = resolve(SettingsService::class);
-        $settingsService->set('fleet_speed', 1);
+        $settingsService->set('fleet_speed_war', 1);
+        $settingsService->set('fleet_speed_holding', 1);
+        $settingsService->set('fleet_speed_peaceful', 1);
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
 
         $currentPlanetCoords = $this->planetService->getPlanetCoordinates();

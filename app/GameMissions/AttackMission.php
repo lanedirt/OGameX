@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\Enums\FleetSpeedType;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
@@ -22,6 +23,7 @@ class AttackMission extends GameMission
     protected static string $name = 'Attack';
     protected static int $typeId = 1;
     protected static bool $hasReturnMission = true;
+    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
 
     /**
      * @inheritdoc

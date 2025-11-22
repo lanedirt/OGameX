@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\TransportArrived;
 use OGame\GameMessages\TransportReceived;
 use OGame\GameMissions\Abstracts\GameMission;
@@ -18,6 +19,7 @@ class TransportMission extends GameMission
     protected static string $name = 'Transport';
     protected static int $typeId = 3;
     protected static bool $hasReturnMission = true;
+    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::peaceful;
 
     /**
      * @inheritdoc

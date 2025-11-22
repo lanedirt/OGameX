@@ -3,6 +3,7 @@
 namespace Tests\Feature\FleetDispatch;
 
 use Illuminate\Support\Carbon;
+use OGame\GameMissions\DeploymentMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
@@ -43,7 +44,9 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $this->planetAddResources(new Resources(0, 0, 100000, 0));
         // Set the fleet speed to 5x for this test.
         $settingsService = resolve(SettingsService::class);
-        $settingsService->set('fleet_speed', 5);
+        $settingsService->set('fleet_speed_war', 5);
+        $settingsService->set('fleet_speed_holding', 5);
+        $settingsService->set('fleet_speed_peaceful', 5);
     }
 
     protected function messageCheckMissionArrival(PlanetService $destinationPlanet): void
@@ -229,7 +232,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanetService->getPlanetCoordinates(), $unitCollection);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanetService->getPlanetCoordinates(), $unitCollection, resolve(DeploymentMission::class));
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).
@@ -277,7 +280,7 @@ class FleetDispatchDeployTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->moonService->getPlanetCoordinates(), $unitCollection);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->moonService->getPlanetCoordinates(), $unitCollection, resolve(DeploymentMission::class));
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).

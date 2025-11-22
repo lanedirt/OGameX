@@ -31,17 +31,17 @@
     <span>@lang('Fleet Deuterium consumption reduction:') 30%</span>
 </div>
 <div class="technology-fullrow" style="z-index: 2 !important;">
-    <server-settings-icon sq28 bordered class="fleetspeed_holding"></server-settings-icon>
-    <span>@lang('Fleet speed:') x{{ $fleet_speed }}</span>
-</div>
-{{-- <div class="technology-fullrow" style="z-index: 2 !important;">
-    <server-settings-icon sq28 bordered class="fleetspeed_peace"></server-settings-icon>
-    <span>@lang('Peaceful fleet speed:') x4</span>
+    <server-settings-icon sq28 bordered class="fleetspeed_war"></server-settings-icon>
+    <span>@lang('War fleet speed:') x{{ $fleet_speed_war }}</span>
 </div>
 <div class="technology-fullrow" style="z-index: 2 !important;">
-    <server-settings-icon sq28 bordered class="fleetspeed_war"></server-settings-icon>
-    <span>@lang('Belligerent fleet speed:') x4</span>
-</div> --}}
+    <server-settings-icon sq28 bordered class="fleetspeed_holding"></server-settings-icon>
+    <span>@lang('Holding fleet speed:') x{{ $fleet_speed_holding }}</span>
+</div>
+<div class="technology-fullrow" style="z-index: 2 !important;">
+    <server-settings-icon sq28 bordered class="fleetspeed_peace"></server-settings-icon>
+    <span>@lang('Peaceful fleet speed:') x{{ $fleet_speed_peaceful }}</span>
+</div>
 <div class="technology-fullrow" style="z-index: 2 !important;">
     <server-settings-icon sq28 bordered class="ignore_empty"></server-settings-icon>
     <span>@lang('Empty systems are ignored')</span>

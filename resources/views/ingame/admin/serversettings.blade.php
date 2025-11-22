@@ -48,9 +48,21 @@
                                 </div>
                             </div>
                             <div class="fieldwrapper">
-                                <label class="styled textBeefy">@lang('Fleet speed:')</label>
+                                <label class="styled textBeefy">@lang('War fleet speed:')</label>
                                 <div class="thefield">
-                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $fleet_speed }}" size="2" maxlength="9" name="fleet_speed">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $fleet_speed_war }}" size="2" maxlength="9" name="fleet_speed_war">
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Holding fleet speed:')</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $fleet_speed_holding }}" size="2" maxlength="9" name="fleet_speed_holding">
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Peaceful fleet speed:')</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $fleet_speed_peaceful }}" size="2" maxlength="9" name="fleet_speed_peaceful">
                                 </div>
                             </div>
                             <div class="fieldwrapper">

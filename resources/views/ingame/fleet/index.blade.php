@@ -169,9 +169,9 @@
             var MAX_GALAXY = {{ $settings->numberOfGalaxies() }};
             var MAX_SYSTEM = 499;
             var MAX_POSITION = 16;
-            var SPEEDFAKTOR_FLEET_PEACEFUL = {{ $settings->fleetSpeed() }};
-            var SPEEDFAKTOR_FLEET_WAR = {{ $settings->fleetSpeed() }};
-            var SPEEDFAKTOR_FLEET_HOLDING = {{ $settings->fleetSpeed() }};
+            var SPEEDFAKTOR_FLEET_PEACEFUL = {{ $settings->fleetSpeedPeaceful() }};
+            var SPEEDFAKTOR_FLEET_WAR = {{ $settings->fleetSpeedWar() }};
+            var SPEEDFAKTOR_FLEET_HOLDING = {{ $settings->fleetSpeedHolding() }};
             var PLANETTYPE_PLANET = 1;
             var PLANETTYPE_DEBRIS = 2;
             var PLANETTYPE_MOON = 3;
