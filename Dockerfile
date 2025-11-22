@@ -30,7 +30,9 @@ RUN apt-get update && apt-get install -y \
 # Install extensions
 RUN docker-php-ext-install ffi pdo_mysql mbstring zip exif pcntl && \
     docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ && \
-    docker-php-ext-install gd
+    docker-php-ext-install gd && \
+    pecl install redis && \
+    docker-php-ext-enable redis
 
 # Enable and configure opcache only if OPCACHE_ENABLE is set to "1"
 ARG OPCACHE_ENABLE=0
