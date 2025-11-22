@@ -310,11 +310,6 @@ class PhalanxTest extends FleetDispatchTestCase
         ]);
 
         $response->assertStatus(200);
-        // Debug: dump the fleet count if it's not 1
-        if ($response->json('fleet_count') !== 1) {
-            dump('Fleet count:', $response->json('fleet_count'));
-            dump('Response:', $response->json());
-        }
         $this->assertEquals(1, $response->json('fleet_count'));
 
         // Check that it shows "Your fleet"
