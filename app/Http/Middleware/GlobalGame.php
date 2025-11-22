@@ -45,6 +45,7 @@ class GlobalGame
             $player->planets->current()->update();
 
             // Update all fleet missions of player that are associated with any of the player's planets.
+
             if (app()->environment('testing')) {
                 $player->updateFleetMissions();
             }

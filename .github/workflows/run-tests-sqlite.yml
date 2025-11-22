@@ -35,6 +35,8 @@ jobs:
     # Laravel setup steps
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - name: Set APP_ENV to testing                                                                                                                      │
+      run: docker compose exec -T ogamex-app sed -i 's/APP_ENV=.*/APP_ENV=testing/' .env
     - name: Composer update
       run: composer update --lock
     - name: Install Dependencies
@@ -51,11 +53,9 @@ jobs:
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-        APP_ENV: testing
       run: php artisan migrate
     - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-        APP_ENV: testing
       run: php artisan test
