@@ -728,6 +728,35 @@ class PlayerService
     }
 
     /**
+     * Check if the player can colonize a specific planet position based on Astrophysics research level.
+     *
+     * @param int $position The planet position (1-15)
+     * @return bool
+     */
+    public function canColonizePosition(int $position): bool
+    {
+        $astrophysicsLevel = $this->getResearchLevel('astrophysics');
+
+        // Positions 1 and 15 require Astrophysics level 8
+        if (($position === 1 || $position === 15) && $astrophysicsLevel < 8) {
+            return false;
+        }
+
+        // Positions 2 and 14 require Astrophysics level 6
+        if (($position === 2 || $position === 14) && $astrophysicsLevel < 6) {
+            return false;
+        }
+
+        // Positions 3 and 13 require Astrophysics level 4
+        if (($position === 3 || $position === 13) && $astrophysicsLevel < 4) {
+            return false;
+        }
+
+        // Positions 4-12 have no special requirements
+        return true;
+    }
+
+    /**
      * Delete the player and all associated records from the database.
      *
      * @return void

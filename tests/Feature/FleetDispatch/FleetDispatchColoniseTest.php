@@ -5,6 +5,7 @@ namespace Tests\Feature\FleetDispatch;
 use Illuminate\Support\Carbon;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
@@ -290,6 +291,126 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         // Assert that the cargo ships have returned without the colony ship.
         $this->assertObjectLevelOnPage($response, 'colony_ship', 0);
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5);
+    }
+
+    /**
+     * Test that positions 3 and 13 require Astrophysics level 4.
+     */
+    public function testDispatchFleetColonizePosition3And13RequiresAstro4(): void
+    {
+        $this->basicSetup();
+
+        // Set Astrophysics to level 3 (insufficient for positions 3 and 13)
+        $this->playerSetResearchLevel('astrophysics', 3);
+
+        // Try to colonize position 3 with Astrophysics level 3 (should fail)
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
+
+        // Create custom coordinates for position 3
+        $planetCoords = $this->planetService->getPlanetCoordinates();
+        $targetCoordinates = new \OGame\Models\Planet\Coordinate($planetCoords->galaxy, $planetCoords->system, 3);
+
+        // This should fail with 400 status
+        $this->dispatchFleet($targetCoordinates, $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, false);
+
+        // Now set Astrophysics to level 4 (sufficient)
+        $this->playerSetResearchLevel('astrophysics', 4);
+
+        // Try again with position 3 (should succeed)
+        $this->dispatchFleet($targetCoordinates, $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, true);
+
+        // Increase time by 10 hours to ensure the mission is done
+        $this->travel(10)->hours();
+
+        // Do a request to trigger the update logic
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the new planet has been created
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $newPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinates);
+        $this->assertNotNull($newPlanet, 'Planet at position 3 should be created with Astrophysics level 4.');
+    }
+
+    /**
+     * Test that positions 2 and 14 require Astrophysics level 6.
+     */
+    public function testDispatchFleetColonizePosition2And14RequiresAstro6(): void
+    {
+        $this->basicSetup();
+
+        // Set Astrophysics to level 5 (insufficient for positions 2 and 14)
+        $this->playerSetResearchLevel('astrophysics', 5);
+
+        // Try to colonize position 2 with Astrophysics level 5 (should fail)
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
+
+        // Create custom coordinates for position 2
+        $planetCoords = $this->planetService->getPlanetCoordinates();
+        $targetCoordinates = new \OGame\Models\Planet\Coordinate($planetCoords->galaxy, $planetCoords->system, 2);
+
+        // This should fail with 400 status
+        $this->dispatchFleet($targetCoordinates, $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, false);
+
+        // Now set Astrophysics to level 6 (sufficient)
+        $this->playerSetResearchLevel('astrophysics', 6);
+
+        // Try again with position 2 (should succeed)
+        $this->dispatchFleet($targetCoordinates, $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, true);
+
+        // Increase time by 10 hours to ensure the mission is done
+        $this->travel(10)->hours();
+
+        // Do a request to trigger the update logic
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the new planet has been created
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $newPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinates);
+        $this->assertNotNull($newPlanet, 'Planet at position 2 should be created with Astrophysics level 6.');
+    }
+
+    /**
+     * Test that positions 1 and 15 require Astrophysics level 8.
+     */
+    public function testDispatchFleetColonizePosition1And15RequiresAstro8(): void
+    {
+        $this->basicSetup();
+
+        // Set Astrophysics to level 7 (insufficient for positions 1 and 15)
+        $this->playerSetResearchLevel('astrophysics', 7);
+
+        // Try to colonize position 1 with Astrophysics level 7 (should fail)
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
+
+        // Create custom coordinates for position 1
+        $planetCoords = $this->planetService->getPlanetCoordinates();
+        $targetCoordinates = new \OGame\Models\Planet\Coordinate($planetCoords->galaxy, $planetCoords->system, 1);
+
+        // This should fail with 400 status
+        $this->dispatchFleet($targetCoordinates, $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, false);
+
+        // Now set Astrophysics to level 8 (sufficient)
+        $this->playerSetResearchLevel('astrophysics', 8);
+
+        // Try again with position 1 (should succeed)
+        $this->dispatchFleet($targetCoordinates, $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, true);
+
+        // Increase time by 10 hours to ensure the mission is done
+        $this->travel(10)->hours();
+
+        // Do a request to trigger the update logic
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the new planet has been created
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $newPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinates);
+        $this->assertNotNull($newPlanet, 'Planet at position 1 should be created with Astrophysics level 8.');
     }
 
     /**
