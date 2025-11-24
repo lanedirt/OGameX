@@ -12,6 +12,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Services\CoordinateDistanceCalculator;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
@@ -97,10 +98,11 @@ class FleetController extends OGameController
      *
      * @param PlayerService $currentPlayer
      * @param PlanetServiceFactory $planetServiceFactory
+     * @param CoordinateDistanceCalculator $coordinateDistanceCalculator
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory): JsonResponse
+    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator): JsonResponse
     {
         $currentPlanet = $currentPlayer->planets->current();
 
@@ -177,6 +179,11 @@ class FleetController extends OGameController
             $status = 'failure';
         }
 
+        // Calculate empty and inactive systems between current planet and target
+        $currentCoordinates = $currentPlanet->getPlanetCoordinates();
+        $emptySystems = $coordinateDistanceCalculator->getNumEmptySystems($currentCoordinates, $targetCoordinates);
+        $inactiveSystems = $coordinateDistanceCalculator->getNumInactiveSystems($currentCoordinates, $targetCoordinates);
+
         return response()->json([
             'shipsData' => $shipsData,
             'status' => $status,
@@ -198,8 +205,8 @@ class FleetController extends OGameController
                 'type' => $targetType,
                 'name' => $targetPlanetName,
             ],
-            'emptySystems' => 0,
-            'inactiveSystems' => 0,
+            'emptySystems' => $emptySystems,
+            'inactiveSystems' => $inactiveSystems,
             'bashingSystemLimitReached' => false,
             'targetOk' => true,
             'components' => [],

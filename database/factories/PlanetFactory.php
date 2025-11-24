@@ -41,6 +41,8 @@ class PlanetFactory extends Factory
             'crystal' => 0,
             'deuterium' => 0,
             'fusion_plant' => 0,
+            'destroyed' => 0,
+            'field_current' => 0,
         ];
     }
 }

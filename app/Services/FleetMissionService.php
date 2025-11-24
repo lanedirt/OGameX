@@ -49,15 +49,18 @@ class FleetMissionService
 
     private SettingsService $settingsService;
 
+    private CoordinateDistanceCalculator $coordinateDistanceCalculator;
+
     /**
      * FleetMissionService constructor.
      */
-    public function __construct(PlayerService $player, MessageService $messageService, GameMissionFactory $gameMissionFactory, SettingsService $settingsService)
+    public function __construct(PlayerService $player, MessageService $messageService, GameMissionFactory $gameMissionFactory, SettingsService $settingsService, CoordinateDistanceCalculator $coordinateDistanceCalculator)
     {
         $this->player = $player;
         $this->messageService = $messageService;
         $this->gameMissionFactory = $gameMissionFactory;
         $this->settingsService = $settingsService;
+        $this->coordinateDistanceCalculator = $coordinateDistanceCalculator;
 
         $this->model = new FleetMission();
     }
@@ -160,8 +163,11 @@ class FleetMissionService
                 $deltaSystem = $diffSystem;
             }
 
-            //deltaSystem = Math.max(deltaSystem - emptySystems - inactiveSystems, 1);
-            $deltaSystem = max($deltaSystem, 1);
+            // Calculate empty and inactive systems to subtract from distance
+            $emptySystems = $this->coordinateDistanceCalculator->getNumEmptySystems($fromCoordinate, $to);
+            $inactiveSystems = $this->coordinateDistanceCalculator->getNumInactiveSystems($fromCoordinate, $to);
+
+            $deltaSystem = max($deltaSystem - $emptySystems - $inactiveSystems, 1);
             return $deltaSystem * 5 * 19 + 2700;
         }
 
