@@ -133,9 +133,9 @@ class CoordinateDistanceCalculator
         $end = max($from->system, $to->system);
 
         // Count systems where all planets belong to inactive users
-        // A user is considered inactive if updated_at is older than 7 days
+        // A user is considered inactive if time is older than 7 days (matching PlayerService::isInactive())
         $inactiveSystems = Planet::selectRaw('planets.system')
-            ->selectRaw('SUM(IF(users.updated_at >= DATE_SUB(NOW(), INTERVAL 7 DAY), 1, 0)) AS active_count')
+            ->selectRaw('SUM(IF(users.time >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 7 DAY)), 1, 0)) AS active_count')
             ->join('users', 'users.id', '=', 'planets.user_id')
             ->where('planets.galaxy', '=', $from->galaxy)
             ->where('planets.system', '>=', $start)
