@@ -43,7 +43,6 @@ class TestRaceConditionGameMission extends TestCommand
 
             // Set up the test environment.
             parent::setup();
-
             // Set up parameters for this specific test.
             $this->testSetup();
 
@@ -57,6 +56,8 @@ class TestRaceConditionGameMission extends TestCommand
                     'time_arrival' => time() - 1]);
 
             // Run the parallel requests against the overview page which should start the return mission.
+            $this->playerService->updateFleetMissions();
+
             $this->runParallelRequests('overview');
 
             // Assert the database state after the test.
