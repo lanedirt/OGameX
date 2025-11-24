@@ -38,8 +38,18 @@ class RecycleMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        // Allow sending recyclers to any debris field coordinate, even if empty or non-existent.
-        // This enables harvesting "invisible" debris fields (≤300 resources) that don't show in Galaxy View.
+        // Check if debris field exists (including "ghost" fields with 0 resources).
+        // In OGame, debris fields persist as invisible "ghost" fields after being fully harvested
+        // until the weekly reset (Monday 1:00 AM). This allows players to send recyclers to
+        // coordinates where a debris field existed, even if it currently has no resources.
+        $debrisField = app(DebrisFieldService::class);
+        $debrisFieldExists = $debrisField->loadForCoordinates($targetCoordinate);
+
+        if (!$debrisFieldExists) {
+            return new MissionPossibleStatus(false);
+        }
+
+        // If all checks pass, the mission is possible.
         return new MissionPossibleStatus(true);
     }
 

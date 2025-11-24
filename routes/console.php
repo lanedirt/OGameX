@@ -2,6 +2,7 @@
 
 use OGame\Console\Commands\GenerateHighscores;
 use OGame\Console\Commands\GenerateHighscoreRanks;
+use OGame\Console\Commands\ResetDebrisFields;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,6 @@ use OGame\Console\Commands\GenerateHighscoreRanks;
 
 Schedule::command(GenerateHighscores::class)->everyFiveMinutes();
 Schedule::command(GenerateHighscoreRanks::class)->everyFiveMinutes();
+
+// Reset empty debris fields weekly on Monday at 1:00 AM
+Schedule::command(ResetDebrisFields::class)->weeklyOn(1, '1:00');
