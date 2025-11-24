@@ -33,6 +33,10 @@ jobs:
         run: |
           # Wait for the application to be ready (max 60 seconds)
           timeout 60 bash -c 'until docker compose exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do echo "Waiting for application to be ready..." && sleep 2; done'
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      - name: Set APP_ENV to testing                                                                                                                      │
+        run: sed -i 's/APP_ENV=.*/APP_ENV=testing/' .env
       - name: Run Tests
         run: docker compose exec -T ogamex-app php artisan test
       - name: Run custom Race Condition Tests
