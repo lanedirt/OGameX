@@ -38,14 +38,8 @@ class RecycleMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        // Check if debris field exists on the target coordinate.
-        $debrisField = app(DebrisFieldService::class);
-        $debrisFieldExists = $debrisField->loadForCoordinates($targetCoordinate);
-        if (!$debrisFieldExists || !$debrisField->getResources()->any()) {
-            return new MissionPossibleStatus(false);
-        }
-
-        // If all checks pass, the mission is possible.
+        // Allow sending recyclers to any debris field coordinate, even if empty or non-existent.
+        // This enables harvesting "invisible" debris fields (≤300 resources) that don't show in Galaxy View.
         return new MissionPossibleStatus(true);
     }
 
