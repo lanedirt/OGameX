@@ -5,6 +5,7 @@ namespace OGame\Jobs;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Facades\Log;
 use OGame\Models\FleetMission;
 use OGame\Services\FleetMissionService;
 use OGame\Services\PlayerService;
@@ -206,7 +207,7 @@ class ProcessFleetMissions implements ShouldQueue
      */
     public function failed(Throwable $exception): void
     {
-        \Log::critical('FLEET MISSION JOB PERMANENTLY FAILED', [
+        Log::critical('FLEET MISSION JOB PERMANENTLY FAILED', [
             'mission_id' => $this->mission->id,
             'planet_id_to' => $this->mission->planet_id_to,
             'mission_type' => $this->mission->mission_type,

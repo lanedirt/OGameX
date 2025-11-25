@@ -275,7 +275,7 @@ abstract class GameMission
         if ($mission->time_arrival < Carbon::now()->timestamp) {
             $this->process($mission);
         }
-        $arrival_time_to_carbon = \Carbon\Carbon::parse($mission->time_arrival);
+        $arrival_time_to_carbon = Carbon::parse($mission->time_arrival);
         ProcessFleetMissions::dispatch($mission, $planet->getPlayer())->delay($arrival_time_to_carbon);
 
         return $mission;
