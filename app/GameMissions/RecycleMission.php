@@ -38,10 +38,14 @@ class RecycleMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        // Check if debris field exists on the target coordinate.
+        // Check if debris field exists (including "ghost" fields with 0 resources).
+        // In OGame, debris fields persist as invisible "ghost" fields after being fully harvested
+        // until the weekly reset (Monday 1:00 AM). This allows players to send recyclers to
+        // coordinates where a debris field existed, even if it currently has no resources.
         $debrisField = app(DebrisFieldService::class);
         $debrisFieldExists = $debrisField->loadForCoordinates($targetCoordinate);
-        if (!$debrisFieldExists || !$debrisField->getResources()->any()) {
+
+        if (!$debrisFieldExists) {
             return new MissionPossibleStatus(false);
         }
 
