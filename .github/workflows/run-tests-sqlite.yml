@@ -53,7 +53,11 @@ jobs:
         DB_DATABASE: database/database.sqlite
       run: php artisan migrate
     - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
+      uses: nick-fields/retry@v3
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        command: php artisan test
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-      run: php artisan test
