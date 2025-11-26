@@ -224,6 +224,15 @@ trait ObjectAjaxTrait
             $description .= " A solar satellite produces {$energyPerUnit} energy on this planet.";
         }
 
+        // Special handling for Interplanetary Missiles to show range based on impulse drive level
+        if ($object->machine_name === 'interplanetary_missile') {
+            $impulse_drive_level = $planet->getPlayer()->getResearchLevel('impulse_drive');
+            $missile_range = max(0, $impulse_drive_level * 5 - 1);
+
+            // Replace the ?? placeholder with the actual range
+            $description = str_replace('??', (string)$missile_range, $description);
+        }
+
         return $description;
     }
 }
