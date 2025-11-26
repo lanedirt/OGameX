@@ -224,7 +224,7 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         $interplanetaryMissile->title = 'Interplanetary Missiles';
         $interplanetaryMissile->machine_name = 'interplanetary_missile';
         $interplanetaryMissile->class_name = 'missileInterplanetary';
-        $interplanetaryMissile->description = 'Interplanetary Missiles destroy enemy defenses. Your interplanetary missiles have got a coverage of ?? systems.';
+        $interplanetaryMissile->description = 'Interplanetary Missiles destroy enemy defenses.';
 
         $interplanetaryMissile->description_long = 'Interplanetary Missiles (IPM) are your offensive weapon to destroy the defenses of your target. Using state of the art tracking technology, each missile targets a certain number of defenses for destruction. Tipped with an anti-matter bomb, they deliver a destructive force so severe that destroyed shields and defenses cannot be repaired. The only way to counter these missiles is with ABMs.';
         $interplanetaryMissile->requirements = [

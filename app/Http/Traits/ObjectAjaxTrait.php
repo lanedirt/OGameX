@@ -229,8 +229,8 @@ trait ObjectAjaxTrait
             $impulse_drive_level = $planet->getPlayer()->getResearchLevel('impulse_drive');
             $missile_range = max(0, $impulse_drive_level * 5 - 1);
 
-            // Replace the ?? placeholder with the actual range
-            $description = str_replace('??', (string)$missile_range, $description);
+            // Append the specific range value to the description
+            $description .= " Your interplanetary missiles have got a coverage of {$missile_range} systems.";
         }
 
         return $description;
