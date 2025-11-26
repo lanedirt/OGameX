@@ -287,8 +287,9 @@ abstract class AccountTestCase extends TestCase
 
         if ($planet_id == null) {
             // No nearby moons found, give current user a moon then login as a new user to see if this fixes it.
+            // Use default test values (20% moon chance = 2,000,000 debris)
             $planetServiceFactory =  resolve(PlanetServiceFactory::class);
-            $planetServiceFactory->createMoonForPlanet($this->planetService);
+            $planetServiceFactory->createMoonForPlanet($this->planetService, 2000000, 20);
 
             // Switch to new user that should then be able to find the moon of the previous player.
             $this->createAndLoginUser();

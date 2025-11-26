@@ -26,9 +26,10 @@ abstract class MoonTestCase extends AccountTestCase
     {
         parent::setUp();
 
-        // Create moon for the current user.
+        // Create moon for the current user with default test values
+        // (20% moon chance equivalent = 2,000,000 debris)
         $planetServiceFactory =  resolve(PlanetServiceFactory::class);
-        $this->moonService = $planetServiceFactory->createMoonForPlanet($this->planetService);
+        $this->moonService = $planetServiceFactory->createMoonForPlanet($this->planetService, 2000000, 20);
 
         // Switch to the moon to ensure the correct planet is used by default in tests.
         $this->switchToMoon();

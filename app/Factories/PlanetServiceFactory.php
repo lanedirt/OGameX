@@ -364,11 +364,13 @@ class PlanetServiceFactory
      * Creates a new moon for an existing planet and then return the planetService instance for the newly created moon.
      *
      * @param PlanetService $planet The planet to create the moon for.
+     * @param int $debrisAmount The total amount of debris (metal + crystal + deuterium) that resulted from the battle.
+     * @param int $moonChance The moon chance percentage that resulted from the battle.
      * @return PlanetService The new moon.
      */
-    public function createMoonForPlanet(PlanetService $planet): PlanetService
+    public function createMoonForPlanet(PlanetService $planet, int $debrisAmount, int $moonChance): PlanetService
     {
-        return $this->createPlanet($planet->getPlayer(), $planet->getPlanetCoordinates(), 'Moon', PlanetType::Moon);
+        return $this->createPlanet($planet->getPlayer(), $planet->getPlanetCoordinates(), 'Moon', PlanetType::Moon, $debrisAmount, $moonChance);
     }
 
     /**
@@ -377,9 +379,11 @@ class PlanetServiceFactory
      * @param Coordinate $new_position
      * @param string $planet_name
      * @param PlanetType $planet_type
+     * @param int $debrisAmount The total debris amount (only used for moons).
+     * @param int $moonChance The moon chance percentage (only used for moons).
      * @return PlanetService
      */
-    private function createPlanet(PlayerService $player, Coordinate $new_position, string $planet_name, PlanetType $planet_type): PlanetService
+    private function createPlanet(PlayerService $player, Coordinate $new_position, string $planet_name, PlanetType $planet_type, int $debrisAmount = 0, int $moonChance = 0): PlanetService
     {
         $planet = new Planet();
         $planet->user_id = $player->getId();
@@ -393,7 +397,7 @@ class PlanetServiceFactory
         $planet->time_last_update = (int)Carbon::now()->timestamp;
 
         if ($planet_type === PlanetType::Moon) {
-            $this->setupMoonProperties($planet);
+            $this->setupMoonProperties($planet, $debrisAmount, $moonChance);
         } else {
             $is_first_planet = $player->planets->planetCount() == 0;
 
@@ -406,19 +410,42 @@ class PlanetServiceFactory
     }
 
     /**
-     * Sets up moon-specific properties.
+     * Sets up moon-specific properties using the official OGame formula.
+     *
+     * Formula: diameter = floor((x + 3 * debris / 100000) ^ 0.5 * 1000) km
+     * Where x is a random value between 10 and 20.
+     *
+     * Note: During moon chance events (e.g., 30% max instead of 20%), only the probability
+     * of moon creation increases, not the size. The x factor always remains 10-20.
+     *
      * @param Planet $planet
+     * @param int $debrisAmount Total resources in debris field (metal + crystal + deuterium)
+     * @param int $moonChance Moon chance percentage from the battle (unused for size, kept for future features)
      */
-    private function setupMoonProperties(Planet $planet): void
+    private function setupMoonProperties(Planet $planet, int $debrisAmount, int $moonChance): void
     {
-        // TODO: moon diameter should be made dependent on the moon chance percentage
-        // that resulted from battle that created this moon.
-        $planet->diameter = rand(7500, 8888);
+        // Calculate moon diameter using official formula:
+        // diameter = floor((x + 3 * debris / 100000) ^ 0.5 * 1000)
+        // where x is a random number between 10 and 20
+        $x = rand(10, 20);
+
+        // Apply the official formula
+        $diameter = (int)floor(pow($x + (3 * $debrisAmount / 100000), 0.5) * 1000);
+
+        // Cap the maximum diameter at what x=20 with 2M debris would generate (8944 km)
+        // This ensures moons remain destructible by Death Stars
+        $maxDiameter = (int)floor(pow(20 + (3 * 2000000 / 100000), 0.5) * 1000); // = 8944 km
+        $planet->diameter = min($diameter, $maxDiameter);
+
+        // Moon field size is always 1
         $planet->field_max = 1;
 
-        // TODO: temperature range should be dependent on the moon position.
-        $planet->temp_max = rand(0, 100);
-        $planet->temp_min = $planet->temp_max - 40;
+        // Calculate temperature based on planet position (same as the planet at this position)
+        $planetData = $this->planetData($planet->planet, false);
+        // Use average of the temperature range for moons
+        $avgTemp = (int)(($planetData['temperature'][0] + $planetData['temperature'][1]) / 2);
+        $planet->temp_max = $avgTemp;
+        $planet->temp_min = $avgTemp - 40;
 
         // Moons start with no resources.
         $planet->metal = 0;
