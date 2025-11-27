@@ -820,8 +820,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Ensure that foreign planet has a moon already. If it doesn't have one yet, we create it.
+        // Use default test values (20% moon chance = 2,000,000 debris)
         if (!$foreignPlanet->hasMoon()) {
-            $planetServiceFactory->createMoonForPlanet($foreignPlanet);
+            $planetServiceFactory->createMoonForPlanet($foreignPlanet, 2000000, 20);
         }
 
         // Prepare defender units

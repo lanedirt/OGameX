@@ -159,6 +159,24 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="fieldwrapper">
+                                        <label class="styled textBeefy">@lang('Moon Size (for Create Moon):')</label>
+                                        <div class="thefield" style="display: flex; gap: 15px; align-items: flex-start;">
+                                            <div style="flex: 1;">
+                                                <label for="moon_debris" style="display: block; margin-bottom: 5px;">@lang('Debris Amount:')</label>
+                                                <input type="text" id="moon_debris" pattern="^[-+0-9,.kmb]+$" class="textInput textCenter textBeefy"
+                                                       style="width: 100%;" value="2000000" placeholder="2000000" name="moon_debris" title="Total debris (metal+crystal+deuterium) that determines moon size">
+                                                <span style="display: block; font-size: 0.9em; color: #666; margin-top: 5px;">Examples: 100k, 500k, 1M, 2M</span>
+                                            </div>
+                                            <div style="flex: 1;">
+                                                <label for="moon_factor" style="display: block; margin-bottom: 5px;">@lang('X Factor (10-20):')</label>
+                                                <input type="text" id="moon_factor" pattern="^[0-9]+$" class="textInput textCenter textBeefy"
+                                                       style="width: 100%;" value="" placeholder="Random" name="moon_factor" min="10" max="20" title="X factor in formula (10-20). Leave blank for random.">
+                                                <span style="display: block; font-size: 0.9em; color: #666; margin-top: 5px;">Leave blank = random</span>
+                                            </div>
+                                        </div>
+                                        <span style="display: block; font-size: 0.9em; color: #999; margin-top: 8px; font-style: italic;">Formula: diameter = floor((x + 3*debris/100000)^0.5 * 1000)</span>
+                                    </div>
                                     <div class="fieldwrapper" style="text-align: center; margin-bottom: 20px;">
                                         <input type="submit" class="btn_blue" name="create_planet" value="@lang('Create Planet')">
                                         <input type="submit" class="btn_blue" name="create_moon" value="@lang('Create Moon')">

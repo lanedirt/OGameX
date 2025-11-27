@@ -110,7 +110,8 @@ class AttackMission extends GameMission
 
         // Create a moon for defender if result of battle indicates so and defender planet does not already have a moon.
         if (!$defenderPlanet->hasMoon() && $battleResult->moonCreated) {
-            $this->planetServiceFactory->createMoonForPlanet($defenderPlanet);
+            $debrisAmount = (int)$battleResult->debris->sum();
+            $this->planetServiceFactory->createMoonForPlanet($defenderPlanet, $debrisAmount, $battleResult->moonChance);
         }
 
         // Check if attacker fleet was destroyed in first round
