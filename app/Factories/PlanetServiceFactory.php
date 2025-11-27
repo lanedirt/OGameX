@@ -369,7 +369,7 @@ class PlanetServiceFactory
      * @param int|null $xFactor Optional x factor (10-20) for moon size formula. If null, random value is used.
      * @return PlanetService The new moon.
      */
-    public function createMoonForPlanet(PlanetService $planet, int $debrisAmount, int $moonChance, ?int $xFactor = null): PlanetService
+    public function createMoonForPlanet(PlanetService $planet, int $debrisAmount, int $moonChance, int|null $xFactor = null): PlanetService
     {
         return $this->createPlanet($planet->getPlayer(), $planet->getPlanetCoordinates(), 'Moon', PlanetType::Moon, $debrisAmount, $moonChance, $xFactor);
     }
@@ -385,7 +385,7 @@ class PlanetServiceFactory
      * @param int|null $xFactor Optional x factor for moon size formula (only used for moons).
      * @return PlanetService
      */
-    private function createPlanet(PlayerService $player, Coordinate $new_position, string $planet_name, PlanetType $planet_type, int $debrisAmount = 0, int $moonChance = 0, ?int $xFactor = null): PlanetService
+    private function createPlanet(PlayerService $player, Coordinate $new_position, string $planet_name, PlanetType $planet_type, int $debrisAmount = 0, int $moonChance = 0, int|null $xFactor = null): PlanetService
     {
         $planet = new Planet();
         $planet->user_id = $player->getId();
