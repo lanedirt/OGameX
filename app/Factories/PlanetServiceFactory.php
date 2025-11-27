@@ -425,7 +425,7 @@ class PlanetServiceFactory
      * @param int $moonChance Moon chance percentage from the battle (unused for size, kept for future features)
      * @param int|null $xFactor Optional x factor (10-20). If null, random value is used.
      */
-    private function setupMoonProperties(Planet $planet, int $debrisAmount, int $moonChance, ?int $xFactor = null): void
+    private function setupMoonProperties(Planet $planet, int $debrisAmount, int $moonChance, int|null $xFactor = null): void
     {
         // Calculate moon diameter using official formula:
         // diameter = floor((x + 3 * debris / 100000) ^ 0.5 * 1000)
