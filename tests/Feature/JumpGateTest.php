@@ -194,8 +194,7 @@ class JumpGateTest extends MoonTestCase
     public function testEligibleTargetsExcludesCooldownMoons(): void
     {
         // Set cooldown on second moon (unix timestamp)
-        $this->secondMoonService->getPlanet()->jump_gate_cooldown = (int) Carbon::now()->addHour()->timestamp;
-        $this->secondMoonService->save();
+        $this->secondMoonService->setJumpGateCooldown((int) Carbon::now()->addHour()->timestamp);
 
         $player = $this->moonService->getPlayer();
         $eligibleTargets = $this->jumpGateService->getEligibleTargets($player, $this->moonService);

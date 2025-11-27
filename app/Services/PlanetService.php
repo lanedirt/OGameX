@@ -127,13 +127,47 @@ class PlanetService
     }
 
     /**
-     * Get the planet model.
+     * Get the jump gate cooldown timestamp.
      *
-     * @return Planet
+     * @return int|null
      */
-    public function getPlanet(): Planet
+    public function getJumpGateCooldown(): int|null
     {
-        return $this->planet;
+        return $this->planet->jump_gate_cooldown;
+    }
+
+    /**
+     * Set the jump gate cooldown timestamp.
+     *
+     * @param int|null $timestamp
+     * @return void
+     */
+    public function setJumpGateCooldown(int|null $timestamp): void
+    {
+        $this->planet->jump_gate_cooldown = $timestamp;
+        $this->planet->save();
+    }
+
+    /**
+     * Get the default jump gate target moon ID.
+     *
+     * @return int|null
+     */
+    public function getDefaultJumpGateTargetId(): int|null
+    {
+        return $this->planet->default_jump_gate_target_id;
+    }
+
+    /**
+     * Set the default jump gate target moon ID.
+     *
+     * @param int|null $moonId
+     * @return void
+     */
+    public function setDefaultJumpGateTargetId(int|null $moonId): void
+    {
+        $this->planet->default_jump_gate_target_id = $moonId;
+        $this->planet->save();
     }
 
     /**

@@ -85,7 +85,7 @@ class JumpGateService
      */
     public function isOnCooldown(PlanetService $moon): bool
     {
-        $cooldown_until = $moon->getPlanet()->jump_gate_cooldown;
+        $cooldown_until = $moon->getJumpGateCooldown();
 
         if ($cooldown_until === null || $cooldown_until === 0) {
             return false;
@@ -102,7 +102,7 @@ class JumpGateService
      */
     public function getRemainingCooldown(PlanetService $moon): int
     {
-        $cooldown_until = $moon->getPlanet()->jump_gate_cooldown;
+        $cooldown_until = $moon->getJumpGateCooldown();
 
         if ($cooldown_until === null || $cooldown_until === 0) {
             return 0;
@@ -296,12 +296,10 @@ class JumpGateService
         $cooldown_until = (int) Carbon::now()->timestamp + $cooldown_seconds;
 
         // Set cooldown on source moon
-        $source->getPlanet()->jump_gate_cooldown = $cooldown_until;
-        $source->save();
+        $source->setJumpGateCooldown($cooldown_until);
 
         // Set cooldown on target moon
-        $target->getPlanet()->jump_gate_cooldown = $cooldown_until;
-        $target->save();
+        $target->setJumpGateCooldown($cooldown_until);
     }
 
     /**
@@ -313,7 +311,7 @@ class JumpGateService
      */
     public function getDefaultTarget(PlanetService $moon, PlayerService $player): PlanetService|null
     {
-        $default_target_id = $moon->getPlanet()->default_jump_gate_target_id;
+        $default_target_id = $moon->getDefaultJumpGateTargetId();
 
         if ($default_target_id === null) {
             return null;
@@ -342,8 +340,7 @@ class JumpGateService
      */
     public function setDefaultTarget(PlanetService $moon, int|null $target_moon_id): void
     {
-        $moon->getPlanet()->default_jump_gate_target_id = $target_moon_id;
-        $moon->save();
+        $moon->setDefaultJumpGateTargetId($target_moon_id);
     }
 
     /**
