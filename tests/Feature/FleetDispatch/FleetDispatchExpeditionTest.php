@@ -358,13 +358,13 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $highscore->delete();
 
         // Get the return trip mission for the original mission
-        // and assert that total resources is exactly 100k (limited by cargo capacity)
+        // and assert that total resources is exactly 100k (limited by cargo capacity) + 2 (original resources sent)
         $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
         $totalResources = $returnTripMission->metal + $returnTripMission->crystal + $returnTripMission->deuterium;
         $this->assertEquals(
-            100000,
+            100002,
             $totalResources,
-            'Total resources should be exactly 100k when sending 4 large cargos (cargo capacity limit)'
+            'Total resources should be exactly 100k (found) + 2 (original resources sent) when sending 4 large cargos'
         );
     }
 
@@ -573,6 +573,147 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 1000);
         $this->sendMissionToPosition16($unitCollection, new Resources(1, 1, 0, 0), $assertStatus);
+    }
+
+    /**
+     * Test that resources sent with expedition are preserved when nothing is found.
+     */
+    public function testExpeditionPreservesOriginalResources(): void
+    {
+        $this->basicSetup();
+
+        // Add resources to the planet
+        $this->planetAddResources(new Resources(500000, 300000, 200000, 0));
+
+        // Record initial resources
+        $initialMetal = $this->planetService->metal()->get();
+        $initialCrystal = $this->planetService->crystal()->get();
+        $initialDeuterium = $this->planetService->deuterium()->get();
+
+        // Resources to send with the expedition (fleetsave scenario)
+        $resourcesToSend = new Resources(100000, 50000, 10000, 0);
+
+        // Send expedition with resources
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 100);
+
+        // Enable only the "nothing found" outcome to ensure no additional resources are gained
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::Failed]);
+
+        $this->sendMissionToPosition16($unitCollection, $resourcesToSend, true);
+
+        // Get the mission ID
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(1, $activeMissions, 'Expedition mission not created');
+        $fleetMissionId = $activeMissions->first()->id;
+
+        // Verify resources were deducted from planet (including fuel)
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+        $afterDispatchMetal = $this->planetService->metal()->get();
+        $afterDispatchCrystal = $this->planetService->crystal()->get();
+        $afterDispatchDeuterium = $this->planetService->deuterium()->get();
+
+        $this->assertLessThan($initialMetal, $afterDispatchMetal, 'Metal should be deducted after dispatch');
+        $this->assertLessThan($initialCrystal, $afterDispatchCrystal, 'Crystal should be deducted after dispatch');
+        $this->assertLessThan($initialDeuterium, $afterDispatchDeuterium, 'Deuterium should be deducted after dispatch');
+
+        // Advance time to expedition arrival (1 hour holding time + travel time)
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $travelTime = $fleetMission->time_arrival - $fleetMission->time_departure;
+        $holdingTime = $fleetMission->time_holding ?? 0;
+        $this->travel($travelTime + $holdingTime + 1)->seconds();
+
+        // Trigger update to process the expedition arrival
+        $this->get('/overview');
+
+        // Verify return mission was created
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(1, $activeMissions, 'Return mission should be created');
+        $returnMission = $activeMissions->first();
+
+        // Verify return mission has original resources
+        $this->assertEquals(100000, $returnMission->metal);
+        $this->assertEquals(50000, $returnMission->crystal);
+        $this->assertEquals(10000, $returnMission->deuterium);
+
+        // Advance time to return mission arrival
+        $this->travel($travelTime + 1)->seconds();
+
+        // Trigger update to process the return
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Verify resources were returned to the planet
+        $finalMetal = $this->planetService->metal()->get();
+        $finalCrystal = $this->planetService->crystal()->get();
+        $finalDeuterium = $this->planetService->deuterium()->get();
+
+        // The final resources should be approximately equal to initial resources minus fuel consumption
+        // We allow some tolerance for fuel consumption
+        $this->assertGreaterThan($afterDispatchMetal, $finalMetal, 'Metal should be returned to planet');
+        $this->assertGreaterThan($afterDispatchCrystal, $finalCrystal, 'Crystal should be returned to planet');
+        $this->assertGreaterThan($afterDispatchDeuterium, $finalDeuterium, 'Deuterium should be returned to planet (minus fuel)');
+
+        // Verify the exact amounts returned match what was sent
+        $metalReturned = $finalMetal - $afterDispatchMetal;
+        $crystalReturned = $finalCrystal - $afterDispatchCrystal;
+
+        $this->assertEquals(100000, $metalReturned, 'Exact metal amount should be returned');
+        $this->assertEquals(50000, $crystalReturned, 'Exact crystal amount should be returned');
+    }
+
+    /**
+     * Test that expedition preserves original resources and adds found resources.
+     */
+    public function testExpeditionPreservesOriginalResourcesAndAddsFound(): void
+    {
+        $this->basicSetup();
+
+        // Add resources to the planet
+        $this->planetAddResources(new Resources(500000, 300000, 200000, 0));
+
+        // Resources to send with the expedition
+        $resourcesToSend = new Resources(50000, 25000, 5000, 0);
+
+        // Send expedition with resources
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 100);
+
+        // Enable only the "gain resources" outcome
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
+
+        $this->sendMissionToPosition16($unitCollection, $resourcesToSend, true);
+
+        // Get the mission ID
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $fleetMissionId = $activeMissions->first()->id;
+
+        // Advance time to expedition arrival
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $travelTime = $fleetMission->time_arrival - $fleetMission->time_departure;
+        $holdingTime = $fleetMission->time_holding ?? 0;
+        $this->travel($travelTime + $holdingTime + 1)->seconds();
+
+        // Trigger update to process the expedition arrival
+        $this->get('/overview');
+
+        // Verify return mission was created
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(1, $activeMissions, 'Return mission should be created');
+        $returnMission = $activeMissions->first();
+
+        // Verify return mission has at least original resources (should have more from found resources)
+        $this->assertGreaterThanOrEqual(50000, $returnMission->metal);
+        $this->assertGreaterThanOrEqual(25000, $returnMission->crystal);
+        $this->assertGreaterThanOrEqual(5000, $returnMission->deuterium);
+
+        $hasFoundResources = ($returnMission->metal > 50000) ||
+                            ($returnMission->crystal > 25000) ||
+                            ($returnMission->deuterium > 5000);
+        $this->assertTrue($hasFoundResources);
     }
 
     /**

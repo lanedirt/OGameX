@@ -1095,4 +1095,73 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(0, $activeMissions, 'A return trip is launched while attacker was destroyed in first round and should have no units left.');
     }
+
+    /**
+     * Test that resources sent with attack fleet are preserved when recalled.
+     */
+    public function testAttackRecallPreservesOriginalResources(): void
+    {
+        $this->basicSetup();
+
+        // Add more resources to send with attack fleet
+        $this->planetAddResources(new Resources(500000, 300000, 200000, 0));
+
+        // Add more ships for the attack
+        $this->planetAddUnit('light_fighter', 100);
+        $this->planetAddUnit('large_cargo', 10);
+
+        // Resources to send with the attack fleet
+        // Large cargo has 25k capacity, so 10 large cargos = 250k capacity
+        $resourcesToSend = new Resources(80000, 40000, 10000, 0);
+
+        // Send attack with resources
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 50);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 10);
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, $resourcesToSend, true);
+
+        // Get the mission ID
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(1, $activeMissions, 'Attack mission not created');
+        $fleetMissionId = $activeMissions->first()->id;
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+
+        // Recall the mission before it arrives
+        $fleetParentTime = Carbon::createFromTimestamp($fleetMission->time_departure);
+        $this->travel(60)->seconds();
+
+        // Send recall request
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $fleetMissionId,
+        ]);
+        $response->assertStatus(200);
+
+        // Verify return mission was created
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(1, $activeMissions, 'Return mission should be created after recall');
+        $returnMission = $activeMissions->first();
+
+        // Verify return mission has original resources (deuterium may be slightly higher from fuel return)
+        $this->assertEquals(80000, $returnMission->metal);
+        $this->assertEquals(40000, $returnMission->crystal);
+        $this->assertGreaterThanOrEqual(10000, $returnMission->deuterium);
+
+        // Advance time to return mission arrival
+        $this->travelTo(Carbon::createFromTimestamp($returnMission->time_arrival));
+
+        // Trigger update to process the return
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Verify resources were returned to the planet
+        $finalMetal = $this->planetService->metal()->get();
+        $finalCrystal = $this->planetService->crystal()->get();
+        $finalDeuterium = $this->planetService->deuterium()->get();
+
+        // Should have gotten back the original resources (minus fuel)
+        $this->assertGreaterThan(50000, $finalMetal, 'Metal should be returned after recall');
+        $this->assertGreaterThan(25000, $finalCrystal, 'Crystal should be returned after recall');
+        $this->assertGreaterThan(5000, $finalDeuterium, 'Deuterium should be returned after recall (minus fuel)');
+    }
 }

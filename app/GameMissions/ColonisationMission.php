@@ -114,6 +114,12 @@ class ColonisationMission extends GameMission
         $resources = $this->fleetMissionService->getResources($mission);
         $target_planet->addResources($resources);
 
+        // Clear resources from mission since they've been delivered to the new colony
+        // This prevents them from being returned in the return trip
+        $mission->metal = 0;
+        $mission->crystal = 0;
+        $mission->deuterium = 0;
+
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();

@@ -488,4 +488,181 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $debrisFieldService->loadForCoordinates($this->planetService->getPlanetCoordinates());
         $this->assertFalse($debrisFieldService->getResources()->any(), 'Debris field still has resources after recyclers have harvested it.');
     }
+
+    /**
+     * Test that resources sent with recycler are preserved and returned with harvested resources.
+     */
+    public function testRecyclePreservesOriginalResources(): void
+    {
+        // Custom setup with more recyclers for this test
+        $this->planetAddUnit('recycler', 20);
+        $this->planetAddResources(new Resources(0, 0, 100000, 0));
+
+        // Add debris field to the second planet of the test user.
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
+        $debrisFieldService->save();
+
+        // Add more resources to the planet for fleetsave
+        $this->planetAddResources(new Resources(500000, 300000, 200000, 0));
+
+        // Record initial resources
+        $initialMetal = $this->planetService->metal()->get();
+        $initialCrystal = $this->planetService->crystal()->get();
+        $initialDeuterium = $this->planetService->deuterium()->get();
+
+        // Resources to send with the recyclers (fleetsave scenario)
+        // Recycler has 20k capacity, so with 10 recyclers we have 200k capacity
+        $resourcesToSend = new Resources(80000, 40000, 10000, 0);
+
+        // Send recyclers with resources to debris field
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 10);
+        $this->sendMissionToSecondPlanetDebrisField($unitCollection, $resourcesToSend);
+
+        // Get the mission ID
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(1, $activeMissions, 'Recycle mission not created');
+        $fleetMissionId = $activeMissions->first()->id;
+
+        // Verify resources were deducted from planet
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+        $afterDispatchMetal = $this->planetService->metal()->get();
+        $afterDispatchCrystal = $this->planetService->crystal()->get();
+        $afterDispatchDeuterium = $this->planetService->deuterium()->get();
+
+        $this->assertLessThan($initialMetal, $afterDispatchMetal, 'Metal should be deducted after dispatch');
+        $this->assertLessThan($initialCrystal, $afterDispatchCrystal, 'Crystal should be deducted after dispatch');
+        $this->assertLessThan($initialDeuterium, $afterDispatchDeuterium, 'Deuterium should be deducted after dispatch');
+
+        // Get debris field resources before harvest
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldResources = $debrisFieldService->getResources();
+        $debrisFieldMetal = $debrisFieldResources->metal->get();
+        $debrisFieldCrystal = $debrisFieldResources->crystal->get();
+
+        // Advance time to mission arrival
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $travelTime = $fleetMission->time_arrival - $fleetMission->time_departure;
+        $this->travel($travelTime + 1)->seconds();
+
+        // Trigger update to process the arrival
+        $this->get('/overview');
+
+        // Verify return mission was created
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(1, $activeMissions, 'Return mission should be created');
+        $returnMission = $activeMissions->first();
+
+        // Verify return mission has original + harvested resources
+        $debrisFieldDeuterium = $debrisFieldResources->deuterium->get();
+        $expectedMetal = 80000 + $debrisFieldMetal;
+        $expectedCrystal = 40000 + $debrisFieldCrystal;
+        $expectedDeuterium = 10000 + $debrisFieldDeuterium;
+
+        $this->assertEquals($expectedMetal, $returnMission->metal);
+        $this->assertEquals($expectedCrystal, $returnMission->crystal);
+        $this->assertEquals($expectedDeuterium, $returnMission->deuterium);
+
+        // Advance time to return mission arrival
+        $this->travel($travelTime + 1)->seconds();
+
+        // Trigger update to process the return
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Verify resources were returned to the planet
+        $finalMetal = $this->planetService->metal()->get();
+        $finalCrystal = $this->planetService->crystal()->get();
+        $finalDeuterium = $this->planetService->deuterium()->get();
+
+        // The final resources should include original sent resources + harvested resources - fuel
+        $this->assertGreaterThan($afterDispatchMetal, $finalMetal, 'Metal should be returned to planet');
+        $this->assertGreaterThan($afterDispatchCrystal, $finalCrystal, 'Crystal should be returned to planet');
+        $this->assertGreaterThan($afterDispatchDeuterium, $finalDeuterium, 'Deuterium should be returned to planet (minus fuel)');
+
+        // Verify the exact amounts returned (original + harvested)
+        $metalReturned = $finalMetal - $afterDispatchMetal;
+        $crystalReturned = $finalCrystal - $afterDispatchCrystal;
+
+        $this->assertEquals($expectedMetal, $metalReturned, 'Exact metal amount (original + harvested) should be returned');
+        $this->assertEquals($expectedCrystal, $crystalReturned, 'Exact crystal amount (original + harvested) should be returned');
+    }
+
+    /**
+     * Test fleetsave to empty debris field preserves resources.
+     */
+    public function testRecycleToEmptyDebrisFieldPreservesResources(): void
+    {
+        // Custom setup with more recyclers for this test
+        $this->planetAddUnit('recycler', 20);
+        $this->planetAddResources(new Resources(0, 0, 100000, 0));
+
+        // Add debris field to the second planet of the test user.
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
+        $debrisFieldService->save();
+
+        // Empty the debris field completely
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->deductResources($debrisFieldService->getResources());
+        $debrisFieldService->save();
+
+        // Verify debris field is empty
+        $debrisFieldResources = $debrisFieldService->getResources();
+        $this->assertEquals(0, $debrisFieldResources->metal->get(), 'Debris field should be empty');
+        $this->assertEquals(0, $debrisFieldResources->crystal->get(), 'Debris field should be empty');
+
+        // Add resources to planet
+        $this->planetAddResources(new Resources(300000, 200000, 100000, 0));
+
+        // Resources to send with recyclers (fleetsave to empty/ghost debris field)
+        // Recycler has 20k capacity, so with 10 recyclers we have 200k capacity
+        $resourcesToSend = new Resources(80000, 40000, 10000, 0);
+
+        // Send recyclers with resources to empty debris field
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 10);
+        $this->sendMissionToSecondPlanetDebrisField($unitCollection, $resourcesToSend);
+
+        // Get the mission
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $fleetMissionId = $activeMissions->first()->id;
+
+        // Advance time to mission arrival
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $travelTime = $fleetMission->time_arrival - $fleetMission->time_departure;
+        $this->travel($travelTime + 1)->seconds();
+
+        // Trigger update
+        $this->get('/overview');
+
+        // Verify return mission has exact original resources (nothing harvested from empty field)
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $returnMission = $activeMissions->first();
+
+        $this->assertEquals(80000, $returnMission->metal);
+        $this->assertEquals(40000, $returnMission->crystal);
+        $this->assertEquals(10000, $returnMission->deuterium);
+
+        // Advance time to return and verify resources come back
+        $this->travel($travelTime + 1)->seconds();
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Verify resources were returned (this is the key test - resources should not be lost)
+        $finalMetal = $this->planetService->metal()->get();
+        $finalCrystal = $this->planetService->crystal()->get();
+
+        // Should have approximately original resources back (minus fuel)
+        $this->assertGreaterThan(50000, $finalMetal, 'Metal should be returned from fleetsave');
+        $this->assertGreaterThan(25000, $finalCrystal, 'Crystal should be returned from fleetsave');
+    }
 }
