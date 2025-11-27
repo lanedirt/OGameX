@@ -375,7 +375,13 @@ Combat simulation save slots +20">
 
                     <li>
                         <span class="menu_icon">
-                            <div class="menuImage station {{(Request::is('facilities') ? 'highlighted' : '') }}"></div>
+                            @if ($currentPlanet->isMoon() && $currentPlanet->getObjectLevel('jump_gate') > 0)
+                                <a href="{{ route('jumpgate.index') }}" class="overlay tooltipRight js_hideTipOnMobile" target="_self" data-overlay-title="@lang('Jump Gate')" title="@lang('Jump Gate')">
+                                    <div class="menuImage station highlighted ipiHintable" data-ipi-hint="ipiToolbarJumpgate"></div>
+                                </a>
+                            @else
+                                <div class="menuImage station"></div>
+                            @endif
                         </span>
                         <a class="menubutton {{(Request::is('facilities') ? 'selected' : '') }}"
                            href="{{ route('facilities.index') }}"

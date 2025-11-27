@@ -127,6 +127,16 @@ class PlanetService
     }
 
     /**
+     * Get the planet model.
+     *
+     * @return Planet
+     */
+    public function getPlanet(): Planet
+    {
+        return $this->planet;
+    }
+
+    /**
      * Set the planet model directly. This is primarily used by unittests in order to mock the planet model.
      *
      * @param Planet $planet

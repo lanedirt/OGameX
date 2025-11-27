@@ -157,6 +157,12 @@ abstract class AbstractBuildingsController extends OGameController
             }
         }
 
+        // Get Jump Gate level for moon header slot
+        $jump_gate_level = 0;
+        if ($this->planet->isMoon()) {
+            $jump_gate_level = $this->planet->getObjectLevel('jump_gate');
+        }
+
         return [
             'planet_id' => $this->planet->getPlanetId(),
             'planet_name' => $this->planet->getPlanetName(),
@@ -167,6 +173,7 @@ abstract class AbstractBuildingsController extends OGameController
             'build_queue' => $build_queue,
             'build_queue_max' => $build_queue_max,
             'open_tech_id' => $open_tech_id,
+            'jump_gate_level' => $jump_gate_level,
         ];
     }
 

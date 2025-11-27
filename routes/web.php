@@ -19,6 +19,7 @@ use OGame\Http\Controllers\NotesController;
 use OGame\Http\Controllers\OptionsController;
 use OGame\Http\Controllers\OverviewController;
 use OGame\Http\Controllers\PaymentController;
+use OGame\Http\Controllers\JumpGateController;
 use OGame\Http\Controllers\PhalanxController;
 use OGame\Http\Controllers\PlanetAbandonController;
 use OGame\Http\Controllers\PlanetMoveController;
@@ -104,6 +105,11 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 
     // Phalanx
     Route::post('/ajax/phalanx/scan', [PhalanxController::class, 'scan'])->name('phalanx.scan');
+
+    // Jump Gate
+    Route::get('/ajax/jumpgate', [JumpGateController::class, 'index'])->name('jumpgate.index');
+    Route::post('/ajax/jumpgate/execute', [JumpGateController::class, 'executeJump'])->name('jumpgate.execute');
+    Route::post('/ajax/jumpgate/set-default-target', [JumpGateController::class, 'setDefaultTarget'])->name('jumpgate.setdefaulttarget');
 
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');

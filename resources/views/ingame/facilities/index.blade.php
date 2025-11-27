@@ -14,6 +14,11 @@
             <div class="c-right"></div>
             <header data-anchor="technologyDetails" data-technologydetails-size="large" style="background-image:url({{ asset('img/headers/facilities/' . $header_filename) }}.jpg);">
                 <h2>Facilities - {{ $planet_name }}</h2>
+                @if (isset($jump_gate_level) && $jump_gate_level > 0)
+                    <div id="slot01" class="slot">
+                        <a href="{{ route('jumpgate.index') }}" class="overlay" data-overlay-title="@lang('Use Jump Gate')">@lang('Jump Gate')</a>
+                    </div>
+                @endif
             </header>
             <div id="technologydetails_wrapper">
                 <div id="technologydetails_content"></div>
