@@ -13,6 +13,7 @@ use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -145,7 +146,14 @@ class AttackMission extends GameMission
         $mission->save();
 
         // Create and start the return mission (if attacker has remaining units).
-        $this->startReturn($mission, $battleResult->loot, $battleResult->attackerUnitsResult);
+        // Add parent mission resources to looted resources.
+        $totalResources = new Resources(
+            $mission->metal + $battleResult->loot->metal->get(),
+            $mission->crystal + $battleResult->loot->crystal->get(),
+            $mission->deuterium + $battleResult->loot->deuterium->get(),
+            0
+        );
+        $this->startReturn($mission, $totalResources, $battleResult->attackerUnitsResult);
     }
 
     /**

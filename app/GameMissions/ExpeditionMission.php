@@ -150,7 +150,14 @@ class ExpeditionMission extends GameMission
         $mission->save();
 
         // Create and start the return mission.
-        $this->startReturn($mission, $returnResources, $units, $additionalReturnTripTime);
+        // Add parent mission resources to any resources found during expedition.
+        $totalResources = new Resources(
+            $mission->metal + $returnResources->metal->get(),
+            $mission->crystal + $returnResources->crystal->get(),
+            $mission->deuterium + $returnResources->deuterium->get(),
+            0
+        );
+        $this->startReturn($mission, $totalResources, $units, $additionalReturnTripTime);
     }
 
     /**
@@ -282,7 +289,11 @@ class ExpeditionMission extends GameMission
 
         // Get max cargo capacity of the fleet.
         $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
-        $maxCargoCapacity = $units->getTotalCargoCapacity($player);
+        $totalCargoCapacity = $units->getTotalCargoCapacity($player);
+
+        // Subtract resources already in cargo from parent mission
+        $resourcesInCargo = $mission->metal + $mission->crystal + $mission->deuterium;
+        $maxCargoCapacity = $totalCargoCapacity - $resourcesInCargo;
 
         // Determine the max resource find.
         $maxResourceFind = $this->determineMaxResourceFind();
@@ -406,7 +417,11 @@ class ExpeditionMission extends GameMission
 
         // Get max cargo capacity of the fleet.
         $units = $this->fleetMissionService->getFleetUnits(mission: $mission);
-        $maxCargoCapacity = $units->getTotalCargoCapacity($player);
+        $totalCargoCapacity = $units->getTotalCargoCapacity($player);
+
+        // Subtract resources already in cargo from parent mission
+        $resourcesInCargo = $mission->metal + $mission->crystal + $mission->deuterium;
+        $maxCargoCapacity = $totalCargoCapacity - $resourcesInCargo;
 
         // Determine the max resource find.
         $maxResourceFind = $this->determineMaxResourceFind();

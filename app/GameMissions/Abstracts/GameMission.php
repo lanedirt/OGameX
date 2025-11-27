@@ -124,6 +124,7 @@ abstract class GameMission
         $mission->save();
 
         // Start the return mission with the resources and units of the original mission.
+        // getResources() already includes parent mission resources.
         $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission));
     }
 
@@ -298,7 +299,7 @@ abstract class GameMission
      * Start the return mission.
      *
      * @param FleetMission $parentMission The parent mission that the return mission is linked to.
-     * @param Resources $resources The resources that are to be returned.
+     * @param Resources $resources The resources that are to be returned. Should include parent mission resources if they need to be preserved.
      * @param UnitCollection $units The units that are to be returned.
      * @param int $additionalReturnTripTime Time in seconds to add to the return trip duration (optional, used by expeditions). Can be positive or negative.
      * @return void
@@ -366,11 +367,9 @@ abstract class GameMission
             $mission->{$unit->unitObject->machine_name} = $unit->amount;
         }
 
-        // Set amount of resources to return based on provided resources in parameter.
-        // This is the amount of resources that were gained and/or not used during the mission.
-        // The logic is different for each mission type.
-        // TODO: make this more smart: what if mission started with resources already, e.g. sending attack mission with resources?
-        // With the current logic the resources from origin mission are lost, which is probably not correct?
+        // Set return mission resources.
+        // Each mission type should explicitly add parent mission resources to the $resources parameter
+        // before calling this method if they want to preserve them.
         $mission->metal = (int)$resources->metal->get();
         $mission->crystal = (int)$resources->crystal->get();
         $mission->deuterium = (int)$resources->deuterium->get();

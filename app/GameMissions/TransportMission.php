@@ -82,6 +82,7 @@ class TransportMission extends GameMission
         $mission->save();
 
         // Create and start the return mission.
+        // Transport delivers all resources, so return with empty cargo.
         $units = $this->fleetMissionService->getFleetUnits($mission);
         $this->startReturn($mission, new Resources(0, 0, 0, 0), $units);
     }
