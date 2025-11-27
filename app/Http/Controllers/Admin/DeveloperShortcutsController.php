@@ -272,11 +272,25 @@ class DeveloperShortcutsController extends OGameController
                     return redirect()->back()->with('error', 'Cannot create moon - no planet exists at ' . $coordinate->asString());
                 }
 
-                // Create moon for the specified planet with default values
-                // (10% moon chance equivalent = 1,000,000 debris)
-                $planetServiceFactory->createMoonForPlanet($existingPlanet, 1000000, 10);
+                // Get moon parameters from request
+                $debrisAmount = (int)AppUtil::parseResourceValue($request->input('moon_debris', '2000000'));
+                $xFactor = $request->filled('moon_factor') ? (int)$request->input('moon_factor') : null;
 
-                return redirect()->back()->with('success', 'Moon created successfully at ' . $coordinate->asString());
+                // Validate inputs
+                if ($debrisAmount < 0) {
+                    return redirect()->back()->with('error', 'Debris amount must be positive');
+                }
+                if ($xFactor !== null && ($xFactor < 10 || $xFactor > 20)) {
+                    return redirect()->back()->with('error', 'X factor must be between 10 and 20');
+                }
+
+                // Create moon with specified parameters
+                // Moon chance is set to 20% (maximum) since we're guaranteed to create the moon anyway
+                $moon = $planetServiceFactory->createMoonForPlanet($existingPlanet, $debrisAmount, 20, $xFactor);
+                $moonSize = $moon->getPlanetDiameter();
+
+                $xFactorText = $xFactor !== null ? " (x={$xFactor})" : " (x=random)";
+                return redirect()->back()->with('success', "Moon created at {$coordinate->asString()} with diameter {$moonSize} km{$xFactorText}");
             }
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Failed to create planet/moon: ' . $e->getMessage());
