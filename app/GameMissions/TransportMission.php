@@ -77,17 +77,12 @@ class TransportMission extends GameMission
             ]);
         }
 
-        // Clear resources from mission since they've been delivered
-        // This prevents them from being returned in the return trip
-        $mission->metal = 0;
-        $mission->crystal = 0;
-        $mission->deuterium = 0;
-
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();
 
         // Create and start the return mission.
+        // Transport delivers all resources, so return with empty cargo.
         $units = $this->fleetMissionService->getFleetUnits($mission);
         $this->startReturn($mission, new Resources(0, 0, 0, 0), $units);
     }

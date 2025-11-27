@@ -124,8 +124,8 @@ abstract class GameMission
         $mission->save();
 
         // Start the return mission with the resources and units of the original mission.
-        // Use preserveParentResources=false because getResources() already includes parent mission resources
-        $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission), 0, false);
+        // getResources() already includes parent mission resources.
+        $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission));
     }
 
     /**
@@ -299,13 +299,12 @@ abstract class GameMission
      * Start the return mission.
      *
      * @param FleetMission $parentMission The parent mission that the return mission is linked to.
-     * @param Resources $resources The resources that are to be returned.
+     * @param Resources $resources The resources that are to be returned. Should include parent mission resources if they need to be preserved.
      * @param UnitCollection $units The units that are to be returned.
      * @param int $additionalReturnTripTime Time in seconds to add to the return trip duration (optional, used by expeditions). Can be positive or negative.
-     * @param bool $preserveParentResources Whether to preserve and add parent mission resources to the return mission. Set to false when canceling missions or when resources parameter already includes parent resources.
      * @return void
      */
-    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0, bool $preserveParentResources = true): void
+    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0): void
     {
         if ($units->getAmount() === 0) {
             // No units to return, no need to create a return mission.
@@ -369,18 +368,11 @@ abstract class GameMission
         }
 
         // Set return mission resources.
-        // By default, preserve original resources from parent mission and add any gained resources.
-        // This fixes fleetsave bug where resources sent with expeditions/recyclers were lost.
-        // Set $preserveParentResources=false when resources parameter already includes parent resources (e.g., cancel).
-        if ($preserveParentResources) {
-            $mission->metal = (int)$parentMission->metal + (int)$resources->metal->get();
-            $mission->crystal = (int)$parentMission->crystal + (int)$resources->crystal->get();
-            $mission->deuterium = (int)$parentMission->deuterium + (int)$resources->deuterium->get();
-        } else {
-            $mission->metal = (int)$resources->metal->get();
-            $mission->crystal = (int)$resources->crystal->get();
-            $mission->deuterium = (int)$resources->deuterium->get();
-        }
+        // Each mission type should explicitly add parent mission resources to the $resources parameter
+        // before calling this method if they want to preserve them.
+        $mission->metal = (int)$resources->metal->get();
+        $mission->crystal = (int)$resources->crystal->get();
+        $mission->deuterium = (int)$resources->deuterium->get();
 
         // Save the new fleet return mission.
         $mission->save();

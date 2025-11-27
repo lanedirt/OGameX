@@ -12,6 +12,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
@@ -105,8 +106,15 @@ class RecycleMission extends GameMission
         $mission->save();
 
         // Create and start the return mission.
+        // Add parent mission resources to harvested resources.
         $units = $this->fleetMissionService->getFleetUnits($mission);
-        $this->startReturn($mission, $resourcesHarvested, $units);
+        $totalResources = new Resources(
+            $mission->metal + $resourcesHarvested->metal->get(),
+            $mission->crystal + $resourcesHarvested->crystal->get(),
+            $mission->deuterium + $resourcesHarvested->deuterium->get(),
+            0
+        );
+        $this->startReturn($mission, $totalResources, $units);
     }
 
     /**

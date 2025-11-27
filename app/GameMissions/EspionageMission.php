@@ -85,6 +85,7 @@ class EspionageMission extends GameMission
         // TODO: a battle can happen if counter-espionage has taken place. Add logic for this using the battle system.
 
         // Create and start the return mission.
+        // getResources() already includes parent mission resources.
         $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $units);
     }
 

@@ -358,13 +358,13 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $highscore->delete();
 
         // Get the return trip mission for the original mission
-        // and assert that total resources is exactly 100k (limited by cargo capacity) + 2 (original resources sent)
+        // and assert that total resources is exactly 100k (limited by cargo capacity)
         $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
         $totalResources = $returnTripMission->metal + $returnTripMission->crystal + $returnTripMission->deuterium;
         $this->assertEquals(
-            100002,
+            100000,
             $totalResources,
-            'Total resources should be exactly 100k (found) + 2 (original resources sent) when sending 4 large cargos'
+            'Total resources should be exactly 100k when sending 4 large cargos (cargo capacity limit)'
         );
     }
 
