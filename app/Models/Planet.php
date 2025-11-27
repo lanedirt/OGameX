@@ -162,6 +162,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $lunar_base
  * @property int $sensor_phalanx
  * @property int $jump_gate
+ * @property int|null $jump_gate_cooldown
+ * @property int|null $default_jump_gate_target_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Planet whereJumpGate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Planet whereLunarBase($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Planet whereSensorPhalanx($value)

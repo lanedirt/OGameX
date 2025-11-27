@@ -127,6 +127,50 @@ class PlanetService
     }
 
     /**
+     * Get the jump gate cooldown timestamp.
+     *
+     * @return int|null
+     */
+    public function getJumpGateCooldown(): int|null
+    {
+        return $this->planet->jump_gate_cooldown;
+    }
+
+    /**
+     * Set the jump gate cooldown timestamp.
+     *
+     * @param int|null $timestamp
+     * @return void
+     */
+    public function setJumpGateCooldown(int|null $timestamp): void
+    {
+        $this->planet->jump_gate_cooldown = $timestamp;
+        $this->planet->save();
+    }
+
+    /**
+     * Get the default jump gate target moon ID.
+     *
+     * @return int|null
+     */
+    public function getDefaultJumpGateTargetId(): int|null
+    {
+        return $this->planet->default_jump_gate_target_id;
+    }
+
+    /**
+     * Set the default jump gate target moon ID.
+     *
+     * @param int|null $moonId
+     * @return void
+     */
+    public function setDefaultJumpGateTargetId(int|null $moonId): void
+    {
+        $this->planet->default_jump_gate_target_id = $moonId;
+        $this->planet->save();
+    }
+
+    /**
      * Set the planet model directly. This is primarily used by unittests in order to mock the planet model.
      *
      * @param Planet $planet
