@@ -1854,13 +1854,22 @@ class PlanetService
     }
 
     /**
-     * Get building count from planet
+     * Get building count from planet (number of fields used by buildings)
      *
      * @return int
      */
     public function getBuildingCount(): int
     {
-        return collect($this->getBuildingArray())->sum();
+        $count = 0;
+        $objects = [...ObjectService::getBuildingObjects(), ...ObjectService::getStationObjects()];
+        foreach ($objects as $object) {
+            // Only count buildings that consume planet fields
+            if ($object->consumesPlanetField && $this->planet->{$object->machine_name} > 0) {
+                $count += $this->planet->{$object->machine_name};
+            }
+        }
+
+        return $count;
     }
 
     /**

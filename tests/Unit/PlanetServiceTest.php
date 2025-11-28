@@ -221,4 +221,31 @@ class PlanetServiceTest extends UnitTestCase
         // Should only return valid buildings, ( ie metal_mine crystal_mine, solar_plant )
         $this->assertEquals(150, $this->planetService->getBuildingCount());
     }
+
+    /**
+     * Test that Space Dock does not count towards planet fields.
+     * Space Dock floats in orbit and should not consume a planet field.
+     */
+    public function testSpaceDockDoesNotConsumeField(): void
+    {
+        // Test with only Space Dock
+        $this->createAndSetPlanetModel([
+            'space_dock' => 5,
+        ]);
+
+        // Space Dock should not count towards building count (fields used)
+        $this->assertEquals(0, $this->planetService->getBuildingCount(), 'Space Dock should not consume planet fields.');
+
+        // Test with Space Dock and other buildings
+        $this->createAndSetPlanetModel([
+            'metal_mine' => 10,
+            'crystal_mine' => 5,
+            'space_dock' => 3,
+            'robot_factory' => 2,
+        ]);
+
+        // Should only count metal_mine (10) + crystal_mine (5) + robot_factory (2) = 17
+        // Space Dock (3) should NOT be counted
+        $this->assertEquals(17, $this->planetService->getBuildingCount(), 'Space Dock levels should not be included in building count.');
+    }
 }

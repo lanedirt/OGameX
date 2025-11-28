@@ -69,6 +69,14 @@ abstract class GameObject
     public GameObjectAssets $assets;
 
     /**
+     * Whether this object consumes a planet field when built. Most buildings consume a field,
+     * but some (like Space Dock which floats in orbit) do not.
+     *
+     * @var bool
+     */
+    public bool $consumesPlanetField = true;
+
+    /**
      * Custom calculation formulas for this object. These formulas can be used to calculate custom values for the object.
      * E.g. a formula to determine max amount of planets that can be colonized with astrophysics technology.
      *
