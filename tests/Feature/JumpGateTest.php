@@ -38,7 +38,7 @@ class JumpGateTest extends MoonTestCase
 
         // Create second moon for the second planet
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $this->secondMoonService = $planetServiceFactory->createMoonForPlanet($this->secondPlanetService);
+        $this->secondMoonService = $planetServiceFactory->createMoonForPlanet($this->secondPlanetService, 100000, 20);
 
         // Set up Jump Gate on second moon
         $this->secondMoonService->setObjectLevel($jumpGateObject->id, 1, true);
