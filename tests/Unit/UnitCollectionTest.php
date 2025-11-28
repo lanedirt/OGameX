@@ -75,7 +75,7 @@ class UnitCollectionTest extends UnitTestCase
             'deathstar' => 1000000,
             'colony_ship' => 7500,
             'recycler' => 20000,
-            'espionage_probe' => 5,
+            'espionage_probe' => 0, // Updated: espionage probe now has 0 cargo capacity
         ];
 
         for ($i = 0; $i < $iterations; $i++) {
@@ -205,5 +205,84 @@ class UnitCollectionTest extends UnitTestCase
         $actualCapacity = $unitCollection->getTotalCargoCapacity($this->playerService);
 
         $this->assertEquals($expectedCapacity, $actualCapacity, 'Cargo-only fleet capacity calculation incorrect');
+    }
+
+    /**
+     * Test cargo and fuel capacity calculations with espionage probes.
+     */
+    public function testMixedFleetWithEspionageProbesCargoCapacity(): void
+    {
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([]);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getShipObjectByMachineName('small_cargo'), 10);
+        $unitCollection->addUnit(ObjectService::getShipObjectByMachineName('espionage_probe'), 5);
+
+        // Cargo: 10*5000 + 5*0 = 50,000
+        $this->assertEquals(50000, $unitCollection->getTotalCargoCapacity($this->playerService));
+
+        // Fuel: 10*5000 + 5*5 = 50,025
+        $this->assertEquals(50025, $unitCollection->getTotalFuelCapacity($this->playerService));
+    }
+
+    /**
+     * Property test: Mixed fleet cargo calculation is independent from fuel capacity.
+     */
+    public function testPropertyMixedFleetCargoCalculationIndependent(): void
+    {
+        $iterations = 50;
+        $seed = time();
+        mt_srand($seed);
+
+        for ($i = 0; $i < $iterations; $i++) {
+            $this->createAndSetPlanetModel([]);
+            $this->createAndSetUserTechModel([]);
+
+            $unitCollection = new UnitCollection();
+
+            // Add random number of small cargo (has same cargo and fuel capacity)
+            $smallCargoAmount = mt_rand(1, 20);
+            $unitCollection->addUnit(
+                ObjectService::getShipObjectByMachineName('small_cargo'),
+                $smallCargoAmount
+            );
+
+            // Add random number of espionage probes (cargo=0, fuel=5)
+            $probeAmount = mt_rand(1, 10);
+            $unitCollection->addUnit(
+                ObjectService::getShipObjectByMachineName('espionage_probe'),
+                $probeAmount
+            );
+
+            // Calculate expected values
+            $expectedCargoCapacity = ($smallCargoAmount * 5000) + ($probeAmount * 0);
+            $expectedFuelCapacity = ($smallCargoAmount * 5000) + ($probeAmount * 5);
+
+            $actualCargoCapacity = $unitCollection->getTotalCargoCapacity($this->playerService);
+            $actualFuelCapacity = $unitCollection->getTotalFuelCapacity($this->playerService);
+
+            // Property: Cargo capacity is calculated independently from fuel capacity
+            $this->assertEquals(
+                $expectedCargoCapacity,
+                $actualCargoCapacity,
+                "Iteration $i (seed: $seed): Cargo capacity mismatch"
+            );
+
+            $this->assertEquals(
+                $expectedFuelCapacity,
+                $actualFuelCapacity,
+                "Iteration $i (seed: $seed): Fuel capacity mismatch"
+            );
+
+            // Property: When espionage probes are present, cargo != fuel capacity
+            if ($probeAmount > 0) {
+                $this->assertNotEquals(
+                    $actualCargoCapacity,
+                    $actualFuelCapacity,
+                    "Iteration $i (seed: $seed): Cargo and fuel capacity should differ when probes present"
+                );
+            }
+        }
     }
 }

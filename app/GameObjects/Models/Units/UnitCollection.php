@@ -264,4 +264,19 @@ class UnitCollection
         }
         return $total;
     }
+
+    /**
+     * Get the total fuel capacity of the units in the collection.
+     *
+     * @param PlayerService $player
+     * @return int
+     */
+    public function getTotalFuelCapacity(PlayerService $player): int
+    {
+        $total = 0;
+        foreach ($this->units as $entry) {
+            $total += $entry->unitObject->properties->fuel_capacity->calculate($player)->totalValue * $entry->amount;
+        }
+        return $total;
+    }
 }

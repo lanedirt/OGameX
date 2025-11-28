@@ -211,4 +211,26 @@ class ObjectPropertiesTest extends UnitTestCase
         $this->assertEquals(400, $calculated->bonusValue);
         $this->assertEquals(4400, $calculated->totalValue);
     }
+
+    /**
+     * Test fuel capacity: defaults to cargo capacity for backward compatibility,
+     * but can be set independently (e.g., espionage probe).
+     *
+     * @throws Exception
+     */
+    public function testFuelCapacityProperty(): void
+    {
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([]);
+
+        // Backward compatibility: fuel_capacity defaults to capacity
+        $smallCargo = ObjectService::getShipObjectByMachineName('small_cargo');
+        $this->assertEquals(5000, $smallCargo->properties->capacity->rawValue);
+        $this->assertEquals(5000, $smallCargo->properties->fuel_capacity->rawValue);
+
+        // Independent values: espionage probe has cargo=0, fuel=5
+        $espionageProbe = ObjectService::getShipObjectByMachineName('espionage_probe');
+        $this->assertEquals(0, $espionageProbe->properties->capacity->rawValue);
+        $this->assertEquals(5, $espionageProbe->properties->fuel_capacity->rawValue);
+    }
 }
