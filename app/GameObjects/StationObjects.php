@@ -166,6 +166,7 @@ Since the Space Dock floats in orbit, it does not require a planet field.';
             new GameObjectRequirement('shipyard', 2),
         ];
         $spaceDock->price = new GameObjectPrice(200, 0, 50, 50, 2);
+        $spaceDock->consumesPlanetField = false; // Space Dock floats in orbit and doesn't consume a field
         $spaceDock->valid_planet_types = [PlanetType::Planet];
         $spaceDock->assets = new GameObjectAssets();
         $spaceDock->assets->imgMicro = 'space_dock_micro.jpg';
