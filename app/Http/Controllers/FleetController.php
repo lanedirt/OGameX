@@ -4,6 +4,7 @@ namespace OGame\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Factories\GameMissionFactory;
@@ -18,6 +19,7 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use OGame\ViewModels\FleetEventRowViewModel;
 use OGame\ViewModels\UnitViewModel;
 
 class FleetController extends OGameController
@@ -86,11 +88,146 @@ class FleetController extends OGameController
     /**
      * Shows the fleet movement page
      *
-     * @return View
+     * @param PlayerService $player
+     * @param FleetMissionService $fleetMissionService
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @return View|RedirectResponse
      */
-    public function movement(): View
+    public function movement(PlayerService $player, FleetMissionService $fleetMissionService, PlanetServiceFactory $planetServiceFactory): View|RedirectResponse
     {
-        return view('ingame.fleet.movement');
+        // Get all the fleet movements for the current user.
+        $friendlyMissionRows = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+
+        // If no fleet movements, redirect to fleet dispatch page.
+        if ($friendlyMissionRows->isEmpty()) {
+            return redirect()->route('fleet.index');
+        }
+
+        $fleet_events = [];
+        foreach ($friendlyMissionRows as $row) {
+            $eventRowViewModel = new FleetEventRowViewModel();
+            $eventRowViewModel->id = $row->id;
+            $eventRowViewModel->mission_type = $row->mission_type;
+            $eventRowViewModel->mission_label = $fleetMissionService->missionTypeToLabel($row->mission_type);
+            $eventRowViewModel->mission_time_arrival = $row->time_arrival;
+            $eventRowViewModel->time_departure = $row->time_departure;
+            $eventRowViewModel->is_return_trip = !empty($row->parent_id);
+
+            // For return trips, swap origin and destination for display purposes
+            // (fleet is returning from destination back to origin)
+            if ($eventRowViewModel->is_return_trip) {
+                // Origin becomes destination (where fleet is coming from)
+                $eventRowViewModel->origin_planet_name = '';
+                $eventRowViewModel->origin_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
+                $eventRowViewModel->origin_planet_type = PlanetType::from($row->type_to);
+                if ($row->planet_id_to !== null) {
+                    $planetToService = $planetServiceFactory->make($row->planet_id_to);
+                    if ($planetToService !== null) {
+                        $eventRowViewModel->origin_planet_name = $planetToService->getPlanetName();
+                        $eventRowViewModel->origin_planet_coords = $planetToService->getPlanetCoordinates();
+                        $eventRowViewModel->origin_planet_image_type = $planetToService->getPlanetImageType();
+                        $eventRowViewModel->origin_planet_biome_type = $planetToService->getPlanetBiomeType();
+                    }
+                }
+
+                // Destination becomes origin (where fleet is going back to)
+                $eventRowViewModel->destination_planet_name = '';
+                $eventRowViewModel->destination_planet_coords = new Coordinate($row->galaxy_from, $row->system_from, $row->position_from);
+                $eventRowViewModel->destination_planet_type = PlanetType::from($row->type_from);
+                if ($row->planet_id_from !== null) {
+                    $planetFromService = $planetServiceFactory->make($row->planet_id_from);
+                    if ($planetFromService !== null) {
+                        $eventRowViewModel->destination_planet_name = $planetFromService->getPlanetName();
+                        $eventRowViewModel->destination_planet_coords = $planetFromService->getPlanetCoordinates();
+                        $eventRowViewModel->destination_planet_image_type = $planetFromService->getPlanetImageType();
+                        $eventRowViewModel->destination_planet_biome_type = $planetFromService->getPlanetBiomeType();
+                    }
+                }
+            } else {
+                // Normal trip - origin is where fleet started, destination is where it's going
+                $eventRowViewModel->origin_planet_name = '';
+                $eventRowViewModel->origin_planet_coords = new Coordinate($row->galaxy_from, $row->system_from, $row->position_from);
+                $eventRowViewModel->origin_planet_type = PlanetType::from($row->type_from);
+                if ($row->planet_id_from !== null) {
+                    $planetFromService = $planetServiceFactory->make($row->planet_id_from);
+                    if ($planetFromService !== null) {
+                        $eventRowViewModel->origin_planet_name = $planetFromService->getPlanetName();
+                        $eventRowViewModel->origin_planet_coords = $planetFromService->getPlanetCoordinates();
+                        $eventRowViewModel->origin_planet_image_type = $planetFromService->getPlanetImageType();
+                        $eventRowViewModel->origin_planet_biome_type = $planetFromService->getPlanetBiomeType();
+                    }
+                }
+
+                $eventRowViewModel->destination_planet_name = '';
+                $eventRowViewModel->destination_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
+                $eventRowViewModel->destination_planet_type = PlanetType::from($row->type_to);
+
+                if ($row->planet_id_to !== null) {
+                    $planetToService = $planetServiceFactory->make($row->planet_id_to);
+                    if ($planetToService !== null) {
+                        $eventRowViewModel->destination_planet_name = $planetToService->getPlanetName();
+                        $eventRowViewModel->destination_planet_coords = $planetToService->getPlanetCoordinates();
+                        $eventRowViewModel->destination_planet_image_type = $planetToService->getPlanetImageType();
+                        $eventRowViewModel->destination_planet_biome_type = $planetToService->getPlanetBiomeType();
+                    }
+                }
+            }
+
+            $eventRowViewModel->fleet_unit_count = $fleetMissionService->getFleetUnitCount($row);
+            $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
+            $eventRowViewModel->resources = $fleetMissionService->getResources($row);
+
+            $eventRowViewModel->active_recall_time = time() + (time() - $row->time_departure);
+
+            // Determine friendly status based on mission type for styling
+            $mission = GameMissionFactory::getMissionById($row->mission_type, []);
+            $eventRowViewModel->friendly_status = $mission::getFriendlyStatus()->value;
+            $eventRowViewModel->is_recallable = true;
+
+            // Add return trip info to the same row (not as separate row) if the mission has a return mission
+            if ($fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
+                $eventRowViewModel->has_return_trip = true;
+                $eventRowViewModel->return_time_arrival = $row->time_arrival + ($row->time_arrival - $row->time_departure) + ($row->time_holding ?? 0);
+            }
+
+            // Calculate timer values
+            $currentTime = time();
+            $eventRowViewModel->is_at_destination = $eventRowViewModel->has_return_trip && $eventRowViewModel->mission_time_arrival <= $currentTime;
+
+            // For expeditions at destination, use expedition end time for the main timer
+            if ($eventRowViewModel->is_at_destination && $eventRowViewModel->return_time_arrival) {
+                $travelTime = $eventRowViewModel->mission_time_arrival - $eventRowViewModel->time_departure;
+                $expeditionEndTime = $eventRowViewModel->return_time_arrival - $travelTime;
+                $eventRowViewModel->timer_time = $expeditionEndTime;
+            } else {
+                $eventRowViewModel->timer_time = $eventRowViewModel->mission_time_arrival;
+            }
+
+            $eventRowViewModel->remaining_time = max(0, $eventRowViewModel->timer_time - $currentTime);
+            $eventRowViewModel->duration = max(1, $eventRowViewModel->mission_time_arrival - $eventRowViewModel->time_departure);
+
+            // Calculate return trip remaining time
+            if ($eventRowViewModel->has_return_trip && $eventRowViewModel->return_time_arrival) {
+                $eventRowViewModel->return_remaining_time = max(0, $eventRowViewModel->return_time_arrival - $currentTime);
+            }
+
+            $fleet_events[] = $eventRowViewModel;
+        }
+
+        // Order the fleet events by mission time arrival.
+        usort($fleet_events, function ($a, $b) {
+            return $a->mission_time_arrival - $b->mission_time_arrival;
+        });
+
+        return view('ingame.fleet.movement')->with([
+            'player' => $player,
+            'planet' => $player->planets->current(),
+            'fleet_events' => $fleet_events,
+            'fleetSlotsInUse' => $player->getFleetSlotsInUse(),
+            'fleetSlotsMax' => $player->getFleetSlotsMax(),
+            'expeditionSlotsInUse' => $player->getExpeditionSlotsInUse(),
+            'expeditionSlotsMax' => $player->getExpeditionSlotsMax(),
+        ]);
     }
 
     /**

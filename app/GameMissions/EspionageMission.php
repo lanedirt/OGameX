@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
@@ -20,6 +21,7 @@ class EspionageMission extends GameMission
     protected static int $typeId = 6;
     protected static bool $hasReturnMission = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
+    protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Hostile;
 
     /**
      * @inheritdoc

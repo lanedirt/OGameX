@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
+use OGame\Enums\FleetMissionStatus;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
@@ -33,7 +34,7 @@ class FleetEventsController extends OGameController
         $hostileMissionCount = 0;
         $typeNextMission = '';
         $timeNextMission = 0;
-        $eventType = '';
+        $eventType = FleetMissionStatus::Friendly;
 
         if ($activeMissionRows->isNotEmpty()) {
             $firstMission = $activeMissionRows->first();
@@ -52,13 +53,13 @@ class FleetEventsController extends OGameController
             // Loop through all missions to calculate all mission counts.
             foreach ($activeMissionRows as $row) {
                 switch ($this->determineFriendly($row, $player)) {
-                    case 'friendly':
+                    case FleetMissionStatus::Friendly:
                         $friendlyMissionCount++;
                         break;
-                    case 'neutral':
+                    case FleetMissionStatus::Neutral:
                         $neutralMissionCount++;
                         break;
-                    case 'hostile':
+                    case FleetMissionStatus::Hostile:
                         $hostileMissionCount++;
                         break;
                 }
@@ -70,7 +71,7 @@ class FleetEventsController extends OGameController
             'hostile' => $hostileMissionCount,
             'neutral' => $neutralMissionCount,
             'friendly' => $friendlyMissionCount,
-            'eventType' => $eventType,
+            'eventType' => $eventType->value,
             'eventTime' => $timeNextMission,
             'eventText' => $typeNextMission,
             'newAjaxToken' => csrf_token(),
@@ -132,7 +133,7 @@ class FleetEventsController extends OGameController
             $friendlyStatus = $this->determineFriendly($row, $player);
 
             $eventRowViewModel->is_recallable = false;
-            if ($friendlyStatus === 'friendly') {
+            if ($friendlyStatus === FleetMissionStatus::Friendly) {
                 $eventRowViewModel->is_recallable = true;
             }
 
@@ -146,7 +147,7 @@ class FleetEventsController extends OGameController
             }
 
             // For missions with waiting time, add an additional row showing when the fleet will start its return journey
-            if ($friendlyStatus === 'friendly' && $row->time_holding > 0 && !$eventRowViewModel->is_return_trip) {
+            if ($friendlyStatus === FleetMissionStatus::Friendly && $row->time_holding > 0 && !$eventRowViewModel->is_return_trip) {
                 $waitEndRow = new FleetEventRowViewModel();
                 $waitEndRow->is_return_trip = false;
                 $waitEndRow->is_recallable = false;
@@ -167,7 +168,7 @@ class FleetEventsController extends OGameController
             }
 
             // Add return trip row if the mission has a return mission, even though the return mission does not exist yet in the database.
-            if ($friendlyStatus === 'friendly' && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
+            if ($friendlyStatus === FleetMissionStatus::Friendly && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
                 $returnTripRow = new FleetEventRowViewModel();
                 $returnTripRow->is_return_trip = true;
                 $returnTripRow->is_recallable = false;
@@ -206,9 +207,9 @@ class FleetEventsController extends OGameController
      * @param FleetMission $mission
      * @param PlayerService $player
      *
-     * @return string ('friendly', 'neutral' or 'hostile')
+     * @return FleetMissionStatus
      */
-    private function determineFriendly(FleetMission $mission, PlayerService $player): string
+    private function determineFriendly(FleetMission $mission, PlayerService $player): FleetMissionStatus
     {
         // Determine if the next mission is a friendly, hostile or neutral mission
         if ($mission->user_id != $player->getId()) {
@@ -219,14 +220,14 @@ class FleetEventsController extends OGameController
                 case 6:
                 case 9:
                     // Hostile
-                    return 'hostile';
+                    return FleetMissionStatus::Hostile;
                 case 3:
                     // Neutral;
-                    return 'neutral';
+                    return FleetMissionStatus::Neutral;
             }
         }
 
         // From current player, it is a friendly mission.
-        return 'friendly';
+        return FleetMissionStatus::Friendly;
     }
 }

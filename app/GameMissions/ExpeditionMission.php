@@ -21,6 +21,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\Highscore;
+use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\Enums\HighscoreTypeEnum;
 use OGame\Services\PlanetService;
@@ -34,6 +35,7 @@ class ExpeditionMission extends GameMission
     protected static int $typeId = 15;
     protected static bool $hasReturnMission = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::peaceful;
+    protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Neutral;
 
     /**
      * Configurable outcome weights based on community research.
