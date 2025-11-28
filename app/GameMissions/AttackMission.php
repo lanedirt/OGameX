@@ -7,6 +7,7 @@ use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
+use OGame\GameMissions\BattleEngine\Services\LootService;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
@@ -147,13 +148,36 @@ class AttackMission extends GameMission
         $mission->save();
 
         // Create and start the return mission (if attacker has remaining units).
-        // Add parent mission resources to looted resources.
-        $totalResources = new Resources(
-            $mission->metal + $battleResult->loot->metal->get(),
-            $mission->crystal + $battleResult->loot->crystal->get(),
-            $mission->deuterium + $battleResult->loot->deuterium->get(),
+        // Calculate survival rate based on cargo capacity before and after battle
+        $originalCargoCapacity = $battleResult->attackerUnitsStart->getTotalCargoCapacity($attackerPlayer);
+        $remainingCargoCapacity = $battleResult->attackerUnitsResult->getTotalCargoCapacity($attackerPlayer);
+
+        // Handle edge case: if original capacity is 0, survival rate is 0
+        $survivalRate = $originalCargoCapacity > 0
+            ? $remainingCargoCapacity / $originalCargoCapacity
+            : 0;
+
+        // Calculate resources remaining on surviving ships
+        $remainingResources = new Resources(
+            max(0, (int)($mission->metal * $survivalRate)),
+            max(0, (int)($mission->crystal * $survivalRate)),
+            max(0, (int)($mission->deuterium * $survivalRate)),
             0
         );
+
+        // Total resources = remaining + loot
+        $totalResources = new Resources(
+            $remainingResources->metal->get() + $battleResult->loot->metal->get(),
+            $remainingResources->crystal->get() + $battleResult->loot->crystal->get(),
+            $remainingResources->deuterium->get() + $battleResult->loot->deuterium->get(),
+            0
+        );
+
+        // Ensure total doesn't exceed remaining capacity
+        if ($totalResources->sum() > $remainingCargoCapacity) {
+            $totalResources = LootService::distributeLoot($totalResources, $remainingCargoCapacity);
+        }
+
         $this->startReturn($mission, $totalResources, $battleResult->attackerUnitsResult);
     }
 
