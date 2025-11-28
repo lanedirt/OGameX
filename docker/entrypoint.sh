@@ -27,7 +27,7 @@ if [ "$role" = "scheduler" ]; then
         sleep 60
     done
 elif [ "$role" = "queue" ]; then
-      php /var/www/html/artisan queue:work --verbose --no-interaction
+      php /var/www/html/artisan queue:work --sleep=0.5 --verbose --no-interaction
 elif [ "$role" = "app" ]; then
     # Check APP_ENV and run appropriate composer install
     if [ "$is_production" = true ]; then
