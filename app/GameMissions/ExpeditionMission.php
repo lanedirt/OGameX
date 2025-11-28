@@ -34,6 +34,7 @@ class ExpeditionMission extends GameMission
     protected static int $typeId = 15;
     protected static bool $hasReturnMission = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::peaceful;
+    protected static string $friendlyStatus = 'neutral';
 
     /**
      * Configurable outcome weights based on community research.

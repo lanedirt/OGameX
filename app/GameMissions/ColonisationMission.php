@@ -21,6 +21,7 @@ class ColonisationMission extends GameMission
     protected static int $typeId = 7;
     protected static bool $hasReturnMission = false;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::peaceful;
+    protected static string $friendlyStatus = 'neutral';
 
     /**
      * @inheritdoc

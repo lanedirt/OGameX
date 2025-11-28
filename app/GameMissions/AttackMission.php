@@ -25,6 +25,7 @@ class AttackMission extends GameMission
     protected static int $typeId = 1;
     protected static bool $hasReturnMission = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
+    protected static string $friendlyStatus = 'hostile';
 
     /**
      * @inheritdoc

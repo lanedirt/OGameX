@@ -23,6 +23,7 @@ class RecycleMission extends GameMission
     protected static int $typeId = 8;
     protected static bool $hasReturnMission = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
+    protected static string $friendlyStatus = 'neutral';
 
     /**
      * @inheritdoc

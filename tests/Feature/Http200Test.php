@@ -25,7 +25,6 @@ class Http200Test extends AccountTestCase
             '/shipyard',
             '/defense',
             '/fleet',
-            '/fleet/movement',
             '/galaxy',
             '/merchant',
             '/messages',
@@ -52,6 +51,15 @@ class Http200Test extends AccountTestCase
                 $this->fail($customMessage);
             }
         }
+    }
+
+    /**
+     * Verify that fleet movement page redirects to fleet index when no active fleets.
+     */
+    public function testFleetMovementRedirectsWhenNoFleets(): void
+    {
+        $response = $this->get('/fleet/movement');
+        $response->assertRedirect('/fleet');
     }
 
     /**

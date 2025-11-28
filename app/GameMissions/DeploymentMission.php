@@ -19,6 +19,7 @@ class DeploymentMission extends GameMission
     protected static int $typeId = 4;
     protected static bool $hasReturnMission = false;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::peaceful;
+    protected static string $friendlyStatus = 'neutral';
 
     /**
      * @inheritdoc

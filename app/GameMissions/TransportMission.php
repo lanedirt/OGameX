@@ -20,6 +20,7 @@ class TransportMission extends GameMission
     protected static int $typeId = 3;
     protected static bool $hasReturnMission = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::peaceful;
+    protected static string $friendlyStatus = 'neutral';
 
     /**
      * @inheritdoc

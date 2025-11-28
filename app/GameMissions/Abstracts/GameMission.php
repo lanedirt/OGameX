@@ -44,6 +44,11 @@ abstract class GameMission
      */
     protected static FleetSpeedType $fleetSpeedType;
 
+    /**
+     * @var string The friendly status for UI styling ('friendly', 'neutral', or 'hostile').
+     */
+    protected static string $friendlyStatus;
+
     protected FleetMissionService $fleetMissionService;
 
     protected MessageService $messageService;
@@ -93,6 +98,16 @@ abstract class GameMission
     public static function getFleetSpeedType(): FleetSpeedType
     {
         return static::$fleetSpeedType;
+    }
+
+    /**
+     * Get the friendly status for UI styling.
+     *
+     * @return string 'friendly', 'neutral', or 'hostile'
+     */
+    public static function getFriendlyStatus(): string
+    {
+        return static::$friendlyStatus;
     }
 
     /**
