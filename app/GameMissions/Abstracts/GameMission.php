@@ -202,9 +202,10 @@ abstract class GameMission
         $this->startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $deduct_resources);
 
         $totalCargoCapacity = $units->getTotalCargoCapacity($planet->getPlayer());
+        $totalFuelCapacity = $units->getTotalFuelCapacity($planet->getPlayer());
 
         // Check if the player has sufficient deuterium storage capacity for the fleet.
-        if ($totalCargoCapacity < $consumption) {
+        if ($totalFuelCapacity < $consumption) {
             throw new Exception(__('You don\'t have sufficient storage capacity!'));
         }
 

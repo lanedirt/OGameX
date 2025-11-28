@@ -150,7 +150,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
             new GameObjectRequirement('espionage_technology', 2),
         ];
         $espionageProbe->price = new GameObjectPrice(0, 1000, 0, 0);
-        $espionageProbe->properties = new GameObjectProperties($espionageProbe, 1000, 0, 0, 100000000, 5, 1);
+        $espionageProbe->properties = new GameObjectProperties($espionageProbe, 1000, 0, 0, 100000000, 0, 1, 5);
 
         $espionageProbe->assets = new GameObjectAssets();
         $espionageProbe->assets->imgSmall = 'espionage_probe_small.jpg';
