@@ -61,7 +61,7 @@
         var pricebuilding = 750;
         var referrerPage = $.deparam.querystring().page;
         new CountdownTimer('unitCountdown', {{ $build_active->time_countdown }}, '{{ url()->current() }}', null, true, 3)
-        new CountdownTimerUnit('shipyardCountdownUnit', {{ $build_active->time_countdown_object_next }}, {{ $build_active->object_amount_remaining }}, {{ $build_active->object->id }}, {{ $build_active->time_countdown_per_object }}, false, 3)
+        new CountdownTimerUnit('shipyardCountdownUnit', {{ $build_active->time_countdown_object_next }}, {{ $build_active->object_amount_remaining }}, {{ $build_active->object->id }}, {{ $build_active->time_countdown_per_object }}, null, 3)
     </script>
 @else
     <table cellspacing="0" cellpadding="0" class="construction active">
