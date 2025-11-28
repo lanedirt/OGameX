@@ -181,7 +181,7 @@ class FleetController extends OGameController
 
             // Determine friendly status based on mission type for styling
             $mission = GameMissionFactory::getMissionById($row->mission_type, []);
-            $eventRowViewModel->friendly_status = $mission::getFriendlyStatus();
+            $eventRowViewModel->friendly_status = $mission::getFriendlyStatus()->value;
             $eventRowViewModel->is_recallable = true;
 
             // Add return trip info to the same row (not as separate row) if the mission has a return mission

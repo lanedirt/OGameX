@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMessages\ColonyEstablishFailAstrophysics;
@@ -21,7 +22,7 @@ class ColonisationMission extends GameMission
     protected static int $typeId = 7;
     protected static bool $hasReturnMission = false;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::peaceful;
-    protected static string $friendlyStatus = 'neutral';
+    protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Neutral;
 
     /**
      * @inheritdoc

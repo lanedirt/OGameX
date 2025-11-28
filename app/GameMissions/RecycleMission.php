@@ -3,6 +3,7 @@
 namespace OGame\GameMissions;
 
 use Exception;
+use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\DebrisFieldHarvest;
 use OGame\GameMissions\Abstracts\GameMission;
@@ -23,7 +24,7 @@ class RecycleMission extends GameMission
     protected static int $typeId = 8;
     protected static bool $hasReturnMission = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
-    protected static string $friendlyStatus = 'neutral';
+    protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Neutral;
 
     /**
      * @inheritdoc

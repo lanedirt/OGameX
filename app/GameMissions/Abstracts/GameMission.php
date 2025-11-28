@@ -4,6 +4,7 @@ namespace OGame\GameMissions\Abstracts;
 
 use Exception;
 use Illuminate\Support\Carbon;
+use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
@@ -45,9 +46,9 @@ abstract class GameMission
     protected static FleetSpeedType $fleetSpeedType;
 
     /**
-     * @var string The friendly status for UI styling ('friendly', 'neutral', or 'hostile').
+     * @var FleetMissionStatus The friendly status for UI styling.
      */
-    protected static string $friendlyStatus;
+    protected static FleetMissionStatus $friendlyStatus;
 
     protected FleetMissionService $fleetMissionService;
 
@@ -103,9 +104,9 @@ abstract class GameMission
     /**
      * Get the friendly status for UI styling.
      *
-     * @return string 'friendly', 'neutral', or 'hostile'
+     * @return FleetMissionStatus
      */
-    public static function getFriendlyStatus(): string
+    public static function getFriendlyStatus(): FleetMissionStatus
     {
         return static::$friendlyStatus;
     }
