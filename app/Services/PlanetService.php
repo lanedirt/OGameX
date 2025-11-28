@@ -1242,6 +1242,23 @@ class PlanetService
     }
 
     /**
+     * Returns the parent planet for this moon. If this is not a moon or no parent planet exists, returns null.
+     *
+     * @return PlanetService|null
+     */
+    public function getParentPlanet(): PlanetService|null
+    {
+        // Only moons have parent planets
+        if (!$this->isMoon()) {
+            return null;
+        }
+
+        // Get the planet at the same coordinates
+        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        return $planetServiceFactory->makePlanetForCoordinate($this->getPlanetCoordinates());
+    }
+
+    /**
      * Returns true if the planet has a moon, false otherwise.
      *
      * @return bool
