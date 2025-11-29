@@ -24,11 +24,18 @@ services:
   # PHP Service
   ogamex-app:
     volumes:
-      - ./:/var/www
       - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./:/var/www
+      # Do not volume mount build directories
+      - /var/www/bootstrap/cache
+      - /var/www/vendor
+      - /var/www/rust
+      - /var/www/storage/rust-libs
+    image: ogamex/app
     build:
       context: .
       dockerfile: Dockerfile
+      target: app_dev
       args:
         OPCACHE_ENABLE: "0"  # Disable opcache for development
         USE_USER: ${USE_USER_ARG:-yes}  # Defaults to "yes". Set to "no" for GitHub Actions.
@@ -52,13 +59,20 @@ services:
 
   # Scheduler
   ogamex-scheduler:
+    image: ogamex/scheduler
     build:
       context: .
       dockerfile: Dockerfile
+      target: scheduler
     container_name: ogamex-scheduler
     restart: unless-stopped
     volumes:
-      - .:/var/www/html
+      - ./:/var/www
+      # Do not volume mount build directories
+      - /var/www/bootstrap/cache
+      - /var/www/vendor
+      - /var/www/rust
+      - /var/www/storage/rust-libs
     environment:
       CONTAINER_ROLE: scheduler
     networks:
@@ -69,13 +83,20 @@ services:
 
   # Queue
   ogamex-queue-worker:
+    image: ogamex/queue-worker
     build:
       context: .
       dockerfile: Dockerfile
+      target: queue
     container_name: ogamex-queue-worker
     restart: unless-stopped
     volumes:
-      - .:/var/www/html
+      - ./:/var/www
+      # Do not volume mount build directories
+      - /var/www/bootstrap/cache
+      - /var/www/vendor
+      - /var/www/rust
+      - /var/www/storage/rust-libs
     environment:
       CONTAINER_ROLE: queue
     networks:
