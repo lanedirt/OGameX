@@ -1,3 +1,14 @@
+# Create .env file if it does not exist
+if [ ! -f /var/www/.env ]; then
+    if [ -f /var/www/.env.example ]; then
+        cp /var/www/.env.example /var/www/.env
+        echo ".env file not found, copied .env.example to .env"
+    else
+        echo "Error: .env and .env.example files not found. Please create an .env file." >&2
+        exit 1
+    fi
+fi
+
 # Generate APP_KEY if not set or empty in the .env file
 app_key=$(grep -E "^APP_KEY=" .env | cut -d '=' -f2 | tr -d '[:space:]' | tr -d '\r')
 if [ -z "$app_key" ]; then
