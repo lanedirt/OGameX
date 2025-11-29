@@ -15,6 +15,11 @@ services:
       MYSQL_ROOT_PASSWORD: toor
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 6s
+      retries: 60
     networks:
       app-network:
         aliases:
@@ -41,7 +46,6 @@ services:
     restart: unless-stopped
     tty: true
     environment:
-      CONTAINER_ROLE: app
       SERVICE_NAME: app
       SERVICE_TAGS: dev
     working_dir: /var/www
@@ -53,7 +57,8 @@ services:
     networks:
       - app-network
     depends_on:
-      - ogamex-db
+      ogamex-db:
+        condition: service_healthy
 
   # Nginx Service
   ogamex-webserver:
@@ -90,8 +95,6 @@ services:
       - /var/www/vendor
       - /var/www/rust
       - /var/www/storage/rust-libs
-    environment:
-      CONTAINER_ROLE: scheduler
     networks:
       - app-network
     depends_on:
@@ -114,8 +117,6 @@ services:
       - /var/www/vendor
       - /var/www/rust
       - /var/www/storage/rust-libs
-    environment:
-      CONTAINER_ROLE: queue
     networks:
       - app-network
     depends_on:
