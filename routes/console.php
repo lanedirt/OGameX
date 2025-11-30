@@ -1,5 +1,6 @@
 <?php
 
+use OGame\Console\Commands\DarkMatterRegenerateCommand;
 use OGame\Console\Commands\GenerateHighscores;
 use OGame\Console\Commands\GenerateHighscoreRanks;
 use OGame\Console\Commands\ResetDebrisFields;
@@ -20,3 +21,6 @@ Schedule::command(GenerateHighscoreRanks::class)->everyFiveMinutes();
 
 // Reset empty debris fields weekly on Monday at 1:00 AM
 Schedule::command(ResetDebrisFields::class)->weeklyOn(1, '1:00');
+
+// Process Dark Matter regeneration hourly
+Schedule::command(DarkMatterRegenerateCommand::class)->hourly()->withoutOverlapping();

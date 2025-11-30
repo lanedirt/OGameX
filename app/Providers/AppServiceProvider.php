@@ -7,6 +7,8 @@ use Illuminate\Support\ServiceProvider;
 use OGame\Exceptions\Handler;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\Models\User;
+use OGame\Observers\UserObserver;
 use OGame\Services\SettingsService;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 
@@ -25,6 +27,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Register composer file for the main ingame layout.
         view()->composer('ingame.layouts.main', 'OGame\Http\ViewComposers\IngameMainComposer');
+
+        // Register model observers
+        User::observe(UserObserver::class);
     }
 
     /**

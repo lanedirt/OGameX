@@ -26,6 +26,8 @@ use Spatie\Permission\Traits\HasRoles;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $planet_current
+ * @property int $dark_matter
+ * @property \Illuminate\Support\Carbon|null $dark_matter_last_regen
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read \OGame\Models\UserTech|null $tech
@@ -98,5 +100,15 @@ class User extends Authenticatable
     public function tech(): HasOne
     {
         return $this->hasOne(UserTech::class);
+    }
+
+    /**
+     * Get the dark matter transactions for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function darkMatterTransactions()
+    {
+        return $this->hasMany(DarkMatterTransaction::class);
     }
 }
