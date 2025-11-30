@@ -187,22 +187,19 @@ class MoonDestructionMission extends GameMission
         $destructionChance = $this->calculateMoonDestructionChance($moonDiameter, $deathstarCount);
         $lossChance = $this->calculateDeathstarLossChance($moonDiameter);
 
-        $destructionRoll = random_int(0, 100);
+        // Roll for moon destruction (1-100 for precise percentages)
+        $destructionRoll = random_int(1, 100);
         $moonDestroyed = $destructionRoll <= $destructionChance;
 
-        $deathstarsLost = 0;
-        for ($i = 0; $i < $deathstarCount; $i++) {
-            $lossRoll = random_int(0, 100);
-            if ($lossRoll <= $lossChance) {
-                $deathstarsLost++;
-            }
-        }
+        // Roll for Deathstar loss - single roll for entire fleet
+        $lossRoll = random_int(1, 100);
+        $allDeathstarsLost = $lossRoll <= $lossChance;
 
-        $survivingDeathstars = $deathstarCount - $deathstarsLost;
-        if ($deathstarsLost > 0) {
+        // Update surviving units if all Deathstars are lost
+        if ($allDeathstarsLost) {
             foreach ($survivingUnits->units as $unit) {
                 if ($unit->unitObject->machine_name === 'deathstar') {
-                    $unit->amount = $survivingDeathstars;
+                    $unit->amount = 0;
                     break;
                 }
             }
@@ -213,7 +210,7 @@ class MoonDestructionMission extends GameMission
 
         if ($moonDestroyed) {
             $this->handleMoonDestructionSuccess($mission, $targetMoon, $survivingUnits, $destructionChance, $lossChance);
-        } elseif ($survivingDeathstars === 0) {
+        } elseif ($allDeathstarsLost) {
             $this->handleCatastrophicFailure($mission, $targetMoon, $destructionChance, $lossChance);
         } else {
             $this->handleMoonDestructionFailure($mission, $targetMoon, $survivingUnits, $destructionChance, $lossChance);
