@@ -32,6 +32,9 @@ docker_build(
   target="app_dev",
   live_update = [
     sync('./app', '/var/www/app'),
+    sync('./config', '/var/www/config'),
+    sync('./public', '/var/www/public'),
+    sync('./resources', '/var/www/resources'),
     # Have to restart the queue:work process when changes are made
     restart_container()
 ])
@@ -43,6 +46,9 @@ docker_build(
   target="app_dev",
   live_update = [
     sync('./app', '/var/www/app'),
+    sync('./config', '/var/www/config'),
+    sync('./public', '/var/www/public'),
+    sync('./resources', '/var/www/resources'),
 ])
 
 
