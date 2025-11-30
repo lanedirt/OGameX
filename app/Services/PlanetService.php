@@ -1981,10 +1981,10 @@ class PlanetService
         // Create object array
         $building_objects = array_merge(ObjectService::getBuildingObjects(), ObjectService::getStationObjects());
         foreach ($building_objects as $object) {
-            for ($i = 1; $i <= $this->getObjectLevel($object->machine_name); $i++) {
-                // Concatenate price which is array of metal, crystal and deuterium.
-                $raw_price = ObjectService::getObjectRawPrice($object->machine_name, $i);
-                $resources_spent->add($raw_price);
+            $level = $this->getObjectLevel($object->machine_name);
+            if ($level > 0) {
+                $cumulative_cost = ObjectService::getObjectCumulativeCost($object->machine_name, $level);
+                $resources_spent->add($cumulative_cost);
             }
         }
         $unit_objects = array_merge(ObjectService::getShipObjects(), ObjectService::getDefenseObjects());
@@ -2041,10 +2041,10 @@ class PlanetService
         // Buildings (100%)
         $building_objects = [ ...ObjectService::getBuildingObjects(), ...ObjectService::getStationObjects() ];
         foreach ($building_objects as $object) {
-            for ($i = 1; $i <= $this->getObjectLevel($object->machine_name); $i++) {
-                // Concatenate price which is array of metal, crystal and deuterium.
-                $raw_price = ObjectService::getObjectRawPrice($object->machine_name, $i);
-                $resources_spent += $raw_price->sum();
+            $level = $this->getObjectLevel($object->machine_name);
+            if ($level > 0) {
+                $cumulative_cost = ObjectService::getObjectCumulativeCost($object->machine_name, $level);
+                $resources_spent += $cumulative_cost->sum();
             }
         }
 
