@@ -582,6 +582,87 @@ class ObjectService
     }
 
     /**
+     * Gets the cumulative cost of all levels from 1 to the specified level for a building or research.
+     * Uses geometric series formula for O(1) performance instead of iterative O(n) calculation.
+     *
+     * @param string $machine_name
+     * @param int $level
+     * @return Resources (with energy excluded)
+     */
+    public static function getObjectCumulativeCost(string $machine_name, int $level): Resources
+    {
+        try {
+            $object = self::getObjectByMachineName($machine_name);
+        } catch (Exception $e) {
+            return new Resources(0, 0, 0, 0);
+        }
+
+        if ($object->type !== GameObjectType::Building &&
+            $object->type !== GameObjectType::Station &&
+            $object->type !== GameObjectType::Research) {
+            return new Resources(0, 0, 0, 0);
+        }
+
+        if ($level === 0) {
+            return new Resources(0, 0, 0, 0);
+        }
+
+        if ($level === 1) {
+            $base_price = $object->price;
+            $metal = floor($base_price->resources->metal->get());
+            $crystal = floor($base_price->resources->crystal->get());
+            $deuterium = floor($base_price->resources->deuterium->get());
+
+            return new Resources($metal, $crystal, $deuterium, 0);
+        }
+
+        $base_price = $object->price;
+        $factor = $base_price->factor;
+
+        $metal = self::calculateCumulativeCostForResource(
+            $base_price->resources->metal->get(),
+            $factor,
+            $level
+        );
+
+        $crystal = self::calculateCumulativeCostForResource(
+            $base_price->resources->crystal->get(),
+            $factor,
+            $level
+        );
+
+        $deuterium = self::calculateCumulativeCostForResource(
+            $base_price->resources->deuterium->get(),
+            $factor,
+            $level
+        );
+
+        return new Resources($metal, $crystal, $deuterium, 0);
+    }
+
+    /**
+     * Calculate cumulative cost for a single resource type using geometric series formula.
+     *
+     * @param float $base_cost
+     * @param float $factor
+     * @param int $level
+     * @return float
+     */
+    private static function calculateCumulativeCostForResource(float $base_cost, float $factor, int $level): float
+    {
+        if ($base_cost == 0) {
+            return 0;
+        }
+
+        if ($factor == 1) {
+            return floor($base_cost * $level);
+        }
+
+        $sum = $base_cost * (1 - pow($factor, $level)) / (1 - $factor);
+        return floor($sum);
+    }
+
+    /**
      * Filter out completed requirements.
      *
      * @param array<GameObjectRequirement> $requirements

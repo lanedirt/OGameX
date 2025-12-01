@@ -652,10 +652,10 @@ class PlayerService
         // Create object array
         $research_objects = ObjectService::getResearchObjects();
         foreach ($research_objects as $object) {
-            for ($i = 1; $i <= $this->getResearchLevel($object->machine_name); $i++) {
-                // Concatenate price which is array of metal, crystal and deuterium.
-                $raw_price = ObjectService::getObjectRawPrice($object->machine_name, $i);
-                $resources_spent->add($raw_price);
+            $level = $this->getResearchLevel($object->machine_name);
+            if ($level > 0) {
+                $cumulative_cost = ObjectService::getObjectCumulativeCost($object->machine_name, $level);
+                $resources_spent->add($cumulative_cost);
             }
         }
 
