@@ -222,6 +222,7 @@ class EspionageReport extends GameMessage
             'defense' => $defense,
             'buildings' => $buildings,
             'research' => $research,
+            'counter_espionage_chance' => $this->espionageReportModel->counter_espionage_chance ?? 0,
         ];
     }
 }
