@@ -849,4 +849,9 @@ class PlayerService
             && $this->hasGeologist()
             && $this->hasTechnocrat();
     }
+
+    public function getDarkMatter(): int
+    {
+        return $this->user->dark_matter ?? 0;
+    }
 }

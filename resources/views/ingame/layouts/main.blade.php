@@ -216,14 +216,14 @@
                 </div>
                 <div class="resource_tile darkmatter">
                     <div id="darkmatter_box" class="darkmatter tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
-                         title="@lang('Dark Matter')|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;&quot;>19,890</span></td></tr><tr><th>Purchased</th><td><span class=&quot;&quot;>225</span></td></tr><tr><th>Found</th><td><span class=&quot;&quot;>19,665</span></td></tr></table>"
+                         title="@lang('Dark Matter')|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;&quot;>{!! $resources['darkmatter']['amount_formatted'] !!}</span></td></tr></table>"
                          data-tooltip-button="Purchase Dark Matter" data-ipi-hint="ipiResourcedarkmatter">
                         <a href="#TODO_page=payment" class="overlay">
                             <img src="/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif">
                             <div class="resourceIcon darkmatter"></div>
                         </a>
                         <span class="value">
-                        <span id="resources_darkmatter" data-raw="19890" class="overlay">19,890</span>
+                        <span id="resources_darkmatter" data-raw="{!! $resources['darkmatter']['amount'] !!}" class="overlay">{!! $resources['darkmatter']['amount_formatted'] !!}</span>
                     </span>
                     </div>
                 </div>
@@ -777,8 +777,8 @@ Combat simulation save slots +20">
                             "classesListItem": ""
                         },
                         "darkmatter": {
-                            "amount": 22500,
-                            "tooltip": "Dark Matter|<table class=\"resourceTooltip\"><tr><th>Available:<\/th><td><span class=\"\">22,500<\/span><\/td><\/tr><tr><th>Purchased<\/th><td><span class=\"\">0<\/span><\/td><\/tr><tr><th>Found<\/th><td><span class=\"\">22,500<\/span><\/td><\/tr><\/table>",
+                            "amount": {!! $resources['darkmatter']['amount'] !!},
+                            "tooltip": "@lang('Dark Matter')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"\">{!! $resources['darkmatter']['amount_formatted'] !!}<\/span><\/td><\/tr><\/table>",
                             "classesListItem": "",
                             "classes": "overlay",
                             "link": "#TODO_page=payment",

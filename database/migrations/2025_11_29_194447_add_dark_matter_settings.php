@@ -12,6 +12,7 @@ return new class extends Migration
     {
         $settings = [
             ['key' => 'dark_matter_initial', 'value' => '8000'],
+            ['key' => 'dark_matter_regen_enabled', 'value' => '0'], // Disabled by default to match official game
             ['key' => 'dark_matter_regen_amount', 'value' => '150000'],
             ['key' => 'dark_matter_regen_period', 'value' => '604800'], // 1 week in seconds
             ['key' => 'expedition_dark_matter_multiplier', 'value' => '1.0'],
@@ -37,6 +38,7 @@ return new class extends Migration
     {
         $keys = [
             'dark_matter_initial',
+            'dark_matter_regen_enabled',
             'dark_matter_regen_amount',
             'dark_matter_regen_period',
             'expedition_dark_matter_multiplier',

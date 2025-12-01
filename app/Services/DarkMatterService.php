@@ -134,6 +134,12 @@ class DarkMatterService
      */
     public function processRegeneration(User $user): void
     {
+        // Check if regeneration is enabled
+        $regenEnabled = (bool)$this->settingsService->get('dark_matter_regen_enabled', 0);
+        if (!$regenEnabled) {
+            return;
+        }
+
         $regenPeriod = (int)$this->settingsService->get('dark_matter_regen_period', 604800);
         $regenAmount = (int)$this->settingsService->get('dark_matter_regen_amount', 150000);
 
@@ -185,6 +191,12 @@ class DarkMatterService
      */
     public function processAllRegeneration(): void
     {
+        // Check if regeneration is enabled
+        $regenEnabled = (bool)$this->settingsService->get('dark_matter_regen_enabled', 0);
+        if (!$regenEnabled) {
+            return;
+        }
+
         $regenPeriod = (int)$this->settingsService->get('dark_matter_regen_period', 604800);
 
         // Get users who need regeneration
