@@ -4,6 +4,7 @@ namespace OGame\GameMissions\BattleEngine;
 
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
+use OGame\GameMissions\BattleEngine\Services\DefenseRepairService;
 use OGame\GameMissions\BattleEngine\Services\LootService;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -119,6 +120,11 @@ abstract class BattleEngine
         $result->defenderUnitsLost->subtractCollection($result->defenderUnitsResult);
         $result->defenderResourceLoss = $result->defenderUnitsLost->toResources();
 
+        // Calculate repaired defenses (only defense units, not ships).
+        // According to game rules, approximately 70% of destroyed defenses are repaired after battle.
+        $defenseRepairService = new DefenseRepairService($this->settings->defenseRepairRate());
+        $result->repairedDefenses = $defenseRepairService->calculateRepairedDefenses($result->defenderUnitsLost);
+
         // Determine winner of battle.
         if ($result->defenderUnitsResult->getAmount() === 0) {
             // ---
@@ -132,7 +138,10 @@ abstract class BattleEngine
         }
 
         // Calculate debris.
-        $result->debris = $this->calculateDebris($result->attackerUnitsLost, $result->defenderUnitsLost);
+        // Only permanently lost defenses contribute to debris (destroyed - repaired).
+        $permanentlyLostDefenderUnits = clone $result->defenderUnitsLost;
+        $permanentlyLostDefenderUnits->subtractCollection($result->repairedDefenses);
+        $result->debris = $this->calculateDebris($result->attackerUnitsLost, $permanentlyLostDefenderUnits);
 
         // Determine if a moon already exists for defender's planet.
         $result->moonExisted = $this->defenderPlanet->hasMoon();

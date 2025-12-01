@@ -428,6 +428,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // when comparing resources before and after battle.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 0);
+        // Disable defense repair to ensure all destroyed defenses are permanently lost
+        $settingsService->set('defense_repair_rate', 0);
 
         // Send fleet to a nearby foreign planet.
         // Attack with 200 light fighters, defend with 100 rocket launchers.
@@ -461,7 +463,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertGreaterThan(0, $this->planetService->getObjectAmount('light_fighter'), 'Attacker has no light fighters after battle while it was expected some should have survived and returned.');
         $this->assertLessThan(200, $this->planetService->getObjectAmount('light_fighter'), 'Attacker still has 200 light fighters after battle while it was expected they lost some.');
 
-        // Assert that the defender has lost all units.
+        // Assert that the defender has lost all units (with 0% repair rate).
         $foreignPlanet->reloadPlanet();
         $this->assertEquals(0, $foreignPlanet->getObjectAmount('rocket_launcher'), 'Defender still has rocket launcher after battle while it was expected they lost all.');
 

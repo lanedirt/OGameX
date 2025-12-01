@@ -116,4 +116,11 @@ class BattleResult
      * @var array<BattleResultRound> The rounds of the battle.
      */
     public array $rounds;
+
+    /**
+     * @var UnitCollection The defense units that were repaired after battle.
+     * According to game rules, approximately 70% of destroyed defenses are automatically
+     * repaired and restored to the defender's planet after battle.
+     */
+    public UnitCollection $repairedDefenses;
 }

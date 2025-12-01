@@ -563,6 +563,8 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         foreach ($defenseDebrisPercentages as $percentage) {
             $this->settingsService->set('debris_field_from_defense', $percentage);
             $this->settingsService->set('debris_field_from_ships', 0);
+            // Disable defense repair to ensure all destroyed defenses contribute to debris
+            $this->settingsService->set('defense_repair_rate', 0);
 
             $this->createAndSetPlanetModel([
                 'light_laser' => 200,
