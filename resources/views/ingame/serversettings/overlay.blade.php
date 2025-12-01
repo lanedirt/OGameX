@@ -68,3 +68,18 @@
     <server-settings-icon sq28 bordered class="speedfactor_research"></server-settings-icon>
     <span>@lang('Research speed:') x{{ $research_speed }}</span>
 </div>
+<div class="technology-fullrow" style="z-index: 2 !important;">
+    <server-settings-icon sq28 bordered class="darkmatter_bonus"></server-settings-icon>
+    <span>@lang('Dark Matter regeneration enabled')</span>
+    <div class="emoji {{ $dark_matter_regen_enabled ? 'activated' : 'deactivated' }}"></div>
+</div>
+@if($dark_matter_regen_enabled)
+<div class="technology-fullrow" style="z-index: 2 !important;">
+    <server-settings-icon sq28 bordered class="darkmatter_bonus"></server-settings-icon>
+    <span>@lang('Dark Matter regeneration amount:') {{ number_format($dark_matter_regen_amount) }}</span>
+</div>
+<div class="technology-fullrow" style="z-index: 2 !important;">
+    <server-settings-icon sq28 bordered class="darkmatter_bonus"></server-settings-icon>
+    <span>@lang('Dark Matter regeneration period:') {{ number_format($dark_matter_regen_period / 86400) }} @lang('days')</span>
+</div>
+@endif

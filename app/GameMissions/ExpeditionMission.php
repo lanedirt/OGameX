@@ -21,6 +21,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\Highscore;
+use OGame\Models\User;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\Enums\HighscoreTypeEnum;
@@ -510,10 +511,34 @@ class ExpeditionMission extends GameMission
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
-        // TODO: Add actual dark matter to player when dark matter itself is implemented.
+        // Check if fleet has Pathfinder ships
+        $fleetUnits = $this->fleetMissionService->getFleetUnits(mission: $mission);
+        $objectService = app(ObjectService::class);
+        $hasPathfinder = $fleetUnits->hasUnit($objectService->getShipObjectByMachineName('pathfinder'));
+
+        // Calculate Dark Matter reward
+        $darkMatterService = app(\OGame\Services\DarkMatterService::class);
+        $darkMatterAmount = $darkMatterService->calculateExpeditionReward($hasPathfinder);
+
+        // Credit Dark Matter to player
+        $user = User::find($mission->user_id);
+        if ($user === null) {
+            logger()->error("User not found for expedition Dark Matter reward: user_id={$mission->user_id}");
+            return;
+        }
+
+        $darkMatterService->credit(
+            $user,
+            $darkMatterAmount,
+            \OGame\Enums\DarkMatterTransactionType::EXPEDITION->value,
+            'Dark Matter found during expedition'
+        );
 
         $message_variation_id = ExpeditionGainDarkMatter::getRandomMessageVariationId();
-        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainDarkMatter::class, ['message_variation_id' => $message_variation_id]);
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainDarkMatter::class, [
+            'message_variation_id' => $message_variation_id,
+            'dark_matter_amount' => $darkMatterAmount
+        ]);
     }
 
     /**
@@ -605,7 +630,6 @@ class ExpeditionMission extends GameMission
                 // TODO: Remove this filter once outcomes are fully implemented
                 // For now, skip unimplemented outcomes
                 if (in_array($outcome, [
-                    ExpeditionOutcomeType::GainDarkMatter,
                     ExpeditionOutcomeType::GainItems,
                     ExpeditionOutcomeType::GainMerchantTrade,
                     ExpeditionOutcomeType::Battle,

@@ -125,6 +125,37 @@
                             </div>
                         </div>
 
+                        <p class="box_highlight textCenter no_buddies">@lang('Dark Matter regeneration settings.')</p>
+
+                        <div class="group bborder" style="display: block;">
+                            <div class="fieldwrapper">
+                                <div class="smallFont" style="margin-bottom: 15px; padding: 10px; background-color: #1e2328; border: 1px solid #4a5568; border-radius: 4px;">
+                                    @lang('Enable periodic Dark Matter regeneration for all players. This is disabled by default to match the official game behavior. When enabled, players will receive Dark Matter automatically at the configured interval.')
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Dark Matter regeneration enabled:')</label>
+                                <div class="thefield">
+                                    <square-checkbox class="square-checkbox">
+                                        <input type="checkbox" id="square-checkDarkMatterRegenEnabled" name="dark_matter_regen_enabled" value="1" {{ $dark_matter_regen_enabled ? 'checked' : '' }}>
+                                        <label for="square-checkDarkMatterRegenEnabled"></label>
+                                    </square-checkbox>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Dark Matter regeneration amount:')</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*" class="textInput w100 textCenter textBeefy" value="{{ $dark_matter_regen_amount }}" size="10" name="dark_matter_regen_amount">
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Dark Matter regeneration period (seconds):')</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*" class="textInput w100 textCenter textBeefy" value="{{ $dark_matter_regen_period }}" size="10" name="dark_matter_regen_period">
+                                </div>
+                            </div>
+                        </div>
+
                         <p class="box_highlight textCenter no_buddies">@lang('Battle settings.')</p>
 
                         <div class="group bborder" style="display: block;">

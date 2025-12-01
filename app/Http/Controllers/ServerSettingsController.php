@@ -31,6 +31,9 @@ class ServerSettingsController extends OGameController
             'ignore_empty_systems_on' => $settingsService->ignoreEmptySystemsOn(),
             'ignore_inactive_systems_on' => $settingsService->ignoreInactiveSystemsOn(),
             'number_of_galaxies' => $settingsService->numberOfGalaxies(),
+            'dark_matter_regen_enabled' => (bool)$settingsService->get('dark_matter_regen_enabled', 0),
+            'dark_matter_regen_amount' => (int)$settingsService->get('dark_matter_regen_amount', 150000),
+            'dark_matter_regen_period' => (int)$settingsService->get('dark_matter_regen_period', 604800),
         ]);
     }
 }

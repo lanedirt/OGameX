@@ -51,6 +51,9 @@ class ServerSettingsController extends OGameController
             'expedition_gain_merchant_trade' => $settingsService->expeditionGainMerchantTradeEnabled(),
             'expedition_gain_item' => $settingsService->expeditionGainItemEnabled(),
             'expedition_loss_of_fleet' => $settingsService->expeditionLossOfFleetEnabled(),
+            'dark_matter_regen_enabled' => (bool)$settingsService->get('dark_matter_regen_enabled', 0),
+            'dark_matter_regen_amount' => (int)$settingsService->get('dark_matter_regen_amount', 150000),
+            'dark_matter_regen_period' => (int)$settingsService->get('dark_matter_regen_period', 604800),
         ]);
     }
 
@@ -98,6 +101,10 @@ class ServerSettingsController extends OGameController
         $settingsService->set('expedition_gain_merchant_trade', request('expedition_gain_merchant_trade', 0));
         $settingsService->set('expedition_gain_item', request('expedition_gain_item', 0));
         $settingsService->set('expedition_loss_of_fleet', request('expedition_loss_of_fleet', 0));
+
+        $settingsService->set('dark_matter_regen_enabled', request('dark_matter_regen_enabled', 0));
+        $settingsService->set('dark_matter_regen_amount', request('dark_matter_regen_amount', 150000));
+        $settingsService->set('dark_matter_regen_period', request('dark_matter_regen_period', 604800));
 
         return redirect()->route('admin.serversettings.index')->with('success', __('Changes saved!'));
     }

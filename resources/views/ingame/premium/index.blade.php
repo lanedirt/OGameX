@@ -39,7 +39,8 @@
                                 <a tabindex="1" href="javascript:void(0);" title="More information about: Dark Matter" class="detail_button tooltip js_hideTipOnMobile slideIn" ref="1">
                         <span class="ecke">
                             <span class="level">
-                                0	                            </span>
+                                {{ number_format($darkMatter, 0, ',', '.') }}
+                            </span>
                         </span>
                                 </a>
                             </div>

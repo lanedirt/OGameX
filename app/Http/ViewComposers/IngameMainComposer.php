@@ -99,6 +99,10 @@ class IngameMainComposer
                 'consumption' => $current_planet->energyConsumption()->get(),
                 'consumption_formatted' => $current_planet->energyConsumption()->getFormattedLong(),
             ],
+            'darkmatter' => [
+                'amount' => $this->player->getDarkMatter(),
+                'amount_formatted' => AppUtil::formatNumber($this->player->getDarkMatter()),
+            ],
         ];
 
         // Include body_id, which might have been set in the controller.
