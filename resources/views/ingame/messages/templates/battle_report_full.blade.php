@@ -334,35 +334,24 @@
         <br class="clearfloat">
 
         <br class="clearfloat">
-        <!--<div class="section_title">
+@if ($repaired_defenses_count > 0)
+        <div class="section_title">
             <div class="c-left"></div>
             <div class="c-right"></div>
-            <span class="title_txt">@lang('Repaired defences'):</span>
+            <span class="title_txt">@lang('Repaired defences'): {{ $repaired_defenses_count }}</span>
         </div>
-        <ul class="detail_list clearfix">
+        <ul class="detail_list clearfix repairedDefensesContainer">
+            @foreach ($repaired_defenses->units as $unit)
             <li class="detail_list_el">
-                <div class="defense_image float_left ">
-                    <img class="defense401" width="28" height="28" alt="Rocket Launcher" src="/img/icons/4c4fbd313bc449e16f5212f23d6311.jpg">
+                <div class="defense_image float_left">
+                    <img class="defense{{ $unit->unitObject->id }}" width="28" height="28" alt="{{ $unit->unitObject->title }}" src="{{ asset('img/objects/' . $unit->unitObject->assets->imgMicro) }}">
                 </div>
-                <span class="detail_list_txt">Rocket Launcher</span>
-                <span class="fright" style="margin-right: 10px">11</span>
+                <span class="detail_list_txt">{{ $unit->unitObject->title }}</span>
+                <span class="fright" style="margin-right: 10px">{{ $unit->amount }}</span>
             </li>
-            <li class="detail_list_el">
-                <div class="defense_image float_left ">
-                    <img class="defense402" width="28" height="28" alt="Light Laser" src="/img/icons/68e11c389f7f62134def76575b27e5.jpg">
-                </div>
-                <span class="detail_list_txt">Light Laser</span>
-                <span class="fright" style="margin-right: 10px">37</span>
-            </li>
-            <li class="detail_list_el">
-                <div class="defense_image float_left ">
-                    <img class="defense404" width="28" height="28" alt="Gauss Cannon" src="/img/icons/2e7227f88e3601612093ee2e9101e0.jpg">
-                </div>
-                <span class="detail_list_txt">Gauss Cannon</span>
-                <span class="fright" style="margin-right: 10px">1</span>
-            </li>
-
-        </ul>-->
+            @endforeach
+        </ul>
+@endif
 
         <!-- WF information -->
         <!-- attacker WF information -->

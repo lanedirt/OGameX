@@ -423,4 +423,16 @@ class SettingsService
     {
         return (bool)$this->get('expedition_battle', 1);
     }
+
+    /**
+     * Returns the defense repair rate percentage (0-100).
+     * After a battle, destroyed defenses have this percentage chance of being repaired.
+     * Default is 70% as per official game rules.
+     *
+     * @return int
+     */
+    public function defenseRepairRate(): int
+    {
+        return (int)$this->get('defense_repair_rate', 70);
+    }
 }

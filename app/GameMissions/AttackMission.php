@@ -91,10 +91,15 @@ class AttackMission extends GameMission
         // Deduct loot from the target planet.
         $defenderPlanet->deductResources($battleResult->loot);
 
-        // Deduct defender's lost units from the defenders planet.
+        // Deduct defender's permanently lost units from the defenders planet.
+        // Repaired defenses are not removed (destroyed - repaired = permanently lost).
         $defenderUnitsLost = clone $battleResult->defenderUnitsStart;
         $defenderUnitsLost->subtractCollection($battleResult->defenderUnitsResult);
-        $defenderPlanet->removeUnits($defenderUnitsLost, false);
+
+        // Calculate permanently lost units (destroyed - repaired)
+        $permanentlyLostUnits = clone $defenderUnitsLost;
+        $permanentlyLostUnits->subtractCollection($battleResult->repairedDefenses);
+        $defenderPlanet->removeUnits($permanentlyLostUnits, false);
 
         // Save defenders planet
         $defenderPlanet->save();
@@ -265,7 +270,7 @@ class AttackMission extends GameMission
             'deuterium' => $battleResult->debris->deuterium->get(),
         ];
 
-        $report->repaired_defenses = [];
+        $report->repaired_defenses = $battleResult->repairedDefenses->toArray();
 
         $rounds = [];
         foreach ($battleResult->rounds as $round) {
