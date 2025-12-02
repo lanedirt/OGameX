@@ -112,7 +112,8 @@ class AttackMission extends GameMission
         $debrisFieldService->save();
 
         // Create a moon for defender if result of battle indicates so and defender planet does not already have a moon.
-        if (!$defenderPlanet->hasMoon() && $battleResult->moonCreated) {
+        // Only create moon if defender is a planet (not already a moon).
+        if ($defenderPlanet->isPlanet() && !$defenderPlanet->hasMoon() && $battleResult->moonCreated) {
             $debrisAmount = (int)$battleResult->debris->sum();
             $this->planetServiceFactory->createMoonForPlanet($defenderPlanet, $debrisAmount, $battleResult->moonChance);
         }
