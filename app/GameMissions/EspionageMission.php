@@ -109,18 +109,13 @@ class EspionageMission extends GameMission
             // Update surviving units based on battle result
             $survivingUnits = $battleResult->attackerUnitsResult;
 
-            // If all probes destroyed, no espionage report and no return mission
+            // If all probes destroyed, also send battle report to attacker
             if ($survivingUnits->getAmount() === 0) {
-                // Mark the arrival mission as processed
-                $mission->processed = 1;
-                $mission->save();
-
-                // No return mission when all probes are destroyed
-                return;
+                $this->messageService->sendBattleReportMessageToPlayer($origin_planet->getPlayer(), $battleReportId);
             }
         }
 
-        // Create espionage report (only if probes survived or no counter-espionage)
+        // Always create espionage report (even if all probes destroyed)
         $reportId = $this->createEspionageReport($mission, $origin_planet, $target_planet, $counterEspionageChance);
 
         // Send a message to the player with a reference to the espionage report.
@@ -133,8 +128,10 @@ class EspionageMission extends GameMission
         $mission->processed = 1;
         $mission->save();
 
-        // Create and start the return mission with surviving units.
-        $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $survivingUnits);
+        // Create return mission only if probes survived
+        if ($survivingUnits->getAmount() > 0) {
+            $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $survivingUnits);
+        }
     }
 
     /**

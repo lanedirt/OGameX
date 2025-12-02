@@ -274,4 +274,102 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $this->assertGreaterThanOrEqual(0, $espionageReport->counter_espionage_chance);
         $this->assertLessThanOrEqual(100, $espionageReport->counter_espionage_chance);
     }
+
+    /**
+     * Test that espionage report is always created even when all probes are destroyed.
+     */
+    public function testEspionageReportCreatedWhenAllProbesDestroyed(): void
+    {
+        $this->basicSetup();
+
+        // Get a foreign planet and add overwhelming ships to guarantee probe destruction
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet->addUnit('battlecruiser', 1000);
+        $foreignPlanet->save();
+
+        // Count existing reports
+        $reportCountBefore = EspionageReport::count();
+
+        // Send only 1 probe (will be destroyed)
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Complete mission
+        $this->travel(10)->hours();
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Espionage report should still be created
+        $reportCountAfter = EspionageReport::count();
+        $this->assertGreaterThan($reportCountBefore, $reportCountAfter, 'Espionage report should be created even when all probes destroyed.');
+    }
+
+    /**
+     * Test that attacker receives battle report when all probes are destroyed.
+     */
+    public function testAttackerReceivesBattleReportWhenProbesDestroyed(): void
+    {
+        $this->basicSetup();
+
+        // Get a foreign planet and add overwhelming ships
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet->addUnit('battlecruiser', 1000);
+        $foreignPlanet->save();
+
+        // Count existing battle reports
+        $battleReportCountBefore = BattleReport::count();
+
+        // Send only 1 probe (will be destroyed)
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Complete mission
+        $this->travel(10)->hours();
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Battle report should be created (with 100% counter-espionage chance)
+        $battleReportCountAfter = BattleReport::count();
+        $this->assertGreaterThan($battleReportCountBefore, $battleReportCountAfter, 'Battle report should be created when probes destroyed.');
+    }
+
+    /**
+     * Test that no return mission is created when all probes are destroyed.
+     */
+    public function testNoReturnMissionWhenAllProbesDestroyed(): void
+    {
+        $this->basicSetup();
+
+        // Get initial probe count
+        $initialProbes = $this->planetService->getShipUnits()->getAmountByMachineName('espionage_probe');
+
+        // Get a foreign planet and add overwhelming ships
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet->addUnit('battlecruiser', 1000);
+        $foreignPlanet->save();
+
+        // Send only 1 probe (will be destroyed)
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Complete mission
+        $this->travel(10)->hours();
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Wait for potential return mission
+        $this->travel(10)->hours();
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Reload planet
+        $this->planetService->reloadPlanet();
+        $finalProbes = $this->planetService->getShipUnits()->getAmountByMachineName('espionage_probe');
+
+        // Probes should not have returned (1 probe was destroyed)
+        $this->assertEquals($initialProbes - 1, $finalProbes, 'Destroyed probes should not return.');
+    }
 }
