@@ -285,7 +285,7 @@ abstract class AccountTestCase extends TestCase
             ->limit(1)
             ->pluck('id');
 
-        if ($planet_id == null) {
+        if ($planet_id->isEmpty()) {
             // No nearby moons found, give current user a moon then login as a new user to see if this fixes it.
             // Use default test values (20% moon chance = 2,000,000 debris)
             $planetServiceFactory =  resolve(PlanetServiceFactory::class);
@@ -304,7 +304,7 @@ abstract class AccountTestCase extends TestCase
                 ->pluck('id');
         }
 
-        if ($planet_id == null) {
+        if ($planet_id->isEmpty()) {
             $this->fail('Failed to find a nearby foreign moon for testing.');
         } else {
             // Create and return a new PlanetService instance for the found planet.
