@@ -109,9 +109,12 @@ class EspionageMission extends GameMission
             // Update surviving units based on battle result
             $survivingUnits = $battleResult->attackerUnitsResult;
 
-            // If all probes destroyed, also send battle report to attacker
+            // If all probes destroyed, send "fleet lost contact" message to attacker
             if ($survivingUnits->getAmount() === 0) {
-                $this->messageService->sendBattleReportMessageToPlayer($origin_planet->getPlayer(), $battleReportId);
+                $this->messageService->sendFleetLostContactMessageToPlayer(
+                    $origin_planet->getPlayer(),
+                    '[' . $target_planet->getPlanetCoordinates()->asString() . ']'
+                );
             }
         }
 
