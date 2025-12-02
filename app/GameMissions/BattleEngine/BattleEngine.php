@@ -135,7 +135,8 @@ abstract class BattleEngine
         $result->debris = $this->calculateDebris($result->attackerUnitsLost, $result->defenderUnitsLost);
 
         // Determine if a moon already exists for defender's planet.
-        $result->moonExisted = $this->defenderPlanet->hasMoon();
+        // If defender is a moon, moonExisted should be true (the moon itself exists).
+        $result->moonExisted = $this->defenderPlanet->isMoon() || $this->defenderPlanet->hasMoon();
 
         // Calculate moon percentage if a moon does not exist yet.
         if ($result->moonExisted) {

@@ -859,6 +859,87 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     }
 
     /**
+     * Assert that attacking a moon does not create a second moon, even when there is enough debris
+     * to trigger moon creation. This tests the fix for the bug where moon creation was attempted
+     * when the defender was already a moon.
+     */
+    public function testAttackMoonDoesNotCreateSecondMoon(): void
+    {
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+
+        // Adjust maximum moon chance to 100% to ensure a moon would be created if logic were wrong.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('maximum_moon_chance', 100);
+
+        // Prepare attacker fleet
+        $this->planetAddUnit('cruiser', 2000);
+        $this->planetAddResources(new Resources(5000, 5000, 1000000, 0));
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), 2000);
+
+        // Send fleet to a nearby foreign MOON (not planet)
+        $foreignMoon = $this->sendMissionToOtherPlayerMoon($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Verify that the target is indeed a moon
+        $this->assertTrue($foreignMoon->isMoon(), 'Target should be a moon for this test.');
+
+        // Get the coordinates before battle
+        $moonCoordinates = $foreignMoon->getPlanetCoordinates();
+
+        // Prepare defender units - heavy defense to create massive debris
+        $foreignMoon->addUnit('rocket_launcher', 100000);
+
+        // Get fleet mission
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionId = $fleetMission->id;
+
+        // Calculate fleet mission duration
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignMoon->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
+
+        // Set time to fleet mission duration + 1 second
+        $this->travel($fleetMissionDuration + 1)->seconds();
+
+        // Reload application to make sure the planet is not cached
+        $this->reloadApplication();
+
+        // Trigger the update logic
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Assert that the fleet mission is processed without errors
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertTrue($fleetMission->processed == 1, 'Battle against moon fleet mission was not processed successfully.');
+
+        // Get the battle report
+        $battleReport = BattleReport::orderBy('id', 'desc')->first();
+        $this->assertNotNull($battleReport, 'Battle report was not created for battle against moon.');
+
+        // Assert that battle report shows moon was NOT created (moon_created should be false)
+        $this->assertFalse($battleReport->general['moon_created'], 'Moon creation should not occur when attacking a moon, even with sufficient debris.');
+
+        // Assert that battle report indicates moon already existed
+        $this->assertTrue($battleReport->general['moon_existed'], 'Battle report should indicate that moon already existed before battle.');
+
+        // Assert that moon chance is 0 (because moon already exists)
+        $this->assertSame(0, $battleReport->general['moon_chance'], 'Moon chance should be 0 when attacking a moon.');
+
+        // Verify there's still exactly one moon at these coordinates (no duplicate created)
+        $moonAtCoordinates = $planetServiceFactory->makeMoonForCoordinate($moonCoordinates);
+        $this->assertNotNull($moonAtCoordinates, 'Moon should still exist at coordinates after battle.');
+
+        // Verify there's no duplicate by checking the planet database directly
+        $moonsAtLocation = \OGame\Models\Planet::where('galaxy', $moonCoordinates->galaxy)
+            ->where('system', $moonCoordinates->system)
+            ->where('planet', $moonCoordinates->position)
+            ->where('planet_type', PlanetType::Moon->value)
+            ->get();
+
+        $this->assertCount(1, $moonsAtLocation, 'There should be exactly one moon at the coordinates, not multiple.');
+    }
+
+    /**
      * Assert that a battle with specific units eventually creates a moon within 100 attempts.
      */
     public function testLargeScaleAttackMoonCreationWithinAttempts(): void
