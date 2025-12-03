@@ -1,7 +1,7 @@
 <div class="detail_msg_head">
     <div class="msg_status"></div>
     <span class="msg_title new blue_txt">{!! $subject !!}</span>
-    <span class="msg_date fright">21.05.2024 19:00:28</span>
+    <span class="msg_date fright">{{ $date }}</span>
     <br/>
     <span class="msg_sender_label">@lang('From'): </span>
     <span class="msg_sender">{{ $from }}</span>
