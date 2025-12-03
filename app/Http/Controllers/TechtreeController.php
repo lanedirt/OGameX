@@ -113,24 +113,37 @@ class TechtreeController extends OGameController
 
         $production_table = [];
         if (!empty($object->production)) {
-            $production_amount_current_level = $planet->getObjectProduction($object->machine_name, $current_level, true)->sum();
+            $test_production = $planet->getObjectProduction($object->machine_name, 1, true);
+            $resource_type = null;
+
+            if ($test_production->metal->get() > 0) {
+                $resource_type = 'metal';
+            } elseif ($test_production->crystal->get() > 0) {
+                $resource_type = 'crystal';
+            } elseif ($test_production->deuterium->get() > 0) {
+                $resource_type = 'deuterium';
+            } elseif ($test_production->energy->get() > 0) {
+                $resource_type = 'energy';
+            }
+
+            $production_amount_current_level = $resource_type ? $planet->getObjectProduction($object->machine_name, $current_level, true)->{$resource_type}->get() : 0;
 
             // Create production table array value
-            // TODO: add unittest to verify that production calculation is correctly for various buildings.
             $min_level = (($current_level - 2) > 1) ? $current_level - 2 : 1;
             for ($i = $min_level; $i < $min_level + 15; $i++) {
-                $production_amount_previous_level = $planet->getObjectProduction($object->machine_name, $i - 1, true)->sum();
-                $production_amount = $planet->getObjectProduction($object->machine_name, $i, true)->sum();
+                $production_resources = $planet->getObjectProduction($object->machine_name, $i, true);
+                $production_amount_previous_level = $resource_type ? $planet->getObjectProduction($object->machine_name, $i - 1, true)->{$resource_type}->get() : 0;
+                $production_amount = $resource_type ? $production_resources->{$resource_type}->get() : 0;
 
                 $production_table[] = [
                     'level' => $i,
                     'production' => $production_amount,
                     'production_difference' => $production_amount - $production_amount_current_level,
                     'production_difference_per_level' => ($i === $current_level) ? 0 : (($i - 1 < $current_level) ? ($production_amount - $production_amount_previous_level) * -1 : $production_amount - $production_amount_previous_level),
-                    'energy_balance' => $planet->getObjectProduction($object->machine_name, $i, true)->energy->get(),
-                    'energy_difference' => ($i === $current_level) ? 0 : ($planet->getObjectProduction($object->machine_name, $i, true)->energy->get() - $planet->getObjectProduction($object->machine_name, $current_level, true)->energy->get()),
-                    'deuterium_consumption' => $planet->getObjectProduction($object->machine_name, $i, true)->deuterium->get(),
-                    'deuterium_consumption_per_level' => ($i === $current_level) ? 0 : ($planet->getObjectProduction($object->machine_name, $i, true)->deuterium->get() - $planet->getObjectProduction($object->machine_name, $current_level, true)->deuterium->get()),
+                    'energy_balance' => $production_resources->energy->get(),
+                    'energy_difference' => ($i === $current_level) ? 0 : ($production_resources->energy->get() - $planet->getObjectProduction($object->machine_name, $current_level, true)->energy->get()),
+                    'deuterium_consumption' => $production_resources->deuterium->get(),
+                    'deuterium_consumption_per_level' => ($i === $current_level) ? 0 : ($production_resources->deuterium->get() - $planet->getObjectProduction($object->machine_name, $current_level, true)->deuterium->get()),
                     'protected' => 0,
                 ];
             }

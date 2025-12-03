@@ -118,18 +118,18 @@ class ResourcesController extends AbstractBuildingsController
             $productionindex = $this->planet->getObjectProductionIndex($building, $level);
             $productionindex_total->add($productionindex);
 
-            $productionindex->mine->add($productionindex->planet_slot);
+            $production_rounded = $this->planet->getObjectProduction($building->machine_name, $level);
 
             $percentage = $this->planet->getBuildingPercent($building->machine_name);
 
-            if ($productionindex->mine->energy->get() < 0) {
+            if ($production_rounded->energy->get() < 0) {
                 // Building consumes energy (resource building)
                 $building_resource_rows[] = [
                     'id' => $building->id,
                     'title' => $building->title,
                     'level' => $level,
-                    'production' => $productionindex->mine,
-                    'actual_energy_use' => floor($productionindex->mine->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
+                    'production' => $production_rounded,
+                    'actual_energy_use' => floor($production_rounded->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
                     'percentage' => $percentage,
                 ];
             } else {
@@ -139,13 +139,17 @@ class ResourcesController extends AbstractBuildingsController
                     'type' => $building->type,
                     'title' => $building->title,
                     'level' => $level,
-                    'production' => $productionindex->mine,
+                    'production' => $production_rounded,
                     'percentage' => $percentage,
                 ];
             }
         }
 
         $production_factor = $this->planet->getResourceProductionFactor();
+
+        $productionindex_total->total->metal->set($this->planet->getMetalProductionPerHour());
+        $productionindex_total->total->crystal->set($this->planet->getCrystalProductionPerHour());
+        $productionindex_total->total->deuterium->set($this->planet->getDeuteriumProductionPerHour());
 
         return view('ingame.resources.settings')->with([
             'basic_income' => $this->planet->getPlanetBasicIncome(),
