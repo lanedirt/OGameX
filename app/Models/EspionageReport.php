@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array<string, int> $research
  * @property array<string, int> $ships
  * @property array<string, int> $defense
+ * @property int|null $counter_espionage_chance
  * @property array<string, string> $player_info
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

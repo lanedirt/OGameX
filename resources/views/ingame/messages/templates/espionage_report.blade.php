@@ -43,8 +43,7 @@
 <div class="compacting">
     <!-- TODO: implement loot percentage -->
     <span class="ctn ctn4">@lang('Loot'): 75%</span>
-    <!-- TODO: implement counter-espionage -->
-    <span class="fright">@lang('Chance of counter-espionage'): 0%</span>
+    <span class="fright">@lang('Chance of counter-espionage'): {{ $counter_espionage_chance }}%</span>
 </div>
 
 <div class="compacting">

@@ -204,6 +204,30 @@ class MessageService
     }
 
     /**
+     * Sends a fleet lost contact message to a player.
+     *
+     * @param PlayerService $player
+     * @param string $coordinates
+     * @return Message The created message.
+     */
+    public function sendFleetLostContactMessageToPlayer(PlayerService $player, string $coordinates): Message
+    {
+        try {
+            $gameMessage = resolve(\OGame\GameMessages\FleetLostContact::class);
+        } catch (Exception) {
+            throw new RuntimeException('Could not create fleet lost contact message.');
+        }
+
+        $message = new Message();
+        $message->user_id = $player->getId();
+        $message->key = $gameMessage->getKey();
+        $message->params = ['coordinates' => $coordinates];
+        $message->save();
+
+        return $message;
+    }
+
+    /**
      * Sends a welcome message to the current player.
      *
      * @return void
