@@ -1677,9 +1677,10 @@ class PlanetService
         $production_total->add($building_production_total);
 
         // Write values to planet.
-        $this->planet->metal_production     = (int) $production_total->metal->get();
-        $this->planet->crystal_production   = (int) $production_total->crystal->get();
-        $this->planet->deuterium_production = (int) $production_total->deuterium->get();
+        // Use ceil() for positive production to match getObjectProduction() rounding
+        $this->planet->metal_production     = (int) ceil($production_total->metal->get());
+        $this->planet->crystal_production   = (int) ceil($production_total->crystal->get());
+        $this->planet->deuterium_production = (int) ceil($production_total->deuterium->get());
     }
 
     /**
