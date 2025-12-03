@@ -22,9 +22,8 @@ class CounterEspionageServiceTest extends UnitTestCase
 
     /**
      * Test that counter-espionage chance is always between 0 and 100.
-     *
-     * @dataProvider chanceCalculationBoundsProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('chanceCalculationBoundsProvider')]
     public function testChanceCalculationIsBounded(
         int $attackerProbes,
         int $attackerEspLevel,
@@ -79,9 +78,8 @@ class CounterEspionageServiceTest extends UnitTestCase
 
     /**
      * Test that counter-espionage chance formula produces correct results.
-     *
-     * @dataProvider formulaCorrectnessProvider
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('formulaCorrectnessProvider')]
     public function testFormulaCorrectness(
         int $attackerProbes,
         int $attackerEspLevel,
