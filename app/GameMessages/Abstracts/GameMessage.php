@@ -199,6 +199,18 @@ abstract class GameMessage
     }
 
     /**
+     * Build the URL for the full message view with tab/subtab context.
+     *
+     * @return string
+     */
+    protected function getFullMessageUrl(): string
+    {
+        $url = route('messages.ajax.getmessage', ['messageId' => $this->message->id]);
+        $url .= '?tab=' . urlencode($this->tab) . '&subtab=' . urlencode($this->subtab);
+        return $url;
+    }
+
+    /**
      * Get the params that the message requires to be filled.
      *
      * @return array<int, string>

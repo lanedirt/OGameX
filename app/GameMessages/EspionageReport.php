@@ -110,7 +110,7 @@ class EspionageReport extends GameMessage
     {
         // Show more details link in the footer of the espionage report.
         return ' <a class="fright txt_link msg_action_link overlay"
-                   href="' . route('messages.ajax.getmessage', ['messageId' => $this->message->id])  .'"
+                   href="' . $this->getFullMessageUrl() . '"
                    data-overlay-title="More details">
                     More details
                 </a>';
@@ -216,6 +216,7 @@ class EspionageReport extends GameMessage
             'subject' => $this->getSubject(),
             'from' => $this->getFrom(),
             'playername' => $player->getUsername(),
+            'date' => $this->getDateFormatted(),
             'resources' => $resources,
             'debris' => $debris,
             'ships' => $ships,

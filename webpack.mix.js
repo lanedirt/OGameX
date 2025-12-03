@@ -30,6 +30,7 @@ mix.scripts([
     //'resources/js/ingame/percentagebar.js',
     'resources/js/ingame/timerhandler.js',
     'resources/js/ingame/e7c74974620fa35b197315ebdbb8c2.js',
+    'resources/js/ingame/messages-pagination.js',
 ], 'public/js/ingame.js').minify('public/js/ingame.js').version();
 
 // ---

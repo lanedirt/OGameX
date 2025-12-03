@@ -115,9 +115,9 @@ class BattleReport extends GameMessage
      */
     public function getFooterDetails(): string
     {
-        // Show more details link in the footer of the espionage report.
+        // Show more details link in the footer of the battle report.
         return ' <a class="fright txt_link msg_action_link overlay"
-                   href="' . route('messages.ajax.getmessage', ['messageId' => $this->message->id])  .'"
+                   href="' . $this->getFullMessageUrl() . '"
                    data-overlay-title="More details">
                     More details
                 </a>';

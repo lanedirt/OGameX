@@ -139,20 +139,26 @@ class MessagesController extends OGameController
     }
 
     /**
-     * Returns an individual message for a full screen view.
+     * Returns an individual message for a full screen view with pagination context.
      *
      * @param int $messageId
+     * @param Request $request
      * @param MessageService $messageService
      * @return View
      */
-    public function ajaxGetMessage(int $messageId, MessageService $messageService): View
+    public function ajaxGetMessage(int $messageId, Request $request, MessageService $messageService): View
     {
-        // Get full message view model.
-        $messageObject = $messageService->getFullMessage($messageId);
+        // Get tab and subtab from request for pagination context
+        $tab = $request->get('tab');
+        $subtab = $request->get('subtab');
+
+        // Get full message with pagination context
+        $paginationData = $messageService->getMessagePaginationContext($messageId, $tab, $subtab);
 
         return view('ingame.messages.message')->with([
             'messageId' => $messageId,
-            'messageBody' => $messageObject->getBodyFull(),
+            'messageBody' => $paginationData['message']->getBodyFull(),
+            'pagination' => $paginationData['pagination'],
         ]);
     }
 

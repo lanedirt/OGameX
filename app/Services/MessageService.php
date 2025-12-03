@@ -327,4 +327,75 @@ class MessageService
             ->where('user_id', $this->player->getId())
             ->delete();
     }
+
+    /**
+     * Get an individual message with pagination context for navigation in full screen overlay.
+     *
+     * @param int $messageId
+     * @param string|null $tab
+     * @param string|null $subtab
+     * @return array{message: GameMessage, pagination: array{currentIndex: int, totalCount: int, firstId: int|null, prevId: int|null, nextId: int|null, lastId: int|null, tab: string, subtab: string}}
+     */
+    public function getMessagePaginationContext(int $messageId, string|null $tab = null, string|null $subtab = null): array
+    {
+        // Get the current message first
+        $currentMessage = Message::where('id', $messageId)
+            ->where('user_id', $this->player->getId())
+            ->first();
+
+        if ($currentMessage === null) {
+            throw new RuntimeException('Message not found.');
+        }
+
+        // If tab/subtab not provided, determine from the message key
+        $gameMessage = GameMessageFactory::createGameMessage($currentMessage);
+        if ($tab === null) {
+            $tab = $gameMessage->getTab();
+        }
+        if ($subtab === null) {
+            $subtab = $gameMessage->getSubtab();
+        }
+
+        // Get all message IDs for this subtab, ordered by created_at DESC then id DESC (newest first, consistent ordering)
+        $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, $subtab);
+        $allMessageIds = Message::where('user_id', $this->player->getId())
+            ->whereIn('key', $messageKeys)
+            ->orderBy('created_at', 'desc')
+            ->pluck('id')
+            ->toArray();
+
+        $totalCount = count($allMessageIds);
+        $currentIndexRaw = array_search($messageId, $allMessageIds, true);
+
+        // If message not found in the list (shouldn't happen), default to first position
+        if ($currentIndexRaw === false) {
+            $currentIndexRaw = 0;
+        }
+
+        $currentIndex = (int) $currentIndexRaw;
+
+        // Calculate navigation IDs (1-based index for display)
+        $firstId = $totalCount > 0 ? $allMessageIds[0] : null;
+        $lastId = $totalCount > 0 ? $allMessageIds[$totalCount - 1] : null;
+        $prevId = $currentIndex > 0 ? $allMessageIds[$currentIndex - 1] : null;
+        $nextId = ($currentIndex < ($totalCount - 1)) ? $allMessageIds[$currentIndex + 1] : null;
+
+        // Mark the current message as viewed
+        $currentMessage->viewed = 1;
+        $currentMessage->save();
+
+        return [
+            'message' => $gameMessage,
+            'pagination' => [
+                'currentIndex' => $currentIndex + 1, // 1-based for display
+                'totalCount' => $totalCount,
+                'firstId' => $firstId,
+                'prevId' => $prevId,
+                'nextId' => $nextId,
+                'lastId' => $lastId,
+                'tab' => $tab,
+                'subtab' => $subtab,
+            ],
+        ];
+    }
 }
