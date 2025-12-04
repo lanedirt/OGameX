@@ -28,6 +28,9 @@ use Spatie\Permission\Traits\HasRoles;
  * @property int|null $planet_current
  * @property int $dark_matter
  * @property \Illuminate\Support\Carbon|null $dark_matter_last_regen
+ * @property bool $vacation_mode
+ * @property \Illuminate\Support\Carbon|null $vacation_mode_activated_at
+ * @property \Illuminate\Support\Carbon|null $vacation_mode_until
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read \OGame\Models\UserTech|null $tech
@@ -90,6 +93,18 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'vacation_mode' => 'boolean',
+        'vacation_mode_activated_at' => 'datetime',
+        'vacation_mode_until' => 'datetime',
+        'dark_matter_last_regen' => 'datetime',
     ];
 
     /**

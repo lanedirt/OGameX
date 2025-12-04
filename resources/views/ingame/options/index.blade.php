@@ -8,6 +8,18 @@
         </div>
     @endif
 
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div id="eventboxContent" style="display: none">
         <img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif">
     </div>
@@ -428,11 +440,29 @@
                                             <label class="styled textBeefy" data-element="vacationmode">Vacation Mode</label>
                                         </div>
                                         <div class="group bborder" style="display: block;">
+                                            @if($player->isInVacationMode())
+                                            <div class="fieldwrapper">
+                                                <p style="color: #ffcc00; font-weight: bold;">You are currently in vacation mode.</p>
+                                                @if($player->getVacationModeUntil())
+                                                    <p>You can deactivate it after: {{ $player->getVacationModeUntil()->format('Y-m-d H:i:s') }}</p>
+                                                @endif
+                                            </div>
+                                            @endif
                                             <div class="fieldwrapper">
                                                 <label class="styled textBeefy">
-                                                    Activate vacation mode
+                                                    @if($player->isInVacationMode())
+                                                        Deactivate vacation mode
+                                                    @else
+                                                        Activate vacation mode
+                                                    @endif
                                                 </label>
-                                                <div class="thefield"><input type="checkbox" name="urlaubs_modus" id="urlaubs_modus" class="notOnVacation"></div>
+                                                <div class="thefield">
+                                                    <input type="checkbox"
+                                                           name="urlaubs_modus"
+                                                           id="urlaubs_modus"
+                                                           class="{{ $player->isInVacationMode() ? 'onVacation' : 'notOnVacation' }}"
+                                                           {{ $player->isInVacationMode() ? 'checked' : '' }}>
+                                                </div>
                                             </div>
                                             <div class="fieldwrapper">
                                                 <p>Vacation mode is designed to protect you during long absences from the game. You can only activate it when none of your fleets are in transit. Building and research orders will be put on hold.</p>

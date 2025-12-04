@@ -1536,6 +1536,11 @@ class PlanetService
             return new Resources(0, 0, 0, 0);
         }
 
+        // Players in vacation mode have zero basic income.
+        if ($this->getPlayer()->isInVacationMode()) {
+            return new Resources(0, 0, 0, 0);
+        }
+
         $universe_resource_multiplier = $this->settingsService->economySpeed();
 
         $baseIncome = new Resources(
