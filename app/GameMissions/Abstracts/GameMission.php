@@ -332,8 +332,9 @@ abstract class GameMission
 
         // No need to check for resources and units, as the return mission takes the units from the original
         // mission and the resources are already delivered. Nothing is deducted from the planet.
-        // Time this fleet mission will depart (arrival time of the parent mission)
-        $time_start = $parentMission->time_arrival;
+        // Time this fleet mission will depart (arrival time of the parent mission + holding time if applicable)
+        // For expeditions, the holding time must be included as the mission doesn't complete until after the hold.
+        $time_start = $parentMission->time_arrival + ($parentMission->time_holding ?? 0);
 
         // Time fleet mission will arrive (arrival time of the parent mission + duration of the parent mission)
         // Return mission duration is always the same as the parent mission duration.
