@@ -263,6 +263,73 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     }
 
     /**
+     * Test that expedition return mission timing correctly includes holding time.
+     * This verifies the fix for the bug where return trips would complete instantly
+     * because the start time was set to parent arrival instead of parent arrival + holding time.
+     *
+     * @return void
+     */
+    public function testExpeditionReturnMissionTimingIncludesHoldingTime(): void
+    {
+        $this->basicSetup();
+
+        // Enable only the "failed" expedition outcome to avoid delay/speedup complications.
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::Failed]);
+
+        // Send the expedition mission.
+        $this->sendTestExpedition(true);
+
+        // Get the parent mission.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $parentMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Verify the parent mission has holding time set (expeditions should have at least 1 hour).
+        $this->assertGreaterThan(0, $parentMission->time_holding, 'Expedition mission should have holding time set');
+        $this->assertGreaterThanOrEqual(3600, $parentMission->time_holding, 'Expedition holding time should be at least 1 hour (3600 seconds)');
+
+        // Calculate expected return mission start time (parent arrival + holding time).
+        $expectedReturnStartTime = $parentMission->time_arrival + $parentMission->time_holding;
+        $parentMissionId = $parentMission->id;
+        $travelTime = $parentMission->time_arrival - $parentMission->time_departure;
+        $holdingTime = $parentMission->time_holding;
+
+        // Advance time to expedition arrival + holding time + 1 second to ensure arrival is fully processed.
+        // This ensures the expedition has completed and return mission has been created.
+        $this->travel($travelTime + $holdingTime + 1)->seconds();
+
+        // Trigger update to process the arrival and create the return mission.
+        $this->get('/overview');
+
+        // Reload service to get updated missions.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+
+        // Get the return mission that should have been created.
+        $returnMission = $fleetMissionService->getFleetMissionByParentId($parentMissionId, false);
+
+        // Verify return mission was created.
+        $this->assertNotNull($returnMission, 'Return mission should be created after expedition arrival');
+
+        // Verify return mission start time equals parent arrival + holding time.
+        // This is the key assertion - the return mission should start AFTER the holding time.
+        $this->assertEquals(
+            $expectedReturnStartTime,
+            $returnMission->time_departure,
+            'Return mission start time should equal parent arrival + holding time (not just arrival time)'
+        );
+
+        // Verify return mission arrival time is calculated correctly.
+        $expectedReturnArrivalTime = $expectedReturnStartTime + ($parentMission->time_arrival - $parentMission->time_departure);
+        $this->assertEquals(
+            $expectedReturnArrivalTime,
+            $returnMission->time_arrival,
+            'Return mission arrival time should be calculated from the correct start time'
+        );
+
+        // Verify return mission is not processed (not auto-completed).
+        $this->assertEquals(0, $returnMission->processed, 'Return mission should not be auto-completed immediately after creation');
+    }
+
+    /**
      * Send an expedition mission with high player points expecting large resource gain.
      *
      * @return void
