@@ -263,10 +263,10 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'espionage_probe', 5, 'Espionage probe are not at 5 units at beginning of test.');
 
-        // Send fleet to a nearby foreign planet.
+        // Send fleet to a nearby foreign planet (use clean planet to avoid counter-espionage).
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+        $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -296,7 +296,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 
         // Assert that a return trip has been launched by checking the active missions for the current planet.
-        $this->assertCount(1, $activeMissions, 'No return trip launched after fleet with deployment mission has arrived at destination.');
+        $this->assertCount(1, $activeMissions, 'No return trip launched after fleet with espionage mission has arrived at destination.');
     }
 
     /**
