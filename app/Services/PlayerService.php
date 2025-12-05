@@ -904,7 +904,7 @@ class PlayerService
      *
      * @return \Illuminate\Support\Carbon|null
      */
-    public function getVacationModeUntil(): ?\Illuminate\Support\Carbon
+    public function getVacationModeUntil(): \Illuminate\Support\Carbon|null
     {
         return $this->user->vacation_mode_until;
     }
