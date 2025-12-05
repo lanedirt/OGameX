@@ -184,11 +184,20 @@ class AttackMission extends GameMission
             0
         );
 
-        // Total resources = remaining + loot
+        // Calculate loot remaining on surviving ships
+        // Loot is also subject to the survival rate (if cargo ships carrying loot are destroyed, loot is lost)
+        $remainingLoot = new Resources(
+            max(0, (int)($battleResult->loot->metal->get() * $survivalRate)),
+            max(0, (int)($battleResult->loot->crystal->get() * $survivalRate)),
+            max(0, (int)($battleResult->loot->deuterium->get() * $survivalRate)),
+            0
+        );
+
+        // Total resources = remaining mission resources + remaining loot
         $totalResources = new Resources(
-            $remainingResources->metal->get() + $battleResult->loot->metal->get(),
-            $remainingResources->crystal->get() + $battleResult->loot->crystal->get(),
-            $remainingResources->deuterium->get() + $battleResult->loot->deuterium->get(),
+            $remainingResources->metal->get() + $remainingLoot->metal->get(),
+            $remainingResources->crystal->get() + $remainingLoot->crystal->get(),
+            $remainingResources->deuterium->get() + $remainingLoot->deuterium->get(),
             0
         );
 
