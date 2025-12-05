@@ -115,11 +115,20 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
+        // Get just dispatched fleet mission service.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+
+        // Get time it takes for the fleet to travel to the second planet.
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
+
+        // Set time to fleet mission duration + 1 second.
+        $this->travel($fleetMissionDuration + 1)->seconds();
+
+        // Reload application to make sure the defender planet is not cached.
+        $this->reloadApplication();
+
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
-
-        // Increase time by 10 hours to ensure the mission is done.
-        $this->travel(10)->hours();
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -158,11 +167,20 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $foreignMoon = $this->sendMissionToOtherPlayerMoon($unitCollection, new Resources(0, 0, 0, 0));
 
+        // Get just dispatched fleet mission service.
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+
+        // Get time it takes for the fleet to travel to the moon.
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignMoon->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
+
+        // Set time to fleet mission duration + 1 second.
+        $this->travel($fleetMissionDuration + 1)->seconds();
+
+        // Reload application to make sure the defender moon is not cached.
+        $this->reloadApplication();
+
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
-
-        // Increase time by 10 hours to ensure the mission is done.
-        $this->travel(10)->hours();
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
