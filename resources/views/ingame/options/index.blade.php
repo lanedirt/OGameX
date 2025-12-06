@@ -439,37 +439,34 @@
                                         <div class="category fieldwrapper alt bar">
                                             <label class="styled textBeefy" data-element="vacationmode">Vacation Mode</label>
                                         </div>
-                                        <div class="group bborder" style="display: block;">
-                                            @if($player->isInVacationMode())
-                                            <div class="fieldwrapper">
+                                        <div class="group bborder" style="">
+                                            <div class="fieldwrapper" id="techinfo">
+                                                @if($player->isInVacationMode())
                                                 <p style="color: #ffcc00; font-weight: bold;">You are currently in vacation mode.</p>
                                                 @if($player->getVacationModeUntil())
                                                     <p>You can deactivate it after: {{ $player->getVacationModeUntil()->format('Y-m-d H:i:s') }}</p>
                                                 @endif
-                                            </div>
-                                            @endif
-                                            <div class="fieldwrapper">
-                                                <label class="styled textBeefy">
-                                                    @if($player->isInVacationMode())
-                                                        Deactivate vacation mode
-                                                    @else
-                                                        Activate vacation mode
-                                                    @endif
-                                                </label>
-                                                <div class="thefield">
-                                                    <input type="checkbox"
-                                                           name="urlaubs_modus"
-                                                           id="urlaubs_modus"
-                                                           class="{{ $player->isInVacationMode() ? 'onVacation' : 'notOnVacation' }}"
-                                                           {{ $player->isInVacationMode() ? 'checked' : '' }}>
-                                                </div>
-                                            </div>
-                                            <div class="fieldwrapper">
+                                                <br>
+                                                @endif
+
                                                 <p>Vacation mode is designed to protect you during long absences from the game. You can only activate it when none of your fleets are in transit. Building and research orders will be put on hold.</p>
                                                 <br>
-                                                <p>Once vacation mode is activated, it will protect you from new attacks. Attacks that have already started will, however, continue and your production will be set to zero.</p>
+                                                <p>Once vacation mode is activated, it will protect you from new attacks. Attacks that have already started will, however, continue and your production will be set to zero. Vacation mode does not prevent your account from being deleted if it has been inactive for 35+ days and the account has no purchased DM.</p>
                                                 <br>
                                                 <p>Vacation mode lasts a minimum of 48 hours. Only after this time expires will you be able to deactivate it.</p>
+                                                <br>
+                                            </div>
+                                            <div class="fieldwrapper center">
+                                                <div class="tooltip" style="cursor: default;" data-tooltip-title="The vacation lasts a minimum of 2 days.">
+                                                    <button id="vacation-mode-button" type="button" class="ui-button ui-corner-all ui-widget">
+                                                        @if($player->isInVacationMode())
+                                                            Deactivate
+                                                        @else
+                                                            Activate
+                                                        @endif
+                                                    </button>
+                                                </div>
+                                                <input type="checkbox" name="urlaubs_modus" id="urlaubs_modus" class="{{ $player->isInVacationMode() ? 'onVacation' : 'notOnVacation' }}" {{ $player->isInVacationMode() ? 'checked' : '' }} style="display: none;">
                                             </div>
                                         </div>
 

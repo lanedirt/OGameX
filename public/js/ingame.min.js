@@ -69901,6 +69901,22 @@ function initPreferences() {
     }
   });
 
+  // Vacation mode button handler
+  $("#vacation-mode-button").on('click', function(e) {
+    e.preventDefault();
+    var vacationCheckbox = $("#urlaubs_modus");
+
+    // Toggle the checkbox state
+    if (vacationCheckbox.is(':checked')) {
+      vacationCheckbox.prop('checked', false);
+    } else {
+      vacationCheckbox.prop('checked', true);
+    }
+
+    // Trigger form submission which will handle the confirmation popup
+    $("#prefs").submit();
+  });
+
   // Im aktiven Tab aber die richtige Auswahl öffnen
 
 
