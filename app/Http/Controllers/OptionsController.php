@@ -29,6 +29,7 @@ class OptionsController extends OGameController
             'username' => $player->getUsername(),
             'current_email' => $player->getEmail(),
             'canUpdateUsername' => $canUpdateUsername,
+            'espionage_probes_amount' => $player->getEspionageProbesAmount(),
         ]);
     }
 
@@ -41,7 +42,7 @@ class OptionsController extends OGameController
      * @return array<string,string>
      * @throws Exception
      */
-    public function processChangeUsername(Request $request, PlayerService $player): array
+    public function processChangeUsername(Request $request, PlayerService $player): array|null
     {
         $name = $request->input('new_username_username');
         if (!empty($name)) {
@@ -54,7 +55,43 @@ class OptionsController extends OGameController
             // Update username
             $player->setUsername($name);
             $player->save();
+            return array('success' => __('Settings saved'));
         }
+
+        return null;
+    }
+
+    /**
+     * Process espionage probes amount save request.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return array<string,string>|null
+     */
+    public function processEspionageProbesAmount(Request $request, PlayerService $player): array|null
+    {
+        // Only process if the field is present in the request
+        if (!array_key_exists('espionage_probes_amount', $request->all())) {
+            return null;
+        }
+
+        $amount = $request->input('espionage_probes_amount');
+
+        // Allow empty string to clear the setting
+        if ($amount === '' || $amount === null) {
+            $player->setEspionageProbesAmount(null);
+            $player->save();
+            return array('success' => __('Settings saved'));
+        }
+
+        // Validate that it's a positive integer
+        $amount = (int) $amount;
+        if ($amount < 1) {
+            return array('error' => __('Espionage probes amount must be at least 1'));
+        }
+
+        $player->setEspionageProbesAmount($amount);
+        $player->save();
 
         return array('success' => __('Settings saved'));
     }
@@ -70,7 +107,8 @@ class OptionsController extends OGameController
     {
         // Define change handlers.
         $change_handlers = [
-            'processChangeUsername'
+            'processChangeUsername',
+            'processEspionageProbesAmount'
         ];
 
         // Loop through change handlers, execute them and if it triggers
