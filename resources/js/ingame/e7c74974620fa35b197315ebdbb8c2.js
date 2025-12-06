@@ -40028,7 +40028,39 @@ function initPreferences() {
         return false;
       }
     });
-  } // Im aktiven Tab aber die richtige Auswahl öffnen
+  }
+
+  // Vacation mode activation confirmation
+  $("#prefs").on('submit', function (e) {
+    var $thisObj = $(this);
+
+    // Check if trying to activate vacation mode (checkbox is checked and has class 'notOnVacation')
+    if ($thisObj.find('input#urlaubs_modus.notOnVacation:checked').length && !moveInProgress) {
+      if (!$thisObj.data('vacation_confirming')) {
+        $thisObj.data('vacation_confirming', true);
+        errorBoxDecision(
+          LocalizationStrings.attention,
+          preferenceLoca.vacationModeQuestion,
+          LocalizationStrings.yes,
+          LocalizationStrings.no,
+          function () {
+            // User clicked yes - submit the form
+            $thisObj.data('vacation_confirming', false);
+            $thisObj.off('submit').submit();
+          },
+          function () {
+            // User clicked no - reset the checkbox and clear the flag
+            $thisObj.find('input#urlaubs_modus').prop('checked', false);
+            $thisObj.data('vacation_confirming', false);
+          }
+        );
+        e.preventDefault();
+        return false;
+      }
+    }
+  });
+
+  // Im aktiven Tab aber die richtige Auswahl öffnen
 
 
   if (tabsDisabled) {

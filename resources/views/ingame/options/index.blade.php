@@ -14,7 +14,7 @@
         </div>
     @endif
 
-    @if (session('error'))
+    @if (session('error') && session('error') != __('You can only deactivate vacation mode after the minimum duration of 48 hours has passed.'))
         <div class="alert alert-danger">
             {{ session('error') }}
         </div>
@@ -572,7 +572,7 @@
             selectedTab = 0;
             tabsDisabled = false;
             moveInProgress = false;
-            preferenceLoca = {"changeNameTitle":"New player name","changeNameQuestion":"Are you sure you want to change your player name to %newName%?","planetMoveQuestion":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","tabDisabled":"To use this option you have to validated and cannot be in vacation mode!"};
+            preferenceLoca = {"changeNameTitle":"New player name","changeNameQuestion":"Are you sure you want to change your player name to %newName%?","planetMoveQuestion":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","tabDisabled":"To use this option you have to validated and cannot be in vacation mode!","vacationModeQuestion":"Do you want to activate vacation mode? You can only end your vacation after 2 days."};
             initPreferences();
 
             $(".validateButtonGift").click(function() {
