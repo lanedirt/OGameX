@@ -1,0 +1,7 @@
+services:
+  ogamex-app:
+    volumes: !override ["./php/local.ini:/usr/local/etc/php/conf.d/local.ini", "./.env:/var/www/.env"]
+  ogamex-scheduler:
+    volumes: !reset []
+  ogamex-queue-worker:
+    volumes: !reset []
