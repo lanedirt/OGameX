@@ -1308,6 +1308,11 @@ class PlanetService
      */
     public function updateBuildingQueue(bool $save_planet = true): void
     {
+        // Skip building queue processing if player is in vacation mode
+        if ($this->getPlayer()->isInVacationMode()) {
+            return;
+        }
+
         $queue = resolve(BuildingQueueService::class);
         $build_queue = $queue->retrieveFinished($this->getPlanetId());
 
@@ -1368,6 +1373,11 @@ class PlanetService
      */
     public function updateUnitQueue(bool $save_planet = true): void
     {
+        // Skip unit queue processing if player is in vacation mode
+        if ($this->getPlayer()->isInVacationMode()) {
+            return;
+        }
+
         $queue = resolve(UnitQueueService::class);
         $unit_queue = $queue->retrieveBuilding($this->getPlanetId());
 

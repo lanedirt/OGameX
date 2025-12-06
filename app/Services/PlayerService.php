@@ -552,6 +552,11 @@ class PlayerService
      */
     public function updateResearchQueue(bool $save_user = true): void
     {
+        // Skip research queue processing if player is in vacation mode
+        if ($this->isInVacationMode()) {
+            return;
+        }
+
         $queue = resolve(ResearchQueueService::class);
         $research_queue = $queue->retrieveFinishedForUser($this);
 

@@ -425,4 +425,161 @@ class VacationModeTest extends FleetDispatchTestCase
         // Verify player is no longer in vacation mode
         $this->assertFalse($player->isInVacationMode());
     }
+
+    /**
+     * Test that building queue pauses during vacation mode and resumes after.
+     */
+    public function testBuildingQueuePausesDuringVacationMode(): void
+    {
+        $this->basicSetup();
+
+        $planet = $this->planetService;
+        $player = $planet->getPlayer();
+
+        // Give planet resources to build
+        $this->planetAddResources(new Resources(10000, 10000, 10000, 0));
+
+        // Add a building to the queue using helper method
+        $this->addResourceBuildRequest('metal_mine');
+
+        // Reload to get queue
+        $this->reloadApplication();
+        $planet = $this->planetService;
+
+        // Verify building is in queue and building
+        $buildTime = $planet->getBuildingConstructionTime('metal_mine');
+        $this->assertGreaterThan(0, $buildTime);
+
+        // Travel half the build time
+        $this->travel($buildTime / 2)->seconds();
+
+        // Update planet - building should progress normally
+        $planet->update();
+        $initialLevel = $planet->getObjectLevel('metal_mine');
+
+        // Activate vacation mode
+        $player->activateVacationMode();
+
+        // Travel the remaining time (should complete if not paused)
+        $this->travel($buildTime / 2 + 10)->seconds();
+
+        // Reload and update planet
+        $this->reloadApplication();
+        $planet = $this->planetService;
+        $planet->update();
+
+        // Verify building did NOT complete (queue was paused)
+        $this->assertEquals($initialLevel, $planet->getObjectLevel('metal_mine'), 'Building should not complete during vacation mode');
+
+        // Deactivate vacation mode after 48 hours
+        $this->travel(48)->hours();
+        $player->deactivateVacationMode();
+
+        // Travel remaining build time
+        $this->travel($buildTime)->seconds();
+
+        // Reload and update planet
+        $this->reloadApplication();
+        $planet = $this->planetService;
+        $planet->update();
+
+        // Verify building NOW completes (queue resumed)
+        $this->assertEquals($initialLevel + 1, $planet->getObjectLevel('metal_mine'), 'Building should complete after vacation mode ends');
+    }
+
+    /**
+     * Test that unit queue pauses during vacation mode.
+     */
+    public function testUnitQueuePausesDuringVacationMode(): void
+    {
+        $this->basicSetup();
+
+        $planet = $this->planetService;
+        $player = $planet->getPlayer();
+
+        // Get initial unit count before adding to queue
+        $initialUnits = $planet->getObjectAmount('light_fighter');
+
+        // Activate vacation mode BEFORE adding units
+        $player->activateVacationMode();
+
+        // Give planet resources and build shipyard
+        $this->planetAddResources(new Resources(10000, 10000, 10000, 0));
+        $this->planetSetObjectLevel('shipyard', 1);
+
+        // Add units to the queue using helper method
+        $this->addShipyardBuildRequest('light_fighter', 5);
+
+        // Reload to get queue
+        $this->reloadApplication();
+        $planet = $this->planetService;
+
+        // Travel time (units would complete if not paused)
+        $this->travel(10)->minutes();
+
+        // Update planet
+        $planet->update();
+
+        // Verify no units were produced during vacation mode
+        $this->assertEquals($initialUnits, $planet->getObjectAmount('light_fighter'), 'Units should not be produced during vacation mode');
+    }
+
+    /**
+     * Test that research queue pauses during vacation mode and resumes after.
+     */
+    public function testResearchQueuePausesDuringVacationMode(): void
+    {
+        $this->basicSetup();
+
+        $planet = $this->planetService;
+        $player = $planet->getPlayer();
+
+        // Give planet resources and build research lab
+        $this->planetAddResources(new Resources(50000, 50000, 50000, 0));
+        $this->planetSetObjectLevel('research_lab', 1);
+
+        // Add research to the queue using helper method
+        $this->addResearchBuildRequest('energy_technology');
+
+        // Reload to get queue
+        $this->reloadApplication();
+        $player->load($player->getId());
+
+        $initialLevel = $player->getResearchLevel('energy_technology');
+
+        // Travel some time
+        $this->travel(100)->seconds();
+
+        // Update player research queue
+        $player->updateResearchQueue();
+
+        // Activate vacation mode
+        $player->activateVacationMode();
+
+        // Travel more time (research would complete if not paused)
+        $this->travel(1000)->seconds();
+
+        // Reload and update player
+        $this->reloadApplication();
+        $player->load($player->getId());
+        $player->updateResearchQueue();
+
+        // Verify research did NOT complete during vacation mode
+        $this->assertEquals($initialLevel, $player->getResearchLevel('energy_technology'), 'Research should not complete during vacation mode');
+
+        // Deactivate vacation mode after 48 hours
+        $this->travel(48)->hours();
+        $player->deactivateVacationMode();
+
+        // Travel time for research to complete
+        $this->travel(1000)->seconds();
+
+        // Reload and update player
+        $this->reloadApplication();
+        $player->load($player->getId());
+        $player->updateResearchQueue();
+
+        // Verify research NOW completes (queue resumed)
+        $this->assertEquals($initialLevel + 1, $player->getResearchLevel('energy_technology'), 'Research should complete after vacation mode ends');
+    }
 }

@@ -8,7 +8,7 @@
         </div>
     @endif
 
-    @if (session('success'))
+    @if (session('success') && session('success') != __('Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.') && session('success') != __('Vacation mode has been deactivated.'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
@@ -447,6 +447,9 @@
                                                     <p>You can deactivate it after: {{ $player->getVacationModeUntil()->format('Y-m-d H:i:s') }}</p>
                                                 @endif
                                                 <br>
+                                                @elseif(!$player->canActivateVacationMode())
+                                                <p style="color: #ff0000;">Vacation mode can not be activated (Active fleets)</p>
+                                                <br>
                                                 @endif
 
                                                 <p>Vacation mode is designed to protect you during long absences from the game. You can only activate it when none of your fleets are in transit. Building and research orders will be put on hold.</p>
@@ -458,7 +461,7 @@
                                             </div>
                                             <div class="fieldwrapper center">
                                                 <div class="tooltip" style="cursor: default;" data-tooltip-title="The vacation lasts a minimum of 2 days.">
-                                                    <button id="vacation-mode-button" type="button" class="ui-button ui-corner-all ui-widget">
+                                                    <button id="vacation-mode-button" type="button" class="ui-button ui-corner-all ui-widget" {{ (!$player->isInVacationMode() && !$player->canActivateVacationMode()) ? 'disabled' : '' }}>
                                                         @if($player->isInVacationMode())
                                                             Deactivate
                                                         @else
@@ -571,6 +574,14 @@
             moveInProgress = false;
             preferenceLoca = {"changeNameTitle":"New player name","changeNameQuestion":"Are you sure you want to change your player name to %newName%?","planetMoveQuestion":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","tabDisabled":"To use this option you have to validated and cannot be in vacation mode!","vacationModeQuestion":"Do you want to activate vacation mode? You can only end your vacation after 2 days."};
             initPreferences();
+
+            // Show fadeBox for vacation mode success messages
+            @if (session('success') == __('Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.'))
+                fadeBox('{{ session('success') }}', false);
+            @endif
+            @if (session('success') == __('Vacation mode has been deactivated.'))
+                fadeBox('{{ session('success') }}', false);
+            @endif
 
             $(".validateButtonGift").click(function() {
                 $(".validateButtonGift").hide();
