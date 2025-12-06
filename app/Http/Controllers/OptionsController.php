@@ -29,6 +29,7 @@ class OptionsController extends OGameController
             'username' => $player->getUsername(),
             'current_email' => $player->getEmail(),
             'canUpdateUsername' => $canUpdateUsername,
+            'player' => $player,
         ]);
     }
 
@@ -54,9 +55,51 @@ class OptionsController extends OGameController
             // Update username
             $player->setUsername($name);
             $player->save();
+
+            return array('success' => __('Settings saved'));
         }
 
-        return array('success' => __('Settings saved'));
+        return array();
+    }
+
+    /**
+     * Process vacation mode activation/deactivation request.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     *
+     * @return array<string,string>
+     */
+    public function processVacationMode(Request $request, PlayerService $player): array
+    {
+        $vacationModeChecked = $request->has('urlaubs_modus');
+
+        // If player is currently in vacation mode
+        if ($player->isInVacationMode()) {
+            // Player wants to deactivate vacation mode
+            if (!$vacationModeChecked) {
+                if ($player->canDeactivateVacationMode()) {
+                    $player->deactivateVacationMode();
+                    return array('success' => __('Vacation mode has been deactivated.'));
+                } else {
+                    return array('error' => __('You can only deactivate vacation mode after the minimum duration of 48 hours has passed.'));
+                }
+            }
+            // If checkbox is still checked while in vacation mode, do nothing
+            return array();
+        } else {
+            // Player is not in vacation mode and wants to activate it
+            if ($vacationModeChecked) {
+                if ($player->canActivateVacationMode()) {
+                    $player->activateVacationMode();
+                    return array('success' => __('Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.'));
+                } else {
+                    return array('error' => __('You cannot activate vacation mode while you have fleets in transit.'));
+                }
+            }
+        }
+
+        return array();
     }
 
     /**
@@ -70,7 +113,8 @@ class OptionsController extends OGameController
     {
         // Define change handlers.
         $change_handlers = [
-            'processChangeUsername'
+            'processChangeUsername',
+            'processVacationMode'
         ];
 
         // Loop through change handlers, execute them and if it triggers

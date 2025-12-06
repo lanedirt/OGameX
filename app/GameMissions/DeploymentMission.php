@@ -27,6 +27,11 @@ class DeploymentMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        // Cannot send missions while in vacation mode
+        if ($planet->getPlayer()->isInVacationMode()) {
+            return new MissionPossibleStatus(false, 'You cannot send missions while in vacation mode!');
+        }
+
         // Deployment mission is only possible for planets and moons.
         if (!in_array($targetType, [PlanetType::Planet, PlanetType::Moon])) {
             return new MissionPossibleStatus(false);
