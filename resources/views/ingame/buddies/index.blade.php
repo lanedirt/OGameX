@@ -19,56 +19,109 @@
             </div>
             <div class="content">
                 <div id="buddyRequests" class="js_accordion ui-accordion ui-widget ui-helper-reset" role="tablist">
-                    <h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-header-active ui-state-active ui-accordion-icons" role="tab" id="ui-id-1" aria-controls="ui-id-2" aria-selected="true" aria-expanded="true" tabindex="0"><span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>Buddy requests (1)</h3>
+                    <h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-header-active ui-state-active ui-accordion-icons" role="tab" id="ui-id-1" aria-controls="ui-id-2" aria-selected="true" aria-expanded="true" tabindex="0"><span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>Buddy requests ({{ $received_requests->count() + $sent_requests->count() }})</h3>
                     <div class="js_tabs ui-accordion-content ui-corner-bottom ui-helper-reset ui-widget-content ui-accordion-content-active ui-tabs ui-corner-all ui-widget" id="ui-id-2" aria-labelledby="ui-id-1" role="tabpanel" aria-hidden="false" style="">
                         <ul class="tabsbelow ui-tabs-nav ui-corner-all ui-helper-reset ui-helper-clearfix ui-widget-header" role="tablist">
                             <li role="tab" tabindex="0" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab ui-tabs-active ui-state-active" aria-controls="tabs-reqReveived" aria-labelledby="ui-id-3" aria-selected="true" aria-expanded="true">
                                 <a href="#tabs-reqReveived" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-3">
-                                    0 requests received (0 new)
+                                    <span id="newRequestCount">{{ $received_requests->count() }}</span> requests received (<span id="unreadCount">{{ $unread_requests_count }}</span> new)
                                 </a>
                             </li>
                             <li role="tab" tabindex="-1" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="tabs-reqSent" aria-labelledby="ui-id-4" aria-selected="false" aria-expanded="false">
                                 <a href="#tabs-reqSent" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-4">
-                                    1 requests sent
+                                    <span id="ownRequestCount">{{ $sent_requests->count() }}</span> requests sent
                                 </a>
                             </li>
                         </ul>
-                        <div id="tabs-reqReveived" class="tab_ctn js_scrollbar ui-tabs-panel ui-corner-bottom ui-widget-content mCustomScrollbar _mCS_1" aria-labelledby="ui-id-3" role="tabpanel" aria-hidden="false"><div id="mCSB_1" class="mCustomScrollBox mCS-ogame mCSB_vertical mCSB_inside" style="max-height: none;" tabindex="0"><div id="mCSB_1_container" class="mCSB_container" style="position:relative; top:0; left:0;" dir="ltr">
+                        <div id="tabs-reqReveived" class="tab_ctn js_scrollbar" aria-labelledby="ui-id-3" role="tabpanel">
                                     <ul class="clearfix">
-                                        <li class="no_req">You currently have no buddy requests.</li>
+                                        @if($received_requests->isEmpty())
+                                            <li class="no_req">You currently have no buddy requests.</li>
+                                        @else
+                                            @foreach($received_requests as $request)
+                                                <li class="msg @if(!$request->viewed) msg_new @endif" data-msg-id="{{ $request->id }}">
+                                                    <div class="msg_status"></div>
+                                                    <div class="msg_head">
+                                                        <span class="msg_title @if(!$request->viewed) new blue_txt @endif">@if(!$request->viewed)New @endif buddy request</span>
+                                                        <span class="msg_date fright">
+                                                            {{ $request->created_at->format('d.m.Y H:i:s') }}
+                                                        </span><br>
+                                                        <span class="msg_sender_label">From:</span>
+                                                        <span class="msg_sender">{{ $request->sender->username }}</span>
+                                                    </div>
+                                                    @if($request->message)
+                                                        <span class="msg_content">{{ $request->message }}<br></span>
+                                                    @endif
+                                                    <div class="msg_actions clearfix">
+                                                        <a href="javascript:void(0);" class="fleft msg_action_link txt_link">
+                                                            <span class="dark_highlight_tablet acceptRequest" data-buddyid="{{ $request->id }}">Accept</span>
+                                                        </a>
+                                                        <a href="javascript:void(0);" class="fleft msg_action_link txt_link">
+                                                            <span class="dark_highlight_tablet rejectRequest" data-buddyid="{{ $request->id }}">Reject</span>
+                                                        </a>
+                                                    </div>
+                                                </li>
+                                            @endforeach
+                                        @endif
                                     </ul>
-                                </div><div id="mCSB_1_scrollbar_vertical" class="mCSB_scrollTools mCSB_1_scrollbar mCS-ogame mCSB_scrollTools_vertical" style="display: block;"><div class="mCSB_draggerContainer"><div id="mCSB_1_dragger_vertical" class="mCSB_dragger" style="position: absolute; min-height: 30px; display: block; height: 31px; max-height: 21px;"><div class="mCSB_dragger_bar" style="line-height: 30px;"></div><div class="mCSB_draggerRail"></div></div></div></div></div></div>
-                        <div id="tabs-reqSent" class="tab_ctn js_scrollbar ui-tabs-panel ui-corner-bottom ui-widget-content mCustomScrollbar _mCS_2 mCS_no_scrollbar" aria-labelledby="ui-id-4" role="tabpanel" aria-hidden="true" style="display: none;"><div id="mCSB_2" class="mCustomScrollBox mCS-ogame mCSB_vertical mCSB_inside" style="max-height: 87px;" tabindex="0"><div id="mCSB_2_container" class="mCSB_container mCS_y_hidden mCS_no_scrollbar_y" style="position:relative; top:0; left:0;" dir="ltr">
+                        </div>
+                        <div id="tabs-reqSent" class="tab_ctn js_scrollbar" aria-labelledby="ui-id-4" role="tabpanel" style="display: none;">
                                     <ul>
-                                        <li class="msg msg_new" data-msg-id="3518">
-                                            <div class="msg_status"></div>
-                                            <div class="msg_head">
-                                                <span class="msg_title new blue_txt">New buddy request</span>
-                                                <span class="msg_date fright">
-                18.03.2024 08:41:42
-            </span><br>
-                                                <span class="msg_sender_label">
-                                                    To:
-                            </span>
-                                                <span class="msg_sender">
-                                    Vice Ultraviolet:
-                            </span>
-                                            </div>
+                                        @if($sent_requests->isEmpty())
+                                            <li class="no_req">You have not sent any buddy requests.</li>
+                                        @else
+                                            @foreach($sent_requests as $request)
+                                                <li class="msg msg_new" data-msg-id="{{ $request->id }}">
+                                                    <div class="msg_status"></div>
+                                                    <div class="msg_head">
+                                                        <span class="msg_title new blue_txt">New buddy request</span>
+                                                        <span class="msg_date fright">
+                                                            {{ $request->created_at->format('d.m.Y H:i:s') }}
+                                                        </span><br>
+                                                        <span class="msg_sender_label">
+                                                            To:
+                                                        </span>
+                                                        <span class="msg_sender">
+                                                            {{ $request->receiver->username }}
+                                                        </span>
+                                                    </div>
 
-                                            <span class="msg_content">You have received a new buddy request from President Hati.<br></span>
-                                            <div class="msg_actions clearfix">
-                                                <a href="javascript:void(0);" class="fleft msg_action_link txt_link">
-                                                    <span class="dark_highlight_tablet cancelRequest" data-buddyid="102141">Withdraw buddy request</span>
-                                                </a>
-                                            </div>
-                                        </li>
+                                                    <span class="msg_content">You have received a new buddy request from {{ $request->sender->username }}.<br>{{ $request->message }}</span>
+                                                    <message-footer class="msg_actions">
+                                                        <message-footer-actions>
+                                                            <gradient-button sq30=""><button class="custom_btn tooltip cancelBuddyRequest cancelRequest" data-buddyid="{{ $request->id }}" data-tooltip-title="Withdraw buddy request"><img src="/img/icons/basic/refuse.png" style="width: 16px; height: 16px;"></button></gradient-button>
+                                                        </message-footer-actions>
+                                                    </message-footer>
+                                                </li>
+                                            @endforeach
+                                        @endif
                                     </ul>
-                                </div><div id="mCSB_2_scrollbar_vertical" class="mCSB_scrollTools mCSB_2_scrollbar mCS-ogame mCSB_scrollTools_vertical" style="display: none;"><div class="mCSB_draggerContainer"><div id="mCSB_2_dragger_vertical" class="mCSB_dragger" style="position: absolute; min-height: 30px; top: 0px;"><div class="mCSB_dragger_bar" style="line-height: 30px;"></div><div class="mCSB_draggerRail"></div></div></div></div></div></div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="buddylistContent">
-                    <p class="box_highlight textCenter no_buddies">No buddies found</p>
+                    @if($buddies->isEmpty())
+                        <p class="box_highlight textCenter no_buddies">No buddies found</p>
+                    @else
+                        <table cellpadding="0" cellspacing="0" class="content_table" id="buddylist">
+                            <colgroup>
+                                <col span="1" style="width: 37px;">
+                                <col span="1" style="width: 150px;">
+                                <col span="1" style="width: 65px;">
+                            </colgroup>
+                            <thead>
+                            <tr class="ct_head_row">
+                                <th class="no ct_th first">ID</th>
+                                <th class="ct_th ct_sortable_title">Name</th>
+                                <th class="ct_th textCenter">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody class="zebra">
+                                @include('ingame.buddies.partials.buddy-list', ['buddies' => $buddies])
+                            </tbody>
+                        </table>
+                    @endif
                     <span></span>
                 </div>
 
@@ -84,22 +137,29 @@
                                 var buddyAction = 10;
                                 var actionId = $thisObj.attr("id");
 
-                                $("#buddies .ajaxContent").html("<p class=\"ajaxLoad\">load...</p>");
-
-                                $.post("#",
-                                    {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: "{{ route('buddies.post') }}",
+                                    data: {
                                         action: buddyAction,
                                         id: actionId,
-                                        ajax: 1
+                                        ajax: 1,
+                                        _token: "{{ csrf_token() }}"
                                     },
-                                    function (data) {
-                                        var ajaxContent = $(data).find('.content .buddylistContent');
-
-                                        $('.buddylistContent').html($(ajaxContent).html());
-
+                                    success: function (data) {
+                                        // Replace tbody content with the returned partial view
+                                        $('#buddylist tbody').html(data);
                                         ogame.buddies.initBuddyList();
+                                        fadeBox('Buddy deleted successfully!', false);
+                                    },
+                                    error: function(xhr, status, error) {
+                                        console.error('Delete buddy error:', xhr.responseJSON);
+                                        var errorMsg = xhr.responseJSON && xhr.responseJSON.message
+                                            ? xhr.responseJSON.message
+                                            : 'Failed to delete buddy';
+                                        fadeBox(errorMsg, true);
                                     }
-                                );
+                                });
                             }
                         );
                     }
@@ -126,12 +186,13 @@
                                     };
                             }
 
+                            params._token = "{{ csrf_token() }}";
                             $.post(
-                                "#",
+                                "{{ route('buddies.post') }}",
                                 params,
                                 function (data) {
-                                    var ajaxTableContent = $(data).find('#buddylist');
-                                    $('#buddylist').html($(ajaxTableContent).html());
+                                    // Replace tbody content with the returned partial view
+                                    $('#buddylist tbody').html(data);
                                     ogame.buddies.initBuddyList();
                                 }
                             );
@@ -148,10 +209,11 @@
                         var actionId = $(this).data('buddyid');
                         var buddyCount = parseInt($("#ownRequestCount").text()) - 1;
 
-                        $.post("#",
+                        $.post("{{ route('buddies.post') }}",
                             {
                                 action: buddyAction,
-                                id: actionId
+                                id: actionId,
+                                _token: "{{ csrf_token() }}"
                             },
                             function (data) {
                                 $("#ownRequestCount").html(buddyCount);
@@ -165,10 +227,11 @@
                         var buddyAction = 5;
                         var actionId = $(this).data('buddyid');
 
-                        $.post("#",
+                        $.post("{{ route('buddies.post') }}",
                             {
                                 action: buddyAction,
-                                id: actionId
+                                id: actionId,
+                                _token: "{{ csrf_token() }}"
                             },
                             function (data) {
                                 var currentlocation = window.location.href;
@@ -216,10 +279,11 @@
                         var actionId = $(this).data('buddyid');
                         var buddyCount = parseInt($("#newRequestCount").text()) - 1;
 
-                        $.post("#",
+                        $.post("{{ route('buddies.post') }}",
                             {
                                 action: buddyAction,
-                                id: actionId
+                                id: actionId,
+                                _token: "{{ csrf_token() }}"
                             },
                             function (data) {
 
@@ -234,12 +298,17 @@
 
                 <script type="text/javascript">
                     ogame.buddies.initBuddyList();
-                    updateBuddyCount(0);
+                    updateBuddyCount({{ $unread_requests_count }});
 
                     $('.buddySearch').keyup(function(e)
                     {
                         ajaxBuddySearch(e);
                     });
+
+                    // Bind event handlers
+                    $(document).on('click', '.cancelRequest', cancelRequest);
+                    $(document).on('click', '.acceptRequest', acceptRequest);
+                    $(document).on('click', '.rejectRequest', rejectRequest);
                 </script>
 
 
@@ -253,26 +322,37 @@
                 <h2>Ignored Players</h2>
             </div>
             <div class="content">
-                <table cellpadding="0" cellspacing="0" class="content_table ignorelist" id="buddylist">
-                    <colgroup>
-                        <col span="1" style="width: 37px;">
-                        <col span="1" style="width: 150px;">
-                        <col span="1" style="width: 110px;">
-                        <col span="1" style="width: 65px;">
-                        <col span="1" style="width: 65px;">
-                    </colgroup>
-                    <thead>
-                    <tr class="ct_head_row">
-                        <th class="no ct_th first">ID</th>
-                        <th class="ct_th ct_sortable_title">Name</th>
-                        <th class="ct_th ct_sortable_title">Rank</th>
-                        <th class="ct_th ct_sortable_title">Alliance</th>
-                        <th class="ct_th textCenter">Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody class="zebra">
-                    </tbody>
-                </table>
+                @if($ignored_players->isEmpty())
+                    <p class="box_highlight textCenter">No ignored players</p>
+                @else
+                    <table cellpadding="0" cellspacing="0" class="content_table ignorelist" id="ignorelist">
+                        <colgroup>
+                            <col span="1" style="width: 37px;">
+                            <col span="1" style="width: 150px;">
+                            <col span="1" style="width: 65px;">
+                        </colgroup>
+                        <thead>
+                        <tr class="ct_head_row">
+                            <th class="no ct_th first">ID</th>
+                            <th class="ct_th ct_sortable_title">Name</th>
+                            <th class="ct_th textCenter">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody class="zebra">
+                            @foreach($ignored_players as $ignored)
+                                <tr>
+                                    <td>{{ $ignored->ignoredUser->id }}</td>
+                                    <td>{{ $ignored->ignoredUser->username }}</td>
+                                    <td class="textCenter">
+                                        <a href="#" class="txt_link" onclick="confirmUnignore('Do you really want to unignore {{ $ignored->ignoredUser->username }}?', '{{ route('buddies.unignore') }}?ignored_user_id={{ $ignored->ignoredUser->id }}'); return false;">
+                                            <span class="icon icon_check"></span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
                 <div class="footer"></div>
             </div>
         </div>

@@ -96,11 +96,12 @@
 
                     <td class="sendmsg">
                         <div class="sendmsg_content">
-                            <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="114167" title="Write message"><span class="icon icon_chat"></span></a>
-                            <a class="tooltip overlay js_hideTipOnMobile icon" title="Buddy request" data-overlay-title="Buddy request" href="#buddies&amp;action=7&amp;id=114167&amp;ajax=1">
-                                <span class="icon icon_user"></span>
-                            </a>
-
+                            <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $highscorePlayer['id'] }}" title="Write message"><span class="icon icon_chat"></span></a>
+                            @if($highscorePlayer['id'] != $player->getId() && !($highscorePlayer['is_admin'] ?? false))
+                                <a class="tooltip js_hideTipOnMobile icon sendBuddyRequest" title="Buddy request" data-playerid="{{ $highscorePlayer['id'] }}" data-playername="{{ $highscorePlayer['name'] }}" href="javascript:void(0);">
+                                    <span class="icon icon_user"></span>
+                                </a>
+                            @endif
                         </div>
                     </td>
 
@@ -114,9 +115,202 @@
         </table>
 
         <script type="text/javascript">
+            // BBCode parser for buddy request previews
+            window.buddyBBCodeParser = function(text) {
+                if (!text) return '';
+                var html = text
+                    .replace(/\[b\](.*?)\[\/b\]/gi, '<strong style="font-weight:bold">$1</strong>')
+                    .replace(/\[i\](.*?)\[\/i\]/gi, '<em style="font-style:italic">$1</em>')
+                    .replace(/\[u\](.*?)\[\/u\]/gi, '<span style="text-decoration:underline">$1</span>')
+                    .replace(/\[s\](.*?)\[\/s\]/gi, '<span style="text-decoration:line-through">$1</span>')
+                    .replace(/\[sup\](.*?)\[\/sup\]/gi, '<sup>$1</sup>')
+                    .replace(/\[sub\](.*?)\[\/sub\]/gi, '<sub>$1</sub>')
+                    .replace(/\[color=(.*?)\](.*?)\[\/color\]/gi, '<span style="color:$1">$2</span>')
+                    .replace(/\[size=(\d+)\](.*?)\[\/size\]/gi, '<span style="font-size:$1px">$2</span>')
+                    .replace(/\[url=(.*?)\](.*?)\[\/url\]/gi, '<a href="$1" target="_blank" style="color:#6f9fc8;text-decoration:underline">$2</a>')
+                    .replace(/\[url\](.*?)\[\/url\]/gi, '<a href="$1" target="_blank" style="color:#6f9fc8;text-decoration:underline">$1</a>')
+                    .replace(/\n/g, '<br>');
+                return '<div style="color:#fff;padding:5px">' + html + '</div>';
+            };
+
+            // Initialize buddy dialog after it loads
+            window.initBuddyDialog = function() {
+                var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"Spoiler","moreopts":"","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"Cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};
+
+                // Block BBCode preview AJAX calls temporarily to prevent 405 errors
+                var blockPreviewCalls = true;
+                $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+                    // Block POST requests to /overview which are preview-related
+                    if (blockPreviewCalls && options.url && options.type === 'POST' && options.url.indexOf('/overview') > -1) {
+                        jqXHR.abort();
+                        return false;
+                    }
+                });
+
+                initBuddyRequestForm();
+
+                // TODO: The BBCode editor includes an "Item" dropdown for linking game items.
+                // This feature is not yet implemented as the item system is not available.
+                // When items are implemented, update the BBCode parser and preview to support [item]ItemID[/item] tags.
+                initBBCodeEditor(locaKeys, {}, false, '.buddy_request_textarea', 5000, true);
+
+                // Re-enable AJAX calls after initialization
+                setTimeout(function() {
+                    blockPreviewCalls = false;
+                }, 500);
+
+                setTimeout(function() {
+                    var $textarea = $('.buddy_request_textarea');
+                    var $container = $textarea.closest('.markItUpContainer');
+                    var $preview = $container.find('.miu_preview_container');
+
+                    $container.find('.preview_link').off('click').on('click', function(e) {
+                        e.preventDefault();
+                        if ($preview.is(':visible')) {
+                            $preview.hide();
+                            $(this).removeClass('active');
+                        } else {
+                            $preview.html(window.buddyBBCodeParser($textarea.val())).show();
+                            $(this).addClass('active');
+                        }
+                    });
+                }, 150);
+
+                $('#buddyRequestForm').off('submit').on('submit', function(e) {
+                    e.preventDefault();
+                    var form = $(this);
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: 'POST',
+                        data: form.serialize(),
+                        success: function(response) {
+                            if (response.success) {
+                                fadeBox('Buddy request sent successfully!', false);
+                                form.closest('.ui-dialog-content').dialog('close');
+                                setTimeout(function() {
+                                    form.closest('.overlayDiv').remove();
+                                    form.closest('.ui-dialog').remove();
+                                }, 100);
+                            } else {
+                                fadeBox(response.message || 'Failed to send buddy request.', true);
+                            }
+                        },
+                        error: function(xhr) {
+                            var errorMessage = 'Failed to send buddy request.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            fadeBox(errorMessage, true);
+                        }
+                    });
+                });
+            };
+
+            // Global function for sending buddy requests (must be global for AJAX-loaded content)
+            window.sendBuddyRequestDialog = function(playerId, playerName) {
+                // Close any existing buddy request dialogs
+                $('.buddyRequestDialog').each(function() {
+                    try {
+                        $(this).dialog('destroy');
+                    } catch(e) {}
+                    $(this).remove();
+                });
+                $('.ui-dialog:has(.buddyRequestDialog)').remove();
+
+                // Create dialog container
+                var $dialog = $('<div class="overlayDiv buddyRequestDialog"></div>').css('display', 'none');
+                $('body').append($dialog);
+
+                // Initialize the dialog first
+                $dialog.dialog({
+                    title: 'Buddy request to ' + playerName,
+                    width: 'auto',
+                    height: 'auto',
+                    modal: false,
+                    closeText: '',
+                    position: { my: "center", at: "center" },
+                    close: function() {
+                        $(this).dialog('destroy');
+                        $(this).remove();
+                    }
+                });
+
+                // Load content via AJAX
+                var dialogUrl = '{{ route('buddies.requestdialog') }}?id=' + playerId + '&name=' + encodeURIComponent(playerName) + '&_=' + Date.now();
+
+                $.get(dialogUrl).done(function(data) {
+                    $dialog.empty().append(data);
+
+                    // Initialize buddy dialog BBCode editor
+                    if (typeof window.initBuddyDialog === 'function') {
+                        window.initBuddyDialog();
+                    }
+
+                    // Reposition after content loads - check if dialog is still initialized
+                    try {
+                        if ($dialog.hasClass('ui-dialog-content')) {
+                            $dialog.dialog('option', 'position', $dialog.dialog('option', 'position'));
+                        }
+                    } catch(e) {
+                        // Silently ignore repositioning errors
+                    }
+                }).fail(function() {
+                    try {
+                        $dialog.dialog('close');
+                    } catch(e) {}
+                });
+            };
+
             $(document).ready(function(){
                 initHighscoreContent();
                 initHighscore();
+
+                // Handle buddy request button clicks
+                $(document).on('click', '.sendBuddyRequest, .sendBuddyRequestLink', function(e) {
+                    e.preventDefault();
+                    var playerId = $(this).data('playerid');
+                    var playerName = $(this).data('playername');
+                    if (playerId && playerName) {
+                        window.sendBuddyRequestDialog(playerId, playerName);
+                    }
+                    return false;
+                });
+
+                // Handle ignore player button clicks
+                $(document).on('click', '.ignorePlayerLink', function(e) {
+                    e.preventDefault();
+                    var playerId = $(this).data('playerid');
+                    var playerName = $(this).data('playername');
+
+                    if (playerId && playerName) {
+                        // Confirm before ignoring
+                        if (confirm('Are you sure you want to ignore ' + playerName + '?')) {
+                            $.ajax({
+                                url: '{{ route('buddies.ignore') }}',
+                                type: 'POST',
+                                data: {
+                                    ignored_user_id: playerId,
+                                    _token: '{{ csrf_token() }}'
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        fadeBox('Player ignored successfully!', false);
+                                    } else {
+                                        fadeBox(response.message || 'Failed to ignore player.', true);
+                                    }
+                                },
+                                error: function(xhr) {
+                                    var errorMessage = 'Failed to ignore player.';
+                                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                                        errorMessage = xhr.responseJSON.message;
+                                    }
+                                    fadeBox(errorMessage, true);
+                                }
+                            });
+                        }
+                    }
+                    return false;
+                });
             });
         </script>
         <div class="pagebar">

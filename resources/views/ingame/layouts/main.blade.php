@@ -116,7 +116,7 @@
                            accesskey=""
                            href="{{ route('buddies.index') }}"
                         >
-                            @lang('Buddies')</a>
+                            @lang('Buddies')@if($buddyRequestCount > 0) <span style="color: white;">({{ $buddyRequestCount }})</span>@endif</a>
                     </li>
                     <li><a class="overlay"
                            href="{{ route('search.overlay') }}"

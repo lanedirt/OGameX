@@ -48754,29 +48754,31 @@ function getPlayerTooltip(galaxyContentObject) {
   let buddyLink = "";
 
   if (actions.buddies.available) {
-    if (player.isAdmin) {
-      buddyLink = `
+    buddyLink = `
+                <li><a href="javascript:void(0);" class="sendBuddyRequestLink" data-playerid="${actions.buddies.playerId}" data-playername="${actions.buddies.playerName}">${actions.buddies.title}</a></li>
+            `;
+  }
+
+  // Support link for admins (TODO: Implement proper support contact when messaging system is ready)
+  let supportLink = "";
+  if (actions.support && actions.support.available) {
+    supportLink = `
                 <li>
                     <a style="margin-top: 4px;"
-                    href="${actions.buddies.link}"
-                    target="_blank" title="${actions.buddies.title}"
+                    href="${actions.support.link}"
+                    target="_blank" title="${actions.support.title}"
                     class="js_hideTipOnMobile no_decoration">
                         <span class="support_icon icon icon_mail" style="margin-top: 5px;"></span> &nbsp;
-                        <div style="position:absolute; top: 32px;left:30px">${actions.buddies.title}</div>
+                        <div style="position:absolute; top: 32px;left:30px">${actions.support.title}</div>
                     </a>
                 </li>
             `;
-    } else {
-      buddyLink = `
-                <li><a href="${actions.buddies.link}" class="overlay" data-overlay-title="${actions.buddies.title}">${actions.buddies.title}</a></li>
-            `;
-    }
   }
 
   let ignoreLink = "";
 
   if (actions.ignore.available) {
-    ignoreLink = `<li><a href="${actions.ignore.link}">${actions.ignore.title}</a></li>`;
+    ignoreLink = `<li><a href="javascript:void(0);" class="ignorePlayerLink" data-playerid="${actions.ignore.playerId}" data-playername="${actions.ignore.playerName}">${actions.ignore.title}</a></li>`;
   }
 
   return `
@@ -48787,6 +48789,7 @@ function getPlayerTooltip(galaxyContentObject) {
                 ${rankLink}
                 ${messageLink}
                 ${buddyLink}
+                ${supportLink}
                 ${ignoreLink}
             </ul>
         </div>
@@ -49035,36 +49038,33 @@ function getActions(galaxyContentObject, systemData) {
     } else {
       messageLink = `<a href="${actions.message.link}" class="tooltip" data-playerId="${player.playerId}" title="${actions.message.title}"><span class="icon icon_chat"></span></a>`;
     }
-  } else {
-    if (player.isAdmin) {
-      messageLink = `
-                <a href="${actions.buddies.link}"
-                    target="_blank" title="${actions.buddies.title}"
+  } else if (actions.support && actions.support.available) {
+    // Support button for admins (TODO: Implement proper support contact when messaging system is ready)
+    messageLink = `
+                <a href="${actions.support.link}"
+                    target="_blank" title="${actions.support.title}"
                     class="tooltip js_hideTipOnMobile icon">
                         <span class="support_icon icon icon_mail"></span>
                 </a>
             `;
-    } else {
-      messageLink = `<div class="emptyAction"></div>`;
-    }
+  } else {
+    messageLink = `<div class="emptyAction"></div>`;
   }
 
   let buddyLink = "";
 
   if (actions.buddies.available) {
-    if (player.isAdmin === false) {
-      buddyLink = `
+    buddyLink = `
             <a class="tooltip overlay buddyrequest ipiHintable"
-               title="${actions.buddies.title}"
+               title="Buddy request to player"
                href="${actions.buddies.link}"
-               data-overlay-title="${actions.buddies.title}"
+               data-overlay-title="Buddy request to player"
+               data-playerid="${actions.buddies.playerId}"
+               data-playername="${actions.buddies.playerName}"
                data-ipi-hint="ipiGalaxySendBuddyRequest"
             >
                 <span class="icon icon_user"></span>
             </a>`;
-    } else {
-      buddyLink = `<div class="emptyAction"></div>`;
-    }
   } else {
     buddyLink = `<div class="emptyAction"></div>`;
   }
