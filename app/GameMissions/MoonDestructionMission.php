@@ -33,6 +33,11 @@ class MoonDestructionMission extends GameMission
 
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        // Cannot send missions while in vacation mode
+        if ($planet->getPlayer()->isInVacationMode()) {
+            return new MissionPossibleStatus(false, 'You cannot send missions while in vacation mode!');
+        }
+
         // Moon destruction mission is only possible for moons
         if ($targetType !== PlanetType::Moon) {
             return new MissionPossibleStatus(false, __('Destroy mission can only target moons.'));
@@ -60,6 +65,12 @@ class MoonDestructionMission extends GameMission
 
         if ($deathstarCount === 0) {
             return new MissionPossibleStatus(false, __('Destroy mission requires at least one Deathstar.'));
+        }
+
+        // If target player is in vacation mode, the mission is not possible.
+        $targetPlayer = $targetMoon->getPlayer();
+        if ($targetPlayer->isInVacationMode()) {
+            return new MissionPossibleStatus(false, 'This player is in vacation mode!');
         }
 
         // If all checks pass, the mission is possible

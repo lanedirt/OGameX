@@ -8,6 +8,18 @@
         </div>
     @endif
 
+    @if (session('success') && session('success') != __('Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.') && session('success') != __('Vacation mode has been deactivated.'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error') && session('error') != __('You can only deactivate vacation mode after the minimum duration of 48 hours has passed.'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div id="eventboxContent" style="display: none">
         <img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif">
     </div>
@@ -427,19 +439,37 @@
                                         <div class="category fieldwrapper alt bar">
                                             <label class="styled textBeefy" data-element="vacationmode">Vacation Mode</label>
                                         </div>
-                                        <div class="group bborder" style="display: block;">
-                                            <div class="fieldwrapper">
-                                                <label class="styled textBeefy">
-                                                    Activate vacation mode
-                                                </label>
-                                                <div class="thefield"><input type="checkbox" name="urlaubs_modus" id="urlaubs_modus" class="notOnVacation"></div>
-                                            </div>
-                                            <div class="fieldwrapper">
+                                        <div class="group bborder" style="">
+                                            <div class="fieldwrapper" id="techinfo">
+                                                @if($player->isInVacationMode())
+                                                <p style="color: #ffcc00; font-weight: bold;">You are currently in vacation mode.</p>
+                                                @if($player->getVacationModeUntil())
+                                                    <p>You can deactivate it after: {{ $player->getVacationModeUntil()->format('Y-m-d H:i:s') }}</p>
+                                                @endif
+                                                <br>
+                                                @elseif(!$player->canActivateVacationMode())
+                                                <p style="color: #ff0000;">Vacation mode can not be activated (Active fleets)</p>
+                                                <br>
+                                                @endif
+
                                                 <p>Vacation mode is designed to protect you during long absences from the game. You can only activate it when none of your fleets are in transit. Building and research orders will be put on hold.</p>
                                                 <br>
-                                                <p>Once vacation mode is activated, it will protect you from new attacks. Attacks that have already started will, however, continue and your production will be set to zero.</p>
+                                                <p>Once vacation mode is activated, it will protect you from new attacks. Attacks that have already started will, however, continue and your production will be set to zero. Vacation mode does not prevent your account from being deleted if it has been inactive for 35+ days and the account has no purchased DM.</p>
                                                 <br>
                                                 <p>Vacation mode lasts a minimum of 48 hours. Only after this time expires will you be able to deactivate it.</p>
+                                                <br>
+                                            </div>
+                                            <div class="fieldwrapper center">
+                                                <div class="tooltip" style="cursor: default;" data-tooltip-title="The vacation lasts a minimum of 2 days.">
+                                                    <button id="vacation-mode-button" type="button" class="ui-button ui-corner-all ui-widget" {{ (!$player->isInVacationMode() && !$player->canActivateVacationMode()) ? 'disabled' : '' }}>
+                                                        @if($player->isInVacationMode())
+                                                            Deactivate
+                                                        @else
+                                                            Activate
+                                                        @endif
+                                                    </button>
+                                                </div>
+                                                <input type="checkbox" name="urlaubs_modus" id="urlaubs_modus" class="{{ $player->isInVacationMode() ? 'onVacation' : 'notOnVacation' }}" {{ $player->isInVacationMode() ? 'checked' : '' }} style="display: none;">
                                             </div>
                                         </div>
 
@@ -542,8 +572,16 @@
             selectedTab = 0;
             tabsDisabled = false;
             moveInProgress = false;
-            preferenceLoca = {"changeNameTitle":"New player name","changeNameQuestion":"Are you sure you want to change your player name to %newName%?","planetMoveQuestion":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","tabDisabled":"To use this option you have to validated and cannot be in vacation mode!"};
+            preferenceLoca = {"changeNameTitle":"New player name","changeNameQuestion":"Are you sure you want to change your player name to %newName%?","planetMoveQuestion":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","tabDisabled":"To use this option you have to validated and cannot be in vacation mode!","vacationModeQuestion":"Do you want to activate vacation mode? You can only end your vacation after 2 days."};
             initPreferences();
+
+            // Show fadeBox for vacation mode success messages
+            @if (session('success') == __('Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.'))
+                fadeBox('{{ session('success') }}', false);
+            @endif
+            @if (session('success') == __('Vacation mode has been deactivated.'))
+                fadeBox('{{ session('success') }}', false);
+            @endif
 
             $(".validateButtonGift").click(function() {
                 $(".validateButtonGift").hide();

@@ -31,6 +31,11 @@ class RecycleMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        // Cannot send missions while in vacation mode
+        if ($planet->getPlayer()->isInVacationMode()) {
+            return new MissionPossibleStatus(false, 'You cannot send missions while in vacation mode!');
+        }
+
         // Recycle mission is only possible for debris fields.
         if ($targetType !== PlanetType::DebrisField) {
             return new MissionPossibleStatus(false);
@@ -51,6 +56,9 @@ class RecycleMission extends GameMission
         if (!$debrisFieldExists) {
             return new MissionPossibleStatus(false);
         }
+
+        // Note: Debris fields can be harvested regardless of whether the planet owner
+        // is in vacation mode. Only the sending player's vacation mode status is checked.
 
         // If all checks pass, the mission is possible.
         return new MissionPossibleStatus(true);
