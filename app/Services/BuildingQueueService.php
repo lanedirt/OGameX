@@ -112,6 +112,90 @@ class BuildingQueueService
     }
 
     /**
+     * Add a building downgrade to the building queue for the current planet.
+     *
+     * @param PlanetService $planet
+     * @param int $building_id
+     * @throws Exception
+     */
+    public function addDowngrade(PlanetService $planet, int $building_id): void
+    {
+        $build_queue = $this->retrieveQueue($planet);
+
+        // Max amount of buildings that can be in the queue in a given time.
+        if ($build_queue->isQueueFull()) {
+            throw new Exception('Maximum number of items already in queue.');
+        }
+
+        // Get the building object
+        $building = ObjectService::getObjectById($building_id);
+
+        // Only buildings and stations can be downgraded
+        if ($building->type !== \OGame\GameObjects\Models\Enums\GameObjectType::Building &&
+            $building->type !== \OGame\GameObjects\Models\Enums\GameObjectType::Station) {
+            throw new Exception('This object cannot be downgraded.');
+        }
+
+        $current_level = $planet->getObjectLevel($building->machine_name);
+
+        // Cannot downgrade if already at level 0
+        if ($current_level <= 0) {
+            throw new Exception('Cannot downgrade building at level 0.');
+        }
+
+        // Check if building can be downgraded (no dependencies)
+        if (!ObjectService::canDowngradeBuilding($building->machine_name, $planet)) {
+            throw new Exception('Cannot downgrade building: other buildings or research depend on this level.');
+        }
+
+        // Check if building is currently being upgraded
+        $currently_building = $build_queue->getCurrentlyBuildingFromQueue();
+        if (!empty($currently_building) && $currently_building->object->machine_name === $building->machine_name) {
+            throw new Exception('Cannot downgrade building while it is being upgraded.');
+        }
+
+        // Check if there are any queued upgrades for this building
+        $queue_items = $this->retrieveQueueItems($planet);
+        foreach ($queue_items as $item) {
+            $item_object = ObjectService::getObjectById($item->object_id);
+            if ($item_object->machine_name === $building->machine_name && !($item->is_downgrade ?? false)) {
+                throw new Exception('Cannot downgrade building while it has upgrades in queue.');
+            }
+        }
+
+        // Check if Research Lab is being downgraded while research is in progress
+        if ($building->machine_name === 'research_lab' && $planet->getPlayer()->isResearching()) {
+            throw new Exception('Cannot downgrade Research Lab while research is in progress.');
+        }
+
+        // Check if Shipyard is being downgraded while ships/defense are being built
+        if ($building->machine_name === 'shipyard' && $planet->getPlayer()->isBuildingShipsOrDefense()) {
+            throw new Exception('Cannot downgrade Shipyard while ships or defense are being built.');
+        }
+
+        // Get downgrade cost
+        $downgrade_price = ObjectService::getObjectDowngradePrice($building->machine_name, $planet);
+
+        // Check if planet has enough resources
+        if (!$planet->hasResources($downgrade_price)) {
+            throw new Exception('Not enough resources to downgrade this building.');
+        }
+
+        // Create queue item for downgrade
+        $queue = new BuildingQueue();
+        $queue->planet_id = $planet->getPlanetId();
+        $queue->object_id = $building->id;
+        $queue->object_level_target = $current_level - 1;
+        $queue->is_downgrade = true;
+
+        // Save the new queue item
+        $queue->save();
+
+        // Set the new queue item to start (if applicable)
+        $this->start($planet);
+    }
+
+    /**
      * Retrieve full building queue for a planet (including currently building).
      *
      * @param PlanetService $planet
@@ -197,10 +281,16 @@ class BuildingQueueService
 
         foreach ($queue_items as $queue_item) {
             $object = ObjectService::getObjectById($queue_item->object_id);
+            $is_downgrade = $queue_item->is_downgrade ?? false;
 
-            // See if the planet has enough resources for this build attempt.
-            $price = ObjectService::getObjectPrice($object->machine_name, $planet);
-            $build_time = $planet->getBuildingConstructionTime($object->machine_name);
+            // Get price and build time based on whether it's an upgrade or downgrade
+            if ($is_downgrade) {
+                $price = ObjectService::getObjectDowngradePrice($object->machine_name, $planet);
+                $build_time = $planet->getBuildingDowngradeTime($object->machine_name);
+            } else {
+                $price = ObjectService::getObjectPrice($object->machine_name, $planet);
+                $build_time = $planet->getBuildingConstructionTime($object->machine_name);
+            }
 
             // Only start the queue item if there are no other queue items building
             // for this planet.
@@ -211,23 +301,55 @@ class BuildingQueueService
                 break;
             }
 
-            // Sanity check: check if the target level as stored in the database
-            // is 1 higher than the current level. If not, then it means something
-            // is wrong.
             $current_level = $planet->getObjectLevel($object->machine_name);
-            if ($queue_item->object_level_target != ($current_level + 1)) {
-                // Error, cancel build queue item.
-                $this->cancel($planet, $queue_item->id, $queue_item->object_id);
 
-                continue;
-            }
+            // Sanity check: validate target level
+            if ($is_downgrade) {
+                // For downgrade: target should be current_level - 1
+                if ($queue_item->object_level_target != ($current_level - 1)) {
+                    // Error, cancel build queue item.
+                    $this->cancel($planet, $queue_item->id, $queue_item->object_id);
+                    continue;
+                }
 
-            // Sanity check: check if the Research Lab is tried to upgrade when research is in progress
-            if ($object->machine_name === 'research_lab' && $planet->getPlayer()->isResearching()) {
-                // Error, cancel build queue item.
-                $this->cancel($planet, $queue_item->id, $queue_item->object_id);
+                // Check if building can still be downgraded (dependencies might have changed)
+                if (!ObjectService::canDowngradeBuilding($object->machine_name, $planet)) {
+                    $this->cancel($planet, $queue_item->id, $queue_item->object_id);
+                    continue;
+                }
 
-                continue;
+                // Check if Research Lab is being downgraded while research is in progress
+                if ($object->machine_name === 'research_lab' && $planet->getPlayer()->isResearching()) {
+                    $this->cancel($planet, $queue_item->id, $queue_item->object_id);
+                    continue;
+                }
+
+                // Check if Shipyard is being downgraded while ships/defense are being built
+                if ($object->machine_name === 'shipyard' && $planet->getPlayer()->isBuildingShipsOrDefense()) {
+                    $this->cancel($planet, $queue_item->id, $queue_item->object_id);
+                    continue;
+                }
+            } else {
+                // For upgrade: target should be current_level + 1
+                if ($queue_item->object_level_target != ($current_level + 1)) {
+                    // Error, cancel build queue item.
+                    $this->cancel($planet, $queue_item->id, $queue_item->object_id);
+                    continue;
+                }
+
+                // Sanity check: check if the Research Lab is tried to upgrade when research is in progress
+                if ($object->machine_name === 'research_lab' && $planet->getPlayer()->isResearching()) {
+                    // Error, cancel build queue item.
+                    $this->cancel($planet, $queue_item->id, $queue_item->object_id);
+                    continue;
+                }
+
+                // Sanity check: check if the building requirements are still met. If not,
+                // then cancel build request.
+                if (!ObjectService::objectRequirementsWithLevelsMet($object->machine_name, $queue_item->object_level_target, $planet)) {
+                    $this->cancel($planet, $queue_item->id, $queue_item->object_id);
+                    continue;
+                }
             }
 
             // Sanity check: check if the planet has enough resources. If not,
@@ -235,19 +357,10 @@ class BuildingQueueService
             if (!$planet->hasResources($price)) {
                 // Error, cancel build queue item.
                 $this->cancel($planet, $queue_item->id, $queue_item->object_id);
-
                 continue;
             }
 
-            // Sanity check: check if the building requirements are still met. If not,
-            // then cancel build request.
-            if (!ObjectService::objectRequirementsWithLevelsMet($object->machine_name, $queue_item->object_level_target, $planet)) {
-                $this->cancel($planet, $queue_item->id, $queue_item->object_id);
-
-                continue;
-            }
-
-            // All OK, deduct resources and start building process.
+            // All OK, deduct resources and start building/downgrade process.
             $planet->deductResources($price);
 
             if (!$time_start) {

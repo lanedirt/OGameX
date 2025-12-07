@@ -528,6 +528,67 @@ class ObjectService
     }
 
     /**
+     * Gets the cost of downgrading a building on this planet by one level.
+     *
+     * @param string $machine_name
+     * @param PlanetService $planet
+     * @return Resources
+     * @throws Exception
+     */
+    public static function getObjectDowngradePrice(string $machine_name, PlanetService $planet): Resources
+    {
+        $object = self::getObjectByMachineName($machine_name);
+
+        // Only buildings and stations can be downgraded
+        if ($object->type !== GameObjectType::Building && $object->type !== GameObjectType::Station) {
+            return new Resources(0, 0, 0, 0);
+        }
+
+        $current_level = $planet->getObjectLevel($object->machine_name);
+
+        // Cannot downgrade if already at level 0
+        if ($current_level <= 0) {
+            return new Resources(0, 0, 0, 0);
+        }
+
+        // Get the upgrade cost from (current_level - 1) to current_level
+        $upgrade_cost = self::getObjectRawPrice($machine_name, $current_level);
+
+        // Base downgrade cost is 62.5% of upgrade cost
+        $base_downgrade_cost = new Resources(
+            $upgrade_cost->metal->get() * 0.625,
+            $upgrade_cost->crystal->get() * 0.625,
+            $upgrade_cost->deuterium->get() * 0.625,
+            0 // Energy is not used for downgrade
+        );
+
+        // Apply Ion technology bonus (each level reduces cost by 1%)
+        $player = $planet->getPlayer();
+        if ($player !== null) {
+            $ion_technology_level = $player->getResearchLevel('ion_technology');
+            $ion_bonus = $ion_technology_level * 0.01;
+
+            // Apply bonus: reduce cost by ion_bonus percentage
+            $final_cost = new Resources(
+                max(0, floor($base_downgrade_cost->metal->get() * (1 - $ion_bonus))),
+                max(0, floor($base_downgrade_cost->crystal->get() * (1 - $ion_bonus))),
+                max(0, floor($base_downgrade_cost->deuterium->get() * (1 - $ion_bonus))),
+                0
+            );
+
+            return $final_cost;
+        }
+
+        // If no player, return base cost without bonus
+        return new Resources(
+            floor($base_downgrade_cost->metal->get()),
+            floor($base_downgrade_cost->crystal->get()),
+            floor($base_downgrade_cost->deuterium->get()),
+            0
+        );
+    }
+
+    /**
      * Gets the cost of building a building of a certain level or a unit.
      *
      * @param string $machine_name
@@ -782,5 +843,72 @@ class ObjectService
         }
 
         return true;
+    }
+
+    /**
+     * Check if a building can be downgraded (no other buildings/research require it at current level).
+     *
+     * @param string $machine_name
+     * @param PlanetService $planet
+     * @return bool
+     */
+    public static function canDowngradeBuilding(string $machine_name, PlanetService $planet): bool
+    {
+        try {
+            $object = self::getObjectByMachineName($machine_name);
+
+            // Only buildings and stations can be downgraded
+            if ($object->type !== GameObjectType::Building && $object->type !== GameObjectType::Station) {
+                return false;
+            }
+
+            $current_level = $planet->getObjectLevel($machine_name);
+
+            // Cannot downgrade if already at level 0
+            if ($current_level <= 0) {
+                return false;
+            }
+
+            // Check all buildings, stations, and research objects for requirements
+            $allObjects = [...self::getBuildingObjects(), ...self::getStationObjects(), ...self::getResearchObjects()];
+
+            foreach ($allObjects as $checkObject) {
+                // Skip checking requirements for the same object
+                if ($checkObject->machine_name === $machine_name) {
+                    continue;
+                }
+
+                // Check if this object has requirements
+                if (empty($checkObject->requirements)) {
+                    continue;
+                }
+
+                // Check each requirement
+                foreach ($checkObject->requirements as $requirement) {
+                    // If this requirement matches the building we want to downgrade
+                    if ($requirement->object_machine_name === $machine_name) {
+                        // Check if the requirement level matches or exceeds current level
+                        if ($requirement->level >= $current_level) {
+                            // Get the current level of the requiring object
+                            $requiring_object_level = 0;
+                            if ($checkObject->type === GameObjectType::Research) {
+                                $requiring_object_level = $planet->getPlayer()->getResearchLevel($checkObject->machine_name);
+                            } else {
+                                $requiring_object_level = $planet->getObjectLevel($checkObject->machine_name);
+                            }
+
+                            // If the requiring object exists at a level that needs this building at current level or higher
+                            if ($requiring_object_level > 0) {
+                                return false; // Cannot downgrade, dependency exists
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true; // No dependencies found, can downgrade
+        } catch (Exception $e) {
+            return false; // On error, don't allow downgrade
+        }
     }
 }

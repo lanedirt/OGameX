@@ -187,6 +187,12 @@ abstract class AbstractBuildingsController extends OGameController
      */
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
+        // Check if this is a downgrade request (mode 3)
+        $mode = $request->input('mode');
+        if ($mode == 3) {
+            return $this->downgradeBuildRequest($request, $player);
+        }
+
         // If the technology is a shipyard or nanite, it shouldn't be able to upgrade while ships are built.
         if (($request->input('technologyId') === '21' || $request->input('technologyId') === '15') && $player->isBuildingShipsOrDefense()) {
             return response()->json([
@@ -214,6 +220,41 @@ abstract class AbstractBuildingsController extends OGameController
             'status' => 'success',
             'message' => 'Building construction started.',
         ]);
+    }
+
+    /**
+     * Handles an incoming downgrade buildrequest.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function downgradeBuildRequest(Request $request, PlayerService $player): JsonResponse
+    {
+        // Explicitly verify CSRF token because this request supports both POST and GET.
+        if (!hash_equals($request->session()->token(), $request->input('_token'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid token.',
+            ]);
+        }
+
+        $building_id = $request->input('technologyId');
+
+        try {
+            $this->queue->addDowngrade($player->planets->current(), $building_id);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Building downgrade started.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => [['message' => $e->getMessage()]],
+            ]);
+        }
     }
 
     /**

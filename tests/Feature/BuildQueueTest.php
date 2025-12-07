@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Exception;
 use OGame\Models\BuildingQueue;
 use OGame\Models\Resources;
+use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\AccountTestCase;
 
@@ -333,5 +334,128 @@ class BuildQueueTest extends AccountTestCase
         // Check if the building is finished and is now level 51
         $response = $this->get('/resources');
         $this->assertObjectLevelOnPage($response, 'metal_mine', 51, 'Metal mine is not at level 51 after construction time has passed.');
+    }
+
+    /**
+     * Verify that downgrading a building works as expected.
+     * @throws Exception
+     */
+    public function testDowngradeBuildingSuccess(): void
+    {
+        // Set the universe speed to 8x for this test.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
+        // Set building to level 5 and add enough resources for downgrade
+        $this->planetSetObjectLevel('metal_mine', 5);
+        $downgrade_price = ObjectService::getObjectDowngradePrice('metal_mine', $this->planetService);
+        $this->planetAddResources(new Resources(
+            $downgrade_price->metal->get() + 10000,
+            $downgrade_price->crystal->get() + 10000,
+            $downgrade_price->deuterium->get() + 10000,
+            0
+        ));
+
+        $initial_metal = $this->planetService->metal()->get();
+        $initial_crystal = $this->planetService->crystal()->get();
+        $initial_deuterium = $this->planetService->deuterium()->get();
+
+        // ---
+        // Step 1: Issue a request to downgrade metal mine
+        // ---
+        $object = ObjectService::getObjectByMachineName('metal_mine');
+        $response = $this->post('/resources/downgrade', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+        ]);
+        $response->assertStatus(200);
+
+        // ---
+        // Step 2: Verify resources were deducted immediately after request
+        // ---
+        $this->reloadApplication();
+        // Resources should be deducted when the downgrade starts
+        $this->planetService->reloadPlanet();
+        $actual_metal = $this->planetService->metal()->get();
+        $actual_crystal = $this->planetService->crystal()->get();
+        $actual_deuterium = $this->planetService->deuterium()->get();
+
+        // Calculate expected resources (accounting for any resource production that may have occurred)
+        $expected_metal = $initial_metal - $downgrade_price->metal->get();
+        $expected_crystal = $initial_crystal - $downgrade_price->crystal->get();
+        $expected_deuterium = $initial_deuterium - $downgrade_price->deuterium->get();
+
+        // Allow small tolerance for resource production (should be minimal since we just made the request)
+        $this->assertLessThanOrEqual($expected_metal + 100, $actual_metal, 'Metal should be deducted (allowing for minimal production)');
+        $this->assertGreaterThanOrEqual($expected_metal, $actual_metal, 'Metal should not be higher than expected');
+        $this->assertLessThanOrEqual($expected_crystal + 100, $actual_crystal, 'Crystal should be deducted (allowing for minimal production)');
+        $this->assertGreaterThanOrEqual($expected_crystal, $actual_crystal, 'Crystal should not be higher than expected');
+        $this->assertLessThanOrEqual($expected_deuterium + 100, $actual_deuterium, 'Deuterium should be deducted (allowing for minimal production)');
+        $this->assertGreaterThanOrEqual($expected_deuterium, $actual_deuterium, 'Deuterium should not be higher than expected');
+
+        // ---
+        // Step 3: Verify the building is still at level 5 (downgrade in progress)
+        // ---
+        $response = $this->get('/resources');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 5, 'Metal mine should still be at level 5 while downgrade is in progress.');
+
+        // ---
+        // Step 3: Travel forward in time to complete downgrade
+        // ---
+        $downgrade_time = $this->planetService->getBuildingDowngradeTime('metal_mine');
+        $this->travel($downgrade_time + 1)->seconds();
+
+        // ---
+        // Step 4: Verify the building is now at level 4
+        // ---
+        $response = $this->get('/resources');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 4, 'Metal mine should be at level 4 after downgrade completes.');
+    }
+
+    /**
+     * Verify that downgrading fails when building is at level 0.
+     * @throws Exception
+     */
+    public function testDowngradeBuildingLevelZero(): void
+    {
+        // Building is at level 0 by default
+        $object = ObjectService::getObjectByMachineName('metal_mine');
+        $response = $this->post('/resources/downgrade', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => false,
+        ]);
+    }
+
+    /**
+     * Verify that downgrading with Ion technology bonus reduces cost.
+     * @throws Exception
+     */
+    public function testDowngradeWithIonTechnologyBonus(): void
+    {
+        // Set the universe speed to 8x for this test.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
+        // Set building to level 5
+        $this->planetSetObjectLevel('metal_mine', 5);
+
+        // Set Ion technology to level 24 (24% reduction)
+        $this->playerSetResearchLevel('ion_technology', 24);
+
+        // Get downgrade price with bonus
+        $downgrade_price = ObjectService::getObjectDowngradePrice('metal_mine', $this->planetService);
+
+        // Get upgrade cost to calculate expected downgrade cost
+        $upgrade_cost = ObjectService::getObjectRawPrice('metal_mine', 5);
+        $base_downgrade_metal = $upgrade_cost->metal->get() * 0.625;
+        $expected_metal = floor($base_downgrade_metal * (1 - 0.24));
+
+        // Verify the cost is reduced by Ion technology bonus
+        $this->assertEquals($expected_metal, $downgrade_price->metal->get());
     }
 }

@@ -147,6 +147,53 @@ trait ObjectAjaxTrait
             $build_queue_max = true;
         }
 
+        // Calculate downgrade information for buildings and stations
+        $downgrade_price = null;
+        $downgrade_duration = null;
+        $downgrade_duration_formatted = null;
+        $ion_technology_level = 0;
+        $ion_technology_bonus = 0;
+        $can_downgrade = false;
+
+        if (($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) && $current_level > 0) {
+            try {
+                $downgrade_price = ObjectService::getObjectDowngradePrice($object->machine_name, $planet);
+                $downgrade_duration = $planet->getBuildingDowngradeTime($object->machine_name);
+                $downgrade_duration_formatted = AppUtil::formatTimeDuration($downgrade_duration);
+
+                // Get Ion technology level and calculate bonus
+                $player = $planet->getPlayer();
+                if ($player !== null) {
+                    $ion_technology_level = $player->getResearchLevel('ion_technology');
+                    $ion_technology_bonus = $ion_technology_level; // Percentage (e.g., 24 for 24%)
+                }
+
+                // Check if building can be downgraded
+                $can_downgrade = ObjectService::canDowngradeBuilding($object->machine_name, $planet);
+
+                // Additional checks: cannot downgrade if currently being upgraded
+                if ($can_downgrade && !empty($build_active_current)) {
+                    $can_downgrade = false;
+                }
+
+                // Check if there are any queued upgrades for this building
+                // @phpstan-ignore-next-line - method_exists check is needed for different queue service types
+                if ($can_downgrade && method_exists($this->queue, 'retrieveQueueItems')) {
+                    $queue_items = $this->queue->retrieveQueueItems($planet);
+                    foreach ($queue_items as $item) {
+                        $item_object = ObjectService::getObjectById($item->object_id);
+                        if ($item_object->machine_name === $object->machine_name && !($item->is_downgrade ?? false)) {
+                            $can_downgrade = false;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+                // If downgrade calculation fails, set can_downgrade to false
+                $can_downgrade = false;
+            }
+        }
+
         $view_html = view('ingame.ajax.object')->with([
             'object' => $object,
             'object_type' => $object->type,
@@ -177,6 +224,12 @@ trait ObjectAjaxTrait
             'research_in_progress' => $research_in_progress ?? false,
             'shipyard_upgrading' => $shipyard_upgrading ?? false,
             'ship_or_defense_in_progress' => $ship_or_defense_in_progress ?? false,
+            'downgrade_price' => $downgrade_price,
+            'downgrade_duration' => $downgrade_duration,
+            'downgrade_duration_formatted' => $downgrade_duration_formatted,
+            'ion_technology_level' => $ion_technology_level,
+            'ion_technology_bonus' => $ion_technology_bonus,
+            'can_downgrade' => $can_downgrade,
         ]);
 
         return response()->json([

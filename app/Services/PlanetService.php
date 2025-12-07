@@ -795,6 +795,53 @@ class PlanetService
     }
 
     /**
+     * Gets the time required to downgrade a building on this planet by one level.
+     *
+     * @param string $machine_name
+     * @return int
+     * @throws Exception
+     */
+    public function getBuildingDowngradeTime(string $machine_name): int
+    {
+        $current_level = $this->getObjectLevel($machine_name);
+
+        // Cannot downgrade if already at level 0
+        if ($current_level <= 0) {
+            return 1;
+        }
+
+        // Get the price for the current level (cost to build from level-1 to current level)
+        $price = ObjectService::getObjectRawPrice($machine_name, $current_level);
+
+        $robotfactory_level = $this->getObjectLevel('robot_factory');
+        $nanitefactory_level = $this->getObjectLevel('nano_factory');
+        $universe_speed = $this->settingsService->economySpeed();
+
+        // Sanity check: if universe speed is 0, set it to 1 to prevent division by zero.
+        if ($universe_speed == 0) {
+            $universe_speed = 1;
+        }
+
+        // The actual formula which return time in seconds
+        // Same formula as construction time but for current_level instead of next_level
+        $time_hours =
+            (
+                ($price->metal->get() + $price->crystal->get())
+                /
+                (2500 * max((4 - ($current_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
+            );
+
+        $time_seconds = (int)($time_hours * 3600);
+
+        // Minimum time is always 1 second for all objects/units.
+        if ($time_seconds < 1) {
+            $time_seconds = 1;
+        }
+
+        return $time_seconds;
+    }
+
+    /**
      * Gets the level of a building on this planet.
      *
      * @param string $machine_name
@@ -1321,7 +1368,12 @@ class PlanetService
             $item->processed = 1;
             $item->save();
 
+            // Check if this is a downgrade
+            $is_downgrade = $item->is_downgrade ?? false;
+
             // Update planet and update level of the object (building) that has been processed.
+            // For downgrades, object_level_target is already current_level - 1, so we just set it.
+            // For upgrades, object_level_target is current_level + 1, so we set it.
             $this->setObjectLevel($item->object_id, $item->object_level_target, $save_planet);
 
             // Build the next item in queue (if there is any)

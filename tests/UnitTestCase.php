@@ -44,6 +44,11 @@ abstract class UnitTestCase extends TestCase
             $attributes['planet'] = $attributes['planet'] ?? 1;
 
             $planetModelFake = Planet::factory()->make($attributes);
+
+            // Set a fake ID if not provided (needed for database queries in services)
+            if (!isset($attributes['id'])) {
+                $planetModelFake->id = $attributes['id'] ?? 1;
+            }
         } catch (Exception $e) {
             $this->fail('Failed to create fake planet model: ' . $e->getMessage());
         }

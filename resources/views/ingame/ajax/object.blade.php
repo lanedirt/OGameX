@@ -128,31 +128,45 @@
 
             </div>
 
+            @if ($can_downgrade && $downgrade_price !== null)
             <div id="demolition_costs_tooltip" class="htmlTooltip">
                 <h1>Deconstruction costs</h1>
 
                 <div class="splitLine"></div>
 
                 <table class="demolition_costs">
-
+                    @if ($ion_technology_level > 0)
                     <tr class="demolition_costs_bonus">
                         <th>Ion technology bonus:</th>
-                        <td data-value="24">-24%</td>
+                        <td data-value="{{ $ion_technology_level }}">-{{ $ion_technology_level }}%</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->metal->get() > 0)
                     <tr class="metal">
                         <th>Metal:</th>
-                        <td class="sufficient" data-value="33279">33,279</td>
+                        <td class="sufficient" data-value="{{ $downgrade_price->metal->get() }}">{{ $downgrade_price->metal->getFormatted() }}</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->crystal->get() > 0)
                     <tr class="crystal">
                         <th>Crystal:</th>
-                        <td class="sufficient" data-value="11092">11,092</td>
+                        <td class="sufficient" data-value="{{ $downgrade_price->crystal->get() }}">{{ $downgrade_price->crystal->getFormatted() }}</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->deuterium->get() > 0)
+                    <tr class="deuterium">
+                        <th>Deuterium:</th>
+                        <td class="sufficient" data-value="{{ $downgrade_price->deuterium->get() }}">{{ $downgrade_price->deuterium->getFormatted() }}</td>
+                    </tr>
+                    @endif
+                    @if ($downgrade_duration_formatted)
                     <tr class="demolition_duration">
                         <th>Duration:</th>
                         <td>
-                            <time datetime="PT6M22S"></time>6m 22s
+                            <time datetime="{{ $downgrade_duration_formatted }}"></time>{{ $downgrade_duration_formatted }}
                         </td>
                     </tr>
+                    @endif
                 </table>
             </div>
 
@@ -160,27 +174,41 @@
                 <h1>Deconstruction costs</h1>
                 <div class="splitLine"></div>
                 <table class="demolition_costs">
+                    @if ($ion_technology_level > 0)
                     <tr class="demolition_costs_bonus">
                         <th>Ion technology bonus:</th>
-                        <td data-value="24">-24%</td>
+                        <td data-value="{{ $ion_technology_level }}">-{{ $ion_technology_level }}%</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->metal->get() > 0)
                     <tr class="metal">
                         <th>Metal:</th>
-                        <td class="sufficient" data-value="33279">33,279</td>
+                        <td class="sufficient" data-value="{{ $downgrade_price->metal->get() }}">{{ $downgrade_price->metal->getFormatted() }}</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->crystal->get() > 0)
                     <tr class="crystal">
                         <th>Crystal:</th>
-                        <td class="sufficient" data-value="11092">11,092</td>
+                        <td class="sufficient" data-value="{{ $downgrade_price->crystal->get() }}">{{ $downgrade_price->crystal->getFormatted() }}</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->deuterium->get() > 0)
+                    <tr class="deuterium">
+                        <th>Deuterium:</th>
+                        <td class="sufficient" data-value="{{ $downgrade_price->deuterium->get() }}">{{ $downgrade_price->deuterium->getFormatted() }}</td>
+                    </tr>
+                    @endif
+                    @if ($downgrade_duration_formatted)
                     <tr class="demolition_duration">
                         <th>Duration:</th>
                         <td>
-                            <time datetime="PT6M22S"></time>6m 22s
+                            <time datetime="{{ $downgrade_duration_formatted }}"></time>{{ $downgrade_duration_formatted }}
                         </td>
                     </tr>
+                    @endif
                 </table>
-
             </div>
+            @endif
 
             @if ($max_build_amount && ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense))
                 <div class="build_amount">
@@ -189,12 +217,13 @@
                     <button class="maximum">[max. {{ $max_build_amount }}]</button>
                 </div>
             @elseif ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station)
-                <!-- TODO: implement downgrade feature -->
-                <!--<button class="downgrade" data-technology="3" data-name="{{ $title }}">
+                @if ($can_downgrade && $current_level > 0 && empty($build_active_current))
+                <button class="downgrade" data-technology="{{ $object->id }}" data-name="{{ $title }}">
                     <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
-                         data-ipi-hint="ipiTechnologyTearDowndeuteriumSynthesizer"></div>
+                         data-ipi-hint="ipiTechnologyTearDown{{ $object->class_name }}"></div>
                     <span class="label">tear down</span>
-                </button>-->
+                </button>
+                @endif
             @endif
 
             <div class="build-it_wrap">
