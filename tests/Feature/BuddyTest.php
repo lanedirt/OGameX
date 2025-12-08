@@ -486,14 +486,14 @@ class BuddyTest extends AccountTestCase
         $request2 = $buddyService->sendRequest($this->currentUserId, $offlineUser->id);
         $buddyService->acceptRequest($request2->id, $offlineUser->id);
 
-        // Set online user's time to now (online) - time field stores Unix timestamp
+        // Set online user's time to now (online) - time field stores Unix timestamp as string
         // Note: time is not in fillable array, so we use direct assignment
-        $onlineUser->time = time();
+        $onlineUser->time = (string)time();
         $onlineUser->save();
         $onlineUser->refresh();
 
         // Set offline user's time to 20 minutes ago (offline)
-        $offlineUser->time = time() - 1200;
+        $offlineUser->time = (string)(time() - 1200);
         $offlineUser->save();
         $offlineUser->refresh();
 
@@ -522,14 +522,14 @@ class BuddyTest extends AccountTestCase
         $request2 = $buddyService->sendRequest($this->currentUserId, $offlineUser->id);
         $buddyService->acceptRequest($request2->id, $offlineUser->id);
 
-        // Set online user's time to now (online) - time field stores Unix timestamp
+        // Set online user's time to now (online) - time field stores Unix timestamp as string
         // Note: time is not in fillable array, so we use direct assignment
-        $onlineUser->time = time();
+        $onlineUser->time = (string)time();
         $onlineUser->save();
         $onlineUser->refresh();
 
         // Set offline user's time to 20 minutes ago (offline)
-        $offlineUser->time = time() - 1200;
+        $offlineUser->time = (string)(time() - 1200);
         $offlineUser->save();
         $offlineUser->refresh();
 
@@ -538,9 +538,11 @@ class BuddyTest extends AccountTestCase
 
         // Should only include the online user
         $this->assertCount(1, $onlineBuddies);
-        $this->assertEquals($onlineUser->id, $onlineBuddies->first()->sender_user_id === $this->currentUserId
-            ? $onlineBuddies->first()->receiver_user_id
-            : $onlineBuddies->first()->sender_user_id);
+        /** @var \OGame\Models\BuddyRequest $firstBuddy */
+        $firstBuddy = $onlineBuddies->first();
+        $this->assertEquals($onlineUser->id, $firstBuddy->sender_user_id === $this->currentUserId
+            ? $firstBuddy->receiver_user_id
+            : $firstBuddy->sender_user_id);
     }
 
     /**
@@ -562,13 +564,13 @@ class BuddyTest extends AccountTestCase
         $request2 = $buddyService->sendRequest($this->currentUserId, $offlineUser->id);
         $buddyService->acceptRequest($request2->id, $offlineUser->id);
 
-        // Set online user's time to now (online) - time field stores Unix timestamp
+        // Set online user's time to now (online) - time field stores Unix timestamp as string
         // Note: time is not in fillable array, so we use direct assignment
-        $onlineUser->time = time();
+        $onlineUser->time = (string)time();
         $onlineUser->save();
 
         // Set offline user's time to 20 minutes ago (offline)
-        $offlineUser->time = time() - 1200;
+        $offlineUser->time = (string)(time() - 1200);
         $offlineUser->save();
 
         // Call the endpoint
@@ -585,8 +587,10 @@ class BuddyTest extends AccountTestCase
         $this->assertCount(2, $data['buddies']);
 
         // Verify online status is correctly set
-        $onlineBuddy = collect($data['buddies'])->firstWhere('id', $onlineUser->id);
-        $offlineBuddy = collect($data['buddies'])->firstWhere('id', $offlineUser->id);
+        /** @var array<string, mixed> $buddies */
+        $buddies = $data['buddies'];
+        $onlineBuddy = collect($buddies)->firstWhere('id', $onlineUser->id);
+        $offlineBuddy = collect($buddies)->firstWhere('id', $offlineUser->id);
 
         $this->assertNotNull($onlineBuddy);
         $this->assertTrue($onlineBuddy['isOnline']);
