@@ -1,0 +1,79 @@
+name: Flaky Test Detection
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_filter:
+        description: 'PHPUnit filter pattern (e.g., FleetDispatchAttack, or leave empty for all tests)'
+        required: false
+        default: ''
+      duration_minutes:
+        description: 'How long to run tests (in minutes)'
+        required: false
+        default: '60'
+
+jobs:
+  flaky-test-detection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    services:
+      docker:
+        image: docker:26.0.0
+        options: --privileged
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Docker Compose
+        uses: ./.github/actions/docker-compose-setup
+
+      - name: Run flaky test detection loop
+        env:
+          TEST_FILTER: ${{ github.event.inputs.test_filter }}
+          DURATION_MINUTES: ${{ github.event.inputs.duration_minutes }}
+        run: |
+          echo "=== Flaky Test Detection ==="
+          echo "Filter: ${TEST_FILTER:-'(all tests)'}"
+          echo "Duration: ${DURATION_MINUTES} minutes"
+          echo ""
+
+          # Build the PHPUnit command
+          if [ -n "$TEST_FILTER" ]; then
+            PHPUNIT_CMD="docker compose exec -T ogamex-app php vendor/bin/phpunit --filter $TEST_FILTER --stop-on-failure"
+          else
+            PHPUNIT_CMD="docker compose exec -T ogamex-app php vendor/bin/phpunit --stop-on-failure"
+          fi
+
+          echo "Command: $PHPUNIT_CMD"
+          echo "=========================================="
+          echo ""
+
+          # Calculate end time
+          END_TIME=$(($(date +%s) + ${DURATION_MINUTES} * 60))
+          ITERATION=0
+
+          while [ $(date +%s) -lt $END_TIME ]; do
+            ITERATION=$((ITERATION + 1))
+            REMAINING=$(( (END_TIME - $(date +%s)) / 60 ))
+
+            echo ""
+            echo ">>> Iteration $ITERATION (${REMAINING} minutes remaining)"
+            echo "----------------------------------------"
+
+            if ! $PHPUNIT_CMD; then
+              echo ""
+              echo "=========================================="
+              echo "!!! FLAKY TEST DETECTED !!!"
+              echo "Failed on iteration: $ITERATION"
+              echo "=========================================="
+              exit 1
+            fi
+
+            echo ""
+          done
+
+          echo ""
+          echo "=========================================="
+          echo "SUCCESS: No flaky tests detected!"
+          echo "Completed $ITERATION iterations over ${DURATION_MINUTES} minutes"
+          echo "=========================================="

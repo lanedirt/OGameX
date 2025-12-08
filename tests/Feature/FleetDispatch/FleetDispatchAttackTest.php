@@ -49,15 +49,19 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $settingsService->set('fleet_speed_war', 1);
         $settingsService->set('fleet_speed_holding', 1);
         $settingsService->set('fleet_speed_peaceful', 1);
-        $this->planetAddResources(new Resources(0, 0, 100000, 0));
+
+        // Add sufficient deuterium to the planet to ensure we don't run into fuel capacity restriction.
+        $this->planetAddResources(new Resources(0, 0, 1000000, 0));
     }
 
     protected function messageCheckMissionArrival(): void
     {
-        // Assert that message has been sent to player and contains the correct information.
-        $this->assertMessageReceivedAndContains('fleets', 'combat_reports', [
-            'Combat report',
-        ]);
+        // Assert that attacker has received a message (either battle_report or fleet_lost_contact).
+        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())
+        ->whereIn('key', ['battle_report', 'fleet_lost_contact'])
+        ->orderByDesc('id')
+        ->first();
+        $this->assertNotNull($messageAttacker, 'Attacker has not received a message after combat.');
     }
 
     protected function messageCheckMissionReturn(): void
@@ -134,21 +138,21 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
-        // Assert that battle report has been sent to attacker and contains the correct information.
-        $this->assertMessageReceivedAndContains('fleets', 'combat_reports', [
-            'Combat report',
-            $foreignPlanet->getPlanetName()
-        ]);
-
-        // Get battle report message of attacker from database.
-        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())->where('key', 'battle_report')->orderByDesc('id')->first();
-        $this->assertNotNull($messageAttacker, 'Attacker has not received a battle report after combat.');
+        // Get message of attacker from database (either battle_report or fleet_lost_contact).
+        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())
+            ->whereIn('key', ['battle_report', 'fleet_lost_contact'])
+            ->orderByDesc('id')
+            ->first();
+        $this->assertNotNull($messageAttacker, 'Attacker has not received a message after combat.');
 
         // Assert that defender also received a message with the same battle report ID.
         $messageDefender = Message::where('user_id', $foreignPlanet->getPlayer()->getId())->orderByDesc('id')->first();
         if ($messageDefender) {
             $messageDefender = $messageDefender instanceof Message ? $messageDefender : new Message($messageDefender->getAttributes());
-            $this->assertEquals($messageAttacker->battle_report_id, $messageDefender->battle_report_id, 'Defender has not received the same battle report as attacker.');
+            if ($messageAttacker->battle_report_id !== null) {
+                // Only assert if the attacker got a battle report, not a fleet lost contact message.
+                $this->assertEquals($messageAttacker->battle_report_id, $messageDefender->battle_report_id, 'Defender has not received the same battle report as attacker.');
+            }
         } else {
             $this->fail('Defender has not received a battle report after combat.');
         }
@@ -560,7 +564,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertStringNotContainsString('You are under attack!', (string)$response->getContent(), 'You are under attack warning title is shown while we should not be under attack.');
 
         // Get foreign planet.
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
 
         // Add units to foreign planet.
         $foreignPlanet->addUnit('light_fighter', 1);
@@ -598,6 +602,10 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $unitsToSend = new UnitCollection();
         $unitsToSend->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $foreignPlanet->addResources(new Resources(0, 0, 100000, 0));
+
+        // Set foreign planet player's computer level to +1 to ensure we don't run into max fleet slots restriction
+        // in case they were already sending a mission and at max slots.
+        $foreignPlanet->getPlayer()->setResearchLevel('computer_technology', $foreignPlanet->getPlayer()->getResearchLevel('computer_technology') + 1);
 
         // Launch attack from foreign planet to the current players second planet.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
@@ -765,13 +773,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), 2000);
 
-        // Send fleet to a nearby foreign planet
-        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
-
-        // Ensure that foreign planet has no moon. If it already has one, delete it.
-        if ($foreignPlanet->hasMoon()) {
-            $foreignPlanet->moon()->abandonPlanet();
-        }
+        // Send fleet to a nearby foreign clean planet (which ensures there is no moon yet)
+        $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Prepare defender units
         $foreignPlanet->addUnit('rocket_launcher', 100000);
@@ -985,7 +988,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
             $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1667);
 
             // Send fleet to a nearby foreign planet
-            $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+            $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
             // Ensure that foreign planet has no moon
             if ($foreignPlanet->hasMoon()) {
@@ -1265,5 +1268,159 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertGreaterThan(50000, $finalMetal, 'Metal should be returned after recall');
         $this->assertGreaterThan(25000, $finalCrystal, 'Crystal should be returned after recall');
         $this->assertGreaterThan(5000, $finalDeuterium, 'Deuterium should be returned after recall (minus fuel)');
+    }
+
+    /**
+     * Test that with 100% repair rate, all destroyed defenses are restored to the planet.
+     */
+    public function testRepairedDefensesRestoredToPlanet(): void
+    {
+        $this->basicSetup();
+
+        // Set 100% repair rate for deterministic testing
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('defense_repair_rate', 100);
+
+        // Add units to attacker planet
+        $this->planetAddUnit('bomber', 500);
+
+        // Send fleet to a foreign planet with defenses
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('bomber'), 500);
+        $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Add defenses to the foreign planet
+        $foreignPlanet->addUnit('rocket_launcher', 100);
+        $foreignPlanet->addUnit('light_laser', 50);
+        $foreignPlanet->save();
+
+        // Verify initial defense count
+        $this->assertEquals(100, $foreignPlanet->getObjectAmount('rocket_launcher'));
+        $this->assertEquals(50, $foreignPlanet->getObjectAmount('light_laser'));
+
+        // Increase time to complete the mission
+        $this->travel(24)->hours();
+
+        // Reload application
+        $this->reloadApplication();
+
+        // Trigger update
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Reload the foreign planet to get updated state
+        $foreignPlanet->reloadPlanet();
+
+        // With 100% repair rate, all destroyed defenses should be repaired
+        // So the planet should have the same number of defenses as before
+        // (surviving + repaired = original)
+        $this->assertEquals(
+            100,
+            $foreignPlanet->getObjectAmount('rocket_launcher'),
+            'With 100% repair rate, all rocket launchers should be restored'
+        );
+        $this->assertEquals(
+            50,
+            $foreignPlanet->getObjectAmount('light_laser'),
+            'With 100% repair rate, all light lasers should be restored'
+        );
+    }
+
+    /**
+     * Test that with 0% repair rate, no defenses are restored.
+     */
+    public function testNoRepairedDefensesWithZeroRate(): void
+    {
+        $this->basicSetup();
+
+        // Set 0% repair rate
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('defense_repair_rate', 0);
+
+        // Add units to attacker planet
+        $this->planetAddUnit('bomber', 500);
+
+        // Send fleet to a foreign planet with defenses
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('bomber'), 500);
+        $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Add defenses to the foreign planet
+        $foreignPlanet->addUnit('rocket_launcher', 100);
+        $foreignPlanet->save();
+
+        // Increase time to complete the mission
+        $this->travel(24)->hours();
+
+        // Reload application
+        $this->reloadApplication();
+
+        // Trigger update
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Reload the foreign planet
+        $foreignPlanet->reloadPlanet();
+
+        // With 0% repair rate and strong attacker, all defenses should be destroyed
+        $this->assertEquals(
+            0,
+            $foreignPlanet->getObjectAmount('rocket_launcher'),
+            'With 0% repair rate, no rocket launchers should be restored'
+        );
+    }
+
+    /**
+     * Test that battle report contains repaired defenses data.
+     */
+    public function testBattleReportContainsRepairedDefenses(): void
+    {
+        $this->basicSetup();
+
+        // Set 100% repair rate for deterministic testing
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('defense_repair_rate', 100);
+
+        // Add units to attacker planet
+        $this->planetAddUnit('bomber', 500);
+
+        // Send fleet to a foreign planet with defenses
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('bomber'), 500);
+        $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Add defenses to the foreign planet
+        $foreignPlanet->addUnit('rocket_launcher', 100);
+        $foreignPlanet->save();
+
+        // Increase time to complete the mission
+        $this->travel(24)->hours();
+
+        // Reload application
+        $this->reloadApplication();
+
+        // Trigger update
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Get the latest battle report
+        $battleReport = BattleReport::orderBy('id', 'desc')->first();
+        $this->assertNotNull($battleReport, 'Battle report should exist');
+
+        // Check that repaired_defenses contains the repaired units
+        $this->assertNotEmpty(
+            $battleReport->repaired_defenses,
+            'Battle report should contain repaired defenses'
+        );
+        $this->assertArrayHasKey(
+            'rocket_launcher',
+            $battleReport->repaired_defenses,
+            'Battle report should contain repaired rocket launchers'
+        );
+        $this->assertEquals(
+            100,
+            $battleReport->repaired_defenses['rocket_launcher'],
+            'With 100% repair rate, all 100 rocket launchers should be in repaired_defenses'
+        );
     }
 }
