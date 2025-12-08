@@ -1,4 +1,4 @@
-name: Docker Compose Build and Test
+name: Docker Compose Unit Tests
 
 on:
   push:
