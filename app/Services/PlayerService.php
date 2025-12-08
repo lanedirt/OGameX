@@ -364,6 +364,26 @@ class PlayerService
     }
 
     /**
+     * Get espionage probes amount preference.
+     *
+     * @return int|null
+     */
+    public function getEspionageProbesAmount(): int|null
+    {
+        return $this->user->espionage_probes_amount;
+    }
+
+    /**
+     * Set espionage probes amount preference.
+     *
+     * @param int|null $amount
+     */
+    public function setEspionageProbesAmount(int|null $amount): void
+    {
+        $this->user->espionage_probes_amount = $amount;
+    }
+
+    /**
      * Gets the level of a research technology for this player.
      *
      * @param string $machine_name

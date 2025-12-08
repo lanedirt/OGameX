@@ -495,4 +495,90 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionService->cancelMission($fleetMission);
     }
+
+    /**
+     * Test that the saved espionage probe count is used when dispatching espionage missions.
+     */
+    public function testMiniFleetDispatchUsesSavedProbeCount(): void
+    {
+        $this->basicSetup();
+
+        // Set user's preferred espionage probe count
+        $playerService = $this->planetService->getPlayer();
+        $playerService->setEspionageProbesAmount(5);
+        $playerService->save();
+
+        // Add enough probes to the planet
+        $this->planetAddUnit('espionage_probe', 10);
+
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanetCoordinates = $foreignPlanet->getPlanetCoordinates();
+
+        // Send an espionage mission through the minifleet endpoint
+        $post = $this->post('/ajax/fleet/dispatch/send-mini-fleet', [
+            'galaxy' => $foreignPlanetCoordinates->galaxy,
+            'system' => $foreignPlanetCoordinates->system,
+            'position' => $foreignPlanetCoordinates->position,
+            'type' => 1,
+            'mission' => $this->missionType,
+            '_token' => csrf_token(),
+        ]);
+
+        $post->assertStatus(200);
+
+        $this->reloadApplication();
+
+        // Get the fleet mission and verify it contains 5 probes (the saved amount)
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        $this->assertNotNull($fleetMission, 'Fleet mission was not created');
+        $this->assertEquals(5, $fleetMission->espionage_probe, 'Fleet mission should contain 5 espionage probes (the saved preference)');
+
+        // Cancel the fleet mission, so it doesn't interfere with other tests.
+        $fleetMissionService->cancelMission($fleetMission);
+    }
+
+    /**
+     * Test that default probe count (1) is used when no preference is set.
+     */
+    public function testMiniFleetDispatchUsesDefaultProbeCountWhenNotSet(): void
+    {
+        $this->basicSetup();
+
+        // Ensure user has no saved preference (should be null by default)
+        $playerService = $this->planetService->getPlayer();
+        $playerService->setEspionageProbesAmount(null);
+        $playerService->save();
+
+        // Add probes to the planet
+        $this->planetAddUnit('espionage_probe', 10);
+
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanetCoordinates = $foreignPlanet->getPlanetCoordinates();
+
+        // Send an espionage mission through the minifleet endpoint
+        $post = $this->post('/ajax/fleet/dispatch/send-mini-fleet', [
+            'galaxy' => $foreignPlanetCoordinates->galaxy,
+            'system' => $foreignPlanetCoordinates->system,
+            'position' => $foreignPlanetCoordinates->position,
+            'type' => 1,
+            'mission' => $this->missionType,
+            '_token' => csrf_token(),
+        ]);
+
+        $post->assertStatus(200);
+
+        $this->reloadApplication();
+
+        // Get the fleet mission and verify it contains 1 probe (the default)
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        $this->assertNotNull($fleetMission, 'Fleet mission was not created');
+        $this->assertEquals(1, $fleetMission->espionage_probe, 'Fleet mission should contain 1 espionage probe (the default when no preference is set)');
+
+        // Cancel the fleet mission, so it doesn't interfere with other tests.
+        $fleetMissionService->cancelMission($fleetMission);
+    }
 }
