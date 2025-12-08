@@ -53,16 +53,16 @@ class ObjectServiceTest extends UnitTestCase
             'ion_technology' => 0,
         ]);
 
-        // Get upgrade cost from level 4 to 5
-        $upgrade_cost = ObjectService::getObjectRawPrice('metal_mine', 5);
+        // Get construction cost for level 5 (cost to build from level 4 to 5)
+        $construction_cost = ObjectService::getObjectRawPrice('metal_mine', 5);
 
-        // Get downgrade cost (should be 62.5% of upgrade cost)
+        // Get downgrade cost (should equal construction cost without bonus)
         $downgrade_cost = ObjectService::getObjectDowngradePrice('metal_mine', $this->planetService);
 
-        // Verify downgrade cost is 62.5% of upgrade cost
-        $expected_metal = floor($upgrade_cost->metal->get() * 0.625);
-        $expected_crystal = floor($upgrade_cost->crystal->get() * 0.625);
-        $expected_deuterium = floor($upgrade_cost->deuterium->get() * 0.625);
+        // Verify downgrade cost equals construction cost (no bonus applied)
+        $expected_metal = floor($construction_cost->metal->get());
+        $expected_crystal = floor($construction_cost->crystal->get());
+        $expected_deuterium = floor($construction_cost->deuterium->get());
 
         $this->assertEquals($expected_metal, $downgrade_cost->metal->get());
         $this->assertEquals($expected_crystal, $downgrade_cost->crystal->get());
@@ -78,23 +78,21 @@ class ObjectServiceTest extends UnitTestCase
             'metal_mine' => 5,
         ]);
         $this->createAndSetUserTechModel([
-            'ion_technology' => 24, // 24% reduction
+            'ion_technology' => 6, // 6 levels = 24% reduction (4% per level)
         ]);
 
-        // Get upgrade cost from level 4 to 5
-        $upgrade_cost = ObjectService::getObjectRawPrice('metal_mine', 5);
+        // Get construction cost for level 5 (cost to build from level 4 to 5)
+        $construction_cost = ObjectService::getObjectRawPrice('metal_mine', 5);
 
-        // Get downgrade cost (should be 62.5% of upgrade cost, then reduced by 24%)
+        // Get downgrade cost (should equal construction cost, then reduced by Ion technology bonus)
         $downgrade_cost = ObjectService::getObjectDowngradePrice('metal_mine', $this->planetService);
 
-        // Calculate expected cost: 62.5% * (1 - 0.24) = 62.5% * 0.76
-        $base_downgrade_metal = $upgrade_cost->metal->get() * 0.625;
-        $base_downgrade_crystal = $upgrade_cost->crystal->get() * 0.625;
-        $base_downgrade_deuterium = $upgrade_cost->deuterium->get() * 0.625;
-
-        $expected_metal = floor($base_downgrade_metal * (1 - 0.24));
-        $expected_crystal = floor($base_downgrade_crystal * (1 - 0.24));
-        $expected_deuterium = floor($base_downgrade_deuterium * (1 - 0.24));
+        // Calculate expected cost: construction cost * (1 - 0.24) = construction cost * 0.76
+        // Ion technology level 6 = 6 * 4% = 24% reduction
+        $ion_bonus = 6 * 0.04; // 0.24 = 24%
+        $expected_metal = floor($construction_cost->metal->get() * (1 - $ion_bonus));
+        $expected_crystal = floor($construction_cost->crystal->get() * (1 - $ion_bonus));
+        $expected_deuterium = floor($construction_cost->deuterium->get() * (1 - $ion_bonus));
 
         $this->assertEquals($expected_metal, $downgrade_cost->metal->get());
         $this->assertEquals($expected_crystal, $downgrade_cost->crystal->get());

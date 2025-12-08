@@ -162,10 +162,11 @@ trait ObjectAjaxTrait
                 $downgrade_duration_formatted = AppUtil::formatTimeDuration($downgrade_duration);
 
                 // Get Ion technology level and calculate bonus
+                // Ion Technology reduces teardown cost by 4% per level
                 $player = $planet->getPlayer();
                 if ($player !== null) {
                     $ion_technology_level = $player->getResearchLevel('ion_technology');
-                    $ion_technology_bonus = $ion_technology_level; // Percentage (e.g., 24 for 24%)
+                    $ion_technology_bonus = $ion_technology_level * 4; // Percentage (e.g., level 24 = 96%)
                 }
 
                 // Check if building can be downgraded

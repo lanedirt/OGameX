@@ -551,29 +551,22 @@ class ObjectService
             return new Resources(0, 0, 0, 0);
         }
 
-        // Get the upgrade cost from (current_level - 1) to current_level
-        $upgrade_cost = self::getObjectRawPrice($machine_name, $current_level);
+        // Get the construction cost for the current level (cost to build from level-1 to current_level)
+        // The downgrade cost equals the construction cost of the current level
+        $base_downgrade_cost = self::getObjectRawPrice($machine_name, $current_level);
 
-        // Base downgrade cost is 62.5% of upgrade cost
-        $base_downgrade_cost = new Resources(
-            $upgrade_cost->metal->get() * 0.625,
-            $upgrade_cost->crystal->get() * 0.625,
-            $upgrade_cost->deuterium->get() * 0.625,
-            0 // Energy is not used for downgrade
-        );
-
-        // Apply Ion technology bonus (each level reduces cost by 1%)
+        // Apply Ion technology bonus (each level reduces cost by 4%)
         $player = $planet->getPlayer();
         if ($player !== null) {
             $ion_technology_level = $player->getResearchLevel('ion_technology');
-            $ion_bonus = $ion_technology_level * 0.01;
+            $ion_bonus = $ion_technology_level * 0.04;
 
             // Apply bonus: reduce cost by ion_bonus percentage
             $final_cost = new Resources(
                 max(0, floor($base_downgrade_cost->metal->get() * (1 - $ion_bonus))),
                 max(0, floor($base_downgrade_cost->crystal->get() * (1 - $ion_bonus))),
                 max(0, floor($base_downgrade_cost->deuterium->get() * (1 - $ion_bonus))),
-                0
+                0 // Energy is not used for downgrade
             );
 
             return $final_cost;
@@ -584,7 +577,7 @@ class ObjectService
             floor($base_downgrade_cost->metal->get()),
             floor($base_downgrade_cost->crystal->get()),
             floor($base_downgrade_cost->deuterium->get()),
-            0
+            0 // Energy is not used for downgrade
         );
     }
 

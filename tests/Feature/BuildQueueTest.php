@@ -444,16 +444,17 @@ class BuildQueueTest extends AccountTestCase
         // Set building to level 5
         $this->planetSetObjectLevel('metal_mine', 5);
 
-        // Set Ion technology to level 24 (24% reduction)
-        $this->playerSetResearchLevel('ion_technology', 24);
+        // Set Ion technology to level 6 (6 * 4% = 24% reduction)
+        $this->playerSetResearchLevel('ion_technology', 6);
 
         // Get downgrade price with bonus
         $downgrade_price = ObjectService::getObjectDowngradePrice('metal_mine', $this->planetService);
 
-        // Get upgrade cost to calculate expected downgrade cost
-        $upgrade_cost = ObjectService::getObjectRawPrice('metal_mine', 5);
-        $base_downgrade_metal = $upgrade_cost->metal->get() * 0.625;
-        $expected_metal = floor($base_downgrade_metal * (1 - 0.24));
+        // Get construction cost to calculate expected downgrade cost
+        $construction_cost = ObjectService::getObjectRawPrice('metal_mine', 5);
+        // Ion technology level 6 = 6 * 4% = 24% reduction
+        $ion_bonus = 6 * 0.04; // 0.24 = 24%
+        $expected_metal = floor($construction_cost->metal->get() * (1 - $ion_bonus));
 
         // Verify the cost is reduced by Ion technology bonus
         $this->assertEquals($expected_metal, $downgrade_price->metal->get());
