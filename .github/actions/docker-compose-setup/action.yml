@@ -1,0 +1,25 @@
+name: 'Docker Compose Setup'
+description: 'Sets up Docker Compose environment for OGameX testing'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Modify Dockerfile to disable USER www (not supported by GitHub Actions as it runs as root)
+      shell: bash
+      run: |
+        sed -i '/USER www/s/^/#/' ./Dockerfile
+
+    - name: Set Permissions
+      shell: bash
+      run: |
+        sudo chmod -R 777 /var/www
+
+    - name: Set up Docker Compose
+      shell: bash
+      run: |
+        docker compose -f docker-compose.yml up -d
+
+    - name: Wait for application to be ready (max 60 seconds)
+      shell: bash
+      run: |
+        timeout 60 bash -c 'until docker compose exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do echo "Waiting for application to be ready..." && sleep 2; done'
