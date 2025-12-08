@@ -600,6 +600,10 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $unitsToSend->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $foreignPlanet->addResources(new Resources(0, 0, 100000, 0));
 
+        // Set foreign planet player's computer level to +1 to ensure we don't run into max fleet slots restriction
+        // in case they were already sending a mission and at max slots.
+        $foreignPlanet->getPlayer()->setResearchLevel('computer_technology', $foreignPlanet->getPlayer()->getResearchLevel('computer_technology') + 1);
+
         // Launch attack from foreign planet to the current players second planet.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
 
