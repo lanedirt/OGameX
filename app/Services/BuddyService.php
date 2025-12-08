@@ -132,7 +132,7 @@ class BuddyService
      * @return BuddyRequest
      * @throws \Exception
      */
-    public function sendRequest(int $senderId, int $receiverId, ?string $message = null): BuddyRequest
+    public function sendRequest(int $senderId, int $receiverId, string|null $message = null): BuddyRequest
     {
         // Check if users are the same
         if ($senderId === $receiverId) {

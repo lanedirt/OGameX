@@ -467,4 +467,177 @@ class BuddyTest extends AccountTestCase
         $response->assertRedirect('/buddies');
         $this->assertDatabaseMissing('buddy_requests', ['id' => $request->id]);
     }
+
+    /**
+     * Test getting online buddies count.
+     */
+    public function testGetOnlineBuddiesCount(): void
+    {
+        $buddyService = resolve(BuddyService::class);
+
+        // Create users and make them buddies
+        $onlineUser = User::factory()->create();
+        $offlineUser = User::factory()->create();
+
+        // Make both users buddies with current user
+        $request1 = $buddyService->sendRequest($this->currentUserId, $onlineUser->id);
+        $buddyService->acceptRequest($request1->id, $onlineUser->id);
+
+        $request2 = $buddyService->sendRequest($this->currentUserId, $offlineUser->id);
+        $buddyService->acceptRequest($request2->id, $offlineUser->id);
+
+        // Set online user's time to now (online) - time field stores Unix timestamp
+        // Note: time is not in fillable array, so we use direct assignment
+        $onlineUser->time = time();
+        $onlineUser->save();
+        $onlineUser->refresh();
+
+        // Set offline user's time to 20 minutes ago (offline)
+        $offlineUser->time = time() - 1200;
+        $offlineUser->save();
+        $offlineUser->refresh();
+
+        // Get online buddies count
+        $count = $buddyService->getOnlineBuddiesCount($this->currentUserId);
+
+        // Should only count the online user
+        $this->assertEquals(1, $count);
+    }
+
+    /**
+     * Test getting online buddies list.
+     */
+    public function testGetOnlineBuddies(): void
+    {
+        $buddyService = resolve(BuddyService::class);
+
+        // Create users and make them buddies
+        $onlineUser = User::factory()->create();
+        $offlineUser = User::factory()->create();
+
+        // Make both users buddies with current user
+        $request1 = $buddyService->sendRequest($this->currentUserId, $onlineUser->id);
+        $buddyService->acceptRequest($request1->id, $onlineUser->id);
+
+        $request2 = $buddyService->sendRequest($this->currentUserId, $offlineUser->id);
+        $buddyService->acceptRequest($request2->id, $offlineUser->id);
+
+        // Set online user's time to now (online) - time field stores Unix timestamp
+        // Note: time is not in fillable array, so we use direct assignment
+        $onlineUser->time = time();
+        $onlineUser->save();
+        $onlineUser->refresh();
+
+        // Set offline user's time to 20 minutes ago (offline)
+        $offlineUser->time = time() - 1200;
+        $offlineUser->save();
+        $offlineUser->refresh();
+
+        // Get online buddies
+        $onlineBuddies = $buddyService->getOnlineBuddies($this->currentUserId);
+
+        // Should only include the online user
+        $this->assertCount(1, $onlineBuddies);
+        $this->assertEquals($onlineUser->id, $onlineBuddies->first()->sender_user_id === $this->currentUserId
+            ? $onlineBuddies->first()->receiver_user_id
+            : $onlineBuddies->first()->sender_user_id);
+    }
+
+    /**
+     * Test the online buddies API endpoint.
+     */
+    public function testOnlineBuddiesEndpoint(): void
+    {
+        $buddyService = resolve(BuddyService::class);
+
+        // Create users and make them buddies - use unique usernames
+        $timestamp = time();
+        $onlineUser = User::factory()->create(['username' => 'OnlineTest' . $timestamp]);
+        $offlineUser = User::factory()->create(['username' => 'OfflineTest' . $timestamp]);
+
+        // Make both users buddies with current user
+        $request1 = $buddyService->sendRequest($this->currentUserId, $onlineUser->id);
+        $buddyService->acceptRequest($request1->id, $onlineUser->id);
+
+        $request2 = $buddyService->sendRequest($this->currentUserId, $offlineUser->id);
+        $buddyService->acceptRequest($request2->id, $offlineUser->id);
+
+        // Set online user's time to now (online) - time field stores Unix timestamp
+        // Note: time is not in fillable array, so we use direct assignment
+        $onlineUser->time = time();
+        $onlineUser->save();
+
+        // Set offline user's time to 20 minutes ago (offline)
+        $offlineUser->time = time() - 1200;
+        $offlineUser->save();
+
+        // Call the endpoint
+        $response = $this->get('/buddies/online');
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'count' => 1,
+        ]);
+
+        // Check that both buddies are in the response (online and offline)
+        $data = $response->json();
+        $this->assertCount(2, $data['buddies']);
+
+        // Verify online status is correctly set
+        $onlineBuddy = collect($data['buddies'])->firstWhere('id', $onlineUser->id);
+        $offlineBuddy = collect($data['buddies'])->firstWhere('id', $offlineUser->id);
+
+        $this->assertNotNull($onlineBuddy);
+        $this->assertTrue($onlineBuddy['isOnline']);
+
+        $this->assertNotNull($offlineBuddy);
+        $this->assertFalse($offlineBuddy['isOnline']);
+    }
+
+    /**
+     * Test ignoring a player via controller redirects to buddies page.
+     */
+    public function testIgnorePlayerControllerRedirect(): void
+    {
+        $otherUser = User::factory()->create();
+
+        $response = $this->post('/buddies/ignore', [
+            'ignored_user_id' => $otherUser->id,
+        ]);
+
+        $response->assertRedirect('/buddies');
+        $response->assertSessionHas('status', 'Player ignored successfully.');
+
+        // Verify the player is ignored
+        $this->assertDatabaseHas('ignored_players', [
+            'user_id' => $this->currentUserId,
+            'ignored_user_id' => $otherUser->id,
+        ]);
+    }
+
+    /**
+     * Test unignoring a player via controller redirects to buddies page.
+     */
+    public function testUnignorePlayerControllerRedirect(): void
+    {
+        $otherUser = User::factory()->create();
+        $buddyService = resolve(BuddyService::class);
+
+        // First ignore the player
+        $buddyService->ignorePlayer($this->currentUserId, $otherUser->id);
+
+        $response = $this->post('/buddies/unignore', [
+            'ignored_user_id' => $otherUser->id,
+        ]);
+
+        $response->assertRedirect('/buddies');
+        $response->assertSessionHas('status', 'Player unignored successfully.');
+
+        // Verify the player is no longer ignored
+        $this->assertDatabaseMissing('ignored_players', [
+            'user_id' => $this->currentUserId,
+            'ignored_user_id' => $otherUser->id,
+        ]);
+    }
 }

@@ -82,7 +82,7 @@ class HighscoreController extends OGameController
             // Get the rank of the searched player
             $searchedPlayer = resolve(PlayerService::class, ['player_id' => (int)$searchRelId]);
             $searchedPlayerRank = $highscoreService->getHighscorePlayerRank($searchedPlayer);
-            $page = floor($searchedPlayerRank / 100) + 1;
+            $page = (int) (floor($searchedPlayerRank / 100) + 1);
         } else {
             // Current player rank.
             $currentPlayerRank = $highscoreService->getHighscorePlayerRank($player);

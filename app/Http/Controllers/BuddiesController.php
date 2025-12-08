@@ -21,7 +21,7 @@ class BuddiesController extends OGameController
     {
         $this->setBodyId('buddies');
 
-        $userId = auth()->id();
+        $userId = (int) auth()->id();
 
         // Get all buddy-related data
         $buddies = $buddyService->getBuddies($userId);
@@ -51,7 +51,7 @@ class BuddiesController extends OGameController
      */
     public function post(Request $request, BuddyService $buddyService): JsonResponse|View|RedirectResponse
     {
-        $userId = auth()->id();
+        $userId = (int) auth()->id();
 
         $action = $request->input('action');
         $targetId = $request->input('id');
@@ -165,7 +165,7 @@ class BuddiesController extends OGameController
      */
     public function sendRequest(Request $request, BuddyService $buddyService): JsonResponse
     {
-        $userId = auth()->id();
+        $userId = (int) auth()->id();
 
         $request->validate([
             'receiver_id' => 'required|integer|exists:users,id',
@@ -201,7 +201,7 @@ class BuddiesController extends OGameController
      */
     public function ignorePlayer(Request $request, BuddyService $buddyService)
     {
-        $userId = auth()->id();
+        $userId = (int) auth()->id();
 
         $request->validate([
             'ignored_user_id' => 'required|integer|exists:users,id',
@@ -224,7 +224,7 @@ class BuddiesController extends OGameController
      */
     public function unignorePlayer(Request $request, BuddyService $buddyService)
     {
-        $userId = auth()->id();
+        $userId = (int) auth()->id();
 
         $request->validate([
             'ignored_user_id' => 'required|integer|exists:users,id',
@@ -246,7 +246,7 @@ class BuddiesController extends OGameController
      */
     public function getOnlineBuddies(BuddyService $buddyService)
     {
-        $userId = auth()->id();
+        $userId = (int) auth()->id();
         $allBuddies = $buddyService->getBuddies($userId);
 
         $buddyList = $allBuddies->map(function ($buddyRequest) use ($userId) {
