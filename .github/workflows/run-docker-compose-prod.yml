@@ -18,7 +18,7 @@ jobs:
         image: docker:26.0.0
         options: --privileged
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - name: Modify Dockerfile to disable USER www (which is not supported by GitHub Actions, as it runs as root)
         run: |
           sed -i '/USER www/s/^/#/' ./Dockerfile
