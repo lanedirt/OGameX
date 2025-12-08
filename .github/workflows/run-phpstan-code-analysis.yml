@@ -15,9 +15,10 @@ jobs:
   phpstan-code-analysis:
     runs-on: ubuntu-latest
     steps:
-    - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+    - uses: shivammathur/setup-php@v2
       with:
         php-version: '8.3'
+        coverage: none
     - uses: actions/checkout@v3
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
@@ -30,4 +31,4 @@ jobs:
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
     - name: PHPStan
-      run: ./vendor/bin/phpstan analyse --memory-limit=384M
+      run: ./vendor/bin/phpstan analyse --memory-limit=2048m
