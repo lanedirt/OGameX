@@ -49,7 +49,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $settingsService->set('fleet_speed_war', 1);
         $settingsService->set('fleet_speed_holding', 1);
         $settingsService->set('fleet_speed_peaceful', 1);
-        $this->planetAddResources(new Resources(0, 0, 100000, 0));
+
+        // Add sufficient deuterium to the planet to ensure we don't run into fuel capacity restriction.
+        $this->planetAddResources(new Resources(0, 0, 1000000, 0));
     }
 
     protected function messageCheckMissionArrival(): void
