@@ -97,7 +97,6 @@ class BuddiesController extends OGameController
             }
 
             return redirect()->route('buddies.index')->with('status', $message);
-
         } catch (Exception $e) {
             if ($request->input('ajax') == 1) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -185,7 +184,6 @@ class BuddiesController extends OGameController
                 'message' => 'Buddy request sent successfully!',
                 'request_id' => $buddyRequest->id,
             ]);
-
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,

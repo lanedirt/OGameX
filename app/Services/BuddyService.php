@@ -30,6 +30,7 @@ class BuddyService
     {
         $this->messageService = $messageService;
     }
+
     /**
      * Get all buddies (accepted buddy requests) for a user.
      *

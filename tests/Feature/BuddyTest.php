@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use OGame\Models\BuddyRequest;
-use OGame\Models\IgnoredPlayer;
 use OGame\Models\User;
 use OGame\Services\BuddyService;
 use Tests\AccountTestCase;
