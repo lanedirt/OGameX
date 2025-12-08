@@ -123,6 +123,7 @@ class IngameMainComposer
             'underAttack' => $this->fleetMissionService->currentPlayerUnderAttack(),
             'unreadMessagesCount' => $this->messageService->getUnreadMessagesCount(),
             'buddyRequestCount' => $this->buddyService->getUnreadRequestsCount(auth()->id()),
+            'onlineBuddiesCount' => $this->buddyService->getOnlineBuddiesCount(auth()->id()),
             'resources' => $resources,
             'currentPlayer' => $this->player,
             'currentPlanet' => $this->player->planets->current(),

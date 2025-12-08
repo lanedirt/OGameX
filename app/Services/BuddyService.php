@@ -49,6 +49,36 @@ class BuddyService
     }
 
     /**
+     * Get online buddies for a user.
+     *
+     * @param int $userId
+     * @return Collection
+     */
+    public function getOnlineBuddies(int $userId): Collection
+    {
+        $buddies = $this->getBuddies($userId);
+
+        return $buddies->filter(function ($buddyRequest) use ($userId) {
+            $buddy = $buddyRequest->sender_user_id === $userId
+                ? $buddyRequest->receiver
+                : $buddyRequest->sender;
+
+            return $buddy->isOnline();
+        })->values();
+    }
+
+    /**
+     * Get count of online buddies for a user.
+     *
+     * @param int $userId
+     * @return int
+     */
+    public function getOnlineBuddiesCount(int $userId): int
+    {
+        return $this->getOnlineBuddies($userId)->count();
+    }
+
+    /**
      * Get pending buddy requests received by a user.
      *
      * @param int $userId

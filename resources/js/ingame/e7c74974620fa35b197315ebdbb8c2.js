@@ -30483,8 +30483,6 @@ ogame.chat = {
     });
   },
   showPlayerList: function (selector) {
-      // TODO: re-enable later
-      return;
     var $this = ogame.chat;
 
     if (window.deactivateChatBecauseOfLogout) {
@@ -30497,24 +30495,87 @@ ogame.chat = {
 
     if ($this.isLoadingPlayerList === false && $this.playerList === null) {
       $this.isLoadingPlayerList = true;
+      console.log('showPlayerList() - Loading online buddies...');
       $.ajax({
-        url: chatUrl,
-        type: 'POST',
-        dataType: 'json',
-        data: {
-          action: 'showPlayerList'
-        },
-        success: function (data) {
-          $this.playerList = data.content;
-          $this.isLoadingPlayerList = false;
+        url: '/buddies/online',
+        type: "GET",
+        dataType: "json",
+        success: function (response) {
+          console.log('showPlayerList() - AJAX response received:', response);
+          console.log('showPlayerList() - response.success:', response.success, 'buddies count:', response.buddies ? response.buddies.length : 'undefined');
 
-          $this._showPlayerList();
+          // Build the HTML for the player list matching original game structure
+          var html = '<div class="js_playerlist pl_container contentbox fleft">';
+          html += '<h2 class="header"><span class="c-right"></span><span class="c-left"></span>Player list</h2>';
+          html += '<div class="content">';
+
+          // Buddies section
+          html += '<div class="playerlist_box js_accordion ui-accordion ui-widget ui-helper-reset" role="tablist">';
+          html += '<h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-header-active ui-state-active ui-accordion-icons" role="tab">';
+          html += '<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>Buddies</h3>';
+          html += '<div class="ui-accordion-content ui-corner-bottom ui-helper-reset ui-widget-content ui-accordion-content-active" role="tabpanel">';
+          html += '<div class="playerlist_top_box"></div>';
+          html += '<div class="scrollContainer"><ul class="playerlist">';
+
+          if (response.success && response.buddies && response.buddies.length > 0) {
+            response.buddies.forEach(function(buddy, index) {
+              // TODO: Clicking on a buddy should open a chat window with that player
+              var statusClass = buddy.isOnline ? 'online' : 'offline';
+              var statusTitle = buddy.isOnline ? 'online' : 'offline';
+
+              html += '<li class="playerlist_item ' + (index % 2 === 0 ? '' : 'odd') + '" data-playerid="' + buddy.id + '">';
+              html += '<p class="playername">';
+              html += '<span class="playerstatus tooltip ' + statusClass + '" data-tooltip-title="' + statusTitle + '"></span>';
+              html += buddy.username + '</p>';
+              html += '<span class="new_msg_count noMessage" data-playerid="' + buddy.id + '" data-new-messages="0">0</span>';
+              html += '<span class="chatstatus cs_active fright"></span>';
+              html += '</li>';
+            });
+          } else {
+            html += '<li class="no_buddies">No buddies</li>';
+          }
+
+          html += '</ul></div></div></div>';
+
+          // TODO: Alliance section - implement alliance chat and member list
+          html += '<div class="playerlist_box js_accordion ui-accordion ui-widget ui-helper-reset" role="tablist">';
+          html += '<h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-icons" role="tab">';
+          html += '<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>Alliance</h3>';
+          html += '<div class="ui-accordion-content ui-corner-bottom ui-helper-reset ui-widget-content" role="tabpanel" style="display: none;">';
+          html += '<div class="playerlist_top_box"></div>';
+          html += '<div class="scrollContainer"><ul class="playerlist">';
+          html += '<li class="no_buddies">Alliance chat not yet implemented</li>';
+          html += '</ul></div></div></div>';
+
+          // TODO: Strangers section - implement strangers/other players list
+          html += '<div class="playerlist_box js_accordion ui-accordion ui-widget ui-helper-reset" role="tablist">';
+          html += '<h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-icons" role="tab">';
+          html += '<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-e"></span>Strangers</h3>';
+          html += '<div class="ui-accordion-content ui-corner-bottom ui-helper-reset ui-widget-content" role="tabpanel" style="display: none;">';
+          html += '<div class="playerlist_top_box"></div>';
+          html += '<div class="scrollContainer"><ul class="playerlist">';
+          html += '<li class="no_buddies">Strangers list not yet implemented</li>';
+          html += '</ul></div></div></div>';
+
+          html += '</div>';
+          html += '<div class="footer"><div class="c-right"></div><div class="c-left"></div></div>';
+          html += '</div>';
+
+          // IMPORTANT: Always set playerList so initChatBar() can be called
+          $this.playerList = html;
+          $this.isLoadingPlayerList = false;
+          console.log('showPlayerList() - playerList set, calling _showPlayerList()');
+          $this._showPlayerList()
         },
         error: function (jqXHR, textStatus, errorThrown) {
+          console.error('showPlayerList() - Error loading buddies:', textStatus, errorThrown);
           $this.isLoadingPlayerList = false;
+          $this.playerList = '<div class="content"><p>Error loading buddies</p></div>';
+          $this._showPlayerList()
         }
       });
     } else {
+      console.log('showPlayerList() - Using cached player list');
       $this._showPlayerList();
     }
   },

@@ -239,4 +239,39 @@ class BuddiesController extends OGameController
             return redirect()->route('buddies.index')->with('error', $e->getMessage());
         }
     }
+
+    /**
+     * Get online buddies list for the chat bar
+     *
+     * @param BuddyService $buddyService
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getOnlineBuddies(BuddyService $buddyService)
+    {
+        $userId = auth()->id();
+        $allBuddies = $buddyService->getBuddies($userId);
+
+        $buddyList = $allBuddies->map(function ($buddyRequest) use ($userId) {
+            $buddy = $buddyRequest->sender_user_id === $userId
+                ? $buddyRequest->receiver
+                : $buddyRequest->sender;
+
+            return [
+                'id' => $buddy->id,
+                'username' => $buddy->username,
+                'isOnline' => $buddy->isOnline(),
+            ];
+        });
+
+        // Count only online buddies for the counter
+        $onlineCount = $buddyList->filter(function ($buddy) {
+            return $buddy['isOnline'];
+        })->count();
+
+        return response()->json([
+            'success' => true,
+            'buddies' => $buddyList->values()->all(),
+            'count' => $onlineCount,
+        ]);
+    }
 }
