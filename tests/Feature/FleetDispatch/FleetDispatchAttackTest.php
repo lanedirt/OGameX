@@ -5,7 +5,6 @@ namespace Tests\Feature\FleetDispatch;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
-use OGame\Factories\GameMessageFactory;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMissions\AttackMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -772,13 +771,8 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), 2000);
 
-        // Send fleet to a nearby foreign planet
-        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
-
-        // Ensure that foreign planet has no moon. If it already has one, delete it.
-        if ($foreignPlanet->hasMoon()) {
-            $foreignPlanet->moon()->abandonPlanet();
-        }
+        // Send fleet to a nearby foreign clean planet (which ensures there is no moon yet)
+        $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         // Prepare defender units
         $foreignPlanet->addUnit('rocket_launcher', 100000);
@@ -992,7 +986,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
             $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1667);
 
             // Send fleet to a nearby foreign planet
-            $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+            $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
             // Ensure that foreign planet has no moon
             if ($foreignPlanet->hasMoon()) {
