@@ -31,4 +31,4 @@ jobs:
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
     - name: PHPStan
-      run: ./vendor/bin/phpstan analyse --memory-limit=2048m
+      run: composer run stan
