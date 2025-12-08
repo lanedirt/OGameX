@@ -35,4 +35,4 @@ jobs:
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Run Laravel Pint (PSR-12)
-        run: composer run cs --verbose --test
+        run: composer run cs -- --verbose -- --test
