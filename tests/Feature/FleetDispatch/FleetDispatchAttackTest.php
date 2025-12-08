@@ -5,6 +5,7 @@ namespace Tests\Feature\FleetDispatch;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Carbon;
+use OGame\Factories\GameMessageFactory;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMissions\AttackMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -134,21 +135,21 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
-        // Assert that battle report has been sent to attacker and contains the correct information.
-        $this->assertMessageReceivedAndContains('fleets', 'combat_reports', [
-            'Combat report',
-            $foreignPlanet->getPlanetName()
-        ]);
-
-        // Get battle report message of attacker from database.
-        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())->where('key', 'battle_report')->orderByDesc('id')->first();
-        $this->assertNotNull($messageAttacker, 'Attacker has not received a battle report after combat.');
+        // Get message of attacker from database (either battle_report or fleet_lost_contact).
+        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())
+            ->whereIn('key', ['battle_report', 'fleet_lost_contact'])
+            ->orderByDesc('id')
+            ->first();
+        $this->assertNotNull($messageAttacker, 'Attacker has not received a message after combat.');
 
         // Assert that defender also received a message with the same battle report ID.
         $messageDefender = Message::where('user_id', $foreignPlanet->getPlayer()->getId())->orderByDesc('id')->first();
         if ($messageDefender) {
             $messageDefender = $messageDefender instanceof Message ? $messageDefender : new Message($messageDefender->getAttributes());
-            $this->assertEquals($messageAttacker->battle_report_id, $messageDefender->battle_report_id, 'Defender has not received the same battle report as attacker.');
+            if ($messageAttacker->battle_report_id !== null) {
+                // Only assert if the attacker got a battle report, not a fleet lost contact message.
+                $this->assertEquals($messageAttacker->battle_report_id, $messageDefender->battle_report_id, 'Defender has not received the same battle report as attacker.');
+            }
         } else {
             $this->fail('Defender has not received a battle report after combat.');
         }
