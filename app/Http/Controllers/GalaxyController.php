@@ -435,12 +435,12 @@ class GalaxyController extends OGameController
             'isLongInactive' => $player->isLongInactive(),
             'isNewbie' => $player->isNewbie($this->playerService),
             'isStrong' => $player->isStrong($this->playerService),
+            'isOnVacation' => $player->isInVacationMode(),
 
             // Not implemented yet:
             //'isHonorableTarget' => $player->isHonorableTarget(),
             //'isOutlaw' => $player->isOutlaw(),
             //'isBanned' => $player->isBanned(),
-            //'isOnVacation' => $player->isOnVacation(),
         ];
     }
 

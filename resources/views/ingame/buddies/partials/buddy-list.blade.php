@@ -22,9 +22,7 @@
             // Get homeworld coordinates
             $homeworldPlanet = $buddyPlayer->planets->first();
             if ($homeworldPlanet) {
-                $planetServiceFactory = app(\OGame\Services\PlanetServiceFactory::class);
-                $homeworld = $planetServiceFactory->make($homeworldPlanet->id);
-                $coords = $homeworld->getPlanetCoordinates();
+                $coords = $homeworldPlanet->getPlanetCoordinates();
             } else {
                 $coords = null;
             }

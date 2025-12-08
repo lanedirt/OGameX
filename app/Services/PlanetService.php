@@ -1308,6 +1308,11 @@ class PlanetService
      */
     public function updateBuildingQueue(bool $save_planet = true): void
     {
+        // Skip building queue processing if player is in vacation mode
+        if ($this->getPlayer()->isInVacationMode()) {
+            return;
+        }
+
         $queue = resolve(BuildingQueueService::class);
         $build_queue = $queue->retrieveFinished($this->getPlanetId());
 
@@ -1368,6 +1373,11 @@ class PlanetService
      */
     public function updateUnitQueue(bool $save_planet = true): void
     {
+        // Skip unit queue processing if player is in vacation mode
+        if ($this->getPlayer()->isInVacationMode()) {
+            return;
+        }
+
         $queue = resolve(UnitQueueService::class);
         $unit_queue = $queue->retrieveBuilding($this->getPlanetId());
 
@@ -1533,6 +1543,11 @@ class PlanetService
     {
         // Moons do not have mines and therefore also do not have basic income.
         if ($this->isMoon()) {
+            return new Resources(0, 0, 0, 0);
+        }
+
+        // Players in vacation mode have zero basic income.
+        if ($this->getPlayer()->isInVacationMode()) {
             return new Resources(0, 0, 0, 0);
         }
 
