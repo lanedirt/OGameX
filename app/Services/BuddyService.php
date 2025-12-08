@@ -153,6 +153,7 @@ class BuddyService
         $receiverPlayer = app(\OGame\Services\PlayerService::class, ['player_id' => $receiver->id]);
         $this->messageService->sendSystemMessageToPlayer($receiverPlayer, BuddyRequestReceived::class, [
             'sender_name' => $sender->username,
+            'buddy_request_id' => $buddyRequest->id,
         ]);
 
         return $buddyRequest;

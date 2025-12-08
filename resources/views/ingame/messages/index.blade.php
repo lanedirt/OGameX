@@ -231,15 +231,22 @@
             function acceptRequest() {
                 var buddyAction = 5;
                 var actionId = $(this).data('buddyid');
+                var $button = $(this);
+                var $messageFooter = $button.closest('message-footer');
 
-                $.post("#ingame&component=buddies&ajax=1",
+                $.post("{{ route('buddies.post') }}",
                     {
                         action: buddyAction,
-                        id: actionId
+                        id: actionId,
+                        _token: "{{ csrf_token() }}"
                     },
                     function (data) {
-                        var currentlocation = window.location.href;
-                        window.location = currentlocation.substring(0, currentlocation.indexOf('?')) + '?page=ingame&component=buddies';
+                        // Remove the action buttons and show accepted status
+                        $messageFooter.find('message-footer-actions').html(
+                            '<span class="success" style="color: #6f9;padding: 5px;">✓ Buddy request accepted</span>'
+                        );
+
+                        fadeBox('Buddy request accepted!', false);
                     });
             }
 
@@ -281,20 +288,22 @@
             function rejectRequest() {
                 var buddyAction = 4;
                 var actionId = $(this).data('buddyid');
-                var buddyCount = parseInt($("#newRequestCount").text()) - 1;
+                var $button = $(this);
+                var $messageFooter = $button.closest('message-footer');
 
-                $.post("#ingame&component=buddies&ajax=1",
+                $.post("{{ route('buddies.post') }}",
                     {
                         action: buddyAction,
-                        id: actionId
+                        id: actionId,
+                        _token: "{{ csrf_token() }}"
                     },
                     function (data) {
+                        // Remove the action buttons and show rejected status
+                        $messageFooter.find('message-footer-actions').html(
+                            '<span class="rejected" style="color: #f66;padding: 5px;">✗ Buddy request rejected</span>'
+                        );
 
-                        if (buddyCount >= 0) {
-                            $("#newRequestCount").html(buddyCount);
-                        }
-                        var currentlocation = window.location.href;
-                        window.location = currentlocation.substring(0, currentlocation.indexOf('?')) + '?page=ingame&component=buddies';
+                        fadeBox('Buddy request rejected', false);
                     });
             }
         </script>

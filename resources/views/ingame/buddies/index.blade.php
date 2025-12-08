@@ -52,14 +52,20 @@
                                                     @if($request->message)
                                                         <span class="msg_content">{{ $request->message }}<br></span>
                                                     @endif
-                                                    <div class="msg_actions clearfix">
-                                                        <a href="javascript:void(0);" class="fleft msg_action_link txt_link">
-                                                            <span class="dark_highlight_tablet acceptRequest" data-buddyid="{{ $request->id }}">Accept</span>
-                                                        </a>
-                                                        <a href="javascript:void(0);" class="fleft msg_action_link txt_link">
-                                                            <span class="dark_highlight_tablet rejectRequest" data-buddyid="{{ $request->id }}">Reject</span>
-                                                        </a>
-                                                    </div>
+                                                    <message-footer class="msg_actions">
+                                                        <message-footer-actions>
+                                                            <gradient-button sq30="">
+                                                                <button class="custom_btn tooltip acceptRequest" data-buddyid="{{ $request->id }}" data-tooltip-title="Accept buddy request">
+                                                                    <span class="icon_nf icon_accept"></span>
+                                                                </button>
+                                                            </gradient-button>
+                                                            <gradient-button sq30="">
+                                                                <button class="custom_btn tooltip rejectRequest" data-buddyid="{{ $request->id }}" data-tooltip-title="Reject buddy request">
+                                                                    <span class="icon_nf icon_refuse"></span>
+                                                                </button>
+                                                            </gradient-button>
+                                                        </message-footer-actions>
+                                                    </message-footer>
                                                 </li>
                                             @endforeach
                                         @endif
@@ -101,19 +107,44 @@
                 </div>
 
                 <div class="buddylistContent">
+                    @php
+                        $onlineCount = 0;
+                        $totalCount = $buddies->count();
+                        foreach ($buddies as $buddyRequest) {
+                            $buddy = $buddyRequest->sender_user_id === auth()->id()
+                                ? $buddyRequest->receiver
+                                : $buddyRequest->sender;
+                            if ($buddy->isOnline()) {
+                                $onlineCount++;
+                            }
+                        }
+                    @endphp
+
+                    <span class="fleft online_count">({{ $onlineCount }} / {{ $totalCount }} online)</span>
+                    <input class="fright buddySearch" type="text" placeholder="Search...">
+                    <br class="clearfloat">
+
                     @if($buddies->isEmpty())
                         <p class="box_highlight textCenter no_buddies">No buddies found</p>
                     @else
                         <table cellpadding="0" cellspacing="0" class="content_table" id="buddylist">
                             <colgroup>
                                 <col span="1" style="width: 37px;">
-                                <col span="1" style="width: 150px;">
+                                <col span="1" style="width: 200px;">
+                                <col span="1" style="width: 110px;">
+                                <col span="1" style="width: 65px;">
+                                <col span="1" style="width: 65px;">
+                                <col span="1" style="width: 65px;">
                                 <col span="1" style="width: 65px;">
                             </colgroup>
                             <thead>
                             <tr class="ct_head_row">
                                 <th class="no ct_th first">ID</th>
                                 <th class="ct_th ct_sortable_title">Name</th>
+                                <th class="ct_th ct_sortable_title">Points</th>
+                                <th class="ct_th ct_sortable_title">Rank</th>
+                                <th class="ct_th ct_sortable_title">Alliance</th>
+                                <th class="ct_th ct_sortable_title">Coords</th>
                                 <th class="ct_th textCenter">Actions</th>
                             </tr>
                             </thead>
@@ -226,6 +257,8 @@
                     function acceptRequest() {
                         var buddyAction = 5;
                         var actionId = $(this).data('buddyid');
+                        var $button = $(this);
+                        var $messageFooter = $button.closest('message-footer');
 
                         $.post("{{ route('buddies.post') }}",
                             {
@@ -234,8 +267,20 @@
                                 _token: "{{ csrf_token() }}"
                             },
                             function (data) {
-                                var currentlocation = window.location.href;
-                                window.location = currentlocation.substring(0, currentlocation.indexOf('?')) + '?page=ingame&component=buddies';
+                                // Remove the action buttons and show accepted status
+                                $messageFooter.find('message-footer-actions').html(
+                                    '<span class="success" style="color: #6f9;padding: 5px;">✓ Buddy request accepted</span>'
+                                );
+
+                                fadeBox('Buddy request accepted!', false);
+
+                                // If on buddies page, update the count
+                                if (window.location.href.indexOf('component=buddies') > -1) {
+                                    var buddyCount = parseInt($("#newRequestCount").text()) - 1;
+                                    if (buddyCount >= 0) {
+                                        $("#newRequestCount").html(buddyCount);
+                                    }
+                                }
                             });
                     }
 
@@ -277,7 +322,8 @@
                     function rejectRequest() {
                         var buddyAction = 4;
                         var actionId = $(this).data('buddyid');
-                        var buddyCount = parseInt($("#newRequestCount").text()) - 1;
+                        var $button = $(this);
+                        var $messageFooter = $button.closest('message-footer');
 
                         $.post("{{ route('buddies.post') }}",
                             {
@@ -286,12 +332,20 @@
                                 _token: "{{ csrf_token() }}"
                             },
                             function (data) {
+                                // Remove the action buttons and show rejected status
+                                $messageFooter.find('message-footer-actions').html(
+                                    '<span class="rejected" style="color: #f66;padding: 5px;">✗ Buddy request rejected</span>'
+                                );
 
-                                if (buddyCount >= 0) {
-                                    $("#newRequestCount").html(buddyCount);
+                                fadeBox('Buddy request rejected', false);
+
+                                // If on buddies page, update the count
+                                if (window.location.href.indexOf('component=buddies') > -1) {
+                                    var buddyCount = parseInt($("#newRequestCount").text()) - 1;
+                                    if (buddyCount >= 0) {
+                                        $("#newRequestCount").html(buddyCount);
+                                    }
                                 }
-                                var currentlocation = window.location.href;
-                                window.location = currentlocation.substring(0, currentlocation.indexOf('?')) + '?page=ingame&component=buddies';
                             });
                     }
                 </script>
