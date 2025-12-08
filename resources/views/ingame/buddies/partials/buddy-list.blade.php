@@ -62,10 +62,10 @@
                 @endif
             </td>
             <td class="ct_td textCenter">
-                <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $buddy->id }}" data-tooltip-title="Write message">
+                <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $buddy->id }}" data-tooltip-title="{{ __('Send message') }}">
                     <span class="icon icon_chat"></span>
                 </a>
-                <span class="tooltip js_hideTipOnMobile deleteBuddy icon_link" id="{{ $buddy->id }}" ref="Do you really want to delete your buddy {{ $buddy->username }}?" onclick="deleteBuddy.call(this); return false;" data-tooltip-title="Delete buddy">
+                <span class="tooltip js_hideTipOnMobile deleteBuddy icon_link" id="{{ $buddy->id }}" ref="{{ __('Do you really want to delete your buddy') }} {{ $buddy->username }}?" onclick="deleteBuddy.call(this); return false;" data-tooltip-title="{{ __('Delete buddy') }}">
                     <span class="icon icon_trash"></span>
                 </span>
             </td>
@@ -78,7 +78,7 @@
             <td>{{ $user->username }}</td>
             <td>
                 <a href="#" class="txt_link" onclick="sendBuddyRequest({{ $user->id }}); return false;">
-                    <span>Add as buddy</span>
+                    <span>{{ __('Add as buddy') }}</span>
                 </a>
             </td>
         </tr>

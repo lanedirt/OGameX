@@ -10,43 +10,43 @@
 
     <div id="buddiescomponent" class="maincontent">
         <div id="planet" class="shortHeader">
-            <h2>Buddies</h2>
+            <h2>{{ __('Buddies') }}</h2>
         </div>
 
         <div id="buttonz">
             <div class="header">
-                <h2>My buddies</h2>
+                <h2>{{ __('My buddies') }}</h2>
             </div>
             <div class="content">
                 <div id="buddyRequests" class="js_accordion ui-accordion ui-widget ui-helper-reset" role="tablist">
-                    <h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-header-active ui-state-active ui-accordion-icons" role="tab" id="ui-id-1" aria-controls="ui-id-2" aria-selected="true" aria-expanded="true" tabindex="0"><span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>Buddy requests ({{ $received_requests->count() + $sent_requests->count() }})</h3>
+                    <h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-header-active ui-state-active ui-accordion-icons" role="tab" id="ui-id-1" aria-controls="ui-id-2" aria-selected="true" aria-expanded="true" tabindex="0"><span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>{{ __('Buddy requests') }} ({{ $received_requests->count() + $sent_requests->count() }})</h3>
                     <div class="js_tabs ui-accordion-content ui-corner-bottom ui-helper-reset ui-widget-content ui-accordion-content-active ui-tabs ui-corner-all ui-widget" id="ui-id-2" aria-labelledby="ui-id-1" role="tabpanel" aria-hidden="false" style="">
                         <ul class="tabsbelow ui-tabs-nav ui-corner-all ui-helper-reset ui-helper-clearfix ui-widget-header" role="tablist">
                             <li role="tab" tabindex="0" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab ui-tabs-active ui-state-active" aria-controls="tabs-reqReveived" aria-labelledby="ui-id-3" aria-selected="true" aria-expanded="true">
                                 <a href="#tabs-reqReveived" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-3">
-                                    <span id="newRequestCount">{{ $received_requests->count() }}</span> requests received (<span id="unreadCount">{{ $unread_requests_count }}</span> new)
+                                    <span id="newRequestCount">{{ $received_requests->count() }}</span> {{ __('requests received') }} (<span id="unreadCount">{{ $unread_requests_count }}</span> {{ __('new') }})
                                 </a>
                             </li>
                             <li role="tab" tabindex="-1" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="tabs-reqSent" aria-labelledby="ui-id-4" aria-selected="false" aria-expanded="false">
                                 <a href="#tabs-reqSent" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-4">
-                                    <span id="ownRequestCount">{{ $sent_requests->count() }}</span> requests sent
+                                    <span id="ownRequestCount">{{ $sent_requests->count() }}</span> {{ __('requests sent') }}
                                 </a>
                             </li>
                         </ul>
                         <div id="tabs-reqReveived" class="tab_ctn js_scrollbar" aria-labelledby="ui-id-3" role="tabpanel">
                                     <ul class="clearfix">
                                         @if($received_requests->isEmpty())
-                                            <li class="no_req">You currently have no buddy requests.</li>
+                                            <li class="no_req">{{ __('You currently have no buddy requests.') }}</li>
                                         @else
                                             @foreach($received_requests as $request)
                                                 <li class="msg @if(!$request->viewed) msg_new @endif" data-msg-id="{{ $request->id }}">
                                                     <div class="msg_status"></div>
                                                     <div class="msg_head">
-                                                        <span class="msg_title @if(!$request->viewed) new blue_txt @endif">@if(!$request->viewed)New @endif buddy request</span>
+                                                        <span class="msg_title @if(!$request->viewed) new blue_txt @endif">@if(!$request->viewed){{ __('New') }} @endif{{ __('buddy request') }}</span>
                                                         <span class="msg_date fright">
                                                             {{ $request->created_at->format('d.m.Y H:i:s') }}
                                                         </span><br>
-                                                        <span class="msg_sender_label">From:</span>
+                                                        <span class="msg_sender_label">{{ __('From:') }}</span>
                                                         <span class="msg_sender">{{ $request->sender->username }}</span>
                                                     </div>
                                                     @if($request->message)
@@ -55,12 +55,12 @@
                                                     <message-footer class="msg_actions">
                                                         <message-footer-actions>
                                                             <gradient-button sq30="">
-                                                                <button class="custom_btn tooltip acceptRequest" data-buddyid="{{ $request->id }}" data-tooltip-title="Accept buddy request">
+                                                                <button class="custom_btn tooltip acceptRequest" data-buddyid="{{ $request->id }}" data-tooltip-title="{{ __('Accept buddy request') }}">
                                                                     <span class="icon_nf icon_accept"></span>
                                                                 </button>
                                                             </gradient-button>
                                                             <gradient-button sq30="">
-                                                                <button class="custom_btn tooltip rejectRequest" data-buddyid="{{ $request->id }}" data-tooltip-title="Reject buddy request">
+                                                                <button class="custom_btn tooltip rejectRequest" data-buddyid="{{ $request->id }}" data-tooltip-title="{{ __('Reject buddy request') }}">
                                                                     <span class="icon_nf icon_refuse"></span>
                                                                 </button>
                                                             </gradient-button>
@@ -74,28 +74,28 @@
                         <div id="tabs-reqSent" class="tab_ctn js_scrollbar" aria-labelledby="ui-id-4" role="tabpanel" style="display: none;">
                                     <ul>
                                         @if($sent_requests->isEmpty())
-                                            <li class="no_req">You have not sent any buddy requests.</li>
+                                            <li class="no_req">{{ __('You have not sent any buddy requests.') }}</li>
                                         @else
                                             @foreach($sent_requests as $request)
                                                 <li class="msg msg_new" data-msg-id="{{ $request->id }}">
                                                     <div class="msg_status"></div>
                                                     <div class="msg_head">
-                                                        <span class="msg_title new blue_txt">New buddy request</span>
+                                                        <span class="msg_title new blue_txt">{{ __('New buddy request') }}</span>
                                                         <span class="msg_date fright">
                                                             {{ $request->created_at->format('d.m.Y H:i:s') }}
                                                         </span><br>
                                                         <span class="msg_sender_label">
-                                                            To:
+                                                            {{ __('To:') }}
                                                         </span>
                                                         <span class="msg_sender">
                                                             {{ $request->receiver->username }}
                                                         </span>
                                                     </div>
 
-                                                    <span class="msg_content">You have received a new buddy request from {{ $request->sender->username }}.<br>{{ $request->message }}</span>
+                                                    <span class="msg_content">{{ __('You have received a new buddy request from') }} {{ $request->sender->username }}.<br>{{ $request->message }}</span>
                                                     <message-footer class="msg_actions">
                                                         <message-footer-actions>
-                                                            <gradient-button sq30=""><button class="custom_btn tooltip cancelBuddyRequest cancelRequest" data-buddyid="{{ $request->id }}" data-tooltip-title="Withdraw buddy request"><img src="/img/icons/basic/refuse.png" style="width: 16px; height: 16px;"></button></gradient-button>
+                                                            <gradient-button sq30=""><button class="custom_btn tooltip cancelBuddyRequest cancelRequest" data-buddyid="{{ $request->id }}" data-tooltip-title="{{ __('Withdraw buddy request') }}"><img src="/img/icons/basic/refuse.png" style="width: 16px; height: 16px;"></button></gradient-button>
                                                         </message-footer-actions>
                                                     </message-footer>
                                                 </li>
@@ -120,12 +120,12 @@
                         }
                     @endphp
 
-                    <span class="fleft online_count">({{ $onlineCount }} / {{ $totalCount }} online)</span>
-                    <input class="fright buddySearch" type="text" placeholder="Search...">
+                    <span class="fleft online_count">({{ $onlineCount }} / {{ $totalCount }} {{ __('online') }})</span>
+                    <input class="fright buddySearch" type="text" placeholder="{{ __('Search...') }}">
                     <br class="clearfloat">
 
                     @if($buddies->isEmpty())
-                        <p class="box_highlight textCenter no_buddies">No buddies found</p>
+                        <p class="box_highlight textCenter no_buddies">{{ __('No buddies found') }}</p>
                     @else
                         <table cellpadding="0" cellspacing="0" class="content_table" id="buddylist">
                             <colgroup>
@@ -139,13 +139,13 @@
                             </colgroup>
                             <thead>
                             <tr class="ct_head_row">
-                                <th class="no ct_th first">ID</th>
-                                <th class="ct_th ct_sortable_title">Name</th>
-                                <th class="ct_th ct_sortable_title">Points</th>
-                                <th class="ct_th ct_sortable_title">Rank</th>
-                                <th class="ct_th ct_sortable_title">Alliance</th>
-                                <th class="ct_th ct_sortable_title">Coords</th>
-                                <th class="ct_th textCenter">Actions</th>
+                                <th class="no ct_th first">{{ __('ID') }}</th>
+                                <th class="ct_th ct_sortable_title">{{ __('Name') }}</th>
+                                <th class="ct_th ct_sortable_title">{{ __('Points') }}</th>
+                                <th class="ct_th ct_sortable_title">{{ __('Rank') }}</th>
+                                <th class="ct_th ct_sortable_title">{{ __('Alliance') }}</th>
+                                <th class="ct_th ct_sortable_title">{{ __('Coords') }}</th>
+                                <th class="ct_th textCenter">{{ __('Actions') }}</th>
                             </tr>
                             </thead>
                             <tbody class="zebra">
@@ -160,10 +160,10 @@
                     function deleteBuddy() {
                         var $thisObj = $(this);
                         errorBoxDecision(
-                            'Delete buddy',
+                            '{{ __("Delete buddy") }}',
                             $thisObj.attr("ref"),
-                            'yes',
-                            'No',
+                            '{{ __("yes") }}',
+                            '{{ __("No") }}',
                             function () {
                                 var buddyAction = 10;
                                 var actionId = $thisObj.attr("id");
@@ -181,13 +181,13 @@
                                         // Replace tbody content with the returned partial view
                                         $('#buddylist tbody').html(data);
                                         ogame.buddies.initBuddyList();
-                                        fadeBox('Buddy deleted successfully!', false);
+                                        fadeBox('{{ __("Buddy deleted successfully!") }}', false);
                                     },
                                     error: function(xhr, status, error) {
                                         console.error('Delete buddy error:', xhr.responseJSON);
                                         var errorMsg = xhr.responseJSON && xhr.responseJSON.message
                                             ? xhr.responseJSON.message
-                                            : 'Failed to delete buddy';
+                                            : '{{ __("Failed to delete buddy") }}';
                                         fadeBox(errorMsg, true);
                                     }
                                 });
@@ -230,7 +230,7 @@
 
                         } else {
                             if (e.keyCode === 13) {
-                                fadeBox("Too few characters! Please put in at least 2 characters.", true);
+                                fadeBox("{{ __('Too few characters! Please put in at least 2 characters.') }}", true);
                             }
                         }
                     }
@@ -269,10 +269,10 @@
                             function (data) {
                                 // Remove the action buttons and show accepted status
                                 $messageFooter.find('message-footer-actions').html(
-                                    '<span class="success" style="color: #6f9;padding: 5px;">✓ Buddy request accepted</span>'
+                                    '<span class="success" style="color: #6f9;padding: 5px;">{{ __("✓ Buddy request accepted") }}</span>'
                                 );
 
-                                fadeBox('Buddy request accepted!', false);
+                                fadeBox('{{ __("Buddy request accepted!") }}', false);
 
                                 // If on buddies page, update the count
                                 if (window.location.href.indexOf('component=buddies') > -1) {
@@ -309,10 +309,10 @@
                         }
 
                         errorBoxDecision(
-                            "Caution",
-                            "Report this message to a game operator?",
-                            "yes",
-                            "No",
+                            "{{ __('Caution') }}",
+                            "{{ __('Report this message to a game operator?') }}",
+                            "{{ __('yes') }}",
+                            "{{ __('No') }}",
                             sendReport
                         );
 
@@ -334,10 +334,10 @@
                             function (data) {
                                 // Remove the action buttons and show rejected status
                                 $messageFooter.find('message-footer-actions').html(
-                                    '<span class="rejected" style="color: #f66;padding: 5px;">✗ Buddy request rejected</span>'
+                                    '<span class="rejected" style="color: #f66;padding: 5px;">{{ __("✗ Buddy request rejected") }}</span>'
                                 );
 
-                                fadeBox('Buddy request rejected', false);
+                                fadeBox('{{ __("Buddy request rejected") }}', false);
 
                                 // If on buddies page, update the count
                                 if (window.location.href.indexOf('component=buddies') > -1) {
@@ -373,11 +373,11 @@
 
         <div id="buttonz">
             <div class="header">
-                <h2>Ignored Players</h2>
+                <h2>{{ __('Ignored Players') }}</h2>
             </div>
             <div class="content">
                 @if($ignored_players->isEmpty())
-                    <p class="box_highlight textCenter">No ignored players</p>
+                    <p class="box_highlight textCenter">{{ __('No ignored players') }}</p>
                 @else
                     <table cellpadding="0" cellspacing="0" class="content_table ignorelist" id="ignorelist">
                         <colgroup>
@@ -389,11 +389,11 @@
                         </colgroup>
                         <thead>
                         <tr class="ct_head_row">
-                            <th class="no ct_th first">ID</th>
-                            <th class="ct_th ct_sortable_title">Name</th>
-                            <th class="ct_th ct_sortable_title">Rank</th>
-                            <th class="ct_th ct_sortable_title">Alliance</th>
-                            <th class="ct_th textCenter">Actions</th>
+                            <th class="no ct_th first">{{ __('ID') }}</th>
+                            <th class="ct_th ct_sortable_title">{{ __('Name') }}</th>
+                            <th class="ct_th ct_sortable_title">{{ __('Rank') }}</th>
+                            <th class="ct_th ct_sortable_title">{{ __('Alliance') }}</th>
+                            <th class="ct_th textCenter">{{ __('Actions') }}</th>
                         </tr>
                         </thead>
                         <tbody class="zebra">

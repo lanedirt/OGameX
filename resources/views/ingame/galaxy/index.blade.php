@@ -706,18 +706,18 @@
                         data: form.serialize(),
                         success: function(response) {
                             if (response.success) {
-                                fadeBox('Buddy request sent successfully!', false);
+                                fadeBox('{{ __("Buddy request sent successfully!") }}', false);
                                 form.closest('.ui-dialog-content').dialog('close');
                                 setTimeout(function() {
                                     form.closest('.overlayDiv').remove();
                                     form.closest('.ui-dialog').remove();
                                 }, 100);
                             } else {
-                                fadeBox(response.message || 'Failed to send buddy request.', true);
+                                fadeBox(response.message || '{{ __("Failed to send buddy request.") }}', true);
                             }
                         },
                         error: function(xhr) {
-                            var errorMessage = 'Failed to send buddy request.';
+                            var errorMessage = '{{ __("Failed to send buddy request.") }}';
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errorMessage = xhr.responseJSON.message;
                             }
@@ -744,7 +744,7 @@
 
                 // Initialize the dialog first
                 $dialog.dialog({
-                    title: 'Buddy request to ' + playerName,
+                    title: '{{ __("Buddy request to") }} ' + playerName,
                     width: 'auto',
                     height: 'auto',
                     modal: false,
@@ -803,7 +803,7 @@
 
                 if (playerId && playerName) {
                     // Confirm before ignoring
-                    if (confirm('Are you sure you want to ignore ' + playerName + '?')) {
+                    if (confirm('{{ __("Are you sure you want to ignore") }} ' + playerName + '?')) {
                         $.ajax({
                             url: '{{ route('buddies.ignore') }}',
                             type: 'POST',
@@ -813,13 +813,13 @@
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    fadeBox('Player ignored successfully!', false);
+                                    fadeBox('{{ __("Player ignored successfully!") }}', false);
                                 } else {
-                                    fadeBox(response.message || 'Failed to ignore player.', true);
+                                    fadeBox(response.message || '{{ __("Failed to ignore player.") }}', true);
                                 }
                             },
                             error: function(xhr) {
-                                var errorMessage = 'Failed to ignore player.';
+                                var errorMessage = '{{ __("Failed to ignore player.") }}';
                                 if (xhr.responseJSON && xhr.responseJSON.message) {
                                     errorMessage = xhr.responseJSON.message;
                                 }
