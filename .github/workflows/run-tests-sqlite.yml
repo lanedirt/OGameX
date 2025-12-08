@@ -35,6 +35,8 @@ jobs:
     # Laravel setup steps
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+    - name: Set APP_ENV to testing                                                                                                                      │
+      run: sed -i 's/APP_ENV=.*/APP_ENV=testing/' .env
     - name: Composer update
       run: composer update --lock
     - name: Install Dependencies

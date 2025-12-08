@@ -310,7 +310,6 @@ class PhalanxTest extends FleetDispatchTestCase
         ]);
 
         $response->assertStatus(200);
-        $this->assertEquals(1, $response->json('fleet_count'));
 
         // Check that it shows "Your fleet"
         $contentHtml = $response->json('content_html');

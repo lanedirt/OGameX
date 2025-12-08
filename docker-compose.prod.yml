@@ -117,6 +117,23 @@ services:
     volumes:
       - ./docker/phpmyadmin/.htaccess:/var/www/html/.htaccess
 
+  # Redis Service
+  ogamex-redis:
+    image: redis:8.4-alpine
+    container_name: ogamex-redis
+    restart: unless-stopped
+    # Redis port is not exposed to the host machine in production.
+    volumes:
+      - ogame-redisdata:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+
 # Docker Networks
 networks:
   app-network:
@@ -125,4 +142,6 @@ networks:
 # Volumes
 volumes:
   ogame-dbdata:
+    driver: local
+  ogame-redisdata:
     driver: local

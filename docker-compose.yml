@@ -117,6 +117,24 @@ services:
     networks:
       - app-network
 
+  # Redis Service
+  ogamex-redis:
+    image: redis:8.4-alpine
+    container_name: ogamex-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ogame-redisdata:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+
 # Docker Networks
 networks:
   app-network:
@@ -125,4 +143,6 @@ networks:
 # Volumes
 volumes:
   ogame-dbdata:
+    driver: local
+  ogame-redisdata:
     driver: local

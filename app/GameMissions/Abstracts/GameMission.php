@@ -13,6 +13,7 @@ use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\GameMissions\ExpeditionMission;
+use OGame\Jobs\ProcessFleetMissions;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
@@ -308,6 +309,8 @@ abstract class GameMission
         if ($mission->time_arrival < Carbon::now()->timestamp) {
             $this->process($mission);
         }
+        $arrival_time_to_carbon = Carbon::parse($mission->time_arrival);
+        ProcessFleetMissions::dispatch($mission, $planet->getPlayer())->delay($arrival_time_to_carbon);
 
         return $mission;
     }
@@ -400,6 +403,11 @@ abstract class GameMission
         // If the mission is in the past, process it immediately.
         if ($mission->time_arrival < Carbon::now()->timestamp) {
             $this->process($mission);
+        } else {
+            // Dispatch job for future return mission arrival
+            $player = $this->playerServiceFactory->make($mission->user_id);
+            $arrival_time_to_carbon = Carbon::parse($mission->time_arrival);
+            ProcessFleetMissions::dispatch($mission, $player)->delay($arrival_time_to_carbon);
         }
     }
 
