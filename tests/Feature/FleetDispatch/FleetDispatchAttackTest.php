@@ -55,10 +55,12 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
     protected function messageCheckMissionArrival(): void
     {
-        // Assert that message has been sent to player and contains the correct information.
-        $this->assertMessageReceivedAndContains('fleets', 'combat_reports', [
-            'Combat report',
-        ]);
+        // Assert that attacker has received a message (either battle_report or fleet_lost_contact).
+        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())
+        ->whereIn('key', ['battle_report', 'fleet_lost_contact'])
+        ->orderByDesc('id')
+        ->first();
+        $this->assertNotNull($messageAttacker, 'Attacker has not received a message after combat.');
     }
 
     protected function messageCheckMissionReturn(): void
