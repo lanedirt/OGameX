@@ -382,28 +382,22 @@
                     <table cellpadding="0" cellspacing="0" class="content_table ignorelist" id="ignorelist">
                         <colgroup>
                             <col span="1" style="width: 37px;">
-                            <col span="1" style="width: 150px;">
+                            <col span="1" style="width: 200px;">
+                            <col span="1" style="width: 65px;">
+                            <col span="1" style="width: 65px;">
                             <col span="1" style="width: 65px;">
                         </colgroup>
                         <thead>
                         <tr class="ct_head_row">
                             <th class="no ct_th first">ID</th>
                             <th class="ct_th ct_sortable_title">Name</th>
+                            <th class="ct_th ct_sortable_title">Rank</th>
+                            <th class="ct_th ct_sortable_title">Alliance</th>
                             <th class="ct_th textCenter">Actions</th>
                         </tr>
                         </thead>
                         <tbody class="zebra">
-                            @foreach($ignored_players as $ignored)
-                                <tr>
-                                    <td>{{ $ignored->ignoredUser->id }}</td>
-                                    <td>{{ $ignored->ignoredUser->username }}</td>
-                                    <td class="textCenter">
-                                        <a href="#" class="txt_link" onclick="confirmUnignore('Do you really want to unignore {{ $ignored->ignoredUser->username }}?', '{{ route('buddies.unignore') }}?ignored_user_id={{ $ignored->ignoredUser->id }}'); return false;">
-                                            <span class="icon icon_check"></span>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
+                            @include('ingame.buddies.partials.ignored-list', ['ignored_players' => $ignored_players])
                         </tbody>
                     </table>
                 @endif
@@ -423,19 +417,6 @@
 
             initBBCodes();
             initOverlays();
-
-            function confirmUnignore(question,link)
-            {
-                errorBoxDecision(
-                    "Cancel ignore",
-                    ""+question+"",
-                    "yes",
-                    "No",
-                    function() {
-                        window.location.replace(link);
-                    }
-                );
-            }
         </script>
     </div>
 

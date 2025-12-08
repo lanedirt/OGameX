@@ -199,9 +199,9 @@ class BuddiesController extends OGameController
      *
      * @param Request $request
      * @param BuddyService $buddyService
-     * @return JsonResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function ignorePlayer(Request $request, BuddyService $buddyService): JsonResponse
+    public function ignorePlayer(Request $request, BuddyService $buddyService)
     {
         $userId = auth()->id();
 
@@ -211,17 +211,9 @@ class BuddiesController extends OGameController
 
         try {
             $buddyService->ignorePlayer($userId, $request->input('ignored_user_id'));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Player ignored successfully.',
-            ]);
-
+            return redirect()->route('buddies.index')->with('status', 'Player ignored successfully.');
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 400);
+            return redirect()->route('buddies.index')->with('error', $e->getMessage());
         }
     }
 
@@ -230,9 +222,9 @@ class BuddiesController extends OGameController
      *
      * @param Request $request
      * @param BuddyService $buddyService
-     * @return JsonResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function unignorePlayer(Request $request, BuddyService $buddyService): JsonResponse
+    public function unignorePlayer(Request $request, BuddyService $buddyService)
     {
         $userId = auth()->id();
 
@@ -242,17 +234,9 @@ class BuddiesController extends OGameController
 
         try {
             $buddyService->unignorePlayer($userId, $request->input('ignored_user_id'));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Player unignored successfully.',
-            ]);
-
+            return redirect()->route('buddies.index')->with('status', 'Player unignored successfully.');
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 400);
+            return redirect()->route('buddies.index')->with('error', $e->getMessage());
         }
     }
 }

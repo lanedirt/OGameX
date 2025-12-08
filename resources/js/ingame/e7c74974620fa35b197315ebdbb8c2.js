@@ -54518,3 +54518,55 @@ TechnologyDetails.prototype.setMaximumBuildableAmount = function () {
   var $buildAmount = $('#technologydetails #build_amount');
   $buildAmount.val($buildAmount.attr('max'));
 };
+
+// Buddy system and ignore player handlers
+$(document).on('click', '.sendBuddyRequestLink', function(e) {
+    e.preventDefault();
+    var playerId = $(this).data('playerid');
+    var playerName = $(this).data('playername');
+    
+    $.ajax({
+        type: 'POST',
+        url: '/buddies',
+        data: {
+            action: 1, // Send buddy request
+            player_id: playerId,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            fadeBox('Buddy request sent to ' + playerName, false);
+        },
+        error: function(xhr) {
+            var errorMsg = xhr.responseJSON && xhr.responseJSON.message
+                ? xhr.responseJSON.message
+                : 'Failed to send buddy request';
+            fadeBox(errorMsg, true);
+        }
+    });
+});
+
+$(document).on('click', '.ignorePlayerLink', function(e) {
+    e.preventDefault();
+    var playerId = $(this).data('playerid');
+    
+    // Create a form and submit it to redirect
+    var form = $('<form>', {
+        'method': 'POST',
+        'action': '/buddies/ignore'
+    });
+    
+    form.append($('<input>', {
+        'type': 'hidden',
+        'name': '_token',
+        'value': $('meta[name="csrf-token"]').attr('content')
+    }));
+    
+    form.append($('<input>', {
+        'type': 'hidden',
+        'name': 'ignored_user_id',
+        'value': playerId
+    }));
+    
+    $('body').append(form);
+    form.submit();
+});
