@@ -668,28 +668,38 @@ class BuddyTest extends AccountTestCase
      */
     public function testIgnoredPlayerCannotSendBuddyRequestViaController(): void
     {
-        $ignoredUser = User::factory()->create();
+        // Store the original user ID
+        $originalUserId = $this->currentUserId;
+
+        // Create a second user with planets using the registration process
+        $this->createAndLoginUser();
+        $this->retrieveMetaFields(); // Update currentUserId to the new user
+        $ignoredUserId = $this->currentUserId;
+        $ignoredUser = User::find($ignoredUserId);
+
         $buddyService = resolve(BuddyService::class);
 
-        // Current user ignores the other user
-        $buddyService->ignorePlayer($this->currentUserId, $ignoredUser->id);
+        // Original user ignores the newly created user
+        $buddyService->ignorePlayer($originalUserId, $ignoredUserId);
 
-        // Act as the ignored user
-        $this->actingAs($ignoredUser);
-
-        // Ignored user tries to send a buddy request to current user via controller
-        $response = $this->post('/buddies/sendrequest', [
-            'receiver_id' => $this->currentUserId,
+        // Act as the ignored user (already logged in as this user)
+        // Ignored user tries to send a buddy request to original user via controller
+        $response = $this->post('/buddies/send-request', [
+            'receiver_id' => $originalUserId,
             'message' => 'Hello!',
         ]);
 
-        $response->assertStatus(302);
-        $response->assertSessionHas('error');
+        // Controller returns 400 JSON response with error message
+        $response->assertStatus(400);
+        $response->assertJson([
+            'success' => false,
+            'message' => __('Cannot send buddy request to this user.'),
+        ]);
 
         // Verify no buddy request was created
         $this->assertDatabaseMissing('buddy_requests', [
-            'sender_user_id' => $ignoredUser->id,
-            'receiver_user_id' => $this->currentUserId,
+            'sender_user_id' => $ignoredUserId,
+            'receiver_user_id' => $originalUserId,
         ]);
     }
 }
