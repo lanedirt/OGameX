@@ -231,8 +231,6 @@
             function acceptRequest() {
                 var buddyAction = 5;
                 var actionId = $(this).data('buddyid');
-                var $button = $(this);
-                var $messageFooter = $button.closest('message-footer');
 
                 $.post("{{ route('buddies.post') }}",
                     {
@@ -241,12 +239,8 @@
                         _token: "{{ csrf_token() }}"
                     },
                     function (data) {
-                        // Remove the action buttons and show accepted status
-                        $messageFooter.find('message-footer-actions').html(
-                            '<span class="success" style="color: #6f9;padding: 5px;">✓ Buddy request accepted</span>'
-                        );
-
-                        fadeBox('Buddy request accepted!', false);
+                        // Redirect to buddies page after accepting
+                        window.location.href = "{{ route('buddies.index') }}";
                     });
             }
 
@@ -288,8 +282,6 @@
             function rejectRequest() {
                 var buddyAction = 4;
                 var actionId = $(this).data('buddyid');
-                var $button = $(this);
-                var $messageFooter = $button.closest('message-footer');
 
                 $.post("{{ route('buddies.post') }}",
                     {
@@ -298,12 +290,8 @@
                         _token: "{{ csrf_token() }}"
                     },
                     function (data) {
-                        // Remove the action buttons and show rejected status
-                        $messageFooter.find('message-footer-actions').html(
-                            '<span class="rejected" style="color: #f66;padding: 5px;">✗ Buddy request rejected</span>'
-                        );
-
-                        fadeBox('Buddy request rejected', false);
+                        // Redirect to buddies page after rejecting
+                        window.location.href = "{{ route('buddies.index') }}";
                     });
             }
         </script>

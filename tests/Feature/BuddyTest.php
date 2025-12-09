@@ -644,4 +644,52 @@ class BuddyTest extends AccountTestCase
             'ignored_user_id' => $otherUser->id,
         ]);
     }
+
+    /**
+     * Test that ignored players cannot send buddy requests.
+     */
+    public function testIgnoredPlayerCannotSendBuddyRequest(): void
+    {
+        $ignoredUser = User::factory()->create();
+        $buddyService = resolve(BuddyService::class);
+
+        // Current user ignores the other user
+        $buddyService->ignorePlayer($this->currentUserId, $ignoredUser->id);
+
+        // Ignored user tries to send a buddy request to current user
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(__('Cannot send buddy request to this user.'));
+
+        $buddyService->sendRequest($ignoredUser->id, $this->currentUserId, 'Hello!');
+    }
+
+    /**
+     * Test that ignoring a player prevents them from sending buddy requests via controller.
+     */
+    public function testIgnoredPlayerCannotSendBuddyRequestViaController(): void
+    {
+        $ignoredUser = User::factory()->create();
+        $buddyService = resolve(BuddyService::class);
+
+        // Current user ignores the other user
+        $buddyService->ignorePlayer($this->currentUserId, $ignoredUser->id);
+
+        // Act as the ignored user
+        $this->actingAs($ignoredUser);
+
+        // Ignored user tries to send a buddy request to current user via controller
+        $response = $this->post('/buddies/sendrequest', [
+            'receiver_id' => $this->currentUserId,
+            'message' => 'Hello!',
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHas('error');
+
+        // Verify no buddy request was created
+        $this->assertDatabaseMissing('buddy_requests', [
+            'sender_user_id' => $ignoredUser->id,
+            'receiver_user_id' => $this->currentUserId,
+        ]);
+    }
 }

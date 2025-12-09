@@ -136,20 +136,28 @@ class BuddyService
     {
         // Check if users are the same
         if ($senderId === $receiverId) {
-            throw new \Exception('Cannot send buddy request to yourself.');
+            throw new \Exception(__('Cannot send buddy request to yourself.'));
         }
 
         // Check if sender and receiver exist
         $sender = User::find($senderId);
         $receiver = User::find($receiverId);
         if (!$receiver || !$sender) {
-            throw new \Exception('User not found.');
+            throw new \Exception(__('User not found.'));
         }
 
         // Check if receiver is admin (cannot send buddy requests to admins)
         $receiverPlayer = app(\OGame\Services\PlayerService::class, ['player_id' => $receiver->id]);
         if ($receiverPlayer->isAdmin()) {
-            throw new \Exception('Cannot send buddy requests to administrators.');
+            throw new \Exception(__('Cannot send buddy requests to administrators.'));
+        }
+
+        // Check if sender is ignored by receiver
+        $isIgnored = IgnoredPlayer::where('user_id', $receiverId)
+            ->where('ignored_user_id', $senderId)
+            ->exists();
+        if ($isIgnored) {
+            throw new \Exception(__('Cannot send buddy request to this user.'));
         }
 
         // Check if there's already a pending or accepted request between these users
@@ -166,9 +174,9 @@ class BuddyService
 
         if ($existingRequest) {
             if ($existingRequest->isAccepted()) {
-                throw new \Exception('You are already buddies with this user.');
+                throw new \Exception(__('You are already buddies with this user.'));
             }
-            throw new \Exception('A buddy request already exists between these users.');
+            throw new \Exception(__('A buddy request already exists between these users.'));
         }
 
         // Create the buddy request
@@ -203,16 +211,16 @@ class BuddyService
         $request = BuddyRequest::find($requestId);
 
         if (!$request) {
-            throw new \Exception('Buddy request not found.');
+            throw new \Exception(__('Buddy request not found.'));
         }
 
         // Only the receiver can accept the request
         if ($request->receiver_user_id !== $userId) {
-            throw new \Exception('You are not authorized to accept this request.');
+            throw new \Exception(__('You are not authorized to accept this request.'));
         }
 
         if (!$request->isPending()) {
-            throw new \Exception('This request has already been processed.');
+            throw new \Exception(__('This request has already been processed.'));
         }
 
         $request->status = BuddyRequest::STATUS_ACCEPTED;
@@ -249,16 +257,16 @@ class BuddyService
         $request = BuddyRequest::find($requestId);
 
         if (!$request) {
-            throw new \Exception('Buddy request not found.');
+            throw new \Exception(__('Buddy request not found.'));
         }
 
         // Only the receiver can reject the request
         if ($request->receiver_user_id !== $userId) {
-            throw new \Exception('You are not authorized to reject this request.');
+            throw new \Exception(__('You are not authorized to reject this request.'));
         }
 
         if (!$request->isPending()) {
-            throw new \Exception('This request has already been processed.');
+            throw new \Exception(__('This request has already been processed.'));
         }
 
         // Delete the request instead of marking it as rejected
@@ -278,16 +286,16 @@ class BuddyService
         $request = BuddyRequest::find($requestId);
 
         if (!$request) {
-            throw new \Exception('Buddy request not found.');
+            throw new \Exception(__('Buddy request not found.'));
         }
 
         // Only the sender can cancel the request
         if ($request->sender_user_id !== $userId) {
-            throw new \Exception('You are not authorized to cancel this request.');
+            throw new \Exception(__('You are not authorized to cancel this request.'));
         }
 
         if (!$request->isPending()) {
-            throw new \Exception('This request has already been processed.');
+            throw new \Exception(__('This request has already been processed.'));
         }
 
         return $request->delete();
@@ -317,7 +325,7 @@ class BuddyService
             ->first();
 
         if (!$request) {
-            throw new \Exception('Buddy relationship not found.');
+            throw new \Exception(__('Buddy relationship not found.'));
         }
 
         // Get user info before deleting the request
@@ -382,6 +390,12 @@ class BuddyService
     /**
      * Ignore a player.
      *
+     * Current functionality:
+     * - Prevents ignored players from sending buddy requests
+     *
+     * TODO: The ignore functionality still needs to be integrated with:
+     * - Messages system: Block incoming messages from ignored players
+     *
      * @param int $userId
      * @param int $ignoredUserId
      * @return IgnoredPlayer
@@ -391,7 +405,7 @@ class BuddyService
     {
         // Check if users are the same
         if ($userId === $ignoredUserId) {
-            throw new \Exception('Cannot ignore yourself.');
+            throw new \Exception(__('Cannot ignore yourself.'));
         }
 
         // Check if already ignored
@@ -400,7 +414,7 @@ class BuddyService
             ->first();
 
         if ($existing) {
-            throw new \Exception('Player is already ignored.');
+            throw new \Exception(__('Player is already ignored.'));
         }
 
         return IgnoredPlayer::create([
@@ -424,7 +438,7 @@ class BuddyService
             ->first();
 
         if (!$ignoredPlayer) {
-            throw new \Exception('Player is not in your ignored list.');
+            throw new \Exception(__('Player is not in your ignored list.'));
         }
 
         return $ignoredPlayer->delete();
