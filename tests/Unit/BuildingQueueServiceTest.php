@@ -288,4 +288,74 @@ class BuildingQueueServiceTest extends UnitTestCase
         $this->assertEquals(2, $downgrade_item->object_level_target, 'Downgrade should target level 2');
         $this->assertEquals(3, $upgrade_item->object_level_target, 'Upgrade should target level 3 (after downgrade completes), not level 4');
     }
+
+    /**
+     * Test that multiple upgrades after downgrade calculate correct target levels.
+     * Scenario: Building level 5, downgrade to 4, then add 2 upgrades.
+     * Expected: Upgrade 1 targets 5, Upgrade 2 targets 6.
+     */
+    public function testMultipleUpgradesAfterDowngrade(): void
+    {
+        // Create user and planet
+        $user = User::factory()->create();
+        $planet = \OGame\Models\Planet::factory()->create([
+            'user_id' => $user->id,
+            'galaxy' => rand(1, 9),
+            'system' => rand(1, 499),
+            'planet' => rand(1, 15),
+            'metal_mine' => 5,
+            'metal' => 1000000,
+            'crystal' => 1000000,
+            'deuterium' => 1000000,
+            'robot_factory' => 10,
+            'nano_factory' => 5,
+        ]);
+        $this->planetService->setPlanet($planet);
+        $this->planetService->updateResourceProductionStats(false);
+
+        $this->createAndSetUserTechModel([
+            'ion_technology' => 0,
+        ]);
+
+        $building = ObjectService::getObjectByMachineName('metal_mine');
+
+        // Step 1: Add downgrade to queue (level 5 -> 4)
+        $this->buildingQueueService->addDowngrade($this->planetService, $building->id);
+
+        // Step 2: Add first upgrade to queue (should target level 5, not level 6)
+        $this->buildingQueueService->add($this->planetService, $building->id);
+
+        // Step 3: Add second upgrade to queue (should target level 6, not level 7)
+        $this->buildingQueueService->add($this->planetService, $building->id);
+
+        // Verify all 3 items are in queue
+        $queue_items = $this->buildingQueueService->retrieveQueueItems($this->planetService);
+        $this->assertCount(3, $queue_items);
+
+        // Find downgrade and upgrade items
+        $downgrade_item = null;
+        $upgrade_items = [];
+        foreach ($queue_items as $item) {
+            $is_downgrade = (bool)($item->is_downgrade ?? false);
+            if ($is_downgrade) {
+                $downgrade_item = $item;
+            } else {
+                $upgrade_items[] = $item;
+            }
+        }
+
+        $this->assertNotNull($downgrade_item, 'Downgrade item should exist');
+        $this->assertCount(2, $upgrade_items, 'Should have 2 upgrade items');
+
+        // Verify target levels
+        $this->assertEquals(4, $downgrade_item->object_level_target, 'Downgrade should target level 4');
+
+        // Sort upgrade items by ID to ensure correct order
+        usort($upgrade_items, function ($a, $b) {
+            return $a->id <=> $b->id;
+        });
+
+        $this->assertEquals(5, $upgrade_items[0]->object_level_target, 'First upgrade should target level 5 (after downgrade completes)');
+        $this->assertEquals(6, $upgrade_items[1]->object_level_target, 'Second upgrade should target level 6 (after first upgrade completes)');
+    }
 }

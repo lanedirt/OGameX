@@ -111,7 +111,7 @@
                         <div class="footer"></div>
                     </div>
                     <script type="text/javascript">
-                        var scheduleBuildListEntryUrl = '{{ route('facilities.addbuildrequest.get') }}';
+                        var scheduleBuildListEntryUrl = '{{ route('facilities.addbuildrequest.post') }}';
                         var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
                         redirectPremiumLink = '#TODO_index.php?page=premium&showDarkMatter=1'
                     </script>

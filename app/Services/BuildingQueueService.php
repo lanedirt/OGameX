@@ -47,13 +47,13 @@ class BuildingQueueService
     public function retrieveQueueItems(PlanetService $planet): Collection
     {
         // Fetch queue items from model
+        // For items not yet started (time_start = 0), order by ID to maintain queue order
         return BuildingQueue::where([
             ['planet_id', $planet->getPlanetId()],
             ['processed', 0],
             ['canceled', 0],
         ])
-            ->orderBy('time_start', 'asc')
-            ->orderBy('id', 'asc') // Secondary sort by ID for items not yet started
+            ->orderBy('id', 'asc') // Primary sort by ID (insertion order)
             ->get();
     }
 
@@ -95,13 +95,8 @@ class BuildingQueueService
         foreach ($queue_items as $item) {
             $item_object = ObjectService::getObjectById($item->object_id);
             if ($item_object->machine_name === $building->machine_name) {
-                if ($item->is_downgrade ?? false) {
-                    // Downgrade: level decreases
-                    $level_after_queue = $item->object_level_target;
-                } else {
-                    // Upgrade: level increases
-                    $level_after_queue = $item->object_level_target;
-                }
+                // Each item sets the level to its target (simulating queue execution)
+                $level_after_queue = $item->object_level_target;
             }
         }
 
@@ -160,22 +155,23 @@ class BuildingQueueService
             throw new Exception('Cannot downgrade building at level 0.');
         }
 
-        // Find the highest target level from upgrades in queue for this building
-        // If there are upgrades queued, downgrade should target the level after those upgrades complete
-        $max_target_level = $current_level;
+        // Calculate the level after all queue items (upgrades and downgrades) complete
+        // This is the level that the building will be at when this new downgrade starts
+        // We need to simulate queue execution to get the final level
+        $level_after_queue = $current_level;
         $queue_items = $this->retrieveQueueItems($planet);
         foreach ($queue_items as $item) {
             $item_object = ObjectService::getObjectById($item->object_id);
-            if ($item_object->machine_name === $building->machine_name && !($item->is_downgrade ?? false)) {
-                // This is an upgrade for this building
-                if ($item->object_level_target > $max_target_level) {
-                    $max_target_level = $item->object_level_target;
-                }
+            if ($item_object->machine_name === $building->machine_name) {
+                // Simulate queue execution: each item updates the level to its target
+                // For upgrades: level increases to target
+                // For downgrades: level decreases to target
+                $level_after_queue = $item->object_level_target;
             }
         }
 
         // Check if building can be downgraded (no dependencies)
-        // Note: We check based on max_target_level, not current_level
+        // Note: We check based on level_after_queue, not current_level
         if (!ObjectService::canDowngradeBuilding($building->machine_name, $planet)) {
             throw new Exception('Cannot downgrade building: other buildings or research depend on this level.');
         }
@@ -190,8 +186,13 @@ class BuildingQueueService
             throw new Exception('Cannot downgrade Shipyard while ships or defense are being built.');
         }
 
-        // Get downgrade cost based on max_target_level (after upgrades complete)
-        $downgrade_price = ObjectService::getObjectDowngradePrice($building->machine_name, $planet, $max_target_level);
+        // Cannot downgrade if level_after_queue is already 0
+        if ($level_after_queue <= 0) {
+            throw new Exception('Cannot downgrade building: it will already be at level 0 after queue completes.');
+        }
+
+        // Get downgrade cost based on level_after_queue (after all queue items complete)
+        $downgrade_price = ObjectService::getObjectDowngradePrice($building->machine_name, $planet, $level_after_queue);
 
         // Check if planet has enough resources
         if (!$planet->hasResources($downgrade_price)) {
@@ -199,11 +200,11 @@ class BuildingQueueService
         }
 
         // Create queue item for downgrade
-        // Target level should be max_target_level - 1 (after all upgrades complete)
+        // Target level should be level_after_queue - 1 (after all queue items complete)
         $queue = new BuildingQueue();
         $queue->planet_id = $planet->getPlanetId();
         $queue->object_id = $building->id;
-        $queue->object_level_target = $max_target_level - 1;
+        $queue->object_level_target = $level_after_queue - 1;
         $queue->is_downgrade = true;
 
         // Save the new queue item

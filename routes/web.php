@@ -65,7 +65,7 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::get('/facilities', [FacilitiesController::class, 'index'])->name('facilities.index');
     Route::get('/ajax/facilities', [FacilitiesController::class, 'ajax'])->name('facilities.ajax');
     Route::get('/facilities/add-buildrequest', [FacilitiesController::class, 'addBuildRequest'])->name('facilities.addbuildrequest');
-    Route::post('/facilities/add-buildrequest', [FacilitiesController::class, 'addBuildRequest'])->name('facilities.addbuildrequest.get');
+    Route::post('/facilities/add-buildrequest', [FacilitiesController::class, 'addBuildRequest'])->name('facilities.addbuildrequest.post');
     Route::post('/facilities/downgrade', [FacilitiesController::class, 'downgradeBuildRequest'])->name('facilities.downgrade');
     Route::post('/facilities/cancel-buildrequest', [FacilitiesController::class, 'cancelBuildRequest'])->name('facilities.cancelbuildrequest');
 

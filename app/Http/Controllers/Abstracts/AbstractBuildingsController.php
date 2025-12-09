@@ -193,7 +193,7 @@ abstract class AbstractBuildingsController extends OGameController
     {
         // Check if this is a downgrade request (mode 3)
         $mode = $request->input('mode');
-        if ($mode == 3) {
+        if ((int)$mode === 3) {
             return $this->downgradeBuildRequest($request, $player);
         }
 
