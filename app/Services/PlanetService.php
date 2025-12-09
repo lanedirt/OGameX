@@ -801,17 +801,21 @@ class PlanetService
      * @return int
      * @throws Exception
      */
-    public function getBuildingDowngradeTime(string $machine_name): int
+    public function getBuildingDowngradeTime(string $machine_name, int|null $target_level = null): int
     {
         $current_level = $this->getObjectLevel($machine_name);
 
+        // If target_level is provided, use it (for calculating downgrade time when upgrades are in queue)
+        // Otherwise, use current_level
+        $level_for_calculation = $target_level ?? $current_level;
+
         // Cannot downgrade if already at level 0
-        if ($current_level <= 0) {
+        if ($level_for_calculation <= 0) {
             return 1;
         }
 
-        // Get the price for the current level (cost to build from level-1 to current level)
-        $price = ObjectService::getObjectRawPrice($machine_name, $current_level);
+        // Get the price for the level (cost to build from level-1 to level)
+        $price = ObjectService::getObjectRawPrice($machine_name, $level_for_calculation);
 
         $robotfactory_level = $this->getObjectLevel('robot_factory');
         $nanitefactory_level = $this->getObjectLevel('nano_factory');
@@ -823,12 +827,12 @@ class PlanetService
         }
 
         // The actual formula which return time in seconds
-        // Same formula as construction time but for current_level instead of next_level
+        // Same formula as construction time but for level instead of next_level
         $time_hours =
             (
                 ($price->metal->get() + $price->crystal->get())
                 /
-                (2500 * max((4 - ($current_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
+                (2500 * max((4 - ($level_for_calculation / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
             );
 
         $time_seconds = (int)($time_hours * 3600);
@@ -1914,6 +1918,24 @@ class PlanetService
         $build_queue = $queue->retrieveQueue($this)->queue;
 
         return count($build_queue) > 0;
+    }
+
+    /**
+     * Check if the planet is currently downgrading a building.
+     *
+     * @return bool
+     */
+    public function isDowngrading(): bool
+    {
+        $queue = resolve(BuildingQueueService::class);
+        $build_queue = $queue->retrieveQueue($this);
+        $currently_building = $build_queue->getCurrentlyBuildingFromQueue();
+
+        if ($currently_building !== null) {
+            return $currently_building->is_downgrade ?? false;
+        }
+
+        return false;
     }
 
     /**

@@ -535,7 +535,7 @@ class ObjectService
      * @return Resources
      * @throws Exception
      */
-    public static function getObjectDowngradePrice(string $machine_name, PlanetService $planet): Resources
+    public static function getObjectDowngradePrice(string $machine_name, PlanetService $planet, int|null $target_level = null): Resources
     {
         $object = self::getObjectByMachineName($machine_name);
 
@@ -546,14 +546,18 @@ class ObjectService
 
         $current_level = $planet->getObjectLevel($object->machine_name);
 
+        // If target_level is provided, use it (for calculating downgrade price when upgrades are in queue)
+        // Otherwise, use current_level
+        $level_for_calculation = $target_level ?? $current_level;
+
         // Cannot downgrade if already at level 0
-        if ($current_level <= 0) {
+        if ($level_for_calculation <= 0) {
             return new Resources(0, 0, 0, 0);
         }
 
-        // Get the construction cost for the current level (cost to build from level-1 to current_level)
-        // The downgrade cost equals the construction cost of the current level
-        $base_downgrade_cost = self::getObjectRawPrice($machine_name, $current_level);
+        // Get the construction cost for the level (cost to build from level-1 to level)
+        // The downgrade cost equals the construction cost of the level
+        $base_downgrade_cost = self::getObjectRawPrice($machine_name, $level_for_calculation);
 
         // Apply Ion technology bonus (each level reduces cost by 4%)
         $player = $planet->getPlayer();
@@ -891,7 +895,8 @@ class ObjectService
                             }
 
                             // If the requiring object exists at a level that needs this building at current level or higher
-                            if ($requiring_object_level > 0) {
+                            // Only block if the requiring object's level meets or exceeds the requirement level
+                            if ($requiring_object_level >= $requirement->level) {
                                 return false; // Cannot downgrade, dependency exists
                             }
                         }

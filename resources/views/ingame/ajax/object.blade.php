@@ -138,7 +138,7 @@
                     @if ($ion_technology_level > 0)
                     <tr class="demolition_costs_bonus">
                         <th>Ion technology bonus:</th>
-                        <td data-value="{{ $ion_technology_level }}">-{{ $ion_technology_level }}%</td>
+                        <td data-value="{{ $ion_technology_bonus }}">-{{ $ion_technology_bonus }}%</td>
                     </tr>
                     @endif
                     @if ($downgrade_price->metal->get() > 0)
@@ -177,7 +177,7 @@
                     @if ($ion_technology_level > 0)
                     <tr class="demolition_costs_bonus">
                         <th>Ion technology bonus:</th>
-                        <td data-value="{{ $ion_technology_level }}">-{{ $ion_technology_level }}%</td>
+                        <td data-value="{{ $ion_technology_bonus }}">-{{ $ion_technology_bonus }}%</td>
                     </tr>
                     @endif
                     @if ($downgrade_price->metal->get() > 0)
@@ -217,12 +217,12 @@
                     <button class="maximum">[max. {{ $max_build_amount }}]</button>
                 </div>
             @elseif ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station)
-                @if ($can_downgrade && $current_level > 0 && empty($build_active_current))
-                <button class="downgrade" data-technology="{{ $object->id }}" data-name="{{ $title }}">
-                    <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
-                         data-ipi-hint="ipiTechnologyTearDown{{ $object->class_name }}"></div>
-                    <span class="label">tear down</span>
-                </button>
+                @if ($can_downgrade && $current_level > 0)
+                    <button class="downgrade" data-technology="{{ $object->id }}" data-name="{{ $title }}">
+                        <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
+                             data-ipi-hint="ipiTechnologyTearDown{{ $object->class_name }}"></div>
+                        <span class="label">tear down</span>
+                    </button>
                 @endif
             @endif
 

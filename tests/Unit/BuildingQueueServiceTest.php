@@ -149,4 +149,143 @@ class BuildingQueueServiceTest extends UnitTestCase
 
         $this->buildingQueueService->addDowngrade($this->planetService, $building->id);
     }
+
+    /**
+     * Test that downgrade in queue is not lost when upgrade completes before it.
+     */
+    public function testDowngradeNotLostAfterUpgrade(): void
+    {
+        // Create user and planet
+        $user = User::factory()->create();
+        $planet = \OGame\Models\Planet::factory()->create([
+            'user_id' => $user->id,
+            'galaxy' => rand(1, 9),
+            'system' => rand(1, 499),
+            'planet' => rand(1, 15),
+            'metal_mine' => 4,
+            'metal' => 1000000,
+            'crystal' => 1000000,
+            'deuterium' => 1000000,
+            'robot_factory' => 10,
+            'nano_factory' => 5,
+        ]);
+        $this->planetService->setPlanet($planet);
+        $this->planetService->updateResourceProductionStats(false);
+
+        $this->createAndSetUserTechModel([
+            'ion_technology' => 0,
+        ]);
+
+        $building = ObjectService::getObjectByMachineName('metal_mine');
+
+        // Step 1: Add upgrade to queue (level 4 -> 5)
+        $this->buildingQueueService->add($this->planetService, $building->id);
+
+        // Step 2: Add downgrade to queue (should be level 4 -> 3, but will be adjusted when upgrade completes)
+        $this->buildingQueueService->addDowngrade($this->planetService, $building->id);
+
+        // Verify both items are in queue
+        $queue_items = $this->buildingQueueService->retrieveQueueItems($this->planetService);
+        $this->assertCount(2, $queue_items);
+
+        // Find upgrade and downgrade items (order may vary)
+        $upgrade_item = null;
+        $downgrade_item = null;
+        foreach ($queue_items as $item) {
+            $is_downgrade = (bool)($item->is_downgrade ?? false);
+            if (!$is_downgrade) {
+                $upgrade_item = $item;
+            } else {
+                $downgrade_item = $item;
+            }
+        }
+
+        $this->assertNotNull($upgrade_item, 'Upgrade item should exist. Items: ' . json_encode($queue_items->map(fn ($i) => ['id' => $i->id, 'is_downgrade' => $i->is_downgrade, 'target' => $i->object_level_target])->toArray()));
+        $this->assertNotNull($downgrade_item, 'Downgrade item should exist');
+        $this->assertFalse((bool)($upgrade_item->is_downgrade ?? false), 'Upgrade item should have is_downgrade = false');
+        $this->assertEquals(5, $upgrade_item->object_level_target);
+        $this->assertTrue((bool)($downgrade_item->is_downgrade ?? false), 'Downgrade item should have is_downgrade = true');
+        // Downgrade target should be 4 (from level 5 after upgrade completes), not 3 (from current level 4)
+        $this->assertEquals(4, $downgrade_item->object_level_target, 'Downgrade target should be max_target_level - 1 (5 - 1 = 4)');
+
+        // Step 3: Start the upgrade
+        $this->buildingQueueService->start($this->planetService);
+
+        // Verify upgrade started
+        $upgrade_item->refresh();
+        $this->assertEquals(1, $upgrade_item->building, 'Upgrade should be started');
+
+        // Simulate upgrade completion by updating building level and marking as processed
+        $planet->metal_mine = 5;
+        $planet->save();
+        $this->planetService->setPlanet($planet);
+        $upgrade_item->processed = 1;
+        $upgrade_item->save();
+
+        // Step 4: Start the downgrade (should adjust target level from 3 to 4)
+        $this->buildingQueueService->start($this->planetService);
+
+        // Verify downgrade item still exists and target was updated
+        $downgrade_item->refresh();
+        $this->assertEquals(4, $downgrade_item->object_level_target, 'Downgrade target should be updated to current_level - 1 (5 - 1 = 4)');
+        $this->assertTrue((bool)($downgrade_item->is_downgrade ?? false), 'Downgrade item should still have is_downgrade = true');
+        $this->assertEquals(1, $downgrade_item->building, 'Downgrade should be started');
+    }
+
+    /**
+     * Test that upgrade after downgrade calculates correct target level.
+     * Scenario: Building at level 3, downgrade to 2, then upgrade should target level 3.
+     */
+    public function testUpgradeAfterDowngrade(): void
+    {
+        // Create user and planet
+        $user = User::factory()->create();
+        $planet = \OGame\Models\Planet::factory()->create([
+            'user_id' => $user->id,
+            'galaxy' => rand(1, 9),
+            'system' => rand(1, 499),
+            'planet' => rand(1, 15),
+            'metal_mine' => 3,
+            'metal' => 1000000,
+            'crystal' => 1000000,
+            'deuterium' => 1000000,
+            'robot_factory' => 10,
+            'nano_factory' => 5,
+        ]);
+        $this->planetService->setPlanet($planet);
+        $this->planetService->updateResourceProductionStats(false);
+
+        $this->createAndSetUserTechModel([
+            'ion_technology' => 0,
+        ]);
+
+        $building = ObjectService::getObjectByMachineName('metal_mine');
+
+        // Step 1: Add downgrade to queue (level 3 -> 2)
+        $this->buildingQueueService->addDowngrade($this->planetService, $building->id);
+
+        // Step 2: Add upgrade to queue (should target level 3, not level 4)
+        $this->buildingQueueService->add($this->planetService, $building->id);
+
+        // Verify both items are in queue
+        $queue_items = $this->buildingQueueService->retrieveQueueItems($this->planetService);
+        $this->assertCount(2, $queue_items);
+
+        // Find downgrade and upgrade items
+        $downgrade_item = null;
+        $upgrade_item = null;
+        foreach ($queue_items as $item) {
+            $is_downgrade = (bool)($item->is_downgrade ?? false);
+            if ($is_downgrade) {
+                $downgrade_item = $item;
+            } else {
+                $upgrade_item = $item;
+            }
+        }
+
+        $this->assertNotNull($downgrade_item, 'Downgrade item should exist');
+        $this->assertNotNull($upgrade_item, 'Upgrade item should exist');
+        $this->assertEquals(2, $downgrade_item->object_level_target, 'Downgrade should target level 2');
+        $this->assertEquals(3, $upgrade_item->object_level_target, 'Upgrade should target level 3 (after downgrade completes), not level 4');
+    }
 }

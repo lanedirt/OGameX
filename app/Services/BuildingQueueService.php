@@ -53,6 +53,7 @@ class BuildingQueueService
             ['canceled', 0],
         ])
             ->orderBy('time_start', 'asc')
+            ->orderBy('id', 'asc') // Secondary sort by ID for items not yet started
             ->get();
     }
 
@@ -87,10 +88,25 @@ class BuildingQueueService
         // and is able to add this object to the building queue.
         $current_level = $planet->getObjectLevel($building->machine_name);
 
-        // Check to see how many other items of this building there are already
-        // in the queue, because if so then the level needs to be higher than that.
-        $amount = $this->activeBuildingQueueItemCount($planet, $building->id);
-        $next_level = $current_level + $amount + 1;
+        // Calculate the level after all queue items (upgrades and downgrades) complete
+        // This is the level that the building will be at when this new upgrade starts
+        $level_after_queue = $current_level;
+        $queue_items = $this->retrieveQueueItems($planet);
+        foreach ($queue_items as $item) {
+            $item_object = ObjectService::getObjectById($item->object_id);
+            if ($item_object->machine_name === $building->machine_name) {
+                if ($item->is_downgrade ?? false) {
+                    // Downgrade: level decreases
+                    $level_after_queue = $item->object_level_target;
+                } else {
+                    // Upgrade: level increases
+                    $level_after_queue = $item->object_level_target;
+                }
+            }
+        }
+
+        // Next upgrade level should be level_after_queue + 1
+        $next_level = $level_after_queue + 1;
 
         // Check if user satisfies requirements to build this object.
         // TODO: refactor throw exception into a more user-friendly message.
@@ -103,6 +119,7 @@ class BuildingQueueService
         $queue->planet_id = $planet->getPlanetId();
         $queue->object_id = $building->id;
         $queue->object_level_target = $next_level;
+        $queue->is_downgrade = false; // Explicitly set to false for upgrades
 
         // Save the new queue item
         $queue->save();
@@ -143,24 +160,24 @@ class BuildingQueueService
             throw new Exception('Cannot downgrade building at level 0.');
         }
 
-        // Check if building can be downgraded (no dependencies)
-        if (!ObjectService::canDowngradeBuilding($building->machine_name, $planet)) {
-            throw new Exception('Cannot downgrade building: other buildings or research depend on this level.');
-        }
-
-        // Check if building is currently being upgraded
-        $currently_building = $build_queue->getCurrentlyBuildingFromQueue();
-        if (!empty($currently_building) && $currently_building->object->machine_name === $building->machine_name) {
-            throw new Exception('Cannot downgrade building while it is being upgraded.');
-        }
-
-        // Check if there are any queued upgrades for this building
+        // Find the highest target level from upgrades in queue for this building
+        // If there are upgrades queued, downgrade should target the level after those upgrades complete
+        $max_target_level = $current_level;
         $queue_items = $this->retrieveQueueItems($planet);
         foreach ($queue_items as $item) {
             $item_object = ObjectService::getObjectById($item->object_id);
             if ($item_object->machine_name === $building->machine_name && !($item->is_downgrade ?? false)) {
-                throw new Exception('Cannot downgrade building while it has upgrades in queue.');
+                // This is an upgrade for this building
+                if ($item->object_level_target > $max_target_level) {
+                    $max_target_level = $item->object_level_target;
+                }
             }
+        }
+
+        // Check if building can be downgraded (no dependencies)
+        // Note: We check based on max_target_level, not current_level
+        if (!ObjectService::canDowngradeBuilding($building->machine_name, $planet)) {
+            throw new Exception('Cannot downgrade building: other buildings or research depend on this level.');
         }
 
         // Check if Research Lab is being downgraded while research is in progress
@@ -173,8 +190,8 @@ class BuildingQueueService
             throw new Exception('Cannot downgrade Shipyard while ships or defense are being built.');
         }
 
-        // Get downgrade cost
-        $downgrade_price = ObjectService::getObjectDowngradePrice($building->machine_name, $planet);
+        // Get downgrade cost based on max_target_level (after upgrades complete)
+        $downgrade_price = ObjectService::getObjectDowngradePrice($building->machine_name, $planet, $max_target_level);
 
         // Check if planet has enough resources
         if (!$planet->hasResources($downgrade_price)) {
@@ -182,10 +199,11 @@ class BuildingQueueService
         }
 
         // Create queue item for downgrade
+        // Target level should be max_target_level - 1 (after all upgrades complete)
         $queue = new BuildingQueue();
         $queue->planet_id = $planet->getPlanetId();
         $queue->object_id = $building->id;
-        $queue->object_level_target = $current_level - 1;
+        $queue->object_level_target = $max_target_level - 1;
         $queue->is_downgrade = true;
 
         // Save the new queue item
@@ -216,6 +234,7 @@ class BuildingQueueService
                 $time_countdown = 0;
             }
 
+            $is_downgrade = (bool)($item['is_downgrade'] ?? false);
             $viewModel = new BuildingQueueViewModel(
                 $item['id'],
                 $object,
@@ -223,6 +242,7 @@ class BuildingQueueService
                 $item['time_end'] - $item['time_start'],
                 $item['building'],
                 $item['object_level_target'],
+                $is_downgrade,
             );
 
             $list[] = $viewModel;
@@ -306,8 +326,19 @@ class BuildingQueueService
             // Sanity check: validate target level
             if ($is_downgrade) {
                 // For downgrade: target should be current_level - 1
-                if ($queue_item->object_level_target != ($current_level - 1)) {
-                    // Error, cancel build queue item.
+                // If there was an upgrade before this downgrade in queue,
+                // the current_level might have changed, so we always recalculate the target
+                $expected_target = $current_level - 1;
+
+                // Always update target level to match current level at start time
+                // This handles the case where upgrades completed before this downgrade
+                if ($queue_item->object_level_target != $expected_target) {
+                    $queue_item->object_level_target = $expected_target;
+                    $queue_item->save();
+                }
+
+                // Ensure target is valid (cannot downgrade below 0)
+                if ($expected_target < 0) {
                     $this->cancel($planet, $queue_item->id, $queue_item->object_id);
                     continue;
                 }

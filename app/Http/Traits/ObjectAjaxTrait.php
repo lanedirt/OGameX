@@ -154,11 +154,34 @@ trait ObjectAjaxTrait
         $ion_technology_level = 0;
         $ion_technology_bonus = 0;
         $can_downgrade = false;
+        $downgrade_target_level = null;
 
         if (($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) && $current_level > 0) {
             try {
-                $downgrade_price = ObjectService::getObjectDowngradePrice($object->machine_name, $planet);
-                $downgrade_duration = $planet->getBuildingDowngradeTime($object->machine_name);
+                // Check if there are upgrades in queue for this building
+                // If so, calculate downgrade price based on the target level after upgrades complete
+                $max_target_level = $current_level;
+                // @phpstan-ignore-next-line - method_exists check is needed for different queue service types
+                if (method_exists($this->queue, 'retrieveQueueItems')) {
+                    $queue_items = $this->queue->retrieveQueueItems($planet);
+                    foreach ($queue_items as $item) {
+                        $item_object = ObjectService::getObjectById($item->object_id);
+                        if ($item_object->machine_name === $object->machine_name && !($item->is_downgrade ?? false)) {
+                            // This is an upgrade for this building
+                            if ($item->object_level_target > $max_target_level) {
+                                $max_target_level = $item->object_level_target;
+                            }
+                        }
+                    }
+                }
+
+                // Calculate downgrade price based on the highest target level (after all upgrades)
+                $downgrade_target_level = $max_target_level - 1;
+                $downgrade_price = ObjectService::getObjectDowngradePrice($object->machine_name, $planet, $max_target_level);
+
+                // Calculate duration based on the target level
+                // We need to create a temporary planet service with the target level to calculate duration
+                $downgrade_duration = $planet->getBuildingDowngradeTime($object->machine_name, $max_target_level);
                 $downgrade_duration_formatted = AppUtil::formatTimeDuration($downgrade_duration);
 
                 // Get Ion technology level and calculate bonus
@@ -172,23 +195,9 @@ trait ObjectAjaxTrait
                 // Check if building can be downgraded
                 $can_downgrade = ObjectService::canDowngradeBuilding($object->machine_name, $planet);
 
-                // Additional checks: cannot downgrade if currently being upgraded
-                if ($can_downgrade && !empty($build_active_current)) {
-                    $can_downgrade = false;
-                }
-
-                // Check if there are any queued upgrades for this building
-                // @phpstan-ignore-next-line - method_exists check is needed for different queue service types
-                if ($can_downgrade && method_exists($this->queue, 'retrieveQueueItems')) {
-                    $queue_items = $this->queue->retrieveQueueItems($planet);
-                    foreach ($queue_items as $item) {
-                        $item_object = ObjectService::getObjectById($item->object_id);
-                        if ($item_object->machine_name === $object->machine_name && !($item->is_downgrade ?? false)) {
-                            $can_downgrade = false;
-                            break;
-                        }
-                    }
-                }
+                // Allow downgrade to be queued even if building is currently being upgraded
+                // The downgrade will be processed after the upgrade completes
+                // No need to block based on current building status or queue items
             } catch (Exception $e) {
                 // If downgrade calculation fails, set can_downgrade to false
                 $can_downgrade = false;
