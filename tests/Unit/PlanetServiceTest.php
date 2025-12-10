@@ -248,4 +248,63 @@ class PlanetServiceTest extends UnitTestCase
         // Space Dock (3) should NOT be counted
         $this->assertEquals(17, $this->planetService->getBuildingCount(), 'Space Dock levels should not be included in building count.');
     }
+
+    /**
+     * Test downgrade time calculation equals construction time for current level.
+     */
+    public function testGetBuildingDowngradeTime(): void
+    {
+        $this->createAndSetPlanetModel([
+            'metal_mine' => 5,
+            'robot_factory' => 2,
+            'nano_factory' => 0,
+        ]);
+
+        // Get downgrade time (should equal construction time from level 4 to 5)
+        $downgrade_time = $this->planetService->getBuildingDowngradeTime('metal_mine');
+
+        // Get construction time for level 5 (which is the same calculation)
+        // We need to temporarily set level to 4 to get construction time for level 5
+        $this->createAndSetPlanetModel([
+            'metal_mine' => 4,
+            'robot_factory' => 2,
+            'nano_factory' => 0,
+        ]);
+        $construction_time = $this->planetService->getBuildingConstructionTime('metal_mine');
+
+        // Downgrade time should equal construction time (both calculate for current level)
+        $this->assertEquals($construction_time, $downgrade_time);
+    }
+
+    /**
+     * Test downgrade time for level 0 returns minimum time.
+     */
+    public function testGetBuildingDowngradeTimeLevelZero(): void
+    {
+        $this->createAndSetPlanetModel([
+            'metal_mine' => 0,
+        ]);
+
+        $downgrade_time = $this->planetService->getBuildingDowngradeTime('metal_mine');
+
+        // Should return minimum time (1 second)
+        $this->assertEquals(1, $downgrade_time);
+    }
+
+    /**
+     * Test downgrade time is always at least 1 second.
+     */
+    public function testGetBuildingDowngradeTimeMinimum(): void
+    {
+        $this->createAndSetPlanetModel([
+            'metal_mine' => 1,
+            'robot_factory' => 10,
+            'nano_factory' => 5,
+        ]);
+
+        $downgrade_time = $this->planetService->getBuildingDowngradeTime('metal_mine');
+
+        // Should be at least 1 second
+        $this->assertGreaterThanOrEqual(1, $downgrade_time);
+    }
 }

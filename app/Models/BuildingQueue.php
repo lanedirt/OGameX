@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $planet_id
  * @property int $object_id
  * @property int $object_level_target
+ * @property bool $is_downgrade
  * @property int $time_duration
  * @property int $time_start
  * @property int $time_end
@@ -34,6 +35,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereMetal($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereObjectId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereObjectLevelTarget($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereIsDowngrade($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue wherePlanetId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereProcessed($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereTimeDuration($value)
