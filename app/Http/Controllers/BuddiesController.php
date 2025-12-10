@@ -199,7 +199,7 @@ class BuddiesController extends OGameController
      * @param BuddyService $buddyService
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function ignorePlayer(Request $request, BuddyService $buddyService)
+    public function ignorePlayer(Request $request, BuddyService $buddyService): RedirectResponse
     {
         $userId = (int) auth()->id();
 
@@ -222,7 +222,7 @@ class BuddiesController extends OGameController
      * @param BuddyService $buddyService
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function unignorePlayer(Request $request, BuddyService $buddyService)
+    public function unignorePlayer(Request $request, BuddyService $buddyService): RedirectResponse
     {
         $userId = (int) auth()->id();
 
@@ -244,7 +244,7 @@ class BuddiesController extends OGameController
      * @param BuddyService $buddyService
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getOnlineBuddies(BuddyService $buddyService)
+    public function getOnlineBuddies(BuddyService $buddyService): JsonResponse
     {
         $userId = (int) auth()->id();
         $allBuddies = $buddyService->getBuddies($userId);

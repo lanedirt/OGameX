@@ -68,6 +68,28 @@ class BuddyTest extends AccountTestCase
     }
 
     /**
+     * Test that you cannot send a buddy request to someone who is already your buddy.
+     */
+    public function testCannotSendBuddyRequestToExistingBuddy(): void
+    {
+        $otherUser = User::factory()->create();
+        $buddyService = resolve(BuddyService::class);
+
+        // Send buddy request and accept it
+        $request = $buddyService->sendRequest($this->currentUserId, $otherUser->id);
+        $buddyService->acceptRequest($request->id, $otherUser->id);
+
+        // Verify they are now buddies
+        $buddies = $buddyService->getBuddies($this->currentUserId);
+        $this->assertCount(1, $buddies);
+
+        // Try to send another buddy request to existing buddy
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(__('You are already buddies with this user.'));
+        $buddyService->sendRequest($this->currentUserId, $otherUser->id);
+    }
+
+    /**
      * Test accepting a buddy request.
      */
     public function testAcceptBuddyRequest(): void

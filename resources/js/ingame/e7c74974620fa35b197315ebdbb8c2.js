@@ -30495,15 +30495,11 @@ ogame.chat = {
 
     if ($this.isLoadingPlayerList === false && $this.playerList === null) {
       $this.isLoadingPlayerList = true;
-      console.log('showPlayerList() - Loading online buddies...');
       $.ajax({
         url: '/buddies/online',
         type: "GET",
         dataType: "json",
         success: function (response) {
-          console.log('showPlayerList() - AJAX response received:', response);
-          console.log('showPlayerList() - response.success:', response.success, 'buddies count:', response.buddies ? response.buddies.length : 'undefined');
-
           // Build the HTML for the player list matching original game structure
           var html = '<div class="js_playerlist pl_container contentbox fleft">';
           html += '<h2 class="header"><span class="c-right"></span><span class="c-left"></span>Player list</h2>';
@@ -30564,7 +30560,6 @@ ogame.chat = {
           // IMPORTANT: Always set playerList so initChatBar() can be called
           $this.playerList = html;
           $this.isLoadingPlayerList = false;
-          console.log('showPlayerList() - playerList set, calling _showPlayerList()');
           $this._showPlayerList()
         },
         error: function (jqXHR, textStatus, errorThrown) {
@@ -30575,7 +30570,6 @@ ogame.chat = {
         }
       });
     } else {
-      console.log('showPlayerList() - Using cached player list');
       $this._showPlayerList();
     }
   },

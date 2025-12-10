@@ -785,7 +785,6 @@ ogame.chat = {
         })
     },
     initChatBar: function (d) {
-        console.log('initChatBar() called, setting up click handlers for player:', d);
         var c = ogame.chat;
         ogame.chat.playerId = d;
         $("html").off(".chatBar");
@@ -793,15 +792,11 @@ ogame.chat = {
             c.updateChatBar()
         });
         $(".chat_bar_list").on("click.chatBar", "#chatBarPlayerList", function (a) {
-            console.log('chatBarPlayerList clicked, target:', $(a.target).attr('id'), $(a.target).attr('class'));
             if ($(a.target).attr("id") !== "chatBarPlayerList" && !$(a.target).hasClass("onlineCount")) {
-                console.log('Click ignored - wrong target');
                 return
             }
-            console.log('Toggling cb_playerlist_box');
             $(".cb_playerlist_box").toggle();
             c.updateCustomScrollbar($(".scrollContainer"), true);
-            console.log('cb_playerlist_box toggled, visible:', $(".cb_playerlist_box").is(':visible'));
         }).on("click.chatBar", ".chat_bar_list_item", function (a) {
             a.stopPropagation();
             if (!isNaN($(this).data("playerid"))) {
@@ -1077,15 +1072,11 @@ ogame.chat = {
         }
         if (c.isLoadingPlayerList === false && c.playerList === null) {
             c.isLoadingPlayerList = true;
-            console.log('showPlayerList() - Loading online buddies...');
             $.ajax({
                 url: '/buddies/online',
                 type: "GET",
                 dataType: "json",
                 success: function (response) {
-                    console.log('showPlayerList() - AJAX response received:', response);
-                    console.log('showPlayerList() - response.success:', response.success, 'buddies count:', response.buddies ? response.buddies.length : 'undefined');
-
                     // Build the HTML for the player list matching original game structure
                     var html = '<div class="js_playerlist pl_container contentbox fleft">';
                     html += '<h2 class="header"><span class="c-right"></span><span class="c-left"></span>Player list</h2>';
@@ -1122,7 +1113,6 @@ ogame.chat = {
                     // IMPORTANT: Always set playerList so initChatBar() can be called
                     c.playerList = html;
                     c.isLoadingPlayerList = false;
-                    console.log('showPlayerList() - playerList set, calling _showPlayerList()');
                     c._showPlayerList()
                 },
                 error: function (f, a, b) {
@@ -1133,7 +1123,6 @@ ogame.chat = {
                 }
             })
         } else {
-            console.log('showPlayerList() - Using cached player list');
             c._showPlayerList()
         }
     },
