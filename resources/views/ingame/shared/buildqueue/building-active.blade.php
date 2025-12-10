@@ -23,7 +23,12 @@
                     </a>
                 </div>
             </td>
-            <td class="desc ausbau">@lang('Improve to')
+            <td class="desc ausbau">
+                @if ($build_active->is_downgrade ?? false)
+                    @lang('Downgrade to')
+                @else
+                    @lang('Improve to')
+                @endif
                 <span class="level">@lang('Level') {!! $build_active->level_target !!}</span>
             </td>
         </tr>

@@ -83,7 +83,7 @@
                                 </button>
                             @endif
                             @if ($building->currently_building)
-                                <span class="targetlevel" data-value="{{ $building->current_level + 1 }}" data-bonus="0">{{ $building->current_level + 1 }}</span>
+                                <span class="targetlevel" data-value="{{ $building->target_level ?? ($building->current_level + 1) }}" data-bonus="0">{{ $building->target_level ?? ($building->current_level + 1) }}</span>
                                 <div class="cooldownBackground"></div>
                                 <time-counter><time class="countdown buildingCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>
                             @endif
@@ -111,7 +111,7 @@
                         <div class="footer"></div>
                     </div>
                     <script type="text/javascript">
-                        var scheduleBuildListEntryUrl = '{{ route('resources.addbuildrequest.post') }}';
+                        var scheduleBuildListEntryUrl = '{{ route('facilities.addbuildrequest.post') }}';
                         var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
                         redirectPremiumLink = '#TODO_index.php?page=premium&showDarkMatter=1'
                     </script>

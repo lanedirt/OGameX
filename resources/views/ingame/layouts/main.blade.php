@@ -1143,7 +1143,11 @@ Combat simulation save slots +20">
                                            data-link="{{ $urlToPlanetWithUpdatedParam }}"
                                            href="{{ $urlToPlanetWithUpdatedParam }}"
                                            title="">
-                                            <span class="icon12px icon_wrench"></span>
+                                            @if ($planet->isDowngrading())
+                                                <span class="icon12px icon_wrench_red"></span>
+                                            @else
+                                                <span class="icon12px icon_wrench"></span>
+                                            @endif
                                         </a>
                                     @endif
 
