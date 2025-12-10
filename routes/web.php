@@ -124,6 +124,14 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 
     // Misc
     Route::get('/merchant', [MerchantController::class, 'index'])->name('merchant.index');
+    Route::get('/merchant/resource-market', [MerchantController::class, 'resourceMarket'])->name('merchant.resource-market');
+    Route::get('/merchant/market/{type}', [MerchantController::class, 'showMarket'])->name('merchant.market');
+    Route::post('/merchant/call', [MerchantController::class, 'callMerchant'])->name('merchant.call');
+    Route::post('/merchant/trade', [MerchantController::class, 'executeTrade'])->name('merchant.trade');
+    Route::post('/merchant/dismiss', [MerchantController::class, 'dismissMerchant'])->name('merchant.dismiss');
+    Route::get('/merchant/scrap', [MerchantController::class, 'scrap'])->name('merchant.scrap');
+    Route::post('/merchant/scrap/bargain', [MerchantController::class, 'scrapBargain'])->name('merchant.scrap.bargain');
+    Route::post('/merchant/scrap/execute', [MerchantController::class, 'scrapExecute'])->name('merchant.scrap.execute');
 
     Route::get('/alliance', [AllianceController::class, 'index'])->name('alliance.index');
     Route::get('/ajax/alliance/create', [AllianceController::class, 'ajaxCreate'])->name('alliance.ajax.create');
