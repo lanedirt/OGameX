@@ -1049,17 +1049,11 @@ Combat simulation save slots +20">
                     "0e41524dc46225dca21c9119f2fb735fd7ea5cb3": "Silver Planet Fields"
                 };
                 $(document).ready(function () {
-                    console.log('=== DOCUMENT READY FIRED ===');
-                    console.log('jQuery version:', $.fn.jquery);
-                    console.log('ogame object exists:', typeof ogame);
-                    console.log('ogame.chat exists:', typeof ogame.chat);
-
                     initIndex();
                     initOverview();
                     initBuffBar();
                     tabletInitOverviewAdvice();
 
-                    console.log('=== CALLING showPlayerList ===');
                     ogame.chat.showPlayerList('#chatBarPlayerList .cb_playerlist_box');
                     ogame.chat.showPlayerList('#sideBar');
                     var initChatAsyncInterval = window.setInterval(initChatAsync, 100);
