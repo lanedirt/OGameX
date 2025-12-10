@@ -124,6 +124,7 @@ abstract class AbstractUnitsController extends OGameController
             'build_queue' => $build_queue,
             'build_queue_countdown' => $queue_time_countdown,
             'open_tech_id' => $open_tech_id,
+            'is_in_vacation_mode' => $player->isInVacationMode(),
         ];
     }
 

@@ -218,10 +218,13 @@
                 </div>
             @elseif ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station)
                 @if ($can_downgrade && $current_level > 0)
-                    <button class="downgrade" data-technology="{{ $object->id }}" data-name="{{ $title }}">
+                    <button class="downgrade" data-technology="{{ $object->id }}" data-name="{{ $title }}"
+                            @if ($is_in_vacation_mode)
+                                disabled
+                            @endif>
                         <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
                              data-ipi-hint="ipiTechnologyTearDown{{ $object->class_name }}"></div>
-                        <span class="label">tear down</span>
+                        <span class="label tooltip" title="{{ $is_in_vacation_mode ? __('You are not able to build while in vacation mode') : '' }}">tear down</span>
                     </button>
                 @endif
             @endif

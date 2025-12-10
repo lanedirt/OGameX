@@ -1116,6 +1116,13 @@ class PlanetService
         // NOTE: this issue can be circumvented with a continious job runner which can
         // update all planets periodically...
 
+        // If time_last_update is 0 or null, initialize it to current time to prevent
+        // calculating resources from epoch (1970) which would cause massive resource gain.
+        if ($time_last_update <= 0) {
+            $time_last_update = $current_time;
+            $this->planet->time_last_update = $current_time;
+        }
+
         if ($time_last_update < $current_time) {
             // Last updated time is in past, so update resources based on hourly
             // production.
