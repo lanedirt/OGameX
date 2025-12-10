@@ -114,25 +114,9 @@
             </tbody>
         </table>
 
-        <script type="text/javascript">
-            // BBCode parser for buddy request previews
-            window.buddyBBCodeParser = function(text) {
-                if (!text) return '';
-                var html = text
-                    .replace(/\[b\](.*?)\[\/b\]/gi, '<strong style="font-weight:bold">$1</strong>')
-                    .replace(/\[i\](.*?)\[\/i\]/gi, '<em style="font-style:italic">$1</em>')
-                    .replace(/\[u\](.*?)\[\/u\]/gi, '<span style="text-decoration:underline">$1</span>')
-                    .replace(/\[s\](.*?)\[\/s\]/gi, '<span style="text-decoration:line-through">$1</span>')
-                    .replace(/\[sup\](.*?)\[\/sup\]/gi, '<sup>$1</sup>')
-                    .replace(/\[sub\](.*?)\[\/sub\]/gi, '<sub>$1</sub>')
-                    .replace(/\[color=(.*?)\](.*?)\[\/color\]/gi, '<span style="color:$1">$2</span>')
-                    .replace(/\[size=(\d+)\](.*?)\[\/size\]/gi, '<span style="font-size:$1px">$2</span>')
-                    .replace(/\[url=(.*?)\](.*?)\[\/url\]/gi, '<a href="$1" target="_blank" style="color:#6f9fc8;text-decoration:underline">$2</a>')
-                    .replace(/\[url\](.*?)\[\/url\]/gi, '<a href="$1" target="_blank" style="color:#6f9fc8;text-decoration:underline">$1</a>')
-                    .replace(/\n/g, '<br>');
-                return '<div style="color:#fff;padding:5px">' + html + '</div>';
-            };
+@include('ingame.shared.buddy.bbcode-parser')
 
+        <script type="text/javascript">
             // Initialize buddy dialog after it loads
             window.initBuddyDialog = function() {
                 var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"Spoiler","moreopts":"","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"Cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};
