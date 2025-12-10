@@ -268,7 +268,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     'buddy_request_received' => [
         'from' => 'Buddies',
         'subject' => 'Buddy request',
-        'body' => 'You have received a new buddy request from :sender_name. :buddy_request_id',
+        'body' => 'You have received a new buddy request from :sender_name.',
     ],
 
     // ------------------------

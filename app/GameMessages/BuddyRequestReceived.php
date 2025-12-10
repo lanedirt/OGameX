@@ -26,6 +26,14 @@ class BuddyRequestReceived extends GameMessage
             return '';
         }
 
+        // Load the buddy request to check its status
+        $buddyRequest = \OGame\Models\BuddyRequest::find($buddyRequestId);
+
+        // Only show buttons if the request is still pending
+        if (!$buddyRequest || !$buddyRequest->isPending()) {
+            return '';
+        }
+
         return '
             <gradient-button sq30="">
                 <button class="custom_btn tooltip acceptRequest" data-buddyid="' . $buddyRequestId . '" data-tooltip-title="Accept buddy request">
