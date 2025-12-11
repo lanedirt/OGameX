@@ -43,6 +43,9 @@
                                 data-end="1713604880"
                                 data-total="61608"
                                 title="{{ $building->object->title }}<br/>@lang('Under construction')"
+                            @elseif ($is_in_vacation_mode)
+                                data-status="disabled"
+                                title="{{ $building->object->title }}<br/>@lang('Error, player is in vacation mode')"
                             @elseif (!$building->requirements_met)
                                 data-status="off"
                                 title="{{ $building->object->title }}<br/>@lang('Requirements are not met!')"

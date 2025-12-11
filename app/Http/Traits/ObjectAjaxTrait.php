@@ -204,6 +204,9 @@ trait ObjectAjaxTrait
             }
         }
 
+        $player = $planet->getPlayer();
+        $is_in_vacation_mode = $player !== null && $player->isInVacationMode();
+
         $view_html = view('ingame.ajax.object')->with([
             'object' => $object,
             'object_type' => $object->type,
@@ -240,6 +243,7 @@ trait ObjectAjaxTrait
             'ion_technology_level' => $ion_technology_level,
             'ion_technology_bonus' => $ion_technology_bonus,
             'can_downgrade' => $can_downgrade,
+            'is_in_vacation_mode' => $is_in_vacation_mode,
         ]);
 
         return response()->json([

@@ -124,6 +124,7 @@ abstract class AbstractUnitsController extends OGameController
             'build_queue' => $build_queue,
             'build_queue_countdown' => $queue_time_countdown,
             'open_tech_id' => $open_tech_id,
+            'is_in_vacation_mode' => $player->isInVacationMode(),
         ];
     }
 
@@ -137,6 +138,14 @@ abstract class AbstractUnitsController extends OGameController
      */
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
+        // Check if player is in vacation mode
+        // Note: Button is already disabled in frontend, but we check here for security
+        if ($player->isInVacationMode()) {
+            return response()->json([
+                'success' => false,
+            ]);
+        }
+
         // Explicitly verify CSRF token because this request supports both POST and GET.
         if (!hash_equals($request->session()->token(), $request->input('_token'))) {
             return response()->json([

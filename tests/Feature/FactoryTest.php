@@ -47,18 +47,16 @@ class FactoryTest extends AccountTestCase
      */
     public function testPlanetFactoryLoad(): void
     {
-        // Return two random user ids from database.
-        $playerIds = \DB::table('users')->inRandomOrder()->limit(2)->pluck('id');
-        if (count($playerIds) < 2) {
-            // Create users if there are not enough in the database.
-            $this->createAndLoginUser();
-            $this->createAndLoginUser();
-            $playerIds = \DB::table('users')->inRandomOrder()->limit(2)->pluck('id');
-        }
+        // Return two random user ids from database that have planets.
+        $playerIds = $this->getPlayerIdsWithPlanets(2);
 
         // Get the first planet of each user.
         $planet1 = Planet::where('user_id', $playerIds[0])->first();
         $planet2 = Planet::where('user_id', $playerIds[1])->first();
+
+        // Verify planets exist (defensive check).
+        $this->assertNotNull($planet1, 'Planet for first user should exist');
+        $this->assertNotNull($planet2, 'Planet for second user should exist');
 
         // Get the planet service factory.
         $planetServiceFactory =  resolve(PlanetServiceFactory::class);
@@ -72,5 +70,45 @@ class FactoryTest extends AccountTestCase
         $planetService2 = $planetServiceFactory->make($planet2->id);
         $this->assertEquals($planet2->id, $planetService2->getPlanetId());
         $this->assertEquals($playerIds[1], $planetService2->getPlayer()->getId());
+    }
+
+    /**
+     * Create users with planets and wait for planet creation to complete.
+     *
+     * @param int $count Number of users to create
+     * @return \Illuminate\Support\Collection<int, int>
+     */
+    private function getPlayerIdsWithPlanets(int $count): \Illuminate\Support\Collection
+    {
+        $playerIds = collect();
+
+        // Create fresh users for each test to ensure isolation
+        for ($i = 0; $i < $count; $i++) {
+            $this->createAndLoginUser();
+
+            // Wait for planet to be created for the newly registered user (with timeout)
+            $userId = auth()->id();
+            $maxAttempts = 10;
+            $attempt = 0;
+            $planetExists = false;
+
+            while ($attempt < $maxAttempts && !$planetExists) {
+                $planet = Planet::where('user_id', $userId)->first();
+                if ($planet !== null) {
+                    $planetExists = true;
+                    $playerIds->push($userId);
+                } else {
+                    $attempt++;
+                    // Short sleep to avoid hammering the database
+                    usleep(100000); // 100ms
+                }
+            }
+
+            if (!$planetExists) {
+                $this->fail("Failed to create planet for user $userId after $maxAttempts attempts");
+            }
+        }
+
+        return $playerIds;
     }
 }
