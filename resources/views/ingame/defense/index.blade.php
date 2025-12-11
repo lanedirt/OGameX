@@ -22,7 +22,7 @@
                 <ul class="icons">
                     @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
                     @foreach ($units[0] as $building)
-                        @include('ingame.shipyard.unit-item', ['building' => $building])
+                        @include('ingame.shipyard.unit-item', ['building' => $building, 'is_in_vacation_mode' => $is_in_vacation_mode ?? false])
                     @endforeach
                 </ul>
             </div>

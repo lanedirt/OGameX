@@ -178,6 +178,7 @@ abstract class AbstractBuildingsController extends OGameController
             'build_queue_max' => $build_queue_max,
             'open_tech_id' => $open_tech_id,
             'jump_gate_level' => $jump_gate_level,
+            'is_in_vacation_mode' => $player->isInVacationMode(),
         ];
     }
 
@@ -191,6 +192,14 @@ abstract class AbstractBuildingsController extends OGameController
      */
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
+        // Check if player is in vacation mode
+        // Note: Button is already disabled in frontend, but we check here for security
+        if ($player->isInVacationMode()) {
+            return response()->json([
+                'success' => false,
+            ]);
+        }
+
         // Check if this is a downgrade request (mode 3)
         $mode = $request->input('mode');
         if ((int)$mode === 3) {
@@ -236,6 +245,14 @@ abstract class AbstractBuildingsController extends OGameController
      */
     public function downgradeBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
+        // Check if player is in vacation mode
+        // Note: Button is already disabled in frontend, but we check here for security
+        if ($player->isInVacationMode()) {
+            return response()->json([
+                'success' => false,
+            ]);
+        }
+
         // Explicitly verify CSRF token because this request supports both POST and GET.
         if (!hash_equals($request->session()->token(), $request->input('_token'))) {
             return response()->json([

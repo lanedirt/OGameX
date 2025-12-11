@@ -582,4 +582,119 @@ class VacationModeTest extends FleetDispatchTestCase
         // Verify research NOW completes (queue resumed)
         $this->assertEquals($initialLevel + 1, $player->getResearchLevel('energy_technology'), 'Research should complete after vacation mode ends');
     }
+
+    /**
+     * Test that building requests are blocked when player is in vacation mode.
+     */
+    public function testBuildingRequestsBlockedInVacationMode(): void
+    {
+        $this->basicSetup();
+
+        $player = $this->planetService->getPlayer();
+        $planet = $this->planetService;
+
+        // Give planet resources to build
+        $this->planetAddResources(new Resources(50000, 50000, 50000, 0));
+
+        // Activate vacation mode
+        $player->activateVacationMode();
+        $this->assertTrue($player->isInVacationMode());
+
+        // Try to build a metal mine - should fail
+        $object = ObjectService::getObjectByMachineName('metal_mine');
+        $response = $this->post('/resources/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+        ]);
+
+        $response->assertStatus(200);
+        $responseData = $response->json();
+        $this->assertFalse($responseData['success'], 'Build request should fail when in vacation mode');
+
+        // Verify building was not added to queue
+        $this->reloadApplication();
+        $player->load($player->getId());
+        $this->assertEquals(0, $planet->getObjectLevel('metal_mine'), 'Metal mine should not be built when in vacation mode');
+    }
+
+    /**
+     * Test that research requests are blocked when player is in vacation mode.
+     */
+    public function testResearchRequestsBlockedInVacationMode(): void
+    {
+        $this->basicSetup();
+
+        $player = $this->planetService->getPlayer();
+        $planet = $this->planetService;
+
+        // Give planet resources and build research lab
+        $this->planetAddResources(new Resources(50000, 50000, 50000, 0));
+        $this->planetSetObjectLevel('research_lab', 1);
+
+        // Activate vacation mode
+        $player->activateVacationMode();
+        $this->assertTrue($player->isInVacationMode());
+
+        // Try to start research - should fail
+        $object = ObjectService::getResearchObjectByMachineName('energy_technology');
+        $response = $this->post('/research/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+        ]);
+
+        $response->assertStatus(200);
+        $responseData = $response->json();
+        $this->assertFalse($responseData['success'], 'Research request should fail when in vacation mode');
+
+        // Verify research was not started
+        $this->reloadApplication();
+        $player->load($player->getId());
+        $this->assertEquals(0, $player->getResearchLevel('energy_technology'), 'Research should not be started when in vacation mode');
+    }
+
+    /**
+     * Test that shipyard build requests are blocked when player is in vacation mode.
+     */
+    public function testShipyardRequestsBlockedInVacationMode(): void
+    {
+        $this->basicSetup();
+
+        $player = $this->planetService->getPlayer();
+        $planet = $this->planetService;
+
+        // Give planet resources and build shipyard
+        $this->planetAddResources(new Resources(50000, 50000, 50000, 0));
+        $this->planetSetObjectLevel('shipyard', 1);
+
+        // Activate vacation mode
+        $player->activateVacationMode();
+        $this->assertTrue($player->isInVacationMode());
+
+        // Get initial ship count
+        $initialShipCount = $planet->getObjectAmount('light_fighter');
+
+        // Try to build ships - should fail
+        $object = ObjectService::getUnitObjectByMachineName('light_fighter');
+        $response = $this->post('/shipyard/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+            'amount' => 5,
+        ]);
+
+        $response->assertStatus(200);
+        $responseData = $response->json();
+        // AbstractUnitsController returns 'status' instead of 'success'
+        $this->assertTrue(
+            (isset($responseData['success']) && $responseData['success'] === false) ||
+            (isset($responseData['status']) && $responseData['status'] !== 'success'),
+            'Shipyard build request should fail when in vacation mode. Response: ' . json_encode($responseData)
+        );
+
+        // Verify ships were not added to queue - wait a bit and check ship count hasn't increased
+        $this->travel(10)->seconds();
+        $this->reloadApplication();
+        $player->load($player->getId());
+        $planet = $this->planetService;
+        $this->assertEquals($initialShipCount, $planet->getObjectAmount('light_fighter'), 'Ships should not be built when in vacation mode');
+    }
 }
