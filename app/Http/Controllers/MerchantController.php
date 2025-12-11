@@ -495,9 +495,17 @@ class MerchantController extends OGameController
         // Clear scrap session
         $request->session()->forget('scrap_merchant_' . $planet->getPlanetId());
 
+        // Pick a random merchant response message
+        $merchantMessages = [
+            'Okay, thanks, bye, next!',
+            'Doing business with you is going to ruin me!',
+            'There\'d be a few percent more were it not for the bullet holes.',
+        ];
+        $randomMessage = $merchantMessages[array_rand($merchantMessages)];
+
         return response()->json([
             'success' => true,
-            'message' => 'Items scrapped successfully.',
+            'message' => $randomMessage,
             'returned' => [
                 'metal' => $returnMetal,
                 'crystal' => $returnCrystal,

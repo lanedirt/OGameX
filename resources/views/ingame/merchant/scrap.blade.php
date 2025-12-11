@@ -423,10 +423,11 @@
                 items: items
             }, function(response) {
                 if (response.success) {
-                    fadeBox('@lang("Items scrapped successfully!")', true);
+                    // Show the random merchant message from the server
+                    fadeBox(response.message, false);
                     setTimeout(function() {
                         window.location.reload();
-                    }, 1000);
+                    }, 1500);
                 } else {
                     errorBoxNotify(LocalizationStrings.error, response.message);
                 }
