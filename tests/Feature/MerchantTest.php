@@ -494,6 +494,49 @@ class MerchantTest extends AccountTestCase
         $response->assertJson(['success' => false]);
     }
 
+    /**
+     * Test that scrap automatically reduces amount when storage is insufficient.
+     * Should return warnings about the reduction.
+     */
+    public function testScrapAutomaticallyReducesAmountForInsufficientStorage(): void
+    {
+        // Add many ships
+        $smallCargoObject = ObjectService::getObjectByMachineName('small_cargo');
+        $this->planetService->addUnit('small_cargo', 1000);
+        $this->planetService->save();
+
+        // Fill metal storage almost to capacity
+        $metalStorageCapacity = $this->planetService->metalStorage()->get();
+        $this->planetService->addResources(new Resources($metalStorageCapacity - 5000, 0, 0, 0));
+        $this->planetService->save();
+
+        // Try to scrap all 1000 ships (which would exceed storage)
+        $response = $this->post('/merchant/scrap/execute', [
+            'items' => [
+                $smallCargoObject->id => 1000,
+            ],
+            '_token' => csrf_token(),
+        ]);
+
+        // Should succeed with warnings
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify warnings were returned
+        $data = $response->json();
+        $this->assertArrayHasKey('warnings', $data);
+        $this->assertNotEmpty($data['warnings'], 'Should have warnings about storage reduction');
+
+        // Verify the warning message contains the ship name
+        $this->assertStringContainsString($smallCargoObject->title, $data['warnings'][0]);
+
+        // Verify metal didn't exceed capacity
+        $this->planetService->reloadPlanet();
+        $currentMetalStorage = $this->planetService->metalStorage()->get();
+        $currentMetal = $this->planetService->metal()->get();
+        $this->assertLessThanOrEqual($currentMetalStorage, $currentMetal);
+    }
+
     // ==============================================
     // Expedition Merchant Bonus Tests
     // ==============================================

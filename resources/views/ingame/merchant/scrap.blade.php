@@ -451,11 +451,18 @@
                         items: items
                     }, function(response) {
                         if (response.success) {
+                            // Show any warnings first (storage capacity reductions)
+                            if (response.warnings && response.warnings.length > 0) {
+                                response.warnings.forEach(function(warning) {
+                                    fadeBox(warning, true);
+                                });
+                            }
+
                             // Show the random merchant message from the server
                             fadeBox(response.message, false);
                             setTimeout(function() {
                                 window.location.reload();
-                            }, 1500);
+                            }, 2000);
                         } else {
                             errorBoxNotify(LocalizationStrings.error, response.message);
                         }

@@ -86,4 +86,9 @@ return [
     'Okay, thanks, bye, next!' => 'Okay, thanks, bye, next!',
     'Doing business with you is going to ruin me!' => 'Doing business with you is going to ruin me!',
     'There\'d be a few percent more were it not for the bullet holes.' => 'There\'d be a few percent more were it not for the bullet holes.',
+
+    // Scrap Merchant Error Messages
+    'Not enough item available' => 'Not enough :item available.',
+    'Storage insufficient reduced amount' => 'The space in the storage was not large enough, so the number of :item was reduced to :amount',
+    'No storage space available' => 'No storage space available for scrapping.',
 ];

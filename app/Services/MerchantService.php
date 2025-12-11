@@ -72,7 +72,9 @@ class MerchantService
 
     /**
      * Generate randomized trade rates for a merchant.
-     * The rates vary slightly from the base 3:2:1 ratio.
+     * Based on OGame wiki: rates range from 2:1 (best) to 3:1 (worst).
+     * The base 3:2:1 ratio represents relative values, but the merchant
+     * takes a significant fee making rates unfavorable to the player.
      *
      * @param string $merchantType
      * @return array{give: string, receive: array{metal?: array, crystal?: array, deuterium?: array}}
@@ -88,17 +90,21 @@ class MerchantService
 
         foreach ($receiveTypes as $receiveType) {
             // Calculate base exchange rate (how much you give vs how much you get)
-            // Since the merchant wants profit, rates are unfavorable to the player
             $giveValue = self::BASE_TRADE_RATES[$merchantType];
             $receiveValue = self::BASE_TRADE_RATES[$receiveType];
 
-            // Add 10-20% merchant fee (player gets less than fair value)
-            $merchantFee = 1 - (rand(10, 20) / 100);
+            // Fair ratio (no merchant fee)
+            $fairRate = $receiveValue / $giveValue;
+
+            // Merchant takes 50-66.67% fee (rates from 2:1 to 3:1 per OGame wiki)
+            // This means you get 33.33% to 50% of fair value
+            // Random between 0.3333 and 0.5000
+            $merchantMultiplier = (rand(3333, 5000) / 10000);
 
             // Calculate how much of the receive resource you get per unit of give resource
             // Example: Trading deuterium (value 1) for metal (value 3)
-            // Fair rate would be 1:3, but with merchant fee becomes 1:2.4-2.7
-            $exchangeRate = ($receiveValue / $giveValue) * $merchantFee;
+            // Fair rate: 3.0, but merchant gives you only 1.0-1.5 (33-50% of fair)
+            $exchangeRate = $fairRate * $merchantMultiplier;
 
             $rates['receive'][$receiveType] = [
                 'rate' => round($exchangeRate, 4),

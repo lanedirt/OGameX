@@ -397,6 +397,7 @@ class MerchantController extends OGameController
         }
 
         $planet = $player->planets->current();
+        $objectService = resolve(\OGame\Services\ObjectService::class);
 
         // Get scrap session
         $scrapSession = $request->session()->get('scrap_merchant_' . $planet->getPlanetId(), [
@@ -406,32 +407,29 @@ class MerchantController extends OGameController
 
         $offerPercentage = $scrapSession['offer_percentage'];
 
-        // Calculate total resources to return
-        $totalMetal = 0;
-        $totalCrystal = 0;
-        $totalDeuterium = 0;
+        // Get current storage capacity
+        $storageCapacity = [
+            'metal' => $planet->metalStorage()->get(),
+            'crystal' => $planet->crystalStorage()->get(),
+            'deuterium' => $planet->deuteriumStorage()->get(),
+        ];
 
-        // Validate and calculate
+        $currentResources = $planet->getResources();
+        $freeMetalStorage = max(0, $storageCapacity['metal'] - $currentResources->metal->get());
+        $freeCrystalStorage = max(0, $storageCapacity['crystal'] - $currentResources->crystal->get());
+        $freeDeuteriumStorage = max(0, $storageCapacity['deuterium'] - $currentResources->deuterium->get());
+
+        // First pass: validate amounts and check storage capacity
+        $adjustedItems = [];
+        $warnings = [];
+
         foreach ($items as $itemId => $amount) {
             $amount = (int)$amount;
             if ($amount <= 0) {
                 continue;
             }
 
-            // TODO: Future-proofing - check if premium ships (Reaper: 218, Pathfinder: 219) are scrappable
-            /*
-            if (in_array((int)$itemId, [218, 219])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Premium ships cannot be scrapped.',
-                ], 400);
-            }
-            */
-
-            // Get item cost from object service
-            $objectService = resolve(\OGame\Services\ObjectService::class);
             $object = $objectService->getObjectById((int)$itemId);
-
             if (!$object) {
                 continue;
             }
@@ -441,8 +439,59 @@ class MerchantController extends OGameController
             if ($currentAmount < $amount) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Not enough ' . $object->title . ' available.',
+                    'message' => __('t_merchant.Not enough item available', ['item' => $object->title]),
                 ], 400);
+            }
+
+            // Calculate resources per unit
+            $metalPerUnit = (int)floor($object->price->resources->metal->get() * ($offerPercentage / 100));
+            $crystalPerUnit = (int)floor($object->price->resources->crystal->get() * ($offerPercentage / 100));
+            $deuteriumPerUnit = (int)floor($object->price->resources->deuterium->get() * ($offerPercentage / 100));
+
+            // Calculate maximum amount that can be scrapped based on storage
+            $maxByMetal = $metalPerUnit > 0 ? (int)floor($freeMetalStorage / $metalPerUnit) : PHP_INT_MAX;
+            $maxByCrystal = $crystalPerUnit > 0 ? (int)floor($freeCrystalStorage / $crystalPerUnit) : PHP_INT_MAX;
+            $maxByDeuterium = $deuteriumPerUnit > 0 ? (int)floor($freeDeuteriumStorage / $deuteriumPerUnit) : PHP_INT_MAX;
+
+            $maxAmount = min($amount, $maxByMetal, $maxByCrystal, $maxByDeuterium, $currentAmount);
+
+            if ($maxAmount < $amount) {
+                // Storage is insufficient, reduce amount
+                $warnings[] = __('t_merchant.Storage insufficient reduced amount', [
+                    'item' => $object->title,
+                    'amount' => $maxAmount
+                ]);
+                $adjustedItems[$itemId] = $maxAmount;
+            } else {
+                $adjustedItems[$itemId] = $amount;
+            }
+
+            // Update available storage for next iteration
+            $freeMetalStorage -= $metalPerUnit * $adjustedItems[$itemId];
+            $freeCrystalStorage -= $crystalPerUnit * $adjustedItems[$itemId];
+            $freeDeuteriumStorage -= $deuteriumPerUnit * $adjustedItems[$itemId];
+        }
+
+        if (empty($adjustedItems)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('t_merchant.No storage space available'),
+            ], 400);
+        }
+
+        // Calculate total resources to return
+        $totalMetal = 0;
+        $totalCrystal = 0;
+        $totalDeuterium = 0;
+
+        foreach ($adjustedItems as $itemId => $amount) {
+            if ($amount <= 0) {
+                continue;
+            }
+
+            $object = $objectService->getObjectById((int)$itemId);
+            if (!$object) {
+                continue;
             }
 
             // Calculate return resources
@@ -457,27 +506,8 @@ class MerchantController extends OGameController
         $returnCrystal = (int)floor($totalCrystal * ($offerPercentage / 100));
         $returnDeuterium = (int)floor($totalDeuterium * ($offerPercentage / 100));
 
-        // Check storage capacity
-        $storageCapacity = [
-            'metal' => $planet->metalStorage()->get(),
-            'crystal' => $planet->crystalStorage()->get(),
-            'deuterium' => $planet->deuteriumStorage()->get(),
-        ];
-
-        $currentResources = $planet->getResources();
-        // Ensure free storage is never negative (can happen when production exceeds storage)
-        $freeMetalStorage = max(0, $storageCapacity['metal'] - $currentResources->metal->get());
-        $freeCrystalStorage = max(0, $storageCapacity['crystal'] - $currentResources->crystal->get());
-        $freeDeuteriumStorage = max(0, $storageCapacity['deuterium'] - $currentResources->deuterium->get());
-
-        $returnMetal = min($returnMetal, $freeMetalStorage);
-        $returnCrystal = min($returnCrystal, $freeCrystalStorage);
-        $returnDeuterium = min($returnDeuterium, $freeDeuteriumStorage);
-
-        // Execute the trade: remove items and add resources
-        $objectService = resolve(\OGame\Services\ObjectService::class);
-        foreach ($items as $itemId => $amount) {
-            $amount = (int)$amount;
+        // Execute the trade: remove adjusted items and add resources
+        foreach ($adjustedItems as $itemId => $amount) {
             if ($amount <= 0) {
                 continue;
             }
@@ -506,6 +536,7 @@ class MerchantController extends OGameController
         return response()->json([
             'success' => true,
             'message' => $randomMessage,
+            'warnings' => $warnings,
             'returned' => [
                 'metal' => $returnMetal,
                 'crystal' => $returnCrystal,
