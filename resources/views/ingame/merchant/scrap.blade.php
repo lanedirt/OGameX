@@ -219,6 +219,16 @@
         deuterium: {{ $currentResources['deuterium'] }}
     };
 
+    // Map of item IDs to names for confirmation dialog
+    var itemNames = {
+        @foreach($ships as $shipId => $shipData)
+            {{ $shipId }}: "{{ $shipData['name'] }}",
+        @endforeach
+        @foreach($defense as $defenseId => $defenseData)
+            {{ $defenseId }}: "{{ $defenseData['name'] }}",
+        @endforeach
+    };
+
     $(document).ready(function() {
         // Check if anythingSlider is available
         if (typeof $.fn.anythingSlider === 'undefined') {
@@ -418,23 +428,43 @@
                 return;
             }
 
-            $.post('{{ route('merchant.scrap.execute') }}', {
-                _token: '{{ csrf_token() }}',
-                items: items
-            }, function(response) {
-                if (response.success) {
-                    // Show the random merchant message from the server
-                    fadeBox(response.message, false);
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    errorBoxNotify(LocalizationStrings.error, response.message);
-                }
-            }).fail(function(xhr) {
-                var response = xhr.responseJSON;
-                errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '@lang("An error occurred.")');
+            // Build confirmation message with item list
+            var itemListHtml = '<div style="text-align: left; margin-left: 30px">';
+            $.each(items, function(id, amount) {
+                var itemName = itemNames[id] || '@lang("Unknown Item")';
+                itemListHtml += amount + 'x ' + itemName + '<br>';
             });
+            itemListHtml += '</div>';
+
+            var confirmMessage = '@lang("Do you really want to scrap the following ships/defensive structures?")<br><br>' + itemListHtml;
+
+            // Show confirmation dialog
+            errorBoxDecision(
+                '@lang("Scrap Merchant")',
+                confirmMessage,
+                '@lang("yes")',
+                '@lang("No")',
+                function() {
+                    // User confirmed - execute the scrap
+                    $.post('{{ route('merchant.scrap.execute') }}', {
+                        _token: '{{ csrf_token() }}',
+                        items: items
+                    }, function(response) {
+                        if (response.success) {
+                            // Show the random merchant message from the server
+                            fadeBox(response.message, false);
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            errorBoxNotify(LocalizationStrings.error, response.message);
+                        }
+                    }).fail(function(xhr) {
+                        var response = xhr.responseJSON;
+                        errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '@lang("An error occurred.")');
+                    });
+                }
+            );
         });
 
         initTooltips();
