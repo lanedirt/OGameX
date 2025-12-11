@@ -431,19 +431,19 @@
             // Build confirmation message with item list
             var itemListHtml = '<div style="text-align: left; margin-left: 30px">';
             $.each(items, function(id, amount) {
-                var itemName = itemNames[id] || '@lang("Unknown Item")';
+                var itemName = itemNames[id] || '@lang('t_merchant.Unknown Item')';
                 itemListHtml += amount + 'x ' + itemName + '<br>';
             });
             itemListHtml += '</div>';
 
-            var confirmMessage = '@lang("Do you really want to scrap the following ships/defensive structures?")<br><br>' + itemListHtml;
+            var confirmMessage = '@lang('t_merchant.Do you really want to scrap the following ships/defensive structures?')<br><br>' + itemListHtml;
 
             // Show confirmation dialog
             errorBoxDecision(
-                '@lang("Scrap Merchant")',
+                '@lang('t_merchant.Scrap Merchant')',
                 confirmMessage,
-                '@lang("yes")',
-                '@lang("No")',
+                '@lang('t_merchant.yes')',
+                '@lang('t_merchant.No')',
                 function() {
                     // User confirmed - execute the scrap
                     $.post('{{ route('merchant.scrap.execute') }}', {

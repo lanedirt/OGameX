@@ -784,6 +784,50 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     }
 
     /**
+     * Send an expedition mission expecting merchant found result.
+     * Verifies that finding a merchant on expedition:
+     * - Calls a random resource trader (metal/crystal/deuterium)
+     * - Sends the correct expedition message
+     * - Makes the merchant available for trading
+     *
+     * @return void
+     */
+    public function testExpeditionWithGainMerchantResult(): void
+    {
+        $this->basicSetup();
+
+        // Enable only the "merchant trade" expedition outcome
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainMerchantTrade]);
+
+        // Verify no merchant is active initially
+        $player = $this->planetService->getPlayer();
+        $this->assertNull(session()->get('active_merchant_' . $player->getId()));
+
+        // Send the expedition mission
+        $this->sendTestExpedition(true);
+
+        // Wait for the mission to complete
+        $this->travel(10)->hours();
+
+        // Load the planet again to trigger mission processing
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Verify that a merchant was called and is now active
+        $activeMerchant = session()->get('active_merchant_' . $player->getId());
+        $this->assertNotNull($activeMerchant, 'Merchant should be active after expedition');
+        $this->assertContains($activeMerchant['type'], ['metal', 'crystal', 'deuterium'],
+            'Expedition should call a resource trader (metal/crystal/deuterium)');
+        $this->assertArrayHasKey('trade_rates', $activeMerchant,
+            'Active merchant should have trade rates');
+
+        // Assert that the expedition message was sent
+        $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
+            'Expedition Result',
+        ]);
+    }
+
+    /**
      * Set the expedition outcomes in the settings service.
      *
      * @param array<ExpeditionOutcomeType> $outcomes

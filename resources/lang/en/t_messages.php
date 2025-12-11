@@ -262,4 +262,16 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
             '1' => 'A core meltdown of the lead ship leads to a chain reaction, which destroys the entire expedition fleet in a spectacular explosion.',
         ],
     ],
+
+    // Merchant Found
+    'expedition_merchant_found' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Expedition Result',
+        // An expedition message can have different variations which are parsed by the ExpeditionMerchantFound class.
+        'body' => [
+            '1' => 'Your expedition fleet made contact with a friendly alien race. They announced that they would send a representative with goods to trade to your worlds.',
+            '2' => 'A mysterious merchant vessel approached your expedition. The trader offered to visit your planets and provide special trading services.',
+            '3' => 'The expedition encountered an intergalactic merchant convoy. One of the merchants has agreed to visit your homeworld to offer trading opportunities.',
+        ],
+    ],
 ];

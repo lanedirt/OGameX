@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Track bonus merchant calls from expeditions
+            // NOTE: Currently unused - expeditions now immediately call resource traders
+            // instead of granting bonus credits. Kept for potential future use.
             if (!Schema::hasColumn('users', 'merchant_expedition_bonuses')) {
                 $table->integer('merchant_expedition_bonuses')->default(0)->after('espionage_probes_amount');
             }

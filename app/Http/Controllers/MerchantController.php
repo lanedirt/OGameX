@@ -497,9 +497,9 @@ class MerchantController extends OGameController
 
         // Pick a random merchant response message
         $merchantMessages = [
-            'Okay, thanks, bye, next!',
-            'Doing business with you is going to ruin me!',
-            'There\'d be a few percent more were it not for the bullet holes.',
+            __('t_merchant.Okay, thanks, bye, next!'),
+            __('t_merchant.Doing business with you is going to ruin me!'),
+            __('t_merchant.There\'d be a few percent more were it not for the bullet holes.'),
         ];
         $randomMessage = $merchantMessages[array_rand($merchantMessages)];
 

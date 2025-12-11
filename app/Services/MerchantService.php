@@ -261,9 +261,7 @@ class MerchantService
                 'after_deuterium' => $afterResources->deuterium->get(),
             ]);
 
-            // Update time_last_update to prevent production system from recalculating
-            // resources from before this manual trade occurred, then save the planet
-            $planet->updateResourceTimestamp(false);
+            // Save the planet with updated resources
             $planet->save();
 
             \Log::info('Planet saved successfully');
@@ -291,46 +289,93 @@ class MerchantService
     }
 
     /**
-     * Add expedition bonus merchant call to a player.
-     * This is called when a player discovers a merchant on an expedition.
-     * Note: Only one expedition bonus can be active at a time - new discoveries replace old ones.
+     * Add expedition merchant bonus to player.
+     * Expeditions only call RESOURCE TRADERS (metal/crystal/deuterium), never scrap merchants.
+     *
+     * Behavior:
+     * - If no active resource trader: Call a random resource trader for free
+     * - If active resource trader exists: Keep same type, potentially improve rates (never worsen)
      *
      * @param PlayerService $player
-     * @param int $bonusCalls
-     * @return void
+     * @return array{improved: bool, merchant_type: string, called_new: bool}
      */
-    public static function addExpeditionBonus(PlayerService $player, int $bonusCalls = 1): void
+    public static function addExpeditionBonus(PlayerService $player): array
     {
-        $user = $player->getUser();
-        // Set to the bonus value instead of incrementing to prevent stacking
-        $user->merchant_expedition_bonuses = $bonusCalls;
-        $user->save();
-
-        // Clear any active merchants on all planets (new expedition merchant replaces old ones)
-        self::clearAllActiveMerchants($player);
-    }
-
-    /**
-     * Clear active merchant session for a player.
-     * This is called when a new expedition merchant is found.
-     *
-     * @param PlayerService $player
-     * @return void
-     */
-    public static function clearAllActiveMerchants(PlayerService $player): void
-    {
-        // Clear user-level merchant session
+        // Check if there's an active resource trader in session
         $sessionKey = 'active_merchant_' . $player->getId();
-        if (session()->has($sessionKey)) {
-            session()->forget($sessionKey);
+        $activeMerchant = session()->get($sessionKey);
+
+        if ($activeMerchant) {
+            // Merchant already active - keep same type but potentially improve rates
+            $merchantType = $activeMerchant['type'];
+            $currentRates = $activeMerchant['trade_rates'];
+
+            // Generate new rates for the same merchant type
+            $newRates = self::generateTradeRates($merchantType);
+
+            // Check if new rates are better for ALL receive resources
+            $improved = false;
+            foreach ($newRates['receive'] as $receiveResource => $rateData) {
+                $currentRate = $currentRates['receive'][$receiveResource]['rate'] ?? 0;
+                $newRate = $rateData['rate'];
+
+                // Better rate = higher exchange rate (you get more)
+                if ($newRate > $currentRate) {
+                    $improved = true;
+                    // Update to the better rate
+                    $currentRates['receive'][$receiveResource] = $rateData;
+                }
+                // If any rate is worse, keep the old rate (don't update)
+            }
+
+            if ($improved) {
+                // Update session with improved rates
+                session()->put($sessionKey, [
+                    'type' => $merchantType,
+                    'trade_rates' => $currentRates,
+                    'called_at' => $activeMerchant['called_at'],
+                ]);
+            }
+
+            return [
+                'improved' => $improved,
+                'merchant_type' => $merchantType,
+                'called_new' => false,
+            ];
+        } else {
+            // No active merchant - call a random RESOURCE TRADER for free
+            // Expeditions ONLY call resource traders, never scrap merchants
+            $resourceTypes = ['metal', 'crystal', 'deuterium'];
+            $merchantType = $resourceTypes[array_rand($resourceTypes)];
+
+            // Generate trade rates
+            $tradeRates = self::generateTradeRates($merchantType);
+
+            // Store in session (no dark matter cost for expedition merchants)
+            session()->put($sessionKey, [
+                'type' => $merchantType,
+                'trade_rates' => $tradeRates,
+                'called_at' => time(),
+            ]);
+
+            return [
+                'improved' => false,
+                'merchant_type' => $merchantType,
+                'called_new' => true,
+            ];
         }
     }
 
     /**
      * Use one expedition bonus merchant call.
      *
+     * NOTE: This function is currently unused as expeditions now immediately call
+     * a resource trader via addExpeditionBonus() rather than granting bonus credits.
+     * Kept for potential future use or backwards compatibility.
+     *
      * @param PlayerService $player
      * @return bool True if bonus was used, false if no bonuses available
+     * @deprecated Expeditions now immediately call merchants instead of granting bonuses
      */
     public static function useExpeditionBonus(PlayerService $player): bool
     {
