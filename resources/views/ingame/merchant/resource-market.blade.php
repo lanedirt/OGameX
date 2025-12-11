@@ -74,19 +74,19 @@
                                     <p class="step_info">@lang('1. Exchange your resources.')</p>
                                     <ul class="resource_list">
                                         <li class="resource_elem">
-                                            <a role="button" class="tooltipHTML resource_link metal_img js_selectResource {{ $activeMerchant && $activeMerchant['type'] === 'metal' ? 'active' : '' }}" data-resource-id="1" data-resource-type="metal" data-tooltip-title="@lang('Metal|Sell your Metal and get Crystal or Deuterium.<p>Costs: 3,500 Dark Matter</p>.')">
+                                            <a role="button" class="tooltipHTML resource_link metal_img js_selectResource {!! $activeMerchant && $activeMerchant['type'] === 'metal' ? 'active oldTraderActive' : '' !!}" data-resource-id="1" data-resource-type="metal" data-tooltip-title="@lang('Metal|Sell your Metal and get Crystal or Deuterium.<p>Costs: 3,500 Dark Matter</p>.')">
                                                 <div class="selected_premium"></div>
                                                 <p class="res_txt">@lang('Metal')</p>
                                             </a>
                                         </li>
                                         <li class="resource_elem">
-                                            <a role="button" class="tooltipHTML resource_link crystal_img js_selectResource {{ $activeMerchant && $activeMerchant['type'] === 'crystal' ? 'active' : '' }}" data-resource-id="2" data-resource-type="crystal" data-tooltip-title="@lang('Crystal|Sell your Crystal and get Metal or Deuterium.<p>Costs: 3,500 Dark Matter</p>.')">
+                                            <a role="button" class="tooltipHTML resource_link crystal_img js_selectResource {!! $activeMerchant && $activeMerchant['type'] === 'crystal' ? 'active oldTraderActive' : '' !!}" data-resource-id="2" data-resource-type="crystal" data-tooltip-title="@lang('Crystal|Sell your Crystal and get Metal or Deuterium.<p>Costs: 3,500 Dark Matter</p>.')">
                                                 <div class="selected_premium"></div>
                                                 <p class="res_txt">@lang('Crystal')</p>
                                             </a>
                                         </li>
                                         <li class="resource_elem">
-                                            <a role="button" class="tooltipHTML resource_link deuterium_img js_selectResource {{ $activeMerchant && $activeMerchant['type'] === 'deuterium' ? 'active' : '' }}" data-resource-id="3" data-resource-type="deuterium" data-tooltip-title="@lang('Deuterium|Sell your Deuterium and get Metal or Crystal.<p>Costs: 3,500 Dark Matter</p>.')">
+                                            <a role="button" class="tooltipHTML resource_link deuterium_img js_selectResource {!! $activeMerchant && $activeMerchant['type'] === 'deuterium' ? 'active oldTraderActive' : '' !!}" data-resource-id="3" data-resource-type="deuterium" data-tooltip-title="@lang('Deuterium|Sell your Deuterium and get Metal or Crystal.<p>Costs: 3,500 Dark Matter</p>.')">
                                                 <div class="selected_premium"></div>
                                                 <p class="res_txt">@lang('Deuterium')</p>
                                             </a>
@@ -128,29 +128,73 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
-            var selectedResource = {{ $activeMerchant ? "'" . $activeMerchant['type'] . "'" : 'null' }};
+            var selectedResource = {!! $activeMerchant ? "'" . $activeMerchant['type'] . "'" : 'null' !!};
+            var activeMerchantType = {!! $activeMerchant ? "'" . $activeMerchant['type'] . "'" : 'null' !!};
 
             // Handle resource selection
             $('.js_selectResource').click(function(e) {
                 e.preventDefault();
 
-                // Remove active class from all resources
-                $('.js_selectResource').removeClass('active');
-
-                // Add active class to clicked resource
-                $(this).addClass('active');
-
                 // Store selected resource type
                 selectedResource = $(this).data('resource-type');
 
-                // Enable the call merchant button
-                var callBtn = $('#js_callMerchantBtn');
-                if (selectedResource && {{ $darkMatter }} >= {{ $merchantCost }}) {
-                    callBtn.removeAttr('disabled');
-                    callBtn.css('cursor', 'pointer');
+                // If clicking a different resource than the active merchant
+                if (activeMerchantType && selectedResource !== activeMerchantType) {
+                    // Remove active class from all resources
+                    $('.js_selectResource').removeClass('active');
+
+                    // Add oldTraderActive to the paid merchant
+                    $('.js_selectResource[data-resource-type="' + activeMerchantType + '"]').addClass('oldTraderActive');
+
+                    // Add active class to clicked resource
+                    $(this).addClass('active');
+
+                    // Hide "Already paid" section, show "Call merchant" section
+                    $('#js_alreadyPaidSection').addClass('hidden');
+                    $('#js_callMerchantSection').removeClass('hidden');
+
+                    // Enable the call merchant button
+                    var callBtn = $('#js_callMerchantBtn');
+                    if ({!! $darkMatter !!} >= {!! $merchantCost !!}) {
+                        callBtn.removeAttr('disabled');
+                        callBtn.css('cursor', 'pointer');
+                    } else {
+                        callBtn.attr('disabled', 'disabled');
+                        callBtn.css('cursor', 'not-allowed');
+                    }
+                } else if (activeMerchantType && selectedResource === activeMerchantType) {
+                    // Clicking the active merchant resource - show "Trade" button
+                    // Remove oldTraderActive class from all
+                    $('.js_selectResource').removeClass('oldTraderActive');
+
+                    // Remove active from all, add active to this
+                    $('.js_selectResource').removeClass('active');
+                    $(this).addClass('active');
+
+                    // Show trade button
+                    $('#js_callMerchantSection').addClass('hidden');
+                    $('#js_alreadyPaidSection').removeClass('hidden');
                 } else {
-                    callBtn.attr('disabled', 'disabled');
-                    callBtn.css('cursor', 'not-allowed');
+                    // No active merchant - clicking any resource
+                    // Remove active class from all resources
+                    $('.js_selectResource').removeClass('active');
+
+                    // Add active class to clicked resource
+                    $(this).addClass('active');
+
+                    // Show "Call merchant" button
+                    $('#js_callMerchantSection').removeClass('hidden');
+                    $('#js_alreadyPaidSection').addClass('hidden');
+
+                    // Enable the call merchant button
+                    var callBtn = $('#js_callMerchantBtn');
+                    if ({!! $darkMatter !!} >= {!! $merchantCost !!}) {
+                        callBtn.removeAttr('disabled');
+                        callBtn.css('cursor', 'pointer');
+                    } else {
+                        callBtn.attr('disabled', 'disabled');
+                        callBtn.css('cursor', 'not-allowed');
+                    }
                 }
             });
 
@@ -184,6 +228,16 @@
                             // Merchant called successfully, update UI to show "Already paid" state
                             var tradeUrl = '{{ route('merchant.market', ['type' => '__TYPE__']) }}'.replace('__TYPE__', selectedResource) + '?overlay=1';
 
+                            // Update the active merchant type
+                            activeMerchantType = selectedResource;
+
+                            // Remove oldTraderActive from all resources
+                            $('.js_selectResource').removeClass('oldTraderActive');
+
+                            // Remove active from all, add to selected resource
+                            $('.js_selectResource').removeClass('active');
+                            $('.js_selectResource[data-resource-type="' + selectedResource + '"]').addClass('active');
+
                             // Hide the "Call merchant" section
                             $('#js_callMerchantSection').addClass('hidden');
 
@@ -191,11 +245,17 @@
                             $('#js_tradeBtn').attr('href', tradeUrl);
                             $('#js_alreadyPaidSection').removeClass('hidden');
 
-                            // Add the trade link to the planet div if it doesn't exist
+                            // Update the trade link in the planet div
                             if ($('#slot01').length === 0) {
                                 var headerTradeLink = '<div id="slot01" class="slot"><a href="' + tradeUrl + '" class="overlay tooltipHTML js_hideTipOnMobile" data-overlay-class="traderlayer" data-tooltip-title="@lang('Trade|Trade your resources at the agreed price')">@lang('trade')</a></div>';
                                 $('#planet').append(headerTradeLink);
+                            } else {
+                                // Update existing trade link
+                                $('#slot01 a').attr('href', tradeUrl);
                             }
+
+                            // Reset button text back to original
+                            button.text(originalText);
 
                             // Automatically open the trade overlay
                             var $tempLink = $('<a class="overlay" data-overlay-class="traderlayer" href="' + tradeUrl + '"></a>');

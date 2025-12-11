@@ -422,6 +422,7 @@ class MerchantController extends OGameController
         // First pass: validate amounts and check storage capacity
         $adjustedItems = [];
         $warnings = [];
+        $hasReductions = false;
 
         foreach ($items as $itemId => $amount) {
             $amount = (int)$amount;
@@ -456,20 +457,39 @@ class MerchantController extends OGameController
             $maxAmount = min($amount, $maxByMetal, $maxByCrystal, $maxByDeuterium, $currentAmount);
 
             if ($maxAmount < $amount) {
-                // Storage is insufficient, reduce amount
-                $warnings[] = __('t_merchant.Storage insufficient reduced amount', [
-                    'item' => $object->title,
-                    'amount' => $maxAmount
-                ]);
-                $adjustedItems[$itemId] = $maxAmount;
-            } else {
-                $adjustedItems[$itemId] = $amount;
+                // Storage is insufficient, need to reduce amount
+                $hasReductions = true;
+                $warnings[] = [
+                    'itemId' => $itemId,
+                    'itemName' => $object->title,
+                    'requestedAmount' => $amount,
+                    'adjustedAmount' => $maxAmount,
+                    'message' => __('t_merchant.Storage insufficient reduced amount', [
+                        'item' => $object->title,
+                        'amount' => $maxAmount
+                    ])
+                ];
             }
 
-            // Update available storage for next iteration
-            $freeMetalStorage -= $metalPerUnit * $adjustedItems[$itemId];
-            $freeCrystalStorage -= $crystalPerUnit * $adjustedItems[$itemId];
-            $freeDeuteriumStorage -= $deuteriumPerUnit * $adjustedItems[$itemId];
+            // Always add items to adjustedItems (even if 0) so frontend knows to update the field
+            $adjustedItems[$itemId] = $maxAmount;
+
+            // Update available storage for next iteration (only if maxAmount > 0)
+            if ($maxAmount > 0) {
+                $freeMetalStorage -= $metalPerUnit * $maxAmount;
+                $freeCrystalStorage -= $crystalPerUnit * $maxAmount;
+                $freeDeuteriumStorage -= $deuteriumPerUnit * $maxAmount;
+            }
+        }
+
+        // If there were reductions, return error with adjusted amounts so user can review
+        if ($hasReductions) {
+            return response()->json([
+                'success' => false,
+                'needsConfirmation' => true,
+                'warnings' => $warnings,
+                'adjustedItems' => $adjustedItems,
+            ], 400);
         }
 
         if (empty($adjustedItems)) {
@@ -536,7 +556,6 @@ class MerchantController extends OGameController
         return response()->json([
             'success' => true,
             'message' => $randomMessage,
-            'warnings' => $warnings,
             'returned' => [
                 'metal' => $returnMetal,
                 'crystal' => $returnCrystal,

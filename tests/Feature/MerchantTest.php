@@ -340,7 +340,7 @@ class MerchantTest extends AccountTestCase
 
         $smallCargoObject = ObjectService::getObjectByMachineName('small_cargo');
 
-        // Try to scrap ships (should be capped by storage)
+        // Try to scrap ships (should return error with adjusted amounts)
         $response = $this->post('/merchant/scrap/execute', [
             'items' => [
                 $smallCargoObject->id => 1000,
@@ -348,14 +348,25 @@ class MerchantTest extends AccountTestCase
             '_token' => csrf_token(),
         ]);
 
-        $response->assertStatus(200);
-        $response->assertJson(['success' => true]);
+        // Should return error with needsConfirmation flag
+        $response->assertStatus(400);
+        $response->assertJson([
+            'success' => false,
+            'needsConfirmation' => true
+        ]);
 
-        // Verify metal didn't exceed capacity
+        // Should have warnings and adjusted amounts
+        $data = $response->json();
+        $this->assertArrayHasKey('warnings', $data);
+        $this->assertArrayHasKey('adjustedItems', $data);
+
+        // Adjusted amount should be less than requested
+        $adjustedAmount = $data['adjustedItems'][$smallCargoObject->id] ?? 0;
+        $this->assertLessThan(1000, $adjustedAmount);
+
+        // Verify ships were NOT consumed
         $this->planetService->reloadPlanet();
-        $currentMetalStorage = $this->planetService->metalStorage()->get();
-        $currentMetal = $this->planetService->metal()->get();
-        $this->assertLessThanOrEqual($currentMetalStorage, $currentMetal);
+        $this->assertEquals(1000, $this->planetService->getObjectAmount('small_cargo'));
     }
 
     /**
@@ -495,10 +506,10 @@ class MerchantTest extends AccountTestCase
     }
 
     /**
-     * Test that scrap automatically reduces amount when storage is insufficient.
-     * Should return warnings about the reduction.
+     * Test that scrap returns error with adjusted amounts when storage is insufficient.
+     * Should NOT complete the scrap, but return adjusted amounts and warnings.
      */
-    public function testScrapAutomaticallyReducesAmountForInsufficientStorage(): void
+    public function testScrapReturnsAdjustedAmountsForInsufficientStorage(): void
     {
         // Add many ships
         $smallCargoObject = ObjectService::getObjectByMachineName('small_cargo');
@@ -518,23 +529,72 @@ class MerchantTest extends AccountTestCase
             '_token' => csrf_token(),
         ]);
 
-        // Should succeed with warnings
-        $response->assertStatus(200);
-        $response->assertJson(['success' => true]);
+        // Should fail with 400 error and needsConfirmation flag
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false, 'needsConfirmation' => true]);
 
         // Verify warnings were returned
         $data = $response->json();
         $this->assertArrayHasKey('warnings', $data);
         $this->assertNotEmpty($data['warnings'], 'Should have warnings about storage reduction');
 
-        // Verify the warning message contains the ship name
-        $this->assertStringContainsString($smallCargoObject->title, $data['warnings'][0]);
+        // Verify adjustedItems were returned
+        $this->assertArrayHasKey('adjustedItems', $data);
 
-        // Verify metal didn't exceed capacity
+        // Verify the warning contains item details
+        $warning = $data['warnings'][0];
+        $this->assertEquals($smallCargoObject->id, $warning['itemId']);
+        $this->assertEquals($smallCargoObject->title, $warning['itemName']);
+        $this->assertEquals(1000, $warning['requestedAmount']);
+        $this->assertLessThan(1000, $warning['adjustedAmount']);
+
+        // Verify ships were NOT consumed (operation was cancelled)
         $this->planetService->reloadPlanet();
-        $currentMetalStorage = $this->planetService->metalStorage()->get();
-        $currentMetal = $this->planetService->metal()->get();
-        $this->assertLessThanOrEqual($currentMetalStorage, $currentMetal);
+        $this->assertEquals(1000, $this->planetService->getObjectAmount('small_cargo'));
+    }
+
+    /**
+     * Test that scrap returns error when storage is completely full.
+     */
+    public function testScrapReturnsErrorWhenStorageCompletelyFull(): void
+    {
+        // Add ships
+        $smallCargoObject = ObjectService::getObjectByMachineName('small_cargo');
+        $this->planetService->addUnit('small_cargo', 100);
+        $this->planetService->save();
+
+        // Fill storage completely
+        $metalStorageCapacity = $this->planetService->metalStorage()->get();
+        $this->planetService->addResources(new Resources($metalStorageCapacity, 0, 0, 0));
+        $this->planetService->save();
+
+        // Try to scrap ships with full storage
+        $response = $this->post('/merchant/scrap/execute', [
+            'items' => [
+                $smallCargoObject->id => 100,
+            ],
+            '_token' => csrf_token(),
+        ]);
+
+        // Should fail with error and needsConfirmation flag
+        $response->assertStatus(400);
+        $response->assertJson([
+            'success' => false,
+            'needsConfirmation' => true
+        ]);
+
+        // Should have warnings and adjusted amounts
+        $data = $response->json();
+        $this->assertArrayHasKey('warnings', $data);
+        $this->assertArrayHasKey('adjustedItems', $data);
+
+        // Adjusted amount should be significantly reduced (less than requested)
+        $adjustedAmount = $data['warnings'][0]['adjustedAmount'];
+        $this->assertLessThan(100, $adjustedAmount);
+
+        // Verify ships were NOT consumed
+        $this->planetService->reloadPlanet();
+        $this->assertEquals(100, $this->planetService->getObjectAmount('small_cargo'));
     }
 
     // ==============================================

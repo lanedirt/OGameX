@@ -163,21 +163,7 @@ class MerchantService
         $currentResources = $planet->getResources();
         $currentAmount = $currentResources->{$giveResource}->get();
 
-        \Log::info('Merchant trade resource check', [
-            'give_resource' => $giveResource,
-            'current_amount' => $currentAmount,
-            'give_amount_requested' => $giveAmount,
-            'has_enough' => $currentAmount >= $giveAmount,
-        ]);
-
         if ($currentAmount < $giveAmount) {
-            \Log::warning('Merchant trade failed: insufficient resources', [
-                'give_resource' => $giveResource,
-                'current_amount' => $currentAmount,
-                'give_amount_requested' => $giveAmount,
-                'shortage' => $giveAmount - $currentAmount,
-            ]);
-
             return [
                 'success' => false,
                 'message' => 'Not enough ' . $giveResource . ' available. You have ' . number_format($currentAmount) . ' but need ' . number_format($giveAmount) . '.',
@@ -192,24 +178,7 @@ class MerchantService
         $storageCapacity = $planet->{$storageMethod}()->get();
         $currentReceiveAmount = $currentResources->{$receiveResource}->get();
 
-        \Log::info('Merchant trade storage check', [
-            'receive_resource' => $receiveResource,
-            'current_amount' => $currentReceiveAmount,
-            'receive_amount' => $receiveAmount,
-            'total_after_trade' => $currentReceiveAmount + $receiveAmount,
-            'storage_capacity' => $storageCapacity,
-            'has_space' => ($currentReceiveAmount + $receiveAmount) <= $storageCapacity,
-        ]);
-
         if ($currentReceiveAmount + $receiveAmount > $storageCapacity) {
-            \Log::warning('Merchant trade failed: insufficient storage', [
-                'receive_resource' => $receiveResource,
-                'current_amount' => $currentReceiveAmount,
-                'receive_amount' => $receiveAmount,
-                'storage_capacity' => $storageCapacity,
-                'overflow' => ($currentReceiveAmount + $receiveAmount) - $storageCapacity,
-            ]);
-
             return [
                 'success' => false,
                 'message' => 'Not enough storage capacity for ' . $receiveResource . '. You need ' . number_format($currentReceiveAmount + $receiveAmount) . ' capacity but only have ' . number_format($storageCapacity) . '.',
@@ -218,29 +187,12 @@ class MerchantService
 
         // Execute the trade
         try {
-            // Log resources before trade
-            \Log::info('Merchant trade starting', [
-                'before_metal' => $currentResources->metal->get(),
-                'before_crystal' => $currentResources->crystal->get(),
-                'before_deuterium' => $currentResources->deuterium->get(),
-                'give' => $giveResource,
-                'give_amount' => $giveAmount,
-                'receive' => $receiveResource,
-                'receive_amount' => $receiveAmount,
-            ]);
-
             // Deduct the resource being given
             $deductResources = new Resources(
                 $giveResource === 'metal' ? $giveAmount : 0,
                 $giveResource === 'crystal' ? $giveAmount : 0,
                 $giveResource === 'deuterium' ? $giveAmount : 0
             );
-
-            \Log::info('About to deduct resources', [
-                'metal' => $deductResources->metal->get(),
-                'crystal' => $deductResources->crystal->get(),
-                'deuterium' => $deductResources->deuterium->get(),
-            ]);
 
             $planet->deductResources($deductResources, false);
 
@@ -251,26 +203,10 @@ class MerchantService
                 $receiveResource === 'deuterium' ? $receiveAmount : 0
             );
 
-            \Log::info('About to add resources', [
-                'metal' => $addResources->metal->get(),
-                'crystal' => $addResources->crystal->get(),
-                'deuterium' => $addResources->deuterium->get(),
-            ]);
-
             $planet->addResources($addResources, false);
-
-            // Log resources after operations but before save
-            $afterResources = $planet->getResources();
-            \Log::info('Resources after operations, before save', [
-                'after_metal' => $afterResources->metal->get(),
-                'after_crystal' => $afterResources->crystal->get(),
-                'after_deuterium' => $afterResources->deuterium->get(),
-            ]);
 
             // Save the planet with updated resources
             $planet->save();
-
-            \Log::info('Planet saved successfully');
 
             return [
                 'success' => true,
@@ -279,14 +215,6 @@ class MerchantService
                 'received' => $receiveAmount,
             ];
         } catch (\Exception $e) {
-            \Log::error('Merchant trade failed: ' . $e->getMessage(), [
-                'give' => $giveResource,
-                'receive' => $receiveResource,
-                'amount' => $giveAmount,
-                'rate' => $exchangeRate,
-                'trace' => $e->getTraceAsString(),
-            ]);
-
             return [
                 'success' => false,
                 'message' => 'Trade execution failed: ' . $e->getMessage(),

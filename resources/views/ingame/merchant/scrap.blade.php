@@ -135,6 +135,7 @@
                                                         </div>
                                                         <input class="ship_amount" tabindex="{{ $tabindex }}" name="am{{ $shipId }}" id="ship_{{ $shipId }}"
                                                                value="" type="text" pattern="[0-9,.]*" {{ $shipData['amount'] == 0 ? 'readonly="readonly"' : '' }}
+                                                               data-item-id="{{ $shipId }}"
                                                                data-metal="{{ $shipData['cost']['metal'] }}" data-crystal="{{ $shipData['cost']['crystal'] }}" data-deuterium="{{ $shipData['cost']['deuterium'] }}">
                                                         <a href="javascript:void(0);" class="max tooltip js_maxShips" ref="#ship_{{ $shipId }}" data-tooltip-title="@lang('Select all')"></a>
                                                     </div>
@@ -166,6 +167,7 @@
                                                             </div>
                                                             <input class="ship_amount" tabindex="{{ $tabindex }}" name="am{{ $defenseId }}" id="ship_{{ $defenseId }}"
                                                                    value="" type="text" pattern="[0-9,.]*" {{ $defenseData['amount'] == 0 ? 'readonly="readonly"' : '' }}
+                                                                   data-item-id="{{ $defenseId }}"
                                                                    data-metal="{{ $defenseData['cost']['metal'] }}" data-crystal="{{ $defenseData['cost']['crystal'] }}" data-deuterium="{{ $defenseData['cost']['deuterium'] }}">
                                                             <a href="javascript:void(0);" class="max tooltip js_maxShips" ref="#ship_{{ $defenseId }}" data-tooltip-title="@lang('Select all')"></a>
                                                         </div>
@@ -286,6 +288,10 @@
             if (amount > 0) {
                 $input.val(amount.toLocaleString());
                 updateScrapOffer();
+                // Validate after a short delay so user can see the max amount first
+                setTimeout(function() {
+                    validateStorageCapacity($input);
+                }, 100);
             }
         });
 
@@ -294,12 +300,22 @@
             e.preventDefault();
             // Get the currently visible slider
             var $visibleSlider = $('.anythingSlider:visible');
+            var $inputsToValidate = [];
+
             // Only select from active (non-cloned) panels in the visible slider
             $visibleSlider.find('.panel:not(.cloned) .item.on input.ship_amount').each(function() {
                 var amount = parseInt($(this).closest('.item').find('.amount').text().replace(/,/g, ''));
                 $(this).val(amount.toLocaleString());
+                $inputsToValidate.push($(this));
             });
             updateScrapOffer();
+
+            // Validate each input after a short delay so user can see the max amounts first
+            setTimeout(function() {
+                $inputsToValidate.forEach(function($input) {
+                    validateStorageCapacity($input);
+                });
+            }, 100);
         });
 
         $('.sendNone').click(function(e) {
@@ -311,9 +327,13 @@
             updateScrapOffer();
         });
 
-        // Input change
-        $('.ship_amount').on('input change', function() {
+        // Input change - only validate on 'change' (when user leaves field), not on every keystroke
+        $('.ship_amount').on('input', function() {
             updateScrapOffer();
+        });
+
+        $('.ship_amount').on('change', function() {
+            validateStorageCapacity($(this));
         });
 
         // Update scrap offer calculation
@@ -366,6 +386,80 @@
                 $('#js_scrapScrapIT').removeClass('disabled').prop('disabled', false);
             } else {
                 $('#js_scrapScrapIT').addClass('disabled').prop('disabled', true);
+            }
+        }
+
+        // Track the last modified input to know which one to validate
+        var lastModifiedInput = null;
+
+        // Validate storage capacity and adjust amounts if needed
+        function validateStorageCapacity(targetInput) {
+            var freeMetalStorage = storageCapacity.metal - currentResources.metal;
+            var freeCrystalStorage = storageCapacity.crystal - currentResources.crystal;
+            var freeDeuteriumStorage = storageCapacity.deuterium - currentResources.deuterium;
+
+            // First, calculate storage used by all OTHER inputs (not the target)
+            $('.ship_amount[id]').each(function() {
+                if (targetInput && this === targetInput[0]) {
+                    return; // Skip the target input in this pass
+                }
+
+                var $input = $(this);
+                var val = parseInt($input.val().replace(/,/g, '')) || 0;
+
+                if (val <= 0) {
+                    return; // Skip empty inputs
+                }
+
+                var metalCost = parseInt($input.data('metal')) || 0;
+                var crystalCost = parseInt($input.data('crystal')) || 0;
+                var deuteriumCost = parseInt($input.data('deuterium')) || 0;
+
+                // Calculate resources per unit at current offer percentage
+                var metalPerUnit = Math.floor(metalCost * (offerPercentage / 100));
+                var crystalPerUnit = Math.floor(crystalCost * (offerPercentage / 100));
+                var deuteriumPerUnit = Math.floor(deuteriumCost * (offerPercentage / 100));
+
+                // Deduct storage used by this input
+                freeMetalStorage -= metalPerUnit * val;
+                freeCrystalStorage -= crystalPerUnit * val;
+                freeDeuteriumStorage -= deuteriumPerUnit * val;
+            });
+
+            // Now validate ONLY the target input against remaining storage
+            if (targetInput) {
+                var val = parseInt(targetInput.val().replace(/,/g, '')) || 0;
+
+                if (val > 0) {
+                    var itemId = targetInput.attr('data-item-id');
+                    var metalCost = parseInt(targetInput.data('metal')) || 0;
+                    var crystalCost = parseInt(targetInput.data('crystal')) || 0;
+                    var deuteriumCost = parseInt(targetInput.data('deuterium')) || 0;
+
+                    // Calculate resources per unit at current offer percentage
+                    var metalPerUnit = Math.floor(metalCost * (offerPercentage / 100));
+                    var crystalPerUnit = Math.floor(crystalCost * (offerPercentage / 100));
+                    var deuteriumPerUnit = Math.floor(deuteriumCost * (offerPercentage / 100));
+
+                    // Calculate maximum amount that can be scrapped based on REMAINING storage
+                    var maxByMetal = metalPerUnit > 0 ? Math.floor(freeMetalStorage / metalPerUnit) : Number.MAX_SAFE_INTEGER;
+                    var maxByCrystal = crystalPerUnit > 0 ? Math.floor(freeCrystalStorage / crystalPerUnit) : Number.MAX_SAFE_INTEGER;
+                    var maxByDeuterium = deuteriumPerUnit > 0 ? Math.floor(freeDeuteriumStorage / deuteriumPerUnit) : Number.MAX_SAFE_INTEGER;
+
+                    var maxAmount = Math.min(val, maxByMetal, maxByCrystal, maxByDeuterium);
+
+                    if (maxAmount < val) {
+                        // Need to reduce the amount
+                        var itemName = itemNames[itemId] || 'Unknown Item';
+                        targetInput.val(maxAmount.toLocaleString());
+
+                        var message = 'The space in the storage was not large enough, so the number of ' + itemName + ' was reduced to ' + maxAmount.toLocaleString();
+                        fadeBox(message, true);
+
+                        // Refresh the offer calculation with new value
+                        updateScrapOffer();
+                    }
+                }
             }
         }
 
@@ -428,6 +522,41 @@
                 return;
             }
 
+            // Pre-validate storage capacity before showing confirmation
+            $.post('{{ route('merchant.scrap.execute') }}', {
+                _token: '{{ csrf_token() }}',
+                items: items
+            }, function(response) {
+                // Success - show confirmation dialog
+                showScrapConfirmation(items);
+            }).fail(function(xhr) {
+                var response = xhr.responseJSON;
+
+                // Check if this is a storage capacity issue
+                if (response && response.needsConfirmation && response.warnings) {
+                    // Update input fields with adjusted amounts
+                    if (response.adjustedItems) {
+                        Object.keys(response.adjustedItems).forEach(function(itemId) {
+                            var input = $('input[data-item-id="' + itemId + '"]');
+                            if (input.length) {
+                                input.val(response.adjustedItems[itemId]);
+                            }
+                        });
+                    }
+
+                    // Show warning messages
+                    response.warnings.forEach(function(warning) {
+                        fadeBox(warning.message, true);
+                    });
+                } else {
+                    // Regular error
+                    errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '@lang("An error occurred.")');
+                }
+            });
+        });
+
+        // Function to show scrap confirmation and execute
+        function showScrapConfirmation(items) {
             // Build confirmation message with item list
             var itemListHtml = '<div style="text-align: left; margin-left: 30px">';
             $.each(items, function(id, amount) {
@@ -451,18 +580,11 @@
                         items: items
                     }, function(response) {
                         if (response.success) {
-                            // Show any warnings first (storage capacity reductions)
-                            if (response.warnings && response.warnings.length > 0) {
-                                response.warnings.forEach(function(warning) {
-                                    fadeBox(warning, true);
-                                });
-                            }
-
                             // Show the random merchant message from the server
                             fadeBox(response.message, false);
                             setTimeout(function() {
                                 window.location.reload();
-                            }, 2000);
+                            }, 1500);
                         } else {
                             errorBoxNotify(LocalizationStrings.error, response.message);
                         }
@@ -472,7 +594,7 @@
                     });
                 }
             );
-        });
+        }
 
         initTooltips();
     });
