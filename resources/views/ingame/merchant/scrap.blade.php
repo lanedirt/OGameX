@@ -490,7 +490,7 @@
                     $('.js_bargainCost').text(response.newCost.toLocaleString());
 
                     updateScrapOffer();
-                    fadeBox('@lang("Negotiation successful!")', true);
+                    fadeBox('@lang("Negotiation successful!")', false);
                 } else {
                     errorBoxNotify(LocalizationStrings.error, response.message);
                 }

@@ -232,7 +232,7 @@ class MerchantController extends OGameController
         ]);
 
         // Calculate bargain cost (increases by 2000 each time: 4000, 6000, 8000, etc.)
-        $bargainCost = 4000 + ($scrapSession['bargain_count'] * 2000);
+        $bargainCost = 2000 + ($scrapSession['bargain_count'] * 2000);
 
         // Get all ships and defense from planet with their costs
         $objectService = resolve(\OGame\Services\ObjectService::class);
@@ -343,7 +343,7 @@ class MerchantController extends OGameController
         }
 
         // Calculate cost
-        $bargainCost = 4000 + ($scrapSession['bargain_count'] * 2000);
+        $bargainCost = 2000 + ($scrapSession['bargain_count'] * 2000);
 
         // Check dark matter
         if ($user->dark_matter < $bargainCost) {
