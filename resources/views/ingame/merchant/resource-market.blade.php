@@ -183,6 +183,16 @@
             var selectedResource = {!! $activeMerchant ? "'" . $activeMerchant['type'] . "'" : 'null' !!};
             var activeMerchantType = {!! $activeMerchant ? "'" . $activeMerchant['type'] . "'" : 'null' !!};
 
+            // When clicking the trade button, immediately change highlight from blue to green
+            $(document).on('click', '#js_tradeBtn', function() {
+                if (activeMerchantType) {
+                    setTimeout(function() {
+                        $('.js_selectResource').removeClass('active');
+                        $('.js_selectResource[data-resource-type="' + activeMerchantType + '"]').addClass('oldTraderActive');
+                    }, 50);
+                }
+            });
+
             // Handle tab switching
             $('.big_tabs .ui-tabs-nav a').click(function(e) {
                 e.preventDefault();
@@ -329,6 +339,12 @@
                             $tempLink.appendTo('body');
                             $tempLink.click();
                             $tempLink.remove();
+
+                            // Immediately change the resource highlight from blue (active) to green (oldTraderActive)
+                            setTimeout(function() {
+                                $('.js_selectResource').removeClass('active');
+                                $('.js_selectResource[data-resource-type="' + selectedResource + '"]').addClass('oldTraderActive');
+                            }, 50);
                         } else {
                             errorBoxNotify(LocalizationStrings.error, response.message || '@lang("Failed to call merchant.")');
                             button.removeAttr('disabled').text(originalText);

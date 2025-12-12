@@ -447,7 +447,7 @@
             // Submit the trade
             $.post('{{ route('merchant.trade') }}', formData, function(response) {
                 if (response.success) {
-                    fadeBox(response.message || '@lang("Trade completed successfully!")', true);
+                    fadeBox(response.message || '@lang("Trade completed successfully!")', false);
                     setTimeout(function() {
                         // Reload the page to show updated resources
                         window.location.reload();
@@ -473,7 +473,7 @@
                         type: merchantType
                     }, function(response) {
                         if (response.success) {
-                            fadeBox('@lang("New merchant called successfully!")', true);
+                            fadeBox('@lang("New merchant called successfully!")', false);
                             setTimeout(function() {
                                 location.reload();
                             }, 1000);
