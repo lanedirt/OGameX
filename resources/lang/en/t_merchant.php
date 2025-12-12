@@ -62,6 +62,15 @@ return [
     'per call' => 'per call',
     'Trade|Trade your resources at the agreed price' => 'Trade|Trade your resources at the agreed price',
 
+    // Get more resources (TODO: Not yet implemented)
+    'Get more resources' => 'Get more resources',
+    'Buy a daily production directly from the merchant' => 'Buy a daily production directly from the merchant',
+    'Here you can have the resource storage of your planets directly refilled by up to one daily production.' => 'Here you can have the resource storage of your planets directly refilled by up to one daily production.',
+    'Notices:' => 'Notices:',
+    'You are offered a maximum of one complete daily production equal to the total production of all your planets by default.' => 'You are offered a maximum of one complete daily production equal to the total production of all your planets by default.',
+    'If your daily production of a resource is less than 10000, you will be offered at least this amount.' => 'If your daily production of a resource is less than 10000, you will be offered at least this amount.',
+    'You must have enough free storage capacity on the active planet or moon for the purchased resources. Otherwise the surplus resources are lost.' => 'You must have enough free storage capacity on the active planet or moon for the purchased resources. Otherwise the surplus resources are lost.',
+
     // Scrap Merchant
     'Scrap Merchant' => 'Scrap Merchant',
     'The scrap merchant accepts used ships and defence systems.' => 'The scrap merchant accepts used ships and defence systems.',

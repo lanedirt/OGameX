@@ -56,12 +56,64 @@
 
                     <div class="big_tabs content ui-tabs ui-corner-all ui-widget ui-widget-content">
                         <ul role="tablist" class="ui-tabs-nav ui-corner-all ui-helper-reset ui-helper-clearfix ui-widget-header">
+                            {{-- TODO: Implement "Get more resources" tab - allows purchasing daily production with dark matter --}}
+                            {{--
+                            <li class="big_tab ui-tabs-tab ui-corner-top ui-state-default ui-tab ui-tabs-active ui-state-active" role="tab" tabindex="0" aria-controls="tabs-buyResource" aria-labelledby="ui-id-7" aria-selected="true" aria-expanded="true">
+                                <a href="#tabs-buyResource" role="presentation" tabindex="-1" class="ui-tabs-anchor" id="ui-id-7">
+                                    @lang('Get more resources')
+                                </a>
+                            </li>
+                            --}}
                             <li class="big_tab ui-tabs-tab ui-corner-top ui-state-default ui-tab ui-tabs-active ui-state-active" role="tab" tabindex="0" aria-controls="tabs-changeResource" aria-labelledby="ui-id-8" aria-selected="true" aria-expanded="true">
                                 <a href="#tabs-changeResource" class="ipiHintable ui-tabs-anchor" data-ipi-hint="ipiTraderResourcesExchange" role="presentation" tabindex="-1" id="ui-id-8">
                                     @lang('Exchange resources')
                                 </a>
                             </li>
                         </ul>
+
+                        {{-- TODO: Implement "Get more resources" tab content --}}
+                        {{-- Allows players to purchase up to one daily production of resources with dark matter --}}
+                        {{-- Features: --}}
+                        {{--   - Individual resource purchase (metal, crystal, deuterium) --}}
+                        {{--   - All resources bundle purchase --}}
+                        {{--   - Adjustable amounts (up to daily production) --}}
+                        {{--   - Storage capacity validation --}}
+                        {{--   - Dynamic dark matter cost calculation --}}
+                        {{--   - Minimum 10,000 resources if daily production is lower --}}
+                        {{-- Tab switching handled by JavaScript (lines 181-194) --}}
+                        {{--
+                        <div id="tabs-buyResource" class="big_tab_content ui-tabs-panel ui-corner-bottom ui-widget-content" aria-labelledby="ui-id-7" role="tabpanel" aria-hidden="false" style="">
+                            <div class="teaser_txt">
+                                <h2>@lang('Buy a daily production directly from the merchant')</h2>
+                                <p>@lang('Here you can have the resource storage of your planets directly refilled by up to one daily production.')</p>
+                            </div>
+
+                            <div class="content_inner buy_resources productionBasedPackages" data-dark-matter="{!! $darkMatter !!}">
+                                <div class="fill_resource">
+                                    <p style="text-align: center; padding: 40px; color: #6f9fc8;">
+                                        <strong>TODO: Implementation pending</strong><br><br>
+                                        This feature will allow you to purchase resources with dark matter.<br>
+                                        Features to implement:<br>
+                                        - Individual resource purchase (metal, crystal, deuterium)<br>
+                                        - All resources bundle purchase<br>
+                                        - Adjustable amounts (up to daily production)<br>
+                                        - Storage capacity validation<br>
+                                        - Dynamic dark matter cost calculation<br>
+                                        - Minimum 10,000 resources if daily production is lower
+                                    </p>
+                                </div>
+                                <div class="clearfloat"></div>
+                                <div class="roundBox hints">
+                                    <h2>@lang('Notices:')</h2>
+                                    <ul class="ListLinks">
+                                        <li>@lang('You are offered a maximum of one complete daily production equal to the total production of all your planets by default.')</li>
+                                        <li>@lang('If your daily production of a resource is less than 10000, you will be offered at least this amount.')</li>
+                                        <li>@lang('You must have enough free storage capacity on the active planet or moon for the purchased resources. Otherwise the surplus resources are lost.')</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        --}}
 
                         <div id="tabs-changeResource" class="big_tab_content ui-tabs-panel ui-corner-bottom ui-widget-content" aria-labelledby="ui-id-8" role="tabpanel" aria-hidden="false" style="">
 
@@ -130,6 +182,21 @@
         $(document).ready(function() {
             var selectedResource = {!! $activeMerchant ? "'" . $activeMerchant['type'] . "'" : 'null' !!};
             var activeMerchantType = {!! $activeMerchant ? "'" . $activeMerchant['type'] . "'" : 'null' !!};
+
+            // Handle tab switching
+            $('.big_tabs .ui-tabs-nav a').click(function(e) {
+                e.preventDefault();
+
+                var targetTab = $(this).attr('href');
+
+                // Update tab navigation
+                $('.big_tabs .ui-tabs-nav li').removeClass('ui-tabs-active ui-state-active').addClass('ui-state-default');
+                $(this).closest('li').addClass('ui-tabs-active ui-state-active').removeClass('ui-state-default');
+
+                // Update tab panels
+                $('.big_tab_content').hide().attr('aria-hidden', 'true');
+                $(targetTab).show().attr('aria-hidden', 'false');
+            });
 
             // Handle resource selection
             $('.js_selectResource').click(function(e) {
