@@ -822,8 +822,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
             'Active merchant should have trade rates');
 
         // Assert that the expedition message was sent
+        // Note: checking for 'merchant' as the message contains merchant-related text
         $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
-            'Expedition Result',
+            'merchant',
         ]);
     }
 

@@ -378,7 +378,7 @@ class MerchantTest extends AccountTestCase
         $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
         $this->planetService->getPlayer()->save();
 
-        // Bargain (first bargain costs 4000 DM)
+        // Bargain (first bargain costs 2000 DM)
         $response = $this->post('/merchant/scrap/bargain', [
             '_token' => csrf_token(),
         ]);
@@ -386,9 +386,9 @@ class MerchantTest extends AccountTestCase
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
 
-        // Verify dark matter was deducted
+        // Verify dark matter was deducted (10000 - 2000 = 8000)
         $this->planetService->getPlayer()->getUser()->refresh();
-        $this->assertEquals(6000, $this->planetService->getPlayer()->getUser()->dark_matter);
+        $this->assertEquals(8000, $this->planetService->getPlayer()->getUser()->dark_matter);
 
         // Verify offer increased
         $data = $response->json();
@@ -422,19 +422,19 @@ class MerchantTest extends AccountTestCase
         $this->planetService->getPlayer()->getUser()->dark_matter = 50000;
         $this->planetService->getPlayer()->save();
 
-        // First bargain - 4000 DM
+        // First bargain - 2000 DM
         $response1 = $this->post('/merchant/scrap/bargain', ['_token' => csrf_token()]);
         $response1->assertJson(['success' => true]);
-        $this->assertEquals(6000, $response1->json()['newCost']); // Next cost is 6000
+        $this->assertEquals(4000, $response1->json()['newCost']); // Next cost is 4000
 
-        // Second bargain - 6000 DM
+        // Second bargain - 4000 DM
         $response2 = $this->post('/merchant/scrap/bargain', ['_token' => csrf_token()]);
         $response2->assertJson(['success' => true]);
-        $this->assertEquals(8000, $response2->json()['newCost']); // Next cost is 8000
+        $this->assertEquals(6000, $response2->json()['newCost']); // Next cost is 6000
 
-        // Verify total DM spent: 4000 + 6000 = 10000
+        // Verify total DM spent: 2000 + 4000 = 6000
         $this->planetService->getPlayer()->getUser()->refresh();
-        $this->assertEquals(40000, $this->planetService->getPlayer()->getUser()->dark_matter);
+        $this->assertEquals(44000, $this->planetService->getPlayer()->getUser()->dark_matter);
     }
 
     /**

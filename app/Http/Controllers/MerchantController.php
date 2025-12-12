@@ -367,7 +367,7 @@ class MerchantController extends OGameController
         $request->session()->put('scrap_merchant_' . $planet->getPlanetId(), $scrapSession);
 
         // Calculate new cost for next bargain
-        $newCost = 4000 + ($scrapSession['bargain_count'] * 2000);
+        $newCost = 2000 + ($scrapSession['bargain_count'] * 2000);
 
         return response()->json([
             'success' => true,
