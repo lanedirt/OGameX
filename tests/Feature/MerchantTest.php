@@ -146,11 +146,15 @@ class MerchantTest extends AccountTestCase
         $this->planetService->addResources(new Resources(100000, 0, 0, 0));
         $this->planetService->save();
 
+        // Calculate a safe trade amount that won't exceed storage
+        // With rates between 1.40-2.00, trading 5000 metal = 7000-10000 crystal (within 10k storage)
+        $giveAmount = 5000;
+
         // Execute trade
         $response = $this->post('/merchant/trade', [
             'give_resource' => 'metal',
             'receive_resource' => 'crystal',
-            'give_amount' => 10000,
+            'give_amount' => $giveAmount,
             'exchange_rate' => $exchangeRate,
             '_token' => csrf_token(),
         ]);

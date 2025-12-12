@@ -53,16 +53,17 @@
                             <td>@lang('Being sold')</td>
                             <td class="rate">
                                 @php
-                                    // Base trade rates: metal=3, crystal=2, deuterium=1
+                                    // Base trade rates: metal=3.00, crystal=2.00, deuterium=1.00
+                                    // The resource being sold always has its maximum value
                                     $baseRate = match($merchantType) {
-                                        'metal' => 3,
-                                        'crystal' => 2,
-                                        'deuterium' => 1,
-                                        default => 1
+                                        'metal' => 3.00,
+                                        'crystal' => 2.00,
+                                        'deuterium' => 1.00,
+                                        default => 1.00
                                     };
                                 @endphp
                                 <span class="tooltipHTML tooltipRight" data-tooltip-title="@lang('Get new exchange rate!')">
-                                    {{ $baseRate }}
+                                    {{ number_format($baseRate, 2, '.', '') }}
                                 </span>
                             </td>
                             <input type="hidden" name="{{ $resourceId }}_value" id="{{ $resourceId }}_value" value="0">
@@ -79,7 +80,7 @@
                             </td>
                             <td><span id="{{ $resourceId }}_storage">{{ number_format($freeStorageAmount, 0, '.', ',') }}</span></td>
                             <td class="rate tooltipHTML tooltipRight" data-tooltip-title="@lang('Get new exchange rate!')">
-                                <span class="undermark">{{ $activeMerchant['trade_rates']['receive'][$resourceKey]['rate'] }}</span>
+                                <span class="undermark">{{ number_format($activeMerchant['trade_rates']['receive'][$resourceKey]['rate'], 2, '.', '') }}</span>
                             </td>
                         @endif
                     </tr>

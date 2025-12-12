@@ -72,9 +72,15 @@ class MerchantService
 
     /**
      * Generate randomized trade rates for a merchant.
-     * Based on OGame wiki: rates range from 2:1 (best) to 3:1 (worst).
-     * The base 3:2:1 ratio represents relative values, but the merchant
-     * takes a significant fee making rates unfavorable to the player.
+     * Based on OGame mechanics: The resource being sold always has its maximum value.
+     * The two resources you can receive have variable rates with weighted probabilities.
+     *
+     * Rates follow a triangular distribution:
+     * - Metal: 2.10 to 3.00 (sold resource always 3.00)
+     * - Crystal: 1.40 to 2.00 (sold resource always 2.00)
+     * - Deuterium: 0.70 to 1.00 (sold resource always 1.00)
+     *
+     * The median rate is 2.70:1.80:0.90, with 3.00:2.00:1.00 having highest probability (14.97%).
      *
      * @param string $merchantType
      * @return array{give: string, receive: array{metal?: array, crystal?: array, deuterium?: array}}
@@ -89,30 +95,84 @@ class MerchantService
         $receiveTypes = array_diff(['metal', 'crystal', 'deuterium'], [$merchantType]);
 
         foreach ($receiveTypes as $receiveType) {
-            // Calculate base exchange rate (how much you give vs how much you get)
-            $giveValue = self::BASE_TRADE_RATES[$merchantType];
-            $receiveValue = self::BASE_TRADE_RATES[$receiveType];
-
-            // Fair ratio (no merchant fee)
-            $fairRate = $receiveValue / $giveValue;
-
-            // Merchant takes 50-66.67% fee (rates from 2:1 to 3:1 per OGame wiki)
-            // This means you get 33.33% to 50% of fair value
-            // Random between 0.3333 and 0.5000
-            $merchantMultiplier = (rand(3333, 5000) / 10000);
-
-            // Calculate how much of the receive resource you get per unit of give resource
-            // Example: Trading deuterium (value 1) for metal (value 3)
-            // Fair rate: 3.0, but merchant gives you only 1.0-1.5 (33-50% of fair)
-            $exchangeRate = $fairRate * $merchantMultiplier;
+            // Generate a random rate using weighted triangular distribution
+            $rate = self::generateWeightedRate($receiveType);
 
             $rates['receive'][$receiveType] = [
-                'rate' => round($exchangeRate, 4),
-                'display' => self::formatTradeRate($merchantType, $receiveType, $exchangeRate),
+                'rate' => round($rate, 2),  // Display with 2 decimal places
+                'display' => self::formatTradeRate($merchantType, $receiveType, $rate),
             ];
         }
 
         return $rates;
+    }
+
+    /**
+     * Generate a weighted random rate for a resource type.
+     * Uses triangular distribution where 3.00:2.00:1.00 has the highest probability (14.97%).
+     *
+     * Rate ranges:
+     * - Metal: 2.10 to 3.00 (in 0.03 increments)
+     * - Crystal: 1.40 to 2.00 (in 0.02 increments)
+     * - Deuterium: 0.70 to 1.00 (in 0.01 increments)
+     *
+     * @param string $resourceType
+     * @return float
+     */
+    private static function generateWeightedRate(string $resourceType): float
+    {
+        // Define rate ranges and increments based on resource type
+        $ranges = [
+            'metal' => ['min' => 2.10, 'max' => 3.00, 'increment' => 0.03],
+            'crystal' => ['min' => 1.40, 'max' => 2.00, 'increment' => 0.02],
+            'deuterium' => ['min' => 0.70, 'max' => 1.00, 'increment' => 0.01],
+        ];
+
+        $range = $ranges[$resourceType];
+        $min = $range['min'];
+        $max = $range['max'];
+        $increment = $range['increment'];
+
+        // Calculate number of steps
+        $steps = round(($max - $min) / $increment);
+
+        // Generate weights for triangular distribution
+        // Weights increase from 1 to (steps+1), then decrease symmetrically
+        // The maximum value has the highest weight
+        $weights = [];
+        $totalWeight = 0;
+
+        for ($i = 0; $i <= $steps; $i++) {
+            // Triangular distribution: weight increases to middle, then decreases
+            // Maximum value (at $i = $steps) gets highest weight
+            if ($i <= $steps / 2) {
+                $weight = $i + 1;
+            } else {
+                $weight = $steps - $i + 1;
+            }
+
+            // Maximum value (3.00, 2.00, 1.00) gets extra weight for 14.97% probability
+            if ($i == $steps) {
+                $weight = round($weight * 3.14);  // Boost to achieve ~15% probability
+            }
+
+            $weights[$i] = $weight;
+            $totalWeight += $weight;
+        }
+
+        // Select a random weighted index
+        $randomValue = rand(1, $totalWeight);
+        $cumulativeWeight = 0;
+
+        foreach ($weights as $index => $weight) {
+            $cumulativeWeight += $weight;
+            if ($randomValue <= $cumulativeWeight) {
+                return round($min + ($index * $increment), 2);
+            }
+        }
+
+        // Fallback (should never reach here)
+        return $max;
     }
 
     /**
