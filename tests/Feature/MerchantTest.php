@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Support\Facades\Queue;
-use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMessages\ExpeditionMerchantFound;
 use OGame\Models\Resources;
 use OGame\Services\MerchantService;
@@ -632,7 +630,8 @@ class MerchantTest extends AccountTestCase
 
         // Verify merchant is now active in session
         $activeMerchant = session()->get('active_merchant_' . $player->getId());
-        $this->assertNotNull($activeMerchant);
+        // @phpstan-ignore-next-line - PHPStan doesn't understand session()->get() can return non-null values
+        $this->assertNotNull($activeMerchant, 'Merchant should be active in session');
         $this->assertEquals($result['merchant_type'], $activeMerchant['type']);
         $this->assertArrayHasKey('trade_rates', $activeMerchant);
     }
@@ -652,8 +651,11 @@ class MerchantTest extends AccountTestCase
             $result = MerchantService::addExpeditionBonus($player);
 
             // Should always be a resource trader
-            $this->assertContains($result['merchant_type'], ['metal', 'crystal', 'deuterium'],
-                'Expedition merchant should only call resource traders, never scrap merchant');
+            $this->assertContains(
+                $result['merchant_type'],
+                ['metal', 'crystal', 'deuterium'],
+                'Expedition merchant should only call resource traders, never scrap merchant'
+            );
         }
     }
 
@@ -718,8 +720,11 @@ class MerchantTest extends AccountTestCase
         foreach ($originalRates['receive'] as $resource => $originalRateData) {
             $newRate = $activeMerchant['trade_rates']['receive'][$resource]['rate'];
             $originalRate = $originalRateData['rate'];
-            $this->assertGreaterThanOrEqual($originalRate, $newRate,
-                "Rate for $resource should not worsen (was $originalRate, now $newRate)");
+            $this->assertGreaterThanOrEqual(
+                $originalRate,
+                $newRate,
+                "Rate for $resource should not worsen (was $originalRate, now $newRate)"
+            );
         }
     }
 
@@ -743,7 +748,8 @@ class MerchantTest extends AccountTestCase
 
         // Verify merchant is now active
         $activeMerchant = session()->get('active_merchant_' . $player->getId());
-        $this->assertNotNull($activeMerchant);
+        // @phpstan-ignore-next-line - PHPStan doesn't understand session()->get() can return non-null values
+        $this->assertNotNull($activeMerchant, 'Merchant should be active in session');
         $this->assertEquals($result['merchant_type'], $activeMerchant['type']);
     }
 

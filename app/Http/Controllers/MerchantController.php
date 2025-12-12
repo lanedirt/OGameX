@@ -113,7 +113,7 @@ class MerchantController extends OGameController
                 // Store active merchant in session (user-level, not planet-specific)
                 $request->session()->put('active_merchant_' . $player->getId(), [
                     'type' => $merchantType,
-                    'trade_rates' => $result['tradeRates'],
+                    'trade_rates' => $result['tradeRates'] ?? [],
                     'called_at' => time(),
                 ]);
             }

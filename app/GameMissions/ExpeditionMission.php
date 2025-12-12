@@ -640,6 +640,7 @@ class ExpeditionMission extends GameMission
             if ($settingsService->get($outcome->getSettingKey()) === '1') {
                 // TODO: Remove this filter once outcomes are fully implemented
                 // For now, skip unimplemented outcomes
+                // @phpstan-ignore-next-line - This check is for future-proofing when new outcomes are added
                 if (in_array($outcome, [
                     ExpeditionOutcomeType::GainItems,
                     ExpeditionOutcomeType::Battle,

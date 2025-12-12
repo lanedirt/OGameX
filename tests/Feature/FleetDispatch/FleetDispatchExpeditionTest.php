@@ -815,11 +815,18 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Verify that a merchant was called and is now active
         $activeMerchant = session()->get('active_merchant_' . $player->getId());
+        // @phpstan-ignore-next-line - PHPStan doesn't understand session()->get() can return non-null values
         $this->assertNotNull($activeMerchant, 'Merchant should be active after expedition');
-        $this->assertContains($activeMerchant['type'], ['metal', 'crystal', 'deuterium'],
-            'Expedition should call a resource trader (metal/crystal/deuterium)');
-        $this->assertArrayHasKey('trade_rates', $activeMerchant,
-            'Active merchant should have trade rates');
+        $this->assertContains(
+            $activeMerchant['type'],
+            ['metal', 'crystal', 'deuterium'],
+            'Expedition should call a resource trader (metal/crystal/deuterium)'
+        );
+        $this->assertArrayHasKey(
+            'trade_rates',
+            $activeMerchant,
+            'Active merchant should have trade rates'
+        );
 
         // Assert that the expedition message was sent
         // Check that we have at least one expedition merchant message
@@ -827,8 +834,11 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
             ->where('key', 'expedition_merchant_found')
             ->get();
 
-        $this->assertGreaterThan(0, $messages->count(),
-            'Expected at least one expedition merchant found message to be sent.');
+        $this->assertGreaterThan(
+            0,
+            $messages->count(),
+            'Expected at least one expedition merchant found message to be sent.'
+        );
 
         // Verify the merchant actually appears in the UI on the resource market page
         $response = $this->get('/merchant/resource-market');

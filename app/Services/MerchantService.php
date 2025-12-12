@@ -23,21 +23,11 @@ class MerchantService
     public const DARK_MATTER_COST = 3500;
 
     /**
-     * Base trade rates (metal:crystal:deuterium = 3:2:1)
-     * These values represent the relative worth of each resource.
-     */
-    private const BASE_TRADE_RATES = [
-        'metal' => 3,
-        'crystal' => 2,
-        'deuterium' => 1,
-    ];
-
-    /**
      * Call a merchant.
      *
      * @param PlayerService $player
      * @param string $merchantType ('metal', 'crystal', or 'deuterium')
-     * @return array{success: bool, message: string, tradeRates?: array}
+     * @return array{success: bool, message: string, tradeRates?: array{give: string, receive: array<string, array{rate: float, display: string}>}}
      * @throws Exception
      */
     public static function callMerchant(PlayerService $player, string $merchantType): array
@@ -83,7 +73,7 @@ class MerchantService
      * The median rate is 2.70:1.80:0.90, with 3.00:2.00:1.00 having highest probability (14.97%).
      *
      * @param string $merchantType
-     * @return array{give: string, receive: array{metal?: array, crystal?: array, deuterium?: array}}
+     * @return array{give: string, receive: array<string, array{rate: float, display: string}>}
      */
     public static function generateTradeRates(string $merchantType): array
     {
@@ -161,7 +151,7 @@ class MerchantService
         }
 
         // Select a random weighted index
-        $randomValue = rand(1, $totalWeight);
+        $randomValue = rand(1, (int)$totalWeight);
         $cumulativeWeight = 0;
 
         foreach ($weights as $index => $weight) {
