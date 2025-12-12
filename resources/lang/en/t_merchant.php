@@ -100,4 +100,20 @@ return [
     'Not enough item available' => 'Not enough :item available.',
     'Storage insufficient reduced amount' => 'The space in the storage was not large enough, so the number of :item was reduced to :amount',
     'No storage space available' => 'No storage space available for scrapping.',
+    'No items selected' => 'No items selected.',
+    'Offer is already at maximum' => 'Offer is already at maximum (75%).',
+    'Insufficient dark matter' => 'Insufficient dark matter.',
+
+    // Trade Error Messages
+    'No active merchant' => 'No active merchant. Please call a merchant first.',
+    'Invalid trade merchant type mismatch' => 'Invalid trade: merchant type mismatch.',
+    'Invalid exchange rate' => 'Invalid exchange rate.',
+    'Merchant dismissed' => 'Merchant dismissed.',
+    'Insufficient dark matter need amount' => 'Insufficient dark matter. You need :cost dark matter to call a merchant.',
+    'Merchant called successfully' => 'Merchant called successfully.',
+    'Invalid resource type' => 'Invalid resource type.',
+    'Not enough resource available' => 'Not enough :resource available. You have :have but need :need.',
+    'Not enough storage capacity' => 'Not enough storage capacity for :resource. You need :need capacity but only have :have.',
+    'Trade completed successfully' => 'Trade completed successfully.',
+    'Trade execution failed' => 'Trade execution failed: :error',
 ];

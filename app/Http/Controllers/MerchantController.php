@@ -150,7 +150,7 @@ class MerchantController extends OGameController
             if (!$activeMerchant) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No active merchant. Please call a merchant first.',
+                    'message' => __('t_merchant.No active merchant'),
                 ], 400);
             }
 
@@ -158,7 +158,7 @@ class MerchantController extends OGameController
             if ($activeMerchant['type'] !== $giveResource) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid trade: merchant type mismatch.',
+                    'message' => __('t_merchant.Invalid trade merchant type mismatch'),
                 ], 400);
             }
 
@@ -167,7 +167,7 @@ class MerchantController extends OGameController
                 abs($activeMerchant['trade_rates']['receive'][$receiveResource]['rate'] - $exchangeRate) > 0.0001) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid exchange rate.',
+                    'message' => __('t_merchant.Invalid exchange rate'),
                 ], 400);
             }
 
@@ -207,7 +207,7 @@ class MerchantController extends OGameController
 
         return response()->json([
             'success' => true,
-            'message' => 'Merchant dismissed.',
+            'message' => __('t_merchant.Merchant dismissed'),
         ]);
     }
 
@@ -338,7 +338,7 @@ class MerchantController extends OGameController
         if ($scrapSession['offer_percentage'] >= 75) {
             return response()->json([
                 'success' => false,
-                'message' => 'Offer is already at maximum (75%).',
+                'message' => __('t_merchant.Offer is already at maximum'),
             ], 400);
         }
 
@@ -349,7 +349,7 @@ class MerchantController extends OGameController
         if ($user->dark_matter < $bargainCost) {
             return response()->json([
                 'success' => false,
-                'message' => 'Insufficient dark matter.',
+                'message' => __('t_merchant.Insufficient dark matter'),
             ], 400);
         }
 
@@ -393,7 +393,7 @@ class MerchantController extends OGameController
         if (empty($items)) {
             return response()->json([
                 'success' => false,
-                'message' => 'No items selected.',
+                'message' => __('t_merchant.No items selected'),
             ], 400);
         }
 

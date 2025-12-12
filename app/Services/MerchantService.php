@@ -42,7 +42,7 @@ class MerchantService
         if ($user->dark_matter < self::DARK_MATTER_COST) {
             return [
                 'success' => false,
-                'message' => 'Insufficient dark matter. You need ' . number_format(self::DARK_MATTER_COST) . ' dark matter to call a merchant.',
+                'message' => __('t_merchant.Insufficient dark matter need amount', ['cost' => number_format(self::DARK_MATTER_COST)]),
             ];
         }
 
@@ -55,7 +55,7 @@ class MerchantService
 
         return [
             'success' => true,
-            'message' => 'Merchant called successfully.',
+            'message' => __('t_merchant.Merchant called successfully'),
             'tradeRates' => $tradeRates,
         ];
     }
@@ -205,7 +205,7 @@ class MerchantService
         if (!in_array($giveResource, $validResources) || !in_array($receiveResource, $validResources)) {
             return [
                 'success' => false,
-                'message' => 'Invalid resource type.',
+                'message' => __('t_merchant.Invalid resource type'),
             ];
         }
 
@@ -216,7 +216,11 @@ class MerchantService
         if ($currentAmount < $giveAmount) {
             return [
                 'success' => false,
-                'message' => 'Not enough ' . $giveResource . ' available. You have ' . number_format($currentAmount) . ' but need ' . number_format($giveAmount) . '.',
+                'message' => __('t_merchant.Not enough resource available', [
+                    'resource' => $giveResource,
+                    'have' => number_format($currentAmount),
+                    'need' => number_format($giveAmount)
+                ]),
             ];
         }
 
@@ -231,7 +235,11 @@ class MerchantService
         if ($currentReceiveAmount + $receiveAmount > $storageCapacity) {
             return [
                 'success' => false,
-                'message' => 'Not enough storage capacity for ' . $receiveResource . '. You need ' . number_format($currentReceiveAmount + $receiveAmount) . ' capacity but only have ' . number_format($storageCapacity) . '.',
+                'message' => __('t_merchant.Not enough storage capacity', [
+                    'resource' => $receiveResource,
+                    'need' => number_format($currentReceiveAmount + $receiveAmount),
+                    'have' => number_format($storageCapacity)
+                ]),
             ];
         }
 
@@ -260,14 +268,14 @@ class MerchantService
 
             return [
                 'success' => true,
-                'message' => 'Trade completed successfully.',
+                'message' => __('t_merchant.Trade completed successfully'),
                 'given' => $giveAmount,
                 'received' => $receiveAmount,
             ];
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Trade execution failed: ' . $e->getMessage(),
+                'message' => __('t_merchant.Trade execution failed', ['error' => $e->getMessage()]),
             ];
         }
     }
