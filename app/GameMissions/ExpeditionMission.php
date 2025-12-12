@@ -553,12 +553,18 @@ class ExpeditionMission extends GameMission
      */
     private function processExpeditionGainMerchantTradeOutcome(FleetMission $mission): void
     {
-        // TODO: Implement merchant trade logic
+        // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
-        // TODO: Send appropriate message once ExpeditionMerchantTrade message class exists
-        // $message_variation_id = ExpeditionMerchantTrade::getRandomMessageVariationId();
-        // $this->messageService->sendSystemMessageToPlayer($player, ExpeditionMerchantTrade::class, ['message_variation_id' => $message_variation_id]);
+        // Call a merchant for the player (or improve existing merchant rates)
+        // Behavior:
+        // - If no merchant active: calls a random resource trader (metal/crystal/deuterium)
+        // - If merchant already active: keeps same type, improves rates (never worsens)
+        \OGame\Services\MerchantService::addExpeditionBonus($player);
+
+        // Send a message to the player with the merchant found outcome
+        $message_variation_id = \OGame\GameMessages\ExpeditionMerchantFound::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, \OGame\GameMessages\ExpeditionMerchantFound::class, ['message_variation_id' => $message_variation_id]);
     }
 
     /**
@@ -634,9 +640,9 @@ class ExpeditionMission extends GameMission
             if ($settingsService->get($outcome->getSettingKey()) === '1') {
                 // TODO: Remove this filter once outcomes are fully implemented
                 // For now, skip unimplemented outcomes
+                // @phpstan-ignore-next-line - This check is for future-proofing when new outcomes are added
                 if (in_array($outcome, [
                     ExpeditionOutcomeType::GainItems,
-                    ExpeditionOutcomeType::GainMerchantTrade,
                     ExpeditionOutcomeType::Battle,
                 ])) {
                     continue;
