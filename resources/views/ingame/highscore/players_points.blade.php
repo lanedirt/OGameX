@@ -124,8 +124,10 @@
                 // Block BBCode preview AJAX calls temporarily to prevent 405 errors
                 var blockPreviewCalls = true;
                 $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-                    // Block POST requests to /overview which are preview-related
-                    if (blockPreviewCalls && options.url && options.type === 'POST' && options.url.indexOf('/overview') > -1) {
+                    // Block POST requests to preview URLs (empty, /overview, or invalid URLs)
+                    if (blockPreviewCalls && options.type === 'POST' &&
+                        (!options.url || options.url === '' || options.url.indexOf('/overview') > -1 ||
+                         options.url.indexOf('&imgAllowed=') === 0)) {
                         jqXHR.abort();
                         return false;
                     }
@@ -252,6 +254,7 @@
                 // Handle buddy request button clicks
                 $(document).on('click', '.sendBuddyRequest, .sendBuddyRequestLink', function(e) {
                     e.preventDefault();
+                    e.stopImmediatePropagation();
                     var playerId = $(this).data('playerid');
                     var playerName = $(this).data('playername');
                     if (playerId && playerName) {

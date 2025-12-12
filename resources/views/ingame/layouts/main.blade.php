@@ -599,7 +599,9 @@ Combat simulation save slots +20">
                 var activateToken = "e018389e3827e1499e41d35e3c811283";
                 var miniFleetToken = "4002a42efaeb2808f6c232594fb09aa4";
                 var currentPage = "overview";
-                var bbcodePreviewUrl = "{{ route('overview.index') }}#TODO_page=bbcodePreview";
+                // BBCode preview is handled client-side with custom parser (buddyBBCodeParser)
+                // Empty string prevents CORS errors while custom handlers override the preview
+                var bbcodePreviewUrl = "";
                 var popupWindows = [];
                 var fleetDeutSaveFactor = 1;
                 var honorScore = 0;

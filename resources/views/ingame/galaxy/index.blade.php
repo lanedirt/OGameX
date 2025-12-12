@@ -627,6 +627,7 @@
             }
         </script>
 
+@include('ingame.shared.buddy.bbcode-parser')
 
         <script type="text/javascript">
             var buildListCountdowns = new Array();
@@ -636,8 +637,6 @@
                 $(document.documentElement).on( "keyup", keyevent );
             })(jQuery)
 
-@include('ingame.shared.buddy.bbcode-parser')
-
             // Initialize buddy dialog after it loads
             window.initBuddyDialog = function() {
                 var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"Spoiler","moreopts":"","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"Cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};
@@ -645,8 +644,10 @@
                 // Block BBCode preview AJAX calls temporarily to prevent 405 errors
                 var blockPreviewCalls = true;
                 $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-                    // Block POST requests to /overview which are preview-related
-                    if (blockPreviewCalls && options.url && options.type === 'POST' && options.url.indexOf('/overview') > -1) {
+                    // Block POST requests to preview URLs (empty, /overview, or invalid URLs)
+                    if (blockPreviewCalls && options.type === 'POST' &&
+                        (!options.url || options.url === '' || options.url.indexOf('/overview') > -1 ||
+                         options.url.indexOf('&imgAllowed=') === 0)) {
                         jqXHR.abort();
                         return false;
                     }
@@ -769,6 +770,7 @@
             // Handle buddy request button clicks in galaxy (using event delegation for dynamically loaded content)
             $(document).on('click', '.buddyrequest, .sendBuddyRequestLink', function(e) {
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 // Extract player info from data attributes
                 var playerId = $(this).data('playerid');
                 var playerName = $(this).data('playername');

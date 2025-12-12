@@ -79020,10 +79020,9 @@ function getActions(galaxyContentObject, systemData) {
 
   if (actions.buddies.available) {
     buddyLink = `
-            <a class="tooltip overlay buddyrequest ipiHintable"
+            <a class="tooltip buddyrequest ipiHintable"
                title="Buddy request to player"
-               href="${actions.buddies.link}"
-               data-overlay-title="Buddy request to player"
+               href="javascript:void(0);"
                data-playerid="${actions.buddies.playerId}"
                data-playername="${actions.buddies.playerName}"
                data-ipi-hint="ipiGalaxySendBuddyRequest"
@@ -84437,30 +84436,9 @@ TechnologyDetails.prototype.setMaximumBuildableAmount = function () {
 };
 
 // Buddy system and ignore player handlers
-$(document).on('click', '.sendBuddyRequestLink', function(e) {
-    e.preventDefault();
-    var playerId = $(this).data('playerid');
-    var playerName = $(this).data('playername');
-    
-    $.ajax({
-        type: 'POST',
-        url: '/buddies',
-        data: {
-            action: 1, // Send buddy request
-            player_id: playerId,
-            _token: $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function(response) {
-            fadeBox('Buddy request sent to ' + playerName, false);
-        },
-        error: function(xhr) {
-            var errorMsg = xhr.responseJSON && xhr.responseJSON.message
-                ? xhr.responseJSON.message
-                : 'Failed to send buddy request';
-            fadeBox(errorMsg, true);
-        }
-    });
-});
+// NOTE: The sendBuddyRequestLink handler is now defined in the blade templates
+// (galaxy/index.blade.php and highscore/players_points.blade.php) to open a BBCode dialog.
+// The old direct-send implementation has been removed to avoid conflicts.
 
 $(document).on('click', '.ignorePlayerLink', function(e) {
     e.preventDefault();
