@@ -238,6 +238,19 @@
     };
 
     $(document).ready(function() {
+        // Function to update bargain button state (visual only, button remains clickable)
+        function updateBargainButton() {
+            var cost = {{ $bargainCost }};
+            if (offerPercentage >= maxPercentage || darkMatter < cost) {
+                $('#js_scrapBargain').addClass('disabled');
+            } else {
+                $('#js_scrapBargain').removeClass('disabled');
+            }
+        }
+
+        // Initial button state check
+        updateBargainButton();
+
         // Check if anythingSlider is available
         if (typeof $.fn.anythingSlider === 'undefined') {
             console.error('AnythingSlider plugin not loaded');
@@ -474,13 +487,21 @@
             e.preventDefault();
 
             if (offerPercentage >= maxPercentage) {
-                errorBoxNotify(LocalizationStrings.error, '@lang("The offer is already at maximum!")');
+                errorBoxNotify(LocalizationStrings.error, '@lang('t_merchant.offer_at_maximum')', 'OK');
                 return;
             }
 
             var cost = {{ $bargainCost }};
             if (darkMatter < cost) {
-                errorBoxNotify(LocalizationStrings.error, '@lang("Insufficient dark matter!")');
+                errorBoxDecision(
+                    LocalizationStrings.error,
+                    '@lang('t_merchant.not_enough_dark_matter')',
+                    '@lang('t_merchant.yes')',
+                    '@lang('t_merchant.no')',
+                    function() {
+                        // User clicked yes - do nothing, just close
+                    }
+                );
                 return;
             }
 
@@ -504,7 +525,8 @@
                     $('.js_bargainCost').text(response.newCost.toLocaleString());
 
                     updateScrapOffer();
-                    fadeBox('@lang("Negotiation successful!")', false);
+                    updateBargainButton();
+                    fadeBox('@lang('t_merchant.negotiation_successful')', false);
                 } else {
                     errorBoxNotify(LocalizationStrings.error, response.message);
                 }

@@ -150,7 +150,7 @@ class MerchantController extends OGameController
             if (!$activeMerchant) {
                 return response()->json([
                     'success' => false,
-                    'message' => __('t_merchant.No active merchant'),
+                    'message' => __('t_merchant.error.trade.no_active_merchant'),
                 ], 400);
             }
 
@@ -158,7 +158,7 @@ class MerchantController extends OGameController
             if ($activeMerchant['type'] !== $giveResource) {
                 return response()->json([
                     'success' => false,
-                    'message' => __('t_merchant.Invalid trade merchant type mismatch'),
+                    'message' => __('t_merchant.error.trade.merchant_type_mismatch'),
                 ], 400);
             }
 
@@ -167,7 +167,7 @@ class MerchantController extends OGameController
                 abs($activeMerchant['trade_rates']['receive'][$receiveResource]['rate'] - $exchangeRate) > 0.0001) {
                 return response()->json([
                     'success' => false,
-                    'message' => __('t_merchant.Invalid exchange rate'),
+                    'message' => __('t_merchant.error.trade.invalid_exchange_rate'),
                 ], 400);
             }
 
@@ -207,7 +207,7 @@ class MerchantController extends OGameController
 
         return response()->json([
             'success' => true,
-            'message' => __('t_merchant.Merchant dismissed'),
+            'message' => __('t_merchant.success.merchant_dismissed'),
         ]);
     }
 
@@ -338,7 +338,7 @@ class MerchantController extends OGameController
         if ($scrapSession['offer_percentage'] >= 75) {
             return response()->json([
                 'success' => false,
-                'message' => __('t_merchant.Offer is already at maximum'),
+                'message' => __('t_merchant.error.scrap.offer_at_maximum'),
             ], 400);
         }
 
@@ -349,7 +349,7 @@ class MerchantController extends OGameController
         if ($user->dark_matter < $bargainCost) {
             return response()->json([
                 'success' => false,
-                'message' => __('t_merchant.Insufficient dark matter'),
+                'message' => __('t_merchant.error.scrap.insufficient_dark_matter'),
             ], 400);
         }
 
@@ -393,7 +393,7 @@ class MerchantController extends OGameController
         if (empty($items)) {
             return response()->json([
                 'success' => false,
-                'message' => __('t_merchant.No items selected'),
+                'message' => __('t_merchant.error.scrap.no_items_selected'),
             ], 400);
         }
 
@@ -441,7 +441,7 @@ class MerchantController extends OGameController
             if ($currentAmount < $amount) {
                 return response()->json([
                     'success' => false,
-                    'message' => __('t_merchant.Not enough item available', ['item' => $object->title]),
+                    'message' => __('t_merchant.error.scrap.not_enough_item', ['item' => $object->title]),
                 ], 400);
             }
 
@@ -465,7 +465,7 @@ class MerchantController extends OGameController
                     'itemName' => $object->title,
                     'requestedAmount' => $amount,
                     'adjustedAmount' => $maxAmount,
-                    'message' => __('t_merchant.Storage insufficient reduced amount', [
+                    'message' => __('t_merchant.error.scrap.storage_insufficient', [
                         'item' => $object->title,
                         'amount' => $maxAmount
                     ])
@@ -496,7 +496,7 @@ class MerchantController extends OGameController
         if (empty($adjustedItems)) {
             return response()->json([
                 'success' => false,
-                'message' => __('t_merchant.No storage space available'),
+                'message' => __('t_merchant.error.scrap.no_storage_space'),
             ], 400);
         }
 
