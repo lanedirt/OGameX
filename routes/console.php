@@ -22,5 +22,5 @@ Schedule::command(GenerateHighscoreRanks::class)->everyFiveMinutes();
 // Reset empty debris fields weekly on Monday at 1:00 AM
 Schedule::command(ResetDebrisFields::class)->weeklyOn(1, '1:00');
 
-// Process Dark Matter regeneration hourly
-Schedule::command(DarkMatterRegenerateCommand::class)->hourly()->withoutOverlapping();
+// Process Dark Matter regeneration every 5 minutes
+Schedule::command(DarkMatterRegenerateCommand::class)->everyFiveMinutes()->withoutOverlapping();
