@@ -165,7 +165,7 @@ class DarkMatterService
                 return;
             }
 
-            $timeSinceLastRegen = now()->diffInSeconds($user->dark_matter_last_regen);
+            $timeSinceLastRegen = $user->dark_matter_last_regen->diffInSeconds(now());
 
             if ($timeSinceLastRegen >= $regenPeriod) {
                 $user->dark_matter += $regenAmount;
