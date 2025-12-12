@@ -822,10 +822,25 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
             'Active merchant should have trade rates');
 
         // Assert that the expedition message was sent
-        // Note: checking for 'merchant' as the message contains merchant-related text
-        $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
-            'merchant',
-        ]);
+        // Check that we have at least one expedition merchant message
+        $messages = \OGame\Models\Message::where('user_id', $player->getId())
+            ->where('key', 'expedition_merchant_found')
+            ->get();
+
+        $this->assertGreaterThan(0, $messages->count(),
+            'Expected at least one expedition merchant found message to be sent.');
+
+        // Verify the merchant actually appears in the UI on the resource market page
+        $response = $this->get('/merchant/resource-market');
+        $response->assertStatus(200);
+
+        // Should show "Already paid" section (not "Call merchant")
+        $response->assertSee('Already paid', false);
+        $response->assertSee('trade', false);
+
+        // Should have the active merchant highlighted with 'active' class
+        $merchantType = $activeMerchant['type'];
+        $response->assertSee('data-resource-type="' . $merchantType . '"', false);
     }
 
     /**
