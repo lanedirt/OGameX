@@ -388,6 +388,7 @@ class MerchantController extends OGameController
     public function scrapExecute(Request $request, PlayerService $player): JsonResponse
     {
         $items = $request->input('items', []);
+        $confirmed = $request->input('confirmed', false);
 
         if (empty($items)) {
             return response()->json([
@@ -497,6 +498,15 @@ class MerchantController extends OGameController
                 'success' => false,
                 'message' => __('t_merchant.No storage space available'),
             ], 400);
+        }
+
+        // If not confirmed, return success to indicate validation passed
+        // The frontend will then show the confirmation dialog
+        if (!$confirmed) {
+            return response()->json([
+                'success' => true,
+                'validated' => true,
+            ]);
         }
 
         // Calculate total resources to return

@@ -285,6 +285,7 @@ class MerchantTest extends AccountTestCase
             'items' => [
                 $smallCargoObject->id => 5,
             ],
+            'confirmed' => true,
             '_token' => csrf_token(),
         ]);
 
@@ -316,6 +317,7 @@ class MerchantTest extends AccountTestCase
             'items' => [
                 $rocketLauncherObject->id => 10,
             ],
+            'confirmed' => true,
             '_token' => csrf_token(),
         ]);
 
@@ -349,6 +351,7 @@ class MerchantTest extends AccountTestCase
             'items' => [
                 $smallCargoObject->id => 1000,
             ],
+            'confirmed' => true,
             '_token' => csrf_token(),
         ]);
 
@@ -480,6 +483,7 @@ class MerchantTest extends AccountTestCase
     {
         $response = $this->post('/merchant/scrap/execute', [
             'items' => [],
+            'confirmed' => true,
             '_token' => csrf_token(),
         ]);
 
@@ -502,6 +506,7 @@ class MerchantTest extends AccountTestCase
             'items' => [
                 $smallCargoObject->id => 10,
             ],
+            'confirmed' => true,
             '_token' => csrf_token(),
         ]);
 
@@ -530,6 +535,7 @@ class MerchantTest extends AccountTestCase
             'items' => [
                 $smallCargoObject->id => 1000,
             ],
+            'confirmed' => true,
             '_token' => csrf_token(),
         ]);
 
@@ -577,6 +583,7 @@ class MerchantTest extends AccountTestCase
             'items' => [
                 $smallCargoObject->id => 100,
             ],
+            'confirmed' => true,
             '_token' => csrf_token(),
         ]);
 

@@ -83,7 +83,13 @@
                                 <img src="/img/merchant/scrap_merchant.jpg" width="140" height="140" alt="@lang('Scrap Merchant')">
                             </div>
                             <div id="js_scrapOffer" class="offer tooltip js_hideTipOnMobile" data-tooltip-title="@lang('Offer')">
-                                <div class="js_scrap_offer_amount scrap_offer_amount">{{ $offerPercentage }}%</div>
+                                @php
+                                    // Calculate initial bar height based on offer percentage (0-140px for 0-75%)
+                                    $maxHeight = 140;
+                                    $maxPercentage = 75;
+                                    $initialHeight = ($offerPercentage / $maxPercentage) * $maxHeight;
+                                @endphp
+                                <div class="js_scrap_offer_amount scrap_offer_amount" style="height: {{ $initialHeight }}px;">{{ $offerPercentage }}%</div>
                             </div>
                             <br class="clearfloat">
                             <p class="scrap_trader_quote">@lang('You won`t get a better offer in any other galaxy.')</p>
@@ -486,7 +492,15 @@
                     bargainCount = response.bargainCount;
                     darkMatter = response.darkMatter;
 
+                    // Update percentage text
                     $('.js_scrap_offer_amount').text(offerPercentage + '%');
+
+                    // Update the visual height of the offer bar
+                    // Height represents the percentage (0-140px for 0-75%)
+                    var maxHeight = 140;
+                    var barHeight = (offerPercentage / maxPercentage) * maxHeight;
+                    $('.js_scrap_offer_amount').css('height', barHeight + 'px');
+
                     $('.js_bargainCost').text(response.newCost.toLocaleString());
 
                     updateScrapOffer();
@@ -577,7 +591,8 @@
                     // User confirmed - execute the scrap
                     $.post('{{ route('merchant.scrap.execute') }}', {
                         _token: '{{ csrf_token() }}',
-                        items: items
+                        items: items,
+                        confirmed: true
                     }, function(response) {
                         if (response.success) {
                             // Show the random merchant message from the server
