@@ -670,7 +670,8 @@ Combat simulation save slots +20">
                 var ogameUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
                 var startpageUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
                 var nodePort = 19603;
-                var nodeUrl = "{{ route('overview.index') }}#TODO_19603\/socket.io\/socket.io.js";
+                // TODO: WebSocket/chat functionality not yet implemented. Disabled to prevent loading overview as a script.
+                // var nodeUrl = "{{ route('overview.index') }}#TODO_19603\/socket.io\/socket.io.js";
                 var nodeParams = {
                     "port": 19603,
                     "secure": "true"
