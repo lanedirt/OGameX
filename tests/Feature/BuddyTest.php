@@ -633,7 +633,7 @@ class BuddyTest extends AccountTestCase
         ]);
 
         $response->assertRedirect('/buddies');
-        $response->assertSessionHas('status', 'Player ignored successfully.');
+        $response->assertSessionHas('status', 'Player ignored successfully!');
 
         // Verify the player is ignored
         $this->assertDatabaseHas('ignored_players', [
