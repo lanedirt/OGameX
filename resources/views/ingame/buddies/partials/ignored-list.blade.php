@@ -31,7 +31,7 @@
                 <form action="{{ route('buddies.unignore') }}" method="POST" style="display: inline;">
                     @csrf
                     <input type="hidden" name="ignored_user_id" value="{{ $ignoredUser->id }}">
-                    <button type="submit" class="tooltip js_hideTipOnMobile icon_link" data-tooltip-title="{{ __('Remove from ignore list') }}" style="background: none; border: none; cursor: pointer; padding: 0;">
+                    <button type="submit" class="tooltip js_hideTipOnMobile icon_link" data-tooltip-title="{{ __('t_buddies.action.remove_from_ignore') }}" style="background: none; border: none; cursor: pointer; padding: 0;">
                         <span class="icon icon_trash"></span>
                     </button>
                 </form>
@@ -41,7 +41,7 @@
 @else
     <tr>
         <td colspan="5" class="textCenter">
-            <p class="box_highlight textCenter">{{ __('No ignored players') }}</p>
+            <p class="box_highlight textCenter">{{ __('t_buddies.ui.no_ignored_players') }}</p>
         </td>
     </tr>
 @endif

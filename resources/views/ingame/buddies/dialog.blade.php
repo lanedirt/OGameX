@@ -8,7 +8,7 @@
                     <textarea name="message" class="buddy_request_textarea"></textarea>
                 </div>
             </div>
-            <input type="submit" class="btn_blue float_right" value="{{ __('send') }}">
+            <input type="submit" class="btn_blue float_right" value="{{ __('t_buddies.ui.send') }}">
         </form>
     </div>
 </div>

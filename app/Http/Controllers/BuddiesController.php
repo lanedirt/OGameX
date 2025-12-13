@@ -60,17 +60,17 @@ class BuddiesController extends OGameController
             switch ($action) {
                 case 3: // Cancel/withdraw buddy request
                     $buddyService->cancelRequest($targetId, $userId);
-                    $message = 'Buddy request cancelled successfully.';
+                    $message = __('t_buddies.success.request_cancelled');
                     break;
 
                 case 4: // Reject buddy request
                     $buddyService->rejectRequest($targetId, $userId);
-                    $message = 'Buddy request rejected.';
+                    $message = __('t_buddies.success.request_rejected');
                     break;
 
                 case 5: // Accept buddy request
                     $buddyService->acceptRequest($targetId, $userId);
-                    $message = 'Buddy request accepted!';
+                    $message = __('t_buddies.success.request_accepted');
                     break;
 
                 case 9: // List/reload buddies
@@ -81,7 +81,7 @@ class BuddiesController extends OGameController
                     if ($request->input('ajax') == 1) {
                         return $this->getBuddyListPartial($buddyService, $userId);
                     }
-                    $message = 'Buddy deleted successfully.';
+                    $message = __('t_buddies.success.buddy_deleted');
                     break;
 
                 case 15: // Search buddies
@@ -89,7 +89,7 @@ class BuddiesController extends OGameController
                     return $this->searchBuddies($searchTerm, $buddyService, $userId);
 
                 default:
-                    throw new Exception('Invalid action');
+                    throw new Exception(__('t_buddies.error.invalid_action'));
             }
 
             if ($request->input('ajax') == 1) {
@@ -181,7 +181,7 @@ class BuddiesController extends OGameController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Buddy request sent successfully!',
+                'message' => __('t_buddies.success.request_sent'),
                 'request_id' => $buddyRequest->id,
             ]);
         } catch (Exception $e) {
@@ -209,7 +209,7 @@ class BuddiesController extends OGameController
 
         try {
             $buddyService->ignorePlayer($userId, $request->input('ignored_user_id'));
-            return redirect()->route('buddies.index')->with('status', 'Player ignored successfully.');
+            return redirect()->route('buddies.index')->with('status', __('t_buddies.success.player_ignored'));
         } catch (Exception $e) {
             return redirect()->route('buddies.index')->with('error', $e->getMessage());
         }
@@ -232,7 +232,7 @@ class BuddiesController extends OGameController
 
         try {
             $buddyService->unignorePlayer($userId, $request->input('ignored_user_id'));
-            return redirect()->route('buddies.index')->with('status', 'Player unignored successfully.');
+            return redirect()->route('buddies.index')->with('status', __('t_buddies.success.player_unignored'));
         } catch (Exception $e) {
             return redirect()->route('buddies.index')->with('error', $e->getMessage());
         }
