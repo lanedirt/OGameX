@@ -76,19 +76,31 @@ class HighscoreController extends OGameController
 
         $highscoreService->setHighscoreType($type);
 
-        // Current player rank.
-        $currentPlayerRank = $highscoreService->getHighscorePlayerRank($player);
-
-        $currentPlayerPage = floor($currentPlayerRank / 100)  + 1;
-
-        // Check if we received a page number, if so, use it instead of the current player rank.
-        $page = $request->input('page', null);
-        if (!empty($page)) {
-            $page = (int)$page;
+        // Check if we're searching for a specific player's rank
+        $searchRelId = $request->input('searchRelId', null);
+        if ($searchRelId) {
+            // Get the rank of the searched player
+            $searchedPlayer = resolve(PlayerService::class, ['player_id' => (int)$searchRelId]);
+            $searchedPlayerRank = $highscoreService->getHighscorePlayerRank($searchedPlayer);
+            $page = (int) (floor($searchedPlayerRank / 100) + 1);
         } else {
-            // Initial page based on current player rank (round to the nearest 100 floored).
-            $page = (int)$currentPlayerPage;
+            // Current player rank.
+            $currentPlayerRank = $highscoreService->getHighscorePlayerRank($player);
+            $currentPlayerPage = floor($currentPlayerRank / 100) + 1;
+
+            // Check if we received a page number, if so, use it instead of the current player rank.
+            $page = $request->input('page', null);
+            if (!empty($page)) {
+                $page = (int)$page;
+            } else {
+                // Initial page based on current player rank (round to the nearest 100 floored).
+                $page = (int)$currentPlayerPage;
+            }
         }
+
+        // Current player rank (for highlighting purposes)
+        $currentPlayerRank = $highscoreService->getHighscorePlayerRank($player);
+        $currentPlayerPage = floor($currentPlayerRank / 100) + 1;
 
         // Get highscore players content view statically to insert into page.
         return view('ingame.highscore.players_points')->with([

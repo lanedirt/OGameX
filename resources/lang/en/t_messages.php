@@ -262,4 +262,28 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
             '1' => 'A core meltdown of the lead ship leads to a chain reaction, which destroys the entire expedition fleet in a spectacular explosion.',
         ],
     ],
+
+    // ------------------------
+    // Buddy Request Received
+    'buddy_request_received' => [
+        'from' => 'Buddies',
+        'subject' => 'Buddy request',
+        'body' => 'You have received a new buddy request from :sender_name.<span style="display:none;">:buddy_request_id</span>',
+    ],
+
+    // ------------------------
+    // Buddy Request Accepted
+    'buddy_request_accepted' => [
+        'from' => 'Buddies',
+        'subject' => 'Buddy request accepted',
+        'body' => 'Player :accepter_name added you to his buddy list.',
+    ],
+
+    // ------------------------
+    // Buddy Removed
+    'buddy_removed' => [
+        'from' => 'Buddies',
+        'subject' => 'You were deleted from a buddy list',
+        'body' => 'Player :remover_name removed you from their buddy list.',
+    ],
 ];

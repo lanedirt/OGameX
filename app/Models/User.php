@@ -126,4 +126,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(DarkMatterTransaction::class);
     }
+
+    /**
+     * Check if the user is currently online.
+     * A user is considered online if they were active within the last 15 minutes.
+     *
+     * @return bool
+     */
+    public function isOnline(): bool
+    {
+        if (!$this->time) {
+            return false;
+        }
+
+        // User is online if last activity was within 15 minutes (900 seconds)
+        $lastActivity = (int)$this->time;
+        $currentTime = time();
+        $timeDifference = $currentTime - $lastActivity;
+
+        return $timeDifference <= 900; // 15 minutes
+    }
 }

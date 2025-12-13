@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use OGame\Facades\AppUtil;
+use OGame\Services\BuddyService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\HighscoreService;
 use OGame\Services\MessageService;
@@ -27,8 +28,8 @@ class IngameMainComposer
     private MessageService $messageService;
     private SettingsService $settingsService;
     private FleetMissionService $fleetMissionService;
-
     private HighscoreService $highscoreService;
+    private BuddyService $buddyService;
 
     /**
      * IngameMainComposer constructor.
@@ -41,8 +42,10 @@ class IngameMainComposer
      * @param MessageService $messageService
      * @param SettingsService $settingsService
      * @param FleetMissionService $fleetMissionService
+     * @param HighscoreService $highscoreService
+     * @param BuddyService $buddyService
      */
-    public function __construct(Request $request, PlayerService $player, MessageService $messageService, SettingsService $settingsService, FleetMissionService $fleetMissionService, HighscoreService $highscoreService)
+    public function __construct(Request $request, PlayerService $player, MessageService $messageService, SettingsService $settingsService, FleetMissionService $fleetMissionService, HighscoreService $highscoreService, BuddyService $buddyService)
     {
         $this->request = $request;
         $this->player = $player;
@@ -50,6 +53,7 @@ class IngameMainComposer
         $this->settingsService = $settingsService;
         $this->fleetMissionService = $fleetMissionService;
         $this->highscoreService = $highscoreService;
+        $this->buddyService = $buddyService;
     }
 
     /**
@@ -118,6 +122,8 @@ class IngameMainComposer
         $view->with([
             'underAttack' => $this->fleetMissionService->currentPlayerUnderAttack(),
             'unreadMessagesCount' => $this->messageService->getUnreadMessagesCount(),
+            'buddyRequestCount' => $this->buddyService->getUnreadRequestsCount((int) auth()->id()),
+            'onlineBuddiesCount' => $this->buddyService->getOnlineBuddiesCount((int) auth()->id()),
             'resources' => $resources,
             'currentPlayer' => $this->player,
             'currentPlanet' => $this->player->planets->current(),
