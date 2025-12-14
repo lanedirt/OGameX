@@ -413,9 +413,9 @@
 
         // Validate storage capacity and adjust amounts if needed
         function validateStorageCapacity(targetInput) {
-            var freeMetalStorage = storageCapacity.metal - currentResources.metal;
-            var freeCrystalStorage = storageCapacity.crystal - currentResources.crystal;
-            var freeDeuteriumStorage = storageCapacity.deuterium - currentResources.deuterium;
+            var freeMetalStorage = Math.max(0, storageCapacity.metal - currentResources.metal);
+            var freeCrystalStorage = Math.max(0, storageCapacity.crystal - currentResources.crystal);
+            var freeDeuteriumStorage = Math.max(0, storageCapacity.deuterium - currentResources.deuterium);
 
             // First, calculate storage used by all OTHER inputs (not the target)
             $('.ship_amount[id]').each(function() {
@@ -461,18 +461,23 @@
                     var deuteriumPerUnit = Math.floor(deuteriumCost * (offerPercentage / 100));
 
                     // Calculate maximum amount that can be scrapped based on REMAINING storage
-                    var maxByMetal = metalPerUnit > 0 ? Math.floor(freeMetalStorage / metalPerUnit) : Number.MAX_SAFE_INTEGER;
-                    var maxByCrystal = crystalPerUnit > 0 ? Math.floor(freeCrystalStorage / crystalPerUnit) : Number.MAX_SAFE_INTEGER;
-                    var maxByDeuterium = deuteriumPerUnit > 0 ? Math.floor(freeDeuteriumStorage / deuteriumPerUnit) : Number.MAX_SAFE_INTEGER;
+                    var maxByMetal = metalPerUnit > 0 ? Math.max(0, Math.floor(freeMetalStorage / metalPerUnit)) : Number.MAX_SAFE_INTEGER;
+                    var maxByCrystal = crystalPerUnit > 0 ? Math.max(0, Math.floor(freeCrystalStorage / crystalPerUnit)) : Number.MAX_SAFE_INTEGER;
+                    var maxByDeuterium = deuteriumPerUnit > 0 ? Math.max(0, Math.floor(freeDeuteriumStorage / deuteriumPerUnit)) : Number.MAX_SAFE_INTEGER;
 
-                    var maxAmount = Math.min(val, maxByMetal, maxByCrystal, maxByDeuterium);
+                    var maxAmount = Math.max(0, Math.min(val, maxByMetal, maxByCrystal, maxByDeuterium));
 
                     if (maxAmount < val) {
                         // Need to reduce the amount
                         var itemName = itemNames[itemId] || 'Unknown Item';
                         targetInput.val(maxAmount.toLocaleString());
 
-                        var message = 'The space in the storage was not large enough, so the number of ' + itemName + ' was reduced to ' + maxAmount.toLocaleString();
+                        var message;
+                        if (maxAmount === 0) {
+                            message = 'The space in the storage was not large enough, so the number of ' + itemName + ' was reduced to 0';
+                        } else {
+                            message = 'The space in the storage was not large enough, so the number of ' + itemName + ' was reduced to ' + maxAmount.toLocaleString();
+                        }
                         fadeBox(message, true);
 
                         // Refresh the offer calculation with new value
