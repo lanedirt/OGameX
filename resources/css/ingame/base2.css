@@ -8691,6 +8691,7 @@ tr.over td {
     height: 235px;
     margin: 0;
     width: 327px;
+    text-decoration: none;
     zoom:1}
 
 #traderOverview #planet .resources_link_hover {
