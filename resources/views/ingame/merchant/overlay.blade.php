@@ -71,7 +71,7 @@
                             <td>
                                 <input type="text" pattern="[0-9,.]*" tabindex="{{ $resourceId }}" class="textinput" size="11"
                                        name="{{ $resourceId }}_value" id="{{ $resourceId }}_value" value="0"
-                                       onchange="checkValue({{ $resourceId }})" onblur="checkValue({{ $resourceId }})">
+                                       onkeyup="checkValue({{ $resourceId }})" onchange="checkValue({{ $resourceId }})">
                             </td>
                             <td>
                                 <a href="javascript:void(0);" onclick="setMaxValue({{ $resourceId }}); return false;"
@@ -196,8 +196,13 @@
     });
 
     function checkValue(resourceId) {
-        var input = $('#' + resourceId + '_value');
-        var value = parseInt(input.val().replace(/[,\.]/g, '')) || 0;
+        var input = document.getElementById(resourceId + '_value');
+
+        // Format input with thousand separators as user types
+        formatNumber(input, $(input).val());
+
+        // Get the numeric value for calculations
+        var value = parseInt($(input).val().replace(/[,\.]/g, '')) || 0;
 
         // Calculate how much of the selling resource is needed
         var giveResourceId = {{ $resources[$merchantType] }};
@@ -209,15 +214,32 @@
         // Check if we have enough of the selling resource
         if (neededAmount > offer_amount) {
             value = Math.floor(offer_amount * (receiveRate / giveRate));
-            input.val(value.toLocaleString('en-US', {maximumFractionDigits: 0}));
+            neededAmount = Math.ceil(value * (giveRate / receiveRate));
+            formatNumber(input, value);
         }
 
         // Check if it fits in storage
         var maxStorage = freeStorage[resourceId];
         if (value > maxStorage) {
             value = maxStorage;
-            input.val(value.toLocaleString('en-US', {maximumFractionDigits: 0}));
+            neededAmount = Math.ceil(value * (giveRate / receiveRate));
+            formatNumber(input, value);
         }
+
+        // Calculate total amount needed from selling resource
+        var totalNeeded = 0;
+        @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
+            @if($resourceKey !== $merchantType)
+                var val{{ $resourceId }} = parseInt($('#{{ $resourceId }}_value').val().replace(/[,\.]/g, '')) || 0;
+                if (val{{ $resourceId }} > 0) {
+                    var rate{{ $resourceId }} = factor[{{ $resourceId }}];
+                    totalNeeded += Math.ceil(val{{ $resourceId }} * (giveRate / rate{{ $resourceId }}));
+                }
+            @endif
+        @endforeach
+
+        // Update the selling resource display
+        $('#' + giveResourceId + '_value_label').text(number_format(totalNeeded, 0));
     }
 
     function setMaxValue(resourceId) {
@@ -261,7 +283,8 @@
             receiveRate: receiveRate
         });
 
-        $('#' + resourceId + '_value').val(maxValue.toLocaleString('en-US', {maximumFractionDigits: 0}));
+        $('#' + resourceId + '_value').val(maxValue);
+        checkValue(resourceId);
     }
 
     function trySubmit() {

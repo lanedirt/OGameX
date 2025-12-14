@@ -80,7 +80,7 @@
                                             <td>
                                                 <input type="text" pattern="[0-9,.]*" tabindex="{{ $resourceId }}" class="textinput" size="11"
                                                        name="{{ $resourceId }}_value" id="{{ $resourceId }}_value" value="0"
-                                                       onchange="checkValue({{ $resourceId }})" onkeyup="checkValue({{ $resourceId }})">
+                                                       onkeyup="checkValue({{ $resourceId }})" onchange="checkValue({{ $resourceId }})">
                                             </td>
                                             <td>
                                                 <a href="javascript:void(0);" onclick="setMaxValue({{ $resourceId }}); return false;"
@@ -221,7 +221,7 @@
                                             <td>
                                                 <input type="text" pattern="[0-9,.]*" tabindex="{{ $resourceId }}" class="textinput" size="11"
                                                        name="{{ $resourceId }}_value" id="{{ $resourceId }}_value" value="0"
-                                                       onchange="checkValue({{ $resourceId }})" onkeyup="checkValue({{ $resourceId }})">
+                                                       onkeyup="checkValue({{ $resourceId }})" onchange="checkValue({{ $resourceId }})">
                                             </td>
                                             <td>
                                                 <a href="javascript:void(0);" onclick="setMaxValue({{ $resourceId }}); return false;"
@@ -328,12 +328,23 @@
             $('.buttonTraderNewRate').on('click', callTrader);
             initTooltips();
 
+            // Initialize resource input fields
+            @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
+                @if($resourceKey !== $merchantType)
+                    $('#{{ $resourceId }}_value').val('0');
+                @endif
+            @endforeach
+
+            // Initialize selling resource display
+            var giveResourceId = {{ $resources[$merchantType] }};
+            $('#' + giveResourceId + '_value_label').text('0');
+
+
             // Set dialog title and configuration for overlay
             @if($isOverlay)
             var merchantTitle = '@lang("There is a trader here buying")' + ' ' + '{{ ucfirst($merchantType) }}' + '.';
             if (typeof $('.overlayDiv.traderlayer').dialog === 'function') {
                 $('.overlayDiv.traderlayer').dialog('option', 'title', merchantTitle);
-                // Make backdrop fully opaque to hide background page
                 $('.ui-widget-overlay').css({
                     'opacity': '1',
                     'background': '#000'
@@ -370,8 +381,13 @@
         });
 
         function checkValue(resourceId) {
-            var input = $('#' + resourceId + '_value');
-            var value = parseInt(input.val().replace(/,/g, '')) || 0;
+            var input = document.getElementById(resourceId + '_value');
+
+            // Format input with thousand separators first
+            formatNumber(input, $(input).val());
+
+            // Get the numeric value for calculations
+            var value = parseInt($(input).val().replace(/,/g, '')) || 0;
 
             // Calculate how much of the selling resource is needed
             var giveResourceId = {{ $resources[$merchantType] }};
@@ -383,15 +399,32 @@
             // Check if we have enough of the selling resource
             if (neededAmount > offer_amount) {
                 value = Math.floor(offer_amount * (receiveRate / giveRate));
-                input.val(value.toLocaleString());
+                neededAmount = Math.ceil(value * (giveRate / receiveRate));
+                formatNumber(input, value);
             }
 
             // Check if it fits in storage
             var maxStorage = freeStorage[resourceId];
             if (value > maxStorage) {
                 value = maxStorage;
-                input.val(value.toLocaleString());
+                neededAmount = Math.ceil(value * (giveRate / receiveRate));
+                formatNumber(input, value);
             }
+
+            // Calculate total amount needed from selling resource
+            var totalNeeded = 0;
+            @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
+                @if($resourceKey !== $merchantType)
+                    var val{{ $resourceId }} = parseInt($('#{{ $resourceId }}_value').val().replace(/,/g, '')) || 0;
+                    if (val{{ $resourceId }} > 0) {
+                        var rate{{ $resourceId }} = factor[{{ $resourceId }}];
+                        totalNeeded += Math.ceil(val{{ $resourceId }} * (giveRate / rate{{ $resourceId }}));
+                    }
+                @endif
+            @endforeach
+
+            // Update the selling resource display
+            $('#' + giveResourceId + '_value_label').text(number_format(totalNeeded, 0));
         }
 
         function setMaxValue(resourceId) {
@@ -408,7 +441,8 @@
             // Use the smaller of the two
             var maxValue = Math.min(maxFromAvailable, maxFromStorage);
 
-            $('#' + resourceId + '_value').val(maxValue.toLocaleString());
+            $('#' + resourceId + '_value').val(maxValue);
+            checkValue(resourceId);
         }
 
         function trySubmit() {
