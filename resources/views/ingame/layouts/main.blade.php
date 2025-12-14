@@ -394,15 +394,15 @@ Combat simulation save slots +20">
 
                     <li>
                         <span class="menu_icon">
-                            <a href="{{ route('merchant.index') }}#page=traderResources&amp;animation=false"
+                            <a href="{{ route('merchant.resource-market') }}"
                                class="trader tooltipRight js_hideTipOnMobile "
                                target="_self"
                                title="Resource Market">
-                                <div class="menuImage traderOverview {{(Request::is('merchant') ? 'highlighted' : '') }}">
+                                <div class="menuImage traderOverview {{(Request::is('merchant*') ? 'highlighted' : '') }}">
                                 </div>
                             </a>
                         </span>
-                        <a class="menubutton premiumHighligt {{(Request::is('merchant') ? 'selected' : '') }}"
+                        <a class="menubutton premiumHighligt {{(Request::is('merchant*') ? 'selected' : '') }}"
                            href="{{ route('merchant.index') }}"
                            accesskey=""
                            target="_self"
