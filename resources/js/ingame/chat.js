@@ -797,17 +797,6 @@ ogame.chat = {
             }
             $(".cb_playerlist_box").toggle();
             c.updateCustomScrollbar($(".scrollContainer"), true);
-            console.log('initChatBar()');
-            $.ajax({
-                url: chatUrl,
-                type: "POST",
-                dataType: "json",
-                data: {action: "toggleChatBar"},
-                success: function (b) {
-                },
-                error: function (h, b, g) {
-                }
-            })
         }).on("click.chatBar", ".chat_bar_list_item", function (a) {
             a.stopPropagation();
             if (!isNaN($(this).data("playerid"))) {
@@ -1077,28 +1066,60 @@ ogame.chat = {
         $.cookie("visibleChats", JSON.stringify(b), {expires: 7})
     },
     showPlayerList: function (d) {
-        // TODO: this code is part of "0 Contact(s) online." chat system.
-        // TODO: re-enable this code when working on this feature. For now its disabled.
-        return;
         var c = ogame.chat;
         if ($.inArray(d, c.playerListSelector) === -1) {
             c.playerListSelector.push(d)
         }
         if (c.isLoadingPlayerList === false && c.playerList === null) {
             c.isLoadingPlayerList = true;
-            console.log('showPlayerList()');
             $.ajax({
-                url: chatUrl,
-                type: "POST",
+                url: '/buddies/online',
+                type: "GET",
                 dataType: "json",
-                data: {action: "showPlayerList"},
-                success: function (a) {
-                    c.playerList = a.content;
+                success: function (response) {
+                    // Build the HTML for the player list matching original game structure
+                    var html = '<div class="js_playerlist pl_container contentbox fleft">';
+                    html += '<h2 class="header"><span class="c-right"></span><span class="c-left"></span>Player list</h2>';
+                    html += '<div class="content">';
+
+                    // Buddies section
+                    html += '<div class="playerlist_box js_accordion ui-accordion ui-widget ui-helper-reset" role="tablist">';
+                    html += '<h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-header-active ui-state-active ui-accordion-icons" role="tab">';
+                    html += '<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>Buddies</h3>';
+                    html += '<div class="ui-accordion-content ui-corner-bottom ui-helper-reset ui-widget-content ui-accordion-content-active" role="tabpanel">';
+                    html += '<div class="playerlist_top_box"></div>';
+                    html += '<div class="scrollContainer"><ul class="playerlist">';
+
+                    if (response.success && response.buddies && response.buddies.length > 0) {
+                        response.buddies.forEach(function(buddy, index) {
+                            // TODO: Clicking on a buddy should open a chat window with that player
+                            html += '<li class="playerlist_item ' + (index % 2 === 0 ? '' : 'odd') + '" data-playerid="' + buddy.id + '">';
+                            html += '<p class="playername">';
+                            html += '<span class="playerstatus tooltip online" data-tooltip-title="online"></span>';
+                            html += buddy.username + '</p>';
+                            html += '<span class="new_msg_count noMessage" data-playerid="' + buddy.id + '" data-new-messages="0">0</span>';
+                            html += '<span class="chatstatus cs_active fright"></span>';
+                            html += '</li>';
+                        });
+                    } else {
+                        html += '<li class="no_buddies">No buddies online</li>';
+                    }
+
+                    html += '</ul></div></div></div>';
+                    html += '</div>';
+                    html += '<div class="footer"><div class="c-right"></div><div class="c-left"></div></div>';
+                    html += '</div>';
+
+                    // IMPORTANT: Always set playerList so initChatBar() can be called
+                    c.playerList = html;
                     c.isLoadingPlayerList = false;
                     c._showPlayerList()
                 },
                 error: function (f, a, b) {
-                    c.isLoadingPlayerList = false
+                    console.error('showPlayerList() - Error loading buddies:', a, b);
+                    c.isLoadingPlayerList = false;
+                    c.playerList = '<div class="content"><p>Error loading buddies</p></div>';
+                    c._showPlayerList()
                 }
             })
         } else {

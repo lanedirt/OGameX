@@ -280,7 +280,8 @@ class HighscoreService
                     'points' => $score,
                     'points_formatted' => $score_formatted,
                     'planet_coords' => $mainPlanet->getPlanetCoordinates(),
-                    'rank' => $playerScore->{$this->highscoreType->name.'_rank'}
+                    'rank' => $playerScore->{$this->highscoreType->name.'_rank'},
+                    'is_admin' => $playerService->isAdmin(),
                 ];
             }
             return $parsedHighscores;

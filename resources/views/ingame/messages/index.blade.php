@@ -232,14 +232,15 @@
                 var buddyAction = 5;
                 var actionId = $(this).data('buddyid');
 
-                $.post("#ingame&component=buddies&ajax=1",
+                $.post("{{ route('buddies.post') }}",
                     {
                         action: buddyAction,
-                        id: actionId
+                        id: actionId,
+                        _token: "{{ csrf_token() }}"
                     },
                     function (data) {
-                        var currentlocation = window.location.href;
-                        window.location = currentlocation.substring(0, currentlocation.indexOf('?')) + '?page=ingame&component=buddies';
+                        // Redirect to buddies page after accepting
+                        window.location.href = "{{ route('buddies.index') }}";
                     });
             }
 
@@ -281,20 +282,16 @@
             function rejectRequest() {
                 var buddyAction = 4;
                 var actionId = $(this).data('buddyid');
-                var buddyCount = parseInt($("#newRequestCount").text()) - 1;
 
-                $.post("#ingame&component=buddies&ajax=1",
+                $.post("{{ route('buddies.post') }}",
                     {
                         action: buddyAction,
-                        id: actionId
+                        id: actionId,
+                        _token: "{{ csrf_token() }}"
                     },
                     function (data) {
-
-                        if (buddyCount >= 0) {
-                            $("#newRequestCount").html(buddyCount);
-                        }
-                        var currentlocation = window.location.href;
-                        window.location = currentlocation.substring(0, currentlocation.indexOf('?')) + '?page=ingame&component=buddies';
+                        // Redirect to buddies page after rejecting
+                        window.location.href = "{{ route('buddies.index') }}";
                     });
             }
         </script>
