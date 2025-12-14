@@ -492,7 +492,7 @@
             e.preventDefault();
 
             if (offerPercentage >= maxPercentage) {
-                errorBoxNotify(LocalizationStrings.error, '@lang('t_merchant.offer_at_maximum')', 'OK');
+                errorBoxNotify(LocalizationStrings.error, '{{ __('t_merchant.offer_at_maximum') }}', 'OK');
                 return;
             }
 
@@ -500,9 +500,9 @@
             if (darkMatter < cost) {
                 errorBoxDecision(
                     LocalizationStrings.error,
-                    '@lang('t_merchant.not_enough_dark_matter')',
-                    '@lang('t_merchant.yes')',
-                    '@lang('t_merchant.no')',
+                    '{{ __('t_merchant.not_enough_dark_matter') }}',
+                    '{{ __('t_merchant.yes') }}',
+                    '{{ __('t_merchant.no') }}',
                     function() {
                         // User clicked yes - do nothing, just close
                     }
@@ -531,13 +531,13 @@
 
                     updateScrapOffer();
                     updateBargainButton();
-                    fadeBox('@lang('t_merchant.negotiation_successful')', false);
+                    fadeBox('{{ __('t_merchant.negotiation_successful') }}', false);
                 } else {
                     errorBoxNotify(LocalizationStrings.error, response.message);
                 }
             }).fail(function(xhr) {
                 var response = xhr.responseJSON;
-                errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '@lang("An error occurred.")');
+                errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '{{ __('t_merchant.error_occurred') }}');
             });
         });
 
@@ -559,7 +559,7 @@
             });
 
             if (!hasItems) {
-                errorBoxNotify(LocalizationStrings.error, '@lang("Please select items to scrap.")');
+                errorBoxNotify(LocalizationStrings.error, '{{ __('t_merchant.select_items_to_scrap') }}');
                 return;
             }
 
@@ -591,7 +591,7 @@
                     });
                 } else {
                     // Regular error
-                    errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '@lang("An error occurred.")');
+                    errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '{{ __('t_merchant.error_occurred') }}');
                 }
             });
         });
@@ -601,19 +601,19 @@
             // Build confirmation message with item list
             var itemListHtml = '<div style="text-align: left; margin-left: 30px">';
             $.each(items, function(id, amount) {
-                var itemName = itemNames[id] || '@lang('t_merchant.Unknown Item')';
+                var itemName = itemNames[id] || '{{ __('t_merchant.unknown_item') }}';
                 itemListHtml += amount + 'x ' + itemName + '<br>';
             });
             itemListHtml += '</div>';
 
-            var confirmMessage = '@lang('t_merchant.Do you really want to scrap the following ships/defensive structures?')<br><br>' + itemListHtml;
+            var confirmMessage = '{{ __('t_merchant.scrap_confirmation') }}<br><br>' + itemListHtml;
 
             // Show confirmation dialog
             errorBoxDecision(
-                '@lang('t_merchant.Scrap Merchant')',
+                '{{ __('t_merchant.scrap_merchant') }}',
                 confirmMessage,
-                '@lang('t_merchant.yes')',
-                '@lang('t_merchant.No')',
+                '{{ __('t_merchant.yes') }}',
+                '{{ __('t_merchant.no') }}',
                 function() {
                     // User confirmed - execute the scrap
                     $.post('{{ route('merchant.scrap.execute') }}', {
@@ -632,7 +632,7 @@
                         }
                     }).fail(function(xhr) {
                         var response = xhr.responseJSON;
-                        errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '@lang("An error occurred.")');
+                        errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '{{ __('t_merchant.error_occurred') }}');
                     });
                 }
             );
