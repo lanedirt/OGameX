@@ -11,7 +11,9 @@
                        class="txt_link ui-tabs-anchor"
                        role="presentation" tabindex="-1" id="ui-id-31">
                         Messages
-
+                        @if ($unread_messages_count['messages'] > 0)
+                            <span>({{ $unread_messages_count['messages'] }})</span>
+                        @endif
                     </a>
                 </li>
                 <li id="subtabs-nfCommunication14" class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab"
@@ -21,7 +23,9 @@
                        class="txt_link ui-tabs-anchor"
                        role="presentation" tabindex="-1" id="ui-id-33">
                         Information
-                        <span></span>
+                        @if ($unread_messages_count['information'] > 0)
+                            <span>({{ $unread_messages_count['information'] }})</span>
+                        @endif
                     </a>
                 </li>
                 <li id="subtabs-nfCommunication12" class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab"
