@@ -273,6 +273,8 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
             '2' => 'A mysterious merchant vessel approached your expedition. The trader offered to visit your planets and provide special trading services.',
             '3' => 'The expedition encountered an intergalactic merchant convoy. One of the merchants has agreed to visit your homeworld to offer trading opportunities.',
         ],
+    ],
+
     // ------------------------
     // Buddy Request Received
     'buddy_request_received' => [
