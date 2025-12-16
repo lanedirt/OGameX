@@ -59,7 +59,7 @@
             "./vendor/bin/pint --parallel"
         ],
         "stan": [
-            "./vendor/bin/phpstan analyse --memory-limit=384M"
+            "./vendor/bin/phpstan analyse --memory-limit=1G"
         ],
         "tests": [
             "@php artisan test"
