@@ -76,6 +76,7 @@
                             @elseif (!$building->valid_planet_type)
                             @elseif (!$building->enough_resources)
                             @elseif ($build_queue_max)
+                            @elseif ($is_in_vacation_mode)
                             @elseif ($building->research_in_progress && $building->object->machine_name == 'research_lab')
                             @elseif ($building->ship_or_defense_in_progress  && ( $building->object->machine_name == 'shipyard' || $building->object->machine_name == 'nano_factory' ) )
                             @else
