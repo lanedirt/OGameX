@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Traits\ObjectAjaxTrait;
+use OGame\Services\HalvingService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -197,5 +198,52 @@ class ResearchController extends OGameController
             'status' => 'success',
             'message' => 'Building construction canceled.',
         ]);
+    }
+
+    /**
+     * Halve a research queue item using Dark Matter.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param HalvingService $halvingService
+     * @return JsonResponse
+     */
+    public function halveResearch(Request $request, PlayerService $player, HalvingService $halvingService): JsonResponse
+    {
+        try {
+            $queueItemId = (int)$request->input('queue_item_id');
+
+            if ($queueItemId <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'Invalid queue item ID',
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            $result = $halvingService->halveResearch(
+                $player->getUser(),
+                $queueItemId,
+                $player
+            );
+
+            return response()->json([
+                'success' => true,
+                'error' => false,
+                'newAjaxToken' => csrf_token(),
+                'new_time_end' => $result['new_time_end'],
+                'cost' => $result['cost'],
+                'new_balance' => $result['new_balance'],
+                'remaining_time' => $result['remaining_time'],
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => true,
+                'message' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ]);
+        }
     }
 }

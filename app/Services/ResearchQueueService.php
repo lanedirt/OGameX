@@ -446,4 +446,36 @@ class ResearchQueueService
             }
         }
     }
+
+    /**
+     * Get a queue item by ID and user ID.
+     *
+     * @param int $queueItemId The queue item ID
+     * @param int $userId The user ID
+     * @return ResearchQueue|null The queue item or null if not found
+     */
+    public function getQueueItemById(int $queueItemId, int $userId): ResearchQueue|null
+    {
+        return $this->model
+            ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
+            ->where('research_queues.id', $queueItemId)
+            ->where('planets.user_id', $userId)
+            ->where('research_queues.processed', 0)
+            ->where('research_queues.canceled', 0)
+            ->select('research_queues.*')
+            ->first();
+    }
+
+    /**
+     * Update the time_end field of a queue item.
+     *
+     * @param int $queueItemId The queue item ID
+     * @param int $userId The user ID
+     * @param int $newTimeEnd The new time_end value (Unix timestamp)
+     * @return void
+     */
+    public function updateTimeEnd(int $queueItemId, int $userId, int $newTimeEnd): void
+    {
+        ResearchQueue::where('id', $queueItemId)->update(['time_end' => $newTimeEnd]);
+    }
 }

@@ -68,6 +68,7 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::post('/facilities/add-buildrequest', [FacilitiesController::class, 'addBuildRequest'])->name('facilities.addbuildrequest.post');
     Route::post('/facilities/downgrade', [FacilitiesController::class, 'downgradeBuildRequest'])->name('facilities.downgrade');
     Route::post('/facilities/cancel-buildrequest', [FacilitiesController::class, 'cancelBuildRequest'])->name('facilities.cancelbuildrequest');
+    Route::post('/ajax/facilities/halve-building', [FacilitiesController::class, 'halveBuilding'])->name('facilities.halvebuilding');
 
     // Research
     Route::get('/research', [ResearchController::class, 'index'])->name('research.index');
@@ -75,11 +76,13 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::get('/research/add-buildrequest', [ResearchController::class, 'addBuildRequest'])->name('research.addbuildrequest');
     Route::post('/research/add-buildrequest', [ResearchController::class, 'addBuildRequest'])->name('research.addbuildrequest.post');
     Route::post('/research/cancel-buildrequest', [ResearchController::class, 'cancelBuildRequest'])->name('research.cancelbuildrequest');
+    Route::post('/ajax/research/halve-research', [ResearchController::class, 'halveResearch'])->name('research.halveresearch');
 
     // Shipyard
     Route::get('/shipyard', [ShipyardController::class, 'index'])->name('shipyard.index');
     Route::get('/ajax/shipyard', [ShipyardController::class, 'ajax'])->name('shipyard.ajax');
     Route::post('/shipyard/add-buildrequest', [ShipyardController::class, 'addBuildRequest'])->name('shipyard.addbuildrequest');
+    Route::post('/ajax/shipyard/halve-unit', [ShipyardController::class, 'halveUnit'])->name('shipyard.halveunit');
 
     // Defense
     Route::get('/defense', [DefenseController::class, 'index'])->name('defense.index');
