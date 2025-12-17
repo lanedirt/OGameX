@@ -649,15 +649,6 @@ class ExpeditionMission extends GameMission
                 continue;
             }
 
-            // TODO: Remove this filter once outcomes are fully implemented
-            // For now, skip unimplemented outcomes
-            if (in_array($outcome, [
-                ExpeditionOutcomeType::GainItems,
-                ExpeditionOutcomeType::Battle,
-            ])) {
-                continue;
-            }
-
             $weightedOutcomes[] = [
                 'outcome' => $outcome,
                 'weight' => $weight,
