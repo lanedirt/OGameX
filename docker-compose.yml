@@ -16,6 +16,11 @@ services:
       MARIADB_ROOT_PASSWORD: toor
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 6s
+      retries: 60
     networks:
       app-network:
         aliases:
@@ -24,11 +29,18 @@ services:
   # PHP Service
   ogamex-app:
     volumes:
-      - ./:/var/www
       - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./:/var/www
+      # Do not volume mount build directories
+      - /var/www/bootstrap/cache
+      - /var/www/vendor
+      - /var/www/rust
+      - /var/www/storage/rust-libs
+    image: ogamex/app
     build:
       context: .
       dockerfile: Dockerfile
+      target: app_dev
       args:
         OPCACHE_ENABLE: "0"  # Disable opcache for development
         USE_USER: ${USE_USER_ARG:-yes}  # Defaults to "yes". Set to "no" for GitHub Actions.
@@ -36,7 +48,6 @@ services:
     restart: unless-stopped
     tty: true
     environment:
-      CONTAINER_ROLE: app
       SERVICE_NAME: app
       SERVICE_TAGS: dev
     working_dir: /var/www
@@ -48,19 +59,25 @@ services:
     networks:
       - app-network
     depends_on:
-      - ogamex-db
+      ogamex-db:
+        condition: service_healthy
 
   # Scheduler
   ogamex-scheduler:
+    image: ogamex/scheduler
     build:
       context: .
       dockerfile: Dockerfile
+      target: scheduler
     container_name: ogamex-scheduler
     restart: unless-stopped
     volumes:
-      - .:/var/www/html
-    environment:
-      CONTAINER_ROLE: scheduler
+      - ./:/var/www
+      # Do not volume mount build directories
+      - /var/www/bootstrap/cache
+      - /var/www/vendor
+      - /var/www/rust
+      - /var/www/storage/rust-libs
     networks:
       - app-network
     depends_on:
@@ -69,15 +86,20 @@ services:
 
   # Queue
   ogamex-queue-worker:
+    image: ogamex/queue-worker
     build:
       context: .
       dockerfile: Dockerfile
+      target: queue
     container_name: ogamex-queue-worker
     restart: unless-stopped
     volumes:
-      - .:/var/www/html
-    environment:
-      CONTAINER_ROLE: queue
+      - ./:/var/www
+      # Do not volume mount build directories
+      - /var/www/bootstrap/cache
+      - /var/www/vendor
+      - /var/www/rust
+      - /var/www/storage/rust-libs
     networks:
       - app-network
     depends_on:

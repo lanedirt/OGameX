@@ -129,20 +129,31 @@ If you instead wish to install OGameX manually, see the list of requirements for
 ### <a name="development"></a> a) Install for local development
 For local development use the default docker-compose file that is included in this repository. This configuration is optimized for development and includes several tools that are useful for debugging and testing.
 
-Please note that performance of the development mode is slow on Windows (compared to MacOS/Linux) due to overhead of running Docker on Windows. Loading pages with development mode enabled can take multiple seconds on Windows. If you want to run OGameX on Windows, I advise to use the production mode instead. One of the main differences is that the production configuration enables PHP OPcache which speeds up the application, but this also means that the PHP files are not updated (instantly) when you change them. This makes it less suitable for development.
-
 1. Clone the repository.
   ```
   $ git clone https://github.com/lanedirt/OGameX.git
   $ cd OGameX
   ```
 
-2. Launch the project using Docker Compose:
+2. (MacOS/Linux) Launch the project using Docker Compose:
   ```
   $ docker compose up -d
   ```
-  > The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080. If you don't create a .env, the default .env.example will be copied to create it.
 
+2. (MacOs/Linux/Windows) Launch the project using Tilt
+
+    Launching via `docker-compose up` is not recommended for Windows users, because the volume mount via WSL2 is very I/O inefficient, causing major performance issues when running a Laravel app. For Windows, it's recommended to launch the project via Tilt.
+
+    1. Install Tilt via https://docs.tilt.dev/install.html. Installing kubectl is not necesssary for this project, since we are not using k8s.
+    2. Then launch the project using:
+        ```
+        $ tilt up
+        ```
+    3. You can find the Tilt UI at http://localhost:10350/ Here, you can also find container logs and restart/rebuild containers.
+
+  > The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080. If you don't create a .env, the default .env.example will be copied to create it.
+  
+  
 **Important:** it can take up to 10 minutes for the `ogamex-app` container to start, this is because of composer initialization and Rust compiling that happens on the first run. Please be patient and wait for all containers to have fully started.
 
 After the docker containers have started, visit http://localhost to access OGameX.
@@ -170,9 +181,15 @@ The instructions below are for Linux. OGameX should also work under Docker for W
   $ cp .env.example-prod .env
   ```
 
-3. Launch the project using Docker Compose:
+3. (MacOS/Linux) Launch the project using Docker Compose:
   ```
   $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
+  ```
+  
+3. (MacOS/Linux/Windows) Launch the project using Tilt
+
+  ```
+  $ tilt up -- --prod
   ```
 
   > The default setup binds to ports 80/443, to change it modify `docker-compose.yml`. PhpMyAdmin is also included for database management and is bound to port 8080, however to access it you need to explicitly specify your IP addresses via `./docker/phpmyadmin/.htaccess` for safety purposes.
