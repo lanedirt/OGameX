@@ -288,8 +288,7 @@
                             <div class="fieldwrapper">
                                 <div class="smallFont" style="margin-bottom: 15px; padding: 10px; background-color: #2c3e50; border: 1px solid #3498db; border-radius: 4px;">
                                     <strong>@lang('Default Percentages:')</strong><br>
-                                    {{-- Note: Items percentage is not yet researched and defaults to 0% --}}
-                                    @lang('Ships: 22% | Resources: 32% | Dark Matter: 9% | Delay: 7% | Speedup: 2% | Nothing: 18.6% | Black Hole: 0.33% | Pirates: 5.8% | Aliens: 2.6% | Merchant: 0.7% | Items: 0% (unknown)')
+                                    @lang('Nothing: 25% | Resources: 35% | Ships: 17% | Delay: 7.5% | Speedup: 2.75% | Dark Matter: 7.5% | Pirates: 3% | Aliens: 1.5% | Items: 0.5% | Merchant: 0.4% | Black Hole: 0.2%')
                                 </div>
                             </div>
                             <div class="fieldwrapper">

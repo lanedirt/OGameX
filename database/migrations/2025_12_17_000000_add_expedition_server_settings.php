@@ -33,19 +33,19 @@ return new class () extends Migration {
         }
 
         // Insert expedition outcome weight settings with default values
-        // These match the original hardcoded values before server settings were added
+        // These are based on official OGame percentages with unimplemented outcomes redistributed
         $weights = [
-            'expedition_weight_ships' => '22',           // 22% (was 220/1000)
-            'expedition_weight_resources' => '32.5',     // 32.5% (was 325/1000)
-            'expedition_weight_delay' => '7',            // 7% (was 70/1000)
-            'expedition_weight_speedup' => '2',          // 2% (was 20/1000)
-            'expedition_weight_nothing' => '26.5',       // 26.5% (was 265/1000, includes pirates/aliens)
-            'expedition_weight_black_hole' => '0.3',     // 0.3% (was 3/1000)
-            'expedition_weight_pirates' => '0',          // 0% (not yet implemented)
-            'expedition_weight_aliens' => '0',           // 0% (not yet implemented)
-            'expedition_weight_dark_matter' => '9',      // 9% (was 90/1000)
-            'expedition_weight_merchant' => '0.7',       // 0.7% (was 7/1000)
-            'expedition_weight_items' => '0',            // 0% (not yet implemented)
+            'expedition_weight_ships' => '17.9',         // 17% official + redistribution
+            'expedition_weight_resources' => '36.8',     // 35% official + redistribution
+            'expedition_weight_delay' => '7.9',          // 7.5% official + redistribution
+            'expedition_weight_speedup' => '2.9',        // 2.75% official + redistribution
+            'expedition_weight_nothing' => '26.3',       // 25% official + redistribution
+            'expedition_weight_black_hole' => '0.2',     // 0.2% official
+            'expedition_weight_pirates' => '0',          // 0% (not yet implemented, official: 3%)
+            'expedition_weight_aliens' => '0',           // 0% (not yet implemented, official: 1.5%)
+            'expedition_weight_dark_matter' => '7.9',    // 7.5% official + redistribution
+            'expedition_weight_merchant' => '0.4',       // 0.4% official
+            'expedition_weight_items' => '0',            // 0% (not yet implemented, official: 0.5%)
         ];
 
         foreach ($weights as $key => $value) {
