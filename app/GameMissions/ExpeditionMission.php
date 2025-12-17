@@ -653,7 +653,6 @@ class ExpeditionMission extends GameMission
             // For now, skip unimplemented outcomes
             if (in_array($outcome, [
                 ExpeditionOutcomeType::GainItems,
-                ExpeditionOutcomeType::GainMerchantTrade,
                 ExpeditionOutcomeType::Battle,
             ])) {
                 continue;
