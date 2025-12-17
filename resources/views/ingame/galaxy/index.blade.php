@@ -8,6 +8,26 @@
         </div>
     @endif
 
+    @if ($is_in_vacation_mode ?? false)
+    <div id="galaxycomponent" class="maincontent">
+        <div id="inhalt">
+            <div id="galaxyContent">
+                <div class="galaxyTable" style="background: #000; border: none !important;">
+                    <div class="galaxyRow ctGalaxyFleetInfo" id="fleetstatusrow" style="text-align: center;">
+                        <span class="fleetStatus" style="color: #B00001; font-weight: bold; font-size: 12px;">@lang('Player in vacation mode')</span>
+                    </div>
+                    <div class="galaxyRow" style="display: flex; justify-content: center; align-items: center; padding: 10px 0 30px 0;">
+                        <span style="color: #B00001; font-weight: bold; text-align: center; display: flex; align-items: center; gap: 5px;">
+                            <span class="icon icon_warning" style="display: inline-block; margin: 0 !important; vertical-align: middle;"></span>
+                            <span style="display: inline-block; line-height: 16px; vertical-align: middle;">@lang('You cannot use the galaxy view whilst in vacation mode!')</span>
+                            <span class="icon icon_warning" style="display: inline-block; margin: 0 !important; vertical-align: middle;"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @else
     <div id="galaxycomponent" class="maincontent">
         <script type="text/javascript">
             var galaxy = {{ $current_galaxy }};
@@ -818,4 +838,5 @@
             });
         </script>
     </div>
+    @endif
 @endsection

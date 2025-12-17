@@ -65,6 +65,7 @@ class GalaxyController extends OGameController
             'used_slots' => 0,
             'max_slots' => 1,
             'max_galaxies' => $settingsService->numberOfGalaxies(),
+            'is_in_vacation_mode' => $player->isInVacationMode(),
         ]);
     }
 
@@ -502,6 +503,13 @@ class GalaxyController extends OGameController
     {
         $this->playerService = $player;
         $this->planetServiceFactory = $planetServiceFactory;
+
+        if ($player->isInVacationMode()) {
+            return response()->json([
+                'success' => false,
+                'error' => __('You cannot use the galaxy view whilst in vacation mode!'),
+            ], 403);
+        }
 
         $planet = $player->planets->current();
         $galaxy = $request->input('galaxy');
