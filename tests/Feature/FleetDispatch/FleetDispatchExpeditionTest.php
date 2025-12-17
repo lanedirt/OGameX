@@ -871,10 +871,10 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
             $settingsService->set('bonus_expedition_slots', 0);
         }
         if (!$settingsService->get('expedition_reward_multiplier_resources')) {
-            $settingsService->set('expedition_reward_multiplier_resources', 1.0);
-            $settingsService->set('expedition_reward_multiplier_ships', 1.0);
-            $settingsService->set('expedition_reward_multiplier_dark_matter', 1.0);
-            $settingsService->set('expedition_reward_multiplier_items', 1.0);
+            $settingsService->set('expedition_reward_multiplier_resources', '1.0');
+            $settingsService->set('expedition_reward_multiplier_ships', '1.0');
+            $settingsService->set('expedition_reward_multiplier_dark_matter', '1.0');
+            $settingsService->set('expedition_reward_multiplier_items', '1.0');
         }
 
         // Map outcome types to their weight setting keys using enum values as strings
@@ -893,16 +893,16 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Ensure all weights are initialized with their defaults if not already set
         $defaultWeights = [
-            'expedition_weight_ships' => 22,
-            'expedition_weight_resources' => 32.5,
-            'expedition_weight_delay' => 7,
-            'expedition_weight_speedup' => 2,
-            'expedition_weight_nothing' => 26.5,
-            'expedition_weight_black_hole' => 0.3,
-            'expedition_weight_dark_matter' => 9,
-            'expedition_weight_merchant' => 0.7,
-            'expedition_weight_pirates' => 0,
-            'expedition_weight_aliens' => 0,
+            'expedition_weight_ships' => '22',
+            'expedition_weight_resources' => '32.5',
+            'expedition_weight_delay' => '7',
+            'expedition_weight_speedup' => '2',
+            'expedition_weight_nothing' => '26.5',
+            'expedition_weight_black_hole' => '0.3',
+            'expedition_weight_dark_matter' => '9',
+            'expedition_weight_merchant' => '0.7',
+            'expedition_weight_pirates' => '0',
+            'expedition_weight_aliens' => '0',
         ];
 
         foreach ($defaultWeights as $key => $defaultValue) {

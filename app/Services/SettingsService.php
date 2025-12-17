@@ -453,7 +453,7 @@ class SettingsService
      */
     public function expeditionRewardsMultiplier(): float
     {
-        return (float)$this->get('expedition_rewards_multiplier', 1.0);
+        return (float)$this->get('expedition_rewards_multiplier', '1.0');
     }
 
     /**
@@ -463,7 +463,7 @@ class SettingsService
      */
     public function expeditionRewardMultiplierResources(): float
     {
-        return (float)$this->get('expedition_reward_multiplier_resources', 1.0);
+        return (float)$this->get('expedition_reward_multiplier_resources', '1.0');
     }
 
     /**
@@ -473,7 +473,7 @@ class SettingsService
      */
     public function expeditionRewardMultiplierShips(): float
     {
-        return (float)$this->get('expedition_reward_multiplier_ships', 1.0);
+        return (float)$this->get('expedition_reward_multiplier_ships', '1.0');
     }
 
     /**
@@ -483,7 +483,7 @@ class SettingsService
      */
     public function expeditionRewardMultiplierDarkMatter(): float
     {
-        return (float)$this->get('expedition_reward_multiplier_dark_matter', 1.0);
+        return (float)$this->get('expedition_reward_multiplier_dark_matter', '1.0');
     }
 
     /**
@@ -493,7 +493,7 @@ class SettingsService
      */
     public function expeditionRewardMultiplierItems(): float
     {
-        return (float)$this->get('expedition_reward_multiplier_items', 1.0);
+        return (float)$this->get('expedition_reward_multiplier_items', '1.0');
     }
 
     /**
@@ -503,7 +503,7 @@ class SettingsService
      */
     public function expeditionWeightShips(): float
     {
-        return (float)$this->get('expedition_weight_ships', 22);
+        return (float)$this->get('expedition_weight_ships', '22');
     }
 
     /**
@@ -513,7 +513,7 @@ class SettingsService
      */
     public function expeditionWeightResources(): float
     {
-        return (float)$this->get('expedition_weight_resources', 32.5);
+        return (float)$this->get('expedition_weight_resources', '32.5');
     }
 
     /**
@@ -523,7 +523,7 @@ class SettingsService
      */
     public function expeditionWeightDelay(): float
     {
-        return (float)$this->get('expedition_weight_delay', 7);
+        return (float)$this->get('expedition_weight_delay', '7');
     }
 
     /**
@@ -533,7 +533,7 @@ class SettingsService
      */
     public function expeditionWeightSpeedup(): float
     {
-        return (float)$this->get('expedition_weight_speedup', 2);
+        return (float)$this->get('expedition_weight_speedup', '2');
     }
 
     /**
@@ -543,7 +543,7 @@ class SettingsService
      */
     public function expeditionWeightNothing(): float
     {
-        return (float)$this->get('expedition_weight_nothing', 26.5);
+        return (float)$this->get('expedition_weight_nothing', '26.5');
     }
 
     /**
@@ -553,7 +553,7 @@ class SettingsService
      */
     public function expeditionWeightBlackHole(): float
     {
-        return (float)$this->get('expedition_weight_black_hole', 0.3);
+        return (float)$this->get('expedition_weight_black_hole', '0.3');
     }
 
     /**
@@ -563,7 +563,7 @@ class SettingsService
      */
     public function expeditionWeightPirates(): float
     {
-        return (float)$this->get('expedition_weight_pirates', 0);
+        return (float)$this->get('expedition_weight_pirates', '0');
     }
 
     /**
@@ -573,7 +573,7 @@ class SettingsService
      */
     public function expeditionWeightAliens(): float
     {
-        return (float)$this->get('expedition_weight_aliens', 0);
+        return (float)$this->get('expedition_weight_aliens', '0');
     }
 
     /**
@@ -583,7 +583,7 @@ class SettingsService
      */
     public function expeditionWeightDarkMatter(): float
     {
-        return (float)$this->get('expedition_weight_dark_matter', 9);
+        return (float)$this->get('expedition_weight_dark_matter', '9');
     }
 
     /**
@@ -593,7 +593,7 @@ class SettingsService
      */
     public function expeditionWeightMerchant(): float
     {
-        return (float)$this->get('expedition_weight_merchant', 0.7);
+        return (float)$this->get('expedition_weight_merchant', '0.7');
     }
 
     /**
@@ -603,6 +603,6 @@ class SettingsService
      */
     public function expeditionWeightItems(): float
     {
-        return (float)$this->get('expedition_weight_items', 0);
+        return (float)$this->get('expedition_weight_items', '0');
     }
 }

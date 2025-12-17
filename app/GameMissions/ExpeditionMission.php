@@ -42,7 +42,7 @@ class ExpeditionMission extends GameMission
      * Get configurable outcome weights based on community research.
      * Each outcome has a weight (representing relative probability).
      * Weights are loaded from database settings to allow dynamic event configuration.
-     * @return array<string, int>
+     * @return array<string, float>
      */
     protected function getOutcomeWeights(): array
     {
@@ -667,12 +667,12 @@ class ExpeditionMission extends GameMission
         }
 
         // If no outcomes have weight > 0, default to failure
-        if (empty($weightedOutcomes)) {
+        if (empty($weightedOutcomes) || $totalWeight <= 0) {
             return ExpeditionOutcomeType::Failed;
         }
 
         // Pick a random number between 1 and total weight
-        $random = random_int(1, $totalWeight);
+        $random = random_int(1, (int)$totalWeight);
 
         // Find which outcome was selected
         $currentWeight = 0;
