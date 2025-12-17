@@ -39,7 +39,7 @@ class ExpeditionMission extends GameMission
     protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Neutral;
 
     /**
-     * Get configurable outcome weights from settings.
+     * Get configurable outcome weights based on community research.
      * Each outcome has a weight (representing relative probability).
      * Weights are loaded from database settings to allow dynamic event configuration.
      * @return array<string, int>
