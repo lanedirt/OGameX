@@ -39,23 +39,28 @@ class ExpeditionMission extends GameMission
     protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Neutral;
 
     /**
-     * Configurable outcome weights based on community research.
-     * Each outcome has a weight out of 1000 (representing 0.1% precision).
-     * Total should add up to 1000 for 100%.
-     * @var array<string, int>
+     * Get configurable outcome weights from settings.
+     * Each outcome has a weight (representing relative probability).
+     * Weights are loaded from database settings to allow dynamic event configuration.
+     * @return array<string, int>
      */
-    protected array $outcomeWeights = [
-        'dark_matter' => 90,      // 9.0% - Find Dark Matter
-        'ships' => 220,           // 22.0% - Find abandoned ships
-        'resources' => 325,       // 32.5% - Find resources
-        // 'pirates' => 58,       // 5.8% - Find pirates (combat) - TODO: implement combat
-        // 'aliens' => 26,        // 2.6% - Find aliens (combat) - TODO: implement combat
-        'delay' => 70,            // 7.0% - Fleet has delay
-        'speedup' => 20,          // 2.0% - Fleet returns early
-        'nothing' => 265,         // 26.5% - Find nothing (includes pirates/aliens weight for now)
-        'black_hole' => 3,        // 0.33% - Black hole (fleet loss)
-        'merchant' => 7,          // 0.7% - Find merchant
-    ];
+    protected function getOutcomeWeights(): array
+    {
+        $settingsService = app(SettingsService::class);
+
+        return [
+            'dark_matter' => $settingsService->expeditionWeightDarkMatter(),
+            'ships' => $settingsService->expeditionWeightShips(),
+            'resources' => $settingsService->expeditionWeightResources(),
+            'delay' => $settingsService->expeditionWeightDelay(),
+            'speedup' => $settingsService->expeditionWeightSpeedup(),
+            'nothing' => $settingsService->expeditionWeightNothing(),
+            'black_hole' => $settingsService->expeditionWeightBlackHole(),
+            'pirates' => $settingsService->expeditionWeightPirates(),
+            'aliens' => $settingsService->expeditionWeightAliens(),
+            'merchant' => $settingsService->expeditionWeightMerchant(),
+        ];
+    }
 
     /**
      * @inheritdoc
@@ -431,9 +436,9 @@ class ExpeditionMission extends GameMission
         $resourcesInCargo = $mission->metal + $mission->crystal + $mission->deuterium;
         $maxCargoCapacity = $totalCargoCapacity - $resourcesInCargo;
 
-        // Determine the max resource find.
-        $maxResourceFind = $this->determineMaxResourceFind();
-        $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $maxResourceFind);
+        // Determine the max ship find (uses ships multiplier).
+        $maxShipFind = $this->determineMaxShipFind();
+        $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $maxShipFind);
 
         // Select 1-6 random ship types from possible ships.
         $num_ship_types = min(random_int(1, 6), count($possibleShips));
@@ -525,6 +530,11 @@ class ExpeditionMission extends GameMission
         $darkMatterService = app(\OGame\Services\DarkMatterService::class);
         $darkMatterAmount = $darkMatterService->calculateExpeditionReward($hasPathfinder);
 
+        // Apply dark matter rewards multiplier
+        $settingsService = app(SettingsService::class);
+        $darkMatterMultiplier = $settingsService->expeditionRewardMultiplierDarkMatter();
+        $darkMatterAmount = (int)($darkMatterAmount * $darkMatterMultiplier);
+
         // Credit Dark Matter to player
         $user = User::find($mission->user_id);
         if ($user === null) {
@@ -605,8 +615,6 @@ class ExpeditionMission extends GameMission
      */
     private function selectRandomOutcome(): ExpeditionOutcomeType
     {
-        $settingsService = app(SettingsService::class);
-
         // Map outcome types to their weights
         $outcomeMapping = [
             'dark_matter' => ExpeditionOutcomeType::GainDarkMatter,
@@ -623,34 +631,36 @@ class ExpeditionMission extends GameMission
         $weightedOutcomes = [];
         $totalWeight = 0;
 
-        foreach ($this->outcomeWeights as $key => $weight) {
+        foreach ($this->getOutcomeWeights() as $key => $weight) {
             if (!isset($outcomeMapping[$key])) {
                 continue;
             }
 
             $outcome = $outcomeMapping[$key];
 
-            // Check if outcome is enabled in settings
-            if ($settingsService->get($outcome->getSettingKey()) === '1') {
-                // TODO: Remove this filter once outcomes are fully implemented
-                // For now, skip unimplemented outcomes
-                if (in_array($outcome, [
-                    ExpeditionOutcomeType::GainItems,
-                    ExpeditionOutcomeType::GainMerchantTrade,
-                    ExpeditionOutcomeType::Battle,
-                ])) {
-                    continue;
-                }
-
-                $weightedOutcomes[] = [
-                    'outcome' => $outcome,
-                    'weight' => $weight,
-                ];
-                $totalWeight += $weight;
+            // Skip outcomes with 0 weight (disabled)
+            if ($weight <= 0) {
+                continue;
             }
+
+            // TODO: Remove this filter once outcomes are fully implemented
+            // For now, skip unimplemented outcomes
+            if (in_array($outcome, [
+                ExpeditionOutcomeType::GainItems,
+                ExpeditionOutcomeType::GainMerchantTrade,
+                ExpeditionOutcomeType::Battle,
+            ])) {
+                continue;
+            }
+
+            $weightedOutcomes[] = [
+                'outcome' => $outcome,
+                'weight' => $weight,
+            ];
+            $totalWeight += $weight;
         }
 
-        // If no outcomes are enabled, default to failure
+        // If no outcomes have weight > 0, default to failure
         if (empty($weightedOutcomes)) {
             return ExpeditionOutcomeType::Failed;
         }
@@ -731,6 +741,59 @@ class ExpeditionMission extends GameMission
         $resourceAmount = $resourceAmount * ($economySpeed * 1.5);
 
         // TODO: when pathfinder unit is added to the game and included in the fleet, the max find should be doubled.
+
+        // Apply resource rewards multiplier
+        $settingsService = app(SettingsService::class);
+        $resourceMultiplier = $settingsService->expeditionRewardMultiplierResources();
+        $resourceAmount = $resourceAmount * $resourceMultiplier;
+
+        return (int)$resourceAmount;
+    }
+
+    /**
+     * Similar to determineMaxResourceFind() but applies the ships multiplier instead.
+     *
+     * @return int
+     */
+    private function determineMaxShipFind(): int
+    {
+        // Use the same base calculation as determineMaxResourceFind()
+        $rank_1_highscore_points = Highscore::orderByDesc(HighscoreTypeEnum::general->name)->first()->general;
+
+        if ($rank_1_highscore_points < 10000) {
+            $max = 40000;
+        } elseif ($rank_1_highscore_points < 100000) {
+            $max = 500000;
+        } elseif ($rank_1_highscore_points < 1000000) {
+            $max = 1200000;
+        } elseif ($rank_1_highscore_points < 5000000) {
+            $max = 1800000;
+        } elseif ($rank_1_highscore_points < 25000000) {
+            $max = 2400000;
+        } elseif ($rank_1_highscore_points < 50000000) {
+            $max = 3000000;
+        } elseif ($rank_1_highscore_points < 75000000) {
+            $max = 3600000;
+        } elseif ($rank_1_highscore_points < 100000000) {
+            $max = 4200000;
+        } else {
+            $max = 5000000;
+        }
+
+        // Set min to at least 10% of the max.
+        $min = max(1, (int)floor($max * 0.1));
+
+        // Pick a random amount between min and max.
+        $resourceAmount = random_int($min, $max);
+
+        // Apply economy speed modifier
+        $economySpeed = $this->settings->economySpeed();
+        $resourceAmount = $resourceAmount * ($economySpeed * 1.5);
+
+        // Apply ship rewards multiplier
+        $settingsService = app(SettingsService::class);
+        $shipMultiplier = $settingsService->expeditionRewardMultiplierShips();
+        $resourceAmount = $resourceAmount * $shipMultiplier;
 
         return (int)$resourceAmount;
     }
