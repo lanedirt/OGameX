@@ -522,9 +522,11 @@ class ExpeditionMission extends GameMission
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
         // Check if fleet has Pathfinder ships
-        $fleetUnits = $this->fleetMissionService->getFleetUnits(mission: $mission);
-        $objectService = app(ObjectService::class);
-        $hasPathfinder = $fleetUnits->hasUnit($objectService->getShipObjectByMachineName('pathfinder'));
+        // TODO: Pathfinder ship not yet implemented, uncomment when available
+        // $fleetUnits = $this->fleetMissionService->getFleetUnits(mission: $mission);
+        // $objectService = app(ObjectService::class);
+        // $hasPathfinder = $fleetUnits->hasUnit($objectService->getShipObjectByMachineName('pathfinder'));
+        $hasPathfinder = false;
 
         // Calculate Dark Matter reward
         $darkMatterService = app(\OGame\Services\DarkMatterService::class);
