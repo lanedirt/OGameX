@@ -435,4 +435,174 @@ class SettingsService
     {
         return (int)$this->get('defense_repair_rate', 70);
     }
+
+    /**
+     * Returns the bonus expedition slots setting.
+     *
+     * @return int
+     */
+    public function bonusExpeditionSlots(): int
+    {
+        return (int)$this->get('bonus_expedition_slots', 0);
+    }
+
+    /**
+     * Returns the expedition rewards multiplier.
+     *
+     * @return float
+     */
+    public function expeditionRewardsMultiplier(): float
+    {
+        return (float)$this->get('expedition_rewards_multiplier', '1.0');
+    }
+
+    /**
+     * Returns the expedition resource rewards multiplier.
+     *
+     * @return float
+     */
+    public function expeditionRewardMultiplierResources(): float
+    {
+        return (float)$this->get('expedition_reward_multiplier_resources', '1.0');
+    }
+
+    /**
+     * Returns the expedition ship rewards multiplier.
+     *
+     * @return float
+     */
+    public function expeditionRewardMultiplierShips(): float
+    {
+        return (float)$this->get('expedition_reward_multiplier_ships', '1.0');
+    }
+
+    /**
+     * Returns the expedition dark matter rewards multiplier.
+     *
+     * @return float
+     */
+    public function expeditionRewardMultiplierDarkMatter(): float
+    {
+        return (float)$this->get('expedition_reward_multiplier_dark_matter', '1.0');
+    }
+
+    /**
+     * Returns the expedition item rewards multiplier.
+     *
+     * @return float
+     */
+    public function expeditionRewardMultiplierItems(): float
+    {
+        return (float)$this->get('expedition_reward_multiplier_items', '1.0');
+    }
+
+    /**
+     * Returns the expedition outcome weight for ships (0-100 scale, relative).
+     *
+     * @return float
+     */
+    public function expeditionWeightShips(): float
+    {
+        return (float)$this->get('expedition_weight_ships', '22');
+    }
+
+    /**
+     * Returns the expedition outcome weight for resources (0-100 scale, relative).
+     *
+     * @return float
+     */
+    public function expeditionWeightResources(): float
+    {
+        return (float)$this->get('expedition_weight_resources', '32.5');
+    }
+
+    /**
+     * Returns the expedition outcome weight for delay (0-100 scale, relative).
+     *
+     * @return float
+     */
+    public function expeditionWeightDelay(): float
+    {
+        return (float)$this->get('expedition_weight_delay', '7');
+    }
+
+    /**
+     * Returns the expedition outcome weight for speedup (0-100 scale, relative).
+     *
+     * @return float
+     */
+    public function expeditionWeightSpeedup(): float
+    {
+        return (float)$this->get('expedition_weight_speedup', '2');
+    }
+
+    /**
+     * Returns the expedition outcome weight for nothing/failed (0-100 scale, relative).
+     *
+     * @return float
+     */
+    public function expeditionWeightNothing(): float
+    {
+        return (float)$this->get('expedition_weight_nothing', '26.5');
+    }
+
+    /**
+     * Returns the expedition outcome weight for black hole/fleet loss (0-100 scale, relative).
+     *
+     * @return float
+     */
+    public function expeditionWeightBlackHole(): float
+    {
+        return (float)$this->get('expedition_weight_black_hole', '0.3');
+    }
+
+    /**
+     * Returns the expedition outcome weight for pirates (0-100 scale, relative).
+     *
+     * @return float
+     */
+    public function expeditionWeightPirates(): float
+    {
+        return (float)$this->get('expedition_weight_pirates', '0');
+    }
+
+    /**
+     * Returns the expedition outcome weight for aliens (0-100 scale, relative).
+     *
+     * @return float
+     */
+    public function expeditionWeightAliens(): float
+    {
+        return (float)$this->get('expedition_weight_aliens', '0');
+    }
+
+    /**
+     * Returns the expedition outcome weight for dark matter (0-100 scale, relative).
+     *
+     * @return float
+     */
+    public function expeditionWeightDarkMatter(): float
+    {
+        return (float)$this->get('expedition_weight_dark_matter', '9');
+    }
+
+    /**
+     * Returns the expedition outcome weight for merchant (0-100 scale, relative).
+     *
+     * @return float
+     */
+    public function expeditionWeightMerchant(): float
+    {
+        return (float)$this->get('expedition_weight_merchant', '0.7');
+    }
+
+    /**
+     * Returns the expedition outcome weight for items (0-100 scale, relative).
+     *
+     * @return float
+     */
+    public function expeditionWeightItems(): float
+    {
+        return (float)$this->get('expedition_weight_items', '0');
+    }
 }
