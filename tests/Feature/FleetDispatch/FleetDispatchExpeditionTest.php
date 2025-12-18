@@ -804,7 +804,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Verify no merchant is active initially
         $player = $this->planetService->getPlayer();
-        $this->assertNull(session()->get('active_merchant_' . $player->getId()));
+        $this->assertNull(cache()->get('active_merchant_' . $player->getId()));
 
         // Send the expedition mission
         $this->sendTestExpedition(true);
@@ -816,9 +816,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->get('/overview');
         $this->planetService->reloadPlanet();
 
-        // Verify that a merchant was called and is now active
-        $activeMerchant = session()->get('active_merchant_' . $player->getId());
-        // @phpstan-ignore-next-line - PHPStan doesn't understand session()->get() can return non-null values
+        // Verify that a merchant was called and is now active (stored in cache for persistence)
+        $activeMerchant = cache()->get('active_merchant_' . $player->getId());
+        // @phpstan-ignore-next-line - PHPStan doesn't understand cache()->get() can return non-null values
         $this->assertNotNull($activeMerchant, 'Merchant should be active after expedition');
         $this->assertContains(
             $activeMerchant['type'],
