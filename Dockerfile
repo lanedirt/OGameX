@@ -35,7 +35,6 @@ RUN docker-php-ext-install ffi pdo_mysql mbstring zip exif pcntl && \
 # Enable and configure opcache only if OPCACHE_ENABLE is set to "1"
 ARG OPCACHE_ENABLE=0
 RUN if [ $OPCACHE_ENABLE = "1" ]; then \
-    docker-php-ext-install opcache && \
     { \
         echo 'opcache.memory_consumption=128'; \
         echo 'opcache.interned_strings_buffer=8'; \
