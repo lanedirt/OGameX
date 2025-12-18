@@ -85,6 +85,7 @@ class PlanetAbandonController extends OGameController
                     'text' => __('Wrong password!'),
                     'failed' => true,
                 ],
+                'newAjaxToken' => csrf_token(),
             ]);
         }
 
@@ -112,6 +113,7 @@ class PlanetAbandonController extends OGameController
             ],
             'password_checked' => true,
             'intent' => route('planetabandon.abandon'),
+            'newAjaxToken' => csrf_token(),
             // TODO: the original code includes "productionBox" key with HTML inside of it, check later if it's needed?
         ]);
     }
@@ -140,6 +142,7 @@ class PlanetAbandonController extends OGameController
                     'text' => __('Wrong password!'),
                     'failed' => true,
                 ],
+                'newAjaxToken' => csrf_token(),
             ]);
         }
 
@@ -155,12 +158,13 @@ class PlanetAbandonController extends OGameController
                     'text' => $e->getMessage(),
                     'failed' => true,
                 ],
+                'newAjaxToken' => csrf_token(),
             ]);
         }
 
         // Return success message.
         return response()->json([
-            'status' => 'error',
+            'status' => 'success',
             'errorbox' => [
                 'type' => 'notify',
                 'title' => __('Reference'),
@@ -170,6 +174,7 @@ class PlanetAbandonController extends OGameController
                 'buttonOk' => __('Ok'),
                 'okFunction' => 'reloadPage',
             ],
+            'newAjaxToken' => csrf_token(),
             // TODO: the original code includes "productionBox" key with HTML inside of it, check later if it's needed?
         ]);
     }
