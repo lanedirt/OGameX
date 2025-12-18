@@ -13,4 +13,5 @@ enum DarkMatterTransactionType: string
     case PLANET_RELOCATION = 'planet_relocation';
     case SPEEDUP = 'speedup';
     case ADMIN_ADJUSTMENT = 'admin_adjustment';
+    case HALVING = 'halving';
 }

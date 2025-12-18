@@ -506,4 +506,35 @@ class BuildingQueueService
             }
         }
     }
+
+    /**
+     * Get a queue item by ID and planet ID.
+     *
+     * @param int $queueItemId The queue item ID
+     * @param int $planetId The planet ID
+     * @return BuildingQueue|null The queue item or null if not found
+     */
+    public function getQueueItemById(int $queueItemId, int $planetId): BuildingQueue|null
+    {
+        return BuildingQueue::where('id', $queueItemId)
+            ->where('planet_id', $planetId)
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->first();
+    }
+
+    /**
+     * Update the time_end field of a queue item.
+     *
+     * @param int $queueItemId The queue item ID
+     * @param int $planetId The planet ID
+     * @param int $newTimeEnd The new time_end value (Unix timestamp)
+     * @return void
+     */
+    public function updateTimeEnd(int $queueItemId, int $planetId, int $newTimeEnd): void
+    {
+        BuildingQueue::where('id', $queueItemId)
+            ->where('planet_id', $planetId)
+            ->update(['time_end' => $newTimeEnd]);
+    }
 }
