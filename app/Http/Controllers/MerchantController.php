@@ -44,8 +44,8 @@ class MerchantController extends OGameController
         $darkMatter = $player->getUser()->dark_matter;
         $merchantCost = MerchantService::DARK_MATTER_COST;
 
-        // Check if a merchant is already active for this user
-        $activeMerchant = $request->session()->get('active_merchant_' . $player->getId());
+        // Check if a merchant is already active for this user (check cache for persistence)
+        $activeMerchant = cache()->get('active_merchant_' . $player->getId());
 
         return view('ingame.merchant.resource-market', [
             'darkMatter' => $darkMatter,
@@ -71,8 +71,8 @@ class MerchantController extends OGameController
 
         $planet = $player->planets->current();
 
-        // Check if a merchant is already active for this user (planet-agnostic)
-        $activeMerchant = $request->session()->get('active_merchant_' . $player->getId());
+        // Check if a merchant is already active for this user (planet-agnostic, check cache for persistence)
+        $activeMerchant = cache()->get('active_merchant_' . $player->getId());
 
         // Check if this is an overlay request
         $isOverlay = $request->has('overlay') || $request->ajax();
@@ -110,8 +110,8 @@ class MerchantController extends OGameController
             $result = MerchantService::callMerchant($player, $merchantType);
 
             if ($result['success']) {
-                // Store active merchant in session (user-level, not planet-specific)
-                $request->session()->put('active_merchant_' . $player->getId(), [
+                // Store active merchant in cache (user-level, not planet-specific, persists until used/replaced)
+                cache()->forever('active_merchant_' . $player->getId(), [
                     'type' => $merchantType,
                     'trade_rates' => $result['tradeRates'] ?? [],
                     'called_at' => time(),
@@ -145,8 +145,8 @@ class MerchantController extends OGameController
             // Get current planet (resources will be deducted from current planet)
             $planet = $player->planets->current();
 
-            // Verify there's an active merchant for this user (planet-agnostic)
-            $activeMerchant = $request->session()->get('active_merchant_' . $player->getId());
+            // Verify there's an active merchant for this user (planet-agnostic, check cache for persistence)
+            $activeMerchant = cache()->get('active_merchant_' . $player->getId());
             if (!$activeMerchant) {
                 return response()->json([
                     'success' => false,
@@ -181,8 +181,8 @@ class MerchantController extends OGameController
             );
 
             if ($result['success']) {
-                // Remove the active merchant (one-time trade only)
-                $request->session()->forget('active_merchant_' . $player->getId());
+                // Remove the active merchant from cache (one-time trade only)
+                cache()->forget('active_merchant_' . $player->getId());
             }
 
             return response()->json($result);
@@ -203,7 +203,8 @@ class MerchantController extends OGameController
      */
     public function dismissMerchant(Request $request, PlayerService $player): JsonResponse
     {
-        $request->session()->forget('active_merchant_' . $player->getId());
+        // Remove merchant from cache
+        cache()->forget('active_merchant_' . $player->getId());
 
         return response()->json([
             'success' => true,
