@@ -398,4 +398,41 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
             $this->markTestSkipped('Counter-espionage did not trigger in this test run (random chance).');
         }
     }
+
+    /**
+     * Test that defender receives espionage warning notification.
+     */
+    public function testDefenderReceivesEspionageWarning(): void
+    {
+        $this->basicSetup();
+
+        // Send espionage probes to foreign planet
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 5);
+        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Complete espionage mission
+        $this->travel(10)->hours();
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Verify attacker received espionage report (confirms mission completed)
+        $this->assertMessageReceivedAndContains('fleets', 'espionage', [
+            'Espionage report from',
+        ]);
+
+        // Check that espionage_detected message was created
+        $espionageDetectedMessage = \OGame\Models\Message::where('key', 'espionage_detected')
+            ->orderByDesc('id')
+            ->first();
+
+        $this->assertNotNull($espionageDetectedMessage, 'Espionage detected message should be created');
+
+        // Verify the message contains expected text
+        if ($espionageDetectedMessage) {
+            $gameMessage = \OGame\Factories\GameMessageFactory::createGameMessage($espionageDetectedMessage);
+            $body = $gameMessage->getBody();
+            $this->assertStringContainsString('was sighted near your planet', $body);
+        }
+    }
 }
