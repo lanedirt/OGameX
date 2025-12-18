@@ -22,7 +22,7 @@ jobs:
         options: --privileged
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
 
       - name: Setup Docker Compose
         uses: ./.github/actions/docker-compose-setup

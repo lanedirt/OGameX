@@ -23,29 +23,52 @@
                     </div>
                     <div id="header_text">
                         <h2></h2>
-                        <a class="back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="javascript:void(0)" title="Back"></a>
-                        <a class="small_back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="javascript:void(0)" title="Back"></a>
+                        <a class="back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="{{ route('overview.index') }}" title="@lang('Back')"></a>
+                        <a class="small_back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="{{ route('overview.index') }}" title="@lang('Back')"></a>
                     </div>
-
-                    <div id="js_traderResources" class="js_trader trader_link tooltipLeft js_hideTipOnMobile" title="">
-                        <h2>Resource Market</h2>
-                    </div>
-                    <div id="js_traderAuctioneer" class="js_trader trader_link tooltipRight js_hideTipOnMobile" title="Items are offered here daily and can be purchased using resources.">
-                        <h2>Auctioneer</h2>
-                    </div>
+                    <a href="{{ route('merchant.resource-market') }}" id="js_traderResources" class="js_trader trader_link tooltipLeft js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderResources" data-tooltip-title="@lang('You can exchange resources for other resources here.')">
+                        <h2>@lang('Resource Market')</h2>
+                    </a>
+                    <a href="#" id="js_traderAuctioneer" class="js_trader trader_link tooltipRight js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderAuctioneer" data-tooltip-title="@lang('Items are offered here daily and can be purchased using resources.')">
+                        <h2>@lang('Auctioneer')</h2>
+                    </a>
                     <br>
-                    <div id="js_traderScrap" class="js_trader trader_link tooltipLeft js_hideTipOnMobile" title="">
-                        <h2>Scrap Merchant</h2>
-                    </div>
-                    <div id="js_traderImportExport" class="js_trader trader_link tooltipRight js_hideTipOnMobile" title="Containers with unknown contents are sold here for resources every day.">
-                        <h2>Import / Export</h2>
-                    </div>
+                    <a href="{{ route('merchant.scrap') }}" id="js_traderScrap" class="js_trader trader_link tooltipLeft js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderScrap" data-tooltip-title="@lang('The scrap merchant accepts used ships and defence systems.')">
+                        <h2>@lang('Scrap Merchant')</h2>
+                    </a>
+                    <a href="#" id="js_traderImportExport" class="js_trader trader_link tooltipRight js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderImportExport" data-tooltip-title="@lang('Containers with unknown contents are sold here for resources every day.')">
+                        <h2>@lang('Import / Export')</h2>
+                    </a>
                 </div>
                 <div class="c-left"></div>
                 <div class="c-right"></div>
-         </div>
+            </div>
         </div>
     </div>
 
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // Add hover effects for merchant links
+            $('#js_traderResources').hover(
+                function() { $(this).addClass('resources_link_hover'); },
+                function() { $(this).removeClass('resources_link_hover'); }
+            );
+
+            $('#js_traderAuctioneer').hover(
+                function() { $(this).addClass('auctioneer_link_hover'); },
+                function() { $(this).removeClass('auctioneer_link_hover'); }
+            );
+
+            $('#js_traderScrap').hover(
+                function() { $(this).addClass('scrap_link_hover'); },
+                function() { $(this).removeClass('scrap_link_hover'); }
+            );
+
+            $('#js_traderImportExport').hover(
+                function() { $(this).addClass('importexport_link_hover'); },
+                function() { $(this).removeClass('importexport_link_hover'); }
+            );
+        });
+    </script>
 
 @endsection

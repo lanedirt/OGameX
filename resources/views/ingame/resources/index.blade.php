@@ -42,6 +42,9 @@
                                 data-end="1713604880"
                                 data-total="61608"
                                 title="{{ $building->object->title }}<br/>@lang('Under construction')"
+                            @elseif ($is_in_vacation_mode)
+                                data-status="disabled"
+                                title="{{ $building->object->title }}<br/>@lang('Error, player is in vacation mode')"
                             @elseif (!$building->requirements_met)
                                 data-status="off"
                                 title="{{ $building->object->title }}<br/>@lang('Requirements are not met!')"
@@ -64,6 +67,7 @@
                             @elseif (!$building->valid_planet_type)
                             @elseif (!$building->enough_resources)
                             @elseif ($build_queue_max)
+                            @elseif ($is_in_vacation_mode)
                             @elseif ($building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                             @else
                                 <button
@@ -73,7 +77,7 @@
                                 </button>
                             @endif
                             @if ($building->currently_building)
-                                <span class="targetlevel" data-value="{{ $building->current_level + 1 }}" data-bonus="0">{{ $building->current_level + 1 }}</span>
+                                <span class="targetlevel" data-value="{{ $building->target_level ?? ($building->current_level + 1) }}" data-bonus="0">{{ $building->target_level ?? ($building->current_level + 1) }}</span>
                                 <div class="cooldownBackground"></div>
                                 <time-counter><time class="countdown buildingCountdown" id="countdownbuildingDetails" data-segments="2">...</time></time-counter>
                             @endif

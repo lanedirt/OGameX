@@ -40,6 +40,12 @@ class GameMessageFactory
         'expedition_gain_item' => \OGame\GameMessages\ExpeditionGainItem::class,
         'expedition_gain_resources' => \OGame\GameMessages\ExpeditionGainResources::class,
         'expedition_gain_ships' => \OGame\GameMessages\ExpeditionGainShips::class,
+        'expedition_merchant_found' => \OGame\GameMessages\ExpeditionMerchantFound::class,
+
+        // Buddy system messages
+        'buddy_request_received' => \OGame\GameMessages\BuddyRequestReceived::class,
+        'buddy_request_accepted' => \OGame\GameMessages\BuddyRequestAccepted::class,
+        'buddy_removed' => \OGame\GameMessages\BuddyRemoved::class,
         ];
 
     /**

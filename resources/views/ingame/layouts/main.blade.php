@@ -116,7 +116,7 @@
                            accesskey=""
                            href="{{ route('buddies.index') }}"
                         >
-                            @lang('Buddies')</a>
+                            @lang('Buddies')@if($buddyRequestCount > 0) <span style="color: white;">({{ $buddyRequestCount }})</span>@endif</a>
                     </li>
                     <li><a class="overlay"
                            href="{{ route('search.overlay') }}"
@@ -394,15 +394,15 @@ Combat simulation save slots +20">
 
                     <li>
                         <span class="menu_icon">
-                            <a href="{{ route('merchant.index') }}#page=traderResources&amp;animation=false"
+                            <a href="{{ route('merchant.resource-market') }}"
                                class="trader tooltipRight js_hideTipOnMobile "
                                target="_self"
                                title="Resource Market">
-                                <div class="menuImage traderOverview {{(Request::is('merchant') ? 'highlighted' : '') }}">
+                                <div class="menuImage traderOverview {{(Request::is('merchant*') ? 'highlighted' : '') }}">
                                 </div>
                             </a>
                         </span>
-                        <a class="menubutton premiumHighligt {{(Request::is('merchant') ? 'selected' : '') }}"
+                        <a class="menubutton premiumHighligt {{(Request::is('merchant*') ? 'selected' : '') }}"
                            href="{{ route('merchant.index') }}"
                            accesskey=""
                            target="_self"
@@ -599,7 +599,9 @@ Combat simulation save slots +20">
                 var activateToken = "e018389e3827e1499e41d35e3c811283";
                 var miniFleetToken = "4002a42efaeb2808f6c232594fb09aa4";
                 var currentPage = "overview";
-                var bbcodePreviewUrl = "{{ route('overview.index') }}#TODO_page=bbcodePreview";
+                // BBCode preview is handled client-side with custom parser (buddyBBCodeParser)
+                // Empty string prevents CORS errors while custom handlers override the preview
+                var bbcodePreviewUrl = "";
                 var popupWindows = [];
                 var fleetDeutSaveFactor = 1;
                 var honorScore = 0;
@@ -668,7 +670,8 @@ Combat simulation save slots +20">
                 var ogameUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
                 var startpageUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
                 var nodePort = 19603;
-                var nodeUrl = "{{ route('overview.index') }}#TODO_19603\/socket.io\/socket.io.js";
+                // TODO: WebSocket/chat functionality not yet implemented. Disabled to prevent loading overview as a script.
+                // var nodeUrl = "{{ route('overview.index') }}#TODO_19603\/socket.io\/socket.io.js";
                 var nodeParams = {
                     "port": 19603,
                     "secure": "true"
@@ -1053,6 +1056,7 @@ Combat simulation save slots +20">
                     initOverview();
                     initBuffBar();
                     tabletInitOverviewAdvice();
+
                     ogame.chat.showPlayerList('#chatBarPlayerList .cb_playerlist_box');
                     ogame.chat.showPlayerList('#sideBar');
                     var initChatAsyncInterval = window.setInterval(initChatAsync, 100);
@@ -1143,7 +1147,11 @@ Combat simulation save slots +20">
                                            data-link="{{ $urlToPlanetWithUpdatedParam }}"
                                            href="{{ $urlToPlanetWithUpdatedParam }}"
                                            title="">
-                                            <span class="icon12px icon_wrench"></span>
+                                            @if ($planet->isDowngrading())
+                                                <span class="icon12px icon_wrench_red"></span>
+                                            @else
+                                                <span class="icon12px icon_wrench"></span>
+                                            @endif
                                         </a>
                                     @endif
 
@@ -1208,7 +1216,7 @@ Combat simulation save slots +20">
             <div class="cb_playerlist_box"
                  style="display:none;">
             </div>
-            <span class="onlineCount">@lang(':count Contact(s) online', ['count' => 0])</span>
+            <span class="onlineCount">@lang(':count Contact(s) online', ['count' => $onlineBuddiesCount])</span>
         </li>
     </ul><!-- END Chat Bar List -->
 </div>

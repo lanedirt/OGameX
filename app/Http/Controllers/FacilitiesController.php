@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Services\BuildingQueueService;
+use OGame\Services\HalvingService;
 use OGame\Services\PlayerService;
 
 class FacilitiesController extends AbstractBuildingsController
@@ -65,5 +66,52 @@ class FacilitiesController extends AbstractBuildingsController
     public function ajax(Request $request, PlayerService $player): JsonResponse
     {
         return $this->ajaxHandler($request, $player);
+    }
+
+    /**
+     * Halve a building queue item using Dark Matter.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param HalvingService $halvingService
+     * @return JsonResponse
+     */
+    public function halveBuilding(Request $request, PlayerService $player, HalvingService $halvingService): JsonResponse
+    {
+        try {
+            $queueItemId = (int)$request->input('queue_item_id');
+
+            if ($queueItemId <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'Invalid queue item ID',
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            $result = $halvingService->halveBuilding(
+                $player->getUser(),
+                $queueItemId,
+                $player->planets->current()
+            );
+
+            return response()->json([
+                'success' => true,
+                'error' => false,
+                'newAjaxToken' => csrf_token(),
+                'new_time_end' => $result['new_time_end'],
+                'cost' => $result['cost'],
+                'new_balance' => $result['new_balance'],
+                'remaining_time' => $result['remaining_time'],
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => true,
+                'message' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ]);
+        }
     }
 }

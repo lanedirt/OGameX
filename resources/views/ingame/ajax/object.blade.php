@@ -128,31 +128,45 @@
 
             </div>
 
+            @if ($can_downgrade && $downgrade_price !== null)
             <div id="demolition_costs_tooltip" class="htmlTooltip">
                 <h1>Deconstruction costs</h1>
 
                 <div class="splitLine"></div>
 
                 <table class="demolition_costs">
-
+                    @if ($ion_technology_level > 0)
                     <tr class="demolition_costs_bonus">
                         <th>Ion technology bonus:</th>
-                        <td data-value="24">-24%</td>
+                        <td data-value="{{ $ion_technology_bonus }}">-{{ $ion_technology_bonus }}%</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->metal->get() > 0)
                     <tr class="metal">
                         <th>Metal:</th>
-                        <td class="sufficient" data-value="33279">33,279</td>
+                        <td class="sufficient" data-value="{{ $downgrade_price->metal->get() }}">{{ $downgrade_price->metal->getFormatted() }}</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->crystal->get() > 0)
                     <tr class="crystal">
                         <th>Crystal:</th>
-                        <td class="sufficient" data-value="11092">11,092</td>
+                        <td class="sufficient" data-value="{{ $downgrade_price->crystal->get() }}">{{ $downgrade_price->crystal->getFormatted() }}</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->deuterium->get() > 0)
+                    <tr class="deuterium">
+                        <th>Deuterium:</th>
+                        <td class="sufficient" data-value="{{ $downgrade_price->deuterium->get() }}">{{ $downgrade_price->deuterium->getFormatted() }}</td>
+                    </tr>
+                    @endif
+                    @if ($downgrade_duration_formatted)
                     <tr class="demolition_duration">
                         <th>Duration:</th>
                         <td>
-                            <time datetime="PT6M22S"></time>6m 22s
+                            <time datetime="{{ $downgrade_duration_formatted }}"></time>{{ $downgrade_duration_formatted }}
                         </td>
                     </tr>
+                    @endif
                 </table>
             </div>
 
@@ -160,27 +174,41 @@
                 <h1>Deconstruction costs</h1>
                 <div class="splitLine"></div>
                 <table class="demolition_costs">
+                    @if ($ion_technology_level > 0)
                     <tr class="demolition_costs_bonus">
                         <th>Ion technology bonus:</th>
-                        <td data-value="24">-24%</td>
+                        <td data-value="{{ $ion_technology_bonus }}">-{{ $ion_technology_bonus }}%</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->metal->get() > 0)
                     <tr class="metal">
                         <th>Metal:</th>
-                        <td class="sufficient" data-value="33279">33,279</td>
+                        <td class="sufficient" data-value="{{ $downgrade_price->metal->get() }}">{{ $downgrade_price->metal->getFormatted() }}</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->crystal->get() > 0)
                     <tr class="crystal">
                         <th>Crystal:</th>
-                        <td class="sufficient" data-value="11092">11,092</td>
+                        <td class="sufficient" data-value="{{ $downgrade_price->crystal->get() }}">{{ $downgrade_price->crystal->getFormatted() }}</td>
                     </tr>
+                    @endif
+                    @if ($downgrade_price->deuterium->get() > 0)
+                    <tr class="deuterium">
+                        <th>Deuterium:</th>
+                        <td class="sufficient" data-value="{{ $downgrade_price->deuterium->get() }}">{{ $downgrade_price->deuterium->getFormatted() }}</td>
+                    </tr>
+                    @endif
+                    @if ($downgrade_duration_formatted)
                     <tr class="demolition_duration">
                         <th>Duration:</th>
                         <td>
-                            <time datetime="PT6M22S"></time>6m 22s
+                            <time datetime="{{ $downgrade_duration_formatted }}"></time>{{ $downgrade_duration_formatted }}
                         </td>
                     </tr>
+                    @endif
                 </table>
-
             </div>
+            @endif
 
             @if ($max_build_amount && ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense))
                 <div class="build_amount">
@@ -189,12 +217,16 @@
                     <button class="maximum">[max. {{ $max_build_amount }}]</button>
                 </div>
             @elseif ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station)
-                <!-- TODO: implement downgrade feature -->
-                <!--<button class="downgrade" data-technology="3" data-name="{{ $title }}">
-                    <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
-                         data-ipi-hint="ipiTechnologyTearDowndeuteriumSynthesizer"></div>
-                    <span class="label">tear down</span>
-                </button>-->
+                @if ($can_downgrade && $current_level > 0)
+                    <button class="downgrade" data-technology="{{ $object->id }}" data-name="{{ $title }}"
+                            @if ($is_in_vacation_mode)
+                                disabled
+                            @endif>
+                        <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
+                             data-ipi-hint="ipiTechnologyTearDown{{ $object->class_name }}"></div>
+                        <span class="label tooltip" title="{{ $is_in_vacation_mode ? __('You are not able to build while in vacation mode') : '' }}">tear down</span>
+                    </button>
+                @endif
             @endif
 
             <div class="build-it_wrap">
@@ -205,14 +237,20 @@
                                 $ships_being_built = ( $object->machine_name == 'shipyard' ||  $object->machine_name == 'nano_factory') && $ship_or_defense_in_progress;
                             @endphp
 
-                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading || $ships_being_built))
+                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading || $ships_being_built) || $is_in_vacation_mode)
                                 disabled
                             @else
                             @endif
                             data-technology="{{ $object->id }}">
                             @php
-                                $tooltip = $disabled_shipyard_upgrading ? __('Shipyard is being upgraded') :
-                                   ($ships_being_built ? __('The Shipyard is still busy') : false);
+                                $tooltip = false;
+                                if ($is_in_vacation_mode) {
+                                    $tooltip = __('You are not able to build while in vacation mode');
+                                } elseif ($disabled_shipyard_upgrading) {
+                                    $tooltip = __('Shipyard is being upgraded');
+                                } elseif ($ships_being_built) {
+                                    $tooltip = __('The Shipyard is still busy');
+                                }
                             @endphp
                         <span class="tooltip" title="{{ is_string($tooltip) ? $tooltip : '' }}">
                             @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)

@@ -108,6 +108,10 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->valid_planet_type = $valid_planet_type;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
+                if ($view_model->currently_building && $build_active !== null) {
+                    $view_model->target_level = $build_active->level_target;
+                    $view_model->is_downgrade = $build_active->is_downgrade ?? false;
+                }
                 $view_model->research_in_progress = $research_in_progress;
                 $view_model->ship_or_defense_in_progress = $ship_or_defense_in_progress;
 
@@ -174,6 +178,7 @@ abstract class AbstractBuildingsController extends OGameController
             'build_queue_max' => $build_queue_max,
             'open_tech_id' => $open_tech_id,
             'jump_gate_level' => $jump_gate_level,
+            'is_in_vacation_mode' => $player->isInVacationMode(),
         ];
     }
 
@@ -187,6 +192,20 @@ abstract class AbstractBuildingsController extends OGameController
      */
     public function addBuildRequest(Request $request, PlayerService $player): JsonResponse
     {
+        // Check if player is in vacation mode
+        // Note: Button is already disabled in frontend, but we check here for security
+        if ($player->isInVacationMode()) {
+            return response()->json([
+                'success' => false,
+            ]);
+        }
+
+        // Check if this is a downgrade request (mode 3)
+        $mode = $request->input('mode');
+        if ((int)$mode === 3) {
+            return $this->downgradeBuildRequest($request, $player);
+        }
+
         // If the technology is a shipyard or nanite, it shouldn't be able to upgrade while ships are built.
         if (($request->input('technologyId') === '21' || $request->input('technologyId') === '15') && $player->isBuildingShipsOrDefense()) {
             return response()->json([
@@ -214,6 +233,49 @@ abstract class AbstractBuildingsController extends OGameController
             'status' => 'success',
             'message' => 'Building construction started.',
         ]);
+    }
+
+    /**
+     * Handles an incoming downgrade buildrequest.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function downgradeBuildRequest(Request $request, PlayerService $player): JsonResponse
+    {
+        // Check if player is in vacation mode
+        // Note: Button is already disabled in frontend, but we check here for security
+        if ($player->isInVacationMode()) {
+            return response()->json([
+                'success' => false,
+            ]);
+        }
+
+        // Explicitly verify CSRF token because this request supports both POST and GET.
+        if (!hash_equals($request->session()->token(), $request->input('_token'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid token.',
+            ]);
+        }
+
+        $building_id = $request->input('technologyId');
+
+        try {
+            $this->queue->addDowngrade($player->planets->current(), $building_id);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Building downgrade started.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => [['message' => $e->getMessage()]],
+            ]);
+        }
     }
 
     /**

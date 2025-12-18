@@ -65,6 +65,7 @@ class GalaxyController extends OGameController
             'used_slots' => 0,
             'max_slots' => 1,
             'max_galaxies' => $settingsService->numberOfGalaxies(),
+            'is_in_vacation_mode' => $player->isInVacationMode(),
         ]);
     }
 
@@ -359,9 +360,15 @@ class GalaxyController extends OGameController
             }
         }
 
+        // Check if buddy request can be sent:
+        // - Must be foreign planet (not own)
+        // - Target player must not be admin (can't send requests to admins)
+        $canBuddyRequest = $planet->getPlayer()->getId() !== $this->playerService->getId()
+            && !$planet->getPlayer()->isAdmin();
+
         return [
             'canBeIgnored' => false,
-            'canBuddyRequests' => false,
+            'canBuddyRequests' => $canBuddyRequest,
             'canEspionage' => $canEspionage,
             'canMissileAttack' => false,
             'canPhalanx' => $can_phalanx || !empty($phalanx_inactive_reason),
@@ -383,18 +390,39 @@ class GalaxyController extends OGameController
      */
     private function getPlayerInfo(PlayerService $player): array
     {
+        // Check if this is a foreign player (not self)
+        $isForeignPlayer = $player->getId() !== $this->playerService->getId();
+
+        // Check if target player is admin (cannot send buddy requests or ignore admins)
+        $isTargetAdmin = $player->isAdmin();
+
         return [
             'actions' => [
                 'alliance' => [
                     'available' => false,
                 ],
                 'buddies' => [
-                    'available' => false,
-                ],
-                'highscore' => [
-                    'available' => false,
+                    'available' => $isForeignPlayer && !$isTargetAdmin,
+                    'playerId' => $player->getId(),
+                    'link' => 'javascript:void(0);',
+                    'title' => 'Buddy request to player',
+                    'playerName' => $player->getUsername(),
                 ],
                 'ignore' => [
+                    'available' => $isForeignPlayer && !$isTargetAdmin,
+                    'playerId' => $player->getId(),
+                    'link' => 'javascript:void(0);',
+                    'title' => 'Ignore player',
+                    'playerName' => $player->getUsername(),
+                ],
+                'support' => [
+                    'available' => $isTargetAdmin,
+                    'playerId' => $player->getId(),
+                    'link' => 'javascript:void(0);', // TODO: Implement proper support contact link when messaging system is ready
+                    'title' => 'Contact support',
+                    'playerName' => $player->getUsername(),
+                ],
+                'highscore' => [
                     'available' => false,
                 ],
                 'message' => [
@@ -475,6 +503,13 @@ class GalaxyController extends OGameController
     {
         $this->playerService = $player;
         $this->planetServiceFactory = $planetServiceFactory;
+
+        if ($player->isInVacationMode()) {
+            return response()->json([
+                'success' => false,
+                'error' => __('You cannot use the galaxy view whilst in vacation mode!'),
+            ], 403);
+        }
 
         $planet = $player->planets->current();
         $galaxy = $request->input('galaxy');

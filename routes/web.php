@@ -58,14 +58,17 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::get('/ajax/resources', [ResourcesController::class, 'ajax'])->name('resources.ajax');
     Route::get('/resources/add-buildrequest', [ResourcesController::class, 'addBuildRequest'])->name('resources.addbuildrequest');
     Route::post('/resources/add-buildrequest', [ResourcesController::class, 'addBuildRequest'])->name('resources.addbuildrequest.post');
+    Route::post('/resources/downgrade', [ResourcesController::class, 'downgradeBuildRequest'])->name('resources.downgrade');
     Route::post('/resources/cancel-buildrequest', [ResourcesController::class, 'cancelBuildRequest'])->name('resources.cancelbuildrequest');
 
     // Facilities
     Route::get('/facilities', [FacilitiesController::class, 'index'])->name('facilities.index');
     Route::get('/ajax/facilities', [FacilitiesController::class, 'ajax'])->name('facilities.ajax');
     Route::get('/facilities/add-buildrequest', [FacilitiesController::class, 'addBuildRequest'])->name('facilities.addbuildrequest');
-    Route::post('/facilities/add-buildrequest', [FacilitiesController::class, 'addBuildRequest'])->name('facilities.addbuildrequest.get');
+    Route::post('/facilities/add-buildrequest', [FacilitiesController::class, 'addBuildRequest'])->name('facilities.addbuildrequest.post');
+    Route::post('/facilities/downgrade', [FacilitiesController::class, 'downgradeBuildRequest'])->name('facilities.downgrade');
     Route::post('/facilities/cancel-buildrequest', [FacilitiesController::class, 'cancelBuildRequest'])->name('facilities.cancelbuildrequest');
+    Route::post('/ajax/facilities/halve-building', [FacilitiesController::class, 'halveBuilding'])->name('facilities.halvebuilding');
 
     // Research
     Route::get('/research', [ResearchController::class, 'index'])->name('research.index');
@@ -73,11 +76,13 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::get('/research/add-buildrequest', [ResearchController::class, 'addBuildRequest'])->name('research.addbuildrequest');
     Route::post('/research/add-buildrequest', [ResearchController::class, 'addBuildRequest'])->name('research.addbuildrequest.post');
     Route::post('/research/cancel-buildrequest', [ResearchController::class, 'cancelBuildRequest'])->name('research.cancelbuildrequest');
+    Route::post('/ajax/research/halve-research', [ResearchController::class, 'halveResearch'])->name('research.halveresearch');
 
     // Shipyard
     Route::get('/shipyard', [ShipyardController::class, 'index'])->name('shipyard.index');
     Route::get('/ajax/shipyard', [ShipyardController::class, 'ajax'])->name('shipyard.ajax');
     Route::post('/shipyard/add-buildrequest', [ShipyardController::class, 'addBuildRequest'])->name('shipyard.addbuildrequest');
+    Route::post('/ajax/shipyard/halve-unit', [ShipyardController::class, 'halveUnit'])->name('shipyard.halveunit');
 
     // Defense
     Route::get('/defense', [DefenseController::class, 'index'])->name('defense.index');
@@ -122,6 +127,14 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 
     // Misc
     Route::get('/merchant', [MerchantController::class, 'index'])->name('merchant.index');
+    Route::get('/merchant/resource-market', [MerchantController::class, 'resourceMarket'])->name('merchant.resource-market');
+    Route::get('/merchant/market/{type}', [MerchantController::class, 'showMarket'])->name('merchant.market');
+    Route::post('/merchant/call', [MerchantController::class, 'callMerchant'])->name('merchant.call');
+    Route::post('/merchant/trade', [MerchantController::class, 'executeTrade'])->name('merchant.trade');
+    Route::post('/merchant/dismiss', [MerchantController::class, 'dismissMerchant'])->name('merchant.dismiss');
+    Route::get('/merchant/scrap', [MerchantController::class, 'scrap'])->name('merchant.scrap');
+    Route::post('/merchant/scrap/bargain', [MerchantController::class, 'scrapBargain'])->name('merchant.scrap.bargain');
+    Route::post('/merchant/scrap/execute', [MerchantController::class, 'scrapExecute'])->name('merchant.scrap.execute');
 
     Route::get('/alliance', [AllianceController::class, 'index'])->name('alliance.index');
     Route::get('/ajax/alliance/create', [AllianceController::class, 'ajaxCreate'])->name('alliance.ajax.create');
@@ -136,6 +149,13 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::post('/ajax/highscore', [HighscoreController::class, 'ajax'])->name('highscore.ajax');
 
     Route::get('/buddies', [BuddiesController::class, 'index'])->name('buddies.index');
+    Route::post('/buddies', [BuddiesController::class, 'post'])->name('buddies.post');
+    Route::get('/buddies/request-dialog', [BuddiesController::class, 'showRequestDialog'])->name('buddies.requestdialog');
+    Route::post('/buddies/send-request', [BuddiesController::class, 'sendRequest'])->name('buddies.sendrequest');
+    Route::post('/buddies/ignore', [BuddiesController::class, 'ignorePlayer'])->name('buddies.ignore');
+    Route::post('/buddies/unignore', [BuddiesController::class, 'unignorePlayer'])->name('buddies.unignore');
+    Route::get('/buddies/online', [BuddiesController::class, 'getOnlineBuddies'])->name('buddies.online');
+
     Route::get('/rewards', [RewardsController::class, 'index'])->name('rewards.index');
     Route::get('/planet-move', [PlanetMoveController::class, 'index'])->name('planetMove.index');
 
