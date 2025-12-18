@@ -226,8 +226,8 @@ class MerchantController extends OGameController
         $planet = $player->planets->current();
         $user = $player->getUser();
 
-        // Get scrap merchant session data (planet-specific)
-        $scrapSession = $request->session()->get('scrap_merchant_' . $planet->getPlanetId(), [
+        // Get scrap merchant cache data (planet-specific, persists until trade is executed)
+        $scrapSession = cache()->get('scrap_merchant_' . $planet->getPlanetId(), [
             'offer_percentage' => 35, // Base 35%
             'bargain_count' => 0,
         ]);
@@ -329,8 +329,8 @@ class MerchantController extends OGameController
         $planet = $player->planets->current();
         $user = $player->getUser();
 
-        // Get current scrap session
-        $scrapSession = $request->session()->get('scrap_merchant_' . $planet->getPlanetId(), [
+        // Get current scrap merchant from cache (persists until trade is executed)
+        $scrapSession = cache()->get('scrap_merchant_' . $planet->getPlanetId(), [
             'offer_percentage' => 35,
             'bargain_count' => 0,
         ]);
@@ -362,10 +362,10 @@ class MerchantController extends OGameController
         $increase = rand(5, 14);
         $newPercentage = min(75, $scrapSession['offer_percentage'] + $increase);
 
-        // Update session
+        // Update cache (persists until trade is executed)
         $scrapSession['offer_percentage'] = $newPercentage;
         $scrapSession['bargain_count']++;
-        $request->session()->put('scrap_merchant_' . $planet->getPlanetId(), $scrapSession);
+        cache()->forever('scrap_merchant_' . $planet->getPlanetId(), $scrapSession);
 
         // Calculate new cost for next bargain
         $newCost = 2000 + ($scrapSession['bargain_count'] * 2000);
@@ -401,8 +401,8 @@ class MerchantController extends OGameController
         $planet = $player->planets->current();
         $objectService = resolve(\OGame\Services\ObjectService::class);
 
-        // Get scrap session
-        $scrapSession = $request->session()->get('scrap_merchant_' . $planet->getPlanetId(), [
+        // Get scrap merchant from cache (persists until trade is executed)
+        $scrapSession = cache()->get('scrap_merchant_' . $planet->getPlanetId(), [
             'offer_percentage' => 35,
             'bargain_count' => 0,
         ]);
@@ -553,8 +553,8 @@ class MerchantController extends OGameController
         $resources = new \OGame\Models\Resources($returnMetal, $returnCrystal, $returnDeuterium, 0);
         $planet->addResources($resources);
 
-        // Clear scrap session
-        $request->session()->forget('scrap_merchant_' . $planet->getPlanetId());
+        // Clear scrap merchant from cache (trade executed)
+        cache()->forget('scrap_merchant_' . $planet->getPlanetId());
 
         // Pick a random merchant response message
         $merchantMessages = [
