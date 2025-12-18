@@ -132,6 +132,32 @@ class EspionageMission extends GameMission
         // Always create espionage report (even if all probes destroyed)
         $reportId = $this->createEspionageReport($mission, $origin_planet, $target_planet, $counterEspionageChance);
 
+        // --- Defender notification (mirror official OGame "you were spied" message)
+        // Defender is the owner of the target planet
+        $defenderUserId = $target_planet->getPlayer()->getId();
+
+        if ($defenderUserId) {
+            // Params expected by t_messages.espionage_detected.*
+            $attackerName = $origin_planet->getPlayer()->getUsername();
+
+            $params = [
+                // IMPORTANT: pass the raw mission planet id inside [planet]...[/planet]
+                'planet'        => '[planet]' . $mission->planet_id_from . '[/planet]',
+                'defender'      => '[planet]' . $mission->planet_id_to . '[/planet]',   // defender planet
+                'attacker_name' => $attackerName,
+                'chance'        => $counterEspionageChance,
+            ];
+
+            $playerServiceFactory = resolve(\OGame\Factories\PlayerServiceFactory::class);
+            $defenderService      = $playerServiceFactory->make($defenderUserId);
+
+            $this->messageService->sendSystemMessageToPlayer(
+                $defenderService,
+                \OGame\GameMessages\DefenderEspionageDetected::class,
+                $params
+            );
+        }
+
         // Send a message to the player with a reference to the espionage report.
         $this->messageService->sendEspionageReportMessageToPlayer(
             $origin_planet->getPlayer(),
