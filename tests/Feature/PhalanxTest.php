@@ -295,7 +295,7 @@ class PhalanxTest extends FleetDispatchTestCase
         // Send a transport fleet to a foreign planet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 5);
-        $targetPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(100, 100, 100, 0));
+        $targetPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(100, 100, 100, 0));
 
         $coords = $targetPlanet->getPlanetCoordinates();
 

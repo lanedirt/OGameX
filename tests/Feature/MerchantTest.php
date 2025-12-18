@@ -145,8 +145,9 @@ class MerchantTest extends AccountTestCase
         $this->planetService->save();
 
         // Calculate a safe trade amount that won't exceed storage
-        // With rates between 1.40-2.00, trading 5000 metal = 7000-10000 crystal (within 10k storage)
-        $giveAmount = 5000;
+        // Exchange rates can vary (up to ~2.5x), so use a conservative amount
+        // to ensure we stay within 10k storage capacity: 3000 * 2.5 = 7500 (safe)
+        $giveAmount = 3000;
 
         // Execute trade
         $response = $this->post('/merchant/trade', [

@@ -67,13 +67,13 @@ class CoordinateDistanceCalculatorTest extends TestCase
         // Create a user
         $user = User::factory()->create();
 
-        // Create planets in systems 1, 3, and 5 (leaving 2, 4, 6, 7, 8, 9 empty)
-        Planet::factory()->create(['user_id' => $user->id, 'galaxy' => 1, 'system' => 1, 'planet' => 1]);
-        Planet::factory()->create(['user_id' => $user->id, 'galaxy' => 1, 'system' => 3, 'planet' => 1]);
-        Planet::factory()->create(['user_id' => $user->id, 'galaxy' => 1, 'system' => 5, 'planet' => 1]);
+        // Create planets in systems 1, 3, and 5 (leaving 2, 4, 6, 7, 8, 9, 10 empty)
+        Planet::factory()->create(['user_id' => $user->id, 'galaxy' => 9, 'system' => 1, 'planet' => 1]);
+        Planet::factory()->create(['user_id' => $user->id, 'galaxy' => 9, 'system' => 3, 'planet' => 1]);
+        Planet::factory()->create(['user_id' => $user->id, 'galaxy' => 9, 'system' => 5, 'planet' => 1]);
 
-        $from = new Coordinate(1, 1, 1);
-        $to = new Coordinate(1, 10, 1);
+        $from = new Coordinate(9, 1, 1);
+        $to = new Coordinate(9, 10, 1);
 
         $result = $this->calculator->getNumEmptySystems($from, $to);
 
