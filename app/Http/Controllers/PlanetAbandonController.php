@@ -62,7 +62,6 @@ class PlanetAbandonController extends OGameController
                 'text' => $successText,
                 'failed' => false,
             ],
-            'newAjaxToken' => csrf_token(),
         ]);
     }
 
@@ -86,6 +85,7 @@ class PlanetAbandonController extends OGameController
                     'text' => __('Wrong password!'),
                     'failed' => true,
                 ],
+                'newAjaxToken' => csrf_token(),
             ]);
         }
 
@@ -142,6 +142,7 @@ class PlanetAbandonController extends OGameController
                     'text' => __('Wrong password!'),
                     'failed' => true,
                 ],
+                'newAjaxToken' => csrf_token(),
             ]);
         }
 
@@ -157,6 +158,7 @@ class PlanetAbandonController extends OGameController
                     'text' => $e->getMessage(),
                     'failed' => true,
                 ],
+                'newAjaxToken' => csrf_token(),
             ]);
         }
 
