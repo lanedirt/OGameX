@@ -44,8 +44,8 @@ class MerchantController extends OGameController
         $darkMatter = $player->getUser()->dark_matter;
         $merchantCost = MerchantService::DARK_MATTER_COST;
 
-        // Check if a merchant is already active for this user
-        $activeMerchant = $request->session()->get('active_merchant_' . $player->getId());
+        // Check if a merchant is already active for this user (check cache for persistence)
+        $activeMerchant = cache()->get('active_merchant_' . $player->getId());
 
         return view('ingame.merchant.resource-market', [
             'darkMatter' => $darkMatter,
@@ -71,8 +71,8 @@ class MerchantController extends OGameController
 
         $planet = $player->planets->current();
 
-        // Check if a merchant is already active for this user (planet-agnostic)
-        $activeMerchant = $request->session()->get('active_merchant_' . $player->getId());
+        // Check if a merchant is already active for this user (planet-agnostic, check cache for persistence)
+        $activeMerchant = cache()->get('active_merchant_' . $player->getId());
 
         // Check if this is an overlay request
         $isOverlay = $request->has('overlay') || $request->ajax();
@@ -110,8 +110,8 @@ class MerchantController extends OGameController
             $result = MerchantService::callMerchant($player, $merchantType);
 
             if ($result['success']) {
-                // Store active merchant in session (user-level, not planet-specific)
-                $request->session()->put('active_merchant_' . $player->getId(), [
+                // Store active merchant in cache (user-level, not planet-specific, persists until used/replaced)
+                cache()->forever('active_merchant_' . $player->getId(), [
                     'type' => $merchantType,
                     'trade_rates' => $result['tradeRates'] ?? [],
                     'called_at' => time(),
@@ -145,8 +145,8 @@ class MerchantController extends OGameController
             // Get current planet (resources will be deducted from current planet)
             $planet = $player->planets->current();
 
-            // Verify there's an active merchant for this user (planet-agnostic)
-            $activeMerchant = $request->session()->get('active_merchant_' . $player->getId());
+            // Verify there's an active merchant for this user (planet-agnostic, check cache for persistence)
+            $activeMerchant = cache()->get('active_merchant_' . $player->getId());
             if (!$activeMerchant) {
                 return response()->json([
                     'success' => false,
@@ -181,8 +181,8 @@ class MerchantController extends OGameController
             );
 
             if ($result['success']) {
-                // Remove the active merchant (one-time trade only)
-                $request->session()->forget('active_merchant_' . $player->getId());
+                // Remove the active merchant from cache (one-time trade only)
+                cache()->forget('active_merchant_' . $player->getId());
             }
 
             return response()->json($result);
@@ -203,7 +203,8 @@ class MerchantController extends OGameController
      */
     public function dismissMerchant(Request $request, PlayerService $player): JsonResponse
     {
-        $request->session()->forget('active_merchant_' . $player->getId());
+        // Remove merchant from cache
+        cache()->forget('active_merchant_' . $player->getId());
 
         return response()->json([
             'success' => true,
@@ -225,8 +226,8 @@ class MerchantController extends OGameController
         $planet = $player->planets->current();
         $user = $player->getUser();
 
-        // Get scrap merchant session data (planet-specific)
-        $scrapSession = $request->session()->get('scrap_merchant_' . $planet->getPlanetId(), [
+        // Get scrap merchant cache data (planet-specific, persists until trade is executed)
+        $scrapSession = cache()->get('scrap_merchant_' . $planet->getPlanetId(), [
             'offer_percentage' => 35, // Base 35%
             'bargain_count' => 0,
         ]);
@@ -328,8 +329,8 @@ class MerchantController extends OGameController
         $planet = $player->planets->current();
         $user = $player->getUser();
 
-        // Get current scrap session
-        $scrapSession = $request->session()->get('scrap_merchant_' . $planet->getPlanetId(), [
+        // Get current scrap merchant from cache (persists until trade is executed)
+        $scrapSession = cache()->get('scrap_merchant_' . $planet->getPlanetId(), [
             'offer_percentage' => 35,
             'bargain_count' => 0,
         ]);
@@ -361,10 +362,10 @@ class MerchantController extends OGameController
         $increase = rand(5, 14);
         $newPercentage = min(75, $scrapSession['offer_percentage'] + $increase);
 
-        // Update session
+        // Update cache (persists until trade is executed)
         $scrapSession['offer_percentage'] = $newPercentage;
         $scrapSession['bargain_count']++;
-        $request->session()->put('scrap_merchant_' . $planet->getPlanetId(), $scrapSession);
+        cache()->forever('scrap_merchant_' . $planet->getPlanetId(), $scrapSession);
 
         // Calculate new cost for next bargain
         $newCost = 2000 + ($scrapSession['bargain_count'] * 2000);
@@ -400,8 +401,8 @@ class MerchantController extends OGameController
         $planet = $player->planets->current();
         $objectService = resolve(\OGame\Services\ObjectService::class);
 
-        // Get scrap session
-        $scrapSession = $request->session()->get('scrap_merchant_' . $planet->getPlanetId(), [
+        // Get scrap merchant from cache (persists until trade is executed)
+        $scrapSession = cache()->get('scrap_merchant_' . $planet->getPlanetId(), [
             'offer_percentage' => 35,
             'bargain_count' => 0,
         ]);
@@ -552,8 +553,8 @@ class MerchantController extends OGameController
         $resources = new \OGame\Models\Resources($returnMetal, $returnCrystal, $returnDeuterium, 0);
         $planet->addResources($resources);
 
-        // Clear scrap session
-        $request->session()->forget('scrap_merchant_' . $planet->getPlanetId());
+        // Clear scrap merchant from cache (trade executed)
+        cache()->forget('scrap_merchant_' . $planet->getPlanetId());
 
         // Pick a random merchant response message
         $merchantMessages = [

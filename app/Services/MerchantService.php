@@ -293,9 +293,9 @@ class MerchantService
      */
     public static function addExpeditionBonus(PlayerService $player): array
     {
-        // Check if there's an active resource trader in session
-        $sessionKey = 'active_merchant_' . $player->getId();
-        $activeMerchant = session()->get($sessionKey);
+        // Check if there's an active resource trader in cache (persists across sessions)
+        $cacheKey = 'active_merchant_' . $player->getId();
+        $activeMerchant = cache()->get($cacheKey);
 
         if ($activeMerchant) {
             // Merchant already active - keep same type but potentially improve rates
@@ -321,8 +321,8 @@ class MerchantService
             }
 
             if ($improved) {
-                // Update session with improved rates
-                session()->put($sessionKey, [
+                // Update cache with improved rates (persists until used/replaced)
+                cache()->forever($cacheKey, [
                     'type' => $merchantType,
                     'trade_rates' => $currentRates,
                     'called_at' => $activeMerchant['called_at'],
@@ -343,8 +343,8 @@ class MerchantService
             // Generate trade rates
             $tradeRates = self::generateTradeRates($merchantType);
 
-            // Store in session (no dark matter cost for expedition merchants)
-            session()->put($sessionKey, [
+            // Store in cache (no dark matter cost for expedition merchants, persists until used/replaced)
+            cache()->forever($cacheKey, [
                 'type' => $merchantType,
                 'trade_rates' => $tradeRates,
                 'called_at' => time(),
