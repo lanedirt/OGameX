@@ -40,7 +40,7 @@ class FleetController extends OGameController
         // 0 = military ships
         // 1 = civil ships
         $screen_objects = [
-            ['light_fighter', 'heavy_fighter', 'cruiser', 'battle_ship', 'battlecruiser', 'bomber', 'destroyer', 'deathstar'],
+            ['light_fighter', 'heavy_fighter', 'cruiser', 'battle_ship', 'battlecruiser', 'bomber', 'destroyer', 'deathstar', 'reaper', 'pathfinder'],
             ['small_cargo', 'large_cargo', 'colony_ship', 'recycler', 'espionage_probe'],
         ];
 

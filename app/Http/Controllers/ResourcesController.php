@@ -52,7 +52,7 @@ class ResourcesController extends AbstractBuildingsController
         }
 
         $this->objects = [
-            0 => ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite', 'metal_store', 'crystal_store', 'deuterium_store'],
+            0 => ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite', 'crawler', 'metal_store', 'crystal_store', 'deuterium_store'],
         ];
 
         // Parse shipyard queue because the resources page shows both the
@@ -118,24 +118,32 @@ class ResourcesController extends AbstractBuildingsController
             $productionindex = $this->planet->getObjectProductionIndex($building, $level);
             $productionindex_total->add($productionindex);
 
+            // Calculate production without character class bonus for individual building display
+            $production_without_class = new Resources();
+            $production_without_class->add($productionindex->mine);
+            $production_without_class->add($productionindex->plasma_technology);
+            $production_without_class->add($productionindex->planet_slot);
+            $production_without_class->add($productionindex->engineer);
+            $production_without_class->add($productionindex->geologist);
+            $production_without_class->add($productionindex->commanding_staff);
+            $production_without_class->add($productionindex->items);
+
+            // Round the values
+            $production_without_class->metal->set(ceil($production_without_class->metal->get()));
+            $production_without_class->crystal->set(ceil($production_without_class->crystal->get()));
+            $production_without_class->deuterium->set(ceil($production_without_class->deuterium->get()));
+            $production_without_class->energy->set(floor($production_without_class->energy->get()));
+
             $percentage = $this->planet->getBuildingPercent($building->machine_name);
 
-            // Use base mine production + planet slot bonus
-            $base_production = new Resources(
-                ceil($productionindex->mine->metal->get() + $productionindex->planet_slot->metal->get()),
-                ceil($productionindex->mine->crystal->get() + $productionindex->planet_slot->crystal->get()),
-                ceil($productionindex->mine->deuterium->get() + $productionindex->planet_slot->deuterium->get()),
-                floor($productionindex->mine->energy->get())
-            );
-
-            if ($base_production->energy->get() < 0) {
+            if ($production_without_class->energy->get() < 0) {
                 // Building consumes energy (resource building)
                 $building_resource_rows[] = [
                     'id' => $building->id,
                     'title' => $building->title,
                     'level' => $level,
-                    'production' => $base_production,
-                    'actual_energy_use' => floor($base_production->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
+                    'production' => $production_without_class,
+                    'actual_energy_use' => floor($production_without_class->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
                     'percentage' => $percentage,
                 ];
             } else {
@@ -145,7 +153,7 @@ class ResourcesController extends AbstractBuildingsController
                     'type' => $building->type,
                     'title' => $building->title,
                     'level' => $level,
-                    'production' => $base_production,
+                    'production' => $production_without_class,
                     'percentage' => $percentage,
                 ];
             }
@@ -158,6 +166,7 @@ class ResourcesController extends AbstractBuildingsController
         $productionindex_total->total->deuterium->set($this->planet->getDeuteriumProductionPerHour());
 
         return view('ingame.resources.settings')->with([
+            'currentPlayer' => $player,
             'basic_income' => $this->planet->getPlanetBasicIncome(),
             'planet_name' => $this->planet->getPlanetName(),
             'building_resource_rows' => $building_resource_rows,

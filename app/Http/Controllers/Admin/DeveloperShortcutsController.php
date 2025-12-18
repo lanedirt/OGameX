@@ -43,12 +43,29 @@ class DeveloperShortcutsController extends OGameController
      *
      * @param Request $request
      * @param PlayerService $playerService
+     * @param SettingsService $settingsService
      * @return RedirectResponse
      * @throws Exception
      */
-    public function update(Request $request, PlayerService $playerService): RedirectResponse
+    public function update(Request $request, PlayerService $playerService, SettingsService $settingsService): RedirectResponse
     {
-        if ($request->has('set_mines')) {
+        if ($request->has('enable_free_class_changes')) {
+            // Enable free class changes
+            $settingsService->set('dev_free_class_changes', true);
+            return redirect()->back()->with('success', 'Free class changes enabled! You can now change classes without Dark Matter cost.');
+        } elseif ($request->has('disable_free_class_changes')) {
+            // Disable free class changes
+            $settingsService->set('dev_free_class_changes', false);
+            return redirect()->back()->with('success', 'Free class changes disabled. Normal costs apply.');
+        } elseif ($request->has('reset_character_class')) {
+            // Reset character class
+            $user = $playerService->getUser();
+            $user->character_class = null;
+            $user->character_class_free_used = false;
+            $user->character_class_changed_at = null;
+            $user->save();
+            return redirect()->back()->with('success', 'Character class has been reset. You can now select a class for free.');
+        } elseif ($request->has('set_mines')) {
             // Handle "Set all mines to level 30"
             $playerService->planets->current()->setObjectLevel(ObjectService::getObjectByMachineName('metal_mine')->id, 30);
             $playerService->planets->current()->setObjectLevel(ObjectService::getObjectByMachineName('crystal_mine')->id, 30);

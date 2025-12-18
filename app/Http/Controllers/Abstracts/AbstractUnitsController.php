@@ -87,17 +87,21 @@ abstract class AbstractUnitsController extends OGameController
                 // Check requirements of this building
                 $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet);
 
+                // Check character class requirements separately
+                $character_class_met = ObjectService::objectCharacterClassMet($object->machine_name, $planet);
+
                 // Check if the current planet has enough resources to build this building.
                 $enough_resources = $planet->hasResources(ObjectService::getObjectPrice($object->machine_name, $planet));
 
                 // Get maximum build amount of this building
-                $max_build_amount = ObjectService::getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met);
+                $max_build_amount = ObjectService::getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met && $character_class_met);
 
                 $view_model = new UnitViewModel();
                 $view_model->object = $object;
                 $view_model->count = $count;
                 $view_model->amount = $amount;
                 $view_model->requirements_met = $requirements_met;
+                $view_model->character_class_met = $character_class_met;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->max_build_amount = $max_build_amount;
                 $view_model->currently_building = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name);

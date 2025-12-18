@@ -31,6 +31,9 @@ use Spatie\Permission\Traits\HasRoles;
  * @property bool $vacation_mode
  * @property \Illuminate\Support\Carbon|null $vacation_mode_activated_at
  * @property \Illuminate\Support\Carbon|null $vacation_mode_until
+ * @property int|null $character_class
+ * @property bool $character_class_free_used
+ * @property \Illuminate\Support\Carbon|null $character_class_changed_at
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read \OGame\Models\UserTech|null $tech
@@ -131,6 +134,8 @@ class User extends Authenticatable
         'vacation_mode_activated_at' => 'datetime',
         'vacation_mode_until' => 'datetime',
         'dark_matter_last_regen' => 'datetime',
+        'character_class_free_used' => 'boolean',
+        'character_class_changed_at' => 'datetime',
     ];
 
     /**
@@ -171,5 +176,59 @@ class User extends Authenticatable
         $timeDifference = $currentTime - $lastActivity;
 
         return $timeDifference <= 900; // 15 minutes
+    }
+
+    /**
+     * Get the user's character class as an enum.
+     *
+     * @return \OGame\Enums\CharacterClass|null
+     */
+    public function getCharacterClassEnum(): ?\OGame\Enums\CharacterClass
+    {
+        if ($this->character_class === null) {
+            return null;
+        }
+
+        return \OGame\Enums\CharacterClass::tryFrom($this->character_class);
+    }
+
+    /**
+     * Check if user is a Collector.
+     *
+     * @return bool
+     */
+    public function isCollector(): bool
+    {
+        return $this->character_class === \OGame\Enums\CharacterClass::COLLECTOR->value;
+    }
+
+    /**
+     * Check if user is a General.
+     *
+     * @return bool
+     */
+    public function isGeneral(): bool
+    {
+        return $this->character_class === \OGame\Enums\CharacterClass::GENERAL->value;
+    }
+
+    /**
+     * Check if user is a Discoverer.
+     *
+     * @return bool
+     */
+    public function isDiscoverer(): bool
+    {
+        return $this->character_class === \OGame\Enums\CharacterClass::DISCOVERER->value;
+    }
+
+    /**
+     * Check if user has a character class selected.
+     *
+     * @return bool
+     */
+    public function hasCharacterClass(): bool
+    {
+        return $this->character_class !== null;
     }
 }

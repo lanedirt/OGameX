@@ -7,6 +7,7 @@ use OGame\Models\{
     ProductionIndex,
 };
 use OGame\Services\{
+    CharacterClassService,
     PlanetService,
     PlayerService,
 };
@@ -76,6 +77,13 @@ class GameObjectProduction
     public PlayerService $playerService;
 
     /**
+     * The character class service for bonus calculations
+     *
+     * @var CharacterClassService|null
+     */
+    public ?CharacterClassService $characterClassService = null;
+
+    /**
      * The Universe speed, set by a server admin.
      *
      * @var int
@@ -116,6 +124,7 @@ class GameObjectProduction
         $this->calculatePlasmaTech($productionIndex);
         $this->calculateEngineer($productionIndex);
         $this->calculateGeologist($productionIndex);
+        $this->calculateCharacterClass($productionIndex);
         $this->calculateCommandingStaff($productionIndex);
         $this->calculateItems($productionIndex);
         $this->calculateTotal($productionIndex);
@@ -289,6 +298,61 @@ class GameObjectProduction
     }
 
     /**
+     * Calculates Character Class bonus
+     * - Collector: +25% mines, +10% energy
+     *
+     * @param ProductionIndex $productionIndex
+     * @return void
+     */
+    private function calculateCharacterClass(ProductionIndex $productionIndex): void
+    {
+        if (!$this->characterClassService) {
+            return;
+        }
+
+        $user = $this->playerService->getUser();
+
+        // Get mine production bonus (Collector only: +25%)
+        $mineBonus = $this->characterClassService->getMineProductionBonus($user);
+        if ($mineBonus > 1.0) {
+            if ($productionIndex->mine->metal->get() > 0) {
+                $productionIndex->character_class->metal->set(
+                    floor(
+                        ($productionIndex->mine->metal->get() + $productionIndex->planet_slot->metal->get())
+                        * ($mineBonus - 1.0)
+                    )
+                );
+            }
+
+            if ($productionIndex->mine->crystal->get() > 0) {
+                $productionIndex->character_class->crystal->set(
+                    floor(
+                        ($productionIndex->mine->crystal->get() + $productionIndex->planet_slot->crystal->get())
+                        * ($mineBonus - 1.0)
+                    )
+                );
+            }
+
+            if ($productionIndex->mine->deuterium->get() > 0) {
+                $productionIndex->character_class->deuterium->set(
+                    floor(
+                        ($productionIndex->mine->deuterium->get() + $productionIndex->planet_slot->deuterium->get())
+                        * ($mineBonus - 1.0)
+                    )
+                );
+            }
+        }
+
+        // Get energy production bonus (Collector only: +10%)
+        $energyBonus = $this->characterClassService->getEnergyProductionBonus($user);
+        if ($energyBonus > 1.0 && $productionIndex->mine->energy->get() > 0) {
+            $productionIndex->character_class->energy->set(
+                floor($productionIndex->mine->energy->get() * ($energyBonus - 1.0))
+            );
+        }
+    }
+
+    /**
      * Calculates Commanding Staff bonus
      * Commanding Staff is activated when a player has all officers activated
      *
@@ -361,6 +425,7 @@ class GameObjectProduction
         $productionIndex->total->add($productionIndex->planet_slot);
         $productionIndex->total->add($productionIndex->engineer);
         $productionIndex->total->add($productionIndex->geologist);
+        $productionIndex->total->add($productionIndex->character_class);
         $productionIndex->total->add($productionIndex->commanding_staff);
         $productionIndex->total->add($productionIndex->items);
     }

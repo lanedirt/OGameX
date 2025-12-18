@@ -6,6 +6,7 @@ use Exception;
 use OGame\GameObjects\Models\Fields\GameObjectPropertyDetails;
 use OGame\GameObjects\Models\Fields\GameObjectSpeedUpgrade;
 use OGame\GameObjects\Services\Properties\Abstracts\ObjectPropertyService;
+use OGame\Services\CharacterClassService;
 use OGame\Services\PlayerService;
 
 /**
@@ -41,6 +42,20 @@ class SpeedPropertyService extends ObjectPropertyService
             ],
             'totalValue' => $totalValue,
         ];
+
+        // Apply character class speed bonuses (based on base speed only, not including research bonuses)
+        $classBonus = $this->getCharacterClassSpeedBonus($player);
+        if ($classBonus > 0) {
+            $classBonusValue = (($effectiveBase / 100) * $classBonus);
+            $totalValue += $classBonusValue;
+
+            $breakdown['bonuses'][] = [
+                'type' => 'Character class bonus',
+                'value' => $classBonusValue,
+                'percentage' => $classBonus,
+            ];
+            $breakdown['totalValue'] = $totalValue;
+        }
 
         return new GameObjectPropertyDetails($effectiveBase, $bonusValue, $totalValue, $breakdown);
     }
@@ -130,5 +145,48 @@ class SpeedPropertyService extends ObjectPropertyService
         }
 
         return $bonus_percentage_per_level * $applicable_technology_level;
+    }
+
+    /**
+     * Get character class speed bonus percentage.
+     *
+     * @param PlayerService $player
+     * @return int Percentage bonus (0-100)
+     */
+    private function getCharacterClassSpeedBonus(PlayerService $player): int
+    {
+        $characterClassService = app(CharacterClassService::class);
+        $user = $player->getUser();
+        $object = $this->parent_object;
+
+        // Collector: +100% transporter speed (Small Cargo: 202, Large Cargo: 203)
+        if ($object->id === 202 || $object->id === 203) {
+            $multiplier = $characterClassService->getTransporterSpeedBonus($user);
+            if ($multiplier > 1.0) {
+                return (int)(($multiplier - 1.0) * 100);
+            }
+        }
+
+        // General: +100% combat ship speed (all military ships except Espionage Probe: 210)
+        if ($object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship) {
+            // Check if it's a military ship (not transporter, recycler, colony ship, solar satellite, crawler, espionage probe)
+            $nonCombatShips = [202, 203, 208, 209, 210, 212, 217]; // Small/Large Cargo, Colony Ship, Recycler, Espionage Probe, Solar Satellite, Crawler
+            if (!in_array($object->id, $nonCombatShips)) {
+                $multiplier = $characterClassService->getCombatShipSpeedBonus($user);
+                if ($multiplier > 1.0) {
+                    return (int)(($multiplier - 1.0) * 100);
+                }
+            }
+        }
+
+        // General: +100% recycler speed (Recycler: 209)
+        if ($object->id === 209) {
+            $multiplier = $characterClassService->getRecyclerSpeedBonus($user);
+            if ($multiplier > 1.0) {
+                return (int)(($multiplier - 1.0) * 100);
+            }
+        }
+
+        return 0;
     }
 }

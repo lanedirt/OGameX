@@ -522,8 +522,11 @@ class PlanetServiceFactory
         $maxDiameter = (int)floor(pow(20 + (3 * 2000000 / 100000), 0.5) * 1000); // = 8944 km
         $planet->diameter = min($diameter, $maxDiameter);
 
-        // Moon field size is always 1
-        $planet->field_max = 1;
+        // Moon field size is base 1 + General class bonus (+5)
+        $player = $this->playerServiceFactory->make($planet->user_id, true);
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $moonFieldsBonus = $characterClassService->getAdditionalMoonFields($player->getUser());
+        $planet->field_max = 1 + $moonFieldsBonus;
 
         // Calculate temperature based on planet position (same as the planet at this position)
         $planetData = $this->planetData($planet->planet, false);
@@ -547,7 +550,14 @@ class PlanetServiceFactory
         $planet_data = $this->planetData($planet->planet, $is_first_planet);
 
         // Random field count between the min and max values and add the Server planet fields bonus setting.
-        $planet->field_max = rand($planet_data['fields'][0], $planet_data['fields'][1]) + $this->settings->planetFieldsBonus();
+        $base_fields = rand($planet_data['fields'][0], $planet_data['fields'][1]) + $this->settings->planetFieldsBonus();
+
+        // Apply Discoverer class planet size bonus (+10%)
+        $player = $this->playerServiceFactory->make($planet->user_id, true);
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $planetSizeMultiplier = $characterClassService->getPlanetSizeBonus($player->getUser());
+
+        $planet->field_max = (int)($base_fields * $planetSizeMultiplier);
         $planet->diameter = (int) (36.14 * $planet->field_max + 5697.23);
 
         // Random temperature between the min and max values is assigned to temp_max, then temp_min is calculated as temp_max - 40.

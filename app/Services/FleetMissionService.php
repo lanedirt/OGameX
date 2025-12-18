@@ -227,6 +227,11 @@ class FleetMissionService
             $consumption += max(floor($holdingCosts / 10), 1);
         }
 
+        // Apply General class deuterium consumption reduction (-50%)
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $consumptionMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($fromPlanet->getPlayer()->getUser());
+        $consumption = (int)($consumption * $consumptionMultiplier);
+
         return $consumption;
     }
 

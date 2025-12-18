@@ -35,7 +35,7 @@ abstract class BattleEngine
 
     /**
      * @var int The percentage of loot that is gained from a battle.
-     * TODO: make this configurable. For inactive players loot percentage could be up to 75% for example.
+     * Base is 50%, but Discoverer class gets 75% from inactive players.
      */
     private int $lootPercentage = 50;
 
@@ -58,6 +58,10 @@ abstract class BattleEngine
         $this->attackerPlayer = $attackerPlayer;
         $this->defenderPlanet = $defenderPlanet;
 
+        // Determine loot percentage based on character class and defender status
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $this->lootPercentage = (int)($characterClassService->getInactiveLootPercentage($this->attackerPlayer->getUser()) * 100);
+
         $this->lootService = new LootService($this->attackerFleet, $this->attackerPlayer, $this->defenderPlanet, $this->lootPercentage);
 
         $this->settings = $settings;
@@ -74,13 +78,28 @@ abstract class BattleEngine
 
         // Initialize the battle result object with the attacker and defender information.
         $result->lootPercentage = $this->lootPercentage;
-        $result->attackerWeaponLevel = $this->attackerPlayer->getResearchLevel('weapon_technology');
-        $result->attackerShieldLevel = $this->attackerPlayer->getResearchLevel('shielding_technology');
-        $result->attackerArmorLevel = $this->attackerPlayer->getResearchLevel('armor_technology');
 
-        $result->defenderWeaponLevel = $this->defenderPlanet->getPlayer()->getResearchLevel('weapon_technology');
-        $result->defenderShieldLevel = $this->defenderPlanet->getPlayer()->getResearchLevel('shielding_technology');
-        $result->defenderArmorLevel = $this->defenderPlanet->getPlayer()->getResearchLevel('armor_technology');
+        // Get base research levels
+        $attackerWeaponBase = $this->attackerPlayer->getResearchLevel('weapon_technology');
+        $attackerShieldBase = $this->attackerPlayer->getResearchLevel('shielding_technology');
+        $attackerArmorBase = $this->attackerPlayer->getResearchLevel('armor_technology');
+
+        $defenderWeaponBase = $this->defenderPlanet->getPlayer()->getResearchLevel('weapon_technology');
+        $defenderShieldBase = $this->defenderPlanet->getPlayer()->getResearchLevel('shielding_technology');
+        $defenderArmorBase = $this->defenderPlanet->getPlayer()->getResearchLevel('armor_technology');
+
+        // Apply General class combat research bonus (+2 levels)
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $attackerCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($this->attackerPlayer->getUser());
+        $defenderCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($this->defenderPlanet->getPlayer()->getUser());
+
+        $result->attackerWeaponLevel = $attackerWeaponBase + $attackerCombatBonus;
+        $result->attackerShieldLevel = $attackerShieldBase + $attackerCombatBonus;
+        $result->attackerArmorLevel = $attackerArmorBase + $attackerCombatBonus;
+
+        $result->defenderWeaponLevel = $defenderWeaponBase + $defenderCombatBonus;
+        $result->defenderShieldLevel = $defenderShieldBase + $defenderCombatBonus;
+        $result->defenderArmorLevel = $defenderArmorBase + $defenderCombatBonus;
 
         $result->attackerUnitsStart = clone $this->attackerFleet;
         $result->attackerUnitsResult = clone $this->attackerFleet;

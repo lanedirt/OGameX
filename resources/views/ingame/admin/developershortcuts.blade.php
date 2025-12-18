@@ -80,6 +80,22 @@
                                     </div>
                                 </div>
 
+                                <p class="box_highlight textCenter no_buddies">@lang('Character Class Settings')</p>
+                                <div class="group bborder" style="display: block;">
+                                    <div class="fieldwrapper">
+                                        @php
+                                            $freeClassChanges = app(\OGame\Services\SettingsService::class)->get('dev_free_class_changes', false);
+                                        @endphp
+                                        @if($freeClassChanges)
+                                            <input type="submit" class="btn_blue" name="disable_free_class_changes" value="@lang('Disable Free Class Changes')">
+                                        @else
+                                            <input type="submit" class="btn_blue" name="enable_free_class_changes" value="@lang('Enable Free Class Changes')">
+                                        @endif
+                                        <input type="submit" class="btn_blue" name="reset_character_class" value="@lang('Reset Character Class')">
+                                        <a href="{{ route('characterclass.index') }}" class="btn_blue" style="display: inline-block; padding: 5px 10px; text-decoration: none;">@lang('Go to Class Selection')</a>
+                                    </div>
+                                </div>
+
                                 <p class="box_highlight textCenter no_buddies">@lang('Reset planet')</p>
                                 <div class="group bborder" style="display: block;">
                                     <div class="fieldwrapper">

@@ -958,6 +958,13 @@ class PlanetService
 
         $time_seconds = (int)($time_hours * 3600);
 
+        // Apply character class research time multiplier (Discoverer: -25%)
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $timeMultiplier = $characterClassService->getResearchTimeMultiplier($this->player->getUser());
+        if ($timeMultiplier != 1.0) {
+            $time_seconds = (int)($time_seconds * $timeMultiplier);
+        }
+
         // Minimum time is always 1 second for all objects/units.
         if ($time_seconds < 1) {
             $time_seconds = 1;
@@ -2003,6 +2010,7 @@ class PlanetService
 
         $object->production->planetService = $this;
         $object->production->playerService = $this->player;
+        $object->production->characterClassService = app(\OGame\Services\CharacterClassService::class);
         $object->production->universe_speed = $this->settingsService->economySpeed();
 
         return $object->production->calculate($object_level, $resource_production_factor * $building_percentage);

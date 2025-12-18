@@ -286,11 +286,23 @@
                 </a>
             </div>
             <div id="characterclass" class="fleft">
-                <a href="#TODO_=ingame&amp;component=characterclassselection"
+                @php
+                    $userClass = $currentPlayer->getUser()->getCharacterClassEnum();
+                    $classTitle = 'No class selected';
+                    $classIcon = 'noclass';
+                    $classBonuses = [];
+
+                    if ($userClass) {
+                        $classTitle = 'Your class: ' . $userClass->getName();
+                        $classIcon = $userClass->getMachineName();
+                        $classBonuses = $userClass->getBonuses();
+                    }
+                @endphp
+                <a href="{{ route('characterclass.index') }}"
                    class="tooltipHTML js_hideTipOnMobile ipiHintable"
-                   title="Your class: Collector|+25% mine production<br>+10% energy production<br>+100% speed for Transporters<br>+25% cargo bay for Transporters<br>+50% Crawler bonus<br>+10% more usable Crawlers with Geologist<br>Overload the Crawlers up to 150%<br>+10% discount on acceleration (building)"
+                   title="{{ $classTitle }}|@if($classBonuses){{ implode('<br>', $classBonuses) }}@else@lang('Click to select a character class')@endif"
                    data-ipi-hint="ipiCharacterclassSettings">
-                    <div class="sprite characterclass medium miner"></div>
+                    <div class="sprite characterclass medium {{ $classIcon }}"></div>
                 </a>
             </div>
             <div id="officers" class="  fright">

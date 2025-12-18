@@ -324,6 +324,44 @@
                         </tr>
                         <tr class="">
                             <td class="label">
+                                @lang('Character Class')
+                            </td>
+                            <td>
+                                @php
+                                    $userClass = $currentPlayer->getUser()->getCharacterClassEnum();
+                                    $hasClass = $userClass !== null;
+                                    $classIcon = $hasClass ? $userClass->getMachineName() : 'noclass';
+                                    $classTooltip = $hasClass ? $userClass->getName() : 'No class selected';
+                                @endphp
+                                <div class="tooltipCustom sprite characterclass small {{ $classIcon }} {{ $hasClass ? '' : 'grayscale' }}"
+                                     title="{{ $classTooltip }}">
+                                </div>
+                            </td>
+                            <td class="{{ $production_total->character_class->metal->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $hasClass ? '' : 'disabled' }}" title="{{ $production_total->character_class->metal->getFormattedFull() }}">
+                                    {{ $production_total->character_class->metal->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->character_class->crystal->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $hasClass ? '' : 'disabled' }}" title="{{ $production_total->character_class->crystal->getFormattedFull() }}">
+                                    {{ $production_total->character_class->crystal->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->character_class->deuterium->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $hasClass ? '' : 'disabled' }}" title="{{ $production_total->character_class->deuterium->getFormattedFull() }}">
+                                    {{ $production_total->character_class->deuterium->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->character_class->energy->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $hasClass ? '' : 'disabled' }}" title="{{ $production_total->character_class->energy->getFormattedFull() }}">
+                                    {{ $production_total->character_class->energy->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr class="alt">
+                            <td class="label">
                                 @lang('Commanding Staff')
                             </td>
                             <td>

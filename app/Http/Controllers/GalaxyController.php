@@ -589,7 +589,7 @@ class GalaxyController extends OGameController
             'success' => true,
             'system' => [
                 'availableMissiles' => $planet->getObjectAmount('interplanetary_missile'),
-                'availablePathfinders' => 0,
+                'availablePathfinders' => $planet->getObjectAmount('pathfinder'),
                 'availableProbes' => $planet->getObjectAmount('espionage_probe'),
                 'availableRecyclers' => $planet->getObjectAmount('recycler'),
                 'canColonize' => true,

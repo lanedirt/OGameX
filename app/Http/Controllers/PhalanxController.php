@@ -74,9 +74,9 @@ class PhalanxController extends OGameController
         // Get moon coordinates
         $moon_coordinates = $current_planet->getPlanetCoordinates();
 
-        // Check if target is in range
-        if (!$phalanxService->canScanTarget($moon_coordinates->galaxy, $moon_coordinates->system, $phalanx_level, $target_coordinate)) {
-            $max_range = $phalanxService->calculatePhalanxRange($phalanx_level);
+        // Check if target is in range (includes Discoverer +20% bonus if applicable)
+        if (!$phalanxService->canScanTarget($moon_coordinates->galaxy, $moon_coordinates->system, $phalanx_level, $target_coordinate, $player->getId())) {
+            $max_range = $phalanxService->calculatePhalanxRange($phalanx_level, $player->getId());
             $response['is_error'] = true;
             $response['error_message'] = 'Target is out of range. Your sensor phalanx (Level ' . $phalanx_level . ') can scan up to ' . $max_range . ' systems away.';
             return response()->json($response);
