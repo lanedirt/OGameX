@@ -189,7 +189,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $crawler->id = 217;
         $crawler->title = 'Crawler';
         $crawler->machine_name = 'crawler';
-        $crawler->class_name = 'crawler';
+        $crawler->class_name = 'resbuggy'; // CSS uses 'resbuggy' for Crawler sprite
         $crawler->description = 'Crawlers are resource drones that support the mines and increase production.';
         $crawler->description_long = 'Crawlers are state-of-the-art mining machines which can considerably increase the production of raw materials in the mines. However, they can only be built by members of the Collector class. Crawlers move across the planet`s surface and enter the shafts where they help to increase the mine`s production. The maximum number of Crawlers that can be used is limited by the level of the planet`s mines. The maximum overcharge is 100%. Collectors will be able to upgrade their Crawlers to an overcharge of 150%.';
         $crawler->requirements = [
@@ -215,7 +215,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $pathfinder->id = 219;
         $pathfinder->title = 'Pathfinder';
         $pathfinder->machine_name = 'pathfinder';
-        $pathfinder->class_name = 'pathfinder';
+        $pathfinder->class_name = 'explorer'; // CSS uses 'explorer' for Pathfinder sprite
         $pathfinder->description = 'The Pathfinder is a quick and agile ship, purpose-built for expeditions into unknown sectors of space.';
         $pathfinder->description_long = 'The Pathfinder is the latest development in exploration technology. This ship was specially designed for members of the Discoverer class to maximize their potential. Equipped with advanced scanning systems and a large cargo hold for salvaging resources, the Pathfinder excels at expeditions. Its sophisticated sensors can detect valuable resources and anomalies that would go unnoticed by other ships. The ship combines a high speed with good cargo capacity, making it perfect for quick exploration missions and resource gathering from distant sectors.';
         $pathfinder->requirements = [
