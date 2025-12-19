@@ -577,10 +577,6 @@
             @if (session('success') == __('Vacation mode has been deactivated.'))
                 fadeBox('{{ session('success') }}', false);
             @endif
-            // Show fadeBox for other success messages (e.g., "Settings saved")
-            @if (session('success') && session('success') != __('Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.') && session('success') != __('Vacation mode has been deactivated.'))
-                fadeBox('{{ session('success') }}', false);
-            @endif
 
             $(".validateButtonGift").click(function() {
                 $(".validateButtonGift").hide();
