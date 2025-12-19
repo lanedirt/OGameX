@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Traits\ObjectAjaxTrait;
+use OGame\Services\CharacterClassService;
 use OGame\Services\HalvingService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
@@ -64,6 +65,13 @@ class ResearchController extends OGameController
             3 => ['weapon_technology', 'shielding_technology', 'armor_technology'],
         ];
 
+        // Combat research technologies that get General class bonus
+        $combat_research = ['weapon_technology', 'shielding_technology', 'armor_technology'];
+
+        // Get character class bonus for combat research
+        $characterClassService = app(CharacterClassService::class);
+        $combatResearchBonus = $characterClassService->getAdditionalCombatResearchLevels($player->getUser());
+
         $count = 0;
 
         // Parse research queue for this planet
@@ -99,6 +107,11 @@ class ResearchController extends OGameController
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = (!empty($research_active) && $research_active->object->machine_name === $object->machine_name);
                 $view_model->research_lab_upgrading = $research_lab_upgrading;
+
+                // Apply combat research bonus if applicable
+                if (in_array($object->machine_name, $combat_research)) {
+                    $view_model->bonus_level = $combatResearchBonus;
+                }
 
                 $research[$key_row][$object->id] = $view_model;
             }

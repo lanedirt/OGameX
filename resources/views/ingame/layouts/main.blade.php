@@ -289,7 +289,7 @@
                 @php
                     $userClass = $currentPlayer->getUser()->getCharacterClassEnum();
                     $classTitle = 'No class selected';
-                    $classIcon = 'noclass';
+                    $classIcon = 'none';
                     $classBonuses = [];
 
                     if ($userClass) {
