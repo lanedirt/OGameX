@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Character class (1=Collector, 2=General, 3=Discoverer, null=None)
-            $table->tinyInteger('character_class')->nullable()->after('vacation_mode_duration');
+            $table->tinyInteger('character_class')->nullable()->after('vacation_mode_until');
             // Track if user has used their free class selection
             $table->boolean('character_class_free_used')->default(false)->after('character_class');
             // Track when character class was selected/changed

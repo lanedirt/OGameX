@@ -238,7 +238,7 @@ class PopulateUniverse extends Command
         $existingPositions = Planet::whereIn('galaxy', $galaxies)
             ->where('planet_type', PlanetType::Planet)
             ->get(['galaxy', 'system', 'planet'])
-            ->map(fn($p) => "{$p->galaxy}:{$p->system}:{$p->planet}")
+            ->map(fn ($p) => "{$p->galaxy}:{$p->system}:{$p->planet}")
             ->toArray();
 
         $existingSet = array_flip($existingPositions);

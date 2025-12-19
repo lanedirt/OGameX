@@ -5,8 +5,8 @@ namespace OGame\Services;
 use Exception;
 use OGame\Enums\CharacterClass;
 use OGame\Enums\DarkMatterTransactionType;
+use OGame\Models\FleetMission;
 use OGame\Models\User;
-use OGame\Services\SettingsService;
 
 /**
  * Class CharacterClassService.
@@ -46,7 +46,7 @@ class CharacterClassService
      * @param User $user
      * @return CharacterClass|null
      */
-    public function getCharacterClass(User $user): ?CharacterClass
+    public function getCharacterClass(User $user): CharacterClass|null
     {
         if ($user->character_class === null) {
             return null;
@@ -97,8 +97,8 @@ class CharacterClassService
     public function getChangeCost(User $user): int
     {
         // Check developer setting for free class changes
-        $freeClassChanges = $this->settingsService->get('dev_free_class_changes', false);
-        if ($freeClassChanges) {
+        $freeClassChanges = $this->settingsService->get('dev_free_class_changes', '0');
+        if ($freeClassChanges !== '0') {
             return 0;
         }
 
@@ -150,6 +150,11 @@ class CharacterClassService
             throw new Exception('This class is already selected');
         }
 
+        // Check if user has active fleet missions
+        if ($this->hasActiveFleetMissions($user)) {
+            throw new Exception('Cannot change character class while fleet missions are active. Please wait for all fleets to return.');
+        }
+
         // Deduct Dark Matter if not free
         if ($cost > 0) {
             $this->darkMatterService->debit(
@@ -180,9 +185,27 @@ class CharacterClassService
             throw new Exception('No character class selected');
         }
 
+        // Check if user has active fleet missions
+        if ($this->hasActiveFleetMissions($user)) {
+            throw new Exception('Cannot deactivate character class while fleet missions are active. Please wait for all fleets to return.');
+        }
+
         $user->character_class = null;
         $user->character_class_changed_at = now();
         $user->save();
+    }
+
+    /**
+     * Check if user has any active (unprocessed) fleet missions.
+     *
+     * @param User $user
+     * @return bool
+     */
+    private function hasActiveFleetMissions(User $user): bool
+    {
+        return FleetMission::where('user_id', $user->id)
+            ->where('processed', 0)
+            ->exists();
     }
 
     /**

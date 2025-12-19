@@ -434,7 +434,7 @@ class ExpeditionMission extends GameMission
         // Filter out class-specific ships if fleet doesn't meet requirements
         // Pathfinder: requires at least Cruiser tier (level 4) or higher
         // Reaper: requires at least Destroyer tier (level 9) or higher
-        $possibleShips = array_filter($possibleShips, function($ship) use ($maxExpeditionLevel) {
+        $possibleShips = array_filter($possibleShips, function ($ship) use ($maxExpeditionLevel) {
             // Pathfinder requires expedition level 4 or higher (Cruiser tier)
             if ($ship->machine_name === 'pathfinder' && $maxExpeditionLevel < 4) {
                 return false;

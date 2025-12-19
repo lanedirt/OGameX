@@ -47,11 +47,19 @@ class PlanetServiceFactory
     protected SettingsService $settings;
 
     /**
+     * PlayerServiceFactory.
+     *
+     * @var PlayerServiceFactory
+     */
+    protected PlayerServiceFactory $playerServiceFactory;
+
+    /**
      * PlanetServiceFactory constructor.
      */
-    public function __construct(SettingsService $settingsService)
+    public function __construct(SettingsService $settingsService, PlayerServiceFactory $playerServiceFactory)
     {
         $this->settings = $settingsService;
+        $this->playerServiceFactory = $playerServiceFactory;
     }
 
     /**
