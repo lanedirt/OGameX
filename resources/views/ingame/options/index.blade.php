@@ -570,8 +570,15 @@
             preferenceLoca = {"changeNameTitle":"New player name","changeNameQuestion":"Are you sure you want to change your player name to %newName%?","planetMoveQuestion":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","tabDisabled":"To use this option you have to validated and cannot be in vacation mode!","vacationModeQuestion":"Do you want to activate vacation mode? You can only end your vacation after 2 days."};
             initPreferences();
 
-            // Show fadeBox for success messages
-            @if (session('success'))
+            // Show fadeBox for vacation mode success messages
+            @if (session('success') == __('Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.'))
+                fadeBox('{{ session('success') }}', false);
+            @endif
+            @if (session('success') == __('Vacation mode has been deactivated.'))
+                fadeBox('{{ session('success') }}', false);
+            @endif
+            // Show fadeBox for other success messages (e.g., "Settings saved")
+            @if (session('success') && session('success') != __('Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.') && session('success') != __('Vacation mode has been deactivated.'))
                 fadeBox('{{ session('success') }}', false);
             @endif
 
