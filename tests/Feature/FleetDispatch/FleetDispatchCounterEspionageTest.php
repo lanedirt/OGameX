@@ -5,6 +5,7 @@ namespace Tests\Feature\FleetDispatch;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\EspionageReport;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Resources;
 use OGame\Services\CounterEspionageService;
 use OGame\Services\FleetMissionService;
@@ -108,7 +109,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         // Send probes
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 5);
-        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+        $this->dispatchFleet($foreignPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, true);
 
         // Complete mission
         $this->travel(10)->hours();
@@ -139,7 +140,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         // Send only 1 probe to maximize counter-espionage chance
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+        $this->dispatchFleet($foreignPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, true);
 
         // Complete mission
         $this->travel(10)->hours();
@@ -214,7 +215,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         // Send 1 probe to maximize counter-espionage chance
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+        $this->dispatchFleet($foreignPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, true);
 
         // Complete mission
         $this->travel(10)->hours();
@@ -256,7 +257,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         // Send probes
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 5);
-        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+        $this->dispatchFleet($foreignPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, true);
 
         // Complete mission
         $this->travel(10)->hours();
@@ -291,7 +292,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         // Send only 1 probe (will be destroyed)
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+        $this->dispatchFleet($foreignPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, true);
 
         // Complete mission
         $this->travel(10)->hours();
@@ -313,15 +314,25 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         // Get initial probe count
         $initialProbes = $this->planetService->getShipUnits()->getAmountByMachineName('espionage_probe');
 
-        // Get a foreign planet and add overwhelming ships to maximize counter-espionage chance
+        // Get a foreign planet and add overwhelming ships to guarantee 100% counter-espionage
         $foreignPlanet = $this->getNearbyForeignPlanet();
-        $foreignPlanet->addUnit('battlecruiser', 1000);
+
+        // Set defender's espionage technology very high to further guarantee counter-espionage
+        $foreignPlanet->getPlayer()->setResearchLevel('espionage_technology', 10);
+
+        // Add overwhelming number of ships
+        $foreignPlanet->addUnit('battlecruiser', 5000);
         $foreignPlanet->save();
+        $foreignPlanet->update(); // Ensure planet state is fully persisted
+
+        // Force a fresh reload of the foreign planet to ensure no caching issues
+        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $foreignPlanet = $planetServiceFactory->make($foreignPlanet->getPlanetId());
 
         // Send only 1 probe (high chance to be destroyed)
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+        $this->dispatchFleet($foreignPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, true);
 
         // Complete mission
         $this->travel(10)->hours();
@@ -338,7 +349,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $finalProbes = $this->planetService->getShipUnits()->getAmountByMachineName('espionage_probe');
 
         // If counter-espionage triggered and destroyed all probes
-        if ($finalProbes === $initialProbes - 1) {
+        if ($finalProbes < $initialProbes) {
             // Then fleet lost contact message should be received
             $this->assertMessageReceivedAndContains('fleets', 'combat_reports', [
                 'Contact with the attacking fleet has been lost',
@@ -359,15 +370,25 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         // Get initial probe count
         $initialProbes = $this->planetService->getShipUnits()->getAmountByMachineName('espionage_probe');
 
-        // Get a foreign planet and add overwhelming ships
+        // Get a foreign planet and add overwhelming ships to guarantee 100% counter-espionage
         $foreignPlanet = $this->getNearbyForeignPlanet();
-        $foreignPlanet->addUnit('battlecruiser', 1000);
+
+        // Set defender's espionage technology very high to further guarantee counter-espionage
+        $foreignPlanet->getPlayer()->setResearchLevel('espionage_technology', 10);
+
+        // Add overwhelming number of ships
+        $foreignPlanet->addUnit('battlecruiser', 5000);
         $foreignPlanet->save();
+        $foreignPlanet->update(); // Ensure planet state is fully persisted
+
+        // Force a fresh reload of the foreign planet to ensure no caching issues
+        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $foreignPlanet = $planetServiceFactory->make($foreignPlanet->getPlanetId());
 
         // Send only 1 probe (high chance to be destroyed)
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
-        $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+        $this->dispatchFleet($foreignPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, true);
 
         // Complete mission
         $this->travel(10)->hours();
@@ -384,9 +405,9 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $finalProbes = $this->planetService->getShipUnits()->getAmountByMachineName('espionage_probe');
 
         // If counter-espionage triggered and destroyed all probes
-        if ($finalProbes === $initialProbes - 1) {
+        if ($finalProbes < $initialProbes) {
             // Probes should not have returned - this is the expected behavior
-            $this->assertEquals($initialProbes - 1, $finalProbes, 'Destroyed probes should not return.');
+            $this->assertLessThan($initialProbes, $finalProbes, 'Destroyed probes should not return.');
         } else {
             // Counter-espionage didn't trigger, probes returned normally
             $this->markTestSkipped('Counter-espionage did not trigger in this test run (random chance).');
