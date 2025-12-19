@@ -8,12 +8,7 @@
         </div>
     @endif
 
-    @if (session('success') && session('success') != __('Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.') && session('success') != __('Vacation mode has been deactivated.'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-
+  
     @if (session('error') && session('error') != __('You can only deactivate vacation mode after the minimum duration of 48 hours has passed.'))
         <div class="alert alert-danger">
             {{ session('error') }}
