@@ -318,9 +318,6 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $foreignPlanet->addUnit('battlecruiser', 1000);
         $foreignPlanet->save();
 
-        // Reload application to ensure planet changes are not cached
-        $this->reloadApplication();
-
         // Send only 1 probe (high chance to be destroyed)
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
@@ -366,9 +363,6 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $foreignPlanet = $this->getNearbyForeignPlanet();
         $foreignPlanet->addUnit('battlecruiser', 1000);
         $foreignPlanet->save();
-
-        // Reload application to ensure planet changes are not cached
-        $this->reloadApplication();
 
         // Send only 1 probe (high chance to be destroyed)
         $unitCollection = new UnitCollection();
