@@ -1,0 +1,164 @@
+<?php
+
+namespace Tests\Feature\FleetDispatch;
+
+use Illuminate\Contracts\Container\BindingResolutionException;
+use OGame\Models\Planet\Coordinate;
+use OGame\Services\DebrisFieldService;
+use Tests\FleetDispatchTestCase;
+
+/**
+ * Test that Pathfinder ships can harvest expedition debris fields at position 16.
+ */
+class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
+{
+    /**
+     * Test that Pathfinders can harvest debris at position 16 (expedition debris).
+     *
+     * @throws BindingResolutionException
+     */
+    public function testPathfinderCanHarvestExpeditionDebris(): void
+    {
+        // Set up player and planet
+        $this->playerSetUp();
+        $planet = $this->planetService;
+
+        // Add Pathfinders to the planet
+        $planet->addUnit('pathfinder', 10);
+
+        // Create debris field at position 16 (expedition position)
+        $debrisCoordinate = new Coordinate(
+            $planet->getPlanetCoordinates()->galaxy,
+            $planet->getPlanetCoordinates()->system,
+            16 // Expedition position
+        );
+
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($debrisCoordinate);
+        $debrisFieldService->appendResources(new \OGame\Models\Resources(100000, 50000, 25000, 0));
+        $debrisFieldService->save();
+
+        // Get initial debris amount
+        $debrisFieldService->loadForCoordinates($debrisCoordinate);
+        $initialDebris = $debrisFieldService->getResources()->sum();
+        $this->assertGreaterThan(0, $initialDebris, 'Debris field should have resources');
+
+        // Send harvest mission with Pathfinders to position 16
+        $this->sendMissionToCoordinate(
+            $planet,
+            $debrisCoordinate,
+            ['pathfinder' => 10],
+            8, // Harvest mission
+            new \OGame\Models\Resources(0, 0, 0, 0),
+            \OGame\Models\Enums\PlanetType::DebrisField
+        );
+
+        // Process the mission (arrival)
+        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class);
+        $fleetMissionService->updateFleetMissions();
+
+        // Check that debris was harvested
+        $debrisFieldService->loadForCoordinates($debrisCoordinate);
+        $remainingDebris = $debrisFieldService->getResources()->sum();
+
+        // Debris should be reduced (some or all harvested)
+        $this->assertLessThan($initialDebris, $remainingDebris, 'Pathfinders should have harvested some debris');
+
+        // Process return mission
+        $fleetMissionService->updateFleetMissions();
+
+        // Check that Pathfinders returned with resources
+        $planet->reload();
+        $this->assertEquals(10, $planet->getObjectAmount('pathfinder'), 'Pathfinders should have returned');
+
+        // Planet should have more resources than before (harvested debris)
+        $this->assertGreaterThan(0, $planet->metal()->get() + $planet->crystal()->get(), 'Planet should have harvested resources');
+    }
+
+    /**
+     * Test that Recyclers CANNOT harvest debris at position 16.
+     *
+     * @throws BindingResolutionException
+     */
+    public function testRecyclerCannotHarvestExpeditionDebris(): void
+    {
+        // Set up player and planet
+        $this->playerSetUp();
+        $planet = $this->planetService;
+
+        // Add Recyclers to the planet (wrong ship type for position 16)
+        $planet->addUnit('recycler', 10);
+
+        // Create debris field at position 16 (expedition position)
+        $debrisCoordinate = new Coordinate(
+            $planet->getPlanetCoordinates()->galaxy,
+            $planet->getPlanetCoordinates()->system,
+            16 // Expedition position
+        );
+
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($debrisCoordinate);
+        $debrisFieldService->appendResources(new \OGame\Models\Resources(100000, 50000, 25000, 0));
+        $debrisFieldService->save();
+
+        // Try to send harvest mission with Recyclers to position 16
+        // This should fail because Recyclers can only harvest regular debris (positions 1-15)
+        $response = $this->post('/fleet/dispatch/send-fleet', [
+            'galaxy' => $debrisCoordinate->galaxy,
+            'system' => $debrisCoordinate->system,
+            'position' => $debrisCoordinate->position,
+            'type' => \OGame\Models\Enums\PlanetType::DebrisField->value,
+            'mission' => 8, // Harvest mission
+            'recycler' => 10,
+        ]);
+
+        // Mission should not be possible
+        $this->assertNotEquals(200, $response->getStatusCode(), 'Recyclers should not be able to harvest expedition debris');
+    }
+
+    /**
+     * Test that Pathfinders CAN harvest regular debris at positions 1-15.
+     *
+     * @throws BindingResolutionException
+     */
+    public function testPathfinderCanHarvestRegularDebris(): void
+    {
+        // Set up player and planet
+        $this->playerSetUp();
+        $planet = $this->planetService;
+
+        // Add Pathfinders to the planet
+        $planet->addUnit('pathfinder', 10);
+
+        // Create debris field at a regular position (not 16)
+        $debrisCoordinate = new Coordinate(
+            $planet->getPlanetCoordinates()->galaxy,
+            $planet->getPlanetCoordinates()->system,
+            5 // Regular position
+        );
+
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($debrisCoordinate);
+        $debrisFieldService->appendResources(new \OGame\Models\Resources(100000, 50000, 25000, 0));
+        $debrisFieldService->save();
+
+        // Get initial debris amount
+        $debrisFieldService->loadForCoordinates($debrisCoordinate);
+        $initialDebris = $debrisFieldService->getResources()->sum();
+
+        // Try to send harvest mission with Pathfinders to regular position
+        // According to OGame mechanics, Pathfinders should NOT be able to harvest regular debris
+        // Only Recyclers can harvest positions 1-15
+        $response = $this->post('/fleet/dispatch/send-fleet', [
+            'galaxy' => $debrisCoordinate->galaxy,
+            'system' => $debrisCoordinate->system,
+            'position' => $debrisCoordinate->position,
+            'type' => \OGame\Models\Enums\PlanetType::DebrisField->value,
+            'mission' => 8, // Harvest mission
+            'pathfinder' => 10,
+        ]);
+
+        // This should fail - Pathfinders are for expedition debris only
+        $this->assertNotEquals(200, $response->getStatusCode(), 'Pathfinders should only harvest expedition debris (position 16)');
+    }
+}
