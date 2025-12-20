@@ -425,20 +425,21 @@ class CharacterClassService
     }
 
     /**
-     * Get Reaper auto debris collection percentage (General only).
+     * Get Reaper auto debris collection percentage.
      * Returns the percentage of debris that Reaper ships automatically collect
      * directly after an attack mission.
+     *
+     * Note: While only General class can BUILD Reapers, the debris collection ability
+     * works for all classes if they have Reapers in their fleet.
      *
      * @param User $user
      * @return float Percentage as decimal (e.g., 0.30 for 30%)
      */
     public function getReaperDebrisCollectionPercentage(User $user): float
     {
-        if ($this->isGeneral($user)) {
-            return 0.30; // 30% of debris
-        }
-
-        return 0.0;
+        // Reaper debris collection works for all classes (30% of debris)
+        // Only building the Reaper is exclusive to General class
+        return 0.30;
     }
 
     /**

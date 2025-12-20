@@ -282,12 +282,11 @@ class PhpBattleEngine extends BattleEngine
             $result->hamillManoeuvreTriggered = true;
 
             // Remove the Deathstar from defender units array (battle simulation)
+            // This prevents it from participating in battle rounds
             unset($defenderUnits[$deathstarKey]);
 
-            // Update defender units start and result to reflect the destroyed Deathstar
-            $deathstarObject = \OGame\Services\ObjectService::getShipObjectByMachineName('deathstar');
-            $result->defenderUnitsStart->removeUnit($deathstarObject, 1);
-            $result->defenderUnitsResult->removeUnit($deathstarObject, 1);
+            // NOTE: We do NOT remove it from defenderUnitsStart or defenderUnitsResult here.
+            // The loss will be properly calculated after battle rounds complete.
         }
     }
 }

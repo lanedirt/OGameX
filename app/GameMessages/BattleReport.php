@@ -263,6 +263,7 @@ class BattleReport extends GameMessage
         $moonExisted = false;
         $moonChance = 0;
         $moonCreated = false;
+        $hamillManoeuvreTriggered = false;
 
         if (isset($this->battleReportModel->general['moon_existed'])) {
             $moonExisted = $this->battleReportModel->general['moon_existed'];
@@ -272,6 +273,9 @@ class BattleReport extends GameMessage
         }
         if (isset($this->battleReportModel->general['moon_created'])) {
             $moonCreated = $this->battleReportModel->general['moon_created'];
+        }
+        if (isset($this->battleReportModel->general['hamill_manoeuvre_triggered'])) {
+            $hamillManoeuvreTriggered = $this->battleReportModel->general['hamill_manoeuvre_triggered'];
         }
 
         // Load attacker player
@@ -382,6 +386,7 @@ class BattleReport extends GameMessage
             'moon_existed' => $moonExisted,
             'moon_chance' => $moonChance,
             'moon_created' => $moonCreated,
+            'hamill_manoeuvre_triggered' => $hamillManoeuvreTriggered,
             'attacker_weapons' => $attacker_weapons,
             'attacker_shields' => $attacker_shields,
             'attacker_armor' => $attacker_armor,

@@ -115,8 +115,8 @@ class AttackMission extends GameMission
 
         // Deduct defender's permanently lost units from the defenders planet.
         // Repaired defenses are not removed (destroyed - repaired = permanently lost).
-        $defenderUnitsLost = clone $battleResult->defenderUnitsStart;
-        $defenderUnitsLost->subtractCollection($battleResult->defenderUnitsResult);
+        // Use the defenderUnitsLost from battle result which includes Hamill Manoeuvre losses.
+        $defenderUnitsLost = clone $battleResult->defenderUnitsLost;
 
         // Calculate permanently lost units (destroyed - repaired)
         $permanentlyLostUnits = clone $defenderUnitsLost;
@@ -332,6 +332,7 @@ class AttackMission extends GameMission
             'moon_existed' => $battleResult->moonExisted,
             'moon_chance' => $battleResult->moonChance,
             'moon_created' => $battleResult->moonCreated,
+            'hamill_manoeuvre_triggered' => $battleResult->hamillManoeuvreTriggered,
         ];
 
         $report->attacker = [

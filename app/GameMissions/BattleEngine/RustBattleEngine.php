@@ -255,10 +255,12 @@ class RustBattleEngine extends BattleEngine
             // Hamill Manoeuvre triggered! Destroy one Deathstar
             $result->hamillManoeuvreTriggered = true;
 
-            // Update defender units start and result to reflect the destroyed Deathstar
+            // Remove the Deathstar from defender units so it doesn't participate in battle
             $deathstarObject = \OGame\Services\ObjectService::getShipObjectByMachineName('deathstar');
             $result->defenderUnitsStart->removeUnit($deathstarObject, 1);
-            $result->defenderUnitsResult->removeUnit($deathstarObject, 1);
+
+            // NOTE: The loss will be properly calculated after battle rounds complete
+            // by comparing the modified defenderUnitsStart with defenderUnitsResult.
         }
     }
 }

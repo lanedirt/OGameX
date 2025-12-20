@@ -198,6 +198,17 @@
             </video>
         </div>
 @endif
+@if ($hamill_manoeuvre_triggered)
+        <div class="fightdetails" style="margin-top: 10px; padding: 10px; background-color: rgba(255, 215, 0, 0.1); border: 2px solid #FFD700; border-radius: 5px;">
+            <span class="overmark" style="font-size: 14px; font-weight: bold;">
+                ⚡ HAMILL MANOEUVRE SUCCESSFUL! ⚡
+            </span>
+            <br>
+            <span style="color: #FFD700;">
+                @lang('A Light Fighter destroyed one Deathstar before the battle began!')
+            </span>
+        </div>
+@endif
         <!-- Attacker -->
         <!-- possible classes: winner, draw, defeated -->
         <div class="combat_participant attacker winner">

@@ -137,6 +137,13 @@ abstract class BattleEngine
 
         $result->defenderUnitsLost = clone $result->defenderUnitsStart;
         $result->defenderUnitsLost->subtractCollection($result->defenderUnitsResult);
+
+        // Add Hamill Manoeuvre Deathstar loss if it was triggered
+        if ($result->hamillManoeuvreTriggered) {
+            $deathstarObject = \OGame\Services\ObjectService::getShipObjectByMachineName('deathstar');
+            $result->defenderUnitsLost->addUnit($deathstarObject, 1);
+        }
+
         $result->defenderResourceLoss = $result->defenderUnitsLost->toResources();
 
         // Calculate repaired defenses (only defense units, not ships).
