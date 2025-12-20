@@ -37,6 +37,12 @@ class ServerSettingsController extends OGameController
             'debris_field_from_ships' => $settingsService->debrisFieldFromShips(),
             'debris_field_from_defense' => $settingsService->debrisFieldFromDefense(),
             'debris_field_deuterium_on' => $settingsService->debrisFieldDeuteriumOn(),
+            'wreck_field_from_ships' => $settingsService->wreckFieldFromShips(),
+            'wreck_field_min_resources_loss' => $settingsService->wreckFieldMinResourcesLoss(),
+            'wreck_field_min_fleet_percentage' => $settingsService->wreckFieldMinFleetPercentage(),
+            'wreck_field_lifetime_hours' => $settingsService->wreckFieldLifetimeHours(),
+            'wreck_field_repair_max_hours' => $settingsService->wreckFieldRepairMaxHours(),
+            'wreck_field_repair_min_minutes' => $settingsService->wreckFieldRepairMinMinutes(),
             'maximum_moon_chance' => $settingsService->maximumMoonChance(),
             'ignore_empty_systems_on' => $settingsService->ignoreEmptySystemsOn(),
             'ignore_inactive_systems_on' => $settingsService->ignoreInactiveSystemsOn(),
@@ -91,6 +97,12 @@ class ServerSettingsController extends OGameController
         $settingsService->set('debris_field_from_ships', request('debris_field_from_ships'));
         $settingsService->set('debris_field_from_defense', request('debris_field_from_defense'));
         $settingsService->set('debris_field_deuterium_on', request('debris_field_deuterium_on', 0));
+        $settingsService->set('wreck_field_from_ships', request('wreck_field_from_ships', 70));
+        $settingsService->set('wreck_field_min_resources_loss', request('wreck_field_min_resources_loss', 150000));
+        $settingsService->set('wreck_field_min_fleet_percentage', request('wreck_field_min_fleet_percentage', 5));
+        $settingsService->set('wreck_field_lifetime_hours', request('wreck_field_lifetime_hours', 72));
+        $settingsService->set('wreck_field_repair_max_hours', request('wreck_field_repair_max_hours', 12));
+        $settingsService->set('wreck_field_repair_min_minutes', request('wreck_field_repair_min_minutes', 30));
         $settingsService->set('maximum_moon_chance', request('maximum_moon_chance'));
 
         $settingsService->set('ignore_empty_systems_on', request('ignore_empty_systems_on', 0));

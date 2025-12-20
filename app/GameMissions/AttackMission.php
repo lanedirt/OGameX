@@ -19,6 +19,7 @@ use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\WreckFieldService;
 use Throwable;
 
 class AttackMission extends GameMission
@@ -126,6 +127,16 @@ class AttackMission extends GameMission
 
         // Save the debris field
         $debrisFieldService->save();
+
+        // Create or extend wreck field if conditions are met
+        if (!empty($battleResult->wreckField) && $battleResult->wreckField['formed']) {
+            $wreckFieldService = new WreckFieldService($defenderPlanet->getPlayer(), $this->settings);
+            $wreckField = $wreckFieldService->createWreckField(
+                $defenderPlanet->getPlanetCoordinates(),
+                $battleResult->wreckField['ships'],
+                $defenderPlanet->getPlayer()->getId()
+            );
+        }
 
         // Create a moon for defender if result of battle indicates so and defender planet does not already have a moon.
         // Only create moon if defender is a planet (not already a moon).

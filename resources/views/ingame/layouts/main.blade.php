@@ -51,6 +51,52 @@
     <script src="{{ mix('js/ingame.min.js') }}"></script>
 
     <script type="text/javascript">
+        // Define timerHandler globally to prevent simpleCountdown errors
+        if (!window.timerHandler) {
+            window.timerHandler = {
+                timers: [],
+                callbacks: [],
+                register: function(timer) {
+                    this.timers.push(timer);
+                },
+                unregister: function(timer) {
+                    var index = this.timers.indexOf(timer);
+                    if (index > -1) {
+                        this.timers.splice(index, 1);
+                    }
+                },
+                appendCallback: function(callback) {
+                    this.callbacks.push(callback);
+                },
+                init: function() {
+                    // Initialize timer handler
+                },
+                stop: function() {
+                    // Stop all timers
+                }
+            };
+        }
+
+        // Define LocalizationStrings for time formatting
+        if (!window.LocalizationStrings) {
+            window.LocalizationStrings = {
+                timeunits: {
+                    short: {
+                        day: 'd',
+                        hour: 'h',
+                        minute: 'm',
+                        second: 's'
+                    },
+                    long: {
+                        day: 'day',
+                        hour: 'hour',
+                        minute: 'minute',
+                        second: 'second'
+                    }
+                }
+            };
+        }
+
         window.token = "{{ csrf_token() }}";
         var inventoryObj;
         $.holdReady(true);
@@ -309,14 +355,110 @@ Combat simulation save slots +20">
                         @lang('No fleet movement')
                     </div>
                 </div>
-                <div id="attack_alert" class="tooltip @if ($underAttack) soon @else noAttack @endif"
-                     title="@if ($underAttack) @lang('You are under attack!') @endif">
-                    <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
+            @php
+                    // Check for wreck fields on current player's planets
+                    $playerWreckFields = [];
+                    foreach ($currentPlayer->planets->allPlanets() as $planet) {
+                        $wreckFieldService = new \OGame\Services\WreckFieldService($currentPlayer, app(\OGame\Services\SettingsService::class));
+                        $wreckFieldLoaded = $wreckFieldService->loadForCoordinates($planet->getPlanetCoordinates());
+
+                        if ($wreckFieldLoaded) {
+                            $wreckField = $wreckFieldService->getWreckField();
+                            if ($wreckField && $wreckField->getTotalShips() > 0) {
+                                $playerWreckFields[] = [
+                                    'planet' => $planet,
+                                    'wreckField' => $wreckField,
+                                    'hasSpaceDock' => $planet->getObjectLevel('space_dock') > 0
+                                ];
+                            }
+                        }
+                    }
+                @endphp
+
+                {{-- DEBUG INFO --}}
+                <div style="position: fixed; top: 100px; right: 10px; background: yellow; color: black; padding: 10px; font-size: 12px; z-index: 999999; border: 2px solid red;">
+                    <strong>WRECK FIELD DEBUG</strong><br>
+                    Count: {{ count($playerWreckFields) }} wreck fields found<br>
+                    @foreach ($playerWreckFields as $index => $wreckFieldData)
+                        @php
+                            $expiresAt = $wreckFieldData['wreckField']->expires_at;
+                            $now = now();
+                            $diff = $expiresAt->diffInSeconds($now, false);
+                        @endphp
+                        WF{{ $index }}: {{ $wreckFieldData['wreckField']->getTimeRemaining() }}s<br>
+                        Raw diff: {{ $diff }}s<br>
+                        Planet: {{ $wreckFieldData['planet']->getPlanetName() }}<br>
+                        Expires: {{ $expiresAt }}<br>
+                        Now: {{ $now }}<br>
+                        <br>
+                    @endforeach
+                </div>
+
+                <div id="attack_alert" class="tooltip @if ($underAttack) soon @elseif (!empty($playerWreckFields)) wreckField @else noAttack @endif"
+                     title="@if ($underAttack) @lang('You are under attack!') @elseif (!empty($playerWreckFields)) Wreck Field Available @endif">
+                    @if ($underAttack)
+                        <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
+                    @elseif (!empty($playerWreckFields))
+                        <a href="{{ route('facilities.index') }}" class="overlay tooltipHTML js_hideTipOnMobile" data-overlay-class="repairlayer" data-overlay-title="Wreckage" data-overlay-width="656px"></a>
+                        @php
+                            // Fix time calculation - use proper timezone
+                            if (!empty($playerWreckFields[0])) {
+                                $expiresAt = $playerWreckFields[0]['wreckField']->expires_at;
+                                $now = now();
+
+                                // Debug: Show raw values
+                                error_log("WF DEBUG: Raw expires: " . $expiresAt->toDateTimeString());
+                                error_log("WF DEBUG: Raw now: " . $now->toDateTimeString());
+                                error_log("WF DEBUG: Timezone: " . $now->timezone->getName());
+
+                                // Use Carbon's proper diff calculation
+                                $timeRemaining = max(0, $now->diffInSeconds($expiresAt, false));
+
+                                // Debug: Show calculation
+                                error_log("WF DEBUG: Calculated time remaining: " . $timeRemaining);
+
+                                // If result is negative, there's a serious issue
+                                if ($timeRemaining <= 0) {
+                                    error_log("WF ERROR: Wreck field expired or has wrong expiration time!");
+                                }
+                            } else {
+                                $timeRemaining = 0;
+                                error_log("WF DEBUG: No wreck field data found!");
+                            }
+                        @endphp
+                        @if ($timeRemaining > 0)
+                            @php
+                                $days = floor($timeRemaining / 86400);
+                                $hours = floor(($timeRemaining % 86400) / 3600);
+                                $minutes = floor(($timeRemaining % 3600) / 60);
+
+                                if ($days > 0) {
+                                    $timeText = $days . 'd ' . $hours . 'h ' . $minutes . 'm';
+                                } elseif ($hours > 0) {
+                                    $timeText = $hours . 'h ' . $minutes . 'm';
+                                } else {
+                                    $timeText = $minutes . 'm';
+                                }
+                            @endphp
+                            <span id="wreckFieldCountDown" class="wreckFieldCountDown" data-duration="{{ $timeRemaining }}">{{ $timeText }}</span>
+                            <script>
+                            // Initialize wreck field countdown if not already done
+                            if (typeof window.simpleCountdown !== 'undefined') {
+                                var wreckfield = $("#wreckFieldCountDown");
+                                if (wreckfield.length) {
+                                    new simpleCountdown(wreckfield, wreckfield.data('duration'), null);
+                                }
+                            }
+                            </script>
+                        @endif
+                    @endif
                 </div>
             </div>
         </div>
 
     </div>
+
+  
     <div id="left">
         <div id="ipimenucomponent" class="">
             <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable " title="" data-ipi-hint="ipiMenu">
@@ -1188,6 +1330,44 @@ Combat simulation save slots +20">
                                                      alt="Moon"
                                                      class="icon-moon">
                                             @endif
+                                        </a>
+                                    @endif
+
+                                    @php
+                                        // Check for wreck field at this planet's coordinates
+                                        $wreckFieldService = new \OGame\Services\WreckFieldService($currentPlayer, app(\OGame\Services\SettingsService::class));
+                                        $wreckFieldLoaded = $wreckFieldService->loadForCoordinates($planet->getPlanetCoordinates());
+                                        $wreckField = null;
+
+                                        if ($wreckFieldLoaded) {
+                                            $wreckFieldModel = $wreckFieldService->getWreckField();
+                                            if ($wreckFieldModel && $wreckFieldModel->getTotalShips() > 0) {
+                                                $wreckField = $wreckFieldModel;
+                                            }
+                                        }
+                                    @endphp
+
+                                    @if ($wreckField)
+                                        @php
+                                            $hasSpaceDock = $currentPlayer->planets->current()->getObjectLevel('space_dock') > 0;
+                                            $isOwner = $wreckField->owner_player_id === $currentPlayer->getId();
+                                        @endphp
+                                        <a class="wreckFieldIcon tooltip js_hideTipOnMobile"
+                                           title="<b>Wreck Field [{{ $wreckField->galaxy }}:{{ $wreckField->system }}:{{ $wreckField->planet }}]</b><br/>
+                                           Ships: {{ OGame\Facades\AppUtil::formatNumber($wreckField->getTotalShips()) }}<br/>
+                                           Status: {{ ucfirst($wreckField->status) }}<br/>
+                                           @if ($wreckField->getTimeRemaining() > 0)
+                                           Expires in: {{ \Carbon\CarbonInterval::seconds($wreckField->getTimeRemaining())->cascade()->forHumans() }}<br/>
+                                           @endif
+                                           @if ($isOwner && $hasSpaceDock && $wreckField->canBeRepaired())
+                                           <a href=&quot;{{ route('facilities.index') }}?cp={{ $planet->getPlanetId() }}&quot;>Go to Space Dock to repair</a><br/>
+                                           @endif"
+                                           @if ($isOwner && $hasSpaceDock)
+                                           href="{{ route('facilities.index') }}?cp={{ $planet->getPlanetId() }}"
+                                           @else
+                                           href="javascript:void(0);"
+                                           @endif>
+                                            <span class="icon icon_wreck_field"></span>
                                         </a>
                                     @endif
                                 </div>

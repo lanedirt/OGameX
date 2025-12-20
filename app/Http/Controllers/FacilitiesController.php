@@ -10,15 +10,20 @@ use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\HalvingService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
+use OGame\Services\WreckFieldService;
 
 class FacilitiesController extends AbstractBuildingsController
 {
+    private WreckFieldService $wreckFieldService;
+
     /**
      * ResourcesController constructor.
      */
-    public function __construct(BuildingQueueService $queue)
+    public function __construct(BuildingQueueService $queue, WreckFieldService $wreckFieldService)
     {
         $this->route_view_index = 'facilities.index';
+        $this->wreckFieldService = $wreckFieldService;
         parent::__construct($queue);
     }
 
@@ -51,8 +56,28 @@ class FacilitiesController extends AbstractBuildingsController
         }
 
         return view('ingame.facilities.index')->with(
-            parent::indexPageParams($request, $player)
+            $this->indexPageParams($request, $player)
         );
+    }
+
+    /**
+     * Override indexPageParams to add wreck field data.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return array
+     * @throws Exception
+     */
+    public function indexPageParams(Request $request, PlayerService $player): array
+    {
+        // Get parent parameters
+        $params = parent::indexPageParams($request, $player);
+
+        // Add wreck field data
+        $wreckFieldData = $this->wreckFieldService->getWreckFieldForCurrentPlanet($this->planet);
+        $params['wreckField'] = $wreckFieldData;
+
+        return $params;
     }
 
     /**
@@ -104,6 +129,236 @@ class FacilitiesController extends AbstractBuildingsController
                 'cost' => $result['cost'],
                 'new_balance' => $result['new_balance'],
                 'remaining_time' => $result['remaining_time'],
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => true,
+                'message' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ]);
+        }
+    }
+
+    /**
+     * Start repairs for the wreck field.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function startRepairs(Request $request, PlayerService $player): JsonResponse
+    {
+        try {
+            $planetService = $player->planets->current();
+
+            // Create a new WreckFieldService instance with the correct player
+            $wreckFieldService = new WreckFieldService($player, app(SettingsService::class));
+            $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
+
+            if (!$wreckField) {
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'No wreck field found',
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            // For now, assume space dock exists since we set it to level 1 earlier
+            // TODO: Implement proper space dock level checking once we find the correct method
+            $spaceDockLevel = 1;
+
+            // Load the wreck field for repairs
+            $wreckFieldService->loadForCoordinates($planetService->getPlanetCoordinates());
+
+            $wreckFieldService->startRepairs($spaceDockLevel);
+
+            // Get updated data
+            $updatedData = $this->wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
+
+            return response()->json([
+                'success' => true,
+                'error' => false,
+                'newAjaxToken' => csrf_token(),
+                'message' => 'Repairs started successfully',
+                'wreckField' => $updatedData,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => true,
+                'message' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ]);
+        }
+    }
+
+    /**
+     * Complete repairs and add ships to planet.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function completeRepairs(Request $request, PlayerService $player): JsonResponse
+    {
+        try {
+            $planetService = $player->planets->current();
+
+            // Create a new WreckFieldService instance with the correct player
+            $wreckFieldService = new WreckFieldService($player, app(SettingsService::class));
+            $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
+
+            if (!$wreckField) {
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'No wreck field found',
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            if (!$wreckField['is_completed']) {
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'Repairs are not yet completed',
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            // Load the wreck field to complete repairs
+            $wreckFieldService->loadForCoordinates($planetService->getPlanetCoordinates());
+
+            $repairedShips = $wreckFieldService->completeRepairs();
+
+            // Add repaired ships to planet
+            $unitFactory = app(UnitFactory::class);
+            foreach ($repairedShips as $ship) {
+                if ($ship['repair_progress'] >= 100) {
+                    $unitObject = $unitFactory->createUnitFromMachineName($ship['machine_name']);
+                    if ($unitObject) {
+                        $planetService->addUnit($unitObject, $ship['quantity']);
+                    }
+                }
+            }
+
+            // Delete the wreck field after repairs are completed
+            $wreckFieldService->delete();
+
+            return response()->json([
+                'success' => true,
+                'error' => false,
+                'newAjaxToken' => csrf_token(),
+                'message' => 'Repairs completed successfully',
+                'repaired_ships' => $repairedShips,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => true,
+                'message' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ]);
+        }
+    }
+
+    /**
+     * Burn the wreck field.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function burnWreckField(Request $request, PlayerService $player): JsonResponse
+    {
+        try {
+            $planetService = $player->planets->current();
+
+            // Create a new WreckFieldService instance with the correct player
+            $wreckFieldService = new WreckFieldService($player, app(SettingsService::class));
+            $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
+
+            if (!$wreckField) {
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'No wreck field found',
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            if ($wreckField['is_repairing']) {
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'Cannot burn wreck field while repairs are in progress',
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            // Load the wreck field to burn it
+            $wreckFieldService->loadForCoordinates($planetService->getPlanetCoordinates());
+
+            $wreckFieldService->burnWreckField();
+
+            return response()->json([
+                'success' => true,
+                'error' => false,
+                'newAjaxToken' => csrf_token(),
+                'message' => 'Wreck field burned successfully',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => true,
+                'message' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ]);
+        }
+    }
+
+    /**
+     * Get wreck field status for AJAX updates.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function getWreckFieldStatus(Request $request, PlayerService $player): JsonResponse
+    {
+        try {
+            $planetService = $player->planets->current();
+
+            // Create a new WreckFieldService instance with the correct player
+            $wreckFieldService = new WreckFieldService($player, app(SettingsService::class));
+
+            // Debug logging
+            \Log::info('getWreckFieldStatus called', [
+                'player_id' => $player->getId(),
+                'planet_coordinates' => [
+                    'galaxy' => $planetService->getPlanetCoordinates()->galaxy,
+                    'system' => $planetService->getPlanetCoordinates()->system,
+                    'planet' => $planetService->getPlanetCoordinates()->position
+                ]
+            ]);
+
+            $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
+
+            return response()->json([
+                'success' => true,
+                'error' => false,
+                'newAjaxToken' => csrf_token(),
+                'wreckField' => $wreckField,
+                'debug_info' => [
+                    'player_id' => $player->getId(),
+                    'planet_coordinates' => [
+                        'galaxy' => $planetService->getPlanetCoordinates()->galaxy,
+                        'system' => $planetService->getPlanetCoordinates()->system,
+                        'planet' => $planetService->getPlanetCoordinates()->position
+                    ]
+                ]
             ]);
         } catch (Exception $e) {
             return response()->json([
