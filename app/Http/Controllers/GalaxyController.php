@@ -12,6 +12,7 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\BuddyService;
+use OGame\Services\CharacterClassService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PhalanxService;
 use OGame\Services\PlanetService;
@@ -114,6 +115,12 @@ class GalaxyController extends OGameController
             } else {
                 $galaxy_rows[] = $this->createEmptySpaceRow($galaxy, $system, $i);
             }
+        }
+
+        // Add position 16 (expedition position) with debris field if Discoverer class
+        $characterClassService = app(CharacterClassService::class);
+        if ($characterClassService->hasExpeditionDebrisFieldsVisible($player->getUser())) {
+            $galaxy_rows[] = $this->createExpeditionDebrisRow($galaxy, $system, 16);
         }
 
         return $galaxy_rows;
@@ -542,6 +549,45 @@ class GalaxyController extends OGameController
             'playerName' => 'Deep space',
             'position' => $position,
             'positionFilters' => 'empty_filter',
+            'system' => $system
+        ];
+    }
+
+    /**
+     * Creates a row for the expedition position (16) with debris field if it exists.
+     * Only visible to Discoverer class.
+     *
+     * @param int $galaxy
+     * @param int $system
+     * @param int $position
+     * @return array<string, mixed>
+     */
+    private function createExpeditionDebrisRow(int $galaxy, int $system, int $position): array
+    {
+        // Check if there's a debris field at position 16
+        $debrisField = app(DebrisFieldService::class);
+        $debrisFieldExists = $debrisField->loadForCoordinates(new Coordinate($galaxy, $system, $position));
+
+        // For expedition debris (position 16), the JavaScript expects 'planets' to be a single debris field object,
+        // not an array. This is different from normal positions where 'planets' is an array.
+        $debrisFieldObject = null;
+        if ($debrisFieldExists && $debrisField->getResources()->any()) {
+            $debrisFieldObject = $this->createDebrisFieldArray($debrisField);
+        }
+
+        return [
+            'actions' => [],
+            'availableMissions' => [],
+            'galaxy' => $galaxy,
+            'planets' => $debrisFieldObject,
+            'player' => [
+                'playerId' => 99999,
+                'playerName' => 'Deep space'
+            ],
+            'playerId' => 99999,
+            'playerName' => 'Deep space',
+            'position' => $position,
+            'positionFilters' => 'expedition_debris',
             'system' => $system
         ];
     }

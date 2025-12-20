@@ -220,9 +220,9 @@
                                                        value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system">
                                             </div>
                                             <div>
-                                                <label for="position">@lang('Position:')</label>
+                                                <label for="position">@lang('Position:') (1-16)</label>
                                                 <input type="text" id="position" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
-                                                       value="{{ $currentPlanet->getPlanetCoordinates()->position }}" min="1" max="15" name="position">
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->position }}" min="1" max="16" name="position">
                                             </div>
                                         </div>
                                     </div>
@@ -239,9 +239,15 @@
                                             @endforeach
                                         </div>
                                     </div>
-                                    <div class="fieldwrapper" style="text-align: center; margin-bottom: 50px;">
+                                    <div class="fieldwrapper" style="text-align: center; margin-bottom: 20px;">
                                         <input type="submit" class="btn_blue" name="create_debris" value="@lang('Create/Append Debris Field')">
                                         <input type="submit" class="btn_blue" name="delete_debris" value="@lang('Delete Debris Field')">
+                                    </div>
+                                    <div class="fieldwrapper" style="text-align: center; margin-bottom: 50px; padding-top: 10px; border-top: 1px solid #444;">
+                                        <p style="margin-bottom: 10px; color: #999; font-size: 0.9em;">Quick shortcut for testing Discoverer class:</p>
+                                        <button type="submit" class="btn_blue" onclick="document.getElementById('position').value='16'; document.getElementById('metal').value='100000'; document.getElementById('crystal').value='50000'; document.getElementById('deuterium').value='25000'; return true;">
+                                            Create Expedition Debris (Position 16)
+                                        </button>
                                     </div>
                                 </div>
                             </form>
