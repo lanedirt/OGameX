@@ -96,7 +96,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            fadeBox('Character class selected successfully!', true);
+                            fadeBox('Character class selected successfully!', false);
                             setTimeout(function() {
                                 location.reload();
                             }, 1000);

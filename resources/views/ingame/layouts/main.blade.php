@@ -300,7 +300,7 @@
                 @endphp
                 <a href="{{ route('characterclass.index') }}"
                    class="tooltipHTML js_hideTipOnMobile ipiHintable"
-                   title="{{ $classTitle }}|@if($classBonuses){{ implode('<br>', $classBonuses) }}@else@lang('Click to select a character class')@endif"
+                   title="{{ $classTitle }}|@if($classBonuses){{ implode('<br>', $classBonuses) }}@else @lang('Click to select a character class')@endif"
                    data-ipi-hint="ipiCharacterclassSettings">
                     <div class="sprite characterclass medium {{ $classIcon }}"></div>
                 </a>
