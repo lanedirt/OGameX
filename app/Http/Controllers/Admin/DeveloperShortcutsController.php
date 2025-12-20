@@ -65,6 +65,11 @@ class DeveloperShortcutsController extends OGameController
             $user->character_class_changed_at = null;
             $user->save();
             return redirect()->back()->with('success', 'Character class has been reset. You can now select a class for free.');
+        } elseif ($request->has('update_hamill_probability')) {
+            // Update Hamill Manoeuvre probability
+            $probability = max(1, (int)$request->input('hamill_probability', 1000));
+            $settingsService->set('hamill_manoeuvre_chance', $probability);
+            return redirect()->back()->with('success', 'Hamill Manoeuvre probability updated to 1 in ' . $probability . ' (' . number_format(100 / $probability, 2) . '%)');
         } elseif ($request->has('set_mines')) {
             // Handle "Set all mines to level 30"
             $playerService->planets->current()->setObjectLevel(ObjectService::getObjectByMachineName('metal_mine')->id, 30);

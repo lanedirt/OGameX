@@ -202,6 +202,25 @@
                                 </div>
                             </form>
 
+                            <form action="{{ route('admin.developershortcuts.update') }}" name="form" method="post">
+                                {{ csrf_field() }}
+                                <p class="box_highlight textCenter no_buddies">@lang('Battle Settings')</p>
+                                <div class="group bborder" style="display: block;">
+                                    <div class="fieldwrapper">
+                                        <label class="styled textBeefy">@lang('Hamill Manoeuvre Probability (1 in X chance):')</label>
+                                        <div class="thefield" style="display: flex; gap: 10px; align-items: center;">
+                                            <input type="text" pattern="^[0-9]+$" placeholder="1000" class="textInput w100 textCenter textBeefy" size="6" name="hamill_probability" value="{{ app(\OGame\Services\SettingsService::class)->hamillManoeuvreChance() }}">
+                                            <span style="color: #999; font-size: 0.9em;">
+                                                (Default: 1000 = 0.1% chance | Testing: 10 = 10% chance)
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper" style="text-align: center;">
+                                        <input type="submit" class="btn_blue" name="update_hamill_probability" value="@lang('Update Hamill Manoeuvre Probability')">
+                                    </div>
+                                </div>
+                            </form>
+
                             <form action="{{ route('admin.developershortcuts.create-debris') }}" name="form" method="post">
                                 {{ csrf_field() }}
                                 <p class="box_highlight textCenter no_buddies">@lang('Create/delete debris field at coordinates:')</p>

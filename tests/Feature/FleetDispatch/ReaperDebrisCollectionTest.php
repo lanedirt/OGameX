@@ -12,6 +12,16 @@ use Tests\FleetDispatchTestCase;
 class ReaperDebrisCollectionTest extends FleetDispatchTestCase
 {
     /**
+     * Prepare the planet for the test, so it has the required buildings and research.
+     *
+     * @return void
+     */
+    protected function basicSetup(): void
+    {
+        // No special setup needed for Reaper debris collection tests
+    }
+
+    /**
      * Test that Reaper ships automatically collect 30% of debris when attacking with General class.
      *
      * @throws BindingResolutionException

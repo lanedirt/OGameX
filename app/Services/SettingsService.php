@@ -655,4 +655,17 @@ class SettingsService
     {
         return (float)$this->get('expedition_weight_items', '0');
     }
+
+    /**
+     * Get the Hamill Manoeuvre probability (Light Fighter destroying Deathstar).
+     * This is the probability denominator (1 in X chance).
+     * Default is 1000 (0.1% chance = 1 in 1000).
+     * Setting this to 10 means 10% chance (1 in 10), useful for testing.
+     *
+     * @return int
+     */
+    public function hamillManoeuvreChance(): int
+    {
+        return (int)$this->get('hamill_manoeuvre_chance', 1000);
+    }
 }

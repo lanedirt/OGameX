@@ -120,7 +120,11 @@ class GalaxyController extends OGameController
         // Add position 16 (expedition position) with debris field if Discoverer class
         $characterClassService = app(CharacterClassService::class);
         if ($characterClassService->hasExpeditionDebrisFieldsVisible($player->getUser())) {
-            $galaxy_rows[] = $this->createExpeditionDebrisRow($galaxy, $system, 16);
+            $expeditionDebrisRow = $this->createExpeditionDebrisRow($galaxy, $system, 16);
+            // Only add the row if there's actually debris at position 16
+            if ($expeditionDebrisRow['planets'] !== null) {
+                $galaxy_rows[] = $expeditionDebrisRow;
+            }
         }
 
         return $galaxy_rows;

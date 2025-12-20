@@ -53,6 +53,9 @@ class RustBattleEngine extends BattleEngine
      */
     protected function fightBattleRounds(BattleResult $result): array
     {
+        // Hamill Manoeuvre: General class Light Fighters have a chance to destroy one Deathstar before battle
+        $this->checkHamillManoeuvre($result);
+
         // Convert PHP battle units to format expected by Rust
         $input = $this->prepareBattleInput($result);
 
@@ -212,5 +215,50 @@ class RustBattleEngine extends BattleEngine
             $unitCollection->addUnit($unitObject, (int)$unit['amount']);
         }
         return $unitCollection;
+    }
+
+    /**
+     * Check and execute the Hamill Manoeuvre special ability.
+     * General class Light Fighters have a small chance to instantly destroy one Deathstar before battle.
+     *
+     * @param BattleResult $result
+     * @return void
+     */
+    private function checkHamillManoeuvre(BattleResult $result): void
+    {
+        // Check if attacker is General class
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        if (!$characterClassService->isGeneral($this->attackerPlayer->getUser())) {
+            return;
+        }
+
+        // Check if attacker has at least one Light Fighter
+        $hasLightFighter = $result->attackerUnitsStart->getAmountByMachineName('light_fighter') > 0;
+
+        if (!$hasLightFighter) {
+            return;
+        }
+
+        // Check if defender has at least one Deathstar
+        $hasDeathstar = $result->defenderUnitsStart->getAmountByMachineName('deathstar') > 0;
+
+        if (!$hasDeathstar) {
+            return;
+        }
+
+        // Roll the dice for Hamill Manoeuvre
+        $settings = app(\OGame\Services\SettingsService::class);
+        $probability = $settings->hamillManoeuvreChance();
+        $dice = random_int(1, $probability);
+
+        if ($dice === 1) {
+            // Hamill Manoeuvre triggered! Destroy one Deathstar
+            $result->hamillManoeuvreTriggered = true;
+
+            // Update defender units start and result to reflect the destroyed Deathstar
+            $deathstarObject = \OGame\Services\ObjectService::getShipObjectByMachineName('deathstar');
+            $result->defenderUnitsStart->removeUnit($deathstarObject, 1);
+            $result->defenderUnitsResult->removeUnit($deathstarObject, 1);
+        }
     }
 }

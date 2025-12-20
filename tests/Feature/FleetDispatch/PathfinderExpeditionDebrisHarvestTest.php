@@ -13,6 +13,16 @@ use Tests\FleetDispatchTestCase;
 class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
 {
     /**
+     * Prepare the planet for the test, so it has the required buildings and research.
+     *
+     * @return void
+     */
+    protected function basicSetup(): void
+    {
+        // No special setup needed for debris harvesting tests
+    }
+
+    /**
      * Test that Pathfinders can harvest debris at position 16 (expedition debris).
      *
      * @throws BindingResolutionException
