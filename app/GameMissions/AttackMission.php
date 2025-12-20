@@ -236,6 +236,28 @@ class AttackMission extends GameMission
             $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
         }
 
+        // Send Reaper auto-collection message if debris was collected
+        if ($collectedDebris->sum() > 0) {
+            $reaperObject = ObjectService::getShipObjectByMachineName('reaper');
+            $reaperCount = $battleResult->attackerUnitsResult->getAmountByMachineName('reaper');
+            $reaperCargoCapacity = $reaperObject->properties->capacity->calculate($attackerPlayer)->totalValue * $reaperCount;
+
+            $this->messageService->sendSystemMessageToPlayer($attackerPlayer, \OGame\GameMessages\DebrisFieldHarvest::class, [
+                'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
+                'to' => '[debrisfield]' . $defenderPlanet->getPlanetCoordinates()->asString(). '[/debrisfield]',
+                'coordinates' => '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]',
+                'ship_name' => $reaperObject->title,
+                'ship_amount' => $reaperCount,
+                'storage_capacity' => $reaperCargoCapacity,
+                'metal' => (int)($battleResult->debris->metal->get() * $debrisCollectionPercentage),
+                'crystal' => (int)($battleResult->debris->crystal->get() * $debrisCollectionPercentage),
+                'deuterium' => (int)($battleResult->debris->deuterium->get() * $debrisCollectionPercentage),
+                'harvested_metal' => $collectedDebris->metal->get(),
+                'harvested_crystal' => $collectedDebris->crystal->get(),
+                'harvested_deuterium' => $collectedDebris->deuterium->get(),
+            ]);
+        }
+
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();
