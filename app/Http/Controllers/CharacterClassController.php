@@ -80,6 +80,9 @@ class CharacterClassController extends OGameController
             // Select the class
             $this->characterClassService->selectClass($user, $newClass);
 
+            // Refresh user to ensure changes are reflected
+            $user->refresh();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Character class selected successfully',
@@ -104,6 +107,9 @@ class CharacterClassController extends OGameController
 
         try {
             $this->characterClassService->deselectClass($user);
+
+            // Refresh user to ensure changes are reflected
+            $user->refresh();
 
             return response()->json([
                 'status' => 'success',

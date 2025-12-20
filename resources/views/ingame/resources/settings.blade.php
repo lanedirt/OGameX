@@ -254,6 +254,13 @@
                             </td>
                             <td>
                                 <select name="last217" size="1" class="overmark">
+                                    @if($max_crawler_overload > 100)
+                                        <option class="overmark" value="15" {{ $crawler_percentage == 15 ? 'selected' : '' }}>150%</option>
+                                        <option class="overmark" value="14" {{ $crawler_percentage == 14 ? 'selected' : '' }}>140%</option>
+                                        <option class="overmark" value="13" {{ $crawler_percentage == 13 ? 'selected' : '' }}>130%</option>
+                                        <option class="overmark" value="12" {{ $crawler_percentage == 12 ? 'selected' : '' }}>120%</option>
+                                        <option class="overmark" value="11" {{ $crawler_percentage == 11 ? 'selected' : '' }}>110%</option>
+                                    @endif
                                     <option class="undermark" value="10" {{ $crawler_percentage == 10 ? 'selected' : '' }}>100%</option>
                                     <option class="undermark" value="9" {{ $crawler_percentage == 9 ? 'selected' : '' }}>90%</option>
                                     <option class="undermark" value="8" {{ $crawler_percentage == 8 ? 'selected' : '' }}>80%</option>

@@ -173,6 +173,10 @@ class ResourcesController extends AbstractBuildingsController
         $max_crawlers = ($metalMineLevel + $crystalMineLevel + $deuteriumMineLevel) * 8;
         $crawler_percentage = $this->planet->getBuildingPercent('crawler');
 
+        // Get max crawler overload percentage (Collector: 150%, Others: 100%)
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $max_crawler_overload = $characterClassService->getMaxCrawlerOverload($player->getUser());
+
         return view('ingame.resources.settings')->with([
             'currentPlayer' => $player,
             'basic_income' => $this->planet->getPlanetBasicIncome(),
@@ -194,6 +198,7 @@ class ResourcesController extends AbstractBuildingsController
             'crawler_count' => $crawler_count,
             'max_crawlers' => $max_crawlers,
             'crawler_percentage' => $crawler_percentage,
+            'max_crawler_overload' => $max_crawler_overload,
             'officers' => [
                 'commanding_staff' => $player->hasCommandingStaff(),
                 'engineer'  => $player->hasEngineer(),

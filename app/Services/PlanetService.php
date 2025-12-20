@@ -1027,9 +1027,20 @@ class PlanetService
     {
         $building = ObjectService::getObjectById($building_id);
 
-        // Sanity check: percentage inside allowed values.
         // Sanity check: model property exists.
-        if ($percentage < 0 || $percentage > 10 || !isset($this->planet->{$building->machine_name . '_percent'})) {
+        if (!isset($this->planet->{$building->machine_name . '_percent'})) {
+            return false;
+        }
+
+        // Sanity check: percentage inside allowed values.
+        // Default max is 10 (100%), but crawlers can go to 15 (150%) for Collector class
+        $maxPercentage = 10;
+        if ($building->machine_name === 'crawler') {
+            $characterClassService = app(\OGame\Services\CharacterClassService::class);
+            $maxPercentage = $characterClassService->getMaxCrawlerOverload($this->player->getUser()) / 10;
+        }
+
+        if ($percentage < 0 || $percentage > $maxPercentage) {
             return false;
         }
 

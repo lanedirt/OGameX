@@ -424,8 +424,18 @@ class GameObjectProduction
             );
         }
 
-        // Crawlers consume energy: 50 energy per crawler (affected by percentage)
-        $productionIndex->crawler->energy->set(-floor($effectiveCrawlers * 50 * $crawlerPercentage));
+        // Crawlers consume energy: 50 energy per crawler at 100%
+        // At overload (>100%), energy consumption scales: at 150% = 100 energy per crawler
+        // Formula: base_energy * percentage + (percentage > 1 ? base_energy * (percentage - 1) : 0)
+        $baseEnergy = 50;
+        $energyConsumption = $baseEnergy * $crawlerPercentage;
+
+        // Add extra energy cost for overload (>100%)
+        if ($crawlerPercentage > 1.0) {
+            $energyConsumption += $baseEnergy * ($crawlerPercentage - 1.0);
+        }
+
+        $productionIndex->crawler->energy->set(-floor($effectiveCrawlers * $energyConsumption));
     }
 
     /**

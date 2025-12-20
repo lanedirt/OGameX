@@ -170,6 +170,12 @@ class CharacterClassService
         $user->character_class_free_used = true;
         $user->character_class_changed_at = now();
         $user->save();
+
+        // Reset crawler overload if switching away from Collector
+        // Non-Collector classes can only use up to 100% (value 10)
+        if ($newClass !== CharacterClass::COLLECTOR) {
+            $this->resetCrawlerOverload($user);
+        }
     }
 
     /**
@@ -193,6 +199,9 @@ class CharacterClassService
         $user->character_class = null;
         $user->character_class_changed_at = now();
         $user->save();
+
+        // Reset crawler overload when deactivating class
+        $this->resetCrawlerOverload($user);
     }
 
     /**
@@ -302,6 +311,27 @@ class CharacterClassService
         }
 
         return 100; // Normal max is 100%
+    }
+
+    /**
+     * Reset crawler overload on all user's planets to max 100%.
+     * Called when switching away from Collector class.
+     *
+     * @param User $user
+     * @return void
+     */
+    private function resetCrawlerOverload(User $user): void
+    {
+        // Get all planets for this user using direct query
+        $planets = \OGame\Models\Planet::where('user_id', $user->id)->get();
+
+        foreach ($planets as $planet) {
+            // If crawler percentage is above 10 (100%), reset to 10
+            if ($planet->crawler_percent > 10) {
+                $planet->crawler_percent = 10;
+                $planet->save();
+            }
+        }
     }
 
     /**
