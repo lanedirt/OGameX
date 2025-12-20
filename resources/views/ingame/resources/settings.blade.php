@@ -229,6 +229,46 @@
                             </td>
                         </tr>
                         <tr class="alt">
+                            <td colspan="2" class="label">
+                                @lang('Crawler') (@lang('Number:') {{ $crawler_count }}/{{ $max_crawlers }})
+                            </td>
+                            <td class="{{ $production_total->crawler->metal->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $crawler_count > 0 ? '' : 'disabled' }}" title="{{ $production_total->crawler->metal->getFormattedFull() }}">
+                                    {{ $production_total->crawler->metal->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->crawler->crystal->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $crawler_count > 0 ? '' : 'disabled' }}" title="{{ $production_total->crawler->crystal->getFormattedFull() }}">
+                                    {{ $production_total->crawler->crystal->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->crawler->deuterium->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $crawler_count > 0 ? '' : 'disabled' }}" title="{{ $production_total->crawler->deuterium->getFormattedFull() }}">
+                                    {{ $production_total->crawler->deuterium->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->crawler->energy->get() < 0 ? 'overmark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $crawler_count > 0 ? '' : 'disabled' }}" title="{{ $production_total->crawler->energy->getFormattedFull() }}">
+                                    {{ $production_total->crawler->energy->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td>
+                                <select name="last217" size="1" class="overmark">
+                                    <option class="undermark" value="10" {{ $crawler_percentage == 10 ? 'selected' : '' }}>100%</option>
+                                    <option class="undermark" value="9" {{ $crawler_percentage == 9 ? 'selected' : '' }}>90%</option>
+                                    <option class="undermark" value="8" {{ $crawler_percentage == 8 ? 'selected' : '' }}>80%</option>
+                                    <option class="undermark" value="7" {{ $crawler_percentage == 7 ? 'selected' : '' }}>70%</option>
+                                    <option class="middlemark" value="6" {{ $crawler_percentage == 6 ? 'selected' : '' }}>60%</option>
+                                    <option class="middlemark" value="5" {{ $crawler_percentage == 5 ? 'selected' : '' }}>50%</option>
+                                    <option class="middlemark" value="4" {{ $crawler_percentage == 4 ? 'selected' : '' }}>40%</option>
+                                    <option class="overmark" value="3" {{ $crawler_percentage == 3 ? 'selected' : '' }}>30%</option>
+                                    <option class="overmark" value="2" {{ $crawler_percentage == 2 ? 'selected' : '' }}>20%</option>
+                                    <option class="overmark" value="1" {{ $crawler_percentage == 1 ? 'selected' : '' }}>10%</option>
+                                    <option class="overmark" value="0" {{ $crawler_percentage == 0 ? 'selected' : '' }}>0%</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr class="">
                             <td class="label">
                                 @lang('Items')
                             </td>
@@ -257,7 +297,7 @@
                             <td>
                             </td>
                         </tr>
-                        <tr class="">
+                        <tr class="alt">
                             <td class="label">
                                 @lang('Geologist')
                             </td>
@@ -289,7 +329,7 @@
                             <td>
                             </td>
                         </tr>
-                        <tr class="alt">
+                        <tr class="">
                             <td class="label">
                                 @lang('Engineer')
                             </td>
@@ -322,7 +362,7 @@
                             <td>
                             </td>
                         </tr>
-                        <tr class="">
+                        <tr class="alt">
                             <td class="label">
                                 @lang('Character Class')
                             </td>
@@ -360,7 +400,7 @@
                             <td>
                             </td>
                         </tr>
-                        <tr class="alt">
+                        <tr class="">
                             <td class="label">
                                 @lang('Commanding Staff')
                             </td>
@@ -393,7 +433,7 @@
                             <td>
                             </td>
                         </tr>
-                        <tr class="">
+                        <tr class="alt">
                             <td colspan="2" class="label">@lang('Storage capacity')</td>
                             <td class="{{ $metal >= $metal_storage ? 'overmark' : 'normalmark' }} left2">
                             <span class="tooltipCustom" title="{{ $metal_storage_formatted }}">
@@ -413,7 +453,7 @@
                             <td>-</td>
                             <td></td>
                         </tr>
-                        <tr class="summary alt">
+                        <tr class="summary">
                             <td colspan="2" class="label"><em>@lang('Total per hour:')</em></td>
                             <td class="undermark">
                             <span class="tooltipCustom" title="{{ $production_total->total->metal->getFormattedFull() }}">
@@ -437,7 +477,7 @@
                             </td>
                             <td></td>
                         </tr>
-                        <tr class="">
+                        <tr class="alt">
                             <td colspan="2" class="label"><em>@lang('Total per day'):</em></td>
                             <td class="undermark">
                                 <span class="tooltipCustom" title="{{ \OGame\Facades\AppUtil::formatNumber($production_total->total->metal->get() * 24) }}">
@@ -461,7 +501,7 @@
                             </td>
                             <td></td>
                         </tr>
-                        <tr class="alt">
+                        <tr class="">
                             <td colspan="2" class="label"><em>@lang('Total per week'):</em></td>
                             <td class="undermark">
                                 <span class="tooltipCustom" title="{{ \OGame\Facades\AppUtil::formatNumber($production_total->total->metal->get() * 168) }}">

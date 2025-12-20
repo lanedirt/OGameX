@@ -165,6 +165,14 @@ class ResourcesController extends AbstractBuildingsController
         $productionindex_total->total->crystal->set($this->planet->getCrystalProductionPerHour());
         $productionindex_total->total->deuterium->set($this->planet->getDeuteriumProductionPerHour());
 
+        // Get crawler information
+        $crawler_count = $this->planet->getObjectAmount('crawler');
+        $metalMineLevel = $this->planet->getObjectLevel('metal_mine');
+        $crystalMineLevel = $this->planet->getObjectLevel('crystal_mine');
+        $deuteriumMineLevel = $this->planet->getObjectLevel('deuterium_synthesizer');
+        $max_crawlers = ($metalMineLevel + $crystalMineLevel + $deuteriumMineLevel) * 8;
+        $crawler_percentage = $this->planet->getBuildingPercent('crawler');
+
         return view('ingame.resources.settings')->with([
             'currentPlayer' => $player,
             'basic_income' => $this->planet->getPlanetBasicIncome(),
@@ -183,6 +191,9 @@ class ResourcesController extends AbstractBuildingsController
             'deuterium_storage' => $this->planet->deuteriumStorage()->get(),
             'deuterium_storage_formatted' => $this->planet->deuteriumStorage()->getFormatted(),
             'plasma_technology_level' => $player->getResearchLevel('plasma_technology'),
+            'crawler_count' => $crawler_count,
+            'max_crawlers' => $max_crawlers,
+            'crawler_percentage' => $crawler_percentage,
             'officers' => [
                 'commanding_staff' => $player->hasCommandingStaff(),
                 'engineer'  => $player->hasEngineer(),
