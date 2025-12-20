@@ -230,6 +230,12 @@ class BattleReport extends GameMessage
         $debrisDeuterium = $this->battleReportModel->debris['deuterium'] ?? 0;
         $debrisResources = new Resources($debrisMetal, $debrisCrystal, $debrisDeuterium, 0);
 
+        // Extract collected debris (Reaper auto-collection)
+        $collectedDebrisMetal = $this->battleReportModel->debris['collected_metal'] ?? 0;
+        $collectedDebrisCrystal = $this->battleReportModel->debris['collected_crystal'] ?? 0;
+        $collectedDebrisDeuterium = $this->battleReportModel->debris['collected_deuterium'] ?? 0;
+        $collectedDebrisResources = new Resources($collectedDebrisMetal, $collectedDebrisCrystal, $collectedDebrisDeuterium, 0);
+
         // TODO: Expedition battle debris field collection
         // For expedition battles (when player classes are implemented with Discoverer class),
         // the debris field will be at position 16 and can only be collected by Pathfinders,
@@ -370,6 +376,7 @@ class BattleReport extends GameMessage
             'debris_sum_formatted' => AppUtil::formatNumberLong($debrisResources->sum()),
             'debris_resources' => $debrisResources,
             'debris_recyclers_needed' => $debrisRecyclersNeeded,
+            'collected_debris_resources' => $collectedDebrisResources,
             'repaired_defenses_count' => $repairedDefensesCount,
             'repaired_defenses' => $repairedDefenses,
             'moon_existed' => $moonExisted,

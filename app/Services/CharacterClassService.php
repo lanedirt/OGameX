@@ -425,6 +425,23 @@ class CharacterClassService
     }
 
     /**
+     * Get Reaper auto debris collection percentage (General only).
+     * Returns the percentage of debris that Reaper ships automatically collect
+     * directly after an attack mission.
+     *
+     * @param User $user
+     * @return float Percentage as decimal (e.g., 0.30 for 30%)
+     */
+    public function getReaperDebrisCollectionPercentage(User $user): float
+    {
+        if ($this->isGeneral($user)) {
+            return 0.30; // 30% of debris
+        }
+
+        return 0.0;
+    }
+
+    /**
      * Get research time multiplier (Discoverer only).
      * Returns multiplier (e.g., 0.75 for -25%).
      *
