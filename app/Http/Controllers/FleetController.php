@@ -14,6 +14,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Services\CharacterClassService;
 use OGame\Services\CoordinateDistanceCalculator;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
@@ -67,6 +68,13 @@ class FleetController extends OGameController
             }
         }
 
+        // Determine fleet speed increment based on character class
+        // General class has detailed fleet speed settings (5% increments)
+        // All other classes have 10% increments
+        $characterClassService = app(CharacterClassService::class);
+        $hasDetailedFleetSpeed = $characterClassService->hasDetailedFleetSpeedSettings($player->getUser());
+        $fleetSpeedIncrement = $hasDetailedFleetSpeed ? 5 : 10;
+
         return view('ingame.fleet.index')->with([
             'player' => $player,
             'planet' => $planet,
@@ -83,6 +91,7 @@ class FleetController extends OGameController
             'fleetSlotsMax' => $player->getFleetSlotsMax(),
             'expeditionSlotsInUse' => $player->getExpeditionSlotsInUse(),
             'expeditionSlotsMax' => $player->getExpeditionSlotsMax(),
+            'fleetSpeedIncrement' => $fleetSpeedIncrement,
         ]);
     }
 
