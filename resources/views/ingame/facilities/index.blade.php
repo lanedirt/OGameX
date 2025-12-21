@@ -349,9 +349,202 @@
             };
 
             window.showWreckFieldDetails = function() {
-                // For now, just show an alert - this could be expanded to show a modal with ship details
-                alert('Wreck field details feature coming soon!');
+                // Get current wreck field data
+                $.get('{{ route('facilities.wreckfieldstatus') }}', {
+                    _token: '{{ csrf_token() }}'
+                })
+                .done(function(response) {
+                    if (response.success && response.wreckField) {
+                        createRepairLayerOverlay(response.wreckField);
+                    } else {
+                        if (window.errorBox) {
+                            errorBoxDecision('Error', 'No wreck field data available', 'OK', null, null);
+                        } else {
+                            alert('No wreck field data available');
+                        }
+                    }
+                })
+                .fail(function() {
+                    if (window.errorBox) {
+                        errorBoxDecision('Error', 'Network error loading wreck field details', 'OK', null, null);
+                    } else {
+                        alert('Network error loading wreck field details');
+                    }
+                });
                 return false;
+            };
+
+            function createRepairLayerOverlay(wreckFieldData) {
+                console.log('Creating repair layer overlay with data:', wreckFieldData);
+                console.log('Ship data:', wreckFieldData.ship_data);
+
+                // Create the overlay HTML structure
+                var overlayHtml = `
+                    <div class="overlayDiv repairlayer" style="width: 656px; background: url('https://gf2.geo.gfsrv.net/cdn13/e9f54b10dc4e1140ce090106d2f528.jpg') 100% 0% rgb(0, 0, 0);">
+                          <div id="repairlayer" style="">
+                            <div class="repairableShips">
+                                <span>${wreckFieldData.is_repairing ? 'There is no wreckage at this position.' : 'Wreckages can be repaired in the Space Dock.'}</span>
+                                <div class="clearfix"></div>
+                                <br>
+                                <hr>
+                `;
+
+                if (wreckFieldData.is_repairing) {
+                    overlayHtml += `
+                        <h3>Ships being repaired:</h3>
+                        <div class="ships_wrapper clearfix">
+                    `;
+
+                    // Calculate real-time repair progress
+                    let totalRepairProgress = 0;
+                    if (wreckFieldData.is_repairing && wreckFieldData.remaining_repair_time >= 0) {
+                        // Use remaining repair time to calculate progress
+                        const totalRepairTime = wreckFieldData.repair_completion_time && wreckFieldData.repair_started_at ?
+                            (new Date(wreckFieldData.repair_completion_time).getTime() - new Date(wreckFieldData.repair_started_at).getTime()) / 1000 :
+                            wreckFieldData.remaining_repair_time * 2; // Fallback estimate
+
+                        const elapsedTime = totalRepairTime - wreckFieldData.remaining_repair_time;
+                        totalRepairProgress = Math.min(100, Math.max(0, (elapsedTime / totalRepairTime) * 100));
+
+                        console.log(`Repair progress: ${totalRepairProgress}%, Total time: ${totalRepairTime}s, Remaining: ${wreckFieldData.remaining_repair_time}s`);
+                    }
+
+                    // Map machine names to OGame shipyard CSS classes
+                    const shipClassMap = {
+                        'light_fighter': 'fighterLight',
+                        'heavy_fighter': 'fighterHeavy',
+                        'cruiser': 'cruiser',
+                        'battleship': 'battleship',
+                        'colony_ship': 'colonyShip',
+                        'recycler': 'recycler',
+                        'espionage_probe': 'espionageProbe',
+                        'bomber': 'bomber',
+                        'destroyer': 'destroyer',
+                        'deathstar': 'deathstar',
+                        'battlecruiser': 'battlecruiser',
+                        'small_cargo': 'cargoSmall',
+                        'large_cargo': 'cargoLarge',
+                        'solar_satellite': 'solarSatellite'
+                    };
+
+                    // Add ship icons for each ship type with correct shipyard images
+                    if (wreckFieldData.ship_data && Array.isArray(wreckFieldData.ship_data)) {
+                        for (const ship of wreckFieldData.ship_data) {
+                            if (ship.quantity > 0) {
+                                // Calculate real-time repaired count with NaN check
+                                let repairedCount;
+                                if (wreckFieldData.is_repairing) {
+                                    const progress = isNaN(totalRepairProgress) ? 0 : totalRepairProgress;
+                                    repairedCount = Math.floor((ship.quantity * progress) / 100);
+                                } else {
+                                    repairedCount = Math.floor((ship.quantity * (ship.repair_progress || 0)) / 100);
+                                }
+
+                                const shipName = ship.machine_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                const shipClass = shipClassMap[ship.machine_name] || '';
+
+                                console.log(`Ship: ${ship.machine_name}, Quantity: ${ship.quantity}, Repaired: ${repairedCount}, Class: ${shipClass}`);
+
+                                // Copy exact shipyard icon structure with space dock overlay
+                                overlayHtml += `
+                                    <div class="tooltipHTML fleft ships" title="${shipName}|${repairedCount} / ${ship.quantity}">
+                                        <span class="icon sprite sprite_small ${shipClass}">
+                                            <span class="ecke">
+                                                <span class="level">${repairedCount}/${ship.quantity}</span>
+                                            </span>
+                                        </span>
+                                    </div>
+                                `;
+                            }
+                        }
+                    } else {
+                        console.log('No valid ship data found');
+                        overlayHtml += '<p>No ship data available</p>';
+                    }
+
+                    overlayHtml += `
+                                    <div class="clearfix"></div>
+                                    <br>
+                    `;
+
+                    // Add completion time if repairs are in progress
+                    if (wreckFieldData.remaining_repair_time > 0) {
+                        const completionTime = new Date(Date.now() + wreckFieldData.remaining_repair_time * 1000);
+                        const formattedDate = completionTime.toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: '2-digit'
+                        }).replace(/\//g, '.');
+                        const formattedTime = completionTime.toLocaleTimeString('en-GB', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        overlayHtml += `
+                            <p>Your last ships will be automatically returned to service on ${formattedDate} ${formattedTime}.</p>
+                        `;
+                    }
+
+                    // Add the "Put ships that are already repaired back into service" button
+                    overlayHtml += `
+                        <div class="btn btn_dark fright reCommissionButton">
+                            <input type="button" class="middlemark reCommissionButton" value="Put ships that are already repaired back into service" onclick="collectRepairedShips(); closeOverlay();">
+                        </div>
+                    `;
+
+                    // Add collect button if ships are ready
+                    const totalRepaired = wreckFieldData.ship_data.reduce((sum, ship) => {
+                        return sum + Math.floor((ship.quantity * (ship.repair_progress || 0)) / 100);
+                    }, 0);
+
+                    if (totalRepaired > 0) {
+                        overlayHtml += `
+                            <div class="btn btn_dark fright reCommissionButton">
+                                <input type="button" class="middlemark reCommissionButton" value="Put ships that are already repaired back into service" onclick="collectRepairedShips(); closeOverlay();">
+                            </div>
+                        `;
+                    }
+                }
+
+                overlayHtml += `
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Create and show the overlay dialog
+                if (typeof $ !== 'undefined' && $.fn.dialog) {
+                    // Use jQuery UI dialog if available
+                    $('<div>' + overlayHtml + '</div>').dialog({
+                        title: 'Space Dock',
+                        width: 656,
+                        modal: true,
+                        resizable: false,
+                        dialogClass: 'repairlayer-dialog',
+                        close: function() {
+                            $(this).dialog('destroy').remove();
+                        }
+                    });
+                } else {
+                    // Fallback: create a simple modal overlay
+                    var overlay = $('<div id="wreckFieldDetailsOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">' +
+                        '<div style="width: 656px; background: #000; border: 1px solid #333; padding: 20px;">' +
+                        '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">' +
+                        '<h2 style="color: #fff; margin: 0;">Space Dock</h2>' +
+                        '<button onclick="closeOverlay()" style="background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; cursor: pointer;">✕</button>' +
+                        '</div>' +
+                        overlayHtml +
+                        '</div>' +
+                        '</div>');
+
+                    $('body').append(overlay);
+                }
+            }
+
+            window.closeOverlay = function() {
+                $('#wreckFieldDetailsOverlay').remove();
+                $('.ui-dialog').remove();
             };
 
             function loadWreckFieldDataIntoDescription($description) {
@@ -439,15 +632,75 @@
                     $repairOrder.append($shipsSpan);
 
                     var $wreckfieldBtns = $('<div id="wreckfield-btns"></div>');
+
+                    // Only enable collect button if there are actually ships to collect
+                    const collectEnabled = repairedShips > 0;
+                    const collectButtonStyle = collectEnabled ? '' : 'opacity: 0.5; cursor: not-allowed;';
+                    const collectButtonOnclick = collectEnabled ? 'onclick="collectRepairedShips()"' : 'disabled=""';
+
                     var $collectBtn = $(`
-                        <button class="recomission" onclick="collectRepairedShips()">
-                            <span class="btn btn_dark tooltip middlemark" title="">Collect</span>
+                        <button class="recomission" ${collectButtonOnclick}>
+                            <span class="btn btn_dark tooltip middlemark" title="" style="${collectButtonStyle}">Collect</span>
                         </button>
                     `);
-                    var $detailsBtn = $('<a class="btn btn_dark undermark fright overlay" href="#" onclick="showWreckFieldDetails()" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px">Details</a>');
+                    var $detailsBtn = $('<a class="btn btn_dark undermark fright" href="javascript:void(0);" onclick="showWreckFieldDetails(); return false;">Details</a>');
 
                     $wreckfieldBtns.append($collectBtn);
                     $wreckfieldBtns.append($detailsBtn);
+
+                    // Aggressive CSS override to force text clickability
+                    setTimeout(function() {
+                        // Add very aggressive CSS rules
+                        $('<style>')
+                            .prop('type', 'text/css')
+                            .html('\
+                                .btn.btn_dark.undermark.fright, \
+                                button.recomission { \
+                                    pointer-events: auto !important; \
+                                    position: relative !important; \
+                                    z-index: 1000 !important; \
+                                } \
+                                .btn.btn_dark.undermark.fright:before, \
+                                .btn.btn_dark.undermark.fright:after, \
+                                button.recomission:before, \
+                                button.recomission:after { \
+                                    pointer-events: none !important; \
+                                } \
+                                .btn.btn_dark.undermark.fright *, \
+                                button.recomission * { \
+                                    pointer-events: auto !important; \
+                                    position: relative !important; \
+                                    z-index: 1001 !important; \
+                                }')
+                            .appendTo('head');
+
+                        // Force inline styles on the button
+                        $detailsBtn.css({
+                            'pointer-events': 'auto !important',
+                            'position': 'relative !important',
+                            'z-index': '1000 !important'
+                        });
+
+                        // Force inline styles on all children
+                        $detailsBtn.find('*').css({
+                            'pointer-events': 'auto !important',
+                            'position': 'relative !important',
+                            'z-index': '1001 !important'
+                        });
+
+                        // Apply the same fix to the Collect button
+                        $collectBtn.css({
+                            'pointer-events': 'auto !important',
+                            'position': 'relative !important',
+                            'z-index': '1000 !important'
+                        });
+
+                        $collectBtn.find('*').css({
+                            'pointer-events': 'auto !important',
+                            'position': 'relative !important',
+                            'z-index': '1001 !important'
+                        });
+                    }, 50);
 
                     $innerDescription.append($wreckFieldSpan);
                     $innerDescription.append($separator);
