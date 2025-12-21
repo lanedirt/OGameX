@@ -30,7 +30,6 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
     public function testPathfinderCanHarvestExpeditionDebris(): void
     {
         // Set up player and planet
-        $this->playerSetUp();
         $planet = $this->planetService;
 
         // Add Pathfinders to the planet
@@ -54,18 +53,12 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
         $this->assertGreaterThan(0, $initialDebris, 'Debris field should have resources');
 
         // Send harvest mission with Pathfinders to position 16
-        $this->sendMissionToCoordinate(
-            $planet,
-            $debrisCoordinate,
-            ['pathfinder' => 10],
-            8, // Harvest mission
-            new \OGame\Models\Resources(0, 0, 0, 0),
-            \OGame\Models\Enums\PlanetType::DebrisField
-        );
+        $units = new \OGame\GameObjects\Models\Units\UnitCollection();
+        $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('pathfinder'), 10);
+        $this->sendMissionToPosition16($units, new \OGame\Models\Resources(0, 0, 0, 0));
 
         // Process the mission (arrival)
-        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class);
-        $fleetMissionService->updateFleetMissions();
+        $this->travel(10)->seconds();
 
         // Check that debris was harvested
         $debrisFieldService->loadForCoordinates($debrisCoordinate);
@@ -75,10 +68,9 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
         $this->assertLessThan($initialDebris, $remainingDebris, 'Pathfinders should have harvested some debris');
 
         // Process return mission
-        $fleetMissionService->updateFleetMissions();
+        $this->travel(10)->seconds();
 
         // Check that Pathfinders returned with resources
-        $planet->reload();
         $this->assertEquals(10, $planet->getObjectAmount('pathfinder'), 'Pathfinders should have returned');
 
         // Planet should have more resources than before (harvested debris)
@@ -93,7 +85,6 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
     public function testRecyclerCannotHarvestExpeditionDebris(): void
     {
         // Set up player and planet
-        $this->playerSetUp();
         $planet = $this->planetService;
 
         // Add Recyclers to the planet (wrong ship type for position 16)
@@ -134,7 +125,6 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
     public function testPathfinderCanHarvestRegularDebris(): void
     {
         // Set up player and planet
-        $this->playerSetUp();
         $planet = $this->planetService;
 
         // Add Pathfinders to the planet

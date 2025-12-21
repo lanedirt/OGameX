@@ -168,7 +168,7 @@ class PlanetListService
      *
      * @return PlanetService|null
      */
-    public function first(): ?PlanetService
+    public function first(): PlanetService|null
     {
         return $this->planets[0] ?? null;
     }

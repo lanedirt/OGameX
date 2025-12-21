@@ -29,7 +29,6 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
     public function testReaperCollectsDebrisWithGeneralClass(): void
     {
         // Set up: attacker is General class
-        $this->playerSetUp();
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
 
@@ -38,7 +37,6 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $attackerPlayer->getUser()->save();
 
         // Set up: defender planet
-        $this->secondPlayerSetup();
         $defender = $this->secondPlanetService;
 
         // Set up: Attacker has Reapers
@@ -49,15 +47,10 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $defender->addUnit('rocket_launcher', 100);
 
         // Launch attack mission
-        $this->sendMissionToSecondPlayer(
-            $this->planetService,
-            [
-                'reaper' => 50,
-                'light_fighter' => 100,
-            ],
-            1, // attack mission
-            new \OGame\Models\Resources(0, 0, 0, 0)
-        );
+        $units = new \OGame\GameObjects\Models\Units\UnitCollection();
+        $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('reaper'), 50);
+        $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('light_fighter'), 100);
+        $this->sendMissionToOtherPlayerPlanet($units, new \OGame\Models\Resources(0, 0, 0, 0));
 
         // Get debris field before processing mission
         $debrisFieldService = resolve(\OGame\Services\DebrisFieldService::class);
@@ -67,15 +60,14 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         }
 
         // Process arrival (battle happens)
-        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class);
-        $fleetMissionService->updateFleetMissions();
+        $this->travel(10)->seconds();
 
         // Get battle report to check debris amounts
         $battleReport = \OGame\Models\BattleReport::latest()->first();
         $this->assertNotNull($battleReport, 'Battle report should be created');
 
-        $totalDebris = $battleReport->debris['metal'] + $battleReport->debris['crystal'] + $battleReport->debris['deuterium'];
-        $collectedDebris = $battleReport->debris['collected_metal'] + $battleReport->debris['collected_crystal'] + $battleReport->debris['collected_deuterium'];
+        $totalDebris = (int)$battleReport->debris['metal'] + (int)$battleReport->debris['crystal'] + (int)$battleReport->debris['deuterium'];
+        $collectedDebris = (int)$battleReport->debris['collected_metal'] + (int)$battleReport->debris['collected_crystal'] + (int)$battleReport->debris['collected_deuterium'];
 
         // Assert: Reaper collected 30% of debris
         if ($totalDebris > 0) {
@@ -97,10 +89,9 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         }
 
         // Process return mission
-        $fleetMissionService->updateFleetMissions();
+        $this->travel(10)->seconds();
 
         // Check that returned fleet contains the collected debris as resources
-        $attacker->reload();
         // The collected debris should have been added to the returning fleet
         // (checking this indirectly through the total resources)
         $this->assertGreaterThan(0, $attacker->metal()->get() + $attacker->crystal()->get(), 'Attacker should have received collected debris');
@@ -114,7 +105,6 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
     public function testReaperDoesNotCollectDebrisWithoutGeneralClass(): void
     {
         // Set up: attacker is NOT General class (Collector)
-        $this->playerSetUp();
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
 
@@ -123,7 +113,6 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $attackerPlayer->getUser()->save();
 
         // Set up: defender planet
-        $this->secondPlayerSetup();
         $defender = $this->secondPlanetService;
 
         // Set up: Attacker has Reapers
@@ -134,19 +123,13 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $defender->addUnit('rocket_launcher', 100);
 
         // Launch attack mission
-        $this->sendMissionToSecondPlayer(
-            $this->planetService,
-            [
-                'reaper' => 50,
-                'light_fighter' => 100,
-            ],
-            1, // attack mission
-            new \OGame\Models\Resources(0, 0, 0, 0)
-        );
+        $units = new \OGame\GameObjects\Models\Units\UnitCollection();
+        $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('reaper'), 50);
+        $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('light_fighter'), 100);
+        $this->sendMissionToOtherPlayerPlanet($units, new \OGame\Models\Resources(0, 0, 0, 0));
 
         // Process arrival (battle happens)
-        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class);
-        $fleetMissionService->updateFleetMissions();
+        $this->travel(10)->seconds();
 
         // Get battle report to check debris amounts
         $battleReport = \OGame\Models\BattleReport::latest()->first();
@@ -168,7 +151,6 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
     public function testNoDebrisCollectionWithoutReapers(): void
     {
         // Set up: attacker is General class but has no Reapers
-        $this->playerSetUp();
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
 
@@ -177,7 +159,6 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $attackerPlayer->getUser()->save();
 
         // Set up: defender planet
-        $this->secondPlayerSetup();
         $defender = $this->secondPlanetService;
 
         // Set up: Attacker has NO Reapers, only other ships
@@ -187,18 +168,12 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $defender->addUnit('rocket_launcher', 100);
 
         // Launch attack mission
-        $this->sendMissionToSecondPlayer(
-            $this->planetService,
-            [
-                'light_fighter' => 200,
-            ],
-            1, // attack mission
-            new \OGame\Models\Resources(0, 0, 0, 0)
-        );
+        $units = new \OGame\GameObjects\Models\Units\UnitCollection();
+        $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('light_fighter'), 200);
+        $this->sendMissionToOtherPlayerPlanet($units, new \OGame\Models\Resources(0, 0, 0, 0));
 
         // Process arrival (battle happens)
-        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class);
-        $fleetMissionService->updateFleetMissions();
+        $this->travel(10)->seconds();
 
         // Get battle report to check debris amounts
         $battleReport = \OGame\Models\BattleReport::latest()->first();

@@ -185,7 +185,12 @@ abstract class AccountTestCase extends TestCase
         $playerServiceFactory = resolve(PlayerServiceFactory::class);
         $playerService = $playerServiceFactory->make($this->currentUserId);
         $this->planetService = $playerService->planets->current();
-        $this->secondPlanetService = $playerService->planets->allPlanets()[1];
+
+        // Only set second planet service if it exists
+        $allPlanets = $playerService->planets->allPlanets();
+        if (isset($allPlanets[1])) {
+            $this->secondPlanetService = $allPlanets[1];
+        }
     }
 
     /**

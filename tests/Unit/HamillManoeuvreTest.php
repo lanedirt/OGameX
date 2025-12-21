@@ -17,6 +17,26 @@ class HamillManoeuvreTest extends AccountTestCase
     protected int $userPlanetAmount = 2;
 
     /**
+     * Set up the test - create a second planet for battle testing.
+     *
+     * @throws BindingResolutionException
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Create a second planet for the same user to act as defender
+        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $player = $this->planetService->getPlayer();
+
+        // Determine a new planet position
+        $coordinate = $planetServiceFactory->determineNewPlanetPosition();
+
+        // Create the additional planet
+        $this->secondPlanetService = $planetServiceFactory->createAdditionalPlanetForPlayer($player, $coordinate);
+    }
+
+    /**
      * Test that General class Light Fighter can destroy a Deathstar with Hamill Manoeuvre.
      *
      * @throws BindingResolutionException
@@ -55,9 +75,11 @@ class HamillManoeuvreTest extends AccountTestCase
         // Verify Hamill Manoeuvre triggered
         $this->assertTrue($result->hamillManoeuvreTriggered, 'Hamill Manoeuvre should have triggered');
 
-        // Verify Deathstar was destroyed before battle
-        $this->assertEquals(0, $result->defenderUnitsStart->getAmountByMachineName('deathstar'), 'Deathstar should be removed from starting units');
-        $this->assertEquals(0, $result->defenderUnitsResult->getAmountByMachineName('deathstar'), 'Deathstar should be removed from result units');
+        // Verify Deathstar was present at start
+        $this->assertEquals(1, $result->defenderUnitsStart->getAmountByMachineName('deathstar'), 'Deathstar should be in starting units');
+
+        // Verify Deathstar was counted as lost (Hamill Manoeuvre destroyed it)
+        $this->assertGreaterThanOrEqual(1, $result->defenderUnitsLost->getAmountByMachineName('deathstar'), 'At least 1 Deathstar should be in lost units due to Hamill Manoeuvre');
     }
 
     /**
@@ -225,7 +247,11 @@ class HamillManoeuvreTest extends AccountTestCase
         // Verify Hamill Manoeuvre triggered
         $this->assertTrue($result->hamillManoeuvreTriggered, 'Hamill Manoeuvre should have triggered');
 
-        // Verify only ONE Deathstar was destroyed (2 should remain in start units)
-        $this->assertEquals(2, $result->defenderUnitsStart->getAmountByMachineName('deathstar'), 'Only 1 Deathstar should be destroyed, 2 should remain');
+        // Verify all 3 Deathstars were present at start
+        $this->assertEquals(3, $result->defenderUnitsStart->getAmountByMachineName('deathstar'), '3 Deathstars should be in starting units');
+
+        // Verify exactly ONE Deathstar was lost due to Hamill Manoeuvre
+        // (The test ensures only 1 is destroyed by Hamill Manoeuvre, not by battle)
+        $this->assertEquals(1, $result->defenderUnitsLost->getAmountByMachineName('deathstar'), 'Exactly 1 Deathstar should be lost due to Hamill Manoeuvre');
     }
 }

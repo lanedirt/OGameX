@@ -286,7 +286,7 @@ class PhpBattleEngine extends BattleEngine
             unset($defenderUnits[$deathstarKey]);
 
             // NOTE: We do NOT remove it from defenderUnitsStart or defenderUnitsResult here.
-            // The loss will be properly calculated after battle rounds complete.
+            // The loss will be properly added to defenderUnitsLost in BattleEngine::simulateBattle() (line 142-145).
         }
     }
 }

@@ -51,11 +51,11 @@ class DeveloperShortcutsController extends OGameController
     {
         if ($request->has('enable_free_class_changes')) {
             // Enable free class changes
-            $settingsService->set('dev_free_class_changes', true);
+            $settingsService->set('dev_free_class_changes', 1);
             return redirect()->back()->with('success', 'Free class changes enabled! You can now change classes without Dark Matter cost.');
         } elseif ($request->has('disable_free_class_changes')) {
             // Disable free class changes
-            $settingsService->set('dev_free_class_changes', false);
+            $settingsService->set('dev_free_class_changes', 0);
             return redirect()->back()->with('success', 'Free class changes disabled. Normal costs apply.');
         } elseif ($request->has('reset_character_class')) {
             // Reset character class
