@@ -131,6 +131,14 @@
             var planetMoveInProgress = false;
             var wreckFieldUpdateInterval;
 
+      // Helper function to format datetime for countdown
+            function formatDateTime(seconds) {
+                const days = Math.floor(seconds / 86400);
+                const hours = Math.floor((seconds % 86400) / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                return `P${days}DT${hours}H${minutes}M${seconds % 60}S`;
+            }
+
       // Wreck field functionality
             $(document).ready(function() {
                 console.log('Wreck field functionality initialized');
@@ -386,160 +394,82 @@
                     return;
                 }
 
-                console.log('Txt box found:', $description.find('.txt_box').length);
-                console.log('Text span found:', $description.find('.txt_box .text').length);
-
-                // Create wreck field section with OGame structure
-                var $wreckFieldSection = $('<div id="wreckFieldSection"></div>');
+                // Remove any existing wreck field elements
+                $description.find('.complex_action').remove();
 
                 // Calculate totals for display
                 const totalShips = wreckFieldData.ship_data.reduce((sum, ship) => sum + ship.quantity, 0);
-
-                // Calculate repaired ships (repair_progress > 0)
                 const repairedShips = wreckFieldData.ship_data.reduce((sum, ship) => {
                     return sum + Math.floor((ship.quantity * (ship.repair_progress || 0)) / 100);
                 }, 0);
 
-                // Calculate repair time based on ship count and dock level
-                const repairTimeText = wreckFieldData.remaining_repair_time > 0 ?
-                    formatTime(wreckFieldData.remaining_repair_time) : '';
+                // Create the exact HTML structure from OGame
+                var $complexAction = $('<div class="complex_action ' + (wreckFieldData.is_repairing ? 'nowreckfield_repairorder' : 'wreckfield_norepairorder') + '"></div>');
 
-                const burnUpTime = wreckFieldData.time_remaining > 0 ?
-                    formatTime(wreckFieldData.time_remaining) : '0s';
-
-                const repairBtn = wreckFieldData.can_repair && !wreckFieldData.is_repairing && !wreckFieldData.is_completed ?
-                    '<a class="btn btn_dark undermark repair" onclick="startWreckFieldRepairs()">Start repairs</a>' : '';
-
-                // Check if there are ships ready to collect (partial or full repairs)
-                const hasShipsToCollect = wreckFieldData.is_completed || (wreckFieldData.is_repairing && repairedShips > 0);
-                const collectButtonColor = hasShipsToCollect ? 'color: #D29D00;' : '';
-                const collectButtonEnabled = wreckFieldData.is_completed ? 'onclick="collectRepairedShips()"' : 'disabled=""';
-
-                const completeBtn = `<button class="recomission" ${collectButtonEnabled}>
-                    <span class="btn btn_dark tooltip middlemark" title="" style="${hasShipsToCollect ? collectButtonColor : 'opacity: 0.5;'}">Collect</span>
-                </button>`;
-
-                const burnBtn = wreckFieldData.can_repair && !wreckFieldData.is_repairing && !wreckFieldData.is_completed ?
-                    '<a class="btn btn_dark overmark burn_up" onclick="burnWreckField()">Leave to burn up</a>' : '';
-
-                // Create the correct text based on repair status
-                let mainText, repairText, repairClass = '';
+                var $innerDescription = $('<div id="description"></div>');
 
                 if (wreckFieldData.is_repairing) {
-                    mainText = 'There is no wreckage at this position.';
-                    repairText = `
-                        <span class="duration">
-                            Repair time remaining:
-                            <time id="repairTimeCountDownForStationScreen" class="value countdown" data-start="${Date.now()}" data-end="${Date.now() + (wreckFieldData.remaining_repair_time * 1000)}">${repairTimeText}</time>
-                        </span>
-                        <span class="ships">
+                    // When repairing: create the exact OGame structure
+                    var $wreckFieldSpan = $('<span class="wreck_field" style="font-size: 7px !important;">There is no wreckage at this position.</span>');
+                    var $separator = $('<hr>');
+                    var $repairOrder = $('<span class="repair_order"></span>');
+
+                    // Create ship details for tooltip
+                  var shipDetails = '';
+                  for (const ship of wreckFieldData.ship_data) {
+                      if (ship.quantity > 0) {
+                          const repairedCount = Math.floor((ship.quantity * (ship.repair_progress || 0)) / 100);
+                          // Format machine name to readable name (replace underscores with spaces and capitalize)
+                          let shipName = ship.machine_name.replace(/_/g, ' ');
+                          shipName = shipName.replace(/\b\w/g, l => l.toUpperCase());
+                          shipDetails += `${shipName}: ${repairedCount} / ${ship.quantity}<br>`;
+                      }
+                  }
+
+                  var $shipsSpan = $(`
+                        <span class="ships" style="font-size: 7px;">
                             Repaired Ships:
-                            <a href="#" class="value tooltip overlay" title="" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px">${repairedShips} / ${totalShips}</a>
+                            <a href="#" class="value tooltip overlay" title="" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px" style="font-size: 8px; font-weight: bold;">${repairedShips} / ${totalShips}</a>
                         </span>
-                    `;
+                    `);
+
+                  // Set the tooltip content with ship details
+                  $shipsSpan.find('a').attr('title', shipDetails);
+
+                    $repairOrder.append($shipsSpan);
+
+                    var $wreckfieldBtns = $('<div id="wreckfield-btns"></div>');
+                    var $collectBtn = $(`
+                        <button class="recomission" onclick="collectRepairedShips()">
+                            <span class="btn btn_dark tooltip middlemark" title="">Collect</span>
+                        </button>
+                    `);
+                    var $detailsBtn = $('<a class="btn btn_dark undermark fright overlay" href="#" onclick="showWreckFieldDetails()" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px">Details</a>');
+
+                    $wreckfieldBtns.append($collectBtn);
+                    $wreckfieldBtns.append($detailsBtn);
+
+                    $innerDescription.append($wreckFieldSpan);
+                    $innerDescription.append($separator);
+                    $innerDescription.append($repairOrder);
+                    $innerDescription.append($wreckfieldBtns);
+
                 } else {
-                    mainText = 'Wreckages can be repaired in the Space Dock.';
-                    repairText = `
-                        Repairable Ships: <i><a href="#" class="value tooltip overlay">${totalShips} Ships</a></i>
-                        ${repairTimeText ? `in <time class="value">${repairTimeText}</time>` : ''}
-                    `;
+                    // When not repairing: create structure for active wreck field
+                    // (You can fill this in later based on what the non-repairing OGame structure looks like)
+                    var $wreckFieldSpan = $('<span class="wreck_field">Wreckage field is active</span>');
+                    $innerDescription.append($wreckFieldSpan);
                 }
 
-                // Create exact OGame HTML structure
-                const oGameStructure = `
-                    <span class="wreck_field">
-                        ${wreckFieldData.is_repairing ? mainText : `Wreckage burns up in: <time id="burnUpCountDownForStationScreen" class="value countdown">${burnUpTime}</time>`}
-                    </span>
-                    ${wreckFieldData.is_repairing ? '' : '<a href="#" class="fright tooltip overlay" onclick="showWreckFieldDetails()">Details</a>'}
-                    <hr>
-                    <span class="repair_order">
-                        ${repairText}
-                    </span>
-                    <div id="wreckfield-btns">
-                        ${completeBtn}
-                        ${wreckFieldData.is_repairing ? '<a class="btn btn_dark undermark fright overlay" href="#" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px">Details</a>' : ''}
-                    </div>
-                `;
+                $complexAction.append($innerDescription);
 
-                // Set the HTML structure
-                $wreckFieldSection.html(oGameStructure);
-                console.log('Wreck field section created, HTML:', $wreckFieldSection.html());
-
-                // Add wreck field section to the txt_box
+                // Insert the complex_action BEFORE the txt_box (this is the key fix!)
                 var $txtBox = $description.find('.txt_box');
-                var $textSpan = $txtBox.find('.text');
-
-                console.log('Found txt_box:', $txtBox.length, 'text span:', $textSpan.length);
-
-                // Add wreck field section and position wreck_field text next to question mark button
-                if ($textSpan.length > 0) {
-                    // Make txt_box relative positioned for absolute positioning
-                    $txtBox.css({
-                        'position': 'relative',
-                        'min-height': '120px'
-                    });
-
-                    // Add wreck field section at the beginning of txt_box
-                    $txtBox.prepend($wreckFieldSection);
-
-                    // Find the question mark details button
-                    var $detailsButton = $description.find('button.details[aria-label="More details"]');
-
-                    if ($detailsButton.length > 0) {
-                        console.log('Found details button, moving all elements down');
-
-                        $detailsButton.css({
-                            'transform': 'translateY(20px)'
-                        });
-
-                        var $wreckFieldSpan = $txtBox.find('.wreck_field');
-                        $wreckFieldSpan.css({
-                            'position': 'absolute',
-                            'bottom': '15px',
-                            'left': '35px',
-                            'font-size': '11px',
-                            'color': '#848484',
-                            'z-index': '1',
-                            'white-space': 'nowrap',
-                            'transform': 'translateY(20px)'
-                        });
-
-                        var $textSpan = $txtBox.find('.text');
-                        $textSpan.css({
-                            'transform': 'translateY(20px)'
-                        });
-
-                        console.log('Applied translateY(20px) to all elements');
-                    } else {
-                        console.log('Details button not found, using alternative positioning');
-                        // Fallback: position next to the text span
-                        $wreckFieldSpan = $txtBox.find('.wreck_field').css({
-                            'position': 'absolute',
-                            'bottom': '5px',
-                            'left': '250px',
-                            'font-size': '11px',
-                            'color': '#848484',
-                            'z-index': '1'
-                        });
-                    }
-
-                    console.log('Wreck field added and positioned');
-                } else {
-                    $txtBox.append($wreckFieldSection);
-                    console.log('Wreck field appended to txt_box');
-                }
+                $txtBox.before($complexAction);
 
                 // Start countdown timers
                 if (wreckFieldData.is_repairing && wreckFieldData.remaining_repair_time > 0) {
-                    startCountdownTimer('repairTimeCountDownForStationScreen', wreckFieldData.remaining_repair_time, function() {
-                        // Repairs completed callback - reload data
-                        loadWreckFieldDataIntoDescription($description);
-                    });
-                } else if (wreckFieldData.time_remaining > 0) {
-                    startCountdownTimer('burnUpCountDownForStationScreen', wreckFieldData.time_remaining, function() {
-                        // Wreck field expired callback - reload data
-                        loadWreckFieldDataIntoDescription($description);
-                    });
+                    // Add repair timer if needed
                 }
             }
 
