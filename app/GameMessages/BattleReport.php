@@ -236,6 +236,24 @@ class BattleReport extends GameMessage
         $collectedDebrisDeuterium = $this->battleReportModel->debris['collected_deuterium'] ?? 0;
         $collectedDebrisResources = new Resources($collectedDebrisMetal, $collectedDebrisCrystal, $collectedDebrisDeuterium, 0);
 
+        // Extract attacker collected debris
+        $attackerCollectedMetal = $this->battleReportModel->debris['attacker_collected_metal'] ?? 0;
+        $attackerCollectedCrystal = $this->battleReportModel->debris['attacker_collected_crystal'] ?? 0;
+        $attackerCollectedDeuterium = $this->battleReportModel->debris['attacker_collected_deuterium'] ?? 0;
+        $attackerCollectedDebrisResources = new Resources($attackerCollectedMetal, $attackerCollectedCrystal, $attackerCollectedDeuterium, 0);
+
+        // Extract defender collected debris
+        $defenderCollectedMetal = $this->battleReportModel->debris['defender_collected_metal'] ?? 0;
+        $defenderCollectedCrystal = $this->battleReportModel->debris['defender_collected_crystal'] ?? 0;
+        $defenderCollectedDeuterium = $this->battleReportModel->debris['defender_collected_deuterium'] ?? 0;
+        $defenderCollectedDebrisResources = new Resources($defenderCollectedMetal, $defenderCollectedCrystal, $defenderCollectedDeuterium, 0);
+
+        // Calculate remaining debris (debris created - collected by Reapers)
+        $remainingDebrisMetal = $debrisMetal - $collectedDebrisMetal;
+        $remainingDebrisCrystal = $debrisCrystal - $collectedDebrisCrystal;
+        $remainingDebrisDeuterium = $debrisDeuterium - $collectedDebrisDeuterium;
+        $remainingDebrisResources = new Resources($remainingDebrisMetal, $remainingDebrisCrystal, $remainingDebrisDeuterium, 0);
+
         // TODO: Expedition battle debris field collection
         // For expedition battles (when player classes are implemented with Discoverer class),
         // the debris field will be at position 16 and can only be collected by Pathfinders,
@@ -248,6 +266,18 @@ class BattleReport extends GameMessage
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->appendResources($debrisResources);
         $debrisRecyclersNeeded = $debrisFieldService->calculateRequiredRecyclers();
+
+        // Calculate recyclers needed for remaining debris
+        $remainingDebrisFieldService = resolve(DebrisFieldService::class);
+        $remainingDebrisFieldService->appendResources($remainingDebrisResources);
+        $remainingDebrisRecyclersNeeded = $remainingDebrisFieldService->calculateRequiredRecyclers();
+
+        // Calculate Reapers that collected debris
+        $reaperObject = ObjectService::getShipObjectByMachineName('reaper');
+        $reaperCargoCapacity = $reaperObject->properties->capacity->rawValue;
+        $attackerReapersUsed = $reaperCargoCapacity > 0 ? (int)ceil($attackerCollectedDebrisResources->sum() / $reaperCargoCapacity) : 0;
+        $defenderReapersUsed = $reaperCargoCapacity > 0 ? (int)ceil($defenderCollectedDebrisResources->sum() / $reaperCargoCapacity) : 0;
+        $totalReapersUsed = $attackerReapersUsed + $defenderReapersUsed;
 
         $repairedDefensesCount = 0;
         $repairedDefenses = new UnitCollection();
@@ -381,6 +411,11 @@ class BattleReport extends GameMessage
             'debris_resources' => $debrisResources,
             'debris_recyclers_needed' => $debrisRecyclersNeeded,
             'collected_debris_resources' => $collectedDebrisResources,
+            'attacker_collected_debris_resources' => $attackerCollectedDebrisResources,
+            'defender_collected_debris_resources' => $defenderCollectedDebrisResources,
+            'remaining_debris_resources' => $remainingDebrisResources,
+            'remaining_debris_recyclers_needed' => $remainingDebrisRecyclersNeeded,
+            'total_reapers_used' => $totalReapersUsed,
             'repaired_defenses_count' => $repairedDefensesCount,
             'repaired_defenses' => $repairedDefenses,
             'moon_existed' => $moonExisted,

@@ -133,16 +133,18 @@ class AttackMission extends GameMission
         $debrisFieldService->loadOrCreateForCoordinates($defenderPlanet->getPlanetCoordinates());
 
         // Check if attacker has Reaper ships for automatic debris collection (General class only)
-        $collectedDebris = new Resources(0, 0, 0, 0);
+        $attackerCollectedDebris = new Resources(0, 0, 0, 0);
+        $defenderCollectedDebris = new Resources(0, 0, 0, 0);
         $characterClassService = app(CharacterClassService::class);
-        $debrisCollectionPercentage = $characterClassService->getReaperDebrisCollectionPercentage($attackerPlayer->getUser());
 
-        if ($debrisCollectionPercentage > 0 && $battleResult->attackerUnitsResult->getAmountByMachineName('reaper') > 0) {
+        // Attacker Reaper collection
+        $attackerDebrisCollectionPercentage = $characterClassService->getReaperDebrisCollectionPercentage($attackerPlayer->getUser());
+        if ($attackerDebrisCollectionPercentage > 0 && $battleResult->attackerUnitsResult->getAmountByMachineName('reaper') > 0) {
             // Calculate 30% of the debris to be collected automatically
             $collectionAmount = new Resources(
-                (int)($battleResult->debris->metal->get() * $debrisCollectionPercentage),
-                (int)($battleResult->debris->crystal->get() * $debrisCollectionPercentage),
-                (int)($battleResult->debris->deuterium->get() * $debrisCollectionPercentage),
+                (int)($battleResult->debris->metal->get() * $attackerDebrisCollectionPercentage),
+                (int)($battleResult->debris->crystal->get() * $attackerDebrisCollectionPercentage),
+                (int)($battleResult->debris->deuterium->get() * $attackerDebrisCollectionPercentage),
                 0
             );
 
@@ -154,18 +156,63 @@ class AttackMission extends GameMission
             // Limit collected debris to Reaper cargo capacity
             // (Can collect maximum 30% of debris OR Reaper capacity, whichever is lower)
             if ($collectionAmount->sum() <= $reaperCargoCapacity) {
-                $collectedDebris = $collectionAmount;
+                $attackerCollectedDebris = $collectionAmount;
             } else {
                 // Distribute the 30% debris amount across Reaper capacity
-                $collectedDebris = LootService::distributeLoot($collectionAmount, $reaperCargoCapacity);
+                $attackerCollectedDebris = LootService::distributeLoot($collectionAmount, $reaperCargoCapacity);
             }
         }
 
-        // Add debris to the field (minus what was collected by Reapers)
+        // Calculate remaining debris after attacker collection
+        $debrisAfterAttackerCollection = new Resources(
+            $battleResult->debris->metal->get() - $attackerCollectedDebris->metal->get(),
+            $battleResult->debris->crystal->get() - $attackerCollectedDebris->crystal->get(),
+            $battleResult->debris->deuterium->get() - $attackerCollectedDebris->deuterium->get(),
+            0
+        );
+
+        // Defender Reaper collection (from remaining debris after attacker collection)
+        $defenderDebrisCollectionPercentage = $characterClassService->getReaperDebrisCollectionPercentage($defenderPlanet->getPlayer()->getUser());
+        if ($defenderDebrisCollectionPercentage > 0 && $battleResult->defenderUnitsResult->getAmountByMachineName('reaper') > 0) {
+            // Calculate 30% of the remaining debris
+            $collectionAmount = new Resources(
+                (int)($debrisAfterAttackerCollection->metal->get() * $defenderDebrisCollectionPercentage),
+                (int)($debrisAfterAttackerCollection->crystal->get() * $defenderDebrisCollectionPercentage),
+                (int)($debrisAfterAttackerCollection->deuterium->get() * $defenderDebrisCollectionPercentage),
+                0
+            );
+
+            // Calculate defender Reaper cargo capacity
+            $reaperObject = ObjectService::getShipObjectByMachineName('reaper');
+            $defenderReaperCount = $battleResult->defenderUnitsResult->getAmountByMachineName('reaper');
+            $defenderReaperCargoCapacity = $reaperObject->properties->capacity->calculate($defenderPlanet->getPlayer())->totalValue * $defenderReaperCount;
+
+            // Limit collected debris to Reaper cargo capacity
+            if ($collectionAmount->sum() <= $defenderReaperCargoCapacity) {
+                $defenderCollectedDebris = $collectionAmount;
+            } else {
+                // Distribute the 30% debris amount across Reaper capacity
+                $defenderCollectedDebris = LootService::distributeLoot($collectionAmount, $defenderReaperCargoCapacity);
+            }
+
+            // Add collected debris to defender planet's resources
+            $defenderPlanet->addResources($defenderCollectedDebris);
+            $defenderPlanet->save();
+        }
+
+        // Total collected debris for battle report
+        $collectedDebris = new Resources(
+            $attackerCollectedDebris->metal->get() + $defenderCollectedDebris->metal->get(),
+            $attackerCollectedDebris->crystal->get() + $defenderCollectedDebris->crystal->get(),
+            $attackerCollectedDebris->deuterium->get() + $defenderCollectedDebris->deuterium->get(),
+            0
+        );
+
+        // Add debris to the field (minus what was collected by both attacker and defender Reapers)
         $remainingDebris = new Resources(
-            $battleResult->debris->metal->get() - $collectedDebris->metal->get(),
-            $battleResult->debris->crystal->get() - $collectedDebris->crystal->get(),
-            $battleResult->debris->deuterium->get() - $collectedDebris->deuterium->get(),
+            $debrisAfterAttackerCollection->metal->get() - $defenderCollectedDebris->metal->get(),
+            $debrisAfterAttackerCollection->crystal->get() - $defenderCollectedDebris->crystal->get(),
+            $debrisAfterAttackerCollection->deuterium->get() - $defenderCollectedDebris->deuterium->get(),
             0
         );
         $debrisFieldService->appendResources($remainingDebris);
@@ -225,19 +272,19 @@ class AttackMission extends GameMission
             ]);
 
             // Send full battle report to defender
-            $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult, $collectedDebris);
+            $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult, $collectedDebris, $attackerCollectedDebris, $defenderCollectedDebris);
             $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
         } else {
             // Normal behavior: send battle report to both attacker and defender
-            $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult, $collectedDebris);
+            $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult, $collectedDebris, $attackerCollectedDebris, $defenderCollectedDebris);
             // Send to attacker.
             $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
             // Send to defender.
             $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
         }
 
-        // Send Reaper auto-collection message if debris was collected
-        if ($collectedDebris->sum() > 0) {
+        // Send Reaper auto-collection message to attacker if debris was collected
+        if ($attackerCollectedDebris->sum() > 0) {
             $reaperObject = ObjectService::getShipObjectByMachineName('reaper');
             $reaperCount = $battleResult->attackerUnitsResult->getAmountByMachineName('reaper');
             $reaperCargoCapacity = $reaperObject->properties->capacity->calculate($attackerPlayer)->totalValue * $reaperCount;
@@ -249,12 +296,34 @@ class AttackMission extends GameMission
                 'ship_name' => $reaperObject->title,
                 'ship_amount' => $reaperCount,
                 'storage_capacity' => $reaperCargoCapacity,
-                'metal' => (int)($battleResult->debris->metal->get() * $debrisCollectionPercentage),
-                'crystal' => (int)($battleResult->debris->crystal->get() * $debrisCollectionPercentage),
-                'deuterium' => (int)($battleResult->debris->deuterium->get() * $debrisCollectionPercentage),
-                'harvested_metal' => $collectedDebris->metal->get(),
-                'harvested_crystal' => $collectedDebris->crystal->get(),
-                'harvested_deuterium' => $collectedDebris->deuterium->get(),
+                'metal' => (int)($battleResult->debris->metal->get() * $attackerDebrisCollectionPercentage),
+                'crystal' => (int)($battleResult->debris->crystal->get() * $attackerDebrisCollectionPercentage),
+                'deuterium' => (int)($battleResult->debris->deuterium->get() * $attackerDebrisCollectionPercentage),
+                'harvested_metal' => $attackerCollectedDebris->metal->get(),
+                'harvested_crystal' => $attackerCollectedDebris->crystal->get(),
+                'harvested_deuterium' => $attackerCollectedDebris->deuterium->get(),
+            ]);
+        }
+
+        // Send Reaper auto-collection message to defender if debris was collected
+        if ($defenderCollectedDebris->sum() > 0) {
+            $reaperObject = ObjectService::getShipObjectByMachineName('reaper');
+            $defenderReaperCount = $battleResult->defenderUnitsResult->getAmountByMachineName('reaper');
+            $defenderReaperCargoCapacity = $reaperObject->properties->capacity->calculate($defenderPlanet->getPlayer())->totalValue * $defenderReaperCount;
+
+            $this->messageService->sendSystemMessageToPlayer($defenderPlanet->getPlayer(), \OGame\GameMessages\DebrisFieldHarvest::class, [
+                'from' => '[planet]' . $defenderPlanet->getPlanetId() . '[/planet]',
+                'to' => '[debrisfield]' . $defenderPlanet->getPlanetCoordinates()->asString(). '[/debrisfield]',
+                'coordinates' => '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]',
+                'ship_name' => $reaperObject->title,
+                'ship_amount' => $defenderReaperCount,
+                'storage_capacity' => $defenderReaperCargoCapacity,
+                'metal' => (int)($debrisAfterAttackerCollection->metal->get() * $defenderDebrisCollectionPercentage),
+                'crystal' => (int)($debrisAfterAttackerCollection->crystal->get() * $defenderDebrisCollectionPercentage),
+                'deuterium' => (int)($debrisAfterAttackerCollection->deuterium->get() * $defenderDebrisCollectionPercentage),
+                'harvested_metal' => $defenderCollectedDebris->metal->get(),
+                'harvested_crystal' => $defenderCollectedDebris->crystal->get(),
+                'harvested_deuterium' => $defenderCollectedDebris->deuterium->get(),
             ]);
         }
 
@@ -289,11 +358,11 @@ class AttackMission extends GameMission
             0
         );
 
-        // Total resources = remaining mission resources + remaining loot + collected debris (from Reapers)
+        // Total resources = remaining mission resources + remaining loot + collected debris (from attacker Reapers)
         $totalResources = new Resources(
-            $remainingResources->metal->get() + $remainingLoot->metal->get() + $collectedDebris->metal->get(),
-            $remainingResources->crystal->get() + $remainingLoot->crystal->get() + $collectedDebris->crystal->get(),
-            $remainingResources->deuterium->get() + $remainingLoot->deuterium->get() + $collectedDebris->deuterium->get(),
+            $remainingResources->metal->get() + $remainingLoot->metal->get() + $attackerCollectedDebris->metal->get(),
+            $remainingResources->crystal->get() + $remainingLoot->crystal->get() + $attackerCollectedDebris->crystal->get(),
+            $remainingResources->deuterium->get() + $remainingLoot->deuterium->get() + $attackerCollectedDebris->deuterium->get(),
             0
         );
 
@@ -336,10 +405,12 @@ class AttackMission extends GameMission
      * @param PlayerService $attackPlayer The player who initiated the attack.
      * @param PlanetService $defenderPlanet The planet that was attacked.
      * @param BattleResult $battleResult The result of the battle.
-     * @param Resources $collectedDebris Debris collected automatically by Reaper ships.
+     * @param Resources $collectedDebris Total debris collected automatically by Reaper ships (attacker + defender).
+     * @param Resources $attackerCollectedDebris Debris collected by attacker's Reaper ships.
+     * @param Resources $defenderCollectedDebris Debris collected by defender's Reaper ships.
      * @return int
      */
-    private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet, BattleResult $battleResult, Resources $collectedDebris): int
+    private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet, BattleResult $battleResult, Resources $collectedDebris, Resources $attackerCollectedDebris, Resources $defenderCollectedDebris): int
     {
         // Create new battle report record.
         $report = new BattleReport();
@@ -390,6 +461,12 @@ class AttackMission extends GameMission
             'collected_metal' => $collectedDebris->metal->get(),
             'collected_crystal' => $collectedDebris->crystal->get(),
             'collected_deuterium' => $collectedDebris->deuterium->get(),
+            'attacker_collected_metal' => $attackerCollectedDebris->metal->get(),
+            'attacker_collected_crystal' => $attackerCollectedDebris->crystal->get(),
+            'attacker_collected_deuterium' => $attackerCollectedDebris->deuterium->get(),
+            'defender_collected_metal' => $defenderCollectedDebris->metal->get(),
+            'defender_collected_crystal' => $defenderCollectedDebris->crystal->get(),
+            'defender_collected_deuterium' => $defenderCollectedDebris->deuterium->get(),
         ];
 
         $report->repaired_defenses = $battleResult->repairedDefenses->toArray();
