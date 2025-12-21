@@ -26,7 +26,7 @@ class HamillManoeuvreTest extends AccountTestCase
         // Set up General class player
         $player = $this->planetService->getPlayer();
         $user = $player->getUser();
-        $user->character_class = 'general';
+        $user->character_class = 2; // General class
         $user->save();
 
         // Set Hamill Manoeuvre probability to 100% for testing (1 in 1)
@@ -70,7 +70,7 @@ class HamillManoeuvreTest extends AccountTestCase
         // Set up Collector class player
         $player = $this->planetService->getPlayer();
         $user = $player->getUser();
-        $user->character_class = 'collector';
+        $user->character_class = 1; // Collector class
         $user->save();
 
         // Set Hamill Manoeuvre probability to 100% for testing
@@ -113,7 +113,7 @@ class HamillManoeuvreTest extends AccountTestCase
         // Set up General class player
         $player = $this->planetService->getPlayer();
         $user = $player->getUser();
-        $user->character_class = 'general';
+        $user->character_class = 2; // General class
         $user->save();
 
         // Set Hamill Manoeuvre probability to 100% for testing
@@ -156,7 +156,7 @@ class HamillManoeuvreTest extends AccountTestCase
         // Set up General class player
         $player = $this->planetService->getPlayer();
         $user = $player->getUser();
-        $user->character_class = 'general';
+        $user->character_class = 2; // General class
         $user->save();
 
         // Set Hamill Manoeuvre probability to 100% for testing
@@ -196,7 +196,7 @@ class HamillManoeuvreTest extends AccountTestCase
         // Set up General class player
         $player = $this->planetService->getPlayer();
         $user = $player->getUser();
-        $user->character_class = 'general';
+        $user->character_class = 2; // General class
         $user->save();
 
         // Set Hamill Manoeuvre probability to 100% for testing
