@@ -114,6 +114,14 @@ class WreckField extends Model
     }
 
     /**
+     * Check if the wreck field is burned.
+     */
+    public function isBurned(): bool
+    {
+        return $this->status === 'burned';
+    }
+
+    /**
      * Get the time remaining until the wreck field expires.
      */
     public function getTimeRemaining(): int

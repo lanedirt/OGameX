@@ -483,6 +483,12 @@ class WreckFieldService
             return null;
         }
 
+        // Check if wreck field is burned
+        if ($wreckField->isBurned()) {
+            \Log::info('WreckField is burned');
+            return null;
+        }
+
         // Get ship information without unit objects for now
         $shipData = [];
 

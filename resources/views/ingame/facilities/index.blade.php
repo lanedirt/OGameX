@@ -648,14 +648,15 @@
                 // Clear existing timers
                 clearWreckFieldTimers();
 
+                // Remove any existing wreck field elements first to ensure clean state
+                $description.find('.complex_action').remove();
+                $description.find('#wreckFieldSection').remove();
+
                 if (!wreckFieldData) {
                     // No wreck field available - don't add anything to description
                     console.log('No wreck field found - not adding section to description');
                     return;
                 }
-
-                // Remove any existing wreck field elements
-                $description.find('.complex_action').remove();
 
                 // Calculate totals for display
                 const totalShips = wreckFieldData.ship_data.reduce((sum, ship) => sum + ship.quantity, 0);
@@ -903,6 +904,36 @@
             // Function to start repairs directly from space dock
             function startWreckFieldRepairs() {
                 startRepairs();
+            }
+
+            // Function to burn up wreck field
+            function burnUpWreckField() {
+                $.ajax({
+                    url: "{{ route('facilities.burnwreckfield') }}",
+                    method: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            fadeBox(response.message, false);
+                            // Clean up wreck field interface immediately and reload page
+                            setTimeout(function() {
+                                // Clear timers and remove wreck field elements directly
+                                clearWreckFieldTimers();
+                                $('.technology_description').find('.complex_action').remove();
+                                $('.technology_description').find('#wreckFieldSection').remove();
+                                // Reload the page to refresh everything
+                                location.reload();
+                            }, 500);
+                        } else {
+                            fadeBox(response.message, true);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        fadeBox('Error burning up wreck field', true);
+                    }
+                });
             }
 
   
