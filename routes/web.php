@@ -48,7 +48,7 @@ use OGame\Http\Controllers\CharacterClassController;
 Route::redirect('/', '/overview', 301);
 
 // Group: all logged in pages:
-Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
+Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(function () {
     // Overview
     Route::get('/overview', [OverviewController::class, 'index'])->name('overview.index');
 
