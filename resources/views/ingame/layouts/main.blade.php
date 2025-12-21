@@ -108,6 +108,8 @@
             }
         }, 1);
     </script>
+
+    <!-- Removed all custom close button CSS to restore normal jQuery UI behavior -->
 </head>
 <body id="{{ !empty($body_id) ? $body_id : 'ingamepage' }}" class="ogame lang-en default no-touch">
 <div id="initial_welcome_dialog" title="Welcome to OGame!" style="display: none;">
@@ -394,7 +396,7 @@ Combat simulation save slots +20">
                     @endforeach
                 </div>
 
-                <div id="attack_alert" class="@if ($underAttack) soon @elseif (!empty($playerWreckFields)) wreckField @else noAttack @endif"
+                <div id="attack_alert" class="@if ($underAttack) soon @elseif (!empty($playerWreckFields) && !$underAttack) wreckField @else noAttack @endif"
                      @if ($underAttack) title="@lang('You are under attack!')" @endif>
                     @if ($underAttack)
                         <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
@@ -467,8 +469,20 @@ Combat simulation save slots +20">
                             $shipTooltipContent .= 'No wreck field available';
                         }
                     @endphp
-                    <a href="javascript:void(0);" onclick="openWreckFieldDetailsPopup();" class="tooltip js_hideTipOnMobile overlay" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px" title="{{ $shipTooltipContent }}"></a>
+                    @php
+                    // Check if wreck field is active (not being repaired or burned)
+                    $isWreckFieldActive = false;
+                    if ($timeRemaining > 0 && !empty($playerWreckFields[0])) {
+                        $wreckField = $playerWreckFields[0]['wreckField'] ?? null;
+                        if ($wreckField) {
+                            $isWreckFieldActive = $wreckField->status === 'active';
+                        }
+                    }
+                    @endphp
+                    @if ($isWreckFieldActive)
+                    <a href="javascript:void(0);" class="wreckFieldIcon tooltip js_hideTipOnMobile" onclick="openWreckFieldDetailsPopup(); return false;" title="{{ $shipTooltipContent }}" style="cursor: pointer;"></a>
                             <span id="wreckFieldCountDown" class="wreckFieldCountDown" data-duration="{{ $timeRemaining }}" title="">{{ $timeText }}</span>
+                    @endif
                                                         <script>
                             // Initialize wreck field countdown if not already done
                             if (typeof window.simpleCountdown !== 'undefined') {
@@ -937,52 +951,260 @@ Combat simulation save slots +20">
                         timeDisplay = `${days}d ${hours}h ${minutes}m`;
                     }
 
+                    // Create proper popup content matching facilities page
+                    let shipHtml = '';
+                    if (wreckFieldData.ship_data && wreckFieldData.ship_data.length > 0) {
+                        wreckFieldData.ship_data.forEach(ship => {
+                            // Debug: log the actual machine name to see what we're getting
+                            console.log('Ship machine_name:', ship.machine_name);
+
+                            const shipName = ship.machine_name ? ship.machine_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown Ship';
+                            const quantity = ship.quantity || 0;
+                            const repairTime = '32m 0s'; // TODO: Calculate based on ship count and dock level
+
+                            // Map machine names to ship IDs for CSS background positioning
+                            const shipIdMap = {
+                                'fighter_light': '204',
+                                'light_fighter': '204',
+                                'fighter_heavy': '205',
+                                'heavy_fighter': '205',
+                                'cruiser': '206',
+                                'battleship': '207',
+                                'battle_ship': '207',
+                                'battlecruiser': '215',
+                                'interceptor': '215',
+                                'bomber': '211',
+                                'destroyer': '213',
+                                'deathstar': '214',
+                                'reaper': '218',
+                                'explorer': '212',
+                                'transporter_small': '202',
+                                'small_cargo': '202',
+                                'transporter_large': '203',
+                                'large_cargo': '203',
+                                'colony_ship': '208',
+                                'recycler': '209',
+                                'espionage_probe': '210',
+                                'solar_satellite': '212'
+                            };
+
+                            const shipId = shipIdMap[ship.machine_name] || '204';
+                            console.log('Mapped machine_name:', ship.machine_name, 'to shipId:', shipId);
+
+                            shipHtml += `
+                                <div class="tooltip fleft ships" id="ship${shipId}" title="${shipName}">
+                                    <span class="ecke">
+                                        <span class="level">${quantity}</span>
+                                    </span>
+                                    <div class="repairTime">
+                                        <span style="color: whitesmoke">${repairTime}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+
                     const popupContent = `
-                        <div class="repairlayer" style="width: 656px; background: url('https://gf2.geo.gfsrv.net/cdn13/e9f54b10dc4e1140ce090106d2f528.jpg') 100% 0% rgb(0, 0, 0);">
+                        <div id="repairlayer">
                             <div class="repairableShips">
-                                <span class="wreck_field">
-                                    ${timeDisplay ? `Wreckage burns up in: <time class="value countdown">${timeDisplay}</time>` : 'Wreckage available for repair'}
-                                </span>
+                                <div>
+                                    <div class="descriptionText">Electronic charges flicker through defective drive units, atmosphere escapes from the wrecks of destroyed ships and is released into space. Huge gaping holes can be seen in the burned out hulls and empty escape capsules whirl around the room. So many ships have fallen victim to the great battle!
+
+However, the Space Dock's engineers think that some of the remains can be salvaged, before the wreckage enters the atmosphere and ultimately burns up. The repair crews are ready.</div>
+                                    <div class="rightArea">
+                                        <div class="boxed">
+                                            <p>Wreckage burns up in: </p>
+                                            <p id="burnUpCountDownForRepairOverlay" data-duration="${timeRemaining}">${timeDisplay}</p>
+                                        </div>
+                                        <br>
+                                        ${!wreckFieldData.is_repairing && !wreckFieldData.is_completed && wreckFieldData.can_repair ?
+                                        `<div class="btn btn_dark fright burnUpButton">
+                                            <input type="button" class="overmark burnUpButton" value="Leave to burn up" data-loca_box_text="Leave to burn up" data-loca_decision_text="The wreckage will descend into the planet's atmosphere and burn up. Once struck, a repair will no longer be possible. Are you sure you want to burn up the wreckage?" data-loca_yes="yes" data-loca_no="No" onclick="goToSpaceDockAndBurnUp();">
+                                        </div>` : ''
+                    }
+                                    </div>
+                                </div>
                                 <div class="clearfix"></div>
                                 <br>
-                                <hr>
-                                <span class="repair_order">
-                                    Repairable Ships: <a href="javascript:void(0);" class="value">${shipCount} Ships</a>
-                                </span>
-                                <div id="wreckfield-btns">
-                                    <a href="javascript:void(0);" onclick="goToSpaceDockAndBurnUp();" class="btn btn_dark overmark burn_up">Leave to burn up</a>
-                                    <a href="javascript:void(0);" onclick="goToSpaceDockAndRepair();" class="btn btn_dark undermark repair">Start repairs</a>
+                                <h3>Repairable ships:</h3>
+                                <div class="ships_wrapper clearfix">
+                                    ${shipHtml}
+                                    <div class="clearfix"></div>
+                                    <br>
+                                    <label>Repair time: </label><span id="repairTime">${wreckFieldData.remaining_repair_time > 0 ? Math.floor(wreckFieldData.remaining_repair_time / 60) + 'm ' + (wreckFieldData.remaining_repair_time % 60) + 's' : '32m 0s'}</span>
+                                    ${wreckFieldData.is_repairing ?
+                                        `<div class="btn btn_dark fright">
+                                            <input type="button" class="middlemark" value="Repairs in progress (${wreckFieldData.repair_progress}%)" disabled>
+                                        </div>` :
+                                        wreckFieldData.is_completed ?
+                                        `<div class="btn btn_dark fright">
+                                            <input type="button" class="middlemark" value="Repairs completed - Collect ships" onclick="location.href='{{ route('facilities.index') }}';">
+                                        </div>` :
+                                        `<div class="btn btn_dark fright startRepairsButton">
+                                            <input type="button" class="middlemark startRepairsButton" value="Start repairs" onclick="goToSpaceDockAndRepair();">
+                                        </div>`
+                                    }
                                 </div>
                             </div>
                         </div>
                     `;
 
-                    // Show popup
-                    if (typeof showDialog === 'function') {
-                        showDialog('Space Dock', popupContent, 656);
-                    } else {
-                        // Fallback: show as alert
-                        alert(`Wreck Field: ${shipCount} ships available${timeDisplay ? ' - Burns up in ' + timeDisplay : ''}`);
+                    // Create jQuery UI dialog with proper background styling
+                    const $dialog = $('<div>')
+                        .addClass('overlayDiv repairlayer')
+                        .html(popupContent)
+                        .dialog({
+                            modal: false,
+                            resizable: false,
+                            draggable: true,
+                            width: 656,
+                            title: 'Wreckage',
+                            dialogClass: 'repairlayer',
+                            closeOnEscape: true,
+                            close: function() {
+                                $(this).dialog('destroy').remove();
+                            },
+                            open: function() {
+                                // Remove any duplicate close buttons that might be created
+                                $(this).parent().find('.ui-dialog-titlebar-close').not(':first').remove();
+
+                                // Add CSS to hide close text more aggressively
+                                $('<style>')
+                                    .prop('type', 'text/css')
+                                    .html(`
+                                        .ui-dialog-titlebar-close *:not(.ui-icon):not([class*="ui-icon"]) {
+                                            display: none !important;
+                                            visibility: hidden !important;
+                                        }
+                                        .ui-dialog-titlebar-close span:not(.ui-icon) {
+                                            display: none !important;
+                                            visibility: hidden !important;
+                                        }
+                                        .ui-dialog-titlebar-close .ui-button-text {
+                                            display: none !important;
+                                        }
+                                        .ui-dialog-titlebar .ui-dialog-titlebar-close ~ span,
+                                        .ui-dialog-titlebar span:has(~ .ui-dialog-titlebar-close),
+                                        .ui-dialog-titlebar span:not(.ui-icon) {
+                                            display: none !important;
+                                        }
+                                        /* Target the specific close text element */
+                                        .ui-dialog-titlebar-close .ui-button-icon-space,
+                                        .ui-dialog-titlebar-close span.ui-button-icon-space,
+                                        .ui-dialog-titlebar-close span:contains("Close") {
+                                            display: none !important;
+                                            visibility: hidden !important;
+                                            font-size: 0 !important;
+                                            width: 0 !important;
+                                            height: 0 !important;
+                                        }
+                                    `)
+                                    .appendTo('head');
+
+                                // Hide any close text that might be appearing - more aggressive approach
+                                $(this).parent().find('.ui-dialog-titlebar-close').contents().each(function() {
+                                    if (this.nodeType === 3) {
+                                        var text = $.trim(this.nodeValue).toLowerCase();
+                                        if (text === 'close' || text.includes('close')) {
+                                            $(this).wrap('<span style="display: none !important; visibility: hidden !important;"></span>');
+                                        }
+                                    }
+                                });
+
+                                <!-- Removed all aggressive close button JavaScript to restore normal jQuery UI behavior -->
+                            }
+                        });
+
+                    // Initialize countdown timer if present
+                    if (timeRemaining > 0 && typeof window.simpleCountdown !== 'undefined') {
+                        const $countdown = $('#burnUpCountDownForRepairOverlay');
+                        if ($countdown.length) {
+                            new simpleCountdown($countdown, $countdown.data('duration'), null);
+                        }
                     }
                 }
 
                 // Functions for popup actions
                 function goToSpaceDockAndBurnUp() {
-                    openFacilitiesSpaceDock();
-                    setTimeout(() => {
-                        if (typeof burnWreckField === 'function') {
-                            burnWreckField();
+                    // Show confirmation dialog first
+                    errorBoxDecision(
+                        "Leave to burn up",
+                        "The wreckage will descend into the planet's atmosphere and burn up. Once struck, a repair will no longer be possible. Are you sure you want to burn up the wreckage?",
+                        "yes",
+                        "No",
+                        function() {
+                            // User confirmed, proceed with burn up
+                            $.ajax({
+                                url: "{{ route('facilities.burnwreckfield') }}",
+                                method: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        fadeBox(response.message, false);
+                                        // Close the dialog
+                                        $('.ui-dialog:has(.repairlayer)').find('.ui-dialog-titlebar-close').click();
+                                    } else {
+                                        fadeBox(response.message || 'Error burning up wreck field', true);
+                                    }
+                                },
+                                error: function() {
+                                    fadeBox('Error burning up wreck field', true);
+                                }
+                            });
+                        },
+                        function() {
+                            // User cancelled, do nothing
                         }
-                    }, 2000);
+                    );
                 }
 
                 function goToSpaceDockAndRepair() {
-                    openFacilitiesSpaceDock();
-                    setTimeout(() => {
-                        if (typeof startRepairs === 'function') {
-                            startRepairs();
+                    // Start repairs directly via AJAX
+                    $.ajax({
+                        url: '{{ route("facilities.startrepairs") }}',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                // Show success message
+                                fadeBox('Repairs started successfully!');
+                                // Close the dialog to prevent confusion
+                                $('.ui-dialog:has(.repairlayer)').find('.ui-dialog-titlebar-close').click();
+
+                                // Redirect to facilities page to show repair progress
+                                setTimeout(() => {
+                                    location.href = "{{ route('facilities.index') }}?openSpaceDock=1";
+                                }, 500);
+                            } else {
+                                // Show error message
+                                fadeBox(response.message || 'Error starting repairs', true);
+                            }
+                        },
+                        error: function(xhr) {
+                            // Show error message on AJAX failure
+                            console.error('AJAX error:', xhr.status, xhr.statusText);
+                            console.error('Response text:', xhr.responseText);
+
+                            // Try to parse JSON if we get a 400 response with JSON body
+                            let errorMsg = 'Error starting repairs: ' + xhr.status;
+                            if (xhr.status === 400 && xhr.responseText) {
+                                try {
+                                    const jsonResponse = JSON.parse(xhr.responseText);
+                                    if (jsonResponse.message) {
+                                        errorMsg = jsonResponse.message;
+                                    }
+                                } catch (e) {
+                                    // If parsing fails, fall back to default error
+                                }
+                            }
+
+                            fadeBox(errorMsg, true);
                         }
-                    }, 2000);
+                    });
                 }
 
                 reloadResources({
@@ -1467,7 +1689,7 @@ Combat simulation save slots +20">
                                         }
                                     @endphp
 
-                                    @if ($wreckField)
+                                    @if ($wreckField && $wreckField->status === 'active')
                                         @php
                                             $hasSpaceDock = $currentPlayer->planets->current()->getObjectLevel('space_dock') > 0;
                                             $isOwner = $wreckField->owner_player_id === $currentPlayer->getId();

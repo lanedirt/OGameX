@@ -352,8 +352,28 @@
             };
 
             window.collectRepairedShips = function() {
-                $.post('{{ route('facilities.completerepairs') }}', {
-                    _token: '{{ csrf_token() }}'
+                console.log('collectRepairedShips called - this should be my custom function');
+
+                // Get fresh CSRF token from meta tag
+                const token = $('meta[name="csrf-token"]').attr('content') || '{{ csrf_token() }}';
+                console.log('Using CSRF token:', token ? token.substring(0, 10) + '...' : 'no token');
+
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': token
+                    }
+                });
+
+                $.ajax({
+                    url: '{{ route('facilities.completerepairs') }}',
+                    method: 'POST',
+                    data: {
+                        _token: token
+                    },
+                    dataType: 'json',
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('X-CSRF-TOKEN', token);
+                    }
                 })
                 .done(function(response) {
                     if (response.success) {
@@ -534,9 +554,22 @@
                                     <br>
                     `;
 
-                    // Add completion time if repairs are in progress
-                    if (wreckFieldData.remaining_repair_time > 0) {
-                        const completionTime = new Date(Date.now() + wreckFieldData.remaining_repair_time * 1000);
+                    // Add repair time countdown if repairs are in progress
+                    if (wreckFieldData.is_repairing && wreckFieldData.remaining_repair_time > 0) {
+                        // Format time to only show hours, minutes, seconds (no days)
+                        const remainingTime = wreckFieldData.remaining_repair_time;
+                        const hours = Math.floor(remainingTime / 3600);
+                        const minutes = Math.floor((remainingTime % 3600) / 60);
+                        const seconds = remainingTime % 60;
+                        const timeDisplay = `${hours}h ${minutes}m ${seconds}s`;
+
+                        overlayHtml += `
+                            <p>Repair time remaining: <span id="repairTimeCountDownForRepairOverlay" data-duration="${remainingTime}">${timeDisplay}</span></p>
+                        `;
+                    }
+                    // Add auto-return message if repairs are completed but not collected
+                    else if (wreckFieldData.is_completed) {
+                        const completionTime = new Date(Date.now() + (3 * 24 * 60 * 60 * 1000)); // 3 days from now
                         const formattedDate = completionTime.toLocaleDateString('en-GB', {
                             day: '2-digit',
                             month: '2-digit',
@@ -552,22 +585,25 @@
                         `;
                     }
 
-                    // Add the "Put ships that are already repaired back into service" button
-                    overlayHtml += `
-                        <div class="btn btn_dark fright reCommissionButton">
-                            <input type="button" class="middlemark reCommissionButton" value="Put ships that are already repaired back into service" onclick="collectRepairedShips(); closeOverlay();">
-                        </div>
-                    `;
+                    // Add collect button if ships are ready (allow partial collection after 30 minutes)
+                    const repairProgress = wreckFieldData.repair_progress || 0;
+                    const minRepairTime = 30 * 60; // 30 minutes
+                    var timeSinceRepairStart = 0;
+                    if (wreckFieldData.repair_started_at) {
+                        const repairStartTime = new Date(wreckFieldData.repair_started_at);
+                        timeSinceRepairStart = Math.floor((Date.now() - repairStartTime) / 1000);
+                    }
+                    const minTimePassed = timeSinceRepairStart >= minRepairTime;
 
-                    // Add collect button if ships are ready
                     const totalRepaired = wreckFieldData.ship_data.reduce((sum, ship) => {
-                        return sum + Math.floor((ship.quantity * (ship.repair_progress || 0)) / 100);
+                        return sum + Math.floor((ship.quantity * repairProgress) / 100);
                     }, 0);
 
-                    if (totalRepaired > 0) {
+                    // Enable collection after 30 minutes if any ships are repaired
+                    if (totalRepaired > 0 && minTimePassed) {
                         overlayHtml += `
-                            <div class="btn btn_dark fright reCommissionButton">
-                                <input type="button" class="middlemark reCommissionButton" value="Put ships that are already repaired back into service" onclick="collectRepairedShips(); closeOverlay();">
+                            <div class="btn btn_dark fright wreckfield-collect-btn-overlay">
+                                <input type="button" class="middlemark wreckfield-collect-btn-overlay-input" value="Put ships that are already repaired back into service" onclick="collectRepairedShips(); closeOverlay();">
                             </div>
                         `;
                     }
@@ -589,6 +625,42 @@
                         modal: true,
                         resizable: false,
                         dialogClass: 'repairlayer-dialog',
+                        open: function() {
+                            // Initialize custom countdown timer for repair time
+                            var $countdown = $('#repairTimeCountDownForRepairOverlay');
+                            if ($countdown.length) {
+                                var duration = $countdown.data('duration');
+
+                                // Clear any existing interval
+                                var existingInterval = $countdown.data('countdownInterval');
+                                if (existingInterval) {
+                                    clearInterval(existingInterval);
+                                }
+
+                                // Create new countdown interval
+                                var interval = setInterval(function() {
+                                    if (duration <= 0) {
+                                        $countdown.text('0h 0m 0s');
+                                        clearInterval(interval);
+                                        return;
+                                    }
+
+                                    // Calculate hours, minutes, seconds
+                                    var hours = Math.floor(duration / 3600);
+                                    var minutes = Math.floor((duration % 3600) / 60);
+                                    var seconds = duration % 60;
+
+                                    $countdown.text(hours + 'h ' + minutes + 'm ' + seconds + 's');
+                                    duration--;
+
+                                    // Update the data-duration attribute
+                                    $countdown.data('duration', duration);
+                                }, 1000);
+
+                                // Store the interval reference
+                                $countdown.data('countdownInterval', interval);
+                            }
+                        },
                         close: function() {
                             $(this).dialog('destroy').remove();
                         }
@@ -658,10 +730,11 @@
                     return;
                 }
 
-                // Calculate totals for display
+                // Calculate totals for display (use real-time progress like overlay)
                 const totalShips = wreckFieldData.ship_data.reduce((sum, ship) => sum + ship.quantity, 0);
+                const repairProgress = wreckFieldData.repair_progress || 0;
                 const repairedShips = wreckFieldData.ship_data.reduce((sum, ship) => {
-                    return sum + Math.floor((ship.quantity * (ship.repair_progress || 0)) / 100);
+                    return sum + Math.floor((ship.quantity * repairProgress) / 100);
                 }, 0);
 
                 // Create the exact HTML structure from OGame
@@ -703,14 +776,54 @@
 
                     var $wreckfieldBtns = $('<div id="wreckfield-btns"></div>');
 
-                    // Only enable collect button if there are actually ships to collect
-                    const collectEnabled = repairedShips > 0;
+                    // Check collection constraints (same as backend)
+                    const minRepairTime = 30 * 60; // 30 minutes in seconds
+                    const repairProgress = wreckFieldData.repair_progress || 0;
+
+                    // Check if at least 30 minutes have passed since repairs started
+                    var timeSinceRepairStart = 0;
+                    if (wreckFieldData.repair_started_at) {
+                        const repairStartTime = new Date(wreckFieldData.repair_started_at);
+                        timeSinceRepairStart = Math.floor((Date.now() - repairStartTime) / 1000);
+                    }
+
+                    const minTimePassed = timeSinceRepairStart >= minRepairTime;
+                    const hasRepairedShips = repairedShips > 0;
+
+                    // Complex action: Only enable when repairs are 100% complete
+                    const repairsComplete = wreckFieldData.is_completed || repairProgress >= 100;
+                    const collectEnabled = repairsComplete && hasRepairedShips;
+
+                    // Debug logging
+                    console.log('Complex action collection check:', {
+                        'timeSinceRepairStart': timeSinceRepairStart,
+                        'minRepairTime': minRepairTime,
+                        'minTimePassed': minTimePassed,
+                        'repairProgress': repairProgress,
+                        'repairedShips': repairedShips,
+                        'hasRepairedShips': hasRepairedShips,
+                        'repairsComplete': repairsComplete,
+                        'collectEnabled': collectEnabled
+                    });
+
+                    // Create tooltip explaining why button is disabled
+                    var collectButtonTooltip = '';
+                    if (!collectEnabled) {
+                        if (wreckFieldData.is_repairing) {
+                            collectButtonTooltip = 'Repairs are still in progress. Use the Details window for partial collection.';
+                        } else if (!hasRepairedShips) {
+                            collectButtonTooltip = 'No ships repaired yet';
+                        } else {
+                            collectButtonTooltip = 'Repairs must be completed to collect ships from here.';
+                        }
+                    }
+
                     const collectButtonStyle = collectEnabled ? '' : 'opacity: 0.5; cursor: not-allowed;';
                     const collectButtonOnclick = collectEnabled ? 'onclick="collectRepairedShips()"' : 'disabled=""';
 
                     var $collectBtn = $(`
-                        <button class="recomission" ${collectButtonOnclick}>
-                            <span class="btn btn_dark tooltip middlemark" title="" style="${collectButtonStyle}">Collect</span>
+                        <button class="wreckfield-collect-btn" ${collectButtonOnclick}>
+                            <span class="btn btn_dark tooltip middlemark" title="${collectButtonTooltip}" style="${collectButtonStyle}">Collect</span>
                         </button>
                     `);
                     var $detailsBtn = $('<a class="btn btn_dark undermark fright" href="javascript:void(0);" onclick="showWreckFieldDetails(); return false;">Details</a>');
@@ -1002,6 +1115,44 @@
             })
             technologyDetails.init()
         </script>
+
+        <style>
+        /* Custom styling for wreck field collect button */
+        #technologydetails > .complex_action.nowreckfield_repairorder > button.wreckfield-collect-btn,
+        #technologydetails > .complex_action.wreckfield_repairorder > button.wreckfield-collect-btn {
+            background: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        #technologydetails > .complex_action.nowreckfield_repairorder > button.wreckfield-collect-btn:hover,
+        #technologydetails > .complex_action.wreckfield_repairorder > button.wreckfield-collect-btn:hover {
+            background: transparent;
+            border: none;
+        }
+
+        #technologydetails > .complex_action.nowreckfield_repairorder > button.wreckfield-collect-btn:disabled,
+        #technologydetails > .complex_action.wreckfield_repairorder > button.wreckfield-collect-btn[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        #technologydetails > .complex_action.nowreckfield_repairorder > button.wreckfield-collect-btn:disabled span,
+        #technologydetails > .complex_action.wreckfield_repairorder > button.wreckfield-collect-btn[disabled] span {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Also style overlay buttons */
+        .wreckfield-collect-btn-overlay input:disabled,
+        .wreckfield-collect-btn-overlay-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        </style>
     </div>
     {{-- openTech querystring parameter handling --}}
     @include ('ingame.shared.technology.open-tech', ['open_tech_id' => $open_tech_id])

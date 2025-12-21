@@ -519,6 +519,7 @@ class WreckFieldService
             'is_completed' => $wreckField->isCompleted(),
             'repair_progress' => $wreckField->getRepairProgress(),
             'repair_completion_time' => $wreckField->getRepairCompletionTime(),
+            'repair_started_at' => $wreckField->repair_started_at,
             'remaining_repair_time' => $wreckField->getRepairCompletionTime() ?
                 max(0, $wreckField->getRepairCompletionTime()->timestamp - now()->timestamp) : 0,
         ];

@@ -183,14 +183,14 @@ class FacilitiesController extends AbstractBuildingsController
                 'newAjaxToken' => csrf_token(),
                 'message' => 'Repairs started successfully',
                 'wreckField' => $updatedData,
-            ]);
+            ])->header('Content-Type', 'application/json');
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'error' => true,
                 'message' => $e->getMessage(),
                 'newAjaxToken' => csrf_token(),
-            ]);
+            ])->setStatusCode(400)->header('Content-Type', 'application/json');
         }
     }
 
@@ -204,6 +204,7 @@ class FacilitiesController extends AbstractBuildingsController
     public function completeRepairs(Request $request, PlayerService $player): JsonResponse
     {
         try {
+            // Temporarily remove debug logging to reduce potential issues
             $planetService = $player->planets->current();
 
             // Create a new WreckFieldService instance with the correct player
@@ -219,48 +220,115 @@ class FacilitiesController extends AbstractBuildingsController
                 ]);
             }
 
-            if (!$wreckField['is_completed']) {
+            // Calculate overall repair progress and check if any ships should be considered "repaired"
+            $overallProgress = $wreckField['repair_progress'] ?? 0;
+
+            // Check if repairs have been running for at least the minimum time (30 minutes)
+            $minRepairTime = 30 * 60; // 30 minutes in seconds
+            $wreckFieldModel = $wreckField['wreck_field'];
+            $repairStartedAt = $wreckFieldModel->repair_started_at ?? null;
+
+            if (!$repairStartedAt) {
                 return response()->json([
                     'success' => false,
                     'error' => true,
-                    'message' => 'Repairs are not yet completed',
+                    'message' => 'Repairs have not been started yet',
                     'newAjaxToken' => csrf_token(),
-                ]);
+                ])->setStatusCode(400)->header('Content-Type', 'application/json');
             }
 
-            // Load the wreck field to complete repairs
+            $elapsedTime = now()->diffInSeconds($repairStartedAt);
+
+            if ($elapsedTime < $minRepairTime) {
+                $remainingTime = $minRepairTime - $elapsedTime;
+                $minutes = ceil($remainingTime / 60);
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'Repairs must run for at least 30 minutes before any ships can be collected. ' . $minutes . ' minutes remaining.',
+                    'newAjaxToken' => csrf_token(),
+                ])->setStatusCode(400)->header('Content-Type', 'application/json');
+            }
+
+            // After 30 minutes, allow collection of whatever ships have been repaired so far
+            // No additional progress threshold required beyond the minimum time
+
+            // Load the wreck field to collect completed repairs
             $wreckFieldService->loadForCoordinates($planetService->getPlanetCoordinates());
 
-            $repairedShips = $wreckFieldService->completeRepairs();
+            // Get current wreck field model
+            $wreckFieldModelForUpdate = $wreckFieldService->getWreckField();
+            if (!$wreckFieldModelForUpdate) {
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'Wreck field not found',
+                    'newAjaxToken' => csrf_token(),
+                ])->setStatusCode(400)->header('Content-Type', 'application/json');
+            }
 
-            // Add repaired ships to planet
-            $unitFactory = app(UnitFactory::class);
-            foreach ($repairedShips as $ship) {
-                if ($ship['repair_progress'] >= 100) {
+            $currentShipData = $wreckFieldModelForUpdate->ship_data ?? [];
+            $collectedShips = [];
+            $remainingShips = [];
+
+            // Calculate repaired ships based on overall repair progress
+            $overallProgress = ($wreckField['repair_progress'] ?? 0) / 100;
+
+            foreach ($currentShipData as $ship) {
+                $repairedCount = (int) floor($ship['quantity'] * $overallProgress);
+                $remainingCount = $ship['quantity'] - $repairedCount;
+
+                if ($repairedCount > 0) {
+                    // Add repaired ships to collection
+                    $collectedShips[] = [
+                        'machine_name' => $ship['machine_name'],
+                        'quantity' => $repairedCount,
+                        'repair_progress' => 100
+                    ];
+
+                    // Add repaired ships to planet
+                    $unitFactory = app(\OGame\Factories\UnitFactory::class);
                     $unitObject = $unitFactory->createUnitFromMachineName($ship['machine_name']);
-                    if ($unitObject) {
-                        $planetService->addUnit($unitObject, $ship['quantity']);
+                    if ($unitObject && $repairedCount > 0) {
+                        $planetService->addUnit($unitObject, $repairedCount);
                     }
+                }
+
+                if ($remainingCount > 0) {
+                    // Keep remaining ships in wreck field
+                    $remainingShips[] = [
+                        'machine_name' => $ship['machine_name'],
+                        'quantity' => $remainingCount,
+                        'repair_progress' => 0
+                    ];
                 }
             }
 
-            // Delete the wreck field after repairs are completed
-            $wreckFieldService->delete();
+            // Update wreck field with remaining ships
+            if (empty($remainingShips)) {
+                // All ships collected, delete the wreck field
+                $wreckFieldService->delete();
+            } else {
+                // Update with remaining ships
+                $wreckFieldModelForUpdate->ship_data = $remainingShips;
+                $wreckFieldModelForUpdate->save();
+            }
 
             return response()->json([
                 'success' => true,
                 'error' => false,
                 'newAjaxToken' => csrf_token(),
-                'message' => 'Repairs completed successfully',
-                'repaired_ships' => $repairedShips,
-            ]);
+                'message' => count($collectedShips) > 0 ? 'Ships collected successfully' : 'No ships ready for collection',
+                'collected_ships' => $collectedShips,
+                'remaining_ships' => $remainingShips,
+            ])->header('Content-Type', 'application/json');
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'error' => true,
                 'message' => $e->getMessage(),
                 'newAjaxToken' => csrf_token(),
-            ]);
+            ])->setStatusCode(400)->header('Content-Type', 'application/json');
         }
     }
 
