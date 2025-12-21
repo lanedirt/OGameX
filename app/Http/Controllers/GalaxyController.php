@@ -168,6 +168,7 @@ class GalaxyController extends OGameController
             $planets_array[] = $this->createDebrisFieldArray($debrisField);
         }
 
+  
         if ($planet->hasMoon()) {
             $planets_array[] = $this->createMoonArray($planet->moon());
         }

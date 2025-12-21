@@ -130,6 +130,7 @@
         <script type="text/javascript">
             var planetMoveInProgress = false;
             var wreckFieldUpdateInterval;
+            var burnUpCountdownInterval;
 
       // Helper function to format datetime for countdown
             function formatDateTime(seconds) {
@@ -142,6 +143,72 @@
       // Wreck field functionality
             $(document).ready(function() {
                 console.log('Wreck field functionality initialized');
+
+                // Check if we need to trigger space dock click from sessionStorage or URL parameter
+                const shouldTriggerSpaceDock = sessionStorage.getItem('triggerSpaceDock') === 'true' ||
+                                               new URLSearchParams(window.location.search).get('openSpaceDock') === '1';
+
+                if (shouldTriggerSpaceDock) {
+                    console.log('Triggering space dock click - sessionStorage:', sessionStorage.getItem('triggerSpaceDock'), 'URL param:', new URLSearchParams(window.location.search).get('openSpaceDock'));
+                    sessionStorage.removeItem('triggerSpaceDock');
+
+                    // Try multiple attempts with increasing delays
+                    function triggerSpaceDockClick(attempt = 1) {
+                        console.log(`Attempt ${attempt} to trigger space dock click`);
+                        const $spaceDock = $('.technology.space_dock, .technology[data-technology="36"]');
+                        console.log('Space dock elements found:', $spaceDock.length);
+
+                        if ($spaceDock.length > 0) {
+                            console.log('Space dock element found, loading technology details...');
+                            const element = $spaceDock.first()[0];
+
+                            // Instead of just clicking, let's load the technology details directly via AJAX
+                            const techId = 36; // Space Dock technology ID
+                            const planetId = $spaceDock.first().data('planet-id') || {{ $planet->getPlanetId() }};
+
+                            $.ajax({
+                                url: technologyDetailsEndpoint,
+                                method: 'GET',
+                                data: {
+                                    technology: techId,
+                                    planet_id: planetId
+                                },
+                                success: function(response) {
+                                    console.log('Technology details loaded successfully:', response);
+                                    if (response.content && response.content.technologydetails) {
+                                        $('#technologydetails_content').html(response.content.technologydetails);
+                                        console.log('Technology details HTML inserted');
+
+                                        // Now check for space dock details
+                                        setTimeout(checkAndLoadWreckField, 500);
+                                    } else {
+                                        console.log('No technology details in response:', response);
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    console.error('Failed to load technology details:', error);
+
+                                    // Fallback: try clicking the element
+                                    try {
+                                        $spaceDock.first().trigger('click');
+                                        console.log('Fallback jQuery trigger successful');
+                                    } catch (e) {
+                                        console.error('All methods failed:', e);
+                                    }
+                                }
+                            });
+
+                        } else if (attempt <= 5) {
+                            // Try again with longer delay
+                            setTimeout(() => triggerSpaceDockClick(attempt + 1), attempt * 1000);
+                        } else {
+                            console.error('Space dock element not found after 5 attempts');
+                        }
+                    }
+
+                    // Start with initial delay
+                    setTimeout(() => triggerSpaceDockClick(1), 1000);
+                }
 
                 // Handle clicks on space dock technology directly
                 $(document).on('click', '.technology.space_dock, .technology[data-technology="36"]', function(e) {
@@ -597,11 +664,13 @@
                 }, 0);
 
                 // Create the exact HTML structure from OGame
-                var $complexAction = $('<div class="complex_action ' + (wreckFieldData.is_repairing ? 'nowreckfield_repairorder' : 'wreckfield_norepairorder') + '"></div>');
+                // Only show "repairing" interface if status is actually 'repairing', not just is_repairing flag
+                var isActiveWreckField = wreckFieldData.can_repair && !wreckFieldData.is_completed && wreckFieldData.status !== 'repairing';
+                var $complexAction = $('<div class="complex_action ' + (isActiveWreckField ? 'wreckfield_norepairorder' : 'nowreckfield_repairorder') + '"></div>');
 
                 var $innerDescription = $('<div id="description"></div>');
 
-                if (wreckFieldData.is_repairing) {
+                if (!isActiveWreckField) {
                     // When repairing: create the exact OGame structure
                     var $wreckFieldSpan = $('<span class="wreck_field" style="font-size: 7px !important;">There is no wreckage at this position.</span>');
                     var $separator = $('<hr>');
@@ -708,10 +777,67 @@
                     $innerDescription.append($wreckfieldBtns);
 
                 } else {
-                    // When not repairing: create structure for active wreck field
-                    // (You can fill this in later based on what the non-repairing OGame structure looks like)
-                    var $wreckFieldSpan = $('<span class="wreck_field">Wreckage field is active</span>');
+                    // When active wreck field (not being repaired): create the proper active wreck field interface
+                    var timeRemaining = wreckFieldData.time_remaining || 0;
+                    console.log('Time remaining for wreck field:', timeRemaining);
+
+                    var timeDisplay = '2d 8h 20m'; // Default display
+                    if (timeRemaining > 0) {
+                        var days = Math.floor(timeRemaining / 86400);
+                        var hours = Math.floor((timeRemaining % 86400) / 3600);
+                        var minutes = Math.floor((timeRemaining % 3600) / 60);
+                        timeDisplay = days + 'd ' + hours + 'h ' + minutes + 'm';
+                        console.log('Calculated time display:', timeDisplay);
+                    } else {
+                        console.log('Using default time display - timeRemaining is 0 or negative');
+                    }
+
+                    // Create the wreck field span with proper structure
+                    var $wreckFieldSpan = $('<span class="wreck_field" style="font-size: 7px !important;"></span>');
+                    $wreckFieldSpan.text('Wreckage burns up in: ');
+                    var $timeElement = $('<time id="burnUpCountDownForStationScreen" class="value countdown" datetime="P' + timeDisplay.replace(/\s/g, '') + '" style="font-size: 11px !important; font-weight: bold;">' + timeDisplay + '</time>');
+                    $wreckFieldSpan.append($timeElement);
+
+                    // Add Details link
+                    var $detailsLink = $('<a href="javascript:void(0);" class="fright tooltip overlay" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px" onclick="showWreckFieldDetails();">Details</a>');
+
+                    var $separator = $('<hr>');
+
+                    // Create tooltip content for hover
+                    var tooltipContent = '';
+                    if (wreckFieldData.ship_data && wreckFieldData.ship_data.length > 0) {
+                        tooltipContent = wreckFieldData.ship_data.map(function(ship) {
+                            var shipName = ship.machine_name.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+                            return shipName + ': ' + ship.quantity;
+                        }).join('<br>');
+                    } else {
+                        tooltipContent = 'No ships available for repair';
+                    }
+
+                    // Use the same tooltip system as shipyard - simple title attribute with <br/> tags
+                    var $shipLink = $('<a href="javascript:void(0);" class="value tooltip hideTooltipOnMouseenter js_hideTipOnMobile" title="' + tooltipContent.replace(/<br>/g, '<br/>') + '" style="font-size: 8px !important; font-weight: bold;">' + totalShips + ' Ships</a>');
+
+                    var $repairOrder = $('<span class="repair_order" style="font-size: 7px !important;">Repairable Ships: <i></i> in <time class="value" datetime="PT32M" style="font-size: 8px !important; font-weight: bold;">32m</time></span>');
+                    $repairOrder.find('i').append($shipLink);
+
+                    var $wreckfieldBtns = $('<div id="wreckfield-btns"></div>');
+                    var $burnUpBtn = $('<a href="javascript:void(0);" class="btn btn_dark overmark burn_up" onclick="confirmBurnUpWreckField();">Leave to burn up</a>');
+                    var $repairBtn = $('<a href="javascript:void(0);" class="btn btn_dark undermark repair" onclick="startWreckFieldRepairs();">Start repairs</a>');
+
+                    $wreckfieldBtns.append($burnUpBtn);
+                    $wreckfieldBtns.append($repairBtn);
+
+                    // Add elements to inner description in correct order
                     $innerDescription.append($wreckFieldSpan);
+                    $innerDescription.append($detailsLink);
+                    $innerDescription.append($separator);
+                    $innerDescription.append($repairOrder);
+                    $innerDescription.append($wreckfieldBtns);
+
+                    // Start countdown timer if time remaining
+                    if (timeRemaining > 0) {
+                        startBurnUpCountdown(timeRemaining);
+                    }
                 }
 
                 $complexAction.append($innerDescription);
@@ -731,16 +857,52 @@
                     clearInterval(wreckFieldUpdateInterval);
                     wreckFieldUpdateInterval = null;
                 }
+                if (burnUpCountdownInterval) {
+                    clearInterval(burnUpCountdownInterval);
+                    burnUpCountdownInterval = null;
+                }
+            }
 
-                // Clear our custom countdown timers
-                var $countdowns = $('#wreckFieldCountdown, #repairCountdown');
-                $countdowns.each(function() {
-                    var interval = $(this).data('countdownInterval');
-                    if (interval) {
-                        clearInterval(interval);
-                        $(this).removeData('countdownInterval');
+            // Function to start burn up countdown
+            function startBurnUpCountdown(timeRemaining) {
+                if (burnUpCountdownInterval) {
+                    clearInterval(burnUpCountdownInterval);
+                }
+
+                burnUpCountdownInterval = setInterval(function() {
+                    var $countdownElement = $('#burnUpCountDownForStationScreen');
+                    if ($countdownElement.length > 0 && timeRemaining > 0) {
+                        timeRemaining--;
+                        var days = Math.floor(timeRemaining / 86400);
+                        var hours = Math.floor((timeRemaining % 86400) / 3600);
+                        var minutes = Math.floor((timeRemaining % 3600) / 60);
+                        var timeDisplay = days + 'd ' + hours + 'h ' + minutes + 'm';
+                        $countdownElement.text(timeDisplay);
+                    } else {
+                        clearInterval(burnUpCountdownInterval);
+                        // Reload wreck field data when time expires
+                        loadWreckFieldDataForSpaceDock();
                     }
-                });
+                }, 1000);
+            }
+
+            // Function to confirm burn up
+            function confirmBurnUpWreckField() {
+                errorBoxDecision(
+                    "Leave to burn up",
+                    "The wreckage will descend into the planet's atmosphere and burn up. Once struck, a repair will no longer be possible. Are you sure you want to burn up the wreckage?",
+                    "yes",
+                    "No",
+                    function() {
+                        burnUpWreckField();
+                    },
+                    function() {}
+                );
+            }
+
+            // Function to start repairs directly from space dock
+            function startWreckFieldRepairs() {
+                startRepairs();
             }
 
   

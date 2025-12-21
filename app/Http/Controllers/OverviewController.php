@@ -13,6 +13,7 @@ use OGame\Services\HighscoreService;
 use OGame\Services\PlayerService;
 use OGame\Services\ResearchQueueService;
 use OGame\Services\UnitQueueService;
+use OGame\Services\WreckFieldService;
 
 class OverviewController extends OGameController
 {
@@ -26,7 +27,7 @@ class OverviewController extends OGameController
      * @return View
      * @throws Exception
      */
-    public function index(PlayerService $player, BuildingQueueService $building_queue, ResearchQueueService $research_queue, UnitQueueService $unit_queue): View
+    public function index(PlayerService $player, BuildingQueueService $building_queue, ResearchQueueService $research_queue, UnitQueueService $unit_queue, WreckFieldService $wreckFieldService): View
     {
         $this->setBodyId('overview');
 
@@ -55,6 +56,13 @@ class OverviewController extends OGameController
         }
 
         $planet = $player->planets->current();
+
+        // Check for wreck field on current planet - only show if no action taken yet
+        $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planet);
+        $showWreckFieldIcon = false;
+        if ($wreckField && $wreckField['can_repair'] && !$wreckField['is_repairing'] && !$wreckField['is_completed']) {
+            $showWreckFieldIcon = true;
+        }
 
         // Check if this planet has a moon or a planet on the same coordinates.
         // The other_planet is used for rendering the switch link to the other planet.
@@ -104,6 +112,8 @@ class OverviewController extends OGameController
             'has_moon' => $has_moon,
             'has_planet' => $has_planet,
             'other_planet' => $other_planet,
+            'wreck_field' => $wreckField,
+            'show_wreck_field_icon' => $showWreckFieldIcon,
         ]);
     }
 }

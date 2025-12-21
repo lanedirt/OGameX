@@ -79,6 +79,55 @@
         <img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif"/>
     </div>
 
+    {{-- Wreck Field Icon - Only show if player has an active wreck field they haven't acted on --}}
+    @if ($show_wreck_field_icon && $wreck_field)
+        <div id="wreckFieldIconContainer" style="position: absolute; top: 85px; right: 20px; z-index: 100;">
+            <a href="javascript:void(0);"
+               class="tooltipRight js_hideTipOnMobile wreckFieldIcon"
+               title="Wreck Field|Click to go to facilities and view space dock"
+               onclick="openFacilitiesSpaceDock();">
+                <span class="wreckFieldIcon" style="display: inline-block; width: 30px; height: 30px; background-image: url('/img/layout/wreck-field-icon.png'); background-size: contain; background-repeat: no-repeat;"></span>
+                @if ($wreck_field['time_remaining'] > 0)
+                    <div class="countdown" style="text-align: center; font-size: 10px; color: #FF9600; margin-top: 2px;">
+                        <span id="wreckFieldCountdown">{{ gmdate('H:i:s', $wreck_field['time_remaining']) }}</span>
+                    </div>
+                @endif
+            </a>
+        </div>
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+            @if ($wreck_field && $wreck_field['time_remaining'] > 0)
+                // Initialize countdown timer for wreck field
+                var wreckFieldTime = {{ $wreck_field['time_remaining'] }};
+                setInterval(function() {
+                    if (wreckFieldTime > 0) {
+                        wreckFieldTime--;
+                        var hours = Math.floor(wreckFieldTime / 3600);
+                        var minutes = Math.floor((wreckFieldTime % 3600) / 60);
+                        var seconds = wreckFieldTime % 60;
+                        var timeString =
+                            (hours < 10 ? '0' : '') + hours + ':' +
+                            (minutes < 10 ? '0' : '') + minutes + ':' +
+                            (seconds < 10 ? '0' : '') + seconds;
+
+                        var countdownElement = document.getElementById('wreckFieldCountdown');
+                        if (countdownElement) {
+                            countdownElement.textContent = timeString;
+                        }
+                    } else {
+                        // Hide the wreck field icon when time expires
+                        var container = document.getElementById('wreckFieldIconContainer');
+                        if (container) {
+                            container.style.display = 'none';
+                        }
+                    }
+                }, 1000);
+            @endif
+        });
+        </script>
+    @endif
+
     <div id="inhalt">
         <div id="planet" style="background-image:url({{ asset('img/headers/overview/' . $header_filename) }}.jpg);">
 

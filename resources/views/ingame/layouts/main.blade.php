@@ -399,7 +399,7 @@ Combat simulation save slots +20">
                     @if ($underAttack)
                         <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
                     @elseif (!empty($playerWreckFields))
-                        <a href="{{ route('facilities.index') }}" class="overlay tooltipHTML js_hideTipOnMobile" data-overlay-class="repairlayer" data-overlay-title="Wreckage" data-overlay-width="656px"></a>
+                        <a href="javascript:void(0);" onclick="openWreckFieldDetailsPopup();" class="tooltipHTML js_hideTipOnMobile overlay" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px" title="Wreck Field Available - Click for details"></a>
                         @php
                             // Fix time calculation - use proper timezone
                             if (!empty($playerWreckFields[0])) {
@@ -863,6 +863,98 @@ Combat simulation save slots +20">
 
                 function redirectSpaceDock() {
                     location.href = "{{ route('facilities.index', ['openTech' => 36]) }}";
+                }
+
+                // Global function to open facilities and trigger space dock click
+                function openFacilitiesSpaceDock() {
+                    // Store a flag to trigger space dock click after page loads
+                    sessionStorage.setItem('triggerSpaceDock', 'true');
+
+                    // Redirect to facilities page with parameter as backup
+                    location.href = "{{ route('facilities.index') }}?openSpaceDock=1";
+                }
+
+                // Global function to open wreck field details popup
+                function openWreckFieldDetailsPopup() {
+                    // Make AJAX call to get wreck field details popup content
+                    $.ajax({
+                        url: "{{ route('facilities.wreckfieldstatus') }}",
+                        method: 'GET',
+                        success: function(response) {
+                            if (response.success && response.wreckField) {
+                                // Create popup content similar to the Details button
+                                createWreckFieldPopup(response.wreckField);
+                            } else {
+                                // Fallback: go to facilities and trigger space dock
+                                openFacilitiesSpaceDock();
+                            }
+                        },
+                        error: function() {
+                            // Fallback: go to facilities and trigger space dock
+                            openFacilitiesSpaceDock();
+                        }
+                    });
+                }
+
+                // Function to create wreck field popup content
+                function createWreckFieldPopup(wreckFieldData) {
+                    const timeRemaining = wreckFieldData.time_remaining || 0;
+                    const shipCount = wreckFieldData.ship_data ? wreckFieldData.ship_data.reduce((total, ship) => total + ship.quantity, 0) : 0;
+
+                    let timeDisplay = '';
+                    if (timeRemaining > 0) {
+                        const days = Math.floor(timeRemaining / 86400);
+                        const hours = Math.floor((timeRemaining % 86400) / 3600);
+                        const minutes = Math.floor((timeRemaining % 3600) / 60);
+                        timeDisplay = `${days}d ${hours}h ${minutes}m`;
+                    }
+
+                    const popupContent = `
+                        <div class="repairlayer" style="width: 656px; background: url('https://gf2.geo.gfsrv.net/cdn13/e9f54b10dc4e1140ce090106d2f528.jpg') 100% 0% rgb(0, 0, 0);">
+                            <div class="repairableShips">
+                                <span class="wreck_field">
+                                    ${timeDisplay ? `Wreckage burns up in: <time class="value countdown">${timeDisplay}</time>` : 'Wreckage available for repair'}
+                                </span>
+                                <div class="clearfix"></div>
+                                <br>
+                                <hr>
+                                <span class="repair_order">
+                                    Repairable Ships: <a href="javascript:void(0);" class="value">${shipCount} Ships</a>
+                                </span>
+                                <div id="wreckfield-btns">
+                                    <a href="javascript:void(0);" onclick="goToSpaceDockAndBurnUp();" class="btn btn_dark overmark burn_up">Leave to burn up</a>
+                                    <a href="javascript:void(0);" onclick="goToSpaceDockAndRepair();" class="btn btn_dark undermark repair">Start repairs</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Show popup
+                    if (typeof showDialog === 'function') {
+                        showDialog('Space Dock', popupContent, 656);
+                    } else {
+                        // Fallback: show as alert
+                        alert(`Wreck Field: ${shipCount} ships available${timeDisplay ? ' - Burns up in ' + timeDisplay : ''}`);
+                    }
+                }
+
+                // Functions for popup actions
+                function goToSpaceDockAndBurnUp() {
+                    openFacilitiesSpaceDock();
+                    setTimeout(() => {
+                        if (typeof burnWreckField === 'function') {
+                            burnWreckField();
+                        }
+                    }, 2000);
+                }
+
+                function goToSpaceDockAndRepair() {
+                    openFacilitiesSpaceDock();
+                    setTimeout(() => {
+                        if (typeof startRepairs === 'function') {
+                            startRepairs();
+                        }
+                    }, 2000);
                 }
 
                 reloadResources({
@@ -1353,17 +1445,9 @@ Combat simulation save slots +20">
                                             $isOwner = $wreckField->owner_player_id === $currentPlayer->getId();
                                         @endphp
                                         <a class="wreckFieldIcon tooltip js_hideTipOnMobile"
-                                           title="<b>Wreck Field [{{ $wreckField->galaxy }}:{{ $wreckField->system }}:{{ $wreckField->planet }}]</b><br/>
-                                           Ships: {{ OGame\Facades\AppUtil::formatNumber($wreckField->getTotalShips()) }}<br/>
-                                           Status: {{ ucfirst($wreckField->status) }}<br/>
-                                           @if ($wreckField->getTimeRemaining() > 0)
-                                           Expires in: {{ \Carbon\CarbonInterval::seconds($wreckField->getTimeRemaining())->cascade()->forHumans() }}<br/>
-                                           @endif
-                                           @if ($isOwner && $hasSpaceDock && $wreckField->canBeRepaired())
-                                           <a href=&quot;{{ route('facilities.index') }}?cp={{ $planet->getPlanetId() }}&quot;>Go to Space Dock to repair</a><br/>
-                                           @endif"
+                                           title="Wreckage"
                                            @if ($isOwner && $hasSpaceDock)
-                                           href="{{ route('facilities.index') }}?cp={{ $planet->getPlanetId() }}"
+                                           href="javascript:void(0);" onclick="openFacilitiesSpaceDock();"
                                            @else
                                            href="javascript:void(0);"
                                            @endif>
