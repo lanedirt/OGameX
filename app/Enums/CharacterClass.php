@@ -66,6 +66,8 @@ enum CharacterClass: int
 
     /**
      * Get all character class bonuses as an array.
+     *
+     * @return array<int, string>
      */
     public function getBonuses(): array
     {

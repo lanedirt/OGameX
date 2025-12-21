@@ -183,7 +183,7 @@ class User extends Authenticatable
      *
      * @return \OGame\Enums\CharacterClass|null
      */
-    public function getCharacterClassEnum(): ?\OGame\Enums\CharacterClass
+    public function getCharacterClassEnum(): \OGame\Enums\CharacterClass|null
     {
         if ($this->character_class === null) {
             return null;
