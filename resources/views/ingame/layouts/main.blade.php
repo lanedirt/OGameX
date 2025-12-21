@@ -394,12 +394,11 @@ Combat simulation save slots +20">
                     @endforeach
                 </div>
 
-                <div id="attack_alert" class="tooltip @if ($underAttack) soon @elseif (!empty($playerWreckFields)) wreckField @else noAttack @endif"
-                     title="@if ($underAttack) @lang('You are under attack!') @elseif (!empty($playerWreckFields)) Wreck Field Available @endif">
+                <div id="attack_alert" class="@if ($underAttack) soon @elseif (!empty($playerWreckFields)) wreckField @else noAttack @endif"
+                     @if ($underAttack) title="@lang('You are under attack!')" @endif>
                     @if ($underAttack)
                         <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
                     @elseif (!empty($playerWreckFields))
-                        <a href="javascript:void(0);" onclick="openWreckFieldDetailsPopup();" class="tooltipHTML js_hideTipOnMobile overlay" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px" title="Wreck Field Available - Click for details"></a>
                         @php
                             // Fix time calculation - use proper timezone
                             if (!empty($playerWreckFields[0])) {
@@ -440,8 +439,37 @@ Combat simulation save slots +20">
                                     $timeText = $minutes . 'm';
                                 }
                             @endphp
-                            <span id="wreckFieldCountDown" class="wreckFieldCountDown" data-duration="{{ $timeRemaining }}">{{ $timeText }}</span>
-                            <script>
+                            @php
+                        // Build ship breakdown tooltip
+                        $shipTooltipContent = "<span style='color: #00aaff;'>:</span> <br/>";
+                        if (!empty($playerWreckFields[0])) {
+                            // Try to get ship data from different possible locations
+                            $shipData = null;
+                            if (isset($playerWreckFields[0]['ship_data'])) {
+                                $shipData = $playerWreckFields[0]['ship_data'];
+                            } elseif (isset($playerWreckFields[0]['wreckField']) && method_exists($playerWreckFields[0]['wreckField'], 'getShipData')) {
+                                $shipData = $playerWreckFields[0]['wreckField']->getShipData();
+                            } elseif (isset($playerWreckFields[0]['wreckField']->ship_data)) {
+                                $shipData = $playerWreckFields[0]['wreckField']->ship_data;
+                            }
+
+                            if (!empty($shipData) && is_array($shipData)) {
+                                foreach ($shipData as $ship) {
+                                    $machineName = $ship['machine_name'] ?? 'Unknown Ship';
+                                    $quantity = $ship['quantity'] ?? 0;
+                                    $shipName = ucfirst(str_replace('_', ' ', $machineName));
+                                    $shipTooltipContent .= $shipName . ': ' . $quantity . '<br/>';
+                                }
+                            } else {
+                                $shipTooltipContent .= 'No ships in wreck field';
+                            }
+                        } else {
+                            $shipTooltipContent .= 'No wreck field available';
+                        }
+                    @endphp
+                    <a href="javascript:void(0);" onclick="openWreckFieldDetailsPopup();" class="tooltip js_hideTipOnMobile overlay" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px" title="{{ $shipTooltipContent }}"></a>
+                            <span id="wreckFieldCountDown" class="wreckFieldCountDown" data-duration="{{ $timeRemaining }}" title="">{{ $timeText }}</span>
+                                                        <script>
                             // Initialize wreck field countdown if not already done
                             if (typeof window.simpleCountdown !== 'undefined') {
                                 var wreckfield = $("#wreckFieldCountDown");

@@ -780,17 +780,18 @@
                 } else {
                     // When active wreck field (not being repaired): create the proper active wreck field interface
                     var timeRemaining = wreckFieldData.time_remaining || 0;
-                    console.log('Time remaining for wreck field:', timeRemaining);
+                    console.log('Raw time remaining from server:', timeRemaining);
+                    console.log('Wreck field expires at:', wreckFieldData.wreck_field ? wreckFieldData.wreck_field.expires_at : 'N/A');
 
-                    var timeDisplay = '2d 8h 20m'; // Default display
+                    var timeDisplay = '3d 0h 0m'; // Default to 72 hours if time is 0
                     if (timeRemaining > 0) {
                         var days = Math.floor(timeRemaining / 86400);
                         var hours = Math.floor((timeRemaining % 86400) / 3600);
                         var minutes = Math.floor((timeRemaining % 3600) / 60);
                         timeDisplay = days + 'd ' + hours + 'h ' + minutes + 'm';
-                        console.log('Calculated time display:', timeDisplay);
+                        console.log('Calculated time display:', timeDisplay, 'from', timeRemaining, 'seconds');
                     } else {
-                        console.log('Using default time display - timeRemaining is 0 or negative');
+                        console.log('Using default time display - timeRemaining is 0 or negative, using 72h default');
                     }
 
                     // Create the wreck field span with proper structure

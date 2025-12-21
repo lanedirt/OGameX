@@ -126,7 +126,21 @@ class WreckField extends Model
      */
     public function getTimeRemaining(): int
     {
-        return max(0, $this->expires_at->diffInSeconds(now(), false));
+        $now = now();
+        $expires = $this->expires_at;
+
+        // Calculate time remaining from now to expires (reverse order)
+        $timeRemaining = max(0, $now->diffInSeconds($expires));
+
+        // Debug logging
+        \Log::info('WreckField getTimeRemaining calculation', [
+            'now' => $now->toIso8601String(),
+            'expires_at' => $expires->toIso8601String(),
+            'diff_seconds' => $now->diffInSeconds($expires),
+            'time_remaining' => $timeRemaining
+        ]);
+
+        return $timeRemaining;
     }
 
     /**

@@ -501,10 +501,19 @@ class WreckFieldService
             ];
         }
 
+        // Debug logging for time calculation
+        $timeRemaining = $wreckField->getTimeRemaining();
+        \Log::info('WreckFieldService getWreckFieldForCurrentPlanet', [
+            'wreck_field_id' => $wreckField->id,
+            'expires_at' => $wreckField->expires_at->toIso8601String(),
+            'now' => now()->toIso8601String(),
+            'time_remaining_calculated' => $timeRemaining
+        ]);
+
         return [
             'wreck_field' => $wreckField,
             'ship_data' => $shipData,
-            'time_remaining' => $wreckField->getTimeRemaining(),
+            'time_remaining' => $timeRemaining,
             'can_repair' => $wreckField->canBeRepaired(),
             'is_repairing' => $wreckField->isRepairing(),
             'is_completed' => $wreckField->isCompleted(),
