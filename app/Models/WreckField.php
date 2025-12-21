@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -41,6 +42,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class WreckField extends Model
 {
+    use HasFactory;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -130,7 +133,7 @@ class WreckField extends Model
         $expires = $this->expires_at;
 
         // Calculate time remaining from now to expires (reverse order)
-        $timeRemaining = max(0, $now->diffInSeconds($expires));
+        $timeRemaining = max(0, (int) $now->diffInSeconds($expires));
 
         // Debug logging
         \Log::info('WreckField getTimeRemaining calculation', [
@@ -175,7 +178,7 @@ class WreckField extends Model
     /**
      * Get the repair completion time (null if not repairing).
      */
-    public function getRepairCompletionTime(): ?\Illuminate\Support\Carbon
+    public function getRepairCompletionTime(): \Illuminate\Support\Carbon|null
     {
         return $this->repair_completed_at;
     }
@@ -189,8 +192,8 @@ class WreckField extends Model
             return 0;
         }
 
-        $totalTime = $this->repair_completed_at->timestamp - $this->repair_started_at->timestamp;
-        $elapsedTime = now()->timestamp - $this->repair_started_at->timestamp;
+        $totalTime = (int) $this->repair_completed_at->timestamp - (int) $this->repair_started_at->timestamp;
+        $elapsedTime = (int) now()->timestamp - (int) $this->repair_started_at->timestamp;
 
         return min(100, max(0, (int) (($elapsedTime / $totalTime) * 100)));
     }

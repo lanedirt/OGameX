@@ -7,8 +7,7 @@ use OGame\Models\WreckField;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
-use OGame\Models\UnitCollection;
-use OGame\Services\PlanetService;
+use OGame\GameObjects\Models\Units\UnitCollection;
 
 /**
  * Class WreckFieldService.
@@ -145,12 +144,12 @@ class WreckFieldService
                              $destroyedFleetResources->crystal->get() +
                              $destroyedFleetResources->deuterium->get();
 
-        if ($totalFleetValue === 0) {
+        if ($totalFleetValue == 0) {
             return false;
         }
 
         $destroyedPercentage = ($destroyedFleetValue / $totalFleetValue) * 100;
-        if ($destroyedPercentage < $this->settingsService->wreckFieldMinFleetPercentage()) {
+        if ($destroyedPercentage < (float) $this->settingsService->wreckFieldMinFleetPercentage()) {
             return false;
         }
 
@@ -385,7 +384,7 @@ class WreckFieldService
      *
      * @return WreckField|null
      */
-    public function getWreckField(): ?WreckField
+    public function getWreckField(): WreckField|null
     {
         return $this->wreckField;
     }
@@ -405,7 +404,7 @@ class WreckFieldService
      *
      * @return \Illuminate\Support\Carbon|null
      */
-    public function getRepairCompletionTime(): ?\Illuminate\Support\Carbon
+    public function getRepairCompletionTime(): \Illuminate\Support\Carbon|null
     {
         return $this->wreckField?->repair_completed_at;
     }
@@ -421,7 +420,7 @@ class WreckFieldService
             return 0;
         }
 
-        $remainingTime = $this->wreckField->repair_completed_at->timestamp - now()->timestamp;
+        $remainingTime = (int) $this->wreckField->repair_completed_at->timestamp - (int) now()->timestamp;
         return max(0, (int) $remainingTime);
     }
 
@@ -436,8 +435,8 @@ class WreckFieldService
             return 0;
         }
 
-        $totalTime = $this->wreckField->repair_completed_at->timestamp - $this->wreckField->repair_started_at->timestamp;
-        $elapsedTime = now()->timestamp - $this->wreckField->repair_started_at->timestamp;
+        $totalTime = (int) $this->wreckField->repair_completed_at->timestamp - (int) $this->wreckField->repair_started_at->timestamp;
+        $elapsedTime = (int) now()->timestamp - (int) $this->wreckField->repair_started_at->timestamp;
 
         return min(100, max(0, (int) (($elapsedTime / $totalTime) * 100)));
     }
@@ -448,7 +447,7 @@ class WreckFieldService
      * @param PlanetService $planetService
      * @return array|null
      */
-    public function getWreckFieldForCurrentPlanet(PlanetService $planetService): ?array
+    public function getWreckFieldForCurrentPlanet(PlanetService $planetService): array|null
     {
         $coordinates = $planetService->getPlanetCoordinates();
 
@@ -521,7 +520,7 @@ class WreckFieldService
             'repair_completion_time' => $wreckField->getRepairCompletionTime(),
             'repair_started_at' => $wreckField->repair_started_at,
             'remaining_repair_time' => $wreckField->getRepairCompletionTime() ?
-                max(0, $wreckField->getRepairCompletionTime()->timestamp - now()->timestamp) : 0,
+                max(0, (int) $wreckField->getRepairCompletionTime()->timestamp - (int) now()->timestamp) : 0,
         ];
     }
 }

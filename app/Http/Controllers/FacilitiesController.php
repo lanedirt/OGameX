@@ -287,10 +287,9 @@ class FacilitiesController extends AbstractBuildingsController
                     ];
 
                     // Add repaired ships to planet
-                    $unitFactory = app(\OGame\Factories\UnitFactory::class);
-                    $unitObject = $unitFactory->createUnitFromMachineName($ship['machine_name']);
-                    if ($unitObject && $repairedCount > 0) {
-                        $planetService->addUnit($unitObject, $repairedCount);
+                    $unitObject = app(\OGame\Services\ObjectService::class)->getUnitObjectByMachineName($ship['machine_name']);
+                    if ($unitObject) {
+                        $planetService->addUnit($unitObject->machine_name, $repairedCount);
                     }
                 }
 

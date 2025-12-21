@@ -13,7 +13,7 @@ class WreckFieldFactory extends Factory
     /**
      * The name of the factory's corresponding model.
      *
-     * @var string
+     * @var class-string<\OGame\Models\WreckField>
      */
     protected $model = WreckField::class;
 

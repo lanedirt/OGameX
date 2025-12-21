@@ -7,8 +7,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Models\User;
 use OGame\Models\Planet;
 use OGame\Models\WreckField;
-use OGame\Services\PlayerService;
-use OGame\Services\SettingsService;
 
 class FacilitiesWreckFieldTest extends TestCase
 {
@@ -16,22 +14,19 @@ class FacilitiesWreckFieldTest extends TestCase
 
     private User $user;
     private Planet $planet;
-    private PlayerService $playerService;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->user = User::factory()->create();
-        $this->playerService = app(PlayerService::class);
-        $this->playerService->setUser($this->user);
 
         // Create a test planet with space dock
         $this->planet = Planet::factory()->create([
             'user_id' => $this->user->id,
             'galaxy' => 1,
             'system' => 1,
-            'position' => 1,
+            'planet' => 1,
             'building_space_dock' => 1, // Level 1 space dock
         ]);
 
@@ -45,7 +40,7 @@ class FacilitiesWreckFieldTest extends TestCase
         WreckField::factory()->create([
             'galaxy' => $this->planet->galaxy,
             'system' => $this->planet->system,
-            'planet' => $this->planet->position,
+            'planet' => $this->planet->planet,
             'owner_player_id' => $this->user->id,
             'status' => 'active',
             'expires_at' => now()->addHours(72),
@@ -67,7 +62,7 @@ class FacilitiesWreckFieldTest extends TestCase
         WreckField::factory()->create([
             'galaxy' => $this->planet->galaxy,
             'system' => $this->planet->system,
-            'planet' => $this->planet->position,
+            'planet' => $this->planet->planet,
             'owner_player_id' => $this->user->id,
             'status' => 'active',
             'expires_at' => now()->addHours(72),
@@ -87,7 +82,7 @@ class FacilitiesWreckFieldTest extends TestCase
         // Check that the wreck field status changed to repairing
         $wreckField = WreckField::where('galaxy', $this->planet->galaxy)
             ->where('system', $this->planet->system)
-            ->where('planet', $this->planet->position)
+            ->where('planet', $this->planet->planet)
             ->first();
 
         $this->assertEquals('repairing', $wreckField->status);
@@ -102,7 +97,7 @@ class FacilitiesWreckFieldTest extends TestCase
             'user_id' => $this->user->id,
             'galaxy' => 2,
             'system' => 1,
-            'position' => 1,
+            'planet' => 1,
             'building_space_dock' => 0, // No space dock
         ]);
 
@@ -110,7 +105,7 @@ class FacilitiesWreckFieldTest extends TestCase
         WreckField::factory()->create([
             'galaxy' => $planetWithoutDock->galaxy,
             'system' => $planetWithoutDock->system,
-            'planet' => $planetWithoutDock->position,
+            'planet' => $planetWithoutDock->planet,
             'owner_player_id' => $this->user->id,
             'status' => 'active',
             'expires_at' => now()->addHours(72),
@@ -132,7 +127,7 @@ class FacilitiesWreckFieldTest extends TestCase
         WreckField::factory()->completed()->create([
             'galaxy' => $this->planet->galaxy,
             'system' => $this->planet->system,
-            'planet' => $this->planet->position,
+            'planet' => $this->planet->planet,
             'owner_player_id' => $this->user->id,
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 100]
@@ -150,7 +145,7 @@ class FacilitiesWreckFieldTest extends TestCase
         // Check that the wreck field was deleted after repairs are completed
         $wreckField = WreckField::where('galaxy', $this->planet->galaxy)
             ->where('system', $this->planet->system)
-            ->where('planet', $this->planet->position)
+            ->where('planet', $this->planet->planet)
             ->first();
 
         $this->assertNull($wreckField);
@@ -162,7 +157,7 @@ class FacilitiesWreckFieldTest extends TestCase
         WreckField::factory()->repairing()->create([
             'galaxy' => $this->planet->galaxy,
             'system' => $this->planet->system,
-            'planet' => $this->planet->position,
+            'planet' => $this->planet->planet,
             'owner_player_id' => $this->user->id,
         ]);
 
@@ -182,7 +177,7 @@ class FacilitiesWreckFieldTest extends TestCase
         WreckField::factory()->create([
             'galaxy' => $this->planet->galaxy,
             'system' => $this->planet->system,
-            'planet' => $this->planet->position,
+            'planet' => $this->planet->planet,
             'owner_player_id' => $this->user->id,
             'status' => 'active',
             'expires_at' => now()->addHours(72),
@@ -199,7 +194,7 @@ class FacilitiesWreckFieldTest extends TestCase
         // Check that the wreck field status changed to burned
         $wreckField = WreckField::where('galaxy', $this->planet->galaxy)
             ->where('system', $this->planet->system)
-            ->where('planet', $this->planet->position)
+            ->where('planet', $this->planet->planet)
             ->first();
 
         $this->assertEquals('burned', $wreckField->status);
@@ -211,7 +206,7 @@ class FacilitiesWreckFieldTest extends TestCase
         WreckField::factory()->repairing()->create([
             'galaxy' => $this->planet->galaxy,
             'system' => $this->planet->system,
-            'planet' => $this->planet->position,
+            'planet' => $this->planet->planet,
             'owner_player_id' => $this->user->id,
         ]);
 
@@ -231,7 +226,7 @@ class FacilitiesWreckFieldTest extends TestCase
         WreckField::factory()->create([
             'galaxy' => $this->planet->galaxy,
             'system' => $this->planet->system,
-            'planet' => $this->planet->position,
+            'planet' => $this->planet->planet,
             'owner_player_id' => $this->user->id,
             'status' => 'active',
             'expires_at' => now()->addHours(72),

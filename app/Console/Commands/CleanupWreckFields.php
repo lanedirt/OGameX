@@ -4,9 +4,6 @@ namespace OGame\Console\Commands;
 
 use Illuminate\Console\Command;
 use OGame\Models\WreckField;
-use OGame\Services\WreckFieldService;
-use OGame\Services\PlayerService;
-use OGame\Services\SettingsService;
 
 class CleanupWreckFields extends Command
 {
@@ -27,7 +24,7 @@ class CleanupWreckFields extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Starting wreck field cleanup...');
 
@@ -106,8 +103,11 @@ class CleanupWreckFields extends Command
      */
     private function deployShipsToPlanet(WreckField $wreckField): void
     {
-        $planet = \OGame\Factories\PlanetServiceFactory::resolveService()
-            ->getPlanetByCoordinates($wreckField->galaxy, $wreckField->system, $wreckField->planet);
+        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $planet = $planetServiceFactory->make($wreckField->owner_player_id)
+            ->getPlayer()->planets->getPlanetByCoordinates(
+                new \OGame\Models\Planet\Coordinate($wreckField->galaxy, $wreckField->system, $wreckField->planet)
+            );
 
         if (!$planet) {
             $this->error("Could not find planet for wreck field at {$wreckField->galaxy}:{$wreckField->system}:{$wreckField->planet}");
@@ -115,13 +115,13 @@ class CleanupWreckFields extends Command
         }
 
         $shipData = $wreckField->getShipData();
-        $unitFactory = app(\OGame\Factories\UnitFactory::class);
+        $objectService = app(\OGame\Services\ObjectService::class);
 
         foreach ($shipData as $ship) {
             if ($ship['repair_progress'] >= 100) {
-                $unitObject = $unitFactory->createUnitFromMachineName($ship['machine_name']);
+                $unitObject = $objectService->getUnitObjectByMachineName($ship['machine_name']);
                 if ($unitObject) {
-                    $planet->addUnit($unitObject, $ship['quantity']);
+                    $planet->addUnit($unitObject->machine_name, $ship['quantity']);
 
                     $this->line("Auto-deployed {$ship['quantity']} {$ship['machine_name']} to planet {$wreckField->galaxy}:{$wreckField->system}:{$wreckField->planet}");
                 }
