@@ -113,6 +113,19 @@ class EspionageMission extends GameMission
             // Execute counter-espionage battle
             $battleResult = $this->executeCounterEspionageBattle($origin_planet, $target_planet, $units, $counterEspionageService);
 
+            // Create or append debris field.
+            // TODO: we could change this debris field append logic to do everything in a single query to
+            // prevent race conditions. Check this later when looking into reducing chance of race conditions occurring.
+            // (This TODO is copied from AttackMission.php for consistency)
+            $debrisFieldService = resolve(DebrisFieldService::class);
+            $debrisFieldService->loadOrCreateForCoordinates($target_planet->getPlanetCoordinates());
+
+            // Add debris to the field
+            $debrisFieldService->appendResources($battleResult->debris);
+
+            // Save the debris field
+            $debrisFieldService->save();
+
             // Create battle report for defender
             $battleReportId = $this->createCounterEspionageBattleReport($origin_planet->getPlayer(), $target_planet, $battleResult);
             $this->messageService->sendBattleReportMessageToPlayer($target_planet->getPlayer(), $battleReportId);
