@@ -377,25 +377,6 @@ Combat simulation save slots +20">
                     }
                 @endphp
 
-                {{-- DEBUG INFO --}}
-                <div style="position: fixed; top: 100px; right: 10px; background: yellow; color: black; padding: 10px; font-size: 12px; z-index: 999999; border: 2px solid red;">
-                    <strong>WRECK FIELD DEBUG</strong><br>
-                    Count: {{ count($playerWreckFields) }} wreck fields found<br>
-                    @foreach ($playerWreckFields as $index => $wreckFieldData)
-                        @php
-                            $expiresAt = $wreckFieldData['wreckField']->expires_at;
-                            $now = now();
-                            $diff = $expiresAt->diffInSeconds($now, false);
-                        @endphp
-                        WF{{ $index }}: {{ $wreckFieldData['wreckField']->getTimeRemaining() }}s<br>
-                        Raw diff: {{ $diff }}s<br>
-                        Planet: {{ $wreckFieldData['planet']->getPlanetName() }}<br>
-                        Expires: {{ $expiresAt }}<br>
-                        Now: {{ $now }}<br>
-                        <br>
-                    @endforeach
-                </div>
-
                 <div id="attack_alert" class="@if ($underAttack) soon @elseif (!empty($playerWreckFields) && !$underAttack) wreckField @else noAttack @endif"
                      @if ($underAttack) title="@lang('You are under attack!')" @endif>
                     @if ($underAttack)
@@ -407,24 +388,10 @@ Combat simulation save slots +20">
                                 $expiresAt = $playerWreckFields[0]['wreckField']->expires_at;
                                 $now = now();
 
-                                // Debug: Show raw values
-                                error_log("WF DEBUG: Raw expires: " . $expiresAt->toDateTimeString());
-                                error_log("WF DEBUG: Raw now: " . $now->toDateTimeString());
-                                error_log("WF DEBUG: Timezone: " . $now->timezone->getName());
-
                                 // Use Carbon's proper diff calculation
                                 $timeRemaining = max(0, $now->diffInSeconds($expiresAt, false));
-
-                                // Debug: Show calculation
-                                error_log("WF DEBUG: Calculated time remaining: " . $timeRemaining);
-
-                                // If result is negative, there's a serious issue
-                                if ($timeRemaining <= 0) {
-                                    error_log("WF ERROR: Wreck field expired or has wrong expiration time!");
-                                }
                             } else {
                                 $timeRemaining = 0;
-                                error_log("WF DEBUG: No wreck field data found!");
                             }
                         @endphp
                         @if ($timeRemaining > 0)

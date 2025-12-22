@@ -132,16 +132,7 @@ class WreckField extends Model
         $now = now();
         $expires = $this->expires_at;
 
-        // Calculate time remaining from now to expires (reverse order)
         $timeRemaining = max(0, (int) $now->diffInSeconds($expires));
-
-        // Debug logging
-        \Log::info('WreckField getTimeRemaining calculation', [
-            'now' => $now->toIso8601String(),
-            'expires_at' => $expires->toIso8601String(),
-            'diff_seconds' => $now->diffInSeconds($expires),
-            'time_remaining' => $timeRemaining
-        ]);
 
         return $timeRemaining;
     }
@@ -188,6 +179,12 @@ class WreckField extends Model
      */
     public function getRepairProgress(): int
     {
+        // Completed wreck fields have 100% progress
+        if ($this->status === 'completed') {
+            return 100;
+        }
+
+        // Active or burned wreck fields with no repairs have 0% progress
         if ($this->status !== 'repairing' || !$this->repair_started_at || !$this->repair_completed_at) {
             return 0;
         }

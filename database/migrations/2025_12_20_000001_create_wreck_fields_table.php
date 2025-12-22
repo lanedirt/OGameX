@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->unique(['galaxy', 'system', 'planet']);
 
             // Owner who can repair the ships
-            $table->unsignedBigInteger('owner_player_id');
+            $table->integer('owner_player_id', false, true);
             $table->foreign('owner_player_id')->references('id')->on('users')->onDelete('cascade');
 
             // Timing

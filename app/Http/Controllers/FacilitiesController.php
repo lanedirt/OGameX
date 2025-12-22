@@ -152,17 +152,6 @@ class FacilitiesController extends AbstractBuildingsController
         try {
             $planetService = $player->planets->current();
 
-            // Add debug logging for troubleshooting
-            \Log::info('startRepairs called', [
-                'player_id' => $player->getId(),
-                'planet_coordinates' => [
-                    'galaxy' => $planetService->getPlanetCoordinates()->galaxy,
-                    'system' => $planetService->getPlanetCoordinates()->system,
-                    'position' => $planetService->getPlanetCoordinates()->position
-                ]
-            ]);
-
-            // Create a new WreckFieldService instance with the correct player
             $wreckFieldService = new WreckFieldService($player, app(SettingsService::class));
             $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
 
@@ -175,13 +164,21 @@ class FacilitiesController extends AbstractBuildingsController
                 ]);
             }
 
-            // For now, assume space dock exists since we set it to level 1 earlier
-            // TODO: Implement proper space dock level checking once we find the correct method
-            $spaceDockLevel = 1;
+            // Get the space dock level from the current planet
+            $spaceDockLevel = $planetService->getObjectLevel('space_dock');
+
+            // Check if space dock exists (level >= 1)
+            if ($spaceDockLevel < 1) {
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'Space dock is required for repairs',
+                    'newAjaxToken' => csrf_token(),
+                ])->setStatusCode(400)->header('Content-Type', 'application/json');
+            }
 
             // Load the wreck field for repairs
             $wreckFieldService->loadForCoordinates($planetService->getPlanetCoordinates());
-
             $wreckFieldService->startRepairs($spaceDockLevel);
 
             // Get updated data
@@ -214,19 +211,8 @@ class FacilitiesController extends AbstractBuildingsController
     public function completeRepairs(Request $request, PlayerService $player): JsonResponse
     {
         try {
-            // Add debug logging for troubleshooting
-            \Log::info('completeRepairs called', [
-                'player_id' => $player->getId(),
-                'planet_coordinates' => [
-                    'galaxy' => $player->planets->current()->getPlanetCoordinates()->galaxy,
-                    'system' => $player->planets->current()->getPlanetCoordinates()->system,
-                    'position' => $player->planets->current()->getPlanetCoordinates()->position
-                ]
-            ]);
-
             $planetService = $player->planets->current();
 
-            // Create a new WreckFieldService instance with the correct player
             $wreckFieldService = new WreckFieldService($player, app(SettingsService::class));
             $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
 
@@ -239,10 +225,8 @@ class FacilitiesController extends AbstractBuildingsController
                 ]);
             }
 
-            // Calculate overall repair progress and check if any ships should be considered "repaired"
             $overallProgress = $wreckField['repair_progress'] ?? 0;
 
-            // Temporarily remove 30-minute restriction for testing
             $wreckFieldModel = $wreckField['wreck_field'];
             $repairStartedAt = $wreckFieldModel->repair_started_at ?? null;
 
@@ -254,9 +238,6 @@ class FacilitiesController extends AbstractBuildingsController
                     'newAjaxToken' => csrf_token(),
                 ])->setStatusCode(400)->header('Content-Type', 'application/json');
             }
-
-            // After 30 minutes, allow collection of whatever ships have been repaired so far
-            // No additional progress threshold required beyond the minimum time
 
             // Load the wreck field to collect completed repairs
             $wreckFieldService->loadForCoordinates($planetService->getPlanetCoordinates());
@@ -403,19 +384,7 @@ class FacilitiesController extends AbstractBuildingsController
         try {
             $planetService = $player->planets->current();
 
-            // Create a new WreckFieldService instance with the correct player
             $wreckFieldService = new WreckFieldService($player, app(SettingsService::class));
-
-            // Debug logging
-            \Log::info('getWreckFieldStatus called', [
-                'player_id' => $player->getId(),
-                'planet_coordinates' => [
-                    'galaxy' => $planetService->getPlanetCoordinates()->galaxy,
-                    'system' => $planetService->getPlanetCoordinates()->system,
-                    'planet' => $planetService->getPlanetCoordinates()->position
-                ]
-            ]);
-
             $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
 
             return response()->json([
@@ -423,14 +392,6 @@ class FacilitiesController extends AbstractBuildingsController
                 'error' => false,
                 'newAjaxToken' => csrf_token(),
                 'wreckField' => $wreckField,
-                'debug_info' => [
-                    'player_id' => $player->getId(),
-                    'planet_coordinates' => [
-                        'galaxy' => $planetService->getPlanetCoordinates()->galaxy,
-                        'system' => $planetService->getPlanetCoordinates()->system,
-                        'planet' => $planetService->getPlanetCoordinates()->position
-                    ]
-                ]
             ]);
         } catch (Exception $e) {
             return response()->json([

@@ -427,18 +427,70 @@ class WreckFieldService
     /**
      * Get repair progress percentage.
      *
-     * @return int
+     * @return int Repair progress percentage (0-100), capped by Space Dock level
      */
     public function getRepairProgress(): int
     {
-        if (!$this->wreckField || $this->wreckField->status !== 'repairing') {
+        if (!$this->wreckField) {
+            return 0;
+        }
+
+        if ($this->wreckField->status === 'completed') {
+            return 100;
+        }
+
+        if ($this->wreckField->status !== 'repairing') {
             return 0;
         }
 
         $totalTime = (int) $this->wreckField->repair_completed_at->timestamp - (int) $this->wreckField->repair_started_at->timestamp;
         $elapsedTime = (int) now()->timestamp - (int) $this->wreckField->repair_started_at->timestamp;
 
-        return min(100, max(0, (int) (($elapsedTime / $totalTime) * 100)));
+        $timeBasedProgress = min(100, max(0, (int) (($elapsedTime / $totalTime) * 100)));
+
+        $levelCap = $this->getMaxRecoverablePercentage();
+        $cappedProgress = min($timeBasedProgress, $levelCap);
+
+        return (int) $cappedProgress;
+    }
+
+    /**
+     * Get maximum recoverable percentage based on Space Dock level.
+     *
+     * Returns the maximum percentage of ships that can be recovered from a wreck field
+     * based on the Space Dock building level at the time repairs were started.
+     * Percentage increases with Space Dock level, capped at 39.2% for level 15+.
+     *
+     * @return float Maximum recoverable percentage (31.5% to 39.2%)
+     */
+    public function getMaxRecoverablePercentage(): float
+    {
+        $level = $this->wreckField->space_dock_level ?? 1;
+
+        $percentages = [
+            1 => 31.5,
+            2 => 33.6,
+            3 => 34.3,
+            4 => 35.0,
+            5 => 35.7,
+            6 => 36.4,
+            7 => 37.1,
+            8 => 37.1,
+            9 => 37.8,
+            10 => 37.8,
+            11 => 38.5,
+            12 => 38.5,
+            13 => 38.5,
+            14 => 39.2,
+            15 => 39.2,
+        ];
+
+        // Cap at level 15
+        if ($level > 15) {
+            $level = 15;
+        }
+
+        return $percentages[$level] ?? 31.5;
     }
 
     /**
@@ -451,40 +503,21 @@ class WreckFieldService
     {
         $coordinates = $planetService->getPlanetCoordinates();
 
-        // Debug logging
-        \Log::info('WreckFieldService::getWreckFieldForCurrentPlanet', [
-            'player_id' => $this->playerService->getId(),
-            'coordinates' => [
-                'galaxy' => $coordinates->galaxy,
-                'system' => $coordinates->system,
-                'position' => $coordinates->position
-            ]
-        ]);
-
         $wreckField = WreckField::where('galaxy', $coordinates->galaxy)
             ->where('system', $coordinates->system)
             ->where('planet', $coordinates->position)
             ->where('owner_player_id', $this->playerService->getId())
             ->first();
 
-        \Log::info('WreckField query result', [
-            'found' => $wreckField ? true : false,
-            'wreck_field_id' => $wreckField ? $wreckField->id : null
-        ]);
-
         if (!$wreckField) {
             return null;
         }
 
-        // Check if wreck field is expired
         if ($wreckField->isExpired()) {
-            \Log::info('WreckField expired');
             return null;
         }
 
-        // Check if wreck field is burned
         if ($wreckField->isBurned()) {
-            \Log::info('WreckField is burned');
             return null;
         }
 
@@ -500,14 +533,7 @@ class WreckFieldService
             ];
         }
 
-        // Debug logging for time calculation
         $timeRemaining = $wreckField->getTimeRemaining();
-        \Log::info('WreckFieldService getWreckFieldForCurrentPlanet', [
-            'wreck_field_id' => $wreckField->id,
-            'expires_at' => $wreckField->expires_at->toIso8601String(),
-            'now' => now()->toIso8601String(),
-            'time_remaining_calculated' => $timeRemaining
-        ]);
 
         return [
             'wreck_field' => $wreckField,
@@ -517,6 +543,8 @@ class WreckFieldService
             'is_repairing' => $wreckField->isRepairing(),
             'is_completed' => $wreckField->isCompleted(),
             'repair_progress' => $wreckField->getRepairProgress(),
+            'max_recoverable_percentage' => $this->getMaxRecoverablePercentage(),
+            'space_dock_level' => $wreckField->space_dock_level ?? 1,
             'repair_completion_time' => $wreckField->getRepairCompletionTime(),
             'repair_started_at' => $wreckField->repair_started_at,
             'remaining_repair_time' => $wreckField->getRepairCompletionTime() ?
