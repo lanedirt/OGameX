@@ -152,6 +152,16 @@ class FacilitiesController extends AbstractBuildingsController
         try {
             $planetService = $player->planets->current();
 
+            // Add debug logging for troubleshooting
+            \Log::info('startRepairs called', [
+                'player_id' => $player->getId(),
+                'planet_coordinates' => [
+                    'galaxy' => $planetService->getPlanetCoordinates()->galaxy,
+                    'system' => $planetService->getPlanetCoordinates()->system,
+                    'position' => $planetService->getPlanetCoordinates()->position
+                ]
+            ]);
+
             // Create a new WreckFieldService instance with the correct player
             $wreckFieldService = new WreckFieldService($player, app(SettingsService::class));
             $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
@@ -175,7 +185,7 @@ class FacilitiesController extends AbstractBuildingsController
             $wreckFieldService->startRepairs($spaceDockLevel);
 
             // Get updated data
-            $updatedData = $this->wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
+            $updatedData = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
 
             return response()->json([
                 'success' => true,
@@ -204,7 +214,16 @@ class FacilitiesController extends AbstractBuildingsController
     public function completeRepairs(Request $request, PlayerService $player): JsonResponse
     {
         try {
-            // Temporarily remove debug logging to reduce potential issues
+            // Add debug logging for troubleshooting
+            \Log::info('completeRepairs called', [
+                'player_id' => $player->getId(),
+                'planet_coordinates' => [
+                    'galaxy' => $player->planets->current()->getPlanetCoordinates()->galaxy,
+                    'system' => $player->planets->current()->getPlanetCoordinates()->system,
+                    'position' => $player->planets->current()->getPlanetCoordinates()->position
+                ]
+            ]);
+
             $planetService = $player->planets->current();
 
             // Create a new WreckFieldService instance with the correct player
@@ -223,8 +242,7 @@ class FacilitiesController extends AbstractBuildingsController
             // Calculate overall repair progress and check if any ships should be considered "repaired"
             $overallProgress = $wreckField['repair_progress'] ?? 0;
 
-            // Check if repairs have been running for at least the minimum time (30 minutes)
-            $minRepairTime = 30 * 60; // 30 minutes in seconds
+            // Temporarily remove 30-minute restriction for testing
             $wreckFieldModel = $wreckField['wreck_field'];
             $repairStartedAt = $wreckFieldModel->repair_started_at ?? null;
 
@@ -233,19 +251,6 @@ class FacilitiesController extends AbstractBuildingsController
                     'success' => false,
                     'error' => true,
                     'message' => 'Repairs have not been started yet',
-                    'newAjaxToken' => csrf_token(),
-                ])->setStatusCode(400)->header('Content-Type', 'application/json');
-            }
-
-            $elapsedTime = now()->diffInSeconds($repairStartedAt);
-
-            if ($elapsedTime < $minRepairTime) {
-                $remainingTime = $minRepairTime - $elapsedTime;
-                $minutes = ceil($remainingTime / 60);
-                return response()->json([
-                    'success' => false,
-                    'error' => true,
-                    'message' => 'Repairs must run for at least 30 minutes before any ships can be collected. ' . $minutes . ' minutes remaining.',
                     'newAjaxToken' => csrf_token(),
                 ])->setStatusCode(400)->header('Content-Type', 'application/json');
             }
@@ -317,7 +322,7 @@ class FacilitiesController extends AbstractBuildingsController
                 'success' => true,
                 'error' => false,
                 'newAjaxToken' => csrf_token(),
-                'message' => count($collectedShips) > 0 ? 'Ships collected successfully' : 'No ships ready for collection',
+                'message' => count($collectedShips) > 0 ? 'All ships have been put back into service' : 'No ships ready for collection',
                 'collected_ships' => $collectedShips,
                 'remaining_ships' => $remainingShips,
             ])->header('Content-Type', 'application/json');

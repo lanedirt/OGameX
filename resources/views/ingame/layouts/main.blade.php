@@ -480,7 +480,7 @@ Combat simulation save slots +20">
                     }
                     @endphp
                     @if ($isWreckFieldActive)
-                    <a href="javascript:void(0);" class="wreckFieldIcon tooltip js_hideTipOnMobile" onclick="openWreckFieldDetailsPopup(); return false;" title="{{ $shipTooltipContent }}" style="cursor: pointer;"></a>
+                    <a href="{{ route('facilities.index') }}?openSpaceDock=1" class="wreckFieldIcon tooltip js_hideTipOnMobile" title="{{ $shipTooltipContent }}" style="cursor: pointer;"></a>
                             <span id="wreckFieldCountDown" class="wreckFieldCountDown" data-duration="{{ $timeRemaining }}" title="">{{ $timeText }}</span>
                     @endif
                                                         <script>

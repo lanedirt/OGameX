@@ -116,7 +116,7 @@
                         <div class="footer"></div>
                     </div>
                     <script type="text/javascript">
-                        var scheduleBuildListEntryUrl = '{{ route('facilities.addbuildrequest.post') }}';
+                        var scheduleBuildListEntryUrl = '{{ route("facilities.addbuildrequest.post") }}';
                         var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
                         redirectPremiumLink = '#TODO_index.php?page=premium&showDarkMatter=1'
                     </script>
@@ -152,62 +152,25 @@
                     console.log('Triggering space dock click - sessionStorage:', sessionStorage.getItem('triggerSpaceDock'), 'URL param:', new URLSearchParams(window.location.search).get('openSpaceDock'));
                     sessionStorage.removeItem('triggerSpaceDock');
 
-                    // Try multiple attempts with increasing delays
-                    function triggerSpaceDockClick(attempt = 1) {
-                        console.log(`Attempt ${attempt} to trigger space dock click`);
-                        const $spaceDock = $('.technology.space_dock, .technology[data-technology="36"]');
-                        console.log('Space dock elements found:', $spaceDock.length);
-
+                    // Use a more direct approach - click the space dock building itself
+                    setTimeout(() => {
+                        const $spaceDock = $('.technology[data-technology="36"]');
                         if ($spaceDock.length > 0) {
-                            console.log('Space dock element found, loading technology details...');
-                            const element = $spaceDock.first()[0];
-
-                            // Instead of just clicking, let's load the technology details directly via AJAX
-                            const techId = 36; // Space Dock technology ID
-                            const planetId = $spaceDock.first().data('planet-id') || {{ $planet->getPlanetId() }};
-
-                            $.ajax({
-                                url: technologyDetailsEndpoint,
-                                method: 'GET',
-                                data: {
-                                    technology: techId,
-                                    planet_id: planetId
-                                },
-                                success: function(response) {
-                                    console.log('Technology details loaded successfully:', response);
-                                    if (response.content && response.content.technologydetails) {
-                                        $('#technologydetails_content').html(response.content.technologydetails);
-                                        console.log('Technology details HTML inserted');
-
-                                        // Now check for space dock details
-                                        setTimeout(checkAndLoadWreckField, 500);
-                                    } else {
-                                        console.log('No technology details in response:', response);
-                                    }
-                                },
-                                error: function(xhr, status, error) {
-                                    console.error('Failed to load technology details:', error);
-
-                                    // Fallback: try clicking the element
-                                    try {
-                                        $spaceDock.first().trigger('click');
-                                        console.log('Fallback jQuery trigger successful');
-                                    } catch (e) {
-                                        console.error('All methods failed:', e);
-                                    }
-                                }
-                            });
-
-                        } else if (attempt <= 5) {
-                            // Try again with longer delay
-                            setTimeout(() => triggerSpaceDockClick(attempt + 1), attempt * 1000);
+                            console.log('Simulating space dock building click');
+                            // Click the space dock building element itself (not the details button)
+                            const $buildingContent = $spaceDock.find('span, div').not('.details');
+                            if ($buildingContent.length > 0) {
+                                $buildingContent.first().trigger('click');
+                                setTimeout(checkAndLoadWreckField, 1000);
+                            } else {
+                                console.log('Clicking space dock element as fallback');
+                                $spaceDock.first().trigger('click');
+                                setTimeout(checkAndLoadWreckField, 1000);
+                            }
                         } else {
-                            console.error('Space dock element not found after 5 attempts');
+                            console.error('Space dock element not found');
                         }
-                    }
-
-                    // Start with initial delay
-                    setTimeout(() => triggerSpaceDockClick(1), 1000);
+                    }, 1000);
                 }
 
                 // Handle clicks on space dock technology directly
@@ -289,8 +252,8 @@
 
             // Global functions for wreck field actions (called from onclick attributes)
             window.startWreckFieldRepairs = function() {
-                $.post('{{ route('facilities.startrepairs') }}', {
-                    _token: '{{ csrf_token() }}'
+                $.post('{{ route("facilities.startrepairs") }}', {
+                    _token: "{{ csrf_token() }}"
                 })
                 .done(function(response) {
                     if (response.success) {
@@ -321,8 +284,8 @@
             };
 
             window.completeWreckFieldRepairs = function() {
-                $.post('{{ route('facilities.completerepairs') }}', {
-                    _token: '{{ csrf_token() }}'
+                $.post('{{ route("facilities.completerepairs") }}', {
+                    _token: "{{ csrf_token() }}"
                 })
                 .done(function(response) {
                     if (response.success) {
@@ -365,7 +328,7 @@
                 });
 
                 $.ajax({
-                    url: '{{ route('facilities.completerepairs') }}',
+                    url: '{{ route("facilities.completerepairs") }}',
                     method: 'POST',
                     data: {
                         _token: token
@@ -379,12 +342,13 @@
                     if (response.success) {
                         // Show success fadeBox
                         if (window.fadeBox) {
-                            fadeBox('Ships collected successfully!');
+                            fadeBox('All ships have been put back into service');
                         }
-                        // Reload wreck field data - should hide section since wreck field is gone
-                        $('.technology.space_dock .description, .technology[data-technology="36"] .description').each(function() {
-                            loadWreckFieldDataIntoDescription($(this));
-                        });
+                        // Auto-refresh page with space dock open
+                        sessionStorage.setItem('triggerSpaceDock', 'true');
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 2000); // 2 second delay to let user see the message
                     } else {
                         if (window.errorBox) {
                             errorBoxDecision('Error', response.message || 'Error collecting ships', 'OK', null, null);
@@ -404,8 +368,8 @@
 
             window.burnWreckField = function() {
                 if (confirm('{{ __("Are you sure you want to burn up this wreck field? This action cannot be undone.") }}')) {
-                    $.post('{{ route('facilities.burnwreckfield') }}', {
-                        _token: '{{ csrf_token() }}'
+                    $.post('{{ route("facilities.burnwreckfield") }}', {
+                        _token: "{{ csrf_token() }}"
                     })
                     .done(function(response) {
                         if (response.success) {
@@ -437,8 +401,8 @@
 
             window.showWreckFieldDetails = function() {
                 // Get current wreck field data
-                $.get('{{ route('facilities.wreckfieldstatus') }}', {
-                    _token: '{{ csrf_token() }}'
+                $.get('{{ route("facilities.wreckfieldstatus") }}', {
+                    _token: "{{ csrf_token() }}"
                 })
                 .done(function(response) {
                     if (response.success && response.wreckField) {
@@ -693,8 +657,8 @@
                 // Remove any existing wreck field section first
                 $description.find('#wreckFieldSection').remove();
 
-                $.get('{{ route('facilities.wreckfieldstatus') }}', {
-                    _token: '{{ csrf_token() }}'
+                $.get('{{ route("facilities.wreckfieldstatus") }}', {
+                    _token: "{{ csrf_token() }}"
                 })
                 .done(function(response) {
                     console.log('Wreck field response:', response);
