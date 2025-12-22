@@ -399,32 +399,7 @@
                 }
             };
 
-            window.showWreckFieldDetails = function() {
-                // Get current wreck field data
-                $.get('{{ route("facilities.wreckfieldstatus") }}', {
-                    _token: "{{ csrf_token() }}"
-                })
-                .done(function(response) {
-                    if (response.success && response.wreckField) {
-                        createRepairLayerOverlay(response.wreckField);
-                    } else {
-                        if (window.errorBox) {
-                            errorBoxDecision('Error', 'No wreck field data available', 'OK', null, null);
-                        } else {
-                            alert('No wreck field data available');
-                        }
-                    }
-                })
-                .fail(function() {
-                    if (window.errorBox) {
-                        errorBoxDecision('Error', 'Network error loading wreck field details', 'OK', null, null);
-                    } else {
-                        alert('Network error loading wreck field details');
-                    }
-                });
-                return false;
-            };
-
+    
             function createRepairLayerOverlay(wreckFieldData) {
                 console.log('Creating repair layer overlay with data:', wreckFieldData);
                 console.log('Ship data:', wreckFieldData.ship_data);
@@ -580,8 +555,8 @@
                     </div>
                 `;
 
-                // Create and show the overlay dialog
-                if (typeof $ !== 'undefined' && $.fn.dialog) {
+                // Create and show the overlay dialog (using fallback method to avoid jQuery UI dialog issues)
+                if (false) {
                     // Use jQuery UI dialog if available
                     $('<div>' + overlayHtml + '</div>').dialog({
                         title: 'Space Dock',
@@ -714,22 +689,50 @@
                     var $separator = $('<hr>');
                     var $repairOrder = $('<span class="repair_order"></span>');
 
-                    // Create ship details for tooltip
+                    // Create ship details for tooltip (matching popup calculation)
                   var shipDetails = '';
-                  for (const ship of wreckFieldData.ship_data) {
-                      if (ship.quantity > 0) {
-                          const repairedCount = Math.floor((ship.quantity * (ship.repair_progress || 0)) / 100);
-                          // Format machine name to readable name (replace underscores with spaces and capitalize)
-                          let shipName = ship.machine_name.replace(/_/g, ' ');
-                          shipName = shipName.replace(/\b\w/g, l => l.toUpperCase());
-                          shipDetails += `${shipName}: ${repairedCount} / ${ship.quantity}<br>`;
+                  if (wreckFieldData.is_repairing && wreckFieldData.remaining_repair_time >= 0 && wreckFieldData.repair_completion_time && wreckFieldData.repair_started_at) {
+                      // Calculate real-time progress for during repairs
+                      const totalRepairTime = (new Date(wreckFieldData.repair_completion_time).getTime() - new Date(wreckFieldData.repair_started_at).getTime()) / 1000;
+                      const elapsedTime = totalRepairTime - wreckFieldData.remaining_repair_time;
+                      const currentProgress = Math.min(100, Math.max(0, (elapsedTime / totalRepairTime) * 100));
+
+                      for (const ship of wreckFieldData.ship_data) {
+                          if (ship.quantity > 0) {
+                              const repairedCount = Math.floor(ship.quantity * (currentProgress / 100));
+                              // Format machine name to readable name (replace underscores with spaces and capitalize)
+                              let shipName = ship.machine_name.replace(/_/g, ' ');
+                              shipName = shipName.replace(/\b\w/g, l => l.toUpperCase());
+                              shipDetails += `${shipName}: ${repairedCount} / ${ship.quantity}<br>`;
+                          }
                       }
+                  } else {
+                      // Before repairs: use individual ship progress or 0
+                      for (const ship of wreckFieldData.ship_data) {
+                          if (ship.quantity > 0) {
+                              const repairedCount = wreckFieldData.is_repairing ? Math.floor((ship.quantity * (ship.repair_progress || 0)) / 100) : 0;
+                              // Format machine name to readable name (replace underscores with spaces and capitalize)
+                              let shipName = ship.machine_name.replace(/_/g, ' ');
+                              shipName = shipName.replace(/\b\w/g, l => l.toUpperCase());
+                              shipDetails += `${shipName}: ${repairedCount} / ${ship.quantity}<br>`;
+                          }
+                      }
+                  }
+
+                  // Create repair time timer element
+                  let repairTimerElement = '';
+                  if (wreckFieldData.is_repairing && wreckFieldData.remaining_repair_time > 0) {
+                      const remainingTime = wreckFieldData.remaining_repair_time;
+                      const hours = Math.floor(remainingTime / 3600);
+                      const minutes = Math.floor((remainingTime % 3600) / 60);
+                      const seconds = remainingTime % 60;
+                      repairTimerElement = `<span id="complexActionRepairTimer" data-duration="${remainingTime}" style="font-size: 7px; font-weight: bold; color: white;">${hours}h ${minutes}m ${seconds}s</span>`;
                   }
 
                   var $shipsSpan = $(`
                         <span class="ships" style="font-size: 7px;">
-                            Repaired Ships:
-                            <a href="#" class="value tooltip overlay" title="" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px" style="font-size: 8px; font-weight: bold;">${repairedShips} / ${totalShips}</a>
+                            ${repairTimerElement ? `Repair time remaining: ${repairTimerElement} ` : ''}
+                            Repaired Ships: <a href="javascript:void(0);" class="value tooltip" onclick="openWreckFieldDetailsPopup(); return false;" style="font-size: 7px; font-weight: bold;">${repairedShips} / ${totalShips}</a>
                         </span>
                     `);
 
@@ -790,7 +793,7 @@
                             <span class="btn btn_dark tooltip middlemark" title="${collectButtonTooltip}" style="${collectButtonStyle}">Collect</span>
                         </button>
                     `);
-                    var $detailsBtn = $('<a class="btn btn_dark undermark fright" href="javascript:void(0);" onclick="showWreckFieldDetails(); return false;">Details</a>');
+                    var $detailsBtn = $('<a class="btn btn_dark undermark fright" href="javascript:void(0);" onclick="openWreckFieldDetailsPopup(); return false;">Details</a>');
 
                     $wreckfieldBtns.append($collectBtn);
                     $wreckfieldBtns.append($detailsBtn);
@@ -878,7 +881,7 @@
                     $wreckFieldSpan.append($timeElement);
 
                     // Add Details link
-                    var $detailsLink = $('<a href="javascript:void(0);" class="fright tooltip overlay" data-overlay-title="Space Dock" data-overlay-class="repairlayer" data-overlay-width="656px" onclick="showWreckFieldDetails();">Details</a>');
+                    var $detailsLink = $('<a href="javascript:void(0);" class="fright tooltip" onclick="openWreckFieldDetailsPopup(); return false;">Details</a>');
 
                     var $separator = $('<hr>');
 
@@ -927,7 +930,25 @@
 
                 // Start countdown timers
                 if (wreckFieldData.is_repairing && wreckFieldData.remaining_repair_time > 0) {
-                    // Add repair timer if needed
+                    // Add repair timer for complex action
+                    const $repairTimer = $('#complexActionRepairTimer');
+                    if ($repairTimer.length) {
+                        let duration = $repairTimer.data('duration');
+                        const repairTimerInterval = setInterval(function() {
+                            if (duration <= 0) {
+                                $repairTimer.text('0h 0m 0s');
+                                clearInterval(repairTimerInterval);
+                                return;
+                            }
+
+                            const hours = Math.floor(duration / 3600);
+                            const minutes = Math.floor((duration % 3600) / 60);
+                            const seconds = duration % 60;
+
+                            $repairTimer.text(`${hours}h ${minutes}m ${seconds}s`);
+                            duration--;
+                        }, 1000);
+                    }
                 }
             }
 

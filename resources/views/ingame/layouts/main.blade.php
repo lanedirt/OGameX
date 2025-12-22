@@ -480,7 +480,7 @@ Combat simulation save slots +20">
                     }
                     @endphp
                     @if ($isWreckFieldActive)
-                    <a href="{{ route('facilities.index') }}?openSpaceDock=1" class="wreckFieldIcon tooltip js_hideTipOnMobile" title="{{ $shipTooltipContent }}" style="cursor: pointer;"></a>
+                    <a href="javascript:void(0);" class="wreckFieldIcon tooltip js_hideTipOnMobile" title="{{ $shipTooltipContent }}" style="cursor: pointer;" onclick="openWreckFieldDetailsPopup(); return false;"></a>
                             <span id="wreckFieldCountDown" class="wreckFieldCountDown" data-duration="{{ $timeRemaining }}" title="">{{ $timeText }}</span>
                     @endif
                                                         <script>
@@ -959,8 +959,19 @@ Combat simulation save slots +20">
                             console.log('Ship machine_name:', ship.machine_name);
 
                             const shipName = ship.machine_name ? ship.machine_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown Ship';
-                            const quantity = ship.quantity || 0;
-                            const repairTime = '32m 0s'; // TODO: Calculate based on ship count and dock level
+                            const totalQuantity = ship.quantity || 0;
+                            const repairProgress = wreckFieldData.repair_progress || 0;
+                            const repairedCount = wreckFieldData.is_repairing ?
+                                Math.floor(totalQuantity * (repairProgress / 100)) : 0;
+
+                            // Calculate real-time repair progress if repairs are active
+                            let currentRepairedCount = repairedCount;
+                            if (wreckFieldData.is_repairing && wreckFieldData.remaining_repair_time >= 0 && wreckFieldData.repair_completion_time && wreckFieldData.repair_started_at) {
+                                const totalRepairTime = (new Date(wreckFieldData.repair_completion_time).getTime() - new Date(wreckFieldData.repair_started_at).getTime()) / 1000;
+                                const elapsedTime = totalRepairTime - wreckFieldData.remaining_repair_time;
+                                const currentProgress = Math.min(100, Math.max(0, (elapsedTime / totalRepairTime) * 100));
+                                currentRepairedCount = Math.floor(totalQuantity * (currentProgress / 100));
+                            }
 
                             // Map machine names to ship IDs for CSS background positioning
                             const shipIdMap = {
@@ -991,48 +1002,72 @@ Combat simulation save slots +20">
                             const shipId = shipIdMap[ship.machine_name] || '204';
                             console.log('Mapped machine_name:', ship.machine_name, 'to shipId:', shipId);
 
-                            shipHtml += `
-                                <div class="tooltip fleft ships" id="ship${shipId}" title="${shipName}">
-                                    <span class="ecke">
-                                        <span class="level">${quantity}</span>
-                                    </span>
-                                    <div class="repairTime">
-                                        <span style="color: whitesmoke">${repairTime}</span>
+                            // Use different display format based on repair status
+                            if (wreckFieldData.is_repairing) {
+                                // During repairs: show progress like "102/451"
+                                shipHtml += `
+                                    <div class="tooltipHTML fleft ships" id="ship${shipId}" data-tooltip-title="${shipName}|${currentRepairedCount}/${totalQuantity}">
+                                        <span class="ecke">
+                                            <span class="level">${currentRepairedCount}/${totalQuantity}</span>
+                                        </span>
                                     </div>
-                                </div>
-                            `;
+                                `;
+                            } else {
+                                // Before repairs: show single quantity like "350"
+                                const repairTime = '32m 0s'; // TODO: Calculate based on ship count and dock level
+                                shipHtml += `
+                                    <div class="tooltip fleft ships" id="ship${shipId}" title="${shipName}">
+                                        <span class="ecke">
+                                            <span class="level">${totalQuantity}</span>
+                                        </span>
+                                        <div class="repairTime">
+                                            <span style="color: whitesmoke">${repairTime}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }
                         });
                     }
 
                     const popupContent = `
                         <div id="repairlayer">
                             <div class="repairableShips">
-                                <div>
-                                    <div class="descriptionText">Electronic charges flicker through defective drive units, atmosphere escapes from the wrecks of destroyed ships and is released into space. Huge gaping holes can be seen in the burned out hulls and empty escape capsules whirl around the room. So many ships have fallen victim to the great battle!
+                                ${wreckFieldData.is_repairing ?
+                                    // During repairs: show minimal content
+                                    `<span>There is no wreckage at this position.</span>` :
+                                    // Before repairs: show full description
+                                    `<div>
+                                        <div class="descriptionText">Electronic charges flicker through defective drive units, atmosphere escapes from the wrecks of destroyed ships and is released into space. Huge gaping holes can be seen in the burned out hulls and empty escape capsules whirl around the room. So many ships have fallen victim to the great battle!
 
 However, the Space Dock's engineers think that some of the remains can be salvaged, before the wreckage enters the atmosphere and ultimately burns up. The repair crews are ready.</div>
-                                    <div class="rightArea">
-                                        <div class="boxed">
-                                            <p>Wreckage burns up in: </p>
-                                            <p id="burnUpCountDownForRepairOverlay" data-duration="${timeRemaining}">${timeDisplay}</p>
+                                        <div class="rightArea">
+                                            <div class="boxed">
+                                                <p>Wreckage burns up in: </p>
+                                                <p id="burnUpCountDownForRepairOverlay" data-duration="${timeRemaining}">${timeDisplay}</p>
+                                            </div>
+                                            <br>
+                                            ${!wreckFieldData.is_repairing && !wreckFieldData.is_completed && wreckFieldData.can_repair ?
+                                            `<div class="btn btn_dark fright burnUpButton">
+                                                <input type="button" class="overmark burnUpButton" value="Leave to burn up" data-loca_box_text="Leave to burn up" data-loca_decision_text="The wreckage will descend into the planet's atmosphere and burn up. Once struck, a repair will no longer be possible. Are you sure you want to burn up the wreckage?" data-loca_yes="yes" data-loca_no="No" onclick="goToSpaceDockAndBurnUp();">
+                                            </div>` : ''
+                            }
                                         </div>
-                                        <br>
-                                        ${!wreckFieldData.is_repairing && !wreckFieldData.is_completed && wreckFieldData.can_repair ?
-                                        `<div class="btn btn_dark fright burnUpButton">
-                                            <input type="button" class="overmark burnUpButton" value="Leave to burn up" data-loca_box_text="Leave to burn up" data-loca_decision_text="The wreckage will descend into the planet's atmosphere and burn up. Once struck, a repair will no longer be possible. Are you sure you want to burn up the wreckage?" data-loca_yes="yes" data-loca_no="No" onclick="goToSpaceDockAndBurnUp();">
-                                        </div>` : ''
-                    }
-                                    </div>
-                                </div>
+                                    </div>`
+                                }
                                 <div class="clearfix"></div>
                                 <br>
-                                <h3>Repairable ships:</h3>
+                                <h3>${wreckFieldData.is_repairing ? 'Ships being repaired:' : 'Repairable ships:'}</h3>
                                 <div class="ships_wrapper clearfix">
                                     ${shipHtml}
                                     <div class="clearfix"></div>
                                     <br>
-                                    <label>Repair time: </label><span id="repairTime">${wreckFieldData.remaining_repair_time > 0 ? Math.floor(wreckFieldData.remaining_repair_time / 60) + 'm ' + (wreckFieldData.remaining_repair_time % 60) + 's' : '32m 0s'}</span>
-                                    ${wreckFieldData.is_repairing ?
+                                    ${wreckFieldData.is_repairing && wreckFieldData.remaining_repair_time > 0 ?
+                                        // During repairs: show repair time remaining and collection button
+                                        `<p>Repair time remaining: <span id="repairTimeCountDownForRepairOverlay" data-duration="${wreckFieldData.remaining_repair_time}">${Math.floor(wreckFieldData.remaining_repair_time / 60) + 'm ' + (wreckFieldData.remaining_repair_time % 60) + 's'}</span></p>
+                                        <div class="btn btn_dark fright tooltip reCommissionButton" title="">
+                                            <input type="button" class="disabled reCommissionButton tooltip" value="Put ships that are already repaired back into service" disabled="disabled">
+                                        </div>` :
+                                        wreckFieldData.is_repairing ?
                                         `<div class="btn btn_dark fright">
                                             <input type="button" class="middlemark" value="Repairs in progress (${wreckFieldData.repair_progress}%)" disabled>
                                         </div>` :
@@ -1040,7 +1075,9 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                         `<div class="btn btn_dark fright">
                                             <input type="button" class="middlemark" value="Repairs completed - Collect ships" onclick="location.href='{{ route('facilities.index') }}';">
                                         </div>` :
-                                        `<div class="btn btn_dark fright startRepairsButton">
+                                        // Before repairs: show repair time and start button
+                                        `<label>Repair time: </label><span id="repairTime">${wreckFieldData.remaining_repair_time > 0 ? Math.floor(wreckFieldData.remaining_repair_time / 60) + 'm ' + (wreckFieldData.remaining_repair_time % 60) + 's' : '32m 0s'}</span>
+                                        <div class="btn btn_dark fright startRepairsButton">
                                             <input type="button" class="middlemark startRepairsButton" value="Start repairs" onclick="goToSpaceDockAndRepair();">
                                         </div>`
                                     }
@@ -1058,60 +1095,25 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                             resizable: false,
                             draggable: true,
                             width: 656,
-                            title: 'Wreckage',
+                            title: 'Space Dock',
                             dialogClass: 'repairlayer',
                             closeOnEscape: true,
                             close: function() {
                                 $(this).dialog('destroy').remove();
                             },
                             open: function() {
-                                // Remove any duplicate close buttons that might be created
-                                $(this).parent().find('.ui-dialog-titlebar-close').not(':first').remove();
+                                // Remove unwanted "Close" text from title bar
+                                $(this).parent().find('.ui-dialog-titlebar-close').contents().filter(function() {
+                                    return this.nodeType === 3 && $.trim(this.nodeValue) === 'Close';
+                                }).remove();
 
-                                // Add CSS to hide close text more aggressively
-                                $('<style>')
-                                    .prop('type', 'text/css')
-                                    .html(`
-                                        .ui-dialog-titlebar-close *:not(.ui-icon):not([class*="ui-icon"]) {
-                                            display: none !important;
-                                            visibility: hidden !important;
-                                        }
-                                        .ui-dialog-titlebar-close span:not(.ui-icon) {
-                                            display: none !important;
-                                            visibility: hidden !important;
-                                        }
-                                        .ui-dialog-titlebar-close .ui-button-text {
-                                            display: none !important;
-                                        }
-                                        .ui-dialog-titlebar .ui-dialog-titlebar-close ~ span,
-                                        .ui-dialog-titlebar span:has(~ .ui-dialog-titlebar-close),
-                                        .ui-dialog-titlebar span:not(.ui-icon) {
-                                            display: none !important;
-                                        }
-                                        /* Target the specific close text element */
-                                        .ui-dialog-titlebar-close .ui-button-icon-space,
-                                        .ui-dialog-titlebar-close span.ui-button-icon-space,
-                                        .ui-dialog-titlebar-close span:contains("Close") {
-                                            display: none !important;
-                                            visibility: hidden !important;
-                                            font-size: 0 !important;
-                                            width: 0 !important;
-                                            height: 0 !important;
-                                        }
-                                    `)
-                                    .appendTo('head');
-
-                                // Hide any close text that might be appearing - more aggressive approach
-                                $(this).parent().find('.ui-dialog-titlebar-close').contents().each(function() {
-                                    if (this.nodeType === 3) {
-                                        var text = $.trim(this.nodeValue).toLowerCase();
-                                        if (text === 'close' || text.includes('close')) {
-                                            $(this).wrap('<span style="display: none !important; visibility: hidden !important;"></span>');
-                                        }
+                                // Also remove any span elements containing just "Close" text
+                                $(this).parent().find('.ui-dialog-titlebar-close span').each(function() {
+                                    const $this = $(this);
+                                    if (!$this.hasClass('ui-icon') && !$this.hasClass('ui-button-icon-space') && $.trim($this.text()) === 'Close') {
+                                        $this.remove();
                                     }
                                 });
-
-                                <!-- Removed all aggressive close button JavaScript to restore normal jQuery UI behavior -->
                             }
                         });
 
