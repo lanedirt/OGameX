@@ -40,7 +40,7 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 
 ## 🖥️ Live demo
 - Main branch (nightly builds): [https://main.ogamex.dev](https://main.ogamex.dev)
-- Latest stable release **(0.12.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
+- Latest stable release **(0.13.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
 
 ## 📝 Table of Contents
 - [1. Example screenshots](#screenshots)
@@ -200,7 +200,7 @@ If you want to upgrade an existing installation of OGameX to a new version, foll
   ```
   -- or --
   ```
-  $ git checkout 0.12.0 # replace with the latest release tag
+  $ git checkout 0.13.0 # replace with the latest release tag
   ```
   3. Rebuild and start the containers:
 

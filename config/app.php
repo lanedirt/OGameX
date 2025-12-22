@@ -127,6 +127,6 @@ return [
     | Custom OGameX app settings
     |--------------------------------------------------------------------------
      */
-    'version' => '0.12.0',
+    'version' => '0.13.0',
     'discord_alert_webhook' => env('DISCORD_ALERT_WEBHOOK', false),
 ];
