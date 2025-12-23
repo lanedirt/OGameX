@@ -29,7 +29,7 @@ class SetupWreckFieldTestData extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $password = $this->option('password');
         $clean = $this->option('clean');
