@@ -17,8 +17,8 @@
 <div align="center">
 
 [<img src="https://img.shields.io/github/v/release/lanedirt/OGameX?include_prereleases&logo=github">](https://github.com/lanedirt/OGameX/releases)
-[<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-tests-docker-compose.yml?label=docker-compose%20build">](https://github.com/lanedirt/OGameX/actions/workflows/run-tests-docker-compose.yml)
-[<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-tests-sqlite.yml?label=tests">](https://github.com/lanedirt/OGameX/actions/workflows/run-tests-sqlite.yml)
+[<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-docker-compose-prod.yml?label=docker-compose%20build">](https://github.com/lanedirt/OGameX/actions/workflows/run-docker-compose-prod.yml)
+[<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-tests-docker-compose.yml?label=tests">](https://github.com/lanedirt/OGameX/actions/workflows/run-tests-docker-compose.yml)
 [<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-phpstan-code-analysis.yml?label=static code analysis">](https://github.com/lanedirt/OGameX/actions/workflows/run-phpstan-code-analysis.yml)
 [<img src="https://img.shields.io/github/actions/workflow/status/lanedirt/OGameX/run-laravel-pint-code-style-checker.yml?label=psr-12%20code%20style">](https://github.com/lanedirt/OGameX/actions/workflows/run-laravel-pint-code-style-checker.yml)
 
@@ -40,7 +40,7 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 
 ## 🖥️ Live demo
 - Main branch (nightly builds): [https://main.ogamex.dev](https://main.ogamex.dev)
-- Latest stable release **(0.12.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
+- Latest stable release **(0.13.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
 
 ## 📝 Table of Contents
 - [1. Example screenshots](#screenshots)
@@ -200,7 +200,7 @@ If you want to upgrade an existing installation of OGameX to a new version, foll
   ```
   -- or --
   ```
-  $ git checkout 0.12.0 # replace with the latest release tag
+  $ git checkout 0.13.0 # replace with the latest release tag
   ```
   3. Rebuild and start the containers:
 
