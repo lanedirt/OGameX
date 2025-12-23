@@ -22,5 +22,5 @@ class ExpeditionFailed extends ExpeditionGameMessage
      *
      * @var int
      */
-    protected static int $numberOfVariations = 16;
+    protected static int $numberOfVariations = 15;
 }
