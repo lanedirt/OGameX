@@ -186,6 +186,11 @@ class WreckFieldService
     /**
      * Create or extend a wreck field with the given ships.
      *
+     * Behavior:
+     * - If no existing wreck field: create new one
+     * - If existing wreck field is active (repairs not started): combine ships and reset expiration timer
+     * - If existing wreck field is repairing (repairs in progress): add ships to ongoing repairs
+     *
      * @param Coordinate $coordinate
      * @param array $shipData
      * @param int $ownerPlayerId
@@ -200,8 +205,14 @@ class WreckFieldService
             ->first();
 
         if ($existingWreckField) {
-            // Extend existing wreck field
-            $this->extendWreckField($existingWreckField, $shipData);
+            if ($existingWreckField->status === 'active') {
+                // Repairs haven't started - combine and reset expiration timer
+                $this->extendWreckFieldWithReset($existingWreckField, $shipData);
+            } elseif ($existingWreckField->status === 'repairing') {
+                // Repairs in progress - add ships to ongoing repairs
+                $this->addShipsToOngoingRepairs($existingWreckField, $shipData);
+            }
+            // For completed/burned wreck fields, don't do anything (they're done)
             return $existingWreckField;
         } else {
             // Create new wreck field
@@ -253,6 +264,86 @@ class WreckFieldService
         if ($newExpiresAt->greaterThan($wreckField->expires_at)) {
             $wreckField->expires_at = $newExpiresAt;
         }
+
+        $wreckField->save();
+    }
+
+    /**
+     * Extend an existing wreck field with new ships and reset expiration timer.
+     * Used when a new wreck field is created at the same location and repairs haven't started.
+     *
+     * @param WreckField $wreckField
+     * @param array $newShipData
+     * @return void
+     */
+    public function extendWreckFieldWithReset(WreckField $wreckField, array $newShipData): void
+    {
+        $currentShipData = $wreckField->ship_data ?? [];
+
+        // Merge new ship data with existing
+        foreach ($newShipData as $newShip) {
+            $found = false;
+            foreach ($currentShipData as &$currentShip) {
+                if ($currentShip['machine_name'] === $newShip['machine_name']) {
+                    $currentShip['quantity'] += $newShip['quantity'];
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                $currentShipData[] = $newShip;
+            }
+        }
+
+        $wreckField->ship_data = $currentShipData;
+
+        // Reset expiration timer to full duration
+        $wreckField->expires_at = now()->addHours($this->settingsService->wreckFieldLifetimeHours());
+        $wreckField->created_at = now();
+
+        $wreckField->save();
+    }
+
+    /**
+     * Add ships to an ongoing repair job.
+     * Used when a new wreck field is created at the same location while repairs are in progress.
+     * The new ships are automatically added to the ongoing repairs without changing the repair completion time.
+     *
+     * IMPORTANT: Ships added during ongoing repairs are marked as 'late_added' and CANNOT be collected
+     * via the "put partially finished repair back into service" button. Players must wait until ALL
+     * ships (including late-added ones) are automatically put back into service.
+     *
+     * @param WreckField $wreckField
+     * @param array $newShipData
+     * @return void
+     */
+    public function addShipsToOngoingRepairs(WreckField $wreckField, array $newShipData): void
+    {
+        $currentShipData = $wreckField->ship_data ?? [];
+
+        // Merge new ship data with existing
+        foreach ($newShipData as $newShip) {
+            $found = false;
+            foreach ($currentShipData as &$currentShip) {
+                if ($currentShip['machine_name'] === $newShip['machine_name']) {
+                    $currentShip['quantity'] += $newShip['quantity'];
+                    // Mark ships that are added to ongoing repairs as non-collectable
+                    $currentShip['late_added'] = true;
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                // Mark new ships as late_added
+                $newShip['late_added'] = true;
+                $currentShipData[] = $newShip;
+            }
+        }
+
+        $wreckField->ship_data = $currentShipData;
+
+        // Don't modify repair times - new ships are added to ongoing repairs
+        // The new ships will be repaired at the same time as the existing ones
 
         $wreckField->save();
     }

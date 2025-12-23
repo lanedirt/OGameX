@@ -129,6 +129,14 @@ class AttackMission extends GameMission
         $debrisFieldService->save();
 
         // Create or extend wreck field if conditions are met
+        //
+        // TODO: When the General class is implemented, wreck fields generated during attacks with a General
+        // should behave differently: the wreck field should only be spawned at the General's origin planet
+        // once the attacking fleet has returned from the mission. This means the wreck field data needs to
+        // be stored with the fleet mission and created at the origin planet coordinates upon mission return.
+        //
+        // Current behavior: wreck field is created immediately at the battle location.
+        // General behavior (future): wreck field data stored with mission, created at origin planet on return.
         if (!empty($battleResult->wreckField) && $battleResult->wreckField['formed']) {
             $wreckFieldService = new WreckFieldService($defenderPlanet->getPlayer(), $this->settings);
             $wreckField = $wreckFieldService->createWreckField(

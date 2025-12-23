@@ -257,6 +257,30 @@ class FacilitiesController extends AbstractBuildingsController
             $collectedShips = [];
             $remainingShips = [];
 
+            // Check if there are any late-added ships (ships added after repairs started)
+            // These ships CANNOT be collected via the "put partially finished repair back into service" button
+            // Silently return without error - the frontend should keep buttons greyed out
+            $hasLateAddedShips = false;
+            foreach ($currentShipData as $ship) {
+                if (isset($ship['late_added']) && $ship['late_added'] === true) {
+                    $hasLateAddedShips = true;
+                    break;
+                }
+            }
+
+            // If there are late-added ships, collection is not allowed
+            // Return success without collecting anything - frontend keeps buttons disabled
+            if ($hasLateAddedShips) {
+                return response()->json([
+                    'success' => true,
+                    'error' => false,
+                    'newAjaxToken' => csrf_token(),
+                    'message' => '', // Empty message - no action taken
+                    'collected_ships' => [],
+                    'remaining_ships' => $currentShipData,
+                ])->header('Content-Type', 'application/json');
+            }
+
             // Calculate repaired ships based on overall repair progress
             $overallProgress = ($wreckField['repair_progress'] ?? 0) / 100;
 

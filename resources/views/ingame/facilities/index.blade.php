@@ -479,13 +479,14 @@
                     }
                     // Add auto-return message if repairs are completed but not collected
                     else if (wreckFieldData.is_completed) {
-                        const completionTime = new Date(Date.now() + (3 * 24 * 60 * 60 * 1000)); // 3 days from now
-                        const formattedDate = completionTime.toLocaleDateString('en-GB', {
+                        const repairCompletionTime = new Date(wreckFieldData.repair_completion_time);
+                        const autoReturnTime = new Date(repairCompletionTime.getTime() + (3 * 24 * 60 * 60 * 1000)); // 3 days from repair completion
+                        const formattedDate = autoReturnTime.toLocaleDateString('en-GB', {
                             day: '2-digit',
                             month: '2-digit',
                             year: '2-digit'
                         }).replace(/\//g, '.');
-                        const formattedTime = completionTime.toLocaleTimeString('en-GB', {
+                        const formattedTime = autoReturnTime.toLocaleTimeString('en-GB', {
                             hour: '2-digit',
                             minute: '2-digit'
                         });
@@ -505,12 +506,16 @@
                     }
                     const minTimePassed = timeSinceRepairStart >= minRepairTime;
 
+                    // Check if there are any late-added ships (ships added after repairs started)
+                    // If yes, collection is completely disabled
+                    const hasLateAddedShips = (wreckFieldData.ship_data || []).some(ship => ship.late_added === true);
+
                     const totalRepaired = wreckFieldData.ship_data.reduce((sum, ship) => {
                         return sum + Math.floor((ship.quantity * repairProgress) / 100);
                     }, 0);
 
-                    // Enable collection after 30 minutes if any ships are repaired
-                    if (totalRepaired > 0 && minTimePassed) {
+                    // Enable collection after 30 minutes if any ships are repaired AND no late-added ships
+                    if (totalRepaired > 0 && minTimePassed && !hasLateAddedShips) {
                         overlayHtml += `
                             <div class="btn btn_dark fright wreckfield-collect-btn-overlay">
                                 <input type="button" class="middlemark wreckfield-collect-btn-overlay-input" value="Put ships that are already repaired back into service" onclick="collectRepairedShips(); closeOverlay();">
@@ -719,14 +724,20 @@
                     const minTimePassed = timeSinceRepairStart >= minRepairTime;
                     const hasRepairedShips = repairedShips > 0;
 
-                    // Complex action: Only enable when repairs are 100% complete
+                    // Check if there are any late-added ships (ships added after repairs started)
+                    // If yes, collection is completely disabled - players must wait for auto-return
+                    const hasLateAddedShips = (wreckFieldData.ship_data || []).some(ship => ship.late_added === true);
+
+                    // Complex action: Only enable when repairs are 100% complete AND no late-added ships
                     const repairsComplete = wreckFieldData.is_completed || repairProgress >= 100;
-                    const collectEnabled = repairsComplete && hasRepairedShips;
+                    const collectEnabled = repairsComplete && hasRepairedShips && !hasLateAddedShips;
 
                     // Create tooltip explaining why button is disabled
                     var collectButtonTooltip = '';
                     if (!collectEnabled) {
-                        if (wreckFieldData.is_repairing) {
+                        if (hasLateAddedShips) {
+                            collectButtonTooltip = 'Ships added during ongoing repairs cannot be collected manually. You must wait until all repairs are automatically completed.';
+                        } else if (wreckFieldData.is_repairing) {
                             collectButtonTooltip = 'Repairs are still in progress. Use the Details window for partial collection.';
                         } else if (!hasRepairedShips) {
                             collectButtonTooltip = 'No ships repaired yet';

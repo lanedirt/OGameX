@@ -296,4 +296,192 @@ class WreckFieldTest extends TestCase
         $this->assertEquals(10, $lightFighter['quantity']);
         $this->assertEquals(5, $heavyFighter['quantity']);
     }
+
+    public function test_create_wreck_field_combines_with_active_wreck_field_and_resets_expiration(): void
+    {
+        // Create initial wreck field that expires soon
+        $coordinate = new Coordinate(1, 1, 1);
+        $initialShips = [
+            ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
+        ];
+
+        $wreckField = $this->wreckFieldService->createWreckField($coordinate, $initialShips, $this->user->id);
+
+        // Manually set expiration to be near expiration (1 hour from now)
+        $wreckField->expires_at = now()->addHour();
+        $wreckField->created_at = now()->subHours(71); // Created 71 hours ago (assuming 72 hour lifetime)
+        $wreckField->save();
+        $originalExpiresAt = $wreckField->expires_at;
+
+        // Create another wreck field at the same coordinates
+        $newShips = [
+            ['machine_name' => 'heavy_fighter', 'quantity' => 5, 'repair_progress' => 0]
+        ];
+
+        $updatedWreckField = $this->wreckFieldService->createWreckField($coordinate, $newShips, $this->user->id);
+
+        // Check that ships were combined
+        $this->assertCount(2, $updatedWreckField->ship_data);
+
+        // Check that expiration was RESET (not just extended) - should be much later than original
+        $this->assertGreaterThan($originalExpiresAt->addHours(10), $updatedWreckField->expires_at);
+
+        // Verify the specific ships
+        $lightFighter = null;
+        $heavyFighter = null;
+
+        foreach ($updatedWreckField->ship_data as $ship) {
+            if ($ship['machine_name'] === 'light_fighter') {
+                $lightFighter = $ship;
+            } elseif ($ship['machine_name'] === 'heavy_fighter') {
+                $heavyFighter = $ship;
+            }
+        }
+
+        $this->assertEquals(10, $lightFighter['quantity']);
+        $this->assertEquals(5, $heavyFighter['quantity']);
+    }
+
+    public function test_create_wreck_field_adds_to_ongoing_repairs_when_repairing(): void
+    {
+        // Create initial wreck field
+        $coordinate = new Coordinate(1, 1, 1);
+        $initialShips = [
+            ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
+        ];
+
+        $wreckField = $this->wreckFieldService->createWreckField($coordinate, $initialShips, $this->user->id);
+
+        // Start repairs
+        $this->wreckFieldService->loadForCoordinates($coordinate);
+        $this->wreckFieldService->startRepairs(1);
+
+        $wreckField->refresh();
+        $originalRepairCompletionTime = $wreckField->repair_completed_at;
+        $originalShipCount = $wreckField->getTotalShips();
+
+        // Create another wreck field at the same coordinates while repairs are ongoing
+        $newShips = [
+            ['machine_name' => 'heavy_fighter', 'quantity' => 5, 'repair_progress' => 0]
+        ];
+
+        $updatedWreckField = $this->wreckFieldService->createWreckField($coordinate, $newShips, $this->user->id);
+
+        // Check that ships were added
+        $this->assertCount(2, $updatedWreckField->ship_data);
+        $this->assertEquals(15, $updatedWreckField->getTotalShips()); // 10 + 5
+
+        // Check that repair completion time was NOT modified (ships added to ongoing repairs)
+        $this->assertEquals($originalRepairCompletionTime->timestamp, $updatedWreckField->repair_completed_at->timestamp);
+
+        // Verify the specific ships
+        $lightFighter = null;
+        $heavyFighter = null;
+
+        foreach ($updatedWreckField->ship_data as $ship) {
+            if ($ship['machine_name'] === 'light_fighter') {
+                $lightFighter = $ship;
+            } elseif ($ship['machine_name'] === 'heavy_fighter') {
+                $heavyFighter = $ship;
+            }
+        }
+
+        $this->assertEquals(10, $lightFighter['quantity']);
+        $this->assertEquals(5, $heavyFighter['quantity']);
+    }
+
+    public function test_extend_wreck_field_with_reset_resets_expiration_timer(): void
+    {
+        // Create initial wreck field
+        $coordinate = new Coordinate(1, 1, 1);
+        $initialShips = [
+            ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
+        ];
+
+        $wreckField = $this->wreckFieldService->createWreckField($coordinate, $initialShips, $this->user->id);
+
+        // Manually set expiration to be near expiration
+        $wreckField->expires_at = now()->addHour();
+        $wreckField->created_at = now()->subHours(71);
+        $wreckField->save();
+        $originalExpiresAt = $wreckField->expires_at;
+
+        // Add new ships using extendWreckFieldWithReset
+        $newShips = [
+            ['machine_name' => 'heavy_fighter', 'quantity' => 5, 'repair_progress' => 0]
+        ];
+
+        $this->wreckFieldService->extendWreckFieldWithReset($wreckField, $newShips);
+
+        $wreckField->refresh();
+
+        // Check that ships were added
+        $this->assertCount(2, $wreckField->ship_data);
+
+        // Check that expiration was RESET (should be much later than original)
+        $this->assertGreaterThan($originalExpiresAt->addHours(10), $wreckField->expires_at);
+
+        // Verify the specific ships
+        $lightFighter = null;
+        $heavyFighter = null;
+
+        foreach ($wreckField->ship_data as $ship) {
+            if ($ship['machine_name'] === 'light_fighter') {
+                $lightFighter = $ship;
+            } elseif ($ship['machine_name'] === 'heavy_fighter') {
+                $heavyFighter = $ship;
+            }
+        }
+
+        $this->assertEquals(10, $lightFighter['quantity']);
+        $this->assertEquals(5, $heavyFighter['quantity']);
+    }
+
+    public function test_add_ships_to_ongoing_repairs_does_not_change_repair_time(): void
+    {
+        // Create initial wreck field
+        $coordinate = new Coordinate(1, 1, 1);
+        $initialShips = [
+            ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
+        ];
+
+        $wreckField = $this->wreckFieldService->createWreckField($coordinate, $initialShips, $this->user->id);
+
+        // Start repairs
+        $this->wreckFieldService->loadForCoordinates($coordinate);
+        $this->wreckFieldService->startRepairs(1);
+
+        $wreckField->refresh();
+        $originalRepairCompletionTime = $wreckField->repair_completed_at;
+
+        // Add new ships using addShipsToOngoingRepairs
+        $newShips = [
+            ['machine_name' => 'heavy_fighter', 'quantity' => 5, 'repair_progress' => 0]
+        ];
+
+        $this->wreckFieldService->addShipsToOngoingRepairs($wreckField, $newShips);
+
+        $wreckField->refresh();
+
+        // Check that ships were added
+        $this->assertCount(2, $wreckField->ship_data);
+
+        // Check that repair completion time was NOT modified
+        $this->assertEquals($originalRepairCompletionTime->timestamp, $wreckField->repair_completed_at->timestamp);
+
+        // Verify the specific ships
+        $lightFighter = null;
+        $heavyFighter = null;
+
+        foreach ($wreckField->ship_data as $ship) {
+            if ($ship['machine_name'] === 'light_fighter') {
+                $lightFighter = $ship;
+            } elseif ($ship['machine_name'] === 'heavy_fighter') {
+                $heavyFighter = $ship;
+            }
+        }
+
+        $this->assertEquals(10, $lightFighter['quantity']);
+        $this->assertEquals(5, $heavyFighter['quantity']);
+    }
 }

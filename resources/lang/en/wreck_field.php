@@ -74,6 +74,7 @@ return [
     'error_already_repairing' => 'Repairs are already in progress.',
     'error_no_ships' => 'No ships available for repair.',
     'error_space_dock_required' => 'Space Dock level 1 is required to repair wreck fields.',
+    'error_cannot_collect_late_added' => 'Ships added during ongoing repairs cannot be collected manually. You must wait until all repairs are automatically completed.',
     'warning_auto_return' => 'Repaired ships will be automatically returned to service {hours} hours after repair completion.',
 
     // Time Remaining
