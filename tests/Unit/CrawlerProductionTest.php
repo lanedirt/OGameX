@@ -19,6 +19,7 @@ class CrawlerProductionTest extends UnitTestCase
     {
         $objectService = resolve(ObjectService::class);
         $metalMine = $objectService->getObjectById(1); // Metal Mine
+        assert($metalMine instanceof \OGame\GameObjects\Models\BuildingObject);
         $metalMine->production->planetService = $this->planetService;
         $metalMine->production->playerService = $this->playerService;
         $metalMine->production->characterClassService = app(\OGame\Services\CharacterClassService::class);

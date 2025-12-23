@@ -539,7 +539,7 @@ class PlanetServiceFactory
             if (!$player) {
                 $player = $this->playerServiceFactory->make($planet->user_id, true);
             }
-            if ($player && $player->getUser()->character_class !== null) {
+            if ($player->getUser()->character_class !== null) {
                 $characterClassService = app(\OGame\Services\CharacterClassService::class);
                 $moonFieldsBonus = $characterClassService->getAdditionalMoonFields($player->getUser());
             }
@@ -580,7 +580,7 @@ class PlanetServiceFactory
             if (!$player) {
                 $player = $this->playerServiceFactory->make($planet->user_id, true);
             }
-            if ($player && $player->getUser()->character_class !== null) {
+            if ($player->getUser()->character_class !== null) {
                 $characterClassService = app(\OGame\Services\CharacterClassService::class);
                 $planetSizeMultiplier = $characterClassService->getPlanetSizeBonus($player->getUser());
             }
