@@ -17,7 +17,8 @@ class CrawlerProductionTest extends UnitTestCase
      */
     private function getConfiguredMetalMine(): \OGame\GameObjects\Models\BuildingObject
     {
-        $metalMine = $this->getConfiguredMetalMine();
+        $objectService = resolve(ObjectService::class);
+        $metalMine = $objectService->getObjectById(1); // Metal Mine
         $metalMine->production->planetService = $this->planetService;
         $metalMine->production->playerService = $this->playerService;
         $metalMine->production->characterClassService = app(\OGame\Services\CharacterClassService::class);
@@ -39,15 +40,13 @@ class CrawlerProductionTest extends UnitTestCase
             'crawler' => 100,
         ]);
 
-        // Get production
+        // Get production for metal mine
         $metalMine = $this->getConfiguredMetalMine();
         $productionIndex = $metalMine->production->calculate(10);
 
         // Each crawler provides 0.02% bonus (100 crawlers = 2% bonus)
-        // Crawler bonus should be > 0
+        // Crawler bonus should be > 0 for metal (only metal mine produces metal)
         $this->assertGreaterThan(0, $productionIndex->crawler->metal->get(), 'Crawlers should provide metal production bonus');
-        $this->assertGreaterThan(0, $productionIndex->crawler->crystal->get(), 'Crawlers should provide crystal production bonus');
-        $this->assertGreaterThan(0, $productionIndex->crawler->deuterium->get(), 'Crawlers should provide deuterium production bonus');
     }
 
     /**
@@ -103,7 +102,7 @@ class CrawlerProductionTest extends UnitTestCase
 
         $user = $this->playerService->getUser();
         $user->character_class = CharacterClass::GENERAL->value;
-        $user->save();
+        // Don't save - this is a dummy user for unit tests
 
         $metalMine = $this->getConfiguredMetalMine();
         $productionNonCollector = $metalMine->production->calculate(10);
@@ -111,7 +110,7 @@ class CrawlerProductionTest extends UnitTestCase
 
         // Now test with Collector class
         $user->character_class = CharacterClass::COLLECTOR->value;
-        $user->save();
+        // Don't save - this is a dummy user for unit tests
 
         $productionCollector = $metalMine->production->calculate(10);
         $collectorBonus = $productionCollector->crawler->metal->get();

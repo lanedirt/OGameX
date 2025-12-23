@@ -484,11 +484,11 @@ class PlanetServiceFactory
         $planet->time_last_update = (int)Carbon::now()->timestamp;
 
         if ($planet_type === PlanetType::Moon) {
-            $this->setupMoonProperties($planet, $debrisAmount, $moonChance, $xFactor);
+            $this->setupMoonProperties($planet, $debrisAmount, $moonChance, $xFactor, $player);
         } else {
             $is_first_planet = $player->planets->planetCount() == 0;
 
-            $this->setupPlanetProperties($planet, $is_first_planet);
+            $this->setupPlanetProperties($planet, $is_first_planet, $player);
         }
 
         $planet->save();
@@ -509,8 +509,9 @@ class PlanetServiceFactory
      * @param int $debrisAmount Total resources in debris field (metal + crystal + deuterium)
      * @param int $moonChance Moon chance percentage from the battle (unused for size, kept for future features)
      * @param int|null $xFactor Optional x factor (10-20). If null, random value is used.
+     * @param PlayerService|null $player Optional PlayerService to avoid reloading from database
      */
-    private function setupMoonProperties(Planet $planet, int $debrisAmount, int $moonChance, int|null $xFactor = null): void
+    private function setupMoonProperties(Planet $planet, int $debrisAmount, int $moonChance, int|null $xFactor = null, PlayerService|null $player = null): void
     {
         // Calculate moon diameter using official formula:
         // diameter = floor((x + 3 * debris / 100000) ^ 0.5 * 1000)
@@ -531,9 +532,18 @@ class PlanetServiceFactory
         $planet->diameter = min($diameter, $maxDiameter);
 
         // Moon field size is base 1 + General class bonus (+5)
-        $player = $this->playerServiceFactory->make($planet->user_id, true);
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
-        $moonFieldsBonus = $characterClassService->getAdditionalMoonFields($player->getUser());
+        // Only apply character class bonus if user has selected a class
+        $moonFieldsBonus = 0;
+        if ($planet->user_id) {
+            // Use provided player if available, otherwise load from database
+            if (!$player) {
+                $player = $this->playerServiceFactory->make($planet->user_id, true);
+            }
+            if ($player && $player->getUser()->character_class !== null) {
+                $characterClassService = app(\OGame\Services\CharacterClassService::class);
+                $moonFieldsBonus = $characterClassService->getAdditionalMoonFields($player->getUser());
+            }
+        }
         $planet->field_max = 1 + $moonFieldsBonus;
 
         // Calculate temperature based on planet position (same as the planet at this position)
@@ -552,8 +562,10 @@ class PlanetServiceFactory
     /**
      * Sets up planet-specific properties.
      * @param Planet $planet
+     * @param bool $is_first_planet
+     * @param PlayerService|null $player Optional PlayerService to avoid reloading from database
      */
-    private function setupPlanetProperties(Planet $planet, bool $is_first_planet = false): void
+    private function setupPlanetProperties(Planet $planet, bool $is_first_planet = false, PlayerService|null $player = null): void
     {
         $planet_data = $this->planetData($planet->planet, $is_first_planet);
 
@@ -561,9 +573,18 @@ class PlanetServiceFactory
         $base_fields = rand($planet_data['fields'][0], $planet_data['fields'][1]) + $this->settings->planetFieldsBonus();
 
         // Apply Discoverer class planet size bonus (+10%)
-        $player = $this->playerServiceFactory->make($planet->user_id, true);
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
-        $planetSizeMultiplier = $characterClassService->getPlanetSizeBonus($player->getUser());
+        // Only apply character class bonus if user has selected a class
+        $planetSizeMultiplier = 1.0;
+        if ($planet->user_id) {
+            // Use provided player if available, otherwise load from database
+            if (!$player) {
+                $player = $this->playerServiceFactory->make($planet->user_id, true);
+            }
+            if ($player && $player->getUser()->character_class !== null) {
+                $characterClassService = app(\OGame\Services\CharacterClassService::class);
+                $planetSizeMultiplier = $characterClassService->getPlanetSizeBonus($player->getUser());
+            }
+        }
 
         $planet->field_max = (int)($base_fields * $planetSizeMultiplier);
         $planet->diameter = (int) (36.14 * $planet->field_max + 5697.23);

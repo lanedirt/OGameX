@@ -59,6 +59,11 @@ class TechtreeTest extends AccountTestCase
         $response->assertSee('data-prerequisites-met="false"', false);
         $response->assertDontSee('data-prerequisites-met="true"', false);
 
+        // Set character class to Collector (required for Crawler)
+        $user = $this->planetService->getPlayer()->getUser();
+        $user->character_class = \OGame\Enums\CharacterClass::COLLECTOR->value;
+        $user->save();
+
         // User/planet with all levels/prerequisites for laser technology applications.
         $this->planetSetObjectLevel('research_lab', 12);
         $this->planetSetObjectLevel('shipyard', 12);
@@ -67,6 +72,8 @@ class TechtreeTest extends AccountTestCase
         $this->playerSetResearchLevel('ion_technology', 12);
         $this->playerSetResearchLevel('hyperspace_technology', 8);
         $this->playerSetResearchLevel('shielding_technology', 8);
+        $this->playerSetResearchLevel('combustion_drive', 4); // Required for Crawler
+        $this->playerSetResearchLevel('armor_technology', 4); // Required for Crawler
 
         $response = $this->get('ajax/techtree?tab=4&object_id=' . $object->id);
         $content = $response->getContent();
@@ -76,8 +83,8 @@ class TechtreeTest extends AccountTestCase
         $metCount = substr_count($content, 'data-prerequisites-met="true"');
         $notMetCount = substr_count($content, 'data-prerequisites-met="false"');
 
-        // Assert that 4 applications are met and 1 is not.
-        $this->assertEquals(4, $metCount);
+        // Assert that 5 applications are met and 1 is not (Battlecruiser missing hyperspace_drive).
+        $this->assertEquals(5, $metCount);
         $this->assertEquals(1, $notMetCount);
 
         // Set hyperspace drive to level 5 so the battlecruiser application is also met.
