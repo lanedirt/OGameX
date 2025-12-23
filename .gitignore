@@ -15,10 +15,6 @@ yarn-error.log
 .sql
 .codebuddy
 
-# macOS system files
-.DS_Store
-**/.DS_Store
-
 # Rust compilation dirs
 rust/*/target
 # Compiled rust apps (rust modules are recompiled during container start)
