@@ -121,7 +121,7 @@ class FacilitiesWreckFieldTest extends TestCase
         $response->assertJson([
             'success' => false,
             'error' => true,
-            'message' => 'Space dock is required for repairs',
+            'message' => __('wreck_field.error_space_dock_required'),
         ]);
     }
 
@@ -181,7 +181,7 @@ class FacilitiesWreckFieldTest extends TestCase
         $response->assertJson([
             'success' => false,
             'error' => true,
-            'message' => 'Repairs have not been started yet',
+            'message' => __('wreck_field.repairs_not_started'),
         ]);
     }
 
@@ -230,7 +230,7 @@ class FacilitiesWreckFieldTest extends TestCase
         $response->assertJson([
             'success' => false,
             'error' => true,
-            'message' => 'Cannot burn wreck field while repairs are in progress',
+            'message' => __('wreck_field.cannot_burn'),
         ]);
     }
 
@@ -287,9 +287,9 @@ class FacilitiesWreckFieldTest extends TestCase
         // Don't create any wreck field
 
         $endpoints = [
-            ['route' => 'facilities.startrepairs', 'method' => 'POST', 'expected_message' => 'No wreck field found'],
-            ['route' => 'facilities.completerepairs', 'method' => 'POST', 'expected_message' => 'No wreck field found'],
-            ['route' => 'facilities.burnwreckfield', 'method' => 'POST', 'expected_message' => 'No wreck field found'],
+            ['route' => 'facilities.startrepairs', 'method' => 'POST', 'expected_message' => __('wreck_field.error_no_wreck_field')],
+            ['route' => 'facilities.completerepairs', 'method' => 'POST', 'expected_message' => __('wreck_field.error_no_wreck_field')],
+            ['route' => 'facilities.burnwreckfield', 'method' => 'POST', 'expected_message' => __('wreck_field.error_no_wreck_field')],
         ];
 
         foreach ($endpoints as $endpoint) {

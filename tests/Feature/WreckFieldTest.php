@@ -33,7 +33,10 @@ class WreckFieldTest extends TestCase
             'planet' => 1,
         ]);
 
-        $this->wreckFieldService = app(WreckFieldService::class);
+        // Create WreckFieldService with the correct player
+        $playerService = new \OGame\Services\PlayerService($this->user->id);
+        $settingsService = app(\OGame\Services\SettingsService::class);
+        $this->wreckFieldService = new \OGame\Services\WreckFieldService($playerService, $settingsService);
     }
 
     public function test_wreck_field_can_be_created(): void
@@ -102,6 +105,9 @@ class WreckFieldTest extends TestCase
     public function test_start_repairs(): void
     {
         $wreckField = WreckField::factory()->create([
+            'galaxy' => $this->planet->galaxy,
+            'system' => $this->planet->system,
+            'planet' => $this->planet->planet,
             'status' => 'active',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
@@ -124,6 +130,9 @@ class WreckFieldTest extends TestCase
     public function test_complete_repairs(): void
     {
         $wreckField = WreckField::factory()->create([
+            'galaxy' => $this->planet->galaxy,
+            'system' => $this->planet->system,
+            'planet' => $this->planet->planet,
             'status' => 'repairing',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
@@ -146,6 +155,9 @@ class WreckFieldTest extends TestCase
     public function test_burn_wreck_field(): void
     {
         $wreckField = WreckField::factory()->create([
+            'galaxy' => $this->planet->galaxy,
+            'system' => $this->planet->system,
+            'planet' => $this->planet->planet,
             'status' => 'active',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
@@ -165,6 +177,9 @@ class WreckFieldTest extends TestCase
     public function test_burn_wreck_field_during_repairs_fails(): void
     {
         $wreckField = WreckField::factory()->create([
+            'galaxy' => $this->planet->galaxy,
+            'system' => $this->planet->system,
+            'planet' => $this->planet->planet,
             'status' => 'repairing',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]

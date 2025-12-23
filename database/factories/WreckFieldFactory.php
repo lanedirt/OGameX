@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use OGame\Models\WreckField;
+use OGame\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -28,7 +29,7 @@ class WreckFieldFactory extends Factory
             'galaxy' => $this->faker->numberBetween(1, 9),
             'system' => $this->faker->numberBetween(1, 499),
             'planet' => $this->faker->numberBetween(1, 15),
-            'owner_player_id' => 1,
+            'owner_player_id' => User::factory(),
             'created_at' => now(),
             'expires_at' => now()->addHours(72),
             'repair_started_at' => null,

@@ -87,4 +87,10 @@ return [
     'status_completed' => 'Completed',
     'status_burned' => 'Burned',
     'status_expired' => 'Expired',
+
+    // Action Results
+    'repairs_started' => 'Repairs started successfully',
+    'all_ships_deployed' => 'All ships have been put back into service',
+    'no_ships_ready' => 'No ships ready for collection',
+    'repairs_not_started' => 'Repairs have not been started yet',
 ];

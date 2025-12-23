@@ -69,23 +69,23 @@ class CleanupWreckFields extends Command
 
     /**
      * Process auto-deployment of completed repairs.
-     * According to rules: "Ships automatically return after 72 hours + 3 days if not manually deployed"
+     * According to rules: "Ships automatically return after 72 hours from repair start if not manually collected"
      *
      * @return int Number of wreck fields auto-deployed
      */
     private function processAutoDeployRepairs(): int
     {
-        // Find wreck fields that are completed and older than 72 hours + 3 days
-        $autoDeployDeadline = now()->subHours(72 + 72); // 72 hours + 3 days
+        // Find wreck fields that started repairs more than 72 hours ago
+        $autoDeployDeadline = now()->subHours(72);
 
-        $completedWreckFields = WreckField::where('status', 'completed')
-            ->where('repair_completed_at', '<', $autoDeployDeadline)
+        $repairingWreckFields = WreckField::where('status', 'repairing')
+            ->where('repair_started_at', '<', $autoDeployDeadline)
             ->get();
 
         $count = 0;
-        foreach ($completedWreckFields as $wreckField) {
-            // Deploy the ships to the planet
-            $this->deployShipsToPlanet($wreckField);
+        foreach ($repairingWreckFields as $wreckField) {
+            // Deploy the ships to the planet based on current repair progress
+            $this->deployShipsToPlanetWithProgress($wreckField);
 
             // Delete the wreck field after deployment
             $wreckField->delete();
@@ -96,12 +96,12 @@ class CleanupWreckFields extends Command
     }
 
     /**
-     * Deploy repaired ships to the planet.
+     * Deploy repaired ships to the planet based on repair progress.
      *
      * @param WreckField $wreckField
      * @return void
      */
-    private function deployShipsToPlanet(WreckField $wreckField): void
+    private function deployShipsToPlanetWithProgress(WreckField $wreckField): void
     {
         $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
         $planet = $planetServiceFactory->make($wreckField->owner_player_id)
@@ -114,18 +114,45 @@ class CleanupWreckFields extends Command
             return;
         }
 
+        // Calculate repair progress (same logic as WreckFieldService)
+        $totalTime = (int) $wreckField->repair_completed_at->timestamp - (int) $wreckField->repair_started_at->timestamp;
+        $elapsedTime = (int) now()->timestamp - (int) $wreckField->repair_started_at->timestamp;
+        $timeBasedProgress = min(100, max(0, (int) (($elapsedTime / $totalTime) * 100)));
+
+        // Get Space Dock level cap
+        $level = $wreckField->space_dock_level ?? 1;
+        $percentages = [
+            1 => 31.5, 2 => 33.6, 3 => 34.3, 4 => 35.0, 5 => 35.7,
+            6 => 36.4, 7 => 37.1, 8 => 37.1, 9 => 37.8, 10 => 37.8,
+            11 => 38.5, 12 => 38.5, 13 => 38.5, 14 => 39.2, 15 => 39.2,
+        ];
+        if ($level > 15) {
+            $level = 15;
+        }
+        $levelCap = $percentages[$level] ?? 31.5;
+        $cappedProgress = min($timeBasedProgress, $levelCap);
+        $overallProgress = $cappedProgress / 100;
+
         $shipData = $wreckField->getShipData();
         $objectService = app(\OGame\Services\ObjectService::class);
+        $totalDeployed = 0;
 
         foreach ($shipData as $ship) {
-            if ($ship['repair_progress'] >= 100) {
+            $repairedCount = (int) floor($ship['quantity'] * $overallProgress);
+
+            if ($repairedCount > 0) {
                 $unitObject = $objectService->getUnitObjectByMachineName($ship['machine_name']);
                 if ($unitObject) {
-                    $planet->addUnit($unitObject->machine_name, $ship['quantity']);
+                    $planet->addUnit($unitObject->machine_name, $repairedCount);
+                    $totalDeployed += $repairedCount;
 
-                    $this->line("Auto-deployed {$ship['quantity']} {$ship['machine_name']} to planet {$wreckField->galaxy}:{$wreckField->system}:{$wreckField->planet}");
+                    $this->line("Auto-deployed {$repairedCount} {$ship['machine_name']} ({$cappedProgress}%) to planet {$wreckField->galaxy}:{$wreckField->system}:{$wreckField->planet}");
                 }
             }
+        }
+
+        if ($totalDeployed > 0) {
+            $this->info("Auto-deployed {$totalDeployed} ships from wreck field at {$wreckField->galaxy}:{$wreckField->system}:{$wreckField->planet}");
         }
     }
 }

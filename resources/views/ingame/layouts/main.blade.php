@@ -439,14 +439,16 @@ Combat simulation save slots +20">
                     @php
                     // Check if wreck field is active (not being repaired or burned)
                     $isWreckFieldActive = false;
+                    $hasSpaceDockOnWreckFieldPlanet = false;
                     if ($timeRemaining > 0 && !empty($playerWreckFields[0])) {
                         $wreckField = $playerWreckFields[0]['wreckField'] ?? null;
+                        $hasSpaceDockOnWreckFieldPlanet = $playerWreckFields[0]['hasSpaceDock'] ?? false;
                         if ($wreckField) {
                             $isWreckFieldActive = $wreckField->status === 'active';
                         }
                     }
                     @endphp
-                    @if ($isWreckFieldActive)
+                    @if ($isWreckFieldActive && $hasSpaceDockOnWreckFieldPlanet)
                     <a href="javascript:void(0);" class="wreckFieldIcon tooltip js_hideTipOnMobile" title="{{ $shipTooltipContent }}" style="cursor: pointer;" onclick="openWreckFieldDetailsPopup(); return false;"></a>
                             <span id="wreckFieldCountDown" class="wreckFieldCountDown" data-duration="{{ $timeRemaining }}" title="">{{ $timeText }}</span>
                     @endif
@@ -915,16 +917,14 @@ Combat simulation save slots +20">
                         const days = Math.floor(timeRemaining / 86400);
                         const hours = Math.floor((timeRemaining % 86400) / 3600);
                         const minutes = Math.floor((timeRemaining % 3600) / 60);
-                        timeDisplay = `${days}d ${hours}h ${minutes}m`;
+                        const seconds = timeRemaining % 60;
+                        timeDisplay = `${days}d ${hours}h ${minutes}m ${seconds}s`;
                     }
 
                     // Create proper popup content matching facilities page
                     let shipHtml = '';
                     if (wreckFieldData.ship_data && wreckFieldData.ship_data.length > 0) {
                         wreckFieldData.ship_data.forEach(ship => {
-                            // Debug: log the actual machine name to see what we're getting
-                            console.log('Ship machine_name:', ship.machine_name);
-
                             const shipName = ship.machine_name ? ship.machine_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown Ship';
                             const totalQuantity = ship.quantity || 0;
                             const repairProgress = wreckFieldData.repair_progress || 0;
@@ -967,13 +967,12 @@ Combat simulation save slots +20">
                             };
 
                             const shipId = shipIdMap[ship.machine_name] || '204';
-                            console.log('Mapped machine_name:', ship.machine_name, 'to shipId:', shipId);
 
                             // Use different display format based on repair status
                             if (wreckFieldData.is_repairing) {
                                 // During repairs: show progress like "102/451"
                                 shipHtml += `
-                                    <div class="tooltipHTML fleft ships" id="ship${shipId}" data-tooltip-title="${shipName}|${currentRepairedCount}/${totalQuantity}">
+                                    <div class="tooltipHTML fleft ships" id="ship${shipId}" data-tooltip-title="${shipName}|${currentRepairedCount}/${totalQuantity}" title="${shipName}">
                                         <span class="ecke">
                                             <span class="level">${currentRepairedCount}/${totalQuantity}</span>
                                         </span>
@@ -1023,21 +1022,61 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                 }
                                 <div class="clearfix"></div>
                                 <br>
+                                <hr style="height: 2px; width: 644px; margin: 5.5px 0; background-color: #ffffff; border: none;">
                                 <h3>${wreckFieldData.is_repairing ? 'Ships being repaired:' : 'Repairable ships:'}</h3>
                                 <div class="ships_wrapper clearfix">
                                     ${shipHtml}
                                     <div class="clearfix"></div>
                                     <br>
-                                    ${wreckFieldData.is_repairing && wreckFieldData.remaining_repair_time > 0 ?
+                                    ${wreckFieldData.is_repairing ?
                                         // During repairs: show repair time remaining and collection button
-                                        `<p>Repair time remaining: <span id="repairTimeCountDownForRepairOverlay" data-duration="${wreckFieldData.remaining_repair_time}">${Math.floor(wreckFieldData.remaining_repair_time / 60) + 'm ' + (wreckFieldData.remaining_repair_time % 60) + 's'}</span></p>
+                                        (() => {
+                                            const remainingTime = wreckFieldData.remaining_repair_time || 0;
+
+                                            // If repairs are complete (remainingTime === 0), show auto-return date/time
+                                            let timeDisplay;
+                                            let timeLabel = 'Repair time remaining: ';
+                                            if (remainingTime === 0 && wreckFieldData.repair_started_at && wreckFieldData.total_repair_time > 0) {
+                                                // Calculate auto-return time (72 hours after repair completion)
+                                                const repairStartTime = new Date(wreckFieldData.repair_started_at);
+                                                const totalRepairTime = wreckFieldData.total_repair_time;
+                                                const repairCompletionTime = new Date(repairStartTime.getTime() + (totalRepairTime * 1000));
+                                                const autoReturnTime = new Date(repairCompletionTime.getTime() + (72 * 60 * 60 * 1000)); // 72 hours later
+
+                                                // Format the date/time
+                                                const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                                                timeDisplay = autoReturnTime.toLocaleDateString('en-US', options);
+                                                timeLabel = 'Ships will be automatically put back into service on: ';
+                                            } else {
+                                                const hours = Math.floor(remainingTime / 3600);
+                                                const minutes = Math.floor((remainingTime % 3600) / 60);
+                                                const seconds = remainingTime % 60;
+                                                timeDisplay = `${hours}h ${minutes}m ${seconds}s`;
+                                            }
+
+                                            // Check if at least 30 minutes have passed since repairs started
+                                            let timeSinceRepairStart = 0;
+                                            if (wreckFieldData.repair_started_at) {
+                                                const repairStartTime = new Date(wreckFieldData.repair_started_at);
+                                                timeSinceRepairStart = Math.floor((Date.now() - repairStartTime) / 1000);
+                                            }
+                                            const minRepairTime = 30 * 60; // 30 minutes
+                                            const minTimePassed = timeSinceRepairStart >= minRepairTime;
+
+                                            // Calculate repaired ships count
+                                            const repairedShips = wreckFieldData.ship_data ? wreckFieldData.ship_data.reduce((sum, ship) => {
+                                                return sum + Math.floor((ship.quantity * (wreckFieldData.repair_progress || 0)) / 100);
+                                            }, 0) : 0;
+
+                                            const canPartialCollect = minTimePassed && repairedShips > 0;
+                                            const buttonDisabled = canPartialCollect ? '' : 'disabled="disabled"';
+                                            const buttonClass = canPartialCollect ? 'middlemark' : 'disabled';
+
+                                            return `<p>${timeLabel}<span id="repairTimeCountDownForRepairOverlay" data-duration="${remainingTime}">${timeDisplay}</span></p>
                                         <div class="btn btn_dark fright tooltip reCommissionButton" title="">
-                                            <input type="button" class="disabled reCommissionButton tooltip" value="Put ships that are already repaired back into service" disabled="disabled">
-                                        </div>` :
-                                        wreckFieldData.is_repairing ?
-                                        `<div class="btn btn_dark fright">
-                                            <input type="button" class="middlemark" value="Repairs in progress (${wreckFieldData.repair_progress}%)" disabled>
-                                        </div>` :
+                                            <input type="button" class="${buttonClass} reCommissionButton tooltip partial-collect-btn" value="Put ships that are already repaired back into service" ${buttonDisabled}>
+                                        </div>`;
+                                        })() :
                                         wreckFieldData.is_completed ?
                                         `<div class="btn btn_dark fright">
                                             <input type="button" class="middlemark" value="Repairs completed - Collect ships" onclick="location.href='{{ route('facilities.index') }}';">
@@ -1081,6 +1120,52 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                         $this.remove();
                                     }
                                 });
+
+                                // Initialize repair time countdown timer
+                                const $repairCountdown = $('#repairTimeCountDownForRepairOverlay');
+                                if ($repairCountdown.length) {
+                                    let duration = $repairCountdown.data('duration');
+
+                                    // Only start countdown if there's time remaining (duration > 0)
+                                    // If duration is 0, we're showing the auto-return date, not a countdown
+                                    if (duration > 0) {
+                                        const repairTimerInterval = setInterval(function() {
+                                            if (duration <= 0) {
+                                                $repairCountdown.text('0h 0m 0s');
+                                                clearInterval(repairTimerInterval);
+                                                return;
+                                            }
+
+                                            const hours = Math.floor(duration / 3600);
+                                            const minutes = Math.floor((duration % 3600) / 60);
+                                            const seconds = duration % 60;
+
+                                            $repairCountdown.text(`${hours}h ${minutes}m ${seconds}s`);
+                                            duration--;
+                                        }, 1000);
+
+                                        // Store interval on the element for cleanup
+                                        $repairCountdown.data('repairTimerInterval', repairTimerInterval);
+                                    }
+                                }
+
+                                // Bind click handler for partial collection button
+                                $(this).find('.partial-collect-btn').on('click', function(e) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    collectPartialRepairedShips(e);
+                                });
+                            },
+                            close: function() {
+                                // Cleanup repair timer interval
+                                const $repairCountdown = $('#repairTimeCountDownForRepairOverlay');
+                                if ($repairCountdown.length) {
+                                    const interval = $repairCountdown.data('repairTimerInterval');
+                                    if (interval) {
+                                        clearInterval(interval);
+                                    }
+                                }
+                                $(this).dialog('destroy').remove();
                             }
                         });
 
@@ -1171,6 +1256,46 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                 }
                             }
 
+                            fadeBox(errorMsg, true);
+                        }
+                    });
+                }
+
+                function collectPartialRepairedShips(event) {
+                    // Prevent any other event handlers from firing
+                    if (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    // Collect partially repaired ships (after 30 minutes)
+                    $.ajax({
+                        url: '{{ route("facilities.completerepairs") }}',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                // Close the dialog completely first
+                                $('.ui-dialog:has(.repairlayer)').dialog('destroy').remove();
+
+                                // Show success message
+                                fadeBox(response.message || 'Ships collected successfully!');
+
+                                // Redirect immediately to facilities page
+                                setTimeout(function() {
+                                    window.location.href = "{{ route('facilities.index') }}?openSpaceDock=1";
+                                }, 100);
+                            } else {
+                                fadeBox(response.message || 'Error collecting ships', true);
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMsg = 'Error collecting ships';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
                             fadeBox(errorMsg, true);
                         }
                     });
@@ -1663,15 +1788,13 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                             $hasSpaceDock = $currentPlayer->planets->current()->getObjectLevel('space_dock') > 0;
                                             $isOwner = $wreckField->owner_player_id === $currentPlayer->getId();
                                         @endphp
+                                        @if ($isOwner && $hasSpaceDock)
                                         <a class="wreckFieldIcon tooltip js_hideTipOnMobile"
                                            title="Wreckage"
-                                           @if ($isOwner && $hasSpaceDock)
-                                           href="javascript:void(0);" onclick="openFacilitiesSpaceDock();"
-                                           @else
-                                           href="javascript:void(0);"
-                                           @endif>
+                                           href="javascript:void(0);" onclick="openFacilitiesSpaceDock();">
                                             <span class="icon icon_wreck_field"></span>
                                         </a>
+                                        @endif
                                     @endif
                                 </div>
                             @endforeach

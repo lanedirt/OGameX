@@ -62,7 +62,7 @@
                                 <td class="ship_txt_row">
                                     <a class="dark_highlight_tablet" href="javascript:void(0);" onclick="toggleMaxShips('#jumpgateForm', {{ $ship['id'] }}, {{ $ship['amount'] }})">
                                         <div class="shipImage">
-                                            <img class="tech{{ $ship['id'] }}" width="28" height="28" alt="{{ $ship['title'] }}" src="{{ asset('img/moons/small/3e567d6f16d040326c7a0ea29a4f41.gif') }}">
+                                            <img class="tech{{ $ship['id'] }}" width="28" height="28" alt="{{ $ship['title'] }}" title="{{ $ship['title'] }}" src="{{ asset('img/moons/small/3e567d6f16d040326c7a0ea29a4f41.gif') }}">
                                         </div>
                                     </a>
                                     <p>
@@ -76,7 +76,7 @@
                             @else
                                 <td class="ship_txt_row tdInactive">
                                     <div class="shipImage">
-                                        <img class="off tech{{ $ship['id'] }}" width="28" height="28" alt="{{ $ship['title'] }}" src="{{ asset('img/moons/small/3e567d6f16d040326c7a0ea29a4f41.gif') }}">
+                                        <img class="off tech{{ $ship['id'] }}" width="28" height="28" alt="{{ $ship['title'] }}" title="{{ $ship['title'] }}" src="{{ asset('img/moons/small/3e567d6f16d040326c7a0ea29a4f41.gif') }}">
                                     </div>
                                     <p>
                                         {{ $ship['title'] }}

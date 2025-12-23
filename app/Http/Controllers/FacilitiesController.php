@@ -159,7 +159,7 @@ class FacilitiesController extends AbstractBuildingsController
                 return response()->json([
                     'success' => false,
                     'error' => true,
-                    'message' => 'No wreck field found',
+                    'message' => __('wreck_field.error_no_wreck_field'),
                     'newAjaxToken' => csrf_token(),
                 ]);
             }
@@ -172,7 +172,7 @@ class FacilitiesController extends AbstractBuildingsController
                 return response()->json([
                     'success' => false,
                     'error' => true,
-                    'message' => 'Space dock is required for repairs',
+                    'message' => __('wreck_field.error_space_dock_required'),
                     'newAjaxToken' => csrf_token(),
                 ])->setStatusCode(400)->header('Content-Type', 'application/json');
             }
@@ -188,7 +188,7 @@ class FacilitiesController extends AbstractBuildingsController
                 'success' => true,
                 'error' => false,
                 'newAjaxToken' => csrf_token(),
-                'message' => 'Repairs started successfully',
+                'message' => __('wreck_field.repairs_started'),
                 'wreckField' => $updatedData,
             ])->header('Content-Type', 'application/json');
         } catch (Exception $e) {
@@ -220,7 +220,7 @@ class FacilitiesController extends AbstractBuildingsController
                 return response()->json([
                     'success' => false,
                     'error' => true,
-                    'message' => 'No wreck field found',
+                    'message' => __('wreck_field.error_no_wreck_field'),
                     'newAjaxToken' => csrf_token(),
                 ]);
             }
@@ -234,7 +234,7 @@ class FacilitiesController extends AbstractBuildingsController
                 return response()->json([
                     'success' => false,
                     'error' => true,
-                    'message' => 'Repairs have not been started yet',
+                    'message' => __('wreck_field.repairs_not_started'),
                     'newAjaxToken' => csrf_token(),
                 ])->setStatusCode(400)->header('Content-Type', 'application/json');
             }
@@ -248,7 +248,7 @@ class FacilitiesController extends AbstractBuildingsController
                 return response()->json([
                     'success' => false,
                     'error' => true,
-                    'message' => 'Wreck field not found',
+                    'message' => __('wreck_field.error_no_wreck_field'),
                     'newAjaxToken' => csrf_token(),
                 ])->setStatusCode(400)->header('Content-Type', 'application/json');
             }
@@ -303,7 +303,7 @@ class FacilitiesController extends AbstractBuildingsController
                 'success' => true,
                 'error' => false,
                 'newAjaxToken' => csrf_token(),
-                'message' => count($collectedShips) > 0 ? 'All ships have been put back into service' : 'No ships ready for collection',
+                'message' => count($collectedShips) > 0 ? __('wreck_field.all_ships_deployed') : __('wreck_field.no_ships_ready'),
                 'collected_ships' => $collectedShips,
                 'remaining_ships' => $remainingShips,
             ])->header('Content-Type', 'application/json');
@@ -337,7 +337,7 @@ class FacilitiesController extends AbstractBuildingsController
                 return response()->json([
                     'success' => false,
                     'error' => true,
-                    'message' => 'No wreck field found',
+                    'message' => __('wreck_field.error_no_wreck_field'),
                     'newAjaxToken' => csrf_token(),
                 ]);
             }
@@ -346,7 +346,7 @@ class FacilitiesController extends AbstractBuildingsController
                 return response()->json([
                     'success' => false,
                     'error' => true,
-                    'message' => 'Cannot burn wreck field while repairs are in progress',
+                    'message' => __('wreck_field.cannot_burn'),
                     'newAjaxToken' => csrf_token(),
                 ]);
             }
@@ -360,7 +360,7 @@ class FacilitiesController extends AbstractBuildingsController
                 'success' => true,
                 'error' => false,
                 'newAjaxToken' => csrf_token(),
-                'message' => 'Wreck field burned successfully',
+                'message' => __('wreck_field.wreck_field_burned_success'),
             ]);
         } catch (Exception $e) {
             return response()->json([

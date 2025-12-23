@@ -142,28 +142,24 @@
 
       // Wreck field functionality
             $(document).ready(function() {
-                console.log('Wreck field functionality initialized');
 
                 // Check if we need to trigger space dock click from sessionStorage or URL parameter
                 const shouldTriggerSpaceDock = sessionStorage.getItem('triggerSpaceDock') === 'true' ||
                                                new URLSearchParams(window.location.search).get('openSpaceDock') === '1';
 
                 if (shouldTriggerSpaceDock) {
-                    console.log('Triggering space dock click - sessionStorage:', sessionStorage.getItem('triggerSpaceDock'), 'URL param:', new URLSearchParams(window.location.search).get('openSpaceDock'));
                     sessionStorage.removeItem('triggerSpaceDock');
 
                     // Use a more direct approach - click the space dock building itself
                     setTimeout(() => {
                         const $spaceDock = $('.technology[data-technology="36"]');
                         if ($spaceDock.length > 0) {
-                            console.log('Simulating space dock building click');
                             // Click the space dock building element itself (not the details button)
                             const $buildingContent = $spaceDock.find('span, div').not('.details');
                             if ($buildingContent.length > 0) {
                                 $buildingContent.first().trigger('click');
                                 setTimeout(checkAndLoadWreckField, 1000);
                             } else {
-                                console.log('Clicking space dock element as fallback');
                                 $spaceDock.first().trigger('click');
                                 setTimeout(checkAndLoadWreckField, 1000);
                             }
@@ -175,17 +171,11 @@
 
                 // Handle clicks on space dock technology directly
                 $(document).on('click', '.technology.space_dock, .technology[data-technology="36"]', function(e) {
-                    console.log('Click detected on space dock technology');
-                    console.log('Target:', $(e.target));
-                    console.log('Current element:', $(this));
-                    console.log('Is upgrade button?', $(e.target).closest('button').length > 0);
-                    console.log('Has upgrade class?', $(e.target).hasClass('upgrade'));
 
                     // Don't trigger if clicking the upgrade button or any button
                     if ($(e.target).closest('button').length === 0 && !$(e.target).hasClass('upgrade')) {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('Space dock clicked directly!');
 
                         // Use multiple approaches to detect when space dock details are loaded
                         checkForSpaceDockDetails();
@@ -193,12 +183,9 @@
                 });
 
                 // Debug: Check if technologydetails_content exists
-                console.log('technologydetails_content exists:', $('#technologydetails_content').length);
-                console.log('Space dock technologies exist:', $('.technology.space_dock, .technology[data-technology="36"]').length);
             });
 
             function checkForSpaceDockDetails() {
-                console.log('Checking for space dock details...');
 
                 // Check immediately
                 checkAndLoadWreckField();
@@ -211,7 +198,6 @@
             }
 
             function checkAndLoadWreckField() {
-                console.log('Checking for space dock details in technology details content...');
 
                 // Look for space dock details in the content
                 var $spaceDockDetails = $('#technologydetails_content').find('#technologydetails[data-technology-id="36"]');
@@ -228,25 +214,17 @@
                     }).closest('#technologydetails');
                 }
 
-                console.log('Found space dock details:', $spaceDockDetails.length);
 
                 if ($spaceDockDetails.length > 0) {
-                    console.log('Space dock details found! Looking for description...');
 
                     // Find the description div within the technology details
                     var $description = $spaceDockDetails.find('.description');
-                    console.log('Found description elements:', $description.length);
 
                     if ($description.length > 0) {
-                        console.log('Found Space dock description, loading wreck field data...');
                         loadWreckFieldDataIntoDescription($description);
                     } else {
-                        console.log('Space dock description not found in technology details');
-                        console.log('Available elements in space dock details:', $spaceDockDetails.find('*').map(function() { return this.tagName + '.' + this.className; }).get());
-                        console.log('Space dock details HTML:', $spaceDockDetails.html());
                     }
                 } else {
-                    console.log('Space dock details not found yet');
                 }
             }
 
@@ -315,11 +293,9 @@
             };
 
             window.collectRepairedShips = function() {
-                console.log('collectRepairedShips called - this should be my custom function');
 
                 // Get fresh CSRF token from meta tag
                 const token = $('meta[name="csrf-token"]').attr('content') || '{{ csrf_token() }}';
-                console.log('Using CSRF token:', token ? token.substring(0, 10) + '...' : 'no token');
 
                 $.ajaxSetup({
                     headers: {
@@ -401,8 +377,6 @@
 
     
             function createRepairLayerOverlay(wreckFieldData) {
-                console.log('Creating repair layer overlay with data:', wreckFieldData);
-                console.log('Ship data:', wreckFieldData.ship_data);
 
                 // Create the overlay HTML structure
                 var overlayHtml = `
@@ -432,7 +406,6 @@
                         const elapsedTime = totalRepairTime - wreckFieldData.remaining_repair_time;
                         totalRepairProgress = Math.min(100, Math.max(0, (elapsedTime / totalRepairTime) * 100));
 
-                        console.log(`Repair progress: ${totalRepairProgress}%, Total time: ${totalRepairTime}s, Remaining: ${wreckFieldData.remaining_repair_time}s`);
                     }
 
                     // Map machine names to OGame shipyard CSS classes
@@ -469,7 +442,6 @@
                                 const shipName = ship.machine_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                                 const shipClass = shipClassMap[ship.machine_name] || '';
 
-                                console.log(`Ship: ${ship.machine_name}, Quantity: ${ship.quantity}, Repaired: ${repairedCount}, Class: ${shipClass}`);
 
                                 // Copy exact shipyard icon structure with space dock overlay
                                 overlayHtml += `
@@ -484,7 +456,6 @@
                             }
                         }
                     } else {
-                        console.log('No valid ship data found');
                         overlayHtml += '<p>No ship data available</p>';
                     }
 
@@ -626,8 +597,6 @@
             };
 
             function loadWreckFieldDataIntoDescription($description) {
-                console.log('Loading wreck field data for Space Dock description...');
-                console.log('Description structure:', $description.html());
 
                 // Remove any existing wreck field section first
                 $description.find('#wreckFieldSection').remove();
@@ -636,25 +605,19 @@
                     _token: "{{ csrf_token() }}"
                 })
                 .done(function(response) {
-                    console.log('Wreck field response:', response);
                     if (response.debug_info) {
-                        console.log('Server checking coordinates:', response.debug_info.planet_coordinates);
-                        console.log('Server player ID:', response.debug_info.player_id);
                     }
                     if (response.success) {
                         updateWreckFieldDisplayInDescription($description, response.wreckField);
                     } else {
-                        console.log('Error response:', response.message);
                         // Don't show alert for normal "no wreck field" case
                     }
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
-                    console.log('AJAX error:', textStatus, errorThrown);
                 });
             }
 
             function updateWreckFieldDisplayInDescription($description, wreckFieldData) {
-                console.log('Updating wreck field display in description with data:', wreckFieldData);
 
                 // Clear existing timers
                 clearWreckFieldTimers();
@@ -665,7 +628,6 @@
 
                 if (!wreckFieldData) {
                     // No wreck field available - don't add anything to description
-                    console.log('No wreck field found - not adding section to description');
                     return;
                 }
 
@@ -761,18 +723,6 @@
                     const repairsComplete = wreckFieldData.is_completed || repairProgress >= 100;
                     const collectEnabled = repairsComplete && hasRepairedShips;
 
-                    // Debug logging
-                    console.log('Complex action collection check:', {
-                        'timeSinceRepairStart': timeSinceRepairStart,
-                        'minRepairTime': minRepairTime,
-                        'minTimePassed': minTimePassed,
-                        'repairProgress': repairProgress,
-                        'repairedShips': repairedShips,
-                        'hasRepairedShips': hasRepairedShips,
-                        'repairsComplete': repairsComplete,
-                        'collectEnabled': collectEnabled
-                    });
-
                     // Create tooltip explaining why button is disabled
                     var collectButtonTooltip = '';
                     if (!collectEnabled) {
@@ -860,8 +810,6 @@
                 } else {
                     // When active wreck field (not being repaired): create the proper active wreck field interface
                     var timeRemaining = wreckFieldData.time_remaining || 0;
-                    console.log('Raw time remaining from server:', timeRemaining);
-                    console.log('Wreck field expires at:', wreckFieldData.wreck_field ? wreckFieldData.wreck_field.expires_at : 'N/A');
 
                     var timeDisplay = '3d 0h 0m'; // Default to 72 hours if time is 0
                     if (timeRemaining > 0) {
@@ -869,9 +817,7 @@
                         var hours = Math.floor((timeRemaining % 86400) / 3600);
                         var minutes = Math.floor((timeRemaining % 3600) / 60);
                         timeDisplay = days + 'd ' + hours + 'h ' + minutes + 'm';
-                        console.log('Calculated time display:', timeDisplay, 'from', timeRemaining, 'seconds');
                     } else {
-                        console.log('Using default time display - timeRemaining is 0 or negative, using 72h default');
                     }
 
                     // Create the wreck field span with proper structure

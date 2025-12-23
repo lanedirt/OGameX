@@ -242,7 +242,7 @@ class WreckFieldService
                 }
             }
             if (!$found) {
-                $currentShip[] = $newShip;
+                $currentShipData[] = $newShip;
             }
         }
 
@@ -535,6 +535,12 @@ class WreckFieldService
 
         $timeRemaining = $wreckField->getTimeRemaining();
 
+        // Calculate total repair time (in seconds)
+        $totalRepairTime = 0;
+        if ($wreckField->repair_started_at && $wreckField->getRepairCompletionTime()) {
+            $totalRepairTime = (int) $wreckField->getRepairCompletionTime()->timestamp - (int) $wreckField->repair_started_at->timestamp;
+        }
+
         return [
             'wreck_field' => $wreckField,
             'ship_data' => $shipData,
@@ -547,6 +553,7 @@ class WreckFieldService
             'space_dock_level' => $wreckField->space_dock_level ?? 1,
             'repair_completion_time' => $wreckField->getRepairCompletionTime(),
             'repair_started_at' => $wreckField->repair_started_at,
+            'total_repair_time' => $totalRepairTime,
             'remaining_repair_time' => $wreckField->getRepairCompletionTime() ?
                 max(0, (int) $wreckField->getRepairCompletionTime()->timestamp - (int) now()->timestamp) : 0,
         ];
