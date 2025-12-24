@@ -37,25 +37,23 @@ class GenerateHighscoreRanks extends Command
         $rank = 1;
         $this->info("\nUpdating highscore ranks for $type->name...");
 
+        // Set Legor's rank to NULL (Legor is excluded from highscore)
+        $legorHighscore = Highscore::where('player_id', 1)->first();
+        if ($legorHighscore) {
+            $legorHighscore->{$type->name.'_rank'} = null;
+            $legorHighscore->save();
+        }
+
         // Order by the highscore value in descending order, and by the player creation date in ascending order.
         // This ensures that:
         // - The highest ranked players are at the top of the list.
         // - If two players have the same highscore value, the player who joined the game first will be ranked higher.
-        // Admin users (like Legor) are excluded from highscore ranking entirely.
+        // Legor (player ID 1) is excluded from highscore ranking entirely.
         $query = Highscore::query()
-            ->join('users', 'highscores.player_id', '=', 'users.id')
-            ->leftJoin('model_has_roles', function($join) {
-                $join->on('users.id', '=', 'model_has_roles.model_id')
-                     ->where('model_has_roles.model_type', '=', 'OGame\\Models\\User');
-            })
-            ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->where(function($query) {
-                $query->whereNull('roles.id')
-                      ->orWhere('roles.name', '!=', 'admin');
-            })
+            ->where('player_id', '!=', 1) // Exclude Legor
             ->select('highscores.*')
             ->orderByDesc($type->name)
-            ->orderBy('users.created_at');
+            ->orderBy('created_at');
 
         $bar = $this->output->createProgressBar();
         $bar->start($query->count());
