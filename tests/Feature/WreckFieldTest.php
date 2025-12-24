@@ -365,28 +365,29 @@ class WreckFieldTest extends TestCase
             ['machine_name' => 'heavy_fighter', 'quantity' => 5, 'repair_progress' => 0]
         ];
 
-        $updatedWreckField = $this->wreckFieldService->createWreckField($coordinate, $newShips, $this->user->id);
+        $newWreckField = $this->wreckFieldService->createWreckField($coordinate, $newShips, $this->user->id);
 
-        // Check that ships were added
-        $this->assertCount(2, $updatedWreckField->ship_data);
-        $this->assertEquals(15, $updatedWreckField->getTotalShips()); // 10 + 5
+        // With the new implementation, a separate blocked wreck field should be created
+        $this->assertEquals('blocked', $newWreckField->status);
+        $this->assertNotEquals($wreckField->id, $newWreckField->id);
 
-        // Check that repair completion time was NOT modified (ships added to ongoing repairs)
-        $this->assertEquals($originalRepairCompletionTime->timestamp, $updatedWreckField->repair_completed_at->timestamp);
+        // Check that the new wreck field has only the new ships
+        $this->assertCount(1, $newWreckField->ship_data);
+        $this->assertEquals(5, $newWreckField->getTotalShips());
 
-        // Verify the specific ships
-        $lightFighter = null;
+        // Check that the original wreck field was NOT modified
+        $wreckField->refresh();
+        $this->assertCount(1, $wreckField->ship_data);
+        $this->assertEquals(10, $wreckField->getTotalShips());
+        $this->assertEquals($originalRepairCompletionTime->timestamp, $wreckField->repair_completed_at->timestamp);
+
+        // Verify the specific ships in the new wreck field
         $heavyFighter = null;
-
-        foreach ($updatedWreckField->ship_data as $ship) {
-            if ($ship['machine_name'] === 'light_fighter') {
-                $lightFighter = $ship;
-            } elseif ($ship['machine_name'] === 'heavy_fighter') {
+        foreach ($newWreckField->ship_data as $ship) {
+            if ($ship['machine_name'] === 'heavy_fighter') {
                 $heavyFighter = $ship;
             }
         }
-
-        $this->assertEquals(10, $lightFighter['quantity']);
         $this->assertEquals(5, $heavyFighter['quantity']);
     }
 

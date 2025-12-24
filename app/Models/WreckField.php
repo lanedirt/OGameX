@@ -105,15 +105,23 @@ class WreckField extends Model
      */
     public function canBeRepaired(): bool
     {
-        return $this->status === 'active' && !$this->isExpired();
+        return ($this->status === 'active' || $this->status === 'blocked') && !$this->isExpired();
     }
 
     /**
-     * Check if the wreck field can be burned (not currently repairing).
+     * Check if the wreck field is blocked (waiting for another wreck field to complete).
+     */
+    public function isBlocked(): bool
+    {
+        return $this->status === 'blocked';
+    }
+
+    /**
+     * Check if the wreck field can be burned (not currently repairing and not blocked).
      */
     public function canBeBurned(): bool
     {
-        return $this->status !== 'repairing';
+        return $this->status !== 'repairing' && $this->status !== 'blocked';
     }
 
     /**

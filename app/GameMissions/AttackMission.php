@@ -137,10 +137,20 @@ class AttackMission extends GameMission
         //
         // Current behavior: wreck field is created immediately at the battle location.
         // General behavior (future): wreck field data stored with mission, created at origin planet on return.
+        //
+        // IMPORTANT: If the battle is on a moon, the wreck field is created at the planet's coordinates
+        // (not the moon's), and can only be interacted with from the planet.
         if (!empty($battleResult->wreckField) && $battleResult->wreckField['formed']) {
             $wreckFieldService = new WreckFieldService($defenderPlanet->getPlayer(), $this->settings);
+
+            // Determine the coordinates for the wreck field
+            // If battle is on a moon, use the planet's coordinates. If on a planet, use its own coordinates.
+            $wreckFieldCoordinates = $defenderPlanet->isMoon()
+                ? $defenderPlanet->planet()->getPlanetCoordinates()
+                : $defenderPlanet->getPlanetCoordinates();
+
             $wreckField = $wreckFieldService->createWreckField(
-                $defenderPlanet->getPlanetCoordinates(),
+                $wreckFieldCoordinates,
                 $battleResult->wreckField['ships'],
                 $defenderPlanet->getPlayer()->getId()
             );

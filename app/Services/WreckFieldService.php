@@ -99,6 +99,32 @@ class WreckFieldService
     }
 
     /**
+     * Load an active or blocked wreck field for the given coordinates.
+     * Prefers active over blocked, and skips repairing wreck fields.
+     *
+     * @param Coordinate $coordinate
+     * @return bool True if a non-repairing wreck field was loaded successfully, false otherwise.
+     */
+    public function loadActiveOrBlockedForCoordinates(Coordinate $coordinate): bool
+    {
+        // Fetch active or blocked wreck field model
+        // Prefer active over blocked
+        $wreckField = WreckField::where('galaxy', $coordinate->galaxy)
+            ->where('system', $coordinate->system)
+            ->where('planet', $coordinate->position)
+            ->whereIn('status', ['active', 'blocked'])
+            ->orderByRaw("FIELD(status, 'active', 'blocked')")
+            ->first();
+
+        if ($wreckField !== null) {
+            $this->wreckField = $wreckField;
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Get the coordinates of the wreck field.
      */
     public function getCoordinates(): Coordinate
@@ -189,7 +215,7 @@ class WreckFieldService
      * Behavior:
      * - If no existing wreck field: create new one
      * - If existing wreck field is active (repairs not started): combine ships and reset expiration timer
-     * - If existing wreck field is repairing (repairs in progress): add ships to ongoing repairs
+     * - If existing wreck field is repairing or blocked: create a separate blocked wreck field
      *
      * @param Coordinate $coordinate
      * @param array $shipData
@@ -198,24 +224,25 @@ class WreckFieldService
      */
     public function createWreckField(Coordinate $coordinate, array $shipData, int $ownerPlayerId): WreckField
     {
-        // Check if wreck field already exists
+        // Check if wreck field already exists at this location
         $existingWreckField = WreckField::where('galaxy', $coordinate->galaxy)
             ->where('system', $coordinate->system)
             ->where('planet', $coordinate->position)
+            ->where('owner_player_id', $ownerPlayerId)
+            ->whereIn('status', ['active', 'repairing', 'blocked'])
             ->first();
 
         if ($existingWreckField) {
             if ($existingWreckField->status === 'active') {
                 // Repairs haven't started - combine and reset expiration timer
                 $this->extendWreckFieldWithReset($existingWreckField, $shipData);
-            } elseif ($existingWreckField->status === 'repairing') {
-                // Repairs in progress - add ships to ongoing repairs
-                $this->addShipsToOngoingRepairs($existingWreckField, $shipData);
+                return $existingWreckField;
+            } else {
+                // Repairs in progress or already blocked - create a separate blocked wreck field
+                return $this->createBlockedWreckField($coordinate, $shipData, $ownerPlayerId);
             }
-            // For completed/burned wreck fields, don't do anything (they're done)
-            return $existingWreckField;
         } else {
-            // Create new wreck field
+            // Create new active wreck field
             $wreckField = new WreckField();
             $wreckField->galaxy = $coordinate->galaxy;
             $wreckField->system = $coordinate->system;
@@ -349,6 +376,79 @@ class WreckFieldService
     }
 
     /**
+     * Create a blocked wreck field when another wreck field is already being repaired.
+     * The blocked wreck field can only be dismissed or start repairs when the first one completes.
+     *
+     * @param Coordinate $coordinate
+     * @param array $shipData
+     * @param int $ownerPlayerId
+     * @return WreckField
+     */
+    public function createBlockedWreckField(Coordinate $coordinate, array $shipData, int $ownerPlayerId): WreckField
+    {
+        $wreckField = new WreckField();
+        $wreckField->galaxy = $coordinate->galaxy;
+        $wreckField->system = $coordinate->system;
+        $wreckField->planet = $coordinate->position;
+        $wreckField->owner_player_id = $ownerPlayerId;
+        $wreckField->created_at = now();
+        $wreckField->expires_at = now()->addHours($this->settingsService->wreckFieldLifetimeHours());
+        $wreckField->status = 'blocked';
+        $wreckField->ship_data = $shipData;
+        $wreckField->save();
+
+        return $wreckField;
+    }
+
+    /**
+     * Check if there's a wreck field currently being repaired at the given coordinates.
+     *
+     * @param Coordinate $coordinate
+     * @param int $ownerPlayerId
+     * @param int|null $excludeWreckFieldId
+     * @return bool
+     */
+    public function hasRepairingWreckFieldAt(Coordinate $coordinate, int $ownerPlayerId, ?int $excludeWreckFieldId = null): bool
+    {
+        $query = WreckField::where('galaxy', $coordinate->galaxy)
+            ->where('system', $coordinate->system)
+            ->where('planet', $coordinate->position)
+            ->where('owner_player_id', $ownerPlayerId)
+            ->where('status', 'repairing');
+
+        if ($excludeWreckFieldId !== null) {
+            $query->where('id', '!=', $excludeWreckFieldId);
+        }
+
+        return $query->exists();
+    }
+
+    /**
+     * Unblock the next wreck field at the given coordinates (if any).
+     * Called when a wreck field completes repairs or is burned.
+     *
+     * @param Coordinate $coordinate
+     * @param int $ownerPlayerId
+     * @return void
+     */
+    public function unblockNextWreckField(Coordinate $coordinate, int $ownerPlayerId): void
+    {
+        // Find the oldest blocked wreck field and change it to active
+        $blockedWreckField = WreckField::where('galaxy', $coordinate->galaxy)
+            ->where('system', $coordinate->system)
+            ->where('planet', $coordinate->position)
+            ->where('owner_player_id', $ownerPlayerId)
+            ->where('status', 'blocked')
+            ->orderBy('created_at', 'asc')
+            ->first();
+
+        if ($blockedWreckField) {
+            $blockedWreckField->status = 'active';
+            $blockedWreckField->save();
+        }
+    }
+
+    /**
      * Start repairs for the wreck field.
      *
      * @param int $spaceDockLevel
@@ -369,23 +469,22 @@ class WreckFieldService
             throw new Exception('No ships to repair');
         }
 
+        // Check if there's already a wreck field being repaired at this location
+        $coordinates = $this->getCoordinates();
+        if ($this->hasRepairingWreckFieldAt($coordinates, $this->wreckField->owner_player_id, $this->wreckField->id)) {
+            throw new Exception('Another wreck field is already being repaired at this location');
+        }
+
         $this->wreckField->status = 'repairing';
         $this->wreckField->repair_started_at = now();
         $this->wreckField->space_dock_level = $spaceDockLevel;
 
-        // Calculate repair completion time (30 min to 12 hours)
+        // Calculate repair completion time
+        // Formula based on ship count only (space dock level affects recovery %, not time)
+        // Uses sqrt(shipCount * 30) * 10 to calculate reasonable repair times
         $shipCount = $this->wreckField->getTotalShips();
-        $baseRepairTime = max(
-            $this->settingsService->wreckFieldRepairMinMinutes() * 60, // minimum 30 minutes
-            min(
-                $this->settingsService->wreckFieldRepairMaxHours() * 3600, // maximum 12 hours
-                $shipCount * 60 // 1 minute per ship base calculation
-            )
-        );
-
-        // Adjust for space dock level (higher level = faster repair)
-        $levelMultiplier = max(0.5, 1 - ($spaceDockLevel - 1) * 0.1); // 10% faster per level, minimum 50%
-        $repairDuration = (int)($baseRepairTime * $levelMultiplier);
+        $sqrtValue = sqrt($shipCount * 30);
+        $repairDuration = (int)($sqrtValue * 10);
 
         $this->wreckField->repair_completed_at = now()->addSeconds($repairDuration);
         $this->wreckField->save();
@@ -420,6 +519,9 @@ class WreckFieldService
         $this->wreckField->status = 'completed';
         $this->wreckField->save();
 
+        // Unblock the next wreck field at this location
+        $this->unblockNextWreckField($this->getCoordinates(), $this->wreckField->owner_player_id);
+
         return $shipData;
     }
 
@@ -441,6 +543,9 @@ class WreckFieldService
 
         $this->wreckField->status = 'burned';
         $this->wreckField->save();
+
+        // Unblock the next wreck field at this location
+        $this->unblockNextWreckField($this->getCoordinates(), $this->wreckField->owner_player_id);
 
         return true;
     }
@@ -586,67 +691,98 @@ class WreckFieldService
 
     /**
      * Get wreck field data for the current planet.
+     * Returns the "primary" wreck field (active or repairing) for backward compatibility.
      *
      * @param PlanetService $planetService
      * @return array|null
      */
     public function getWreckFieldForCurrentPlanet(PlanetService $planetService): array|null
     {
+        $wreckFields = $this->getAllWreckFieldsForCurrentPlanet($planetService);
+
+        if (empty($wreckFields)) {
+            return null;
+        }
+
+        // Return the first (primary) wreck field for backward compatibility
+        return $wreckFields[0];
+    }
+
+    /**
+     * Get all wreck fields for the current planet (including blocked ones).
+     * Returns an array of wreck field data arrays, ordered by priority:
+     * 1. Active or repairing wreck fields (primary)
+     * 2. Blocked wreck fields (queued)
+     * 3. Completed wreck fields (for collection)
+     *
+     * @param PlanetService $planetService
+     * @return array
+     */
+    public function getAllWreckFieldsForCurrentPlanet(PlanetService $planetService): array
+    {
         $coordinates = $planetService->getPlanetCoordinates();
 
-        $wreckField = WreckField::where('galaxy', $coordinates->galaxy)
+        $wreckFields = WreckField::where('galaxy', $coordinates->galaxy)
             ->where('system', $coordinates->system)
             ->where('planet', $coordinates->position)
             ->where('owner_player_id', $this->playerService->getId())
-            ->first();
+            ->whereIn('status', ['active', 'repairing', 'blocked', 'completed'])
+            ->orderByRaw("FIELD(status, 'repairing', 'active', 'blocked', 'completed')")
+            ->orderBy('created_at', 'asc')
+            ->get();
 
-        if (!$wreckField) {
-            return null;
-        }
+        $result = [];
 
-        if ($wreckField->isExpired()) {
-            return null;
-        }
+        foreach ($wreckFields as $wreckField) {
+            if ($wreckField->isExpired()) {
+                continue;
+            }
 
-        if ($wreckField->isBurned()) {
-            return null;
-        }
+            // Get ship information without unit objects for now
+            $shipData = [];
 
-        // Get ship information without unit objects for now
-        $shipData = [];
+            foreach ($wreckField->getShipData() as $ship) {
+                $shipData[] = [
+                    'machine_name' => $ship['machine_name'],
+                    'quantity' => $ship['quantity'],
+                    'repair_progress' => $ship['repair_progress'] ?? 0,
+                    'unit_object' => null, // TODO: Implement proper unit object creation
+                ];
+            }
 
-        foreach ($wreckField->getShipData() as $ship) {
-            $shipData[] = [
-                'machine_name' => $ship['machine_name'],
-                'quantity' => $ship['quantity'],
-                'repair_progress' => $ship['repair_progress'] ?? 0,
-                'unit_object' => null, // TODO: Implement proper unit object creation
+            $timeRemaining = $wreckField->getTimeRemaining();
+
+            // Calculate total repair time (in seconds)
+            $totalRepairTime = 0;
+            if ($wreckField->repair_started_at && $wreckField->getRepairCompletionTime()) {
+                $totalRepairTime = (int) $wreckField->getRepairCompletionTime()->timestamp - (int) $wreckField->repair_started_at->timestamp;
+            }
+
+            // Temporarily load this wreck field to get its max recoverable percentage
+            $previousWreckField = $this->wreckField;
+            $this->wreckField = $wreckField;
+            $maxRecoverablePercentage = $this->getMaxRecoverablePercentage();
+            $this->wreckField = $previousWreckField;
+
+            $result[] = [
+                'wreck_field' => $wreckField,
+                'ship_data' => $shipData,
+                'time_remaining' => $timeRemaining,
+                'can_repair' => $wreckField->canBeRepaired(),
+                'is_repairing' => $wreckField->isRepairing(),
+                'is_blocked' => $wreckField->isBlocked(),
+                'is_completed' => $wreckField->isCompleted(),
+                'repair_progress' => $wreckField->getRepairProgress(),
+                'max_recoverable_percentage' => $maxRecoverablePercentage,
+                'space_dock_level' => $wreckField->space_dock_level ?? 1,
+                'repair_completion_time' => $wreckField->getRepairCompletionTime(),
+                'repair_started_at' => $wreckField->repair_started_at,
+                'total_repair_time' => $totalRepairTime,
+                'remaining_repair_time' => $wreckField->getRepairCompletionTime() ?
+                    max(0, (int) $wreckField->getRepairCompletionTime()->timestamp - (int) now()->timestamp) : 0,
             ];
         }
 
-        $timeRemaining = $wreckField->getTimeRemaining();
-
-        // Calculate total repair time (in seconds)
-        $totalRepairTime = 0;
-        if ($wreckField->repair_started_at && $wreckField->getRepairCompletionTime()) {
-            $totalRepairTime = (int) $wreckField->getRepairCompletionTime()->timestamp - (int) $wreckField->repair_started_at->timestamp;
-        }
-
-        return [
-            'wreck_field' => $wreckField,
-            'ship_data' => $shipData,
-            'time_remaining' => $timeRemaining,
-            'can_repair' => $wreckField->canBeRepaired(),
-            'is_repairing' => $wreckField->isRepairing(),
-            'is_completed' => $wreckField->isCompleted(),
-            'repair_progress' => $wreckField->getRepairProgress(),
-            'max_recoverable_percentage' => $this->getMaxRecoverablePercentage(),
-            'space_dock_level' => $wreckField->space_dock_level ?? 1,
-            'repair_completion_time' => $wreckField->getRepairCompletionTime(),
-            'repair_started_at' => $wreckField->repair_started_at,
-            'total_repair_time' => $totalRepairTime,
-            'remaining_repair_time' => $wreckField->getRepairCompletionTime() ?
-                max(0, (int) $wreckField->getRepairCompletionTime()->timestamp - (int) now()->timestamp) : 0,
-        ];
+        return $result;
     }
 }

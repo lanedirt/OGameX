@@ -57,10 +57,11 @@ class OverviewController extends OGameController
 
         $planet = $player->planets->current();
 
-        // Check for wreck field on current planet - only show if no action taken yet
+        // Check for wreck field on current planet - show icon for active, blocked, or repairing wreck fields
         $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planet);
         $showWreckFieldIcon = false;
-        if ($wreckField && $wreckField['can_repair'] && !$wreckField['is_repairing'] && !$wreckField['is_completed']) {
+        if ($wreckField && !$wreckField['is_completed']) {
+            // Show icon if active, repairing, or blocked
             $showWreckFieldIcon = true;
         }
 

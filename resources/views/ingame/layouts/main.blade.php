@@ -360,17 +360,22 @@ Combat simulation save slots +20">
             @php
                     // Check for wreck fields on current player's planets
                     $playerWreckFields = [];
+
                     foreach ($currentPlayer->planets->allPlanets() as $planet) {
                         $wreckFieldService = new \OGame\Services\WreckFieldService($currentPlayer, app(\OGame\Services\SettingsService::class));
-                        $wreckFieldLoaded = $wreckFieldService->loadForCoordinates($planet->getPlanetCoordinates());
+                        // Load only active or blocked wreck fields (skip repairing ones)
+                        $wreckFieldLoaded = $wreckFieldService->loadActiveOrBlockedForCoordinates($planet->getPlanetCoordinates());
 
                         if ($wreckFieldLoaded) {
                             $wreckField = $wreckFieldService->getWreckField();
                             if ($wreckField && $wreckField->getTotalShips() > 0) {
+                                // Check if THIS planet (where the wreck field is) has a Space Dock
+                                $hasSpaceDock = $planet->getObjectLevel('space_dock') > 0;
+
                                 $playerWreckFields[] = [
                                     'planet' => $planet,
                                     'wreckField' => $wreckField,
-                                    'hasSpaceDock' => $planet->getObjectLevel('space_dock') > 0
+                                    'hasSpaceDock' => $hasSpaceDock
                                 ];
                             }
                         }
@@ -385,11 +390,19 @@ Combat simulation save slots +20">
                         @php
                             // Fix time calculation - use proper timezone
                             if (!empty($playerWreckFields[0])) {
-                                $expiresAt = $playerWreckFields[0]['wreckField']->expires_at;
+                                $wreckFieldObj = $playerWreckFields[0]['wreckField'];
                                 $now = now();
 
+                                // For repairing wreck fields, use repair completion time
+                                // For active/blocked wreck fields, use expiration time
+                                if ($wreckFieldObj->status === 'repairing' && $wreckFieldObj->repair_completed_at) {
+                                    $endTime = $wreckFieldObj->repair_completed_at;
+                                } else {
+                                    $endTime = $wreckFieldObj->expires_at;
+                                }
+
                                 // Use Carbon's proper diff calculation
-                                $timeRemaining = max(0, $now->diffInSeconds($expiresAt, false));
+                                $timeRemaining = max(0, $now->diffInSeconds($endTime, false));
                             } else {
                                 $timeRemaining = 0;
                             }
@@ -444,7 +457,8 @@ Combat simulation save slots +20">
                         $wreckField = $playerWreckFields[0]['wreckField'] ?? null;
                         $hasSpaceDockOnWreckFieldPlanet = $playerWreckFields[0]['hasSpaceDock'] ?? false;
                         if ($wreckField) {
-                            $isWreckFieldActive = $wreckField->status === 'active';
+                            // Show icon ONLY for active or blocked wreck fields (NOT repairing)
+                            $isWreckFieldActive = in_array($wreckField->status, ['active', 'blocked']);
                         }
                     }
                     @endphp
@@ -1771,8 +1785,10 @@ However, the Space Dock's engineers think that some of the remains can be salvag
 
                                     @php
                                         // Check for wreck field at this planet's coordinates
+                                        // Only show wreck field icon for planets, not moons
+                                        // Load active or blocked wreck field (skip repairing ones)
                                         $wreckFieldService = new \OGame\Services\WreckFieldService($currentPlayer, app(\OGame\Services\SettingsService::class));
-                                        $wreckFieldLoaded = $wreckFieldService->loadForCoordinates($planet->getPlanetCoordinates());
+                                        $wreckFieldLoaded = $wreckFieldService->loadActiveOrBlockedForCoordinates($planet->getPlanetCoordinates());
                                         $wreckField = null;
 
                                         if ($wreckFieldLoaded) {
@@ -1783,7 +1799,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                         }
                                     @endphp
 
-                                    @if ($wreckField && $wreckField->status === 'active')
+                                    @if ($wreckField && in_array($wreckField->status, ['active', 'blocked']) && !$planet->isMoon())
                                         @php
                                             $hasSpaceDock = $currentPlayer->planets->current()->getObjectLevel('space_dock') > 0;
                                             $isOwner = $wreckField->owner_player_id === $currentPlayer->getId();
