@@ -69,8 +69,8 @@ class EspionageMission extends GameMission
             return new MissionPossibleStatus(false, 'This player is in vacation mode!');
         }
 
-        // Admin planets (like Legor's Arakis) cannot be probed
-        if ($targetPlayer->isAdmin()) {
+        // Legor's planet (Arakis at 1:1:2) cannot be probed
+        if ($targetPlayer->getUsername(false) === 'Legor') {
             return new MissionPossibleStatus(false, __('t_messages.This planet belongs to an administrator and cannot be probed.'));
         }
 

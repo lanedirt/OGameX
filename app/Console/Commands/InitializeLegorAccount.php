@@ -31,9 +31,40 @@ class InitializeLegorAccount extends Command
      */
     public function handle(PlanetServiceFactory $planetServiceFactory): int
     {
-        // Check if Legor already exists
-        if (\OGame\Models\User::where('username', 'Legor')->exists()) {
-            $this->info('Legor account already exists.');
+        // Check if Legor already exists (created by migration)
+        $legor = \OGame\Models\User::where('username', 'Legor')->first();
+
+        if ($legor) {
+            // Legor exists, check if moon already exists
+            $moonExists = \OGame\Models\Planet::where('user_id', $legor->id)
+                ->where('planet_type', 3)
+                ->exists();
+
+            if ($moonExists) {
+                $this->info('Legor account and moon already exist.');
+                return Command::SUCCESS;
+            }
+
+            // Create moon for existing Legor
+            $this->info('Legor account exists, creating moon...');
+
+            $delay = (int) $this->option('delay');
+            $minutes = round($delay / 60, 1);
+            $this->info("Waiting {$delay} seconds ({$minutes} minutes) before creating moon...");
+
+            sleep($delay);
+
+            // Get Legor's planet and create moon
+            $planet = \OGame\Models\Planet::where('user_id', $legor->id)
+                ->where('planet_type', 1)
+                ->first();
+
+            if ($planet) {
+                $moonCreationJob = new \OGame\Jobs\CreateLegorMoon($planet->id);
+                $moonCreationJob->handle();
+                $this->info("Moon creation complete!");
+            }
+
             return Command::SUCCESS;
         }
 

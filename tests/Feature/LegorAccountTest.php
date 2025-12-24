@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet;
@@ -21,11 +22,11 @@ class LegorAccountTest extends AccountTestCase
      */
     public function testLegorAccountCreation(): void
     {
-        // Run the command
+        // Migration creates Legor, but we can test the moon creation part
         $this->artisan('ogamex:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 
-        // Verify user was created
+        // Verify user was created by migration
         $legor = User::where('username', 'Legor')->first();
         $this->assertNotNull($legor);
         $this->assertTrue($legor->hasRole('admin'));
@@ -45,7 +46,7 @@ class LegorAccountTest extends AccountTestCase
      */
     public function testLegorAccountIdempotent(): void
     {
-        // Run the command twice
+        // Migration creates Legor, command should still work (moon creation)
         $this->artisan('ogamex:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 
@@ -62,6 +63,13 @@ class LegorAccountTest extends AccountTestCase
      */
     public function testLegorCommandFailsIfPositionOccupied(): void
     {
+        // Delete Legor created by migration using raw SQL to handle foreign keys
+        DB::table('users')->where('id', 1)->update(['planet_current' => null]);
+        DB::table('model_has_roles')->where('model_id', 1)->delete();
+        DB::table('users_tech')->where('user_id', 1)->delete();
+        DB::table('planets')->where('user_id', 1)->delete();
+        DB::table('users')->where('id', 1)->delete();
+
         // Create a planet at 1:1:2 first
         $planetServiceFactory = app()->make(PlanetServiceFactory::class);
         $playerService = app()->make(PlayerService::class);
@@ -80,7 +88,7 @@ class LegorAccountTest extends AccountTestCase
      */
     public function testLegorPlanetCannotBeAttacked(): void
     {
-        // Create Legor account with 0 delay for immediate moon creation
+        // Migration creates Legor, just create moon for testing
         $this->artisan('ogamex:init-legor', ['--delay' => 0]);
 
         $legor = User::where('username', 'Legor')->first();
@@ -125,7 +133,7 @@ class LegorAccountTest extends AccountTestCase
      */
     public function testLegorPlanetCannotBeProbed(): void
     {
-        // Create Legor account with 0 delay
+        // Migration creates Legor, just create moon for testing
         $this->artisan('ogamex:init-legor', ['--delay' => 0]);
 
         $legor = User::where('username', 'Legor')->first();
@@ -169,7 +177,7 @@ class LegorAccountTest extends AccountTestCase
      */
     public function testCanSendResourcesToLegorPlanet(): void
     {
-        // Create Legor account with 0 delay
+        // Migration creates Legor, just create moon for testing
         $this->artisan('ogamex:init-legor', ['--delay' => 0]);
 
         $legor = User::where('username', 'Legor')->first();
