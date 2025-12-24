@@ -92,10 +92,11 @@ return new class () extends Migration {
         if ($firstUser) {
             $adminRole = Role::where('name', 'admin')->first();
             $firstUserId = (int) $firstUser->id;
+            $adminRoleId = (int) $adminRole->id;
 
             // Assign admin role
             DB::table('model_has_roles')->insert([
-                'role_id' => $adminRole->id,
+                'role_id' => $adminRoleId,
                 'model_type' => 'OGame\\Models\\User',
                 'model_id' => $firstUserId,
             ]);
@@ -132,8 +133,9 @@ return new class () extends Migration {
             ->first();
 
         if ($firstUser) {
+            $firstUserId = (int) $firstUser->id;
             DB::table('model_has_roles')
-                ->where('model_id', $firstUser->id)
+                ->where('model_id', $firstUserId)
                 ->where('model_type', 'OGame\\Models\\User')
                 ->delete();
         }
