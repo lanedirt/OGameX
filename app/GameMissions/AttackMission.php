@@ -66,6 +66,11 @@ class AttackMission extends GameMission
             return new MissionPossibleStatus(false, 'This player is in vacation mode!');
         }
 
+        // Admin planets (like Legor's Arakis) cannot be attacked
+        if ($targetPlayer->isAdmin()) {
+            return new MissionPossibleStatus(false, __('t_messages.This planet belongs to an administrator and cannot be attacked.'));
+        }
+
         // If all checks pass, the mission is possible.
         return new MissionPossibleStatus(true);
     }

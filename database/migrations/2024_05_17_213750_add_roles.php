@@ -14,8 +14,9 @@ return new class () extends Migration {
         Role::create(['name' => 'moderator']);
         Role::create(['name' => 'player']);
 
-        // Assign "admin" role to the first user and rename it to "Admin".
-        $firstUser = User::first();
+        // Assign "admin" role to the first non-Legor user and rename it to "Admin".
+        // Skip Legor if it's the first user, as it already has admin role.
+        $firstUser = User::where('username', '!=', 'Legor')->orderBy('id')->first();
         if ($firstUser) {
             $firstUser->assignRole('admin');
             $firstUser->username = 'Admin';
@@ -28,8 +29,8 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        // Remove roles from the first user
-        $firstUser = User::first();
+        // Remove admin role from the first non-Legor user
+        $firstUser = User::where('username', '!=', 'Legor')->orderBy('id')->first();
         if ($firstUser) {
             $firstUser->removeRole('admin');
         }
