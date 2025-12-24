@@ -92,7 +92,7 @@ class InitializeLegorAccount extends Command
         $user->email = 'legor@ogamex.local';
         $user->password = Hash::make(Str::random(32));
         $user->lang = 'en';
-        $user->time = now()->timestamp;
+        $user->time = (string) now()->timestamp;
         $user->save();
 
         // Create UserTech record

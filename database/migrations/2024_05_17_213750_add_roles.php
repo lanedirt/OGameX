@@ -91,17 +91,18 @@ return new class () extends Migration {
 
         if ($firstUser) {
             $adminRole = Role::where('name', 'admin')->first();
+            $firstUserId = (int) $firstUser->id;
 
             // Assign admin role
             DB::table('model_has_roles')->insert([
                 'role_id' => $adminRole->id,
                 'model_type' => 'OGame\\Models\\User',
-                'model_id' => $firstUser->id,
+                'model_id' => $firstUserId,
             ]);
 
             // Rename to Admin
             DB::table('users')
-                ->where('id', $firstUser->id)
+                ->where('id', $firstUserId)
                 ->update(['username' => 'Admin']);
         }
     }

@@ -6,7 +6,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OGame\Models\DebrisField;
 use OGame\Models\Enums\PlanetType;
@@ -15,13 +14,17 @@ use OGame\Models\Resources;
 
 class CreateLegorMoon implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
 
     public function __construct(
         private int $planetId
-    ) {}
+    ) {
+    }
 
-    public function handle(): void {
+    public function handle(): void
+    {
         $planet = Planet::find($this->planetId);
         if (!$planet) {
             Log::warning("CreateLegorMoon: Planet {$this->planetId} not found");
@@ -83,7 +86,7 @@ class CreateLegorMoon implements ShouldQueue
         $moon->deuterium = 0;
 
         // Time
-        $moon->time_last_update = now()->timestamp;
+        $moon->time_last_update = (int) now()->timestamp;
         $moon->destroyed = 0;
 
         $moon->save();
@@ -91,6 +94,9 @@ class CreateLegorMoon implements ShouldQueue
         Log::info("CreateLegorMoon: Created moon for planet {$this->planetId} with diameter {$diameter}km");
     }
 
+    /**
+     * @return array{metal: int, crystal: int}
+     */
     private function generateRandomDebris(): array
     {
         // Total debris between 30,001 and 100,000

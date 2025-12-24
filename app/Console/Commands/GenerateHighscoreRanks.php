@@ -37,12 +37,12 @@ class GenerateHighscoreRanks extends Command
         $rank = 1;
         $this->info("\nUpdating highscore ranks for $type->name...");
 
-        // Set Legor's rank to NULL (Legor is excluded from highscore)
+        // Set Legor's rank to 0 (Legor is excluded from highscore, ranked players start at 1)
         $legor = \OGame\Models\User::where('username', 'Legor')->first();
         if ($legor) {
             $legorHighscore = Highscore::where('player_id', $legor->id)->first();
             if ($legorHighscore) {
-                $legorHighscore->{$type->name.'_rank'} = null;
+                $legorHighscore->{$type->name.'_rank'} = 0;
                 $legorHighscore->save();
             }
         }
