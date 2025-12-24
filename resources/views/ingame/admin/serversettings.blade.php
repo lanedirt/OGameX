@@ -216,25 +216,6 @@
                                 </div>
                             </div>
                             <div class="fieldwrapper">
-                                <label class="styled textBeefy">@lang('Destroyed ships in wreck fields:')</label>
-                                <div class="thefield">
-                                    <select name="wreck_field_from_ships" class="w130" data-value="{{ $wreck_field_from_ships }}">
-                                        <option value="0"{{ $wreck_field_from_ships == 0 ? ' selected' : '' }}>0%</option>
-                                        <option value="10"{{ $wreck_field_from_ships == 10 ? ' selected' : '' }}>10%</option>
-                                        <option value="20"{{ $wreck_field_from_ships == 20 ? ' selected' : '' }}>20%</option>
-                                        <option value="30"{{ $wreck_field_from_ships == 30 ? ' selected' : '' }}>30%</option>
-                                        <option value="40"{{ $wreck_field_from_ships == 40 ? ' selected' : '' }}>40%</option>
-                                        <option value="50"{{ $wreck_field_from_ships == 50 ? ' selected' : '' }}>50%</option>
-                                        <option value="60"{{ $wreck_field_from_ships == 60 ? ' selected' : '' }}>60%</option>
-                                        <option value="70"{{ $wreck_field_from_ships == 70 ? ' selected' : '' }}>70%</option>
-                                        <option value="80"{{ $wreck_field_from_ships == 80 ? ' selected' : '' }}>80%</option>
-                                        <option value="90"{{ $wreck_field_from_ships == 90 ? ' selected' : '' }}>90%</option>
-                                        <option value="100"{{ $wreck_field_from_ships == 100 ? ' selected' : '' }}>100%</option>
-                                    </select>
-                                </div>
-                                <div class="smallFont">@lang('Percentage of destroyed ships that form a wreck field (repairable via Space Dock).')</div>
-                            </div>
-                            <div class="fieldwrapper">
                                 <label class="styled textBeefy">@lang('Minimum destruction for wreck fields:')</label>
                                 <div class="thefield">
                                     <input type="text" pattern="[0-9]*" class="textInput w100 textCenter textBeefy" value="{{ $wreck_field_min_resources_loss }}" size="10" name="wreck_field_min_resources_loss">

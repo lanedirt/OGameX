@@ -228,7 +228,7 @@ abstract class BattleEngine
     protected function calculateWreckField(UnitCollection $defenderUnitsLost, UnitCollection $defenderUnitsStart): array
     {
         $wreckFieldData = [];
-        $wreckFieldPercentage = $this->settings->wreckFieldFromShips() / 100;
+        $wreckFieldPercentage = (100.0 - $this->settings->debrisFieldFromShips()) / 100;
 
         // Only ships (not defenses) can go into wreck fields
         foreach ($defenderUnitsLost->units as $unit) {

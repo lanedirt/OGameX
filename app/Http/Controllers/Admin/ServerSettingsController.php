@@ -37,7 +37,6 @@ class ServerSettingsController extends OGameController
             'debris_field_from_ships' => $settingsService->debrisFieldFromShips(),
             'debris_field_from_defense' => $settingsService->debrisFieldFromDefense(),
             'debris_field_deuterium_on' => $settingsService->debrisFieldDeuteriumOn(),
-            'wreck_field_from_ships' => $settingsService->wreckFieldFromShips(),
             'wreck_field_min_resources_loss' => $settingsService->wreckFieldMinResourcesLoss(),
             'wreck_field_min_fleet_percentage' => $settingsService->wreckFieldMinFleetPercentage(),
             'wreck_field_lifetime_hours' => $settingsService->wreckFieldLifetimeHours(),
@@ -97,7 +96,6 @@ class ServerSettingsController extends OGameController
         $settingsService->set('debris_field_from_ships', request('debris_field_from_ships'));
         $settingsService->set('debris_field_from_defense', request('debris_field_from_defense'));
         $settingsService->set('debris_field_deuterium_on', request('debris_field_deuterium_on', 0));
-        $settingsService->set('wreck_field_from_ships', request('wreck_field_from_ships', 70));
         $settingsService->set('wreck_field_min_resources_loss', request('wreck_field_min_resources_loss', 150000));
         $settingsService->set('wreck_field_min_fleet_percentage', request('wreck_field_min_fleet_percentage', 5));
         $settingsService->set('wreck_field_lifetime_hours', request('wreck_field_lifetime_hours', 72));

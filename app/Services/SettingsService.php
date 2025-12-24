@@ -255,16 +255,6 @@ class SettingsService
     }
 
     /**
-     * Returns the percentage of destroyed ships that become wreck fields.
-     *
-     * @return int
-     */
-    public function wreckFieldFromShips(): int
-    {
-        return (int)$this->get('wreck_field_from_ships', 70);
-    }
-
-    /**
      * Returns the minimum resource loss required for wreck field formation.
      *
      * @return int

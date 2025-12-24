@@ -183,14 +183,15 @@ class WreckFieldService
     }
 
     /**
-     * Calculate ships that go into wreck field based on settings.
+     * Calculate ships that go into wreck field based on debris field settings.
+     * Wreck field percentage = 100% - debris_field_percentage
      *
      * @param UnitCollection $destroyedShips
      * @return array
      */
     public function calculateShipsForWreckField(UnitCollection $destroyedShips): array
     {
-        $wreckFieldPercentage = $this->settingsService->wreckFieldFromShips() / 100;
+        $wreckFieldPercentage = (100.0 - $this->settingsService->debrisFieldFromShips()) / 100;
         $shipData = [];
 
         foreach ($destroyedShips->units as $unit) {
@@ -651,42 +652,32 @@ class WreckFieldService
     }
 
     /**
-     * Get maximum recoverable percentage based on Space Dock level.
+     * Get maximum recoverable percentage based on debris field setting and Space Dock level.
      *
-     * Returns the maximum percentage of ships that can be recovered from a wreck field
-     * based on the Space Dock building level at the time repairs were started.
-     * Percentage increases with Space Dock level, capped at 39.2% for level 15+.
+     * Base recoverable = 100% - debris_field_percentage
+     * Space Dock level provides a bonus multiplier on top of the base.
+     * Formula: base_recoverable * (1 + (space_dock_level - 1) * bonus_per_level)
      *
-     * @return float Maximum recoverable percentage (31.5% to 39.2%)
+     * @return float Maximum recoverable percentage
      */
     public function getMaxRecoverablePercentage(): float
     {
-        $level = $this->wreckField->space_dock_level ?? 1;
+        $debrisFieldPercentage = $this->settingsService->debrisFieldFromShips();
+        $baseRecoverable = 100.0 - $debrisFieldPercentage;
+        $spaceDockLevel = $this->wreckField->space_dock_level ?? 1;
 
-        $percentages = [
-            1 => 31.5,
-            2 => 33.6,
-            3 => 34.3,
-            4 => 35.0,
-            5 => 35.7,
-            6 => 36.4,
-            7 => 37.1,
-            8 => 37.1,
-            9 => 37.8,
-            10 => 37.8,
-            11 => 38.5,
-            12 => 38.5,
-            13 => 38.5,
-            14 => 39.2,
-            15 => 39.2,
-        ];
-
-        // Cap at level 15
-        if ($level > 15) {
-            $level = 15;
+        // Cap space dock level at 15
+        if ($spaceDockLevel > 15) {
+            $spaceDockLevel = 15;
         }
 
-        return $percentages[$level] ?? 31.5;
+        // Space Dock bonus: 2.5% per level
+        $spaceDockBonus = 1.0 + (($spaceDockLevel - 1) * 0.025);
+
+        $maxRecoverable = $baseRecoverable * $spaceDockBonus;
+
+        // Cap at 100%
+        return min(100.0, $maxRecoverable);
     }
 
     /**
