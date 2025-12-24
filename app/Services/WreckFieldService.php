@@ -408,7 +408,7 @@ class WreckFieldService
      * @param int|null $excludeWreckFieldId
      * @return bool
      */
-    public function hasRepairingWreckFieldAt(Coordinate $coordinate, int $ownerPlayerId, ?int $excludeWreckFieldId = null): bool
+    public function hasRepairingWreckFieldAt(Coordinate $coordinate, int $ownerPlayerId, int|null $excludeWreckFieldId = null): bool
     {
         $query = WreckField::where('galaxy', $coordinate->galaxy)
             ->where('system', $coordinate->system)
