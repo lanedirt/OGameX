@@ -142,6 +142,10 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 
     Route::get('/alliance', [AllianceController::class, 'index'])->name('alliance.index');
     Route::get('/ajax/alliance/create', [AllianceController::class, 'ajaxCreate'])->name('alliance.ajax.create');
+    Route::post('/alliance/store', [AllianceController::class, 'store'])->name('alliance.store');
+    Route::post('/alliance/apply', [AllianceController::class, 'apply'])->name('alliance.apply');
+    Route::post('/alliance/action', [AllianceController::class, 'action'])->name('alliance.action');
+    Route::post('/alliance/rank/create', [AllianceController::class, 'createRank'])->name('alliance.rank.create');
 
     Route::get('/premium', [PremiumController::class, 'index'])->name('premium.index');
     Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
