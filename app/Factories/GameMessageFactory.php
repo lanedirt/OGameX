@@ -47,6 +47,10 @@ class GameMessageFactory
         'buddy_request_received' => \OGame\GameMessages\BuddyRequestReceived::class,
         'buddy_request_accepted' => \OGame\GameMessages\BuddyRequestAccepted::class,
         'buddy_removed' => \OGame\GameMessages\BuddyRemoved::class,
+
+        // Missile attack messages
+        'missile_attack_report' => \OGame\GameMessages\MissileAttackReport::class,
+        'missile_defense_report' => \OGame\GameMessages\MissileDefenseReport::class,
         ];
 
     /**
