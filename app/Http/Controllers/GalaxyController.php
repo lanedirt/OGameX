@@ -729,6 +729,15 @@ class GalaxyController extends OGameController
 
         $data['target_abm_count'] = $targetAbmCount;
 
+        // Calculate flight time: (30 + 60 × distance) / universe_speed seconds
+        $universeSpeed = 1; // TODO: Get from settings
+        $flightTime = (int)((30 + 60 * $distance) / $universeSpeed);
+        $arrivalTime = time() + $flightTime;
+
+        $data['flight_duration'] = $flightTime;
+        $data['flight_duration_formatted'] = \OGame\Facades\AppUtil::formatTimeDuration($flightTime);
+        $data['arrival_time'] = date('d.m.y H:i:s', $arrivalTime);
+
         return view('ingame.galaxy.missileattack', $data);
     }
 

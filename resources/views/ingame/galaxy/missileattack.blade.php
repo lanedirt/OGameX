@@ -1,251 +1,327 @@
-<div id="missileAttackLayer">
-    <h3>@lang('Missile Attack')</h3>
-
-    <div class="target-info">
-        <p>
-            <strong>@lang('Target'):</strong>
-            <span class="planetname">{{ $target_planet_name }}</span>
-            [{{ $target_coords }}]
-        </p>
-        @if($target_player_name)
-        <p>
-            <strong>@lang('Owner'):</strong>
-            <span class="playername">{{ $target_player_name }}</span>
-        </p>
-        @endif
-    </div>
-
+<div id="rocketattack" data-title="@lang('Missile Attack')">
     @if(!empty($error))
         <div class="error-box">
             <p class="error">{{ $error }}</p>
         </div>
     @else
-        <form id="missileAttackForm" method="POST" action="{{ route('galaxy.missile-attack') }}">
+        <form method="post" action="{{ route('galaxy.missile-attack') }}" id="rocketForm">
             @csrf
             <input type="hidden" name="galaxy" value="{{ $galaxy }}">
             <input type="hidden" name="system" value="{{ $system }}">
             <input type="hidden" name="position" value="{{ $position }}">
             <input type="hidden" name="type" value="{{ $type }}">
 
-            <div class="missiles-info">
-                <p>
-                    <strong>@lang('Available missiles'):</strong>
-                    <span class="available-missiles">{{ $available_missiles }}</span>
-                </p>
-                <p>
-                    <strong>@lang('Missile range'):</strong>
-                    <span class="missile-range">{{ $missile_range }} @lang('systems')</span>
-                </p>
+            <div id="target">@lang('Target'): @if($type == 3)<figure class="planetIcon moon tooltip js_hideTipOnMobile" data-tooltip-title="@lang('Moon')"></figure>@endif[{{ $target_coords }}]</div>
+            <div id="flightDuration">@lang('Flight duration'): {{ $flight_duration_formatted }}</div>
+            <div id="arrivalTime">@lang('Arrival'): <span id="arrivalTimer" data-duration="{{ $flight_duration }}">{{ $arrival_time }}</span> @lang('Clock')</div>
+
+            <div id="infos">
+                <div id="numberrockets">
+                    <ul>
+                        <li class="defense503">
+                            <div class="buildingimg sprite defense small defense503">
+                                <a id="number" href="javascript:void(0);" class="tooltip js_hideTipOnMobile" data-tooltip-title="@lang('Interplanetary Missiles')">
+                                    <span class="ecke">
+                                        <span class="level">{{ $available_missiles }}</span>
+                                    </span>
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                    <input type="text" pattern="[0-9]*" name="missile_count" id="missileCount" data-max="{{ $available_missiles }}" class="textinput" value="1">
+                </div>
+
+                <div id="priority">
+                    @lang('Primary target'):
+                    <ul>
+                        <li class="defense401">
+                            <div class="buildingimg sprite defense small defense401">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="401" data-priority="2" data-tooltip-title="@lang('Rocket Launcher')"></a>
+                            </div>
+                        </li>
+                        <li class="defense402">
+                            <div class="buildingimg sprite defense small defense402">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="402" data-priority="3" data-tooltip-title="@lang('Light Laser')"></a>
+                            </div>
+                        </li>
+                        <li class="defense403">
+                            <div class="buildingimg sprite defense small defense403">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="403" data-priority="4" data-tooltip-title="@lang('Heavy Laser')"></a>
+                            </div>
+                        </li>
+                        <li class="defense404">
+                            <div class="buildingimg sprite defense small defense404">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="404" data-priority="5" data-tooltip-title="@lang('Gauss Cannon')"></a>
+                            </div>
+                        </li>
+                        <li class="defense405">
+                            <div class="buildingimg sprite defense small defense405">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="405" data-priority="6" data-tooltip-title="@lang('Ion Cannon')"></a>
+                            </div>
+                        </li>
+                        <li class="defense406">
+                            <div class="buildingimg sprite defense small defense406">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="406" data-priority="7" data-tooltip-title="@lang('Plasma Turret')"></a>
+                            </div>
+                        </li>
+                        <li class="defense407">
+                            <div class="buildingimg sprite defense small defense407">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="407" data-priority="0" data-tooltip-title="@lang('Small Shield Dome')"></a>
+                            </div>
+                        </li>
+                        <li class="defense408">
+                            <div class="buildingimg sprite defense small defense408">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="408" data-priority="0" data-tooltip-title="@lang('Large Shield Dome')"></a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div id="noPriorityInfo" style="display: block;">@lang('No primary target selected: random target')</div>
+                <input type="hidden" name="target_priority" id="primaryTarget" value="0">
+
                 @if($target_abm_count > 0)
-                    <p class="warning">
+                    <div id="abmWarning" style="color: #ff6b6b; margin: 10px 0; font-weight: bold;">
                         <img src="/img/galaxy/activity.gif" alt="Warning">
                         @lang('Target has') <strong>{{ $target_abm_count }}</strong> @lang('Anti-Ballistic Missiles')
-                    </p>
+                    </div>
                 @endif
-            </div>
 
-            <div class="form-row">
-                <label for="missile_count">@lang('Number of missiles'):</label>
-                <input
-                    type="number"
-                    id="missile_count"
-                    name="missile_count"
-                    min="1"
-                    max="{{ $available_missiles }}"
-                    value="1"
-                    required
-                    class="text"
-                >
+                <input type="submit" class="btn_blue" value="@lang('Fire')">
             </div>
-
-            <div class="form-row">
-                <label for="target_priority">@lang('Target priority'):</label>
-                <select id="target_priority" name="target_priority" class="dropdown">
-                    <option value="0">@lang('Cheapest defenses first')</option>
-                    <option value="1">@lang('Most expensive defenses first')</option>
-                    <option value="2">@lang('Rocket Launcher')</option>
-                    <option value="3">@lang('Light Laser')</option>
-                    <option value="4">@lang('Heavy Laser')</option>
-                    <option value="5">@lang('Gauss Cannon')</option>
-                    <option value="6">@lang('Ion Cannon')</option>
-                    <option value="7">@lang('Plasma Turret')</option>
-                </select>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn_blue" id="launchMissileBtn">
-                    <span>@lang('Launch Attack')</span>
-                </button>
-                <button type="button" class="btn_blue close-overlay" onclick="closeOverlay()">
-                    <span>@lang('Cancel')</span>
-                </button>
-            </div>
-
-            <div id="missileAttackResult" class="result-message" style="display: none;"></div>
         </form>
     @endif
 </div>
 
 <script type="text/javascript">
-$(document).ready(function() {
-    $('#missileAttackForm').on('submit', function(e) {
-        e.preventDefault();
+(function($) {
+    function initMissleAttackLayer() {
+        // Defense target selection
+        $('.defense-target').on('click', function(e) {
+            e.preventDefault();
 
-        // Disable submit button and show loading state
-        var $submitBtn = $('#launchMissileBtn');
-        var originalText = $submitBtn.find('span').text();
-        $submitBtn.prop('disabled', true).find('span').text('@lang('Launching')...');
+            var $this = $(this);
+            var priority = $this.data('priority');
+            var ref = $this.data('ref');
 
-        // Hide any previous result messages
-        $('#missileAttackResult').hide();
+            // Remove active state from all
+            $('.defense-target').parent().parent().removeClass('active');
 
-        // Get form data
-        var formData = $(this).serialize();
-
-        // Submit via AJAX
-        $.ajax({
-            url: '{{ route('galaxy.missile-attack') }}',
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    // Show success message
-                    $('#missileAttackResult')
-                        .removeClass('error')
-                        .addClass('success')
-                        .html(response.message || '@lang('Missiles launched successfully!')')
-                        .fadeIn();
-
-                    // Close overlay after 2 seconds
-                    setTimeout(function() {
-                        closeOverlay();
-                        // Refresh galaxy view if needed
-                        if (typeof reloadGalaxy === 'function') {
-                            reloadGalaxy();
-                        }
-                    }, 2000);
-                } else {
-                    // Show error message
-                    $('#missileAttackResult')
-                        .removeClass('success')
-                        .addClass('error')
-                        .html(response.error || '@lang('Failed to launch missiles')')
-                        .fadeIn();
-
-                    // Re-enable submit button
-                    $submitBtn.prop('disabled', false).find('span').text(originalText);
-                }
-            },
-            error: function(xhr) {
-                var errorMessage = '@lang('An error occurred. Please try again.')';
-
-                if (xhr.responseJSON && xhr.responseJSON.error) {
-                    errorMessage = xhr.responseJSON.error;
-                } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                }
-
-                // Show error message
-                $('#missileAttackResult')
-                    .removeClass('success')
-                    .addClass('error')
-                    .html(errorMessage)
-                    .fadeIn();
-
-                // Re-enable submit button
-                $submitBtn.prop('disabled', false).find('span').text(originalText);
+            // If clicking the same target, deselect it
+            if ($('#primaryTarget').val() == priority) {
+                $('#primaryTarget').val('0');
+                $('#noPriorityInfo').show();
+            } else {
+                // Select this target
+                $this.parent().parent().addClass('active');
+                $('#primaryTarget').val(priority);
+                $('#noPriorityInfo').hide();
             }
         });
-    });
-});
+
+        // Form submission
+        $('#rocketForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var $form = $(this);
+            var $submitBtn = $form.find('input[type="submit"]');
+
+            // Validate missile count
+            var missileCount = parseInt($('#missileCount').val());
+            var maxMissiles = parseInt($('#missileCount').data('max'));
+
+            if (isNaN(missileCount) || missileCount < 1) {
+                fadeBox('@lang('Please enter a valid number of missiles')', 1);
+                return;
+            }
+
+            if (missileCount > maxMissiles) {
+                fadeBox('@lang('You do not have enough missiles')', 1);
+                return;
+            }
+
+            // Disable submit button
+            $submitBtn.prop('disabled', true);
+
+            // Submit via AJAX
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: $form.serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        fadeBox(response.message || '@lang('Missiles launched successfully!')', 0);
+
+                        // Close overlay after brief delay
+                        setTimeout(function() {
+                            closeOverlay();
+                            // Refresh galaxy view if needed
+                            if (typeof reloadGalaxy === 'function') {
+                                reloadGalaxy();
+                            }
+                        }, 1500);
+                    } else {
+                        fadeBox(response.error || '@lang('Failed to launch missiles')', 1);
+                        $submitBtn.prop('disabled', false);
+                    }
+                },
+                error: function(xhr) {
+                    var errorMessage = '@lang('An error occurred. Please try again.')';
+
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+
+                    fadeBox(errorMessage, 1);
+                    $submitBtn.prop('disabled', false);
+                }
+            });
+        });
+    }
+
+    // Update arrival time every second (current time + fixed flight duration)
+    function updateArrivalTime() {
+        var $timer = $('#arrivalTimer');
+        if ($timer.length === 0) return;
+
+        var flightDuration = parseInt($timer.data('duration'));
+        if (isNaN(flightDuration) || flightDuration <= 0) return;
+
+        setInterval(function() {
+            // Calculate arrival time as current time + flight duration
+            var arrivalDate = new Date(Date.now() + (flightDuration * 1000));
+            var day = String(arrivalDate.getDate()).padStart(2, '0');
+            var month = String(arrivalDate.getMonth() + 1).padStart(2, '0');
+            var year = String(arrivalDate.getFullYear()).slice(-2);
+            var hours = String(arrivalDate.getHours()).padStart(2, '0');
+            var minutes = String(arrivalDate.getMinutes()).padStart(2, '0');
+            var seconds = String(arrivalDate.getSeconds()).padStart(2, '0');
+
+            var formattedTime = day + '.' + month + '.' + year + ' ' + hours + ':' + minutes + ':' + seconds;
+            $timer.text(formattedTime);
+        }, 1000);
+    }
+
+    // Execute immediately - this script loads with the overlay content
+    initMissleAttackLayer();
+    updateArrivalTime();
+})(jQuery);
 </script>
 
 <style>
-#missileAttackLayer {
-    padding: 20px;
+#rocketattack {
+    padding: 10px;
+    text-align: center;
+    font-size: 11px;
 }
 
-#missileAttackLayer h3 {
-    margin-bottom: 20px;
+#rocketattack #target {
+    width: 420px;
+    height: 14px;
+    color: #848484;
+    font-size: 13.2px;
+    margin: 0 auto 5px auto;
+    line-height: 14px;
 }
 
-#missileAttackLayer .target-info {
-    background: #0d1014;
-    border: 1px solid #1b2024;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 4px;
+#rocketattack #target .planetIcon {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 2px;
+    padding: 0;
+    width: 16px;
+    height: 16px;
 }
 
-#missileAttackLayer .missiles-info {
-    background: #0d1014;
-    border: 1px solid #1b2024;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 4px;
+#rocketattack #flightDuration,
+#rocketattack #arrivalTime {
+    margin-bottom: 5px;
+    line-height: 18px;
 }
 
-#missileAttackLayer .missiles-info p.warning {
-    color: #ff6b6b;
-    font-weight: bold;
+#rocketattack #infos {
     margin-top: 10px;
 }
 
-#missileAttackLayer .form-row {
-    margin-bottom: 15px;
-}
-
-#missileAttackLayer .form-row label {
-    display: inline-block;
-    width: 200px;
-    font-weight: bold;
-}
-
-#missileAttackLayer .form-row input.text,
-#missileAttackLayer .form-row select.dropdown {
-    width: 200px;
-    padding: 5px;
-}
-
-#missileAttackLayer .form-actions {
-    margin-top: 20px;
+#rocketattack #numberrockets {
+    margin-bottom: 10px;
     text-align: center;
 }
 
-#missileAttackLayer .form-actions button {
-    margin: 0 10px;
+#rocketattack #numberrockets ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto 5px auto;
+    display: block;
 }
 
-#missileAttackLayer .error-box {
-    background: #3d1a1a;
-    border: 1px solid #ff6b6b;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-}
-
-#missileAttackLayer .error-box p.error {
-    color: #ff6b6b;
+#rocketattack #numberrockets li {
+    display: inline-block;
     margin: 0;
 }
 
-#missileAttackLayer .result-message {
-    margin-top: 15px;
-    padding: 15px;
-    border-radius: 4px;
+#rocketattack #numberrockets .textinput {
+    width: 70px;
+    padding: 3px 5px;
+    text-align: center;
+    display: block;
+    margin: 0 auto;
+}
+
+#rocketattack #priority {
+    margin-bottom: 5px;
     text-align: center;
 }
 
-#missileAttackLayer .result-message.success {
-    background: #1a3d1a;
-    border: 1px solid #6bff6b;
-    color: #6bff6b;
+#rocketattack #priority ul {
+    list-style: none;
+    padding: 0;
+    margin: 5px auto;
+    display: inline-block;
 }
 
-#missileAttackLayer .result-message.error {
+#rocketattack #priority li {
+    display: inline-block;
+    margin: 2px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+#rocketattack #priority li:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+#rocketattack #priority li.active {
+    opacity: 1;
+    outline: 2px solid #6f9fc8;
+    outline-offset: 2px;
+}
+
+#rocketattack #noPriorityInfo {
+    color: #848484;
+    font-style: italic;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#rocketattack .btn_blue {
+    margin-top: 5px;
+}
+
+#rocketattack .error-box {
     background: #3d1a1a;
     border: 1px solid #ff6b6b;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+#rocketattack .error-box p.error {
     color: #ff6b6b;
+    margin: 0;
 }
 </style>
