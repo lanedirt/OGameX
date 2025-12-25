@@ -366,11 +366,39 @@ class GalaxyController extends OGameController
         $canBuddyRequest = $planet->getPlayer()->getId() !== $this->playerService->getId()
             && !$planet->getPlayer()->isAdmin();
 
+        // Check if missile attack is possible:
+        // - Must be foreign planet (not own)
+        // - Must have missiles available
+        // - Target must be within range
+        $canMissileAttack = false;
+        $missileAttackLink = route('galaxy.index');
+
+        if ($planet->getPlayer()->getId() !== $this->playerService->getId()) {
+            $currentPlanet = $this->playerService->planets->current();
+            $availableMissiles = $currentPlanet->getObjectAmount('interplanetary_missile');
+
+            if ($availableMissiles > 0) {
+                $missileRange = $this->playerService->getMissileRange();
+                $targetCoordinate = new Coordinate($galaxy, $system, $position);
+                $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
+
+                if ($distance <= $missileRange) {
+                    $canMissileAttack = true;
+                    $missileAttackLink = route('galaxy.missile-attack.overlay', [
+                        'galaxy' => $galaxy,
+                        'system' => $system,
+                        'position' => $position,
+                        'type' => $planet->getPlanetType()->value,
+                    ]);
+                }
+            }
+        }
+
         return [
             'canBeIgnored' => false,
             'canBuddyRequests' => $canBuddyRequest,
             'canEspionage' => $canEspionage,
-            'canMissileAttack' => false,
+            'canMissileAttack' => $canMissileAttack,
             'canPhalanx' => $can_phalanx || !empty($phalanx_inactive_reason),
             'phalanxActive' => $can_phalanx,
             'phalanxInactive' => !empty($phalanx_inactive_reason),
@@ -378,7 +406,7 @@ class GalaxyController extends OGameController
             'canSendProbes' => $canEspionage,
             'canWrite' => false,
             'discoveryUnlocked' => 'You haven\'t unlocked the research to discover new lifeforms yet.\n',
-            'missileAttackLink' => route('galaxy.index'),
+            'missileAttackLink' => $missileAttackLink,
         ];
     }
 
@@ -615,5 +643,240 @@ class GalaxyController extends OGameController
         }
 
         return $slotsColonized;
+    }
+
+    /**
+     * Shows the missile attack overlay.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @return View
+     */
+    public function missileAttackOverlay(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): View
+    {
+        $this->playerService = $player;
+        $this->planetServiceFactory = $planetServiceFactory;
+
+        // Get target coordinates from request
+        $galaxy = (int)$request->input('galaxy');
+        $system = (int)$request->input('system');
+        $position = (int)$request->input('position');
+        $type = (int)$request->input('type', PlanetType::Planet->value);
+
+        $data = [
+            'galaxy' => $galaxy,
+            'system' => $system,
+            'position' => $position,
+            'type' => $type,
+            'target_coords' => "$galaxy:$system:$position",
+            'target_planet_name' => '',
+            'target_player_name' => '',
+            'available_missiles' => 0,
+            'missile_range' => 0,
+            'target_abm_count' => 0,
+            'error' => null,
+        ];
+
+        // Get current planet and missile info
+        $currentPlanet = $player->planets->current();
+        $data['available_missiles'] = $currentPlanet->getObjectAmount('interplanetary_missile');
+        $data['missile_range'] = $player->getMissileRange();
+
+        // Validate basic requirements
+        if ($data['available_missiles'] <= 0) {
+            $data['error'] = __('No missiles available');
+            return view('ingame.galaxy.missileattack', $data);
+        }
+
+        // Load target planet
+        $targetCoordinate = new Coordinate($galaxy, $system, $position);
+        $targetPlanetType = PlanetType::from($type);
+        $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetPlanetType);
+
+        if ($targetPlanet === null) {
+            $data['error'] = __('Target planet does not exist');
+            return view('ingame.galaxy.missileattack', $data);
+        }
+
+        // Check if target is own planet
+        if ($currentPlanet->getPlayer()->equals($targetPlanet->getPlayer())) {
+            $data['error'] = __('You cannot attack your own planet');
+            return view('ingame.galaxy.missileattack', $data);
+        }
+
+        // Check if target is within range
+        $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
+        if ($distance > $data['missile_range']) {
+            $data['error'] = __('Target is out of missile range');
+            return view('ingame.galaxy.missileattack', $data);
+        }
+
+        // Get target info
+        $data['target_planet_name'] = $targetPlanet->getPlanetName();
+        $data['target_player_name'] = $targetPlanet->getPlayer()->getUsername();
+
+        // Get ABM count for warning
+        $targetAbmCount = $targetPlanet->getObjectAmount('anti_ballistic_missile');
+
+        // If target is a moon, also count parent planet's ABMs
+        if ($targetPlanet->isMoon()) {
+            $parentPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinate, true, PlanetType::Planet);
+            if ($parentPlanet !== null) {
+                $targetAbmCount += $parentPlanet->getObjectAmount('anti_ballistic_missile');
+            }
+        }
+
+        $data['target_abm_count'] = $targetAbmCount;
+
+        return view('ingame.galaxy.missileattack', $data);
+    }
+
+    /**
+     * Handles missile attack submission.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @return JsonResponse
+     */
+    public function missileAttack(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): JsonResponse
+    {
+        $this->playerService = $player;
+        $this->planetServiceFactory = $planetServiceFactory;
+
+        // Validate input
+        $validated = $request->validate([
+            'galaxy' => 'required|integer|min:1',
+            'system' => 'required|integer|min:1',
+            'position' => 'required|integer|min:1|max:15',
+            'type' => 'required|integer',
+            'missile_count' => 'required|integer|min:1',
+            'target_priority' => 'required|integer|min:0|max:7',
+        ]);
+
+        $galaxy = $validated['galaxy'];
+        $system = $validated['system'];
+        $position = $validated['position'];
+        $type = $validated['type'];
+        $missileCount = $validated['missile_count'];
+        $targetPriority = $validated['target_priority'];
+
+        // Get current planet
+        $currentPlanet = $player->planets->current();
+
+        // Check if player has enough missiles
+        $availableMissiles = $currentPlanet->getObjectAmount('interplanetary_missile');
+        if ($missileCount > $availableMissiles) {
+            return response()->json([
+                'success' => false,
+                'error' => __('Not enough missiles available'),
+            ], 400);
+        }
+
+        // Load target planet
+        $targetCoordinate = new Coordinate($galaxy, $system, $position);
+        $targetPlanetType = PlanetType::from($type);
+        $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetPlanetType);
+
+        if ($targetPlanet === null) {
+            return response()->json([
+                'success' => false,
+                'error' => __('Target planet does not exist'),
+            ], 400);
+        }
+
+        // Check if target is own planet
+        if ($currentPlanet->getPlayer()->equals($targetPlanet->getPlayer())) {
+            return response()->json([
+                'success' => false,
+                'error' => __('You cannot attack your own planet'),
+            ], 403);
+        }
+
+        // Check range
+        $missileRange = $player->getMissileRange();
+        $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
+        if ($distance > $missileRange) {
+            return response()->json([
+                'success' => false,
+                'error' => __('Target is out of missile range'),
+            ], 400);
+        }
+
+        // Calculate flight time: (30 + 60 × distance) / universe_speed seconds
+        $universeSpeed = 1; // TODO: Get from settings
+        $flightTime = (int)((30 + 60 * $distance) / $universeSpeed);
+
+        // Create fleet mission
+        $mission = new \OGame\Models\FleetMission();
+        $mission->user_id = $player->getId();
+        $mission->planet_id_from = $currentPlanet->getPlanetId();
+        $mission->planet_id_to = $targetPlanet->getPlanetId();
+        $mission->galaxy_from = $currentPlanet->getPlanetCoordinates()->galaxy;
+        $mission->system_from = $currentPlanet->getPlanetCoordinates()->system;
+        $mission->position_from = $currentPlanet->getPlanetCoordinates()->position;
+        $mission->galaxy_to = $galaxy;
+        $mission->system_to = $system;
+        $mission->position_to = $position;
+        $mission->planet_type_from = $currentPlanet->getPlanetType()->value;
+        $mission->planet_type_to = $type;
+        $mission->mission_type = 10; // Missile attack mission
+        $mission->time_start = time();
+        $mission->time_arrival = time() + $flightTime;
+        $mission->time_return = time() + $flightTime; // No return for missiles
+        $mission->canceled = 0;
+        $mission->processed = 0;
+
+        // Store missile count and priority in dedicated columns
+        $mission->interplanetary_missile = $missileCount;
+        $mission->target_priority = $targetPriority;
+
+        // Save mission
+        $mission->save();
+
+        // Remove missiles from planet
+        $currentPlanet->removeUnit('interplanetary_missile', $missileCount);
+        $currentPlanet->save();
+
+        \Log::info('Missile Attack Launched', [
+            'player_id' => $player->getId(),
+            'mission_id' => $mission->id,
+            'from' => $currentPlanet->getPlanetCoordinates()->asString(),
+            'to' => "$galaxy:$system:$position",
+            'missile_count' => $missileCount,
+            'target_priority' => $targetPriority,
+            'flight_time' => $flightTime,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Missiles launched successfully!'),
+            'mission_id' => $mission->id,
+            'arrival_time' => $mission->time_arrival,
+        ]);
+    }
+
+    /**
+     * Calculate distance in systems between two coordinates.
+     *
+     * @param Coordinate $from
+     * @param Coordinate $to
+     * @return int
+     */
+    private function calculateSystemDistance(Coordinate $from, Coordinate $to): int
+    {
+        // In the same galaxy and system = 0 distance
+        if ($from->galaxy === $to->galaxy && $from->system === $to->system) {
+            return 0;
+        }
+
+        // Different galaxy = not allowed (missiles can't cross galaxies)
+        if ($from->galaxy !== $to->galaxy) {
+            return PHP_INT_MAX; // Return very large number to make it out of range
+        }
+
+        // Same galaxy, different system
+        return abs($from->system - $to->system);
     }
 }
