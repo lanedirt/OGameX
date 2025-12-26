@@ -208,6 +208,14 @@
     // Execute immediately - this script loads with the overlay content
     initMissleAttackLayer();
     updateArrivalTime();
+
+    // Set dialog title
+    setTimeout(function() {
+        var $dialog = $('#rocketattack').closest('.ui-dialog');
+        if ($dialog.length > 0) {
+            $dialog.find('.ui-dialog-title').text('Missile Attack');
+        }
+    }, 100);
 })(jQuery);
 </script>
 
@@ -223,7 +231,7 @@
     height: 14px;
     color: #848484;
     font-size: 13.2px;
-    margin: 0 auto 5px auto;
+    margin: 0 auto 0px auto;
     line-height: 14px;
 }
 
@@ -238,8 +246,8 @@
 
 #rocketattack #flightDuration,
 #rocketattack #arrivalTime {
-    margin-bottom: 5px;
-    line-height: 18px;
+    margin-bottom: 0px;
+    line-height: 14px;
 }
 
 #rocketattack #infos {
@@ -280,14 +288,23 @@
     list-style: none;
     padding: 0;
     margin: 5px auto;
-    display: inline-block;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 420px;
 }
 
 #rocketattack #priority li {
-    display: inline-block;
-    margin: 2px;
+    width: 80px;
+    margin: 5px 10px;
     opacity: 0.5;
     transition: opacity 0.2s;
+    flex: 0 0 80px;
+}
+
+#rocketattack #priority li .buildingimg {
+    width: 80px;
+    height: 80px;
 }
 
 #rocketattack #priority li:hover {
