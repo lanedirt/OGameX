@@ -19,6 +19,7 @@ use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Services\WreckFieldService;
 use Throwable;
 
 class AttackMission extends GameMission
@@ -129,6 +130,34 @@ class AttackMission extends GameMission
 
         // Save the debris field
         $debrisFieldService->save();
+
+        // Create or extend wreck field if conditions are met
+        //
+        // TODO: When the General class is implemented, wreck fields generated during attacks with a General
+        // should behave differently: the wreck field should only be spawned at the General's origin planet
+        // once the attacking fleet has returned from the mission. This means the wreck field data needs to
+        // be stored with the fleet mission and created at the origin planet coordinates upon mission return.
+        //
+        // Current behavior: wreck field is created immediately at the battle location.
+        // General behavior (future): wreck field data stored with mission, created at origin planet on return.
+        //
+        // IMPORTANT: If the battle is on a moon, the wreck field is created at the planet's coordinates
+        // (not the moon's), and can only be interacted with from the planet.
+        if (!empty($battleResult->wreckField) && $battleResult->wreckField['formed']) {
+            $wreckFieldService = new WreckFieldService($defenderPlanet->getPlayer(), $this->settings);
+
+            // Determine the coordinates for the wreck field
+            // If battle is on a moon, use the planet's coordinates. If on a planet, use its own coordinates.
+            $wreckFieldCoordinates = $defenderPlanet->isMoon()
+                ? $defenderPlanet->planet()->getPlanetCoordinates()
+                : $defenderPlanet->getPlanetCoordinates();
+
+            $wreckField = $wreckFieldService->createWreckField(
+                $wreckFieldCoordinates,
+                $battleResult->wreckField['ships'],
+                $defenderPlanet->getPlayer()->getId()
+            );
+        }
 
         // Create a moon for defender if result of battle indicates so and defender planet does not already have a moon.
         // Only create moon if defender is a planet (not already a moon).

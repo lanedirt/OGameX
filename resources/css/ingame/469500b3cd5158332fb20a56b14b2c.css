@@ -2667,19 +2667,19 @@ a:hover img.queuePic { border-color: #E7AE46;}
     display:block;
     height:16px;
     position:absolute;
-    top: 4px;
-    left: 32px;
+    top: 34px;
+    left: 78px;
     width:16px;
 }
 
 #rechts #norm a.wreckFieldIcon {
-    top: 4px;
-    left: 32px;
+    top: 34px;
+    left: 78px;
 }
 
 #rechts #myPlanets .smallplanet a.wreckFieldIcon {
-    top: 4px;
-    left: 22px;
+    top: 34px;
+    left: 78px;
 }
 
 #rechts #norm a.constructionIcon.moon {
@@ -3987,7 +3987,9 @@ ul span.level span.textlabel {
 #message_alert_box,
 a#message_alert_box_default,
 #messages_collapsed,
-#attack_alert  {
+#attack_alert,
+#wreck_field_alert,
+#debris_field_alert  {
     float:left;
 }
 
@@ -4175,10 +4177,28 @@ a#message_alert_box_default,
     width: 12px;
 }
 
-#attack_alert .wreckFieldCountDown {
-    position: relative;
-    top:-13px;
-    left:10px;
+/* Real countdown timer - compact auto-sized box */
+#attack_alert.wreckField .wreckFieldCountDown {
+    display: inline-block !important;
+    position: absolute !important;
+    bottom: 2px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding: 1px 3px !important;
+    font-size: 7px !important;
+    line-height: 7px !important;
+    text-align: center !important;
+    background: rgba(0, 0, 0, 0.15) !important;
+    color: #CCCCCC !important;
+    font-family: Verdana, Arial, sans-serif !important;
+    border-radius: 1px !important;
+    white-space: nowrap !important;
+    border: none !important;
+    width: auto !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    z-index: 999999 !important;
+    font-weight: normal !important;
 }
 
 #messages_collapsed {
@@ -30360,11 +30380,27 @@ li.espionageReport a.shareReport, li.espionageReport a.hideReport {
 #galaxy #notificationbarcomponent #attack_alert.wreckField a { background: transparent url("/img/icons/c194f431df6350be23b2c295c79625.gif") 0 0 no-repeat; }
 
 #notificationbarcomponent #attack_alert .wreckFieldCountDown {
-    position: relative;
-    top:-13px;
-    left:10px;
-    font-size: 8px;
-    background-color: rgba(0,0,0,.7);
+    display: inline-block !important;
+    position: absolute !important;
+    bottom: -4px !important;
+    left: calc(50% + 3px) !important;
+    transform: translateX(-50%) !important;
+    padding: 2px 4px !important;
+    font-size: 8px !important;
+    line-height: 8px !important;
+    text-align: center !important;
+    background: rgba(0, 0, 0, 0.45) !important;
+    color: #FFFFFF !important;
+    font-family: Verdana, Arial, sans-serif !important;
+    font-weight: bold !important;
+    border-radius: 1px !important;
+    white-space: nowrap !important;
+    border: none !important;
+    width: auto !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    z-index: 999999 !important;
+    font-weight: normal !important;
 }
 
 
@@ -31201,19 +31237,19 @@ a.refreshPhalanxLink span {
     display: block;
     height: 16px;
     position: absolute;
-    top: 9px;
-    right: 19px;
+    top: 34px;
+    left: 78px;
     width: 16px;
 }
 
 #rechts #norm a.wreckFieldIcon {
-    top: 5px;
-    right: 22px;
+    top: 34px;
+    left: 78px;
 }
 
 #planetbarcomponent #rechts #myPlanets .smallplanet a.wreckFieldIcon {
-    top: 22px;
-    left: 22px;
+    top: 34px;
+    left: 78px;
 }
 
 #planetbarcomponent #rechts .smallplanet a.constructionIcon,
@@ -34616,11 +34652,94 @@ ul span.level span.textlabel {
 #message_alert_box,
 a#message_alert_box_default,
 #messages_collapsed,
-#attack_alert  {
+#attack_alert,
+#wreck_field_alert,
+#debris_field_alert  {
     float:left;
 }
 
 #message_alert_box a{   background-position:0px 0px;}
+
+/* Wreck Field and Debris Field Alert Styles */
+#wreck_field_alert {
+    margin-left: 10px;
+    height: 40px;
+    width: 30px;
+    position: relative;
+    float: left;
+}
+
+#wreck_field_alert a {
+    display: block;
+    height: 100%;
+    width: 100%;
+    text-decoration: none;
+}
+
+.wreckFieldCountDown {
+    background: rgba(0, 0, 0, 0.7) !important;
+    border: 1px solid transparent !important;
+    border-radius: 2px !important;
+    color: #FFFFFF !important;
+    font-size: 8px !important;
+    font-weight: normal !important;
+    text-align: center !important;
+    line-height: 10px !important;
+    margin-top: 3px !important;
+    width: auto !important;
+    padding: 2px 6px !important;
+    font-family: Verdana, Arial, sans-serif !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    z-index: 1001 !important;
+    height: auto !important;
+}
+
+/* Prevent rogue hover elements on wreck field indicator */
+#attack_alert.wreckField:hover::before,
+#attack_alert.wreckField:hover::after {
+    display: none !important;
+}
+
+/* Remove any unwanted tooltip content on wreck field */
+#attack_alert.wreckField .tooltip[title*="done"],
+#attack_alert.wreckField *[data-tooltip-content*="done"] {
+    display: none !important;
+}
+
+
+#debris_field_alert {
+    margin-left: 5px;
+    height: 40px;
+    width: 30px;
+    position: relative;
+    float: left;
+}
+
+#debris_field_alert a {
+    display: block;
+    height: 100%;
+    width: 100%;
+    text-decoration: none;
+}
+
+.debrisFieldCountDown {
+    background: #2E7D32;
+    border: 1px solid #1B5E20;
+    border-radius: 3px;
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 18px;
+    margin-top: 10px;
+    width: 28px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 #message_alert_box a.new {  background-position:0px 13px;}
 
 #message_alert_box,
@@ -41142,4 +41261,177 @@ a container that should fully contain a float */
 	margin:10px 0;
 	padding:20px 0;
 	text-align:center;
+}
+
+/* Wreck Field Section Styles */
+.wreck-field-section {
+    margin-top: 15px;
+}
+
+.wreck-field-section .content-box-s {
+    background: #1a1a1a;
+    border: 1px solid #3a3a3a;
+    border-radius: 5px;
+}
+
+.wreck-field-section .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background: #252525;
+    border-bottom: 1px solid #3a3a3a;
+    border-radius: 4px 4px 0 0;
+}
+
+.wreck-field-section .header h3 {
+    color: #8a8a8a;
+    font-size: 12px;
+    font-weight: normal;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.wreck-field-section .timer-info {
+    color: #6a6a6a;
+    font-size: 10px;
+}
+
+.wreck-field-section .timer {
+    color: #1be01b;
+    font-weight: bold;
+}
+
+.wreck-field-section .content {
+    padding: 15px;
+}
+
+.wreck-field-ships .ships-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+
+.wreck-field-ships .ships-table tr {
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.wreck-field-ships .ships-table tr:last-child {
+    border-bottom: none;
+}
+
+.wreck-field-ships .ships-table td {
+    padding: 5px 8px;
+    vertical-align: middle;
+}
+
+.wreck-field-ships .ship-icon {
+    width: 30px;
+    text-align: center;
+}
+
+.wreck-field-ships .ship-name {
+    color: #c0c0c0;
+    font-size: 11px;
+    width: 120px;
+}
+
+.wreck-field-ships .ship-count {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 11px;
+    text-align: right;
+    width: 60px;
+}
+
+.wreck-field-ships .repair-progress {
+    width: 150px;
+    text-align: center;
+}
+
+.wreck-field-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.start-repairs-btn,
+.complete-repairs-btn,
+.burn-wreck-field-btn {
+    background: linear-gradient(to bottom, #2a7a2a, #1a5a1a);
+    border: 1px solid #3a8a3a;
+    color: #ffffff;
+    padding: 8px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+.start-repairs-btn:hover,
+.complete-repairs-btn:hover {
+    background: linear-gradient(to bottom, #3a8a3a, #2a7a2a);
+    border-color: #4a9a4a;
+}
+
+.burn-wreck-field-btn {
+    background: linear-gradient(to bottom, #7a2a2a, #5a1a1a);
+    border-color: #8a3a3a;
+}
+
+.burn-wreck-field-btn:hover {
+    background: linear-gradient(to bottom, #8a3a3a, #7a2a2a);
+    border-color: #9a4a4a;
+}
+
+.repair-status {
+    margin-top: 15px;
+    padding: 10px;
+    background: #1f1f1f;
+    border: 1px solid #2f2f2f;
+    border-radius: 3px;
+}
+
+.repair-timer {
+    margin-bottom: 8px;
+    font-size: 11px;
+    color: #c0c0c0;
+}
+
+.repair-timer .timer {
+    color: #1be01b;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.repair-progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 12px;
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, #1be01b, #15c015);
+    transition: width 1s linear;
+}
+
+.progress-text {
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: bold;
+    min-width: 35px;
+    text-align: right;
 }

@@ -523,7 +523,7 @@
                                     <tr class="alt">
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech204" width="28" height="28" alt="Light Fighter"
+                                                <img class="tech204" width="28" height="28" alt="Light Fighter" title="Light Fighter"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -538,7 +538,7 @@
                                         </td>
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech205" width="28" height="28" alt="Heavy Fighter"
+                                                <img class="tech205" width="28" height="28" alt="Heavy Fighter" title="Heavy Fighter"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -555,7 +555,7 @@
                                     <tr>
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech206" width="28" height="28" alt="Cruiser"
+                                                <img class="tech206" width="28" height="28" alt="Cruiser" title="Cruiser"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -570,7 +570,7 @@
                                         </td>
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech207" width="28" height="28" alt="Battleship"
+                                                <img class="tech207" width="28" height="28" alt="Battleship" title="Battleship"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -587,7 +587,7 @@
                                     <tr class="alt">
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech215" width="28" height="28" alt="Battlecruiser"
+                                                <img class="tech215" width="28" height="28" alt="Battlecruiser" title="Battlecruiser"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -602,7 +602,7 @@
                                         </td>
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech211" width="28" height="28" alt="Bomber"
+                                                <img class="tech211" width="28" height="28" alt="Bomber" title="Bomber"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -619,7 +619,7 @@
                                     <tr>
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech213" width="28" height="28" alt="Destroyer"
+                                                <img class="tech213" width="28" height="28" alt="Destroyer" title="Destroyer"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -634,7 +634,7 @@
                                         </td>
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech214" width="28" height="28" alt="Deathstar"
+                                                <img class="tech214" width="28" height="28" alt="Deathstar" title="Deathstar"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -651,7 +651,7 @@
                                     <tr class="alt">
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech218" width="28" height="28" alt="Reaper"
+                                                <img class="tech218" width="28" height="28" alt="Reaper" title="Reaper"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -666,7 +666,7 @@
                                         </td>
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech219" width="28" height="28" alt="Pathfinder"
+                                                <img class="tech219" width="28" height="28" alt="Pathfinder" title="Pathfinder"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -683,7 +683,7 @@
                                     <tr>
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech202" width="28" height="28" alt="Small Cargo"
+                                                <img class="tech202" width="28" height="28" alt="Small Cargo" title="Small Cargo"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -698,7 +698,7 @@
                                         </td>
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech203" width="28" height="28" alt="Large Cargo"
+                                                <img class="tech203" width="28" height="28" alt="Large Cargo" title="Large Cargo"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -715,7 +715,7 @@
                                     <tr class="alt">
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech208" width="28" height="28" alt="Colony Ship"
+                                                <img class="tech208" width="28" height="28" alt="Colony Ship" title="Colony Ship"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -730,7 +730,7 @@
                                         </td>
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech209" width="28" height="28" alt="Recycler"
+                                                <img class="tech209" width="28" height="28" alt="Recycler" title="Recycler"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>
@@ -747,7 +747,7 @@
                                     <tr>
                                         <td class="ship_txt_row textLeft images">
                                             <div class="shipImage float_left">
-                                                <img class="tech210" width="28" height="28" alt="Espionage Probe"
+                                                <img class="tech210" width="28" height="28" alt="Espionage Probe" title="Espionage Probe"
                                                      src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                             </div>
                                             <p>

@@ -23,6 +23,11 @@ class BattleResult
     public Resources $debris;
 
     /**
+     * @var array The wreck field data containing ships that can be repaired.
+     */
+    public array $wreckField = [];
+
+    /**
      * @var bool Whether a moon already existed at defender's planet location before battle commenced.
      */
     public bool $moonExisted;
