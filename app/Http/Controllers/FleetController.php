@@ -282,21 +282,18 @@ class FleetController extends OGameController
 
         // Determine enabled/available missions based on the current user, planet and target planet's properties.
         $enabledMissions = [];
-        $errors = [];
         $units = $this->getUnitsFromRequest($currentPlanet);
         $allMissions = GameMissionFactory::getAllMissions();
         foreach ($allMissions as $mission) {
             $possible = $mission->isMissionPossible($currentPlanet, $targetCoordinates, $planetType, $units);
             if ($possible->possible) {
                 $enabledMissions[] = $mission::getTypeId();
-            } elseif (!empty($possible->error)) {
-                // If the mission is not possible and has an error message, return error message in JSON.
-                $errors[] = [
-                    'message' => $possible->error,
-                    'error' => 140035 // TODO: is this actually required by the frontend?
-                ];
             }
         }
+
+        // Don't collect error messages during target checking phase.
+        // Errors will be shown when actually dispatching the fleet if needed.
+        $errors = [];
 
         // Build orders array set key to true if the mission is enabled. Set to false if not.
         $orders = [];
