@@ -157,6 +157,7 @@ class BattleReport extends GameMessage
 
         // Handle attacker
         $attackerPlayerId = $this->battleReportModel->attacker['player_id'];
+        $attackerPlanetId = $this->battleReportModel->attacker['planet_id'] ?? null;
         try {
             $attacker = $this->playerServiceFactory->make($attackerPlayerId, true);
             $attacker_name = $attacker->getUsername(false);
@@ -164,6 +165,23 @@ class BattleReport extends GameMessage
             // If attacker can't be loaded (e.g., user deleted), use "Unknown"
             $attacker = null;
             $attacker_name = __('Unknown');
+        }
+
+        // Load attacker's origin planet info
+        $attacker_planet_name = __('Unknown');
+        $attacker_planet_coords = '';
+        $attacker_planet_type = '';
+        if ($attackerPlanetId !== null) {
+            try {
+                $attackerPlanet = $this->planetServiceFactory->make($attackerPlanetId, true);
+                if ($attackerPlanet !== null) {
+                    $attacker_planet_name = $attackerPlanet->getPlanetName();
+                    $attacker_planet_coords = $attackerPlanet->getPlanetCoordinates()->asString();
+                    $attacker_planet_type = $attackerPlanet->getPlanetType() === PlanetType::Moon ? 'Moon' : 'Planet';
+                }
+            } catch (Throwable $e) {
+                // If attacker planet can't be loaded (e.g., planet deleted), use defaults
+            }
         }
 
         $defender_weapons = $this->battleReportModel->defender['weapon_technology'] * 10;
@@ -298,7 +316,11 @@ class BattleReport extends GameMessage
         return [
             'subject' => $this->getSubject(),
             'from' => $this->getFrom(),
+            'report_datetime' => $this->getDateFormatted(),
             'attacker_name' => $attacker_name,
+            'attacker_planet_name' => $attacker_planet_name,
+            'attacker_planet_coords' => $attacker_planet_coords,
+            'attacker_planet_type' => $attacker_planet_type,
             'defender_name' => $defender_name,
             'attacker_class' => ($winner === 'attacker') ? 'undermark' : (($winner === 'draw') ? 'middlemark' : 'overmark'),
             'defender_class' => ($winner === 'defender') ? 'undermark' : (($winner === 'draw') ? 'middlemark' : 'overmark'),

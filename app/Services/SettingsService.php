@@ -255,6 +255,56 @@ class SettingsService
     }
 
     /**
+     * Returns the minimum resource loss required for wreck field formation.
+     *
+     * @return int
+     */
+    public function wreckFieldMinResourcesLoss(): int
+    {
+        return (int)$this->get('wreck_field_min_resources_loss', 150000);
+    }
+
+    /**
+     * Returns the minimum fleet percentage that must be destroyed for wreck field formation.
+     *
+     * @return int
+     */
+    public function wreckFieldMinFleetPercentage(): int
+    {
+        return (int)$this->get('wreck_field_min_fleet_percentage', 5);
+    }
+
+    /**
+     * Returns the lifetime of wreck fields in hours.
+     *
+     * @return int
+     */
+    public function wreckFieldLifetimeHours(): int
+    {
+        return (int)$this->get('wreck_field_lifetime_hours', 72);
+    }
+
+    /**
+     * Returns the maximum repair time in hours for wreck fields.
+     *
+     * @return int
+     */
+    public function wreckFieldRepairMaxHours(): int
+    {
+        return (int)$this->get('wreck_field_repair_max_hours', 12);
+    }
+
+    /**
+     * Returns the minimum repair time in minutes for wreck fields.
+     *
+     * @return int
+     */
+    public function wreckFieldRepairMinMinutes(): int
+    {
+        return (int)$this->get('wreck_field_repair_min_minutes', 30);
+    }
+
+    /**
      * Returns the status of Deuterium in debris fields.
      *
      * @return int
