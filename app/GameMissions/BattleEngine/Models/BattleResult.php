@@ -123,4 +123,9 @@ class BattleResult
      * repaired and restored to the defender's planet after battle.
      */
     public UnitCollection $repairedDefenses;
+
+    /**
+     * @var int The planet ID from which the attacker launched the attack.
+     */
+    public int $attackerPlanetId;
 }

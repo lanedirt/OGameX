@@ -99,6 +99,9 @@ class AttackMission extends GameMission
 
         $battleResult = $battleEngine->simulateBattle();
 
+        // Set the attacker's origin planet ID on the battle result for the battle report.
+        $battleResult->attackerPlanetId = $mission->planet_id_from;
+
         // Deduct loot from the target planet.
         $defenderPlanet->deductResources($battleResult->loot);
 
@@ -266,6 +269,7 @@ class AttackMission extends GameMission
             'weapon_technology' => $battleResult->attackerWeaponLevel,
             'shielding_technology' => $battleResult->attackerShieldLevel,
             'armor_technology' => $battleResult->attackerArmorLevel,
+            'planet_id' => $battleResult->attackerPlanetId,
         ];
 
         $report->defender = [
