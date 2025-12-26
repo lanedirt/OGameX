@@ -521,7 +521,9 @@ class BuildQueueTest extends AccountTestCase
         $total_cost = $level_6_cost->metal->get() + $level_7_cost->metal->get();
         $expected_minimum_metal = $starting_metal - $total_cost + $minimum_expected_production;
 
-        $this->assertGreaterThan($expected_minimum_metal, $current_metal,
+        $this->assertGreaterThan(
+            $expected_minimum_metal,
+            $current_metal,
             "Starting: $starting_metal, Cost: $total_cost, Min production: $minimum_expected_production, Current: $current_metal"
         );
     }
@@ -551,7 +553,6 @@ class BuildQueueTest extends AccountTestCase
         $this->assertGreaterThan(0, $initial_production);
 
         $starting_metal = $this->planetService->metal()->get();
-        $planet_id = $this->planetService->getPlanetId();
 
         // Queue metal mine level 4 and 5
         $this->addResourceBuildRequest('metal_mine');
@@ -564,16 +565,18 @@ class BuildQueueTest extends AccountTestCase
         $this->assertObjectLevelOnPage($response, 'metal_mine', 5);
 
         // Verify resources were produced
-        $planet_data = \DB::table('planets')->where('id', $planet_id)->first();
-        $current_metal_from_db = $planet_data->metal;
+        $this->planetService->reloadPlanet();
+        $current_metal = $this->planetService->metal()->get();
 
         $level_4_cost = ObjectService::getObjectRawPrice('metal_mine', 4);
         $level_5_cost = ObjectService::getObjectRawPrice('metal_mine', 5);
         $total_cost = $level_4_cost->metal->get() + $level_5_cost->metal->get();
         $minimum_expected = $starting_metal - $total_cost;
 
-        $this->assertGreaterThan($minimum_expected, $current_metal_from_db,
-            "Starting: $starting_metal, Cost: $total_cost, Min: $minimum_expected, Current: $current_metal_from_db"
+        $this->assertGreaterThan(
+            $minimum_expected,
+            $current_metal,
+            "Starting: $starting_metal, Cost: $total_cost, Min: $minimum_expected, Current: $current_metal"
         );
     }
 
@@ -628,11 +631,12 @@ class BuildQueueTest extends AccountTestCase
         // At minimum, we should have more than starting - cost
         $minimum_expected = $starting_metal - $solar_plant_cost->metal->get();
 
-        $this->assertGreaterThan($minimum_expected, $current_metal,
+        $this->assertGreaterThan(
+            $minimum_expected,
+            $current_metal,
             "Production should occur after solar plant completes. " .
             "Prod before: $production_before, Prod after: $production_after, " .
             "Starting: $starting_metal, Current: $current_metal"
         );
     }
 }
-
