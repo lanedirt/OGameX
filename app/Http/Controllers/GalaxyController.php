@@ -828,12 +828,11 @@ class GalaxyController extends OGameController
         $mission->galaxy_to = $galaxy;
         $mission->system_to = $system;
         $mission->position_to = $position;
-        $mission->planet_type_from = $currentPlanet->getPlanetType()->value;
-        $mission->planet_type_to = $type;
+        $mission->type_from = $currentPlanet->getPlanetType()->value;
+        $mission->type_to = $type;
         $mission->mission_type = 10; // Missile attack mission
-        $mission->time_start = time();
+        $mission->time_departure = time();
         $mission->time_arrival = time() + $flightTime;
-        $mission->time_return = time() + $flightTime; // No return for missiles
         $mission->canceled = 0;
         $mission->processed = 0;
 

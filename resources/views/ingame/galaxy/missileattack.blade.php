@@ -155,7 +155,7 @@
 
                         // Close overlay after brief delay
                         setTimeout(function() {
-                            closeOverlay();
+                            $('#rocketattack').closest('.overlayDiv').dialog('close');
                             // Refresh galaxy view if needed
                             if (typeof reloadGalaxy === 'function') {
                                 reloadGalaxy();
