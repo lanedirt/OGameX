@@ -11,7 +11,7 @@
                     class="planetIcon planet tooltip js_hideTipOnMobile" data-tooltip-title="Planet"></figure> <a
                     href="{{ $defender_planet_link }}"
                     class="txt_link">[{{ $defender_planet_coords }}]</a></span></span>
-    <span class="msg_date fright">11.08.2024 17:43:37</span>
+    <span class="msg_date fright">{{ $report_datetime }}</span>
     <br>
     <span class="msg_sender_label">From:</span>
     <span class="msg_sender">Fleet Command</span>
@@ -177,7 +177,7 @@
             <div class="common_info">
 
                 <span id="attacker_select_combatreport" data-member-name="{{ $attacker_name }}">
-                                              <span>{{ $attacker_name }} from Moon 2:488:1</span>
+                                              <span>{{ $attacker_name }} from {{ $attacker_planet_type }} {{ $attacker_planet_name }} [{{ $attacker_planet_coords }}]</span>
                                      </span>
                 <span class="participant_label {{ $attacker_class }}">@lang('Attacker'):</span>
             </div>
@@ -244,7 +244,7 @@
         <div class="combat_participant defender defeated">
             <div class="common_info">
                             <span id="defender_select_combatreport" data-member-name="{{ $defender_name }}">
-                                            <span class="tooltip js_hideTipOnMobile" data-tooltip-title="{{ $defender_name }} from Destroyed Planet 2:3:11">{{ $defender_name }}</span>
+                                            <span class="tooltip js_hideTipOnMobile" data-tooltip-title="{{ $defender_name }} from {{ $defender_planet_name }} [{{ $defender_planet_coords }}]">{{ $defender_name }}</span>
                                     </span>
                 <span class="participant_label {{ $defender_class }}">@lang('Defender'):</span>
             </div>
