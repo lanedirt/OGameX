@@ -79,6 +79,7 @@
         <img height="16" width="16" src="/img/icons/3f9884806436537bdec305aa26fc60.gif"/>
     </div>
 
+  
     <div id="inhalt">
         <div id="planet" style="background-image:url({{ asset('img/headers/overview/' . $header_filename) }}.jpg);">
 

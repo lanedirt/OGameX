@@ -118,6 +118,9 @@ class EspionageMission extends GameMission
             // Execute counter-espionage battle
             $battleResult = $this->executeCounterEspionageBattle($origin_planet, $target_planet, $units, $counterEspionageService);
 
+            // Set the attacker's origin planet ID on the battle result for the battle report.
+            $battleResult->attackerPlanetId = $mission->planet_id_from;
+
             // Create or append debris field.
             // TODO: we could change this debris field append logic to do everything in a single query to
             // prevent race conditions. Check this later when looking into reducing chance of race conditions occurring.
@@ -276,6 +279,7 @@ class EspionageMission extends GameMission
             'weapon_technology' => $battleResult->attackerWeaponLevel,
             'shielding_technology' => $battleResult->attackerShieldLevel,
             'armor_technology' => $battleResult->attackerArmorLevel,
+            'planet_id' => $battleResult->attackerPlanetId,
         ];
 
         $report->defender = [

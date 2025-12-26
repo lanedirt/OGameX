@@ -51,6 +51,52 @@
     <script src="{{ mix('js/ingame.min.js') }}"></script>
 
     <script type="text/javascript">
+        // Define timerHandler globally to prevent simpleCountdown errors
+        if (!window.timerHandler) {
+            window.timerHandler = {
+                timers: [],
+                callbacks: [],
+                register: function(timer) {
+                    this.timers.push(timer);
+                },
+                unregister: function(timer) {
+                    var index = this.timers.indexOf(timer);
+                    if (index > -1) {
+                        this.timers.splice(index, 1);
+                    }
+                },
+                appendCallback: function(callback) {
+                    this.callbacks.push(callback);
+                },
+                init: function() {
+                    // Initialize timer handler
+                },
+                stop: function() {
+                    // Stop all timers
+                }
+            };
+        }
+
+        // Define LocalizationStrings for time formatting
+        if (!window.LocalizationStrings) {
+            window.LocalizationStrings = {
+                timeunits: {
+                    short: {
+                        day: 'd',
+                        hour: 'h',
+                        minute: 'm',
+                        second: 's'
+                    },
+                    long: {
+                        day: 'day',
+                        hour: 'hour',
+                        minute: 'minute',
+                        second: 'second'
+                    }
+                }
+            };
+        }
+
         window.token = "{{ csrf_token() }}";
         var inventoryObj;
         $.holdReady(true);
@@ -62,6 +108,8 @@
             }
         }, 1);
     </script>
+
+    <!-- Removed all custom close button CSS to restore normal jQuery UI behavior -->
 </head>
 <body id="{{ !empty($body_id) ? $body_id : 'ingamepage' }}" class="ogame lang-en default no-touch">
 <div id="initial_welcome_dialog" title="Welcome to OGame!" style="display: none;">
@@ -309,14 +357,133 @@ Combat simulation save slots +20">
                         @lang('No fleet movement')
                     </div>
                 </div>
-                <div id="attack_alert" class="tooltip @if ($underAttack) soon @else noAttack @endif"
-                     title="@if ($underAttack) @lang('You are under attack!') @endif">
-                    <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
+            @php
+                    // Check for wreck fields on current player's planets
+                    $playerWreckFields = [];
+
+                    foreach ($currentPlayer->planets->allPlanets() as $planet) {
+                        $wreckFieldService = new \OGame\Services\WreckFieldService($currentPlayer, app(\OGame\Services\SettingsService::class));
+                        // Load only active or blocked wreck fields (skip repairing ones)
+                        $wreckFieldLoaded = $wreckFieldService->loadActiveOrBlockedForCoordinates($planet->getPlanetCoordinates());
+
+                        if ($wreckFieldLoaded) {
+                            $wreckField = $wreckFieldService->getWreckField();
+                            if ($wreckField && $wreckField->getTotalShips() > 0) {
+                                // Check if THIS planet (where the wreck field is) has a Space Dock
+                                $hasSpaceDock = $planet->getObjectLevel('space_dock') > 0;
+
+                                $playerWreckFields[] = [
+                                    'planet' => $planet,
+                                    'wreckField' => $wreckField,
+                                    'hasSpaceDock' => $hasSpaceDock
+                                ];
+                            }
+                        }
+                    }
+                @endphp
+
+                <div id="attack_alert" class="@if ($underAttack) soon @elseif (!empty($playerWreckFields) && !$underAttack) wreckField @else noAttack @endif"
+                     @if ($underAttack) title="@lang('You are under attack!')" @endif>
+                    @if ($underAttack)
+                        <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
+                    @elseif (!empty($playerWreckFields))
+                        @php
+                            // Fix time calculation - use proper timezone
+                            if (!empty($playerWreckFields[0])) {
+                                $wreckFieldObj = $playerWreckFields[0]['wreckField'];
+                                $now = now();
+
+                                // For repairing wreck fields, use repair completion time
+                                // For active/blocked wreck fields, use expiration time
+                                if ($wreckFieldObj->status === 'repairing' && $wreckFieldObj->repair_completed_at) {
+                                    $endTime = $wreckFieldObj->repair_completed_at;
+                                } else {
+                                    $endTime = $wreckFieldObj->expires_at;
+                                }
+
+                                // Use Carbon's proper diff calculation
+                                $timeRemaining = max(0, $now->diffInSeconds($endTime, false));
+                            } else {
+                                $timeRemaining = 0;
+                            }
+                        @endphp
+                        @if ($timeRemaining > 0)
+                            @php
+                                $days = floor($timeRemaining / 86400);
+                                $hours = floor(($timeRemaining % 86400) / 3600);
+                                $minutes = floor(($timeRemaining % 3600) / 60);
+
+                                if ($days > 0) {
+                                    $timeText = $days . 'd ' . $hours . 'h ' . $minutes . 'm';
+                                } elseif ($hours > 0) {
+                                    $timeText = $hours . 'h ' . $minutes . 'm';
+                                } else {
+                                    $timeText = $minutes . 'm';
+                                }
+                            @endphp
+                            @php
+                        // Build ship breakdown tooltip
+                        $shipTooltipContent = "<span style='color: #00aaff;'>:</span> <br/>";
+                        if (!empty($playerWreckFields[0])) {
+                            // Try to get ship data from different possible locations
+                            $shipData = null;
+                            if (isset($playerWreckFields[0]['ship_data'])) {
+                                $shipData = $playerWreckFields[0]['ship_data'];
+                            } elseif (isset($playerWreckFields[0]['wreckField']) && method_exists($playerWreckFields[0]['wreckField'], 'getShipData')) {
+                                $shipData = $playerWreckFields[0]['wreckField']->getShipData();
+                            } elseif (isset($playerWreckFields[0]['wreckField']->ship_data)) {
+                                $shipData = $playerWreckFields[0]['wreckField']->ship_data;
+                            }
+
+                            if (!empty($shipData) && is_array($shipData)) {
+                                foreach ($shipData as $ship) {
+                                    $machineName = $ship['machine_name'] ?? 'Unknown Ship';
+                                    $quantity = $ship['quantity'] ?? 0;
+                                    $shipName = ucfirst(str_replace('_', ' ', $machineName));
+                                    $shipTooltipContent .= $shipName . ': ' . $quantity . '<br/>';
+                                }
+                            } else {
+                                $shipTooltipContent .= 'No ships in wreck field';
+                            }
+                        } else {
+                            $shipTooltipContent .= 'No wreck field available';
+                        }
+                    @endphp
+                    @php
+                    // Check if wreck field is active (not being repaired or burned)
+                    $isWreckFieldActive = false;
+                    $hasSpaceDockOnWreckFieldPlanet = false;
+                    if ($timeRemaining > 0 && !empty($playerWreckFields[0])) {
+                        $wreckField = $playerWreckFields[0]['wreckField'] ?? null;
+                        $hasSpaceDockOnWreckFieldPlanet = $playerWreckFields[0]['hasSpaceDock'] ?? false;
+                        if ($wreckField) {
+                            // Show icon ONLY for active or blocked wreck fields (NOT repairing)
+                            $isWreckFieldActive = in_array($wreckField->status, ['active', 'blocked']);
+                        }
+                    }
+                    @endphp
+                    @if ($isWreckFieldActive && $hasSpaceDockOnWreckFieldPlanet)
+                    <a href="javascript:void(0);" class="wreckFieldIcon tooltip js_hideTipOnMobile" title="{{ $shipTooltipContent }}" style="cursor: pointer;" onclick="openWreckFieldDetailsPopup(); return false;"></a>
+                            <span id="wreckFieldCountDown" class="wreckFieldCountDown" data-duration="{{ $timeRemaining }}" title="">{{ $timeText }}</span>
+                    @endif
+                                                        <script>
+                            // Initialize wreck field countdown if not already done
+                            if (typeof window.simpleCountdown !== 'undefined') {
+                                var wreckfield = $("#wreckFieldCountDown");
+                                if (wreckfield.length) {
+                                    new simpleCountdown(wreckfield, wreckfield.data('duration'), null);
+                                }
+                            }
+                            </script>
+                        @endif
+                    @endif
                 </div>
             </div>
         </div>
 
     </div>
+
+  
     <div id="left">
         <div id="ipimenucomponent" class="">
             <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable " title="" data-ipi-hint="ipiMenu">
@@ -721,6 +888,431 @@ Combat simulation save slots +20">
 
                 function redirectSpaceDock() {
                     location.href = "{{ route('facilities.index', ['openTech' => 36]) }}";
+                }
+
+                // Global function to open facilities and trigger space dock click
+                function openFacilitiesSpaceDock() {
+                    // Store a flag to trigger space dock click after page loads
+                    sessionStorage.setItem('triggerSpaceDock', 'true');
+
+                    // Redirect to facilities page with parameter as backup
+                    location.href = "{{ route('facilities.index') }}?openSpaceDock=1";
+                }
+
+                // Global function to open wreck field details popup
+                function openWreckFieldDetailsPopup() {
+                    // Make AJAX call to get wreck field details popup content
+                    $.ajax({
+                        url: "{{ route('facilities.wreckfieldstatus') }}",
+                        method: 'GET',
+                        success: function(response) {
+                            if (response.success && response.wreckField) {
+                                // Create popup content similar to the Details button
+                                createWreckFieldPopup(response.wreckField);
+                            } else {
+                                // Fallback: go to facilities and trigger space dock
+                                openFacilitiesSpaceDock();
+                            }
+                        },
+                        error: function() {
+                            // Fallback: go to facilities and trigger space dock
+                            openFacilitiesSpaceDock();
+                        }
+                    });
+                }
+
+                // Function to create wreck field popup content
+                function createWreckFieldPopup(wreckFieldData) {
+                    const timeRemaining = wreckFieldData.time_remaining || 0;
+                    const shipCount = wreckFieldData.ship_data ? wreckFieldData.ship_data.reduce((total, ship) => total + ship.quantity, 0) : 0;
+
+                    let timeDisplay = '';
+                    if (timeRemaining > 0) {
+                        const days = Math.floor(timeRemaining / 86400);
+                        const hours = Math.floor((timeRemaining % 86400) / 3600);
+                        const minutes = Math.floor((timeRemaining % 3600) / 60);
+                        const seconds = timeRemaining % 60;
+                        timeDisplay = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                    }
+
+                    // Create proper popup content matching facilities page
+                    let shipHtml = '';
+                    if (wreckFieldData.ship_data && wreckFieldData.ship_data.length > 0) {
+                        wreckFieldData.ship_data.forEach(ship => {
+                            const shipName = ship.machine_name ? ship.machine_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown Ship';
+                            const totalQuantity = ship.quantity || 0;
+                            const repairProgress = wreckFieldData.repair_progress || 0;
+                            const repairedCount = wreckFieldData.is_repairing ?
+                                Math.floor(totalQuantity * (repairProgress / 100)) : 0;
+
+                            // Calculate real-time repair progress if repairs are active
+                            let currentRepairedCount = repairedCount;
+                            if (wreckFieldData.is_repairing && wreckFieldData.remaining_repair_time >= 0 && wreckFieldData.repair_completion_time && wreckFieldData.repair_started_at) {
+                                const totalRepairTime = (new Date(wreckFieldData.repair_completion_time).getTime() - new Date(wreckFieldData.repair_started_at).getTime()) / 1000;
+                                const elapsedTime = totalRepairTime - wreckFieldData.remaining_repair_time;
+                                const currentProgress = Math.min(100, Math.max(0, (elapsedTime / totalRepairTime) * 100));
+                                currentRepairedCount = Math.floor(totalQuantity * (currentProgress / 100));
+                            }
+
+                            // Map machine names to ship IDs for CSS background positioning
+                            const shipIdMap = {
+                                'fighter_light': '204',
+                                'light_fighter': '204',
+                                'fighter_heavy': '205',
+                                'heavy_fighter': '205',
+                                'cruiser': '206',
+                                'battleship': '207',
+                                'battle_ship': '207',
+                                'battlecruiser': '215',
+                                'interceptor': '215',
+                                'bomber': '211',
+                                'destroyer': '213',
+                                'deathstar': '214',
+                                'reaper': '218',
+                                'explorer': '212',
+                                'transporter_small': '202',
+                                'small_cargo': '202',
+                                'transporter_large': '203',
+                                'large_cargo': '203',
+                                'colony_ship': '208',
+                                'recycler': '209',
+                                'espionage_probe': '210',
+                                'solar_satellite': '212'
+                            };
+
+                            const shipId = shipIdMap[ship.machine_name] || '204';
+
+                            // Use different display format based on repair status
+                            if (wreckFieldData.is_repairing) {
+                                // During repairs: show progress like "102/451"
+                                shipHtml += `
+                                    <div class="tooltipHTML fleft ships" id="ship${shipId}" data-tooltip-title="${shipName}|${currentRepairedCount}/${totalQuantity}" title="${shipName}">
+                                        <span class="ecke">
+                                            <span class="level">${currentRepairedCount}/${totalQuantity}</span>
+                                        </span>
+                                    </div>
+                                `;
+                            } else {
+                                // Before repairs: show single quantity like "350"
+                                const repairTime = '32m 0s'; // TODO: Calculate based on ship count and dock level
+                                shipHtml += `
+                                    <div class="tooltip fleft ships" id="ship${shipId}" title="${shipName}">
+                                        <span class="ecke">
+                                            <span class="level">${totalQuantity}</span>
+                                        </span>
+                                        <div class="repairTime">
+                                            <span style="color: whitesmoke">${repairTime}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        });
+                    }
+
+                    const popupContent = `
+                        <div id="repairlayer">
+                            <div class="repairableShips">
+                                ${wreckFieldData.is_repairing ?
+                                    // During repairs: show minimal content
+                                    `<span>There is no wreckage at this position.</span>` :
+                                    // Before repairs: show full description
+                                    `<div>
+                                        <div class="descriptionText">Electronic charges flicker through defective drive units, atmosphere escapes from the wrecks of destroyed ships and is released into space. Huge gaping holes can be seen in the burned out hulls and empty escape capsules whirl around the room. So many ships have fallen victim to the great battle!
+
+However, the Space Dock's engineers think that some of the remains can be salvaged, before the wreckage enters the atmosphere and ultimately burns up. The repair crews are ready.</div>
+                                        <div class="rightArea">
+                                            <div class="boxed">
+                                                <p>Wreckage burns up in: </p>
+                                                <p id="burnUpCountDownForRepairOverlay" data-duration="${timeRemaining}">${timeDisplay}</p>
+                                            </div>
+                                            <br>
+                                            ${!wreckFieldData.is_repairing && !wreckFieldData.is_completed && wreckFieldData.can_repair ?
+                                            `<div class="btn btn_dark fright burnUpButton">
+                                                <input type="button" class="overmark burnUpButton" value="Leave to burn up" data-loca_box_text="Leave to burn up" data-loca_decision_text="The wreckage will descend into the planet's atmosphere and burn up. Once struck, a repair will no longer be possible. Are you sure you want to burn up the wreckage?" data-loca_yes="yes" data-loca_no="No" onclick="goToSpaceDockAndBurnUp();">
+                                            </div>` : ''
+                            }
+                                        </div>
+                                    </div>`
+                                }
+                                <div class="clearfix"></div>
+                                <br>
+                                <hr style="height: 2px; width: 644px; margin: 5.5px 0; background-color: #ffffff; border: none;">
+                                <h3>${wreckFieldData.is_repairing ? 'Ships being repaired:' : 'Repairable ships:'}</h3>
+                                <div class="ships_wrapper clearfix">
+                                    ${shipHtml}
+                                    <div class="clearfix"></div>
+                                    <br>
+                                    ${wreckFieldData.is_repairing ?
+                                        // During repairs: show repair time remaining and collection button
+                                        (() => {
+                                            const remainingTime = wreckFieldData.remaining_repair_time || 0;
+
+                                            // If repairs are complete (remainingTime === 0), show auto-return date/time
+                                            let timeDisplay;
+                                            let timeLabel = 'Repair time remaining: ';
+                                            if (remainingTime === 0 && wreckFieldData.repair_started_at && wreckFieldData.total_repair_time > 0) {
+                                                // Calculate auto-return time (72 hours after repair completion)
+                                                const repairStartTime = new Date(wreckFieldData.repair_started_at);
+                                                const totalRepairTime = wreckFieldData.total_repair_time;
+                                                const repairCompletionTime = new Date(repairStartTime.getTime() + (totalRepairTime * 1000));
+                                                const autoReturnTime = new Date(repairCompletionTime.getTime() + (72 * 60 * 60 * 1000)); // 72 hours later
+
+                                                // Format the date/time
+                                                const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                                                timeDisplay = autoReturnTime.toLocaleDateString('en-US', options);
+                                                timeLabel = 'Ships will be automatically put back into service on: ';
+                                            } else {
+                                                const hours = Math.floor(remainingTime / 3600);
+                                                const minutes = Math.floor((remainingTime % 3600) / 60);
+                                                const seconds = remainingTime % 60;
+                                                timeDisplay = `${hours}h ${minutes}m ${seconds}s`;
+                                            }
+
+                                            // Check if at least 30 minutes have passed since repairs started
+                                            let timeSinceRepairStart = 0;
+                                            if (wreckFieldData.repair_started_at) {
+                                                const repairStartTime = new Date(wreckFieldData.repair_started_at);
+                                                timeSinceRepairStart = Math.floor((Date.now() - repairStartTime) / 1000);
+                                            }
+                                            const minRepairTime = 30 * 60; // 30 minutes
+                                            const minTimePassed = timeSinceRepairStart >= minRepairTime;
+
+                                            // Calculate repaired ships count
+                                            const repairedShips = wreckFieldData.ship_data ? wreckFieldData.ship_data.reduce((sum, ship) => {
+                                                return sum + Math.floor((ship.quantity * (wreckFieldData.repair_progress || 0)) / 100);
+                                            }, 0) : 0;
+
+                                            const canPartialCollect = minTimePassed && repairedShips > 0;
+                                            const buttonDisabled = canPartialCollect ? '' : 'disabled="disabled"';
+                                            const buttonClass = canPartialCollect ? 'middlemark' : 'disabled';
+
+                                            return `<p>${timeLabel}<span id="repairTimeCountDownForRepairOverlay" data-duration="${remainingTime}">${timeDisplay}</span></p>
+                                        <div class="btn btn_dark fright tooltip reCommissionButton" title="">
+                                            <input type="button" class="${buttonClass} reCommissionButton tooltip partial-collect-btn" value="Put ships that are already repaired back into service" ${buttonDisabled}>
+                                        </div>`;
+                                        })() :
+                                        wreckFieldData.is_completed ?
+                                        `<div class="btn btn_dark fright">
+                                            <input type="button" class="middlemark" value="Repairs completed - Collect ships" onclick="location.href='{{ route('facilities.index') }}';">
+                                        </div>` :
+                                        // Before repairs: show repair time and start button
+                                        `<label>Repair time: </label><span id="repairTime">${wreckFieldData.remaining_repair_time > 0 ? Math.floor(wreckFieldData.remaining_repair_time / 60) + 'm ' + (wreckFieldData.remaining_repair_time % 60) + 's' : '32m 0s'}</span>
+                                        <div class="btn btn_dark fright startRepairsButton">
+                                            <input type="button" class="middlemark startRepairsButton" value="Start repairs" onclick="goToSpaceDockAndRepair();">
+                                        </div>`
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Create jQuery UI dialog with proper background styling
+                    const $dialog = $('<div>')
+                        .addClass('overlayDiv repairlayer')
+                        .html(popupContent)
+                        .dialog({
+                            modal: false,
+                            resizable: false,
+                            draggable: true,
+                            width: 656,
+                            title: 'Space Dock',
+                            dialogClass: 'repairlayer',
+                            closeOnEscape: true,
+                            close: function() {
+                                $(this).dialog('destroy').remove();
+                            },
+                            open: function() {
+                                // Remove unwanted "Close" text from title bar
+                                $(this).parent().find('.ui-dialog-titlebar-close').contents().filter(function() {
+                                    return this.nodeType === 3 && $.trim(this.nodeValue) === 'Close';
+                                }).remove();
+
+                                // Also remove any span elements containing just "Close" text
+                                $(this).parent().find('.ui-dialog-titlebar-close span').each(function() {
+                                    const $this = $(this);
+                                    if (!$this.hasClass('ui-icon') && !$this.hasClass('ui-button-icon-space') && $.trim($this.text()) === 'Close') {
+                                        $this.remove();
+                                    }
+                                });
+
+                                // Initialize repair time countdown timer
+                                const $repairCountdown = $('#repairTimeCountDownForRepairOverlay');
+                                if ($repairCountdown.length) {
+                                    let duration = $repairCountdown.data('duration');
+
+                                    // Only start countdown if there's time remaining (duration > 0)
+                                    // If duration is 0, we're showing the auto-return date, not a countdown
+                                    if (duration > 0) {
+                                        const repairTimerInterval = setInterval(function() {
+                                            if (duration <= 0) {
+                                                $repairCountdown.text('0h 0m 0s');
+                                                clearInterval(repairTimerInterval);
+                                                return;
+                                            }
+
+                                            const hours = Math.floor(duration / 3600);
+                                            const minutes = Math.floor((duration % 3600) / 60);
+                                            const seconds = duration % 60;
+
+                                            $repairCountdown.text(`${hours}h ${minutes}m ${seconds}s`);
+                                            duration--;
+                                        }, 1000);
+
+                                        // Store interval on the element for cleanup
+                                        $repairCountdown.data('repairTimerInterval', repairTimerInterval);
+                                    }
+                                }
+
+                                // Bind click handler for partial collection button
+                                $(this).find('.partial-collect-btn').on('click', function(e) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    collectPartialRepairedShips(e);
+                                });
+                            },
+                            close: function() {
+                                // Cleanup repair timer interval
+                                const $repairCountdown = $('#repairTimeCountDownForRepairOverlay');
+                                if ($repairCountdown.length) {
+                                    const interval = $repairCountdown.data('repairTimerInterval');
+                                    if (interval) {
+                                        clearInterval(interval);
+                                    }
+                                }
+                                $(this).dialog('destroy').remove();
+                            }
+                        });
+
+                    // Initialize countdown timer if present
+                    if (timeRemaining > 0 && typeof window.simpleCountdown !== 'undefined') {
+                        const $countdown = $('#burnUpCountDownForRepairOverlay');
+                        if ($countdown.length) {
+                            new simpleCountdown($countdown, $countdown.data('duration'), null);
+                        }
+                    }
+                }
+
+                // Functions for popup actions
+                function goToSpaceDockAndBurnUp() {
+                    // Show confirmation dialog first
+                    errorBoxDecision(
+                        "Leave to burn up",
+                        "The wreckage will descend into the planet's atmosphere and burn up. Once struck, a repair will no longer be possible. Are you sure you want to burn up the wreckage?",
+                        "yes",
+                        "No",
+                        function() {
+                            // User confirmed, proceed with burn up
+                            $.ajax({
+                                url: "{{ route('facilities.burnwreckfield') }}",
+                                method: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        fadeBox(response.message, false);
+                                        // Close the dialog
+                                        $('.ui-dialog:has(.repairlayer)').find('.ui-dialog-titlebar-close').click();
+                                    } else {
+                                        fadeBox(response.message || 'Error burning up wreck field', true);
+                                    }
+                                },
+                                error: function() {
+                                    fadeBox('Error burning up wreck field', true);
+                                }
+                            });
+                        },
+                        function() {
+                            // User cancelled, do nothing
+                        }
+                    );
+                }
+
+                function goToSpaceDockAndRepair() {
+                    // Start repairs directly via AJAX
+                    $.ajax({
+                        url: '{{ route("facilities.startrepairs") }}',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                // Show success message
+                                fadeBox('Repairs started successfully!');
+                                // Close the dialog to prevent confusion
+                                $('.ui-dialog:has(.repairlayer)').find('.ui-dialog-titlebar-close').click();
+
+                                // Redirect to facilities page to show repair progress
+                                setTimeout(() => {
+                                    location.href = "{{ route('facilities.index') }}?openSpaceDock=1";
+                                }, 500);
+                            } else {
+                                // Show error message
+                                fadeBox(response.message || 'Error starting repairs', true);
+                            }
+                        },
+                        error: function(xhr) {
+                            // Show error message on AJAX failure
+                            console.error('AJAX error:', xhr.status, xhr.statusText);
+                            console.error('Response text:', xhr.responseText);
+
+                            // Try to parse JSON if we get a 400 response with JSON body
+                            let errorMsg = 'Error starting repairs: ' + xhr.status;
+                            if (xhr.status === 400 && xhr.responseText) {
+                                try {
+                                    const jsonResponse = JSON.parse(xhr.responseText);
+                                    if (jsonResponse.message) {
+                                        errorMsg = jsonResponse.message;
+                                    }
+                                } catch (e) {
+                                    // If parsing fails, fall back to default error
+                                }
+                            }
+
+                            fadeBox(errorMsg, true);
+                        }
+                    });
+                }
+
+                function collectPartialRepairedShips(event) {
+                    // Prevent any other event handlers from firing
+                    if (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    // Collect partially repaired ships (after 30 minutes)
+                    $.ajax({
+                        url: '{{ route("facilities.completerepairs") }}',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                // Close the dialog completely first
+                                $('.ui-dialog:has(.repairlayer)').dialog('destroy').remove();
+
+                                // Show success message
+                                fadeBox(response.message || 'Ships collected successfully!');
+
+                                // Redirect immediately to facilities page
+                                setTimeout(function() {
+                                    window.location.href = "{{ route('facilities.index') }}?openSpaceDock=1";
+                                }, 100);
+                            } else {
+                                fadeBox(response.message || 'Error collecting ships', true);
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMsg = 'Error collecting ships';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+                            fadeBox(errorMsg, true);
+                        }
+                    });
                 }
 
                 reloadResources({
@@ -1189,6 +1781,36 @@ Combat simulation save slots +20">
                                                      class="icon-moon">
                                             @endif
                                         </a>
+                                    @endif
+
+                                    @php
+                                        // Check for wreck field at this planet's coordinates
+                                        // Only show wreck field icon for planets, not moons
+                                        // Load active or blocked wreck field (skip repairing ones)
+                                        $wreckFieldService = new \OGame\Services\WreckFieldService($currentPlayer, app(\OGame\Services\SettingsService::class));
+                                        $wreckFieldLoaded = $wreckFieldService->loadActiveOrBlockedForCoordinates($planet->getPlanetCoordinates());
+                                        $wreckField = null;
+
+                                        if ($wreckFieldLoaded) {
+                                            $wreckFieldModel = $wreckFieldService->getWreckField();
+                                            if ($wreckFieldModel && $wreckFieldModel->getTotalShips() > 0) {
+                                                $wreckField = $wreckFieldModel;
+                                            }
+                                        }
+                                    @endphp
+
+                                    @if ($wreckField && in_array($wreckField->status, ['active', 'blocked']) && !$planet->isMoon())
+                                        @php
+                                            $hasSpaceDock = $currentPlayer->planets->current()->getObjectLevel('space_dock') > 0;
+                                            $isOwner = $wreckField->owner_player_id === $currentPlayer->getId();
+                                        @endphp
+                                        @if ($isOwner && $hasSpaceDock)
+                                        <a class="wreckFieldIcon tooltip js_hideTipOnMobile"
+                                           title="Wreckage"
+                                           href="javascript:void(0);" onclick="openFacilitiesSpaceDock();">
+                                            <span class="icon icon_wreck_field"></span>
+                                        </a>
+                                        @endif
                                     @endif
                                 </div>
                             @endforeach

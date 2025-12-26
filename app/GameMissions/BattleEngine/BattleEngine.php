@@ -141,6 +141,9 @@ abstract class BattleEngine
         // Only permanently lost defenses contribute to debris (destroyed - repaired).
         $permanentlyLostDefenderUnits = clone $result->defenderUnitsLost;
         $permanentlyLostDefenderUnits->subtractCollection($result->repairedDefenses);
+
+        // Calculate wreck field and debris
+        $result->wreckField = $this->calculateWreckField($result->defenderUnitsLost, $result->defenderUnitsStart);
         $result->debris = $this->calculateDebris($result->attackerUnitsLost, $permanentlyLostDefenderUnits);
 
         // Determine if a moon already exists for defender's planet.
@@ -180,6 +183,7 @@ abstract class BattleEngine
         $crystal = 0;
         $deuterium = 0;
 
+        // Calculate actual debris percentage after accounting for wreck fields
         $shipsToDebrisPercentage = $this->settings->debrisFieldFromShips();
         $defenseToDebrisPercentage = $this->settings->debrisFieldFromDefense();
         $deuteriumOn = $this->settings->debrisFieldDeuteriumOn();
@@ -211,6 +215,69 @@ abstract class BattleEngine
         }
 
         return new Resources($metal, $crystal, $deuterium, 0);
+    }
+
+    /**
+     * Calculate the wreck field based on the defender's ships lost in the battle.
+     * Only defender's ships can form wreck fields, not attacker's ships.
+     *
+     * @param UnitCollection $defenderUnitsLost
+     * @param UnitCollection $defenderUnitsStart
+     * @return array
+     */
+    protected function calculateWreckField(UnitCollection $defenderUnitsLost, UnitCollection $defenderUnitsStart): array
+    {
+        $wreckFieldData = [];
+        $wreckFieldPercentage = (100.0 - $this->settings->debrisFieldFromShips()) / 100;
+
+        // Only ships (not defenses) can go into wreck fields
+        foreach ($defenderUnitsLost->units as $unit) {
+            if ($unit->amount > 0 && $unit->unitObject->type === GameObjectType::Ship) {
+                $wreckFieldCount = (int) floor($unit->amount * $wreckFieldPercentage);
+                if ($wreckFieldCount > 0) {
+                    $wreckFieldData[] = [
+                        'machine_name' => $unit->unitObject->machine_name,
+                        'quantity' => $wreckFieldCount,
+                        'original_quantity' => $unit->amount,
+                    ];
+                }
+            }
+        }
+
+        // Check if wreck field conditions are met
+        $totalLostValue = $defenderUnitsLost->toResources()->metal->get() +
+                         $defenderUnitsLost->toResources()->crystal->get() +
+                         $defenderUnitsLost->toResources()->deuterium->get();
+        $totalFleetValue = $defenderUnitsStart->toResources()->metal->get() +
+                          $defenderUnitsStart->toResources()->crystal->get() +
+                          $defenderUnitsStart->toResources()->deuterium->get();
+
+        if ($totalFleetValue > 0) {
+            $destroyedPercentage = ($totalLostValue / $totalFleetValue) * 100;
+            $minResourcesRequired = $this->settings->wreckFieldMinResourcesLoss();
+            $minFleetPercentageRequired = $this->settings->wreckFieldMinFleetPercentage();
+
+            // Only return wreck field data if conditions are met
+            if ($totalLostValue >= $minResourcesRequired && $destroyedPercentage >= $minFleetPercentageRequired) {
+                return [
+                    'formed' => true,
+                    'conditions_met' => true,
+                    'ships' => $wreckFieldData,
+                    'total_value' => $totalLostValue * $wreckFieldPercentage,
+                    'fleet_percentage' => $destroyedPercentage,
+                    'resources_lost' => $totalLostValue,
+                ];
+            }
+        }
+
+        return [
+            'formed' => false,
+            'conditions_met' => false,
+            'ships' => [],
+            'total_value' => 0,
+            'fleet_percentage' => 0,
+            'resources_lost' => 0,
+        ];
     }
 
     /**

@@ -1031,14 +1031,14 @@ class PlanetService
                 $this->reloadPlanet();
 
                 // ------
-                // 1. Update resources amount in planet based on hourly production values.
-                // ------
-                $this->updateResources(false);
-
-                // ------
-                // 2. Update building queue
+                // 1. Update building queue (handles segmented resource calculation)
                 // ------
                 $this->updateBuildingQueue(false);
+
+                // ------
+                // 2. Update remaining resources after all buildings processed
+                // ------
+                $this->updateResources(false);
 
                 // ------
                 // 3. Update unit queue
@@ -1093,52 +1093,57 @@ class PlanetService
      *   but can be set to FALSE when update happens in bulk and the caller method calls
      *   the save planet itself to prevent on unnecessary multiple updates.
      */
+    // TODO: add unittest to check that updating fractional resources
+    // e.g. if planet has production of 30/hour.. that when it updates
+    // every 30 seconds it still gets the 30 per hour overall instead
+    // of getting 0 because every update the added resource rounds down to 0.
+
+    // TODO: add unittest to check that adding resources to planet via transport
+    // missions works correctly and that the resources are added to the planet.
+    // But that resources are not added by mine production. And that when resources
+    // are added in bulk e.g. after 2 days of inactivity it still maxes out at the
+    // storage limit.
     public function updateResources(bool $save_planet = true): void
     {
-        $time_last_update = $this->planet->time_last_update;
         $current_time = (int)Carbon::now()->timestamp;
+        $this->updateResourcesUntil($current_time, $save_planet);
+    }
 
-        // TODO: add unittest to check that updating fractional resources
-        // e.g. if planet has production of 30/hour.. that when it updates
-        // every 30 seconds it still gets the 30 per hour overall instead
-        // of getting 0 because every update the added resource rounds down to 0.
+    /**
+     * Update resources from time_last_update until a specific timestamp.
+     * This method is used to calculate resources in segments when processing
+     * building queue items that complete at different times.
+     *
+     * @param int $until_time The timestamp to calculate resources until
+     * @param bool $save_planet Whether to save the planet after updating
+     * @return void
+     */
+    public function updateResourcesUntil(int $until_time, bool $save_planet = true): void
+    {
+        $time_last_update = $this->planet->time_last_update;
 
-        // TODO: add unittest to check that adding resources to planet via transport
-        // missions works correctly and that the resources are added to the planet.
-        // But that resources are not added by mine production. And that when resources
-        // are added in bulk e.g. after 2 days of inactivity it still maxes out at the
-        // storage limit.
-
-        // TODO: another possible issue can arise when there are multiple mines
-        // in build queue and planet is refreshed at a later time so everything
-        // is processed in bulk... in this case it means that resources would update
-        // at old level and only after that the new resource level would come into effect.
-        // NOTE: this issue can be circumvented with a continious job runner which can
-        // update all planets periodically...
-
-        // If time_last_update is 0 or null, initialize it to current time to prevent
-        // calculating resources from epoch (1970) which would cause massive resource gain.
+        // Initialize time_last_update if not set to prevent calculating from epoch
         if ($time_last_update <= 0) {
-            $time_last_update = $current_time;
-            $this->planet->time_last_update = $current_time;
+            $time_last_update = $until_time;
+            $this->planet->time_last_update = $until_time;
         }
 
-        if ($time_last_update < $current_time) {
+        if ($time_last_update < $until_time) {
             // Last updated time is in past, so update resources based on hourly
             // production.
-            $hours_difference = ($current_time - $time_last_update) / 3600;
+            $hours_difference = ($until_time - $time_last_update) / 3600;
 
             $add_resources = new Resources(0, 0, 0, 0);
 
-            // @TODO: add transactions for updating resources to prevent request collisions.
             // Metal calculation.
             $max_metal = $this->metalStorage()->get();
-            if ($this->metal()->get() < $max_metal) {
+            $current_metal = $this->metal()->get();
+            if ($current_metal < $max_metal) {
                 $add_resources->metal->add(new Resource($this->planet->metal_production * $hours_difference));
 
                 // Prevent adding more metal than the max limit can support (storage limit).
-                if (($this->metal()->get() + $add_resources->metal->get()) > $max_metal) {
-                    $add_resources->metal->set($max_metal - $this->metal()->get());
+                if (($current_metal + $add_resources->metal->get()) > $max_metal) {
+                    $add_resources->metal->set($max_metal - $current_metal);
                 }
             }
 
@@ -1147,7 +1152,7 @@ class PlanetService
             if ($this->crystal()->get() < $max_crystal) {
                 $add_resources->crystal->add(new Resource($this->planet->crystal_production * $hours_difference));
 
-                // Prevent adding more metal than the max limit can support (storage limit).
+                // Prevent adding more crystal than the max limit can support (storage limit).
                 if (($this->crystal()->get() + $add_resources->crystal->get()) > $max_crystal) {
                     $add_resources->crystal->set($max_crystal - $this->crystal()->get());
                 }
@@ -1158,14 +1163,14 @@ class PlanetService
             if ($this->deuterium()->get() < $max_deuterium) {
                 $add_resources->deuterium->add(new Resource($this->planet->deuterium_production * $hours_difference));
 
-                // Prevent adding more metal than the max limit can support (storage limit).
+                // Prevent adding more deuterium than the max limit can support (storage limit).
                 if (($this->deuterium()->get() + $add_resources->deuterium->get()) > $max_deuterium) {
                     $add_resources->deuterium->set($max_deuterium - $this->deuterium()->get());
                 }
             }
 
             $this->addResources($add_resources, $save_planet);
-            $this->planet->time_last_update = $current_time;
+            $this->planet->time_last_update = $until_time;
 
             if ($save_planet) {
                 $this->save();
@@ -1372,27 +1377,44 @@ class PlanetService
         }
 
         $queue = resolve(BuildingQueueService::class);
-        $build_queue = $queue->retrieveFinished($this->getPlanetId());
 
-        foreach ($build_queue as $item) {
-            // Update build queue record
-            $item->processed = 1;
-            $item->save();
+        // Process finished buildings in a loop - next building may also be finished
+        do {
+            $build_queue = $queue->retrieveFinished($this->getPlanetId());
+            $processed_any = false;
 
-            // Check if this is a downgrade
-            $is_downgrade = $item->is_downgrade ?? false;
+            foreach ($build_queue as $item) {
+                // Calculate resources up to building completion with current production rates
+                $this->updateResourcesUntil($item->time_end, false);
 
-            // Update planet and update level of the object (building) that has been processed.
-            // For downgrades, object_level_target is already current_level - 1, so we just set it.
-            // For upgrades, object_level_target is current_level + 1, so we set it.
-            $this->setObjectLevel($item->object_id, $item->object_level_target, $save_planet);
+                // Update build queue record
+                $item->processed = 1;
+                $item->save();
 
-            // Build the next item in queue (if there is any)
-            $queue->start($this, $item->time_end);
-        }
+                // Check if this is a downgrade
+                $is_downgrade = $item->is_downgrade ?? false;
 
-        if (count($build_queue) === 0) {
-            // If there were no finished queue item, we still check if we need to start the next one.
+                // Update building level
+                $this->setObjectLevel($item->object_id, $item->object_level_target, $save_planet);
+
+                // Update production/storage stats for subsequent resource calculations
+                $this->updateResourceProductionStats(false);
+                $this->updateResourceStorageStats(false);
+
+                // Start next item in queue (if any)
+                $queue->start($this, $item->time_end);
+
+                $processed_any = true;
+
+                // Break out of the foreach loop to re-retrieve finished buildings
+                // This ensures we process buildings in the correct order and
+                // handle cases where the next building also finished
+                break;
+            }
+        } while ($processed_any);
+
+        // If there were no finished queue items at all, we still check if we need to start the next one.
+        if ($build_queue->isEmpty()) {
             $queue->start($this);
         }
     }
