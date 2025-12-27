@@ -23,8 +23,9 @@ class LegorAccountTest extends AccountTestCase
     public function testLegorAccountCreation(): void
     {
         // Migration creates Legor, but we can test the moon creation part
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
-            ->assertExitCode(0); // @phpstan-ignore-line
+        /** @var \Illuminate\Testing\PendingCommand $result */
+        $result = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
+        $result->assertExitCode(0);
 
         // Verify user was created by migration
         $legor = User::where('username', 'Legor')->first();
@@ -47,11 +48,13 @@ class LegorAccountTest extends AccountTestCase
     public function testLegorAccountIdempotent(): void
     {
         // Migration creates Legor, command should still work (moon creation)
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
-            ->assertExitCode(0); // @phpstan-ignore-line
+        /** @var \Illuminate\Testing\PendingCommand $result1 */
+        $result1 = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
+        $result1->assertExitCode(0);
 
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
-            ->assertExitCode(0); // @phpstan-ignore-line
+        /** @var \Illuminate\Testing\PendingCommand $result2 */
+        $result2 = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
+        $result2->assertExitCode(0);
 
         // Verify only one Legor user exists
         $legorCount = User::where('username', 'Legor')->count();
@@ -79,8 +82,9 @@ class LegorAccountTest extends AccountTestCase
         $planetServiceFactory->createPlanetAtPosition($playerService, $coordinate, 'TestPlanet');
 
         // Run the command - it should fail
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
-            ->assertExitCode(1); // @phpstan-ignore-line
+        /** @var \Illuminate\Testing\PendingCommand $result */
+        $result = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
+        $result->assertExitCode(1);
     }
 
     /**
@@ -124,7 +128,7 @@ class LegorAccountTest extends AccountTestCase
         // Should fail with admin protection - attack mission should be disabled
         $response->assertStatus(200);
         $responseContent = $response->getContent();
-        $this->assertIsString($responseContent);
+        $this->assertNotFalse($responseContent, 'Response content should not be false');
         $content = json_decode($responseContent, true);
         $this->assertFalse($content['orders'][1] ?? true, 'Attack mission (type 1) should not be enabled for Legor\'s planet');
     }
@@ -169,7 +173,7 @@ class LegorAccountTest extends AccountTestCase
         // Should fail with admin protection - espionage mission should be disabled
         $response->assertStatus(200);
         $responseContent = $response->getContent();
-        $this->assertIsString($responseContent);
+        $this->assertNotFalse($responseContent, 'Response content should not be false');
         $content = json_decode($responseContent, true);
         $this->assertFalse($content['orders'][6] ?? true, 'Espionage mission (type 6) should not be enabled for Legor\'s planet');
     }
@@ -217,7 +221,7 @@ class LegorAccountTest extends AccountTestCase
         // Should succeed (transport mission should be enabled)
         $response->assertStatus(200);
         $responseContent = $response->getContent();
-        $this->assertIsString($responseContent);
+        $this->assertNotFalse($responseContent, 'Response content should not be false');
         $content = json_decode($responseContent, true);
         $this->assertTrue($content['orders'][3] ?? false); // Transport mission (type 3) should be enabled
     }
@@ -228,8 +232,9 @@ class LegorAccountTest extends AccountTestCase
     public function testMoonIsCreatedAfterDelay(): void
     {
         // Create Legor account with minimal delay for faster test
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
-            ->assertExitCode(0); // @phpstan-ignore-line
+        /** @var \Illuminate\Testing\PendingCommand $result */
+        $result = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
+        $result->assertExitCode(0);
 
         $legor = User::where('username', 'Legor')->first();
 
@@ -248,8 +253,9 @@ class LegorAccountTest extends AccountTestCase
     public function testDebrisFieldIsCreated(): void
     {
         // Create Legor account
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
-            ->assertExitCode(0); // @phpstan-ignore-line
+        /** @var \Illuminate\Testing\PendingCommand $result */
+        $result = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
+        $result->assertExitCode(0);
 
         // Check for debris field at 1:1:2
         $debris = \OGame\Models\DebrisField::where('galaxy', 1)
