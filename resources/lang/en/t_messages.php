@@ -308,7 +308,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     // ------------------------
     // Missile Attack Report (Attacker)
     'missile_attack_report' => [
-        'from' => 'Missile Command',
+        'from' => 'Fleet Command',
         'subject' => 'Missile attack on :target_coords',
         'body' => 'Your interplanetary missiles have reached their target at :target_coords.
 

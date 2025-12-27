@@ -134,6 +134,18 @@ trait ObjectAjaxTrait
             }
         }
 
+        // Missile Silo capacity
+        $is_missile_silo = $object->machine_name === 'missile_silo';
+        $current_missiles = 0;
+        $max_missiles = 0;
+        if ($is_missile_silo && $current_level > 0) {
+            // Get current missile count (IPM + ABM)
+            $current_missiles = $planet->getObjectAmount('interplanetary_missile') + $planet->getObjectAmount('anti_ballistic_missile');
+            // Calculate max missile capacity based on current level
+            // Each silo level holds 10 missiles
+            $max_missiles = $current_level * 10;
+        }
+
         $build_active_current = null;
         $build_queue = $this->queue->retrieveQueue($planet);
         $currently_building = $build_queue->getCurrentlyBuildingFromQueue();
@@ -244,6 +256,9 @@ trait ObjectAjaxTrait
             'ion_technology_bonus' => $ion_technology_bonus,
             'can_downgrade' => $can_downgrade,
             'is_in_vacation_mode' => $is_in_vacation_mode,
+            'is_missile_silo' => $is_missile_silo,
+            'current_missiles' => $current_missiles,
+            'max_missiles' => $max_missiles,
         ]);
 
         return response()->json([

@@ -502,7 +502,12 @@ class PlayerService
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this]);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
 
-        return $activeMissions->count();
+        // Exclude missile attacks (type 10) as they don't use fleet slots
+        $fleetMissions = $activeMissions->filter(function ($mission) {
+            return $mission->mission_type !== 10;
+        });
+
+        return $fleetMissions->count();
     }
 
     /**

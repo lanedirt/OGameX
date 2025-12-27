@@ -162,6 +162,18 @@ class MissileMission extends GameMission
                 'target_type' => $defenderTarget->isMoon() ? 'moon' : 'planet',
             ]);
 
+            // Get defense counts BEFORE attack for reporting
+            $defensesBeforeAttack = [];
+            foreach (ObjectService::getDefenseObjects() as $defense) {
+                $amount = $defenderTarget->getObjectAmount($defense->machine_name);
+                if ($amount > 0) {
+                    $defensesBeforeAttack[$defense->machine_name] = [
+                        'name' => $defense->title,
+                        'before' => $amount,
+                    ];
+                }
+            }
+
             // Calculate defense destruction with proper formula
             $destroyedDefenses = $this->calculateDefenseDestruction(
                 $defenderTarget,
@@ -208,6 +220,13 @@ class MissileMission extends GameMission
                 $defenderTarget->save();
             });
 
+            // Get defense counts AFTER attack for reporting
+            foreach ($defensesBeforeAttack as $machineName => &$defenseData) {
+                $amountAfter = $defenderTarget->getObjectAmount($machineName);
+                $defenseData['after'] = $amountAfter;
+                $defenseData['destroyed'] = $defenseData['before'] - $amountAfter;
+            }
+
             Log::info('Missile Attack: Defenses Destroyed', [
                 'mission_id' => $mission->id,
                 'total_destroyed' => $destroyedDefenses->getAmount(),
@@ -224,6 +243,7 @@ class MissileMission extends GameMission
                 $interceptedMissiles,
                 $effectiveMissiles,
                 $destroyedDefenses,
+                $defensesBeforeAttack,
                 $parentPlanet,
                 $parentPlanetAbmCount
             );
@@ -349,6 +369,7 @@ class MissileMission extends GameMission
         int $interceptedMissiles,
         int $effectiveMissiles,
         UnitCollection $destroyedDefenses,
+        array $defensesData,
         ?PlanetService $parentPlanet = null,
         int $parentPlanetAbmCount = 0
     ): void {
@@ -366,19 +387,32 @@ class MissileMission extends GameMission
             $abmNote = " (including {$parentPlanetAbmCount} ABMs from parent planet)";
         }
 
+        // Prepare message params
+        $messageParams = [
+            'origin_planet_id' => $attackerPlanet->getPlanetId(),
+            'origin_planet_name' => $attackerPlanet->getPlanetName(),
+            'origin_planet_coords' => $attackerPlanet->getPlanetCoordinates()->asString(),
+            'target_planet_id' => $defenderPlanet->getPlanetId(),
+            'target_planet_name' => $defenderPlanet->getPlanetName(),
+            'target_coords' => $targetCoords,
+            'target_type' => $targetType,
+            'missiles_sent' => $missileCount,
+            'missiles_intercepted' => $interceptedMissiles . $abmNote,
+            'missiles_hit' => $effectiveMissiles,
+            'defenses_destroyed' => $defensesDestroyedText,
+            'defenses_data' => json_encode($defensesData), // JSON encode array for storage
+        ];
+
+        Log::info('Missile Attack: Sending attacker message', [
+            'params' => $messageParams,
+        ]);
+
         // Send message to attacker
         $messageService = resolve(\OGame\Services\MessageService::class, ['player' => $attackerPlayer]);
         $messageService->sendSystemMessageToPlayer(
             $attackerPlayer,
             \OGame\GameMessages\MissileAttackReport::class,
-            [
-                'target_coords' => $targetCoords,
-                'target_type' => $targetType,
-                'missiles_sent' => $missileCount,
-                'missiles_intercepted' => $interceptedMissiles . $abmNote,
-                'missiles_hit' => $effectiveMissiles,
-                'defenses_destroyed' => $defensesDestroyedText,
-            ]
+            $messageParams
         );
 
         // Send message to defender
@@ -388,12 +422,14 @@ class MissileMission extends GameMission
             \OGame\GameMessages\MissileDefenseReport::class,
             [
                 'attacker_name' => $attackerName,
+                'planet_id' => $defenderPlanet->getPlanetId(),
+                'planet_name' => $defenderPlanet->getPlanetName(),
                 'planet_coords' => $targetCoords,
-                'target_type' => $targetType,
                 'missiles_incoming' => $missileCount,
-                'missiles_intercepted' => $interceptedMissiles . $abmNote,
+                'missiles_intercepted' => $interceptedMissiles,
                 'missiles_hit' => $effectiveMissiles,
                 'defenses_destroyed' => $defensesDestroyedText,
+                'defenses_data' => json_encode($defensesData), // JSON encode array for storage
             ]
         );
     }

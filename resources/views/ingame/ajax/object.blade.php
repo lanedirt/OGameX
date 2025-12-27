@@ -291,6 +291,31 @@
                 </div>
             </div>
         @endif
+
+        @if ($is_missile_silo && $current_level > 0)
+            <div class="capacity">
+                <span class="label">@lang('Storage capacity:')</span>
+                <meter min="0" max="{{ $max_missiles }}" low="{{ (int)($max_missiles * 0.9) }}" high="{{ $max_missiles - 0.1 }}" optimum="0" value="{{ $current_missiles }}"></meter>
+                <span class="description">
+                    <span class="@if($current_missiles >= $max_missiles * 0.9) criticial @else good @endif">{{ $current_missiles }}</span> / {{ $max_missiles }}
+                </span>
+            </div>
+
+            @if ($current_missiles > 0)
+                <div class="fill_capacity_info">
+                    <div class="arrow_description"></div>
+                    <div class="action">
+                        <div class="description">@lang('Destroy Rockets to make more space in your missile silo')</div>
+                        <a class="rockets btn btn_confirm fright overlay"
+                           href="{{ route('facilities.destroy-rockets-overlay') }}"
+                           data-overlay-class="rocketlayer"
+                           data-overlay-title="@lang('Destroy rockets')"
+                           data-overlay-width="684px">@lang('Destroy rockets')</a>
+                    </div>
+                </div>
+            @endif
+        @endif
+
         <div class="txt_box">
             <button class="details tooltip js_hideTipOnMobile overlay" aria-label="@lang('More details')" title="@lang('More details')"
                     data-target="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->id]) }}"

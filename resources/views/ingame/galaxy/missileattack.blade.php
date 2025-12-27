@@ -153,6 +153,25 @@
                     if (response.success) {
                         fadeBox(response.message || '@lang('Missiles launched successfully!')', 0);
 
+                        // Refresh fleet widget immediately - use multiple methods to ensure it works
+                        // Method 1: Try the global refresh function
+                        if (typeof refreshFleetEvents === 'function') {
+                            refreshFleetEvents(true);
+                        }
+
+                        // Method 2: Directly refresh eventbox if eventlistLink exists
+                        if (typeof eventlistLink !== 'undefined') {
+                            $.ajax({
+                                url: eventlistLink,
+                                success: function(eventResponse) {
+                                    $("#eventboxContent").html(eventResponse);
+                                }
+                            });
+                        }
+
+                        // Method 3: Trigger custom event that might be listened to
+                        $(document).trigger('fleetMissionCreated');
+
                         // Close overlay after brief delay
                         setTimeout(function() {
                             $('#rocketattack').closest('.overlayDiv').dialog('close');
