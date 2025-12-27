@@ -866,6 +866,16 @@ class ObjectService
                 return false;
             }
 
+            // Special case: Missile Silo cannot be downgraded if it contains missiles
+            if ($machine_name === 'missile_silo') {
+                $ipm_count = $planet->getObjectAmount('interplanetary_missile');
+                $abm_count = $planet->getObjectAmount('anti_ballistic_missile');
+
+                if ($ipm_count > 0 || $abm_count > 0) {
+                    return false; // Cannot downgrade silo while it contains missiles
+                }
+            }
+
             // Check all buildings, stations, and research objects for requirements
             $allObjects = [...self::getBuildingObjects(), ...self::getStationObjects(), ...self::getResearchObjects()];
 
