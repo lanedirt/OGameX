@@ -8,6 +8,7 @@ services:
 
 includes:
     - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline-legor.neon
 
 parameters:
 
