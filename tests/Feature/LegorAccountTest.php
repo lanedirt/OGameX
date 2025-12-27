@@ -128,7 +128,7 @@ class LegorAccountTest extends AccountTestCase
         // Should fail with admin protection - attack mission should be disabled
         $response->assertStatus(200);
         $responseContent = $response->getContent();
-        $this->assertNotFalse($responseContent, 'Response content should not be false');
+        $this->assertIsString($responseContent);
         $content = json_decode($responseContent, true);
         $this->assertFalse($content['orders'][1] ?? true, 'Attack mission (type 1) should not be enabled for Legor\'s planet');
     }
@@ -173,7 +173,7 @@ class LegorAccountTest extends AccountTestCase
         // Should fail with admin protection - espionage mission should be disabled
         $response->assertStatus(200);
         $responseContent = $response->getContent();
-        $this->assertNotFalse($responseContent, 'Response content should not be false');
+        $this->assertIsString($responseContent);
         $content = json_decode($responseContent, true);
         $this->assertFalse($content['orders'][6] ?? true, 'Espionage mission (type 6) should not be enabled for Legor\'s planet');
     }
@@ -221,7 +221,7 @@ class LegorAccountTest extends AccountTestCase
         // Should succeed (transport mission should be enabled)
         $response->assertStatus(200);
         $responseContent = $response->getContent();
-        $this->assertNotFalse($responseContent, 'Response content should not be false');
+        $this->assertIsString($responseContent);
         $content = json_decode($responseContent, true);
         $this->assertTrue($content['orders'][3] ?? false); // Transport mission (type 3) should be enabled
     }
