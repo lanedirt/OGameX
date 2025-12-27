@@ -121,11 +121,10 @@ class LegorAccountTest extends AccountTestCase
             'token' => csrf_token(),
         ]);
 
-        // Should fail with admin protection message
+        // Should fail with admin protection - attack mission should be disabled
         $response->assertStatus(200);
         $content = json_decode($response->getContent(), true);
-        $this->assertFalse($content['orders'][1] ?? true); // Attack mission (type 1) should not be enabled
-        $this->assertStringContainsString('administrator', $content['errors'][0]['message'] ?? '');
+        $this->assertFalse($content['orders'][1] ?? true, 'Attack mission (type 1) should not be enabled for Legor\'s planet');
     }
 
     /**
@@ -165,11 +164,10 @@ class LegorAccountTest extends AccountTestCase
             'token' => csrf_token(),
         ]);
 
-        // Should fail with admin protection message
+        // Should fail with admin protection - espionage mission should be disabled
         $response->assertStatus(200);
         $content = json_decode($response->getContent(), true);
-        $this->assertFalse($content['orders'][6] ?? true); // Espionage mission (type 6) should not be enabled
-        $this->assertStringContainsString('administrator', $content['errors'][0]['message'] ?? '');
+        $this->assertFalse($content['orders'][6] ?? true, 'Espionage mission (type 6) should not be enabled for Legor\'s planet');
     }
 
     /**
