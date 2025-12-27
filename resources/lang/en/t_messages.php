@@ -310,7 +310,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     'missile_attack_report' => [
         'from' => 'Fleet Command',
         'subject' => 'Missile attack on :target_coords',
-        'body' => 'Your interplanetary missiles have reached their target at :target_coords.
+        'body' => 'Your interplanetary missiles from :origin_planet_name :origin_planet_coords (ID: :origin_planet_id) have reached their target at :target_planet_name :target_coords (ID: :target_planet_id, Type: :target_type).
 
 Missiles launched: :missiles_sent
 Missiles intercepted: :missiles_intercepted
@@ -324,7 +324,7 @@ Defenses destroyed: :defenses_destroyed',
     'missile_defense_report' => [
         'from' => 'Defense Command',
         'subject' => 'Missile attack on :planet_coords',
-        'body' => 'Your planet at :planet_coords has been attacked by interplanetary missiles from :attacker_name!
+        'body' => 'Your planet :planet_name at :planet_coords (ID: :planet_id) has been attacked by interplanetary missiles from :attacker_name!
 
 Incoming missiles: :missiles_incoming
 Missiles intercepted: :missiles_intercepted
