@@ -23,9 +23,8 @@ class LegorAccountTest extends AccountTestCase
     public function testLegorAccountCreation(): void
     {
         // Migration creates Legor, but we can test the moon creation part
-        $result = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
-        $this->assertInstanceOf(\Illuminate\Testing\PendingCommand::class, $result);
-        $result->assertExitCode(0);
+        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+            ->assertExitCode(0); // @phpstan-ignore-line
 
         // Verify user was created by migration
         $legor = User::where('username', 'Legor')->first();
@@ -48,13 +47,11 @@ class LegorAccountTest extends AccountTestCase
     public function testLegorAccountIdempotent(): void
     {
         // Migration creates Legor, command should still work (moon creation)
-        $result1 = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
-        $this->assertInstanceOf(\Illuminate\Testing\PendingCommand::class, $result1);
-        $result1->assertExitCode(0);
+        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+            ->assertExitCode(0); // @phpstan-ignore-line
 
-        $result2 = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
-        $this->assertInstanceOf(\Illuminate\Testing\PendingCommand::class, $result2);
-        $result2->assertExitCode(0);
+        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+            ->assertExitCode(0); // @phpstan-ignore-line
 
         // Verify only one Legor user exists
         $legorCount = User::where('username', 'Legor')->count();
@@ -82,9 +79,8 @@ class LegorAccountTest extends AccountTestCase
         $planetServiceFactory->createPlanetAtPosition($playerService, $coordinate, 'TestPlanet');
 
         // Run the command - it should fail
-        $result = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
-        $this->assertInstanceOf(\Illuminate\Testing\PendingCommand::class, $result);
-        $result->assertExitCode(1);
+        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+            ->assertExitCode(1); // @phpstan-ignore-line
     }
 
     /**
@@ -232,9 +228,8 @@ class LegorAccountTest extends AccountTestCase
     public function testMoonIsCreatedAfterDelay(): void
     {
         // Create Legor account with minimal delay for faster test
-        $result = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
-        $this->assertInstanceOf(\Illuminate\Testing\PendingCommand::class, $result);
-        $result->assertExitCode(0);
+        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+            ->assertExitCode(0); // @phpstan-ignore-line
 
         $legor = User::where('username', 'Legor')->first();
 
@@ -253,9 +248,8 @@ class LegorAccountTest extends AccountTestCase
     public function testDebrisFieldIsCreated(): void
     {
         // Create Legor account
-        $result = $this->artisan('ogamex:init-legor', ['--delay' => 0]);
-        $this->assertInstanceOf(\Illuminate\Testing\PendingCommand::class, $result);
-        $result->assertExitCode(0);
+        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+            ->assertExitCode(0); // @phpstan-ignore-line
 
         // Check for debris field at 1:1:2
         $debris = \OGame\Models\DebrisField::where('galaxy', 1)
