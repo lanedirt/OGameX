@@ -251,7 +251,6 @@ class MissileMission extends GameMission
             // Mark mission as processed
             $mission->processed = 1;
             $mission->save();
-
         } catch (\Exception $e) {
             Log::error('Missile mission processing failed', [
                 'mission_id' => $mission->id,
@@ -311,7 +310,7 @@ class MissileMission extends GameMission
         ]);
 
         // Get target priority from mission (now stored in dedicated column!)
-        $priorityCode = (int)$mission->target_priority ?? 0;
+        $priorityCode = (int)($mission->target_priority ?? 0);
         $targetPriority = $this->decodePriority($priorityCode);
 
         // Get all defense objects and sort by priority
@@ -362,15 +361,15 @@ class MissileMission extends GameMission
      */
     private function sendMissileAttackMessages(
         PlanetService $attackerPlanet,
-        $attackerPlayer,
+        \OGame\Services\PlayerService $attackerPlayer,
         PlanetService $defenderPlanet,
-        $defenderPlayer,
+        \OGame\Services\PlayerService $defenderPlayer,
         int $missileCount,
         int $interceptedMissiles,
         int $effectiveMissiles,
         UnitCollection $destroyedDefenses,
         array $defensesData,
-        ?PlanetService $parentPlanet = null,
+        PlanetService|null $parentPlanet = null,
         int $parentPlanetAbmCount = 0
     ): void {
         // Format destroyed defenses list

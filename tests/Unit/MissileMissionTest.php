@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use OGame\Services\PlayerService;
 use Tests\UnitTestCase;
 
 /**
@@ -35,12 +34,10 @@ class MissileMissionTest extends UnitTestCase
         $this->createAndSetPlanetModel([]);
         $this->createAndSetUserTechModel([]);
 
-        // Verify the method exists and returns a number
+        // Verify the method exists and returns a positive number
         $this->playerService->setResearchLevel('impulse_drive', 1, false);
         $range = $this->playerService->getMissileRange();
 
-        $this->assertIsInt($range);
         $this->assertGreaterThan(0, $range);
     }
-
 }
