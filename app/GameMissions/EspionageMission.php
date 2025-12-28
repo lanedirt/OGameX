@@ -71,7 +71,7 @@ class EspionageMission extends GameMission
 
         // Legor's planet (Arakis at 1:1:2) cannot be probed
         if ($targetPlayer->getUsername(false) === 'Legor') {
-            return new MissionPossibleStatus(false, __('t_messages.This planet belongs to an administrator and cannot be probed.'));
+            return new MissionPossibleStatus(false, 'This planet belongs to an administrator and cannot be probed.');
         }
 
         // If all checks pass, the mission is possible.

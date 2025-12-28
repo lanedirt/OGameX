@@ -23,6 +23,7 @@ class LegorAccountTest extends AccountTestCase
     public function testLegorAccountCreation(): void
     {
         // Migration creates Legor, but we can test the moon creation part
+        // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
         $this->artisan('ogamex:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 
@@ -47,9 +48,11 @@ class LegorAccountTest extends AccountTestCase
     public function testLegorAccountIdempotent(): void
     {
         // Migration creates Legor, command should still work (moon creation)
+        // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
         $this->artisan('ogamex:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 
+        // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
         $this->artisan('ogamex:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 
@@ -79,6 +82,7 @@ class LegorAccountTest extends AccountTestCase
         $planetServiceFactory->createPlanetAtPosition($playerService, $coordinate, 'TestPlanet');
 
         // Run the command - it should fail
+        // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
         $this->artisan('ogamex:init-legor', ['--delay' => 0])
             ->assertExitCode(1);
     }
@@ -123,7 +127,9 @@ class LegorAccountTest extends AccountTestCase
 
         // Should fail with admin protection - attack mission should be disabled
         $response->assertStatus(200);
-        $content = json_decode($response->getContent(), true);
+        $responseContent = $response->getContent();
+        $this->assertIsString($responseContent);
+        $content = json_decode($responseContent, true);
         $this->assertFalse($content['orders'][1] ?? true, 'Attack mission (type 1) should not be enabled for Legor\'s planet');
     }
 
@@ -166,7 +172,9 @@ class LegorAccountTest extends AccountTestCase
 
         // Should fail with admin protection - espionage mission should be disabled
         $response->assertStatus(200);
-        $content = json_decode($response->getContent(), true);
+        $responseContent = $response->getContent();
+        $this->assertIsString($responseContent);
+        $content = json_decode($responseContent, true);
         $this->assertFalse($content['orders'][6] ?? true, 'Espionage mission (type 6) should not be enabled for Legor\'s planet');
     }
 
@@ -212,7 +220,9 @@ class LegorAccountTest extends AccountTestCase
 
         // Should succeed (transport mission should be enabled)
         $response->assertStatus(200);
-        $content = json_decode($response->getContent(), true);
+        $responseContent = $response->getContent();
+        $this->assertIsString($responseContent);
+        $content = json_decode($responseContent, true);
         $this->assertTrue($content['orders'][3] ?? false); // Transport mission (type 3) should be enabled
     }
 
@@ -222,6 +232,7 @@ class LegorAccountTest extends AccountTestCase
     public function testMoonIsCreatedAfterDelay(): void
     {
         // Create Legor account with minimal delay for faster test
+        // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
         $this->artisan('ogamex:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 
@@ -242,6 +253,7 @@ class LegorAccountTest extends AccountTestCase
     public function testDebrisFieldIsCreated(): void
     {
         // Create Legor account
+        // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
         $this->artisan('ogamex:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 

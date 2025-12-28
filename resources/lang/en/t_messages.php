@@ -304,9 +304,4 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         'subject' => 'You were deleted from a buddy list',
         'body' => 'Player :remover_name removed you from their buddy list.',
     ],
-
-    // ------------------------
-    // Admin planet protection
-    'This planet belongs to an administrator and cannot be attacked.' => 'This planet belongs to an administrator and cannot be attacked.',
-    'This planet belongs to an administrator and cannot be probed.' => 'This planet belongs to an administrator and cannot be probed.',
 ];

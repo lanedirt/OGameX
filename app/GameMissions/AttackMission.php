@@ -69,7 +69,7 @@ class AttackMission extends GameMission
 
         // Legor's planet (Arakis at 1:1:2) cannot be attacked
         if ($targetPlayer->getUsername(false) === 'Legor') {
-            return new MissionPossibleStatus(false, __('t_messages.This planet belongs to an administrator and cannot be attacked.'));
+            return new MissionPossibleStatus(false, 'This planet belongs to an administrator and cannot be attacked.');
         }
 
         // If all checks pass, the mission is possible.
