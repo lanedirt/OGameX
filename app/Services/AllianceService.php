@@ -9,6 +9,7 @@ use OGame\Models\Alliance;
 use OGame\Models\AllianceApplication;
 use OGame\Models\AllianceMember;
 use OGame\Models\AllianceRank;
+use OGame\Models\Message;
 use OGame\Models\User;
 
 /**
@@ -24,6 +25,17 @@ use OGame\Models\User;
  */
 class AllianceService
 {
+    /**
+     * AllianceService constructor.
+     *
+     * @param SettingsService $settingsService
+     * @param MessageService $messageService
+     */
+    public function __construct(
+        private SettingsService $settingsService,
+        private MessageService $messageService
+    ) {
+    }
 
     /**
      * Create a new alliance.
@@ -40,6 +52,17 @@ class AllianceService
         $user = User::findOrFail($userId);
         if ($user->alliance_id !== null) {
             throw new Exception('User is already in an alliance');
+        }
+
+        // Check if user left an alliance recently (configurable cooldown)
+        if ($user->alliance_left_at !== null) {
+            $cooldownDays = $this->settingsService->allianceCooldownDays();
+            $cooldownEnd = $user->alliance_left_at->addDays($cooldownDays);
+            if (now()->isBefore($cooldownEnd)) {
+                $remainingHours = now()->diffInHours($cooldownEnd);
+                $remainingDays = ceil($remainingHours / 24);
+                throw new Exception("You must wait {$remainingDays} more day(s) before you can create or join an alliance.");
+            }
         }
 
         // Validate tag length (3-8 characters)
@@ -74,9 +97,10 @@ class AllianceService
                 'joined_at' => now(),
             ]);
 
-            // Update user's alliance_id
+            // Update user's alliance_id and clear cooldown
             /** @phpstan-ignore assign.propertyType */
             $user->alliance_id = $alliance->id;
+            $user->alliance_left_at = null;
             $user->save();
 
             DB::commit();
@@ -119,7 +143,7 @@ class AllianceService
     public function getAllianceMembers(int $allianceId): Collection
     {
         return AllianceMember::where('alliance_id', $allianceId)
-            ->with(['user', 'rank'])
+            ->with(['user.highscore', 'rank'])
             ->orderBy('joined_at', 'asc')
             ->get();
     }
@@ -155,29 +179,50 @@ class AllianceService
             throw new Exception('User is already in an alliance');
         }
 
+        // Check if user left an alliance recently (configurable cooldown)
+        if ($user->alliance_left_at !== null) {
+            $cooldownDays = $this->settingsService->allianceCooldownDays();
+            $cooldownEnd = $user->alliance_left_at->addDays($cooldownDays);
+            if (now()->isBefore($cooldownEnd)) {
+                $remainingHours = now()->diffInHours($cooldownEnd);
+                $remainingDays = ceil($remainingHours / 24);
+                throw new Exception("You must wait {$remainingDays} more day(s) before you can create or join an alliance.");
+            }
+        }
+
         // Validate that alliance exists and is open
         $alliance = Alliance::findOrFail($allianceId);
         if (!$alliance->is_open) {
             throw new Exception('Alliance is not accepting applications');
         }
 
-        // Check if user already has a pending application
+        // Check if user already has an application (any status)
         $existingApplication = AllianceApplication::where('alliance_id', $allianceId)
             ->where('user_id', $userId)
-            ->where('status', AllianceApplication::STATUS_PENDING)
             ->first();
 
         if ($existingApplication) {
-            throw new Exception('You already have a pending application to this alliance');
+            // If there's a pending application, don't allow a new one
+            if ($existingApplication->status === AllianceApplication::STATUS_PENDING) {
+                throw new Exception('You already have a pending application to this alliance');
+            }
+
+            // If there's an old rejected/accepted application, delete it first
+            $existingApplication->delete();
         }
 
         // Create the application
-        return AllianceApplication::create([
+        $application = AllianceApplication::create([
             'alliance_id' => $allianceId,
             'user_id' => $userId,
             'application_message' => $message,
             'status' => AllianceApplication::STATUS_PENDING,
         ]);
+
+        // Send notification to all alliance members with permission to manage applications
+        $this->notifyApplicationReceivers($alliance, $user, $message);
+
+        return $application;
     }
 
     /**
@@ -237,9 +282,10 @@ class AllianceService
                 'joined_at' => now(),
             ]);
 
-            // Update user's alliance_id
+            // Update user's alliance_id and clear cooldown
             /** @phpstan-ignore assign.propertyType */
             $applicant->alliance_id = $application->alliance_id;
+            $applicant->alliance_left_at = null;
             $applicant->save();
 
             DB::commit();
@@ -347,8 +393,9 @@ class AllianceService
             // Remove member
             $member->delete();
 
-            // Update user's alliance_id
+            // Update user's alliance_id and set cooldown
             $user->alliance_id = null;
+            $user->alliance_left_at = now();
             $user->save();
 
             DB::commit();
@@ -422,6 +469,72 @@ class AllianceService
     }
 
     /**
+     * Update rank permissions.
+     *
+     * @param int $allianceId
+     * @param array $rankPermissions Array with rank IDs as keys and permission bitmasks as values
+     * @param int $updatingUserId
+     * @return void
+     * @throws Exception
+     */
+    public function updateRankPermissions(int $allianceId, array $rankPermissions, int $updatingUserId): void
+    {
+        // Verify the updating user has permission
+        $member = $this->getAllianceMember($allianceId, $updatingUserId);
+        if (!$member || !$member->hasPermission(AllianceRank::PERMISSION_MANAGE_ALLY)) {
+            throw new Exception('You do not have permission to update rank permissions');
+        }
+
+        foreach ($rankPermissions as $rankId => $permissionsBitmask) {
+            $rank = AllianceRank::where('alliance_id', $allianceId)
+                ->where('id', $rankId)
+                ->first();
+
+            if (!$rank) {
+                continue; // Skip if rank doesn't exist
+            }
+
+            // Convert bitmask to array of permission strings
+            $permissions = $this->convertBitmaskToPermissions($permissionsBitmask);
+
+            // Update permissions
+            $rank->permissions = $permissions;
+            $rank->save();
+        }
+    }
+
+    /**
+     * Convert permission bitmask to array of permission strings.
+     *
+     * @param int $bitmask
+     * @return array
+     */
+    private function convertBitmaskToPermissions(int $bitmask): array
+    {
+        $permissions = [];
+        $permissionMap = [
+            1 => AllianceRank::PERMISSION_SEE_APPLICATIONS,
+            2 => AllianceRank::PERMISSION_EDIT_APPLICATIONS,
+            4 => AllianceRank::PERMISSION_SEE_MEMBERS,
+            8 => AllianceRank::PERMISSION_KICK_USER,
+            16 => AllianceRank::PERMISSION_SEE_MEMBER_ONLINE_STATUS,
+            32 => AllianceRank::PERMISSION_SEND_CIRCULAR_MSG,
+            64 => AllianceRank::PERMISSION_DELETE_ALLY,
+            128 => AllianceRank::PERMISSION_MANAGE_ALLY,
+            256 => AllianceRank::PERMISSION_RIGHT_HAND,
+            2048 => AllianceRank::PERMISSION_MANAGE_CLASSES,
+        ];
+
+        foreach ($permissionMap as $bit => $permission) {
+            if (($bitmask & $bit) === $bit) {
+                $permissions[] = $permission;
+            }
+        }
+
+        return $permissions;
+    }
+
+    /**
      * Update alliance texts.
      *
      * @param int $allianceId
@@ -444,6 +557,44 @@ class AllianceService
         $alliance->internal_text = $internalText;
         $alliance->external_text = $externalText;
         $alliance->application_text = $applicationText;
+        $alliance->save();
+    }
+
+    /**
+     * Update alliance settings.
+     *
+     * @param int $allianceId
+     * @param int $updatingUserId
+     * @param array $settings
+     * @return void
+     * @throws Exception
+     */
+    public function updateSettings(int $allianceId, int $updatingUserId, array $settings): void
+    {
+        // Verify the updating user has permission
+        $member = $this->getAllianceMember($allianceId, $updatingUserId);
+        if (!$member || !$member->hasPermission(AllianceRank::PERMISSION_MANAGE_ALLY)) {
+            throw new Exception('You do not have permission to update alliance settings');
+        }
+
+        $alliance = Alliance::findOrFail($allianceId);
+
+        if (isset($settings['homepage'])) {
+            $alliance->homepage_url = $settings['homepage'];
+        }
+        if (isset($settings['logo_url'])) {
+            $alliance->logo_url = $settings['logo_url'];
+        }
+        if (isset($settings['open'])) {
+            $alliance->is_open = (bool)$settings['open'];
+        }
+        if (isset($settings['founder_rank_name'])) {
+            $alliance->founder_rank_name = $settings['founder_rank_name'];
+        }
+        if (isset($settings['newcomer_rank_name'])) {
+            $alliance->newcomer_rank_name = $settings['newcomer_rank_name'];
+        }
+
         $alliance->save();
     }
 
@@ -482,6 +633,214 @@ class AllianceService
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
+        }
+    }
+
+    /**
+     * Update alliance tag.
+     *
+     * @param int $allianceId
+     * @param int $updatingUserId
+     * @param string $newTag
+     * @return void
+     * @throws Exception
+     */
+    public function updateTag(int $allianceId, int $updatingUserId, string $newTag): void
+    {
+        // Verify the updating user has permission
+        $member = $this->getAllianceMember($allianceId, $updatingUserId);
+        if (!$member || !$member->hasPermission(AllianceRank::PERMISSION_MANAGE_ALLY)) {
+            throw new Exception('You do not have permission to update alliance tag');
+        }
+
+        // Validate tag length (3-8 characters)
+        if (strlen($newTag) < 3 || strlen($newTag) > 8) {
+            throw new Exception('Alliance tag must be between 3 and 8 characters');
+        }
+
+        // Check if tag is already taken by another alliance
+        $existingAlliance = Alliance::where('alliance_tag', $newTag)
+            ->where('id', '!=', $allianceId)
+            ->first();
+        if ($existingAlliance) {
+            throw new Exception('Alliance tag is already taken');
+        }
+
+        $alliance = Alliance::findOrFail($allianceId);
+        $alliance->alliance_tag = $newTag;
+        $alliance->save();
+    }
+
+    /**
+     * Update alliance name.
+     *
+     * @param int $allianceId
+     * @param int $updatingUserId
+     * @param string $newName
+     * @return void
+     * @throws Exception
+     */
+    public function updateName(int $allianceId, int $updatingUserId, string $newName): void
+    {
+        // Verify the updating user has permission
+        $member = $this->getAllianceMember($allianceId, $updatingUserId);
+        if (!$member || !$member->hasPermission(AllianceRank::PERMISSION_MANAGE_ALLY)) {
+            throw new Exception('You do not have permission to update alliance name');
+        }
+
+        // Validate name length (3-30 characters)
+        if (strlen($newName) < 3 || strlen($newName) > 30) {
+            throw new Exception('Alliance name must be between 3 and 30 characters');
+        }
+
+        // Check if name is already taken by another alliance
+        $existingAlliance = Alliance::where('alliance_name', $newName)
+            ->where('id', '!=', $allianceId)
+            ->first();
+        if ($existingAlliance) {
+            throw new Exception('Alliance name is already taken');
+        }
+
+        $alliance = Alliance::findOrFail($allianceId);
+        $alliance->alliance_name = $newName;
+        $alliance->save();
+    }
+
+    /**
+     * Send a broadcast message to alliance members
+     *
+     * @param int $allianceId
+     * @param int $sendingUserId
+     * @param string $text
+     * @param array $recipients Array of rank IDs or -1 for all members
+     * @return void
+     * @throws Exception
+     */
+    public function sendBroadcastMessage(int $allianceId, int $sendingUserId, string $text, array $recipients): void
+    {
+        // Verify the sending user has permission
+        $member = $this->getAllianceMember($allianceId, $sendingUserId);
+        if (!$member || !$member->hasPermission(AllianceRank::PERMISSION_SEND_CIRCULAR_MSG)) {
+            throw new Exception('You do not have permission to send broadcast messages');
+        }
+
+        // Validate message length
+        if (strlen($text) > 2000) {
+            throw new Exception('Message is too long (maximum 2000 characters)');
+        }
+
+        if (empty($text) || trim($text) === '') {
+            throw new Exception('Message cannot be empty');
+        }
+
+        $alliance = Alliance::findOrFail($allianceId);
+        $members = $alliance->members;
+
+        \Log::info('Alliance broadcast - members before filter', [
+            'total_members' => $members->count(),
+            'sender_id' => $sendingUserId,
+        ]);
+
+        // Filter members based on recipients
+        if (!in_array('-1', $recipients)) {
+            // Filter by specific ranks
+            $members = $members->filter(function($allianceMember) use ($recipients) {
+                return in_array($allianceMember->rank_id, $recipients);
+            });
+        }
+
+        // Send message to each recipient
+        $senderPlayer = resolve(PlayerService::class, ['player_id' => $sendingUserId]);
+
+        $messageCount = 0;
+        foreach ($members as $allianceMember) {
+            \Log::info('Processing member for broadcast', [
+                'member_id' => $allianceMember->id,
+                'user_id' => $allianceMember->user_id,
+                'sender_id' => $sendingUserId,
+            ]);
+
+            if ($allianceMember->user_id === $sendingUserId) {
+                \Log::info('Skipping sender');
+                continue; // Don't send to self
+            }
+
+            $recipientPlayer = resolve(PlayerService::class, ['player_id' => $allianceMember->user_id]);
+            $messageService = resolve(MessageService::class, ['player' => $recipientPlayer]);
+
+            \Log::info('Sending broadcast message', [
+                'recipient_id' => $recipientPlayer->getId(),
+                'recipient_name' => $recipientPlayer->getUsername(),
+            ]);
+
+            // Create the broadcast message using the MessageService
+            $messageService->sendSystemMessageToPlayer(
+                $recipientPlayer,
+                \OGame\GameMessages\AllianceBroadcast::class,
+                [
+                    'sender_name' => $senderPlayer->getUsername(),
+                    'alliance_tag' => $alliance->alliance_tag,
+                    'message' => $text,
+                ]
+            );
+            $messageCount++;
+        }
+
+        \Log::info('Broadcast messages created', [
+            'count' => $messageCount,
+            'alliance_id' => $allianceId,
+            'sender_id' => $sendingUserId,
+        ]);
+    }
+
+    /**
+     * Send notification to all alliance members who can manage applications.
+     *
+     * @param Alliance $alliance
+     * @param User $applicant
+     * @param string|null $applicationMessage
+     * @return void
+     */
+    private function notifyApplicationReceivers(Alliance $alliance, User $applicant, ?string $applicationMessage): void
+    {
+        try {
+            // Get all alliance members with their ranks
+            $members = AllianceMember::where('alliance_id', $alliance->id)
+                ->with(['user', 'rank'])
+                ->get();
+
+            foreach ($members as $member) {
+                // Check if this member has permission to manage applications
+                if ($member->hasPermission(AllianceRank::PERMISSION_EDIT_APPLICATIONS)) {
+                    try {
+                        // Send notification message
+                        $playerService = resolve(PlayerService::class, ['player_id' => $member->user_id]);
+
+                        $this->messageService->sendSystemMessageToPlayer(
+                            $playerService,
+                            \OGame\GameMessages\AllianceApplicationReceived::class,
+                            [
+                                'applicant_name' => $applicant->username,
+                                'application_message' => $applicationMessage ?? '',
+                            ]
+                        );
+                    } catch (Exception $e) {
+                        // Log error but don't fail the entire application process
+                        \Log::error('Failed to send alliance application notification', [
+                            'member_id' => $member->user_id,
+                            'alliance_id' => $alliance->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // Log error but don't fail the application creation
+            \Log::error('Failed to notify alliance members of application', [
+                'alliance_id' => $alliance->id,
+                'applicant_id' => $applicant->id,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 }
