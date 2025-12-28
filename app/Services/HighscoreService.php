@@ -285,6 +285,7 @@ class HighscoreService
                 $allianceTag = null;
                 $allianceId = null;
                 if ($playerScore->player->alliance_id) {
+                    /** @var \OGame\Models\Alliance|null $alliance */
                     $alliance = $playerScore->player->alliance;
                     if ($alliance) {
                         $allianceTag = $alliance->alliance_tag;

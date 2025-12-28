@@ -95,7 +95,7 @@ class SearchController extends OGameController
         foreach ($planets as $planet) {
             $results[] = [
                 'id' => $planet->id,
-                'name' => $planet->planet_name,
+                'name' => $planet->name,
                 'coordinates' => '[' . $planet->galaxy . ':' . $planet->system . ':' . $planet->planet . ']',
                 'owner_id' => $planet->user_id,
                 'type' => 'planet',
@@ -126,8 +126,8 @@ class SearchController extends OGameController
                 'name' => $alliance->alliance_name,
                 'tag' => $alliance->alliance_tag,
                 'member_count' => $alliance->member_count,
-                'rank' => $alliance->highscore?->general_rank ?? '?',
-                'points' => $alliance->highscore?->general ?? 0,
+                'rank' => $alliance->highscore->general_rank ?? '?',
+                'points' => $alliance->highscore->general ?? 0,
                 'is_open' => $alliance->is_open,
                 'type' => 'alliance',
             ];

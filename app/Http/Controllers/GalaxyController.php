@@ -481,7 +481,7 @@ class GalaxyController extends OGameController
                 $memberCount = $alliance->member_count;
 
                 // Get highscore rank (default to general rank)
-                $highscoreRank = $alliance->highscore?->general_rank ?? '?';
+                $highscoreRank = $alliance->highscore->general_rank ?? '?';
 
                 // Calculate which page this alliance is on in the highscore
                 $highscorePage = $highscoreRank !== '?' ? (int)ceil($highscoreRank / 100) : 1;

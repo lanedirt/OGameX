@@ -801,7 +801,7 @@ class AllianceService
      * @param string|null $applicationMessage
      * @return void
      */
-    private function notifyApplicationReceivers(Alliance $alliance, User $applicant, ?string $applicationMessage): void
+    private function notifyApplicationReceivers(Alliance $alliance, User $applicant, string|null $applicationMessage): void
     {
         try {
             // Get all alliance members with their ranks
