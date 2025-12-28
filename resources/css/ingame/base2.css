@@ -6033,6 +6033,10 @@ span.rewardbutton {
     display: block
 }
 
+#netz #alliance ul#tab-ally a {
+    cursor: pointer
+}
+
 #netz #alliance ul#tab-msg,#netz #alliance ul#tab-buddy {
     display: none
 }
@@ -6059,7 +6063,8 @@ span.rewardbutton {
 
 #netz .contentz .tabsbelow a:link,#netz .contentz .tabsbelow a:visited,.no-touch #netz .contentz .tabsbelow a:hover,#netz .contentz .tabsbelow a:active {
     color: #848484;
-    text-decoration: none
+    text-decoration: none;
+    cursor: pointer
 }
 
 #netz #inhalt .section {
