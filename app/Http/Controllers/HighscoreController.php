@@ -124,8 +124,6 @@ class HighscoreController extends OGameController
      */
     public function ajaxAlliance(Request $request, PlayerService $player, HighscoreService $highscoreService): View
     {
-        // TODO: implement alliance highscore.
-
         // Check if we received type parameter, if so, use it to determine which highscore type to show.
         // 0 = points
         // 1 = economy
@@ -140,27 +138,56 @@ class HighscoreController extends OGameController
 
         $highscoreService->setHighscoreType($type);
 
-        // Current player rank.
-        $currentPlayerRank = 1;
-        $currentPlayerPage = 1;
-
-        // Check if we received a page number, if so, use it instead of the current player rank.
-        $page = $request->input('page', null);
-        if (!empty($page)) {
-            $page = (int)$page;
+        // Check if we're searching for a specific alliance's rank
+        $searchRelId = $request->input('searchRelId', null);
+        if ($searchRelId) {
+            // Get the rank of the searched alliance
+            $searchedAllianceRank = $highscoreService->getHighscoreAllianceRank((int)$searchRelId);
+            $page = $searchedAllianceRank > 0 ? (int) (floor($searchedAllianceRank / 100) + 1) : 1;
         } else {
-            // Initial page based on current player rank (round to the nearest 100 floored).
-            $page = $currentPlayerPage;
+            // Current player's alliance rank
+            $currentAllianceRank = 0;
+            $currentAlliancePage = 1;
+
+            $userAllianceId = auth()->user()->alliance_id;
+            if ($userAllianceId) {
+                $currentAllianceRank = $highscoreService->getHighscoreAllianceRank($userAllianceId);
+                if ($currentAllianceRank > 0) {
+                    $currentAlliancePage = (int) floor($currentAllianceRank / 100) + 1;
+                }
+            }
+
+            // Check if we received a page number, if so, use it instead of the current alliance rank.
+            $page = $request->input('page', null);
+            if (!empty($page)) {
+                $page = (int)$page;
+            } else {
+                // Initial page based on current alliance rank (round to the nearest 100 floored).
+                $page = (int)$currentAlliancePage;
+            }
         }
 
-        // Get highscore players content view statically to insert into page.
+        // Current alliance rank (for highlighting purposes)
+        $currentAllianceRank = 0;
+        $currentAlliancePage = 1;
+
+        $userAllianceId = auth()->user()->alliance_id;
+        if ($userAllianceId) {
+            $currentAllianceRank = $highscoreService->getHighscoreAllianceRank($userAllianceId);
+            if ($currentAllianceRank > 0) {
+                $currentAlliancePage = (int) floor($currentAllianceRank / 100) + 1;
+            }
+        }
+
+        // Get highscore alliances content view statically to insert into page.
         return view('ingame.highscore.alliance_points')->with([
-            'highscorePlayers' => $highscoreService->getHighscorePlayers(pageOn: $page),
-            'highscorePlayerAmount' => $highscoreService->getHighscorePlayerAmount(),
-            'highscoreCurrentPlayerRank' => $currentPlayerRank,
-            'highscoreCurrentPlayerPage' => $currentPlayerPage,
+            'highscoreAlliances' => $highscoreService->getHighscoreAlliances(pageOn: $page),
+            'highscoreAllianceAmount' => $highscoreService->getHighscoreAllianceAmount(),
+            'highscoreCurrentAllianceRank' => $currentAllianceRank,
+            'highscoreCurrentAlliancePage' => $currentAlliancePage,
             'highscoreCurrentPage' => $page,
             'highscoreCurrentType' => $type,
+            'currentUserAllianceId' => $userAllianceId,
             'player' => $player,
         ]);
     }

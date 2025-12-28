@@ -89,6 +89,10 @@ class GameMessageFactory
         // Missile attack messages
         'missile_attack_report' => MissileAttackReport::class,
         'missile_defense_report' => MissileDefenseReport::class,
+
+        // Alliance messages
+        'alliance_broadcast' => \OGame\GameMessages\AllianceBroadcast::class,
+        'alliance_application_received' => \OGame\GameMessages\AllianceApplicationReceived::class,
         ];
 
     /**

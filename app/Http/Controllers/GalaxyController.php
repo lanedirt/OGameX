@@ -465,9 +465,57 @@ class GalaxyController extends OGameController
         // Check if target player is admin (cannot send buddy requests or ignore admins)
         $isTargetAdmin = $player->isAdmin();
 
+        // Get player's alliance information
+        $alliance = null;
+        $allianceTag = null;
+        $allianceName = null;
+        $allianceData = null;
+
+        if ($player->getUser()->alliance_id) {
+            $alliance = \OGame\Models\Alliance::with(['highscore', 'members'])->find($player->getUser()->alliance_id);
+            if ($alliance) {
+                $allianceTag = $alliance->alliance_tag;
+                $allianceName = $alliance->alliance_name;
+
+                // Get member count
+                $memberCount = $alliance->member_count;
+
+                // Get highscore rank (default to general rank)
+                $highscoreRank = $alliance->highscore?->general_rank ?? '?';
+
+                // Calculate which page this alliance is on in the highscore
+                $highscorePage = $highscoreRank !== '?' ? (int)ceil($highscoreRank / 100) : 1;
+
+                // Check if current player is in same alliance
+                $isAllianceMember = $player->getUser()->alliance_id === $this->playerService->getUser()->alliance_id;
+
+                $allianceData = [
+                    'available' => true,
+                    'allianceId' => $alliance->id,
+                    'allianceTag' => $allianceTag,
+                    'allianceName' => $allianceName,
+                    'memberCount' => $memberCount,
+                    'highscoreLink' => route('highscore.index', ['category' => 2, 'page' => $highscorePage]),
+                    'highscoreTitle' => (string)$highscoreRank,
+                    'infoPageLink' => route('alliance.index'),
+                    'infoPageTitle' => __('Alliance Page'),
+                    // Alliance class not implemented yet
+                    'allianceClassName' => null,
+                    'allianceClassCss' => null,
+                    // Application link - show if alliance is open and player is not in an alliance
+                    'applicationLink' => (!$this->playerService->getUser()->alliance_id && $alliance->is_open)
+                        ? route('alliance.index', ['alliance_id' => $alliance->id])
+                        : null,
+                    'applicationTitle' => (!$this->playerService->getUser()->alliance_id && $alliance->is_open)
+                        ? __('Apply')
+                        : null,
+                ];
+            }
+        }
+
         return [
             'actions' => [
-                'alliance' => [
+                'alliance' => $allianceData ?? [
                     'available' => false,
                 ],
                 'buddies' => [
@@ -506,6 +554,10 @@ class GalaxyController extends OGameController
             'isNewbie' => $player->isNewbie($this->playerService),
             'isStrong' => $player->isStrong($this->playerService),
             'isOnVacation' => $player->isInVacationMode(),
+            'allianceId' => $alliance?->id,
+            'allianceTag' => $allianceTag,
+            'allianceName' => $allianceName,
+            'isAllianceMember' => $alliance !== null && $player->getUser()->alliance_id === $this->playerService->getUser()->alliance_id,
 
             // Not implemented yet:
             //'isHonorableTarget' => $player->isHonorableTarget(),

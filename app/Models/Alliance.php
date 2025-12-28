@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -113,6 +114,14 @@ class Alliance extends Model
     public function applications(): HasMany
     {
         return $this->hasMany(AllianceApplication::class);
+    }
+
+    /**
+     * Get the highscore record for this alliance.
+     */
+    public function highscore(): HasOne
+    {
+        return $this->hasOne(AllianceHighscore::class);
     }
 
     /**

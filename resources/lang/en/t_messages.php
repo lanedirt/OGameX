@@ -377,4 +377,23 @@ Missiles hit: :missiles_hit
 
 Defenses destroyed: :defenses_destroyed',
     ],
+
+    // ------------------------
+    // Alliance Broadcast
+    'alliance_broadcast' => [
+        'from' => ':sender_name',
+        'subject' => '[:alliance_tag] Alliance broadcast',
+        'body' => ':message',
+    ],
+
+    // ------------------------
+    // Alliance Application Received
+    'alliance_application_received' => [
+        'from' => 'Alliance Management',
+        'subject' => 'New alliance application',
+        'body' => 'Player :applicant_name has applied to join your alliance.
+
+Application message:
+:application_message',
+    ],
 ];
