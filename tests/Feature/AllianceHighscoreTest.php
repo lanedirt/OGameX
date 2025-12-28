@@ -56,31 +56,14 @@ class AllianceHighscoreTest extends AccountTestCase
         $founder = User::factory()->create();
         $alliance = $allianceService->createAlliance($founder->id, $this->uniqueTag(), $this->uniqueName());
 
-        // Create member highscores
-        Highscore::updateOrCreate(
-            ['player_id' => $founder->id],
-            [
-                'general' => 1000,
-                'economy' => 500,
-                'research' => 300,
-                'military' => 200,
-            ]
-        );
-
         // Add another member
         $member = User::factory()->create();
         $application = $allianceService->applyToAlliance($member->id, $alliance->id);
         $allianceService->acceptApplication($application->id, $founder->id);
 
-        Highscore::updateOrCreate(
-            ['player_id' => $member->id],
-            [
-                'general' => 800,
-                'economy' => 400,
-                'research' => 250,
-                'military' => 150,
-            ]
-        );
+        // Create highscores for both members AFTER all alliance operations are complete
+        Highscore::updateOrCreate(['player_id' => $founder->id], ['general' => 1000, 'economy' => 500, 'research' => 300, 'military' => 200]);
+        Highscore::updateOrCreate(['player_id' => $member->id], ['general' => 800, 'economy' => 400, 'research' => 250, 'military' => 150]);
 
         // Generate alliance highscores
         Artisan::call('ogamex:generate-alliance-highscores');

@@ -309,7 +309,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     // Alliance Broadcast
     'alliance_broadcast' => [
         'from' => ':sender_name',
-        'subject' => '[:alliance_tag] Alliance broadcast',
+        'subject' => '[:alliance_tag] Alliance broadcast from :sender_name',
         'body' => ':message',
     ],
 
