@@ -69,9 +69,9 @@ class AllianceController extends OGameController
      * @param int $alliance_id
      * @param AllianceService $allianceService
      * @param PlayerService $player
-     * @return View
+     * @return View|RedirectResponse
      */
-    public function showApplicationForm(int $alliance_id, AllianceService $allianceService, PlayerService $player): View
+    public function showApplicationForm(int $alliance_id, AllianceService $allianceService, PlayerService $player): View|RedirectResponse
     {
         $this->setBodyId('alliance');
 
@@ -954,7 +954,7 @@ class AllianceController extends OGameController
 
             $alliance = $allianceService->getAllianceById($userAllianceId);
             $rankName = $validated['rank_id']
-                ? $alliance->ranks->firstWhere('id', $validated['rank_id'])->name
+                ? $alliance->ranks->firstWhere('id', $validated['rank_id'])->rank_name
                 : $alliance->newcomer_rank_name;
 
             return response()->json([
