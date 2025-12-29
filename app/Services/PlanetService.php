@@ -776,13 +776,24 @@ class PlanetService
             $universe_speed = 1;
         }
 
-        // The actual formula which return time in seconds
-        $time_hours =
-            (
-                ($price->metal->get() + $price->crystal->get())
-                /
-                (2500 * max((4 - ($next_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
-            );
+        // Nanite Factory uses a different formula - it doesn't benefit from itself
+        // Formula: (Metal + Crystal) / (2500 * (1 + Robotics Factory Level) * Universe Speed)
+        if ($machine_name === 'nano_factory') {
+            $time_hours =
+                (
+                    ($price->metal->get() + $price->crystal->get())
+                    /
+                    (2500 * (1 + $robotfactory_level) * $universe_speed)
+                );
+        } else {
+            // The actual formula which return time in seconds
+            $time_hours =
+                (
+                    ($price->metal->get() + $price->crystal->get())
+                    /
+                    (2500 * max((4 - ($next_level / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
+                );
+        }
 
         $time_seconds = (int)($time_hours * 3600);
 
@@ -826,14 +837,25 @@ class PlanetService
             $universe_speed = 1;
         }
 
-        // The actual formula which return time in seconds
-        // Same formula as construction time but for level instead of next_level
-        $time_hours =
-            (
-                ($price->metal->get() + $price->crystal->get())
-                /
-                (2500 * max((4 - ($level_for_calculation / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
-            );
+        // Nanite Factory uses a different formula - it doesn't benefit from itself
+        // Formula: (Metal + Crystal) / (2500 * (1 + Robotics Factory Level) * Universe Speed)
+        if ($machine_name === 'nano_factory') {
+            $time_hours =
+                (
+                    ($price->metal->get() + $price->crystal->get())
+                    /
+                    (2500 * (1 + $robotfactory_level) * $universe_speed)
+                );
+        } else {
+            // The actual formula which return time in seconds
+            // Same formula as construction time but for level instead of next_level
+            $time_hours =
+                (
+                    ($price->metal->get() + $price->crystal->get())
+                    /
+                    (2500 * max((4 - ($level_for_calculation / 2)), 1) * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
+                );
+        }
 
         $time_seconds = (int)($time_hours * 3600);
 
