@@ -384,16 +384,14 @@ class BuildingQueueService
                 }
             }
 
-            // Sanity check: check if the planet has enough resources. If not,
-            // then cancel build request.
-            if (!$planet->hasResources($price)) {
-                // Error, cancel build queue item.
+            // Deduct resources
+            try {
+                $planet->deductResources($price);
+            } catch (\RuntimeException $e) {
+                // Insufficient resources so we cancel the build request.
                 $this->cancel($planet, $queue_item->id, $queue_item->object_id);
                 continue;
             }
-
-            // All OK, deduct resources and start building/downgrade process.
-            $planet->deductResources($price);
 
             if (!$time_start) {
                 $time_start = (int)Carbon::now()->timestamp;
