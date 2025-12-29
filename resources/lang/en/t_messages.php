@@ -304,4 +304,23 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         'subject' => 'You were deleted from a buddy list',
         'body' => 'Player :remover_name removed you from their buddy list.',
     ],
+
+    // ------------------------
+    // Alliance Broadcast
+    'alliance_broadcast' => [
+        'from' => ':sender_name',
+        'subject' => '[:alliance_tag] Alliance broadcast from :sender_name',
+        'body' => ':message',
+    ],
+
+    // ------------------------
+    // Alliance Application Received
+    'alliance_application_received' => [
+        'from' => 'Alliance Management',
+        'subject' => 'New alliance application',
+        'body' => 'Player :applicant_name has applied to join your alliance.
+
+Application message:
+:application_message',
+    ],
 ];

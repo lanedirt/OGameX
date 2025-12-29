@@ -235,6 +235,18 @@ class SettingsService
     }
 
     /**
+     * Returns the alliance cooldown period in days.
+     * This is the number of days a player must wait after leaving an alliance
+     * before they can create or join another alliance.
+     *
+     * @return int
+     */
+    public function allianceCooldownDays(): int
+    {
+        return (int)$this->get('alliance_cooldown_days', 3);
+    }
+
+    /**
      * Returns the percentage of debris field generated from destroyed ships.
      *
      * @return int

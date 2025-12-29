@@ -79,19 +79,28 @@
 
                     </td>
                     <td class="name">
+                        <div class="highscoreNameFieldWrapper" style="height: unset;">
+                            <div class="highscoreNameAndTitleHolder" style="width: calc(100% - 0px); flex-direction: row;">
+                                <div class="highscoreNameHolder">
+                                    @if(!empty($highscorePlayer['alliance_tag']))
+                                        <span class="ally-tag">
+                                            <a href="{{ route('alliance.info', ['alliance_id' => $highscorePlayer['alliance_id']]) }}" target="_ally">
+                                                [{{ $highscorePlayer['alliance_tag'] }}]
+                                            </a>
+                                        </span>
+                                    @endif
 
-                        <a href="
-{{ route('galaxy.index', ['galaxy' => $highscorePlayer['planet_coords']->galaxy, 'system' => $highscorePlayer['planet_coords']->system, 'position' => $highscorePlayer['planet_coords']->position])  }}" class="dark_highlight_tablet">
-
-<span class="
-                 playername">
-                    {{ $highscorePlayer['name'] }}
-            </span>
-
-                            <span class="honorScore">
-(<span class="undermark tooltip js_hideTipOnMobile" title="Honour points">0</span>)
-</span>
-                        </a>
+                                    <a href="{{ route('galaxy.index', ['galaxy' => $highscorePlayer['planet_coords']->galaxy, 'system' => $highscorePlayer['planet_coords']->system, 'position' => $highscorePlayer['planet_coords']->position]) }}" class="dark_highlight_tablet">
+                                        <span class="playername">
+                                            {{ $highscorePlayer['name'] }}
+                                        </span>
+                                    </a>
+                                </div>
+                                <div class="honorScore">
+                                    (<span class="undermark tooltip js_hideTipOnMobile" title="Honour points">0</span>)
+                                </div>
+                            </div>
+                        </div>
                     </td>
 
                     <td class="sendmsg">

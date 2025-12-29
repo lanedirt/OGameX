@@ -47,6 +47,10 @@ class GameMessageFactory
         'buddy_request_received' => \OGame\GameMessages\BuddyRequestReceived::class,
         'buddy_request_accepted' => \OGame\GameMessages\BuddyRequestAccepted::class,
         'buddy_removed' => \OGame\GameMessages\BuddyRemoved::class,
+
+        // Alliance messages
+        'alliance_broadcast' => \OGame\GameMessages\AllianceBroadcast::class,
+        'alliance_application_received' => \OGame\GameMessages\AllianceApplicationReceived::class,
         ];
 
     /**

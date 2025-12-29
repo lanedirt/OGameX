@@ -3,6 +3,7 @@
 namespace OGame\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -131,6 +132,7 @@ class User extends Authenticatable
         'vacation_mode_activated_at' => 'datetime',
         'vacation_mode_until' => 'datetime',
         'dark_matter_last_regen' => 'datetime',
+        'alliance_left_at' => 'datetime',
     ];
 
     /**
@@ -151,6 +153,26 @@ class User extends Authenticatable
     public function darkMatterTransactions()
     {
         return $this->hasMany(DarkMatterTransaction::class);
+    }
+
+    /**
+     * Get the highscore record associated with the user.
+     *
+     * @return HasOne
+     */
+    public function highscore(): HasOne
+    {
+        return $this->hasOne(Highscore::class, 'player_id');
+    }
+
+    /**
+     * Get the alliance that the user belongs to.
+     *
+     * @return BelongsTo
+     */
+    public function alliance(): BelongsTo
+    {
+        return $this->belongsTo(Alliance::class, 'alliance_id');
     }
 
     /**

@@ -3,6 +3,8 @@
 use OGame\Console\Commands\DarkMatterRegenerateCommand;
 use OGame\Console\Commands\GenerateHighscores;
 use OGame\Console\Commands\GenerateHighscoreRanks;
+use OGame\Console\Commands\GenerateAllianceHighscores;
+use OGame\Console\Commands\GenerateAllianceHighscoreRanks;
 use OGame\Console\Commands\ResetDebrisFields;
 use OGame\Console\Commands\CleanupWreckFields;
 
@@ -19,6 +21,10 @@ use OGame\Console\Commands\CleanupWreckFields;
 
 Schedule::command(GenerateHighscores::class)->everyFiveMinutes();
 Schedule::command(GenerateHighscoreRanks::class)->everyFiveMinutes();
+
+// Alliance highscores should run after player highscores since they depend on them
+Schedule::command(GenerateAllianceHighscores::class)->everyFiveMinutes();
+Schedule::command(GenerateAllianceHighscoreRanks::class)->everyFiveMinutes();
 
 // Reset empty debris fields weekly on Monday at 1:00 AM
 Schedule::command(ResetDebrisFields::class)->weeklyOn(1, '1:00');
