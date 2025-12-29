@@ -1325,12 +1325,9 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             <li id="expeditiontimeline">
                                                 @lang('Duration of expedition:')
                                                 <select name="expeditiontime" id="expeditiontime">
-                                                    <option value="1" >1</option>
-                                                    <option value="2" >2</option>
-                                                    <option value="3" >3</option>
-                                                    <option value="4" >4</option>
-                                                    <option value="5" >5</option>
-                                                    <option value="6" >6</option>
+                                                    @for ($i = 1; $i <= $player->getResearchLevel('astrophysics'); $i++)
+                                                        <option value="{{ $i }}" {{ $i == 1 ? 'selected' : '' }}>{{ $i }}</option>
+                                                    @endfor
                                                 </select>
                                                 <span class="value">h</span>
                                             </li>
