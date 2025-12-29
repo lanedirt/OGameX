@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use OGame\Services\DarkMatterService;
 use OGame\Services\MerchantService;
 use OGame\Services\PlayerService;
 
@@ -355,8 +356,15 @@ class MerchantController extends OGameController
         }
 
         // Deduct dark matter
-        $user->dark_matter -= $bargainCost;
-        $user->save();
+        try {
+            $darkMatterService = resolve(DarkMatterService::class);
+            $darkMatterService->debit($user, $bargainCost, 'scrap_bargain', 'Scrap merchant bargain');
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('t_merchant.error.scrap.insufficient_dark_matter'),
+            ], 400);
+        }
 
         // Increase offer by 5-14% (appears to be 9% increments based on wiki)
         $increase = rand(5, 14);
@@ -369,6 +377,9 @@ class MerchantController extends OGameController
 
         // Calculate new cost for next bargain
         $newCost = 2000 + ($scrapSession['bargain_count'] * 2000);
+
+        // Refresh user to get updated dark matter balance after deduction
+        $user->refresh();
 
         return response()->json([
             'success' => true,

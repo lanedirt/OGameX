@@ -4,6 +4,7 @@ namespace OGame\Services;
 
 use Exception;
 use OGame\Models\Resources;
+use RuntimeException;
 
 /**
  * Class MerchantService
@@ -46,9 +47,16 @@ class MerchantService
             ];
         }
 
-        // Deduct dark matter cost
-        $user->dark_matter -= self::DARK_MATTER_COST;
-        $user->save();
+        // Deduct dark matter cost atomically using DarkMatterService to prevent race conditions
+        try {
+            $darkMatterService = resolve(DarkMatterService::class);
+            $darkMatterService->debit($user, self::DARK_MATTER_COST, 'merchant_call', 'Called ' . $merchantType . ' merchant');
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => __('t_merchant.error.trade.insufficient_dark_matter', ['cost' => number_format(self::DARK_MATTER_COST)]),
+            ];
+        }
 
         // Generate trade rates for this merchant call
         $tradeRates = self::generateTradeRates($merchantType);
@@ -243,16 +251,17 @@ class MerchantService
             ];
         }
 
-        // Execute the trade
+        // Execute the trade using atomic deduction to prevent race conditions
         try {
-            // Deduct the resource being given
+            // Deduct the resource being given atomically
             $deductResources = new Resources(
                 $giveResource === 'metal' ? $giveAmount : 0,
                 $giveResource === 'crystal' ? $giveAmount : 0,
                 $giveResource === 'deuterium' ? $giveAmount : 0
             );
 
-            $planet->deductResources($deductResources, false);
+            // Use atomic deduction (save_planet = true) to prevent race conditions
+            $planet->deductResources($deductResources, true);
 
             // Add the resource being received
             $addResources = new Resources(
@@ -261,16 +270,23 @@ class MerchantService
                 $receiveResource === 'deuterium' ? $receiveAmount : 0
             );
 
-            $planet->addResources($addResources, false);
-
-            // Save the planet with updated resources
-            $planet->save();
+            $planet->addResources($addResources, true);
 
             return [
                 'success' => true,
                 'message' => __('t_merchant.success.trade_completed'),
                 'given' => $giveAmount,
                 'received' => $receiveAmount,
+            ];
+        } catch (RuntimeException $e) {
+            // Atomic deduction failed - not enough resources
+            return [
+                'success' => false,
+                'message' => __('t_merchant.error.trade.not_enough_resource', [
+                    'resource' => $giveResource,
+                    'have' => '0',
+                    'need' => number_format($giveAmount)
+                ]),
             ];
         } catch (\Exception $e) {
             return [
