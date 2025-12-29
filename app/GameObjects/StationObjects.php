@@ -140,7 +140,7 @@ Once built, the terraformer cannot be dismantled.';
             new GameObjectRequirement('nano_factory', 1),
             new GameObjectRequirement('energy_technology', 12),
         ];
-        $terraformer->price = new GameObjectPrice(50000, 0, 100000, 1000, 2);
+        $terraformer->price = new GameObjectPrice(0, 50000, 100000, 1000, 2);
         $terraformer->valid_planet_types = [PlanetType::Planet];
         $terraformer->assets = new GameObjectAssets();
         $terraformer->assets->imgMicro = 'terraformer_micro.jpg';
