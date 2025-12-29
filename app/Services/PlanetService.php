@@ -776,17 +776,17 @@ class PlanetService
             $universe_speed = 1;
         }
 
-        // Nanite Factory uses a different formula - it doesn't benefit from itself
-        // Formula: (Metal + Crystal) / (2500 * (1 + Robotics Factory Level) * Universe Speed)
+        // Nanite Factory uses the simplified formula without the level-based factor
+        // Formula: (Metal + Crystal) / (2500 * (1 + Robotics Factory Level) * 2^Nanite Factory Level * Universe Speed)
         if ($machine_name === 'nano_factory') {
             $time_hours =
                 (
                     ($price->metal->get() + $price->crystal->get())
                     /
-                    (2500 * (1 + $robotfactory_level) * $universe_speed)
+                    (2500 * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
                 );
         } else {
-            // The actual formula which return time in seconds
+            // Other buildings use the formula with level-based factor
             $time_hours =
                 (
                     ($price->metal->get() + $price->crystal->get())
@@ -837,17 +837,17 @@ class PlanetService
             $universe_speed = 1;
         }
 
-        // Nanite Factory uses a different formula - it doesn't benefit from itself
-        // Formula: (Metal + Crystal) / (2500 * (1 + Robotics Factory Level) * Universe Speed)
+        // Nanite Factory uses the simplified formula without the level-based factor
+        // Formula: (Metal + Crystal) / (2500 * (1 + Robotics Factory Level) * 2^Nanite Factory Level * Universe Speed)
         if ($machine_name === 'nano_factory') {
             $time_hours =
                 (
                     ($price->metal->get() + $price->crystal->get())
                     /
-                    (2500 * (1 + $robotfactory_level) * $universe_speed)
+                    (2500 * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
                 );
         } else {
-            // The actual formula which return time in seconds
+            // Other buildings use the formula with level-based factor
             // Same formula as construction time but for level instead of next_level
             $time_hours =
                 (
