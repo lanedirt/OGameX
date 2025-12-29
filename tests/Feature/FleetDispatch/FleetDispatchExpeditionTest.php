@@ -888,7 +888,8 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
             ExpeditionOutcomeType::LossOfFleet->value => 'expedition_weight_black_hole',
             ExpeditionOutcomeType::GainMerchantTrade->value => 'expedition_weight_merchant',
             ExpeditionOutcomeType::GainItems->value => 'expedition_weight_merchant', // Items use merchant weight for now
-            // Note: Pirates and Aliens weights exist in settings but their outcome types are not yet implemented
+            ExpeditionOutcomeType::BattlePirates->value => 'expedition_weight_pirates',
+            ExpeditionOutcomeType::BattleAliens->value => 'expedition_weight_aliens',
         ];
 
         // Ensure all weights are initialized with their defaults if not already set
@@ -922,5 +923,165 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
                 $settingsService->set($weightMapping[$outcome->value], 100);
             }
         }
+    }
+
+    /**
+     * Test expedition with pirate battle outcome.
+     *
+     * @return void
+     */
+    public function testExpeditionWithPirateBattleResult(): void
+    {
+        $this->basicSetup();
+
+        // Add combat ships for the expedition
+        $this->planetAddUnit('battlecruiser', 50);
+        $this->planetAddUnit('cruiser', 100);
+
+        // Set some combat tech levels
+        $this->playerSetResearchLevel('weapon_technology', 10);
+        $this->playerSetResearchLevel('shielding_technology', 10);
+        $this->playerSetResearchLevel('armor_technology', 10);
+
+        // Get the number of ships before the expedition
+        $initialShipCount = $this->planetService->getShipUnits()->getAmount();
+
+        // Enable only the pirate battle outcome
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::BattlePirates]);
+
+        // Send the expedition mission
+        $this->sendTestExpedition(true);
+
+        // Wait for the mission to complete
+        $this->travel(10)->hours();
+
+        // Load the planet again to get the latest state
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Assert that the expedition message contains battle information
+        $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
+            'Expedition Result',
+        ]);
+
+        // Check that a battle report was created
+        $battleReports = \OGame\Models\BattleReport::where('planet_user_id', $this->planetService->getPlayer()->getId())->get();
+        $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
+
+        // Verify the battle report has expedition battle markers
+        $report = $battleReports->first();
+        $this->assertTrue($report->general['expedition_battle'] ?? false, 'Report should be marked as expedition battle');
+        $this->assertEquals('pirate', $report->general['npc_type'] ?? '', 'NPC type should be pirate');
+
+        // Verify NPC appears as attacker with correct name
+        $this->assertEquals(-1, $report->attacker['player_id'], 'Pirate player ID should be -1');
+        $this->assertEquals('Pirates', $report->attacker['player_name'], 'Pirate name should be Pirates');
+
+        // Verify player appears as defender
+        $this->assertEquals($this->planetService->getPlayer()->getId(), $report->defender['player_id']);
+
+        // Verify NPC has lower tech (player tech - 3)
+        $this->assertEquals(7, $report->attacker['weapon_technology'], 'Pirates should have player tech - 3');
+        $this->assertEquals(7, $report->attacker['shielding_technology'], 'Pirates should have player tech - 3');
+        $this->assertEquals(7, $report->attacker['armor_technology'], 'Pirates should have player tech - 3');
+    }
+
+    /**
+     * Test expedition with alien battle outcome.
+     *
+     * @return void
+     */
+    public function testExpeditionWithAlienBattleResult(): void
+    {
+        $this->basicSetup();
+
+        // Add combat ships for the expedition
+        $this->planetAddUnit('battlecruiser', 50);
+        $this->planetAddUnit('cruiser', 100);
+
+        // Set some combat tech levels
+        $this->playerSetResearchLevel('weapon_technology', 10);
+        $this->playerSetResearchLevel('shielding_technology', 10);
+        $this->playerSetResearchLevel('armor_technology', 10);
+
+        // Get the number of ships before the expedition
+        $initialShipCount = $this->planetService->getShipUnits()->getAmount();
+
+        // Enable only the alien battle outcome
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::BattleAliens]);
+
+        // Send the expedition mission
+        $this->sendTestExpedition(true);
+
+        // Wait for the mission to complete
+        $this->travel(10)->hours();
+
+        // Load the planet again to get the latest state
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Assert that the expedition message contains battle information
+        $this->assertMessageReceivedAndContains('fleets', 'expeditions', [
+            'Expedition Result',
+        ]);
+
+        // Check that a battle report was created
+        $battleReports = \OGame\Models\BattleReport::where('planet_user_id', $this->planetService->getPlayer()->getId())->get();
+        $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
+
+        // Verify the battle report has expedition battle markers
+        $report = $battleReports->first();
+        $this->assertTrue($report->general['expedition_battle'] ?? false, 'Report should be marked as expedition battle');
+        $this->assertEquals('alien', $report->general['npc_type'] ?? '', 'NPC type should be alien');
+
+        // Verify NPC appears as attacker with correct name
+        $this->assertEquals(-2, $report->attacker['player_id'], 'Alien player ID should be -2');
+        $this->assertEquals('Aliens', $report->attacker['player_name'], 'Alien name should be Aliens');
+
+        // Verify player appears as defender
+        $this->assertEquals($this->planetService->getPlayer()->getId(), $report->defender['player_id']);
+
+        // Verify NPC has higher tech (player tech + 3)
+        $this->assertEquals(13, $report->attacker['weapon_technology'], 'Aliens should have player tech + 3');
+        $this->assertEquals(13, $report->attacker['shielding_technology'], 'Aliens should have player tech + 3');
+        $this->assertEquals(13, $report->attacker['armor_technology'], 'Aliens should have player tech + 3');
+    }
+
+    /**
+     * Test that surviving ships return from battle.
+     *
+     * @return void
+     */
+    public function testExpeditionBattleSurvivingShipsReturn(): void
+    {
+        $this->basicSetup();
+
+        // Add many ships to ensure some survive
+        $this->planetAddUnit('battlecruiser', 200);
+
+        // Set high tech to ensure player wins
+        $this->playerSetResearchLevel('weapon_technology', 20);
+        $this->playerSetResearchLevel('shielding_technology', 20);
+        $this->playerSetResearchLevel('armor_technology', 20);
+
+        // Get initial ship count
+        $initialBattlecruisers = $this->planetService->getObjectAmount('battlecruiser');
+
+        // Enable only pirate battles (weaker opponent)
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::BattlePirates]);
+
+        // Send the expedition mission
+        $this->sendTestExpedition(true);
+
+        // Wait for the mission to complete and return
+        $this->travel(20)->hours();
+
+        // Load the planet again
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Verify ships returned (might be fewer due to losses)
+        $finalBattlecruisers = $this->planetService->getObjectAmount('battlecruiser');
+        $this->assertGreaterThan(0, $finalBattlecruisers, 'Some ships should return from battle');
     }
 }

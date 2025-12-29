@@ -613,7 +613,7 @@ class SettingsService
      */
     public function expeditionWeightPirates(): float
     {
-        return (float)$this->get('expedition_weight_pirates', '0');
+        return (float)$this->get('expedition_weight_pirates', '3.0');
     }
 
     /**
@@ -623,7 +623,7 @@ class SettingsService
      */
     public function expeditionWeightAliens(): float
     {
-        return (float)$this->get('expedition_weight_aliens', '0');
+        return (float)$this->get('expedition_weight_aliens', '1.5');
     }
 
     /**

@@ -259,6 +259,36 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         ],
     ],
 
+    // Battle - Pirates
+    'expedition_battle_pirates' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Expedition Result',
+        'body' => [
+            '1' => 'Some primitive barbarians are attacking us with spaceships that can`t even be named as such. If the fire gets serious we will be forced to fire back.',
+            '2' => 'We needed to fight some pirates which were, fortunately, only a few.',
+            '3' => 'We caught some radio transmissions from some drunk pirates. Seems like we will be under attack soon.',
+            '4' => 'Our expedition was attacked by a small group of space pirates!',
+            '5' => 'Some really desperate space pirates tried to capture our expedition fleet.',
+            '6' => 'Pirates ambushed the expedition fleet without warning!',
+            '7' => 'A ragtag fleet of space pirates intercepted us, demanding tribute.',
+        ],
+    ],
+
+    // Battle - Aliens
+    'expedition_battle_aliens' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Expedition Result',
+        'body' => [
+            '1' => 'We picked up strange signals from unknown ships. They turned out to be hostile!',
+            '2' => 'An alien patrol detected our expedition fleet and attacked immediately!',
+            '3' => 'Your expedition fleet had an unfriendly first contact with an unknown species.',
+            '4' => 'Some exotic looking ships attacked the expedition fleet without warning!',
+            '5' => 'A fleet of alien warships emerged from hyperspace and engaged us!',
+            '6' => 'We encountered a technologically advanced alien species that was not peaceful.',
+            '7' => 'Our sensors detected unknown energy signatures before alien ships attacked!',
+        ],
+    ],
+
     // Loss of Fleet
     'expedition_loss_of_fleet' => [
         'from' => 'Fleet Command',

@@ -158,30 +158,54 @@ class BattleReport extends GameMessage
         // Handle attacker
         $attackerPlayerId = $this->battleReportModel->attacker['player_id'];
         $attackerPlanetId = $this->battleReportModel->attacker['planet_id'] ?? null;
-        try {
-            $attacker = $this->playerServiceFactory->make($attackerPlayerId, true);
-            $attacker_name = $attacker->getUsername(false);
-        } catch (Throwable $e) {
-            // If attacker can't be loaded (e.g., user deleted), use "Unknown"
+
+        // Check if attacker is an NPC (negative player ID) or if player_name is stored
+        if ($attackerPlayerId < 0 || isset($this->battleReportModel->attacker['player_name'])) {
+            // NPC or stored name - use the stored player_name
             $attacker = null;
-            $attacker_name = __('Unknown');
+            $attacker_name = $this->battleReportModel->attacker['player_name'] ?? __('Unknown');
+        } else {
+            // Real player - try to load from database
+            try {
+                $attacker = $this->playerServiceFactory->make($attackerPlayerId, true);
+                $attacker_name = $attacker->getUsername(false);
+            } catch (Throwable $e) {
+                // If attacker can't be loaded (e.g., user deleted), use "Unknown"
+                $attacker = null;
+                $attacker_name = __('Unknown');
+            }
         }
 
         // Load attacker's origin planet info
-        $attacker_planet_name = __('Unknown');
-        $attacker_planet_coords = '';
-        $attacker_planet_type = '';
-        if ($attackerPlanetId !== null) {
+        // First check if stored in battle report (for NPCs/expeditions)
+        if (isset($this->battleReportModel->attacker['planet_name'])) {
+            $attacker_planet_name = $this->battleReportModel->attacker['planet_name'];
+            $attacker_planet_coords = $this->battleReportModel->attacker['planet_coords'] ?? '';
+            $attacker_planet_type = $this->battleReportModel->attacker['planet_type'] ?? '';
+        } elseif ($attackerPlanetId !== null) {
+            // Try to load from database for real players
             try {
                 $attackerPlanet = $this->planetServiceFactory->make($attackerPlanetId, true);
                 if ($attackerPlanet !== null) {
                     $attacker_planet_name = $attackerPlanet->getPlanetName();
                     $attacker_planet_coords = $attackerPlanet->getPlanetCoordinates()->asString();
                     $attacker_planet_type = $attackerPlanet->getPlanetType() === PlanetType::Moon ? 'Moon' : 'Planet';
+                } else {
+                    $attacker_planet_name = __('Unknown');
+                    $attacker_planet_coords = '';
+                    $attacker_planet_type = '';
                 }
             } catch (Throwable $e) {
                 // If attacker planet can't be loaded (e.g., planet deleted), use defaults
+                $attacker_planet_name = __('Unknown');
+                $attacker_planet_coords = '';
+                $attacker_planet_type = '';
             }
+        } else {
+            // No planet info available
+            $attacker_planet_name = __('Unknown');
+            $attacker_planet_coords = '';
+            $attacker_planet_type = '';
         }
 
         $defender_weapons = $this->battleReportModel->defender['weapon_technology'] * 10;
@@ -203,6 +227,14 @@ class BattleReport extends GameMessage
         $debrisDeuterium = $this->battleReportModel->debris['deuterium'] ?? 0;
         $debrisResources = new Resources($debrisMetal, $debrisCrystal, $debrisDeuterium, 0);
 
+        // TODO: Expedition battle debris field collection
+        // For expedition battles (when player classes are implemented with Discoverer class),
+        // the debris field will be at position 16 and can only be collected by Pathfinders,
+        // not Recyclers. Update this section to:
+        // 1. Check if this is an expedition battle (check $this->battleReportModel->general['expedition_battle'])
+        // 2. If yes, calculate and display Pathfinders needed instead of Recyclers
+        // 3. If no, continue showing Recyclers as normal
+        //
         // Calculate the amount of recyclers needed using DebrisFieldService
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->appendResources($debrisResources);
