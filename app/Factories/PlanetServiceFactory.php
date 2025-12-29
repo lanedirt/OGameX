@@ -54,6 +54,29 @@ class PlanetServiceFactory
     }
 
     /**
+     * Don't serialize anything - settings service will be resolved on wakeup.
+     *
+     * @return array
+     */
+    public function __sleep(): array
+    {
+        return [];
+    }
+
+    /**
+     * Wake up after unserialization - reinitialize settings service and cache arrays.
+     *
+     * @return void
+     */
+    public function __wakeup(): void
+    {
+        $this->planetInstancesByCoordinate = [];
+        $this->moonInstancesByCoordinate = [];
+        $this->instancesById = [];
+        $this->settings = app()->make(SettingsService::class);
+    }
+
+    /**
      * Returns a planetService either from local instances cache or creates a new one. Note:
      * it is advised to use makeForPlayer() method if playerService is already available.
      *
@@ -358,6 +381,39 @@ class PlanetServiceFactory
     public function createAdditionalPlanetForPlayer(PlayerService $player, Coordinate $coordinate): PlanetService
     {
         return $this->createPlanet($player, $coordinate, 'Colony', PlanetType::Planet);
+    }
+
+    /**
+     * Create a planet at a specific coordinate (bypasses position determination).
+     * Used for special accounts like Legor.
+     *
+     * @param PlayerService $player
+     * @param Coordinate $coordinate
+     * @param string $planetName
+     * @return PlanetService
+     * @throws RuntimeException if position is occupied
+     */
+    public function createPlanetAtPosition(PlayerService $player, Coordinate $coordinate, string $planetName): PlanetService
+    {
+        if ($this->planetExistsAtCoordinate($coordinate)) {
+            throw new RuntimeException("Position {$coordinate->asString()} is already occupied");
+        }
+
+        return $this->createPlanet($player, $coordinate, $planetName, PlanetType::Planet);
+    }
+
+    /**
+     * Check if a planet exists at the given coordinate.
+     *
+     * @param Coordinate $coordinate
+     * @return bool
+     */
+    public function planetExistsAtCoordinate(Coordinate $coordinate): bool
+    {
+        return Planet::where('galaxy', $coordinate->galaxy)
+            ->where('system', $coordinate->system)
+            ->where('planet', $coordinate->position)
+            ->exists();
     }
 
     /**

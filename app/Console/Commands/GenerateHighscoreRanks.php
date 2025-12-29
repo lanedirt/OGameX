@@ -37,12 +37,24 @@ class GenerateHighscoreRanks extends Command
         $rank = 1;
         $this->info("\nUpdating highscore ranks for $type->name...");
 
+        // Set Legor's rank to 0 (Legor is excluded from highscore, ranked players start at 1)
+        $legor = \OGame\Models\User::where('username', 'Legor')->first();
+        if ($legor) {
+            $legorHighscore = Highscore::where('player_id', $legor->id)->first();
+            if ($legorHighscore) {
+                $legorHighscore->{$type->name.'_rank'} = 0;
+                $legorHighscore->save();
+            }
+        }
+
         // Order by the highscore value in descending order, and by the player creation date in ascending order.
         // This ensures that:
         // - The highest ranked players are at the top of the list.
         // - If two players have the same highscore value, the player who joined the game first will be ranked higher.
+        // Legor is excluded from highscore ranking entirely.
         $query = Highscore::query()
             ->join('users', 'highscores.player_id', '=', 'users.id')
+            ->where('users.username', '!=', 'Legor')
             ->select('highscores.*')
             ->orderByDesc($type->name)
             ->orderBy('users.created_at');

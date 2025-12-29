@@ -69,6 +69,11 @@ class EspionageMission extends GameMission
             return new MissionPossibleStatus(false, 'This player is in vacation mode!');
         }
 
+        // Legor's planet (Arakis at 1:1:2) cannot be probed
+        if ($targetPlayer->getUsername(false) === 'Legor') {
+            return new MissionPossibleStatus(false, 'This planet belongs to an administrator and cannot be probed.');
+        }
+
         // If all checks pass, the mission is possible.
         return new MissionPossibleStatus(true);
     }

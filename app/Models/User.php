@@ -78,6 +78,32 @@ class User extends Authenticatable
     public $remember_token = false;
 
     /**
+     * Boot method to attach model events.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        // Automatically assign admin role to the first non-Legor user
+        static::created(function (User $user) {
+            // Skip Legor
+            if ($user->username === 'Legor') {
+                return;
+            }
+
+            // Check if this is the first non-Legor user
+            $nonLegorUserCount = User::where('username', '!=', 'Legor')->where('id', '!=', $user->id)->count();
+
+            if ($nonLegorUserCount === 0) {
+                // This is the first real user - assign admin role and rename to Admin
+                $user->assignRole('admin');
+                $user->username = 'Admin';
+                $user->save();
+            }
+        });
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
