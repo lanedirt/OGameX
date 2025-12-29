@@ -14,6 +14,17 @@ class UnitQueueListViewModel extends QueueListViewModel
     public array $queue;
 
     /**
+     * Check if the queue is full.
+     * The unit queue (shipyard/defense) is unlimited, so it's never full.
+     *
+     * @return bool
+     */
+    public function isQueueFull(): bool
+    {
+        return false;
+    }
+
+    /**
      * Returns the item in the queue that is currently building.
      *
      * @return UnitQueueViewModel|null
