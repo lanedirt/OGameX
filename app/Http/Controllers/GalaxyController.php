@@ -292,6 +292,32 @@ class GalaxyController extends OGameController
                 ];
             }
 
+            // Check if target player is a buddy or ally member
+            $currentUserId = $this->playerService->getUser()->id;
+            $targetUserId = $planet->getPlayer()->getUser()->id;
+
+            $isBuddy = \OGame\Models\BuddyRequest::where('status', \OGame\Models\BuddyRequest::STATUS_ACCEPTED)
+                ->where(function ($query) use ($currentUserId, $targetUserId) {
+                    $query->where(function ($q) use ($currentUserId, $targetUserId) {
+                        $q->where('sender_user_id', $currentUserId)
+                            ->where('receiver_user_id', $targetUserId);
+                    })
+                    ->orWhere(function ($q) use ($currentUserId, $targetUserId) {
+                        $q->where('sender_user_id', $targetUserId)
+                            ->where('receiver_user_id', $currentUserId);
+                    });
+                })
+                ->exists();
+
+            // ACS Defend (only if target is buddy or ally member).
+            if ($isBuddy) {
+                $availableMissions[] = [
+                    'missionType' => 5,
+                    'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 5]),
+                    'name' => __('ACS Defend'),
+                ];
+            }
+
             // Moon destruction (only if planet is a moon).
             if ($planet->isMoon()) {
                 $availableMissions[] = [

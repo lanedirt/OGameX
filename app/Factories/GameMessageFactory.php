@@ -26,6 +26,8 @@ class GameMessageFactory
         'colony_establish_fail_astrophysics' => \OGame\GameMessages\ColonyEstablishFailAstrophysics::class,
         'fleet_deployment' => \OGame\GameMessages\FleetDeployment::class,
         'fleet_deployment_with_resources' => \OGame\GameMessages\FleetDeploymentWithResources::class,
+        'acs_defend_arrival_sender' => \OGame\GameMessages\AcsDefendArrivalSender::class,
+        'acs_defend_arrival_host' => \OGame\GameMessages\AcsDefendArrivalHost::class,
         'espionage_report' => \OGame\GameMessages\EspionageReport::class,
         'espionage_detected' => \OGame\GameMessages\DefenderEspionageDetected::class,
         'battle_report' => \OGame\GameMessages\BattleReport::class,

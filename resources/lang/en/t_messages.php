@@ -84,6 +84,20 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
     ],
 
     // ------------------------
+    'acs_defend_arrival_host' => [
+        'from' => 'Space Monitoring',
+        'subject' => 'Fleet is stopping',
+        'body' => 'A fleet has arrived at :to.',
+    ],
+
+    // ------------------------
+    'acs_defend_arrival_sender' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Fleet is stopping',
+        'body' => 'A fleet has arrived at :to.',
+    ],
+
+    // ------------------------
     'colony_established' => [
         'from' => 'Fleet Command',
         'subject' => 'Settlement Report',
