@@ -23,4 +23,24 @@ class ExpeditionGainDarkMatter extends ExpeditionGameMessage
      * @var int
      */
     protected static int $numberOfVariations = 8;
+
+    /**
+     * Overrides the body of the message to append the Dark Matter amount based on the params.
+     */
+    public function getBody(): string
+    {
+        // Get the base body with the random variation message.
+        $translatedBody = parent::getBody();
+
+        // Get the params to access the dark matter amount.
+        $params = parent::checkParams($this->message->params);
+        $params = parent::formatReservedParams($params);
+
+        // Append the Dark Matter amount to the body if the param is set.
+        if (!empty($params['dark_matter_amount'])) {
+            $translatedBody .= '<br /><br />' . __('t_messages.expedition_dark_matter_captured', ['dark_matter_amount' => $params['dark_matter_amount']]);
+        }
+
+        return $translatedBody;
+    }
 }
