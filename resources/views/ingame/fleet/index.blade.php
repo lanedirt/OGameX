@@ -167,15 +167,15 @@
             var DONUT_GALAXY = 1;
             var DONUT_SYSTEM = 1;
             var MAX_GALAXY = {{ $settings->numberOfGalaxies() }};
-            var MAX_SYSTEM = 499;
-            var MAX_POSITION = 16;
+            var MAX_SYSTEM = {{ \OGame\GameConstants\UniverseConstants::MAX_SYSTEM_COUNT }};
+            var MAX_POSITION = {{ \OGame\GameConstants\UniverseConstants::EXPEDITION_POSITION }};
             var SPEEDFAKTOR_FLEET_PEACEFUL = {{ $settings->fleetSpeedPeaceful() }};
             var SPEEDFAKTOR_FLEET_WAR = {{ $settings->fleetSpeedWar() }};
             var SPEEDFAKTOR_FLEET_HOLDING = {{ $settings->fleetSpeedHolding() }};
             var PLANETTYPE_PLANET = 1;
             var PLANETTYPE_DEBRIS = 2;
             var PLANETTYPE_MOON = 3;
-            var EXPEDITION_POSITION = 16;
+            var EXPEDITION_POSITION = {{ \OGame\GameConstants\UniverseConstants::EXPEDITION_POSITION }};
             var MAX_NUMBER_OF_PLANETS = {{ $player->getMaxPlanetAmount() }};
             var COLONIZATION_ENABLED = true;
 

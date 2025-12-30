@@ -4,6 +4,7 @@ namespace OGame\GameMissions;
 
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
+use OGame\GameConstants\UniverseConstants;
 use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMessages\ColonyEstablishFailAstrophysics;
 use OGame\GameMissions\Abstracts\GameMission;
@@ -45,8 +46,8 @@ class ColonisationMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        // Only possible for slots 1-15.
-        if ($targetCoordinate->position < 1 || $targetCoordinate->position > 15) {
+        // Only possible for slots 1-15 (planet positions, not expedition position 16).
+        if ($targetCoordinate->position < UniverseConstants::MIN_PLANET_POSITION || $targetCoordinate->position > UniverseConstants::MAX_PLANET_POSITION) {
             return new MissionPossibleStatus(false);
         }
 

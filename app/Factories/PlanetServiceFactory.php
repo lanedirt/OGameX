@@ -9,6 +9,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use OGame\GameConstants\UniverseConstants;
 use OGame\Models\Enums\PlanetType;
 use RuntimeException;
 
@@ -314,15 +315,15 @@ class PlanetServiceFactory
 
                 // Increment system and galaxy accordingly if no position is found
                 $system++;
-                if ($system > 499) {
-                    $system = 1;
+                if ($system > UniverseConstants::MAX_SYSTEM_COUNT) {
+                    $system = UniverseConstants::MIN_SYSTEM;
                     $galaxy++;
                 }
             } else {
                 // Increment system and galaxy if the current one is full
                 $system++;
-                if ($system > 499) {
-                    $system = 1;
+                if ($system > UniverseConstants::MAX_SYSTEM_COUNT) {
+                    $system = UniverseConstants::MIN_SYSTEM;
                     $galaxy++;
                 }
             }
