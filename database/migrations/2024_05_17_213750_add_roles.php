@@ -117,8 +117,14 @@ return new class () extends Migration {
         // Remove Legor account if it was created by this migration (ID 1 with username 'Legor')
         $legor = DB::table('users')->where('id', 1)->where('username', 'Legor')->first();
         if ($legor) {
-            // Delete Legor's planets
+            // Delete Legor's planets (including moon)
             DB::table('planets')->where('user_id', 1)->delete();
+            // Delete debris field at Legor's planet location (1:1:2)
+            DB::table('debris_fields')
+                ->where('galaxy', 1)
+                ->where('system', 1)
+                ->where('planet', 2)
+                ->delete();
             // Delete Legor's user tech
             DB::table('users_tech')->where('user_id', 1)->delete();
             // Delete Legor's role assignments

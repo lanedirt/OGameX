@@ -344,6 +344,11 @@ class FleetMissionService
             $unit_count += $mission->{$ship->machine_name};
         }
 
+        // Add missiles (they're not in ship objects but can be on missions)
+        if (isset($mission->interplanetary_missile)) {
+            $unit_count += $mission->interplanetary_missile;
+        }
+
         return $unit_count;
     }
 
@@ -361,6 +366,16 @@ class FleetMissionService
             $amount = $mission->{$ship->machine_name};
             if ($amount > 0) {
                 $units->addUnit($ship, $mission->{$ship->machine_name});
+            }
+        }
+
+        // Add missiles if present
+        if (isset($mission->interplanetary_missile) && $mission->interplanetary_missile > 0) {
+            try {
+                $missile = ObjectService::getUnitObjectByMachineName('interplanetary_missile');
+                $units->addUnit($missile, $mission->interplanetary_missile);
+            } catch (\Exception $e) {
+                // If missile object not found, skip adding it
             }
         }
 

@@ -34,6 +34,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $colony_ship
  * @property int $recycler
  * @property int $espionage_probe
+ * @property int $interplanetary_missile
+ * @property int|null $target_priority
  * @property int $processed
  * @property int $canceled
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -55,6 +57,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereDestroyer($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereDeuterium($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereEspionageProbe($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereInterplanetaryMissile($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereTargetPriority($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereGalaxyTo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereHeavyFighter($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FleetMission whereId($value)

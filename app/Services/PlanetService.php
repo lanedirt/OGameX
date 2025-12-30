@@ -557,6 +557,7 @@ class PlanetService
 
     /**
      * Removes resources from planet.
+     * When $save_planet is true, uses atomic database operations to prevent race conditions.
      *
      * @param Resources $resources
      * Array with resources to deduct.
@@ -564,24 +565,25 @@ class PlanetService
      */
     public function deductResources(Resources $resources, bool $save_planet = true): void
     {
-        // Sanity check that this planet has enough resources, if not throw
-        // exception.
-        if (!$this->hasResources($resources)) {
-            throw new RuntimeException('Planet does not have enough resources.');
-        }
-
-        if (!empty($resources->metal->get())) {
-            $this->planet->metal -= $resources->metal->get();
-        }
-        if (!empty($resources->crystal->get())) {
-            $this->planet->crystal -= $resources->crystal->get();
-        }
-        if (!empty($resources->deuterium->get())) {
-            $this->planet->deuterium -= $resources->deuterium->get();
-        }
-
         if ($save_planet) {
-            $this->save();
+            if (!$this->deductResourcesAtomic($resources)) {
+                throw new RuntimeException('Planet does not have enough resources.');
+            }
+        } else {
+            // In-memory update only, caller is responsible for atomicity and saving
+            if (!$this->hasResources($resources)) {
+                throw new RuntimeException('Planet does not have enough resources.');
+            }
+
+            if (!empty($resources->metal->get())) {
+                $this->planet->metal -= $resources->metal->get();
+            }
+            if (!empty($resources->crystal->get())) {
+                $this->planet->crystal -= $resources->crystal->get();
+            }
+            if (!empty($resources->deuterium->get())) {
+                $this->planet->deuterium -= $resources->deuterium->get();
+            }
         }
     }
 
@@ -776,17 +778,17 @@ class PlanetService
             $universe_speed = 1;
         }
 
-        // Nanite Factory uses a different formula - it doesn't benefit from itself
-        // Formula: (Metal + Crystal) / (2500 * (1 + Robotics Factory Level) * Universe Speed)
+        // Nanite Factory uses the simplified formula without the level-based factor
+        // Formula: (Metal + Crystal) / (2500 * (1 + Robotics Factory Level) * 2^Nanite Factory Level * Universe Speed)
         if ($machine_name === 'nano_factory') {
             $time_hours =
                 (
                     ($price->metal->get() + $price->crystal->get())
                     /
-                    (2500 * (1 + $robotfactory_level) * $universe_speed)
+                    (2500 * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
                 );
         } else {
-            // The actual formula which return time in seconds
+            // Other buildings use the formula with level-based factor
             $time_hours =
                 (
                     ($price->metal->get() + $price->crystal->get())
@@ -837,17 +839,17 @@ class PlanetService
             $universe_speed = 1;
         }
 
-        // Nanite Factory uses a different formula - it doesn't benefit from itself
-        // Formula: (Metal + Crystal) / (2500 * (1 + Robotics Factory Level) * Universe Speed)
+        // Nanite Factory uses the simplified formula without the level-based factor
+        // Formula: (Metal + Crystal) / (2500 * (1 + Robotics Factory Level) * 2^Nanite Factory Level * Universe Speed)
         if ($machine_name === 'nano_factory') {
             $time_hours =
                 (
                     ($price->metal->get() + $price->crystal->get())
                     /
-                    (2500 * (1 + $robotfactory_level) * $universe_speed)
+                    (2500 * (1 + $robotfactory_level) * $universe_speed * (2 ** $nanitefactory_level))
                 );
         } else {
-            // The actual formula which return time in seconds
+            // Other buildings use the formula with level-based factor
             // Same formula as construction time but for level instead of next_level
             $time_hours =
                 (
@@ -1574,6 +1576,7 @@ class PlanetService
 
     /**
      * Remove a single unit from this planet by machine name.
+     * When $save_planet is true, uses atomic database operations to prevent race conditions.
      *
      * @param string $machine_name
      * @param int $amount
@@ -1583,19 +1586,34 @@ class PlanetService
     public function removeUnit(string $machine_name, int $amount, bool $save_planet = true): void
     {
         $object = ObjectService::getUnitObjectByMachineName($machine_name);
-        if ($this->planet->{$object->machine_name} < $amount) {
-            throw new RuntimeException('Planet does not have enough units.');
-        }
-
-        $this->planet->{$object->machine_name} -= $amount;
 
         if ($save_planet) {
-            $this->save();
+            // Use atomic update to prevent race conditions
+            $affected = Planet::where('id', $this->getPlanetId())
+                ->where($object->machine_name, '>=', $amount)
+                ->update([
+                    $object->machine_name => DB::raw("{$object->machine_name} - {$amount}")
+                ]);
+
+            if ($affected === 0) {
+                throw new RuntimeException('Planet does not have enough units.');
+            }
+
+            // Sync in-memory model
+            $this->planet->{$object->machine_name} -= $amount;
+        } else {
+            // In-memory update only, caller is responsible for atomicity and saving
+            if ($this->planet->{$object->machine_name} < $amount) {
+                throw new RuntimeException('Planet does not have enough units.');
+            }
+
+            $this->planet->{$object->machine_name} -= $amount;
         }
     }
 
     /**
      * Remove units from this planet by unit collection.
+     * When $save_planet is true, uses atomic database operations to prevent race conditions.
      *
      * @param UnitCollection $units
      * @param bool $save_planet
@@ -1603,9 +1621,153 @@ class PlanetService
      */
     public function removeUnits(UnitCollection $units, bool $save_planet): void
     {
-        foreach ($units->units as $unit) {
-            $this->removeUnit($unit->unitObject->machine_name, $unit->amount, $save_planet);
+        if ($save_planet) {
+            // Use atomic removal for all units at once
+            if (!$this->removeUnitsAtomic($units)) {
+                throw new RuntimeException('Planet does not have enough units.');
+            }
+        } else {
+            // In-memory update only, caller is responsible for atomicity and saving
+            foreach ($units->units as $unit) {
+                $this->removeUnit($unit->unitObject->machine_name, $unit->amount, false);
+            }
         }
+    }
+
+    /**
+     * Atomically deduct resources from planet using a single UPDATE query with WHERE conditions.
+     * This prevents race conditions by ensuring the deduction only succeeds if sufficient resources exist.
+     *
+     * @param Resources $resources The resources to deduct.
+     * @return bool True if deduction succeeded, false if insufficient resources.
+     */
+    public function deductResourcesAtomic(Resources $resources): bool
+    {
+        $metalCost = (int)$resources->metal->get();
+        $crystalCost = (int)$resources->crystal->get();
+        $deuteriumCost = (int)$resources->deuterium->get();
+
+        // Build the update query with WHERE conditions to ensure atomicity
+        $query = Planet::where('id', $this->getPlanetId());
+
+        // Add WHERE conditions for each resource that needs to be deducted
+        if ($metalCost > 0) {
+            $query->where('metal', '>=', $metalCost);
+        }
+        if ($crystalCost > 0) {
+            $query->where('crystal', '>=', $crystalCost);
+        }
+        if ($deuteriumCost > 0) {
+            $query->where('deuterium', '>=', $deuteriumCost);
+        }
+
+        // Build the update array
+        $updates = [];
+        if ($metalCost > 0) {
+            $updates['metal'] = DB::raw("metal - {$metalCost}");
+        }
+        if ($crystalCost > 0) {
+            $updates['crystal'] = DB::raw("crystal - {$crystalCost}");
+        }
+        if ($deuteriumCost > 0) {
+            $updates['deuterium'] = DB::raw("deuterium - {$deuteriumCost}");
+        }
+
+        // If no resources to deduct, return success
+        if (empty($updates)) {
+            return true;
+        }
+
+        // Execute atomic update - returns number of affected rows
+        $affected = $query->update($updates);
+
+        if ($affected > 0) {
+            // Sync in-memory model with the deducted values
+            if ($metalCost > 0) {
+                $this->planet->metal -= $metalCost;
+            }
+            if ($crystalCost > 0) {
+                $this->planet->crystal -= $crystalCost;
+            }
+            if ($deuteriumCost > 0) {
+                $this->planet->deuterium -= $deuteriumCost;
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Atomically remove units from planet using a single UPDATE query with WHERE conditions.
+     * This prevents race conditions by ensuring the removal only succeeds if sufficient units exist.
+     *
+     * @param UnitCollection $units The units to remove.
+     * @return bool True if removal succeeded, false if insufficient units.
+     */
+    public function removeUnitsAtomic(UnitCollection $units): bool
+    {
+        if (empty($units->units)) {
+            return true;
+        }
+
+        // Build the update query with WHERE conditions for all units
+        $query = Planet::where('id', $this->getPlanetId());
+        $updates = [];
+
+        foreach ($units->units as $unit) {
+            $machineName = $unit->unitObject->machine_name;
+            $amount = $unit->amount;
+
+            if ($amount > 0) {
+                $query->where($machineName, '>=', $amount);
+                $updates[$machineName] = DB::raw("{$machineName} - {$amount}");
+            }
+        }
+
+        if (empty($updates)) {
+            return true;
+        }
+
+        // Execute atomic update
+        $affected = $query->update($updates);
+
+        if ($affected > 0) {
+            // Sync in-memory model
+            foreach ($units->units as $unit) {
+                $machineName = $unit->unitObject->machine_name;
+                $this->planet->{$machineName} -= $unit->amount;
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Atomically deduct both resources and units in a single transaction.
+     * This is the primary method for fleet dispatch to prevent race conditions.
+     *
+     * @param Resources $resources The resources to deduct.
+     * @param UnitCollection $units The units to remove.
+     * @return bool True if both deductions succeeded, false otherwise (transaction rolled back).
+     */
+    public function deductResourcesAndUnitsAtomic(Resources $resources, UnitCollection $units): bool
+    {
+        return DB::transaction(function () use ($resources, $units) {
+            // First deduct resources atomically
+            if (!$this->deductResourcesAtomic($resources)) {
+                return false;
+            }
+
+            // Then deduct units atomically
+            if (!$this->removeUnitsAtomic($units)) {
+                // This will trigger a rollback of the transaction including resources
+                throw new RuntimeException('Insufficient units - rolling back transaction');
+            }
+
+            return true;
+        });
     }
 
     /**

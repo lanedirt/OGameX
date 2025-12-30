@@ -181,6 +181,16 @@ class BuildingQueueService
             throw new Exception('Cannot downgrade Research Lab while research is in progress.');
         }
 
+        // Check if Missile Silo is being downgraded while it contains missiles
+        if ($building->machine_name === 'missile_silo') {
+            $ipm_count = $planet->getObjectAmount('interplanetary_missile');
+            $abm_count = $planet->getObjectAmount('anti_ballistic_missile');
+
+            if ($ipm_count > 0 || $abm_count > 0) {
+                throw new Exception('Cannot downgrade Missile Silo while it contains missiles. Destroy all missiles first.');
+            }
+        }
+
         // Check if Shipyard is being downgraded while ships/defense are being built
         if ($building->machine_name === 'shipyard' && $planet->getPlayer()->isBuildingShipsOrDefense()) {
             throw new Exception('Cannot downgrade Shipyard while ships or defense are being built.');
@@ -384,16 +394,14 @@ class BuildingQueueService
                 }
             }
 
-            // Sanity check: check if the planet has enough resources. If not,
-            // then cancel build request.
-            if (!$planet->hasResources($price)) {
-                // Error, cancel build queue item.
+            // Deduct resources
+            try {
+                $planet->deductResources($price);
+            } catch (\RuntimeException $e) {
+                // Insufficient resources so we cancel the build request.
                 $this->cancel($planet, $queue_item->id, $queue_item->object_id);
                 continue;
             }
-
-            // All OK, deduct resources and start building/downgrade process.
-            $planet->deductResources($price);
 
             if (!$time_start) {
                 $time_start = (int)Carbon::now()->timestamp;

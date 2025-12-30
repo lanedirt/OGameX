@@ -284,15 +284,6 @@ class ResearchQueueService
                 continue;
             }
 
-            // Sanity check: check if the planet has enough resources. If not,
-            // then cancel research request.
-            if (!$planet->hasResources($price)) {
-                // Error, cancel research queue item.
-                $this->cancel($player, $queue_item->id, $queue_item->object_id);
-
-                continue;
-            }
-
             // Sanity check: check if the researching requirements are still met. If not,
             // then cancel research request.
             if (!ObjectService::objectRequirementsWithLevelsMet($object->machine_name, $queue_item->object_level_target, $planet)) {
@@ -301,8 +292,14 @@ class ResearchQueueService
                 continue;
             }
 
-            // All OK, deduct resources and start researching process.
-            $planet->deductResources($price);
+            // Deduct resources
+            try {
+                $planet->deductResources($price);
+            } catch (\RuntimeException $e) {
+                // Insufficient resources so we cancel the research request.
+                $this->cancel($player, $queue_item->id, $queue_item->object_id);
+                continue;
+            }
 
             if (!$time_start) {
                 $time_start = (int)Carbon::now()->timestamp;

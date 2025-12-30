@@ -183,14 +183,16 @@ abstract class GameMission
 
     /**
      * Deduct mission resources from the planet (when starting mission).
+     * Uses atomic database operations to prevent race conditions from concurrent fleet dispatches.
+     * Both resources and units are deducted in a single transaction - if either fails, both are rolled back.
+     *
+     * @throws Exception If insufficient resources or units (atomic check failed).
      */
     public function deductMissionResources(PlanetService $planet, Resources $resources, UnitCollection $units): void
     {
-        $planet->deductResources($resources, false);
-        $planet->removeUnits($units, false);
-
-        // Save the planet to commit removed resources/units.
-        $planet->save();
+        if (!$planet->deductResourcesAndUnitsAtomic($resources, $units)) {
+            throw new Exception(__('Not enough resources or units on the planet to send the fleet.'));
+        }
     }
 
     /**

@@ -216,8 +216,13 @@ class UnitQueueService
         $queue->crystal = $total_price->crystal->get();
         $queue->deuterium = $total_price->deuterium->get();
 
-        // All OK, deduct resources.
-        $planet->deductResources($total_price);
+        // Deduct resources
+        try {
+            $planet->deductResources($total_price);
+        } catch (\RuntimeException $e) {
+            // Insufficient resources (atomic check failed) so we don't create the queue item.
+            return;
+        }
 
         // Save the new queue item which will automatically start it.
         $queue->save();

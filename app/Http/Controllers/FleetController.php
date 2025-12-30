@@ -182,7 +182,8 @@ class FleetController extends OGameController
             // Determine friendly status based on mission type for styling
             $mission = GameMissionFactory::getMissionById($row->mission_type, []);
             $eventRowViewModel->friendly_status = $mission::getFriendlyStatus()->value;
-            $eventRowViewModel->is_recallable = true;
+            // Missile attacks (mission type 10) cannot be recalled
+            $eventRowViewModel->is_recallable = ($row->mission_type !== 10);
 
             // Add return trip info to the same row (not as separate row) if the mission has a return mission
             if ($fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
@@ -402,6 +403,31 @@ class FleetController extends OGameController
         // Holding hours is the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
         $holding_hours = (int)request()->input('holdingtime');
 
+        // Extract mission type from the request
+        $mission_type = (int)request()->input('mission');
+
+        // Validate holdingtime for expedition missions (mission type 15)
+        if ($mission_type === 15) {
+            // Holding time cannot exceed level of Astrophysics research
+            $astrophysics_level = $player->getResearchLevel(machine_name: 'astrophysics');
+            if ($holding_hours < 1 || $holding_hours > $astrophysics_level) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => [
+                        [
+                            'message' => __('Expedition duration must be between :min_hours and :max_hours hours.', [
+                                'min_hours' => 1,
+                                'max_hours' => $astrophysics_level,
+                            ]),
+                            'error' => 140019
+                        ]
+                    ],
+                    'components' => [],
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+        }
+
         // Extract units from the request and create a unit collection.
         // Loop through all input fields and get all units prefixed with "am".
         $units = $this->getUnitsFromRequest($planet);
@@ -411,9 +437,6 @@ class FleetController extends OGameController
         $crystal = (int)request()->input('crystal');
         $deuterium = (int)request()->input('deuterium');
         $resources = new Resources($metal, $crystal, $deuterium, 0);
-
-        // Extract mission type from the request
-        $mission_type = (int)request()->input('mission');
 
         // Create a new fleet mission
         $planetType = PlanetType::from($target_type);
