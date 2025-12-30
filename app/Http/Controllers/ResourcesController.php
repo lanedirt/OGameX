@@ -118,18 +118,24 @@ class ResourcesController extends AbstractBuildingsController
             $productionindex = $this->planet->getObjectProductionIndex($building, $level);
             $productionindex_total->add($productionindex);
 
-            $production_rounded = $this->planet->getObjectProduction($building->machine_name, $level);
-
             $percentage = $this->planet->getBuildingPercent($building->machine_name);
 
-            if ($production_rounded->energy->get() < 0) {
+            // Use base mine production + planet slot bonus
+            $base_production = new Resources(
+                ceil($productionindex->mine->metal->get() + $productionindex->planet_slot->metal->get()),
+                ceil($productionindex->mine->crystal->get() + $productionindex->planet_slot->crystal->get()),
+                ceil($productionindex->mine->deuterium->get() + $productionindex->planet_slot->deuterium->get()),
+                floor($productionindex->mine->energy->get())
+            );
+
+            if ($base_production->energy->get() < 0) {
                 // Building consumes energy (resource building)
                 $building_resource_rows[] = [
                     'id' => $building->id,
                     'title' => $building->title,
                     'level' => $level,
-                    'production' => $production_rounded,
-                    'actual_energy_use' => floor($production_rounded->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
+                    'production' => $base_production,
+                    'actual_energy_use' => floor($base_production->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
                     'percentage' => $percentage,
                 ];
             } else {
@@ -139,7 +145,7 @@ class ResourcesController extends AbstractBuildingsController
                     'type' => $building->type,
                     'title' => $building->title,
                     'level' => $level,
-                    'production' => $production_rounded,
+                    'production' => $base_production,
                     'percentage' => $percentage,
                 ];
             }
