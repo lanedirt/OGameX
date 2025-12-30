@@ -749,12 +749,9 @@ class ExpeditionMission extends GameMission
         // SWAP attacker and defender: In expeditions, NPCs attack the player's fleet
         $report->attacker = [
             'player_id' => $npcPlayer->getId(),
-            'player_name' => $npcPlayer->getUsername(),
             'planet_id' => null, // NPCs don't have planets
-            'planet_name' => 'Deep space',
             'planet_coords' => $originPlanet->getPlanetCoordinates()->galaxy . ':' .
                                $originPlanet->getPlanetCoordinates()->system . ':16',
-            'planet_type' => '', // Empty to avoid duplication in display
             'resource_loss' => $battleResult->defenderResourceLoss->sum(),
             'units' => $battleResult->defenderUnitsStart->toArray(),
             'weapon_technology' => $battleResult->defenderWeaponLevel,

@@ -973,9 +973,8 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->assertTrue($report->general['expedition_battle'] ?? false, 'Report should be marked as expedition battle');
         $this->assertEquals('pirate', $report->general['npc_type'] ?? '', 'NPC type should be pirate');
 
-        // Verify NPC appears as attacker with correct name
+        // Verify NPC appears as attacker with correct ID
         $this->assertEquals(-1, $report->attacker['player_id'], 'Pirate player ID should be -1');
-        $this->assertEquals('Pirates', $report->attacker['player_name'], 'Pirate name should be Pirates');
 
         // Verify player appears as defender
         $this->assertEquals($this->planetService->getPlayer()->getId(), $report->defender['player_id']);
@@ -1034,9 +1033,8 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->assertTrue($report->general['expedition_battle'] ?? false, 'Report should be marked as expedition battle');
         $this->assertEquals('alien', $report->general['npc_type'] ?? '', 'NPC type should be alien');
 
-        // Verify NPC appears as attacker with correct name
+        // Verify NPC appears as attacker with correct ID
         $this->assertEquals(-2, $report->attacker['player_id'], 'Alien player ID should be -2');
-        $this->assertEquals('Aliens', $report->attacker['player_name'], 'Alien name should be Aliens');
 
         // Verify player appears as defender
         $this->assertEquals($this->planetService->getPlayer()->getId(), $report->defender['player_id']);

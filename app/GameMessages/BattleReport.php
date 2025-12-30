@@ -180,11 +180,11 @@ class BattleReport extends GameMessage
         }
 
         // Load attacker's origin planet info
-        // First check if stored in battle report (for NPCs/expeditions)
-        if (isset($this->battleReportModel->attacker['planet_name'])) {
-            $attacker_planet_name = $this->battleReportModel->attacker['planet_name'];
+        // For NPCs (planet_id is null), translate "Deep space" dynamically
+        if ($attackerPlayerId < 0 && $attackerPlanetId === null) {
+            $attacker_planet_name = __('Deep space');
             $attacker_planet_coords = $this->battleReportModel->attacker['planet_coords'] ?? '';
-            $attacker_planet_type = $this->battleReportModel->attacker['planet_type'] ?? '';
+            $attacker_planet_type = '';
         } elseif ($attackerPlanetId !== null) {
             // Try to load from database for real players
             try {
