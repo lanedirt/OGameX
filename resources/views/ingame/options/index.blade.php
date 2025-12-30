@@ -202,7 +202,7 @@
                                             <div class="fieldwrapper">
                                                 <label class="styled textBeefy">Number of espionage probes:</label>
                                                 <div class="thefield">
-                                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ old('espionage_probes_amount', $espionage_probes_amount ?? '') }}" size="2" maxlength="2" name="espionage_probes_amount">
+                                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ old('espionage_probes_amount', $espionage_probes_amount ?? '') }}" size="4" maxlength="4" name="espionage_probes_amount">
                                                 </div>
                                             </div>
                                         </div>
