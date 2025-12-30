@@ -289,10 +289,12 @@ class PlanetServiceFactory
      */
     public function determineNewPlanetPosition(): Coordinate
     {
+        $maxGalaxies = $this->settings->numberOfGalaxies();
         $lastAssignedGalaxy = (int)$this->settings->get('last_assigned_galaxy', 1);
         $lastAssignedSystem = (int)$this->settings->get('last_assigned_system', 1);
 
-        $galaxy = $lastAssignedGalaxy;
+        // Ensure starting galaxy is within valid bounds (wrap if needed)
+        $galaxy = $lastAssignedGalaxy > $maxGalaxies ? UniverseConstants::MIN_GALAXY : $lastAssignedGalaxy;
         $system = $lastAssignedSystem;
 
         $tryCount = 0;
@@ -318,6 +320,10 @@ class PlanetServiceFactory
                 if ($system > UniverseConstants::MAX_SYSTEM_COUNT) {
                     $system = UniverseConstants::MIN_SYSTEM;
                     $galaxy++;
+                    // Wrap around to galaxy 1 if we exceed the max galaxy count
+                    if ($galaxy > $maxGalaxies) {
+                        $galaxy = UniverseConstants::MIN_GALAXY;
+                    }
                 }
             } else {
                 // Increment system and galaxy if the current one is full
@@ -325,6 +331,10 @@ class PlanetServiceFactory
                 if ($system > UniverseConstants::MAX_SYSTEM_COUNT) {
                     $system = UniverseConstants::MIN_SYSTEM;
                     $galaxy++;
+                    // Wrap around to galaxy 1 if we exceed the max galaxy count
+                    if ($galaxy > $maxGalaxies) {
+                        $galaxy = UniverseConstants::MIN_GALAXY;
+                    }
                 }
             }
         }

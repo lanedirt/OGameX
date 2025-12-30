@@ -540,21 +540,9 @@ class FleetController extends OGameController
             ]);
         }
 
-        // Validate ship count is positive
+        // Validate ship count is positive, if not, default to 1.
         if ($shipCount < 1) {
-            return response()->json([
-                'response' => [
-                    'message' => __('Invalid ship count'),
-                    'coordinates' => [
-                        'galaxy' => $galaxy,
-                        'system' => $system,
-                        'position' => $position,
-                    ],
-                    'success' => false,
-                ],
-                'newAjaxToken' => csrf_token(),
-                'components' => [],
-            ]);
+            $shipCount = 1;
         }
 
         // Get the current player's planet.
