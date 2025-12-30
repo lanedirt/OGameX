@@ -10,6 +10,8 @@ use OGame\GameMessages\ExpeditionGainShips;
 use OGame\GameMessages\ExpeditionGainDarkMatter;
 use OGame\GameMessages\ExpeditionGainItem;
 use OGame\GameMessages\ExpeditionLossOfFleet;
+use OGame\GameMessages\ExpeditionBattlePirates;
+use OGame\GameMessages\ExpeditionBattleAliens;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameMissions\Models\MissionPossibleStatus;
@@ -155,6 +157,12 @@ class ExpeditionMission extends GameMission
                 break;
             case ExpeditionOutcomeType::LossOfFleet:
                 $units = $this->processExpeditionLossOfFleetOutcome($mission);
+                break;
+            case ExpeditionOutcomeType::BattlePirates:
+                [$units, $returnResources] = $this->processExpeditionBattleOutcome($mission, 'pirate');
+                break;
+            case ExpeditionOutcomeType::BattleAliens:
+                [$units, $returnResources] = $this->processExpeditionBattleOutcome($mission, 'alien');
                 break;
         }
 
@@ -615,6 +623,192 @@ class ExpeditionMission extends GameMission
     }
 
     /**
+     * Process expedition battle outcome (pirates or aliens).
+     *
+     * @param FleetMission $mission
+     * @param string $npcType 'pirate' or 'alien'
+     * @return array{UnitCollection, Resources} [surviving units, loot resources]
+     * @throws \Exception
+     */
+    private function processExpeditionBattleOutcome(FleetMission $mission, string $npcType): array
+    {
+        // Load the mission owner
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+
+        // Get player's expedition fleet
+        $playerFleet = $this->fleetMissionService->getFleetUnits($mission);
+
+        // Generate NPC fleet
+        $npcFleetGenerator = app(\OGame\Services\NPCFleetGeneratorService::class);
+        $npcData = $npcFleetGenerator->generateEnemyFleet($playerFleet, $player, $npcType);
+        $npcFleet = $npcData['fleet'];
+        $npcPlayer = $npcData['player'];
+
+        // Get origin planet for battle context
+        $originPlanet = $this->planetServiceFactory->make($mission->planet_id_from, true);
+
+        // Create NPC planet service for the battle
+        $npcPlanetService = new \OGame\Services\NPCPlanetService(
+            $this->playerServiceFactory,
+            $this->settings,
+            $npcPlayer,
+            $npcFleet,
+            $originPlanet->getPlanetId()
+        );
+
+        // Run the battle with player as attacker and NPC as defender
+        $battleEngine = new \OGame\GameMissions\BattleEngine\RustBattleEngine(
+            $playerFleet,
+            $player,
+            $npcPlanetService,
+            $this->settings
+        );
+
+        $battleResult = $battleEngine->simulateBattle();
+
+        // Create battle report for expedition battle
+        // Note: Battle report uses origin planet coordinates, not deep space position 16
+        $reportId = $this->createExpeditionBattleReport($player, $npcPlayer, $originPlanet, $battleResult);
+
+        // TODO: Debris field creation for expedition battles
+        // Currently, expedition battles do NOT create debris fields at position 16.
+        // This will change when player classes are introduced - the Discoverer class
+        // will be able to collect debris from expedition battles at position 16.
+        // When implementing player classes, add debris field creation here:
+        //
+        // Important notes:
+        // 1. Debris field should be created at position 16 (deep space), NOT at the origin planet.
+        //    The battle report uses the origin planet coordinates, but debris is at position 16.
+        // 2. Expedition battles only create 10% debris (not the standard 30%).
+        //    Recalculate debris from battle losses: (attacker + defender losses) × 10% × debris field percentage.
+        // 3. Only Pathfinders (with Discoverer class) can collect expedition debris, not Recyclers.
+        //
+        // $expeditionCoords = new \OGame\Models\Planet\Coordinate($mission->galaxy_to, $mission->system_to, 16);
+        // $debrisFieldService = resolve(DebrisFieldService::class);
+        // $debrisFieldService->loadOrCreateForCoordinates($expeditionCoords);
+        // // Calculate 10% debris instead of using $battleResult->debris (which uses 30%)
+        // $totalLosses = $battleResult->attackerResourceLoss->add($battleResult->defenderResourceLoss);
+        // $expeditionDebris = $totalLosses->multiply(0.10); // 10% for expeditions
+        // $debrisFieldService->appendResources($expeditionDebris);
+        // $debrisFieldService->save();
+
+        // Process battle result
+        $survivingUnits = $battleResult->attackerUnitsResult;
+
+        // No loot from NPC battles - purely combat event
+        $loot = new Resources(0, 0, 0, 0);
+
+        // Send battle report message to player
+        $this->messageService->sendBattleReportMessageToPlayer($player, $reportId);
+
+        // Send expedition battle outcome message
+        if ($npcType === 'pirate') {
+            $message_variation_id = ExpeditionBattlePirates::getRandomMessageVariationId();
+            $this->messageService->sendSystemMessageToPlayer($player, ExpeditionBattlePirates::class, ['message_variation_id' => $message_variation_id]);
+        } else {
+            $message_variation_id = ExpeditionBattleAliens::getRandomMessageVariationId();
+            $this->messageService->sendSystemMessageToPlayer($player, ExpeditionBattleAliens::class, ['message_variation_id' => $message_variation_id]);
+        }
+
+        // CRITICAL: Return surviving units (not added to original)
+        return [$survivingUnits, $loot];
+    }
+
+    /**
+     * Create a battle report for an expedition battle against pirates or aliens.
+     *
+     * @param \OGame\Services\PlayerService $player The player who sent the expedition
+     * @param \OGame\Services\NPCPlayerService $npcPlayer The NPC opponent
+     * @param \OGame\Services\PlanetService $originPlanet The origin planet where expedition launched from
+     * @param \OGame\GameMissions\BattleEngine\Models\BattleResult $battleResult The battle result
+     * @return int The battle report ID
+     */
+    private function createExpeditionBattleReport(
+        \OGame\Services\PlayerService $player,
+        \OGame\Services\NPCPlayerService $npcPlayer,
+        \OGame\Services\PlanetService $originPlanet,
+        \OGame\GameMissions\BattleEngine\Models\BattleResult $battleResult
+    ): int {
+        // Create new battle report record
+        // Note: Expedition battles are reported at the origin planet, not deep space position 16
+        $report = new \OGame\Models\BattleReport();
+        $report->planet_galaxy = $originPlanet->getPlanetCoordinates()->galaxy;
+        $report->planet_system = $originPlanet->getPlanetCoordinates()->system;
+        $report->planet_position = $originPlanet->getPlanetCoordinates()->position;
+        $report->planet_type = $originPlanet->getPlanetType()->value;
+        $report->planet_user_id = $player->getId();
+
+        $report->general = [
+            'moon_existed' => false,
+            'moon_chance' => 0,
+            'moon_created' => false,
+            'expedition_battle' => true,
+            'npc_type' => $npcPlayer->getNpcType(),
+        ];
+
+        // SWAP attacker and defender: In expeditions, NPCs attack the player's fleet
+        $report->attacker = [
+            'player_id' => $npcPlayer->getId(),
+            'planet_id' => null, // NPCs don't have planets
+            'planet_coords' => $originPlanet->getPlanetCoordinates()->galaxy . ':' .
+                               $originPlanet->getPlanetCoordinates()->system . ':16',
+            'resource_loss' => $battleResult->defenderResourceLoss->sum(),
+            'units' => $battleResult->defenderUnitsStart->toArray(),
+            'weapon_technology' => $battleResult->defenderWeaponLevel,
+            'shielding_technology' => $battleResult->defenderShieldLevel,
+            'armor_technology' => $battleResult->defenderArmorLevel,
+        ];
+
+        $report->defender = [
+            'player_id' => $player->getId(),
+            'resource_loss' => $battleResult->attackerResourceLoss->sum(),
+            'units' => $battleResult->attackerUnitsStart->toArray(),
+            'weapon_technology' => $battleResult->attackerWeaponLevel,
+            'shielding_technology' => $battleResult->attackerShieldLevel,
+            'armor_technology' => $battleResult->attackerArmorLevel,
+        ];
+
+        $report->loot = [
+            'percentage' => 0,
+            'metal' => 0,
+            'crystal' => 0,
+            'deuterium' => 0,
+        ];
+
+        $report->debris = [
+            'metal' => $battleResult->debris->metal->get(),
+            'crystal' => $battleResult->debris->crystal->get(),
+            'deuterium' => $battleResult->debris->deuterium->get(),
+        ];
+
+        $report->repaired_defenses = [];
+
+        // SWAP round data: NPC is attacker, player is defender
+        $rounds = [];
+        foreach ($battleResult->rounds as $round) {
+            $rounds[] = [
+                'attacker_ships' => $round->defenderShips->toArray(),
+                'defender_ships' => $round->attackerShips->toArray(),
+                'attacker_losses' => $round->defenderLosses->toArray(),
+                'defender_losses' => $round->attackerLosses->toArray(),
+                'attacker_losses_in_this_round' => $round->defenderLossesInRound->toArray(),
+                'defender_losses_in_this_round' => $round->attackerLossesInRound->toArray(),
+                'absorbed_damage_attacker' => $round->absorbedDamageDefender,
+                'absorbed_damage_defender' => $round->absorbedDamageAttacker,
+                'full_strength_attacker' => $round->fullStrengthDefender,
+                'full_strength_defender' => $round->fullStrengthAttacker,
+                'hits_attacker' => $round->hitsDefender,
+                'hits_defender' => $round->hitsAttacker,
+            ];
+        }
+
+        $report->rounds = $rounds;
+        $report->save();
+
+        return $report->id;
+    }
+
+    /**
      * Select a random expedition outcome based on configured weights. Higher weight
      * for a particular outcome means more chance of that outcome being selected
      * relative to the other outcomes.
@@ -632,6 +826,8 @@ class ExpeditionMission extends GameMission
             'speedup' => ExpeditionOutcomeType::FailedAndSpeedup,
             'nothing' => ExpeditionOutcomeType::Failed,
             'black_hole' => ExpeditionOutcomeType::LossOfFleet,
+            'pirates' => ExpeditionOutcomeType::BattlePirates,
+            'aliens' => ExpeditionOutcomeType::BattleAliens,
             'merchant' => ExpeditionOutcomeType::GainMerchantTrade,
         ];
 
