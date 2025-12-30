@@ -159,11 +159,18 @@ class BattleReport extends GameMessage
         $attackerPlayerId = $this->battleReportModel->attacker['player_id'];
         $attackerPlanetId = $this->battleReportModel->attacker['planet_id'] ?? null;
 
-        // Check if attacker is an NPC (negative player ID) or if player_name is stored
-        if ($attackerPlayerId < 0 || isset($this->battleReportModel->attacker['player_name'])) {
-            // NPC or stored name - use the stored player_name
+        // NPC attacker - translate name based on player ID
+        if ($attackerPlayerId < 0) {
             $attacker = null;
-            $attacker_name = $this->battleReportModel->attacker['player_name'] ?? __('Unknown');
+            $attacker_name = match($attackerPlayerId) {
+                -1 => __('Pirates'),
+                -2 => __('Aliens'),
+                default => __('Unknown'),
+            };
+        } elseif (isset($this->battleReportModel->attacker['player_name'])) {
+            // Stored player name (backwards compatibility)
+            $attacker = null;
+            $attacker_name = $this->battleReportModel->attacker['player_name'];
         } else {
             // Real player - try to load from database
             try {
