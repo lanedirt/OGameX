@@ -167,10 +167,6 @@ class BattleReport extends GameMessage
                 -2 => __('Aliens'),
                 default => __('Unknown'),
             };
-        } elseif (isset($this->battleReportModel->attacker['player_name'])) {
-            // Stored player name (backwards compatibility)
-            $attacker = null;
-            $attacker_name = $this->battleReportModel->attacker['player_name'];
         } else {
             // Real player - try to load from database
             try {
