@@ -85,4 +85,48 @@ class MissileSiloCapacityTest extends UnitTestCase
         $this->assertEquals(0, $maxIPM);
         $this->assertEquals(0, $maxABM);
     }
+
+    public function testCannotDowngradeSiloWithMissiles(): void
+    {
+        // Test with IPM missiles
+        $this->createAndSetPlanetModel([
+            'missile_silo' => 2,
+            'interplanetary_missile' => 5,
+        ]);
+
+        $canDowngrade = ObjectService::canDowngradeBuilding('missile_silo', $this->planetService);
+        $this->assertFalse($canDowngrade, 'Should not be able to downgrade missile silo with IPM missiles');
+
+        // Test with ABM missiles
+        $this->createAndSetPlanetModel([
+            'missile_silo' => 2,
+            'anti_ballistic_missile' => 5,
+        ]);
+
+        $canDowngrade = ObjectService::canDowngradeBuilding('missile_silo', $this->planetService);
+        $this->assertFalse($canDowngrade, 'Should not be able to downgrade missile silo with ABM missiles');
+
+        // Test with both missile types
+        $this->createAndSetPlanetModel([
+            'missile_silo' => 2,
+            'interplanetary_missile' => 3,
+            'anti_ballistic_missile' => 4,
+        ]);
+
+        $canDowngrade = ObjectService::canDowngradeBuilding('missile_silo', $this->planetService);
+        $this->assertFalse($canDowngrade, 'Should not be able to downgrade missile silo with both missile types');
+    }
+
+    public function testCanDowngradeEmptySilo(): void
+    {
+        // Empty silo should be downgradable
+        $this->createAndSetPlanetModel([
+            'missile_silo' => 2,
+            'interplanetary_missile' => 0,
+            'anti_ballistic_missile' => 0,
+        ]);
+
+        $canDowngrade = ObjectService::canDowngradeBuilding('missile_silo', $this->planetService);
+        $this->assertTrue($canDowngrade, 'Should be able to downgrade empty missile silo');
+    }
 }

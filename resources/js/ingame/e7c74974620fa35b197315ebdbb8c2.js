@@ -35532,7 +35532,8 @@ function outlawWarning(order, galaxy, system, planet, planettype, shipCount, cal
 
   function openMissleLaunchBox() {
     openOverlay(missleAttackLink + '&galaxy=' + galaxy + '&system=' + system + '&position=' + planet + '&planetType=' + planettype, {
-      modal: true
+      modal: true,
+      title: loca.LOCA_FLEET_MISSILEATTACK || 'Missile Attack'
     });
   }
 }
@@ -48746,7 +48747,7 @@ function getPlanetOrMoonTooltipLinks(planet, galaxyContentObject, systemData) {
                             ${loca.LOCA_FLEET_MISSILEATTACK}
                         </a></li>`;
       } else {
-        linkHTML += `<li><a class="overlay" href="${galaxyContentObject.actions.missileAttackLink}&planetType=${planet.planetType}" data-overlay-modal='true'>${loca.LOCA_FLEET_MISSILEATTACK}</a></li>`;
+        linkHTML += `<li><a class="overlay" href="${galaxyContentObject.actions.missileAttackLink}&planetType=${planet.planetType}" data-overlay-modal='true' data-overlay-title="${loca.LOCA_FLEET_MISSILEATTACK}">${loca.LOCA_FLEET_MISSILEATTACK}</a></li>`;
       }
     }
 
@@ -49195,6 +49196,7 @@ function getActions(galaxyContentObject, systemData) {
                title="${loca.LOCA_FLEET_MISSILEATTACK}"
                href="${galaxyContentObject.actions.missileAttackLink}&planetType=${mainPlanet.planetType}"
                data-overlay-modal='true'
+               data-overlay-title="${loca.LOCA_FLEET_MISSILEATTACK}"
             >
                 <span class="icon icon_missile"></span>
             </a>`;

@@ -430,6 +430,33 @@ class PlayerService
     }
 
     /**
+     * Calculate the maximum range for interplanetary missiles based on Impulse Drive research level.
+     *
+     * Formula: (impulse_drive_level × 5) - 1
+     *
+     * Examples:
+     *   - Level 0: 0 systems (no Impulse Drive = no missiles)
+     *   - Level 1: 4 systems
+     *   - Level 2: 9 systems
+     *   - Level 5: 24 systems
+     *   - Level 10: 49 systems
+     *
+     * @return int Maximum range in systems within same galaxy
+     */
+    public function getMissileRange(): int
+    {
+        $impulseDriveLevel = $this->getResearchLevel('impulse_drive');
+
+        // If no Impulse Drive research, missiles cannot be launched
+        if ($impulseDriveLevel === 0) {
+            return 0;
+        }
+
+        // Calculate range: (level × 5) - 1
+        return ($impulseDriveLevel * 5) - 1;
+    }
+
+    /**
      * Get planet ID that player has currently selected / is looking at.
      *
      * @return int
@@ -475,7 +502,12 @@ class PlayerService
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this]);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
 
-        return $activeMissions->count();
+        // Exclude missile attacks (type 10) as they don't use fleet slots
+        $fleetMissions = $activeMissions->filter(function ($mission) {
+            return $mission->mission_type !== 10;
+        });
+
+        return $fleetMissions->count();
     }
 
     /**

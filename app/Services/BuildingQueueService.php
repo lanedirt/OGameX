@@ -181,6 +181,16 @@ class BuildingQueueService
             throw new Exception('Cannot downgrade Research Lab while research is in progress.');
         }
 
+        // Check if Missile Silo is being downgraded while it contains missiles
+        if ($building->machine_name === 'missile_silo') {
+            $ipm_count = $planet->getObjectAmount('interplanetary_missile');
+            $abm_count = $planet->getObjectAmount('anti_ballistic_missile');
+
+            if ($ipm_count > 0 || $abm_count > 0) {
+                throw new Exception('Cannot downgrade Missile Silo while it contains missiles. Destroy all missiles first.');
+            }
+        }
+
         // Check if Shipyard is being downgraded while ships/defense are being built
         if ($building->machine_name === 'shipyard' && $planet->getPlayer()->isBuildingShipsOrDefense()) {
             throw new Exception('Cannot downgrade Shipyard while ships or defense are being built.');

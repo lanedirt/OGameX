@@ -73,6 +73,8 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::post('/ajax/facilities/complete-repairs', [FacilitiesController::class, 'completeRepairs'])->name('facilities.completerepairs');
     Route::post('/ajax/facilities/burn-wreck-field', [FacilitiesController::class, 'burnWreckField'])->name('facilities.burnwreckfield');
     Route::get('/ajax/facilities/wreck-field-status', [FacilitiesController::class, 'getWreckFieldStatus'])->name('facilities.wreckfieldstatus');
+    Route::get('/ajax/facilities/destroy-rockets', [FacilitiesController::class, 'destroyRocketsOverlay'])->name('facilities.destroy-rockets-overlay');
+    Route::post('/ajax/facilities/destroy-rockets', [FacilitiesController::class, 'destroyRockets'])->name('facilities.destroy-rockets');
 
     // Research
     Route::get('/research', [ResearchController::class, 'index'])->name('research.index');
@@ -111,6 +113,8 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     // Galaxy
     Route::get('/galaxy', [GalaxyController::class, 'index'])->name('galaxy.index');
     Route::post('/ajax/galaxy', [GalaxyController::class, 'ajax'])->name('galaxy.ajax');
+    Route::get('/overlay/galaxy/missile-attack', [GalaxyController::class, 'missileAttackOverlay'])->name('galaxy.missile-attack.overlay');
+    Route::post('/ajax/galaxy/missile-attack', [GalaxyController::class, 'missileAttack'])->name('galaxy.missile-attack');
 
     // Phalanx
     Route::post('/ajax/phalanx/scan', [PhalanxController::class, 'scan'])->name('phalanx.scan');

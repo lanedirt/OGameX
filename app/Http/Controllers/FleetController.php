@@ -182,7 +182,8 @@ class FleetController extends OGameController
             // Determine friendly status based on mission type for styling
             $mission = GameMissionFactory::getMissionById($row->mission_type, []);
             $eventRowViewModel->friendly_status = $mission::getFriendlyStatus()->value;
-            $eventRowViewModel->is_recallable = true;
+            // Missile attacks (mission type 10) cannot be recalled
+            $eventRowViewModel->is_recallable = ($row->mission_type !== 10);
 
             // Add return trip info to the same row (not as separate row) if the mission has a return mission
             if ($fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {

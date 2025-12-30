@@ -134,7 +134,10 @@ class FleetEventsController extends OGameController
 
             $eventRowViewModel->is_recallable = false;
             if ($friendlyStatus === FleetMissionStatus::Friendly) {
-                $eventRowViewModel->is_recallable = true;
+                // Missile attacks (mission type 10) cannot be recalled
+                if ($row->mission_type !== 10) {
+                    $eventRowViewModel->is_recallable = true;
+                }
             }
 
             if ($row->time_holding > 0 && $row->time_arrival <= Carbon::now()->timestamp && $row->time_arrival + $row->time_holding > Carbon::now()->timestamp) {
@@ -219,6 +222,7 @@ class FleetEventsController extends OGameController
                 case 2:
                 case 6:
                 case 9:
+                case 10: // Missile attack
                     // Hostile
                     return FleetMissionStatus::Hostile;
                 case 3:

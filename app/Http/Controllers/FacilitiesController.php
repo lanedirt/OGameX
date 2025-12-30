@@ -426,4 +426,110 @@ class FacilitiesController extends AbstractBuildingsController
             ]);
         }
     }
+
+    /**
+     * Show the destroy rockets overlay.
+     *
+     * @param PlayerService $player
+     * @return View
+     */
+    public function destroyRocketsOverlay(PlayerService $player): View
+    {
+        $planetService = $player->planets->current();
+
+        // Get current missile counts
+        $ipm_count = $planetService->getObjectAmount('interplanetary_missile');
+        $abm_count = $planetService->getObjectAmount('anti_ballistic_missile');
+
+        // Get missile silo level and calculate capacity
+        $silo_level = $planetService->getObjectLevel('missile_silo');
+        $max_ipm_capacity = $silo_level * 5;  // 5 IPM per level
+        $max_abm_capacity = $silo_level * 10; // 10 ABM per level
+
+        return view('ingame.facilities.destroyrockets', [
+            'ipm_count' => $ipm_count,
+            'abm_count' => $abm_count,
+            'silo_level' => $silo_level,
+            'max_ipm_capacity' => $max_ipm_capacity,
+            'max_abm_capacity' => $max_abm_capacity,
+        ]);
+    }
+
+    /**
+     * Destroy missiles (IPM/ABM) from the missile silo.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     */
+    public function destroyRockets(Request $request, PlayerService $player): JsonResponse
+    {
+        try {
+            $planetService = $player->planets->current();
+
+            // Validate inputs
+            $ipm_amount = (int)$request->input('ipm_amount', 0);
+            $abm_amount = (int)$request->input('abm_amount', 0);
+
+            // Validate at least one missile selected
+            if ($ipm_amount <= 0 && $abm_amount <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'error' => __('Please select at least one missile to destroy'),
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            // Validate amounts don't exceed available
+            $current_ipm = $planetService->getObjectAmount('interplanetary_missile');
+            $current_abm = $planetService->getObjectAmount('anti_ballistic_missile');
+
+            if ($ipm_amount > $current_ipm) {
+                return response()->json([
+                    'success' => false,
+                    'error' => __('You do not have that many Interplanetary Missiles'),
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            if ($abm_amount > $current_abm) {
+                return response()->json([
+                    'success' => false,
+                    'error' => __('You do not have that many Anti-Ballistic Missiles'),
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            // Destroy missiles (no resource refund)
+            if ($ipm_amount > 0) {
+                $planetService->removeUnit('interplanetary_missile', $ipm_amount);
+            }
+
+            if ($abm_amount > 0) {
+                $planetService->removeUnit('anti_ballistic_missile', $abm_amount);
+            }
+
+            // Build success message
+            $message_parts = [];
+            if ($ipm_amount > 0) {
+                $message_parts[] = $ipm_amount . ' ' . __('Interplanetary Missile(s)');
+            }
+            if ($abm_amount > 0) {
+                $message_parts[] = $abm_amount . ' ' . __('Anti-Ballistic Missile(s)');
+            }
+            $message = __('Destroyed') . ': ' . implode(', ', $message_parts);
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'newAjaxToken' => csrf_token(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ]);
+        }
+    }
 }
