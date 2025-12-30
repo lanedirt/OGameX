@@ -9,6 +9,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use OGame\GameConstants\UniverseConstants;
 use OGame\Models\Enums\PlanetType;
 use RuntimeException;
 
@@ -288,10 +289,12 @@ class PlanetServiceFactory
      */
     public function determineNewPlanetPosition(): Coordinate
     {
+        $maxGalaxies = $this->settings->numberOfGalaxies();
         $lastAssignedGalaxy = (int)$this->settings->get('last_assigned_galaxy', 1);
         $lastAssignedSystem = (int)$this->settings->get('last_assigned_system', 1);
 
-        $galaxy = $lastAssignedGalaxy;
+        // Ensure starting galaxy is within valid bounds (wrap if needed)
+        $galaxy = $lastAssignedGalaxy > $maxGalaxies ? UniverseConstants::MIN_GALAXY : $lastAssignedGalaxy;
         $system = $lastAssignedSystem;
 
         $tryCount = 0;
@@ -314,16 +317,24 @@ class PlanetServiceFactory
 
                 // Increment system and galaxy accordingly if no position is found
                 $system++;
-                if ($system > 499) {
-                    $system = 1;
+                if ($system > UniverseConstants::MAX_SYSTEM_COUNT) {
+                    $system = UniverseConstants::MIN_SYSTEM;
                     $galaxy++;
+                    // Wrap around to galaxy 1 if we exceed the max galaxy count
+                    if ($galaxy > $maxGalaxies) {
+                        $galaxy = UniverseConstants::MIN_GALAXY;
+                    }
                 }
             } else {
                 // Increment system and galaxy if the current one is full
                 $system++;
-                if ($system > 499) {
-                    $system = 1;
+                if ($system > UniverseConstants::MAX_SYSTEM_COUNT) {
+                    $system = UniverseConstants::MIN_SYSTEM;
                     $galaxy++;
+                    // Wrap around to galaxy 1 if we exceed the max galaxy count
+                    if ($galaxy > $maxGalaxies) {
+                        $galaxy = UniverseConstants::MIN_GALAXY;
+                    }
                 }
             }
         }

@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use OGame\GameConstants\UniverseConstants;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 
@@ -42,15 +43,14 @@ class CoordinateDistanceCalculator
             return 0;
         }
 
-        $maxSystem = 499;
         $diffSystems = abs($from->system - $to->system);
 
         // Check if donut galaxy wrapping provides a shorter path
-        $altDiff = $maxSystem - $diffSystems;
+        $altDiff = UniverseConstants::MAX_SYSTEM_COUNT - $diffSystems;
         if ($altDiff < $diffSystems) {
             // Path wraps around, split into two segments
-            $split1 = new Coordinate($from->galaxy, 1, 15);
-            $split2 = new Coordinate($to->galaxy, $maxSystem, 15);
+            $split1 = new Coordinate($from->galaxy, UniverseConstants::MIN_SYSTEM, UniverseConstants::MAX_PLANET_POSITION);
+            $split2 = new Coordinate($to->galaxy, UniverseConstants::MAX_SYSTEM_COUNT, UniverseConstants::MAX_PLANET_POSITION);
             return $this->getNumEmptySystemsAux($split1, $to)
                 + $this->getNumEmptySystemsAux($split2, $from);
         }
@@ -102,15 +102,14 @@ class CoordinateDistanceCalculator
             return 0;
         }
 
-        $maxSystem = 499;
         $diffSystems = abs($from->system - $to->system);
 
         // Check if donut galaxy wrapping provides a shorter path
-        $altDiff = $maxSystem - $diffSystems;
+        $altDiff = UniverseConstants::MAX_SYSTEM_COUNT - $diffSystems;
         if ($altDiff < $diffSystems) {
             // Path wraps around, split into two segments
-            $split1 = new Coordinate($from->galaxy, 1, 15);
-            $split2 = new Coordinate($to->galaxy, $maxSystem, 15);
+            $split1 = new Coordinate($from->galaxy, UniverseConstants::MIN_SYSTEM, UniverseConstants::MAX_PLANET_POSITION);
+            $split2 = new Coordinate($to->galaxy, UniverseConstants::MAX_SYSTEM_COUNT, UniverseConstants::MAX_PLANET_POSITION);
             return $this->getNumInactiveSystemsAux($split1, $to)
                 + $this->getNumInactiveSystemsAux($split2, $from);
         }

@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameConstants\UniverseConstants;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\PhalanxService;
@@ -28,8 +29,8 @@ class PhalanxController extends OGameController
         // Validate request
         $request->validate([
             'galaxy' => 'required|integer|min:1',
-            'system' => 'required|integer|min:1',
-            'position' => 'required|integer|min:1|max:15',
+            'system' => 'required|integer|min:1|max:' . UniverseConstants::MAX_SYSTEM_COUNT,
+            'position' => 'required|integer|min:1|max:' . UniverseConstants::MAX_PLANET_POSITION,
         ]);
 
         // Create default response structure
