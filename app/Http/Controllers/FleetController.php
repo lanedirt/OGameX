@@ -693,7 +693,7 @@ class FleetController extends OGameController
      * @param int $maxGalaxies
      * @return string|null Error message if invalid, null if valid
      */
-    private function validateCoordinates(int $galaxy, int $system, int $position, int $maxGalaxies): ?string
+    private function validateCoordinates(int $galaxy, int $system, int $position, int $maxGalaxies): string|null
     {
         if ($galaxy < UniverseConstants::MIN_GALAXY || $galaxy > $maxGalaxies) {
             return __('Invalid galaxy coordinate. Must be between :min and :max.', [
