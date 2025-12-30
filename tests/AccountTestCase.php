@@ -216,29 +216,33 @@ abstract class AccountTestCase extends TestCase
         $maxGalaxies = $settingsService->numberOfGalaxies();
 
         // Find a planet of another player that is close to the current player by checking the same galaxy
-        // and up to 15 systems away. Only search in valid galaxies.
+        // and up to 15 systems away. Only search in valid galaxies. Exclude Legor (persistent admin).
         $planet_id = \DB::table('planets')
-            ->where('user_id', '!=', $this->currentUserId)
-            ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
-            ->where('galaxy', '<=', $maxGalaxies)
-            ->where('planet_type', PlanetType::Planet)
-            ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+            ->join('users', 'planets.user_id', '=', 'users.id')
+            ->where('planets.user_id', '!=', $this->currentUserId)
+            ->where('users.username', '!=', 'Legor')
+            ->where('planets.galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+            ->where('planets.galaxy', '<=', $maxGalaxies)
+            ->where('planets.planet_type', PlanetType::Planet)
+            ->whereBetween('planets.system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
             ->inRandomOrder()
             ->limit(1)
-            ->pluck('id');
+            ->pluck('planets.id');
 
         if ($planet_id === null || count($planet_id) === 0) {
             // No planets found, attempt to create a new user to see if this fixes it.
             $this->createAndLoginUser();
             $planet_id = \DB::table('planets')
-                ->where('user_id', '!=', $this->currentUserId)
-                ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
-                ->where('galaxy', '<=', $maxGalaxies)
-                ->where('planet_type', PlanetType::Planet)
-                ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+                ->join('users', 'planets.user_id', '=', 'users.id')
+                ->where('planets.user_id', '!=', $this->currentUserId)
+                ->where('users.username', '!=', 'Legor')
+                ->where('planets.galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+                ->where('planets.galaxy', '<=', $maxGalaxies)
+                ->where('planets.planet_type', PlanetType::Planet)
+                ->whereBetween('planets.system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
                 ->inRandomOrder()
                 ->limit(1)
-                ->pluck('id');
+                ->pluck('planets.id');
         }
 
         if ($planet_id === null || count($planet_id) === 0) {
