@@ -71,6 +71,16 @@ abstract class AccountTestCase extends TestCase
         // is a part of the test suite.
         $settingsService->set('registration_planet_amount', $this->userPlanetAmount);
 
+        // Reset planet assignment to start within valid galaxy bounds.
+        // This ensures tests don't fail when the database has planets in galaxies
+        // beyond the configured max (e.g., from previous test runs with different settings).
+        $maxGalaxies = $settingsService->numberOfGalaxies();
+        $lastAssignedGalaxy = (int)$settingsService->get('last_assigned_galaxy', 1);
+        if ($lastAssignedGalaxy > $maxGalaxies) {
+            $settingsService->set('last_assigned_galaxy', 1);
+            $settingsService->set('last_assigned_system', 1);
+        }
+
         // Create a new user and login so we can access ingame features.
         $this->createAndLoginUser();
 
@@ -201,23 +211,29 @@ abstract class AccountTestCase extends TestCase
      */
     protected function getNearbyForeignPlanet(): PlanetService
     {
+        // Get the max galaxies setting to ensure we only search within valid galaxy bounds.
+        $settingsService = resolve(SettingsService::class);
+        $maxGalaxies = $settingsService->numberOfGalaxies();
+
         // Find a planet of another player that is close to the current player by checking the same galaxy
-        // and up to 15 systems away.
+        // and up to 15 systems away. Only search in valid galaxies.
         $planet_id = \DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+            ->where('galaxy', '<=', $maxGalaxies)
             ->where('planet_type', PlanetType::Planet)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
             ->inRandomOrder()
             ->limit(1)
             ->pluck('id');
 
-        if ($planet_id === null) {
+        if ($planet_id === null || count($planet_id) === 0) {
             // No planets found, attempt to create a new user to see if this fixes it.
             $this->createAndLoginUser();
             $planet_id = \DB::table('planets')
                 ->where('user_id', '!=', $this->currentUserId)
                 ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+                ->where('galaxy', '<=', $maxGalaxies)
                 ->where('planet_type', PlanetType::Planet)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
                 ->inRandomOrder()
@@ -274,11 +290,16 @@ abstract class AccountTestCase extends TestCase
      */
     protected function getNearbyForeignMoon(): PlanetService
     {
+        // Get the max galaxies setting to ensure we only search within valid galaxy bounds.
+        $settingsService = resolve(SettingsService::class);
+        $maxGalaxies = $settingsService->numberOfGalaxies();
+
         // Find a planet of another player that is close to the current player by checking the same galaxy
-        // and up to 15 systems away.
+        // and up to 15 systems away. Only search in valid galaxies.
         $planet_id = \DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+            ->where('galaxy', '<=', $maxGalaxies)
             ->where('planet_type', PlanetType::Moon)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
             ->inRandomOrder()
@@ -297,6 +318,7 @@ abstract class AccountTestCase extends TestCase
             $planet_id = \DB::table('planets')
                 ->where('user_id', '!=', $this->currentUserId)
                 ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
+                ->where('galaxy', '<=', $maxGalaxies)
                 ->where('planet_type', PlanetType::Moon)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
                 ->inRandomOrder()
@@ -326,8 +348,16 @@ abstract class AccountTestCase extends TestCase
      */
     protected function getNearbyEmptyCoordinate(int $min_position = 4, int $max_position = 12): Coordinate
     {
+        // Get the max galaxies setting to ensure we only create coordinates within valid galaxy bounds.
+        $settingsService = resolve(SettingsService::class);
+        $maxGalaxies = $settingsService->numberOfGalaxies();
+
+        // Ensure the current planet's galaxy is within valid bounds, otherwise use galaxy 1.
+        $currentGalaxy = $this->planetService->getPlanetCoordinates()->galaxy;
+        $galaxy = $currentGalaxy <= $maxGalaxies ? $currentGalaxy : 1;
+
         // Find a position that has no planet in the same galaxy and up to 10 systems away between position 4-13.
-        $coordinate = new Coordinate($this->planetService->getPlanetCoordinates()->galaxy, 0, 0);
+        $coordinate = new Coordinate($galaxy, 0, 0);
         $tryCount = 0;
         while ($tryCount < 100) {
             $tryCount++;

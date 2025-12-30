@@ -12,6 +12,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
+use OGame\GameConstants\UniverseConstants;
 use OGame\Models\Resources;
 
 /**
@@ -154,7 +155,7 @@ class FleetMissionService
 
         // If the system are different
         if ($diffSystem != 0) {
-            $diff2 = abs($diffSystem - 499);
+            $diff2 = abs($diffSystem - UniverseConstants::MAX_SYSTEM_COUNT);
             $deltaSystem = 0;
 
             if ($diff2 < $diffSystem) {

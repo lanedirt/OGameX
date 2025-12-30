@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Factories\GameMissionFactory;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameConstants\UniverseConstants;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
@@ -237,10 +238,11 @@ class FleetController extends OGameController
      * @param PlayerService $currentPlayer
      * @param PlanetServiceFactory $planetServiceFactory
      * @param CoordinateDistanceCalculator $coordinateDistanceCalculator
+     * @param SettingsService $settingsService
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator): JsonResponse
+    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator, SettingsService $settingsService): JsonResponse
     {
         $currentPlanet = $currentPlayer->planets->current();
 
@@ -258,10 +260,20 @@ class FleetController extends OGameController
         }
 
         // Get target coordinates
-        $galaxy = request()->input('galaxy');
-        $system = request()->input('system');
-        $position = request()->input('position');
+        $galaxy = (int)request()->input('galaxy');
+        $system = (int)request()->input('system');
+        $position = (int)request()->input('position');
         $targetType = (int)request()->input('type');
+
+        // Validate coordinates against universe bounds
+        $coordinateError = $this->validateCoordinates($galaxy, $system, $position, $settingsService->numberOfGalaxies());
+        if ($coordinateError !== null) {
+            return response()->json([
+                'status' => 'failure',
+                'errors' => [['message' => $coordinateError, 'error' => 140020]],
+            ]);
+        }
+
         $planetType = PlanetType::from($targetType);
 
         // Load the target planet
@@ -355,17 +367,16 @@ class FleetController extends OGameController
      *
      * @param PlayerService $player
      * @param FleetMissionService $fleetMissionService
+     * @param SettingsService $settingsService
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
+    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService, SettingsService $settingsService): JsonResponse
     {
-        $galaxy = request()->input('galaxy');
-        $system = request()->input('system');
-        $position = request()->input('position');
+        $galaxy = (int)request()->input('galaxy');
+        $system = (int)request()->input('system');
+        $position = (int)request()->input('position');
         $target_type = (int)request()->input('type');
-
-        // TODO: add sanity check if all required fields are present in the request.
 
         // Expected form data
         /*
@@ -406,39 +417,44 @@ class FleetController extends OGameController
         // Extract mission type from the request
         $mission_type = (int)request()->input('mission');
 
+        // Extract resources from the request
+        $metal = (int)request()->input('metal');
+        $crystal = (int)request()->input('crystal');
+        $deuterium = (int)request()->input('deuterium');
+
+        // Input validation
+        if ($speed_percent < 10 || $speed_percent > 100) {
+            return $this->validationErrorResponse(__('Fleet speed must be between 10% and 100%.'));
+        }
+
+        $coordinateError = $this->validateCoordinates($galaxy, $system, $position, $settingsService->numberOfGalaxies());
+        if ($coordinateError !== null) {
+            return $this->validationErrorResponse($coordinateError);
+        }
+
+        if ($metal < 0 || $crystal < 0 || $deuterium < 0) {
+            return $this->validationErrorResponse(__('Resource amounts cannot be negative.'));
+        }
+
+        if ($holding_hours < 0) {
+            return $this->validationErrorResponse(__('Holding time cannot be negative.'));
+        }
+
         // Validate holdingtime for expedition missions (mission type 15)
         if ($mission_type === 15) {
-            // Holding time cannot exceed level of Astrophysics research
             $astrophysics_level = $player->getResearchLevel(machine_name: 'astrophysics');
             if ($holding_hours < 1 || $holding_hours > $astrophysics_level) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => [
-                        [
-                            'message' => __('Expedition duration must be between :min_hours and :max_hours hours.', [
-                                'min_hours' => 1,
-                                'max_hours' => $astrophysics_level,
-                            ]),
-                            'error' => 140019
-                        ]
-                    ],
-                    'components' => [],
-                    'newAjaxToken' => csrf_token(),
-                ]);
+                return $this->validationErrorResponse(__('Expedition duration must be between :min_hours and :max_hours hours.', [
+                    'min_hours' => 1,
+                    'max_hours' => $astrophysics_level,
+                ]));
             }
         }
 
         // Extract units from the request and create a unit collection.
         // Loop through all input fields and get all units prefixed with "am".
         $units = $this->getUnitsFromRequest($planet);
-
-        // Extract resources from the request
-        $metal = (int)request()->input('metal');
-        $crystal = (int)request()->input('crystal');
-        $deuterium = (int)request()->input('deuterium');
         $resources = new Resources($metal, $crystal, $deuterium, 0);
-
-        // Create a new fleet mission
         $planetType = PlanetType::from($target_type);
 
         try {
@@ -452,13 +468,13 @@ class FleetController extends OGameController
                 'redirectUrl' => route('fleet.index'),
             ]);
         } catch (Exception $e) {
-            // This can happen if the user tries to send a fleet when there are no free fleet slots.
+            // Failure, e.g. because of insufficient free fleet slots or other reasons.
             return response()->json([
                 'success' => false,
                 'errors' => [
                     [
                         'message' => $e->getMessage(),
-                        'error' => 140019
+                        'error' => 140020
                     ]
                 ],
                 'components' => [],
@@ -472,22 +488,20 @@ class FleetController extends OGameController
      *
      * @param PlayerService $player
      * @param FleetMissionService $fleetMissionService
+     * @param SettingsService $settingsService
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchSendMiniFleet(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
+    public function dispatchSendMiniFleet(PlayerService $player, FleetMissionService $fleetMissionService, SettingsService $settingsService): JsonResponse
     {
-        $galaxy = request()->input('galaxy');
-        $system = request()->input('system');
-        $position = request()->input('position');
+        $galaxy = (int)request()->input('galaxy');
+        $system = (int)request()->input('system');
+        $position = (int)request()->input('position');
         $targetType = (int)request()->input('type');
-        $shipCount = request()->input('shipCount');
+        $shipCount = (int)request()->input('shipCount');
         $mission_type = (int)request()->input('mission');
 
-        // Get the current player's planet.
-        $planet = $player->planets->current();
-
-        // Units to be sent are static dependent on mission type.
+        // Validate mission type and set units to be sent.
         $units = new UnitCollection();
         $responseMessage = '';
         switch ($mission_type) {
@@ -500,7 +514,39 @@ class FleetController extends OGameController
                 $responseMessage = __('Send recycler to:');
                 $units->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), $shipCount);
                 break;
+            default:
+                return response()->json([
+                    'response' => [
+                        'message' => __('Invalid mission type'),
+                    ],
+                ]);
         }
+
+        // Validate coordinates against universe bounds
+        $coordinateError = $this->validateCoordinates($galaxy, $system, $position, $settingsService->numberOfGalaxies());
+        if ($coordinateError !== null) {
+            return response()->json([
+                'response' => [
+                    'message' => __('Invalid coordinates'),
+                    'coordinates' => [
+                        'galaxy' => $galaxy,
+                        'system' => $system,
+                        'position' => $position,
+                    ],
+                    'success' => false,
+                ],
+                'newAjaxToken' => csrf_token(),
+                'components' => [],
+            ]);
+        }
+
+        // Validate ship count is positive, if not, default to 1.
+        if ($shipCount < 1) {
+            $shipCount = 1;
+        }
+
+        // Get the current player's planet.
+        $planet = $player->planets->current();
 
         // Create the target coordinate.
         $targetCoordinate = new Coordinate($galaxy, $system, $position);
@@ -524,7 +570,6 @@ class FleetController extends OGameController
         }
 
         // Create a new fleet mission
-        $planetType = PlanetType::from($targetType);
         $planetType = PlanetType::from($targetType);
 
         try {
@@ -625,5 +670,62 @@ class FleetController extends OGameController
         }
 
         return $units;
+    }
+
+    /**
+     * Validate fleet dispatch coordinates against universe bounds.
+     *
+     * @param int $galaxy
+     * @param int $system
+     * @param int $position
+     * @param int $maxGalaxies
+     * @return string|null Error message if invalid, null if valid
+     */
+    private function validateCoordinates(int $galaxy, int $system, int $position, int $maxGalaxies): string|null
+    {
+        if ($galaxy < UniverseConstants::MIN_GALAXY || $galaxy > $maxGalaxies) {
+            return __('Invalid galaxy coordinate. Must be between :min and :max.', [
+                'min' => UniverseConstants::MIN_GALAXY,
+                'max' => $maxGalaxies,
+            ]);
+        }
+
+        if ($system < UniverseConstants::MIN_SYSTEM || $system > UniverseConstants::MAX_SYSTEM_COUNT) {
+            return __('Invalid system coordinate. Must be between :min and :max.', [
+                'min' => UniverseConstants::MIN_SYSTEM,
+                'max' => UniverseConstants::MAX_SYSTEM_COUNT,
+            ]);
+        }
+
+        if ($position < UniverseConstants::MIN_PLANET_POSITION || $position > UniverseConstants::EXPEDITION_POSITION) {
+            return __('Invalid position coordinate. Must be between :min and :max.', [
+                'min' => UniverseConstants::MIN_PLANET_POSITION,
+                'max' => UniverseConstants::EXPEDITION_POSITION,
+            ]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Return a JSON validation error response.
+     *
+     * @param string $message
+     * @param int $errorCode
+     * @return JsonResponse
+     */
+    private function validationErrorResponse(string $message, int $errorCode = 140020): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'errors' => [
+                [
+                    'message' => $message,
+                    'error' => $errorCode
+                ]
+            ],
+            'components' => [],
+            'newAjaxToken' => csrf_token(),
+        ]);
     }
 }

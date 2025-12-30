@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use OGame\GameConstants\UniverseConstants;
 use OGame\Http\Controllers\OGameController;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
@@ -14,6 +15,7 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Services\DebrisFieldService;
 use OGame\Models\Resources;
 use OGame\Facades\AppUtil;
+use OGame\Services\SettingsService;
 
 class DeveloperShortcutsController extends OGameController
 {
@@ -153,13 +155,13 @@ class DeveloperShortcutsController extends OGameController
      * @param PlayerService $playerService
      * @return RedirectResponse
      */
-    public function updateResources(Request $request, PlayerService $playerService): RedirectResponse
+    public function updateResources(Request $request, PlayerService $playerService, SettingsService $settingsService): RedirectResponse
     {
         // Validate coordinates
         $validated = $request->validate([
-            'galaxy' => 'required|integer|min:1|max:9',
-            'system' => 'required|integer|min:1|max:499',
-            'position' => 'required|integer|min:1|max:15',
+            'galaxy' => 'required|integer|min:1|max:' . $settingsService->numberOfGalaxies(),
+            'system' => 'required|integer|min:1|max:' . UniverseConstants::MAX_SYSTEM_COUNT,
+            'position' => 'required|integer|min:1|max:' . UniverseConstants::MAX_PLANET_POSITION,
         ]);
 
         $coordinate = new Coordinate(
@@ -217,13 +219,13 @@ class DeveloperShortcutsController extends OGameController
      * @param PlayerService $player
      * @return RedirectResponse
      */
-    public function createAtCoords(Request $request, PlanetServiceFactory $planetServiceFactory, PlayerService $player): RedirectResponse
+    public function createAtCoords(Request $request, PlanetServiceFactory $planetServiceFactory, PlayerService $player, SettingsService $settingsService): RedirectResponse
     {
         // Validate coordinates
         $validated = $request->validate([
-            'galaxy' => 'required|integer|min:1|max:9',
-            'system' => 'required|integer|min:1|max:499',
-            'position' => 'required|integer|min:1|max:15',
+            'galaxy' => 'required|integer|min:1|max:' . $settingsService->numberOfGalaxies(),
+            'system' => 'required|integer|min:1|max:' . UniverseConstants::MAX_SYSTEM_COUNT,
+            'position' => 'required|integer|min:1|max:' . UniverseConstants::MAX_PLANET_POSITION,
         ]);
 
         $coordinate = new Coordinate(
