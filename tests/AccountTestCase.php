@@ -186,19 +186,10 @@ abstract class AccountTestCase extends TestCase
         $playerService = $playerServiceFactory->make($this->currentUserId);
         $this->planetService = $playerService->planets->current();
 
-        // Set second planet service if it exists, otherwise create it
+        // Set second planet service if it exists
         $allPlanets = $playerService->planets->allPlanets();
         if (isset($allPlanets[1])) {
             $this->secondPlanetService = $allPlanets[1];
-        } else {
-            // Create second planet if it doesn't exist
-            $planetServiceFactory = resolve(PlanetServiceFactory::class);
-            $coordinate = $planetServiceFactory->determineNewPlanetPosition();
-            $this->secondPlanetService = $planetServiceFactory->createAdditionalPlanetForPlayer($playerService, $coordinate);
-
-            // Reload player service to refresh planet list
-            $playerService = $playerServiceFactory->make($this->currentUserId);
-            $this->planetService = $playerService->planets->current();
         }
     }
 

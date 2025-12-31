@@ -66,6 +66,7 @@ class ServerSettingsController extends OGameController
             'expedition_weight_dark_matter' => $settingsService->expeditionWeightDarkMatter(),
             'expedition_weight_merchant' => $settingsService->expeditionWeightMerchant(),
             'expedition_weight_items' => $settingsService->expeditionWeightItems(),
+            'hamill_probability' => $settingsService->hamillManoeuvreChance(),
         ]);
     }
 
@@ -129,6 +130,8 @@ class ServerSettingsController extends OGameController
         $settingsService->set('expedition_weight_dark_matter', request('expedition_weight_dark_matter', 9));
         $settingsService->set('expedition_weight_merchant', request('expedition_weight_merchant', 0.7));
         $settingsService->set('expedition_weight_items', request('expedition_weight_items', 0));
+
+        $settingsService->set('hamill_manoeuvre_chance', max(1, (int)request('hamill_probability', 1000)));
 
         return redirect()->route('admin.serversettings.index')->with('success', __('Changes saved!'));
     }

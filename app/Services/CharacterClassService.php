@@ -96,6 +96,8 @@ class CharacterClassService
      */
     public function getChangeCost(User $user): int
     {
+        // TODO: Refactor this to use a dark matter add/subtract feature in developer shortcuts instead of bypassing the cost flow
+        // This would reduce complexity by removing the special case handling for dev_free_class_changes
         // Check developer setting for free class changes
         $freeClassChanges = $this->settingsService->get('dev_free_class_changes', '0');
         if ($freeClassChanges !== '0') {

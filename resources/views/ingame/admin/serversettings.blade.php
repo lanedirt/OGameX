@@ -268,6 +268,15 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Hamill Manoeuvre Probability (1 in X chance):')</label>
+                                <div class="thefield" style="display: flex; gap: 10px; align-items: center;">
+                                    <input type="text" pattern="^[0-9]+$" placeholder="1000" class="textInput w100 textCenter textBeefy" size="6" name="hamill_probability" value="{{ $hamill_probability }}">
+                                    <span style="color: #999; font-size: 0.9em;">
+                                        (Default: 1000 = 0.1% chance | Testing: 10 = 10% chance)
+                                    </span>
+                                </div>
+                            </div>
                         </div>
 
                         <p class="box_highlight textCenter no_buddies">@lang('Expedition settings.')</p>
