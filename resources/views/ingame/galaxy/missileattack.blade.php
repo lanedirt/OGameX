@@ -66,12 +66,12 @@
                         </li>
                         <li class="defense407">
                             <div class="buildingimg sprite defense small defense407">
-                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="407" data-priority="0" data-tooltip-title="@lang('Small Shield Dome')"></a>
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="407" data-priority="8" data-tooltip-title="@lang('Small Shield Dome')"></a>
                             </div>
                         </li>
                         <li class="defense408">
                             <div class="buildingimg sprite defense small defense408">
-                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="408" data-priority="0" data-tooltip-title="@lang('Large Shield Dome')"></a>
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="408" data-priority="9" data-tooltip-title="@lang('Large Shield Dome')"></a>
                             </div>
                         </li>
                     </ul>

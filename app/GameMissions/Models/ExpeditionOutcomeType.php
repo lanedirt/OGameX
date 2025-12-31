@@ -53,9 +53,14 @@ enum ExpeditionOutcomeType: string
     case LossOfFleet = 'expedition_loss_of_fleet';
 
     /**
-     * The expedition mission encountered a hostile fleet and a battle ensued.
+     * The expedition mission encountered space pirates and a battle ensued.
      */
-    case Battle = 'expedition_battle';
+    case BattlePirates = 'expedition_battle_pirates';
+
+    /**
+     * The expedition mission encountered an alien fleet and a battle ensued.
+     */
+    case BattleAliens = 'expedition_battle_aliens';
 
     /**
      * Get the setting key for the expedition outcome type.
