@@ -134,6 +134,13 @@ abstract class GameMission
         // This arrival time is used by the return mission to calculate the return time.
         $mission->time_arrival = (int)Carbon::now()->timestamp;
 
+        // Clear the holding time for recalled missions (expeditions, etc.)
+        // The fleet should return immediately without waiting at the destination.
+        // Only set to 0 if there was a holding time, to avoid changing null to 0 for missions that don't use holding time.
+        if ($mission->time_holding !== null) {
+            $mission->time_holding = 0;
+        }
+
         // Mark parent mission as canceled.
         $mission->canceled = 1;
         $mission->processed = 1;
