@@ -24,7 +24,7 @@ class DeveloperShortcutsController extends OGameController
      *
      * @return View
      */
-    public function index(PlayerService $playerService): View
+    public function index(PlayerService $playerService, SettingsService $settingsService): View
     {
         // Get all unit objects
         $units = ObjectService::getUnitObjects();
@@ -34,6 +34,7 @@ class DeveloperShortcutsController extends OGameController
             'buildings' => [...ObjectService::getBuildingObjects(), ...ObjectService::getStationObjects()],
             'research' => ObjectService::getResearchObjects(),
             'currentPlanet' => $playerService->planets->current(),
+            'settings' => $settingsService,
         ]);
     }
 

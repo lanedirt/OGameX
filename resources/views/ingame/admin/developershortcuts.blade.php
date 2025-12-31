@@ -102,7 +102,7 @@
                                             <div>
                                                 <label for="galaxy">@lang('Galaxy:')</label>
                                                 <input type="text" id="galaxy" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
-                                                       value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="6" name="galaxy">
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="{{ $settings->numberOfGalaxies() }}" name="galaxy">
                                             </div>
                                             <div>
                                                 <label for="system">@lang('System:')</label>
@@ -145,7 +145,7 @@
                                             <div>
                                                 <label for="galaxy">@lang('Galaxy:')</label>
                                                 <input type="text" id="galaxy" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
-                                                       value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="6" name="galaxy">
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="{{ $settings->numberOfGalaxies() }}" name="galaxy">
                                             </div>
                                             <div>
                                                 <label for="system">@lang('System:')</label>
@@ -196,7 +196,7 @@
                                             <div>
                                                 <label for="galaxy">@lang('Galaxy:')</label>
                                                 <input type="text" id="galaxy" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
-                                                       value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="6" name="galaxy">
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="{{ $settings->numberOfGalaxies() }}" name="galaxy">
                                             </div>
                                             <div>
                                                 <label for="system">@lang('System:')</label>
