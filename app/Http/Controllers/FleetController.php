@@ -430,8 +430,10 @@ class FleetController extends OGameController
         $deuterium = (int)request()->input('deuterium');
 
         // Input validation
-        if ($speed_percent < 10 || $speed_percent > 100) {
-            return $this->validationErrorResponse(__('Fleet speed must be between 10% and 100%.'));
+        // Speed is sent as 1-10 range (where 1 = 10%, 10 = 100%), in 0.5 increments (representing 5% steps).
+        $validSpeeds = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0];
+        if (!\in_array($speed_percent, $validSpeeds, true)) {
+            return $this->validationErrorResponse(__('Fleet speed must be between 10% and 100% in 5% increments.'));
         }
 
         $coordinateError = $this->validateCoordinates($galaxy, $system, $position, $settingsService->numberOfGalaxies());
