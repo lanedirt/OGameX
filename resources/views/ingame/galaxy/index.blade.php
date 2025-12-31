@@ -61,7 +61,7 @@
                         }
                     })
                     .keyup(function() {
-                        checkIntInput($(this), 1, 6)
+                        checkIntInput($(this), 1, maxGalaxies)
                     })
                     .focus(function() {
                         $(this).val("");
@@ -74,7 +74,7 @@
                         }
                     })
                     .keyup(function() {
-                        checkIntInput($(this), 1, 6)
+                        checkIntInput($(this), 1, maxSystems)
                     })
                     .focus(function() {
                         $(this).val("");
@@ -97,7 +97,7 @@
                         }
                     })
                     .keyup(function() {
-                        checkIntInput($(this), 1, 6)
+                        checkIntInput($(this), 1, maxGalaxies)
                     })
                     .focus(function() {
                         $(this).val("");
@@ -110,7 +110,7 @@
                         }
                     })
                     .keyup(function() {
-                        checkIntInput($(this), 1, 499)
+                        checkIntInput($(this), 1, maxSystems)
                     })
                     .focus(function() {
                         $(this).val("");
