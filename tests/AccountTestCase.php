@@ -216,13 +216,20 @@ abstract class AccountTestCase extends TestCase
         $maxGalaxies = $settingsService->numberOfGalaxies();
 
         // Find a planet of another player that is close to the current player by checking the same galaxy
-        // and up to 15 systems away. Only search in valid galaxies.
+        // and up to 15 systems away. Only search in valid galaxies. Exclude admin players.
         $planet_id = \DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
             ->where('galaxy', '<=', $maxGalaxies)
             ->where('planet_type', PlanetType::Planet)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+            ->whereNotIn('user_id', function ($query) {
+                $query->select('model_id')
+                    ->from('model_has_roles')
+                    ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+                    ->where('roles.name', 'admin')
+                    ->where('model_has_roles.model_type', 'OGame\\Models\\User');
+            })
             ->inRandomOrder()
             ->limit(1)
             ->pluck('id');
@@ -236,6 +243,13 @@ abstract class AccountTestCase extends TestCase
                 ->where('galaxy', '<=', $maxGalaxies)
                 ->where('planet_type', PlanetType::Planet)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+                ->whereNotIn('user_id', function ($query) {
+                    $query->select('model_id')
+                        ->from('model_has_roles')
+                        ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+                        ->where('roles.name', 'admin')
+                        ->where('model_has_roles.model_type', 'OGame\\Models\\User');
+                })
                 ->inRandomOrder()
                 ->limit(1)
                 ->pluck('id');
@@ -295,13 +309,20 @@ abstract class AccountTestCase extends TestCase
         $maxGalaxies = $settingsService->numberOfGalaxies();
 
         // Find a planet of another player that is close to the current player by checking the same galaxy
-        // and up to 15 systems away. Only search in valid galaxies.
+        // and up to 15 systems away. Only search in valid galaxies. Exclude admin players.
         $planet_id = \DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
             ->where('galaxy', '<=', $maxGalaxies)
             ->where('planet_type', PlanetType::Moon)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+            ->whereNotIn('user_id', function ($query) {
+                $query->select('model_id')
+                    ->from('model_has_roles')
+                    ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+                    ->where('roles.name', 'admin')
+                    ->where('model_has_roles.model_type', 'OGame\\Models\\User');
+            })
             ->inRandomOrder()
             ->limit(1)
             ->pluck('id');
@@ -321,6 +342,13 @@ abstract class AccountTestCase extends TestCase
                 ->where('galaxy', '<=', $maxGalaxies)
                 ->where('planet_type', PlanetType::Moon)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+                ->whereNotIn('user_id', function ($query) {
+                    $query->select('model_id')
+                        ->from('model_has_roles')
+                        ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+                        ->where('roles.name', 'admin')
+                        ->where('model_has_roles.model_type', 'OGame\\Models\\User');
+                })
                 ->inRandomOrder()
                 ->limit(1)
                 ->pluck('id');
