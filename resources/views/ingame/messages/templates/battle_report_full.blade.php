@@ -229,7 +229,7 @@
                     <li class="{{ $loop->even ? 'odd' : '' }}">
                         <div class="buildingimg civil{{ $object->id }} on">
                             <span class="detail_shipname">{{ $object->title }}</span>
-                            <span class="detail_shipsleft ecke">0</span>
+                            <span class="detail_shipsleft ecke">{{ $attacker_units_start->getAmountByMachineName($object->machine_name) }}</span>
                             <span class="detail_shipslost lost_ships">0</span>
                         </div>
                     </li>
@@ -280,7 +280,7 @@
                     <li class="{{ $loop->even ? 'odd' : '' }}">
                         <div class="buildingimg military{{ $object->id }} on">
                             <span class="detail_shipname">{{ $object->title }}</span>
-                            <span class="detail_shipsleft ecke">0</span>
+                            <span class="detail_shipsleft ecke">{{ $defender_units_start->getAmountByMachineName($object->machine_name) }}</span>
                             <span class="detail_shipslost lost_ships">0</span>
                         </div>
                     </li>
@@ -302,7 +302,7 @@
                     <li class="{{ $loop->even ? 'odd' : '' }}">
                         <div class="buildingimg civil{{ $object->id }} on">
                             <span class="detail_shipname">{{ $object->title }}</span>
-                            <span class="detail_shipsleft ecke">0</span>
+                            <span class="detail_shipsleft ecke">{{ $defender_units_start->getAmountByMachineName($object->machine_name) }}</span>
                             <span class="detail_shipslost lost_ships">0</span>
                         </div>
                     </li>
@@ -323,7 +323,7 @@
                     <li class="{{ $loop->even ? 'odd' : '' }}">
                         <div class="defenseimg defense{{ $object->id }} on">
                             <span class="detail_shipname">{{ $object->title }}</span>
-                            <span class="detail_shipsleft ecke">0</span>
+                            <span class="detail_shipsleft ecke">{{ $defender_units_start->getAmountByMachineName($object->machine_name) }}</span>
                             <span class="detail_shipslost lost_ships">0</span>
                         </div>
                     </li>
@@ -343,8 +343,8 @@
         <ul class="detail_list clearfix repairedDefensesContainer">
             @foreach ($repaired_defenses->units as $unit)
             <li class="detail_list_el">
-                <div class="defense_image float_left">
-                    <img class="defense{{ $unit->unitObject->id }}" width="28" height="28" alt="{{ $unit->unitObject->title }}" src="{{ asset('img/objects/' . $unit->unitObject->assets->imgMicro) }}">
+                <div class="repaired_defense_icon float_left">
+                    <img width="28" height="28" alt="{{ $unit->unitObject->title }}" src="{{ asset('img/objects/units/' . $unit->unitObject->assets->imgMicro) }}">
                 </div>
                 <span class="detail_list_txt">{{ $unit->unitObject->title }}</span>
                 <span class="fright" style="margin-right: 10px">{{ $unit->amount }}</span>
