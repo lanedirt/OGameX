@@ -323,12 +323,10 @@ class MissileMission extends GameMission
                 break;
             }
 
-            // Don't target missiles or shield domes (IPMs ignore shields)
+            // Don't target missiles (shield domes can be targeted and destroyed by IPMs)
             if (in_array($defense->machine_name, [
                 'interplanetary_missile',
                 'anti_ballistic_missile',
-                'small_shield_dome',
-                'large_shield_dome'
             ])) {
                 continue;
             }
@@ -463,6 +461,8 @@ class MissileMission extends GameMission
             5 => 'gauss_cannon',
             6 => 'ion_cannon',
             7 => 'plasma_turret',
+            8 => 'small_shield_dome',
+            9 => 'large_shield_dome',
         ];
 
         return $priorityMap[$code] ?? 'cheapest';
