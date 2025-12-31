@@ -70,6 +70,7 @@ class ResearchQueueService
             ['canceled', 0],
         ])
             ->orderBy('time_start', 'asc')
+            ->orderBy('id', 'asc')
             ->get();
     }
 
@@ -91,6 +92,7 @@ class ResearchQueueService
             ])
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')
+            ->orderBy('research_queues.id', 'asc')
             ->get();
     }
 
@@ -164,6 +166,7 @@ class ResearchQueueService
             ])
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')
+            ->orderBy('research_queues.id', 'asc')
             ->get();
 
         // Convert to ViewModel array
@@ -245,6 +248,7 @@ class ResearchQueueService
                 ['canceled', 0],
             ])
             ->select('research_queues.*')
+            ->orderBy('research_queues.id', 'asc')
             ->get();
 
         foreach ($queue_items as $queue_item) {
@@ -401,6 +405,7 @@ class ResearchQueueService
             ])
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')
+            ->orderBy('research_queues.id', 'asc')
             ->get();
 
         foreach ($queue_items as $item) {
@@ -432,6 +437,7 @@ class ResearchQueueService
             ])
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')
+            ->orderBy('research_queues.id', 'asc')
             ->get();
 
         foreach ($research_queue_items as $research_queue_item) {
