@@ -279,6 +279,7 @@ class FleetController extends OGameController
         // Load the target planet
         $targetCoordinates = new Coordinate($galaxy, $system, $position);
         $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinates, true, $planetType);
+        $targetInhabited = true;
         if ($targetPlanet !== null) {
             $targetPlayer = $targetPlanet->getPlayer();
 
@@ -291,10 +292,12 @@ class FleetController extends OGameController
             $targetPlanetName = '?';
             $targetPlayerName = 'Deep space';
             $targetCoordinates = new Coordinate($galaxy, $system, $position);
+            $targetInhabited = false;
         }
 
         // Determine enabled/available missions based on the current user, planet and target planet's properties.
         $enabledMissions = [];
+        $errors = [];
         $units = $this->getUnitsFromRequest($currentPlanet);
         $allMissions = GameMissionFactory::getAllMissions();
         foreach ($allMissions as $mission) {
@@ -304,9 +307,13 @@ class FleetController extends OGameController
             }
         }
 
-        // Don't collect error messages during target checking phase.
-        // Errors will be shown when actually dispatching the fleet if needed.
-        $errors = [];
+        // Show warning when target is an empty planet (colonizable position)
+        // This informs the user that a colony ship is required to colonize this position.
+        if (!$targetInhabited && $planetType === PlanetType::Planet
+            && $position >= UniverseConstants::MIN_PLANET_POSITION
+            && $position <= UniverseConstants::MAX_PLANET_POSITION) {
+            $errors[] = ['message' => __('Colony ships must be sent to colonise this planet!'), 'error' => 0];
+        }
 
         // Build orders array set key to true if the mission is enabled. Set to false if not.
         $orders = [];
@@ -336,7 +343,7 @@ class FleetController extends OGameController
             'status' => $status,
             'errors' => $errors,
             'additionalFlightSpeedinfo' => '',
-            'targetInhabited' => true,
+            'targetInhabited' => $targetInhabited,
             'targetIsStrong' => false,
             'targetIsOutlaw' => false,
             'targetIsBuddyOrAllyMember' => true,
