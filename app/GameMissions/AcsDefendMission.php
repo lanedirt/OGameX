@@ -9,11 +9,11 @@ use OGame\GameMessages\AcsDefendArrivalSender;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
-use OGame\Models\BuddyRequest;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Services\BuddyService;
 use OGame\Services\PlanetService;
 
 class AcsDefendMission extends GameMission
@@ -65,18 +65,8 @@ class AcsDefendMission extends GameMission
         $currentUserId = $planet->getPlayer()->getUser()->id;
         $targetUserId = $targetPlayer->getUser()->id;
 
-        $isBuddy = BuddyRequest::where('status', BuddyRequest::STATUS_ACCEPTED)
-            ->where(function ($query) use ($currentUserId, $targetUserId) {
-                $query->where(function ($q) use ($currentUserId, $targetUserId) {
-                    $q->where('sender_user_id', $currentUserId)
-                        ->where('receiver_user_id', $targetUserId);
-                })
-                ->orWhere(function ($q) use ($currentUserId, $targetUserId) {
-                    $q->where('sender_user_id', $targetUserId)
-                        ->where('receiver_user_id', $currentUserId);
-                });
-            })
-            ->exists();
+        $buddyService = app(BuddyService::class);
+        $isBuddy = $buddyService->areBuddies($currentUserId, $targetUserId);
 
         // TODO: Add alliance check when alliance system is implemented
         // For now, only allow ACS Defend to buddy planets

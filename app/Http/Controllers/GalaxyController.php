@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use OGame\Services\BuddyService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PhalanxService;
 use OGame\Services\PlanetService;
@@ -27,6 +28,11 @@ class GalaxyController extends OGameController
      * @var PlanetServiceFactory
      */
     private PlanetServiceFactory $planetServiceFactory;
+
+    /**
+     * @var BuddyService
+     */
+    private BuddyService $buddyService;
 
     /**
      * Shows the galaxy index page.
@@ -260,6 +266,7 @@ class GalaxyController extends OGameController
      */
     private function getAvailableMissions(int $galaxy, int $system, int $position, PlanetService $planet): array
     {
+        $this->buddyService = app(BuddyService::class);
         $availableMissions = [];
 
         // Transport.
@@ -296,18 +303,7 @@ class GalaxyController extends OGameController
             $currentUserId = $this->playerService->getUser()->id;
             $targetUserId = $planet->getPlayer()->getUser()->id;
 
-            $isBuddy = \OGame\Models\BuddyRequest::where('status', \OGame\Models\BuddyRequest::STATUS_ACCEPTED)
-                ->where(function ($query) use ($currentUserId, $targetUserId) {
-                    $query->where(function ($q) use ($currentUserId, $targetUserId) {
-                        $q->where('sender_user_id', $currentUserId)
-                            ->where('receiver_user_id', $targetUserId);
-                    })
-                    ->orWhere(function ($q) use ($currentUserId, $targetUserId) {
-                        $q->where('sender_user_id', $targetUserId)
-                            ->where('receiver_user_id', $currentUserId);
-                    });
-                })
-                ->exists();
+            $isBuddy = $this->buddyService->areBuddies($currentUserId, $targetUserId);
 
             // ACS Defend (only if target is buddy or ally member).
             if ($isBuddy) {
