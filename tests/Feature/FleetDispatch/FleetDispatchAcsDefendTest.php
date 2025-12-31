@@ -79,14 +79,29 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
     /**
      * Create a buddy relationship between current player and another player.
+     * Uses a dedicated test user/planet to avoid random admin selection issues.
      *
      * @return User The buddy user
      */
     protected function createBuddyPlayer(): User
     {
-        // Get a nearby foreign planet and its player
-        $this->buddyPlanet = $this->getNearbyForeignPlanet();
-        $buddyUser = $this->buddyPlanet->getPlayer()->getUser();
+        // Create a fresh user specifically for this test
+        // This ensures we never accidentally select an admin user
+        $buddyUser = \OGame\Models\User::factory()->create();
+
+        // Create a planet for the buddy user at a random position to avoid conflicts
+        $buddyPlanet = \OGame\Models\Planet::factory()->create([
+            'user_id' => $buddyUser->id,
+            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
+            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
+            'planet' => 8,
+        ]);
+
+        // Get planet service for the buddy's planet
+        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $buddyPlayerService = resolve(\OGame\Services\PlayerService::class, ['player_id' => $buddyUser->id]);
+        $this->buddyPlanet = $planetServiceFactory->makeForPlayer($buddyPlayerService, $buddyPlanet->id);
+
         $buddyService = resolve(BuddyService::class);
 
         // Send buddy request and accept it
