@@ -70,12 +70,40 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     protected ?PlanetService $buddyPlanet = null;
 
     /**
+     * @var array<int> Track buddy user IDs created during test for cleanup
+     */
+    protected array $createdBuddyUserIds = [];
+
+    /**
      * Set up the test case.
      */
     protected function setUp(): void
     {
         parent::setUp();
         $this->buddyPlanet = null;
+        $this->createdBuddyUserIds = [];
+    }
+
+    /**
+     * Clean up test data to prevent state leakage to subsequent tests.
+     * Only removes buddy relationships - test users and planets remain in database
+     * but won't be selected as buddies by subsequent tests.
+     */
+    protected function tearDown(): void
+    {
+        // Clean up buddy relationships created during this test
+        // This prevents test data from affecting subsequent tests that look for non-buddy planets
+        if (!empty($this->createdBuddyUserIds)) {
+            foreach ($this->createdBuddyUserIds as $buddyUserId) {
+                // Delete buddy requests involving this user
+                \Illuminate\Support\Facades\DB::table('buddy_requests')
+                    ->where('sender_user_id', $buddyUserId)
+                    ->orWhere('receiver_user_id', $buddyUserId)
+                    ->delete();
+            }
+        }
+
+        parent::tearDown();
     }
 
     /**
@@ -89,6 +117,9 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         // Create a fresh user specifically for this test
         // This ensures we never accidentally select an admin user
         $buddyUser = \OGame\Models\User::factory()->create();
+
+        // Track this user ID for cleanup in tearDown
+        $this->createdBuddyUserIds[] = $buddyUser->id;
 
         // Create a planet for the buddy user at a random position to avoid conflicts
         $buddyPlanet = \OGame\Models\Planet::factory()->create([
