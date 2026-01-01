@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use Exception;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameConstants\UniverseConstants;
@@ -16,7 +17,6 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
-use Exception;
 
 class ColonisationMission extends GameMission
 {

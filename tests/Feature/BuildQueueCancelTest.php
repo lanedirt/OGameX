@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Models\Resources;
 use Tests\AccountTestCase;
-use Exception;
 
 /**
  * Test AJAX calls to make sure they work as expected.

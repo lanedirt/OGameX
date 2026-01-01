@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
+use Exception;
 use OGame\Models\BuddyRequest;
 use OGame\Models\User;
 use OGame\Services\BuddyService;
 use Tests\AccountTestCase;
-use Exception;
 
 /**
  * Test buddy system functionality.

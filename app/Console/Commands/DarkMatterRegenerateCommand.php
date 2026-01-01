@@ -2,9 +2,9 @@
 
 namespace OGame\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use OGame\Services\DarkMatterService;
-use Exception;
 
 class DarkMatterRegenerateCommand extends Command
 {

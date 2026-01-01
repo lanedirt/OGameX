@@ -2,9 +2,9 @@
 
 namespace OGame\Services;
 
+use Exception;
 use Illuminate\Support\Carbon;
 use OGame\Models\FleetMission;
-use Exception;
 
 /**
  * Class JumpGateService

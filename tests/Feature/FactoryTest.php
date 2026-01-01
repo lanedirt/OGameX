@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
+use DB;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
 use Tests\AccountTestCase;
-use DB;
 
 /**
  * Test factory classes.

@@ -2,11 +2,11 @@
 
 namespace OGame\GameObjects\Services\Properties;
 
+use Exception;
 use OGame\GameObjects\Models\Fields\GameObjectPropertyDetails;
 use OGame\GameObjects\Models\Fields\GameObjectSpeedUpgrade;
 use OGame\GameObjects\Services\Properties\Abstracts\ObjectPropertyService;
 use OGame\Services\PlayerService;
-use Exception;
 
 /**
  * Class ObjectPropertyService.

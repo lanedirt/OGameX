@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use Tests\UnitTestCase;
 use FFI;
+use Tests\UnitTestCase;
 
 class RustFfiTest extends UnitTestCase
 {

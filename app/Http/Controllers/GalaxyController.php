@@ -6,7 +6,9 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Log;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
@@ -16,8 +18,6 @@ use OGame\Services\PhalanxService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use OGame\Models\Enums\PlanetType;
-use Log;
 
 class GalaxyController extends OGameController
 {

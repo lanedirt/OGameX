@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OGame\Enums\FleetMissionStatus;
@@ -13,7 +14,6 @@ use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
-use Exception;
 
 /**
  * Interplanetary Ballistic Missile (IBM/IPM) Attack Mission

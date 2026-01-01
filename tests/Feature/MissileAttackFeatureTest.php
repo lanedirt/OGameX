@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use Tests\AccountTestCase;
 use Route;
+use Tests\AccountTestCase;
 
 /**
  * Feature tests for missile attack functionality.

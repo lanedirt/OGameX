@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use OGame\Models\Resources;
 use Exception;
+use OGame\Models\Resources;
 
 class PlanetTest extends AccountTestCase
 {

@@ -2,10 +2,10 @@
 
 namespace Tests\Unit;
 
+use Exception;
 use OGame\Models\Enums\ResourceType;
 use OGame\Models\Resources;
 use Tests\UnitTestCase;
-use Exception;
 
 class PlanetServiceTest extends UnitTestCase
 {

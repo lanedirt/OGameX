@@ -2,8 +2,8 @@
 
 namespace OGame\Services;
 
-use OGame\GameObjects\Models\Units\UnitCollection;
 use Exception;
+use OGame\GameObjects\Models\Units\UnitCollection;
 
 /**
  * NPCFleetGeneratorService - Generates NPC fleets for expedition battles.

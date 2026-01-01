@@ -2,9 +2,9 @@
 
 namespace Tests\Unit;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Tests\UnitTestCase;
-use Exception;
 
 class HighscoreCalculationTest extends UnitTestCase
 {

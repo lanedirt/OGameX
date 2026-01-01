@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Carbon\Carbon;
+use DB;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,6 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use DB;
 
 /**
  * Base class for tests that require account context. Common setup includes signup of new account and login.

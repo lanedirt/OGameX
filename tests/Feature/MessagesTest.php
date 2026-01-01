@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Lang;
 use OGame\Factories\GameMessageFactory;
 use OGame\Models\BattleReport;
 use OGame\Models\EspionageReport;
@@ -10,7 +11,6 @@ use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\MessageService;
 use Tests\MoonTestCase;
-use Lang;
 
 /**
  * Test AJAX calls to make sure they work as expected.

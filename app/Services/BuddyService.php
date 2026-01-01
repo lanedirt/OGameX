@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use OGame\GameMessages\BuddyRemoved;
 use OGame\GameMessages\BuddyRequestAccepted;
@@ -9,7 +10,6 @@ use OGame\GameMessages\BuddyRequestReceived;
 use OGame\Models\BuddyRequest;
 use OGame\Models\IgnoredPlayer;
 use OGame\Models\User;
-use Exception;
 
 /**
  * Class BuddyService.

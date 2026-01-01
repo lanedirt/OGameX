@@ -2,13 +2,13 @@
 
 namespace OGame\GameMessages\Abstracts;
 
+use Exception;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
-use Exception;
 
 /**
  * GameMessage class which contains unique parsing logic for a specific message type.
