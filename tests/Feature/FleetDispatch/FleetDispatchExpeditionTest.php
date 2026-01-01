@@ -211,6 +211,69 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     }
 
     /**
+     * Test that recalling an expedition during travel results in return time equal to time traveled.
+     * This verifies the fix for bug #920 where recalled expeditions would include hold time in return trip.
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function testDispatchFleetRecallDuringTravel(): void
+    {
+        $this->basicSetup();
+
+        // Send the expedition mission
+        $this->sendTestExpedition(true);
+
+        // Get the fleet mission
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $parentMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Record when the mission departed
+        $departureTime = (int)$parentMission->time_departure;
+        $travelTime = $parentMission->time_arrival - $parentMission->time_departure;
+        $holdingTime = $parentMission->time_holding;
+
+        // Verify the expedition has holding time (should be at least 1 hour)
+        $this->assertGreaterThan(0, $holdingTime, 'Expedition should have holding time set');
+
+        // Wait for 5 seconds of travel time
+        $this->travel(5)->seconds();
+
+        // Recall the fleet after 5 seconds
+        $currentTime = (int)\Illuminate\Support\Carbon::now()->timestamp;
+        $fleetMissionService->cancelMission($parentMission);
+
+        // Reload the fleet mission service
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+
+        // Get the return mission
+        $returnMission = $fleetMissionService->getFleetMissionByParentId($parentMission->id, false);
+        $this->assertNotNull($returnMission, 'Return mission should be created after recall');
+
+        // Calculate expected return time
+        // The fleet has been traveling for approximately 5 seconds, so it should take approximately 5 seconds to return
+        $timeAlreadyTraveled = $currentTime - $departureTime;
+        $expectedReturnTime = $currentTime + $timeAlreadyTraveled;
+
+        // Allow 2 second tolerance for processing time
+        $this->assertEqualsWithDelta(
+            $expectedReturnTime,
+            $returnMission->time_arrival,
+            2,
+            'Return mission should arrive at current_time + time_already_traveled (not including hold time)'
+        );
+
+        // Verify that the return time does NOT include the holding time
+        // If the bug were present, the return time would be: current_time + time_traveled + holding_time
+        $buggyReturnTime = $currentTime + $timeAlreadyTraveled + $holdingTime;
+        $this->assertNotEquals(
+            $buggyReturnTime,
+            $returnMission->time_arrival,
+            'Return mission should NOT include holding time when recalled'
+        );
+    }
+
+    /**
      * Send an expedition mission to position 16 with only espionage units.
      *
      * @return void
