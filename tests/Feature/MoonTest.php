@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use Tests\MoonTestCase;
 use OGame\Models\Resources;
+use Tests\MoonTestCase;
 
 class MoonTest extends MoonTestCase
 {

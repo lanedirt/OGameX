@@ -4,8 +4,8 @@ namespace OGame\Services;
 
 use Exception;
 use OGame\Factories\PlanetServiceFactory;
-use OGame\Models\Planet as Planet;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\Planet as Planet;
 use OGame\Models\Planet\Coordinate;
 
 /**

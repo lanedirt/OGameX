@@ -2,8 +2,8 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Support\Facades\App;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\App;
 
 class LanguageController extends OGameController
 {

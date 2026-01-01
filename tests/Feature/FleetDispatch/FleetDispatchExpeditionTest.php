@@ -2,15 +2,15 @@
 
 namespace Tests\Feature\FleetDispatch;
 
-use OGame\GameObjects\Models\Units\UnitCollection;
+use Exception;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
-use OGame\Models\Resources;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Highscore;
+use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
-use Exception;
 
 /**
  * Test that fleet dispatch works as expected for expedition missions.

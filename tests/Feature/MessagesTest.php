@@ -7,8 +7,8 @@ use OGame\Models\BattleReport;
 use OGame\Models\EspionageReport;
 use OGame\Models\Message;
 use OGame\Models\Resources;
-use OGame\Services\MessageService;
 use OGame\Services\DebrisFieldService;
+use OGame\Services\MessageService;
 use Tests\MoonTestCase;
 
 /**

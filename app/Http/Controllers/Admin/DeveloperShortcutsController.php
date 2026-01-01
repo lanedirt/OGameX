@@ -6,15 +6,15 @@ use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use OGame\Facades\AppUtil;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\GameConstants\UniverseConstants;
 use OGame\Http\Controllers\OGameController;
+use OGame\Models\Planet\Coordinate;
+use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
-use OGame\Models\Planet\Coordinate;
-use OGame\Factories\PlanetServiceFactory;
-use OGame\Services\DebrisFieldService;
-use OGame\Models\Resources;
-use OGame\Facades\AppUtil;
 use OGame\Services\SettingsService;
 
 class DeveloperShortcutsController extends OGameController

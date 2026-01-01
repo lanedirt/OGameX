@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -13,10 +14,9 @@ use OGame\Models\{
     Resources,
 };
 use OGame\Services\BuildingQueueService;
-use OGame\Services\UnitQueueService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
-use Carbon\Carbon;
+use OGame\Services\UnitQueueService;
 
 class ResourcesController extends AbstractBuildingsController
 {
