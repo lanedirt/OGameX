@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Exception;
 use OGame\Models\Resources;
 use Tests\AccountTestCase;
 
@@ -48,7 +49,7 @@ class PlanetTest extends AccountTestCase
         // Try to build lunar base
         try {
             $this->addFacilitiesBuildRequest('lunar_base');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Expecting an exception to be thrown, continue with checks below that
             // assert the correct state.
         }

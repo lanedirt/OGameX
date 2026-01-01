@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
+use FFI;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -22,9 +23,9 @@ use OGame\Services\SettingsService;
 class RustBattleEngine extends BattleEngine
 {
     /**
-     * @var \FFI The FFI instance used to call the Rust battle engine.
+     * @var FFI The FFI instance used to call the Rust battle engine.
      */
-    private \FFI $ffi;
+    private FFI $ffi;
 
     /**
      * RustBattleEngine constructor.
@@ -38,7 +39,7 @@ class RustBattleEngine extends BattleEngine
     {
         parent::__construct($attackerFleet, $attackerPlayer, $defenderPlanet, $settings);
 
-        $this->ffi = \FFI::cdef(
+        $this->ffi = FFI::cdef(
             "char* fight_battle_rounds(const char* input_json);",
             base_path('storage/rust-libs/libbattle_engine_ffi.so')
         );
@@ -61,7 +62,7 @@ class RustBattleEngine extends BattleEngine
         // Call Rust function
         // @phpstan-ignore-next-line
         $outputPtr = $this->ffi->fight_battle_rounds($inputJson);
-        $output = \FFI::string($outputPtr);
+        $output = FFI::string($outputPtr);
 
         // Parse JSON response
         $battleOutput = json_decode($output, true);

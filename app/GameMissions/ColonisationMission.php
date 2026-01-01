@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use Exception;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameConstants\UniverseConstants;
@@ -73,7 +74,7 @@ class ColonisationMission extends GameMission
 
     /**
      * @inheritdoc
-     * @throws \Exception
+     * @throws Exception
      */
     protected function processArrival(FleetMission $mission): void
     {

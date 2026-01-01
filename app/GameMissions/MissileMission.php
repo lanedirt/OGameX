@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OGame\Enums\FleetMissionStatus;
@@ -253,7 +254,7 @@ class MissileMission extends GameMission
             // Mark mission as processed
             $mission->processed = 1;
             $mission->save();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Missile mission processing failed', [
                 'mission_id' => $mission->id,
                 'error' => $e->getMessage(),

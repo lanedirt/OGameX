@@ -10,6 +10,7 @@ use OGame\Models\UnitQueue;
 use OGame\ViewModels\Queue\UnitQueueListViewModel;
 use OGame\ViewModels\Queue\UnitQueueViewModel;
 use OGame\ViewModels\QueueListViewModel;
+use RuntimeException;
 
 /**
  * Class UnitQueueService.
@@ -219,7 +220,7 @@ class UnitQueueService
         // Deduct resources
         try {
             $planet->deductResources($total_price);
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             // Insufficient resources (atomic check failed) so we don't create the queue item.
             return;
         }

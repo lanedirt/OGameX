@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use InvalidArgumentException;
 use OGame\Factories\GameMessageFactory;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMessages\BattleReport;
@@ -138,7 +139,7 @@ class MessageService
     {
         // Ensure the provided class is a subclass of GameMessage
         if (!is_subclass_of($gameMessageClass, GameMessage::class)) {
-            throw new \InvalidArgumentException('Invalid game message class: ' . $gameMessageClass);
+            throw new InvalidArgumentException('Invalid game message class: ' . $gameMessageClass);
         }
 
         try {

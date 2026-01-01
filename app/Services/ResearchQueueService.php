@@ -9,6 +9,7 @@ use OGame\Models\ResearchQueue;
 use OGame\Models\Resources;
 use OGame\ViewModels\Queue\ResearchQueueListViewModel;
 use OGame\ViewModels\Queue\ResearchQueueViewModel;
+use RuntimeException;
 
 /**
  * Class ResearchQueueService.
@@ -299,7 +300,7 @@ class ResearchQueueService
             // Deduct resources
             try {
                 $planet->deductResources($price);
-            } catch (\RuntimeException $e) {
+            } catch (RuntimeException $e) {
                 // Insufficient resources so we cancel the research request.
                 $this->cancel($player, $queue_item->id, $queue_item->object_id);
                 continue;

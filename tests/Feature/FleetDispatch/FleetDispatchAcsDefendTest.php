@@ -11,6 +11,7 @@ use OGame\Services\BuddyService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use RuntimeException;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -117,7 +118,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     protected function sendMissionToBuddyPlanet(UnitCollection $units, Resources $resources, bool $assertStatus = true): PlanetService
     {
         if ($this->buddyPlanet === null) {
-            throw new \RuntimeException('Must call createBuddyPlayer() before sendMissionToBuddyPlanet()');
+            throw new RuntimeException('Must call createBuddyPlayer() before sendMissionToBuddyPlanet()');
         }
 
         $this->dispatchFleet($this->buddyPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, 0, $assertStatus);

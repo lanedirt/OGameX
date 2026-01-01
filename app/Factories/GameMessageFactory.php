@@ -5,6 +5,7 @@ namespace OGame\Factories;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\Models\Message;
+use RuntimeException;
 
 class GameMessageFactory
 {
@@ -68,7 +69,7 @@ class GameMessageFactory
                 // Create a new instance of the game message class and pass a new (empty) Message object to it.
                 $gameMessages[$id] = resolve($class, ['message' => new Message()]);
             } catch (BindingResolutionException $e) {
-                throw new \RuntimeException('Game message not found: ' . $class);
+                throw new RuntimeException('Game message not found: ' . $class);
             }
         }
         return $gameMessages;
@@ -85,7 +86,7 @@ class GameMessageFactory
         try {
             return resolve(self::$gameMessageClasses[$message->key], ['message' => $message]);
         } catch (BindingResolutionException $e) {
-            throw new \RuntimeException('Game message not found: ' . $message->key);
+            throw new RuntimeException('Game message not found: ' . $message->key);
         }
     }
 
@@ -108,7 +109,7 @@ class GameMessageFactory
                     $matchingKeys[] = $id;
                 }
             } catch (BindingResolutionException $e) {
-                throw new \RuntimeException('Game message not found: ' . $className);
+                throw new RuntimeException('Game message not found: ' . $className);
             }
         }
 

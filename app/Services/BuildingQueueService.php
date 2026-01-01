@@ -9,6 +9,7 @@ use OGame\Models\BuildingQueue;
 use OGame\Models\Resources;
 use OGame\ViewModels\Queue\BuildingQueueListViewModel;
 use OGame\ViewModels\Queue\BuildingQueueViewModel;
+use RuntimeException;
 
 /**
  * Class BuildingQueueService.
@@ -397,7 +398,7 @@ class BuildingQueueService
             // Deduct resources
             try {
                 $planet->deductResources($price);
-            } catch (\RuntimeException $e) {
+            } catch (RuntimeException $e) {
                 // Insufficient resources so we cancel the build request.
                 $this->cancel($planet, $queue_item->id, $queue_item->object_id);
                 continue;

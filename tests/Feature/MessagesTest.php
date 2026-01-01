@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Lang;
 use OGame\Factories\GameMessageFactory;
 use OGame\Models\BattleReport;
 use OGame\Models\EspionageReport;
@@ -255,13 +256,13 @@ class MessagesTest extends MoonTestCase
 
             // Check that the base translation key exists
             $this->assertTrue(
-                \Lang::has('t_messages.' . $baseKey),
+                Lang::has('t_messages.' . $baseKey),
                 "Base translation key 't_messages.{$baseKey}' does not exist for {$key}"
             );
 
             // Check that the subject translation exists
             $this->assertTrue(
-                \Lang::has('t_messages.' . $baseKey . '.subject'),
+                Lang::has('t_messages.' . $baseKey . '.subject'),
                 "Subject translation key 't_messages.{$baseKey}.subject' does not exist for {$key}"
             );
 
@@ -269,7 +270,7 @@ class MessagesTest extends MoonTestCase
             for ($i = 1; $i <= $numberOfVariations; $i++) {
                 $variationKey = 't_messages.' . $baseKey . '.body.' . $i;
                 $this->assertTrue(
-                    \Lang::has($variationKey),
+                    Lang::has($variationKey),
                     "Translation variation key '{$variationKey}' does not exist for {$key} (variation {$i} of {$numberOfVariations})"
                 );
 
@@ -284,7 +285,7 @@ class MessagesTest extends MoonTestCase
             // Check that there are no extra variations beyond what's declared
             $extraVariationKey = 't_messages.' . $baseKey . '.body.' . ($numberOfVariations + 1);
             $this->assertFalse(
-                \Lang::has($extraVariationKey),
+                Lang::has($extraVariationKey),
                 "Extra translation variation '{$extraVariationKey}' exists but is not declared in {$key} (should only have {$numberOfVariations} variations)"
             );
         }

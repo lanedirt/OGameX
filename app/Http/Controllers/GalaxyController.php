@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Log;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
@@ -874,7 +875,7 @@ class GalaxyController extends OGameController
         $currentPlanet->removeUnit('interplanetary_missile', $missileCount);
         $currentPlanet->save();
 
-        \Log::info('Missile Attack Launched', [
+        Log::info('Missile Attack Launched', [
             'player_id' => $player->getId(),
             'mission_id' => $mission->id,
             'from' => $currentPlanet->getPlanetCoordinates()->asString(),

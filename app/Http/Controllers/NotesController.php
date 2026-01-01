@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -115,7 +116,7 @@ class NotesController extends OGameController
                 'error' => null,
                 'success' =>  $message
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'id' => null,
                 'error' => __('Failed to process note'),

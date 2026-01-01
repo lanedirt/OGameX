@@ -2,6 +2,7 @@
 
 namespace OGame\GameMessages\Abstracts;
 
+use Exception;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
@@ -305,7 +306,7 @@ abstract class GameMessage
             try {
                 $playerServiceFactory =  resolve(PlayerServiceFactory::class);
                 $playerService = $playerServiceFactory->make((int)$matches[1]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Do nothing
             }
 
@@ -323,7 +324,7 @@ abstract class GameMessage
             try {
                 $planetServiceFactory = resolve(PlanetServiceFactory::class);
                 $planetService = $planetServiceFactory->make((int)$matches[1]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Do nothing
             }
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Route;
 use Tests\AccountTestCase;
 
 /**
@@ -15,19 +16,19 @@ class MissileAttackFeatureTest extends AccountTestCase
     public function testMissileAttackRouteExists(): void
     {
         // Verify the route is registered
-        $this->assertTrue(\Route::has('galaxy.missile-attack'));
+        $this->assertTrue(Route::has('galaxy.missile-attack'));
     }
 
     public function testMissileAttackOverlayRouteExists(): void
     {
         // Verify the overlay route is registered
-        $this->assertTrue(\Route::has('galaxy.missile-attack.overlay'));
+        $this->assertTrue(Route::has('galaxy.missile-attack.overlay'));
     }
 
     public function testDestroyRocketsRouteExists(): void
     {
         // Verify the destroy rockets route is registered
-        $this->assertTrue(\Route::has('facilities.destroy-rockets'));
+        $this->assertTrue(Route::has('facilities.destroy-rockets'));
     }
 
     public function testValidationNoMissiles(): void

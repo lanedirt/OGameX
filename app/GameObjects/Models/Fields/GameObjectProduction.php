@@ -2,6 +2,7 @@
 
 namespace OGame\GameObjects\Models\Fields;
 
+use Closure;
 use OGame\Models\{
     ProductionIndex,
 };
@@ -20,9 +21,9 @@ class GameObjectProduction
      *   1. GameObjectProduction $gameObjectProduction
      *   2. int $level
      *
-     * @var ?\Closure
+     * @var ?Closure
      */
-    public ?\Closure $metal_formula = null;
+    public ?Closure $metal_formula = null;
 
     /**
      * Crystal production formula in \Closure format.
@@ -32,9 +33,9 @@ class GameObjectProduction
      *   1. GameObjectProduction $gameObjectProduction
      *   2. int $level
      *
-     * @var ?\Closure
+     * @var ?Closure
      */
-    public ?\Closure $crystal_formula = null;
+    public ?Closure $crystal_formula = null;
 
     /**
      * Deuterium production formula in \Closure format.
@@ -44,9 +45,9 @@ class GameObjectProduction
      *   1. GameObjectProduction $gameObjectProduction
      *   2. int $level
      *
-     * @var ?\Closure
+     * @var ?Closure
      */
-    public ?\Closure $deuterium_formula = null;
+    public ?Closure $deuterium_formula = null;
 
     /**
      * Energy production formula in \Closure format.
@@ -56,9 +57,9 @@ class GameObjectProduction
      *   1. GameObjectProduction $gameObjectProduction
      *   2. int $level
      *
-     * @var ?\Closure
+     * @var ?Closure
      */
-    public ?\Closure $energy_formula = null;
+    public ?Closure $energy_formula = null;
 
     /**
      * The planet the object production calculation applies to

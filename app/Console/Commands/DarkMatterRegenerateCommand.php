@@ -2,6 +2,7 @@
 
 namespace OGame\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use OGame\Services\DarkMatterService;
 
@@ -43,7 +44,7 @@ class DarkMatterRegenerateCommand extends Command
             $this->darkMatterService->processAllRegeneration();
             $this->info('Dark Matter regeneration completed successfully.');
             return Command::SUCCESS;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('Failed to process Dark Matter regeneration: ' . $e->getMessage());
             return Command::FAILURE;
         }

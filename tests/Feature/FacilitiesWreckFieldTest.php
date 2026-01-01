@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Models\Planet;
 use OGame\Models\User;
@@ -98,7 +99,7 @@ class FacilitiesWreckFieldTest extends TestCase
     public function test_start_repairs_fails_without_space_dock(): void
     {
         // Set planet space dock level to 0
-        \DB::table('planets')
+        DB::table('planets')
             ->where('id', $this->planet->id)
             ->update(['space_dock' => 0]);
 

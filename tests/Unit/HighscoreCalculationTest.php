@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Tests\UnitTestCase;
 
@@ -104,7 +105,7 @@ class HighscoreCalculationTest extends UnitTestCase
 
     /**
      * Test that the planet score is calculated correctly based on building levels and unit count combined.
-     * @throws \Exception
+     * @throws Exception
      */
     public function testEconomyScore(): void
     {
@@ -120,7 +121,7 @@ class HighscoreCalculationTest extends UnitTestCase
 
     /**
      * Test that the planet score is calculated correctly based on building levels and unit count combined.
-     * @throws \Exception
+     * @throws Exception
      */
     public function testMilitaryPoints(): void
     {
