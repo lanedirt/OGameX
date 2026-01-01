@@ -244,7 +244,7 @@ abstract class AccountTestCase extends TestCase
             ->whereNotIn('user_id', $this->getAdminUserIds())
             ->inRandomOrder()
             ->limit(1)
-            ->pluck('id');
+            ->pluck('planets.id');
 
         if ($planet_id === null || count($planet_id) === 0) {
             // No planets found, attempt to create a new user to see if this fixes it.
@@ -258,7 +258,7 @@ abstract class AccountTestCase extends TestCase
                 ->whereNotIn('user_id', $this->getAdminUserIds())
                 ->inRandomOrder()
                 ->limit(1)
-                ->pluck('id');
+                ->pluck('planets.id');
         }
 
         if ($planet_id === null || count($planet_id) === 0) {

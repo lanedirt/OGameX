@@ -228,6 +228,9 @@ class FleetEventsController extends OGameController
                 case 3:
                     // Neutral;
                     return FleetMissionStatus::Neutral;
+                case 5: // ACS Defend
+                    // Neutral (displays as "friendly" in UI with gold color)
+                    return FleetMissionStatus::Neutral;
             }
         }
 

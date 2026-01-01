@@ -10,6 +10,7 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use OGame\Services\BuddyService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PhalanxService;
 use OGame\Services\PlanetService;
@@ -27,6 +28,11 @@ class GalaxyController extends OGameController
      * @var PlanetServiceFactory
      */
     private PlanetServiceFactory $planetServiceFactory;
+
+    /**
+     * @var BuddyService
+     */
+    private BuddyService $buddyService;
 
     /**
      * Shows the galaxy index page.
@@ -260,6 +266,7 @@ class GalaxyController extends OGameController
      */
     private function getAvailableMissions(int $galaxy, int $system, int $position, PlanetService $planet): array
     {
+        $this->buddyService = app(BuddyService::class);
         $availableMissions = [];
 
         // Transport.
@@ -289,6 +296,21 @@ class GalaxyController extends OGameController
                     'missionType' => 1,
                     'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 1]),
                     'name' => __('Attack'),
+                ];
+            }
+
+            // Check if target player is a buddy or ally member
+            $currentUserId = $this->playerService->getUser()->id;
+            $targetUserId = $planet->getPlayer()->getUser()->id;
+
+            $isBuddy = $this->buddyService->areBuddies($currentUserId, $targetUserId);
+
+            // ACS Defend (only if target is buddy or ally member).
+            if ($isBuddy) {
+                $availableMissions[] = [
+                    'missionType' => 5,
+                    'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 5]),
+                    'name' => __('ACS Defend'),
                 ];
             }
 
