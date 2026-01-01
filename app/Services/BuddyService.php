@@ -458,4 +458,27 @@ class BuddyService
             ->where('ignored_user_id', $ignoredUserId)
             ->exists();
     }
+
+    /**
+     * Check if two users are buddies (have an accepted buddy request).
+     *
+     * @param int $userId1
+     * @param int $userId2
+     * @return bool
+     */
+    public function areBuddies(int $userId1, int $userId2): bool
+    {
+        return BuddyRequest::where('status', BuddyRequest::STATUS_ACCEPTED)
+            ->where(function ($query) use ($userId1, $userId2) {
+                $query->where(function ($q) use ($userId1, $userId2) {
+                    $q->where('sender_user_id', $userId1)
+                        ->where('receiver_user_id', $userId2);
+                })
+                ->orWhere(function ($q) use ($userId1, $userId2) {
+                    $q->where('sender_user_id', $userId2)
+                        ->where('receiver_user_id', $userId1);
+                });
+            })
+            ->exists();
+    }
 }

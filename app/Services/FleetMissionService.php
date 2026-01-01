@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use OGame\Enums\FleetSpeedType;
 use OGame\Factories\GameMissionFactory;
+use OGame\GameConstants\UniverseConstants;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
-use OGame\GameConstants\UniverseConstants;
 use OGame\Models\Resources;
 
 /**

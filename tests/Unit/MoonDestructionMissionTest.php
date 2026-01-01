@@ -2,16 +2,16 @@
 
 namespace Tests\Unit;
 
-use OGame\GameMissions\MoonDestructionMission;
-use OGame\Services\FleetMissionService;
-use OGame\Services\MessageService;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
-use OGame\Services\SettingsService;
-use OGame\Models\Planet\Coordinate;
+use OGame\GameMissions\MoonDestructionMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
-use Tests\UnitTestCase;
+use OGame\Models\Planet\Coordinate;
+use OGame\Services\FleetMissionService;
+use OGame\Services\MessageService;
+use OGame\Services\SettingsService;
 use ReflectionClass;
+use Tests\UnitTestCase;
 
 class MoonDestructionMissionTest extends UnitTestCase
 {

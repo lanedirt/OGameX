@@ -4,13 +4,13 @@ namespace OGame\Factories;
 
 use Cache;
 use Illuminate\Support\Carbon;
+use OGame\GameConstants\UniverseConstants;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use OGame\GameConstants\UniverseConstants;
-use OGame\Models\Enums\PlanetType;
 use RuntimeException;
 
 /**

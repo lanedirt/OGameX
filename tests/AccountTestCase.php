@@ -5,6 +5,7 @@ namespace Tests;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use OGame\Factories\GameMessageFactory;
@@ -206,6 +207,23 @@ abstract class AccountTestCase extends TestCase
     }
 
     /**
+     * Get admin user IDs. Cached for the current request to avoid repeated queries.
+     *
+     * @return array
+     */
+    protected function getAdminUserIds(): array
+    {
+        return once(function () {
+            return DB::table('model_has_roles')
+                ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+                ->where('roles.name', 'admin')
+                ->where('model_has_roles.model_type', 'OGame\\Models\\User')
+                ->pluck('model_id')
+                ->toArray();
+        });
+    }
+
+    /**
      * Gets a nearby foreign planet for the current user. This is useful for testing interactions between two players.
      *
      * @return PlanetService
@@ -217,16 +235,17 @@ abstract class AccountTestCase extends TestCase
         $maxGalaxies = $settingsService->numberOfGalaxies();
 
         // Find a planet of another player that is close to the current player by checking the same galaxy
-        // and up to 15 systems away. Only search in valid galaxies.
+        // and up to 15 systems away. Only search in valid galaxies. Exclude admin players.
         $planet_id = DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
             ->where('galaxy', '<=', $maxGalaxies)
             ->where('planet_type', PlanetType::Planet)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+            ->whereNotIn('user_id', $this->getAdminUserIds())
             ->inRandomOrder()
             ->limit(1)
-            ->pluck('id');
+            ->pluck('planets.id');
 
         if ($planet_id === null || count($planet_id) === 0) {
             // No planets found, attempt to create a new user to see if this fixes it.
@@ -237,9 +256,10 @@ abstract class AccountTestCase extends TestCase
                 ->where('galaxy', '<=', $maxGalaxies)
                 ->where('planet_type', PlanetType::Planet)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+                ->whereNotIn('user_id', $this->getAdminUserIds())
                 ->inRandomOrder()
                 ->limit(1)
-                ->pluck('id');
+                ->pluck('planets.id');
         }
 
         if ($planet_id === null || count($planet_id) === 0) {
@@ -296,13 +316,14 @@ abstract class AccountTestCase extends TestCase
         $maxGalaxies = $settingsService->numberOfGalaxies();
 
         // Find a planet of another player that is close to the current player by checking the same galaxy
-        // and up to 15 systems away. Only search in valid galaxies.
+        // and up to 15 systems away. Only search in valid galaxies. Exclude admin players.
         $planet_id = DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
             ->where('galaxy', '<=', $maxGalaxies)
             ->where('planet_type', PlanetType::Moon)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+            ->whereNotIn('user_id', $this->getAdminUserIds())
             ->inRandomOrder()
             ->limit(1)
             ->pluck('id');
@@ -322,6 +343,7 @@ abstract class AccountTestCase extends TestCase
                 ->where('galaxy', '<=', $maxGalaxies)
                 ->where('planet_type', PlanetType::Moon)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+                ->whereNotIn('user_id', $this->getAdminUserIds())
                 ->inRandomOrder()
                 ->limit(1)
                 ->pluck('id');

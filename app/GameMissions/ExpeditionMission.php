@@ -2,35 +2,35 @@
 
 namespace OGame\GameMissions;
 
+use Exception;
+use OGame\Enums\FleetMissionStatus;
+use OGame\Enums\FleetSpeedType;
+use OGame\Enums\HighscoreTypeEnum;
+use OGame\GameMessages\ExpeditionBattleAliens;
+use OGame\GameMessages\ExpeditionBattlePirates;
 use OGame\GameMessages\ExpeditionFailed;
 use OGame\GameMessages\ExpeditionFailedAndDelay;
 use OGame\GameMessages\ExpeditionFailedAndSpeedup;
-use OGame\GameMessages\ExpeditionGainResources;
-use OGame\GameMessages\ExpeditionGainShips;
 use OGame\GameMessages\ExpeditionGainDarkMatter;
 use OGame\GameMessages\ExpeditionGainItem;
+use OGame\GameMessages\ExpeditionGainResources;
+use OGame\GameMessages\ExpeditionGainShips;
 use OGame\GameMessages\ExpeditionLossOfFleet;
-use OGame\GameMessages\ExpeditionBattlePirates;
-use OGame\GameMessages\ExpeditionBattleAliens;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\ShipObject;
 use OGame\GameObjects\Models\Units\UnitCollection;
-use OGame\Models\Enums\ResourceType;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\Enums\ResourceType;
 use OGame\Models\FleetMission;
+use OGame\Models\Highscore;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
-use OGame\Models\Highscore;
 use OGame\Models\User;
-use OGame\Enums\FleetMissionStatus;
-use OGame\Enums\FleetSpeedType;
-use OGame\Enums\HighscoreTypeEnum;
-use OGame\Services\PlanetService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlanetService;
 use OGame\Services\SettingsService;
-use Exception;
 
 class ExpeditionMission extends GameMission
 {

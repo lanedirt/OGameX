@@ -4,8 +4,8 @@ namespace Tests\Feature\FleetDispatch;
 
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
-use OGame\Models\EspionageReport;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\EspionageReport;
 use OGame\Models\Resources;
 use OGame\Services\CounterEspionageService;
 use OGame\Services\FleetMissionService;

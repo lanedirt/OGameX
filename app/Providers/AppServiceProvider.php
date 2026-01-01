@@ -2,6 +2,7 @@
 
 namespace OGame\Providers;
 
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use OGame\Exceptions\Handler;
@@ -10,7 +11,6 @@ use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
 use OGame\Observers\UserObserver;
 use OGame\Services\SettingsService;
-use Illuminate\Contracts\Debug\ExceptionHandler;
 
 class AppServiceProvider extends ServiceProvider
 {

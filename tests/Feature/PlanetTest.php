@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Tests\AccountTestCase;
 use OGame\Models\Resources;
 use Exception;
 

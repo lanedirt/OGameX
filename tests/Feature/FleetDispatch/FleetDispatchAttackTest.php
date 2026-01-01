@@ -12,11 +12,11 @@ use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
-use OGame\Services\DebrisFieldService;
 
 /**
  * Test that fleet dispatch works as expected for attack missions.

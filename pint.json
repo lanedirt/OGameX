@@ -5,6 +5,8 @@
     "database/migrations"
   ],
   "rules": {
+    "no_unused_imports": true,
+    "ordered_imports": true,
     "simplified_null_return": true,
     "braces": false,
     "no_extra_blank_lines": {
