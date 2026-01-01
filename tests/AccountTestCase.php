@@ -3,7 +3,6 @@
 namespace Tests;
 
 use Carbon\Carbon;
-use DB;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\DB;
