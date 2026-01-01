@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\FleetDispatch;
 
+use Illuminate\Support\Facades\DB;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
@@ -88,6 +89,9 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
      * Clean up test data after each test to prevent state leakage.
      * Only removes buddy relationships and resets vacation mode - test users and planets
      * remain in database but won't have special state that affects subsequent tests.
+     *
+     * @todo Refactor test architecture to support DatabaseTransactions/RefreshDatabase
+     *       by removing dependency on reloadApplication() expecting persisted users.
      */
     protected function tearDown(): void
     {
@@ -97,7 +101,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
             $buddyUserId = array_shift(self::$allCreatedBuddyUserIds);
 
             // Delete buddy requests involving this user (with proper SQL grouping)
-            \Illuminate\Support\Facades\DB::table('buddy_requests')
+            DB::table('buddy_requests')
                 ->where(function ($query) use ($buddyUserId) {
                     $query->where('sender_user_id', $buddyUserId)
                         ->orWhere('receiver_user_id', $buddyUserId);
@@ -106,7 +110,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
             // Reset all vacation mode fields for buddy user
             // activateVacationMode() sets: vacation_mode, vacation_mode_activated_at, vacation_mode_until
-            \Illuminate\Support\Facades\DB::table('users')
+            DB::table('users')
                 ->where('id', $buddyUserId)
                 ->update([
                     'vacation_mode' => false,
@@ -118,7 +122,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         // Also reset all vacation mode fields for the current test user
         // (testDispatchFleetFromVacationModeError sets this)
         if (isset($this->currentUserId)) {
-            \Illuminate\Support\Facades\DB::table('users')
+            DB::table('users')
                 ->where('id', $this->currentUserId)
                 ->update([
                     'vacation_mode' => false,
