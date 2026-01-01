@@ -5,7 +5,6 @@ namespace Tests;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
