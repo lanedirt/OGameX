@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\AccountTestCase;
-use OGame\Services\DebrisFieldService;
 use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
+use Tests\AccountTestCase;
 
 /**
  * Test that the galaxy page works as expected.

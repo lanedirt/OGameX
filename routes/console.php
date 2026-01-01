@@ -1,10 +1,10 @@
 <?php
 
-use OGame\Console\Commands\DarkMatterRegenerateCommand;
-use OGame\Console\Commands\GenerateHighscores;
-use OGame\Console\Commands\GenerateHighscoreRanks;
-use OGame\Console\Commands\ResetDebrisFields;
 use OGame\Console\Commands\CleanupWreckFields;
+use OGame\Console\Commands\DarkMatterRegenerateCommand;
+use OGame\Console\Commands\GenerateHighscoreRanks;
+use OGame\Console\Commands\GenerateHighscores;
+use OGame\Console\Commands\ResetDebrisFields;
 
 /*
 |--------------------------------------------------------------------------

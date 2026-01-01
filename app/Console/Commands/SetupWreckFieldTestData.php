@@ -3,10 +3,10 @@
 namespace OGame\Console\Commands;
 
 use Illuminate\Console\Command;
-use OGame\Models\User;
-use OGame\Models\Planet;
-use OGame\Models\WreckField;
 use Illuminate\Support\Facades\Hash;
+use OGame\Models\Planet;
+use OGame\Models\User;
+use OGame\Models\WreckField;
 
 class SetupWreckFieldTestData extends Command
 {

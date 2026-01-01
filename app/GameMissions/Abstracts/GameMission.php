@@ -10,9 +10,9 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
+use OGame\GameMissions\ExpeditionMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
-use OGame\GameMissions\ExpeditionMission;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
@@ -133,6 +133,13 @@ abstract class GameMission
         // Update the mission arrived time to now instead of original planned arrival time if the mission would finish by itself.
         // This arrival time is used by the return mission to calculate the return time.
         $mission->time_arrival = (int)Carbon::now()->timestamp;
+
+        // Clear the holding time for recalled missions (expeditions, etc.)
+        // The fleet should return immediately without waiting at the destination.
+        // Only set to 0 if there was a holding time, to avoid changing null to 0 for missions that don't use holding time.
+        if ($mission->time_holding !== null) {
+            $mission->time_holding = 0;
+        }
 
         // Mark parent mission as canceled.
         $mission->canceled = 1;

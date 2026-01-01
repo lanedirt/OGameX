@@ -12,11 +12,11 @@ use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
-use OGame\Services\DebrisFieldService;
 
 /**
  * Test that fleet dispatch works as expected for attack missions.
@@ -1422,5 +1422,78 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
             $battleReport->repaired_defenses['rocket_launcher'],
             'With 100% repair rate, all 100 rocket launchers should be in repaired_defenses'
         );
+    }
+
+    /**
+     * Assert that fleet dispatch with valid speed values succeeds.
+     * Speed is sent as 1-10 range (where 1 = 10%, 10 = 100%), in 0.5 increments.
+     */
+    public function testFleetDispatchValidSpeeds(): void
+    {
+        $this->basicSetup();
+
+        // Add enough light fighters and fleet slots to send multiple missions.
+        $this->planetAddUnit('light_fighter', 100);
+        $this->playerSetResearchLevel('computer_technology', 20);
+
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+
+        $validSpeeds = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
+
+        foreach ($validSpeeds as $speed) {
+            $post = $this->post('/ajax/fleet/dispatch/send-fleet', [
+                'galaxy' => $foreignPlanet->getPlanetCoordinates()->galaxy,
+                'system' => $foreignPlanet->getPlanetCoordinates()->system,
+                'position' => $foreignPlanet->getPlanetCoordinates()->position,
+                'type' => PlanetType::Planet->value,
+                'mission' => $this->missionType,
+                'metal' => 0,
+                'crystal' => 0,
+                'deuterium' => 0,
+                '_token' => csrf_token(),
+                'holdingtime' => 0,
+                'speed' => $speed,
+                'am204' => 1, // 1 light fighter
+            ]);
+
+            $post->assertStatus(200);
+            $this->assertTrue($post->json('success'), "Fleet dispatch should succeed with valid speed {$speed}");
+        }
+    }
+
+    /**
+     * Assert that fleet dispatch with invalid speed values fails.
+     */
+    public function testFleetDispatchInvalidSpeeds(): void
+    {
+        $this->basicSetup();
+
+        // Add enough light fighters and fleet slots to attempt multiple missions.
+        $this->planetAddUnit('light_fighter', 100);
+        $this->playerSetResearchLevel('computer_technology', 20);
+
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+
+        $invalidSpeeds = [0.5, 0, 10.5, 11, 1.3, 5.7, -1, 100, 65];
+
+        foreach ($invalidSpeeds as $speed) {
+            $post = $this->post('/ajax/fleet/dispatch/send-fleet', [
+                'galaxy' => $foreignPlanet->getPlanetCoordinates()->galaxy,
+                'system' => $foreignPlanet->getPlanetCoordinates()->system,
+                'position' => $foreignPlanet->getPlanetCoordinates()->position,
+                'type' => PlanetType::Planet->value,
+                'mission' => $this->missionType,
+                'metal' => 0,
+                'crystal' => 0,
+                'deuterium' => 0,
+                '_token' => csrf_token(),
+                'holdingtime' => 0,
+                'speed' => $speed,
+                'am204' => 1, // 1 light fighter
+            ]);
+
+            $post->assertStatus(200);
+            $this->assertFalse($post->json('success'), "Fleet dispatch should fail with invalid speed {$speed}");
+        }
     }
 }

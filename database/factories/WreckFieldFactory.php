@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use OGame\Models\WreckField;
-use OGame\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use OGame\Models\User;
+use OGame\Models\WreckField;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\OGame\Models\WreckField>

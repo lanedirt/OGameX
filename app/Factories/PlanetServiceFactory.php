@@ -4,13 +4,13 @@ namespace OGame\Factories;
 
 use Cache;
 use Illuminate\Support\Carbon;
+use OGame\GameConstants\UniverseConstants;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use OGame\GameConstants\UniverseConstants;
-use OGame\Models\Enums\PlanetType;
 use RuntimeException;
 
 /**
@@ -285,6 +285,17 @@ class PlanetServiceFactory
     /**
      * Determine next available new planet position.
      *
+     * Uses density tiers to progressively fill the universe:
+     * - Tier 1: 2-3 planets per system (initial distribution)
+     * - Tier 2: 6-7 planets per system (after first max galaxy wrap-around)
+     * - Tier 3: 9 planets per system (maximum density, positions 4-12)
+     *
+     * Note: In case tier 3 cannot find any empty positions and the universe is really full,
+     * new planets will be unable to be created and will start throwing exceptions.
+     *
+     * In this case the server admin either needs to increase the number of galaxies in
+     * server settings or disable user registration and create a new separate server.
+     *
      * @return Coordinate
      */
     public function determineNewPlanetPosition(): Coordinate
@@ -292,55 +303,54 @@ class PlanetServiceFactory
         $maxGalaxies = $this->settings->numberOfGalaxies();
         $lastAssignedGalaxy = (int)$this->settings->get('last_assigned_galaxy', 1);
         $lastAssignedSystem = (int)$this->settings->get('last_assigned_system', 1);
+        $densityTier = (int)$this->settings->get('planet_density_tier', 1);
 
         // Ensure starting galaxy is within valid bounds (wrap if needed)
         $galaxy = $lastAssignedGalaxy > $maxGalaxies ? UniverseConstants::MIN_GALAXY : $lastAssignedGalaxy;
         $system = $lastAssignedSystem;
+
+        $maxPlanetsForTier = $this->getMaxPlanetsForDensityTier($densityTier);
 
         $tryCount = 0;
         while ($tryCount < 100) {
             $tryCount++;
             $planetCount = Planet::where('galaxy', $galaxy)->where('system', $system)->count();
 
-            // 70% of the time max 2 planets per system, 30% of the time max 3.
-            if ($planetCount < ((rand(1, 10) < 7) ? 2 : 3)) {
+            if ($planetCount < $maxPlanetsForTier) {
                 // Find a random position between 4 and 12 that's not already taken
                 $positions = range(4, 12);
-                shuffle($positions); // Randomize the positions array
+                shuffle($positions);
 
                 foreach ($positions as $position) {
                     $existingPlanet = Planet::where('galaxy', $galaxy)->where('system', $system)->where('planet', $position)->first();
                     if (!$existingPlanet) {
+                        // Update last assigned position for next time
+                        $this->settings->set('last_assigned_galaxy', $galaxy);
+                        $this->settings->set('last_assigned_system', $system);
                         return new Coordinate($galaxy, $system, $position);
                     }
                 }
+            }
 
-                // Increment system and galaxy accordingly if no position is found
-                $system++;
-                if ($system > UniverseConstants::MAX_SYSTEM_COUNT) {
-                    $system = UniverseConstants::MIN_SYSTEM;
-                    $galaxy++;
-                    // Wrap around to galaxy 1 if we exceed the max galaxy count
-                    if ($galaxy > $maxGalaxies) {
-                        $galaxy = UniverseConstants::MIN_GALAXY;
-                    }
-                }
-            } else {
-                // Increment system and galaxy if the current one is full
-                $system++;
-                if ($system > UniverseConstants::MAX_SYSTEM_COUNT) {
-                    $system = UniverseConstants::MIN_SYSTEM;
-                    $galaxy++;
-                    // Wrap around to galaxy 1 if we exceed the max galaxy count
-                    if ($galaxy > $maxGalaxies) {
-                        $galaxy = UniverseConstants::MIN_GALAXY;
-                    }
+            // System is full, move to next system
+            $system++;
+            if ($system > UniverseConstants::MAX_SYSTEM_COUNT) {
+                // Galaxy is full, move to next galaxy
+                $system = UniverseConstants::MIN_SYSTEM;
+                $galaxy++;
+
+                // Max amount of galaxies reached: start from first galaxy and increase density tier
+                if ($galaxy > $maxGalaxies) {
+                    $galaxy = UniverseConstants::MIN_GALAXY;
+                    $densityTier = min($densityTier + 1, 3);
+                    $this->settings->set('planet_density_tier', $densityTier);
+                    $maxPlanetsForTier = $this->getMaxPlanetsForDensityTier($densityTier);
                 }
             }
         }
 
         // If more than 100 tries have been done with no success, give up.
-        throw new RuntimeException('Unable to determine new planet position.');
+        throw new RuntimeException('Unable to determine new planet position. Universe may be full.');
     }
 
     /**
@@ -575,7 +585,6 @@ class PlanetServiceFactory
         // The base production percent is 10 (which is effectively 100%).
         // "Max Deterium production" on position 15 is interpreted as a higher deuterium bonus.
         // You can tweak these values according to your game's balance.
-
         $data = [
             // Position 1
             1 => [
@@ -654,7 +663,7 @@ class PlanetServiceFactory
             ],
         ];
 
-        //first_planet static data
+        // First planet static data.
         if ($is_first_planet) {
             return $data[$planetPosition] ?? [
                 'fields' => [163, 163],
@@ -668,5 +677,20 @@ class PlanetServiceFactory
             'fields' => [100, 150],
             'temperature' => [0, 40],
         ];
+    }
+
+    /**
+     * Get max planets per system based on density tier.
+     *
+     * @param int $densityTier The current density tier (1-3)
+     * @return int Max planets allowed per system
+     */
+    private function getMaxPlanetsForDensityTier(int $densityTier): int
+    {
+        return match ($densityTier) {
+            1 => (rand(1, 10) < 7) ? 2 : 3,  // 70% chance of 2, 30% chance of 3
+            2 => (rand(1, 10) < 7) ? 6 : 7,  // 70% chance of 6, 30% chance of 7
+            default => 9,                     // Max 9 planets (positions 4-12)
+        };
     }
 }

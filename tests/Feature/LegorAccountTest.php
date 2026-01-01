@@ -8,8 +8,8 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
-use OGame\Services\ObjectService;
 use OGame\Models\User;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use Tests\AccountTestCase;
 

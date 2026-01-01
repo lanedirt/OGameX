@@ -4,6 +4,7 @@ namespace OGame\GameMissions;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use OGame\Enums\FleetMissionStatus;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -34,6 +35,7 @@ class MissileMission extends GameMission
     protected static string $name = 'Missile Attack';
     protected static int $typeId = 10;
     protected static bool $hasReturnMission = false;
+    protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Hostile;
 
     /**
      * @inheritdoc

@@ -2,14 +2,14 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Factories\PlanetServiceFactory;
-use OGame\Models\User;
 use OGame\Models\Planet;
+use OGame\Models\Planet\Coordinate;
+use OGame\Models\User;
 use OGame\Models\WreckField;
 use OGame\Services\WreckFieldService;
-use OGame\Models\Planet\Coordinate;
+use Tests\TestCase;
 
 class WreckFieldTest extends TestCase
 {
