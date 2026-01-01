@@ -5,6 +5,7 @@ namespace Tests;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use OGame\Factories\GameMessageFactory;
@@ -194,14 +195,31 @@ abstract class AccountTestCase extends TestCase
      */
     protected function getSecondPlayerId(): int
     {
-        $playerIds = \DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
+        $playerIds = DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
         if (count($playerIds) < 1) {
             // Create user if there are not enough in the database.
             $this->createAndLoginUser();
-            $playerIds = \DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
+            $playerIds = DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
         }
 
         return $playerIds[0];
+    }
+
+    /**
+     * Get admin user IDs. Cached for the current request to avoid repeated queries.
+     *
+     * @return array
+     */
+    protected function getAdminUserIds(): array
+    {
+        return once(function () {
+            return DB::table('model_has_roles')
+                ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+                ->where('roles.name', 'admin')
+                ->where('model_has_roles.model_type', 'OGame\\Models\\User')
+                ->pluck('model_id')
+                ->toArray();
+        });
     }
 
     /**
@@ -216,13 +234,14 @@ abstract class AccountTestCase extends TestCase
         $maxGalaxies = $settingsService->numberOfGalaxies();
 
         // Find a planet of another player that is close to the current player by checking the same galaxy
-        // and up to 15 systems away. Only search in valid galaxies.
-        $planet_id = \DB::table('planets')
+        // and up to 15 systems away. Only search in valid galaxies. Exclude admin players.
+        $planet_id = DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
             ->where('galaxy', '<=', $maxGalaxies)
             ->where('planet_type', PlanetType::Planet)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+            ->whereNotIn('user_id', $this->getAdminUserIds())
             ->inRandomOrder()
             ->limit(1)
             ->pluck('id');
@@ -230,12 +249,13 @@ abstract class AccountTestCase extends TestCase
         if ($planet_id === null || count($planet_id) === 0) {
             // No planets found, attempt to create a new user to see if this fixes it.
             $this->createAndLoginUser();
-            $planet_id = \DB::table('planets')
+            $planet_id = DB::table('planets')
                 ->where('user_id', '!=', $this->currentUserId)
                 ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
                 ->where('galaxy', '<=', $maxGalaxies)
                 ->where('planet_type', PlanetType::Planet)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+                ->whereNotIn('user_id', $this->getAdminUserIds())
                 ->inRandomOrder()
                 ->limit(1)
                 ->pluck('id');
@@ -295,13 +315,14 @@ abstract class AccountTestCase extends TestCase
         $maxGalaxies = $settingsService->numberOfGalaxies();
 
         // Find a planet of another player that is close to the current player by checking the same galaxy
-        // and up to 15 systems away. Only search in valid galaxies.
-        $planet_id = \DB::table('planets')
+        // and up to 15 systems away. Only search in valid galaxies. Exclude admin players.
+        $planet_id = DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
             ->where('galaxy', '<=', $maxGalaxies)
             ->where('planet_type', PlanetType::Moon)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+            ->whereNotIn('user_id', $this->getAdminUserIds())
             ->inRandomOrder()
             ->limit(1)
             ->pluck('id');
@@ -315,12 +336,13 @@ abstract class AccountTestCase extends TestCase
             // Switch to new user that should then be able to find the moon of the previous player.
             $this->createAndLoginUser();
 
-            $planet_id = \DB::table('planets')
+            $planet_id = DB::table('planets')
                 ->where('user_id', '!=', $this->currentUserId)
                 ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
                 ->where('galaxy', '<=', $maxGalaxies)
                 ->where('planet_type', PlanetType::Moon)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
+                ->whereNotIn('user_id', $this->getAdminUserIds())
                 ->inRandomOrder()
                 ->limit(1)
                 ->pluck('id');
@@ -363,7 +385,7 @@ abstract class AccountTestCase extends TestCase
             $tryCount++;
             $coordinate->system = max(1, min(499, $this->planetService->getPlanetCoordinates()->system + rand(-10, 10)));
             $coordinate->position = rand($min_position, $max_position);
-            $planetCount = \DB::table('planets')
+            $planetCount = DB::table('planets')
                 ->where('galaxy', $coordinate->galaxy)
                 ->where('system', $coordinate->system)
                 ->where('planet', $coordinate->position)
