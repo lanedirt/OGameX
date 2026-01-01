@@ -86,13 +86,12 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
     /**
      * Clean up test data to prevent state leakage to subsequent tests.
-     * Only removes buddy relationships - test users and planets remain in database
-     * but won't be selected as buddies by subsequent tests.
+     * Only removes buddy relationships and resets vacation mode - test users and planets
+     * remain in database but won't have special state that affects subsequent tests.
      */
     protected function tearDown(): void
     {
-        // Clean up buddy relationships created during this test
-        // This prevents test data from affecting subsequent tests that look for non-buddy planets
+        // Clean up buddy relationships and vacation mode created during this test
         if (!empty($this->createdBuddyUserIds)) {
             foreach ($this->createdBuddyUserIds as $buddyUserId) {
                 // Delete buddy requests involving this user
@@ -100,6 +99,11 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
                     ->where('sender_user_id', $buddyUserId)
                     ->orWhere('receiver_user_id', $buddyUserId)
                     ->delete();
+
+                // Reset vacation mode to false
+                \Illuminate\Support\Facades\DB::table('users')
+                    ->where('id', $buddyUserId)
+                    ->update(['vacation_mode' => false]);
             }
         }
 
