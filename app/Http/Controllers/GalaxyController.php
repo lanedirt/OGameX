@@ -9,7 +9,6 @@ use Illuminate\View\View;
 use Log;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Enums\PlanetType;
-use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\BuddyService;
