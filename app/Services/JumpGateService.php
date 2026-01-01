@@ -4,6 +4,7 @@ namespace OGame\Services;
 
 use Illuminate\Support\Carbon;
 use OGame\Models\FleetMission;
+use Exception;
 
 /**
  * Class JumpGateService
@@ -324,7 +325,7 @@ class JumpGateService
             if ($target_moon->isMoon() && $target_moon->getObjectLevel('jump_gate') > 0) {
                 return $target_moon;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Target moon no longer exists or is not accessible
         }
 

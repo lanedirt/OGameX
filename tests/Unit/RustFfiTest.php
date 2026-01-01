@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Tests\UnitTestCase;
+use FFI;
 
 class RustFfiTest extends UnitTestCase
 {
@@ -15,7 +16,7 @@ class RustFfiTest extends UnitTestCase
         $libPath = base_path('storage/rust-libs/libtest_ffi.so');
 
         // Define the function signature in C syntax
-        $ffi = \FFI::cdef("
+        $ffi = FFI::cdef("
             char* rust_hello(void);
         ", $libPath);
 
@@ -24,7 +25,7 @@ class RustFfiTest extends UnitTestCase
         $result = $ffi->rust_hello();
 
         // Convert the C string to a PHP string
-        $output = \FFI::string($result);
+        $output = FFI::string($result);
 
         // Assert the expected output
         $this->assertEquals("Hello from Rust!", $output);

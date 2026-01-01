@@ -9,6 +9,7 @@ use OGame\GameMessages\BuddyRequestReceived;
 use OGame\Models\BuddyRequest;
 use OGame\Models\IgnoredPlayer;
 use OGame\Models\User;
+use Exception;
 
 /**
  * Class BuddyService.
@@ -130,26 +131,26 @@ class BuddyService
      * @param int $receiverId
      * @param string|null $message
      * @return BuddyRequest
-     * @throws \Exception
+     * @throws Exception
      */
     public function sendRequest(int $senderId, int $receiverId, string|null $message = null): BuddyRequest
     {
         // Check if users are the same
         if ($senderId === $receiverId) {
-            throw new \Exception(__('t_buddies.error.cannot_send_to_self'));
+            throw new Exception(__('t_buddies.error.cannot_send_to_self'));
         }
 
         // Check if sender and receiver exist
         $sender = User::find($senderId);
         $receiver = User::find($receiverId);
         if (!$receiver || !$sender) {
-            throw new \Exception(__('t_buddies.error.user_not_found'));
+            throw new Exception(__('t_buddies.error.user_not_found'));
         }
 
         // Check if receiver is admin (cannot send buddy requests to admins)
         $receiverPlayer = app(\OGame\Services\PlayerService::class, ['player_id' => $receiver->id]);
         if ($receiverPlayer->isAdmin()) {
-            throw new \Exception(__('t_buddies.error.cannot_send_to_admin'));
+            throw new Exception(__('t_buddies.error.cannot_send_to_admin'));
         }
 
         // Check if sender is ignored by receiver
@@ -157,7 +158,7 @@ class BuddyService
             ->where('ignored_user_id', $senderId)
             ->exists();
         if ($isIgnored) {
-            throw new \Exception(__('t_buddies.error.cannot_send_to_user'));
+            throw new Exception(__('t_buddies.error.cannot_send_to_user'));
         }
 
         // Check if there's already a pending or accepted request between these users
@@ -174,9 +175,9 @@ class BuddyService
 
         if ($existingRequest) {
             if ($existingRequest->isAccepted()) {
-                throw new \Exception(__('t_buddies.error.already_buddies'));
+                throw new Exception(__('t_buddies.error.already_buddies'));
             }
-            throw new \Exception(__('t_buddies.error.request_exists'));
+            throw new Exception(__('t_buddies.error.request_exists'));
         }
 
         // Create the buddy request
@@ -204,23 +205,23 @@ class BuddyService
      * @param int $requestId
      * @param int $userId
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function acceptRequest(int $requestId, int $userId): bool
     {
         $request = BuddyRequest::find($requestId);
 
         if (!$request) {
-            throw new \Exception(__('t_buddies.error.request_not_found'));
+            throw new Exception(__('t_buddies.error.request_not_found'));
         }
 
         // Only the receiver can accept the request
         if ($request->receiver_user_id !== $userId) {
-            throw new \Exception(__('t_buddies.error.not_authorized_accept'));
+            throw new Exception(__('t_buddies.error.not_authorized_accept'));
         }
 
         if (!$request->isPending()) {
-            throw new \Exception(__('t_buddies.error.already_processed'));
+            throw new Exception(__('t_buddies.error.already_processed'));
         }
 
         $request->status = BuddyRequest::STATUS_ACCEPTED;
@@ -250,23 +251,23 @@ class BuddyService
      * @param int $requestId
      * @param int $userId
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function rejectRequest(int $requestId, int $userId): bool
     {
         $request = BuddyRequest::find($requestId);
 
         if (!$request) {
-            throw new \Exception(__('t_buddies.error.request_not_found'));
+            throw new Exception(__('t_buddies.error.request_not_found'));
         }
 
         // Only the receiver can reject the request
         if ($request->receiver_user_id !== $userId) {
-            throw new \Exception(__('t_buddies.error.not_authorized_reject'));
+            throw new Exception(__('t_buddies.error.not_authorized_reject'));
         }
 
         if (!$request->isPending()) {
-            throw new \Exception(__('t_buddies.error.already_processed'));
+            throw new Exception(__('t_buddies.error.already_processed'));
         }
 
         // Delete the request instead of marking it as rejected
@@ -279,23 +280,23 @@ class BuddyService
      * @param int $requestId
      * @param int $userId
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function cancelRequest(int $requestId, int $userId): bool
     {
         $request = BuddyRequest::find($requestId);
 
         if (!$request) {
-            throw new \Exception(__('t_buddies.error.request_not_found'));
+            throw new Exception(__('t_buddies.error.request_not_found'));
         }
 
         // Only the sender can cancel the request
         if ($request->sender_user_id !== $userId) {
-            throw new \Exception(__('t_buddies.error.not_authorized_cancel'));
+            throw new Exception(__('t_buddies.error.not_authorized_cancel'));
         }
 
         if (!$request->isPending()) {
-            throw new \Exception(__('t_buddies.error.already_processed'));
+            throw new Exception(__('t_buddies.error.already_processed'));
         }
 
         return $request->delete();
@@ -307,7 +308,7 @@ class BuddyService
      * @param int $buddyUserId - The ID of the buddy to remove
      * @param int $userId - The ID of the current user
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteBuddy(int $buddyUserId, int $userId): bool
     {
@@ -325,7 +326,7 @@ class BuddyService
             ->first();
 
         if (!$request) {
-            throw new \Exception(__('t_buddies.error.relationship_not_found'));
+            throw new Exception(__('t_buddies.error.relationship_not_found'));
         }
 
         // Get user info before deleting the request
@@ -399,13 +400,13 @@ class BuddyService
      * @param int $userId
      * @param int $ignoredUserId
      * @return IgnoredPlayer
-     * @throws \Exception
+     * @throws Exception
      */
     public function ignorePlayer(int $userId, int $ignoredUserId): IgnoredPlayer
     {
         // Check if users are the same
         if ($userId === $ignoredUserId) {
-            throw new \Exception(__('t_buddies.error.cannot_ignore_self'));
+            throw new Exception(__('t_buddies.error.cannot_ignore_self'));
         }
 
         // Check if already ignored
@@ -414,7 +415,7 @@ class BuddyService
             ->first();
 
         if ($existing) {
-            throw new \Exception(__('t_buddies.error.already_ignored'));
+            throw new Exception(__('t_buddies.error.already_ignored'));
         }
 
         return IgnoredPlayer::create([
@@ -429,7 +430,7 @@ class BuddyService
      * @param int $userId
      * @param int $ignoredUserId
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function unignorePlayer(int $userId, int $ignoredUserId): bool
     {
@@ -438,7 +439,7 @@ class BuddyService
             ->first();
 
         if (!$ignoredPlayer) {
-            throw new \Exception(__('t_buddies.error.not_in_ignore_list'));
+            throw new Exception(__('t_buddies.error.not_in_ignore_list'));
         }
 
         return $ignoredPlayer->delete();

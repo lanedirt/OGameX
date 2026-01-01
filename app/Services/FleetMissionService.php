@@ -375,7 +375,7 @@ class FleetMissionService
             try {
                 $missile = ObjectService::getUnitObjectByMachineName('interplanetary_missile');
                 $units->addUnit($missile, $mission->interplanetary_missile);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // If missile object not found, skip adding it
             }
         }

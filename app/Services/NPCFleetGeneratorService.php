@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use OGame\GameObjects\Models\Units\UnitCollection;
+use Exception;
 
 /**
  * NPCFleetGeneratorService - Generates NPC fleets for expedition battles.
@@ -246,7 +247,7 @@ class NPCFleetGeneratorService
         try {
             $bonusShip = $objectService->getShipObjectByMachineName($bonusShipType);
             $npcFleet->addUnit($bonusShip, $bonusShipCount);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Bonus ship not found, continue without it
         }
 
@@ -307,7 +308,7 @@ class NPCFleetGeneratorService
                         $npcFleet->addUnit($ship, 1);
                         $remainingValue -= $shipCost;
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Ship not found, skip
                 }
             }
@@ -322,7 +323,7 @@ class NPCFleetGeneratorService
                     $npcFleet->addUnit($probe, 1);
                     $remainingValue -= $probeCost;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Probe not found, skip
             }
         }
@@ -336,7 +337,7 @@ class NPCFleetGeneratorService
             if ($cargoCount > 0) {
                 $npcFleet->addUnit($largeCargo, $cargoCount);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Large Cargo not found, try Small Cargo as fallback
             try {
                 $smallCargo = $objectService->getShipObjectByMachineName('small_cargo');
@@ -346,7 +347,7 @@ class NPCFleetGeneratorService
                 if ($cargoCount > 0) {
                     $npcFleet->addUnit($smallCargo, $cargoCount);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Even small cargo failed
             }
         }

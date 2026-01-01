@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Models\User;
 use OGame\Models\Planet;
 use OGame\Models\WreckField;
+use DB;
 
 class FacilitiesWreckFieldTest extends TestCase
 {
@@ -98,7 +99,7 @@ class FacilitiesWreckFieldTest extends TestCase
     public function test_start_repairs_fails_without_space_dock(): void
     {
         // Set planet space dock level to 0
-        \DB::table('planets')
+        DB::table('planets')
             ->where('id', $this->planet->id)
             ->update(['space_dock' => 0]);
 

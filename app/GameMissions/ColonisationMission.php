@@ -16,6 +16,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use Exception;
 
 class ColonisationMission extends GameMission
 {
@@ -73,7 +74,7 @@ class ColonisationMission extends GameMission
 
     /**
      * @inheritdoc
-     * @throws \Exception
+     * @throws Exception
      */
     protected function processArrival(FleetMission $mission): void
     {

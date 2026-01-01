@@ -1082,7 +1082,7 @@ class PlanetService
                 // Save the planet manually here to prevent it from happening 5+ times in the methods above.
                 $this->save();
             } else {
-                throw new \Exception('Could not acquire planet update lock.');
+                throw new Exception('Could not acquire planet update lock.');
             }
         });
     }

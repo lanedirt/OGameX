@@ -8,6 +8,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use RuntimeException;
 
 /**
  * Class PhalanxService
@@ -260,7 +261,7 @@ class PhalanxService
         try {
             // Use GameMissionFactory for centralized mission definitions
             return GameMissionFactory::getMissionById($mission_type, [])->getName();
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             return 'Unknown';
         }
     }
@@ -300,7 +301,7 @@ class PhalanxService
         try {
             // Use GameMissionFactory for centralized mission definitions
             return GameMissionFactory::getMissionById($mission_type, [])->hasReturnMission();
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             // Fallback for unimplemented missions (2, 5, 9) - all have return trips
             return true;
         }

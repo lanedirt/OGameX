@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
 use Tests\AccountTestCase;
+use DB;
 
 /**
  * Test factory classes.
@@ -22,12 +23,12 @@ class FactoryTest extends AccountTestCase
     public function testPlayerFactoryLoad(): void
     {
         // Return two random user ids from database.
-        $playerIds = \DB::table('users')->inRandomOrder()->limit(2)->pluck('id');
+        $playerIds = DB::table('users')->inRandomOrder()->limit(2)->pluck('id');
         if (count($playerIds) < 2) {
             // Create users if there are not enough in the database.
             $this->createAndLoginUser();
             $this->createAndLoginUser();
-            $playerIds = \DB::table('users')->inRandomOrder()->limit(2)->pluck('id');
+            $playerIds = DB::table('users')->inRandomOrder()->limit(2)->pluck('id');
         }
 
         // Get the player service factory.

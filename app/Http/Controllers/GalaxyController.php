@@ -15,6 +15,7 @@ use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 use OGame\Models\Enums\PlanetType;
+use Log;
 
 class GalaxyController extends OGameController
 {
@@ -852,7 +853,7 @@ class GalaxyController extends OGameController
         $currentPlanet->removeUnit('interplanetary_missile', $missileCount);
         $currentPlanet->save();
 
-        \Log::info('Missile Attack Launched', [
+        Log::info('Missile Attack Launched', [
             'player_id' => $player->getId(),
             'mission_id' => $mission->id,
             'from' => $currentPlanet->getPlanetCoordinates()->asString(),

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Models\Resources;
 use Tests\AccountTestCase;
+use Exception;
 
 /**
  * Test AJAX calls to make sure they work as expected.
@@ -72,7 +73,7 @@ class BuildQueueCancelTest extends AccountTestCase
     /**
      * Verify that when canceling a building in the build queue, the resources are refunded.
      * @throws BindingResolutionException
-     * @throws \Exception
+     * @throws Exception
      */
     public function testBuildQueueCancelRefundResources(): void
     {

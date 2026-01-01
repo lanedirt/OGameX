@@ -44,7 +44,7 @@ class DeveloperShortcutsController extends OGameController
      * @param Request $request
      * @param PlayerService $playerService
      * @return RedirectResponse
-     * @throws \Exception
+     * @throws Exception
      */
     public function update(Request $request, PlayerService $playerService): RedirectResponse
     {

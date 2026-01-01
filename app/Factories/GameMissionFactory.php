@@ -12,6 +12,7 @@ use OGame\GameMissions\MissileMission;
 use OGame\GameMissions\MoonDestructionMission;
 use OGame\GameMissions\RecycleMission;
 use OGame\GameMissions\TransportMission;
+use RuntimeException;
 
 class GameMissionFactory
 {
@@ -65,7 +66,7 @@ class GameMissionFactory
             9 => resolve(MoonDestructionMission::class, $dependencies),
             10 => resolve(MissileMission::class, $dependencies),
             15 => resolve(ExpeditionMission::class, $dependencies),
-            default => throw new \RuntimeException('Mission not found: ' . $missionId),
+            default => throw new RuntimeException('Mission not found: ' . $missionId),
         };
     }
 }

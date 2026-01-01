@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use OGame\Models\Enums\ResourceType;
 use OGame\Models\Resources;
 use Tests\UnitTestCase;
+use Exception;
 
 class PlanetServiceTest extends UnitTestCase
 {
@@ -75,7 +76,7 @@ class PlanetServiceTest extends UnitTestCase
         ]);
 
         // Specify the type of exception you expect to be thrown
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         // Call the method that should throw the exception
         $this->planetService->deductResources(new Resources(9999, 9999, 9999, 0));

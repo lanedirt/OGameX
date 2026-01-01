@@ -19,6 +19,7 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use DB;
 
 /**
  * Base class for tests that require account context. Common setup includes signup of new account and login.
@@ -194,11 +195,11 @@ abstract class AccountTestCase extends TestCase
      */
     protected function getSecondPlayerId(): int
     {
-        $playerIds = \DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
+        $playerIds = DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
         if (count($playerIds) < 1) {
             // Create user if there are not enough in the database.
             $this->createAndLoginUser();
-            $playerIds = \DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
+            $playerIds = DB::table('users')->whereNot('id', $this->currentUserId)->inRandomOrder()->limit(1)->pluck('id');
         }
 
         return $playerIds[0];
@@ -217,7 +218,7 @@ abstract class AccountTestCase extends TestCase
 
         // Find a planet of another player that is close to the current player by checking the same galaxy
         // and up to 15 systems away. Only search in valid galaxies.
-        $planet_id = \DB::table('planets')
+        $planet_id = DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
             ->where('galaxy', '<=', $maxGalaxies)
@@ -230,7 +231,7 @@ abstract class AccountTestCase extends TestCase
         if ($planet_id === null || count($planet_id) === 0) {
             // No planets found, attempt to create a new user to see if this fixes it.
             $this->createAndLoginUser();
-            $planet_id = \DB::table('planets')
+            $planet_id = DB::table('planets')
                 ->where('user_id', '!=', $this->currentUserId)
                 ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
                 ->where('galaxy', '<=', $maxGalaxies)
@@ -296,7 +297,7 @@ abstract class AccountTestCase extends TestCase
 
         // Find a planet of another player that is close to the current player by checking the same galaxy
         // and up to 15 systems away. Only search in valid galaxies.
-        $planet_id = \DB::table('planets')
+        $planet_id = DB::table('planets')
             ->where('user_id', '!=', $this->currentUserId)
             ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
             ->where('galaxy', '<=', $maxGalaxies)
@@ -315,7 +316,7 @@ abstract class AccountTestCase extends TestCase
             // Switch to new user that should then be able to find the moon of the previous player.
             $this->createAndLoginUser();
 
-            $planet_id = \DB::table('planets')
+            $planet_id = DB::table('planets')
                 ->where('user_id', '!=', $this->currentUserId)
                 ->where('galaxy', $this->planetService->getPlanetCoordinates()->galaxy)
                 ->where('galaxy', '<=', $maxGalaxies)
@@ -363,7 +364,7 @@ abstract class AccountTestCase extends TestCase
             $tryCount++;
             $coordinate->system = max(1, min(499, $this->planetService->getPlanetCoordinates()->system + rand(-10, 10)));
             $coordinate->position = rand($min_position, $max_position);
-            $planetCount = \DB::table('planets')
+            $planetCount = DB::table('planets')
                 ->where('galaxy', $coordinate->galaxy)
                 ->where('system', $coordinate->system)
                 ->where('planet', $coordinate->position)

@@ -288,7 +288,7 @@ class MerchantService
                     'need' => number_format($giveAmount)
                 ]),
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
                 'success' => false,
                 'message' => __('t_merchant.error.trade.execution_failed', ['error' => $e->getMessage()]),

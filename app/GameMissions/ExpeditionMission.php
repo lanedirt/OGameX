@@ -107,7 +107,7 @@ class ExpeditionMission extends GameMission
 
     /**
      * @inheritdoc
-     * @throws \Exception
+     * @throws Exception
      */
     protected function processArrival(FleetMission $mission): void
     {
@@ -628,7 +628,7 @@ class ExpeditionMission extends GameMission
      * @param FleetMission $mission
      * @param string $npcType 'pirate' or 'alien'
      * @return array{UnitCollection, Resources} [surviving units, loot resources]
-     * @throws \Exception
+     * @throws Exception
      */
     private function processExpeditionBattleOutcome(FleetMission $mission, string $npcType): array
     {

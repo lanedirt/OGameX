@@ -8,6 +8,7 @@ use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
+use Exception;
 
 /**
  * GameMessage class which contains unique parsing logic for a specific message type.
@@ -305,7 +306,7 @@ abstract class GameMessage
             try {
                 $playerServiceFactory =  resolve(PlayerServiceFactory::class);
                 $playerService = $playerServiceFactory->make((int)$matches[1]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Do nothing
             }
 
@@ -323,7 +324,7 @@ abstract class GameMessage
             try {
                 $planetServiceFactory = resolve(PlanetServiceFactory::class);
                 $planetService = $planetServiceFactory->make((int)$matches[1]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Do nothing
             }
 
