@@ -213,7 +213,7 @@ abstract class AccountTestCase extends TestCase
     protected function getAdminUserIds(): array
     {
         return once(function () {
-            return \DB::table('model_has_roles')
+            return DB::table('model_has_roles')
                 ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
                 ->where('roles.name', 'admin')
                 ->where('model_has_roles.model_type', 'OGame\\Models\\User')
