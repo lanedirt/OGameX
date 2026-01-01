@@ -6,6 +6,7 @@ use OGame\Models\BuddyRequest;
 use OGame\Models\User;
 use OGame\Services\BuddyService;
 use Tests\AccountTestCase;
+use Exception;
 
 /**
  * Test buddy system functionality.
@@ -62,7 +63,7 @@ class BuddyTest extends AccountTestCase
         $buddyService->sendRequest($this->currentUserId, $otherUser->id);
 
         // Try to send duplicate request
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('A buddy request already exists between these users.');
         $buddyService->sendRequest($this->currentUserId, $otherUser->id);
     }
@@ -84,7 +85,7 @@ class BuddyTest extends AccountTestCase
         $this->assertCount(1, $buddies);
 
         // Try to send another buddy request to existing buddy
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage(__('You are already buddies with this user.'));
         $buddyService->sendRequest($this->currentUserId, $otherUser->id);
     }
@@ -123,7 +124,7 @@ class BuddyTest extends AccountTestCase
         $request = $buddyService->sendRequest($this->currentUserId, $otherUser->id);
 
         // Try to accept as sender (should fail)
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('You are not authorized to accept this request.');
         $buddyService->acceptRequest($request->id, $this->currentUserId);
     }
@@ -315,7 +316,7 @@ class BuddyTest extends AccountTestCase
         $buddyService->ignorePlayer($this->currentUserId, $otherUser->id);
 
         // Try to ignore again
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Player is already ignored.');
         $buddyService->ignorePlayer($this->currentUserId, $otherUser->id);
     }
@@ -679,7 +680,7 @@ class BuddyTest extends AccountTestCase
         $buddyService->ignorePlayer($this->currentUserId, $ignoredUser->id);
 
         // Ignored user tries to send a buddy request to current user
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage(__('Cannot send buddy request to this user.'));
 
         $buddyService->sendRequest($ignoredUser->id, $this->currentUserId, 'Hello!');

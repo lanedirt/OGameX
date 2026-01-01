@@ -10,6 +10,7 @@ use OGame\Models\Planet;
 use OGame\Models\WreckField;
 use OGame\Services\WreckFieldService;
 use OGame\Models\Planet\Coordinate;
+use Exception;
 
 class WreckFieldTest extends TestCase
 {
@@ -188,7 +189,7 @@ class WreckFieldTest extends TestCase
 
         $this->wreckFieldService->loadForCoordinates(new Coordinate($this->planet->galaxy, $this->planet->system, $this->planet->planet));
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Wreck field cannot be burned while repairs are in progress');
 
         $this->wreckFieldService->burnWreckField();
