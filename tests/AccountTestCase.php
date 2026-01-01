@@ -224,11 +224,9 @@ abstract class AccountTestCase extends TestCase
             ->where('planet_type', PlanetType::Planet)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
             ->whereNotIn('user_id', function ($query) {
-                $query->select('model_id')
-                    ->from('model_has_roles')
-                    ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-                    ->where('roles.name', 'admin')
-                    ->where('model_has_roles.model_type', 'OGame\\Models\\User');
+               Cache::memo()->rememberForever('admins-tests', function () {
+                    return User::role('admin')->pluck('id');
+               });
             })
             ->inRandomOrder()
             ->limit(1)
