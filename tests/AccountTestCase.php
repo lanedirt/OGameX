@@ -5,6 +5,7 @@ namespace Tests;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use OGame\Factories\GameMessageFactory;
@@ -205,6 +206,23 @@ abstract class AccountTestCase extends TestCase
     }
 
     /**
+     * Get admin user IDs. Cached for the current request to avoid repeated queries.
+     *
+     * @return array
+     */
+    protected function getAdminUserIds(): array
+    {
+        return once(function () {
+            return \DB::table('model_has_roles')
+                ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+                ->where('roles.name', 'admin')
+                ->where('model_has_roles.model_type', 'OGame\\Models\\User')
+                ->pluck('model_id')
+                ->toArray();
+        });
+    }
+
+    /**
      * Gets a nearby foreign planet for the current user. This is useful for testing interactions between two players.
      *
      * @return PlanetService
@@ -223,11 +241,7 @@ abstract class AccountTestCase extends TestCase
             ->where('galaxy', '<=', $maxGalaxies)
             ->where('planet_type', PlanetType::Planet)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
-            ->whereNotIn('user_id', function ($query) {
-               Cache::memo()->rememberForever('admins-tests', function () {
-                    return User::role('admin')->pluck('id');
-               });
-            })
+            ->whereNotIn('user_id', $this->getAdminUserIds())
             ->inRandomOrder()
             ->limit(1)
             ->pluck('id');
@@ -241,13 +255,7 @@ abstract class AccountTestCase extends TestCase
                 ->where('galaxy', '<=', $maxGalaxies)
                 ->where('planet_type', PlanetType::Planet)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
-                ->whereNotIn('user_id', function ($query) {
-                    $query->select('model_id')
-                        ->from('model_has_roles')
-                        ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-                        ->where('roles.name', 'admin')
-                        ->where('model_has_roles.model_type', 'OGame\\Models\\User');
-                })
+                ->whereNotIn('user_id', $this->getAdminUserIds())
                 ->inRandomOrder()
                 ->limit(1)
                 ->pluck('id');
@@ -314,13 +322,7 @@ abstract class AccountTestCase extends TestCase
             ->where('galaxy', '<=', $maxGalaxies)
             ->where('planet_type', PlanetType::Moon)
             ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
-            ->whereNotIn('user_id', function ($query) {
-                $query->select('model_id')
-                    ->from('model_has_roles')
-                    ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-                    ->where('roles.name', 'admin')
-                    ->where('model_has_roles.model_type', 'OGame\\Models\\User');
-            })
+            ->whereNotIn('user_id', $this->getAdminUserIds())
             ->inRandomOrder()
             ->limit(1)
             ->pluck('id');
@@ -340,13 +342,7 @@ abstract class AccountTestCase extends TestCase
                 ->where('galaxy', '<=', $maxGalaxies)
                 ->where('planet_type', PlanetType::Moon)
                 ->whereBetween('system', [$this->planetService->getPlanetCoordinates()->system - 15, $this->planetService->getPlanetCoordinates()->system + 15])
-                ->whereNotIn('user_id', function ($query) {
-                    $query->select('model_id')
-                        ->from('model_has_roles')
-                        ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-                        ->where('roles.name', 'admin')
-                        ->where('model_has_roles.model_type', 'OGame\\Models\\User');
-                })
+                ->whereNotIn('user_id', $this->getAdminUserIds())
                 ->inRandomOrder()
                 ->limit(1)
                 ->pluck('id');
