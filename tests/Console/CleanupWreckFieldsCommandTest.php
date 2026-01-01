@@ -2,13 +2,13 @@
 
 namespace Tests\Console;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use OGame\Models\User;
-use OGame\Models\Planet;
-use OGame\Models\WreckField;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Planet;
+use OGame\Models\User;
+use OGame\Models\WreckField;
 use OGame\Services\ObjectService;
+use Tests\TestCase;
 
 class CleanupWreckFieldsCommandTest extends TestCase
 {

@@ -2,9 +2,9 @@
 
 namespace OGame\GameMessages;
 
-use OGame\Services\ObjectService;
-use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
 use OGame\Facades\AppUtil;
+use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
+use OGame\Services\ObjectService;
 
 class ExpeditionGainShips extends ExpeditionGameMessage
 {

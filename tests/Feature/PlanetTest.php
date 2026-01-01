@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use Tests\AccountTestCase;
 use OGame\Models\Resources;
+use Tests\AccountTestCase;
 
 class PlanetTest extends AccountTestCase
 {

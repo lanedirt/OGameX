@@ -8,9 +8,9 @@ use PhpParser\Node;
 use PhpParser\Node\FunctionLike;
 use PhpParser\Node\NullableType;
 use PHPStan\Analyser\Scope;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
-use PHPStan\Rules\IdentifierRuleError;
 
 /**
  * Custom PHPStan rule that checks for short nullable type syntax, enforcing the use of `|null` instead of `?`.
