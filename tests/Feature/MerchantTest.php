@@ -785,4 +785,95 @@ class MerchantTest extends AccountTestCase
         $activeMerchant = cache()->get('active_merchant_' . $player->getId());
         $this->assertEquals('crystal', $activeMerchant['type']);
     }
+
+    /**
+     * Test that resource market correctly handles comma-separated input values.
+     * This tests the bug fix where "24,000" was incorrectly parsed as "24".
+     */
+    public function testResourceMarketHandlesCommaSeparatedInput(): void
+    {
+        // Call merchant first
+        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
+        $this->planetService->getPlayer()->save();
+
+        $callResponse = $this->post('/merchant/call', [
+            'type' => 'metal',
+            '_token' => csrf_token(),
+        ]);
+
+        $tradeRates = $callResponse->json()['tradeRates'];
+        $exchangeRate = $tradeRates['receive']['crystal']['rate'];
+
+        // Give planet resources - use a conservative amount (2,000 instead of 24,000)
+        // to avoid storage capacity issues while still testing comma parsing
+        $this->planetService->addResources(new Resources(100000, 0, 0, 0));
+        $this->planetService->save();
+
+        $initialMetal = $this->planetService->metal()->get();
+
+        // Test with comma-separated input (2,000)
+        $response = $this->post('/merchant/trade', [
+            'give_resource' => 'metal',
+            'receive_resource' => 'crystal',
+            'give_amount' => '2,000',  // Comma-separated input
+            'exchange_rate' => $exchangeRate,
+            '_token' => csrf_token(),
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify that 2,000 metal was deducted, not just 2
+        $this->planetService->reloadPlanet();
+        $finalMetal = $this->planetService->metal()->get();
+        $metalDeducted = $initialMetal - $finalMetal;
+
+        // Should have deducted 2,000, not 2
+        $this->assertEquals(2000, $metalDeducted, 'Should deduct 2,000 metal, not 2');
+        $this->assertGreaterThan(0, $this->planetService->crystal()->get(), 'Should have received crystal');
+    }
+
+    /**
+     * Test that scrap merchant correctly handles comma-separated input values.
+     * This tests the bug fix where "24,000" was incorrectly parsed as "24".
+     */
+    public function testScrapMerchantHandlesCommaSeparatedInput(): void
+    {
+        // Add ships to planet
+        $smallCargoObject = ObjectService::getObjectByMachineName('small_cargo');
+        $this->planetService->addUnit('small_cargo', 50);
+        $this->planetService->save();
+
+        $initialAmount = $this->planetService->getObjectAmount('small_cargo');
+
+        // Test with comma-separated input "10" (no comma) first to establish baseline
+        // Then verify the comma parsing by checking the requested amount in the response
+        // Use a small amount (10) to fit within storage capacity
+        $response = $this->post('/merchant/scrap/execute', [
+            'items' => [
+                $smallCargoObject->id => '1,0',  // Comma-separated input representing 10
+            ],
+            'confirmed' => true,
+            '_token' => csrf_token(),
+        ]);
+
+        // The key test: verify the backend correctly parsed "1,0" as 10, not as 1
+        // If the bug were present, it would try to scrap 1 ship
+        // With the fix, it correctly parses as 10 ships
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify that 10 ships were scrapped, not just 1
+        $this->planetService->reloadPlanet();
+        $finalAmount = $this->planetService->getObjectAmount('small_cargo');
+        $shipsScrapped = $initialAmount - $finalAmount;
+
+        // Should have scrapped 10 ships, not 1
+        $this->assertEquals(10, $shipsScrapped, 'Should scrap 10 ships (from "1,0"), not 1');
+
+        // Verify resources were added for 10 ships (35% of cost)
+        $returned = $response->json()['returned'];
+        $expectedMetal = (int)floor($smallCargoObject->price->resources->metal->get() * 10 * 0.35);
+        $this->assertEquals($expectedMetal, $returned['metal'], 'Resources should be calculated for 10 ships, not 1');
+    }
 }
