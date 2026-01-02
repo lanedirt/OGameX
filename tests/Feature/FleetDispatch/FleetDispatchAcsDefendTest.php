@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\FleetDispatch;
 
+use Illuminate\Support\Facades\DB;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
@@ -70,12 +71,67 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     protected ?PlanetService $buddyPlanet = null;
 
     /**
+     * @var array<int> Track all buddy user IDs created across all tests for cleanup
+     * Static to persist across test instances and avoid losing IDs during setUp()
+     */
+    protected static array $allCreatedBuddyUserIds = [];
+
+    /**
      * Set up the test case.
      */
     protected function setUp(): void
     {
         parent::setUp();
         $this->buddyPlanet = null;
+    }
+
+    /**
+     * Clean up test data after each test to prevent state leakage.
+     * Only removes buddy relationships and resets vacation mode - test users and planets
+     * remain in database but won't have special state that affects subsequent tests.
+     *
+     * @todo Refactor test architecture to support DatabaseTransactions/RefreshDatabase
+     *       by removing dependency on reloadApplication() expecting persisted users.
+     */
+    protected function tearDown(): void
+    {
+        // Clean up buddy relationships and vacation mode created during this test run
+        // Process and remove each ID to avoid accumulation
+        while (!empty(self::$allCreatedBuddyUserIds)) {
+            $buddyUserId = array_shift(self::$allCreatedBuddyUserIds);
+
+            // Delete buddy requests involving this user (with proper SQL grouping)
+            DB::table('buddy_requests')
+                ->where(function ($query) use ($buddyUserId) {
+                    $query->where('sender_user_id', $buddyUserId)
+                        ->orWhere('receiver_user_id', $buddyUserId);
+                })
+                ->delete();
+
+            // Reset all vacation mode fields for buddy user
+            // activateVacationMode() sets: vacation_mode, vacation_mode_activated_at, vacation_mode_until
+            DB::table('users')
+                ->where('id', $buddyUserId)
+                ->update([
+                    'vacation_mode' => false,
+                    'vacation_mode_activated_at' => null,
+                    'vacation_mode_until' => null,
+                ]);
+        }
+
+        // Also reset all vacation mode fields for the current test user
+        // (testDispatchFleetFromVacationModeError sets this)
+        if (isset($this->currentUserId)) {
+            DB::table('users')
+                ->where('id', $this->currentUserId)
+                ->update([
+                    'vacation_mode' => false,
+                    'vacation_mode_activated_at' => null,
+                    'vacation_mode_until' => null,
+                ]);
+        }
+
+        parent::tearDown();
     }
 
     /**
@@ -89,6 +145,10 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         // Create a fresh user specifically for this test
         // This ensures we never accidentally select an admin user
         $buddyUser = \OGame\Models\User::factory()->create();
+
+        // Track this user ID in static array for cleanup in tearDown
+        // Static array persists across test instances
+        self::$allCreatedBuddyUserIds[] = $buddyUser->id;
 
         // Create a planet for the buddy user at a random position to avoid conflicts
         $buddyPlanet = \OGame\Models\Planet::factory()->create([
