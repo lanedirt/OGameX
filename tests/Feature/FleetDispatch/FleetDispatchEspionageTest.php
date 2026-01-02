@@ -4,6 +4,7 @@ namespace Tests\Feature\FleetDispatch;
 
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use OGame\GameMissions\EspionageMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\EspionageReport;
@@ -198,25 +199,23 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Mutate all planet time_last_update to 1st jan via Eloquent query
-        // to simulate error with this test.
-        Planet::query()->update(['time_last_update' => '1704103200']);
-
         // Send fleet to a nearby foreign planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
         $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
-        // Add debris field to the foreign planet.
-        // First check if it already exists, if so, delete it to make sure the debris field contains
-        // the exact resources that we expect.
-        $debrisField = resolve(DebrisFieldService::class);
-        if ($debrisField->loadForCoordinates($foreignPlanet->getPlanetCoordinates())) {
-            $debrisField->delete();
-        }
+        // Clean up all debris fields except Legor's at 1:1:2 to prevent state leakage from previous tests
+        DB::table('debris_fields')
+            ->whereNot(function ($query) {
+                $query->where('galaxy', 1)
+                    ->where('system', 1)
+                    ->where('planet', 2);
+            })
+            ->delete();
 
         // Create a new debris field for the foreign planet with an exact amount of resources
         // that we later test for.
+        $debrisField = resolve(DebrisFieldService::class);
         $debrisField->loadOrCreateForCoordinates($foreignPlanet->getPlanetCoordinates());
         $debrisField->appendResources(new Resources(1337, 443, 259, 0));
         $debrisField->save();
