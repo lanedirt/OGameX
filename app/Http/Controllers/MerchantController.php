@@ -139,7 +139,8 @@ class MerchantController extends OGameController
     {
         $giveResource = $request->input('give_resource');
         $receiveResource = $request->input('receive_resource');
-        $giveAmount = (int)$request->input('give_amount');
+        // Remove commas and spaces from input before converting to int
+        $giveAmount = (int)str_replace([',', ' '], '', $request->input('give_amount'));
         $exchangeRate = (float)$request->input('exchange_rate');
 
         try {
@@ -438,7 +439,8 @@ class MerchantController extends OGameController
         $hasReductions = false;
 
         foreach ($items as $itemId => $amount) {
-            $amount = (int)$amount;
+            // Remove commas and spaces from input before converting to int
+            $amount = (int)str_replace([',', ' '], '', $amount);
             if ($amount <= 0) {
                 continue;
             }
