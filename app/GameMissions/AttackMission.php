@@ -94,12 +94,12 @@ class AttackMission extends GameMission
         // Execute the battle logic using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
+                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings, $mission->id, $mission->user_id);
                 break;
             case 'rust':
             default:
                 // Default to RustBattleEngine if no specific engine is configured
-                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings);
+                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings, $mission->id, $mission->user_id);
                 break;
         }
 

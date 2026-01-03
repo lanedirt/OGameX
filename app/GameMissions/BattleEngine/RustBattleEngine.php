@@ -34,10 +34,12 @@ class RustBattleEngine extends BattleEngine
      * @param PlayerService $attackerPlayer The attacker player.
      * @param PlanetService $defenderPlanet The planet of the defender player.
      * @param SettingsService $settings The settings service.
+     * @param int $attackerFleetMissionId The fleet mission ID of the attacking fleet.
+     * @param int $attackerOwnerId The ID of the player who owns the attacking fleet.
      */
-    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, SettingsService $settings)
+    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, SettingsService $settings, int $attackerFleetMissionId, int $attackerOwnerId)
     {
-        parent::__construct($attackerFleet, $attackerPlayer, $defenderPlanet, $settings);
+        parent::__construct($attackerFleet, $attackerPlayer, $defenderPlanet, $settings, $attackerFleetMissionId, $attackerOwnerId);
 
         $this->ffi = FFI::cdef(
             "char* fight_battle_rounds(const char* input_json);",

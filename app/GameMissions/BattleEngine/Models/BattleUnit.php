@@ -42,14 +42,26 @@ class BattleUnit
     public int $attackPower;
 
     /**
+     * @var int The fleet mission ID that this unit belongs to.
+     */
+    public int $fleetMissionId;
+
+    /**
+     * @var int The ID of the player who owns this unit.
+     */
+    public int $ownerId;
+
+    /**
      * Create a new BattleUnit object.
      *
      * @param UnitObject $unitObject
      * @param int $structuralIntegrity
      * @param int $shieldPoints
      * @param int $attackPower
+     * @param int $fleetMissionId
+     * @param int $ownerId
      */
-    public function __construct(UnitObject $unitObject, int $structuralIntegrity, int $shieldPoints, int $attackPower)
+    public function __construct(UnitObject $unitObject, int $structuralIntegrity, int $shieldPoints, int $attackPower, int $fleetMissionId, int $ownerId)
     {
         $this->unitObject = $unitObject;
 
@@ -62,6 +74,8 @@ class BattleUnit
         $this->currentShieldPoints = $shieldPoints;
 
         $this->attackPower = $attackPower;
+        $this->fleetMissionId = $fleetMissionId;
+        $this->ownerId = $ownerId;
     }
 
     /**

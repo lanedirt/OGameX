@@ -661,7 +661,9 @@ class ExpeditionMission extends GameMission
             $playerFleet,
             $player,
             $npcPlanetService,
-            $this->settings
+            $this->settings,
+            $mission->id,
+            $mission->user_id
         );
 
         $battleResult = $battleEngine->simulateBattle();

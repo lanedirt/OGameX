@@ -116,7 +116,7 @@ class EspionageMission extends GameMission
 
         if ($counterEspionageTriggered) {
             // Execute counter-espionage battle
-            $battleResult = $this->executeCounterEspionageBattle($origin_planet, $target_planet, $units, $counterEspionageService);
+            $battleResult = $this->executeCounterEspionageBattle($origin_planet, $target_planet, $units, $counterEspionageService, $mission->id, $mission->user_id);
 
             // Set the attacker's origin planet ID on the battle result for the battle report.
             $battleResult->attackerPlanetId = $mission->planet_id_from;
@@ -205,13 +205,17 @@ class EspionageMission extends GameMission
      * @param PlanetService $targetPlanet
      * @param UnitCollection $attackerUnits
      * @param CounterEspionageService $counterEspionageService
+     * @param int $fleetMissionId
+     * @param int $ownerId
      * @return \OGame\GameMissions\BattleEngine\Models\BattleResult
      */
     private function executeCounterEspionageBattle(
         PlanetService $originPlanet,
         PlanetService $targetPlanet,
         UnitCollection $attackerUnits,
-        CounterEspionageService $counterEspionageService
+        CounterEspionageService $counterEspionageService,
+        int $fleetMissionId,
+        int $ownerId
     ): \OGame\GameMissions\BattleEngine\Models\BattleResult {
         $attackerPlayer = $originPlanet->getPlayer();
 
@@ -227,11 +231,11 @@ class EspionageMission extends GameMission
         // Execute battle using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $this->settings);
+                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $this->settings, $fleetMissionId, $ownerId);
                 break;
             case 'rust':
             default:
-                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $this->settings);
+                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $this->settings, $fleetMissionId, $ownerId);
                 break;
         }
 
