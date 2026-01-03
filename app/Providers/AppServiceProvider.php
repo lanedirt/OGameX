@@ -48,7 +48,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(PlanetServiceFactory::class, function ($app) {
-            return new PlanetServiceFactory($app->make(SettingsService::class));
+            return new PlanetServiceFactory(
+                $app->make(SettingsService::class),
+                $app->make(PlayerServiceFactory::class)
+            );
         });
 
         $this->app->singleton(ExceptionHandler::class, Handler::class);

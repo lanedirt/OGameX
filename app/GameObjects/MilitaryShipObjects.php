@@ -263,6 +263,41 @@ class MilitaryShipObjects
         $deathstar->assets->imgMicro = 'deathstar_small.jpg';
         $buildingObjectsNew[] = $deathstar;
 
+        // --- Reaper ---
+        $reaper = new ShipObject();
+        $reaper->id = 218;
+        $reaper->title = 'Reaper';
+        $reaper->machine_name = 'reaper';
+        $reaper->class_name = 'reaper';
+        $reaper->description = 'The Reaper is a powerful combat ship specialized for aggressive raiding and debris field harvesting.';
+        $reaper->description_long = 'The Reaper represents the pinnacle of General class military engineering. This heavily armed vessel was designed for commanders who value both combat prowess and tactical flexibility. While its primary role is combat, the Reaper features reinforced cargo holds that allow it to harvest debris fields after battle. Its advanced targeting systems and heavy armor make it a formidable opponent, while its dual-purpose design means it can both create and profit from battlefield carnage. The ship is equipped with cutting-edge weapons technology and can hold its own against much larger vessels.';
+        $reaper->requirements = [
+            new GameObjectRequirement('shipyard', 6),
+            new GameObjectRequirement('impulse_drive', 6),
+            new GameObjectRequirement('hyperspace_drive', 4),
+            new GameObjectRequirement('weapon_technology', 8),
+            new GameObjectRequirement('shielding_technology', 6),
+        ];
+        $reaper->price = new GameObjectPrice(85000, 55000, 20000, 0);
+        $reaper->rapidfire = [
+            new GameObjectRapidfire('espionage_probe', 5),
+            new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('light_fighter', 4),
+            new GameObjectRapidfire('heavy_fighter', 3),
+            new GameObjectRapidfire('small_cargo', 3),
+            new GameObjectRapidfire('large_cargo', 3),
+        ];
+        $reaper->properties = new GameObjectProperties($reaper, 140000, 700, 2800, 7000, 10000, 1100);
+        // Use hyperspace drive
+        $reaper->properties->speed_upgrade = [
+            new GameObjectSpeedUpgrade('hyperspace_drive', 4),
+        ];
+
+        $reaper->assets = new GameObjectAssets();
+        $reaper->assets->imgSmall = 'reaper_small.jpg';
+        $reaper->assets->imgMicro = 'reaper_micro.jpg';
+        $buildingObjectsNew[] = $reaper;
+
         return $buildingObjectsNew;
     }
 }

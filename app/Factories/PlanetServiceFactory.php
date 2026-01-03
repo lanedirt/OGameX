@@ -47,11 +47,19 @@ class PlanetServiceFactory
     protected SettingsService $settings;
 
     /**
+     * PlayerServiceFactory.
+     *
+     * @var PlayerServiceFactory
+     */
+    protected PlayerServiceFactory $playerServiceFactory;
+
+    /**
      * PlanetServiceFactory constructor.
      */
-    public function __construct(SettingsService $settingsService)
+    public function __construct(SettingsService $settingsService, PlayerServiceFactory $playerServiceFactory)
     {
         $this->settings = $settingsService;
+        $this->playerServiceFactory = $playerServiceFactory;
     }
 
     /**
@@ -476,11 +484,11 @@ class PlanetServiceFactory
         $planet->time_last_update = (int)Carbon::now()->timestamp;
 
         if ($planet_type === PlanetType::Moon) {
-            $this->setupMoonProperties($planet, $debrisAmount, $moonChance, $xFactor);
+            $this->setupMoonProperties($planet, $debrisAmount, $moonChance, $xFactor, $player);
         } else {
             $is_first_planet = $player->planets->planetCount() == 0;
 
-            $this->setupPlanetProperties($planet, $is_first_planet);
+            $this->setupPlanetProperties($planet, $is_first_planet, $player);
         }
 
         $planet->save();
@@ -501,8 +509,9 @@ class PlanetServiceFactory
      * @param int $debrisAmount Total resources in debris field (metal + crystal + deuterium)
      * @param int $moonChance Moon chance percentage from the battle (unused for size, kept for future features)
      * @param int|null $xFactor Optional x factor (10-20). If null, random value is used.
+     * @param PlayerService|null $player Optional PlayerService to avoid reloading from database
      */
-    private function setupMoonProperties(Planet $planet, int $debrisAmount, int $moonChance, int|null $xFactor = null): void
+    private function setupMoonProperties(Planet $planet, int $debrisAmount, int $moonChance, int|null $xFactor = null, PlayerService|null $player = null): void
     {
         // Calculate moon diameter using official formula:
         // diameter = floor((x + 3 * debris / 100000) ^ 0.5 * 1000)
@@ -522,8 +531,20 @@ class PlanetServiceFactory
         $maxDiameter = (int)floor(pow(20 + (3 * 2000000 / 100000), 0.5) * 1000); // = 8944 km
         $planet->diameter = min($diameter, $maxDiameter);
 
-        // Moon field size is always 1
-        $planet->field_max = 1;
+        // Moon field size is base 1 + General class bonus (+5)
+        // Only apply character class bonus if user has selected a class
+        $moonFieldsBonus = 0;
+        if ($planet->user_id) {
+            // Use provided player if available, otherwise load from database
+            if (!$player) {
+                $player = $this->playerServiceFactory->make($planet->user_id, true);
+            }
+            if ($player->getUser()->character_class !== null) {
+                $characterClassService = app(\OGame\Services\CharacterClassService::class);
+                $moonFieldsBonus = $characterClassService->getAdditionalMoonFields($player->getUser());
+            }
+        }
+        $planet->field_max = 1 + $moonFieldsBonus;
 
         // Calculate temperature based on planet position (same as the planet at this position)
         $planetData = $this->planetData($planet->planet, false);
@@ -541,13 +562,31 @@ class PlanetServiceFactory
     /**
      * Sets up planet-specific properties.
      * @param Planet $planet
+     * @param bool $is_first_planet
+     * @param PlayerService|null $player Optional PlayerService to avoid reloading from database
      */
-    private function setupPlanetProperties(Planet $planet, bool $is_first_planet = false): void
+    private function setupPlanetProperties(Planet $planet, bool $is_first_planet = false, PlayerService|null $player = null): void
     {
         $planet_data = $this->planetData($planet->planet, $is_first_planet);
 
         // Random field count between the min and max values and add the Server planet fields bonus setting.
-        $planet->field_max = rand($planet_data['fields'][0], $planet_data['fields'][1]) + $this->settings->planetFieldsBonus();
+        $base_fields = rand($planet_data['fields'][0], $planet_data['fields'][1]) + $this->settings->planetFieldsBonus();
+
+        // Apply Discoverer class planet size bonus (+10%)
+        // Only apply character class bonus if user has selected a class
+        $planetSizeMultiplier = 1.0;
+        if ($planet->user_id) {
+            // Use provided player if available, otherwise load from database
+            if (!$player) {
+                $player = $this->playerServiceFactory->make($planet->user_id, true);
+            }
+            if ($player->getUser()->character_class !== null) {
+                $characterClassService = app(\OGame\Services\CharacterClassService::class);
+                $planetSizeMultiplier = $characterClassService->getPlanetSizeBonus($player->getUser());
+            }
+        }
+
+        $planet->field_max = (int)($base_fields * $planetSizeMultiplier);
         $planet->diameter = (int) (36.14 * $planet->field_max + 5697.23);
 
         // Random temperature between the min and max values is assigned to temp_max, then temp_min is calculated as temp_max - 40.

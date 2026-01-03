@@ -523,7 +523,12 @@ class PlayerService
         $object = ObjectService::getResearchObjectByMachineName('computer_technology');
         $fleet_slots_from_research = $object->performCalculation(CalculationType::MAX_FLEET_SLOTS, $this->getResearchLevel('computer_technology'));
 
-        return $fleet_slots_from_research;
+        // Add General class bonus (+2 fleet slots)
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $user = $this->getUser();
+        $fleet_slots_bonus = $characterClassService->getAdditionalFleetSlots($user);
+
+        return $fleet_slots_from_research + $fleet_slots_bonus;
     }
 
     /**
@@ -563,7 +568,12 @@ class PlayerService
         $settingsService = app(SettingsService::class);
         $bonus_slots = $settingsService->bonusExpeditionSlots();
 
-        return $expedition_slots_from_research + $bonus_slots;
+        // Add Discoverer class bonus (+2 expedition slots)
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $user = $this->getUser();
+        $expedition_slots_bonus = $characterClassService->getExpeditionSlotsBonus($user);
+
+        return $expedition_slots_from_research + $bonus_slots + $expedition_slots_bonus;
     }
 
     /**

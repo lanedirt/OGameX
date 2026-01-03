@@ -32,6 +32,7 @@ class PlanetFactory extends Factory
             'deuterium_synthesizer_percent' => 10,
             'crystal_mine' => 0,
             'crystal_mine_percent' => 10,
+            'crawler_percent' => 10,
             'planet_type' => 1,
             'diameter' => 300,
             'field_max' => rand(140, 250),

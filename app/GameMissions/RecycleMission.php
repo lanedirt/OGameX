@@ -41,9 +41,21 @@ class RecycleMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        // The recycle mission has to contain at least one recycler.
-        if ($units->getAmountByMachineName('recycler') === 0) {
-            return new MissionPossibleStatus(false);
+        // Check if this is an expedition debris field (position 16)
+        $isExpeditionDebris = $targetCoordinate->position === 16;
+
+        // For expedition debris (position 16): require Pathfinders
+        // For regular debris (positions 1-15): require Recyclers
+        if ($isExpeditionDebris) {
+            // Expedition debris can only be harvested by Pathfinders
+            if ($units->getAmountByMachineName('pathfinder') === 0) {
+                return new MissionPossibleStatus(false);
+            }
+        } else {
+            // Regular debris requires at least one recycler
+            if ($units->getAmountByMachineName('recycler') === 0) {
+                return new MissionPossibleStatus(false);
+            }
         }
 
         // Check if debris field exists (including "ghost" fields with 0 resources).
@@ -78,14 +90,24 @@ class RecycleMission extends GameMission
         $debrisField = app(DebrisFieldService::class);
         $debrisField->loadOrCreateForCoordinates($targetCoordinate);
 
-        // Get recycler unit count
-        $recycler = ObjectService::getShipObjectByMachineName('recycler');
-        $recyclerCount = $this->fleetMissionService->getFleetUnits($mission)->getAmountByMachineName($recycler->machine_name);
+        // Check if this is expedition debris (position 16) - harvested by Pathfinders
+        // or regular debris (positions 1-15) - harvested by Recyclers
+        $isExpeditionDebris = $targetCoordinate->position === 16;
 
-        // Calculate total recycler capacity.
-        $total_cargo_capacity = $recycler->properties->capacity->calculate($originPlanet->getPlayer())->totalValue * $recyclerCount;
+        if ($isExpeditionDebris) {
+            // Get pathfinder unit count and capacity
+            $harvesterShip = ObjectService::getShipObjectByMachineName('pathfinder');
+            $harvesterCount = $this->fleetMissionService->getFleetUnits($mission)->getAmountByMachineName($harvesterShip->machine_name);
+        } else {
+            // Get recycler unit count and capacity
+            $harvesterShip = ObjectService::getShipObjectByMachineName('recycler');
+            $harvesterCount = $this->fleetMissionService->getFleetUnits($mission)->getAmountByMachineName($harvesterShip->machine_name);
+        }
 
-        // Get resources from the debris field and take as much as the recyclers can carry.
+        // Calculate total cargo capacity.
+        $total_cargo_capacity = $harvesterShip->properties->capacity->calculate($originPlanet->getPlayer())->totalValue * $harvesterCount;
+
+        // Get resources from the debris field and take as much as the harvesters can carry.
         $resourcesToHarvest = $debrisField->getResources();
         $resourcesHarvested = LootService::distributeLoot($resourcesToHarvest, $total_cargo_capacity);
 
@@ -100,8 +122,8 @@ class RecycleMission extends GameMission
             'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
             'to' => '[debrisfield]' . $targetCoordinate->asString(). '[/debrisfield]',
             'coordinates' => '[coordinates]' . $targetCoordinate->asString() . '[/coordinates]',
-            'ship_name' => $recycler->title,
-            'ship_amount' => $recyclerCount,
+            'ship_name' => $harvesterShip->title,
+            'ship_amount' => $harvesterCount,
             'storage_capacity' => $total_cargo_capacity,
             'metal' => $resourcesToHarvest->metal->get(),
             'crystal' => $resourcesToHarvest->crystal->get(),

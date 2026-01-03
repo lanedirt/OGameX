@@ -42,9 +42,9 @@ abstract class AccountTestCase extends TestCase
     /**
      * Test user second planet.
      *
-     * @var PlanetService
+     * @var PlanetService|null
      */
-    protected PlanetService $secondPlanetService;
+    protected ?PlanetService $secondPlanetService = null;
 
     /**
      * The default test time that is used to start tests with.
@@ -185,7 +185,12 @@ abstract class AccountTestCase extends TestCase
         $playerServiceFactory = resolve(PlayerServiceFactory::class);
         $playerService = $playerServiceFactory->make($this->currentUserId);
         $this->planetService = $playerService->planets->current();
-        $this->secondPlanetService = $playerService->planets->allPlanets()[1];
+
+        // Set second planet service if it exists
+        $allPlanets = $playerService->planets->allPlanets();
+        if (isset($allPlanets[1])) {
+            $this->secondPlanetService = $allPlanets[1];
+        }
     }
 
     /**

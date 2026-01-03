@@ -344,6 +344,34 @@ class ObjectService
     }
 
     /**
+     * Check if character class requirements are met for class-specific ships.
+     *
+     * @param string $machine_name
+     * @param PlanetService $planet
+     * @return bool
+     */
+    public static function objectCharacterClassMet(string $machine_name, PlanetService $planet): bool
+    {
+        $player = $planet->getPlayer();
+        $user = $player->getUser();
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+
+        if ($machine_name === 'reaper' && !$characterClassService->isGeneral($user)) {
+            return false;
+        }
+
+        if ($machine_name === 'pathfinder' && !$characterClassService->isDiscoverer($user)) {
+            return false;
+        }
+
+        if ($machine_name === 'crawler' && !$characterClassService->isCollector($user)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Check if object requirements are met (for building it) with previous levels completed.
      *
      * @param string $machine_name

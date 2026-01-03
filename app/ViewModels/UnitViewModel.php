@@ -11,6 +11,7 @@ class UnitViewModel
     public GameObject $object;
     public int $amount;
     public bool $requirements_met;
+    public bool $character_class_met;
     public bool $enough_resources;
     public int $max_build_amount;
     public bool $currently_building;

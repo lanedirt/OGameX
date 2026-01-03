@@ -133,4 +133,11 @@ class BattleResult
      * @var int The planet ID from which the attacker launched the attack.
      */
     public int $attackerPlanetId;
+
+    /**
+     * @var bool Whether a Deathstar was destroyed by the Hamill Manoeuvre.
+     * The Hamill Manoeuvre is a General class special ability where a Light Fighter
+     * has a small chance to instantly destroy one Deathstar at the start of battle.
+     */
+    public bool $hamillManoeuvreTriggered = false;
 }

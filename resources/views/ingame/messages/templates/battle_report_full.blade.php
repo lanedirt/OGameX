@@ -158,7 +158,68 @@
                     <span class="res_value tooltipCustom" data-tooltip-title="{{ $debris_resources->deuterium->getFormattedLong() }}">{{ $debris_resources->deuterium->getFormattedLong() }}</span>
                 </li>
             </ul>
+@if ($collected_debris_resources->sum() > 0)
+            <!-- Trümmerfeld von reaper abgebaut -->
+            <div class="section_title">
+                <div class="c-left"></div>
+                <div class="c-right"></div>
+                <span class="title_txt">@lang('Mined after combat'):</span>
+                <span class="title_txt tooltipCustom" data-tooltip-title="{{ number_format($collected_debris_resources->sum(), 0, ',', '.') }}">{{ number_format($collected_debris_resources->sum(), 0, ',', '.') }}</span>
+                <span class="title_txt">=&gt; {{ $total_reapers_used }} @lang('Reaper')</span>
+            </div>
+            <ul class="detail_list clearfix">
+                <li class="resource_list_el_small">
+                    <div class="resourceIconSmall metal"></div>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $attacker_collected_debris_resources->metal->getFormattedLong() }}">{{ $attacker_collected_debris_resources->metal->getFormattedLong() }}</span>
+                </li>
+                <li class="resource_list_el_small">
+                    <div class="resourceIconSmall crystal"></div>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $attacker_collected_debris_resources->crystal->getFormattedLong() }}">{{ $attacker_collected_debris_resources->crystal->getFormattedLong() }}</span>
+                </li>
+                <li class="resource_list_el_small">
+                    <div class="resourceIconSmall deuterium"></div>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $attacker_collected_debris_resources->deuterium->getFormattedLong() }}">{{ $attacker_collected_debris_resources->deuterium->getFormattedLong() }}</span>
+                </li>
+            </ul>
+            <ul class="detail_list clearfix">
+                <li class="resource_list_el_small">
+                    <div class="resourceIconSmall metal"></div>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $defender_collected_debris_resources->metal->getFormattedLong() }}">{{ $defender_collected_debris_resources->metal->getFormattedLong() }}</span>
+                </li>
+                <li class="resource_list_el_small">
+                    <div class="resourceIconSmall crystal"></div>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $defender_collected_debris_resources->crystal->getFormattedLong() }}">{{ $defender_collected_debris_resources->crystal->getFormattedLong() }}</span>
+                </li>
+                <li class="resource_list_el_small">
+                    <div class="resourceIconSmall deuterium"></div>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $defender_collected_debris_resources->deuterium->getFormattedLong() }}">{{ $defender_collected_debris_resources->deuterium->getFormattedLong() }}</span>
+                </li>
+            </ul>
+            <!-- Trümmerfeld übrig -->
+            <div class="section_title">
+                <div class="c-left"></div>
+                <div class="c-right"></div>
+                <span class="title_txt">@lang('Debris fields (left)'):</span>
+                <span class="title_txt tooltipCustom" data-tooltip-title="{{ number_format($remaining_debris_resources->sum(), 0, ',', '.') }}">{{ number_format($remaining_debris_resources->sum(), 0, ',', '.') }}</span>
+                <span class="title_txt">=&gt; {{ $remaining_debris_recyclers_needed }} @lang('Recycler')</span>
+            </div>
+            <ul class="detail_list clearfix">
+                <li class="resource_list_el_small">
+                    <div class="resourceIconSmall metal"></div>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $remaining_debris_resources->metal->getFormattedLong() }}">{{ $remaining_debris_resources->metal->getFormattedLong() }}</span>
+                </li>
+                <li class="resource_list_el_small">
+                    <div class="resourceIconSmall crystal"></div>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $remaining_debris_resources->crystal->getFormattedLong() }}">{{ $remaining_debris_resources->crystal->getFormattedLong() }}</span>
+                </li>
+                <li class="resource_list_el_small">
+                    <div class="resourceIconSmall deuterium"></div>
+                    <span class="res_value tooltipCustom" data-tooltip-title="{{ $remaining_debris_resources->deuterium->getFormattedLong() }}">{{ $remaining_debris_resources->deuterium->getFormattedLong() }}</span>
+                </li>
+            </ul>
+@endif
         </div>
+
         <br class="clearfloat">
         <div class="fightdetails">
            @lang(' Honour points'):<br> (<span class="overmark">@lang('Dishonourable fight'): -0</span>)
@@ -169,6 +230,17 @@
             <video src="{{ asset('video/messages/moon-created.mp4') }}" width="655" height="380" autoplay preload="auto" controls>
                 <source src="{{ asset('video/messages/moon-created.mp4') }}" type="video/mp4">
             </video>
+        </div>
+@endif
+@if ($hamill_manoeuvre_triggered)
+        <div class="fightdetails" style="margin-top: 10px; padding: 10px; background-color: rgba(255, 215, 0, 0.1); border: 2px solid #FFD700; border-radius: 5px;">
+            <span class="overmark" style="font-size: 14px; font-weight: bold;">
+                ⚡ HAMILL MANOEUVRE SUCCESSFUL! ⚡
+            </span>
+            <br>
+            <span style="color: #FFD700;">
+                @lang('A Light Fighter destroyed one Deathstar before the battle began!')
+            </span>
         </div>
 @endif
         <!-- Attacker -->

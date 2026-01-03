@@ -60,6 +60,9 @@ class PhpBattleEngine extends BattleEngine
             }
         }
 
+        // Hamill Manoeuvre: General class Light Fighters have a chance to destroy one Deathstar before battle
+        $this->checkHamillManoeuvre($result, $attackerUnits, $defenderUnits);
+
         $roundNumber = 0;
         $attackerRemainingShips = clone $result->attackerUnitsStart;
         $defenderRemainingShips = clone $result->defenderUnitsStart;
@@ -226,6 +229,67 @@ class PhpBattleEngine extends BattleEngine
                 // Apply shield regeneration.
                 $unit->currentShieldPoints = $unit->originalShieldPoints;
             }
+        }
+    }
+
+    /**
+     * Check and execute the Hamill Manoeuvre special ability.
+     * General class Light Fighters have a small chance to instantly destroy one Deathstar before battle.
+     *
+     * @param BattleResult $result
+     * @param array<BattleUnit> $attackerUnits
+     * @param array<BattleUnit> $defenderUnits
+     * @return void
+     */
+    private function checkHamillManoeuvre(BattleResult $result, array &$attackerUnits, array &$defenderUnits): void
+    {
+        // Check if attacker is General class
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        if (!$characterClassService->isGeneral($this->attackerPlayer->getUser())) {
+            return;
+        }
+
+        // Check if attacker has at least one Light Fighter
+        $hasLightFighter = false;
+        foreach ($attackerUnits as $unit) {
+            if ($unit->unitObject->machine_name === 'light_fighter') {
+                $hasLightFighter = true;
+                break;
+            }
+        }
+
+        if (!$hasLightFighter) {
+            return;
+        }
+
+        // Check if defender has at least one Deathstar
+        $deathstarKey = null;
+        foreach ($defenderUnits as $key => $unit) {
+            if ($unit->unitObject->machine_name === 'deathstar') {
+                $deathstarKey = $key;
+                break;
+            }
+        }
+
+        if ($deathstarKey === null) {
+            return;
+        }
+
+        // Roll the dice for Hamill Manoeuvre
+        $settings = app(\OGame\Services\SettingsService::class);
+        $probability = $settings->hamillManoeuvreChance();
+        $dice = random_int(1, $probability);
+
+        if ($dice === 1) {
+            // Hamill Manoeuvre triggered! Destroy one Deathstar
+            $result->hamillManoeuvreTriggered = true;
+
+            // Remove the Deathstar from defender units array (battle simulation)
+            // This prevents it from participating in battle rounds
+            unset($defenderUnits[$deathstarKey]);
+
+            // NOTE: We do NOT remove it from defenderUnitsStart or defenderUnitsResult here.
+            // The loss will be properly added to defenderUnitsLost in BattleEngine::simulateBattle() (line 142-145).
         }
     }
 }

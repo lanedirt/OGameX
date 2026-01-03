@@ -44,12 +44,26 @@ class PhalanxService
      * Level 3: 8 systems
      * Level 4: 15 systems
      *
+     * Discoverer class bonus: +20% range
+     *
      * @param int $phalanx_level
+     * @param int|null $player_id Optional player ID to apply character class bonuses
      * @return int Number of systems that can be scanned in each direction
      */
-    public function calculatePhalanxRange(int $phalanx_level): int
+    public function calculatePhalanxRange(int $phalanx_level, int|null $player_id = null): int
     {
-        return ($phalanx_level * $phalanx_level) - 1;
+        $base_range = ($phalanx_level * $phalanx_level) - 1;
+
+        // Apply Discoverer class phalanx range bonus (+20%)
+        if ($player_id !== null) {
+            $player = $this->playerServiceFactory->make($player_id, true);
+            $characterClassService = app(\OGame\Services\CharacterClassService::class);
+            $rangeMultiplier = $characterClassService->getPhalanxRangeBonus($player->getUser());
+
+            return (int)($base_range * $rangeMultiplier);
+        }
+
+        return $base_range;
     }
 
     /**
@@ -59,16 +73,17 @@ class PhalanxService
      * @param int $moon_system Moon's system
      * @param int $phalanx_level Sensor phalanx level
      * @param Coordinate $target_coordinate The target planet coordinates
+     * @param int|null $player_id Optional player ID to apply character class bonuses
      * @return bool True if target is within range
      */
-    public function canScanTarget(int $moon_galaxy, int $moon_system, int $phalanx_level, Coordinate $target_coordinate): bool
+    public function canScanTarget(int $moon_galaxy, int $moon_system, int $phalanx_level, Coordinate $target_coordinate, int|null $player_id = null): bool
     {
         if ($phalanx_level === 0) {
             return false;
         }
 
-        // Calculate range
-        $max_range = $this->calculatePhalanxRange($phalanx_level);
+        // Calculate range (with Discoverer bonus if applicable)
+        $max_range = $this->calculatePhalanxRange($phalanx_level, $player_id);
 
         // Must be in same galaxy
         if ($moon_galaxy !== $target_coordinate->galaxy) {

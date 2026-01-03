@@ -271,6 +271,11 @@ class HighscoreService
                 // Get player main planet coords
                 $mainPlanet = $playerService->planets->first();
 
+                // Skip players without any planets
+                if ($mainPlanet === null) {
+                    continue;
+                }
+
                 $score = $playerScore->{$this->highscoreType->name} ?? 0;
                 $score_formatted = AppUtil::formatNumber($score);
 

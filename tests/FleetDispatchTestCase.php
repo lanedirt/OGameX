@@ -197,16 +197,17 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      * @param UnitCollection $units
      * @param Resources $resources
      * @param bool $assertStatus
+     * @param PlanetType $planetType
      * @return void
      */
-    protected function sendMissionToPosition16(UnitCollection $units, Resources $resources, bool $assertStatus = true): void
+    protected function sendMissionToPosition16(UnitCollection $units, Resources $resources, bool $assertStatus = true, PlanetType $planetType = PlanetType::Planet): void
     {
         $planetCoords = $this->planetService->getPlanetCoordinates();
         $coordinates = new Coordinate($planetCoords->galaxy, $planetCoords->system, 16);
 
         // Position 16 means expedition mission, so we set holdingHours to 1 hour which is the default time_holding (in hours) for expeditions.
         $holdingHours = 1;
-        $this->dispatchFleet($coordinates, $units, $resources, PlanetType::Planet, $holdingHours, $assertStatus);
+        $this->dispatchFleet($coordinates, $units, $resources, $planetType, $holdingHours, $assertStatus);
     }
 
     /**

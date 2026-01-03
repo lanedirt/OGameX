@@ -166,11 +166,11 @@ class PlanetListService
     /**
      * Get first planet of player.
      *
-     * @return PlanetService
+     * @return PlanetService|null
      */
-    public function first(): PlanetService
+    public function first(): PlanetService|null
     {
-        return $this->planets[0];
+        return $this->planets[0] ?? null;
     }
 
     /**

@@ -317,7 +317,7 @@ class ExpeditionMission extends GameMission
         $maxCargoCapacity = $totalCargoCapacity - $resourcesInCargo;
 
         // Determine the max resource find.
-        $maxResourceFind = $this->determineMaxResourceFind();
+        $maxResourceFind = $this->determineMaxResourceFind($mission);
 
         // Determine the resource type: metal, crystal or deuterium.
         $cargoCapacityConstrainedAmount = 0;
@@ -368,17 +368,18 @@ class ExpeditionMission extends GameMission
         $objectService = app(ObjectService::class);
 
         // Define expedition hierarchy levels (eligibility + ceiling).
-        // TODO: when implementing pathfinder and reaper units, add them to the levels array.
-        // Pathfinder = between cruiser and battle_ship, Reaper = after destroyer.
+        // Pathfinder requires Cruiser (level 4), Reaper requires Destroyer or Reaper (level 8+9).
         $expeditionLevels = [
             1 => ['small_cargo', 'light_fighter', 'espionage_probe'],
             2 => ['large_cargo'],
             3 => ['heavy_fighter'],
             4 => ['cruiser'],
-            5 => ['battle_ship'],
-            6 => ['battlecruiser'],
-            7 => ['bomber'],
-            8 => ['destroyer'],
+            5 => ['pathfinder'], // Requires Cruiser in fleet
+            6 => ['battle_ship'],
+            7 => ['battlecruiser'],
+            8 => ['bomber'],
+            9 => ['destroyer'],
+            10 => ['reaper'], // Requires Destroyer or Reaper in fleet
         ];
 
         // Helper function to find which level a ship belongs to
@@ -429,6 +430,21 @@ class ExpeditionMission extends GameMission
                 continue;
             }
         }
+
+        // Filter out class-specific ships if fleet doesn't meet requirements
+        // Pathfinder: requires at least Cruiser tier (level 4) or higher
+        // Reaper: requires at least Destroyer tier (level 9) or higher
+        $possibleShips = array_filter($possibleShips, function ($ship) use ($maxExpeditionLevel) {
+            // Pathfinder requires expedition level 4 or higher (Cruiser tier)
+            if ($ship->machine_name === 'pathfinder' && $maxExpeditionLevel < 4) {
+                return false;
+            }
+            // Reaper requires expedition level 9 or higher (Destroyer tier)
+            if ($ship->machine_name === 'reaper' && $maxExpeditionLevel < 9) {
+                return false;
+            }
+            return true;
+        });
 
         // If no ships can be found at all for this fleet composition, just return empty.
         // The caller will decide how to message (fallback to Failed).
@@ -883,9 +899,10 @@ class ExpeditionMission extends GameMission
      *
      * This method is used by both gainResources and gainShips outcome.
      *
+     * @param FleetMission $mission
      * @return int
      */
-    private function determineMaxResourceFind(): int
+    private function determineMaxResourceFind(FleetMission $mission): int
     {
         // Max resources found is according to these params:
         // Number 1 player highscore "general" points determines the max resources found:
@@ -931,12 +948,24 @@ class ExpeditionMission extends GameMission
         // Pick a random amount between min and max.
         $resourceAmount = random_int($min, $max);
 
-        // TODO: when actual player classes such as discoverer, collector etc. are implemented, make this modifier apply only if class is "discoverer".
-        // For now we apply it anyway so the economy speed is applied to the resource find.
+        // Apply Discoverer class expedition resource multiplier (economy speed * 1.5 for Discoverer, 1.0 for others)
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
         $economySpeed = $this->settings->economySpeed();
-        $resourceAmount = $resourceAmount * ($economySpeed * 1.5);
+        $expeditionMultiplier = $characterClassService->getExpeditionResourceMultiplier($player->getUser(), $economySpeed);
+        $resourceAmount = (int)($resourceAmount * $expeditionMultiplier);
 
-        // TODO: when pathfinder unit is added to the game and included in the fleet, the max find should be doubled.
+        // If the fleet contains a Pathfinder, double the max resource find
+        $fleetUnits = $this->fleetMissionService->getFleetUnits(mission: $mission);
+        $objectService = app(ObjectService::class);
+        try {
+            $hasPathfinder = $fleetUnits->hasUnit($objectService->getShipObjectByMachineName('pathfinder'));
+            if ($hasPathfinder) {
+                $resourceAmount = $resourceAmount * 2;
+            }
+        } catch (Exception $e) {
+            // Pathfinder not found in object service, skip bonus
+        }
 
         // Apply resource rewards multiplier
         $settingsService = app(SettingsService::class);

@@ -20,6 +20,9 @@
     @elseif (!$building->requirements_met)
         data-status="off"
     title="{{ $building->object->title }}<br/>@lang('Requirements are not met!')"
+    @elseif (!$building->character_class_met)
+        data-status="disabled"
+    title="{{ $building->object->title }}<br/>@lang('Wrong character class!')"
     @elseif (!$building->enough_resources)
         data-status="disabled"
     title="{{ $building->object->title }}<br/>@lang('Not enough resources!')"

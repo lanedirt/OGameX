@@ -32,6 +32,7 @@ use OGame\Http\Controllers\ServerSettingsController;
 use OGame\Http\Controllers\ShipyardController;
 use OGame\Http\Controllers\ShopController;
 use OGame\Http\Controllers\TechtreeController;
+use OGame\Http\Controllers\CharacterClassController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,7 +48,7 @@ use OGame\Http\Controllers\TechtreeController;
 Route::redirect('/', '/overview', 301);
 
 // Group: all logged in pages:
-Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
+Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(function () {
     // Overview
     Route::get('/overview', [OverviewController::class, 'index'])->name('overview.index');
 
@@ -149,6 +150,11 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 
     Route::get('/premium', [PremiumController::class, 'index'])->name('premium.index');
     Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+
+    // Character Class
+    Route::get('/characterclass', [CharacterClassController::class, 'index'])->name('characterclass.index');
+    Route::post('/characterclass/select', [CharacterClassController::class, 'selectClass'])->name('characterclass.select');
+    Route::post('/characterclass/deselect', [CharacterClassController::class, 'deselectClass'])->name('characterclass.deselect');
 
     Route::get('/options', [OptionsController::class, 'index'])->name('options.index');
     Route::post('/options', [OptionsController::class, 'save'])->name('options.save');

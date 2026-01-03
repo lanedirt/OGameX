@@ -79,6 +79,22 @@
                                         @endforeach
                                     </div>
                                 </div>
+                                <!-- TODO: refactor this to add/substract DM to any player instead of free changes, this removes unecessary/complex free change logic -->
+                                <p class="box_highlight textCenter no_buddies">@lang('Character Class Settings')</p>
+                                <div class="group bborder" style="display: block;">
+                                    <div class="fieldwrapper">
+                                        @php
+                                            $freeClassChanges = app(\OGame\Services\SettingsService::class)->get('dev_free_class_changes', false);
+                                        @endphp
+                                        @if($freeClassChanges)
+                                            <input type="submit" class="btn_blue" name="disable_free_class_changes" value="@lang('Disable Free Class Changes')">
+                                        @else
+                                            <input type="submit" class="btn_blue" name="enable_free_class_changes" value="@lang('Enable Free Class Changes')">
+                                        @endif
+                                        <input type="submit" class="btn_blue" name="reset_character_class" value="@lang('Reset Character Class')">
+                                        <a href="{{ route('characterclass.index') }}" class="btn_blue" style="display: inline-block; padding: 5px 10px; text-decoration: none;">@lang('Go to Class Selection')</a>
+                                    </div>
+                                </div>
 
                                 <p class="box_highlight textCenter no_buddies">@lang('Reset planet')</p>
                                 <div class="group bborder" style="display: block;">
@@ -204,9 +220,9 @@
                                                        value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system">
                                             </div>
                                             <div>
-                                                <label for="position">@lang('Position:')</label>
+                                                <label for="position">@lang('Position:') (1-16)</label>
                                                 <input type="text" id="position" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
-                                                       value="{{ $currentPlanet->getPlanetCoordinates()->position }}" min="1" max="15" name="position">
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->position }}" min="1" max="16" name="position">
                                             </div>
                                         </div>
                                     </div>
@@ -223,9 +239,15 @@
                                             @endforeach
                                         </div>
                                     </div>
-                                    <div class="fieldwrapper" style="text-align: center; margin-bottom: 50px;">
+                                    <div class="fieldwrapper" style="text-align: center; margin-bottom: 20px;">
                                         <input type="submit" class="btn_blue" name="create_debris" value="@lang('Create/Append Debris Field')">
                                         <input type="submit" class="btn_blue" name="delete_debris" value="@lang('Delete Debris Field')">
+                                    </div>
+                                    <div class="fieldwrapper" style="text-align: center; margin-bottom: 50px; padding-top: 10px; border-top: 1px solid #444;">
+                                        <p style="margin-bottom: 10px; color: #999; font-size: 0.9em;">Quick shortcut for testing Discoverer class:</p>
+                                        <button type="submit" class="btn_blue" onclick="document.getElementById('position').value='16'; document.getElementById('metal').value='100000'; document.getElementById('crystal').value='50000'; document.getElementById('deuterium').value='25000'; return true;">
+                                            Create Expedition Debris (Position 16)
+                                        </button>
                                     </div>
                                 </div>
                             </form>

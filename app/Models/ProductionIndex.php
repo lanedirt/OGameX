@@ -68,6 +68,21 @@ class ProductionIndex
      */
     public Resources $items;
 
+    /**
+     * Character class bonus amount
+     * - Collector: +25% mines, +10% energy
+     *
+     * @var Resources
+     */
+    public Resources $character_class;
+
+    /**
+     * Crawler bonus amount (Collector only)
+     *
+     * @var Resources
+     */
+    public Resources $crawler;
+
     public function __construct()
     {
         $this->basic = new Resources();
@@ -79,6 +94,8 @@ class ProductionIndex
         $this->geologist = new Resources();
         $this->commanding_staff = new Resources();
         $this->items = new Resources();
+        $this->character_class = new Resources();
+        $this->crawler = new Resources();
     }
 
     /**
@@ -98,5 +115,7 @@ class ProductionIndex
         $this->geologist->add($productionIndex->geologist);
         $this->commanding_staff->add($productionIndex->commanding_staff);
         $this->items->add($productionIndex->items);
+        $this->character_class->add($productionIndex->character_class);
+        $this->crawler->add($productionIndex->crawler);
     }
 }

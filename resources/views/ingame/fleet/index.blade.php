@@ -472,7 +472,7 @@
                     "denCapacity": {"metal": 0, "crystal": 0, "deuterium": 0},
                     "characterClassBooster": {"1": 0, "2": 0, "3": 0}
                 },
-                "fleetspeed": 10
+                "fleetspeed": {{ $fleetSpeedIncrement }}
             }
             var apiCommonData = [["coords", "{{ $planet->getPlanetCoordinates()->asString() }}"], ["characterClassId", 2]];
             var apiTechData = [[109, 1], [115, 5], [110, 0], [117, 3], [111, 6], [118, 0], [114, 0]];
@@ -1438,8 +1438,8 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                     <!-- START: Speed percentage -->
                                     <div class="percentageBarWrapper">
                                         <div id="speedPercentage" class="percentageBar"
-                                             style="float:left;width:600px;margin-left:20px" value="10" steps="20"
-                                             stepsize="5" minvalue="0.5" usehalfstep="true"></div>
+                                             style="float:left;width:600px;margin-left:20px" value="{{ $fleetSpeedIncrement }}" steps="{{ 100 / $fleetSpeedIncrement }}"
+                                             stepsize="{{ $fleetSpeedIncrement }}" minvalue="{{ $fleetSpeedIncrement / 100 }}" usehalfstep="{{ $fleetSpeedIncrement == 5 ? 'true' : 'false' }}"></div>
                                         <div id="percentStatus" style="float:left; font-size:12px;"></div>
                                         <script>
                                             $('.percentSelector').bind('click', function () {

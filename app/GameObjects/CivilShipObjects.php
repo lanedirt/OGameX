@@ -184,6 +184,64 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $solarSatellite->assets->imgMicro = 'solar_satellite_micro.jpg';
         $buildingObjectsNew[] = $solarSatellite;
 
+        // --- Crawler ---
+        $crawler = new ShipObject();
+        $crawler->id = 217;
+        $crawler->title = 'Crawler';
+        $crawler->machine_name = 'crawler';
+        $crawler->class_name = 'resbuggy'; // CSS uses 'resbuggy' for Crawler sprite
+        $crawler->description = 'Crawlers are resource drones that support the mines and increase production.';
+        $crawler->description_long = 'Crawlers are state-of-the-art mining machines which can considerably increase the production of raw materials in the mines. However, they can only be built by members of the Collector class. Crawlers move across the planet`s surface and enter the shafts where they help to increase the mine`s production. The maximum number of Crawlers that can be used is limited by the level of the planet`s mines. The maximum overcharge is 100%. Collectors will be able to upgrade their Crawlers to an overcharge of 150%.';
+        $crawler->requirements = [
+            new GameObjectRequirement('shipyard', 4),
+            new GameObjectRequirement('combustion_drive', 4),
+            new GameObjectRequirement('armor_technology', 4),
+            new GameObjectRequirement('laser_technology', 4),
+        ];
+        $crawler->price = new GameObjectPrice(2000, 2000, 1000, 0);
+        $crawler->rapidfire = [
+            new GameObjectRapidfire('espionage_probe', 5),
+            new GameObjectRapidfire('solar_satellite', 5),
+        ];
+        $crawler->properties = new GameObjectProperties($crawler, 4000, 1, 1, 0, 0, 0);
+
+        $crawler->assets = new GameObjectAssets();
+        $crawler->assets->imgSmall = 'crawler_small.jpg';
+        $crawler->assets->imgMicro = 'crawler_micro.jpg';
+        $buildingObjectsNew[] = $crawler;
+
+        // --- Pathfinder ---
+        $pathfinder = new ShipObject();
+        $pathfinder->id = 219;
+        $pathfinder->title = 'Pathfinder';
+        $pathfinder->machine_name = 'pathfinder';
+        $pathfinder->class_name = 'explorer'; // CSS uses 'explorer' for Pathfinder sprite
+        $pathfinder->description = 'The Pathfinder is a quick and agile ship, purpose-built for expeditions into unknown sectors of space.';
+        $pathfinder->description_long = 'The Pathfinder is the latest development in exploration technology. This ship was specially designed for members of the Discoverer class to maximize their potential. Equipped with advanced scanning systems and a large cargo hold for salvaging resources, the Pathfinder excels at expeditions. Its sophisticated sensors can detect valuable resources and anomalies that would go unnoticed by other ships. The ship combines a high speed with good cargo capacity, making it perfect for quick exploration missions and resource gathering from distant sectors.';
+        $pathfinder->requirements = [
+            new GameObjectRequirement('shipyard', 5),
+            new GameObjectRequirement('combustion_drive', 6),
+            new GameObjectRequirement('shielding_technology', 4),
+            new GameObjectRequirement('hyperspace_technology', 2),
+        ];
+        $pathfinder->price = new GameObjectPrice(8000, 15000, 8000, 0);
+        $pathfinder->rapidfire = [
+            new GameObjectRapidfire('espionage_probe', 5),
+            new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('small_cargo', 3),
+        ];
+        $pathfinder->properties = new GameObjectProperties($pathfinder, 23000, 100, 200, 12000, 10000, 300);
+        // Switch to Impulse at 3, then Hyperspace at 3
+        $pathfinder->properties->speed_upgrade = [
+            new GameObjectSpeedUpgrade('impulse_drive', 3),
+            new GameObjectSpeedUpgrade('hyperspace_drive', 3),
+        ];
+
+        $pathfinder->assets = new GameObjectAssets();
+        $pathfinder->assets->imgSmall = 'pathfinder_small.jpg';
+        $pathfinder->assets->imgMicro = 'pathfinder_micro.jpg';
+        $buildingObjectsNew[] = $pathfinder;
+
         return $buildingObjectsNew;
     }
 }

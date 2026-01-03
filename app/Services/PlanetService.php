@@ -958,6 +958,13 @@ class PlanetService
 
         $time_seconds = (int)($time_hours * 3600);
 
+        // Apply character class research time multiplier (Discoverer: -25%)
+        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $timeMultiplier = $characterClassService->getResearchTimeMultiplier($this->player->getUser());
+        if ($timeMultiplier != 1.0) {
+            $time_seconds = (int)($time_seconds * $timeMultiplier);
+        }
+
         // Minimum time is always 1 second for all objects/units.
         if ($time_seconds < 1) {
             $time_seconds = 1;
@@ -1020,9 +1027,20 @@ class PlanetService
     {
         $building = ObjectService::getObjectById($building_id);
 
-        // Sanity check: percentage inside allowed values.
         // Sanity check: model property exists.
-        if ($percentage < 0 || $percentage > 10 || !isset($this->planet->{$building->machine_name . '_percent'})) {
+        if (!isset($this->planet->{$building->machine_name . '_percent'})) {
+            return false;
+        }
+
+        // Sanity check: percentage inside allowed values.
+        // Default max is 10 (100%), but crawlers can go to 15 (150%) for Collector class
+        $maxPercentage = 10;
+        if ($building->machine_name === 'crawler') {
+            $characterClassService = app(\OGame\Services\CharacterClassService::class);
+            $maxPercentage = $characterClassService->getMaxCrawlerOverload($this->player->getUser()) / 10;
+        }
+
+        if ($percentage < 0 || $percentage > $maxPercentage) {
             return false;
         }
 
@@ -2003,6 +2021,7 @@ class PlanetService
 
         $object->production->planetService = $this;
         $object->production->playerService = $this->player;
+        $object->production->characterClassService = app(\OGame\Services\CharacterClassService::class);
         $object->production->universe_speed = $this->settingsService->economySpeed();
 
         return $object->production->calculate($object_level, $resource_production_factor * $building_percentage);
