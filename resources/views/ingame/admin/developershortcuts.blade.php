@@ -79,7 +79,7 @@
                                         @endforeach
                                     </div>
                                 </div>
-
+                                <!-- TODO: refactor this to add/substract DM to any player instead of free changes, this removes unecessary/complex free change logic -->
                                 <p class="box_highlight textCenter no_buddies">@lang('Character Class Settings')</p>
                                 <div class="group bborder" style="display: block;">
                                     <div class="fieldwrapper">
