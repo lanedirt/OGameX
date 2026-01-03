@@ -29,6 +29,16 @@ abstract class BattleEngine
     protected PlanetService $defenderPlanet;
 
     /**
+     * @var int The fleet mission ID of the attacking fleet.
+     */
+    protected int $attackerFleetMissionId;
+
+    /**
+     * @var int The ID of the player who owns the attacking fleet.
+     */
+    protected int $attackerOwnerId;
+
+    /**
      * @var LootService The service used to calculate the loot gained from a battle.
      */
     private LootService $lootService;
@@ -51,12 +61,16 @@ abstract class BattleEngine
      * @param PlayerService $attackerPlayer The attacker player.
      * @param PlanetService $defenderPlanet The planet of the defender player.
      * @param SettingsService $settings The settings service.
+     * @param int $attackerFleetMissionId The fleet mission ID of the attacking fleet.
+     * @param int $attackerOwnerId The ID of the player who owns the attacking fleet.
      */
-    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, SettingsService $settings)
+    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, SettingsService $settings, int $attackerFleetMissionId, int $attackerOwnerId)
     {
         $this->attackerFleet = $attackerFleet;
         $this->attackerPlayer = $attackerPlayer;
         $this->defenderPlanet = $defenderPlanet;
+        $this->attackerFleetMissionId = $attackerFleetMissionId;
+        $this->attackerOwnerId = $attackerOwnerId;
 
         $this->lootService = new LootService($this->attackerFleet, $this->attackerPlayer, $this->defenderPlanet, $this->lootPercentage);
 

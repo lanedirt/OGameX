@@ -29,7 +29,8 @@ class DefenseRepairBattleEngineTest extends UnitTestCase
      */
     protected function createBattleEngine(UnitCollection $attackerFleet): PhpBattleEngine
     {
-        return new PhpBattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService);
+        // For test battles, use fleetMissionId = 0 and current player's ID
+        return new PhpBattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService, 0, $this->playerService->getId());
     }
 
     /**

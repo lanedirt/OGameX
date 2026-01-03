@@ -35,7 +35,7 @@ class PhpBattleEngine extends BattleEngine
             $structuralIntegrity = $unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue;
             $shieldPoints = $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue;
             $attackPower = $unit->unitObject->properties->attack->calculate($this->attackerPlayer)->totalValue;
-            $unitObject = new BattleUnit($unit->unitObject, $structuralIntegrity, $shieldPoints, $attackPower);
+            $unitObject = new BattleUnit($unit->unitObject, $structuralIntegrity, $shieldPoints, $attackPower, $this->attackerFleetMissionId, $this->attackerOwnerId);
 
             for ($i = 0; $i < $unit->amount; $i++) {
                 // Clone the unit object for each individual entry of this ship add it to the array.
@@ -49,7 +49,10 @@ class PhpBattleEngine extends BattleEngine
             $structuralIntegrity = $unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue;
             $shieldPoints = $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue;
             $attackPower = $unit->unitObject->properties->attack->calculate($this->defenderPlanet->getPlayer())->totalValue;
-            $unitObject = new BattleUnit($unit->unitObject, $structuralIntegrity, $shieldPoints, $attackPower);
+            // TODO: PR 3 (Multi-Defender Battle Engine) - This currently treats all defender units as belonging
+            // to the planet owner (fleetMissionId = 0). Need to separate defender units by their actual fleet missions
+            // to support multiple ACS Defend fleets stationed at the planet.
+            $unitObject = new BattleUnit($unit->unitObject, $structuralIntegrity, $shieldPoints, $attackPower, 0, $this->defenderPlanet->getPlayer()->getId());
 
             for ($i = 0; $i < $unit->amount; $i++) {
                 // Clone the unit object for each individual entry of this ship add it to the array.

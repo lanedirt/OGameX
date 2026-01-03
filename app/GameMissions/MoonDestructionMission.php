@@ -113,11 +113,11 @@ class MoonDestructionMission extends GameMission
         // Execute the battle logic using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $this->settings);
+                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $this->settings, $mission->id, $mission->user_id);
                 break;
             case 'rust':
             default:
-                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $this->settings);
+                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $this->settings, $mission->id, $mission->user_id);
                 break;
         }
 

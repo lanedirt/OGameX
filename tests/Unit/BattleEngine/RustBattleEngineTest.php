@@ -17,11 +17,14 @@ class RustBattleEngineTest extends BattleEngineTestAbstract
      */
     protected function createBattleEngine(UnitCollection $attackerFleet): BattleEngine
     {
+        // For test battles, use fleetMissionId = 0 and current player's ID
         return new RustBattleEngine(
             $attackerFleet,
             $this->playerService,
             $this->planetService,
-            $this->settingsService
+            $this->settingsService,
+            0,
+            $this->playerService->getId()
         );
     }
 

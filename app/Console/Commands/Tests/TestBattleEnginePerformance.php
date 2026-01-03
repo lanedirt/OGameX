@@ -120,9 +120,13 @@ class TestBattleEnginePerformance extends TestCommand
         // Resolve settings service.
         $settingsService = resolve(SettingsService::class);
 
+        // For test battles, use fleetMissionId = 0 and current player's ID
+        $fleetMissionId = 0;
+        $ownerId = $this->playerService->getId();
+
         return $engine === 'php'
-            ? new PhpBattleEngine($attackerFleet, $this->playerService, $this->currentPlanetService, $settingsService)
-            : new RustBattleEngine($attackerFleet, $this->playerService, $this->currentPlanetService, $settingsService);
+            ? new PhpBattleEngine($attackerFleet, $this->playerService, $this->currentPlanetService, $settingsService, $fleetMissionId, $ownerId)
+            : new RustBattleEngine($attackerFleet, $this->playerService, $this->currentPlanetService, $settingsService, $fleetMissionId, $ownerId);
     }
 
     /**
