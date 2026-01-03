@@ -49,7 +49,7 @@ class PhpBattleEngine extends BattleEngine
             $structuralIntegrity = $unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue;
             $shieldPoints = $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue;
             $attackPower = $unit->unitObject->properties->attack->calculate($this->defenderPlanet->getPlayer())->totalValue;
-            // TODO: PR 3 (Multi-Defender Battle Engine) - This currently treats all defender units as belonging
+            // TODO: Multi-defender support - This currently treats all defender units as belonging
             // to the planet owner (fleetMissionId = 0). Need to separate defender units by their actual fleet missions
             // to support multiple ACS Defend fleets stationed at the planet.
             $unitObject = new BattleUnit($unit->unitObject, $structuralIntegrity, $shieldPoints, $attackPower, 0, $this->defenderPlanet->getPlayer()->getId());
