@@ -34,4 +34,4 @@ jobs:
       run: composer install --no-ansi --no-interaction --no-progress
 
     - name: Rector
-      run: composer run rector --dry-run
+      run: composer run rector -- --dry-run
