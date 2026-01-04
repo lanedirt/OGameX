@@ -51,7 +51,7 @@ $ composer run cs
 ```
 
 ### 3. Automated Refactoring
-Make sure that your code passes has been refactored to match our set standards. You can run Rector locally using the following composer script:
+Make sure that your code has been refactored to match our set Rector standards. You can run Rector locally using the following composer script:
 
 ```
 $ composer run rector
