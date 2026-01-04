@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -21,28 +23,28 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array<string, int> $defense
  * @property int|null $counter_espionage_chance
  * @property array<string, string> $player_info
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \OGame\Models\User|null $planetUserId
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport query()
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereBuildings($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereDefense($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport wherePlanetGalaxy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport wherePlanetPosition($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport wherePlanetSystem($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport wherePlanetUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport wherePlayerInfo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereResearch($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereResources($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereShips($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|EspionageReport whereDebris($value)
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $planetUserId
+ * @method static Builder|EspionageReport newModelQuery()
+ * @method static Builder|EspionageReport newQuery()
+ * @method static Builder|EspionageReport query()
+ * @method static Builder|EspionageReport whereBuildings($value)
+ * @method static Builder|EspionageReport whereCreatedAt($value)
+ * @method static Builder|EspionageReport whereDefense($value)
+ * @method static Builder|EspionageReport whereId($value)
+ * @method static Builder|EspionageReport wherePlanetGalaxy($value)
+ * @method static Builder|EspionageReport wherePlanetPosition($value)
+ * @method static Builder|EspionageReport wherePlanetSystem($value)
+ * @method static Builder|EspionageReport wherePlanetUserId($value)
+ * @method static Builder|EspionageReport wherePlayerInfo($value)
+ * @method static Builder|EspionageReport whereResearch($value)
+ * @method static Builder|EspionageReport whereResources($value)
+ * @method static Builder|EspionageReport whereShips($value)
+ * @method static Builder|EspionageReport whereUpdatedAt($value)
+ * @method static Builder|EspionageReport whereDebris($value)
  * @property int $planet_type
- * @method static \Illuminate\Database\Eloquent\Builder<static>|EspionageReport wherePlanetType($value)
+ * @method static Builder<static>|EspionageReport wherePlanetType($value)
  * @mixin \Eloquent
  */
 class EspionageReport extends Model

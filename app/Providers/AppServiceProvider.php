@@ -39,15 +39,15 @@ class AppServiceProvider extends ServiceProvider
      */
     final public function register(): void
     {
-        $this->app->singleton(SettingsService::class, function ($app) {
+        $this->app->singleton(function ($app): SettingsService {
             return new SettingsService();
         });
 
-        $this->app->singleton(PlayerServiceFactory::class, function ($app) {
+        $this->app->singleton(function ($app): PlayerServiceFactory {
             return new PlayerServiceFactory();
         });
 
-        $this->app->singleton(PlanetServiceFactory::class, function ($app) {
+        $this->app->singleton(function ($app): PlanetServiceFactory {
             return new PlanetServiceFactory(
                 $app->make(SettingsService::class),
                 $app->make(PlayerServiceFactory::class)

@@ -2,6 +2,7 @@
 
 namespace OGame\GameMessages;
 
+use OGame\Models\BuddyRequest;
 use OGame\GameMessages\Abstracts\GameMessage;
 
 class BuddyRequestReceived extends GameMessage
@@ -27,7 +28,7 @@ class BuddyRequestReceived extends GameMessage
         }
 
         // Load the buddy request to check its status
-        $buddyRequest = \OGame\Models\BuddyRequest::find($buddyRequestId);
+        $buddyRequest = BuddyRequest::find($buddyRequestId);
 
         // Only show buttons if the request is still pending
         if (!$buddyRequest || !$buddyRequest->isPending()) {

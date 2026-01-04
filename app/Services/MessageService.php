@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use OGame\GameMessages\FleetLostContact;
 use Exception;
 use InvalidArgumentException;
 use OGame\Factories\GameMessageFactory;
@@ -52,79 +53,16 @@ class MessageService
         ],
     ];
 
-    // TODO: tab array defined below is not used anymore but it's kept for reference purposes when implementing
-    // more message types.
-    /*protected array $tabs = [
-        'fleets' => [
-            'espionage' => [
-                1, // Espionage report for foreign planet
-                2, // Espionage action detected on own planet
-            ],
-            'combat_reports' => [
-                11, // Combat report
-            ],
-            'expeditions' => [
-                21, // Expedition report
-            ],
-            'transport' => [
-                'transport_arrived' => 31, // Own fleet reaching a planet
-                'transport_received' => 32, // Resource delivery by foreign fleet
-            ],
-            'other' => [
-                'return_of_fleet' => 41, // Return of fleet
-                'outlaw_notification' => 42, // Outlaw notification
-                'wreckage_created' => 43, // Wreckage created on own planet after battle
-                'fleet_deployment' => 44, // Fleet deployment reached the target planet
-            ],
-        ],
-        'communication' => [
-            'messages' => [
-                51, // Buddy request/confirm/delete
-                52, // Alliance message
-            ],
-            'information' => [
-                53, // Information
-            ],
-        ],
-        'economy' => [
-            'economy' => [
-                'production_canceled' => 61, // Production canceled
-                'repair_completed' => 62, // Repair completed
-                'colony_established' => 63, // Colony established
-            ],
-        ],
-        'universe' => [
-            'universe' => [
-                'welcome_message' => 71, // Welcome message
-                'starter_bonus' => 72, // Starter bonus
-                'promotions' => 73, // Promotions/sales
-            ],
-        ],
-        'system' => [
-            'system' => [
-                81, // Officer runs out
-            ],
-        ],
-        'favorites' => [
-            'favorites' => [
-                99, // TODO: Implement favorites
-            ],
-        ],
-    ];*/
-
-    /**
-     * The PlayerService object.
-     *
-     * @var PlayerService
-     */
-    private PlayerService $player;
-
     /**
      * MessageService constructor.
      */
-    public function __construct(PlayerService $player)
+    public function __construct(
+        /**
+         * The PlayerService object.
+         */
+        private PlayerService $player
+    )
     {
-        $this->player = $player;
     }
 
     /**
@@ -214,7 +152,7 @@ class MessageService
     public function sendFleetLostContactMessageToPlayer(PlayerService $player, string $coordinates): Message
     {
         try {
-            $gameMessage = resolve(\OGame\GameMessages\FleetLostContact::class);
+            $gameMessage = resolve(FleetLostContact::class);
         } catch (Exception) {
             throw new RuntimeException('Could not create fleet lost contact message.');
         }

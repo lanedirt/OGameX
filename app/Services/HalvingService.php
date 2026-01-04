@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -72,7 +73,7 @@ class HalvingService
      */
     private function getCurrentTimestamp(): int
     {
-        return (int)Carbon::now()->timestamp;
+        return (int)Date::now()->timestamp;
     }
 
     /**
@@ -404,7 +405,7 @@ class HalvingService
         }
 
         // Calculate remaining time
-        $currentTime = (int)Carbon::now()->timestamp;
+        $currentTime = (int)Date::now()->timestamp;
         $remainingTime = (int)$queueItem->time_end - $currentTime;
 
         if ($remainingTime <= 0) {
@@ -439,7 +440,7 @@ class HalvingService
         }
 
         // Calculate remaining time
-        $currentTime = (int)Carbon::now()->timestamp;
+        $currentTime = (int)Date::now()->timestamp;
         $remainingTime = (int)$queueItem->time_end - $currentTime;
 
         if ($remainingTime <= 0) {

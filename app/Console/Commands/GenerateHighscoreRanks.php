@@ -2,6 +2,8 @@
 
 namespace OGame\Console\Commands;
 
+use OGame\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Console\Command;
 use OGame\Enums\HighscoreTypeEnum;
 use OGame\Models\Highscore;
@@ -38,7 +40,7 @@ class GenerateHighscoreRanks extends Command
         $this->info("\nUpdating highscore ranks for $type->name...");
 
         // Set Legor's rank to 0 (Legor is excluded from highscore, ranked players start at 1)
-        $legor = \OGame\Models\User::where('username', 'Legor')->first();
+        $legor = User::where('username', 'Legor')->first();
         if ($legor) {
             $legorHighscore = Highscore::where('player_id', $legor->id)->first();
             if ($legorHighscore) {
@@ -57,13 +59,13 @@ class GenerateHighscoreRanks extends Command
             ->where('users.username', '!=', 'Legor')
             ->select('highscores.*')
             ->orderByDesc($type->name)
-            ->orderBy('users.created_at');
+            ->oldest('users.created_at');
 
         $bar = $this->output->createProgressBar();
         $bar->start($query->count());
 
         $query->chunk(200, function ($highscores) use ($type, &$bar, &$rank) {
-            /** @var \Illuminate\Support\Collection<int, Highscore> $highscores */
+            /** @var Collection<int, Highscore> $highscores */
             foreach ($highscores as $highscore) {
                 $highscore->{$type->name.'_rank'} = $rank;
                 $highscore->save();

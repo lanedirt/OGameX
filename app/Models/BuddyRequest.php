@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,17 +21,17 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read User $sender
  * @property-read User $receiver
- * @method static \Illuminate\Database\Eloquent\Builder|BuddyRequest newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BuddyRequest newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BuddyRequest query()
- * @method static \Illuminate\Database\Eloquent\Builder|BuddyRequest whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuddyRequest whereSenderUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuddyRequest whereReceiverUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuddyRequest whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuddyRequest whereMessage($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuddyRequest whereViewed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuddyRequest whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuddyRequest whereUpdatedAt($value)
+ * @method static Builder|BuddyRequest newModelQuery()
+ * @method static Builder|BuddyRequest newQuery()
+ * @method static Builder|BuddyRequest query()
+ * @method static Builder|BuddyRequest whereId($value)
+ * @method static Builder|BuddyRequest whereSenderUserId($value)
+ * @method static Builder|BuddyRequest whereReceiverUserId($value)
+ * @method static Builder|BuddyRequest whereStatus($value)
+ * @method static Builder|BuddyRequest whereMessage($value)
+ * @method static Builder|BuddyRequest whereViewed($value)
+ * @method static Builder|BuddyRequest whereCreatedAt($value)
+ * @method static Builder|BuddyRequest whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class BuddyRequest extends Model

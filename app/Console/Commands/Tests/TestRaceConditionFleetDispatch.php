@@ -2,6 +2,7 @@
 
 namespace OGame\Console\Commands\Tests;
 
+use GuzzleHttp\Promise\Utils;
 use DateTime;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -146,7 +147,7 @@ class TestRaceConditionFleetDispatch extends TestCommand
         }
 
         // Wait for all requests to complete
-        $responses = Promise\Utils::settle($promises)->wait();
+        $responses = Utils::settle($promises)->wait();
 
         $successCount = 0;
         $failCount = 0;

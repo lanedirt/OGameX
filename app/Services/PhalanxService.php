@@ -25,14 +25,11 @@ class PhalanxService
      */
     private const SCAN_COST = 5000;
 
-    private PlayerServiceFactory $playerServiceFactory;
-
     /**
      * PhalanxService constructor.
      */
-    public function __construct(PlayerServiceFactory $playerServiceFactory)
+    public function __construct(private PlayerServiceFactory $playerServiceFactory)
     {
-        $this->playerServiceFactory = $playerServiceFactory;
     }
 
     /**
@@ -57,7 +54,7 @@ class PhalanxService
         // Apply Discoverer class phalanx range bonus (+20%)
         if ($player_id !== null) {
             $player = $this->playerServiceFactory->make($player_id, true);
-            $characterClassService = app(\OGame\Services\CharacterClassService::class);
+            $characterClassService = app(CharacterClassService::class);
             $rangeMultiplier = $characterClassService->getPhalanxRangeBonus($player->getUser());
 
             return (int)($base_range * $rangeMultiplier);

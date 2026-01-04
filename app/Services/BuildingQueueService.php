@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -31,7 +33,7 @@ class BuildingQueueService
         // Fetch queue items from model
         return BuildingQueue::where([
             ['planet_id', $planet_id],
-            ['time_end', '<=', Carbon::now()->timestamp],
+            ['time_end', '<=', Date::now()->timestamp],
             ['building', 1],
             ['processed', 0],
             ['canceled', 0],
@@ -144,8 +146,8 @@ class BuildingQueueService
         $building = ObjectService::getObjectById($building_id);
 
         // Only buildings and stations can be downgraded
-        if ($building->type !== \OGame\GameObjects\Models\Enums\GameObjectType::Building &&
-            $building->type !== \OGame\GameObjects\Models\Enums\GameObjectType::Station) {
+        if ($building->type !== GameObjectType::Building &&
+            $building->type !== GameObjectType::Station) {
             throw new Exception('This object cannot be downgraded.');
         }
 
@@ -241,7 +243,7 @@ class BuildingQueueService
         foreach ($queue_items as $item) {
             $object = ObjectService::getObjectById($item['object_id']);
 
-            $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
+            $time_countdown = $item->time_end - (int)Date::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
             }
@@ -405,7 +407,7 @@ class BuildingQueueService
             }
 
             if (!$time_start) {
-                $time_start = (int)Carbon::now()->timestamp;
+                $time_start = (int)Date::now()->timestamp;
             }
 
             $queue_item->time_duration = $build_time;
@@ -420,7 +422,7 @@ class BuildingQueueService
             // If the calculated end time is lower than the current time,
             // we force that the planet is updated again which will grant
             // the building immediately without having to wait for a refresh.
-            if ($queue_item->time_end < Carbon::now()->timestamp) {
+            if ($queue_item->time_end < Date::now()->timestamp) {
                 $planet->updateBuildingQueue();
             }
         }

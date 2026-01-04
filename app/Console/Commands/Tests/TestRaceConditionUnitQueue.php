@@ -2,6 +2,7 @@
 
 namespace OGame\Console\Commands\Tests;
 
+use Illuminate\Support\Facades\Date;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -73,8 +74,8 @@ class TestRaceConditionUnitQueue extends TestCommand
         $this->playerService->setResearchLevel('combustion_drive', 1);
 
         // Set time to static time 2024-01-01
-        $startTime = Carbon::create(2024, 1, 1, 0, 0, 0);
-        Carbon::setTestNow($startTime);
+        $startTime = Date::create(2024, 1, 1, 0, 0, 0);
+        Date::setTestNow($startTime);
 
         // Add light fighter build job.
         $unitQueueService = resolve(UnitQueueService::class);

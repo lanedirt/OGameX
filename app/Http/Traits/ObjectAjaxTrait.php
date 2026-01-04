@@ -2,6 +2,8 @@
 
 namespace OGame\Http\Traits;
 
+use OGame\GameObjects\Models\Abstracts\GameObject;
+use OGame\Services\PlanetService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -283,8 +285,8 @@ trait ObjectAjaxTrait
     /**
      * Get the description for an object, with dynamic values for special cases.
      *
-     * @param \OGame\GameObjects\Models\Abstracts\GameObject $object
-     * @param \OGame\Services\PlanetService $planet
+     * @param GameObject $object
+     * @param PlanetService $planet
      * @return string
      */
     private function getObjectDescription($object, $planet): string

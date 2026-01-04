@@ -197,7 +197,7 @@ class BuddiesController extends OGameController
      *
      * @param Request $request
      * @param BuddyService $buddyService
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function ignorePlayer(Request $request, BuddyService $buddyService): RedirectResponse
     {
@@ -220,7 +220,7 @@ class BuddiesController extends OGameController
      *
      * @param Request $request
      * @param BuddyService $buddyService
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function unignorePlayer(Request $request, BuddyService $buddyService): RedirectResponse
     {
@@ -242,7 +242,7 @@ class BuddiesController extends OGameController
      * Get online buddies list for the chat bar
      *
      * @param BuddyService $buddyService
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getOnlineBuddies(BuddyService $buddyService): JsonResponse
     {

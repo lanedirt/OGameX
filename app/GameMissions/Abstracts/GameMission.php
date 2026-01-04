@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions\Abstracts;
 
+use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Support\Carbon;
 use OGame\Enums\FleetMissionStatus;
@@ -50,16 +51,6 @@ abstract class GameMission
      */
     protected static FleetMissionStatus $friendlyStatus;
 
-    protected FleetMissionService $fleetMissionService;
-
-    protected MessageService $messageService;
-
-    protected PlanetServiceFactory $planetServiceFactory;
-
-    protected PlayerServiceFactory $playerServiceFactory;
-
-    protected SettingsService $settings;
-
     /**
      * @param FleetMissionService $fleetMissionService
      * @param MessageService $messageService
@@ -67,13 +58,8 @@ abstract class GameMission
      * @param PlayerServiceFactory $playerServiceFactory
      * @param SettingsService $settings
      */
-    public function __construct(FleetMissionService $fleetMissionService, MessageService $messageService, PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory, SettingsService $settings)
+    public function __construct(protected FleetMissionService $fleetMissionService, protected MessageService $messageService, protected PlanetServiceFactory $planetServiceFactory, protected PlayerServiceFactory $playerServiceFactory, protected SettingsService $settings)
     {
-        $this->fleetMissionService = $fleetMissionService;
-        $this->messageService = $messageService;
-        $this->planetServiceFactory = $planetServiceFactory;
-        $this->playerServiceFactory = $playerServiceFactory;
-        $this->settings = $settings;
     }
 
     public static function getName(): string
@@ -132,7 +118,7 @@ abstract class GameMission
     {
         // Update the mission arrived time to now instead of original planned arrival time if the mission would finish by itself.
         // This arrival time is used by the return mission to calculate the return time.
-        $mission->time_arrival = (int)Carbon::now()->timestamp;
+        $mission->time_arrival = (int)Date::now()->timestamp;
 
         // Clear the holding time for recalled missions (expeditions, etc.)
         // The fleet should return immediately without waiting at the destination.
@@ -241,7 +227,7 @@ abstract class GameMission
         }
 
         // Time this fleet mission will depart (now).
-        $time_start = (int)Carbon::now()->timestamp;
+        $time_start = (int)Date::now()->timestamp;
 
         // Time fleet mission will arrive.
         // TODO: refactor calculate to gamemission base class?
@@ -314,7 +300,7 @@ abstract class GameMission
         // Check if the created mission arrival time is in the past. This can happen if the planet hasn't been updated
         // for some time and missions have already played out in the meantime.
         // If the mission is in the past, process it immediately.
-        if ($mission->time_arrival < Carbon::now()->timestamp) {
+        if ($mission->time_arrival < Date::now()->timestamp) {
             $this->process($mission);
         }
 
@@ -407,7 +393,7 @@ abstract class GameMission
         // Check if the created mission arrival time is in the past. This can happen if the planet hasn't been updated
         // for some time and missions have already played out in the meantime.
         // If the mission is in the past, process it immediately.
-        if ($mission->time_arrival < Carbon::now()->timestamp) {
+        if ($mission->time_arrival < Date::now()->timestamp) {
             $this->process($mission);
         }
     }

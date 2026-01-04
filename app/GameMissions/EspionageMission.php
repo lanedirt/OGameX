@@ -2,6 +2,10 @@
 
 namespace OGame\GameMissions;
 
+use OGame\Factories\PlayerServiceFactory;
+use OGame\GameMessages\DefenderEspionageDetected;
+use OGame\GameMissions\BattleEngine\Models\BattleResult;
+use OGame\Services\PlayerService;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameMissions\Abstracts\GameMission;
@@ -169,12 +173,12 @@ class EspionageMission extends GameMission
                 'chance'        => $counterEspionageChance,
             ];
 
-            $playerServiceFactory = resolve(\OGame\Factories\PlayerServiceFactory::class);
+            $playerServiceFactory = resolve(PlayerServiceFactory::class);
             $defenderService      = $playerServiceFactory->make($defenderUserId);
 
             $this->messageService->sendSystemMessageToPlayer(
                 $defenderService,
-                \OGame\GameMessages\DefenderEspionageDetected::class,
+                DefenderEspionageDetected::class,
                 $params
             );
         }
@@ -207,7 +211,7 @@ class EspionageMission extends GameMission
      * @param CounterEspionageService $counterEspionageService
      * @param int $fleetMissionId
      * @param int $ownerId
-     * @return \OGame\GameMissions\BattleEngine\Models\BattleResult
+     * @return BattleResult
      */
     private function executeCounterEspionageBattle(
         PlanetService $originPlanet,
@@ -216,7 +220,7 @@ class EspionageMission extends GameMission
         CounterEspionageService $counterEspionageService,
         int $fleetMissionId,
         int $ownerId
-    ): \OGame\GameMissions\BattleEngine\Models\BattleResult {
+    ): BattleResult {
         $attackerPlayer = $originPlanet->getPlayer();
 
         // Get only ships for counter-espionage battle (no defense)
@@ -252,15 +256,15 @@ class EspionageMission extends GameMission
     /**
      * Create a battle report for counter-espionage battle.
      *
-     * @param \OGame\Services\PlayerService $attackerPlayer
+     * @param PlayerService $attackerPlayer
      * @param PlanetService $defenderPlanet
-     * @param \OGame\GameMissions\BattleEngine\Models\BattleResult $battleResult
+     * @param BattleResult $battleResult
      * @return int
      */
     private function createCounterEspionageBattleReport(
-        \OGame\Services\PlayerService $attackerPlayer,
+        PlayerService $attackerPlayer,
         PlanetService $defenderPlanet,
-        \OGame\GameMissions\BattleEngine\Models\BattleResult $battleResult
+        BattleResult $battleResult
     ): int {
         $report = new BattleReport();
         $report->planet_galaxy = $defenderPlanet->getPlanetCoordinates()->galaxy;

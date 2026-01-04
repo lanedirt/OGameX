@@ -17,15 +17,6 @@ use OGame\Services\PlayerService;
  */
 class LootService
 {
-    private UnitCollection $attackerFleet;
-    private PlayerService $attackerPlayer;
-    private PlanetService $defenderPlanet;
-
-    /**
-     * @var int The percentage of loot that is gained from a battle.
-     */
-    private int $lootPercentage;
-
     /**
      * LootService constructor.
      *
@@ -34,12 +25,8 @@ class LootService
      * @param PlanetService $defenderPlanet The planet of the defender player.
      * @param int $lootPercentage The percentage of loot that is gained from a battle.
     */
-    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, int $lootPercentage)
+    public function __construct(private UnitCollection $attackerFleet, private PlayerService $attackerPlayer, private PlanetService $defenderPlanet, private int $lootPercentage)
     {
-        $this->attackerFleet = $attackerFleet;
-        $this->attackerPlayer = $attackerPlayer;
-        $this->defenderPlanet = $defenderPlanet;
-        $this->lootPercentage = $lootPercentage;
     }
 
     /**

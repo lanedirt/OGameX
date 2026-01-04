@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Carbon;
 use Exception;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet;
@@ -26,25 +27,13 @@ class WreckFieldService
     private ?WreckField $wreckField = null;
 
     /**
-     * @var PlayerService
-     */
-    private PlayerService $playerService;
-
-    /**
-     * @var SettingsService
-     */
-    private SettingsService $settingsService;
-
-    /**
      * WreckFieldService constructor.
      *
      * @param PlayerService $playerService
      * @param SettingsService $settingsService
      */
-    public function __construct(PlayerService $playerService, SettingsService $settingsService)
+    public function __construct(private PlayerService $playerService, private SettingsService $settingsService)
     {
-        $this->playerService = $playerService;
-        $this->settingsService = $settingsService;
     }
 
     /**
@@ -599,9 +588,9 @@ class WreckFieldService
     /**
      * Get the estimated repair completion time.
      *
-     * @return \Illuminate\Support\Carbon|null
+     * @return Carbon|null
      */
-    public function getRepairCompletionTime(): \Illuminate\Support\Carbon|null
+    public function getRepairCompletionTime(): Carbon|null
     {
         return $this->wreckField?->repair_completed_at;
     }

@@ -26,13 +26,6 @@ abstract class AbstractBuildingsController extends OGameController
     protected string $route_view_index;
 
     /**
-     * QueueService.
-     *
-     * @var BuildingQueueService
-     */
-    protected BuildingQueueService $queue;
-
-    /**
      * Objects that are shown on this building page.
      *
      * @var array<array<string>>
@@ -49,9 +42,11 @@ abstract class AbstractBuildingsController extends OGameController
     /**
      * AbstractBuildingsController constructor.
      */
-    public function __construct(BuildingQueueService $queue)
+    public function __construct(/**
+     * QueueService.
+     */
+    protected BuildingQueueService $queue)
     {
-        $this->queue = $queue;
         parent::__construct();
     }
 

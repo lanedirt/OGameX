@@ -2,6 +2,9 @@
 
 namespace OGame\Console\Commands;
 
+use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Planet\Coordinate;
+use OGame\Services\ObjectService;
 use Illuminate\Console\Command;
 use OGame\Models\WreckField;
 
@@ -103,10 +106,10 @@ class CleanupWreckFields extends Command
      */
     private function deployShipsToPlanetWithProgress(WreckField $wreckField): void
     {
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $planet = $planetServiceFactory->make($wreckField->owner_player_id)
             ->getPlayer()->planets->getPlanetByCoordinates(
-                new \OGame\Models\Planet\Coordinate($wreckField->galaxy, $wreckField->system, $wreckField->planet)
+                new Coordinate($wreckField->galaxy, $wreckField->system, $wreckField->planet)
             );
 
         if (!$planet) {
@@ -134,7 +137,7 @@ class CleanupWreckFields extends Command
         $overallProgress = $cappedProgress / 100;
 
         $shipData = $wreckField->getShipData();
-        $objectService = app(\OGame\Services\ObjectService::class);
+        $objectService = app(ObjectService::class);
         $totalDeployed = 0;
 
         foreach ($shipData as $ship) {

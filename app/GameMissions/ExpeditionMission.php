@@ -2,6 +2,18 @@
 
 namespace OGame\GameMissions;
 
+use OGame\Services\DarkMatterService;
+use OGame\Enums\DarkMatterTransactionType;
+use OGame\Services\MerchantService;
+use OGame\GameMessages\ExpeditionMerchantFound;
+use OGame\Services\NPCFleetGeneratorService;
+use OGame\Services\NPCPlanetService;
+use OGame\GameMissions\BattleEngine\RustBattleEngine;
+use OGame\Services\PlayerService;
+use OGame\Services\NPCPlayerService;
+use OGame\GameMissions\BattleEngine\Models\BattleResult;
+use OGame\Models\BattleReport;
+use OGame\Services\CharacterClassService;
 use Exception;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
@@ -553,7 +565,7 @@ class ExpeditionMission extends GameMission
         $hasPathfinder = false;
 
         // Calculate Dark Matter reward
-        $darkMatterService = app(\OGame\Services\DarkMatterService::class);
+        $darkMatterService = app(DarkMatterService::class);
         $darkMatterAmount = $darkMatterService->calculateExpeditionReward($hasPathfinder);
 
         // Apply dark matter rewards multiplier
@@ -571,7 +583,7 @@ class ExpeditionMission extends GameMission
         $darkMatterService->credit(
             $user,
             $darkMatterAmount,
-            \OGame\Enums\DarkMatterTransactionType::EXPEDITION->value,
+            DarkMatterTransactionType::EXPEDITION->value,
             'Dark Matter found during expedition'
         );
 
@@ -596,11 +608,11 @@ class ExpeditionMission extends GameMission
         // Behavior:
         // - If no merchant active: calls a random resource trader (metal/crystal/deuterium)
         // - If merchant already active: keeps same type, improves rates (never worsens)
-        \OGame\Services\MerchantService::addExpeditionBonus($player);
+        MerchantService::addExpeditionBonus($player);
 
         // Send a message to the player with the merchant found outcome
-        $message_variation_id = \OGame\GameMessages\ExpeditionMerchantFound::getRandomMessageVariationId();
-        $this->messageService->sendSystemMessageToPlayer($player, \OGame\GameMessages\ExpeditionMerchantFound::class, ['message_variation_id' => $message_variation_id]);
+        $message_variation_id = ExpeditionMerchantFound::getRandomMessageVariationId();
+        $this->messageService->sendSystemMessageToPlayer($player, ExpeditionMerchantFound::class, ['message_variation_id' => $message_variation_id]);
     }
 
     /**
@@ -655,7 +667,7 @@ class ExpeditionMission extends GameMission
         $playerFleet = $this->fleetMissionService->getFleetUnits($mission);
 
         // Generate NPC fleet
-        $npcFleetGenerator = app(\OGame\Services\NPCFleetGeneratorService::class);
+        $npcFleetGenerator = app(NPCFleetGeneratorService::class);
         $npcData = $npcFleetGenerator->generateEnemyFleet($playerFleet, $player, $npcType);
         $npcFleet = $npcData['fleet'];
         $npcPlayer = $npcData['player'];
@@ -664,7 +676,7 @@ class ExpeditionMission extends GameMission
         $originPlanet = $this->planetServiceFactory->make($mission->planet_id_from, true);
 
         // Create NPC planet service for the battle
-        $npcPlanetService = new \OGame\Services\NPCPlanetService(
+        $npcPlanetService = new NPCPlanetService(
             $this->playerServiceFactory,
             $this->settings,
             $npcPlayer,
@@ -673,7 +685,7 @@ class ExpeditionMission extends GameMission
         );
 
         // Run the battle with player as attacker and NPC as defender
-        $battleEngine = new \OGame\GameMissions\BattleEngine\RustBattleEngine(
+        $battleEngine = new RustBattleEngine(
             $playerFleet,
             $player,
             $npcPlanetService,
@@ -735,21 +747,21 @@ class ExpeditionMission extends GameMission
     /**
      * Create a battle report for an expedition battle against pirates or aliens.
      *
-     * @param \OGame\Services\PlayerService $player The player who sent the expedition
-     * @param \OGame\Services\NPCPlayerService $npcPlayer The NPC opponent
-     * @param \OGame\Services\PlanetService $originPlanet The origin planet where expedition launched from
-     * @param \OGame\GameMissions\BattleEngine\Models\BattleResult $battleResult The battle result
+     * @param PlayerService $player The player who sent the expedition
+     * @param NPCPlayerService $npcPlayer The NPC opponent
+     * @param PlanetService $originPlanet The origin planet where expedition launched from
+     * @param BattleResult $battleResult The battle result
      * @return int The battle report ID
      */
     private function createExpeditionBattleReport(
-        \OGame\Services\PlayerService $player,
-        \OGame\Services\NPCPlayerService $npcPlayer,
-        \OGame\Services\PlanetService $originPlanet,
-        \OGame\GameMissions\BattleEngine\Models\BattleResult $battleResult
+        PlayerService $player,
+        NPCPlayerService $npcPlayer,
+        PlanetService $originPlanet,
+        BattleResult $battleResult
     ): int {
         // Create new battle report record
         // Note: Expedition battles are reported at the origin planet, not deep space position 16
-        $report = new \OGame\Models\BattleReport();
+        $report = new BattleReport();
         $report->planet_galaxy = $originPlanet->getPlanetCoordinates()->galaxy;
         $report->planet_system = $originPlanet->getPlanetCoordinates()->system;
         $report->planet_position = $originPlanet->getPlanetCoordinates()->position;
@@ -950,7 +962,7 @@ class ExpeditionMission extends GameMission
 
         // Apply Discoverer class expedition resource multiplier (economy speed * 1.5 for Discoverer, 1.0 for others)
         $player = $this->playerServiceFactory->make($mission->user_id, true);
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $characterClassService = app(CharacterClassService::class);
         $economySpeed = $this->settings->economySpeed();
         $expeditionMultiplier = $characterClassService->getExpeditionResourceMultiplier($player->getUser(), $economySpeed);
         $resourceAmount = (int)($resourceAmount * $expeditionMultiplier);

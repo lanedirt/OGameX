@@ -21,32 +21,14 @@ class CreateNewUser implements CreatesNewUsers
     use PasswordValidationRules;
 
     /**
-     * @var PlayerServiceFactory
-     */
-    private PlayerServiceFactory $playerServiceFactory;
-
-    /**
-     * @var PlanetServiceFactory
-     */
-    private PlanetServiceFactory $planetServiceFactory;
-
-    /**
-     * @var SettingsService
-     */
-    private SettingsService $settings;
-
-    /**
      * Create a new controller instance.
      *
      * @param PlayerServiceFactory $playerServiceFactory
      * @param PlanetServiceFactory $planetServiceFactory
      * @param SettingsService $settings
      */
-    public function __construct(PlayerServiceFactory $playerServiceFactory, PlanetServiceFactory $planetServiceFactory, SettingsService $settings)
+    public function __construct(private PlayerServiceFactory $playerServiceFactory, private PlanetServiceFactory $planetServiceFactory, private SettingsService $settings)
     {
-        $this->playerServiceFactory = $playerServiceFactory;
-        $this->planetServiceFactory = $planetServiceFactory;
-        $this->settings = $settings;
     }
 
     /**

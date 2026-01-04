@@ -2,6 +2,7 @@
 
 namespace OGame\GameObjects\Services\Properties;
 
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use Exception;
 use OGame\GameObjects\Models\Fields\GameObjectPropertyDetails;
 use OGame\GameObjects\Models\Fields\GameObjectSpeedUpgrade;
@@ -168,7 +169,7 @@ class SpeedPropertyService extends ObjectPropertyService
         }
 
         // General: +100% combat ship speed (all military ships except Espionage Probe: 210)
-        if ($object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship) {
+        if ($object->type === GameObjectType::Ship) {
             // Check if it's a military ship (not transporter, recycler, colony ship, solar satellite, crawler, espionage probe)
             $nonCombatShips = [202, 203, 208, 209, 210, 212, 217]; // Small/Large Cargo, Colony Ship, Recycler, Espionage Probe, Solar Satellite, Crawler
             if (!in_array($object->id, $nonCombatShips)) {

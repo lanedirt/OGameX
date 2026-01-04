@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
+use Illuminate\Support\Facades\Date;
 use Cache;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -52,7 +53,7 @@ class OverviewController extends OGameController
         $ship_queue_time_end = $unit_queue->retrieveQueueTimeEnd($planet);
         $ship_queue_time_countdown = 0;
         if ($ship_queue_time_end > 0) {
-            $ship_queue_time_countdown = $ship_queue_time_end - (int)Carbon::now()->timestamp;
+            $ship_queue_time_countdown = $ship_queue_time_end - (int)Date::now()->timestamp;
         }
 
         $planet = $player->planets->current();
