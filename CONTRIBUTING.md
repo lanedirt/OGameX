@@ -50,14 +50,21 @@ Tip: it's possible to let Laravel Pint attempt to fix the code for you by runnin
 $ composer run cs
 ```
 
-### 3. PHPStan static code analysis
+### 3. Automated Refactoring
+Make sure that your code passes has been refactored to match our set standards. You can run Rector locally using the following composer script:
+
+```
+$ composer run rector
+```
+
+### 4. PHPStan static code analysis
 Make sure that your code passes the PHPStan static code analysis. You can run PHPStan locally using the following composer script:
 
 ```
 $ composer run stan
 ```
 
-### 4. Laravel unit and feature tests
+### 5. Laravel unit and feature tests
 Your PR should include feature or unit tests where possible to cover the changes you made. OGameX uses the default Laravel testing framework which covers feature and unit tests by default.
 To run the tests locally, you can use the following command:
 
@@ -71,7 +78,7 @@ You are also able to apply the `--filter` parameter to run a specific class or m
 $ php artisan test --filter PlanetServiceTest
 ```
 
-### 5. Custom race condition tests
+### 6. Custom race condition tests
 If you are working on a feature that might introduce race conditions, please include tests that cover these scenarios. OGameX already contains some custom tests that can be run via php artisan commands. These tests support running multiple requests in parallel and in multiple iterations in order to simulate conditions that could cause race conditions.
 
 These tests are located in the `console/Commands/Tests` directory and can be run using the following command:
@@ -81,7 +88,7 @@ $ php artisan test:race-condition-unitqueue
 $ php artisan test:race-condition-game-mission
 ```
 
-### 6. Run CSS and JS build
+### 7. Run CSS and JS build
 OGameX uses Laravel Mix to compile the CSS and JS assets. Before submitting a PR, make sure to run the following command to compile the assets.
 This command can be run in watch mode to automatically recompile the assets when changes are made which is useful during development.
 

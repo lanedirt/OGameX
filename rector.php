@@ -20,7 +20,7 @@ use RectorLaravel\Set\LaravelSetProvider;
 
 return RectorConfig::configure()
     ->withImportNames()
-    ->withoutParallel() // Ensures no crashes, slower, but reliable
+    ->withParallel()
     ->withRules([
         // Types
         AddReturnTypeDeclarationRector::class,
