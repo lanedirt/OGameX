@@ -9,12 +9,18 @@ use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddParamTypeDeclarationRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddReturnTypeDeclarationRector;
-use Rector\TypeDeclarationDocblocks\Rector\ClassMethod\AddReturnDocblockForArrayDimAssignedObjectRector;
-use Rector\TypeDeclarationDocblocks\Rector\ClassMethod\DocblockReturnArrayFromDirectArrayInstanceRector;
+use RectorLaravel\Rector\BooleanNot\AvoidNegatedCollectionContainsOrDoesntContainRector;
+use RectorLaravel\Rector\Coalesce\ApplyDefaultInsteadOfNullCoalesceRector;
+use RectorLaravel\Rector\Expr\AppEnvironmentComparisonToParameterRector;
+use RectorLaravel\Rector\FuncCall\RemoveDumpDataDeadCodeRector;
+use RectorLaravel\Rector\MethodCall\EloquentOrderByToLatestOrOldestRector;
+use RectorLaravel\Rector\StaticCall\CarbonSetTestNowToTravelToRector;
+use RectorLaravel\Rector\StaticCall\CarbonToDateFacadeRector;
 use RectorLaravel\Set\LaravelSetProvider;
 
 return RectorConfig::configure()
     ->withImportNames()
+    ->withoutParallel() // Ensures no crashes, slower, but reliable
     ->withRules([
         // Types
         AddReturnTypeDeclarationRector::class,
@@ -26,16 +32,20 @@ return RectorConfig::configure()
         JoinStringConcatRector::class,
         StrlenZeroToIdenticalEmptyStringRector::class,
         CompactToVariablesRector::class,
+        // Laravel specific
+        AppEnvironmentComparisonToParameterRector::class,
+        ApplyDefaultInsteadOfNullCoalesceRector::class,
+        AvoidNegatedCollectionContainsOrDoesntContainRector::class,
+        CarbonSetTestNowToTravelToRector::class,
+        CarbonToDateFacadeRector::class,
+        EloquentOrderByToLatestOrOldestRector::class,
+        RemoveDumpDataDeadCodeRector::class,
     ])
 
     ->withSetProviders(LaravelSetProvider::class)
     ->withComposerBased(laravel: true)
     ->withPaths([
         __DIR__ . '/app',
-        __DIR__ . '/routes',
-    ])
-    ->withPHPStanConfigs([
-        __DIR__ . '/phpstan.neon',
     ])
     ->withSkip([
         __DIR__ . '/storage',
