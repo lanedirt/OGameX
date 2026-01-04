@@ -51,13 +51,16 @@ elif [ "$role" = "app" ]; then
     chmod +x ./rust/compile.sh
     ./rust/compile.sh
 
-    # Run migrations
-    php artisan migrate --force
+    # Ensure storage directory has correct ownership for www-data
+    chown -R www-data:www-data /var/www/storage
 
-    # Only run caching in production
+    # Run migrations as www-data to ensure log files are created with correct ownership
+    su -s /bin/sh -c "php artisan migrate --force" www-data
+
+    # Only run caching in production (as www-data to ensure correct file ownership)
     if [ "$is_production" = true ]; then
         echo "Production environment: Caching configurations..."
-        php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
+        su -s /bin/sh -c "php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache" www-data
     fi
 
     exec php-fpm
