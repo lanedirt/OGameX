@@ -29,6 +29,11 @@ abstract class BattleEngine
     protected PlanetService $defenderPlanet;
 
     /**
+     * @var array<\OGame\GameMissions\BattleEngine\Models\DefenderFleet> All defending fleets (planet owner + ACS defend fleets).
+     */
+    protected array $defenders;
+
+    /**
      * @var int The fleet mission ID of the attacking fleet.
      */
     protected int $attackerFleetMissionId;
@@ -59,16 +64,18 @@ abstract class BattleEngine
      *
      * @param UnitCollection $attackerFleet The fleet of the attacker player.
      * @param PlayerService $attackerPlayer The attacker player.
-     * @param PlanetService $defenderPlanet The planet of the defender player.
+     * @param PlanetService $defenderPlanet The planet of the defender player (used for loot, moon calculation).
+     * @param array<\OGame\GameMissions\BattleEngine\Models\DefenderFleet> $defenders All defending fleets (planet owner + ACS defend fleets).
      * @param SettingsService $settings The settings service.
      * @param int $attackerFleetMissionId The fleet mission ID of the attacking fleet.
      * @param int $attackerOwnerId The ID of the player who owns the attacking fleet.
      */
-    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, SettingsService $settings, int $attackerFleetMissionId, int $attackerOwnerId)
+    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, array $defenders, SettingsService $settings, int $attackerFleetMissionId, int $attackerOwnerId)
     {
         $this->attackerFleet = $attackerFleet;
         $this->attackerPlayer = $attackerPlayer;
         $this->defenderPlanet = $defenderPlanet;
+        $this->defenders = $defenders;
         $this->attackerFleetMissionId = $attackerFleetMissionId;
         $this->attackerOwnerId = $attackerOwnerId;
 
@@ -118,8 +125,20 @@ abstract class BattleEngine
         $result->attackerUnitsStart = clone $this->attackerFleet;
         $result->attackerUnitsResult = clone $this->attackerFleet;
         $result->defenderUnitsStart = new UnitCollection();
-        $result->defenderUnitsStart->addCollection($this->defenderPlanet->getShipUnits());
-        $result->defenderUnitsStart->addCollection($this->defenderPlanet->getDefenseUnits());
+
+        // Collect units from all defending fleets and initialize per-fleet results
+        foreach ($this->defenders as $defenderFleet) {
+            $result->defenderUnitsStart->addCollection($defenderFleet->units);
+
+            // Initialize result tracking for this fleet
+            $fleetResult = new \OGame\GameMissions\BattleEngine\Models\DefenderFleetResult(
+                $defenderFleet->fleetMissionId,
+                $defenderFleet->ownerId,
+                $defenderFleet->units
+            );
+            $result->defenderFleetResults[] = $fleetResult;
+        }
+
         $result->defenderUnitsResult = clone $result->defenderUnitsStart;
 
         // Execute the battle rounds, this will handle the actual combat logic.

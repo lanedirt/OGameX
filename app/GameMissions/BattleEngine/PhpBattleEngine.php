@@ -44,19 +44,28 @@ class PhpBattleEngine extends BattleEngine
         }
 
         $defenderUnits = [];
-        foreach ($result->defenderUnitsStart->units as $unit) {
-            // Create new object for each unique unit in the fleet.
-            $structuralIntegrity = $unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue;
-            $shieldPoints = $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue;
-            $attackPower = $unit->unitObject->properties->attack->calculate($this->defenderPlanet->getPlayer())->totalValue;
-            // TODO: Multi-defender support - This currently treats all defender units as belonging
-            // to the planet owner (fleetMissionId = 0). Need to separate defender units by their actual fleet missions
-            // to support multiple ACS Defend fleets stationed at the planet.
-            $unitObject = new BattleUnit($unit->unitObject, $structuralIntegrity, $shieldPoints, $attackPower, 0, $this->defenderPlanet->getPlayer()->getId());
+        // Create BattleUnits for each defending fleet separately to preserve ownership and tech levels
+        foreach ($this->defenders as $defenderFleet) {
+            foreach ($defenderFleet->units->units as $unit) {
+                // Create new object for each unique unit type in this fleet
+                // Use THIS fleet owner's tech levels for calculations
+                $structuralIntegrity = $unit->unitObject->properties->structural_integrity->calculate($defenderFleet->player)->totalValue;
+                $shieldPoints = $unit->unitObject->properties->shield->calculate($defenderFleet->player)->totalValue;
+                $attackPower = $unit->unitObject->properties->attack->calculate($defenderFleet->player)->totalValue;
 
-            for ($i = 0; $i < $unit->amount; $i++) {
-                // Clone the unit object for each individual entry of this ship add it to the array.
-                $defenderUnits[] = clone $unitObject;
+                $unitObject = new BattleUnit(
+                    $unit->unitObject,
+                    $structuralIntegrity,
+                    $shieldPoints,
+                    $attackPower,
+                    $defenderFleet->fleetMissionId,  // Track which fleet this unit belongs to
+                    $defenderFleet->ownerId          // Track which player owns this unit
+                );
+
+                // Create individual BattleUnit for each ship
+                for ($i = 0; $i < $unit->amount; $i++) {
+                    $defenderUnits[] = clone $unitObject;
+                }
             }
         }
 
@@ -123,6 +132,23 @@ class PhpBattleEngine extends BattleEngine
 
             // Add the round to the list of rounds.
             $rounds[] = $round;
+        }
+
+        // Populate per-fleet defender results by scanning surviving units
+        foreach ($result->defenderFleetResults as $fleetResult) {
+            // Count surviving units for this fleet
+            foreach ($defenderUnits as $battleUnit) {
+                if ($battleUnit->fleetMissionId === $fleetResult->fleetMissionId) {
+                    $fleetResult->unitsResult->addUnit($battleUnit->unitObject, 1);
+                }
+            }
+
+            // Calculate losses for this fleet
+            $fleetResult->unitsLost = clone $fleetResult->unitsStart;
+            $fleetResult->unitsLost->subtractCollection($fleetResult->unitsResult);
+
+            // Check if completely destroyed
+            $fleetResult->completelyDestroyed = $fleetResult->unitsResult->getAmount() === 0;
         }
 
         return $rounds;

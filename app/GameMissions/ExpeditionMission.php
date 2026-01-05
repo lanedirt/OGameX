@@ -673,10 +673,14 @@ class ExpeditionMission extends GameMission
         );
 
         // Run the battle with player as attacker and NPC as defender
+        // NPC battles don't have ACS defend fleets, just the NPC's forces
+        $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($npcPlanetService)];
+
         $battleEngine = new \OGame\GameMissions\BattleEngine\RustBattleEngine(
             $playerFleet,
             $player,
             $npcPlanetService,
+            $defenders,
             $this->settings,
             $mission->id,
             $mission->user_id

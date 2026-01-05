@@ -17,11 +17,15 @@ class RustBattleEngineTest extends BattleEngineTestAbstract
      */
     protected function createBattleEngine(UnitCollection $attackerFleet): BattleEngine
     {
+        // Create defenders array with planet's stationary forces
+        $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($this->planetService)];
+
         // For test battles, use fleetMissionId = 0 and current player's ID
         return new RustBattleEngine(
             $attackerFleet,
             $this->playerService,
             $this->planetService,
+            $defenders,
             $this->settingsService,
             0,
             $this->playerService->getId()

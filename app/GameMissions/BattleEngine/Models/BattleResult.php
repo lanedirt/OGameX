@@ -88,6 +88,12 @@ class BattleResult
     public Resources $defenderResourceLoss;
 
     /**
+     * @var array<DefenderFleetResult> Per-fleet results for each defending fleet (planet owner + ACS defend fleets).
+     * Empty array for backward compatibility with single-defender battles.
+     */
+    public array $defenderFleetResults = [];
+
+    /**
      * @var int The attacker player's weapon technology level.
      */
     public int $attackerWeaponLevel;
