@@ -98,21 +98,24 @@ class MessagesController extends OGameController
      * @param MessageService $messageService
      * @param string $tab
      * @param string $subtab
+     * @param int $page
      * @return View
      */
-    protected function subTabContent(MessageService $messageService, string $tab, string $subtab = ''): View
+    protected function subTabContent(MessageService $messageService, string $tab, string $subtab = '', int $page = 1): View
     {
-        $messages = $messageService->getMessagesForTab($tab, $subtab);
+        $result = $messageService->getMessagesForTab($tab, $subtab, $page);
 
         // Return the correct subtab view based on tab.
         switch ($tab) {
             case 'fleets':
                 return view('ingame.messages.tabs.fleets.subtab')->with([
-                    'messages' => $messages,
+                    'messages' => $result['messages'],
+                    'pagination' => $result['pagination'],
                 ]);
             default:
                 return view('ingame.messages.tabs.default.subtab')->with([
-                    'messages' => $messages,
+                    'messages' => $result['messages'],
+                    'pagination' => $result['pagination'],
                 ]);
         }
     }
@@ -128,6 +131,7 @@ class MessagesController extends OGameController
     {
         $tabKey = $request->get('tab', 'fleets');
         $subtabKey = $request->get('subtab', '');
+        $page = (int) $request->get('pagination', 1);
 
         // If no subtab is provided, we load the tab template.
         if (empty($subtabKey)) {
@@ -135,7 +139,7 @@ class MessagesController extends OGameController
         }
 
         // Otherwise we load the subtab template.
-        return $this->subTabContent($messageService, $tabKey, $subtabKey);
+        return $this->subTabContent($messageService, $tabKey, $subtabKey, $page);
     }
 
     /**

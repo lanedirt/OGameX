@@ -30078,26 +30078,43 @@ ogame.messages = {
                 }
             })
         }).on("click", ".paginator", function (h) {
-            var f = $(this).data("tab");
+            // Skip if pagination button is disabled
+            if ($(this).hasClass('disabled')) {
+                return false;
+            }
+
             var g = $(this).data("page");
             var a = $(this).closest('div[class^="ui-tabs-panel"]');
-            $.ajax({
-                type: "POST",
-                url: "?page=messages",
-                dataType: "html",
-                data: {
-                    messageId: -1,
-                    tabid: f,
-                    action: 107,
-                    pagination: g,
-                    ajax: 1
-                },
-                success: function (c) {
-                    a.html(c)
-                },
-                error: function () {
-                }
-            })
+
+            // Find the active subtab to get the tab/subtab parameters
+            var activeSubtab = $(".subtabs .ui-state-active:visible");
+            var activeTabUrl;
+
+            if (activeSubtab.length > 0) {
+                // We're in a subtab view (e.g., fleets or communication)
+                activeTabUrl = activeSubtab.find('a').attr('href');
+            } else {
+                // We're in a main tab view (e.g., economy, system, universe)
+                var activeTab = $(".js_tabs .ui-state-active:visible");
+                activeTabUrl = activeTab.find('a').attr('href');
+            }
+
+            if (activeTabUrl) {
+                // Append pagination parameter to the URL
+                var separator = activeTabUrl.indexOf('?') > -1 ? '&' : '?';
+                var url = activeTabUrl + separator + 'pagination=' + g;
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    dataType: "html",
+                    success: function (c) {
+                        a.html(c)
+                    },
+                    error: function () {
+                    }
+                })
+            }
         }).on("click", ".jumpToAllianceApplications", function (a) {
             location.href = "index.php?page=alliance&tab=applications"
         })
@@ -59815,33 +59832,43 @@ ogame.messages = {
         }
       });
     }).on('click', '.paginator', function (event) {
-      var currentTab = $(this).data('tab');
+      // Skip if pagination button is disabled
+      if ($(this).hasClass('disabled')) {
+        return false;
+      }
+
       var page = $(this).data('page');
       var bla = $(this).closest('div[class^="ui-tabs-panel"]');
-      let newToken = $("[name='_token']").val();
-      $.ajax({
-        type: 'POST',
-        url: '?page=messages',
-        dataType: 'html',
-        data: {
-          messageId: -1,
-          tabid: currentTab,
-          action: 107,
-          pagination: page,
-          ajax: 1,
-          _token: newToken,
-          standalonePage: window.location.href.indexOf("page=standalone") > -1 ? 1 : 0
-        },
-        success: function (data) {
-          if (data['newAjaxToken']) {
-            token = data.newAjaxToken;
-            $("[name='_token']").val(data.newAjaxToken);
-          }
 
-          bla.html(data);
-        },
-        error: function () {}
-      });
+      // Find the active subtab to get the tab/subtab parameters
+      var activeSubtab = $(".subtabs .ui-state-active:visible");
+      var activeTabUrl;
+
+      if (activeSubtab.length > 0) {
+        // We're in a subtab view (e.g., fleets or communication)
+        activeTabUrl = activeSubtab.find('a').attr('href');
+      } else {
+        // We're in a main tab view (e.g., economy, system, universe)
+        var activeTab = $(".js_tabs .ui-state-active:visible");
+        activeTabUrl = activeTab.find('a').attr('href');
+      }
+
+      if (activeTabUrl) {
+        // Append pagination parameter to the URL
+        var separator = activeTabUrl.indexOf('?') > -1 ? '&' : '?';
+        var url = activeTabUrl + separator + 'pagination=' + page;
+
+        $.ajax({
+          type: 'GET',
+          url: url,
+          dataType: 'html',
+          success: function (data) {
+            bla.html(data);
+          },
+          error: function () {
+          }
+        });
+      }
     }).on('click', '.jumpToAllianceApplications', function (event) {
       location.href = 'index.php?page=ingame&component=alliance&tab=applications';
     }).on('click', 'a.js_actionCollect', function (event) {
