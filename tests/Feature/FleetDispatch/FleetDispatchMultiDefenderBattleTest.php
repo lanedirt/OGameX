@@ -5,7 +5,6 @@ namespace Tests\Feature\FleetDispatch;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlanetServiceFactory;
-use OGame\GameMissions\AttackMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
@@ -316,8 +315,11 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Reload planet and check units are still 0
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $acsDefenderPlanetReloaded = $planetServiceFactory->make($acsDefender['planet']->getPlanetId());
-        $this->assertEquals(0, $acsDefenderPlanetReloaded->getShipUnits()->getAmountByMachineName('light_fighter'),
-            'Destroyed ACS defend fleet ships should not return');
+        $this->assertEquals(
+            0,
+            $acsDefenderPlanetReloaded->getShipUnits()->getAmountByMachineName('light_fighter'),
+            'Destroyed ACS defend fleet ships should not return'
+        );
     }
 
     /**
@@ -465,14 +467,20 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $currentBuddyDefenses = $buddyPlanetReloaded->getDefenseUnits()->getAmountByMachineName('rocket_launcher');
 
         // Planet owner's units should be affected (removed from planet)
-        $this->assertLessThanOrEqual($originalBuddyShips, $currentBuddyShips,
-            'Planet owner ships should be removed from planet if destroyed');
+        $this->assertLessThanOrEqual(
+            $originalBuddyShips,
+            $currentBuddyShips,
+            'Planet owner ships should be removed from planet if destroyed'
+        );
 
         // ACS defender's units should NOT be on buddy's planet (they were from a fleet)
         // Total ships on planet should only be from planet owner
         $totalShipsOnPlanet = $buddyPlanetReloaded->getShipUnits()->getAmount();
-        $this->assertLessThanOrEqual($originalBuddyShips, $totalShipsOnPlanet,
-            'ACS defend fleet units should not be added to planet owner\'s units');
+        $this->assertLessThanOrEqual(
+            $originalBuddyShips,
+            $totalShipsOnPlanet,
+            'ACS defend fleet units should not be added to planet owner\'s units'
+        );
     }
 
     /**
