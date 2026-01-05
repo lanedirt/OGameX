@@ -228,14 +228,17 @@ class EspionageMission extends GameMission
             $targetPlanet->removeUnit($unit->unitObject->machine_name, $unit->amount, false);
         }
 
+        // Collect all defending fleets (planet owner + ACS defend fleets)
+        $defenders = $this->collectDefendingFleets($targetPlanet);
+
         // Execute battle using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $this->settings, $fleetMissionId, $ownerId);
+                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $defenders, $this->settings, $fleetMissionId, $ownerId);
                 break;
             case 'rust':
             default:
-                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $this->settings, $fleetMissionId, $ownerId);
+                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $defenders, $this->settings, $fleetMissionId, $ownerId);
                 break;
         }
 
@@ -244,6 +247,37 @@ class EspionageMission extends GameMission
         // Restore defense to planet (they were not part of the battle)
         foreach ($originalDefense->units as $unit) {
             $targetPlanet->addUnit($unit->unitObject->machine_name, $unit->amount, false);
+        }
+
+        // Process defender fleet results (planet owner + ACS defend fleets)
+        foreach ($battleResult->defenderFleetResults as $fleetResult) {
+            if ($fleetResult->fleetMissionId === 0) {
+                // Planet owner's ships - remove permanently lost ships (no defense repair in counter-espionage)
+                if ($fleetResult->unitsLost->getAmount() > 0) {
+                    $targetPlanet->removeUnits($fleetResult->unitsLost, false);
+                }
+                $targetPlanet->save();
+            } else {
+                // ACS Defend fleet - handle return or destruction
+                $defendMission = \OGame\Models\FleetMission::find($fleetResult->fleetMissionId);
+                if ($defendMission) {
+                    if ($fleetResult->completelyDestroyed) {
+                        // Fleet was completely destroyed - no return mission
+                        $defendMission->processed = 1;
+                        $defendMission->save();
+
+                        // Send fleet lost contact message to the fleet owner
+                        $fleetOwner = $this->playerServiceFactory->make($fleetResult->ownerId);
+                        $coordinates = '[coordinates]' . $targetPlanet->getPlanetCoordinates()->asString() . '[/coordinates]';
+                        $this->messageService->sendSystemMessageToPlayer($fleetOwner, \OGame\GameMessages\FleetLostContact::class, [
+                            'coordinates' => $coordinates,
+                        ]);
+                    } else {
+                        // Fleet survived - create return mission with surviving units
+                        $this->startReturn($defendMission, new \OGame\Models\Resources(0, 0, 0, 0), $fleetResult->unitsResult);
+                    }
+                }
+            }
         }
 
         return $battleResult;
