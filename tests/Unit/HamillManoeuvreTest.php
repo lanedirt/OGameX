@@ -66,7 +66,9 @@ class HamillManoeuvreTest extends AccountTestCase
             $attackerFleet,
             $player,
             $defenderPlanet,
-            $settingsService
+            $settingsService,
+            0,
+            $player->getId()
         );
 
         // Run battle simulation
@@ -112,7 +114,9 @@ class HamillManoeuvreTest extends AccountTestCase
             $attackerFleet,
             $player,
             $defenderPlanet,
-            $settingsService
+            $settingsService,
+            0,
+            $player->getId()
         );
 
         // Run battle simulation
@@ -155,7 +159,9 @@ class HamillManoeuvreTest extends AccountTestCase
             $attackerFleet,
             $player,
             $defenderPlanet,
-            $settingsService
+            $settingsService,
+            0,
+            $player->getId()
         );
 
         // Run battle simulation
@@ -198,7 +204,9 @@ class HamillManoeuvreTest extends AccountTestCase
             $attackerFleet,
             $player,
             $defenderPlanet,
-            $settingsService
+            $settingsService,
+            0,
+            $player->getId()
         );
 
         // Run battle simulation
@@ -238,7 +246,9 @@ class HamillManoeuvreTest extends AccountTestCase
             $attackerFleet,
             $player,
             $defenderPlanet,
-            $settingsService
+            $settingsService,
+            0,
+            $player->getId()
         );
 
         // Run battle simulation
