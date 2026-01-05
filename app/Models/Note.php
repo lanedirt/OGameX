@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,16 +19,16 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read User $user
- * @method static \Illuminate\Database\Eloquent\Builder|Note newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Note newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Note query()
- * @method static \Illuminate\Database\Eloquent\Builder|Note whereContent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Note whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Note whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Note wherePriority($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Note whereSubject($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Note whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Note whereUserId($value)
+ * @method static Builder|Note newModelQuery()
+ * @method static Builder|Note newQuery()
+ * @method static Builder|Note query()
+ * @method static Builder|Note whereContent($value)
+ * @method static Builder|Note whereCreatedAt($value)
+ * @method static Builder|Note whereId($value)
+ * @method static Builder|Note wherePriority($value)
+ * @method static Builder|Note whereSubject($value)
+ * @method static Builder|Note whereUpdatedAt($value)
+ * @method static Builder|Note whereUserId($value)
  * @mixin \Eloquent
  */
 class Note extends Model

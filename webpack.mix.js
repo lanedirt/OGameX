@@ -20,6 +20,7 @@ const webpack = require('webpack');
 // ---
 mix.scripts([
     'resources/js/ingame/jquery-1.12.4.min.js',
+    'resources/js/ingame/vendor/jquery-ui-1.12.1.js',
     'resources/js/ingame/jquery.js',
     'resources/js/ingame/chat.js',
     'resources/js/ingame/inventory.js',

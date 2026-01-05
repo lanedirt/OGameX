@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,27 +22,27 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read User $user
- * @method static \Illuminate\Database\Eloquent\Builder|Message newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Message newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Message query()
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereActionPlanetId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereBody($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereSenderUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereSubject($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereViewed($value)
+ * @method static Builder|Message newModelQuery()
+ * @method static Builder|Message newQuery()
+ * @method static Builder|Message query()
+ * @method static Builder|Message whereActionPlanetId($value)
+ * @method static Builder|Message whereBody($value)
+ * @method static Builder|Message whereCreatedAt($value)
+ * @method static Builder|Message whereId($value)
+ * @method static Builder|Message whereSenderUserId($value)
+ * @method static Builder|Message whereSubject($value)
+ * @method static Builder|Message whereType($value)
+ * @method static Builder|Message whereUpdatedAt($value)
+ * @method static Builder|Message whereUserId($value)
+ * @method static Builder|Message whereViewed($value)
  * @property array<string, string> $params
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereParams($value)
+ * @method static Builder|Message whereParams($value)
  * @property string $key
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereKey($value)
+ * @method static Builder|Message whereKey($value)
  * @property int|null $espionage_report_id
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereEspionageReportId($value)
+ * @method static Builder|Message whereEspionageReportId($value)
  * @property int|null $battle_report_id
- * @method static \Illuminate\Database\Eloquent\Builder|Message whereBattleReportId($value)
+ * @method static Builder|Message whereBattleReportId($value)
  * @mixin \Eloquent
  */
 class Message extends Model

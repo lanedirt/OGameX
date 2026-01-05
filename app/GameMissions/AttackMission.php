@@ -2,6 +2,8 @@
 
 namespace OGame\GameMissions;
 
+use OGame\GameMessages\FleetLostContact;
+use OGame\GameMessages\DebrisFieldHarvest;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameMissions\Abstracts\GameMission;
@@ -304,7 +306,7 @@ class AttackMission extends GameMission
         if ($attackerDestroyedFirstRound) {
             // Send simplified "fleet lost contact" message to attacker (no fleet or tech info)
             $coordinates = '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]';
-            $this->messageService->sendSystemMessageToPlayer($attackerPlayer, \OGame\GameMessages\FleetLostContact::class, [
+            $this->messageService->sendSystemMessageToPlayer($attackerPlayer, FleetLostContact::class, [
                 'coordinates' => $coordinates,
             ]);
 
@@ -326,7 +328,7 @@ class AttackMission extends GameMission
             $reaperCount = $battleResult->attackerUnitsResult->getAmountByMachineName('reaper');
             $reaperCargoCapacity = $reaperObject->properties->capacity->calculate($attackerPlayer)->totalValue * $reaperCount;
 
-            $this->messageService->sendSystemMessageToPlayer($attackerPlayer, \OGame\GameMessages\DebrisFieldHarvest::class, [
+            $this->messageService->sendSystemMessageToPlayer($attackerPlayer, DebrisFieldHarvest::class, [
                 'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
                 'to' => '[debrisfield]' . $defenderPlanet->getPlanetCoordinates()->asString(). '[/debrisfield]',
                 'coordinates' => '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]',
@@ -348,7 +350,7 @@ class AttackMission extends GameMission
             $defenderReaperCount = $battleResult->defenderUnitsResult->getAmountByMachineName('reaper');
             $defenderReaperCargoCapacity = $reaperObject->properties->capacity->calculate($defenderPlanet->getPlayer())->totalValue * $defenderReaperCount;
 
-            $this->messageService->sendSystemMessageToPlayer($defenderPlanet->getPlayer(), \OGame\GameMessages\DebrisFieldHarvest::class, [
+            $this->messageService->sendSystemMessageToPlayer($defenderPlanet->getPlayer(), DebrisFieldHarvest::class, [
                 'from' => '[planet]' . $defenderPlanet->getPlanetId() . '[/planet]',
                 'to' => '[debrisfield]' . $defenderPlanet->getPlanetCoordinates()->asString(). '[/debrisfield]',
                 'coordinates' => '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]',

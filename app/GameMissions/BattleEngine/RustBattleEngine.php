@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
+use OGame\Services\CharacterClassService;
 use FFI;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
@@ -270,7 +271,7 @@ class RustBattleEngine extends BattleEngine
     private function checkHamillManoeuvre(BattleResult $result): void
     {
         // Check if attacker is General class
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $characterClassService = app(CharacterClassService::class);
         if (!$characterClassService->isGeneral($this->attackerPlayer->getUser())) {
             return;
         }
@@ -290,7 +291,7 @@ class RustBattleEngine extends BattleEngine
         }
 
         // Roll the dice for Hamill Manoeuvre
-        $settings = app(\OGame\Services\SettingsService::class);
+        $settings = app(SettingsService::class);
         $probability = $settings->hamillManoeuvreChance();
         $dice = random_int(1, $probability);
 
@@ -299,7 +300,7 @@ class RustBattleEngine extends BattleEngine
             $result->hamillManoeuvreTriggered = true;
 
             // Remove the Deathstar from defender units so it doesn't participate in battle
-            $deathstarObject = \OGame\Services\ObjectService::getShipObjectByMachineName('deathstar');
+            $deathstarObject = ObjectService::getShipObjectByMachineName('deathstar');
             $result->defenderUnitsStart->removeUnit($deathstarObject, 1);
 
             // NOTE: The loss will be properly calculated after battle rounds complete

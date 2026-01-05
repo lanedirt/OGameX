@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
+use OGame\Factories\PlanetServiceFactory;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -47,11 +49,6 @@ class PlanetService
     private PlayerService $player;
 
     /**
-     * @var SettingsService $settingsService
-     */
-    private SettingsService $settingsService;
-
-    /**
      * Planet constructor.
      *
      * @param PlayerServiceFactory $playerServiceFactory
@@ -64,7 +61,7 @@ class PlanetService
      * @param int|null $planet_id
      *  If supplied the constructor will try to load the planet from the database.
      */
-    public function __construct(PlayerServiceFactory $playerServiceFactory, SettingsService $settingsService, PlayerService|null $player = null, Planet|null $planet = null, int|null $planet_id = null)
+    public function __construct(PlayerServiceFactory $playerServiceFactory, private SettingsService $settingsService, PlayerService|null $player = null, Planet|null $planet = null, int|null $planet_id = null)
     {
         // Load the planet object if a positive planet ID is given.
         // If no planet ID is given then planet context will not be available
@@ -82,8 +79,6 @@ class PlanetService
         } else {
             $this->player = $player;
         }
-
-        $this->settingsService = $settingsService;
     }
 
     /**
@@ -959,7 +954,7 @@ class PlanetService
         $time_seconds = (int)($time_hours * 3600);
 
         // Apply character class research time multiplier (Discoverer: -25%)
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $characterClassService = app(CharacterClassService::class);
         $timeMultiplier = $characterClassService->getResearchTimeMultiplier($this->player->getUser());
         if ($timeMultiplier != 1.0) {
             $time_seconds = (int)($time_seconds * $timeMultiplier);
@@ -1036,7 +1031,7 @@ class PlanetService
         // Default max is 10 (100%), but crawlers can go to 15 (150%) for Collector class
         $maxPercentage = 10;
         if ($building->machine_name === 'crawler') {
-            $characterClassService = app(\OGame\Services\CharacterClassService::class);
+            $characterClassService = app(CharacterClassService::class);
             $maxPercentage = $characterClassService->getMaxCrawlerOverload($this->player->getUser()) / 10;
         }
 
@@ -1123,7 +1118,7 @@ class PlanetService
     public function getMinutesSinceLastUpdate(): int
     {
         $lastUpdate = $this->getUpdatedAt();
-        return (int) $lastUpdate->diffInMinutes(Carbon::now());
+        return (int) $lastUpdate->diffInMinutes(Date::now());
     }
 
     /**
@@ -1147,7 +1142,7 @@ class PlanetService
     // storage limit.
     public function updateResources(bool $save_planet = true): void
     {
-        $current_time = (int)Carbon::now()->timestamp;
+        $current_time = (int)Date::now()->timestamp;
         $this->updateResourcesUntil($current_time, $save_planet);
     }
 
@@ -1359,7 +1354,7 @@ class PlanetService
         }
 
         // Get the planet at the same coordinates
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
         return $planetServiceFactory->makePlanetForCoordinate($this->getPlanetCoordinates());
     }
 
@@ -1524,7 +1519,7 @@ class PlanetService
             if ($last_update < $item->time_start) {
                 $last_update = $item->time_start;
             }
-            $last_update_diff = (int)Carbon::now()->timestamp - $last_update;
+            $last_update_diff = (int)Date::now()->timestamp - $last_update;
 
             // If difference between last update and now is equal to or bigger
             // than the time per unit, give the unit and record progress.
@@ -2021,7 +2016,7 @@ class PlanetService
 
         $object->production->planetService = $this;
         $object->production->playerService = $this->player;
-        $object->production->characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $object->production->characterClassService = app(CharacterClassService::class);
         $object->production->universe_speed = $this->settingsService->economySpeed();
 
         return $object->production->calculate($object_level, $resource_production_factor * $building_percentage);

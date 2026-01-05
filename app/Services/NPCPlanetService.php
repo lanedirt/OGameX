@@ -14,9 +14,6 @@ use OGame\Models\Planet;
  */
 class NPCPlanetService extends PlanetService
 {
-    private NPCPlayerService $npcPlayer;
-    private UnitCollection $npcFleet;
-
     /**
      * Create an NPC planet service for expedition battles.
      *
@@ -29,15 +26,10 @@ class NPCPlanetService extends PlanetService
     public function __construct(
         PlayerServiceFactory $playerServiceFactory,
         SettingsService $settingsService,
-        NPCPlayerService $npcPlayer,
-        UnitCollection $npcFleet,
+        private NPCPlayerService $npcPlayer,
+        private UnitCollection $npcFleet,
         int $basePlanetId
     ) {
-        // Initialize NPC properties FIRST before calling parent constructor
-        // because parent constructor may call methods that need these properties
-        $this->npcPlayer = $npcPlayer;
-        $this->npcFleet = $npcFleet;
-
         // Call parent constructor with the base planet ID
         // This will load the planet but we'll override the key methods to return NPC data
         parent::__construct($playerServiceFactory, $settingsService, null, null, $basePlanetId);

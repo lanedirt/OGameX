@@ -20,16 +20,13 @@ use OGame\Models\User;
  */
 class BuddyService
 {
-    private MessageService $messageService;
-
     /**
      * BuddyService constructor.
      *
      * @param MessageService $messageService
      */
-    public function __construct(MessageService $messageService)
+    public function __construct(private MessageService $messageService)
     {
-        $this->messageService = $messageService;
     }
 
     /**
@@ -148,7 +145,7 @@ class BuddyService
         }
 
         // Check if receiver is admin (cannot send buddy requests to admins)
-        $receiverPlayer = app(\OGame\Services\PlayerService::class, ['player_id' => $receiver->id]);
+        $receiverPlayer = app(PlayerService::class, ['player_id' => $receiver->id]);
         if ($receiverPlayer->isAdmin()) {
             throw new Exception(__('t_buddies.error.cannot_send_to_admin'));
         }
@@ -190,7 +187,7 @@ class BuddyService
         ]);
 
         // Send a system message to the receiver
-        $receiverPlayer = app(\OGame\Services\PlayerService::class, ['player_id' => $receiver->id]);
+        $receiverPlayer = app(PlayerService::class, ['player_id' => $receiver->id]);
         $this->messageService->sendSystemMessageToPlayer($receiverPlayer, BuddyRequestReceived::class, [
             'sender_name' => $sender->username,
             'buddy_request_id' => $buddyRequest->id,
@@ -235,7 +232,7 @@ class BuddyService
 
             if ($accepter && $sender) {
                 // Send a system message to the original sender
-                $senderPlayer = app(\OGame\Services\PlayerService::class, ['player_id' => $sender->id]);
+                $senderPlayer = app(PlayerService::class, ['player_id' => $sender->id]);
                 $this->messageService->sendSystemMessageToPlayer($senderPlayer, BuddyRequestAccepted::class, [
                     'accepter_name' => $accepter->username,
                 ]);
@@ -335,7 +332,7 @@ class BuddyService
 
         if ($currentUser && $buddyUser) {
             // Send a system message to the removed buddy
-            $buddyPlayer = app(\OGame\Services\PlayerService::class, ['player_id' => $buddyUser->id]);
+            $buddyPlayer = app(PlayerService::class, ['player_id' => $buddyUser->id]);
             $this->messageService->sendSystemMessageToPlayer($buddyPlayer, BuddyRemoved::class, [
                 'remover_name' => $currentUser->username,
             ]);

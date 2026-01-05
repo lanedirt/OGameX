@@ -2,6 +2,7 @@
 
 namespace OGame\Console\Commands\Tests;
 
+use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
@@ -72,7 +73,7 @@ class TestBattleEnginePerformance extends TestCommand
     private function runSingleEngineTest(string $engine, array $fleets): int
     {
         // Set static time
-        Carbon::setTestNow(Carbon::create(2024, 1, 1, 0, 0, 0));
+        Date::setTestNow(Date::create(2024, 1, 1, 0, 0, 0));
 
         // Add resources and tech levels
         $this->currentPlanetService->addResources(new Resources(1000000, 1000000, 1000000, 0));

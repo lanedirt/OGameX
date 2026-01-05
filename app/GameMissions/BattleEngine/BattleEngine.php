@@ -2,6 +2,8 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
+use OGame\Services\CharacterClassService;
+use OGame\Services\ObjectService;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameMissions\BattleEngine\Services\DefenseRepairService;
@@ -24,24 +26,10 @@ use OGame\Services\SettingsService;
  */
 abstract class BattleEngine
 {
-    private UnitCollection $attackerFleet;
-    protected PlayerService $attackerPlayer;
-    protected PlanetService $defenderPlanet;
-
     /**
      * @var array<\OGame\GameMissions\BattleEngine\Models\DefenderFleet> All defending fleets (planet owner + ACS defend fleets).
      */
     protected array $defenders;
-
-    /**
-     * @var int The fleet mission ID of the attacking fleet.
-     */
-    protected int $attackerFleetMissionId;
-
-    /**
-     * @var int The ID of the player who owns the attacking fleet.
-     */
-    protected int $attackerOwnerId;
 
     /**
      * @var LootService The service used to calculate the loot gained from a battle.
@@ -55,11 +43,6 @@ abstract class BattleEngine
     private int $lootPercentage = 50;
 
     /**
-     * @var SettingsService The settings service.
-     */
-    private SettingsService $settings;
-
-    /**
      * BattleEngine constructor.
      *
      * @param UnitCollection $attackerFleet The fleet of the attacker player.
@@ -70,22 +53,15 @@ abstract class BattleEngine
      * @param int $attackerFleetMissionId The fleet mission ID of the attacking fleet.
      * @param int $attackerOwnerId The ID of the player who owns the attacking fleet.
      */
-    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, array $defenders, SettingsService $settings, int $attackerFleetMissionId, int $attackerOwnerId)
+    public function __construct(private UnitCollection $attackerFleet, protected PlayerService $attackerPlayer, protected PlanetService $defenderPlanet, array $defenders, private SettingsService $settings, protected int $attackerFleetMissionId, protected int $attackerOwnerId)
     {
-        $this->attackerFleet = $attackerFleet;
-        $this->attackerPlayer = $attackerPlayer;
-        $this->defenderPlanet = $defenderPlanet;
         $this->defenders = $defenders;
-        $this->attackerFleetMissionId = $attackerFleetMissionId;
-        $this->attackerOwnerId = $attackerOwnerId;
 
         // Determine loot percentage based on character class and defender status
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $characterClassService = app(CharacterClassService::class);
         $this->lootPercentage = (int)($characterClassService->getInactiveLootPercentage($this->attackerPlayer->getUser()) * 100);
 
         $this->lootService = new LootService($this->attackerFleet, $this->attackerPlayer, $this->defenderPlanet, $this->lootPercentage);
-
-        $this->settings = $settings;
     }
 
     /**
@@ -110,7 +86,7 @@ abstract class BattleEngine
         $defenderArmorBase = $this->defenderPlanet->getPlayer()->getResearchLevel('armor_technology');
 
         // Apply General class combat research bonus (+2 levels)
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $characterClassService = app(CharacterClassService::class);
         $attackerCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($this->attackerPlayer->getUser());
         $defenderCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($this->defenderPlanet->getPlayer()->getUser());
 
@@ -173,7 +149,7 @@ abstract class BattleEngine
 
         // Add Hamill Manoeuvre Deathstar loss if it was triggered
         if ($result->hamillManoeuvreTriggered) {
-            $deathstarObject = \OGame\Services\ObjectService::getShipObjectByMachineName('deathstar');
+            $deathstarObject = ObjectService::getShipObjectByMachineName('deathstar');
             $result->defenderUnitsLost->addUnit($deathstarObject, 1);
         }
 

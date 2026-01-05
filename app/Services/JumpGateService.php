@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Support\Carbon;
 use OGame\Models\FleetMission;
@@ -33,14 +34,11 @@ class JumpGateService
         'solar_satellite',
     ];
 
-    private SettingsService $settingsService;
-
     /**
      * JumpGateService constructor.
      */
-    public function __construct(SettingsService $settingsService)
+    public function __construct(private SettingsService $settingsService)
     {
-        $this->settingsService = $settingsService;
     }
 
     /**
@@ -92,7 +90,7 @@ class JumpGateService
             return false;
         }
 
-        return $cooldown_until > Carbon::now()->timestamp;
+        return $cooldown_until > Date::now()->timestamp;
     }
 
     /**
@@ -109,7 +107,7 @@ class JumpGateService
             return 0;
         }
 
-        $now = (int) Carbon::now()->timestamp;
+        $now = (int) Date::now()->timestamp;
 
         if ($cooldown_until <= $now) {
             return 0;
@@ -294,7 +292,7 @@ class JumpGateService
         $min_level = min($source_level, $target_level);
 
         $cooldown_seconds = $this->calculateCooldown($min_level);
-        $cooldown_until = (int) Carbon::now()->timestamp + $cooldown_seconds;
+        $cooldown_until = (int) Date::now()->timestamp + $cooldown_seconds;
 
         // Set cooldown on source moon
         $source->setJumpGateCooldown($cooldown_until);
@@ -355,7 +353,7 @@ class JumpGateService
     {
         return FleetMission::where('planet_id_to', $moon->getPlanetId())
             ->where('processed', 0)
-            ->where('time_arrival', '<=', Carbon::now()->timestamp)
+            ->where('time_arrival', '<=', Date::now()->timestamp)
             ->where('user_id', '!=', $moon->getPlayer()->getId())
             ->exists();
     }

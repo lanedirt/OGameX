@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
+use Illuminate\Support\Facades\Date;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
@@ -41,11 +42,11 @@ class FleetEventsController extends OGameController
             $typeNextMission = $fleetMissionService->missionTypeToLabel($firstMission->mission_type) . ($firstMission->parent_id ? ' (R)' : '');
 
             // If the mission has not arrived yet, return the time_arrival.
-            if ($firstMission->time_arrival >= Carbon::now()->timestamp) {
-                $timeNextMission = $firstMission->time_arrival - (int)Carbon::now()->timestamp;
+            if ($firstMission->time_arrival >= Date::now()->timestamp) {
+                $timeNextMission = $firstMission->time_arrival - (int)Date::now()->timestamp;
             } else {
                 // If the mission has arrived AND has a waiting time, return the time_arrival + time_holding.
-                $timeNextMission = $firstMission->time_arrival + ($firstMission->time_holding ?? 0) - (int)Carbon::now()->timestamp;
+                $timeNextMission = $firstMission->time_arrival + ($firstMission->time_holding ?? 0) - (int)Date::now()->timestamp;
             }
 
             $eventType = $this->determineFriendly($firstMission, $player);
@@ -140,7 +141,7 @@ class FleetEventsController extends OGameController
                 }
             }
 
-            if ($row->time_holding > 0 && $row->time_arrival <= Carbon::now()->timestamp && $row->time_arrival + $row->time_holding > Carbon::now()->timestamp) {
+            if ($row->time_holding > 0 && $row->time_arrival <= Date::now()->timestamp && $row->time_arrival + $row->time_holding > Date::now()->timestamp) {
                 // Do not include this parent mission in the list if the "main mission" has already arrived but the time_holding is still active.
                 // This applies to e.g. expedition mission that shows two rows:
                 // 1. The main mission that shows the fleet arriving.

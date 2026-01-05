@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,20 +15,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $type
  * @property string $description
  * @property int $balance_after
- * @property \Illuminate\Support\Carbon $created_at
- * @property-read \OGame\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction query()
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction whereBalanceAfter($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction ofType(string $type)
- * @method static \Illuminate\Database\Eloquent\Builder|DarkMatterTransaction forUser(int $userId)
+ * @property Carbon $created_at
+ * @property-read User $user
+ * @method static Builder|DarkMatterTransaction newModelQuery()
+ * @method static Builder|DarkMatterTransaction newQuery()
+ * @method static Builder|DarkMatterTransaction query()
+ * @method static Builder|DarkMatterTransaction whereId($value)
+ * @method static Builder|DarkMatterTransaction whereUserId($value)
+ * @method static Builder|DarkMatterTransaction whereAmount($value)
+ * @method static Builder|DarkMatterTransaction whereType($value)
+ * @method static Builder|DarkMatterTransaction whereDescription($value)
+ * @method static Builder|DarkMatterTransaction whereBalanceAfter($value)
+ * @method static Builder|DarkMatterTransaction whereCreatedAt($value)
+ * @method static Builder|DarkMatterTransaction ofType(string $type)
+ * @method static Builder|DarkMatterTransaction forUser(int $userId)
  * @mixin \Eloquent
  */
 class DarkMatterTransaction extends Model
@@ -76,9 +78,9 @@ class DarkMatterTransaction extends Model
     /**
      * Scope a query to only include transactions of a given type.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      * @param string $type
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeOfType($query, string $type)
     {
@@ -88,9 +90,9 @@ class DarkMatterTransaction extends Model
     /**
      * Scope a query to only include transactions for a given user.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeForUser($query, int $userId)
     {

@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,8 +22,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $research_rank
  * @property int $military_rank
  * @property-read User $player
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @method static Builder<static>|Highscore newModelQuery()
  * @method static Builder<static>|Highscore newQuery()
  * @method static Builder<static>|Highscore query()

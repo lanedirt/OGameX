@@ -32,27 +32,15 @@ class PlanetListService
     private array $moons = [];
 
     /**
-     * PlayerService
-     *
-     * @var PlayerService
-     */
-    private PlayerService $player;
-
-    /**
-     * @var PlanetServiceFactory $planetServiceFactory
-     */
-    private PlanetServiceFactory $planetServiceFactory;
-
-    /**
      * Planets constructor.
      */
-    public function __construct(PlayerService $player, PlanetServiceFactory $planetServiceFactory)
+    public function __construct(/**
+     * PlayerService
+     */
+    private PlayerService $player, private PlanetServiceFactory $planetServiceFactory)
     {
-        $this->planetServiceFactory = $planetServiceFactory;
-        $this->player = $player;
-
         // Get all planets (and moons) of user.
-        $planets = Planet::where('user_id', $player->getId())->get();
+        $planets = Planet::where('user_id', $this->player->getId())->get();
         foreach ($planets as $planetModel) {
             $planetService = $this->planetServiceFactory->makeFromModel($planetModel, $this->player);
 

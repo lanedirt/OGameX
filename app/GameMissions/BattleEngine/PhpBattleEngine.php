@@ -2,6 +2,8 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
+use OGame\Services\CharacterClassService;
+use OGame\Services\SettingsService;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameMissions\BattleEngine\Models\BattleUnit;
@@ -270,7 +272,7 @@ class PhpBattleEngine extends BattleEngine
     private function checkHamillManoeuvre(BattleResult $result, array &$attackerUnits, array &$defenderUnits): void
     {
         // Check if attacker is General class
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $characterClassService = app(CharacterClassService::class);
         if (!$characterClassService->isGeneral($this->attackerPlayer->getUser())) {
             return;
         }
@@ -302,7 +304,7 @@ class PhpBattleEngine extends BattleEngine
         }
 
         // Roll the dice for Hamill Manoeuvre
-        $settings = app(\OGame\Services\SettingsService::class);
+        $settings = app(SettingsService::class);
         $probability = $settings->hamillManoeuvreChance();
         $dice = random_int(1, $probability);
 

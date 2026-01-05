@@ -2,6 +2,8 @@
 
 namespace OGame\Factories;
 
+use Illuminate\Support\Facades\Date;
+use OGame\Services\CharacterClassService;
 use Cache;
 use Illuminate\Support\Carbon;
 use OGame\GameConstants\UniverseConstants;
@@ -40,26 +42,19 @@ class PlanetServiceFactory
     protected array $instancesById = [];
 
     /**
-     * SettingsService.
-     *
-     * @var SettingsService
-     */
-    protected SettingsService $settings;
-
-    /**
-     * PlayerServiceFactory.
-     *
-     * @var PlayerServiceFactory
-     */
-    protected PlayerServiceFactory $playerServiceFactory;
-
-    /**
      * PlanetServiceFactory constructor.
      */
-    public function __construct(SettingsService $settingsService, PlayerServiceFactory $playerServiceFactory)
+    public function __construct(
+        /**
+         * SettingsService.
+         */
+        protected SettingsService $settings,
+        /**
+         * PlayerServiceFactory.
+         */
+        protected PlayerServiceFactory $playerServiceFactory
+    )
     {
-        $this->settings = $settingsService;
-        $this->playerServiceFactory = $playerServiceFactory;
     }
 
     /**
@@ -481,7 +476,7 @@ class PlanetServiceFactory
         $planet->destroyed = 0;
         $planet->field_current = 0;
         $planet->planet_type = $planet_type->value;
-        $planet->time_last_update = (int)Carbon::now()->timestamp;
+        $planet->time_last_update = (int)Date::now()->timestamp;
 
         if ($planet_type === PlanetType::Moon) {
             $this->setupMoonProperties($planet, $debrisAmount, $moonChance, $xFactor, $player);
@@ -540,7 +535,7 @@ class PlanetServiceFactory
                 $player = $this->playerServiceFactory->make($planet->user_id, true);
             }
             if ($player->getUser()->character_class !== null) {
-                $characterClassService = app(\OGame\Services\CharacterClassService::class);
+                $characterClassService = app(CharacterClassService::class);
                 $moonFieldsBonus = $characterClassService->getAdditionalMoonFields($player->getUser());
             }
         }
@@ -581,7 +576,7 @@ class PlanetServiceFactory
                 $player = $this->playerServiceFactory->make($planet->user_id, true);
             }
             if ($player->getUser()->character_class !== null) {
-                $characterClassService = app(\OGame\Services\CharacterClassService::class);
+                $characterClassService = app(CharacterClassService::class);
                 $planetSizeMultiplier = $characterClassService->getPlanetSizeBonus($player->getUser());
             }
         }

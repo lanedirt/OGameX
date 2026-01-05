@@ -2,6 +2,9 @@
 
 namespace OGame\Console\Commands;
 
+use OGame\Models\User;
+use OGame\Models\Planet;
+use OGame\Jobs\CreateLegorMoon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -32,11 +35,11 @@ class InitializeLegorAccount extends Command
     public function handle(PlanetServiceFactory $planetServiceFactory): int
     {
         // Check if Legor already exists (created by migration)
-        $legor = \OGame\Models\User::where('username', 'Legor')->first();
+        $legor = User::where('username', 'Legor')->first();
 
         if ($legor) {
             // Legor exists, check if moon already exists
-            $moonExists = \OGame\Models\Planet::where('user_id', $legor->id)
+            $moonExists = Planet::where('user_id', $legor->id)
                 ->where('planet_type', 3)
                 ->exists();
 
@@ -55,12 +58,12 @@ class InitializeLegorAccount extends Command
             sleep($delay);
 
             // Get Legor's planet and create moon
-            $planet = \OGame\Models\Planet::where('user_id', $legor->id)
+            $planet = Planet::where('user_id', $legor->id)
                 ->where('planet_type', 1)
                 ->first();
 
             if ($planet) {
-                $moonCreationJob = new \OGame\Jobs\CreateLegorMoon($planet->id);
+                $moonCreationJob = new CreateLegorMoon($planet->id);
                 $moonCreationJob->handle();
                 $this->info("Moon creation complete!");
             }
@@ -77,14 +80,14 @@ class InitializeLegorAccount extends Command
 
         // Prefer ID 1 for Legor (first account in universe), but allow next available if taken
         $userId = 1;
-        if (\OGame\Models\User::where('id', 1)->exists()) {
+        if (User::where('id', 1)->exists()) {
             $this->warn('User ID 1 already exists. Legor will be created with next available ID.');
             // Let auto-increment handle the ID assignment
             $userId = null;
         }
 
         // Create User with ID 1 if available, otherwise use auto-increment
-        $user = new \OGame\Models\User();
+        $user = new User();
         if ($userId !== null) {
             $user->id = $userId;
         }
@@ -121,7 +124,7 @@ class InitializeLegorAccount extends Command
 
         sleep($delay);
 
-        $moonCreationJob = new \OGame\Jobs\CreateLegorMoon($planetService->getPlanetId());
+        $moonCreationJob = new CreateLegorMoon($planetService->getPlanetId());
         $moonCreationJob->handle();
 
         $this->info("Moon creation complete!");

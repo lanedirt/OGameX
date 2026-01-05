@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
+use OGame\Services\ObjectService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,15 +16,12 @@ use OGame\Services\WreckFieldService;
 
 class FacilitiesController extends AbstractBuildingsController
 {
-    private WreckFieldService $wreckFieldService;
-
     /**
      * ResourcesController constructor.
      */
-    public function __construct(BuildingQueueService $queue, WreckFieldService $wreckFieldService)
+    public function __construct(BuildingQueueService $queue, private WreckFieldService $wreckFieldService)
     {
         $this->route_view_index = 'facilities.index';
-        $this->wreckFieldService = $wreckFieldService;
         parent::__construct($queue);
     }
 
@@ -297,7 +295,7 @@ class FacilitiesController extends AbstractBuildingsController
                     ];
 
                     // Add repaired ships to planet
-                    $unitObject = app(\OGame\Services\ObjectService::class)->getUnitObjectByMachineName($ship['machine_name']);
+                    $unitObject = app(ObjectService::class)->getUnitObjectByMachineName($ship['machine_name']);
                     if ($unitObject) {
                         $planetService->addUnit($unitObject->machine_name, $repairedCount);
                     }

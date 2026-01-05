@@ -2,6 +2,12 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
+use OGame\Models\Highscore;
+use OGame\Models\ResearchQueue;
+use OGame\Models\BuildingQueue;
+use OGame\Models\UnitQueue;
+use OGame\Models\Message;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -174,7 +180,7 @@ class PlayerService
      */
     public function isInactive(): bool
     {
-        $lastActivity = Carbon::createFromTimestamp((int)$this->user->time);
+        $lastActivity = Date::createFromTimestamp((int)$this->user->time);
 
         // If the player has not logged in in the last 7 days, then they are considered inactive.
         if ($lastActivity->diffInDays(now()) >= 7) {
@@ -191,7 +197,7 @@ class PlayerService
      */
     public function isLongInactive(): bool
     {
-        $lastActivity = Carbon::createFromTimestamp((int)$this->user->time);
+        $lastActivity = Date::createFromTimestamp((int)$this->user->time);
 
         // If the player has not logged in in the last 28 days, then they are considered long inactive.
         if ($lastActivity->diffInDays(now()) >= 28) {
@@ -335,7 +341,7 @@ class PlayerService
      */
     public function getLastUsernameChange(): Carbon|null
     {
-        return $this->user->username_updated_at ? Carbon::parse($this->user->username_updated_at) : null;
+        return $this->user->username_updated_at ? Date::parse($this->user->username_updated_at) : null;
     }
 
     /**
@@ -524,7 +530,7 @@ class PlayerService
         $fleet_slots_from_research = $object->performCalculation(CalculationType::MAX_FLEET_SLOTS, $this->getResearchLevel('computer_technology'));
 
         // Add General class bonus (+2 fleet slots)
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $characterClassService = app(CharacterClassService::class);
         $user = $this->getUser();
         $fleet_slots_bonus = $characterClassService->getAdditionalFleetSlots($user);
 
@@ -569,7 +575,7 @@ class PlayerService
         $bonus_slots = $settingsService->bonusExpeditionSlots();
 
         // Add Discoverer class bonus (+2 expedition slots)
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $characterClassService = app(CharacterClassService::class);
         $user = $this->getUser();
         $expedition_slots_bonus = $characterClassService->getExpeditionSlotsBonus($user);
 
@@ -605,7 +611,7 @@ class PlayerService
                 // ------
                 // 2. Update last_ip and time properties.
                 // ------
-                $this->user->time = (string)Carbon::now()->timestamp;
+                $this->user->time = (string)Date::now()->timestamp;
                 $this->user->last_ip = request()->ip();
 
                 $this->user->save();
@@ -713,7 +719,7 @@ class PlayerService
     public function getCachedGeneralScore(): int
     {
         if ($this->cachedGeneralScore === null) {
-            $this->cachedGeneralScore = \OGame\Models\Highscore::where('player_id', $this->getId())->first()->general ?? 0;
+            $this->cachedGeneralScore = Highscore::where('player_id', $this->getId())->first()->general ?? 0;
         }
         return $this->cachedGeneralScore;
     }
@@ -847,9 +853,9 @@ class PlayerService
         // Loop through all planets and delete all records associated with them.
         foreach ($this->planets->all() as $planet) {
             // Delete all queue items.
-            \OGame\Models\ResearchQueue::where('planet_id', $planet->getPlanetId())->delete();
-            \OGame\Models\BuildingQueue::where('planet_id', $planet->getPlanetId())->delete();
-            \OGame\Models\UnitQueue::where('planet_id', $planet->getPlanetId())->delete();
+            ResearchQueue::where('planet_id', $planet->getPlanetId())->delete();
+            BuildingQueue::where('planet_id', $planet->getPlanetId())->delete();
+            UnitQueue::where('planet_id', $planet->getPlanetId())->delete();
             // Delete all fleet missions.
             // Get all fleet missions for this planet then loop through them and delete them.
             // TODO: this might be a performance bottleneck if there are many missions. Consider using a bulk delete compatible
@@ -857,20 +863,20 @@ class PlayerService
             $missions = FleetMission::where('planet_id_from', $planet->getPlanetId())->orWhere('planet_id_to', $planet->getPlanetId())->get();
             foreach ($missions as $mission) {
                 // Delete any that have this mission as their parent.
-                \OGame\Models\FleetMission::where('parent_id', $mission->id)->delete();
+                FleetMission::where('parent_id', $mission->id)->delete();
                 // Delete mission itself.
                 $mission->delete();
             }
         }
 
         // Delete all messages.
-        \OGame\Models\Message::where('user_id', $this->getId())->delete();
+        Message::where('user_id', $this->getId())->delete();
 
         // Delete tech record.
         $this->user_tech->delete();
 
         // Delete all planets.
-        \OGame\Models\Planet::where('user_id', $this->getId())->delete();
+        Planet::where('user_id', $this->getId())->delete();
 
         // Delete the actual user.
         $this->user->delete();
@@ -983,9 +989,9 @@ class PlayerService
     /**
      * Get the date when vacation mode can be deactivated.
      *
-     * @return \Illuminate\Support\Carbon|null
+     * @return Carbon|null
      */
-    public function getVacationModeUntil(): \Illuminate\Support\Carbon|null
+    public function getVacationModeUntil(): Carbon|null
     {
         return $this->user->vacation_mode_until;
     }

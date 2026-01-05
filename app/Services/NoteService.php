@@ -14,18 +14,15 @@ use OGame\Models\Note;
 class NoteService
 {
     /**
-     * The PlayerService object.
-     *
-     * @var PlayerService
-     */
-    private PlayerService $player;
-
-    /**
      * NoteService constructor.
      */
-    public function __construct(PlayerService $player)
+    public function __construct(
+        /**
+         * The PlayerService object.
+         */
+        private PlayerService $player
+    )
     {
-        $this->player = $player;
     }
 
     /**

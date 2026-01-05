@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers\Abstracts;
 
+use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,13 +27,6 @@ abstract class AbstractUnitsController extends OGameController
     protected string $route_view_index;
 
     /**
-     * QueueService
-     *
-     * @var UnitQueueService
-     */
-    protected UnitQueueService $queue;
-
-    /**
      * Objects that are shown on this building page.
      *
      * @var array<array<string>>
@@ -42,9 +36,11 @@ abstract class AbstractUnitsController extends OGameController
     /**
      * AbstractUnitsController constructor.
      */
-    public function __construct(UnitQueueService $queue)
+    public function __construct(/**
+     * QueueService
+     */
+    protected UnitQueueService $queue)
     {
-        $this->queue = $queue;
         parent::__construct();
     }
 
@@ -71,7 +67,7 @@ abstract class AbstractUnitsController extends OGameController
         $queue_time_end = $this->queue->retrieveQueueTimeEnd($planet);
         $queue_time_countdown = 0;
         if ($queue_time_end > 0) {
-            $queue_time_countdown = $queue_time_end - (int)Carbon::now()->timestamp;
+            $queue_time_countdown = $queue_time_end - (int)Date::now()->timestamp;
         }
 
         $units = [];

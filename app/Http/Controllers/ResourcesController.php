@@ -2,6 +2,8 @@
 
 namespace OGame\Http\Controllers;
 
+use Illuminate\Support\Facades\Date;
+use OGame\Services\CharacterClassService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -66,7 +68,7 @@ class ResourcesController extends AbstractBuildingsController
         $unit_queue_time_end = $unitQueue->retrieveQueueTimeEnd($this->planet);
         $unit_queue_time_countdown = 0;
         if ($unit_queue_time_end > 0) {
-            $unit_queue_time_countdown = $unit_queue_time_end - (int)Carbon::now()->timestamp;
+            $unit_queue_time_countdown = $unit_queue_time_end - (int)Date::now()->timestamp;
         }
 
         // Append unit queue data to the default view output handled by parent.
@@ -174,7 +176,7 @@ class ResourcesController extends AbstractBuildingsController
         $crawler_percentage = $this->planet->getBuildingPercent('crawler');
 
         // Get max crawler overload percentage (Collector: 150%, Others: 100%)
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $characterClassService = app(CharacterClassService::class);
         $max_crawler_overload = $characterClassService->getMaxCrawlerOverload($player->getUser());
 
         return view('ingame.resources.settings')->with([

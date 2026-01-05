@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -21,27 +23,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property float $crystal
  * @property float $deuterium
  * @property int $processed
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \OGame\Models\Planet $planet
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue query()
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereCrystal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereDeuterium($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereMetal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereObjectAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereObjectAmountProgress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereObjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue wherePlanetId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereProcessed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereTimeDuration($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereTimeEnd($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereTimeProgress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereTimeStart($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UnitQueue whereUpdatedAt($value)
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Planet $planet
+ * @method static Builder|UnitQueue newModelQuery()
+ * @method static Builder|UnitQueue newQuery()
+ * @method static Builder|UnitQueue query()
+ * @method static Builder|UnitQueue whereCreatedAt($value)
+ * @method static Builder|UnitQueue whereCrystal($value)
+ * @method static Builder|UnitQueue whereDeuterium($value)
+ * @method static Builder|UnitQueue whereId($value)
+ * @method static Builder|UnitQueue whereMetal($value)
+ * @method static Builder|UnitQueue whereObjectAmount($value)
+ * @method static Builder|UnitQueue whereObjectAmountProgress($value)
+ * @method static Builder|UnitQueue whereObjectId($value)
+ * @method static Builder|UnitQueue wherePlanetId($value)
+ * @method static Builder|UnitQueue whereProcessed($value)
+ * @method static Builder|UnitQueue whereTimeDuration($value)
+ * @method static Builder|UnitQueue whereTimeEnd($value)
+ * @method static Builder|UnitQueue whereTimeProgress($value)
+ * @method static Builder|UnitQueue whereTimeStart($value)
+ * @method static Builder|UnitQueue whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class UnitQueue extends Model

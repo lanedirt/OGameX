@@ -2,6 +2,7 @@
 
 namespace OGame\Console\Commands\Tests;
 
+use GuzzleHttp\Promise\Utils;
 use App;
 use DateTime;
 use Exception;
@@ -248,7 +249,7 @@ abstract class TestCommand extends Command
         }
 
         // Wait for all requests to complete
-        $responses = Promise\Utils::settle($promises)->wait();
+        $responses = Utils::settle($promises)->wait();
 
         foreach ($responses as $i => $result) {
             try {
