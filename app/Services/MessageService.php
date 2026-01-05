@@ -2,13 +2,13 @@
 
 namespace OGame\Services;
 
-use OGame\GameMessages\FleetLostContact;
 use Exception;
 use InvalidArgumentException;
 use OGame\Factories\GameMessageFactory;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMessages\BattleReport;
 use OGame\GameMessages\EspionageReport;
+use OGame\GameMessages\FleetLostContact;
 use OGame\GameMessages\WelcomeMessage;
 use OGame\Models\Message;
 use RuntimeException;
@@ -61,8 +61,7 @@ class MessageService
          * The PlayerService object.
          */
         private PlayerService $player
-    )
-    {
+    ) {
     }
 
     /**
