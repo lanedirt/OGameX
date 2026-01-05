@@ -150,7 +150,8 @@ class FleetEventsController extends OGameController
             }
 
             // For missions with waiting time, add an additional row showing when the fleet will start its return journey
-            if ($friendlyStatus === FleetMissionStatus::Friendly && $row->time_holding > 0 && !$eventRowViewModel->is_return_trip) {
+            // Include both Friendly (own missions) and Neutral (incoming ACS Defend) missions
+            if (($friendlyStatus === FleetMissionStatus::Friendly || $friendlyStatus === FleetMissionStatus::Neutral) && $row->time_holding > 0 && !$eventRowViewModel->is_return_trip) {
                 $waitEndRow = new FleetEventRowViewModel();
                 $waitEndRow->is_return_trip = false;
                 $waitEndRow->is_recallable = false;
@@ -171,7 +172,8 @@ class FleetEventsController extends OGameController
             }
 
             // Add return trip row if the mission has a return mission, even though the return mission does not exist yet in the database.
-            if ($friendlyStatus === FleetMissionStatus::Friendly && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
+            // Include both Friendly (own missions) and Neutral (incoming ACS Defend) missions
+            if (($friendlyStatus === FleetMissionStatus::Friendly || $friendlyStatus === FleetMissionStatus::Neutral) && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
                 $returnTripRow = new FleetEventRowViewModel();
                 $returnTripRow->is_return_trip = true;
                 $returnTripRow->is_recallable = false;
