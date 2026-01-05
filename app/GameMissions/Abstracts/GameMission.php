@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions\Abstracts;
 
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -470,27 +471,27 @@ abstract class GameMission
      * Collect all defending fleets at a planet (planet owner + ACS defend fleets).
      *
      * @param PlanetService $planet The planet being defended.
-     * @return array<\OGame\GameMissions\BattleEngine\Models\DefenderFleet> Array of all defending fleets.
+     * @return array<DefenderFleet> Array of all defending fleets.
      */
     protected function collectDefendingFleets(PlanetService $planet): array
     {
         $defenders = [];
 
         // Always add the planet owner's forces first
-        $defenders[] = \OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($planet);
+        $defenders[] = DefenderFleet::fromPlanet($planet);
 
         // Find all ACS Defend fleets currently holding at this planet
         $defendMissions = FleetMission::query()
             ->where('mission_type', 5)  // ACS Defend
             ->where('planet_id_to', $planet->getPlanetId())
             ->where('processed', 0)  // Still active
-            ->where('time_arrival', '<=', \Carbon\Carbon::now()->timestamp)  // Has arrived
-            ->whereRaw('time_arrival + COALESCE(time_holding, 0) > ?', [\Carbon\Carbon::now()->timestamp])  // Still holding
+            ->where('time_arrival', '<=', Date::now()->timestamp)  // Has arrived
+            ->whereRaw('time_arrival + COALESCE(time_holding, 0) > ?', [Date::now()->timestamp])  // Still holding
             ->get();
 
         // Add each defending fleet
         foreach ($defendMissions as $mission) {
-            $defenders[] = \OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromFleetMission(
+            $defenders[] = DefenderFleet::fromFleetMission(
                 $mission,
                 $this->fleetMissionService,
                 $this->playerServiceFactory

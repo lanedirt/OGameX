@@ -153,7 +153,7 @@ class AttackMission extends GameMission
                         // Send fleet lost contact message to the fleet owner
                         $fleetOwner = $this->playerServiceFactory->make($fleetResult->ownerId);
                         $coordinates = '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]';
-                        $this->messageService->sendSystemMessageToPlayer($fleetOwner, \OGame\GameMessages\FleetLostContact::class, [
+                        $this->messageService->sendSystemMessageToPlayer($fleetOwner, FleetLostContact::class, [
                             'coordinates' => $coordinates,
                         ]);
                     } else {

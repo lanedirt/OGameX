@@ -2,6 +2,8 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
+use OGame\GameMissions\BattleEngine\Models\DefenderFleetResult;
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\Services\CharacterClassService;
 use OGame\Services\ObjectService;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
@@ -27,11 +29,6 @@ use OGame\Services\SettingsService;
 abstract class BattleEngine
 {
     /**
-     * @var array<\OGame\GameMissions\BattleEngine\Models\DefenderFleet> All defending fleets (planet owner + ACS defend fleets).
-     */
-    protected array $defenders;
-
-    /**
      * @var LootService The service used to calculate the loot gained from a battle.
      */
     private LootService $lootService;
@@ -48,15 +45,13 @@ abstract class BattleEngine
      * @param UnitCollection $attackerFleet The fleet of the attacker player.
      * @param PlayerService $attackerPlayer The attacker player.
      * @param PlanetService $defenderPlanet The planet of the defender player (used for loot, moon calculation).
-     * @param array<\OGame\GameMissions\BattleEngine\Models\DefenderFleet> $defenders All defending fleets (planet owner + ACS defend fleets).
+     * @param array<DefenderFleet> $defenders All defending fleets (planet owner + ACS defend fleets).
      * @param SettingsService $settings The settings service.
      * @param int $attackerFleetMissionId The fleet mission ID of the attacking fleet.
      * @param int $attackerOwnerId The ID of the player who owns the attacking fleet.
      */
-    public function __construct(private UnitCollection $attackerFleet, protected PlayerService $attackerPlayer, protected PlanetService $defenderPlanet, array $defenders, private SettingsService $settings, protected int $attackerFleetMissionId, protected int $attackerOwnerId)
+    public function __construct(private UnitCollection $attackerFleet, protected PlayerService $attackerPlayer, protected PlanetService $defenderPlanet, protected array $defenders, private SettingsService $settings, protected int $attackerFleetMissionId, protected int $attackerOwnerId)
     {
-        $this->defenders = $defenders;
-
         // Determine loot percentage based on character class and defender status
         $characterClassService = app(CharacterClassService::class);
         $this->lootPercentage = (int)($characterClassService->getInactiveLootPercentage($this->attackerPlayer->getUser()) * 100);
@@ -107,7 +102,7 @@ abstract class BattleEngine
             $result->defenderUnitsStart->addCollection($defenderFleet->units);
 
             // Initialize result tracking for this fleet
-            $fleetResult = new \OGame\GameMissions\BattleEngine\Models\DefenderFleetResult(
+            $fleetResult = new DefenderFleetResult(
                 $defenderFleet->fleetMissionId,
                 $defenderFleet->ownerId,
                 $defenderFleet->units

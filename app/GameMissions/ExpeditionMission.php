@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\Services\DarkMatterService;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Services\MerchantService;

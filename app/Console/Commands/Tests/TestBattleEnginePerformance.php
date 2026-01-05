@@ -2,6 +2,7 @@
 
 namespace OGame\Console\Commands\Tests;
 
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -122,7 +123,7 @@ class TestBattleEnginePerformance extends TestCommand
         $settingsService = resolve(SettingsService::class);
 
         // Create defenders array with planet's stationary forces
-        $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($this->currentPlanetService)];
+        $defenders = [DefenderFleet::fromPlanet($this->currentPlanetService)];
 
         // For test battles, use fleetMissionId = 0 and current player's ID
         $fleetMissionId = 0;

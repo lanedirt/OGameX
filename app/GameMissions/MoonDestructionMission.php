@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\GameMessages\FleetLostContact;
 use Illuminate\Support\Facades\DB;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\MoonDestroyed;
@@ -142,7 +143,7 @@ class MoonDestructionMission extends GameMission
                 $targetMoon->save();
             } else {
                 // ACS Defend fleet - handle return or destruction
-                $defendMission = \OGame\Models\FleetMission::find($fleetResult->fleetMissionId);
+                $defendMission = FleetMission::find($fleetResult->fleetMissionId);
                 if ($defendMission) {
                     if ($fleetResult->completelyDestroyed) {
                         // Fleet was completely destroyed - no return mission
@@ -152,12 +153,12 @@ class MoonDestructionMission extends GameMission
                         // Send fleet lost contact message to the fleet owner
                         $fleetOwner = $this->playerServiceFactory->make($fleetResult->ownerId);
                         $coordinates = '[coordinates]' . $targetMoon->getPlanetCoordinates()->asString() . '[/coordinates]';
-                        $this->messageService->sendSystemMessageToPlayer($fleetOwner, \OGame\GameMessages\FleetLostContact::class, [
+                        $this->messageService->sendSystemMessageToPlayer($fleetOwner, FleetLostContact::class, [
                             'coordinates' => $coordinates,
                         ]);
                     } else {
                         // Fleet survived - create return mission with surviving units
-                        $this->startReturn($defendMission, new \OGame\Models\Resources(0, 0, 0, 0), $fleetResult->unitsResult);
+                        $this->startReturn($defendMission, new Resources(0, 0, 0, 0), $fleetResult->unitsResult);
                     }
                 }
             }

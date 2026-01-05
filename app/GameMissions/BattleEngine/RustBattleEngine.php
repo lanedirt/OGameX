@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\Services\CharacterClassService;
 use FFI;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
@@ -34,7 +35,7 @@ class RustBattleEngine extends BattleEngine
      * @param UnitCollection $attackerFleet The fleet of the attacker player.
      * @param PlayerService $attackerPlayer The attacker player.
      * @param PlanetService $defenderPlanet The planet of the defender player (used for loot, moon calculation).
-     * @param array<\OGame\GameMissions\BattleEngine\Models\DefenderFleet> $defenders All defending fleets (planet owner + ACS defend fleets).
+     * @param array<DefenderFleet> $defenders All defending fleets (planet owner + ACS defend fleets).
      * @param SettingsService $settings The settings service.
      * @param int $attackerFleetMissionId The fleet mission ID of the attacking fleet.
      * @param int $attackerOwnerId The ID of the player who owns the attacking fleet.
