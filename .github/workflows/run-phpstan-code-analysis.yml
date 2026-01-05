@@ -3,8 +3,28 @@ name: PHPStan Code Analysis
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'resources/css/**'
+      - 'resources/js/**'
+      - 'public/css/**'
+      - 'public/js/**'
+      - 'public/mix-manifest.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'yarn.lock'
+      - 'webpack.mix.js'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'resources/css/**'
+      - 'resources/js/**'
+      - 'public/css/**'
+      - 'public/js/**'
+      - 'public/mix-manifest.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'yarn.lock'
+      - 'webpack.mix.js'
 
 
 concurrency:

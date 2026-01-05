@@ -3,8 +3,28 @@ name: Laravel Pint PSR-12 Code Style Checker
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'resources/css/**'
+      - 'resources/js/**'
+      - 'public/css/**'
+      - 'public/js/**'
+      - 'public/mix-manifest.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'yarn.lock'
+      - 'webpack.mix.js'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'resources/css/**'
+      - 'resources/js/**'
+      - 'public/css/**'
+      - 'public/js/**'
+      - 'public/mix-manifest.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'yarn.lock'
+      - 'webpack.mix.js'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
