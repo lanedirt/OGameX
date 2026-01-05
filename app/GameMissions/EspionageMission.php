@@ -95,6 +95,11 @@ class EspionageMission extends GameMission
         $attackerProbeCount = $mission->espionage_probe;
         $attackerEspionageLevel = $origin_planet->getPlayer()->getResearchLevel('espionage_technology');
         $defenderEspionageLevel = $target_planet->getPlayer()->getResearchLevel('espionage_technology');
+
+        // TODO: Include ACS Defend fleets in counter-espionage chance calculation
+        // Currently only counts planet owner's ships via getDefenderShipCount()
+        // Should also count ships from ACS Defend fleets present at the target planet
+        // This creates inconsistency: ACS fleets participate in battle but don't affect detection chance
         $defenderShipCount = $counterEspionageService->getDefenderShipCount($target_planet);
 
         $counterEspionageChance = $counterEspionageService->calculateChance(
@@ -446,6 +451,11 @@ class EspionageMission extends GameMission
         $remainingProbes = max(0, $mission->espionage_probe - $extraProbesRequired);
 
         // Fleets
+        // TODO: Include ACS Defend fleets in espionage report
+        // Currently only shows planet owner's ships via getShipUnits()
+        // Should also show ACS Defend fleet units present at the target planet
+        // This creates inconsistency: ACS fleets are invisible to spy but participate in counter-espionage battles
+        // Consider showing them in a separate section or with owner labels
         if ($this->canRevealData($remainingProbes, $attackerEspionageLevel, $defenderEspionageLevel, 2, 1)) {
             $report->ships = $targetPlanet->getShipUnits()->toArray();
         }

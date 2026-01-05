@@ -475,6 +475,15 @@ class AttackMission extends GameMission
             'planet_id' => $battleResult->attackerPlanetId,
         ];
 
+        // TODO: Enhance battle reports to show individual participating fleets/defenders
+        // Currently shows aggregated defender data (combined units, planet owner's tech, single player_id)
+        // Should show:
+        // - Combined fleet totals (current behavior)
+        // - Dropdown/expandable sections for each participating fleet:
+        //   - Planet owner's stationary forces (ships + defenses with their tech levels)
+        //   - Each ACS Defend fleet (units, owner, tech levels)
+        // - Per-fleet losses and survivors
+        // Data available in: $battleResult->defenderFleetResults
         $report->defender = [
             'player_id' => $defenderPlanet->getPlayer()->getId(),
             'resource_loss' => $battleResult->defenderResourceLoss->sum(),
