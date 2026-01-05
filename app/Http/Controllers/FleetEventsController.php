@@ -172,8 +172,8 @@ class FleetEventsController extends OGameController
             }
 
             // Add return trip row if the mission has a return mission, even though the return mission does not exist yet in the database.
-            // Include both Friendly (own missions) and Neutral (incoming ACS Defend) missions
-            if (($friendlyStatus === FleetMissionStatus::Friendly || $friendlyStatus === FleetMissionStatus::Neutral) && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
+            // Only show return trips for own missions (Friendly), not for incoming ACS Defend missions (Neutral)
+            if ($friendlyStatus === FleetMissionStatus::Friendly && $fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
                 $returnTripRow = new FleetEventRowViewModel();
                 $returnTripRow->is_return_trip = true;
                 $returnTripRow->is_recallable = false;
