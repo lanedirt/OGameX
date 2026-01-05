@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -21,27 +23,27 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $building
  * @property int $processed
  * @property int $canceled
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue query()
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereBuilding($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereCanceled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereCrystal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereDeuterium($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereMetal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereObjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereObjectLevelTarget($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereIsDowngrade($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue wherePlanetId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereProcessed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereTimeDuration($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereTimeEnd($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereTimeStart($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BuildingQueue whereUpdatedAt($value)
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|BuildingQueue newModelQuery()
+ * @method static Builder|BuildingQueue newQuery()
+ * @method static Builder|BuildingQueue query()
+ * @method static Builder|BuildingQueue whereBuilding($value)
+ * @method static Builder|BuildingQueue whereCanceled($value)
+ * @method static Builder|BuildingQueue whereCreatedAt($value)
+ * @method static Builder|BuildingQueue whereCrystal($value)
+ * @method static Builder|BuildingQueue whereDeuterium($value)
+ * @method static Builder|BuildingQueue whereId($value)
+ * @method static Builder|BuildingQueue whereMetal($value)
+ * @method static Builder|BuildingQueue whereObjectId($value)
+ * @method static Builder|BuildingQueue whereObjectLevelTarget($value)
+ * @method static Builder|BuildingQueue whereIsDowngrade($value)
+ * @method static Builder|BuildingQueue wherePlanetId($value)
+ * @method static Builder|BuildingQueue whereProcessed($value)
+ * @method static Builder|BuildingQueue whereTimeDuration($value)
+ * @method static Builder|BuildingQueue whereTimeEnd($value)
+ * @method static Builder|BuildingQueue whereTimeStart($value)
+ * @method static Builder|BuildingQueue whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class BuildingQueue extends Model

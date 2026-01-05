@@ -10,11 +10,6 @@ namespace OGame\Services;
  */
 class NPCPlayerService extends PlayerService
 {
-    private string $npcType;
-    private int $weaponTech;
-    private int $shieldTech;
-    private int $armorTech;
-
     /**
      * Create an NPC player with specified tech levels.
      *
@@ -23,15 +18,8 @@ class NPCPlayerService extends PlayerService
      * @param int $shieldTech
      * @param int $armorTech
      */
-    public function __construct(string $npcType, int $weaponTech, int $shieldTech, int $armorTech)
+    public function __construct(private string $npcType, private int $weaponTech, private int $shieldTech, private int $armorTech)
     {
-        // Initialize NPC properties FIRST before calling parent constructor
-        // because parent constructor may call methods that need these properties
-        $this->npcType = $npcType;
-        $this->weaponTech = $weaponTech;
-        $this->shieldTech = $shieldTech;
-        $this->armorTech = $armorTech;
-
         // Call parent constructor with player_id = 0 (no real user record)
         // This creates a dummy user object which is fine for NPCs
         parent::__construct(0);

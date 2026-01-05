@@ -12,11 +12,8 @@ use OGame\Services\PlayerService;
 
 class JumpGateController extends OGameController
 {
-    private JumpGateService $jumpGateService;
-
-    public function __construct(JumpGateService $jumpGateService)
+    public function __construct(private JumpGateService $jumpGateService)
     {
-        $this->jumpGateService = $jumpGateService;
     }
 
     /**

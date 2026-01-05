@@ -2,6 +2,10 @@
 
 namespace OGame\GameMissions;
 
+use OGame\Services\PlayerService;
+use OGame\Services\MessageService;
+use OGame\GameMessages\MissileAttackReport;
+use OGame\GameMessages\MissileDefenseReport;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -278,9 +282,9 @@ class MissileMission extends GameMission
      * - Defenses Destroyed = floor(Missile Damage / Defense Armor)
      *
      * @param PlanetService $defenderPlanet
-     * @param \OGame\Services\PlayerService $defenderPlayer
+     * @param PlayerService $defenderPlayer
      * @param int $missileCount
-     * @param \OGame\Services\PlayerService $attackerPlayer
+     * @param PlayerService $attackerPlayer
      * @param FleetMission $mission
      * @return UnitCollection
      */
@@ -362,9 +366,9 @@ class MissileMission extends GameMission
      */
     private function sendMissileAttackMessages(
         PlanetService $attackerPlanet,
-        \OGame\Services\PlayerService $attackerPlayer,
+        PlayerService $attackerPlayer,
         PlanetService $defenderPlanet,
-        \OGame\Services\PlayerService $defenderPlayer,
+        PlayerService $defenderPlayer,
         int $missileCount,
         int $interceptedMissiles,
         int $effectiveMissiles,
@@ -408,18 +412,18 @@ class MissileMission extends GameMission
         ]);
 
         // Send message to attacker
-        $messageService = resolve(\OGame\Services\MessageService::class, ['player' => $attackerPlayer]);
+        $messageService = resolve(MessageService::class, ['player' => $attackerPlayer]);
         $messageService->sendSystemMessageToPlayer(
             $attackerPlayer,
-            \OGame\GameMessages\MissileAttackReport::class,
+            MissileAttackReport::class,
             $messageParams
         );
 
         // Send message to defender
-        $messageService = resolve(\OGame\Services\MessageService::class, ['player' => $defenderPlayer]);
+        $messageService = resolve(MessageService::class, ['player' => $defenderPlayer]);
         $messageService->sendSystemMessageToPlayer(
             $defenderPlayer,
-            \OGame\GameMessages\MissileDefenseReport::class,
+            MissileDefenseReport::class,
             [
                 'attacker_name' => $attackerName,
                 'planet_id' => $defenderPlanet->getPlanetId(),

@@ -354,7 +354,7 @@ class ObjectService
     {
         $player = $planet->getPlayer();
         $user = $player->getUser();
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $characterClassService = app(CharacterClassService::class);
 
         if ($machine_name === 'reaper' && !$characterClassService->isGeneral($user)) {
             return false;

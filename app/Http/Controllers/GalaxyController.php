@@ -2,6 +2,8 @@
 
 namespace OGame\Http\Controllers;
 
+use OGame\Facades\AppUtil;
+use OGame\Models\FleetMission;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -522,7 +524,7 @@ class GalaxyController extends OGameController
      */
     private function createEmptySpaceRow(int $galaxy, int $system, int $position): array
     {
-        $planet_description = $this->planetServiceFactory->getPlanetDescription(new Planet\Coordinate($galaxy, $system, $position));
+        $planet_description = $this->planetServiceFactory->getPlanetDescription(new Coordinate($galaxy, $system, $position));
         $has_colonize_ship = $this->playerService->planets->current()->getObjectAmount('colony_ship') > 0;
         $colonize_ship_message = "<br><div><img src='/img/galaxy/activity.gif' />" . __('t_galaxy.mission.colonize.no_ship') . "</div>";
 
@@ -813,7 +815,7 @@ class GalaxyController extends OGameController
         $arrivalTime = time() + $flightTime;
 
         $data['flight_duration'] = $flightTime;
-        $data['flight_duration_formatted'] = \OGame\Facades\AppUtil::formatTimeDuration($flightTime);
+        $data['flight_duration_formatted'] = AppUtil::formatTimeDuration($flightTime);
         $data['arrival_time'] = date('d.m.y H:i:s', $arrivalTime);
 
         return view('ingame.galaxy.missileattack', $data);
@@ -896,7 +898,7 @@ class GalaxyController extends OGameController
         $flightTime = (int)((30 + 60 * $distance) / $universeSpeed);
 
         // Create fleet mission
-        $mission = new \OGame\Models\FleetMission();
+        $mission = new FleetMission();
         $mission->user_id = $player->getId();
         $mission->planet_id_from = $currentPlanet->getPlanetId();
         $mission->planet_id_to = $targetPlanet->getPlanetId();

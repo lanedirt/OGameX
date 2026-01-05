@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -21,29 +23,29 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array<string, mixed>|null $debris
  * @property array<string, mixed>|null $repaired_defenses
  * @property array<string, mixed>|null $wreckage
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \OGame\Models\User|null $planetUserId
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport query()
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereAttacker($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereDebris($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereDefender($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereGeneral($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereLoot($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport wherePlanetGalaxy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport wherePlanetPosition($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport wherePlanetSystem($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport wherePlanetUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereRepairedDefenses($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereRounds($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|BattleReport whereWreckage($value)
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $planetUserId
+ * @method static Builder|BattleReport newModelQuery()
+ * @method static Builder|BattleReport newQuery()
+ * @method static Builder|BattleReport query()
+ * @method static Builder|BattleReport whereAttacker($value)
+ * @method static Builder|BattleReport whereCreatedAt($value)
+ * @method static Builder|BattleReport whereDebris($value)
+ * @method static Builder|BattleReport whereDefender($value)
+ * @method static Builder|BattleReport whereGeneral($value)
+ * @method static Builder|BattleReport whereId($value)
+ * @method static Builder|BattleReport whereLoot($value)
+ * @method static Builder|BattleReport wherePlanetGalaxy($value)
+ * @method static Builder|BattleReport wherePlanetPosition($value)
+ * @method static Builder|BattleReport wherePlanetSystem($value)
+ * @method static Builder|BattleReport wherePlanetUserId($value)
+ * @method static Builder|BattleReport whereRepairedDefenses($value)
+ * @method static Builder|BattleReport whereRounds($value)
+ * @method static Builder|BattleReport whereUpdatedAt($value)
+ * @method static Builder|BattleReport whereWreckage($value)
  * @property int $planet_type
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BattleReport wherePlanetType($value)
+ * @method static Builder<static>|BattleReport wherePlanetType($value)
  * @mixin \Eloquent
  */
 class BattleReport extends Model

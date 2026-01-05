@@ -5,13 +5,6 @@ namespace OGame\GameObjects\Models\Fields;
 class GameObjectRapidfire
 {
     /**
-     * Unit that this rapidfire affects.
-     *
-     * @var string
-     */
-    public string $object_machine_name;
-
-    /**
      * Chance of rapidfire.
      *
      * @return float
@@ -39,21 +32,21 @@ class GameObjectRapidfire
     private float $chance = 0;
 
     /**
-     * Amount of rapidfire.
-     *
-     * @var int
-     */
-    public int $amount;
-
-    /**
      * GameObjectRapidfire constructor.
      *
      * @param string $object_machine_name
      * @param int $amount
      */
-    public function __construct(string $object_machine_name, int $amount)
+    public function __construct(
+        /**
+         * Unit that this rapidfire affects.
+         */
+        public string $object_machine_name,
+        /**
+         * Amount of rapidfire.
+         */
+        public int $amount
+    )
     {
-        $this->object_machine_name = $object_machine_name;
-        $this->amount = $amount;
     }
 }

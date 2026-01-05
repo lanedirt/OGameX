@@ -19,21 +19,15 @@ class DefenseRepairService
     private int $repairRate;
 
     /**
-     * @var int|null Optional seed for deterministic random number generation (for testing).
-     */
-    private int|null $seed;
-
-    /**
      * DefenseRepairService constructor.
      *
      * @param int $repairRate The percentage chance (0-100) for each destroyed defense to be repaired.
      * @param int|null $seed Optional seed for deterministic testing.
      */
-    public function __construct(int $repairRate = 70, int|null $seed = null)
+    public function __construct(int $repairRate = 70, private int|null $seed = null)
     {
         // Clamp repair rate to valid range
         $this->repairRate = max(0, min(100, $repairRate));
-        $this->seed = $seed;
     }
 
     /**

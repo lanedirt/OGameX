@@ -23,14 +23,6 @@ use OGame\Services\SettingsService;
  */
 class IngameMainComposer
 {
-    private Request $request;
-    private PlayerService $player;
-    private MessageService $messageService;
-    private SettingsService $settingsService;
-    private FleetMissionService $fleetMissionService;
-    private HighscoreService $highscoreService;
-    private BuddyService $buddyService;
-
     /**
      * IngameMainComposer constructor.
      *
@@ -45,15 +37,8 @@ class IngameMainComposer
      * @param HighscoreService $highscoreService
      * @param BuddyService $buddyService
      */
-    public function __construct(Request $request, PlayerService $player, MessageService $messageService, SettingsService $settingsService, FleetMissionService $fleetMissionService, HighscoreService $highscoreService, BuddyService $buddyService)
+    public function __construct(private Request $request, private PlayerService $player, private MessageService $messageService, private SettingsService $settingsService, private FleetMissionService $fleetMissionService, private HighscoreService $highscoreService, private BuddyService $buddyService)
     {
-        $this->request = $request;
-        $this->player = $player;
-        $this->messageService = $messageService;
-        $this->settingsService = $settingsService;
-        $this->fleetMissionService = $fleetMissionService;
-        $this->highscoreService = $highscoreService;
-        $this->buddyService = $buddyService;
     }
 
     /**

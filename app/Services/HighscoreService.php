@@ -25,14 +25,11 @@ class HighscoreService
      */
     private HighscoreTypeEnum $highscoreType;
 
-    private PlayerServiceFactory $playerServiceFactory;
-
     /**
      * Highscore constructor.
      */
-    public function __construct(PlayerServiceFactory $playerServiceFactory)
+    public function __construct(private PlayerServiceFactory $playerServiceFactory)
     {
-        $this->playerServiceFactory = $playerServiceFactory;
     }
 
     /**

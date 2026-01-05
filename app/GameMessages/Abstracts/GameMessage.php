@@ -40,10 +40,6 @@ abstract class GameMessage
      */
     protected Message $message;
 
-    protected PlanetServiceFactory $planetServiceFactory;
-
-    protected PlayerServiceFactory $playerServiceFactory;
-
     /**
      * GameMessage constructor.
      *
@@ -51,14 +47,12 @@ abstract class GameMessage
      * @param PlanetServiceFactory $planetServiceFactory
      * @param PlayerServiceFactory $playerServiceFactory
      */
-    public function __construct(Message $message, PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory)
+    public function __construct(Message $message, protected PlanetServiceFactory $planetServiceFactory, protected PlayerServiceFactory $playerServiceFactory)
     {
         // Clone the message to prevent any changes to the original message affecting this object.
         // This is important because otherwise mutations such as setting the viewed flag after loading this object
         // would affect this object's state as well.
         $this->message = clone $message;
-        $this->planetServiceFactory = $planetServiceFactory;
-        $this->playerServiceFactory = $playerServiceFactory;
         $this->initialize();
     }
 

@@ -2,6 +2,9 @@
 
 namespace OGame\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Database\Factories\UserTechFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,34 +31,34 @@ use OGame\Observers\UserTechObserver;
  * @property int $graviton_technology
  * @property int $weapon_technology
  * @property int $shielding_technology
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int $armor_technology
- * @property-read \OGame\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech query()
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereArmorTechnology($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereAstrophysics($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereCombustionDrive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereComputerTechnology($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereEnergyTechnology($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereEspionageTechnology($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereGravitonTechnology($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereHyperspaceDrive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereHyperspaceTechnology($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereImpulseDrive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereIntergalacticResearchNetwork($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereIonTechnology($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereLaserTechnology($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech wherePlasmaTechnology($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereShieldingTechnology($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UserTech whereWeaponTechnology($value)
- * @method static \Database\Factories\UserTechFactory factory($count = null, $state = [])
+ * @property-read User $user
+ * @method static Builder|UserTech newModelQuery()
+ * @method static Builder|UserTech newQuery()
+ * @method static Builder|UserTech query()
+ * @method static Builder|UserTech whereArmorTechnology($value)
+ * @method static Builder|UserTech whereAstrophysics($value)
+ * @method static Builder|UserTech whereCombustionDrive($value)
+ * @method static Builder|UserTech whereComputerTechnology($value)
+ * @method static Builder|UserTech whereCreatedAt($value)
+ * @method static Builder|UserTech whereEnergyTechnology($value)
+ * @method static Builder|UserTech whereEspionageTechnology($value)
+ * @method static Builder|UserTech whereGravitonTechnology($value)
+ * @method static Builder|UserTech whereHyperspaceDrive($value)
+ * @method static Builder|UserTech whereHyperspaceTechnology($value)
+ * @method static Builder|UserTech whereId($value)
+ * @method static Builder|UserTech whereImpulseDrive($value)
+ * @method static Builder|UserTech whereIntergalacticResearchNetwork($value)
+ * @method static Builder|UserTech whereIonTechnology($value)
+ * @method static Builder|UserTech whereLaserTechnology($value)
+ * @method static Builder|UserTech wherePlasmaTechnology($value)
+ * @method static Builder|UserTech whereShieldingTechnology($value)
+ * @method static Builder|UserTech whereUpdatedAt($value)
+ * @method static Builder|UserTech whereUserId($value)
+ * @method static Builder|UserTech whereWeaponTechnology($value)
+ * @method static UserTechFactory factory($count = null, $state = [])
  * @mixin \Eloquent
  */
 #[ObservedBy([UserTechObserver::class])]

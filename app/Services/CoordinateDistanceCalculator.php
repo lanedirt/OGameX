@@ -16,11 +16,8 @@ use OGame\Models\Planet\Coordinate;
  */
 class CoordinateDistanceCalculator
 {
-    private SettingsService $settingsService;
-
-    public function __construct(SettingsService $settingsService)
+    public function __construct(private SettingsService $settingsService)
     {
-        $this->settingsService = $settingsService;
     }
 
     /**

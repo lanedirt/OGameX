@@ -2,6 +2,7 @@
 
 namespace OGame\Exceptions;
 
+use Symfony\Component\HttpFoundation\Response;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class Handler extends ExceptionHandler
      *
      * @throws Throwable
      */
-    public function render($request, Exception|Throwable $e): \Symfony\Component\HttpFoundation\Response
+    public function render($request, Exception|Throwable $e): Response
     {
         $this->sendToDiscord($e);
 

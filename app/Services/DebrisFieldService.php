@@ -24,18 +24,12 @@ class DebrisFieldService
     private DebrisField $debrisField;
 
     /**
-     * @var PlayerService
-     */
-    private PlayerService $playerService;
-
-    /**
      * DebrisFieldService constructor.
      *
      * @param PlayerService $playerService
      */
-    public function __construct(PlayerService $playerService)
+    public function __construct(private PlayerService $playerService)
     {
-        $this->playerService = $playerService;
     }
 
     /**

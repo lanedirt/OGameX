@@ -19,13 +19,9 @@ abstract class ObjectPropertyService
      * @var string
      */
     protected string $propertyName = '';
-    protected int $base_value;
-    protected GameObject $parent_object;
 
-    public function __construct(GameObject $parentObject, int $baseValue)
+    public function __construct(protected GameObject $parent_object, protected int $base_value)
     {
-        $this->parent_object = $parentObject;
-        $this->base_value = $baseValue;
     }
 
     /**

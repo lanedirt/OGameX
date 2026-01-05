@@ -2,6 +2,7 @@
 
 namespace OGame\Console\Commands\Tests;
 
+use GuzzleHttp\Promise\Utils;
 use DateTime;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -149,7 +150,7 @@ class TestRaceConditionUnitQueueCreation extends TestCommand
         }
 
         // Wait for all requests to complete
-        $responses = Promise\Utils::settle($promises)->wait();
+        $responses = Utils::settle($promises)->wait();
 
         foreach ($responses as $i => $result) {
             try {

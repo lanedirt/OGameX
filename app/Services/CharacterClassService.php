@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use OGame\Models\Planet;
 use Exception;
 use OGame\Enums\CharacterClass;
 use OGame\Enums\DarkMatterTransactionType;
@@ -325,7 +326,7 @@ class CharacterClassService
     private function resetCrawlerOverload(User $user): void
     {
         // Get all planets for this user using direct query
-        $planets = \OGame\Models\Planet::where('user_id', $user->id)->get();
+        $planets = Planet::where('user_id', $user->id)->get();
 
         foreach ($planets as $planet) {
             // If crawler percentage is above 10 (100%), reset to 10

@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -25,44 +26,20 @@ use OGame\Models\Resources;
 class FleetMissionService
 {
     /**
-     * Player service
-     *
-     * @var PlayerService
-     */
-    private PlayerService $player;
-
-    /**
-     * @var MessageService $messageService
-     */
-    private MessageService $messageService;
-
-    /**
-     * @var GameMissionFactory $gameMissionFactory
-     */
-    private GameMissionFactory $gameMissionFactory;
-
-    /**
      * The queue model where this class should get its data from.
      *
      * @var FleetMission
      */
     private FleetMission $model;
 
-    private SettingsService $settingsService;
-
-    private CoordinateDistanceCalculator $coordinateDistanceCalculator;
-
     /**
      * FleetMissionService constructor.
      */
-    public function __construct(PlayerService $player, MessageService $messageService, GameMissionFactory $gameMissionFactory, SettingsService $settingsService, CoordinateDistanceCalculator $coordinateDistanceCalculator)
+    public function __construct(/**
+     * Player service
+     */
+    private PlayerService $player, private MessageService $messageService, private GameMissionFactory $gameMissionFactory, private SettingsService $settingsService, private CoordinateDistanceCalculator $coordinateDistanceCalculator)
     {
-        $this->player = $player;
-        $this->messageService = $messageService;
-        $this->gameMissionFactory = $gameMissionFactory;
-        $this->settingsService = $settingsService;
-        $this->coordinateDistanceCalculator = $coordinateDistanceCalculator;
-
         $this->model = new FleetMission();
     }
 
@@ -228,7 +205,7 @@ class FleetMissionService
         }
 
         // Apply General class deuterium consumption reduction (-50%)
-        $characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $characterClassService = app(CharacterClassService::class);
         $consumptionMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($fromPlanet->getPlayer()->getUser());
         $consumption = (int)($consumption * $consumptionMultiplier);
 
@@ -300,7 +277,7 @@ class FleetMissionService
         // for the event list that assumes the first mission is the next mission to arrive.
         $missions = $missions->sortBy(function ($mission) {
             // If the mission has not arrived yet, return the time_arrival.
-            if ($mission->time_arrival >= Carbon::now()->timestamp) {
+            if ($mission->time_arrival >= Date::now()->timestamp) {
                 return $mission->time_arrival;
             }
 
@@ -419,7 +396,7 @@ class FleetMissionService
                     ->orWhereIn('planet_id_to', $planetIds);
             })
             ->where(function ($query) {
-                $query->whereRaw('time_arrival + COALESCE(time_holding, 0) <= ?', [Carbon::now()->timestamp]);
+                $query->whereRaw('time_arrival + COALESCE(time_holding, 0) <= ?', [Date::now()->timestamp]);
             })
             ->where('processed', 0)
             ->get();
@@ -522,7 +499,7 @@ class FleetMissionService
 
         // Sanity check: only process missions that have arrived AND potential waiting time has passed.
         $arrivalTimeWithWaitingTime = $mission->time_arrival + ($mission->time_holding ?? 0);
-        if ($arrivalTimeWithWaitingTime > Carbon::now()->timestamp) {
+        if ($arrivalTimeWithWaitingTime > Date::now()->timestamp) {
             return;
         }
 
@@ -550,7 +527,7 @@ class FleetMissionService
         // This applies to especially missions that have a time_holding (e.g. expeditions) where the main mission arrives first
         // but the mission itself is not processed before the time_holding has passed as well. However after the main mission
         // has arrived (even though it's not processed yet), canceling should no longer be allowed.
-        if ($mission->time_arrival < Carbon::now()->timestamp) {
+        if ($mission->time_arrival < Date::now()->timestamp) {
             return;
         }
 

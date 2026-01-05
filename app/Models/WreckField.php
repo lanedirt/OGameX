@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,30 +16,30 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $system
  * @property int $planet
  * @property int $owner_player_id
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $expires_at
- * @property \Illuminate\Support\Carbon|null $repair_started_at
- * @property \Illuminate\Support\Carbon|null $repair_completed_at
+ * @property Carbon $created_at
+ * @property Carbon $expires_at
+ * @property Carbon|null $repair_started_at
+ * @property Carbon|null $repair_completed_at
  * @property int|null $space_dock_level
  * @property string $status
  * @property array|null $ship_data
- * @property-read \OGame\Models\User $owner
+ * @property-read User $owner
  *
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField query()
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField whereGalaxy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField whereSystem($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField wherePlanet($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField whereOwnerPlayerId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField whereExpiresAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField whereRepairStartedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField whereRepairCompletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField whereSpaceDockLevel($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|WreckField whereShipData($value)
+ * @method static Builder|WreckField newModelQuery()
+ * @method static Builder|WreckField newQuery()
+ * @method static Builder|WreckField query()
+ * @method static Builder|WreckField whereId($value)
+ * @method static Builder|WreckField whereGalaxy($value)
+ * @method static Builder|WreckField whereSystem($value)
+ * @method static Builder|WreckField wherePlanet($value)
+ * @method static Builder|WreckField whereOwnerPlayerId($value)
+ * @method static Builder|WreckField whereCreatedAt($value)
+ * @method static Builder|WreckField whereExpiresAt($value)
+ * @method static Builder|WreckField whereRepairStartedAt($value)
+ * @method static Builder|WreckField whereRepairCompletedAt($value)
+ * @method static Builder|WreckField whereSpaceDockLevel($value)
+ * @method static Builder|WreckField whereStatus($value)
+ * @method static Builder|WreckField whereShipData($value)
  * @mixin \Eloquent
  */
 class WreckField extends Model
@@ -177,7 +179,7 @@ class WreckField extends Model
     /**
      * Get the repair completion time (null if not repairing).
      */
-    public function getRepairCompletionTime(): \Illuminate\Support\Carbon|null
+    public function getRepairCompletionTime(): Carbon|null
     {
         return $this->repair_completed_at;
     }

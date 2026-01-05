@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -65,7 +66,7 @@ class ResearchQueueService
         // Fetch queue items from model
         return $this->model->where([
             ['planet_id', $planet_id],
-            ['time_end', '<=', Carbon::now()->timestamp],
+            ['time_end', '<=', Date::now()->timestamp],
             ['building', 1],
             ['processed', 0],
             ['canceled', 0],
@@ -86,7 +87,7 @@ class ResearchQueueService
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
                 ['users.id', $player->getId()],
-                ['research_queues.time_end', '<=', Carbon::now()->timestamp],
+                ['research_queues.time_end', '<=', Date::now()->timestamp],
                 ['research_queues.building', 1],
                 ['research_queues.processed', 0],
                 ['research_queues.canceled', 0],
@@ -175,7 +176,7 @@ class ResearchQueueService
         foreach ($queue_items as $item) {
             $object = ObjectService::getResearchObjectById($item->object_id);
             $planetService = $planet->getPlayer()->planets->getById($item['planet_id']);
-            $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
+            $time_countdown = $item->time_end - (int)Date::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
             }
@@ -307,7 +308,7 @@ class ResearchQueueService
             }
 
             if (!$time_start) {
-                $time_start = (int)Carbon::now()->timestamp;
+                $time_start = (int)Date::now()->timestamp;
             }
 
             $queue_item->time_duration = (int)$research_time;
@@ -322,7 +323,7 @@ class ResearchQueueService
             // If the calculated end time is lower than the current time,
             // we force that the planet is updated again which will grant
             // the research immediately without having to wait for a refresh.
-            if ($queue_item->time_end < Carbon::now()->timestamp) {
+            if ($queue_item->time_end < Date::now()->timestamp) {
                 $player->updateResearchQueue();
             }
         }

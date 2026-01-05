@@ -2,6 +2,8 @@
 
 namespace OGame\Http\Controllers;
 
+use OGame\Services\ObjectService;
+use OGame\Models\Resources;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -238,7 +240,7 @@ class MerchantController extends OGameController
         $bargainCost = 2000 + ($scrapSession['bargain_count'] * 2000);
 
         // Get all ships and defense from planet with their costs
-        $objectService = resolve(\OGame\Services\ObjectService::class);
+        $objectService = resolve(ObjectService::class);
 
         // Build ships array
         $ships = [];
@@ -411,7 +413,7 @@ class MerchantController extends OGameController
         }
 
         $planet = $player->planets->current();
-        $objectService = resolve(\OGame\Services\ObjectService::class);
+        $objectService = resolve(ObjectService::class);
 
         // Get scrap merchant from cache (persists until trade is executed)
         $scrapSession = cache()->get('scrap_merchant_' . $planet->getPlanetId(), [
@@ -563,7 +565,7 @@ class MerchantController extends OGameController
         }
 
         // Add resources
-        $resources = new \OGame\Models\Resources($returnMetal, $returnCrystal, $returnDeuterium, 0);
+        $resources = new Resources($returnMetal, $returnCrystal, $returnDeuterium, 0);
         $planet->addResources($resources);
 
         // Clear scrap merchant from cache (trade executed)
