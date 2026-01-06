@@ -190,46 +190,34 @@ class MessageService
             $subtab = $this->tabs[$tab][0];
         }
 
-        $perPage = 10;
-        $offset = ($page - 1) * $perPage;
-
         // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
         $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, $subtab);
 
-        // Get total count first
-        $totalCount = Message::where('user_id', $this->player->getId())
-            ->whereIn('key', $messageKeys)
-            ->count();
-
-        // Get paginated messages
-        $messages = Message::where('user_id', $this->player->getId())
+        // Use Laravel's paginate() method for automatic pagination handling
+        $paginator = Message::where('user_id', $this->player->getId())
             ->whereIn('key', $messageKeys)
             ->orderBy('created_at', 'desc')
-            ->skip($offset)
-            ->take($perPage)
-            ->get();
+            ->paginate(10, ['*'], 'page', $page);
 
         // Convert messages to GameMessage objects.
         $gameMessages = [];
-        foreach ($messages as $message) {
+        foreach ($paginator->items() as $message) {
             $gameMessages[] = GameMessageFactory::createGameMessage($message);
         }
 
         // When the messages are loaded, mark them as viewed.
-        foreach ($messages as $message) {
+        foreach ($paginator->items() as $message) {
             $message->viewed = 1;
             $message->save();
         }
 
-        $totalPages = (int) ceil($totalCount / $perPage);
-
         return [
             'messages' => $gameMessages,
             'pagination' => [
-                'currentPage' => $page,
-                'totalPages' => $totalPages,
-                'totalCount' => $totalCount,
-                'perPage' => $perPage,
+                'currentPage' => $paginator->currentPage(),
+                'totalPages' => $paginator->lastPage(),
+                'totalCount' => $paginator->total(),
+                'perPage' => $paginator->perPage(),
             ],
         ];
     }
