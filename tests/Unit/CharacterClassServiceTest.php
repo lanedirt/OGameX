@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use Exception;
 use OGame\Enums\CharacterClass;
 use OGame\Models\User;
 use OGame\Services\CharacterClassService;
@@ -390,7 +391,7 @@ class CharacterClassServiceTest extends TestCase
 
     public function testCannotChangeClassWithActiveFleets(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Cannot change character class while fleet missions are active');
 
         // Create a user with a class
@@ -451,7 +452,7 @@ class CharacterClassServiceTest extends TestCase
 
     public function testCannotDeselectClassWithActiveFleets(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Cannot deactivate character class while fleet missions are active');
 
         // Create a user with a class

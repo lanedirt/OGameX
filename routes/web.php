@@ -6,6 +6,7 @@ use OGame\Http\Controllers\Admin\ServerSettingsController as AdminServerSettings
 use OGame\Http\Controllers\AllianceController;
 use OGame\Http\Controllers\BuddiesController;
 use OGame\Http\Controllers\ChangeNickController;
+use OGame\Http\Controllers\CharacterClassController;
 use OGame\Http\Controllers\DefenseController;
 use OGame\Http\Controllers\FacilitiesController;
 use OGame\Http\Controllers\FleetController;
@@ -32,7 +33,6 @@ use OGame\Http\Controllers\ServerSettingsController;
 use OGame\Http\Controllers\ShipyardController;
 use OGame\Http\Controllers\ShopController;
 use OGame\Http\Controllers\TechtreeController;
-use OGame\Http\Controllers\CharacterClassController;
 
 /*
 |--------------------------------------------------------------------------

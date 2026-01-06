@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\Services\DarkMatterService;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Services\MerchantService;
@@ -685,10 +686,14 @@ class ExpeditionMission extends GameMission
         );
 
         // Run the battle with player as attacker and NPC as defender
+        // NPC battles don't have ACS defend fleets, just the NPC's forces
+        $defenders = [DefenderFleet::fromPlanet($npcPlanetService)];
+
         $battleEngine = new RustBattleEngine(
             $playerFleet,
             $player,
             $npcPlanetService,
+            $defenders,
             $this->settings,
             $mission->id,
             $mission->user_id

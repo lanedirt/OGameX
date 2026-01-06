@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions\Abstracts;
 
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -11,6 +12,7 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
+use OGame\GameMissions\AcsDefendMission;
 use OGame\GameMissions\ExpeditionMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -256,10 +258,12 @@ abstract class GameMission
 
         // Holding time is the amount of time the fleet will wait at the target planet and/or how long expedition will last.
         // The $holdingHours is in hours, so we convert it to seconds.
-        // Only applies to expeditions (and ACS missions, but those are not implemented yet).
+        // Applies to expeditions and ACS Defend missions.
         if (static::class === ExpeditionMission::class) {
             $mission->time_holding = $holdingHours * 3600;
             $targetType = PlanetType::DeepSpace;
+        } elseif (static::class === AcsDefendMission::class) {
+            $mission->time_holding = $holdingHours * 3600;
         }
 
         $mission->type_to = $targetType->value;
@@ -461,6 +465,40 @@ abstract class GameMission
             // This is a return mission as it has a parent mission.
             $this->processReturn($mission);
         }
+    }
+
+    /**
+     * Collect all defending fleets at a planet (planet owner + ACS defend fleets).
+     *
+     * @param PlanetService $planet The planet being defended.
+     * @return array<DefenderFleet> Array of all defending fleets.
+     */
+    protected function collectDefendingFleets(PlanetService $planet): array
+    {
+        $defenders = [];
+
+        // Always add the planet owner's forces first
+        $defenders[] = DefenderFleet::fromPlanet($planet);
+
+        // Find all ACS Defend fleets currently holding at this planet
+        $defendMissions = FleetMission::query()
+            ->where('mission_type', 5)  // ACS Defend
+            ->where('planet_id_to', $planet->getPlanetId())
+            ->where('processed', 0)  // Still active
+            ->where('time_arrival', '<=', Date::now()->timestamp)  // Has arrived
+            ->whereRaw('time_arrival + COALESCE(time_holding, 0) > ?', [Date::now()->timestamp])  // Still holding
+            ->get();
+
+        // Add each defending fleet
+        foreach ($defendMissions as $mission) {
+            $defenders[] = DefenderFleet::fromFleetMission(
+                $mission,
+                $this->fleetMissionService,
+                $this->playerServiceFactory
+            );
+        }
+
+        return $defenders;
     }
 
     /**
