@@ -44,13 +44,11 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <select name="supplyFleetID" style="width: 150px">
+                                    <select name="supplyFleetID" id="supplyFleetID" class="dropdown" style="width: 150px">
                                         @foreach ($holding_fleets as $fleet)
-                                            <option value="{{ $fleet['id'] }}" onclick="updateSupplyDetails(
-                                        {{ array_sum(array_column($fleet['ships'], 'amount')) }},
-                                        {{ $fleet['deut_cost_per_hour'] ?? 0 }},
-                                        {{ $fleet['id'] }}
-                                    ); return false;">{{ $fleet['sender_player_name'] ?? 'Unknown' }}</option>
+                                            <option value="{{ $fleet['id'] }}"
+                                                data-ship-count="{{ array_sum(array_column($fleet['ships'], 'amount')) }}"
+                                                data-deut-cost="{{ $fleet['deut_cost_per_hour'] ?? 0 }}">{{ $fleet['sender_player_name'] ?? 'Unknown' }}</option>
                                         @endforeach
                                     </select>
                                 </td>
@@ -84,7 +82,13 @@
 <script type="text/javascript">
   var supplyTimes = @json($supplyTimesArray);
 
-  function updateSupplyDetails(shipCount, deutCost, fleetId) {
+  function updateSupplyDetails() {
+    var $select = $('#supplyFleetID');
+    var selectedOption = $select.find('option:selected');
+    var fleetId = $select.val();
+    var shipCount = selectedOption.data('ship-count');
+    var deutCost = selectedOption.data('deut-cost');
+
     $('#shipCount').text(shipCount);
     $('#deutCosts').text(deutCost);
 
@@ -92,23 +96,16 @@
     $('.holdingTime').hide();
     $('#holdingTime-' + fleetId + ' ').show();
 
-    // Update cost when hours input changes
+    // Update cost based on hours input
     updateDeutCostBasedOnInput();
   }
 
   function updateDeutCostBasedOnInput() {
-    var $select = $('select[name="supplyFleetID"]');
+    var $select = $('#supplyFleetID');
     var selectedOption = $select.find('option:selected');
-    // Extract deuterium cost from the onclick attribute
-    var onclickStr = selectedOption.attr('onclick');
-    if (onclickStr) {
-      var match = onclickStr.match(/updateSupplyDetails\(\s*\d+\s*,\s*(\d+)\s*,/);
-      if (match) {
-        var deutCostPerHour = parseInt(match[1]);
-        var hours = parseInt($('#supplyTimeInput').val()) || 1;
-        $('#deutCosts').text(deutCostPerHour * hours);
-      }
-    }
+    var deutCostPerHour = selectedOption.data('deut-cost');
+    var hours = parseInt($('#supplyTimeInput').val()) || 1;
+    $('#deutCosts').text(deutCostPerHour * hours);
   }
 
   function supplyFleet() {
@@ -143,9 +140,8 @@
           if (typeof fadeBox === 'function') {
             fadeBox(response.message, false);
           }
-          setTimeout(function() {
-            location.reload();
-          }, 2000);
+          // Update the countdown timer with new return time
+          // The page will not reload - user can continue supplying fleets
         } else {
           if (typeof errorBoxDecision === 'function') {
             errorBoxDecision('@lang("Error")', response.error, '@lang("OK")', null, null);
@@ -165,6 +161,16 @@
   }
 
   (function($) {
+    // Initialize dropdowns immediately (overlay already loaded)
+    if (typeof $.fn.ogameDropDown === 'function') {
+      $('#supplydepotlayer select.dropdown').ogameDropDown();
+    }
+
+    // Update details when fleet selection changes
+    $('#supplyFleetID').on('change', function() {
+      updateSupplyDetails();
+    });
+
     // Update cost when hours input changes
     $('#supplyTimeInput').on('input change', function() {
       updateDeutCostBasedOnInput();

@@ -51,6 +51,13 @@ class AllianceDepotController extends OGameController
         // Get all ACS Defend fleets currently holding at this planet
         $holding_fleets = $this->getHoldingFleets($current_planet->getPlanetId());
 
+        // Also get fleets holding at the accompanying moon (if it exists)
+        if ($current_planet->hasMoon()) {
+            $moon = $current_planet->moon();
+            $moon_holding_fleets = $this->getHoldingFleets($moon->getPlanetId());
+            $holding_fleets = array_merge($holding_fleets, $moon_holding_fleets);
+        }
+
         // Calculate deuterium cost per hour for each fleet
         foreach ($holding_fleets as &$fleet) {
             $outboundMission = FleetMission::find($fleet['id']);
@@ -119,6 +126,11 @@ class AllianceDepotController extends OGameController
                 // Get sender planet info for coordinates
                 $senderPlanetService = $this->planetServiceFactory->make($mission->planet_id_from, true);
 
+                // Get destination planet info to show where fleet is holding
+                $destinationPlanetService = $this->planetServiceFactory->make($mission->planet_id_to, true);
+                $destinationName = $destinationPlanetService ? $destinationPlanetService->getPlanetName() : 'Unknown';
+                $destinationType = $mission->type_to; // 1 = planet, 3 = moon
+
                 // Use return mission times if it exists, otherwise calculate from outbound mission
                 $returnTime = $returnMission ? $returnMission->time_departure : $expectedReturnDeparture;
 
@@ -127,6 +139,8 @@ class AllianceDepotController extends OGameController
                     'sender_planet_id' => $mission->planet_id_from,
                     'sender_player_name' => $senderPlayerName,
                     'sender_coordinates' => $senderPlanetService ? $senderPlanetService->getPlanetCoordinates()->asString() : 'Unknown',
+                    'destination_name' => $destinationName,
+                    'destination_type' => $destinationType,
                     'arrival_time' => $mission->time_arrival,
                     'return_time' => $returnTime,
                     'hold_duration' => $returnTime - $currentTime,
@@ -272,7 +286,7 @@ class AllianceDepotController extends OGameController
 
         return response()->json([
             'success' => true,
-            'message' => __('Supply rocket sent! Fleet hold time extended by :hours hour(s).', ['hours' => $extensionHours]),
+            'message' => __('The fleet has been supplied successfully.'),
             'deuterium_cost' => $deuteriumCost,
             'new_return_time' => $newReturnDeparture,
         ]);
