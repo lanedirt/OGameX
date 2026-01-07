@@ -27,13 +27,19 @@
                                 <th>@lang('Fleet owner'):</th>
                                 <th>@lang('Ships'):</th>
                                 <th class="textCenter tooltip" data-tooltip-title="@lang('Hold time')">
-                                    <span class="dark_highlight_tablet">🕒</span>
+                                    <span class="dark_highlight_tablet">
+                                        <img src="{{ asset('img/icons/time.gif') }}" height="16" width="16">
+                                    </span>
                                 </th>
                                 <th class="textCenter tooltip" data-tooltip-title="@lang('Extend')">
-                                    <span class="dark_highlight_tablet">+</span>
+                                    <span class="dark_highlight_tablet">
+                                        <img src="{{ asset('img/icons/extend.gif') }}" height="16" width="16">
+                                    </span>
                                 </th>
                                 <th class="textCenter tooltip" data-tooltip-title="@lang('Supply costs Deuterium / h')">
-                                    <span class="dark_highlight_tablet resource deuterium icon"></span>
+                                    <span class="dark_highlight_tablet">
+                                        <img src="{{ asset('img/icons/deuterium.gif') }}" height="16" width="16">
+                                    </span>
                                 </th>
                             </tr>
                             <tr>
