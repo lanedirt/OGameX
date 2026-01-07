@@ -646,6 +646,19 @@ class FleetController extends OGameController
         // Get the fleet mission id
         $fleet_mission_id = request()->input('fleet_mission_id');
 
+        // Handle fake IDs used for "wait end" rows and "return trip" rows
+        // Wait end rows use: real_id + 888888
+        // Return trip rows use: real_id + 999999
+        if ($fleet_mission_id > 888888) {
+            if ($fleet_mission_id > 999999) {
+                // This is a return trip fake ID, subtract 999999 to get real ID
+                $fleet_mission_id -= 999999;
+            } else {
+                // This is a wait end fake ID, subtract 888888 to get real ID
+                $fleet_mission_id -= 888888;
+            }
+        }
+
         // Get the fleet mission service
         $fleetMission = $fleetMissionService->getFleetMissionById($fleet_mission_id);
 

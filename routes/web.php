@@ -128,6 +128,7 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
 
     // Alliance Depot
     Route::get('/ajax/alliance-depot', [AllianceDepotController::class, 'index'])->name('alliance-depot.index');
+    Route::post('/ajax/alliance-depot/send-supply-rocket', [AllianceDepotController::class, 'sendSupplyRocket'])->name('alliance-depot.send-supply-rocket');
 
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');

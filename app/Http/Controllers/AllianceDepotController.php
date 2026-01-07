@@ -4,13 +4,23 @@ namespace OGame\Http\Controllers;
 
 use Exception;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\FleetMission;
+use OGame\Models\Resources;
+use OGame\Services\AllianceDepotService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
 class AllianceDepotController extends OGameController
 {
+    public function __construct(
+        private AllianceDepotService $allianceDepotService,
+        private PlanetServiceFactory $planetServiceFactory
+    ) {
+    }
+
     /**
      * Get the Alliance Depot dialog content (overlay view).
      *
@@ -41,6 +51,14 @@ class AllianceDepotController extends OGameController
         // Get all ACS Defend fleets currently holding at this planet
         $holding_fleets = $this->getHoldingFleets($current_planet->getPlanetId());
 
+        // Calculate deuterium cost per hour for each fleet
+        foreach ($holding_fleets as &$fleet) {
+            $outboundMission = FleetMission::find($fleet['id']);
+            if ($outboundMission) {
+                $fleet['deut_cost_per_hour'] = $this->allianceDepotService->calculateSupplyRocketCost($outboundMission, 1);
+            }
+        }
+
         // Render the dialog view
         return view('ingame.alliancedepot.dialog', [
             'current_planet' => $current_planet,
@@ -62,20 +80,19 @@ class AllianceDepotController extends OGameController
         // Query for ACS Defend missions (type 5) that are currently holding
         // A fleet is "holding" when:
         // - It has arrived (time_arrival <= now)
-        // - It hasn't returned yet (we need to check if return mission exists and hasn't arrived)
-        // - It's not processed yet (processed = 0)
+        // - It hasn't been processed yet (processed = 0) OR has been processed but not finished holding
+        //   (ACS Defend missions are processed when time_arrival + time_holding is reached)
         // - It's not canceled (canceled = 0)
         $missions = FleetMission::where('mission_type', 5)
             ->where('planet_id_to', $planetId)
             ->where('time_arrival', '<=', $currentTime)
-            ->where('processed', 0)
             ->where('canceled', 0)
             ->get();
 
         $holdingFleets = [];
 
         foreach ($missions as $mission) {
-            // Get the return mission to check hold time
+            // Get the return mission if it exists
             $returnMission = FleetMission::where('planet_id_from', $mission->planet_id_to)
                 ->where('planet_id_to', $mission->planet_id_from)
                 ->where('mission_type', 5)
@@ -84,22 +101,35 @@ class AllianceDepotController extends OGameController
                 ->orderBy('time_departure', 'asc')
                 ->first();
 
-            // Only include if return mission exists and hasn't arrived yet
-            if ($returnMission && $returnMission->time_arrival > $currentTime) {
+            // Calculate expected return departure time
+            $expectedReturnDeparture = $mission->time_arrival + $mission->time_holding;
+
+            // Only include if:
+            // 1. Return mission exists and hasn't departed yet (still holding), OR
+            // 2. No return mission yet but fleet is still holding (expected return time is in future)
+            if (($returnMission && $returnMission->time_departure > $currentTime) ||
+                (!$returnMission && $expectedReturnDeparture > $currentTime)) {
                 // Get fleet composition
                 $ships = $this->getFleetShips($mission);
 
-                // Get sender planet info
-                $senderPlanet = $mission->planetFrom;
+                // Get sender player name (strip HTML tags)
+                $senderPlayer = new PlayerService($mission->user_id);
+                $senderPlayerName = strip_tags($senderPlayer->getUsername());
+
+                // Get sender planet info for coordinates
+                $senderPlanetService = $this->planetServiceFactory->make($mission->planet_id_from, true);
+
+                // Use return mission times if it exists, otherwise calculate from outbound mission
+                $returnTime = $returnMission ? $returnMission->time_departure : $expectedReturnDeparture;
 
                 $holdingFleets[] = [
                     'id' => $mission->id,
                     'sender_planet_id' => $mission->planet_id_from,
-                    'sender_planet_name' => $senderPlanet ? $senderPlanet->planet_name : 'Unknown',
-                    'sender_coordinates' => $senderPlanet ? $senderPlanet->getPlanetCoordinates()->asString() : 'Unknown',
+                    'sender_player_name' => $senderPlayerName,
+                    'sender_coordinates' => $senderPlanetService ? $senderPlanetService->getPlanetCoordinates()->asString() : 'Unknown',
                     'arrival_time' => $mission->time_arrival,
-                    'return_time' => $returnMission->time_arrival,
-                    'hold_duration' => $returnMission->time_arrival - $currentTime,
+                    'return_time' => $returnTime,
+                    'hold_duration' => $returnTime - $currentTime,
                     'ships' => $ships,
                 ];
             }
@@ -136,5 +166,115 @@ class AllianceDepotController extends OGameController
         }
 
         return $ships;
+    }
+
+    /**
+     * Send a supply rocket to extend a fleet's hold time.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function sendSupplyRocket(Request $request, PlayerService $player): JsonResponse
+    {
+        $current_planet = $player->planets->current();
+
+        // Validate current planet is a planet (not moon)
+        if (!$current_planet->isPlanet()) {
+            return response()->json([
+                'success' => false,
+                'error' => __('Alliance Depot can only be used on planets.'),
+            ]);
+        }
+
+        // Check if Alliance Depot exists
+        $alliance_depot_level = $current_planet->getObjectLevel('alliance_depot');
+        if ($alliance_depot_level < 1) {
+            return response()->json([
+                'success' => false,
+                'error' => __('No Alliance Depot built on this planet.'),
+            ]);
+        }
+
+        // Get fleet mission ID and extension hours from request
+        $fleetMissionId = (int)$request->input('fleet_mission_id');
+        $extensionHours = (int)$request->input('extension_hours', 1);
+
+        // Validate extension hours (1-32 hours)
+        if ($extensionHours < 1 || $extensionHours > 32) {
+            return response()->json([
+                'success' => false,
+                'error' => __('Extension hours must be between 1 and 32.'),
+            ]);
+        }
+
+        // Find the outbound mission
+        $outboundMission = FleetMission::find($fleetMissionId);
+        if (!$outboundMission) {
+            return response()->json([
+                'success' => false,
+                'error' => __('Fleet mission not found.'),
+            ]);
+        }
+
+        // Validate that the fleet is holding at this planet
+        if ($outboundMission->planet_id_to !== $current_planet->getPlanetId()) {
+            return response()->json([
+                'success' => false,
+                'error' => __('This fleet is not holding at your planet.'),
+            ]);
+        }
+
+        // Get the return mission (may not exist yet if fleet is still in hold phase)
+        $returnMission = $this->allianceDepotService->getReturnMission($outboundMission);
+
+        // Check if hold time can be extended
+        if (!$this->allianceDepotService->canExtendHoldTime($outboundMission, $returnMission)) {
+            return response()->json([
+                'success' => false,
+                'error' => __('This fleet cannot have its hold time extended. Fleet must be holding for at least 1 hour.'),
+            ]);
+        }
+
+        // Calculate deuterium cost
+        $deuteriumCost = $this->allianceDepotService->calculateSupplyRocketCost($outboundMission, $extensionHours);
+
+        // Check if player has enough deuterium
+        $availableDeuterium = $current_planet->deuterium()->get();
+        if ($availableDeuterium < $deuteriumCost) {
+            return response()->json([
+                'success' => false,
+                'error' => __('Not enough deuterium. Required: :cost', ['cost' => number_format($deuteriumCost, 0, ',', '.')]),
+            ]);
+        }
+
+        // Deduct deuterium from planet
+        $current_planet->deductResources(new Resources(0, 0, $deuteriumCost, 0));
+
+        // Extend hold time
+        if (!$this->allianceDepotService->extendHoldTime($outboundMission, $returnMission, $extensionHours)) {
+            // Refund deuterium if extension fails
+            $current_planet->addResources(new Resources(0, 0, $deuteriumCost, 0));
+            return response()->json([
+                'success' => false,
+                'error' => __('Failed to extend hold time.'),
+            ]);
+        }
+
+        // Reload the outbound mission to get updated time_holding if it was modified
+        $outboundMission->refresh();
+
+        // Calculate the new return departure time
+        $newReturnDeparture = $returnMission
+            ? $returnMission->time_departure
+            : $outboundMission->time_arrival + $outboundMission->time_holding;
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Supply rocket sent! Fleet hold time extended by :hours hour(s).', ['hours' => $extensionHours]),
+            'deuterium_cost' => $deuteriumCost,
+            'new_return_time' => $newReturnDeparture,
+        ]);
     }
 }

@@ -2,9 +2,8 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Support\Facades\Date;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\View\View;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Factories\PlanetServiceFactory;
@@ -155,11 +154,15 @@ class FleetEventsController extends OGameController
             if (($friendlyStatus === FleetMissionStatus::Friendly || $friendlyStatus === FleetMissionStatus::Neutral) && $row->time_holding > 0 && !$eventRowViewModel->is_return_trip) {
                 $waitEndRow = new FleetEventRowViewModel();
                 $waitEndRow->is_return_trip = false;
-                $waitEndRow->is_recallable = false;
+                // ACS Defend missions (type 5) should be recallable during hold time
+                // Expeditions (type 15) should NOT be recallable during hold time
+                $waitEndRow->is_recallable = ($friendlyStatus === FleetMissionStatus::Friendly && $row->mission_type === 5);
                 $waitEndRow->id = $row->id + 888888; // Add large number to avoid conflicts
                 $waitEndRow->mission_type = $eventRowViewModel->mission_type;
                 $waitEndRow->mission_label = $fleetMissionService->missionTypeToLabel($eventRowViewModel->mission_type);
                 $waitEndRow->mission_time_arrival = $row->time_arrival + $row->time_holding;
+                $waitEndRow->time_departure = $row->time_departure;
+                $waitEndRow->active_recall_time = $eventRowViewModel->active_recall_time;
                 $waitEndRow->origin_planet_name = $eventRowViewModel->origin_planet_name;
                 $waitEndRow->origin_planet_coords = $eventRowViewModel->origin_planet_coords;
                 $waitEndRow->origin_planet_type = $eventRowViewModel->origin_planet_type;
@@ -182,6 +185,8 @@ class FleetEventsController extends OGameController
                 $returnTripRow->mission_type = $eventRowViewModel->mission_type;
                 $returnTripRow->mission_label = $fleetMissionService->missionTypeToLabel($eventRowViewModel->mission_type);
                 $returnTripRow->mission_time_arrival = $row->time_arrival + ($row->time_arrival - $row->time_departure) + ($row->time_holding ?? 0);
+                $returnTripRow->time_departure = $row->time_arrival + ($row->time_holding ?? 0);
+                $returnTripRow->active_recall_time = 0; // Return trips cannot be recalled
                 $returnTripRow->origin_planet_name = $eventRowViewModel->destination_planet_name;
                 $returnTripRow->origin_planet_coords = $eventRowViewModel->destination_planet_coords;
                 $returnTripRow->origin_planet_type = $eventRowViewModel->destination_planet_type;
