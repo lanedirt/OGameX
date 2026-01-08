@@ -1,0 +1,193 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy:
+    # Deploy on any PR event except close
+    if: github.event.action != 'closed'
+    runs-on: [self-hosted, ctogx-preview]
+
+    concurrency:
+      group: preview-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+
+    # Specify environment for "Deploy" approval button
+    environment:
+      name: preview
+      url: https://pr-${{ github.event.pull_request.number }}.preview.ogamex.dev
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          # Checkout the PR head commit (from the forked repository)
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up environment variables
+        run: |
+          PR=${{ github.event.pull_request.number }}
+          echo "PR_NUMBER=$PR" >> $GITHUB_ENV
+          echo "PREVIEW_HOST=pr-$PR.preview.ogamex.dev" >> $GITHUB_ENV
+
+      - name: Create .env file
+        run: |
+          cp .env.example .env
+          sed -i "s|APP_URL=.*|APP_URL=http://pr-${{ env.PR_NUMBER }}.preview.ogamex.dev|g" .env
+          sed -i "s|APP_ENV=.*|APP_ENV=local|g" .env
+          sed -i "s|APP_DEBUG=.*|APP_DEBUG=true|g" .env
+
+      - name: Generate Traefik override
+        run: |
+          cat > docker-compose.override.yml << EOF
+          services:
+            ogamex-webserver:
+              ports: !override []
+              networks:
+                - app-network
+                - traefik
+              labels:
+                - traefik.enable=true
+                - traefik.docker.network=traefik
+                - traefik.http.routers.pr-${PR_NUMBER}.rule=Host(\`${PREVIEW_HOST}\`)
+                - traefik.http.routers.pr-${PR_NUMBER}.entrypoints=web
+                - traefik.http.services.pr-${PR_NUMBER}.loadbalancer.server.port=80
+
+            ogamex-app:
+              build:
+                args:
+                  USE_USER: "no"
+
+            ogamex-db:
+              ports: !override []
+
+          networks:
+            traefik:
+              external: true
+          EOF
+
+      - name: Stop existing stack (if any)
+        run: |
+          docker compose -p pr-${{ env.PR_NUMBER }} down --remove-orphans || true
+
+      - name: Build and start preview stack
+        run: |
+          docker compose -p pr-${{ env.PR_NUMBER }} build
+          docker compose -p pr-${{ env.PR_NUMBER }} up -d --remove-orphans
+
+      - name: Wait for app to be healthy
+        run: |
+          echo "Waiting for application to be ready..."
+          timeout 300 bash -c 'until docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do sleep 5; done'
+          echo "Application is ready!"
+
+      - name: Run database migrations
+        run: |
+          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate --force
+
+      - name: Comment on PR with preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ github.event.pull_request.number }};
+            const previewUrl = `https://pr-${prNumber}.preview.ogamex.dev`;
+            const sha = '${{ github.event.pull_request.head.sha }}'.substring(0, 7);
+
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+
+            const botComment = comments.data.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Preview deployment')
+            );
+
+            const body = [
+              '## Preview deployment',
+              '',
+              '| Status | URL | Commit |',
+              '|--------|-----|--------|',
+              `| :white_check_mark: Deployed | [${previewUrl}](${previewUrl}) | \`${sha}\` |`,
+              '',
+              '---',
+              '*This preview will be automatically destroyed when the PR is closed.*'
+            ].join('\n');
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: body
+              });
+            }
+
+      - name: Output preview URL
+        run: |
+          echo "::notice::Preview deployed at https://pr-${{ env.PR_NUMBER }}.preview.ogamex.dev"
+
+  teardown:
+    # Clean up when PR is closed (merged or not)
+    if: github.event.action == 'closed'
+    runs-on: [self-hosted, ctogx-preview]
+
+    steps:
+      - name: Stop and remove preview stack
+        run: |
+          PR=${{ github.event.pull_request.number }}
+          echo "Tearing down preview environment for PR #$PR..."
+          docker compose -p pr-$PR down -v --remove-orphans || true
+          echo "Cleanup complete!"
+
+      - name: Comment on PR about teardown
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ github.event.pull_request.number }};
+
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+
+            const botComment = comments.data.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Preview deployment')
+            );
+
+            const body = [
+              '## Preview deployment',
+              '',
+              '| Status | URL | Commit |',
+              '|--------|-----|--------|',
+              `| :x: Destroyed | ~~pr-${prNumber}.preview.ogamex.dev~~ | - |`,
+              '',
+              '---',
+              '*Preview environment has been cleaned up.*'
+            ].join('\n');
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            }
