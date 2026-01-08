@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy preview environment for PR #${{ github.event.pull_request.number }}
+    name: Deploy preview environment
     runs-on: [self-hosted, ctogx-preview]
 
     concurrency:

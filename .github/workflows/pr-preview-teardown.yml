@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   teardown:
-    name: Teardown preview environment for PR #${{ github.event.pull_request.number }}
+    name: Teardown preview environment
     runs-on: [self-hosted, ctogx-preview]
 
     concurrency:
