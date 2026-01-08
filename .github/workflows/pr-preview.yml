@@ -24,6 +24,10 @@ jobs:
       url: https://pr-${{ github.event.pull_request.number }}.preview.ogamex.dev
 
     steps:
+      - name: Fix permissions from previous Docker runs
+        run: |
+          sudo chown -R $USER:$USER $GITHUB_WORKSPACE || true
+
       - name: Checkout PR branch
         uses: actions/checkout@v4
         with:
