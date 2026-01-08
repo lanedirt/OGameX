@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use OGame\Models\UnitQueue;
 use Exception;
 use OGame\GameObjects\BuildingObjects;
 use OGame\GameObjects\CivilShipObjects;
@@ -470,10 +471,28 @@ class ObjectService
             $silo_level = $planet->getObjectLevel('missile_silo');
             $total_capacity = $silo_level * 10; // Each silo level provides 10 slots
 
-            // Calculate current silo usage
+            // Calculate current silo usage from built missiles
             $current_ipm = $planet->getObjectAmount('interplanetary_missile');
             $current_abm = $planet->getObjectAmount('anti_ballistic_missile');
-            $used_capacity = ($current_ipm * 2) + $current_abm; // IPM = 2 slots, ABM = 1 slot
+
+            // Get queued missiles from the unit queue
+            $ipm_object_id = self::getObjectByMachineName('interplanetary_missile')->id;
+            $abm_object_id = self::getObjectByMachineName('anti_ballistic_missile')->id;
+
+            $queued_ipm = UnitQueue::where('planet_id', $planet->getPlanetId())
+                ->where('object_id', $ipm_object_id)
+                ->where('processed', 0)
+                ->sum('object_amount');
+
+            $queued_abm = UnitQueue::where('planet_id', $planet->getPlanetId())
+                ->where('object_id', $abm_object_id)
+                ->where('processed', 0)
+                ->sum('object_amount');
+
+            // Calculate total usage including queue
+            $total_ipm = $current_ipm + $queued_ipm;
+            $total_abm = $current_abm + $queued_abm;
+            $used_capacity = ($total_ipm * 2) + $total_abm; // IPM = 2 slots, ABM = 1 slot
 
             $remaining_capacity = $total_capacity - $used_capacity;
 
