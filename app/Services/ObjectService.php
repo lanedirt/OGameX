@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use OGame\Models\UnitQueue;
 use Exception;
 use OGame\GameObjects\BuildingObjects;
 use OGame\GameObjects\CivilShipObjects;
@@ -478,12 +479,12 @@ class ObjectService
             $ipm_object_id = self::getObjectByMachineName('interplanetary_missile')->id;
             $abm_object_id = self::getObjectByMachineName('anti_ballistic_missile')->id;
 
-            $queued_ipm = \OGame\Models\UnitQueue::where('planet_id', $planet->getPlanetId())
+            $queued_ipm = UnitQueue::where('planet_id', $planet->getPlanetId())
                 ->where('object_id', $ipm_object_id)
                 ->where('processed', 0)
                 ->sum('object_amount');
 
-            $queued_abm = \OGame\Models\UnitQueue::where('planet_id', $planet->getPlanetId())
+            $queued_abm = UnitQueue::where('planet_id', $planet->getPlanetId())
                 ->where('object_id', $abm_object_id)
                 ->where('processed', 0)
                 ->sum('object_amount');
