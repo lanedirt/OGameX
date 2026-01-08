@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
+use OGame\Models\Alliance;
 use OGame\Facades\AppUtil;
 use OGame\Models\FleetMission;
 use Exception;
@@ -472,7 +473,7 @@ class GalaxyController extends OGameController
         $allianceData = null;
 
         if ($player->getUser()->alliance_id) {
-            $alliance = \OGame\Models\Alliance::with(['highscore', 'members'])->find($player->getUser()->alliance_id);
+            $alliance = Alliance::with(['highscore', 'members'])->find($player->getUser()->alliance_id);
             if ($alliance) {
                 $allianceTag = $alliance->alliance_tag;
                 $allianceName = $alliance->alliance_name;

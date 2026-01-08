@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use OGame\Models\AllianceHighscore;
+use OGame\Models\Alliance;
 use Cache;
 use Exception;
 use OGame\Enums\HighscoreTypeEnum;
@@ -285,7 +287,7 @@ class HighscoreService
                 $allianceTag = null;
                 $allianceId = null;
                 if ($playerScore->player->alliance_id) {
-                    /** @var \OGame\Models\Alliance|null $alliance */
+                    /** @var Alliance|null $alliance */
                     $alliance = $playerScore->player->alliance;
                     if ($alliance) {
                         $allianceTag = $alliance->alliance_tag;
@@ -347,7 +349,7 @@ class HighscoreService
         return Cache::remember(sprintf('alliance-highscores-%s-%d', $this->highscoreType->name, $pageOn), now()->addMinutes(5), function () use ($perPage, $pageOn) {
             $parsedHighscores = [];
 
-            $highscores = \OGame\Models\AllianceHighscore::query()
+            $highscores = AllianceHighscore::query()
                 ->with('alliance.members')
                 ->validRanks()
                 ->orderBy($this->highscoreType->name.'_rank')
@@ -390,7 +392,7 @@ class HighscoreService
     public function getHighscoreAllianceRank(int $allianceId): int
     {
         // Find the alliance in the highscore list to determine its rank.
-        $allianceHighscore = \OGame\Models\AllianceHighscore::where('alliance_id', $allianceId)->first();
+        $allianceHighscore = AllianceHighscore::where('alliance_id', $allianceId)->first();
         if (!$allianceHighscore) {
             return 0;
         }
@@ -405,7 +407,7 @@ class HighscoreService
     public function getHighscoreAllianceAmount(): int
     {
         return Cache::remember('highscore-alliance-count', now()->addMinutes(5), function () {
-            return \OGame\Models\AllianceHighscore::query()->validRanks()->count();
+            return AllianceHighscore::query()->validRanks()->count();
         });
     }
 }

@@ -2,6 +2,8 @@
 
 namespace OGame\Factories;
 
+use OGame\GameMessages\AllianceBroadcast;
+use OGame\GameMessages\AllianceApplicationReceived;
 use OGame\GameMessages\WelcomeMessage;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMessages\ReturnOfFleet;
@@ -91,8 +93,8 @@ class GameMessageFactory
         'missile_defense_report' => MissileDefenseReport::class,
 
         // Alliance messages
-        'alliance_broadcast' => \OGame\GameMessages\AllianceBroadcast::class,
-        'alliance_application_received' => \OGame\GameMessages\AllianceApplicationReceived::class,
+        'alliance_broadcast' => AllianceBroadcast::class,
+        'alliance_application_received' => AllianceApplicationReceived::class,
         ];
 
     /**

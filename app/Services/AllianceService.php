@@ -2,6 +2,9 @@
 
 namespace OGame\Services;
 
+use Log;
+use OGame\GameMessages\AllianceBroadcast;
+use OGame\GameMessages\AllianceApplicationReceived;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -736,7 +739,7 @@ class AllianceService
         $alliance = Alliance::findOrFail($allianceId);
         $members = $alliance->members;
 
-        \Log::info('Alliance broadcast - members before filter', [
+        Log::info('Alliance broadcast - members before filter', [
             'total_members' => $members->count(),
             'sender_id' => $sendingUserId,
         ]);
@@ -754,21 +757,21 @@ class AllianceService
 
         $messageCount = 0;
         foreach ($members as $allianceMember) {
-            \Log::info('Processing member for broadcast', [
+            Log::info('Processing member for broadcast', [
                 'member_id' => $allianceMember->id,
                 'user_id' => $allianceMember->user_id,
                 'sender_id' => $sendingUserId,
             ]);
 
             if ($allianceMember->user_id === $sendingUserId) {
-                \Log::info('Skipping sender');
+                Log::info('Skipping sender');
                 continue; // Don't send to self
             }
 
             $recipientPlayer = resolve(PlayerService::class, ['player_id' => $allianceMember->user_id]);
             $messageService = resolve(MessageService::class, ['player' => $recipientPlayer]);
 
-            \Log::info('Sending broadcast message', [
+            Log::info('Sending broadcast message', [
                 'recipient_id' => $recipientPlayer->getId(),
                 'recipient_name' => $recipientPlayer->getUsername(),
             ]);
@@ -776,7 +779,7 @@ class AllianceService
             // Create the broadcast message using the MessageService
             $messageService->sendSystemMessageToPlayer(
                 $recipientPlayer,
-                \OGame\GameMessages\AllianceBroadcast::class,
+                AllianceBroadcast::class,
                 [
                     'sender_name' => $senderPlayer->getUsername(),
                     'alliance_tag' => $alliance->alliance_tag,
@@ -786,7 +789,7 @@ class AllianceService
             $messageCount++;
         }
 
-        \Log::info('Broadcast messages created', [
+        Log::info('Broadcast messages created', [
             'count' => $messageCount,
             'alliance_id' => $allianceId,
             'sender_id' => $sendingUserId,
@@ -818,7 +821,7 @@ class AllianceService
 
                         $this->messageService->sendSystemMessageToPlayer(
                             $playerService,
-                            \OGame\GameMessages\AllianceApplicationReceived::class,
+                            AllianceApplicationReceived::class,
                             [
                                 'applicant_name' => $applicant->username,
                                 'application_message' => $applicationMessage ?? '',
@@ -826,7 +829,7 @@ class AllianceService
                         );
                     } catch (Exception $e) {
                         // Log error but don't fail the entire application process
-                        \Log::error('Failed to send alliance application notification', [
+                        Log::error('Failed to send alliance application notification', [
                             'member_id' => $member->user_id,
                             'alliance_id' => $alliance->id,
                             'error' => $e->getMessage(),
@@ -836,7 +839,7 @@ class AllianceService
             }
         } catch (Exception $e) {
             // Log error but don't fail the application creation
-            \Log::error('Failed to notify alliance members of application', [
+            Log::error('Failed to notify alliance members of application', [
                 'alliance_id' => $alliance->id,
                 'applicant_id' => $applicant->id,
                 'error' => $e->getMessage(),

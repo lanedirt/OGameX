@@ -2,6 +2,8 @@
 
 namespace OGame\Http\Controllers;
 
+use OGame\Models\AllianceRank;
+use Log;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -48,7 +50,7 @@ class AllianceController extends OGameController
             $ranks = $alliance !== null ? $alliance->ranks : collect();
 
             // Only load applications if user has permission
-            if ($member && $member->hasPermission(\OGame\Models\AllianceRank::PERMISSION_SEE_APPLICATIONS)) {
+            if ($member && $member->hasPermission(AllianceRank::PERMISSION_SEE_APPLICATIONS)) {
                 $applications = $allianceService->getPendingApplications($userAllianceId);
             }
         }
@@ -288,8 +290,8 @@ class AllianceController extends OGameController
                 'target' => 'alliance/alliance_broadcast',
                 'urlSend' => route('alliance.action') . '?action=send_broadcast&asJson=1',
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Alliance broadcast error: ' . $e->getMessage(), [
+        } catch (Exception $e) {
+            Log::error('Alliance broadcast error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
             return response()->json([
@@ -325,7 +327,7 @@ class AllianceController extends OGameController
         $applications = collect();
 
         // Only load applications if user has permission
-        if ($member && $member->hasPermission(\OGame\Models\AllianceRank::PERMISSION_SEE_APPLICATIONS)) {
+        if ($member && $member->hasPermission(AllianceRank::PERMISSION_SEE_APPLICATIONS)) {
             $applications = $allianceService->getPendingApplications($userAllianceId);
         }
 
@@ -641,7 +643,7 @@ class AllianceController extends OGameController
         $action = $request->input('action');
         $userId = $player->getId();
 
-        \Log::info('Alliance action called', [
+        Log::info('Alliance action called', [
             'action' => $action,
             'all_input' => $request->all(),
             'query' => $request->query->all(),
@@ -771,7 +773,7 @@ class AllianceController extends OGameController
                     break;
 
                 case 'send_broadcast':
-                    \Log::info('send_broadcast case reached', [
+                    Log::info('send_broadcast case reached', [
                         'user_id' => $userId,
                         'request_id' => $request->header('X-Request-ID', uniqid()),
                     ]);
@@ -787,7 +789,7 @@ class AllianceController extends OGameController
                         $recipients = [];
                     }
 
-                    \Log::info('About to call sendBroadcastMessage', [
+                    Log::info('About to call sendBroadcastMessage', [
                         'alliance_id' => $allianceId,
                         'text_length' => strlen($text),
                     ]);
@@ -799,7 +801,7 @@ class AllianceController extends OGameController
                         $recipients
                     );
 
-                    \Log::info('sendBroadcastMessage completed');
+                    Log::info('sendBroadcastMessage completed');
 
                     $message = __('Broadcast message sent successfully');
                     break;

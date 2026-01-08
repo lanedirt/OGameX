@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,18 +21,18 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Alliance $alliance
- * @property-read \Illuminate\Database\Eloquent\Collection<int, AllianceMember> $members
+ * @property-read Collection<int, AllianceMember> $members
  * @property-read int|null $members_count
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceRank newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceRank newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceRank query()
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceRank whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceRank whereAllianceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceRank whereRankName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceRank wherePermissions($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceRank whereSortOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceRank whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceRank whereUpdatedAt($value)
+ * @method static Builder|AllianceRank newModelQuery()
+ * @method static Builder|AllianceRank newQuery()
+ * @method static Builder|AllianceRank query()
+ * @method static Builder|AllianceRank whereId($value)
+ * @method static Builder|AllianceRank whereAllianceId($value)
+ * @method static Builder|AllianceRank whereRankName($value)
+ * @method static Builder|AllianceRank wherePermissions($value)
+ * @method static Builder|AllianceRank whereSortOrder($value)
+ * @method static Builder|AllianceRank whereCreatedAt($value)
+ * @method static Builder|AllianceRank whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class AllianceRank extends Model

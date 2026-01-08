@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,29 +29,29 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read User $founder
- * @property-read \Illuminate\Database\Eloquent\Collection<int, AllianceMember> $members
+ * @property-read Collection<int, AllianceMember> $members
  * @property-read int|null $members_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, AllianceRank> $ranks
+ * @property-read Collection<int, AllianceRank> $ranks
  * @property-read int|null $ranks_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, AllianceApplication> $applications
+ * @property-read Collection<int, AllianceApplication> $applications
  * @property-read int|null $applications_count
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance query()
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereAllianceTag($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereAllianceName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereFounderUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereInternalText($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereExternalText($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereApplicationText($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereLogoUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereHomepageUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereIsOpen($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereFounderRankName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereNewcomerRankName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Alliance whereUpdatedAt($value)
+ * @method static Builder|Alliance newModelQuery()
+ * @method static Builder|Alliance newQuery()
+ * @method static Builder|Alliance query()
+ * @method static Builder|Alliance whereId($value)
+ * @method static Builder|Alliance whereAllianceTag($value)
+ * @method static Builder|Alliance whereAllianceName($value)
+ * @method static Builder|Alliance whereFounderUserId($value)
+ * @method static Builder|Alliance whereInternalText($value)
+ * @method static Builder|Alliance whereExternalText($value)
+ * @method static Builder|Alliance whereApplicationText($value)
+ * @method static Builder|Alliance whereLogoUrl($value)
+ * @method static Builder|Alliance whereHomepageUrl($value)
+ * @method static Builder|Alliance whereIsOpen($value)
+ * @method static Builder|Alliance whereFounderRankName($value)
+ * @method static Builder|Alliance whereNewcomerRankName($value)
+ * @method static Builder|Alliance whereCreatedAt($value)
+ * @method static Builder|Alliance whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Alliance extends Model

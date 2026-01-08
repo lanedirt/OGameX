@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,17 +21,17 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read Alliance $alliance
  * @property-read User $user
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceApplication newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceApplication newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceApplication query()
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceApplication whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceApplication whereAllianceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceApplication whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceApplication whereApplicationMessage($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceApplication whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceApplication whereViewed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceApplication whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceApplication whereUpdatedAt($value)
+ * @method static Builder|AllianceApplication newModelQuery()
+ * @method static Builder|AllianceApplication newQuery()
+ * @method static Builder|AllianceApplication query()
+ * @method static Builder|AllianceApplication whereId($value)
+ * @method static Builder|AllianceApplication whereAllianceId($value)
+ * @method static Builder|AllianceApplication whereUserId($value)
+ * @method static Builder|AllianceApplication whereApplicationMessage($value)
+ * @method static Builder|AllianceApplication whereStatus($value)
+ * @method static Builder|AllianceApplication whereViewed($value)
+ * @method static Builder|AllianceApplication whereCreatedAt($value)
+ * @method static Builder|AllianceApplication whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class AllianceApplication extends Model

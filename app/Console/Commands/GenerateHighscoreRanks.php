@@ -91,13 +91,13 @@ class GenerateHighscoreRanks extends Command
             ->join('alliances', 'alliance_highscores.alliance_id', '=', 'alliances.id')
             ->select('alliance_highscores.*')
             ->orderByDesc($type->name)
-            ->orderBy('alliances.created_at');
+            ->oldest('alliances.created_at');
 
         $bar = $this->output->createProgressBar();
         $bar->start($query->count());
 
         $query->chunk(200, function ($highscores) use ($type, &$bar, &$rank) {
-            /** @var \Illuminate\Support\Collection<int, AllianceHighscore> $highscores */
+            /** @var Collection<int, AllianceHighscore> $highscores */
             foreach ($highscores as $highscore) {
                 $highscore->{$type->name.'_rank'} = $rank;
                 $highscore->save();

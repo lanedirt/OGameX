@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,16 +21,16 @@ use Illuminate\Support\Carbon;
  * @property-read Alliance $alliance
  * @property-read User $user
  * @property-read AllianceRank|null $rank
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceMember newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceMember newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceMember query()
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceMember whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceMember whereAllianceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceMember whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceMember whereRankId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceMember whereJoinedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceMember whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AllianceMember whereUpdatedAt($value)
+ * @method static Builder|AllianceMember newModelQuery()
+ * @method static Builder|AllianceMember newQuery()
+ * @method static Builder|AllianceMember query()
+ * @method static Builder|AllianceMember whereId($value)
+ * @method static Builder|AllianceMember whereAllianceId($value)
+ * @method static Builder|AllianceMember whereUserId($value)
+ * @method static Builder|AllianceMember whereRankId($value)
+ * @method static Builder|AllianceMember whereJoinedAt($value)
+ * @method static Builder|AllianceMember whereCreatedAt($value)
+ * @method static Builder|AllianceMember whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class AllianceMember extends Model
