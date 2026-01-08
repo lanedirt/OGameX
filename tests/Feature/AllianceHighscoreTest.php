@@ -102,8 +102,8 @@ class AllianceHighscoreTest extends AccountTestCase
         // Generate highscores
         Artisan::call('ogamex:generate-alliance-highscores');
 
-        // Generate ranks
-        Artisan::call('ogamex:generate-alliance-highscore-ranks');
+        // Generate ranks (includes both player and alliance ranks)
+        Artisan::call('ogamex:generate-highscore-ranks');
 
         // Check ranks
         $alliance1->refresh();
