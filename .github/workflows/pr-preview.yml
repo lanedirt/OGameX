@@ -2,16 +2,14 @@ name: PR Preview
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
-  deploy:
-    # Deploy on any PR event except close
-    if: github.event.action != 'closed'
+  Deploy:
     runs-on: [self-hosted, ctogx-preview]
 
     concurrency:
@@ -27,7 +25,6 @@ jobs:
       - name: Checkout PR branch
         uses: actions/checkout@v4
         with:
-          # Checkout the PR head commit (from the forked repository)
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -141,53 +138,3 @@ jobs:
       - name: Output preview URL
         run: |
           echo "::notice::Preview deployed at https://pr-${{ env.PR_NUMBER }}.preview.ogamex.dev"
-
-  teardown:
-    # Clean up when PR is closed (merged or not)
-    if: github.event.action == 'closed'
-    runs-on: [self-hosted, ctogx-preview]
-
-    steps:
-      - name: Stop and remove preview stack
-        run: |
-          PR=${{ github.event.pull_request.number }}
-          echo "Tearing down preview environment for PR #$PR..."
-          docker compose -p pr-$PR down -v --remove-orphans || true
-          echo "Cleanup complete!"
-
-      - name: Comment on PR about teardown
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const prNumber = ${{ github.event.pull_request.number }};
-
-            const comments = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber
-            });
-
-            const botComment = comments.data.find(comment =>
-              comment.user.type === 'Bot' &&
-              comment.body.includes('Preview deployment')
-            );
-
-            const body = [
-              '## Preview deployment',
-              '',
-              '| Status | URL | Commit |',
-              '|--------|-----|--------|',
-              `| :x: Destroyed | ~~pr-${prNumber}.preview.ogamex.dev~~ | - |`,
-              '',
-              '---',
-              '*Preview environment has been cleaned up.*'
-            ].join('\n');
-
-            if (botComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: body
-              });
-            }
