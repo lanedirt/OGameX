@@ -748,7 +748,14 @@ class PlayerService
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
         $resources_sum = $resources_spent->metal->get() + $resources_spent->crystal->get() + $resources_spent->deuterium->get();
-        return (int)floor($resources_sum / 1000);
+        $score = floor($resources_sum / 1000);
+        
+        // Cap at PHP_INT_MAX to prevent overflow on PHP 8.5+
+        if ($score > PHP_INT_MAX) {
+            return PHP_INT_MAX;
+        }
+        
+        return (int)$score;
     }
 
     /**

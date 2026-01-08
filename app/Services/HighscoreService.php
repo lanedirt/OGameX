@@ -182,6 +182,11 @@ class HighscoreService
         // Get score for fleets that are on missions (in transit)
         $score += $this->getPlayerFleetMissionScore($player);
 
+        // Cap at PHP_INT_MAX to prevent overflow on PHP 8.5+
+        if ($score > PHP_INT_MAX) {
+            return PHP_INT_MAX;
+        }
+
         return $score;
     }
 
