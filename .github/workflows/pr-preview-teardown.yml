@@ -9,8 +9,13 @@ permissions:
   pull-requests: write
 
 jobs:
-  Teardown:
+  teardown:
+    name: Teardown preview environment for PR #${{ github.event.pull_request.number }}
     runs-on: [self-hosted, ctogx-preview]
+
+    concurrency:
+      group: preview-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
 
     steps:
       - name: Stop and remove preview stack

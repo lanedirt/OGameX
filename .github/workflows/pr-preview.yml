@@ -9,7 +9,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  Deploy:
+  deploy:
+    name: Deploy preview environment for PR #${{ github.event.pull_request.number }}
     runs-on: [self-hosted, ctogx-preview]
 
     concurrency:
@@ -17,6 +18,7 @@ jobs:
       cancel-in-progress: true
 
     # Specify environment for "Deploy" approval button
+    # Note: Environment must be pre-configured in repo settings with required reviewers
     environment:
       name: preview
       url: https://pr-${{ github.event.pull_request.number }}.preview.ogamex.dev
@@ -64,6 +66,10 @@ jobs:
 
             ogamex-db:
               ports: !override []
+
+            ogamex-phpmyadmin:
+              profiles:
+                - disabled
 
           networks:
             traefik:
