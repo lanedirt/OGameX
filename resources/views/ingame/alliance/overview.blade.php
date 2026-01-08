@@ -193,7 +193,7 @@
 <div class="sectioncontent" id="allyInternText" style="display:none;">
     <div class="contentz">
         <div id="allyInternTextBB" class="bborder">
-            {!! $alliance->internal_text ?? '' !!}
+            {{ $alliance->internal_text ?? '' }}
         </div>
         <div class="h10"></div>
     </div>
@@ -210,7 +210,7 @@
 <div class="sectioncontent" id="allyExternText" style="display:none;">
     <div class="contentz">
         <div id="allyExternTextBB" class="bborder">
-            {!! $alliance->external_text ?? '' !!}
+            {{ $alliance->external_text ?? '' }}
         </div>
         <div class="h10"></div>
     </div>
