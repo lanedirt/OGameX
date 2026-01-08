@@ -158,8 +158,26 @@ class AttackMission extends GameMission
                         ]);
                     } else {
                         // Fleet survived - create return mission with surviving units
-                        // No resources to return for defend missions (they don't carry resources)
-                        $this->startReturn($defendMission, new Resources(0, 0, 0, 0), $fleetResult->unitsResult);
+                        // Calculate resource survival rate based on cargo capacity
+                        $fleetOwner = $this->playerServiceFactory->make($fleetResult->ownerId);
+                        $originalUnits = $this->fleetMissionService->getFleetUnits($defendMission);
+                        $originalCargoCapacity = $originalUnits->getTotalCargoCapacity($fleetOwner);
+                        $remainingCargoCapacity = $fleetResult->unitsResult->getTotalCargoCapacity($fleetOwner);
+
+                        // Handle edge case: if original capacity is 0, survival rate is 0
+                        $survivalRate = $originalCargoCapacity > 0
+                            ? $remainingCargoCapacity / $originalCargoCapacity
+                            : 0;
+
+                        // Calculate resources remaining on surviving ships
+                        $remainingResources = new Resources(
+                            max(0, (int)($defendMission->metal * $survivalRate)),
+                            max(0, (int)($defendMission->crystal * $survivalRate)),
+                            max(0, (int)($defendMission->deuterium * $survivalRate)),
+                            0
+                        );
+
+                        $this->startReturn($defendMission, $remainingResources, $fleetResult->unitsResult);
                     }
                 }
             }
