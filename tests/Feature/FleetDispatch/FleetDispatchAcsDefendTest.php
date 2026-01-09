@@ -3,15 +3,19 @@
 namespace Tests\Feature\FleetDispatch;
 
 use Illuminate\Support\Facades\DB;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
+use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\BuddyService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 use RuntimeException;
 use Tests\FleetDispatchTestCase;
 
@@ -144,14 +148,14 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     {
         // Create a fresh user specifically for this test
         // This ensures we never accidentally select an admin user
-        $buddyUser = \OGame\Models\User::factory()->create();
+        $buddyUser = User::factory()->create();
 
         // Track this user ID in static array for cleanup in tearDown
         // Static array persists across test instances
         self::$allCreatedBuddyUserIds[] = $buddyUser->id;
 
         // Create a planet for the buddy user at a random position to avoid conflicts
-        $buddyPlanet = \OGame\Models\Planet::factory()->create([
+        $buddyPlanet = Planet::factory()->create([
             'user_id' => $buddyUser->id,
             'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
@@ -159,8 +163,8 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         ]);
 
         // Get planet service for the buddy's planet
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
-        $buddyPlayerService = resolve(\OGame\Services\PlayerService::class, ['player_id' => $buddyUser->id]);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $buddyPlayerService = resolve(PlayerService::class, ['player_id' => $buddyUser->id]);
         $this->buddyPlanet = $planetServiceFactory->makeForPlayer($buddyPlayerService, $buddyPlanet->id);
 
         $buddyService = resolve(BuddyService::class);
@@ -305,7 +309,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Refresh planet service after mission arrival
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $foreignPlanet = $planetServiceFactory->make($foreignPlanet->getPlanetId());
 
         // Assert sender received message from "Fleet Command"
@@ -403,7 +407,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $this->get('/overview');
 
         // Refresh planet services after mission completion
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $buddyPlanetReloaded = $planetServiceFactory->make($this->buddyPlanet->getPlanetId());
         $this->planetService = $planetServiceFactory->make($this->planetService->getPlanetId());
 
@@ -461,7 +465,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $this->get('/overview');
 
         // Reload planet and check resources
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $this->planetService = $planetServiceFactory->make($this->planetService->getPlanetId());
         $finalMetal = $this->planetService->metal()->get();
         $finalCrystal = $this->planetService->crystal()->get();
@@ -481,7 +485,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $this->createBuddyPlayer();
 
         // Configure battle settings
-        $settingsService = resolve(\OGame\Services\SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
         $settingsService->set('fleet_speed_war', 1);
         $settingsService->set('fleet_speed_holding', 1);
@@ -500,15 +504,15 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $attackerUser = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $attackerUser->id;
 
-        $attackerPlanet = \OGame\Models\Planet::factory()->create([
+        $attackerPlanet = Planet::factory()->create([
             'user_id' => $attackerUser->id,
             'galaxy' => $this->buddyPlanet->getPlanetCoordinates()->galaxy,
             'system' => $this->buddyPlanet->getPlanetCoordinates()->system,
             'planet' => 10,
         ]);
 
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
-        $attackerPlayerService = resolve(\OGame\Services\PlayerService::class, ['player_id' => $attackerUser->id]);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $attackerPlayerService = resolve(PlayerService::class, ['player_id' => $attackerUser->id]);
         $attackerPlanetService = $planetServiceFactory->makeForPlayer($attackerPlayerService, $attackerPlanet->id);
 
         // Setup attacker with moderate force
@@ -561,7 +565,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $this->createBuddyPlayer();
 
         // Configure battle settings
-        $settingsService = resolve(\OGame\Services\SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
         $settingsService->set('fleet_speed_war', 1);
 
@@ -579,15 +583,15 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $attackerUser = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $attackerUser->id;
 
-        $attackerPlanet = \OGame\Models\Planet::factory()->create([
+        $attackerPlanet = Planet::factory()->create([
             'user_id' => $attackerUser->id,
             'galaxy' => $this->buddyPlanet->getPlanetCoordinates()->galaxy,
             'system' => $this->buddyPlanet->getPlanetCoordinates()->system,
             'planet' => 11,
         ]);
 
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
-        $attackerPlayerService = resolve(\OGame\Services\PlayerService::class, ['player_id' => $attackerUser->id]);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $attackerPlayerService = resolve(PlayerService::class, ['player_id' => $attackerUser->id]);
         $attackerPlanetService = $planetServiceFactory->makeForPlayer($attackerPlayerService, $attackerPlanet->id);
 
         // Setup attacker

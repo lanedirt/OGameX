@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Exception;
 use OGame\Factories\PlanetServiceFactory;
 use Tests\AccountTestCase;
 
@@ -14,7 +15,7 @@ class AllianceDepotTest extends AccountTestCase
      * Test that Alliance Depot dialog can be accessed when building is built.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAllianceDepotDialogAccessible(): void
     {
@@ -36,7 +37,7 @@ class AllianceDepotTest extends AccountTestCase
      * Test that Alliance Depot dialog shows error when building is not built.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAllianceDepotDialogNotAccessibleWithoutBuilding(): void
     {
@@ -57,7 +58,7 @@ class AllianceDepotTest extends AccountTestCase
      * Test that Alliance Depot dialog shows "no fleets" message when no fleets are holding.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAllianceDepotDialogShowsNoFleets(): void
     {
@@ -78,7 +79,7 @@ class AllianceDepotTest extends AccountTestCase
      * Test that Alliance Depot is not accessible on moons.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function testAllianceDepotNotAccessibleOnMoon(): void
     {

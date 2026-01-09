@@ -519,12 +519,23 @@ class FleetMissionService
      */
     public function cancelMission(FleetMission $mission): void
     {
-        // Sanity check: only allow cancelling missions that have not yet arrived.
-        // This applies to especially missions that have a time_holding (e.g. expeditions) where the main mission arrives first
-        // but the mission itself is not processed before the time_holding has passed as well. However after the main mission
-        // has arrived (even though it's not processed yet), canceling should no longer be allowed.
+        // Sanity check: only allow cancelling missions that have not yet arrived OR are still in their holding period.
+        // ACS Defend missions (type 5) can be recalled during their hold time (while waiting at destination).
+        // For other missions with time_holding (e.g. expeditions), canceling is not allowed after arrival.
         if ($mission->time_arrival < Date::now()->timestamp) {
-            return;
+            // Mission has arrived - check if it's an ACS Defend mission that's still holding
+            if ($mission->mission_type !== 5 || $mission->time_holding === null) {
+                // Not an ACS Defend or no hold time - cannot recall
+                return;
+            }
+
+            // Check if still within hold time
+            $holdEndTime = $mission->time_arrival + $mission->time_holding;
+            if ($holdEndTime <= Date::now()->timestamp) {
+                // Hold time has expired - cannot recall
+                return;
+            }
+            // If we get here, it's an ACS Defend mission still holding - allow recall
         }
 
         // Sanity check: only allow canceling missions that have not been processed yet.

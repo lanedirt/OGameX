@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Exception;
+use Illuminate\Support\Facades\Date;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
+use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\BuddyService;
@@ -22,14 +25,14 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
      * Test that supply rocket successfully extends hold time.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function testSupplyRocketExtendsHoldTime(): void
     {
         // Create a buddy and their planet with Alliance Depot
         $buddyUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $buddyPlanet = \OGame\Models\Planet::factory()->create([
+        $buddyPlanet = Planet::factory()->create([
             'user_id' => $buddyUser->id,
             'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
@@ -63,7 +66,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         // Travel to just after arrival time but well before hold expires
         // Fleet arrives at $mission->time_arrival, holds until time_arrival + time_holding
         $arrivalTime = $mission->time_arrival;
-        $currentTime = (int)\Carbon\Carbon::now()->timestamp; // Use Laravel's time, not system time()
+        $currentTime = (int)Date::now()->timestamp; // Use Laravel's time, not system time()
         $travelSeconds = $arrivalTime - $currentTime + 3600; // Arrive + 1 hour (to ensure mission has been processed)
         $this->travel($travelSeconds)->seconds();
 
@@ -116,14 +119,14 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
      * Test that supply rocket fails when not enough deuterium.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function testSupplyRocketFailsWithoutDeuterium(): void
     {
         // Create a buddy and their planet with Alliance Depot but minimal deuterium
         $buddyUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $buddyPlanet = \OGame\Models\Planet::factory()->create([
+        $buddyPlanet = Planet::factory()->create([
             'user_id' => $buddyUser->id,
             'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
@@ -156,7 +159,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Travel to just after arrival time but well before hold expires
         $arrivalTime = $mission->time_arrival;
-        $currentTime = (int)\Carbon\Carbon::now()->timestamp; // Use Laravel's time, not system time()
+        $currentTime = (int)Date::now()->timestamp; // Use Laravel's time, not system time()
         $travelSeconds = $arrivalTime - $currentTime + 60; // Arrive + 1 minute
         $this->travel($travelSeconds)->seconds();
 
@@ -195,14 +198,14 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
      * Test that supply rocket fails for fleet holding less than 1 hour.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function testSupplyRocketFailsForShortHold(): void
     {
         // Create a buddy and their planet with Alliance Depot
         $buddyUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $buddyPlanet = \OGame\Models\Planet::factory()->create([
+        $buddyPlanet = Planet::factory()->create([
             'user_id' => $buddyUser->id,
             'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
@@ -237,7 +240,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Travel to just after arrival time
         $arrivalTime = $mission->time_arrival;
-        $currentTime = (int)\Carbon\Carbon::now()->timestamp; // Use Laravel's time, not system time()
+        $currentTime = (int)Date::now()->timestamp; // Use Laravel's time, not system time()
         $travelSeconds = $arrivalTime - $currentTime + 60; // Arrive + 1 minute
         $this->travel($travelSeconds)->seconds();
 
@@ -276,7 +279,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
      * Test that invalid extension hours are rejected.
      *
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function testSupplyRocketRejectsInvalidHours(): void
     {
@@ -299,5 +302,100 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         $response->assertStatus(200);
         $response->assertJson(['success' => false]);
+    }
+
+    /**
+     * Test that ACS Defend fleet can be recalled during hold time after extension.
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function testAcsDefendCanBeRecalledDuringExtendedHoldTime(): void
+    {
+        // Create buddy relationship with nearby planet
+        // Use current test user's ID as part of coordinates to ensure uniqueness across test runs
+        $buddyUser = User::factory()->create();
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $buddyPlanet = Planet::factory()->create([
+            'user_id' => $buddyUser->id,
+            'galaxy' => 4,
+            'system' => min(499, 400 + ($buddyUser->id % 99)),
+            'planet' => min(15, 10 + ($buddyUser->id % 5)),
+        ]);
+        $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
+
+        $buddyService = resolve(BuddyService::class);
+        $request = $buddyService->sendRequest($this->currentUserId, $buddyUser->id);
+        $buddyService->acceptRequest($request->id, $buddyUser->id);
+
+        // Send an ACS Defend fleet with 4 hour hold time (use large cargo for fuel capacity)
+        $this->planetAddUnit('large_cargo', 5);
+        $this->planetAddResources(new Resources(0, 0, 50000, 0)); // Add plenty of deuterium for fuel
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 5);
+
+        $fleetMissionService = app(FleetMissionService::class);
+        $mission = $fleetMissionService->createNewFromPlanet(
+            $this->planetService,
+            $buddyPlanetService->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            4 // 4 hour hold time
+        );
+
+        // Travel to just after arrival time
+        $arrivalTime = $mission->time_arrival;
+        $currentTime = (int)Date::now()->timestamp;
+        $travelSeconds = $arrivalTime - $currentTime + 60; // Arrive + 1 minute
+        $this->travel($travelSeconds)->seconds();
+
+        // Store original planet ID
+        $originalPlanetId = $this->planetService->getPlanetId();
+
+        // Switch to buddy user and extend hold time
+        $this->be($buddyUser);
+        $buddyPlanetService->setObjectLevel(34, 2); // Alliance Depot level 2
+        $buddyPlanetService->addResources(new Resources(0, 0, 50000, 0));
+
+        // Find the outbound mission
+        $outboundMission = FleetMission::where('mission_type', 5)
+            ->where('planet_id_from', $originalPlanetId)
+            ->where('planet_id_to', $buddyPlanetService->getPlanetId())
+            ->whereNull('parent_id')
+            ->first();
+
+        $this->assertNotNull($outboundMission, 'Outbound mission should exist');
+
+        // Extend hold time by 2 hours
+        $response = $this->post('/ajax/alliance-depot/send-supply-rocket', [
+            'fleet_mission_id' => $outboundMission->id,
+            'extension_hours' => 2,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Reload mission to get updated hold time
+        $outboundMission->refresh();
+        $this->assertEquals(14400 + 7200, $outboundMission->time_holding, 'Hold time should be extended to 6 hours');
+
+        // Switch back to original user (fleet owner)
+        $this->be(User::find($this->currentUserId));
+
+        // Try to recall the fleet (should succeed)
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $outboundMission->id,
+            '_token' => csrf_token(),
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify the mission was actually recalled (canceled flag set)
+        $outboundMission->refresh();
+        $this->assertEquals(1, $outboundMission->canceled, 'Mission should be canceled');
     }
 }
