@@ -36,8 +36,10 @@ jobs:
             docker compose -p pr-$PR down -v --remove-orphans || true
           fi
 
-          # Remove the preview directory
-          rm -rf "$PREVIEW_DIR" || true
+          # Remove the preview directory using Docker (handles root-owned files)
+          if [ -d "$PREVIEW_DIR" ]; then
+            docker run --rm -v ${{ env.PREVIEW_BASE_DIR }}:/previews alpine rm -rf /previews/pr-$PR
+          fi
 
           echo "Cleanup complete!"
 

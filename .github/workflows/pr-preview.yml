@@ -33,8 +33,12 @@ jobs:
           echo "PR_NUMBER=$PR" >> $GITHUB_ENV
           echo "PREVIEW_HOST=pr-$PR.preview.ogamex.dev" >> $GITHUB_ENV
           echo "PREVIEW_DIR=${{ env.PREVIEW_BASE_DIR }}/pr-$PR" >> $GITHUB_ENV
-          echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
-          echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
+
+      - name: Fix permissions from previous Docker runs
+        run: |
+          if [ -d "${{ env.PREVIEW_DIR }}" ]; then
+            docker run --rm -v ${{ env.PREVIEW_DIR }}:/workspace alpine chown -R $(id -u):$(id -g) /workspace
+          fi
 
       - name: Checkout PR branch to preview directory
         run: |
@@ -79,19 +83,16 @@ jobs:
                 - traefik.http.services.pr-${{ env.PR_NUMBER }}.loadbalancer.server.port=80
 
             ogamex-app:
-              user: "${{ env.HOST_UID }}:${{ env.HOST_GID }}"
               build:
                 args:
                   USE_USER: "no"
 
             ogamex-scheduler:
-              user: "${{ env.HOST_UID }}:${{ env.HOST_GID }}"
               build:
                 args:
                   USE_USER: "no"
 
             ogamex-queue-worker:
-              user: "${{ env.HOST_UID }}:${{ env.HOST_GID }}"
               build:
                 args:
                   USE_USER: "no"
