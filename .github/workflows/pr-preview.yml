@@ -226,21 +226,22 @@ jobs:
               '*This preview will be automatically destroyed when the PR is closed.*'
             ].join('\n');
 
+            // Delete previous bot comment if exists (so new one appears in timeline)
             if (botComment) {
-              await github.rest.issues.updateComment({
+              await github.rest.issues.deleteComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: body
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                body: body
+                comment_id: botComment.id
               });
             }
+
+            // Create new comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: body
+            });
 
       - name: Output preview URL
         run: |
