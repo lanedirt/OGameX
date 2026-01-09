@@ -1081,7 +1081,7 @@
                                             <inner-bonus-item-heading data-toggable="33620205">
                                                 <div class="openDetails">
                                                     <a href="javascript:void(0);" class="openCloseDetails">
-                                                        <img src="https://gf2.geo.gfsrv.net/cdn10/de1e5f629d9e47d283488eee0c0ede.gif" height="16" width="16" />
+                                                        <img src="{{ asset('img/icons/de1e5f629d9e47d283488eee0c0ede.gif') }}" height="16" width="16" />
                                                     </a>
                                                 </div>
                                                 <div fontsize-11 class="subCategoryTitle">SMs Bodyguard [1:4:10]</div>
