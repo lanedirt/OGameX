@@ -2,12 +2,12 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
-use OGame\Services\CharacterClassService;
-use OGame\Services\SettingsService;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameMissions\BattleEngine\Models\BattleUnit;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Services\CharacterClassService;
+use OGame\Services\SettingsService;
 
 /**
  * Class BattleEngine.

@@ -2,13 +2,11 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Support\Facades\Date;
-use OGame\Services\CharacterClassService;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Models\{
@@ -16,6 +14,7 @@ use OGame\Models\{
     Resources,
 };
 use OGame\Services\BuildingQueueService;
+use OGame\Services\CharacterClassService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\UnitQueueService;

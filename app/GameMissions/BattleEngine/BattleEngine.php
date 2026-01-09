@@ -2,17 +2,17 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
-use OGame\GameMissions\BattleEngine\Models\DefenderFleetResult;
-use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
-use OGame\Services\CharacterClassService;
-use OGame\Services\ObjectService;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
+use OGame\GameMissions\BattleEngine\Models\DefenderFleetResult;
 use OGame\GameMissions\BattleEngine\Services\DefenseRepairService;
 use OGame\GameMissions\BattleEngine\Services\LootService;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
+use OGame\Services\CharacterClassService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;

@@ -1,0 +1,61 @@
+name: 'Check Remote Sources'
+description: 'Checks for external remote resource references in source code files that should be hosted locally'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check for external remote sources
+      shell: bash
+      run: |
+        # Define patterns to search for (external remote resource domains that should be hosted locally)
+        PATTERNS=(
+          "gfsrv\.net"
+        )
+
+        # Define file extensions to scan
+        EXTENSIONS="php,blade.php,js,ts,css,scss,html,vue,json,xml"
+
+        # Build the find command for file extensions
+        FIND_ARGS=""
+        IFS=',' read -ra EXT_ARRAY <<< "$EXTENSIONS"
+        for ext in "${EXT_ARRAY[@]}"; do
+          if [ -z "$FIND_ARGS" ]; then
+            FIND_ARGS="-name \"*.$ext\""
+          else
+            FIND_ARGS="$FIND_ARGS -o -name \"*.$ext\""
+          fi
+        done
+
+        FOUND_ISSUES=0
+        RESULTS=""
+
+        for pattern in "${PATTERNS[@]}"; do
+          # Search for pattern in source files, excluding vendor and node_modules
+          MATCHES=$(eval "find . -type f \( $FIND_ARGS \) -not -path './vendor/*' -not -path './node_modules/*' -not -path './.github/*'" | xargs grep -l -E "$pattern" 2>/dev/null || true)
+
+          if [ -n "$MATCHES" ]; then
+            FOUND_ISSUES=1
+            RESULTS="$RESULTS\n\nPattern '$pattern' found in:\n$MATCHES"
+
+            # Show the actual matches with line numbers
+            for file in $MATCHES; do
+              RESULTS="$RESULTS\n\n--- $file ---"
+              RESULTS="$RESULTS\n$(grep -n -E "$pattern" "$file")"
+            done
+          fi
+        done
+
+        if [ $FOUND_ISSUES -eq 1 ]; then
+          echo "=========================================="
+          echo "ERROR: External remote resources detected!"
+          echo "=========================================="
+          echo -e "$RESULTS"
+          echo ""
+          echo "=========================================="
+          echo "External resources should be embedded and hosted locally."
+          echo "Please download these resources and reference them locally, removing the external dependency."
+          echo "=========================================="
+          exit 1
+        else
+          echo "No external remote sources detected."
+        fi

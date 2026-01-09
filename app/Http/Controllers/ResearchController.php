@@ -29,10 +29,7 @@ class ResearchController extends OGameController
     /**
      * ResourcesController constructor.
      */
-    public function __construct(/**
-     * QueueService
-     */
-    protected ResearchQueueService $queue)
+    public function __construct(protected ResearchQueueService $queue)
     {
         $this->route_view_index = 'research.index';
 

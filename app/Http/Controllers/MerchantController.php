@@ -2,14 +2,14 @@
 
 namespace OGame\Http\Controllers;
 
-use OGame\Services\ObjectService;
-use OGame\Models\Resources;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use OGame\Models\Resources;
 use OGame\Services\DarkMatterService;
 use OGame\Services\MerchantService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
 class MerchantController extends OGameController

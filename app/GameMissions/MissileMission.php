@@ -2,22 +2,22 @@
 
 namespace OGame\GameMissions;
 
-use OGame\Services\PlayerService;
-use OGame\Services\MessageService;
-use OGame\GameMessages\MissileAttackReport;
-use OGame\GameMessages\MissileDefenseReport;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OGame\Enums\FleetMissionStatus;
+use OGame\GameMessages\MissileAttackReport;
+use OGame\GameMessages\MissileDefenseReport;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
+use OGame\Services\MessageService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 
 /**
  * Interplanetary Ballistic Missile (IBM/IPM) Attack Mission
@@ -47,6 +47,11 @@ class MissileMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
+        $parentCheck = parent::isMissionPossible($planet, $targetCoordinate, $targetType, $units);
+        if (!$parentCheck->possible) {
+            return $parentCheck;
+        }
+
         // Missile attack is only possible for planets and moons
         if (!in_array($targetType, [PlanetType::Planet, PlanetType::Moon])) {
             return new MissionPossibleStatus(false);
@@ -59,8 +64,8 @@ class MissileMission extends GameMission
         }
 
         // Cannot attack own planets
-        if ($planet->getPlayer()->equals($targetPlanet->getPlayer())) {
-            return new MissionPossibleStatus(false);
+        if ($ownPlanetCheck = $this->checkOwnPlanet($planet, $targetPlanet)) {
+            return $ownPlanetCheck;
         }
 
         // Check if target is within missile range
@@ -71,13 +76,13 @@ class MissileMission extends GameMission
         $distance = $this->calculateSystemDistance($planet->getPlanetCoordinates(), $targetCoordinate);
 
         if ($distance > $missileRange) {
-            return new MissionPossibleStatus(false, 'Target is out of missile range');
+            return new MissionPossibleStatus(false, __('Target is out of missile range'));
         }
 
         // Must have at least one missile
         $missileCount = $planet->getObjectAmount('interplanetary_missile');
         if ($missileCount <= 0) {
-            return new MissionPossibleStatus(false, 'No missiles available');
+            return new MissionPossibleStatus(false, __('No missiles available'));
         }
 
         return new MissionPossibleStatus(true);

@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Admin;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +17,7 @@ class ResetUserPassword extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:reset-password {username-or-email} {--random}';
+    protected $signature = 'ogamex:admin:reset-password {username-or-email} {--random}';
 
     /**
      * The console command description.

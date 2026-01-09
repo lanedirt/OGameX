@@ -2,11 +2,11 @@
 
 namespace OGame\Services;
 
-use OGame\Models\Planet;
 use Exception;
 use OGame\Enums\CharacterClass;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Models\FleetMission;
+use OGame\Models\Planet;
 use OGame\Models\User;
 
 /**

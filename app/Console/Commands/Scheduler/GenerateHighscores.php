@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Scheduler;
 
 use Illuminate\Console\Command;
 use OGame\Factories\PlayerServiceFactory;
@@ -15,7 +15,7 @@ class GenerateHighscores extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:generate-highscores';
+    protected $signature = 'ogamex:scheduler:generate-highscores';
 
     /**
      * The console command description.

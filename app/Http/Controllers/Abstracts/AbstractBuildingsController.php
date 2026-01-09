@@ -42,10 +42,7 @@ abstract class AbstractBuildingsController extends OGameController
     /**
      * AbstractBuildingsController constructor.
      */
-    public function __construct(/**
-     * QueueService.
-     */
-    protected BuildingQueueService $queue)
+    public function __construct(protected BuildingQueueService $queue)
     {
         parent::__construct();
     }

@@ -14,11 +14,9 @@ return new class () extends Migration {
     public function up(): void
     {
         // Check if Legor exists (created by earlier migration)
-        $legor = DB::table('users')->where('username', 'Legor')->first();
+        $legorId = DB::table('users')->where('username', 'Legor')->value('id');
 
-        if ($legor) {
-            $legorId = (int) $legor->id;
-
+        if ($legorId !== null) {
             // Check if moon already exists
             $moonExists = DB::table('planets')
                 ->where('user_id', $legorId)
@@ -27,13 +25,12 @@ return new class () extends Migration {
 
             if (!$moonExists) {
                 // Get Legor's planet (Arakis)
-                $planet = DB::table('planets')
+                $planetId = DB::table('planets')
                     ->where('user_id', $legorId)
                     ->where('planet_type', 1) // Planet type
-                    ->first();
+                    ->value('id');
 
-                if ($planet) {
-                    $planetId = (int) $planet->id;
+                if ($planetId !== null) {
 
                     // Dispatch moon creation job with 90-second delay
                     // This simulates a "mock attack" creating debris field and moon

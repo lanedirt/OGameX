@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Dev;
 
 use Illuminate\Console\Command;
 use OGame\Factories\PlayerServiceFactory;
@@ -13,7 +13,7 @@ class PreviewDeleteUsers extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:preview-delete-users
+    protected $signature = 'ogamex:dev:delete-users
                             {--force : Skip confirmation prompt}';
 
     /**
@@ -21,7 +21,7 @@ class PreviewDeleteUsers extends Command
      *
      * @var string
      */
-    protected $description = 'Delete all preview test users (test1-test10) and their associated data.';
+    protected $description = 'Delete all test users (test1-test10) and their associated data.';
 
     /**
      * Execute the console command.
@@ -41,7 +41,7 @@ class PreviewDeleteUsers extends Command
 
         // Confirm deletion unless --force is used
         if (!$this->option('force')) {
-            if (!$this->confirm('Are you sure you want to delete all preview test users?')) {
+            if (!$this->confirm('Are you sure you want to delete all test users?')) {
                 $this->info('Operation cancelled.');
                 return self::SUCCESS;
             }

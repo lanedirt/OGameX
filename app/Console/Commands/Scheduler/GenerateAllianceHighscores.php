@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Scheduler;
 
 use Illuminate\Console\Command;
 use OGame\Models\Alliance;
@@ -14,7 +14,7 @@ class GenerateAllianceHighscores extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:generate-alliance-highscores';
+    protected $signature = 'ogamex:scheduler:generate-alliance-highscores';
 
     /**
      * The console command description.

@@ -1,25 +1,25 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Admin;
 
 use Illuminate\Console\Command;
 use OGame\Models\User;
 
-class AssignAdminRole extends Command
+class RemoveAdminRole extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'ogamex:assign-admin-role {username}';
+    protected $signature = 'ogamex:admin:remove-role {username}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Assign the admin role to a specified username';
+    protected $description = 'Remove the admin role from a specified username';
 
     /**
      * Execute the console command.
@@ -37,11 +37,11 @@ class AssignAdminRole extends Command
         }
 
         // Assuming you are using the Spatie Permission package
-        if (!$user->hasRole('admin')) {
-            $user->assignRole('admin');
-            $this->info('Admin role assigned to user ' . $username);
+        if ($user->hasRole('admin')) {
+            $user->removeRole('admin');
+            $this->info('Admin role removed from user ' . $username);
         } else {
-            $this->info('User ' . $username . ' already has the admin role.');
+            $this->info('User ' . $username . ' does not have the admin role.');
         }
 
         return 0;

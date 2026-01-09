@@ -38,6 +38,7 @@
       "position": "same_line"
     },
     "no_whitespace_in_blank_line": true,
-    "unary_operator_spaces": true
+    "unary_operator_spaces": true,
+    "no_spaces_inside_parenthesis": true
   }
 }

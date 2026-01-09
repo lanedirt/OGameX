@@ -40,6 +40,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Check for no external remote sources
+        uses: ./.github/actions/check-remote-sources
+
       - name: Setup Docker Compose
         uses: ./.github/actions/docker-compose-setup
 
@@ -56,7 +59,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            docker compose exec -T ogamex-app php artisan test:race-condition-unitqueue
-            docker compose exec -T ogamex-app php artisan test:race-condition-game-mission
-            docker compose exec -T ogamex-app php artisan test:race-condition-fleet-dispatch
-            docker compose exec -T ogamex-app php artisan test:race-condition-unitqueue-creation
+            docker compose exec -T ogamex-app php artisan ogamex:test:race-condition-unitqueue
+            docker compose exec -T ogamex-app php artisan ogamex:test:race-condition-game-mission
+            docker compose exec -T ogamex-app php artisan ogamex:test:race-condition-fleet-dispatch
+            docker compose exec -T ogamex-app php artisan ogamex:test:race-condition-unitqueue-creation
