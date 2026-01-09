@@ -17,7 +17,6 @@ return new class () extends Migration {
         $legor = DB::table('users')->where('username', 'Legor')->first();
 
         if ($legor) {
-            // @phpstan-ignore-next-line - DB query result object has id property
             $legorId = (int) $legor->id;
 
             // Check if moon already exists
@@ -34,7 +33,6 @@ return new class () extends Migration {
                     ->first();
 
                 if ($planet) {
-                    // @phpstan-ignore-next-line - DB query result object has id property
                     $planetId = (int) $planet->id;
 
                     // Dispatch moon creation job with 90-second delay
