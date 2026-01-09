@@ -42,19 +42,21 @@ jobs:
 
       - name: Checkout PR branch to preview directory
         run: |
+          REPO_URL="https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git"
+          COMMIT="${{ github.event.pull_request.head.sha }}"
+          REF="${{ github.event.pull_request.head.ref }}"
+
           if [ -d "${{ env.PREVIEW_DIR }}/.git" ]; then
             # Directory exists with git, fetch and checkout
             cd ${{ env.PREVIEW_DIR }}
-            git fetch origin
-            git checkout ${{ github.event.pull_request.head.sha }} --force
+            git remote set-url origin "$REPO_URL" || true
+            git fetch origin "$REF" --depth=1
+            git checkout FETCH_HEAD --force
             git clean -fd
           else
             # Fresh clone
             rm -rf ${{ env.PREVIEW_DIR }}
-            git clone --depth 1 https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git ${{ env.PREVIEW_DIR }}
-            cd ${{ env.PREVIEW_DIR }}
-            git fetch origin ${{ github.event.pull_request.head.sha }}
-            git checkout ${{ github.event.pull_request.head.sha }} --force
+            git clone --depth 1 --branch "$REF" "$REPO_URL" ${{ env.PREVIEW_DIR }}
           fi
 
       - name: Create .env file
