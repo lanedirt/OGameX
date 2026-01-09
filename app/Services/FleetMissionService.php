@@ -2,10 +2,9 @@
 
 namespace OGame\Services;
 
-use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\Enums\FleetSpeedType;
 use OGame\Factories\GameMissionFactory;
 use OGame\GameConstants\UniverseConstants;
@@ -35,10 +34,7 @@ class FleetMissionService
     /**
      * FleetMissionService constructor.
      */
-    public function __construct(/**
-     * Player service
-     */
-    private PlayerService $player, private MessageService $messageService, private GameMissionFactory $gameMissionFactory, private SettingsService $settingsService, private CoordinateDistanceCalculator $coordinateDistanceCalculator)
+    public function __construct(private PlayerService $player, private MessageService $messageService, private GameMissionFactory $gameMissionFactory, private SettingsService $settingsService, private CoordinateDistanceCalculator $coordinateDistanceCalculator)
     {
         $this->model = new FleetMission();
     }

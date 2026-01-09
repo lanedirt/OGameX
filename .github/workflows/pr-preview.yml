@@ -1,7 +1,7 @@
 name: PR Preview
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
@@ -105,6 +105,12 @@ jobs:
           sed -i "s|APP_ENV=.*|APP_ENV=production|g" .env
           sed -i "s|APP_DEBUG=.*|APP_DEBUG=true|g" .env
 
+      - name: Remove container_name from docker-compose for isolation
+        working-directory: ${{ env.PREVIEW_DIR }}
+        run: |
+          # Remove all container_name lines to allow Docker Compose project namespacing
+          sed -i '/container_name:/d' docker-compose.yml
+
       - name: Generate Traefik override
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
@@ -175,7 +181,7 @@ jobs:
       - name: Seed preview test users
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
-          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan ogamex:preview-seed-users
+          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan ogamex:dev:seed-users
 
       - name: Comment on PR with preview URL
         uses: actions/github-script@v7
@@ -220,7 +226,7 @@ jobs:
               '| test7@ogamex.dev | test | player | General | 3 | Heavy defense across planets |',
               '| test8@ogamex.dev | test | player | Discoverer | 1 | Fleet focus, inactive (i) 8 days |',
               '| test9@ogamex.dev | test | player | Collector | 1 | Beginner, long inactive (I) 40 days |',
-              '| test10@ogamex.dev | test | player | General | 5 | Endgame, max tech, specialized planets |',
+              '| test10@ogamex.dev | test | player | General | 5 | Endgame, 90 unread messages |',
               '',
               '</details>',
               '',

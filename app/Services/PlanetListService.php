@@ -33,11 +33,11 @@ class PlanetListService
 
     /**
      * Planets constructor.
+     *
+     * @param PlayerService $player PlayerService object.
+     * @param PlanetServiceFactory $planetServiceFactory PlanetServiceFactory object.
      */
-    public function __construct(/**
-     * PlayerService
-     */
-    private PlayerService $player, private PlanetServiceFactory $planetServiceFactory)
+    public function __construct(private PlayerService $player, private PlanetServiceFactory $planetServiceFactory)
     {
         // Get all planets (and moons) of user.
         $planets = Planet::where('user_id', $this->player->getId())->get();

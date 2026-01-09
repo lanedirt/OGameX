@@ -2,20 +2,8 @@
 
 namespace OGame\GameMissions;
 
-use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
-use OGame\Services\DarkMatterService;
-use OGame\Enums\DarkMatterTransactionType;
-use OGame\Services\MerchantService;
-use OGame\GameMessages\ExpeditionMerchantFound;
-use OGame\Services\NPCFleetGeneratorService;
-use OGame\Services\NPCPlanetService;
-use OGame\GameMissions\BattleEngine\RustBattleEngine;
-use OGame\Services\PlayerService;
-use OGame\Services\NPCPlayerService;
-use OGame\GameMissions\BattleEngine\Models\BattleResult;
-use OGame\Models\BattleReport;
-use OGame\Services\CharacterClassService;
 use Exception;
+use OGame\Enums\DarkMatterTransactionType;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\Enums\HighscoreTypeEnum;
@@ -29,11 +17,16 @@ use OGame\GameMessages\ExpeditionGainItem;
 use OGame\GameMessages\ExpeditionGainResources;
 use OGame\GameMessages\ExpeditionGainShips;
 use OGame\GameMessages\ExpeditionLossOfFleet;
+use OGame\GameMessages\ExpeditionMerchantFound;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Models\BattleResult;
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
+use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\ShipObject;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Enums\ResourceType;
 use OGame\Models\FleetMission;
@@ -41,8 +34,15 @@ use OGame\Models\Highscore;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\User;
+use OGame\Services\CharacterClassService;
+use OGame\Services\DarkMatterService;
+use OGame\Services\MerchantService;
+use OGame\Services\NPCFleetGeneratorService;
+use OGame\Services\NPCPlanetService;
+use OGame\Services\NPCPlayerService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 
 class ExpeditionMission extends GameMission
@@ -99,9 +99,9 @@ class ExpeditionMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
-        // Cannot send missions while in vacation mode
-        if ($planet->getPlayer()->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'You cannot send missions while in vacation mode!');
+        $parentCheck = parent::isMissionPossible($planet, $targetCoordinate, $targetType, $units);
+        if (!$parentCheck->possible) {
+            return $parentCheck;
         }
 
         // Expedition mission is only possible for position 16.
@@ -474,7 +474,7 @@ class ExpeditionMission extends GameMission
         $maxCargoCapacity = $totalCargoCapacity - $resourcesInCargo;
 
         // Determine the max ship find (uses ships multiplier).
-        $maxShipFind = $this->determineMaxShipFind();
+        $maxShipFind = $this->determineMaxShipFind($mission);
         $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $maxShipFind);
 
         // Select 1-6 random ship types from possible ships.
@@ -911,15 +911,12 @@ class ExpeditionMission extends GameMission
     }
 
     /**
-     * Get the max resource find based on the rank 1 highscore points and by returning a random
-     * value between 10% and 100% of the actual max resource find for variance.
+     * Get the base max find amount based on the rank 1 highscore points.
+     * Returns a random value between 10% and 100% of the max for variance.
      *
-     * This method is used by both gainResources and gainShips outcome.
-     *
-     * @param FleetMission $mission
      * @return int
      */
-    private function determineMaxResourceFind(FleetMission $mission): int
+    private function getBaseMaxFindFromHighscore(): int
     {
         // Max resources found is according to these params:
         // Number 1 player highscore "general" points determines the max resources found:
@@ -932,11 +929,6 @@ class ExpeditionMission extends GameMission
         // < 75.000.000 points: 3.600.000 metal
         // < 100.000.000 points: 4.200.000 metal
         // > 100.000.000 points: 5.000.000 metal
-        // When discoverer class is active, the following modifier applies: economy speed * 1.5.
-        // E.g. with discoverer class and economy speed 5x, the modifier is 7.5.
-        // so the >100m points max find would be 7.5 * 5m = 37.5m
-        // Crystal is 2/3 of the metal find.
-        // Deuterium is 1/3 of the metal find.
         $rank_1_highscore_points = Highscore::orderByDesc(HighscoreTypeEnum::general->name)->first()->general;
 
         if ($rank_1_highscore_points < 10000) {
@@ -963,9 +955,22 @@ class ExpeditionMission extends GameMission
         $min = max(1, (int)floor($max * 0.1));
 
         // Pick a random amount between min and max.
-        $resourceAmount = random_int($min, $max);
+        return random_int($min, $max);
+    }
+
+    /**
+     * Get the max resource find based on the rank 1 highscore points.
+     *
+     * @param FleetMission $mission
+     * @return int
+     */
+    private function determineMaxResourceFind(FleetMission $mission): int
+    {
+        $resourceAmount = $this->getBaseMaxFindFromHighscore();
 
         // Apply Discoverer class expedition resource multiplier (economy speed * 1.5 for Discoverer, 1.0 for others)
+        // Crystal is 2/3 of the metal find.
+        // Deuterium is 1/3 of the metal find.
         $player = $this->playerServiceFactory->make($mission->user_id, true);
         $characterClassService = app(CharacterClassService::class);
         $economySpeed = $this->settings->economySpeed();
@@ -993,44 +998,33 @@ class ExpeditionMission extends GameMission
     }
 
     /**
-     * Similar to determineMaxResourceFind() but applies the ships multiplier instead.
+     * Get the max ship find based on the rank 1 highscore points.
      *
+     * @param FleetMission $mission
      * @return int
      */
-    private function determineMaxShipFind(): int
+    private function determineMaxShipFind(FleetMission $mission): int
     {
-        // Use the same base calculation as determineMaxResourceFind()
-        $rank_1_highscore_points = Highscore::orderByDesc(HighscoreTypeEnum::general->name)->first()->general;
+        $resourceAmount = $this->getBaseMaxFindFromHighscore();
 
-        if ($rank_1_highscore_points < 10000) {
-            $max = 40000;
-        } elseif ($rank_1_highscore_points < 100000) {
-            $max = 500000;
-        } elseif ($rank_1_highscore_points < 1000000) {
-            $max = 1200000;
-        } elseif ($rank_1_highscore_points < 5000000) {
-            $max = 1800000;
-        } elseif ($rank_1_highscore_points < 25000000) {
-            $max = 2400000;
-        } elseif ($rank_1_highscore_points < 50000000) {
-            $max = 3000000;
-        } elseif ($rank_1_highscore_points < 75000000) {
-            $max = 3600000;
-        } elseif ($rank_1_highscore_points < 100000000) {
-            $max = 4200000;
-        } else {
-            $max = 5000000;
-        }
-
-        // Set min to at least 10% of the max.
-        $min = max(1, (int)floor($max * 0.1));
-
-        // Pick a random amount between min and max.
-        $resourceAmount = random_int($min, $max);
-
-        // Apply economy speed modifier
+        // Apply Discoverer class expedition resource multiplier (economy speed * 1.5 for Discoverer, 1.0 for others)
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+        $characterClassService = app(CharacterClassService::class);
         $economySpeed = $this->settings->economySpeed();
-        $resourceAmount = $resourceAmount * ($economySpeed * 1.5);
+        $expeditionMultiplier = $characterClassService->getExpeditionResourceMultiplier($player->getUser(), $economySpeed);
+        $resourceAmount = (int)($resourceAmount * $expeditionMultiplier);
+
+        // If the fleet contains a Pathfinder, double the max ship find
+        $fleetUnits = $this->fleetMissionService->getFleetUnits(mission: $mission);
+        $objectService = app(ObjectService::class);
+        try {
+            $hasPathfinder = $fleetUnits->hasUnit($objectService->getShipObjectByMachineName('pathfinder'));
+            if ($hasPathfinder) {
+                $resourceAmount = $resourceAmount * 2;
+            }
+        } catch (Exception $e) {
+            // Pathfinder not found in object service, skip bonus
+        }
 
         // Apply ship rewards multiplier
         $settingsService = app(SettingsService::class);

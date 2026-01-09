@@ -15,7 +15,6 @@ class UnitEntry
          * Amount of units in this collection.
          */
         public int $amount
-    )
-    {
+    ) {
     }
 }

@@ -151,7 +151,23 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::post('/merchant/scrap/execute', [MerchantController::class, 'scrapExecute'])->name('merchant.scrap.execute');
 
     Route::get('/alliance', [AllianceController::class, 'index'])->name('alliance.index');
+    Route::get('/alliance/apply/{alliance_id}', [AllianceController::class, 'showApplicationForm'])->name('alliance.application.form');
+    Route::get('/alliance/info/{alliance_id}', [AllianceController::class, 'info'])->name('alliance.info');
     Route::get('/ajax/alliance/create', [AllianceController::class, 'ajaxCreate'])->name('alliance.ajax.create');
+    Route::get('/ajax/alliance/overview', [AllianceController::class, 'ajaxOverview'])->name('alliance.ajax.overview');
+    Route::get('/ajax/alliance/management', [AllianceController::class, 'ajaxManagement'])->name('alliance.ajax.management');
+    Route::get('/ajax/alliance/broadcast', [AllianceController::class, 'ajaxBroadcast'])->name('alliance.ajax.broadcast');
+    Route::get('/ajax/alliance/applications', [AllianceController::class, 'ajaxApplications'])->name('alliance.ajax.applications');
+    Route::get('/ajax/alliance/classes', [AllianceController::class, 'ajaxClasses'])->name('alliance.ajax.classes');
+    Route::get('/ajax/alliance/new-application', [AllianceController::class, 'ajaxNewApplication'])->name('alliance.ajax.new-application');
+    Route::get('/ajax/alliance/handle-application/{alliance_id}', [AllianceController::class, 'ajaxHandleApplication'])->name('alliance.ajax.handleapplication');
+    Route::post('/alliance/store', [AllianceController::class, 'store'])->name('alliance.store');
+    Route::post('/alliance/apply', [AllianceController::class, 'apply'])->name('alliance.apply');
+    Route::post('/alliance/action', [AllianceController::class, 'action'])->name('alliance.action');
+    Route::post('/alliance/rank/create', [AllianceController::class, 'createRank'])->name('alliance.rank.create');
+    Route::post('/alliance/members/kick', [AllianceController::class, 'kickMemberAction'])->name('alliance.members.kick');
+    Route::post('/alliance/members/assign-rank', [AllianceController::class, 'assignRankAction'])->name('alliance.members.assign-rank');
+    Route::post('/alliance/text/update', [AllianceController::class, 'updateAllianceText'])->name('alliance.text.update');
 
     Route::get('/premium', [PremiumController::class, 'index'])->name('premium.index');
     Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
@@ -179,6 +195,7 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::get('/planet-move', [PlanetMoveController::class, 'index'])->name('planetMove.index');
 
     Route::get('/overlay/search', [SearchController::class, 'overlay'])->name('search.overlay');
+    Route::post('/ajax/search', [SearchController::class, 'search'])->name('search.ajax');
 
     Route::match(['get', 'post'], '/overlay/notes', [NotesController::class, 'overlay'])->name('notes.overlay');
     Route::get('/overlay/notes/view', [NotesController::class, 'view'])->name('notes.view');

@@ -2,20 +2,21 @@
 
 namespace OGame\Models;
 
-use OGame\Enums\CharacterClass;
-use Illuminate\Support\Carbon;
-use Illuminate\Notifications\DatabaseNotificationCollection;
-use Illuminate\Notifications\DatabaseNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use OGame\Enums\CharacterClass;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -146,6 +147,7 @@ class User extends Authenticatable
         'dark_matter_last_regen' => 'datetime',
         'character_class_free_used' => 'boolean',
         'character_class_changed_at' => 'datetime',
+        'alliance_left_at' => 'datetime',
     ];
 
     /**
@@ -166,6 +168,26 @@ class User extends Authenticatable
     public function darkMatterTransactions()
     {
         return $this->hasMany(DarkMatterTransaction::class);
+    }
+
+    /**
+     * Get the highscore record associated with the user.
+     *
+     * @return HasOne
+     */
+    public function highscore(): HasOne
+    {
+        return $this->hasOne(Highscore::class, 'player_id');
+    }
+
+    /**
+     * Get the alliance that the user belongs to.
+     *
+     * @return BelongsTo
+     */
+    public function alliance(): BelongsTo
+    {
+        return $this->belongsTo(Alliance::class, 'alliance_id');
     }
 
     /**

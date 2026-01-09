@@ -2,8 +2,8 @@
 
 namespace OGame\Services;
 
-use Illuminate\Support\Carbon;
 use Exception;
+use Illuminate\Support\Carbon;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;

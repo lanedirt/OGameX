@@ -2,10 +2,10 @@
 
 namespace OGame\GameMissions;
 
-use OGame\GameMessages\FleetLostContact;
-use OGame\GameMessages\DebrisFieldHarvest;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
+use OGame\GameMessages\DebrisFieldHarvest;
+use OGame\GameMessages\FleetLostContact;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
@@ -39,9 +39,9 @@ class AttackMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
-        // Cannot send missions while in vacation mode
-        if ($planet->getPlayer()->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'You cannot send missions while in vacation mode!');
+        $parentCheck = parent::isMissionPossible($planet, $targetCoordinate, $targetType, $units);
+        if (!$parentCheck->possible) {
+            return $parentCheck;
         }
 
         // Attack mission is only possible for planets and moons.
@@ -56,24 +56,18 @@ class AttackMission extends GameMission
         }
 
         // If planet belongs to current player, the mission is not possible.
-        if ($planet->getPlayer()->equals($targetPlanet->getPlayer())) {
-            return new MissionPossibleStatus(false);
-        }
-
-        // If mission from and to coordinates and types are the same, the mission is not possible.
-        if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
-            return new MissionPossibleStatus(false);
+        if ($ownPlanetCheck = $this->checkOwnPlanet($planet, $targetPlanet)) {
+            return $ownPlanetCheck;
         }
 
         // If target player is in vacation mode, the mission is not possible.
-        $targetPlayer = $targetPlanet->getPlayer();
-        if ($targetPlayer->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'This player is in vacation mode!');
+        if ($vacationCheck = $this->checkTargetVacationMode($targetPlanet)) {
+            return $vacationCheck;
         }
 
         // Legor's planet (Arakis at 1:1:2) cannot be attacked
-        if ($targetPlayer->getUsername(false) === 'Legor') {
-            return new MissionPossibleStatus(false, 'This planet belongs to an administrator and cannot be attacked.');
+        if ($adminCheck = $this->checkAdminProtection($targetPlanet, __('This planet belongs to an administrator and cannot be attacked.'))) {
+            return $adminCheck;
         }
 
         // If all checks pass, the mission is possible.

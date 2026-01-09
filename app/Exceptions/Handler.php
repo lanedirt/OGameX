@@ -2,11 +2,11 @@
 
 namespace OGame\Exceptions;
 
-use Symfony\Component\HttpFoundation\Response;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
 use Spatie\DiscordAlerts\Facades\DiscordAlert;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class Handler extends ExceptionHandler

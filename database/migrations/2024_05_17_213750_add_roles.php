@@ -84,15 +84,13 @@ return new class () extends Migration {
 
         // Assign "admin" role to the first non-Legor user and rename it to "Admin".
         // Skip Legor if it's the first user, as it already has admin role.
-        $firstUser = DB::table('users')
+        $firstUserId = DB::table('users')
             ->where('username', '!=', 'Legor')
             ->orderBy('id')
-            ->first();
+            ->value('id');
 
-        if ($firstUser) {
+        if ($firstUserId !== null) {
             $adminRole = Role::where('name', 'admin')->first();
-            // @phpstan-ignore-next-line - DB query result object has id property
-            $firstUserId = (int) $firstUser->id;
             $adminRoleId = (int) $adminRole->id;
 
             // Assign admin role
@@ -134,14 +132,12 @@ return new class () extends Migration {
         }
 
         // Remove admin role from the first non-Legor user
-        $firstUser = DB::table('users')
+        $firstUserId = DB::table('users')
             ->where('username', '!=', 'Legor')
             ->orderBy('id')
-            ->first();
+            ->value('id');
 
-        if ($firstUser) {
-            // @phpstan-ignore-next-line - DB query result object has id property
-            $firstUserId = (int) $firstUser->id;
+        if ($firstUserId !== null) {
             DB::table('model_has_roles')
                 ->where('model_id', $firstUserId)
                 ->where('model_type', 'OGame\\Models\\User')
