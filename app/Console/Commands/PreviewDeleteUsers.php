@@ -29,8 +29,8 @@ class PreviewDeleteUsers extends Command
     public function handle(): int
     {
         // Check if any test users exist
-        $testUsernames = self::getTestUsernames();
-        $existingCount = User::whereIn('username', $testUsernames)->count();
+        $testEmails = self::getTestEmails();
+        $existingCount = User::whereIn('email', $testEmails)->count();
 
         if ($existingCount === 0) {
             $this->info('No preview test users found.');
@@ -56,17 +56,17 @@ class PreviewDeleteUsers extends Command
     }
 
     /**
-     * Get the list of test usernames.
+     * Get the list of test emails.
      *
      * @return array<string>
      */
-    public static function getTestUsernames(): array
+    public static function getTestEmails(): array
     {
-        $usernames = [];
+        $emails = [];
         for ($i = 1; $i <= 10; $i++) {
-            $usernames[] = 'test' . $i;
+            $emails[] = 'test' . $i . '@ogamex.dev';
         }
-        return $usernames;
+        return $emails;
     }
 
     /**
@@ -77,10 +77,10 @@ class PreviewDeleteUsers extends Command
      */
     public static function deleteTestUsers(Command|null $output = null): void
     {
-        $testUsernames = self::getTestUsernames();
+        $testEmails = self::getTestEmails();
 
         // Get user IDs before deleting
-        $testUserIds = User::whereIn('username', $testUsernames)->pluck('id')->toArray();
+        $testUserIds = User::whereIn('email', $testEmails)->pluck('id')->toArray();
 
         if (empty($testUserIds)) {
             $output?->info('No existing test users found.');
