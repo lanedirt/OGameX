@@ -2,6 +2,7 @@
 
 namespace OGame\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use OGame\Enums\CharacterClass;
@@ -175,7 +176,7 @@ class PreviewSeedUsers extends Command
         $this->newLine();
 
         $this->warn('Cleaning up existing preview test users...');
-        DeletePreviewUsers::deleteTestUsers($this);
+        PreviewDeleteUsers::deleteTestUsers($this);
 
         $createdUsers = [];
         foreach ($this->userConfigs as $num => $config) {
@@ -196,7 +197,7 @@ class PreviewSeedUsers extends Command
 
         $this->table(
             ['Email (login)', 'Password', 'Role', 'Class', 'Description'],
-            array_map(fn($u) => [
+            array_map(fn ($u) => [
                 $u['email'],
                 $u['password'],
                 $u['role'],
@@ -208,7 +209,7 @@ class PreviewSeedUsers extends Command
         $this->newLine();
         $this->info('All users can log in with their email and password: ' . $password);
 
-        return Command::SUCCESS;
+        return self::SUCCESS;
     }
 
     /**
@@ -302,7 +303,7 @@ class PreviewSeedUsers extends Command
      * @param string|null $planetName Optional custom name (null = use factory default)
      * @param array<string, mixed> $planetConfig
      */
-    private function createPlanet(User $user, ?string $planetName, array $planetConfig): PlanetService
+    private function createPlanet(User $user, string|null $planetName, array $planetConfig): PlanetService
     {
         // Get services from container
         $playerServiceFactory = app(PlayerServiceFactory::class);
@@ -393,7 +394,7 @@ class PreviewSeedUsers extends Command
                             $buildingRequirements[$reqName] = $reqLevel;
                         }
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     continue;
                 }
             }
@@ -422,7 +423,7 @@ class PreviewSeedUsers extends Command
                             $expanded[$reqName] = $reqLevel;
                         }
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     continue;
                 }
             }
@@ -456,7 +457,7 @@ class PreviewSeedUsers extends Command
                             $expanded[$reqName] = $reqLevel;
                         }
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     continue;
                 }
             }

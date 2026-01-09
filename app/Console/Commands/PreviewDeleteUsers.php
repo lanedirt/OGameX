@@ -34,7 +34,7 @@ class PreviewDeleteUsers extends Command
 
         if ($existingCount === 0) {
             $this->info('No preview test users found.');
-            return Command::SUCCESS;
+            return self::SUCCESS;
         }
 
         $this->warn("Found {$existingCount} preview test users.");
@@ -43,7 +43,7 @@ class PreviewDeleteUsers extends Command
         if (!$this->option('force')) {
             if (!$this->confirm('Are you sure you want to delete all preview test users?')) {
                 $this->info('Operation cancelled.');
-                return Command::SUCCESS;
+                return self::SUCCESS;
             }
         }
 
@@ -52,7 +52,7 @@ class PreviewDeleteUsers extends Command
         $this->newLine();
         $this->info('Preview test users deleted successfully.');
 
-        return Command::SUCCESS;
+        return self::SUCCESS;
     }
 
     /**
@@ -75,7 +75,7 @@ class PreviewDeleteUsers extends Command
      *
      * @param Command|null $output Optional command instance for output
      */
-    public static function deleteTestUsers(?Command $output = null): void
+    public static function deleteTestUsers(Command|null $output = null): void
     {
         $testUsernames = self::getTestUsernames();
 
