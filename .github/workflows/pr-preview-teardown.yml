@@ -8,6 +8,9 @@ permissions:
   contents: read
   pull-requests: write
 
+env:
+  PREVIEW_BASE_DIR: /opt/previews
+
 jobs:
   teardown:
     name: Teardown preview environment
@@ -21,8 +24,21 @@ jobs:
       - name: Stop and remove preview stack
         run: |
           PR=${{ github.event.pull_request.number }}
+          PREVIEW_DIR="${{ env.PREVIEW_BASE_DIR }}/pr-$PR"
           echo "Tearing down preview environment for PR #$PR..."
-          docker compose -p pr-$PR down -v --remove-orphans || true
+
+          # Stop containers from the preview directory if it exists
+          if [ -d "$PREVIEW_DIR" ]; then
+            cd "$PREVIEW_DIR"
+            docker compose -p pr-$PR down -v --remove-orphans || true
+          else
+            # Fallback: try to stop by project name only
+            docker compose -p pr-$PR down -v --remove-orphans || true
+          fi
+
+          # Remove the preview directory
+          rm -rf "$PREVIEW_DIR" || true
+
           echo "Cleanup complete!"
 
       - name: Comment on PR about teardown

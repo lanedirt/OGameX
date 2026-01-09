@@ -8,6 +8,9 @@ permissions:
   contents: read
   pull-requests: write
 
+env:
+  PREVIEW_BASE_DIR: /opt/previews
+
 jobs:
   deploy:
     name: Deploy preview environment
@@ -24,23 +27,32 @@ jobs:
       url: https://pr-${{ github.event.pull_request.number }}.preview.ogamex.dev
 
     steps:
-      - name: Fix permissions from previous Docker runs
-        run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE || true
-
-      - name: Checkout PR branch
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
-
       - name: Set up environment variables
         run: |
           PR=${{ github.event.pull_request.number }}
           echo "PR_NUMBER=$PR" >> $GITHUB_ENV
           echo "PREVIEW_HOST=pr-$PR.preview.ogamex.dev" >> $GITHUB_ENV
+          echo "PREVIEW_DIR=${{ env.PREVIEW_BASE_DIR }}/pr-$PR" >> $GITHUB_ENV
+          echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
+          echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
+
+      - name: Prepare preview directory
+        run: |
+          mkdir -p ${{ env.PREVIEW_DIR }}
+
+      - name: Checkout PR branch to preview directory
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr-checkout
+
+      - name: Sync files to preview directory
+        run: |
+          rsync -a --delete --exclude='.git' pr-checkout/ ${{ env.PREVIEW_DIR }}/
 
       - name: Create .env file
+        working-directory: ${{ env.PREVIEW_DIR }}
         run: |
           cp .env.example .env
           sed -i "s|APP_URL=.*|APP_URL=http://pr-${{ env.PR_NUMBER }}.preview.ogamex.dev|g" .env
@@ -48,6 +60,7 @@ jobs:
           sed -i "s|APP_DEBUG=.*|APP_DEBUG=true|g" .env
 
       - name: Generate Traefik override
+        working-directory: ${{ env.PREVIEW_DIR }}
         run: |
           cat > docker-compose.override.yml << EOF
           services:
@@ -59,11 +72,24 @@ jobs:
               labels:
                 - traefik.enable=true
                 - traefik.docker.network=traefik
-                - traefik.http.routers.pr-${PR_NUMBER}.rule=Host(\`${PREVIEW_HOST}\`)
-                - traefik.http.routers.pr-${PR_NUMBER}.entrypoints=web
-                - traefik.http.services.pr-${PR_NUMBER}.loadbalancer.server.port=80
+                - traefik.http.routers.pr-${{ env.PR_NUMBER }}.rule=Host(\`${{ env.PREVIEW_HOST }}\`)
+                - traefik.http.routers.pr-${{ env.PR_NUMBER }}.entrypoints=web
+                - traefik.http.services.pr-${{ env.PR_NUMBER }}.loadbalancer.server.port=80
 
             ogamex-app:
+              user: "${{ env.HOST_UID }}:${{ env.HOST_GID }}"
+              build:
+                args:
+                  USE_USER: "no"
+
+            ogamex-scheduler:
+              user: "${{ env.HOST_UID }}:${{ env.HOST_GID }}"
+              build:
+                args:
+                  USE_USER: "no"
+
+            ogamex-queue-worker:
+              user: "${{ env.HOST_UID }}:${{ env.HOST_GID }}"
               build:
                 args:
                   USE_USER: "no"
@@ -81,21 +107,25 @@ jobs:
           EOF
 
       - name: Stop existing stack (if any)
+        working-directory: ${{ env.PREVIEW_DIR }}
         run: |
           docker compose -p pr-${{ env.PR_NUMBER }} down --remove-orphans || true
 
       - name: Build and start preview stack
+        working-directory: ${{ env.PREVIEW_DIR }}
         run: |
           docker compose -p pr-${{ env.PR_NUMBER }} build
           docker compose -p pr-${{ env.PR_NUMBER }} up -d --remove-orphans
 
       - name: Wait for app to be healthy
+        working-directory: ${{ env.PREVIEW_DIR }}
         run: |
           echo "Waiting for application to be ready..."
           timeout 300 bash -c 'until docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do sleep 5; done'
           echo "Application is ready!"
 
       - name: Run database migrations
+        working-directory: ${{ env.PREVIEW_DIR }}
         run: |
           docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate --force
 
