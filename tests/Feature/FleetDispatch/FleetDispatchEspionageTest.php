@@ -213,6 +213,8 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
             })
             ->delete();
 
+        // Create a new debris field service instance to ensure we start fresh
+        $debrisField = resolve(DebrisFieldService::class);
         // Create a new debris field for the foreign planet with an exact amount of resources
         // that we later test for.
         $debrisField = resolve(DebrisFieldService::class);

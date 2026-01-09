@@ -1,7 +1,7 @@
 name: PR Preview
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
@@ -220,7 +220,7 @@ jobs:
               '| test7@ogamex.dev | test | player | General | 3 | Heavy defense across planets |',
               '| test8@ogamex.dev | test | player | Discoverer | 1 | Fleet focus, inactive (i) 8 days |',
               '| test9@ogamex.dev | test | player | Collector | 1 | Beginner, long inactive (I) 40 days |',
-              '| test10@ogamex.dev | test | player | General | 5 | Endgame, max tech, specialized planets |',
+              '| test10@ogamex.dev | test | player | General | 5 | Endgame, 90 unread messages |',
               '',
               '</details>',
               '',

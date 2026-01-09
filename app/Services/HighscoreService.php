@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use OGame\Models\AllianceHighscore;
+use OGame\Models\Alliance;
 use Cache;
 use Exception;
 use OGame\Enums\HighscoreTypeEnum;
@@ -260,7 +262,7 @@ class HighscoreService
 
             $highscores = Highscore::query()
                 ->whereHas('player.tech')
-                ->with('player')
+                ->with(['player', 'player.alliance'])
                 ->validRanks()
                 ->orderBy($this->highscoreType->name.'_rank')
                 ->paginate(perPage: $perPage, page: $pageOn);
@@ -281,6 +283,18 @@ class HighscoreService
                 $score = $playerScore->{$this->highscoreType->name} ?? 0;
                 $score_formatted = AppUtil::formatNumber($score);
 
+                // Get player's alliance information if they're in one
+                $allianceTag = null;
+                $allianceId = null;
+                if ($playerScore->player->alliance_id) {
+                    /** @var Alliance|null $alliance */
+                    $alliance = $playerScore->player->alliance;
+                    if ($alliance) {
+                        $allianceTag = $alliance->alliance_tag;
+                        $allianceId = $alliance->id;
+                    }
+                }
+
                 $parsedHighscores[] = [
                     'id' => $playerScore->player_id,
                     'name' => $playerScore->player->username,
@@ -289,6 +303,8 @@ class HighscoreService
                     'planet_coords' => $mainPlanet->getPlanetCoordinates(),
                     'rank' => $playerScore->{$this->highscoreType->name.'_rank'},
                     'is_admin' => $playerService->isAdmin(),
+                    'alliance_tag' => $allianceTag,
+                    'alliance_id' => $allianceId,
                 ];
             }
             return $parsedHighscores;
@@ -317,6 +333,81 @@ class HighscoreService
     {
         return Cache::remember('highscore-player-count', now()->addMinutes(5), function () {
             return Highscore::query()->validRanks()->count();
+        });
+    }
+
+    /**
+     * Get alliance highscores.
+     *
+     * @param int $perPage
+     * @param int $pageOn
+     * @return array<int, array<string,mixed>>
+     */
+    public function getHighscoreAlliances(int $perPage = 100, int $pageOn = 1): array
+    {
+        // Get all alliance highscores
+        return Cache::remember(sprintf('alliance-highscores-%s-%d', $this->highscoreType->name, $pageOn), now()->addMinutes(5), function () use ($perPage, $pageOn) {
+            $parsedHighscores = [];
+
+            $highscores = AllianceHighscore::query()
+                ->with('alliance.members')
+                ->validRanks()
+                ->orderBy($this->highscoreType->name.'_rank')
+                ->paginate(perPage: $perPage, page: $pageOn);
+
+            foreach ($highscores as $allianceScore) {
+                // Skip if alliance doesn't exist
+                if (!$allianceScore->alliance) {
+                    continue;
+                }
+
+                $score = $allianceScore->{$this->highscoreType->name} ?? 0;
+                $score_formatted = AppUtil::formatNumber($score);
+                $memberCount = $allianceScore->alliance->members->count();
+                $averageScore = $memberCount > 0 ? $score / $memberCount : 0;
+                $averageScore_formatted = AppUtil::formatNumber($averageScore);
+
+                $parsedHighscores[] = [
+                    'id' => $allianceScore->alliance_id,
+                    'name' => $allianceScore->alliance->alliance_name,
+                    'tag' => $allianceScore->alliance->alliance_tag,
+                    'points' => $score,
+                    'points_formatted' => $score_formatted,
+                    'average_points' => $averageScore,
+                    'average_points_formatted' => $averageScore_formatted,
+                    'member_count' => $memberCount,
+                    'rank' => $allianceScore->{$this->highscoreType->name.'_rank'},
+                ];
+            }
+            return $parsedHighscores;
+        });
+    }
+
+    /**
+     * Return rank of alliance.
+     *
+     * @param int $allianceId
+     * @return int
+     */
+    public function getHighscoreAllianceRank(int $allianceId): int
+    {
+        // Find the alliance in the highscore list to determine its rank.
+        $allianceHighscore = AllianceHighscore::where('alliance_id', $allianceId)->first();
+        if (!$allianceHighscore) {
+            return 0;
+        }
+        return $allianceHighscore->{$this->highscoreType->name.'_rank'} ?? 0;
+    }
+
+    /**
+     * Returns the amount of alliances in the game to determine paging for highscore page.
+     *
+     * @return int
+     */
+    public function getHighscoreAllianceAmount(): int
+    {
+        return Cache::remember('highscore-alliance-count', now()->addMinutes(5), function () {
+            return AllianceHighscore::query()->validRanks()->count();
         });
     }
 }
