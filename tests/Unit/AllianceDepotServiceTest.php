@@ -52,15 +52,15 @@ class AllianceDepotServiceTest extends UnitTestCase
         // Create outbound mission that arrived
         $outbound = new FleetMission();
         $outbound->mission_type = 5;
-        $outbound->time_arrival = $currentTime - 1800; // Arrived 30 minutes ago
+        $outbound->time_arrival = $currentTime - 900; // Arrived 15 minutes ago
         $outbound->processed = 0;
         $outbound->canceled = 0;
 
-        // Create return mission departing in 30 minutes (total hold: 1 hour, but only 30 mins left)
+        // Create return mission departing in 15 minutes (total hold: 30 minutes, less than 1 hour)
         $return = new FleetMission();
         $return->mission_type = 5;
-        $return->time_departure = $currentTime + 1800; // Departs in 30 minutes
-        $return->time_arrival = $currentTime + 3600;
+        $return->time_departure = $currentTime + 900; // Departs in 15 minutes
+        $return->time_arrival = $currentTime + 1800;
         $return->canceled = 0;
 
         // Should not be extendable (holding < 1 hour originally)

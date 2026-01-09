@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
@@ -27,58 +26,72 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
      */
     public function testSupplyRocketExtendsHoldTime(): void
     {
-        // Set up planet with Alliance Depot and deuterium
-        $this->planetSetObjectLevel('alliance_depot', 2);
-        $this->planetAddResources(new Resources(0, 0, 50000, 0));
-
-        // Create a buddy and their planet
+        // Create a buddy and their planet with Alliance Depot
         $buddyUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $buddyPlanet = \OGame\Models\Planet::factory()->create([
             'user_id' => $buddyUser->id,
             'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 8,
+            'planet' => 6,
         ]);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
 
-        // Add buddy relationship
+        // Add buddy relationship first
         $buddyService = resolve(BuddyService::class);
         $request = $buddyService->sendRequest($this->currentUserId, $buddyUser->id);
         $buddyService->acceptRequest($request->id, $buddyUser->id);
 
         // Send an ACS Defend fleet to buddy's planet with 4 hour hold
         $this->planetAddUnit('light_fighter', 10);
+        $this->planetAddResources(new Resources(0, 0, 10000, 0)); // Add deuterium for fuel
         $units = new UnitCollection();
         $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
 
         $fleetMissionService = app(FleetMissionService::class);
-        $fleetMissionService->createNewFromPlanet(
+        $mission = $fleetMissionService->createNewFromPlanet(
             $this->planetService,
             $buddyPlanetService->getPlanetCoordinates(),
             PlanetType::Planet,
             5, // ACS Defend
             $units,
             new Resources(0, 0, 0, 0),
-            10, // 100% speed
-            4 // 4 hour hold time
+            10, // 100% speed (7th parameter)
+            4 // 4 hour hold time (8th parameter)
         );
 
-        // Fast forward to when fleet has arrived
-        $this->travel(2)->hours();
+        // Travel to just after arrival time but well before hold expires
+        // Fleet arrives at $mission->time_arrival, holds until time_arrival + time_holding
+        $arrivalTime = $mission->time_arrival;
+        $currentTime = (int)\Carbon\Carbon::now()->timestamp; // Use Laravel's time, not system time()
+        $travelSeconds = $arrivalTime - $currentTime + 3600; // Arrive + 1 hour (to ensure mission has been processed)
+        $this->travel($travelSeconds)->seconds();
 
-        // Find the outbound mission
+        // Store original planet ID for finding the mission
+        $originalPlanetId = $this->planetService->getPlanetId();
+
+        // Switch to buddy user and their planet (they need to send the supply rocket)
+        $this->be($buddyUser);
+        $this->planetService = $buddyPlanetService;
+
+        // Give buddy Alliance Depot and deuterium
+        $buddyPlanetService->setObjectLevel(34, 2); // 34 = alliance_depot
+        $buddyPlanetService->addResources(new Resources(0, 0, 50000, 0));
+
+        // Find the outbound mission (parent mission, not return)
         $outboundMission = FleetMission::where('mission_type', 5)
-            ->where('planet_id_from', $this->planetService->getPlanetId())
+            ->where('planet_id_from', $originalPlanetId)
             ->where('planet_id_to', $buddyPlanetService->getPlanetId())
+            ->whereNull('parent_id')
             ->first();
 
         $this->assertNotNull($outboundMission, 'Outbound mission should exist');
 
-        // Get deuterium before
-        $deuteriumBefore = $this->planetService->deuterium()->get();
+        // Get deuterium before (from buddy's planet now, reload to get current values)
+        $buddyPlanetService = $planetServiceFactory->make($buddyPlanetService->getPlanetId(), true);
+        $deuteriumBefore = $buddyPlanetService->deuterium()->get();
 
-        // Send supply rocket to extend hold time by 2 hours
+        // Buddy sends supply rocket to extend hold time by 2 hours
         $response = $this->post('/ajax/alliance-depot/send-supply-rocket', [
             'fleet_mission_id' => $outboundMission->id,
             'extension_hours' => 2,
@@ -88,17 +101,15 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
 
-        // Assert deuterium was deducted (10 light fighters * 2 deut/hour * 2 hours = 40)
-        $deuteriumAfter = $this->planetService->deuterium()->get();
-        $this->assertEquals(40, $deuteriumBefore - $deuteriumAfter, 'Should deduct 40 deuterium');
+        // Assert deuterium was deducted from buddy's planet (10 light fighters * 2 deut/hour * 2 hours = 40)
+        $buddyPlanetService = $planetServiceFactory->make($buddyPlanetService->getPlanetId(), true);
+        $deuteriumAfter = $buddyPlanetService->deuterium()->get();
+        $this->assertEquals(40, $deuteriumBefore - $deuteriumAfter, 'Should deduct 40 deuterium from buddy planet');
 
-        // Assert return mission time was extended
-        $returnMission = FleetMission::where('planet_id_from', $buddyPlanetService->getPlanetId())
-            ->where('planet_id_to', $this->planetService->getPlanetId())
-            ->where('mission_type', 5)
-            ->first();
-
-        $this->assertNotNull($returnMission, 'Return mission should exist');
+        // Assert hold time was extended by 2 hours (7200 seconds)
+        // Reload the outbound mission to get updated time_holding
+        $outboundMission->refresh();
+        $this->assertEquals(14400 + 7200, $outboundMission->time_holding, 'Hold time should be extended from 4 hours to 6 hours (21600 seconds)');
     }
 
     /**
@@ -109,18 +120,14 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
      */
     public function testSupplyRocketFailsWithoutDeuterium(): void
     {
-        // Set up planet with Alliance Depot but no deuterium
-        $this->planetSetObjectLevel('alliance_depot', 1);
-        $this->planetAddResources(new Resources(0, 0, 10, 0)); // Only 10 deuterium
-
-        // Create a buddy and their planet
+        // Create a buddy and their planet with Alliance Depot but minimal deuterium
         $buddyUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $buddyPlanet = \OGame\Models\Planet::factory()->create([
             'user_id' => $buddyUser->id,
             'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 8,
+            'planet' => 7,
         ]);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
 
@@ -131,27 +138,44 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Send an ACS Defend fleet
         $this->planetAddUnit('cruiser', 5);
+        $this->planetAddResources(new Resources(0, 0, 10000, 0)); // Add deuterium for fuel
         $units = new UnitCollection();
         $units->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), 5);
 
         $fleetMissionService = app(FleetMissionService::class);
-        $fleetMissionService->createNewFromPlanet(
+        $mission = $fleetMissionService->createNewFromPlanet(
             $this->planetService,
             $buddyPlanetService->getPlanetCoordinates(),
             PlanetType::Planet,
             5,
             $units,
             new Resources(0, 0, 0, 0),
-            10,
-            2
+            10, // 100% speed (7th parameter)
+            2 // 2 hour hold time (8th parameter)
         );
 
-        // Fast forward to when fleet has arrived
-        $this->travel(2)->hours();
+        // Travel to just after arrival time but well before hold expires
+        $arrivalTime = $mission->time_arrival;
+        $currentTime = (int)\Carbon\Carbon::now()->timestamp; // Use Laravel's time, not system time()
+        $travelSeconds = $arrivalTime - $currentTime + 60; // Arrive + 1 minute
+        $this->travel($travelSeconds)->seconds();
 
-        // Find the outbound mission
+        // Store original planet ID for finding the mission
+        $originalPlanetId = $this->planetService->getPlanetId();
+
+        // Switch to buddy user and their planet (they need to send the supply rocket)
+        $this->be($buddyUser);
+        $this->planetService = $buddyPlanetService;
+
+        // Give buddy Alliance Depot but minimal deuterium
+        $buddyPlanetService->setObjectLevel(34, 1); // 34 = alliance_depot
+        $buddyPlanetService->addResources(new Resources(0, 0, 10, 0));
+
+        // Find the outbound mission (parent mission, not return)
         $outboundMission = FleetMission::where('mission_type', 5)
-            ->where('planet_id_from', $this->planetService->getPlanetId())
+            ->where('planet_id_from', $originalPlanetId)
+            ->where('planet_id_to', $buddyPlanetService->getPlanetId())
+            ->whereNull('parent_id')
             ->first();
 
         // Try to send supply rocket (5 cruisers * 30 deut/hour * 1 hour = 150 deuterium needed)
@@ -175,18 +199,14 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
      */
     public function testSupplyRocketFailsForShortHold(): void
     {
-        // Set up planet with Alliance Depot and deuterium
-        $this->planetSetObjectLevel('alliance_depot', 1);
-        $this->planetAddResources(new Resources(0, 0, 10000, 0));
-
-        // Create a buddy and their planet
+        // Create a buddy and their planet with Alliance Depot
         $buddyUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $buddyPlanet = \OGame\Models\Planet::factory()->create([
             'user_id' => $buddyUser->id,
             'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 8,
+            'planet' => 9,
         ]);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
 
@@ -197,12 +217,13 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Send an ACS Defend fleet with SHORT hold time (30 minutes)
         $this->planetAddUnit('light_fighter', 10);
+        $this->planetAddResources(new Resources(0, 0, 10000, 0)); // Add deuterium for fuel
         $units = new UnitCollection();
         $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
 
         $fleetMissionService = app(FleetMissionService::class);
 
-        // Create mission manually with 0 hour hold (30 minutes minimum from game logic)
+        // Create mission with 0 hour hold (30 minutes minimum from game logic)
         $mission = $fleetMissionService->createNewFromPlanet(
             $this->planetService,
             $buddyPlanetService->getPlanetCoordinates(),
@@ -210,16 +231,32 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             5,
             $units,
             new Resources(0, 0, 0, 0),
-            10,
-            0 // 0 hour hold (will be minimum duration)
+            10, // 100% speed (7th parameter)
+            0 // 0 hour hold (will be minimum duration) (8th parameter)
         );
 
-        // Fast forward to when fleet has arrived
-        $this->travel(30)->minutes();
+        // Travel to just after arrival time
+        $arrivalTime = $mission->time_arrival;
+        $currentTime = (int)\Carbon\Carbon::now()->timestamp; // Use Laravel's time, not system time()
+        $travelSeconds = $arrivalTime - $currentTime + 60; // Arrive + 1 minute
+        $this->travel($travelSeconds)->seconds();
 
-        // Find the outbound mission
+        // Store original planet ID for finding the mission
+        $originalPlanetId = $this->planetService->getPlanetId();
+
+        // Switch to buddy user and their planet (they need to send the supply rocket)
+        $this->be($buddyUser);
+        $this->planetService = $buddyPlanetService;
+
+        // Give buddy Alliance Depot and deuterium
+        $buddyPlanetService->setObjectLevel(34, 1); // 34 = alliance_depot
+        $buddyPlanetService->addResources(new Resources(0, 0, 10000, 0));
+
+        // Find the outbound mission (parent mission, not return)
         $outboundMission = FleetMission::where('mission_type', 5)
-            ->where('planet_id_from', $this->planetService->getPlanetId())
+            ->where('planet_id_from', $originalPlanetId)
+            ->where('planet_id_to', $buddyPlanetService->getPlanetId())
+            ->whereNull('parent_id')
             ->first();
 
         // Try to send supply rocket

@@ -28,8 +28,8 @@ class AllianceDepotTest extends AccountTestCase
         $response->assertStatus(200);
 
         // Assert that the dialog contains expected content
-        $response->assertSee('Alliance Depot');
-        $response->assertSee('Level 1');
+        $response->assertSee('supplydepotlayer');
+        $response->assertSee('Capacity');
     }
 
     /**
@@ -71,7 +71,7 @@ class AllianceDepotTest extends AccountTestCase
         $response->assertStatus(200);
 
         // Assert that the dialog shows "no fleets" message
-        $response->assertSee('No fleets are currently holding at this planet');
+        $response->assertSee('There are no holding fleets!');
     }
 
     /**

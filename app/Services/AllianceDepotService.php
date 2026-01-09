@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
 use OGame\Models\FleetMission;
 
 class AllianceDepotService
@@ -58,7 +59,7 @@ class AllianceDepotService
      */
     public function canExtendHoldTime(FleetMission $outboundMission, FleetMission|null $returnMission): bool
     {
-        $currentTime = time();
+        $currentTime = Date::now()->timestamp;
 
         // Mission must be an ACS Defend mission (type 5)
         if ($outboundMission->mission_type !== 5) {
@@ -155,7 +156,7 @@ class AllianceDepotService
      */
     public function getHoldingFleetsWithReturnMissions(int $planetId): array
     {
-        $currentTime = (int)time();
+        $currentTime = (int)Date::now()->timestamp;
 
         // Get all ACS Defend missions that have arrived and are holding
         // ACS Defend missions are processed when time_arrival + time_holding is reached
