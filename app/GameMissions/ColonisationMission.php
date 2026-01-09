@@ -31,9 +31,9 @@ class ColonisationMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
-        // Cannot send missions while in vacation mode
-        if ($planet->getPlayer()->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'You cannot send missions while in vacation mode!');
+        $parentCheck = parent::isMissionPossible($planet, $targetCoordinate, $targetType, $units);
+        if (!$parentCheck->possible) {
+            return $parentCheck;
         }
 
         // Colonisation mission is only possible for planets.
@@ -61,11 +61,6 @@ class ColonisationMission extends GameMission
         // If no colony ships are present in the fleet, the mission is not possible.
         if ($units->getAmountByMachineName('colony_ship') === 0) {
             return new MissionPossibleStatus(false, __('You need a colony ship to colonize a planet.'));
-        }
-
-        // If mission from and to coordinates and types are the same, the mission is not possible.
-        if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
-            return new MissionPossibleStatus(false);
         }
 
         // If all checks pass, the mission is possible.

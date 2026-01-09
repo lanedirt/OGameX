@@ -2,10 +2,8 @@
 
 namespace OGame\GameMissions\Abstracts;
 
-use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
-use Illuminate\Support\Facades\Date;
 use Exception;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\Factories\PlanetServiceFactory;
@@ -13,6 +11,7 @@ use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMissions\AcsDefendMission;
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\ExpeditionMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -101,6 +100,8 @@ abstract class GameMission
 
     /**
      * Checks if the mission is possible under the given circumstances.
+     * Child classes should call parent::isMissionPossible() first and return early if not possible,
+     * then add their own mission-specific checks.
      *
      * @param PlanetService $planet The planet from which the mission is sent.
      * @param Coordinate $targetCoordinate The target coordinate of the mission.
@@ -108,7 +109,21 @@ abstract class GameMission
      * @param UnitCollection $units The units that are sent on the mission.
      * @return MissionPossibleStatus
      */
-    abstract public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus;
+    public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
+    {
+        // Cannot send missions while in vacation mode
+        if ($planet->getPlayer()->isInVacationMode()) {
+            return new MissionPossibleStatus(false, __('You cannot send missions while in vacation mode!'));
+        }
+
+        // If mission from and to coordinates and types are the same, the mission is not possible.
+        if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
+            return new MissionPossibleStatus(false);
+        }
+
+        // Default: mission is possible. Child classes should call parent first and then add their own checks.
+        return new MissionPossibleStatus(true);
+    }
 
     /**
      * Cancel an already started mission.
@@ -312,6 +327,69 @@ abstract class GameMission
     }
 
     /**
+     * Process the mission.
+     *
+     * @param FleetMission $mission
+     * @return void
+     */
+    public function process(FleetMission $mission): void
+    {
+        if (empty($mission->parent_id)) {
+            // This is an arrival mission as it has no parent mission.
+            // Process arrival.
+            $this->processArrival($mission);
+        } else {
+            // This is a return mission as it has a parent mission.
+            $this->processReturn($mission);
+        }
+    }
+
+    /**
+     * Helper method for child classes to check if target player is in vacation mode.
+     * Should be called after verifying target planet exists.
+     *
+     * @param PlanetService|null $targetPlanet The target planet/moon.
+     * @return MissionPossibleStatus|null Returns MissionPossibleStatus if vacation mode blocks mission, null otherwise.
+     */
+    protected function checkTargetVacationMode(?PlanetService $targetPlanet): ?MissionPossibleStatus
+    {
+        if ($targetPlanet !== null && $targetPlanet->getPlayer()->isInVacationMode()) {
+            return new MissionPossibleStatus(false, __('This player is in vacation mode!'));
+        }
+        return null;
+    }
+
+    /**
+     * Helper method to check if target belongs to a protected admin user.
+     *
+     * @param PlanetService|null $targetPlanet The target planet/moon.
+     * @param string $errorMessage Custom error message if protected.
+     * @return MissionPossibleStatus|null Returns MissionPossibleStatus if protected, null otherwise.
+     */
+    protected function checkAdminProtection(?PlanetService $targetPlanet, string $errorMessage): ?MissionPossibleStatus
+    {
+        if ($targetPlanet !== null && $targetPlanet->getPlayer()->getUsername(false) === 'Legor') {
+            return new MissionPossibleStatus(false, $errorMessage);
+        }
+        return null;
+    }
+
+    /**
+     * Helper method to check if target planet belongs to the same player (own planet check).
+     *
+     * @param PlanetService $planet The origin planet.
+     * @param PlanetService|null $targetPlanet The target planet/moon.
+     * @return MissionPossibleStatus|null Returns MissionPossibleStatus if same player, null otherwise.
+     */
+    protected function checkOwnPlanet(PlanetService $planet, ?PlanetService $targetPlanet): ?MissionPossibleStatus
+    {
+        if ($targetPlanet !== null && $planet->getPlayer()->equals($targetPlanet->getPlayer())) {
+            return new MissionPossibleStatus(false);
+        }
+        return null;
+    }
+
+    /**
      * Start the return mission.
      *
      * @param FleetMission $parentMission The parent mission that the return mission is linked to.
@@ -355,11 +433,7 @@ abstract class GameMission
             if ($parentMission->planet_id_to === null) {
                 // Attempt to load it from the target coordinates.
                 $targetPlanet = $this->planetServiceFactory->makeForCoordinate(new Coordinate($parentMission->galaxy_to, $parentMission->system_to, $parentMission->position_to));
-                if ($targetPlanet !== null) {
-                    $mission->planet_id_from = $targetPlanet->getPlanetId();
-                } else {
-                    $mission->planet_id_from = null;
-                }
+                $mission->planet_id_from = $targetPlanet?->getPlanetId();
             } else {
                 $mission->planet_id_from = $parentMission->planet_id_to;
             }
@@ -414,20 +488,20 @@ abstract class GameMission
         $return_resources = $this->fleetMissionService->getResources($mission);
 
         // Define from string based on whether the planet is available or not.
-        $from = '[coordinates]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/coordinates]';
+        $from = "[coordinates]{$mission->galaxy_from}:{$mission->system_from}:{$mission->position_from}[/coordinates]";
         switch ($mission->type_from) {
             case PlanetType::Planet->value:
             case PlanetType::Moon->value:
                 if ($mission->planet_id_from !== null) {
-                    $from = __('planet') . ' [planet]' . $mission->planet_id_from . '[/planet]';
+                    $from = __('planet') . " [planet]{$mission->planet_id_from}[/planet]";
                 }
                 break;
             case PlanetType::DebrisField->value:
-                $from = '[debrisfield]' . $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from . '[/debrisfield]';
+                $from = "[debrisfield]{$mission->galaxy_from}:{$mission->system_from}:{$mission->position_from}[/debrisfield]";
                 break;
         }
 
-        $to = __('planet') . ' [planet]' . $mission->planet_id_to . '[/planet]';
+        $to = __('planet') . " [planet]{$mission->planet_id_to}[/planet]";
 
         if ($return_resources->any()) {
             $params = [
@@ -446,24 +520,6 @@ abstract class GameMission
             ];
 
             $this->messageService->sendSystemMessageToPlayer($targetPlayer, ReturnOfFleet::class, $params);
-        }
-    }
-
-    /**
-     * Process the mission.
-     *
-     * @param FleetMission $mission
-     * @return void
-     */
-    public function process(FleetMission $mission): void
-    {
-        if (empty($mission->parent_id)) {
-            // This is an arrival mission as it has no parent mission.
-            // Process arrival.
-            $this->processArrival($mission);
-        } else {
-            // This is a return mission as it has a parent mission.
-            $this->processReturn($mission);
         }
     }
 
