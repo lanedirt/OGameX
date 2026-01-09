@@ -95,15 +95,18 @@ class AttackMission extends GameMission
         $attackerPlayer = $origin_planet->getPlayer();
         $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
 
+        // Collect all defending fleets (planet owner + ACS defend fleets)
+        $defenders = $this->collectDefendingFleets($defenderPlanet);
+
         // Execute the battle logic using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings, $mission->id, $mission->user_id);
+                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $defenders, $this->settings, $mission->id, $mission->user_id);
                 break;
             case 'rust':
             default:
                 // Default to RustBattleEngine if no specific engine is configured
-                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $this->settings, $mission->id, $mission->user_id);
+                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $defenders, $this->settings, $mission->id, $mission->user_id);
                 break;
         }
 
@@ -115,18 +118,52 @@ class AttackMission extends GameMission
         // Deduct loot from the target planet.
         $defenderPlanet->deductResources($battleResult->loot);
 
-        // Deduct defender's permanently lost units from the defenders planet.
-        // Repaired defenses are not removed (destroyed - repaired = permanently lost).
-        // Use the defenderUnitsLost from battle result which includes Hamill Manoeuvre losses.
-        $defenderUnitsLost = clone $battleResult->defenderUnitsLost;
+        // Process defender fleet results (planet owner + ACS defend fleets)
+        foreach ($battleResult->defenderFleetResults as $fleetResult) {
+            if ($fleetResult->fleetMissionId === 0) {
+                // Planet owner's stationary forces - remove permanently lost units
+                // Calculate permanently lost: lost units minus repaired defenses
+                $permanentlyLostUnits = clone $fleetResult->unitsLost;
 
-        // Calculate permanently lost units (destroyed - repaired)
-        $permanentlyLostUnits = clone $defenderUnitsLost;
-        $permanentlyLostUnits->subtractCollection($battleResult->repairedDefenses);
-        $defenderPlanet->removeUnits($permanentlyLostUnits, false);
+                // Safely subtract repaired defenses - only subtract units that actually exist in the lost units
+                if ($battleResult->repairedDefenses->getAmount() > 0) {
+                    foreach ($battleResult->repairedDefenses->units as $repairedUnit) {
+                        // Only subtract if this unit type exists in our lost units
+                        if ($permanentlyLostUnits->hasUnit($repairedUnit->unitObject)) {
+                            $permanentlyLostUnits->removeUnit($repairedUnit->unitObject, $repairedUnit->amount, true);
+                        }
+                    }
+                }
 
-        // Save defenders planet
-        $defenderPlanet->save();
+                // Only remove units if there are any to remove
+                if ($permanentlyLostUnits->getAmount() > 0) {
+                    $defenderPlanet->removeUnits($permanentlyLostUnits, false);
+                }
+
+                $defenderPlanet->save();
+            } else {
+                // ACS Defend fleet - handle return or destruction
+                $defendMission = FleetMission::find($fleetResult->fleetMissionId);
+                if ($defendMission) {
+                    if ($fleetResult->completelyDestroyed) {
+                        // Fleet was completely destroyed - no return mission
+                        $defendMission->processed = 1;
+                        $defendMission->save();
+
+                        // Send fleet lost contact message to the fleet owner
+                        $fleetOwner = $this->playerServiceFactory->make($fleetResult->ownerId);
+                        $coordinates = '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]';
+                        $this->messageService->sendSystemMessageToPlayer($fleetOwner, FleetLostContact::class, [
+                            'coordinates' => $coordinates,
+                        ]);
+                    } else {
+                        // Fleet survived - create return mission with surviving units
+                        // No resources to return for defend missions (they don't carry resources)
+                        $this->startReturn($defendMission, new Resources(0, 0, 0, 0), $fleetResult->unitsResult);
+                    }
+                }
+            }
+        }
 
         // Create or append debris field.
         // TODO: we could change this debris field append logic to do everything in a single query to
@@ -440,6 +477,15 @@ class AttackMission extends GameMission
             'planet_id' => $battleResult->attackerPlanetId,
         ];
 
+        // TODO: Enhance battle reports to show individual participating fleets/defenders
+        // Currently shows aggregated defender data (combined units, planet owner's tech, single player_id)
+        // Should show:
+        // - Combined fleet totals (current behavior)
+        // - Dropdown/expandable sections for each participating fleet:
+        //   - Planet owner's stationary forces (ships + defenses with their tech levels)
+        //   - Each ACS Defend fleet (units, owner, tech levels)
+        // - Per-fleet losses and survivors
+        // Data available in: $battleResult->defenderFleetResults
         $report->defender = [
             'player_id' => $defenderPlanet->getPlayer()->getId(),
             'resource_loss' => $battleResult->defenderResourceLoss->sum(),

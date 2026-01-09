@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\Services\CharacterClassService;
 use FFI;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
@@ -33,14 +34,15 @@ class RustBattleEngine extends BattleEngine
      *
      * @param UnitCollection $attackerFleet The fleet of the attacker player.
      * @param PlayerService $attackerPlayer The attacker player.
-     * @param PlanetService $defenderPlanet The planet of the defender player.
+     * @param PlanetService $defenderPlanet The planet of the defender player (used for loot, moon calculation).
+     * @param array<DefenderFleet> $defenders All defending fleets (planet owner + ACS defend fleets).
      * @param SettingsService $settings The settings service.
      * @param int $attackerFleetMissionId The fleet mission ID of the attacking fleet.
      * @param int $attackerOwnerId The ID of the player who owns the attacking fleet.
      */
-    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, SettingsService $settings, int $attackerFleetMissionId, int $attackerOwnerId)
+    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, array $defenders, SettingsService $settings, int $attackerFleetMissionId, int $attackerOwnerId)
     {
-        parent::__construct($attackerFleet, $attackerPlayer, $defenderPlanet, $settings, $attackerFleetMissionId, $attackerOwnerId);
+        parent::__construct($attackerFleet, $attackerPlayer, $defenderPlanet, $defenders, $settings, $attackerFleetMissionId, $attackerOwnerId);
 
         $this->ffi = FFI::cdef(
             "char* fight_battle_rounds(const char* input_json);",
@@ -74,7 +76,47 @@ class RustBattleEngine extends BattleEngine
         $battleOutput = json_decode($output, true);
 
         // Convert Rust output back to PHP battle rounds
-        return $this->convertBattleOutput($battleOutput);
+        $rounds = $this->convertBattleOutput($battleOutput);
+
+        // Populate per-fleet defender results
+        // Since Rust doesn't track individual unit ownership, we distribute surviving units
+        // proportionally based on each fleet's contribution to the total starting forces
+        if (count($rounds) > 0) {
+            $lastRound = end($rounds);
+            $survivingDefenderUnits = $lastRound->defenderShips;
+
+            foreach ($result->defenderFleetResults as $fleetResult) {
+                // Calculate this fleet's proportion of each unit type in starting forces
+                foreach ($fleetResult->unitsStart->units as $unit) {
+                    $unitMachineName = $unit->unitObject->machine_name;
+                    $fleetStartAmount = $unit->amount;
+                    $totalStartAmount = $result->defenderUnitsStart->getAmountByMachineName($unitMachineName);
+                    $survivingAmount = $survivingDefenderUnits->getAmountByMachineName($unitMachineName);
+
+                    if ($totalStartAmount > 0 && $survivingAmount > 0) {
+                        // Distribute surviving units proportionally
+                        $fleetProportion = $fleetStartAmount / $totalStartAmount;
+                        $fleetSurvivingAmount = (int)floor($survivingAmount * $fleetProportion);
+                        $fleetResult->unitsResult->addUnit($unit->unitObject, $fleetSurvivingAmount);
+                    }
+                }
+
+                // Calculate losses for this fleet
+                $fleetResult->unitsLost = clone $fleetResult->unitsStart;
+                $fleetResult->unitsLost->subtractCollection($fleetResult->unitsResult);
+
+                // Check if completely destroyed
+                $fleetResult->completelyDestroyed = $fleetResult->unitsResult->getAmount() === 0;
+            }
+        } else {
+            // No battle occurred - all fleets keep their units
+            foreach ($result->defenderFleetResults as $fleetResult) {
+                $fleetResult->unitsResult = clone $fleetResult->unitsStart;
+                $fleetResult->completelyDestroyed = false;
+            }
+        }
+
+        return $rounds;
     }
 
     /**

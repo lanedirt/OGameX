@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\GameMessages\FleetLostContact;
 use Illuminate\Support\Facades\DB;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\MoonDestroyed;
@@ -110,14 +111,17 @@ class MoonDestructionMission extends GameMission
         $attackerPlayer = $originPlanet->getPlayer();
         $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
 
+        // Collect all defending fleets (planet owner + ACS defend fleets)
+        $defenders = $this->collectDefendingFleets($targetMoon);
+
         // Execute the battle logic using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $this->settings, $mission->id, $mission->user_id);
+                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $defenders, $this->settings, $mission->id, $mission->user_id);
                 break;
             case 'rust':
             default:
-                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $this->settings, $mission->id, $mission->user_id);
+                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $defenders, $this->settings, $mission->id, $mission->user_id);
                 break;
         }
 
@@ -129,13 +133,36 @@ class MoonDestructionMission extends GameMission
         // Deduct loot from the target moon
         $targetMoon->deductResources($battleResult->loot);
 
-        // Deduct defender's lost units from the moon
-        $defenderUnitsLost = clone $battleResult->defenderUnitsStart;
-        $defenderUnitsLost->subtractCollection($battleResult->defenderUnitsResult);
-        $targetMoon->removeUnits($defenderUnitsLost, false);
+        // Process defender fleet results (moon owner + ACS defend fleets)
+        foreach ($battleResult->defenderFleetResults as $fleetResult) {
+            if ($fleetResult->fleetMissionId === 0) {
+                // Moon owner's stationary forces - remove lost units (no defense repair on moons)
+                if ($fleetResult->unitsLost->getAmount() > 0) {
+                    $targetMoon->removeUnits($fleetResult->unitsLost, false);
+                }
+                $targetMoon->save();
+            } else {
+                // ACS Defend fleet - handle return or destruction
+                $defendMission = FleetMission::find($fleetResult->fleetMissionId);
+                if ($defendMission) {
+                    if ($fleetResult->completelyDestroyed) {
+                        // Fleet was completely destroyed - no return mission
+                        $defendMission->processed = 1;
+                        $defendMission->save();
 
-        // Save defender's moon
-        $targetMoon->save();
+                        // Send fleet lost contact message to the fleet owner
+                        $fleetOwner = $this->playerServiceFactory->make($fleetResult->ownerId);
+                        $coordinates = '[coordinates]' . $targetMoon->getPlanetCoordinates()->asString() . '[/coordinates]';
+                        $this->messageService->sendSystemMessageToPlayer($fleetOwner, FleetLostContact::class, [
+                            'coordinates' => $coordinates,
+                        ]);
+                    } else {
+                        // Fleet survived - create return mission with surviving units
+                        $this->startReturn($defendMission, new Resources(0, 0, 0, 0), $fleetResult->unitsResult);
+                    }
+                }
+            }
+        }
 
         // Create or append debris field from combat
         $debrisFieldService = resolve(DebrisFieldService::class);

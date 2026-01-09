@@ -183,7 +183,7 @@ class MilitaryShipObjects
         ];
         $bomber->properties = new GameObjectProperties($bomber, 75000, 500, 1000, 4000, 500, 700);
         $bomber->properties->speed_upgrade = [
-            new GameObjectSpeedUpgrade('hyperspace_drive', 8),
+            new GameObjectSpeedUpgrade('hyperspace_drive', 8, 5000),
         ];
         $bomber->assets = new GameObjectAssets();
         $bomber->assets->imgSmall = 'bomber_small.jpg';

@@ -384,10 +384,11 @@ class FleetController extends OGameController
      * @param PlayerService $player
      * @param FleetMissionService $fleetMissionService
      * @param SettingsService $settingsService
+     * @param CharacterClassService $characterClassService
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService, SettingsService $settingsService): JsonResponse
+    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService, SettingsService $settingsService, CharacterClassService $characterClassService): JsonResponse
     {
         $galaxy = (int)request()->input('galaxy');
         $system = (int)request()->input('system');
@@ -441,6 +442,12 @@ class FleetController extends OGameController
         // Input validation
         // Speed is sent as 1-10 range (where 1 = 10%, 10 = 100%), in 0.5 increments (representing 5% steps).
         $validSpeeds = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0];
+
+        // Add 5% speed (0.5) for General class
+        if ($characterClassService->hasDetailedFleetSpeedSettings($player->getUser())) {
+            $validSpeeds[] = 0.5;
+        }
+
         if (!\in_array($speed_percent, $validSpeeds, true)) {
             return $this->validationErrorResponse(__('Fleet speed must be between 10% and 100% in 5% increments.'));
         }

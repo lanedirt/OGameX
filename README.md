@@ -81,30 +81,26 @@ The primary goal of this fan-based project is to engineer a faithful rendition o
 OGameX is under active development with a lot of core features already implemented and working:
 
 - Planets / buildings / research / shipyard / defense / galaxy / highscores / messages
-- Fleet dispatch missions (transport, deployment, colonisation, espionage, attack, recycle)
+- Fleet dispatch missions (transport, deployment, colonisation, espionage, attack, recycle, moon destruction)
+- Missile attacks
 - Battle engine
   - Rust version for high performance via PHP FFI (up to 200x faster compared to PHP)
   - PHP version as fall-back
 - Moon
   - Moon creation through debris field after battle
-  - Moon buildings
+  - Moon buildings, phalanx, jump gate
 - Admin panel
 - Expedition mission with various outcomes
+- Basic dark matter features (non-commercial)
 
 ### <a name="upcoming-features"></a> Upcoming Features
 
 The next major upcoming features that are being worked on:
 
-- Expedition mission combat outcomes (attacked by pirates)
-- Moon
-  - Phalanx feature
-  - Jump Gate feature
-  - Moon destruction fleet dispatch mission
 - Improved fleet mission processing via worker queue
-- Missile attacks
 - Alliances
 - ACS fleet dispatch missions
-- Merchant & shop (non-commercial)
+- All dark matter features (non-commercial)
 - Multi-language (making all in-game strings translatable)
 
 ## <a name="contributing"></a> 🚀 5. Contributing

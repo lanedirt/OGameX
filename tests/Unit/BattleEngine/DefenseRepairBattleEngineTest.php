@@ -29,8 +29,11 @@ class DefenseRepairBattleEngineTest extends UnitTestCase
      */
     protected function createBattleEngine(UnitCollection $attackerFleet): PhpBattleEngine
     {
+        // Create defenders array with planet's stationary forces
+        $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($this->planetService)];
+
         // For test battles, use fleetMissionId = 0 and current player's ID
-        return new PhpBattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService, 0, $this->playerService->getId());
+        return new PhpBattleEngine($attackerFleet, $this->playerService, $this->planetService, $defenders, $this->settingsService, 0, $this->playerService->getId());
     }
 
     /**
