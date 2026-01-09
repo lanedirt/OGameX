@@ -134,6 +134,11 @@ jobs:
         run: |
           docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate --force
 
+      - name: Seed preview test users
+        working-directory: ${{ env.PREVIEW_DIR }}
+        run: |
+          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan ogamex:seed-preview-users
+
       - name: Comment on PR with preview URL
         uses: actions/github-script@v7
         with:
@@ -160,6 +165,24 @@ jobs:
               '| Status | URL | Commit | Last deployed |',
               '|--------|-----|--------|---------------|',
               `| :white_check_mark: Live | [${previewUrl}](${previewUrl}) | \`${sha}\` | ${timestamp} |`,
+              '',
+              '<details>',
+              '<summary><strong>Test accounts</strong> (click to expand)</summary>',
+              '',
+              '| Username | Password | Role | Class | Description |',
+              '|----------|----------|------|-------|-------------|',
+              '| test1 | pass | admin | Collector | Admin with high resources |',
+              '| test2 | pass | player | General | Military focus |',
+              '| test3 | pass | player | Discoverer | Exploration focus |',
+              '| test4 | pass | player | None | New player (no class selected) |',
+              '| test5 | pass | moderator | Collector | Balanced setup |',
+              '| test6 | pass | player | General | Vacation mode enabled |',
+              '| test7 | pass | player | General | Defense focus |',
+              '| test8 | pass | player | Discoverer | Fleet focus |',
+              '| test9 | pass | player | Collector | Beginner player |',
+              '| test10 | pass | player | General | End-game player |',
+              '',
+              '</details>',
               '',
               '---',
               '*This preview will be automatically destroyed when the PR is closed.*'
