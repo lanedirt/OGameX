@@ -629,26 +629,43 @@ ogame.messages = {
                 }
             })
         }).on("click", ".paginator", function (h) {
-            var f = $(this).data("tab");
+            // Skip if pagination button is disabled
+            if ($(this).hasClass('disabled')) {
+                return false;
+            }
+
             var g = $(this).data("page");
             var a = $(this).closest('div[class^="ui-tabs-panel"]');
-            $.ajax({
-                type: "POST",
-                url: "?page=messages",
-                dataType: "html",
-                data: {
-                    messageId: -1,
-                    tabid: f,
-                    action: 107,
-                    pagination: g,
-                    ajax: 1
-                },
-                success: function (c) {
-                    a.html(c)
-                },
-                error: function () {
-                }
-            })
+
+            // Find the active subtab to get the tab/subtab parameters
+            var activeSubtab = $(".subtabs .ui-state-active:visible");
+            var activeTabUrl;
+
+            if (activeSubtab.length > 0) {
+                // We're in a subtab view (e.g., fleets or communication)
+                activeTabUrl = activeSubtab.find('a').attr('href');
+            } else {
+                // We're in a main tab view (e.g., economy, system, universe)
+                var activeTab = $(".js_tabs .ui-state-active:visible");
+                activeTabUrl = activeTab.find('a').attr('href');
+            }
+
+            if (activeTabUrl) {
+                // Append pagination parameter to the URL
+                var separator = activeTabUrl.indexOf('?') > -1 ? '&' : '?';
+                var url = activeTabUrl + separator + 'pagination=' + g;
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    dataType: "html",
+                    success: function (c) {
+                        a.html(c)
+                    },
+                    error: function () {
+                    }
+                })
+            }
         }).on("click", ".jumpToAllianceApplications", function (a) {
             location.href = "index.php?page=alliance&tab=applications"
         })

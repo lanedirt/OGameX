@@ -176,13 +176,14 @@ class MessageService
     }
 
     /**
-     * Load all messages for a specific tab/subtab.
+     * Load messages for a specific tab/subtab with pagination.
      *
      * @param string $tab
      * @param string $subtab
-     * @return GameMessage[] Array of GameMessage objects.
+     * @param int $page
+     * @return array{messages: GameMessage[], pagination: array{currentPage: int, totalPages: int, totalCount: int, perPage: int}}
      */
-    public function getMessagesForTab(string $tab, string $subtab): array
+    public function getMessagesForTab(string $tab, string $subtab, int $page = 1): array
     {
         // If subtab is empty, we use the first subtab of the tab.
         if (empty($subtab)) {
@@ -191,24 +192,34 @@ class MessageService
 
         // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
         $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, $subtab);
-        $messages = Message::where('user_id', $this->player->getId())
+
+        // Use Laravel's paginate() method for automatic pagination handling
+        $paginator = Message::where('user_id', $this->player->getId())
             ->whereIn('key', $messageKeys)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10, ['*'], 'page', $page);
 
         // Convert messages to GameMessage objects.
-        $return = [];
-        foreach ($messages as $message) {
-            $return[] = GameMessageFactory::createGameMessage($message);
+        $gameMessages = [];
+        foreach ($paginator->items() as $message) {
+            $gameMessages[] = GameMessageFactory::createGameMessage($message);
         }
 
         // When the messages are loaded, mark them as viewed.
-        foreach ($messages as $message) {
+        foreach ($paginator->items() as $message) {
             $message->viewed = 1;
             $message->save();
         }
 
-        return $return;
+        return [
+            'messages' => $gameMessages,
+            'pagination' => [
+                'currentPage' => $paginator->currentPage(),
+                'totalPages' => $paginator->lastPage(),
+                'totalCount' => $paginator->total(),
+                'perPage' => $paginator->perPage(),
+            ],
+        ];
     }
 
     /**
