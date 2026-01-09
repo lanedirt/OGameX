@@ -3,12 +3,21 @@
     <!-- TODO: implement trash -->
     <!--<ul class="tab_inner ctn_with_trash clearfix"> -->
     <ul class="tab_inner clearfix">
+        @php
+            /** @var array{currentPage: int, totalPages: int, totalCount: int, perPage: int} $pagination */
+            $currentPage = $pagination['currentPage'];
+            $totalPages = max(1, $pagination['totalPages']);
+            $firstPage = 1;
+            $prevPage = max(1, $currentPage - 1);
+            $nextPage = min($totalPages, $currentPage + 1);
+            $lastPage = $totalPages;
+        @endphp
         <ul class="pagination">
-            <li class="paginator" data-tab="20" data-page="1">|&lt;&lt;</li>
-            <li class="paginator" data-tab="20" data-page="1">&lt;</li>
-            <li class="curPage" data-tab="20">1/1</li>
-            <li class="paginator" data-tab="20" data-page="1">&gt;</li>
-            <li class="paginator" data-tab="20" data-page="1">&gt;&gt;|</li>
+            <li class="paginator @if($currentPage <= 1) disabled @endif" data-tab="20" data-page="{{ $firstPage }}">|&lt;&lt;</li>
+            <li class="paginator @if($currentPage <= 1) disabled @endif" data-tab="20" data-page="{{ $prevPage }}">&lt;</li>
+            <li class="curPage" data-tab="20">{{ $currentPage }}/{{ $totalPages }}</li>
+            <li class="paginator @if($currentPage >= $totalPages) disabled @endif" data-tab="20" data-page="{{ $nextPage }}">&gt;</li>
+            <li class="paginator @if($currentPage >= $totalPages) disabled @endif" data-tab="20" data-page="{{ $lastPage }}">&gt;&gt;|</li>
         </ul>
         <input type="hidden" name="token"
                value="d99f68937305e0b2c3ff3f059259fcec">
@@ -59,11 +68,11 @@
             </li>
         @endforeach
         <ul class="pagination">
-            <li class="paginator" data-tab="20" data-page="1">|&lt;&lt;</li>
-            <li class="paginator" data-tab="20" data-page="1">&lt;</li>
-            <li class="curPage" data-tab="20">1/1</li>
-            <li class="paginator" data-tab="20" data-page="1">&gt;</li>
-            <li class="paginator" data-tab="20" data-page="1">&gt;&gt;|</li>
+            <li class="paginator @if($currentPage <= 1) disabled @endif" data-tab="20" data-page="{{ $firstPage }}">|&lt;&lt;</li>
+            <li class="paginator @if($currentPage <= 1) disabled @endif" data-tab="20" data-page="{{ $prevPage }}">&lt;</li>
+            <li class="curPage" data-tab="20">{{ $currentPage }}/{{ $totalPages }}</li>
+            <li class="paginator @if($currentPage >= $totalPages) disabled @endif" data-tab="20" data-page="{{ $nextPage }}">&gt;</li>
+            <li class="paginator @if($currentPage >= $totalPages) disabled @endif" data-tab="20" data-page="{{ $lastPage }}">&gt;&gt;|</li>
         </ul>
     </ul>
     @include('ingame.messages.tabs.subtab-init-js')
