@@ -200,6 +200,8 @@ jobs:
             const body = [
               '## Preview deployment',
               '',
+              'Preview environment for this PR is ready for functional testing. Use one of the test accounts below to log in.',
+              '',
               '| Status | URL | Commit | Last deployed |',
               '|--------|-----|--------|---------------|',
               `| :white_check_mark: Live | [${previewUrl}](${previewUrl}) | \`${sha}\` | ${timestamp} |`,
