@@ -183,12 +183,6 @@
                                name="email"
                                value="{{ old('email') }}"
                         />
-                        <div id="transition_email_only_login_dialog" title="Notice">
-                            We have reworked the login system. In future you will no longer be able to log in using your
-                            username. For this reason, please now start using your email address to log in.
-                            Don’t know your email address? You’ll find the new link for ‘Forgot email address’ under the
-                            login window.
-                        </div>
                     </div>
                     <div id="usernameLogin_dialog" class="right">
                     </div>
@@ -601,33 +595,6 @@
                 "type": "range"
             }
         });
-
-        $("#transition_email_only_login_dialog").dialog({
-            create: function () {
-                $(this).dialog('widget')
-                    .find('.ui-dialog-titlebar')
-                    .removeClass('ui-corner-all')
-                    .addClass('ui-corner-top');
-            },
-            autoOpen: false,
-            modal: false,
-            width: 200,
-            resizable: false,
-            draggable: false,
-            show: {
-                effect: 'fade',
-                duration: 'fast'
-            },
-            hide: {
-                effect: 'fade'
-            },
-            position: {
-                my: 'right-20px top-50px',
-                at: 'left center',
-                of: $('#usernameLogin')
-            }
-        });
-
     });
 </script>
 </body>
