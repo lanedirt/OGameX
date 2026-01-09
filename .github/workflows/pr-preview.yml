@@ -109,7 +109,7 @@ jobs:
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
           # Remove all container_name lines to allow Docker Compose project namespacing
-          sed -i '/container_name:/d' docker-compose.yml
+          sed -i '/container_name:/d' docker-compose.prod.yml
 
       - name: Generate Traefik override
         working-directory: ${{ env.PREVIEW_DIR }}
@@ -128,24 +128,6 @@ jobs:
                 - traefik.http.routers.pr-${{ env.PR_NUMBER }}.entrypoints=web
                 - traefik.http.services.pr-${{ env.PR_NUMBER }}.loadbalancer.server.port=80
 
-            ogamex-app:
-              build:
-                args:
-                  USE_USER: "no"
-
-            ogamex-scheduler:
-              build:
-                args:
-                  USE_USER: "no"
-
-            ogamex-queue-worker:
-              build:
-                args:
-                  USE_USER: "no"
-
-            ogamex-db:
-              ports: !override []
-
             ogamex-phpmyadmin:
               profiles:
                 - disabled
@@ -158,30 +140,30 @@ jobs:
       - name: Stop existing stack (if any)
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
-          docker compose -p pr-${{ env.PR_NUMBER }} down --remove-orphans || true
+          docker compose -f docker-compose.prod.yml -p pr-${{ env.PR_NUMBER }} down --remove-orphans || true
 
       - name: Build and start preview stack
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
-          docker compose -p pr-${{ env.PR_NUMBER }} build
-          docker compose -p pr-${{ env.PR_NUMBER }} up -d --remove-orphans
+          docker compose -f docker-compose.prod.yml -p pr-${{ env.PR_NUMBER }} build
+          docker compose -f docker-compose.prod.yml -p pr-${{ env.PR_NUMBER }} up -d --remove-orphans
 
       - name: Wait for app to be healthy
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
           echo "Waiting for application to be ready..."
-          timeout 300 bash -c 'until docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do sleep 5; done'
+          timeout 300 bash -c 'until docker compose -f docker-compose.prod.yml -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do sleep 5; done'
           echo "Application is ready!"
 
       - name: Run database migrations
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
-          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate --force
+          docker compose -f docker-compose.prod.yml -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate --force
 
       - name: Seed preview test users
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
-          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan ogamex:dev:seed-users
+          docker compose -f docker-compose.prod.yml -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan ogamex:dev:seed-users
 
       - name: Comment on PR with preview URL
         uses: actions/github-script@v7
