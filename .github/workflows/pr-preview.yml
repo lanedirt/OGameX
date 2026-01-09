@@ -129,6 +129,7 @@ jobs:
                 - traefik.http.services.pr-${{ env.PR_NUMBER }}.loadbalancer.server.port=80
 
             ogamex-phpmyadmin:
+              ports: !override []
               profiles:
                 - disabled
 
