@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use OGame\Models\UnitQueue;
 use OGame\Models\Resources;
+use OGame\Models\UnitQueue;
 use OGame\Services\ObjectService;
 use Tests\AccountTestCase;
 

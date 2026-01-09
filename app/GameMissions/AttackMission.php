@@ -2,10 +2,10 @@
 
 namespace OGame\GameMissions;
 
-use OGame\GameMessages\FleetLostContact;
-use OGame\GameMessages\DebrisFieldHarvest;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
+use OGame\GameMessages\DebrisFieldHarvest;
+use OGame\GameMessages\FleetLostContact;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;

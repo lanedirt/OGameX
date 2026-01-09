@@ -2,15 +2,13 @@
 
 namespace OGame\GameMissions;
 
-use OGame\GameMessages\FleetLostContact;
-use OGame\Models\Resources;
-use OGame\Factories\PlayerServiceFactory;
-use OGame\GameMessages\DefenderEspionageDetected;
-use OGame\GameMissions\BattleEngine\Models\BattleResult;
-use OGame\Services\PlayerService;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
+use OGame\Factories\PlayerServiceFactory;
+use OGame\GameMessages\DefenderEspionageDetected;
+use OGame\GameMessages\FleetLostContact;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\Models\MissionPossibleStatus;
@@ -20,9 +18,11 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\Resources;
 use OGame\Services\CounterEspionageService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 use Throwable;
 
 class EspionageMission extends GameMission

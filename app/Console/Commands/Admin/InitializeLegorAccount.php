@@ -2,14 +2,14 @@
 
 namespace OGame\Console\Commands\Admin;
 
-use OGame\Models\User;
-use OGame\Models\Planet;
-use OGame\Jobs\CreateLegorMoon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Jobs\CreateLegorMoon;
+use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\User;
 use OGame\Models\UserTech;
 use OGame\Services\PlayerService;
 

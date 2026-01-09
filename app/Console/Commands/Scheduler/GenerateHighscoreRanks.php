@@ -2,12 +2,12 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
-use OGame\Models\User;
-use Illuminate\Support\Collection;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use OGame\Enums\HighscoreTypeEnum;
 use OGame\Models\AllianceHighscore;
 use OGame\Models\Highscore;
+use OGame\Models\User;
 
 class GenerateHighscoreRanks extends Command
 {

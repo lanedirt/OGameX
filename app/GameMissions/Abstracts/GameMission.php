@@ -351,7 +351,7 @@ abstract class GameMission
      * @param PlanetService|null $targetPlanet The target planet/moon.
      * @return MissionPossibleStatus|null Returns MissionPossibleStatus if vacation mode blocks mission, null otherwise.
      */
-    protected function checkTargetVacationMode(?PlanetService $targetPlanet): ?MissionPossibleStatus
+    protected function checkTargetVacationMode(PlanetService|null $targetPlanet): MissionPossibleStatus|null
     {
         if ($targetPlanet !== null && $targetPlanet->getPlayer()->isInVacationMode()) {
             return new MissionPossibleStatus(false, __('This player is in vacation mode!'));
@@ -366,7 +366,7 @@ abstract class GameMission
      * @param string $errorMessage Custom error message if protected.
      * @return MissionPossibleStatus|null Returns MissionPossibleStatus if protected, null otherwise.
      */
-    protected function checkAdminProtection(?PlanetService $targetPlanet, string $errorMessage): ?MissionPossibleStatus
+    protected function checkAdminProtection(PlanetService|null $targetPlanet, string $errorMessage): MissionPossibleStatus|null
     {
         if ($targetPlanet !== null && $targetPlanet->getPlayer()->getUsername(false) === 'Legor') {
             return new MissionPossibleStatus(false, $errorMessage);
@@ -381,7 +381,7 @@ abstract class GameMission
      * @param PlanetService|null $targetPlanet The target planet/moon.
      * @return MissionPossibleStatus|null Returns MissionPossibleStatus if same player, null otherwise.
      */
-    protected function checkOwnPlanet(PlanetService $planet, ?PlanetService $targetPlanet): ?MissionPossibleStatus
+    protected function checkOwnPlanet(PlanetService $planet, PlanetService|null $targetPlanet): MissionPossibleStatus|null
     {
         if ($targetPlanet !== null && $planet->getPlayer()->equals($targetPlanet->getPlayer())) {
             return new MissionPossibleStatus(false);

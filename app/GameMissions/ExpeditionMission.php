@@ -2,20 +2,8 @@
 
 namespace OGame\GameMissions;
 
-use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
-use OGame\Services\DarkMatterService;
-use OGame\Enums\DarkMatterTransactionType;
-use OGame\Services\MerchantService;
-use OGame\GameMessages\ExpeditionMerchantFound;
-use OGame\Services\NPCFleetGeneratorService;
-use OGame\Services\NPCPlanetService;
-use OGame\GameMissions\BattleEngine\RustBattleEngine;
-use OGame\Services\PlayerService;
-use OGame\Services\NPCPlayerService;
-use OGame\GameMissions\BattleEngine\Models\BattleResult;
-use OGame\Models\BattleReport;
-use OGame\Services\CharacterClassService;
 use Exception;
+use OGame\Enums\DarkMatterTransactionType;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\Enums\HighscoreTypeEnum;
@@ -29,11 +17,16 @@ use OGame\GameMessages\ExpeditionGainItem;
 use OGame\GameMessages\ExpeditionGainResources;
 use OGame\GameMessages\ExpeditionGainShips;
 use OGame\GameMessages\ExpeditionLossOfFleet;
+use OGame\GameMessages\ExpeditionMerchantFound;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Models\BattleResult;
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
+use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\ShipObject;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Enums\ResourceType;
 use OGame\Models\FleetMission;
@@ -41,8 +34,15 @@ use OGame\Models\Highscore;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\User;
+use OGame\Services\CharacterClassService;
+use OGame\Services\DarkMatterService;
+use OGame\Services\MerchantService;
+use OGame\Services\NPCFleetGeneratorService;
+use OGame\Services\NPCPlanetService;
+use OGame\Services\NPCPlayerService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 
 class ExpeditionMission extends GameMission

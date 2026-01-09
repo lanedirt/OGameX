@@ -2,14 +2,13 @@
 
 namespace OGame\Factories;
 
-use Illuminate\Support\Facades\Date;
-use OGame\Services\CharacterClassService;
 use Cache;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\GameConstants\UniverseConstants;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use OGame\Services\CharacterClassService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
@@ -53,8 +52,7 @@ class PlanetServiceFactory
          * PlayerServiceFactory.
          */
         protected PlayerServiceFactory $playerServiceFactory
-    )
-    {
+    ) {
     }
 
     /**

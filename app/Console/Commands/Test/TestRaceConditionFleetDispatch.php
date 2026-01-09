@@ -2,11 +2,10 @@
 
 namespace OGame\Console\Commands\Test;
 
-use GuzzleHttp\Promise\Utils;
 use DateTime;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\Utils;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Validation\ValidationException;
 use OGame\Models\FleetMission;

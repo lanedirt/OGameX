@@ -2,9 +2,9 @@
 
 namespace OGame\GameMissions;
 
-use OGame\GameMessages\FleetLostContact;
 use Illuminate\Support\Facades\DB;
 use OGame\Enums\FleetSpeedType;
+use OGame\GameMessages\FleetLostContact;
 use OGame\GameMessages\MoonDestroyed;
 use OGame\GameMessages\MoonDestructionCatastrophic;
 use OGame\GameMessages\MoonDestructionFailure;

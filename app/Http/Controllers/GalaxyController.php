@@ -2,16 +2,16 @@
 
 namespace OGame\Http\Controllers;
 
-use OGame\Models\Alliance;
-use OGame\Facades\AppUtil;
-use OGame\Models\FleetMission;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Log;
+use OGame\Facades\AppUtil;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Alliance;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\BuddyService;

@@ -2,7 +2,6 @@
 
 namespace OGame\Services;
 
-use OGame\Models\UnitQueue;
 use Exception;
 use OGame\GameObjects\BuildingObjects;
 use OGame\GameObjects\CivilShipObjects;
@@ -20,6 +19,7 @@ use OGame\GameObjects\Models\UnitObject;
 use OGame\GameObjects\ResearchObjects;
 use OGame\GameObjects\StationObjects;
 use OGame\Models\Resources;
+use OGame\Models\UnitQueue;
 use RuntimeException;
 
 /**

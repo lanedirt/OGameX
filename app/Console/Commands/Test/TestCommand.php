@@ -2,7 +2,6 @@
 
 namespace OGame\Console\Commands\Test;
 
-use GuzzleHttp\Promise\Utils;
 use App;
 use DateTime;
 use Exception;
@@ -10,7 +9,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\Utils;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Validation\ValidationException;

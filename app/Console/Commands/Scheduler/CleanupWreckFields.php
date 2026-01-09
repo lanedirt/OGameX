@@ -2,11 +2,11 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
+use Illuminate\Console\Command;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet\Coordinate;
-use OGame\Services\ObjectService;
-use Illuminate\Console\Command;
 use OGame\Models\WreckField;
+use OGame\Services\ObjectService;
 
 class CleanupWreckFields extends Command
 {

@@ -2,13 +2,13 @@
 
 namespace OGame\Services;
 
-use OGame\Models\AllianceHighscore;
-use OGame\Models\Alliance;
 use Cache;
 use Exception;
 use OGame\Enums\HighscoreTypeEnum;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\Models\Alliance;
+use OGame\Models\AllianceHighscore;
 use OGame\Models\Highscore;
 use OGame\Models\Resources;
 

@@ -2,11 +2,10 @@
 
 namespace OGame\Http\Controllers\Abstracts;
 
-use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\Http\Controllers\OGameController;
 use OGame\Http\Traits\ObjectAjaxTrait;
 use OGame\Services\ObjectService;
@@ -36,10 +35,7 @@ abstract class AbstractUnitsController extends OGameController
     /**
      * AbstractUnitsController constructor.
      */
-    public function __construct(/**
-     * QueueService
-     */
-    protected UnitQueueService $queue)
+    public function __construct(protected UnitQueueService $queue)
     {
         parent::__construct();
     }

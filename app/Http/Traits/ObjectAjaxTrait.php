@@ -2,14 +2,14 @@
 
 namespace OGame\Http\Traits;
 
-use OGame\GameObjects\Models\Abstracts\GameObject;
-use OGame\Services\PlanetService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OGame\Facades\AppUtil;
+use OGame\GameObjects\Models\Abstracts\GameObject;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Services\ObjectService;
+use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 
 trait ObjectAjaxTrait

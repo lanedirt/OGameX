@@ -2,13 +2,13 @@
 
 namespace OGame\Console\Commands\Dev;
 
-use OGame\GameObjects\Models\Enums\GameObjectType;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use OGame\Enums\CharacterClass;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\User;

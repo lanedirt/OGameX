@@ -14,8 +14,7 @@ class QueueListViewModel
          * List of queue items.
          */
         public array $queue
-    )
-    {
+    ) {
     }
 
     /**

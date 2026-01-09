@@ -2,10 +2,9 @@
 
 namespace OGame\Services;
 
-use Illuminate\Support\Facades\Date;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\Models\ResearchQueue;
 use OGame\Models\Resources;
 use OGame\ViewModels\Queue\ResearchQueueListViewModel;
