@@ -5,9 +5,13 @@ namespace OGame\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use OGame\Enums\CharacterClass;
+use OGame\Factories\PlanetServiceFactory;
+use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Planet;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\User;
 use OGame\Models\UserTech;
+use OGame\Services\PlanetService;
 
 class SeedPreviewUsers extends Command
 {
@@ -237,20 +241,20 @@ class SeedPreviewUsers extends Command
 
         $this->info("Creating user {$num}: {$username} ({$config['description']})");
 
-        // Create user
-        $user = User::factory()->create([
-            'username' => $username,
-            'email' => $email,
-            'password' => Hash::make($password),
-            'lang' => 'en',
-            'dark_matter' => $config['dark_matter'] ?? 0,
-            'character_class' => $config['character_class']?->value,
-            'character_class_free_used' => $config['character_class'] !== null,
-            'character_class_changed_at' => $config['character_class'] !== null ? now() : null,
-            'first_login' => $config['character_class'] === null, // Show class selection for users without class
-            'vacation_mode' => $config['vacation_mode'] ?? false,
-            'vacation_mode_activated_at' => ($config['vacation_mode'] ?? false) ? now()->subDays(2) : null,
-        ]);
+        // Create user directly without factory
+        $user = new User();
+        $user->username = $username;
+        $user->email = $email;
+        $user->password = Hash::make($password);
+        $user->lang = 'en';
+        $user->dark_matter = $config['dark_matter'] ?? 0;
+        $user->character_class = $config['character_class']?->value;
+        $user->character_class_free_used = $config['character_class'] !== null;
+        $user->character_class_changed_at = $config['character_class'] !== null ? now() : null;
+        $user->first_login = $config['character_class'] === null; // Show class selection for users without class
+        $user->vacation_mode = $config['vacation_mode'] ?? false;
+        $user->vacation_mode_activated_at = ($config['vacation_mode'] ?? false) ? now()->subDays(2) : null;
+        $user->save();
 
         // Assign role
         if ($config['role'] === 'admin') {
@@ -288,32 +292,48 @@ class SeedPreviewUsers extends Command
     }
 
     /**
-     * Create a planet for the user.
+     * Create a planet for the user using the built-in PlanetServiceFactory.
      *
      * @param User $user
      * @param int $num User number (determines coordinates)
      * @param array<string, mixed> $planetConfig
      */
-    private function createPlanet(User $user, int $num, array $planetConfig): Planet
+    private function createPlanet(User $user, int $num, array $planetConfig): PlanetService
     {
         // Place users in a spread-out pattern in galaxy 1
         $galaxy = 1;
         $system = (int) ceil($num / 2); // 1, 1, 2, 2, 3, 3, 4, 4, 5, 5
         $position = ($num % 2 === 0) ? 8 : 4; // Alternate between position 4 and 8
 
-        $planet = Planet::factory()->create(array_merge([
-            'user_id' => $user->id,
-            'name' => $user->username . "'s Planet",
-            'galaxy' => $galaxy,
-            'system' => $system,
-            'planet' => $position,
-        ], $planetConfig));
+        $coordinate = new Coordinate($galaxy, $system, $position);
+
+        // Get services from container
+        $playerServiceFactory = app(PlayerServiceFactory::class);
+        $planetServiceFactory = app(PlanetServiceFactory::class);
+
+        // Get player service for this user
+        $playerService = $playerServiceFactory->make($user->id);
+
+        // Create planet using the built-in factory (handles temperature, fields, etc.)
+        $planetService = $planetServiceFactory->createPlanetAtPosition(
+            $playerService,
+            $coordinate,
+            $user->username . "'s Planet"
+        );
+
+        // Apply custom config values (resources, buildings, ships, defense)
+        // Get planet model directly from DB since PlanetService has it as private
+        $planet = Planet::find($planetService->getPlanetId());
+        foreach ($planetConfig as $key => $value) {
+            $planet->{$key} = $value;
+        }
+        $planet->save();
 
         // Update user's current planet
         $user->planet_current = $planet->id;
         $user->save();
 
-        return $planet;
+        return $planetService;
     }
 
     /**
