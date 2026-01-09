@@ -890,6 +890,36 @@ class ObjectService
     }
 
     /**
+     * Get all requirements recursively for a game object.
+     * Returns an array of [machine_name => minimum_level] for all prerequisites.
+     *
+     * @param string $machineName
+     * @param array<string, int> $collected Already collected requirements (for recursion)
+     * @return array<string, int>
+     */
+    public static function getRecursiveRequirements(string $machineName, array &$collected = []): array
+    {
+        try {
+            $object = self::getObjectByMachineName($machineName);
+        } catch (Exception $e) {
+            return $collected;
+        }
+
+        foreach ($object->requirements as $requirement) {
+            $reqName = $requirement->object_machine_name;
+            $reqLevel = $requirement->level;
+
+            if (!isset($collected[$reqName]) || $collected[$reqName] < $reqLevel) {
+                $collected[$reqName] = $reqLevel;
+            }
+
+            self::getRecursiveRequirements($reqName, $collected);
+        }
+
+        return $collected;
+    }
+
+    /**
      * Check if a building can be downgraded (no other buildings/research require it at current level).
      *
      * @param string $machine_name
