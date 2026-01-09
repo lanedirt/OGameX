@@ -40,6 +40,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Check for no external remote sources
+        uses: ./.github/actions/check-remote-sources
+
       - name: Setup Docker Compose
         uses: ./.github/actions/docker-compose-setup
 
