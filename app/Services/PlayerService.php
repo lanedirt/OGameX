@@ -749,12 +749,12 @@ class PlayerService
         // Divide the score by 1000 to get the amount of points. Floor the result.
         $resources_sum = $resources_spent->metal->get() + $resources_spent->crystal->get() + $resources_spent->deuterium->get();
         $score = floor($resources_sum / 1000);
-        
+
         // Cap at PHP_INT_MAX to prevent overflow on PHP 8.5+
         if ($score > PHP_INT_MAX) {
             return PHP_INT_MAX;
         }
-        
+
         return (int)$score;
     }
 
@@ -881,6 +881,10 @@ class PlayerService
 
         // Delete tech record.
         $this->user_tech->delete();
+
+        // Clear planet_current reference before deleting planets (FK constraint).
+        $this->user->planet_current = null;
+        $this->user->save();
 
         // Delete all planets.
         Planet::where('user_id', $this->getId())->delete();
