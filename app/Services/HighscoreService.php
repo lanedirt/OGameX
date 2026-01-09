@@ -29,9 +29,22 @@ class HighscoreService
 
     /**
      * Highscore constructor.
+     *
+     * @param PlayerServiceFactory $playerServiceFactory PlayerServiceFactory object.
+     * @param SettingsService $settingsService SettingsService object.
      */
-    public function __construct(private PlayerServiceFactory $playerServiceFactory)
+    public function __construct(private PlayerServiceFactory $playerServiceFactory, private SettingsService $settingsService)
     {
+    }
+
+    /**
+     * Check if admin users should be visible in highscores.
+     *
+     * @return bool
+     */
+    public function isAdminVisibleInHighscore(): bool
+    {
+        return $this->settingsService->highscoreAdminVisible();
     }
 
     /**
@@ -257,15 +270,26 @@ class HighscoreService
     public function getHighscorePlayers(int $perPage = 100, int $pageOn = 1): array
     {
         // Get all player highscores
-        return Cache::remember(sprintf('highscores-%s-%d', $this->highscoreType->name, $pageOn), now()->addMinutes(5), function () use ($perPage, $pageOn) {
+        $adminVisible = $this->isAdminVisibleInHighscore();
+        return Cache::remember(sprintf('highscores-%s-%d-%s', $this->highscoreType->name, $pageOn, $adminVisible ? '1' : '0'), now()->addMinutes(5), function () use ($perPage, $pageOn, $adminVisible) {
             $parsedHighscores = [];
 
-            $highscores = Highscore::query()
+            $query = Highscore::query()
                 ->whereHas('player.tech')
-                ->with(['player', 'player.alliance'])
+                ->with(['player', 'player.alliance', 'player.roles'])
                 ->validRanks()
-                ->orderBy($this->highscoreType->name.'_rank')
-                ->paginate(perPage: $perPage, page: $pageOn);
+                ->orderBy($this->highscoreType->name.'_rank');
+
+            // Filter out admin users if setting is disabled
+            if (!$adminVisible) {
+                $query->whereHas('player', function ($q) {
+                    $q->whereDoesntHave('roles', function ($roleQuery) {
+                        $roleQuery->where('name', 'admin');
+                    });
+                });
+            }
+
+            $highscores = $query->paginate(perPage: $perPage, page: $pageOn);
 
             foreach ($highscores as $playerScore) {
                 // Load player object
@@ -331,8 +355,20 @@ class HighscoreService
      */
     public function getHighscorePlayerAmount(): int
     {
-        return Cache::remember('highscore-player-count', now()->addMinutes(5), function () {
-            return Highscore::query()->validRanks()->count();
+        $adminVisible = $this->isAdminVisibleInHighscore();
+        return Cache::remember('highscore-player-count-' . ($adminVisible ? '1' : '0'), now()->addMinutes(5), function () use ($adminVisible) {
+            $query = Highscore::query()->validRanks();
+
+            // Filter out admin users if setting is disabled
+            if (!$adminVisible) {
+                $query->whereHas('player', function ($q) {
+                    $q->whereDoesntHave('roles', function ($roleQuery) {
+                        $roleQuery->where('name', 'admin');
+                    });
+                });
+            }
+
+            return $query->count();
         });
     }
 
