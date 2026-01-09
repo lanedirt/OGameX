@@ -36,20 +36,22 @@ jobs:
           echo "HOST_UID=$(id -u)" >> $GITHUB_ENV
           echo "HOST_GID=$(id -g)" >> $GITHUB_ENV
 
-      - name: Prepare preview directory
-        run: |
-          mkdir -p ${{ env.PREVIEW_DIR }}
-
       - name: Checkout PR branch to preview directory
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          path: pr-checkout
-
-      - name: Sync files to preview directory
         run: |
-          rsync -a --delete --exclude='.git' pr-checkout/ ${{ env.PREVIEW_DIR }}/
+          if [ -d "${{ env.PREVIEW_DIR }}/.git" ]; then
+            # Directory exists with git, fetch and checkout
+            cd ${{ env.PREVIEW_DIR }}
+            git fetch origin
+            git checkout ${{ github.event.pull_request.head.sha }} --force
+            git clean -fd
+          else
+            # Fresh clone
+            rm -rf ${{ env.PREVIEW_DIR }}
+            git clone --depth 1 https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git ${{ env.PREVIEW_DIR }}
+            cd ${{ env.PREVIEW_DIR }}
+            git fetch origin ${{ github.event.pull_request.head.sha }}
+            git checkout ${{ github.event.pull_request.head.sha }} --force
+          fi
 
       - name: Create .env file
         working-directory: ${{ env.PREVIEW_DIR }}
