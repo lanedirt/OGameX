@@ -2,6 +2,7 @@
 
 namespace OGame\Console\Commands;
 
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
@@ -388,8 +389,8 @@ class PreviewSeedUsers extends Command
             foreach ($requirements as $reqName => $reqLevel) {
                 try {
                     $obj = ObjectService::getObjectByMachineName($reqName);
-                    if ($obj->type === \OGame\GameObjects\Models\Enums\GameObjectType::Building ||
-                        $obj->type === \OGame\GameObjects\Models\Enums\GameObjectType::Station) {
+                    if ($obj->type === GameObjectType::Building ||
+                        $obj->type === GameObjectType::Station) {
                         if (!isset($buildingRequirements[$reqName]) || $buildingRequirements[$reqName] < $reqLevel) {
                             $buildingRequirements[$reqName] = $reqLevel;
                         }
@@ -418,7 +419,7 @@ class PreviewSeedUsers extends Command
             foreach ($requirements as $reqName => $reqLevel) {
                 try {
                     $obj = ObjectService::getObjectByMachineName($reqName);
-                    if ($obj->type === \OGame\GameObjects\Models\Enums\GameObjectType::Research) {
+                    if ($obj->type === GameObjectType::Research) {
                         if (!isset($expanded[$reqName]) || $expanded[$reqName] < $reqLevel) {
                             $expanded[$reqName] = $reqLevel;
                         }
@@ -451,8 +452,8 @@ class PreviewSeedUsers extends Command
             foreach ($requirements as $reqName => $reqLevel) {
                 try {
                     $obj = ObjectService::getObjectByMachineName($reqName);
-                    if ($obj->type === \OGame\GameObjects\Models\Enums\GameObjectType::Building ||
-                        $obj->type === \OGame\GameObjects\Models\Enums\GameObjectType::Station) {
+                    if ($obj->type === GameObjectType::Building ||
+                        $obj->type === GameObjectType::Station) {
                         if (!isset($expanded[$reqName]) || $expanded[$reqName] < $reqLevel) {
                             $expanded[$reqName] = $reqLevel;
                         }
