@@ -6,6 +6,7 @@ use OGame\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Console\Command;
 use OGame\Enums\HighscoreTypeEnum;
+use OGame\Models\AllianceHighscore;
 use OGame\Models\Highscore;
 
 class GenerateHighscoreRanks extends Command
@@ -22,7 +23,7 @@ class GenerateHighscoreRanks extends Command
      *
      * @var string
      */
-    protected $description = 'Generates Highscore rank data';
+    protected $description = 'Generates Highscore rank data for players and alliances';
 
     /**
      * Execute the console command.
@@ -30,14 +31,15 @@ class GenerateHighscoreRanks extends Command
     public function handle(): void
     {
         foreach (HighscoreTypeEnum::cases() as $type) {
-            $this->updateTypeRank($type);
+            $this->updatePlayerRank($type);
+            $this->updateAllianceRank($type);
         }
     }
 
-    private function updateTypeRank(HighscoreTypeEnum $type): void
+    private function updatePlayerRank(HighscoreTypeEnum $type): void
     {
         $rank = 1;
-        $this->info("\nUpdating highscore ranks for $type->name...");
+        $this->info("\nUpdating player highscore ranks for $type->name...");
 
         // Set Legor's rank to 0 (Legor is excluded from highscore, ranked players start at 1)
         $legor = User::where('username', 'Legor')->first();
@@ -73,6 +75,36 @@ class GenerateHighscoreRanks extends Command
                 $rank++;
             }
         });
-        $this->info("\nAll highscores for type $type->name completed!\n");
+        $this->info("\nAll player highscores for type $type->name completed!\n");
+    }
+
+    private function updateAllianceRank(HighscoreTypeEnum $type): void
+    {
+        $rank = 1;
+        $this->info("\nUpdating alliance highscore ranks for $type->name...");
+
+        // Order by the highscore value in descending order, and by the alliance creation date in ascending order.
+        // This ensures that:
+        // - The highest ranked alliances are at the top of the list.
+        // - If two alliances have the same highscore value, the alliance that was created first will be ranked higher.
+        $query = AllianceHighscore::query()
+            ->join('alliances', 'alliance_highscores.alliance_id', '=', 'alliances.id')
+            ->select('alliance_highscores.*')
+            ->orderByDesc($type->name)
+            ->oldest('alliances.created_at');
+
+        $bar = $this->output->createProgressBar();
+        $bar->start($query->count());
+
+        $query->chunk(200, function ($highscores) use ($type, &$bar, &$rank) {
+            /** @var Collection<int, AllianceHighscore> $highscores */
+            foreach ($highscores as $highscore) {
+                $highscore->{$type->name.'_rank'} = $rank;
+                $highscore->save();
+                $bar->advance();
+                $rank++;
+            }
+        });
+        $this->info("\nAll alliance highscores for type $type->name completed!\n");
     }
 }

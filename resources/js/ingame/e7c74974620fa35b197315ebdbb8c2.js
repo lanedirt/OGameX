@@ -31078,7 +31078,7 @@ function Alliance(cfg) {
   this.tab = cfg.tab || '';
   this.token = cfg.token;
   this.loca = cfg.loca;
-  this.tabs = ['overview', 'management', 'broadcast', 'applications', 'classselection', 'createNewAlliance', 'handleApplication'];
+  this.tabs = ['overview', 'management', 'broadcast', 'applications', 'classselection', 'createNewAlliance', 'handleApplication', 'allianceOverview', 'allianceMembers'];
   this.initMap = {
     'overview': this.initOverview.bind(this),
     'management': this.initManagement.bind(this),
@@ -31086,7 +31086,9 @@ function Alliance(cfg) {
     'broadcast': this.initBroadcast.bind(this),
     'classselection': this.initClasses.bind(this),
     'createNewAlliance': this.initCreateAlliance.bind(this),
-    'handleApplication': this.initHandleApplication.bind(this)
+    'handleApplication': this.initHandleApplication.bind(this),
+    'allianceOverview': this.initAllianceOverview.bind(this),
+    'allianceMembers': this.initAllianceMembers.bind(this)
   };
 
   if (this.initMap[this.tab]) {
@@ -31097,10 +31099,16 @@ function Alliance(cfg) {
 
 Alliance.prototype.displayErrors = function (errors) {
   // only display the first error
-  let error = errors[0] || undefined;
+  if (!errors || !Array.isArray(errors) || errors.length === 0) {
+    fadeBox('An error occurred', true);
+    return;
+  }
 
-  if (error) {
+  let error = errors[0];
+  if (error && error.message) {
     fadeBox(error.message, true);
+  } else {
+    fadeBox('An error occurred', true);
   }
 };
 
@@ -31135,12 +31143,11 @@ Alliance.prototype.onAjaxDone = function () {
   switch (this.tab) {
     case 'createNewAlliance':
       $('#form_createAlly .createAlly').bind('click', that.onClickCreateAlliance.bind(that));
-      this.urlCreateAlliance = urlCreateAlliance;
+      // URL is now set in onFetch from AJAX response
       break;
 
     case 'handleApplication':
-      this.urlSendApplication = urlSendApplication;
-      this.urlCancelApplication = urlCancelApplication;
+      // URLs are now set in onFetch from AJAX response
       $('#writeapplication .sendNewApplication').bind('click', that.onClickSendApplication.bind(that));
       $('.bewerbung .cancelApplication').bind('click', that.onClickCancelApplication.bind(that));
       break;
@@ -31153,9 +31160,7 @@ Alliance.prototype.onAjaxDone = function () {
       $('#kickMemberForm .submit').bind('click', that.onClickKickMemberSubmit.bind(that));
       $('#form_assignRank .assignRank').bind('click', that.onClickAssignRankSubmit.bind(that));
       $('#leaveAlly .leaveAlly').bind('click', that.onClickLeaveAlliance.bind(that));
-      this.urlKickMember = urlKickMember;
-      this.urlSubmitRanks = urlSubmitRanks;
-      this.urlLeaveAlliance = urlLeaveAlliance;
+      // URLs are now set in onFetch from AJAX response
       break;
 
     case 'management':
@@ -31173,16 +31178,7 @@ Alliance.prototype.onAjaxDone = function () {
       $('#dissolveally .dissolve').bind('click', that.onClickSubmitDisolve.bind(that));
       $('#assignally .transferLeadership').bind('click', that.onClickSubmitTransferLeadership.bind(that));
       $('#assignally .takeoverLeadership').bind('click', that.onClickSubmitTakeoverLeadership.bind(that));
-      this.urlCreateRank = urlCreateRank;
-      this.urlUpdateRank = urlUpdateRank;
-      this.urlDeleteRank = urlDeleteRank;
-      this.urlUpdateAllianceText = urlUpdateAllianceText;
-      this.urlUpdateSettings = urlUpdateSettings;
-      this.urlUpdateTag = urlUpdateTag;
-      this.urlUpdateName = urlUpdateName;
-      this.urlDissolve = urlDissolve;
-      this.urlTransferLeadership = urlTransferLeadership;
-      this.urlTakeoverLeadership = urlTakeoverLeadership;
+      // URLs are now set in onFetch from AJAX response
       break;
 
     case 'applications':
@@ -31201,14 +31197,12 @@ Alliance.prototype.onAjaxDone = function () {
         $(this).find('.accept').bind('click', that.onFormClickAcceptApplication.bind(that));
         $(this).find('.deny').bind('click', that.onFormClickDenyApplication.bind(that));
       });
-      this.urlAccept = urlAccept;
-      this.urlDeny = urlDeny;
-      this.urlReport = urlReport;
+      // URLs are now set in onFetch from AJAX response
       break;
 
     case 'broadcast':
       $("#submitMail").bind('click', that.onFormClickBroadcastButton.bind(that));
-      this.urlSend = urlSend;
+      // URLs are now set in onFetch from AJAX response
       break;
   }
 };
@@ -31225,6 +31219,16 @@ Alliance.prototype.initHandleApplication = function (cfg) {
   this.urlSendApplication = cfg.urlSendApplication;
   this.urlCancelApplication = cfg.urlCancelApplication;
   this.fetchNewApplication();
+};
+
+Alliance.prototype.initAllianceOverview = function (cfg) {
+  this.initCommon(cfg);
+  this.fetch(this.tab);
+};
+
+Alliance.prototype.initAllianceMembers = function (cfg) {
+  this.initCommon(cfg);
+  this.fetch(this.tab);
 };
 
 Alliance.prototype.initOverview = function (cfg) {
@@ -31311,7 +31315,7 @@ Alliance.prototype.onClickDeleteRank = function (e) {
 
 Alliance.prototype.onClickUpdateAllianceText = function (e) {
   e.preventDefault();
-  let allianceText = $(e.currentTarget).parent().find('.alliancetexts').val();
+  let allianceText = $(e.currentTarget).closest('form').find('.alliancetexts').val();
   let submitType = $(e.currentTarget).data('type');
   let params = {
     allianceText: allianceText,
@@ -31466,12 +31470,17 @@ Alliance.prototype.onClickCreateAlliance = function () {
   let createTag = $('#allyTagField').val();
   let createName = $('#allyNameField').val();
   let params = {
-    createTag: createTag,
-    createName: createName,
+    tag: createTag,
+    name: createName,
     _token: this.token
   };
   this.loadingIndicator.show();
-  $.post(this.urlCreateAlliance, params, this.handleResponse.bind(this)).done(this.onAjaxDone.bind(this));
+  $.post(this.urlCreateAlliance, params, this.handleResponse.bind(this))
+    .done(this.onAjaxDone.bind(this))
+    .fail(this.handleResponse.bind(this))
+    .always(function() {
+      this.loadingIndicator.hide();
+    }.bind(this));
 };
 
 Alliance.prototype.onClickSendApplication = function (e) {
@@ -31567,6 +31576,72 @@ Alliance.prototype.onFetch = function (data) {
   let htmlItems = data.content[data.target];
   this.updateToken(data.newAjaxToken);
   this.refreshContent(htmlItems);
+
+  // Set URLs from AJAX response if available
+  if (data.urlCreateAlliance) {
+    this.urlCreateAlliance = data.urlCreateAlliance;
+  }
+  if (data.urlSendApplication) {
+    this.urlSendApplication = data.urlSendApplication;
+  }
+  if (data.urlCancelApplication) {
+    this.urlCancelApplication = data.urlCancelApplication;
+  }
+  // Overview tab URLs
+  if (data.urlKickMember) {
+    this.urlKickMember = data.urlKickMember;
+  }
+  if (data.urlSubmitRanks) {
+    this.urlSubmitRanks = data.urlSubmitRanks;
+  }
+  if (data.urlLeaveAlliance) {
+    this.urlLeaveAlliance = data.urlLeaveAlliance;
+  }
+  // Management tab URLs
+  if (data.urlCreateRank) {
+    this.urlCreateRank = data.urlCreateRank;
+  }
+  if (data.urlUpdateRank) {
+    this.urlUpdateRank = data.urlUpdateRank;
+  }
+  if (data.urlDeleteRank) {
+    this.urlDeleteRank = data.urlDeleteRank;
+  }
+  if (data.urlUpdateAllianceText) {
+    this.urlUpdateAllianceText = data.urlUpdateAllianceText;
+  }
+  if (data.urlUpdateSettings) {
+    this.urlUpdateSettings = data.urlUpdateSettings;
+  }
+  if (data.urlUpdateTag) {
+    this.urlUpdateTag = data.urlUpdateTag;
+  }
+  if (data.urlUpdateName) {
+    this.urlUpdateName = data.urlUpdateName;
+  }
+  if (data.urlDissolve) {
+    this.urlDissolve = data.urlDissolve;
+  }
+  if (data.urlTransferLeadership) {
+    this.urlTransferLeadership = data.urlTransferLeadership;
+  }
+  if (data.urlTakeoverLeadership) {
+    this.urlTakeoverLeadership = data.urlTakeoverLeadership;
+  }
+  // Applications tab URLs
+  if (data.urlAccept) {
+    this.urlAccept = data.urlAccept;
+  }
+  if (data.urlDeny) {
+    this.urlDeny = data.urlDeny;
+  }
+  if (data.urlReport) {
+    this.urlReport = data.urlReport;
+  }
+  // Broadcast tab URLs
+  if (data.urlSend) {
+    this.urlSend = data.urlSend;
+  }
 };
 
 Alliance.prototype.updateToken = function (newtoken) {
@@ -31641,9 +31716,23 @@ Alliance.prototype.onFormClickAcceptApplication = function (e) {
 };
 
 Alliance.prototype.handleResponse = function (response) {
-  let data = JSON.parse(response);
+  // Handle both success and error callbacks
+  let data;
+
+  // If called from error callback (jqXHR object)
+  if (response && response.responseJSON) {
+    data = response.responseJSON;
+    console.log('Alliance Error Response:', data);
+  } else {
+    // Handle both string and object responses
+    data = typeof response === 'string' ? JSON.parse(response) : response;
+  }
+
   let status = data.status || 'failure';
-  this.updateToken(data.newAjaxToken);
+
+  if (data.newAjaxToken) {
+    this.updateToken(data.newAjaxToken);
+  }
 
   if (status === 'success') {
     if (data.redirectUrl !== undefined) {
@@ -31655,10 +31744,16 @@ Alliance.prototype.handleResponse = function (response) {
 
       fadeBox(data.message, false);
       getAjaxEventbox();
-      getAjaxResourcebox();
+      // Don't call getAjaxResourcebox() - alliance operations don't affect resources
       this.fetch(this.tab);
     }
   } else {
+    console.log('Alliance operation failed:', {
+      message: data.message,
+      errors: data.errors,
+      fullResponse: data
+    });
+
     if (data.tabs !== undefined) {
       this.refreshTabs(data.tabs);
     }
@@ -31816,7 +31911,7 @@ AllianceClassBoxes.prototype.handleResponse = function (response) {
 
       fadeBox(data.message, false);
       getAjaxEventbox();
-      getAjaxResourcebox();
+      // Don't call getAjaxResourcebox() - alliance operations don't affect resources
       this.fetch(this.tab);
     }
   } else {

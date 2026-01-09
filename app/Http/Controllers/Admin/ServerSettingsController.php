@@ -34,6 +34,7 @@ class ServerSettingsController extends OGameController
             'planet_fields_bonus' => $settingsService->planetFieldsBonus(),
             'dark_matter_bonus' => $settingsService->darkMatterBonus(),
             'alliance_combat_system_on' => $settingsService->allianceCombatSystemOn(),
+            'alliance_cooldown_days' => $settingsService->allianceCooldownDays(),
             'debris_field_from_ships' => $settingsService->debrisFieldFromShips(),
             'debris_field_from_defense' => $settingsService->debrisFieldFromDefense(),
             'debris_field_deuterium_on' => $settingsService->debrisFieldDeuteriumOn(),
@@ -94,6 +95,7 @@ class ServerSettingsController extends OGameController
         $settingsService->set('planet_fields_bonus', request('planet_fields_bonus'));
         $settingsService->set('dark_matter_bonus', request('dark_matter_bonus'));
         $settingsService->set('alliance_combat_system_on', request('alliance_combat_system_on', 0));
+        $settingsService->set('alliance_cooldown_days', request('alliance_cooldown_days', 3));
         $settingsService->set('debris_field_from_ships', request('debris_field_from_ships'));
         $settingsService->set('debris_field_from_defense', request('debris_field_from_defense'));
         $settingsService->set('debris_field_deuterium_on', request('debris_field_deuterium_on', 0));
