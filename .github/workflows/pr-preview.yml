@@ -66,6 +66,8 @@ jobs:
           sed -i "s|APP_URL=.*|APP_URL=https://pr-${{ env.PR_NUMBER }}.preview.ogamex.dev|g" .env
           sed -i "s|APP_ENV=.*|APP_ENV=local|g" .env
           sed -i "s|APP_DEBUG=.*|APP_DEBUG=true|g" .env
+          # Trust all proxies for X-Forwarded-* headers (HAProxy -> Traefik -> App)
+          echo "TRUSTED_PROXIES=*" >> .env
 
       - name: Generate Traefik override
         working-directory: ${{ env.PREVIEW_DIR }}
