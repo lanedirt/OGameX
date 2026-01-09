@@ -879,8 +879,11 @@ class PlayerService
         // Delete all messages.
         Message::where('user_id', $this->getId())->delete();
 
+        // Delete highscore record.
+        Highscore::where('player_id', $this->getId())->delete();
+
         // Delete tech record.
-        $this->user_tech->delete();
+        UserTech::where('user_id', $this->getId())->delete();
 
         // Clear planet_current reference before deleting planets (FK constraint).
         $this->user->planet_current = null;
