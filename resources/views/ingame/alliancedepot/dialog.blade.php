@@ -61,7 +61,7 @@
                                     @endforeach
                                 </td>
                                 <td class="textCenter supplyTime">
-                                    <input type="text" pattern="[0-9,.]*" class="textInput" name="supplyTime" id="supplyTimeInput" value="1" size="2" maxlength="2">&nbsp;h
+                                    <input type="number" min="1" max="32" class="textInput" name="supplyTime" id="supplyTimeInput" value="1" size="2">&nbsp;h
                                 </td>
                                 <td class="textCenter">
                                 <span id="deutCosts" class="dark_highlight_tablet tooltip" data-tooltip-title="@lang('Supply costs Deuterium / h')">
