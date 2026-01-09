@@ -7,6 +7,7 @@ use OGame\Http\Middleware\Admin;
 use OGame\Http\Middleware\CheckFirstLogin;
 use OGame\Http\Middleware\GlobalGame;
 use OGame\Http\Middleware\Locale;
+use OGame\Http\Middleware\ServerTiming;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Custom Middleware
+        $middleware->prepend(ServerTiming::class);
         $middleware->alias([
             'globalgame' => GlobalGame::class,
             'locale' => Locale::class,
