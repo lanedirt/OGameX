@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Scheduler;
 
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet\Coordinate;

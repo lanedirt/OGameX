@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands\Tests;
+namespace OGame\Console\Commands\Test;
 
 use GuzzleHttp\Promise\Utils;
 use DateTime;

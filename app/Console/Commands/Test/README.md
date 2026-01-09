@@ -5,5 +5,5 @@ in a production environment, and are only meant to be run in a development envir
 The tests are run using the following command (this runs an example test):
 
 ```bash
-php artisan test:race-condition-game-mission
+php artisan ogamex:test:race-condition-game-mission
 ```

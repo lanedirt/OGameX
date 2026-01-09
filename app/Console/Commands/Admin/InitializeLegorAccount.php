@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Admin;
 
 use OGame\Models\User;
 use OGame\Models\Planet;

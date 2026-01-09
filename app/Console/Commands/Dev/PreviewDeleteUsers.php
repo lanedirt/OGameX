@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Dev;
 
 use Illuminate\Console\Command;
 use OGame\Factories\PlayerServiceFactory;

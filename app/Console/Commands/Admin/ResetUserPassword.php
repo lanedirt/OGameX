@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Admin;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;

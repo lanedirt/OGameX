@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Dev;
 
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use Exception;
