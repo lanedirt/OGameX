@@ -23,6 +23,7 @@ mix.scripts([
     'resources/js/ingame/vendor/jquery-ui-1.12.1.js',
     'resources/js/ingame/vendor/anythingslider-1.9.7.js',
     'resources/js/ingame/vendor/jquery.ba-bbq-1.4pre.js',
+    'resources/js/ingame/vendor/jquery.colorpicker.js',
     'resources/js/ingame/jquery.js',
     'resources/js/ingame/chat.js',
     'resources/js/ingame/inventory.js',
