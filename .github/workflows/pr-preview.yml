@@ -175,7 +175,7 @@ jobs:
       - name: Seed preview test users
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
-          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan ogamex:seed-preview-users
+          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan ogamex:preview-seed-users
 
       - name: Comment on PR with preview URL
         uses: actions/github-script@v7
