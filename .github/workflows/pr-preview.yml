@@ -23,7 +23,7 @@ jobs:
     # Specify environment for "Deploy" approval button
     # Note: Environment must be pre-configured in repo settings with required reviewers
     environment:
-      name: preview
+      name: pr-preview
       url: https://pr-${{ github.event.pull_request.number }}.preview.ogamex.dev
 
     steps:
