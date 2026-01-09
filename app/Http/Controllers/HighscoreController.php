@@ -111,6 +111,8 @@ class HighscoreController extends OGameController
             'highscoreCurrentPage' => $page,
             'highscoreCurrentType' => $type,
             'player' => $player,
+            'highscoreAdminVisible' => $highscoreService->isAdminVisibleInHighscore(),
+            'currentPlayerIsAdmin' => $player->isAdmin(),
         ]);
     }
 

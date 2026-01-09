@@ -2,12 +2,14 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
+use Cache;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use OGame\Enums\HighscoreTypeEnum;
 use OGame\Models\AllianceHighscore;
 use OGame\Models\Highscore;
 use OGame\Models\User;
+use OGame\Services\SettingsService;
 
 class GenerateHighscoreRanks extends Command
 {
@@ -28,15 +30,43 @@ class GenerateHighscoreRanks extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(SettingsService $settingsService): void
     {
+        $adminVisible = $settingsService->highscoreAdminVisible();
+
         foreach (HighscoreTypeEnum::cases() as $type) {
-            $this->updatePlayerRank($type);
+            $this->updatePlayerRank($type, $adminVisible);
             $this->updateAllianceRank($type);
+        }
+
+        // Clear highscore cache so changes are reflected immediately
+        $this->clearHighscoreCache();
+        $this->info("\nHighscore cache cleared.");
+    }
+
+    /**
+     * Clear all highscore-related cache entries.
+     */
+    private function clearHighscoreCache(): void
+    {
+        // Clear player count cache for both admin visible states
+        Cache::forget('highscore-player-count-0');
+        Cache::forget('highscore-player-count-1');
+
+        // Clear alliance count cache
+        Cache::forget('highscore-alliance-count');
+
+        // Clear highscore list cache for all types and pages
+        foreach (HighscoreTypeEnum::cases() as $type) {
+            for ($page = 1; $page <= 100; $page++) {
+                Cache::forget(sprintf('highscores-%s-%d-0', $type->name, $page));
+                Cache::forget(sprintf('highscores-%s-%d-1', $type->name, $page));
+                Cache::forget(sprintf('alliance-highscores-%s-%d', $type->name, $page));
+            }
         }
     }
 
-    private function updatePlayerRank(HighscoreTypeEnum $type): void
+    private function updatePlayerRank(HighscoreTypeEnum $type, bool $adminVisible): void
     {
         $rank = 1;
         $this->info("\nUpdating player highscore ranks for $type->name...");
@@ -51,17 +81,45 @@ class GenerateHighscoreRanks extends Command
             }
         }
 
+        // Set admin users' ranks to 0 if admins are excluded from highscore
+        if (!$adminVisible) {
+            $adminUsers = User::whereHas('roles', function ($query) {
+                $query->where('name', 'admin');
+            })->get();
+
+            foreach ($adminUsers as $adminUser) {
+                $adminHighscore = Highscore::where('player_id', $adminUser->id)->first();
+                if ($adminHighscore) {
+                    $adminHighscore->{$type->name.'_rank'} = 0;
+                    $adminHighscore->save();
+                }
+            }
+        }
+
         // Order by the highscore value in descending order, and by the player creation date in ascending order.
         // This ensures that:
         // - The highest ranked players are at the top of the list.
         // - If two players have the same highscore value, the player who joined the game first will be ranked higher.
         // Legor is excluded from highscore ranking entirely.
+        // Admin users are excluded if the highscore_admin_visible setting is disabled.
         $query = Highscore::query()
             ->join('users', 'highscores.player_id', '=', 'users.id')
             ->where('users.username', '!=', 'Legor')
             ->select('highscores.*')
             ->orderByDesc($type->name)
             ->oldest('users.created_at');
+
+        // Exclude admin users from ranking if setting is disabled
+        if (!$adminVisible) {
+            $query->whereNotExists(function ($subQuery) {
+                $subQuery->selectRaw('1')
+                    ->from('model_has_roles')
+                    ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                    ->whereColumn('model_has_roles.model_id', 'users.id')
+                    ->where('model_has_roles.model_type', User::class)
+                    ->where('roles.name', 'admin');
+            });
+        }
 
         $bar = $this->output->createProgressBar();
         $bar->start($query->count());

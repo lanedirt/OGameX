@@ -100,9 +100,17 @@ class IngameMainComposer
         // Get current locale
         $locale = App::getLocale();
 
-        $highscoreRank = Cache::remember('player-highscore' . $this->player->getId(), now()->addMinutes(5), function () {
-            return $this->highscoreService->getHighscorePlayerRank($this->player);
-        });
+        $currentPlayerIsAdmin = $this->player->isAdmin();
+        $highscoreAdminVisible = $this->highscoreService->isAdminVisibleInHighscore();
+
+        // Show "-" for admin rank if setting is disabled, otherwise show actual rank
+        if ($currentPlayerIsAdmin && !$highscoreAdminVisible) {
+            $highscoreRank = '-';
+        } else {
+            $highscoreRank = Cache::remember('player-highscore' . $this->player->getId(), now()->addMinutes(5), function () {
+                return $this->highscoreService->getHighscorePlayerRank($this->player);
+            });
+        }
 
         $view->with([
             'underAttack' => $this->fleetMissionService->currentPlayerUnderAttack(),

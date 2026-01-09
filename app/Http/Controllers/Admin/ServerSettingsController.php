@@ -2,8 +2,10 @@
 
 namespace OGame\Http\Controllers\Admin;
 
+use Cache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use OGame\Enums\HighscoreTypeEnum;
 use OGame\Http\Controllers\OGameController;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
@@ -68,6 +70,7 @@ class ServerSettingsController extends OGameController
             'expedition_weight_merchant' => $settingsService->expeditionWeightMerchant(),
             'expedition_weight_items' => $settingsService->expeditionWeightItems(),
             'hamill_probability' => $settingsService->hamillManoeuvreChance(),
+            'highscore_admin_visible' => $settingsService->highscoreAdminVisible(),
         ]);
     }
 
@@ -135,6 +138,29 @@ class ServerSettingsController extends OGameController
 
         $settingsService->set('hamill_manoeuvre_chance', max(1, (int)request('hamill_probability', 1000)));
 
+        $settingsService->set('highscore_admin_visible', request('highscore_admin_visible', 0));
+
+        // Clear highscore cache when admin visibility setting changes
+        $this->clearHighscoreCache();
+
         return redirect()->route('admin.serversettings.index')->with('success', __('Changes saved!'));
+    }
+
+    /**
+     * Clear all highscore-related cache entries.
+     */
+    private function clearHighscoreCache(): void
+    {
+        // Clear player count cache for both admin visible states
+        Cache::forget('highscore-player-count-0');
+        Cache::forget('highscore-player-count-1');
+
+        // Clear highscore list cache for all types and pages (up to 100 pages should cover most cases)
+        foreach (HighscoreTypeEnum::cases() as $type) {
+            for ($page = 1; $page <= 100; $page++) {
+                Cache::forget(sprintf('highscores-%s-%d-0', $type->name, $page));
+                Cache::forget(sprintf('highscores-%s-%d-1', $type->name, $page));
+            }
+        }
     }
 }

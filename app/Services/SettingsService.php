@@ -680,4 +680,16 @@ class SettingsService
     {
         return (int)$this->get('hamill_manoeuvre_chance', 1000);
     }
+
+    /**
+     * Returns whether admin users should be visible in highscores.
+     * When disabled (default), admins are excluded from highscore rankings entirely.
+     * When enabled, admins appear in highscores with orange-highlighted names.
+     *
+     * @return bool
+     */
+    public function highscoreAdminVisible(): bool
+    {
+        return (bool)$this->get('highscore_admin_visible', 0);
+    }
 }
