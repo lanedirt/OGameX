@@ -213,11 +213,11 @@ If you want to upgrade an existing installation of OGameX to a new version, foll
 ### Assigning admin role
 By default, the first registered user is assigned the admin role which can see the admin bar and is able to change server settings. You can also assign the admin role manually via the command line:
   ```
-  $ php artisan ogamex:assign-admin-role {username}
+  $ php artisan ogamex:admin:assign-role {username}
   ```
   To remove the admin role from a user, use the following command:
   ```
-  $ php artisan ogamex:remove-admin-role {username}
+  $ php artisan ogamex:admin:remove-role {username}
   ```
 
 ## <a name="support"></a> 📞 9. Support

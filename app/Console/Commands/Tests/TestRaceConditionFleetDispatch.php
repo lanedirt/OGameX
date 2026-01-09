@@ -27,7 +27,7 @@ use OGame\Services\ObjectService;
  */
 class TestRaceConditionFleetDispatch extends TestCommand
 {
-    protected $signature = 'test:race-condition-fleet-dispatch';
+    protected $signature = 'ogamex:test:race-condition-fleet-dispatch';
     protected $description = 'Issue parallel fleet dispatch requests to test race conditions for fleet sending.';
 
     /**

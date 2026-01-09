@@ -15,7 +15,7 @@ class CleanupWreckFields extends Command
      *
      * @var string
      */
-    protected $signature = 'ogame:wreck-fields:cleanup';
+    protected $signature = 'ogamex:scheduler:cleanup-wreckfields';
 
     /**
      * The console command description.

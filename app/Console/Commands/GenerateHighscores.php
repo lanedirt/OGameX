@@ -15,7 +15,7 @@ class GenerateHighscores extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:generate-highscores';
+    protected $signature = 'ogamex:scheduler:generate-highscores';
 
     /**
      * The console command description.

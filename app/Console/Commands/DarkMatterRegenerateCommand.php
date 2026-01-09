@@ -13,7 +13,7 @@ class DarkMatterRegenerateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:darkmatter-regenerate';
+    protected $signature = 'ogamex:scheduler:darkmatter-regenerate';
 
     /**
      * The console command description.

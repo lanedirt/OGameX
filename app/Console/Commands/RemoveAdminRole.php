@@ -12,7 +12,7 @@ class RemoveAdminRole extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:remove-admin-role {username}';
+    protected $signature = 'ogamex:admin:remove-role {username}';
 
     /**
      * The console command description.

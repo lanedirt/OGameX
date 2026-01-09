@@ -56,7 +56,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            docker compose exec -T ogamex-app php artisan test:race-condition-unitqueue
-            docker compose exec -T ogamex-app php artisan test:race-condition-game-mission
-            docker compose exec -T ogamex-app php artisan test:race-condition-fleet-dispatch
-            docker compose exec -T ogamex-app php artisan test:race-condition-unitqueue-creation
+            docker compose exec -T ogamex-app php artisan ogamex:test:race-condition-unitqueue
+            docker compose exec -T ogamex-app php artisan ogamex:test:race-condition-game-mission
+            docker compose exec -T ogamex-app php artisan ogamex:test:race-condition-fleet-dispatch
+            docker compose exec -T ogamex-app php artisan ogamex:test:race-condition-unitqueue-creation

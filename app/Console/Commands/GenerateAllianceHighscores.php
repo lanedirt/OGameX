@@ -14,7 +14,7 @@ class GenerateAllianceHighscores extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:generate-alliance-highscores';
+    protected $signature = 'ogamex:scheduler:generate-alliance-highscores';
 
     /**
      * The console command description.

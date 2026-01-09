@@ -21,7 +21,7 @@ use OGame\Services\UnitQueueService;
  */
 class TestRaceConditionUnitQueue extends TestCommand
 {
-    protected $signature = 'test:race-condition-unitqueue';
+    protected $signature = 'ogamex:test:race-condition-unitqueue';
     protected $description = 'Issue parallel requests to test race conditions for unit queue planet updates.';
 
     /**

@@ -12,7 +12,7 @@ class AssignAdminRole extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:assign-admin-role {username}';
+    protected $signature = 'ogamex:admin:assign-role {username}';
 
     /**
      * The console command description.

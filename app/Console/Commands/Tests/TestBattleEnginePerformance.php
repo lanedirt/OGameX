@@ -21,17 +21,17 @@ use OGame\Services\SettingsService;
  *
  * Use like this to test PHP
  * ---
- * php artisan test:battle-engine-performance php --fleet='{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}'
+ * php artisan ogamex:test:battle-engine-performance php --fleet='{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}'
  * ---
  *
  * Use like this to test Rust
  * ---
- * php artisan test:battle-engine-performance rust --fleet='{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}'
+ * php artisan ogamex:test:battle-engine-performance rust --fleet='{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}'
  * ---
  */
 class TestBattleEnginePerformance extends TestCommand
 {
-    protected $signature = 'test:battle-engine-performance
+    protected $signature = 'ogamex:test:battle-engine-performance
         {engine : The battle engine to test (php/rust)}
         {--fleet= : JSON string defining attacker and defender fleets}';
     protected $description = 'Test battle engine performance with specified fleets';

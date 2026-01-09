@@ -13,6 +13,7 @@ use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\User;
 use OGame\Models\UserTech;
+use OGame\Models\WreckField;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 
@@ -23,7 +24,7 @@ class PreviewSeedUsers extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:preview-seed-users
+    protected $signature = 'ogamex:dev:seed-users
                             {--password=test : Password for all test accounts}';
 
     /**
@@ -31,7 +32,7 @@ class PreviewSeedUsers extends Command
      *
      * @var string
      */
-    protected $description = 'Seed the database with test users for preview environments. Recreates users on each run.';
+    protected $description = 'Seed the database with test users. Recreates users on each run.';
 
     /**
      * The email domain for the preview users.
@@ -99,14 +100,15 @@ class PreviewSeedUsers extends Command
             'planet' => ['metal' => 100000, 'crystal' => 80000, 'deuterium' => 40000],
         ],
         7 => [
-            'description' => 'General, 3 planets, heavy defense',
+            'description' => 'General, 3 planets, heavy defense, wreck field',
             'role' => 'player',
             'character_class' => CharacterClass::GENERAL,
             'dark_matter' => 150000,
+            'seed_wreckfield' => true,
             'tech' => ['weapon_technology' => 15, 'shielding_technology' => 12, 'armor_technology' => 12, 'hyperspace_technology' => 8, 'astrophysics' => 6, 'plasma_technology' => 7, 'laser_technology' => 6, 'energy_technology' => 3, 'ion_technology' => 4],
             'planet' => [
                 'metal' => 400000, 'crystal' => 300000, 'deuterium' => 200000,
-                'robot_factory' => 8, 'shipyard' => 8,
+                'robot_factory' => 8, 'shipyard' => 8, 'space_dock' => 5,
                 'rocket_launcher' => 500, 'light_laser' => 200, 'heavy_laser' => 50,
                 'gauss_cannon' => 20, 'ion_cannon' => 30, 'plasma_turret' => 5,
                 'small_shield_dome' => 1, 'large_shield_dome' => 1,
@@ -276,6 +278,11 @@ class PreviewSeedUsers extends Command
         // Seed messages if configured (for pagination testing)
         if (!empty($config['seed_messages'])) {
             $this->seedMessages($user);
+        }
+
+        // Seed wreck field if configured (for wreck field feature testing)
+        if (!empty($config['seed_wreckfield'])) {
+            $this->seedWreckField($user);
         }
 
         return $user;
@@ -566,5 +573,50 @@ class PreviewSeedUsers extends Command
             $message->created_at = now()->subMinutes(rand(1, 43200));
             $message->save();
         }
+    }
+
+    /**
+     * Seed a wreck field for a user on their main planet.
+     *
+     * @param User $user
+     */
+    private function seedWreckField(User $user): void
+    {
+        $this->info('  Creating wreck field on main planet...');
+
+        // Get the user's main planet
+        $planet = Planet::where('user_id', $user->id)->first();
+
+        if (!$planet) {
+            $this->warn('  Could not find planet for wreck field');
+            return;
+        }
+
+        $wreckField = new WreckField();
+        $wreckField->galaxy = $planet->galaxy;
+        $wreckField->system = $planet->system;
+        $wreckField->planet = $planet->planet;
+        $wreckField->owner_player_id = $user->id;
+        $wreckField->status = 'active';
+        $wreckField->created_at = now();
+        $wreckField->expires_at = now()->addHours(72);
+        $wreckField->ship_data = [
+            ['machine_name' => 'light_fighter', 'quantity' => 500, 'repair_progress' => 0],
+            ['machine_name' => 'heavy_fighter', 'quantity' => 200, 'repair_progress' => 0],
+            ['machine_name' => 'cruiser', 'quantity' => 100, 'repair_progress' => 0],
+            ['machine_name' => 'battle_ship', 'quantity' => 50, 'repair_progress' => 0],
+            ['machine_name' => 'battlecruiser', 'quantity' => 30, 'repair_progress' => 0],
+            ['machine_name' => 'bomber', 'quantity' => 20, 'repair_progress' => 0],
+            ['machine_name' => 'destroyer', 'quantity' => 10, 'repair_progress' => 0],
+            ['machine_name' => 'deathstar', 'quantity' => 2, 'repair_progress' => 0],
+            ['machine_name' => 'small_cargo', 'quantity' => 300, 'repair_progress' => 0],
+            ['machine_name' => 'large_cargo', 'quantity' => 200, 'repair_progress' => 0],
+            ['machine_name' => 'colony_ship', 'quantity' => 5, 'repair_progress' => 0],
+            ['machine_name' => 'recycler', 'quantity' => 100, 'repair_progress' => 0],
+            ['machine_name' => 'espionage_probe', 'quantity' => 50, 'repair_progress' => 0],
+        ];
+        $wreckField->save();
+
+        $this->info("  Wreck field created at [{$planet->galaxy}:{$planet->system}:{$planet->planet}]");
     }
 }

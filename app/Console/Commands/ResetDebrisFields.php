@@ -12,7 +12,7 @@ class ResetDebrisFields extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:reset-debris-fields';
+    protected $signature = 'ogamex:scheduler:reset-debris-fields';
 
     /**
      * The console command description.

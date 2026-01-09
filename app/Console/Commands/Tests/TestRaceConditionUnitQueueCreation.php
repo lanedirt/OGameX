@@ -27,7 +27,7 @@ use OGame\Services\ObjectService;
  */
 class TestRaceConditionUnitQueueCreation extends TestCommand
 {
-    protected $signature = 'test:race-condition-unitqueue-creation';
+    protected $signature = 'ogamex:test:race-condition-unitqueue-creation';
     protected $description = 'Issue parallel unit queue creation requests to test race conditions.';
 
     /**

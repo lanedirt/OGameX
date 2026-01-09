@@ -20,14 +20,14 @@ class InitializeLegorAccount extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:init-legor {--delay=90 : Delay in seconds before moon creation (default: 90)}';
+    protected $signature = 'ogamex:admin:init-legor {--delay=90 : Delay in seconds before moon creation (default: 90)}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Initialize the Legor admin account with Arakis planet at 1:1:2';
+    protected $description = 'Initialize the Legor admin account with Arakis planet at 1:1:2 (an ode to the original game)';
 
     /**
      * Execute the console command.
