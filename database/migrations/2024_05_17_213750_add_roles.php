@@ -91,7 +91,6 @@ return new class () extends Migration {
 
         if ($firstUser) {
             $adminRole = Role::where('name', 'admin')->first();
-            // @phpstan-ignore-next-line - DB query result object has id property
             $firstUserId = (int) $firstUser->id;
             $adminRoleId = (int) $adminRole->id;
 
@@ -140,7 +139,6 @@ return new class () extends Migration {
             ->first();
 
         if ($firstUser) {
-            // @phpstan-ignore-next-line - DB query result object has id property
             $firstUserId = (int) $firstUser->id;
             DB::table('model_has_roles')
                 ->where('model_id', $firstUserId)
